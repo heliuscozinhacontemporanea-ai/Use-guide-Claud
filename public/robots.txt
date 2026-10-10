@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /reset-password
+Disallow: /api/
+
+Sitemap: https://useguide.com.br/sitemap.xml

@@ -1,0 +1,621 @@
+{
+  "entities": {
+    "Review": {
+      "title": "Review",
+      "description": "A user review for a specific guide item or event.",
+      "type": "object",
+      "properties": {
+        "itemId": {
+          "type": "string"
+        },
+        "itemCollection": {
+          "type": "string",
+          "enum": ["items", "events"]
+        },
+        "userId": {
+          "type": "string"
+        },
+        "userName": {
+          "type": "string"
+        },
+        "userPhoto": {
+          "type": ["string", "null"]
+        },
+        "rating": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 5
+        },
+        "comment": {
+          "type": "string"
+        },
+        "partnerId": {
+          "type": ["string", "null"]
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "partnerResponse": {
+          "type": ["string", "null"]
+        },
+        "respondedAt": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        },
+        "responderId": {
+          "type": ["string", "null"]
+        }
+      },
+      "required": [
+        "itemId",
+        "itemCollection",
+        "userId",
+        "userName",
+        "rating",
+        "comment",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Expanded profile information for a user.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "firstName": { "type": "string" },
+        "lastName": { "type": "string" },
+        "displayName": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "role": {
+          "type": "string",
+          "enum": ["user", "partner"]
+        },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["firstName", "lastName", "phone", "email", "createdAt"]
+    },
+    "Event": {
+      "title": "Event",
+      "description": "An event managed via database for no-code implementation.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "coverImage": { "type": "string" },
+        "image": { "type": "string" },
+        "images": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "location": { "type": "object" },
+        "category": { "type": "string" },
+        "eventCategory": { "type": "string" },
+        "customCategory": { "type": "string" },
+        "visibility": { "type": "string", "enum": ["public", "unlisted", "private"] },
+        "status": { "type": "string", "enum": ["draft", "published", "paused", "archived"] },
+        "isActive": { "type": "boolean" },
+        "ownerId": { "type": "string", "description": "UID of the partner who owns this event." },
+        "partnerId": { "type": "string" },
+        "establishmentId": { "type": "string" },
+        "maxTicketsPerUserPerOccurrence": { "type": "integer", "minimum": 1, "maximum": 100 },
+        "refundPolicy": {
+          "type": "object",
+          "properties": {
+            "allowBuyerCancellation": { "type": "boolean" },
+            "buyerCancellationWindowHours": { "type": "integer" },
+            "allowTicketTransfer": { "type": "boolean" },
+            "ticketTransferCutoffHours": { "type": "integer" }
+          }
+        },
+        "ratingSummary": {
+          "type": "object",
+          "properties": {
+            "average": { "type": "number" },
+            "count": { "type": "integer" }
+          }
+        },
+        "pricingMode": { "type": "string", "enum": ["free", "paid"] },
+        "startingPriceMinor": { "type": "integer", "minimum": 0 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "description", "image", "location", "ownerId", "status"]
+    },
+    "GuideItem": {
+      "title": "Guide Item",
+      "description": "General item for the guide (Restaurant, Sight, Tour, Hotel, Tip).",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "category": {
+          "type": "string",
+          "enum": [
+            "restaurant",
+            "sight",
+            "tour",
+            "tips",
+            "hotel"
+          ]
+        },
+        "image": { "type": "string" },
+        "images": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "location": { "type": "string" },
+        "googleMapsType": { "type": "string" },
+        "mapLink": { "type": "string" },
+        "instagramLink": { "type": "string" },
+        "websiteLink": { "type": "string" },
+        "bookingLink": { "type": "string" },
+        "whatsappLink": { "type": "string" },
+        "googleMapsLink": { "type": "string" },
+        "address": { "type": "string" },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "operationalInfo": {
+          "type": "object"
+        },
+        "isActive": { "type": "boolean" },
+        "rating": { "type": "number" },
+        "reviewCount": { "type": "integer" },
+        "ownerId": { "type": "string", "description": "UID of the partner who owns this item." },
+        "partnerId": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "active", "rejected"] },
+        "isVerified": { "type": "boolean" },
+        "verifiedUntil": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        },
+        "verificationType": {
+          "type": ["string", "null"],
+          "enum": [
+            "trial",
+            "monthly",
+            "semi-annual",
+            "annual",
+            null
+          ]
+        },
+        "isVerificationSuspended": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "description", "category", "image", "location", "ownerId"]
+    },
+    "Partner": {
+      "title": "Partner",
+      "description": "Business partner profile information with decoupled user attributes.",
+      "type": "object",
+      "properties": {
+        "category": {
+          "type": "string",
+          "description": "The category of the partner (restaurant, hotel, sight, event, etc.)."
+        },
+        "businesses": {
+          "type": "array",
+          "description": "Array of assigned business objects containing businessId, name and type.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "businessId": { "type": "string" },
+              "businessName": { "type": "string" },
+              "type": { "type": "string", "enum": ["item", "event"] }
+            }
+          }
+        },
+        "hasUsedTrial": { "type": "boolean" },
+        "isVerified": { "type": "boolean" },
+        "verifiedUntil": { "type": "string", "format": "date-time" },
+        "isVerificationSuspended": { "type": "boolean" },
+        "verificationType": { "type": "string", "enum": ["trial", "monthly", "semi-annual", "annual"] },
+        "status": { "type": "string", "enum": ["active", "pending", "rejected", "suspended"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["businesses", "hasUsedTrial", "isVerified", "status", "createdAt"]
+    },
+    "Transaction": {
+      "title": "Transaction",
+      "description": "Historical record of payments processed on Ceará Coast guide.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "UID of the collector tourist buyer." },
+        "itemId": { "type": "string" },
+        "itemName": { "type": "string" },
+        "amount": { "type": "number" },
+        "paymentMethod": { "type": "string", "enum": ["credit_card", "pix"] },
+        "status": { "type": "string", "enum": ["approved", "pending", "rejected"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "paymentDetail": { "type": "object" }
+      },
+      "required": ["userId", "itemId", "itemName", "amount", "paymentMethod", "status", "createdAt"]
+    },
+    "SubscriptionPlan": {
+      "title": "Subscription Plan",
+      "description": "Subscription plans for partner verification seal.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "enum": ["trial", "monthly", "semi-annual", "annual"] },
+        "name": { "type": "string" },
+        "price": { "type": "number" },
+        "period": { "type": "string" },
+        "monthlyEquivalent": { "type": "number" },
+        "savingLabel": { "type": "string" },
+        "description": { "type": "string" },
+        "badge": { "type": "string" },
+        "isActive": { "type": "boolean" }
+      },
+      "required": ["id", "name", "price", "period", "description", "isActive"]
+    },
+    "Notification": {
+      "title": "Notification",
+      "description": "A notification sent to a partner.",
+      "type": "object",
+      "properties": {
+        "recipientPartnerId": { "type": "string" },
+        "type": { "type": "string", "enum": ["review", "admin_message", "plan_expiring"] },
+        "title": { "type": "string" },
+        "message": { "type": "string" },
+        "relatedItemId": {
+          "type": ["string", "null"]
+        },
+        "relatedItemCollection": {
+          "type": ["string", "null"],
+          "enum": ["items", "events", null]
+        },
+        "read": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "expiresAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["recipientPartnerId", "type", "title", "message", "read", "createdAt", "expiresAt"]
+    },
+    "PartnerNotificationSettings": {
+      "title": "Partner Notification Settings",
+      "description": "Settings for partner notifications.",
+      "type": "object",
+      "properties": {
+        "partnerId": { "type": "string" },
+        "reviewNotifications": { "type": "boolean" },
+        "planExpiringNotifications": { "type": "boolean" }
+      },
+      "required": ["partnerId", "reviewNotifications", "planExpiringNotifications"]
+    },
+    "Favorite": {
+      "title": "Favorite",
+      "description": "A favorite item or event saved by a user.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "The UID of the user who favorited the item." },
+        "itemId": { "type": "string", "description": "ID of the favorited item or event." },
+        "itemCollection": { "type": "string", "enum": ["items", "events"] },
+        "itemTypeLabel": { "type": "string" },
+        "partnerId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "itemDetails": { "type": "object" }
+      },
+      "required": ["userId", "itemId", "itemCollection", "createdAt"]
+    },
+    "Interaction": {
+      "title": "Interaction",
+      "description": "Telemetry event generated by the application.",
+      "type": "object",
+      "properties": {
+        "itemId": {
+          "type": "string"
+        },
+        "itemCollection": {
+          "type": "string",
+          "enum": ["items", "events"]
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "view",
+            "whatsapp_click",
+            "share",
+            "favorite"
+          ]
+        },
+        "userId": {
+          "type": ["string", "null"]
+        },
+        "partnerId": {
+          "type": ["string", "null"]
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "itemId",
+        "itemCollection",
+        "type",
+        "timestamp"
+      ]
+    },
+    "PartnerDocumentKey": {
+      "title": "PartnerDocumentKey",
+      "description": "Unique index of partner CPF/CNPJ documents. Document ID is normalizedDocument. Inaccessible to client.",
+      "type": "object",
+      "properties": {
+        "partnerId": {
+          "type": "string",
+          "description": "Partner ID associated with this document"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Creation timestamp"
+        }
+      },
+      "required": [
+        "partnerId",
+        "createdAt"
+      ]
+    },
+    "EventOccurrence": {
+      "title": "EventOccurrence",
+      "description": "Scheduled date/time session occurrence of an EventListing.",
+      "type": "object",
+      "properties": {
+        "eventListingId": { "type": "string" },
+        "startsAt": { "type": "string", "format": "date-time" },
+        "endsAt": { "type": "string", "format": "date-time" },
+        "status": {
+          "type": "string",
+          "enum": ["scheduled", "postponed", "canceled", "completed"]
+        },
+        "capacity": { "type": "integer", "minimum": 1 },
+        "salesStartsAt": { "type": "string", "format": "date-time" },
+        "salesEndsAt": { "type": "string", "format": "date-time" },
+        "cancellationReason": { "type": "string" },
+        "postponementReason": { "type": "string" },
+        "rescheduledToOccurrenceId": { "type": "string" },
+        "rescheduledFromOccurrenceId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["eventListingId", "startsAt", "endsAt", "status", "capacity", "createdAt", "updatedAt"]
+    },
+    "EventAuditLog": {
+      "title": "EventAuditLog",
+      "description": "Audit log for administrative or partner mutations on events and occurrences.",
+      "type": "object",
+      "properties": {
+        "actorId": { "type": "string" },
+        "actorType": { "type": "string", "enum": ["admin", "partner", "system"] },
+        "resourceType": {
+          "type": "string",
+          "enum": ["event", "occurrence", "ticketType", "order", "ticket", "refund"]
+        },
+        "resourceId": { "type": "string" },
+        "action": { "type": "string" },
+        "reason": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["actorId", "actorType", "resourceType", "resourceId", "action", "timestamp"]
+    },
+    "TicketType": {
+      "title": "TicketType",
+      "description": "Ticket batch/type for a specific EventOccurrence.",
+      "type": "object",
+      "properties": {
+        "occurrenceId": { "type": "string" },
+        "eventListingId": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "kind": { "type": "string", "enum": ["paid", "free", "courtesy", "half_entry"] },
+        "priceMinor": { "type": "integer", "minimum": 0 },
+        "currency": { "type": "string", "enum": ["BRL"] },
+        "quantity": { "type": "integer", "minimum": 1 },
+        "soldCount": { "type": "integer", "minimum": 0 },
+        "reservedCount": { "type": "integer", "minimum": 0 },
+        "minPerOrder": { "type": "integer", "minimum": 1 },
+        "maxPerOrder": { "type": "integer", "minimum": 1 },
+        "salesStartsAt": { "type": "string", "format": "date-time" },
+        "salesEndsAt": { "type": "string", "format": "date-time" },
+        "status": {
+          "type": "string",
+          "enum": ["draft", "on_sale", "paused", "sold_out", "ended", "archived"]
+        },
+        "visibility": { "type": "string", "enum": ["public", "hidden"] },
+        "requiresEligibilityProof": { "type": "boolean" },
+        "sortOrder": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "occurrenceId",
+        "eventListingId",
+        "name",
+        "kind",
+        "priceMinor",
+        "currency",
+        "quantity",
+        "soldCount",
+        "reservedCount",
+        "status",
+        "visibility",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "TicketOrder": {
+      "title": "TicketOrder",
+      "description": "Order for event tickets.",
+      "type": "object",
+      "properties": {
+        "buyerId": { "type": "string" },
+        "eventListingId": { "type": "string" },
+        "occurrenceId": { "type": "string" },
+        "status": {
+          "type": "string",
+          "enum": [
+            "draft",
+            "pending_payment",
+            "paid",
+            "payment_failed",
+            "expired",
+            "canceled",
+            "partially_refunded",
+            "refunded"
+          ]
+        },
+        "currency": { "type": "string", "enum": ["BRL"] },
+        "subtotalMinor": { "type": "integer", "minimum": 0 },
+        "discountMinor": { "type": "integer", "minimum": 0 },
+        "platformFeeMinor": { "type": "integer", "minimum": 0 },
+        "paymentFeeMinor": { "type": "integer", "minimum": 0 },
+        "totalMinor": { "type": "integer", "minimum": 0 },
+        "paymentId": { "type": "string" },
+        "idempotencyKey": { "type": "string" },
+        "expiresAt": { "type": "string", "format": "date-time" },
+        "paidAt": { "type": "string", "format": "date-time" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "buyerId",
+        "eventListingId",
+        "occurrenceId",
+        "status",
+        "currency",
+        "subtotalMinor",
+        "discountMinor",
+        "platformFeeMinor",
+        "totalMinor",
+        "idempotencyKey",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Ticket": {
+      "title": "Ticket",
+      "description": "Individual issued event ticket with QR code hash.",
+      "type": "object",
+      "properties": {
+        "orderId": { "type": "string" },
+        "eventListingId": { "type": "string" },
+        "occurrenceId": { "type": "string" },
+        "ticketTypeId": { "type": "string" },
+        "ownerUserId": { "type": "string" },
+        "holderName": { "type": "string" },
+        "holderEmail": { "type": "string" },
+        "qrTokenHash": { "type": "string" },
+        "status": {
+          "type": "string",
+          "enum": [
+            "reserved",
+            "issued",
+            "checked_in",
+            "transferred",
+            "refund_pending",
+            "refunded",
+            "canceled",
+            "void"
+          ]
+        },
+        "issuedAt": { "type": "string", "format": "date-time" },
+        "checkedInAt": { "type": "string", "format": "date-time" },
+        "checkedInBy": { "type": "string" }
+      },
+      "required": [
+        "orderId",
+        "eventListingId",
+        "occurrenceId",
+        "ticketTypeId",
+        "ownerUserId",
+        "holderName",
+        "holderEmail",
+        "qrTokenHash",
+        "status",
+        "issuedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/ticketTypes/{ticketTypeId}": {
+      "schema": "TicketType",
+      "description": "Ticket types and batches per occurrence."
+    },
+    "/ticketOrders/{orderId}": {
+      "schema": "TicketOrder",
+      "description": "Ticket orders placed by buyers."
+    },
+    "/tickets/{ticketId}": {
+      "schema": "Ticket",
+      "description": "Issued event tickets."
+    },
+    "/eventOccurrences/{occurrenceId}": {
+      "schema": "EventOccurrence",
+      "description": "Scheduled occurrences for event listings."
+    },
+    "/eventAuditLogs/{logId}": {
+      "schema": "EventAuditLog",
+      "description": "Audit logs for event mutations."
+    },
+    "/partnerDocumentKeys/{documentId}": {
+      "schema": "PartnerDocumentKey",
+      "description": "Unique index document for partner CPF/CNPJ. Inaccessible to client."
+    },
+    "/favorites/{favoriteId}": {
+      "schema": "Favorite",
+      "description": "User saved favorites."
+    },
+    "/notifications/{notificationId}": {
+      "schema": "Notification",
+      "description": "Notifications collection."
+    },
+    "/partnerNotificationSettings/{partnerId}": {
+      "schema": "PartnerNotificationSettings",
+      "description": "Notification settings per partner."
+    },
+    "/reviews/{reviewId}": {
+      "schema": "Review",
+      "description": "Collection of all reviews."
+    },
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profiles."
+    },
+    "/events/{eventId}": {
+      "schema": "Event",
+      "description": "Collection of event cards."
+    },
+    "/items/{itemId}": {
+      "schema": "GuideItem",
+      "description": "General items for the tourist guide."
+    },
+    "/partners/{userId}": {
+      "schema": "Partner",
+      "description": "Partner profiles linked to their business items."
+    },
+    "/transactions/{transactionId}": {
+      "schema": "Transaction",
+      "description": "Completed or pending merchant transactions made on the platform."
+    },
+    "/subscriptionPlans/{planId}": {
+      "schema": "SubscriptionPlan",
+      "description": "Subscription plans for partners verification."
+    },
+    "/interactions/{interactionId}": {
+      "schema": "Interaction",
+      "description": "Analytics interaction events."
+    }
+  }
+}

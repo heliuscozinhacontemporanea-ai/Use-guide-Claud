@@ -1,0 +1,6 @@
+{
+  "name": "Use Guide",
+  "description": "A luxury travel guide for Jericoacoara, Preá, and Barrinha de Baixo with a stunning Glassmorphism aesthetic.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

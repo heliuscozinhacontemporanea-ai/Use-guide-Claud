@@ -1,0 +1,135 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    function isAdmin() {
+      return isAuthenticated()
+        && request.auth.token.admin == true;
+    }
+    function isOwner(userId) {
+      return isAuthenticated()
+        && request.auth.uid == userId;
+    }
+    match /items/{itemId} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /events/{eventId} {
+      allow read: if
+        resource.data.status == 'published' &&
+        resource.data.visibility == 'public';
+      allow write: if false;
+    }
+    match /eventOccurrences/{occurrenceId} {
+      allow read, write: if false;
+    }
+    match /ticketTypes/{ticketTypeId} {
+      allow read, write: if false;
+    }
+    match /eventAuditLogs/{logId} {
+      allow read: if isAdmin();
+      allow create, update, delete: if false;
+    }
+    match /ticketOrders/{orderId} {
+      allow read, write: if false;
+    }
+    match /ticketOrderItems/{itemId} {
+      allow read, write: if false;
+    }
+    match /tickets/{ticketId} {
+      allow read, write: if false;
+    }
+    match /inventoryReservations/{reservationId} {
+      allow read, write: if false;
+    }
+    match /eventCheckIns/{checkInId} {
+      allow read, write: if false;
+    }
+    match /ticketRefunds/{refundId} {
+      allow read, write: if false;
+    }
+    match /ticketTransfers/{transferId} {
+      allow read, write: if false;
+    }
+    match /eventPromoCodes/{promoCodeId} {
+      allow read, write: if false;
+    }
+    match /eventWaitlistEntries/{entryId} {
+      allow read, write: if false;
+    }
+    match /paymentConnectedAccounts/{partnerId} {
+      allow read, write: if false;
+    }
+    match /stripeWebhookEvents/{eventId} {
+      allow read, write: if false;
+    }
+    match /offlineCheckInSessions/{sessionId} {
+      allow read, write: if false;
+    }
+    match /subscriptionPlans/{planId} {
+      allow read: if true;
+      allow create, update, delete: if false;
+    }
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /partners/{partnerId} {
+      allow read:
+        if isAuthenticated() &&
+        (
+          request.auth.uid == partnerId ||
+          isAdmin()
+        );
+      allow create, update, delete: if false;
+    }
+    match /partnerDocumentKeys/{documentId} {
+      allow read, write: if false;
+    }
+    match /publicPartners/{partnerId} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create, update, delete: if false;
+    }
+    match /publicProfiles/{userId} {
+      allow read: if true;
+      allow create, update, delete: if false;
+    }
+    match /favorites/{favoriteId} {
+      allow read:
+        if isAuthenticated()
+        && resource.data.userId == request.auth.uid;
+      allow create, update, delete: if false;
+    }
+    match /notifications/{notificationId} {
+      allow read:
+        if isAuthenticated()
+        && resource.data.recipientPartnerId ==
+           request.auth.uid;
+      allow create, update, delete: if false;
+    }
+    match /partnerNotificationSettings/{partnerId} {
+      allow read: if isOwner(partnerId);
+      allow create, update, delete: if false;
+    }
+    match /transactions/{transactionId} {
+      allow read, write: if false;
+    }
+    match /paymentTransactions/{transactionId} {
+      allow read, write: if false;
+    }
+    match /interactions/{interactionId} {
+      allow read:
+        if isAdmin();
+      allow create, update, delete: if false;
+    }
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

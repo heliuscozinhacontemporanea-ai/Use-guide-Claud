@@ -1,0 +1,126 @@
+export interface PartnerOperationalInfo {
+  tags?: string[];
+  cuisineType?: string;
+  subcategory?: string;
+  amenities?: string[] | string;
+  additionalServices?: string[] | string;
+  mealTypes?: string[] | string;
+  activities?: string[] | string;
+  services?: string[] | string;
+  languages?: string[] | string;
+  menuLink?: string;
+  access?: string;
+  price?: string;
+
+  breakfast?: {
+    serves?: boolean;
+    types?: string[];
+    included?: boolean;
+    price?: string;
+  };
+
+  checkIn?: {
+    from: string;
+    to: string;
+  };
+
+  checkOut?: {
+    from: string;
+    to: string;
+  };
+
+  childrenAllowed?: boolean;
+  petsPolicy?: string;
+  petsExtraCost?: string;
+
+  operatingHours?: Record<
+    string,
+    {
+      open: string;
+      close: string;
+      closed: boolean;
+    }
+  >;
+}
+
+export type PartnerContentCategory = 'restaurant' | 'sight' | 'tour' | 'tips' | 'hotel' | 'event';
+export type EventEntryType = 'pago' | 'gratuito';
+
+export type PartnerContentEditorState = Omit<PartnerContentRecord, 'category'> & {
+  category: PartnerContentCategory | '';
+};
+
+export interface PartnerContentRecord {
+  id: string;
+  contentType?: 'item' | 'event';
+  name: string;
+  description: string;
+  category: PartnerContentCategory;
+  image: string;
+  images?: string[];
+  location: string;
+  googleMapsType?: string;
+  mapLink?: string;
+  instagramLink?: string;
+  websiteLink?: string;
+  bookingLink?: string;
+  whatsappLink?: string;
+  googleMapsLink?: string;
+  address?: string;
+  tags?: string[];
+  ownerId?: string;
+  partnerId?: string;
+  establishmentId?: string;
+  isVerified?: boolean;
+  verifiedUntil?: string | null;
+  isVerificationSuspended?: boolean;
+  verificationType?: 'trial' | 'monthly' | 'semi-annual' | 'annual' | null;
+  operationalInfo?: PartnerOperationalInfo;
+  isActive?: boolean;
+  date?: string;
+  endDate?: string;
+  eventCategory?: string;
+  customCategory?: string;
+  entryType?: EventEntryType;
+}
+
+export interface PartnerContentItemInput {
+  name: string;
+  description: string;
+  category: 'sight' | 'hotel' | 'restaurant';
+  image: string;
+  images: string[];
+  location: string;
+  instagramLink?: string;
+  websiteLink?: string;
+  bookingLink?: string;
+  whatsappLink?: string;
+  googleMapsLink?: string;
+  address?: string;
+  tags?: string[];
+  operationalInfo?: Record<string, unknown>;
+  isActive?: boolean;
+}
+
+export interface PartnerContentEventInput {
+  name: string;
+  description: string;
+  image: string;
+  images: string[];
+  location: string;
+  date: string;
+  endDate: string;
+  eventCategory: string;
+  customCategory?: string;
+  entryType?: EventEntryType;
+  establishmentId?: string;
+  instagramLink?: string;
+  websiteLink?: string;
+  bookingLink?: string;
+  whatsappLink?: string;
+  googleMapsLink?: string;
+  address?: string;
+  tags?: string[];
+  operationalInfo?: Record<string, unknown>;
+  isActive?: boolean;
+}
