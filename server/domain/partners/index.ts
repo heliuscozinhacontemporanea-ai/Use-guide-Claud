@@ -4,7 +4,6 @@ export { getAllPartnersUseCase } from './usecases/getAllPartnersUseCase';
 export { getAllPartnerIdsUseCase } from './usecases/getAllPartnerIdsUseCase';
 export { updatePartnerVerificationProfileUseCase } from './usecases/updatePartnerVerificationProfileUseCase';
 export { updatePartnerStatusUseCase } from './usecases/updatePartnerStatusUseCase';
-export { updatePartnerPlanFromPaymentUseCase } from './usecases/updatePartnerPlanFromPaymentUseCase';
 export { activatePartnerTrialUseCase } from './usecases/activatePartnerTrialUseCase';
 export { restorePartnerTrialStateUseCase } from './usecases/restorePartnerTrialStateUseCase';
 export { linkBusinessUseCase } from './usecases/linkBusinessUseCase';

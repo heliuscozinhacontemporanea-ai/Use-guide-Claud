@@ -38,11 +38,7 @@ import {
   type TicketType,
   type VerifiedAttendanceForReview,
 } from '../types/ticketingTypes';
-import {
-  generateOpaqueTicketQrToken,
-  hashTicketQrToken,
-  hashTicketQrTokenLegacySha256,
-} from '../utils/qrToken';
+import { generateOpaqueTicketQrToken, listTicketQrTokenLookupHashes } from '../utils/qrToken';
 
 export interface TicketingActorContext {
   uid: string;
@@ -1287,11 +1283,10 @@ export class TicketingService {
         }
         targetTicketId = ticket.id;
       } else {
-        const hmacHash = hashTicketQrToken(rawToken);
-        let ticket = await this.port.getTicketByQrTokenHash(hmacHash);
-        if (!ticket) {
-          const legacyHash = hashTicketQrTokenLegacySha256(rawToken);
-          ticket = await this.port.getTicketByQrTokenHash(legacyHash);
+        let ticket: Awaited<ReturnType<TicketingPort['getTicketByQrTokenHash']>> = null;
+        for (const candidateHash of listTicketQrTokenLookupHashes(rawToken)) {
+          ticket = await this.port.getTicketByQrTokenHash(candidateHash);
+          if (ticket) break;
         }
         if (!ticket) {
           throw new TicketingDomainError(

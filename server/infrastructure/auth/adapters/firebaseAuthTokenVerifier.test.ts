@@ -4,10 +4,10 @@ const { mockVerifyIdToken } = vi.hoisted(() => ({
   mockVerifyIdToken: vi.fn(),
 }));
 
-vi.mock('firebase-admin/auth', () => ({
-  getAuth: () => ({
+vi.mock('../../firebase/adminClient', () => ({
+  adminAuth: {
     verifyIdToken: mockVerifyIdToken,
-  }),
+  },
 }));
 
 describe('FirebaseAuthTokenVerifier', () => {

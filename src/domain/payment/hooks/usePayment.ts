@@ -3,14 +3,14 @@ import {
   confirmPlanPaymentReturnUseCase,
   createPlanPaymentIntentUseCase,
 } from '../application/usecases/paymentUseCases';
+import type { PaidPlanId } from '../types/payment';
 
 interface UsePaymentProps {
-  itemId: string;
-  billingCycle?: 'monthly' | 'quarterly' | 'semiannual';
+  planId: PaidPlanId;
   onSuccess?: (paymentId: string) => void;
 }
 
-export function usePayment({ itemId, billingCycle = 'monthly', onSuccess }: UsePaymentProps) {
+export function usePayment({ planId, onSuccess }: UsePaymentProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
@@ -21,13 +21,12 @@ export function usePayment({ itemId, billingCycle = 'monthly', onSuccess }: UseP
   const idempotencyKeyRef = useRef<string>(crypto.randomUUID());
 
   const initializePlanPayment = useCallback(async () => {
-    if (!itemId) return;
+    if (!planId) return;
     setLoading(true);
     setError(null);
     try {
       const response = await createPlanPaymentIntentUseCase({
-        itemId,
-        billingCycle,
+        planId,
         idempotencyKey: idempotencyKeyRef.current,
       });
       setClientSecret(response.clientSecret);
@@ -44,7 +43,7 @@ export function usePayment({ itemId, billingCycle = 'monthly', onSuccess }: UseP
     } finally {
       setLoading(false);
     }
-  }, [itemId, billingCycle, onSuccess]);
+  }, [planId, onSuccess]);
 
   const confirmPaymentOnBackend = useCallback(
     async (resolvedPaymentIntentId?: string) => {

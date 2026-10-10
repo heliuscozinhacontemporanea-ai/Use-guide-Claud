@@ -7,6 +7,11 @@
 | B3 | `guide/*` (`guide/ports/userContextResolverPort.ts`, `services/guideService.ts`, `usecases/{create,update,delete}GuideItemUseCase.ts`) → `application/security` (type) | §3.4 | baixo | `server/shared/kernel` |
 | B4 | `notifications/services/notificationService.ts` → `partners` | §5.4 (notifications folha) | médio — cria cadeia reviews→notifications→partners→ticketing | receber `recipientPartnerId` já resolvido por parâmetro/Application UseCase |
 | B5 | `reviews/adapters/firestoreReviewAdapter.ts` → guide/events/users | §3.1 (adapter de persistência com lógica cross-domain) | médio | separar `ReviewTargetPort` + adapter ACL dedicado |
-| B6 | `scripts/backfillPartnerDocumentKeys.ts` → `partners/services/backfillPartnerDocumentKeys.ts` | §5.2 | baixo | expor `backfillPartnerDocumentKeysUseCase` |
-| B7 | Factories instanciam adapters na importação; `adminClient.ts` lança erro na importação se `FIRESTORE_DATABASE_ID`/`FIREBASE_STORAGE_BUCKET` faltarem | §2.2.4, §5.7 | **alto** — qualquer import derruba o boot no AI Studio sem env | lazy getters |
-| B8 | `payment/controllers/paymentController.ts` + `handleStripeWebhookOrchestrationApplicationUseCase` duplicam a idempotência do webhook | §8.6 | **crítico** — ver auditoria, bug P0-1 | um único handler com idempotência em duas fases |
+
+## Resolvidos
+
+| ID | Resolução |
+|---|---|
+| B6 | Script `backfillPartnerDocumentKeys` removido (prompt 4.1): migração de transição desnecessária antes do lançamento |
+| B7 | Inicialização preguiçosa do Firebase Admin (prompt 4) |
+| B8 | Webhook com idempotência em duas fases e remoção do handler duplicado (prompt 2) |

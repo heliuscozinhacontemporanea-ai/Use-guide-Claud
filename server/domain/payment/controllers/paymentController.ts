@@ -3,7 +3,7 @@ import type { Request, Response } from 'express';
 import { getPlanForPaymentApplicationUseCase } from '../../../application/usecases/getPlanForPaymentApplicationUseCase';
 import { reconcileStripeWebhookEventApplicationUseCase } from '../../../application/usecases/ticketingPaymentOrchestrationUseCases';
 import type { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
-import { CreatePlanPaymentIntentSchema } from '../schemas/paymentSchema';
+import { ConfirmPlanPaymentSchema, CreatePlanPaymentIntentSchema } from '../schemas/paymentSchema';
 import { PaymentDomainError } from '../services/stripePaymentService';
 import {
   createPartnerConnectAccountSessionUseCase,
@@ -16,6 +16,7 @@ import {
   constructStripeWebhookEventUseCase,
   createPlanPaymentIntentUseCase,
   releaseStripeWebhookEventUseCase,
+  retrievePaymentIntentUseCase,
 } from '../usecases/paymentUseCases';
 
 export class PaymentController {
@@ -174,6 +175,50 @@ export class PaymentController {
         error:
           'Não foi possível consultar a configuração financeira no momento.',
       });
+    }
+  }
+
+  static async confirmPlanPayment(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    if (!req.user?.uid) {
+      return res
+        .status(401)
+        .json({ error: { code: 'UNAUTHENTICATED', message: 'Não autenticado.' } });
+    }
+    const parsed = ConfirmPlanPaymentSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res
+        .status(400)
+        .json({ error: { code: 'VALIDATION_ERROR', message: 'Dados inválidos.' } });
+    }
+    try {
+      const intent = await retrievePaymentIntentUseCase(parsed.data.paymentIntentId);
+      if (
+        intent.metadata?.partnerId !== req.user.uid ||
+        intent.metadata?.referenceType !== 'plan_payment'
+      ) {
+        return res
+          .status(404)
+          .json({ error: { code: 'NOT_FOUND', message: 'Pagamento não encontrado.' } });
+      }
+      // Só informa o status: quem ativa o plano é o webhook (AGENTS.md §8.4).
+      const status =
+        intent.status === 'succeeded'
+          ? 'succeeded'
+          : intent.status === 'processing'
+            ? 'processing'
+            : intent.status === 'canceled'
+              ? 'canceled'
+              : intent.status === 'requires_payment_method'
+                ? 'failed'
+                : 'pending';
+      return res.status(200).json({ status });
+    } catch (error: unknown) {
+      console.error('[PaymentController.confirmPlanPayment]', {
+        message: error instanceof Error ? error.message : 'Erro desconhecido',
+      });
+      return res
+        .status(503)
+        .json({ error: { code: 'PAYMENT_PROVIDER_UNAVAILABLE', message: 'Tente novamente.' } });
     }
   }
 

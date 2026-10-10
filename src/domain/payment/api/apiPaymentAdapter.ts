@@ -11,7 +11,7 @@ export class ApiPaymentAdapter implements PaymentApiPort {
     payload: CreatePlanPaymentIntentPayload
   ): Promise<CreatePaymentIntentResponse> {
     const response = await firebaseApiFetch(
-      '/api/payment/plan-intent',
+      '/api/payment/plans/intents',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -21,7 +21,7 @@ export class ApiPaymentAdapter implements PaymentApiPort {
     );
     const data = await response.json().catch(() => ({}));
     if (!response.ok) {
-      throw new Error(data.error || 'Erro ao iniciar pagamento do plano.');
+      throw new Error(data.error?.message ?? data.error ?? 'Erro ao iniciar pagamento do plano.');
     }
     return data;
   }
@@ -30,7 +30,7 @@ export class ApiPaymentAdapter implements PaymentApiPort {
     paymentIntentId: string;
   }): Promise<{ status: string }> {
     const response = await firebaseApiFetch(
-      '/api/payment/plan-intent/confirm',
+      '/api/payment/plans/intents/confirm',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -40,7 +40,7 @@ export class ApiPaymentAdapter implements PaymentApiPort {
     );
     const data = await response.json().catch(() => ({}));
     if (!response.ok) {
-      throw new Error(data.error || 'Não foi possível verificar o pagamento.');
+      throw new Error(data.error?.message ?? data.error ?? 'Não foi possível verificar o pagamento.');
     }
     return data;
   }
@@ -53,7 +53,7 @@ export class ApiPaymentAdapter implements PaymentApiPort {
     );
     const data = await response.json().catch(() => ({}));
     if (!response.ok) {
-      throw new Error(data.error || 'Não foi possível carregar o status financeiro.');
+      throw new Error(data.error?.message ?? data.error ?? 'Não foi possível carregar o status financeiro.');
     }
     return data;
   }
@@ -70,7 +70,7 @@ export class ApiPaymentAdapter implements PaymentApiPort {
     );
     const data = await response.json().catch(() => ({}));
     if (!response.ok) {
-      throw new Error(data.error || 'Não foi possível criar a conta conectada.');
+      throw new Error(data.error?.message ?? data.error ?? 'Não foi possível criar a conta conectada.');
     }
     return data;
   }
@@ -87,7 +87,7 @@ export class ApiPaymentAdapter implements PaymentApiPort {
     );
     const data = await response.json().catch(() => ({}));
     if (!response.ok || !data.clientSecret) {
-      throw new Error(data.error || 'Não foi possível iniciar a sessão financeira.');
+      throw new Error(data.error?.message ?? data.error ?? 'Não foi possível iniciar a sessão financeira.');
     }
     return { clientSecret: data.clientSecret };
   }

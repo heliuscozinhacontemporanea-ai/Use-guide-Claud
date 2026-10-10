@@ -218,7 +218,9 @@ export function PartnerEventTicketingManager({
       }
       if (videoRef.current?.srcObject) {
         const stream = videoRef.current.srcObject as MediaStream;
-        stream.getTracks().forEach((t) => t.stop());
+        stream.getTracks().forEach((t) => {
+          t.stop();
+        });
       }
     };
   }, []);
@@ -316,7 +318,9 @@ export function PartnerEventTicketingManager({
     if (cameraActive) {
       if (scanTimerRef.current) window.clearInterval(scanTimerRef.current);
       if (videoRef.current?.srcObject) {
-        (videoRef.current.srcObject as MediaStream).getTracks().forEach((t) => t.stop());
+        (videoRef.current.srcObject as MediaStream).getTracks().forEach((t) => {
+          t.stop();
+        });
       }
       setCameraActive(false);
       return;
@@ -351,7 +355,9 @@ export function PartnerEventTicketingManager({
             if (codes.length > 0 && codes[0]?.rawValue) {
               const detected = codes[0].rawValue;
               if (scanTimerRef.current) window.clearInterval(scanTimerRef.current);
-              stream.getTracks().forEach((t) => t.stop());
+              stream.getTracks().forEach((t) => {
+                t.stop();
+              });
               setCameraActive(false);
               await executeTokenOrIdValidation(detected);
             }

@@ -2,7 +2,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('../../domain/events', () => ({ getEventListingByIdUseCase: vi.fn() }));
 vi.mock('../../domain/notifications', () => ({ createNotificationUseCase: vi.fn() }));
-vi.mock('../../domain/partners', () => ({ updatePartnerPlanFromPaymentUseCase: vi.fn() }));
+vi.mock('./activatePaidPlanApplicationUseCase', () => ({
+  activatePaidPlanApplicationUseCase: vi.fn(),
+}));
 vi.mock('../../domain/payment', () => ({
   createPaymentForTicketOrderUseCase: vi.fn(),
   PaymentDomainError: class extends Error {},

@@ -1,6 +1,5 @@
 import { getEventListingByIdUseCase } from '../../domain/events';
 import { createNotificationUseCase } from '../../domain/notifications';
-import { updatePartnerPlanFromPaymentUseCase } from '../../domain/partners';
 import {
   createPaymentForTicketOrderUseCase,
   PaymentDomainError,
@@ -22,6 +21,7 @@ import {
   type Ticket,
   type TicketOrder,
 } from '../../domain/ticketing';
+import { activatePaidPlanApplicationUseCase } from './activatePaidPlanApplicationUseCase';
 
 export interface OrchestrationActor {
   uid: string;
@@ -212,18 +212,14 @@ export async function reconcileStripeWebhookEventApplicationUseCase(
         }).catch(() => undefined);
       }
     } else if (
-      (metadata.type === 'plan_subscription' ||
-        metadata.referenceType === 'plan_payment') &&
-      (metadata.partnerId || metadata.buyerId) &&
-      (metadata.planId || metadata.referenceId)
+      metadata.referenceType === 'plan_payment' &&
+      metadata.partnerId &&
+      metadata.planId
     ) {
-      await updatePartnerPlanFromPaymentUseCase({
-        partnerId: metadata.partnerId || metadata.buyerId || '',
-        planId: metadata.planId || metadata.referenceId || '',
-        billingCycle:
-          (metadata.billingCycle as 'monthly' | 'quarterly' | 'semiannual') ||
-          'monthly',
-        paymentId: paymentIntentId,
+      await activatePaidPlanApplicationUseCase({
+        partnerId: metadata.partnerId,
+        planId: metadata.planId,
+        paymentReference: paymentIntentId,
       });
     }
 

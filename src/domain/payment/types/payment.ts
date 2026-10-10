@@ -7,9 +7,10 @@ export type PaymentStatus =
   | 'refunded'
   | 'disputed';
 
+export type PaidPlanId = 'monthly' | 'semi-annual' | 'annual';
+
 export interface CreatePlanPaymentIntentPayload {
-  itemId: string;
-  billingCycle?: 'monthly' | 'quarterly' | 'semiannual';
+  planId: PaidPlanId;
   idempotencyKey: string;
 }
 

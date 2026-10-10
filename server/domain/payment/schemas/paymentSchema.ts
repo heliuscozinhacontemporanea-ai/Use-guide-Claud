@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const CreatePlanPaymentIntentSchema = z
   .object({
-    planId: z.string().trim().min(1, 'planId é obrigatório'),
+    planId: z.enum(['monthly', 'semi-annual', 'annual']),
     idempotencyKey: z
       .string()
       .trim()
@@ -14,6 +14,10 @@ export const CreatePlanPaymentIntentSchema = z
 export type CreatePlanPaymentIntentDTO = z.infer<
   typeof CreatePlanPaymentIntentSchema
 >;
+
+export const ConfirmPlanPaymentSchema = z
+  .object({ paymentIntentId: z.string().trim().regex(/^pi_[A-Za-z0-9]+$/) })
+  .strict();
 
 export const CreateTicketPaymentIntentSchema = z
   .object({

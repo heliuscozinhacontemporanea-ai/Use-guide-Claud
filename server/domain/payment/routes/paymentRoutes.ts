@@ -9,11 +9,7 @@ router.post(
   verifyAuthToken,
   PaymentController.createPlanPaymentIntent
 );
-router.post(
-  '/process',
-  verifyAuthToken,
-  PaymentController.createPlanPaymentIntent
-);
+router.post('/plans/intents/confirm', verifyAuthToken, PaymentController.confirmPlanPayment);
 router.post(
   '/connect/account',
   verifyAuthToken,

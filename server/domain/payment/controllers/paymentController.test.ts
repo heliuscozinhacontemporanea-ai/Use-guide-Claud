@@ -9,6 +9,7 @@ import {
   constructStripeWebhookEventUseCase,
   createPlanPaymentIntentUseCase,
   releaseStripeWebhookEventUseCase,
+  retrievePaymentIntentUseCase,
 } from '../usecases/paymentUseCases';
 import { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
 
@@ -79,13 +80,13 @@ describe('PaymentController', () => {
         authTime: 1700000000,
       },
       body: {
-        planId: 'plan-pro',
+        planId: 'monthly',
         idempotencyKey: 'unique-key-12345',
       },
     };
 
     vi.mocked(getPlanForPaymentApplicationUseCase).mockResolvedValueOnce({
-      id: 'plan-pro',
+      id: 'monthly',
       name: 'Plano Profissional',
       price: 99.0,
       isActive: true,
@@ -102,7 +103,7 @@ describe('PaymentController', () => {
     expect(createPlanPaymentIntentUseCase).toHaveBeenCalledWith(
       expect.objectContaining({
         buyerId: 'user-123',
-        planId: 'plan-pro',
+        planId: 'monthly',
         planName: 'Plano Profissional',
         amountMinor: 9900,
         idempotencyKey: 'unique-key-12345',
@@ -209,6 +210,54 @@ describe('PaymentController', () => {
       expect(res.status).toHaveBeenCalledWith(409);
       expect(res.json).toHaveBeenCalledWith({ received: false, inProgress: true });
       expect(reconcileStripeWebhookEventApplicationUseCase).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('confirmPlanPayment', () => {
+    const user = {
+      uid: 'partner-1',
+      email: 'p@example.com',
+      admin: false,
+      emailVerified: true,
+      authTime: 1700000000,
+    };
+
+    it('responde 404 para PaymentIntent de outro parceiro', async () => {
+      vi.mocked(retrievePaymentIntentUseCase).mockResolvedValueOnce({
+        id: 'pi_abc',
+        status: 'succeeded',
+        amountMinor: 9900,
+        metadata: { partnerId: 'outro', referenceType: 'plan_payment' },
+      } as any);
+      await PaymentController.confirmPlanPayment(
+        { user, body: { paymentIntentId: 'pi_abc' } } as AuthenticatedRequest,
+        res
+      );
+      expect(res.status).toHaveBeenCalledWith(404);
+    });
+
+    it('informa succeeded sem ativar o plano (o webhook ativa)', async () => {
+      vi.mocked(retrievePaymentIntentUseCase).mockResolvedValueOnce({
+        id: 'pi_abc',
+        status: 'succeeded',
+        amountMinor: 9900,
+        metadata: { partnerId: 'partner-1', referenceType: 'plan_payment' },
+      } as any);
+      await PaymentController.confirmPlanPayment(
+        { user, body: { paymentIntentId: 'pi_abc' } } as AuthenticatedRequest,
+        res
+      );
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({ status: 'succeeded' });
+    });
+
+    it('rejeita paymentIntentId inválido com 400', async () => {
+      await PaymentController.confirmPlanPayment(
+        { user, body: { paymentIntentId: 'abc' } } as AuthenticatedRequest,
+        res
+      );
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(retrievePaymentIntentUseCase).not.toHaveBeenCalled();
     });
   });
 });

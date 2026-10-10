@@ -4,26 +4,25 @@ import { AlertCircle, Clock, Lock, RefreshCw, ShieldCheck, X } from 'lucide-reac
 import { Z_INDEX } from '../../../shared/constants/zIndex';
 import { GlassCard } from '../../../ui/components/GlassCard';
 import { usePayment } from '../hooks/usePayment';
+import type { PaidPlanId } from '../types/payment';
 import { StripePaymentElement } from './StripePaymentElement';
 import { SuccessPaymentGlass } from './subcomponents/SuccessPaymentGlass';
 
 interface CheckoutModalProps {
   isOpen: boolean;
   onClose: () => void;
-  itemId: string;
+  planId: PaidPlanId;
   itemName: string;
   amount: number;
-  billingCycle?: 'monthly' | 'quarterly' | 'semiannual';
   onPaymentSuccess?: (paymentId: string) => void;
 }
 
 export function CheckoutModal({
   isOpen,
   onClose,
-  itemId,
+  planId,
   itemName,
   amount,
-  billingCycle = 'monthly',
   onPaymentSuccess,
 }: CheckoutModalProps) {
   const {
@@ -37,16 +36,15 @@ export function CheckoutModal({
     confirmPaymentOnBackend,
     resetAttempt,
   } = usePayment({
-    itemId,
-    billingCycle,
+    planId,
     onSuccess: onPaymentSuccess,
   });
 
   useEffect(() => {
-    if (isOpen && itemId && status === 'idle') {
+    if (isOpen && planId && status === 'idle') {
       initializePlanPayment();
     }
-  }, [isOpen, itemId, status, initializePlanPayment]);
+  }, [isOpen, planId, status, initializePlanPayment]);
 
   if (!isOpen) return null;
 

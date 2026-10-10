@@ -139,6 +139,16 @@ export default defineConfig(() => {
       globals: true,
       environment: 'jsdom',
       setupFiles: './src/test/setup.ts',
+      // Valores fictícios só para os testes carregarem a config do Firebase Web sem rede.
+      env: {
+        VITE_FIREBASE_API_KEY: 'test-api-key',
+        VITE_FIREBASE_AUTH_DOMAIN: 'test.firebaseapp.com',
+        VITE_FIREBASE_PROJECT_ID: 'test-project',
+        VITE_FIREBASE_STORAGE_BUCKET: 'test-project.appspot.com',
+        VITE_FIREBASE_MESSAGING_SENDER_ID: '000000000000',
+        VITE_FIREBASE_APP_ID: '1:000000000000:web:test',
+        VITE_FIREBASE_FIRESTORE_DATABASE_ID: '(default)',
+      },
       include: [
         'src/**/*.test.{ts,tsx}',
         'server/**/*.test.{ts,tsx}',

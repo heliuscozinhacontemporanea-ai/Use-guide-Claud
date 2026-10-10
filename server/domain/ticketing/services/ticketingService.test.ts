@@ -51,6 +51,7 @@ describe('TicketingService', () => {
   let service: TicketingService;
 
   beforeEach(() => {
+    vi.stubEnv('TICKET_QR_SECRET', 'test-ticket-qr-secret-with-32-chars!');
     vi.clearAllMocks();
 
     vi.mocked(getEventOccurrenceByIdUseCase).mockResolvedValue({

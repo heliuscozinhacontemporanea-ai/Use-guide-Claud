@@ -264,8 +264,7 @@ export class FirebaseAdminTransactionAdapter implements TransactionRepositoryPor
       const snap = await tx.get(docRef);
       const now = Date.now();
       const data = (snap.exists ? snap.data() : undefined) ?? {};
-      // Documentos sem `status` foram gravados pela versão antiga, que só gravava após processar.
-      if (snap.exists && (data.status === 'processed' || data.status === undefined)) {
+      if (data.status === 'processed') {
         return 'already_processed';
       }
       if (

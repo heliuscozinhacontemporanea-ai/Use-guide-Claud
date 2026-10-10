@@ -6,7 +6,7 @@ import { getActiveSubscriptionPlansUseCase } from '../../domain/admin';
 import { UserRole } from '../../domain/auth/types/auth';
 import { useAuthContext } from '../../domain/auth/context/AuthContext';
 import { ReportsView } from '../../domain/insights';
-import { CheckoutModal } from '../../domain/payment/components/CheckoutModal';
+import { CheckoutModal, isPaidPlanId } from '../../domain/payment';
 import { NotificationBell } from '../../domain/notifications';
 import { PartnerEventTicketingManager } from '../../domain/ticketing';
 import { ErrorState } from '../../ui/components/ErrorState';
@@ -109,16 +109,18 @@ export function PartnerPortalComposition() {
         <ReportsView partnerId={partnerId} items={items} events={events} />
       )}
       renderNotificationBell={(partnerId) => <NotificationBell partnerId={partnerId} />}
-      renderCheckoutModal={({ isOpen, onClose, itemId, itemName, amount, onPaymentSuccess }) => (
-        <CheckoutModal
-          isOpen={isOpen}
-          onClose={onClose}
-          itemId={itemId}
-          itemName={itemName}
-          amount={amount}
-          onPaymentSuccess={onPaymentSuccess}
-        />
-      )}
+      renderCheckoutModal={({ isOpen, onClose, itemId, itemName, amount, onPaymentSuccess }) =>
+        isPaidPlanId(itemId) ? (
+          <CheckoutModal
+            isOpen={isOpen}
+            onClose={onClose}
+            planId={itemId}
+            itemName={itemName}
+            amount={amount}
+            onPaymentSuccess={onPaymentSuccess}
+          />
+        ) : null
+      }
       renderEventTicketingManager={(eventListingId) => (
         <PartnerEventTicketingManager eventListingId={eventListingId} />
       )}

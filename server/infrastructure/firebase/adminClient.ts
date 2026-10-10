@@ -13,18 +13,11 @@ function requiredEnv(name: string): string {
 
 function resolveCredential() {
   const saKey = process.env.FIREBASE_SERVICE_ACCOUNT_KEY?.trim();
-  if (saKey) {
-    if (process.env.NODE_ENV === 'production') {
-      // Mantido por compatibilidade; o alvo em Cloud Run é ADC (AGENTS.md §2.1).
-      console.warn('[Firebase Admin] FIREBASE_SERVICE_ACCOUNT_KEY em produção: migre para ADC.');
-    }
-    try {
-      return cert(JSON.parse(saKey));
-    } catch (error) {
-      console.warn('[Firebase Admin] FIREBASE_SERVICE_ACCOUNT_KEY inválida, utilizando ADC:', error);
-    }
+  // Em produção (Cloud Run) a credencial é sempre a conta de serviço anexada (ADC);
+  // a chave JSON só é aceita fora de produção (AGENTS.md §2.1).
+  if (saKey && process.env.NODE_ENV !== 'production') {
+    return cert(JSON.parse(saKey));
   }
-  // Cloud Run: credencial da conta de serviço anexada (ADC), sem chave JSON.
   return applicationDefault();
 }
 

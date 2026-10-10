@@ -103,14 +103,6 @@ async function startServer() {
     }),
     PaymentController.stripeWebhook
   );
-  app.post(
-    '/api/payment/webhook',
-    express.raw({
-      type: 'application/json',
-      limit: '256kb',
-    }),
-    PaymentController.stripeWebhook
-  );
 
   // 2. Health, Version e Internal Job (autenticado via X-Internal-Job-Key com timingSafeEqual)
   app.get('/api/health', (_req, res) => {
