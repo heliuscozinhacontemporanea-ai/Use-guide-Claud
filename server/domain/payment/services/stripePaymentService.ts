@@ -336,6 +336,7 @@ export class StripePaymentService {
     reverseTransfer?: boolean;
     refundApplicationFee?: boolean;
     idempotencyKey: string;
+    metadata?: Record<string, string>;
   }): Promise<RefundPaymentResult> {
     return this.paymentGateway.refundPayment({
       paymentIntentId: params.paymentIntentId,
@@ -343,6 +344,7 @@ export class StripePaymentService {
       reverseTransfer: params.reverseTransfer ?? true,
       refundApplicationFee: params.refundApplicationFee ?? true,
       idempotencyKey: params.idempotencyKey,
+      metadata: params.metadata,
     });
   }
 
@@ -357,11 +359,16 @@ export class StripePaymentService {
     return this.paymentGateway.constructWebhookEvent(payload, signature);
   }
 
-  async markWebhookEventProcessed(params: {
-    eventId: string;
-    eventType: string;
-  }): Promise<boolean> {
-    return this.transactionRepo.markWebhookEventProcessed(params);
+  async claimWebhookEvent(params: { eventId: string; eventType: string }) {
+    return this.transactionRepo.claimWebhookEvent({ ...params, leaseMs: 5 * 60 * 1000 });
+  }
+
+  async completeWebhookEvent(eventId: string): Promise<void> {
+    return this.transactionRepo.completeWebhookEvent(eventId);
+  }
+
+  async releaseWebhookEvent(eventId: string, errorMessage: string): Promise<void> {
+    return this.transactionRepo.releaseWebhookEvent(eventId, errorMessage);
   }
 
   async updateTransactionStatus(

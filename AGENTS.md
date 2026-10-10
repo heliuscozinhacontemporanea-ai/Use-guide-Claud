@@ -1,793 +1,868 @@
-# DIRETRIZES DE ARQUITETURA: PORTS & ADAPTERS (HEXAGONAL) E DIP (FULL-STACK)
+# AGENTS.md — Use Guide
 
-Para garantir o isolamento completo de serviços externos Ex: (Banco de dados/Firestore, Autenticação/Firebase Auth, Gateways de Pagamento/Mercado Pago, e Upload/Cloudinary), e permitir a troca futura de qualquer provedor sem quebrar a lógica de negócios, o desenvolvimento no Frontend (src/) e no Backend (server/) deve seguir rigorosamente as regras de Inversão de Dependência (DIP) e Arquitetura Hexagonal.
-
----
-
-## 1. Princípios Fundamentais de Isolamento
-
-1. **Isolamento do Core (Lógica de Negócios):**
-    * A lógica de negócios, componentes de UI, controladores de rotas e casos de uso nunca devem importar diretamente SDKs de terceiros, Ex: (como firebase, mercadopago, stripe, cloudinary, etc.).
-    * Toda e qualquer comunicação com infraestrutura ou serviços externos deve passar exclusivamente por uma abstração definida internamente (Port / Interface).
-2. **Ports (Contratos/Interfaces):**
-    * São contratos puramente TypeScript que definem os métodos necessários e os tipos de dados de entrada e saída.
-    * **Regra de Ouro:** Os parâmetros e retornos das funções nas Interfaces devem usar tipos de dados neutros definidos pelo nosso domínio. Nunca utilize tipos gerados diretamente pelos SDKs externos (ex: não retorne tipos específicos do Firestore ou do SDK do Mercado Pago).
-3. **Adapters (Implementações de Infraestrutura):**
-    * São os arquivos e classes concretos que implementam as interfaces (Ports) e traduzem as chamadas do nosso sistema para as APIs dos SDKs externos (ex: MercadoPagoPaymentAdapter implementa PaymentPort).
-    * Somente os arquivos dentro de pastas adapters/ (ou explicitamente identificados como tal) podem conter imports diretos de SDKs externos.
-4. **Inversão de Dependência (DIP) via Injeção / Fábrica:**
-    * Módulos de alto nível (serviços de negócio, controladores) não devem depender de módulos de baixo nível (SDKs de banco, pagamentos, auth). Ambos dependem de interfaces.
-    * Use o padrão Factory (Fábrica) ou injeção de dependência na inicialização para instanciar e fornecer o Adapter correto. Para trocar um serviço, o único local modificado no código deve ser a fábrica de instâncias.
+> Versão 2.0 · Diretrizes obrigatórias para qualquer agente de IA (Gemini no Google AI Studio, Claude, Copilot etc.) e para desenvolvedores humanos.
+> Palavras-chave **DEVE / NÃO DEVE / DEVERIA / PODE** seguem a RFC 2119 (DEVE = obrigatório; DEVERIA = obrigatório salvo justificativa registrada; PODE = opcional).
 
 ---
 
-## 2. Estrutura de Diretórios Padronizada
+## 0. Como ler este documento
 
-### 2.1. No Backend (server/)
+### 0.1. Ordem de precedência (resolve qualquer conflito)
 
-Toda funcionalidade que integra serviços externos deve ser modularizada por domínios contendo portas e adaptadores: Ex abaixo:
+Quando duas regras parecerem conflitar, vale a de número menor:
 
-```
-server/domain/<modulo ou serviço>/
-├── adapters/      # Implementações concretas de infraestrutura (Firestore, Firebase Admin, Stripe, etc.)
-├── controllers/   # Recebe req HTTP, chama o DTO/Service e devolve a resposta (200, 400, 500)
-├── dtos/          # Constrói objetos de transferência seguros consumindo os schemas do Zod
-├── errors/        # Erros tipados e customizados do domínio (ex: ItemNotFoundError)
-├── ports/         # Interfaces e contratos TypeScript 100% neutros (sem SDKs externos)
-├── routes/        # Mapeamento de endpoints do Express e middlewares de segurança (JWT, RBAC)
-├── schemas/       # ÚNICO LUGAR onde os Schemas do Zod são definidos e exportados
-├── services/      # Casos de uso e regras de negócio puras (consome apenas as Ports)
-├── types/         # Interfaces e tipos de entidades do domínio
-├── factory.ts     # Ponto de composição / injeção de dependência (instancia Adapter -> Service -> Controller); não é canal de comunicação entre domínios
-└── index.ts       # Fachada pública do módulo; a comunicação entre domínios ocorre somente pelos UseCases públicos
-```
+1. **Segurança, criptografia, privacidade (LGPD) e integridade financeira** (§7, §8)
+2. **Funcionamento nos dois ambientes — AI Studio e Produção** (§2)
+3. **Direção de dependências e comunicação entre domínios** (§3, §4)
+4. **Leitura vs. escrita (CQRS)** (§6)
+5. **Contratos de API, erros e observabilidade** (§10)
+6. **UI/UX, acessibilidade e internacionalização** (§11, §12)
+7. **Modularidade, estilo e comentários** (§13, §14)
 
-### 2.2. No Frontend (src/)
+### 0.2. Escopo
 
-O frontend deve isolar chamadas de API, regras de aplicação, validações e serviços de UI seguindo a estrutura canônica abaixo:
-
-```
-src/domain/<modulo ou serviço>/
-├── adapters/              # Implementações de comunicação externa (HTTP Fetch, Firestore, SDK Client e etc.)
-├── application/usecases/  # Casos de uso puros e comunicação inter-domínios do frontend (sem JSX/DOM)
-├── components/            # Componentes visuais puramente declarativos de UI (Tailwind + JSX)
-├── hooks/                 # React Hooks de integração (conectam usecases ao estado do React)
-├── ports/                 # Interfaces e contratos TypeScript 100% neutros (sem SDKs)
-├── schemas/               # Schemas do Zod para validação de formulários (React Hook Form)
-├── types/                 # Interfaces e tipos de entidades do domínio
-├── factory.ts             # Ponto de composição / injeção de dependência (instancia Adapter -> UseCases)
-└── index.ts               # Fachada pública do módulo (exporta componentes, hooks e usecases públicos)
-```
+Vale para `src/` (frontend), `server/` + `server.ts` (backend), `functions/` (Cloud Functions), `firestore.rules`, `storage.rules`, `firestore.indexes.json` e `firebase.json`.
 
 ---
 
-## 3. Regras de Manutenção e Substituição de Serviços
+## 1. Contexto do Produto
 
-* **Instalação de Múltiplos SDKs (Frontend + Backend):** Quando um novo serviço exigir SDKs em ambas as camadas (ex: Stripe backend SDK + Stripe frontend Elements), cada biblioteca deve ficar estritamente encapsulada em seu respectivo Adapter local. O componente de UI de checkout ou a rota de API do backend nunca conversam diretamente com as instâncias do Stripe além da camada do Adaptador.
-* **Acoplamento Zero:** Se for necessário alterar o banco de dados do Firestore para um banco SQL (PostgreSQL/Cloud SQL), nenhum controlador do backend ou componente do frontend deve ser alterado. A alteração deve se resumir à criação de um novo SqlDatabaseAdapter que implemente as mesmas funções do DatabasePort abstrato.
-* **Configuração por Ambiente:** Toda inicialização de chaves de API específicas dos SDKs nos adaptadores deve ser feita de forma preguiçosa (Lazy Loading) e ler as configurações estritamente do arquivo .env.
+O **Use Guide** é um guia turístico e marketplace (referência de mercado: TripAdvisor + Sympla + GetYourGuide), com foco inicial em Jericoacoara, Preá e Barrinha de Baixo (CE).
 
----
+| Capacidade | Domínio responsável (backend) |
+|---|---|
+| Catálogo: restaurantes, hospedagens, passeios, atrações públicas e privadas, dicas de viagem | `guide` |
+| Eventos (listagem, ocorrências/datas, publicação) | `events` |
+| Venda de ingressos, check-in por QR Code, transferência, reembolso, lista de espera | `ticketing` |
+| Venda de passeios, aluguel (ex: quadriciclo), translado, entradas de atrações privadas | `bookings` (**novo — ainda não existe**, ver §9.3) |
+| Pagamentos, Stripe Connect, repasse ao parceiro, taxa da plataforma | `payment` |
+| Parceiros/estabelecimentos (cadastro, verificação, planos) | `partners` |
+| Planos de assinatura e administração | `admin` |
+| Usuários e perfis públicos | `users` |
+| Avaliações (somente após uso verificado, quando aplicável) | `reviews` |
+| Favoritos | `favorites` |
+| Notificações | `notifications` |
+| Métricas de interação | `insights` |
+| Condições de vento/clima | `climawind` |
+| SEO no servidor (HTML hidratado) | `seo` |
 
-## 4. Padrão de Comentários e Clean Code
+**Fuso horário canônico do negócio:** `America/Fortaleza` (UTC−3, sem horário de verão). Datas DEVEM ser persistidas em UTC (ISO 8601 ou Timestamp) e exibidas no fuso do negócio, ou no fuso do usuário quando ele escolher.
 
-O projeto segue a filosofia de código autoexplicativo: nomes de funções, variáveis e tipos bem escolhidos eliminam a necessidade de comentários. Quando um comentário parece necessário para explicar o quê o código faz, o primeiro impulso deve ser refatorar o código — não escrever o comentário.
+**Moeda:** BRL. Valores monetários DEVEM ser inteiros em centavos (`amountMinor`, tipo `MoneyMinor`). É proibido `number` com casas decimais para dinheiro.
 
-### 4.1. Regra Central
-
-> **Comente o PORQUÊ, nunca o O QUÊ.**
-
-O código já diz o que faz. O comentário existe para explicar decisões não óbvias, restrições externas ou contexto que o código sozinho não consegue transmitir.
-
-### 4.2. O que NUNCA fazer
-
-```typescript
-// ❌ Comentário que repete o código
-// Guarda os últimos 4 dígitos para feedback visual
-if (tokenData.last_four_digits) {
-  setLastFourDigits(tokenData.last_four_digits);
-}
-
-// ❌ JSDoc verboso com @function e @description repetindo o nome
-/**
- * @function handleBinChange
- * @description Callback disparado quando o BIN do cartão muda.
- * @param {BinChangeArg} arg Argumento contendo o BIN detectado.
- * @returns {void}
- */
-const handleBinChange = (arg: BinChangeArg) => { ... };
-
-// ❌ Histórico de migração no código
-// MIGRAÇÃO PARA CORE METHODS: antes usávamos createCardToken manual,
-// agora usamos o SDK React que opera sobre os iframes dos Secure Fields...
-
-// ❌ Comentário de bloco óbvio
-// Validação de email
-if (!emailRegex.test(email)) { ... }
-```
-
-### 4.3. O que SEMPRE fazer
-
-```typescript
-// ✅ Explica uma restrição externa não óbvia
-// MP SDK v2: onBinChange dispara com 8 dígitos (não 6 como na v1)
-const handleBinChange = (arg: BinChangeArg) => { ... };
-
-// ✅ Justifica uma decisão de negócio que parece estranha
-// Retorna 200 mesmo em erro de infra — evita reenvio em loop pelo Mercado Pago
-return res.status(200).json({ status: 'error' });
-
-// ✅ Referência a documentação externa relevante
-// Referência: https://www.mercadopago.com.br/developers/pt/docs/checkout-api-orders
-const mapOrderStatus = (rawStatus: string): string => { ... };
-
-// ✅ TODO genuíno com contexto
-// TODO: substituir por endpoint da Orders API quando disponível no sandbox BR
-```
-
-### 4.4. JSDoc — apenas onde agrega valor real
-
-JSDoc é permitido apenas em métodos públicos de adapters, ports e services — nunca em hooks React, componentes, funções utilitárias internas ou callbacks.
-
-Formato obrigatório: enxuto, sem @function, sem @description repetindo o nome, sem @param para tipos já expressos pelo TypeScript.
-
-```typescript
-// ✅ JSDoc correto — só o que TypeScript não consegue expressar
-/**
- * Mapeia erros da Orders API para códigos internos em PT-BR.
- * Referência: https://www.mercadopago.com.br/developers/pt/reference
- */
-mapMercadoPagoError(orderData: any, statusCode: number): { code: string; message: string }
-
-// ❌ JSDoc incorreto — TypeScript já documenta os tipos
-/**
- * @param {any} orderData Corpo do JSON de erro enviado pelo Mercado Pago.
- * @param {number} statusCode Código de status HTTP.
- * @returns {{ code: string; message: string }} Código mapeado e descrição.
- */
-```
-
-### 4.5. Regras por camada
-
-| Camada | JSDoc público | Comentário inline | Proibido |
-|---|---|---|---|
-| ports/ (interfaces) | ✅ Enxuto | Apenas restrições de contrato | Histórico, exemplos óbvios |
-| adapters/ | ✅ Enxuto | Workarounds e refs externas | Repetir o nome do método |
-| services/ (use cases) | ✅ Enxuto | Regras de negócio não óbvias | Explicar fluxo óbvio |
-| controllers/ | ❌ Desnecessário | Decisões de HTTP (ex: 200 em erro) | Bloco de cabeçalho de arquivo |
-| hooks/ React | ❌ Desnecessário | Apenas restrições de SDK | JSDoc, histórico de migração |
-| components/ React | ❌ Desnecessário | Nunca | Qualquer comentário |
-
-### 4.6. Cabeçalhos de arquivo (@file)
-
-Blocos @file no topo dos arquivos são proibidos. O nome do arquivo, sua pasta e as exportações já comunicam o propósito. Remover em qualquer edição futura.
-
-```typescript
-// ❌ Proibido
-/**
- * @file usePayment.ts
- * @description Hook customizado para lidar com a lógica do checkout transparente...
- */
-
-// ✅ Correto — arquivo começa direto nos imports
-import { useState, useEffect } from 'react';
-```
-
-### 4.7. Instrução para o agente
-
-Em qualquer edição de arquivo existente:
-
-* Remover comentários que explicam o quê o código faz
-* Remover blocos @file de cabeçalho
-* Remover históricos de migração (// MIGRAÇÃO PARA..., // NOTA sobre...)
-* Manter comentários que explicam o porquê de uma decisão não óbvia
-* Manter referências a documentação externa (// Referência: https://...)
-* Manter // TODO: com contexto genuíno
-* Nunca adicionar novos comentários que o TypeScript já expressas pelos tipos
+**Idiomas suportados:** `pt-BR` (padrão), `en`, `fr`. Toda configuração e regra de tradução está no §12.
 
 ---
 
-## 5. Padrão de UI, UX e Layout
+## 2. Ambientes: Google AI Studio (Desenvolvimento) e Produção
 
-Esta seção define as regras obrigatórias de interface para qualquer código novo ou refatoração. O objetivo é impedir a repetição dos problemas já identificados em auditoria (contraste insuficiente, z-index caótico, ausência de responsividade, inconsistência de feedback) e consolidar o design system real do projeto, que hoje existe de forma implícita e não documentada.
+O código DEVE funcionar **sem alterações** nos dois ambientes. Nenhuma funcionalidade pode depender de um ambiente só, salvo as exceções explícitas desta seção.
 
-### 5.1. Identidade Visual (já estabelecida — não alterar sem decisão explícita)
+### 2.1. Matriz de ambientes
 
-* **Estilo:** Glassmorphism dark. O app é dark-mode único por design — não é um tema claro invertido, é desenhado nativamente para fundo escuro. Não implementar light mode sem decisão explícita do produto.
-* **Cor de destaque (accent) primária:** teal (teal-400/teal-500) — é a cor predominante de CTAs, estados ativos e elementos de destaque em todo o sistema. emerald e cyan aparecem como variações secundárias em contextos específicos (sucesso, informação), não como alternativa aleatória ao teal.
-* **Tipografia:** apenas 2 fontes — Inter (corpo de texto, UI) e Outfit (display, títulos). Não introduzir uma terceira fonte.
-* **Componente base de card:** GlassCard (src/ui/components/GlassCard.tsx) — toda superfície elevada/destacada do sistema deve reutilizar esse componente ou seguir exatamente seu padrão visual (blur, borda, sombra), nunca recriar glassmorphism do zero em um componente novo.
-
-### 5.2. Contraste de Texto — Regra Obrigatória
-
-**Opacidade mínima de texto sobre fundo escuro: /50.**
-
-As classes text-white/20, text-white/30 e text-white/40 são proibidas em texto que comunica informação (labels, mensagens de estado, descrições, resultados de busca, textos de erro/vazio). Cálculo de contraste real (WCAG, relative luminance) contra o fundo escuro do app:
-
-| Classe | Contraste real | Status |
+| Aspecto | AI Studio (dev) | Produção |
 |---|---|---|
-| text-white/20 | 1.77:1 | ❌ Proibido |
-| text-white/30 | 2.60:1 | ❌ Proibido |
-| text-white/40 | 3.77:1 | ❌ Proibido (só passaria para texto grande 18pt+, que não é o padrão do app) |
-| text-white/50 | 5.33:1 | ✅ Mínimo permitido |
-| text-white/60 a /90 | 7.3:1+ | ✅ Preferencial para texto de leitura primária |
+| Processo | `npm run dev` → `tsx server.ts` (Express + Vite em middleware mode) | `npm run build` → `node dist/server.cjs` no Cloud Run (`use-guide`, `us-east1`) |
+| `NODE_ENV` | ≠ `production` | `production` |
+| Porta | `3000` (única porta exposta pelo proxy do AI Studio) | `process.env.PORT` (definida pelo Cloud Run) |
+| Frontend | Servido pelo Vite middleware do mesmo Express | Firebase Hosting (CDN) com rewrite `/api/**` → Cloud Run |
+| Firestore | Database ID de `firebase-applet-config.json` / `FIRESTORE_DATABASE_ID` | `FIRESTORE_DATABASE_ID` de produção |
+| Segredos | Painel **Secrets** do AI Studio | Secret Manager montado como variável de ambiente no Cloud Run |
+| Credenciais Admin SDK | `FIREBASE_SERVICE_ACCOUNT_KEY` (aceito somente em dev) | **ADC** — conta de serviço anexada ao Cloud Run (não usar chave JSON) |
+| App Check | `APP_CHECK_REQUIRED=false` permitido | `APP_CHECK_REQUIRED=true` |
+| Stripe | Chaves `sk_test_` / `pk_test_` e webhook do Stripe CLI ou endpoint de teste | Chaves `sk_live_` / `pk_live_` e endpoint de webhook live |
 
-**Exceção permitida:** opacidades abaixo de /50 só podem ser usadas em elementos puramente decorativos sem função informativa (texturas de fundo, divisores visuais, glow effects) — nunca em texto lido pelo usuário.
+### 2.2. Regras obrigatórias
 
-```typescript
-// ❌ Proibido — mensagem funcional com contraste insuficiente
-<p className="text-white/20">Nenhum resultado encontrado</p>
+1. Toda configuração DEVE vir de variáveis de ambiente documentadas em `.env.example`. Variável nova sem entrada no `.env.example` = PR incompleto.
+2. Variáveis expostas ao navegador DEVEM ter prefixo `VITE_` e conter **somente** valores públicos (chave publicável do Stripe, config do Firebase Web). Segredos NUNCA usam `VITE_`.
+3. Detecção de ambiente DEVE ser centralizada (uma função/módulo de config), nunca espalhada com `host.includes(...)` em vários arquivos.
+4. Adapters DEVEM inicializar SDKs de forma preguiçosa (*lazy*): a importação de um módulo NÃO DEVE abrir conexões, ler segredos obrigatórios nem lançar exceção. Falta de configuração DEVE falhar na primeira chamada, com mensagem clara.
+5. O servidor DEVE subir mesmo sem integrações opcionais configuradas (ex: Stripe ausente no AI Studio). Rotas dependentes DEVEM responder `503` com código de erro estável (§10.2), nunca derrubar o processo.
+6. É proibido código que só funciona em produção sem um caminho de teste no AI Studio (ex: modo teste do Stripe, emulador, dados de seed explícitos).
+7. Mocks, stubs e fakes são permitidos **somente** em arquivos de teste (`*.test.ts`) ou adapters in-memory usados exclusivamente por testes. É proibido dado fictício no código de produção (ver §11.10).
 
-// ✅ Correto
-<p className="text-white/50">Nenhum resultado encontrado</p>
-```
+### 2.3. Restrições de plataforma que o código DEVE respeitar
 
-### 5.3. Responsividade — Obrigatória em Componentes Novos
-
-O app está migrando de mobile-only para responsivo completo. Todo componente novo — e qualquer componente existente que for tocado por outro motivo — deve seguir os breakpoints padrão do mercado:
-
-| Breakpoint | Tailwind | Uso |
-|---|---|---|
-| Base (< 480px) | sem prefixo | Celular padrão — layout de referência |
-| 480px+ | sm: | Celular grande / tablet pequeno |
-| 768px+ | md: | Tablet |
-| 1024px+ | lg: | Tablet paisagem / desktop pequeno |
-
-**Regras obrigatórias:**
-
-* Todo layout raiz de tela/modal deve ter max-w-[480px] mx-auto (ou valor equivalente) para não esticar indefinidamente em telas largas, a menos que o componente seja explicitamente desenhado para ocupar largura total em breakpoints maiores.
-* Informação relevante nunca deve existir apenas a partir de um breakpoint maior (hidden sm:flex escondendo dado funcional) — se a informação importa, ela precisa ter alguma forma de exibição também no breakpoint base.
-* Grids de cards (ex: listagem de itens do guia) devem usar grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 ou padrão equivalente — nunca fixar 1 coluna incondicionalmente.
-
-### 5.4. Escala de Z-Index — Obrigatória
-
-O projeto hoje usa 15+ valores de z-index diferentes e arbitrários (z-[110] até z-[100000]), sem lógica de camadas clara. A partir desta versão, toda nova UI deve usar exclusivamente a escala fixa abaixo — nunca um valor numérico arbítrio.
-
-Novo arquivo obrigatório: `src/shared/constants/zIndex.ts`
-
-```typescript
-/**
- * Escala fixa de z-index do sistema. Nunca usar valores numéricos soltos
- * em componentes — sempre importar destas constantes.
- */
-export const Z_INDEX = {
-  base: 0,
-  card: 10,
-  header: 100,
-  bottomNav: 110,
-  dropdown: 200,
-  overlay: 1000,
-  modal: 1100,
-  modalNested: 1200,   // modais abertos por cima de outro modal (ex: Checkout dentro de um DetailModal)
-  toast: 2000,
-  criticalAlert: 9999, // reservado para bloqueios de sistema (ex: erro de configuração crítica)
-} as const;
-```
-
-Uso:
-
-```typescript
-// ❌ Proibido
-<div className="z-[130]">
-
-// ✅ Correto
-import { Z_INDEX } from '../../../shared/constants/zIndex';
-<div style={{ zIndex: Z_INDEX.modal }}>
-```
-
-Migração do z-index já existente no código legado não é retroativa automaticamente — aplicar a escala fixa em qualquer arquivo que for tocado por outro motivo, e em todo código novo a partir de agora.
-
-### 5.5. Tamanho Mínimo de Área de Toque
-
-Todo elemento interativo (botão, ícone clicável, link) deve ter no mínimo 44×44px de área de toque, seguindo Apple HIG e Material Design. Isso é especialmente importante dado o contexto de uso do produto (praia, sol forte, uso ao ar livre).
-
-```typescript
-// ❌ Proibido — abaixo do mínimo
-<button className="w-[34px] h-[34px]">
-
-// ✅ Correto — ícone pode manter tamanho visual menor, mas a área de toque (padding) deve atingir o mínimo
-<button className="w-11 h-11 flex items-center justify-center">
-  <Icon size={20} />
-</button>
-```
-
-### 5.6. Feedback ao Usuário — alert() Proibido
-
-alert(), confirm() e prompt() nativos do navegador são proibidos em qualquer código novo. Eles quebram a identidade visual do app, são bloqueantes, e têm renderização inconsistente entre navegadores/SO.
-
-Todo feedback de sucesso, erro ou confirmação deve usar um sistema de toast/notificação consistente com o design system (glassmorphism). Se esse sistema ainda não existir centralizado no momento da edição, seguir o padrão já usado em ShareButton.tsx (badge animado local) como referência, e não introduzir um novo alert().
-
-```typescript
-// ❌ Proibido
-alert('Item salvo com sucesso!');
-
-// ✅ Correto (usando o sistema de toast do projeto, quando disponível)
-showToast('Item salvo com sucesso!', 'success');
-```
-
-### 5.7. Acessibilidade — Obrigatória em Elementos Interativos
-
-* Todo botão que contém apenas ícone (sem texto visível) deve ter aria-label descritivo.
-* Todo elemento interativo deve ter estado de foco visível via focus-visible:ring-2 focus-visible:ring-teal-400/50 (ou equivalente) — nunca outline-none sem substituto.
-* Texto de navegação escondido visualmente por design (ex: label de tab inativo) deve permanecer acessível a leitores de tela via sr-only, nunca opacity-0 h-0 overflow-hidden (que remove do fluxo de acessibilidade).
-
-```typescript
-// ❌ Proibido
-<button onClick={onClose}><X size={20} /></button>
-
-// ✅ Correto
-<button onClick={onClose} aria-label="Fechar" className="focus-visible:ring-2 focus-visible:ring-teal-400/50">
-  <X size={20} />
-</button>
-```
-
-### 5.8. Links Externos — Segurança Obrigatória
-
-Todo uso de window.open() para links externos (WhatsApp, Google Maps, redes sociais) deve incluir noopener,noreferrer para prevenir reverse tabnabbing.
-
-```typescript
-// ❌ Proibido
-window.open(item.whatsappLink, '_blank');
-
-// ✅ Correto
-window.open(item.whatsappLink, '_blank', 'noopener,noreferrer');
-```
-
-### 5.9. Tratamento de Erro — Obrigatório em Hooks de Dados
-
-Todo hook que busca dados assíncronos (Firestore, API externa) deve expor um estado de error além de data/loading. Componentes que consomem esses hooks devem renderizar uma UI de erro amigável quando error estiver presente — nunca deixar a tela em loading infinito ou vazia sem explicação quando a busca falhar.
-
-```typescript
-// ❌ Insuficiente
-(error) => console.error("Firestore Error:", error)
-
-// ✅ Correto
-const [error, setError] = useState<string | null>(null);
-(err) => {
-  console.error("Firestore Error:", err);
-  setError('Não foi possível carregar o conteúdo agora.');
-}
-```
-
-### 5.10. Conteúdo Dinâmico — Proibido Hardcoding com Aparência de Dado Real
-
-Cards ou seções de UI que visualmente aparentam exibir informação específica e curada de um item (mesmo estilo visual de dados reais como preço, localização, avaliação) nunca devem conter texto fixo idêntico para todos os itens. Se a informação não varia por item, ela deve ou (a) ser removida, ou (b) ser claramente apresentada como informação genérica de categoria, não como atributo específico do item.
-
-Isso vale com atenção redobrada para qualquer valor que alimente uma transação financeira (preço de checkout, quantidade, taxa) — esses valores devem sempre vir do dado real cadastrado (item.operationalInfo.price ou equivalente), nunca de uma constante fixa no componente, mesmo em protótipo — constantes de demonstração devem ser removidas antes de qualquer merge para o branch principal.
-
-### 5.11. Instrução para o Agente
-
-Em qualquer criação de componente novo ou refatoração de componente existente:
-
-* Aplicar a escala de z-index fixa (5.4) — nunca valor numérico solto
-* Aplicar contraste mínimo /50 em texto funcional (5.2)
-* Aplicar breakpoints responsivos (5.3) — nunca layout fixo sem adaptação
-* Aplicar área de toque mínima 44px em elementos interativos (5.5)
-* Nunca usar alert()/confirm()/prompt() (5.6)
-* Sempre adicionar aria-label em botões de ícone puro (5.7)
-* Sempre adicionar noopener,noreferrer em window.open() (5.8)
-* Sempre expor estado de erro em hooks de dados assíncronos (5.9)
-* Nunca hardcodar valores que aparentam ser dados reais do item, especialmente valores financeiros (5.10)
+* **Firebase Hosting → Cloud Run:** requisições via rewrite têm timeout de **60 s**; operações longas DEVEM virar jobs assíncronos (Cloud Tasks / Cloud Scheduler / Functions).
+* **Cookies via Firebase Hosting:** o Hosting remove cookies das requisições, exceto o cookie chamado `__session`. Autenticação DEVE usar `Authorization: Bearer <Firebase ID Token>`.
+* **Cloud Run é stateless:** proibido guardar estado em memória entre requisições (sessões, filas, rate limit) sem fallback em armazenamento externo.
+* **Desligamento gracioso:** o servidor DEVE tratar `SIGTERM` (já implementado em `server.ts`).
+* **Webhooks do Stripe** DEVEM apontar para uma URL HTTPS pública estável; o handler DEVE responder em poucos segundos (§8.6).
 
 ---
 
-## 6. Comunicação entre Domínios e Camadas de Segurança (Multi-Layer Security)
+## 3. Arquitetura: Hexagonal (Ports & Adapters) + DIP + Camadas
 
-Para garantir a integridade do sistema, legibilidade do código e proteção contra acessos indevidos, o projeto adota regras estritas de comunicação inter-domínios e uma arquitetura de segurança Zero-Trust em múltiplas camadas.
+### 3.1. Princípios
 
----
+1. **Núcleo isolado:** services, usecases, types, errors e ports NÃO DEVEM importar SDKs de fornecedores (`firebase`, `firebase-admin`, `stripe`, `@stripe/*`, Cloudinary, APIs de clima etc.).
+2. **Ports** são interfaces TypeScript com tipos neutros do domínio. NUNCA expõem tipos do SDK (`DocumentSnapshot`, `Timestamp`, `Stripe.PaymentIntent`…).
+3. **Adapters** implementam ports e são os únicos que importam SDKs de fornecedores.
+4. **Composição** acontece em `factory.ts` (por domínio) ou na raiz de composição (`server.ts`, `src/app`). Trocar um fornecedor DEVE exigir apenas um adapter novo + uma linha na factory.
 
-### 6.1. Processos de Comunicação entre Domínios
+### 3.2. Lista de permissões de bibliotecas (evita a interpretação literal impossível de "nunca importar terceiros")
 
-#### 6.1.1. Regra principal — comunicação síncrona entre domínios
+| Biblioteca | Onde PODE ser importada |
+|---|---|
+| `zod` | `schemas/` (definição). Demais camadas importam o schema, não o `zod` |
+| `express` | `routes/`, `controllers/`, middlewares em `server/infrastructure/http` e `server.ts` |
+| `react`, `react-dom`, `react-router-dom`, `motion`, `lucide-react`, `react-hook-form`, `@hookform/resolvers` | `components/`, `hooks/`, `src/app`, `src/ui` |
+| `zustand` | `stores/` |
+| `date-fns` | qualquer camada (biblioteca pura, sem I/O) |
+| `firebase`, `firebase-admin` | somente `adapters/` e `*/infrastructure/firebase/` |
+| `stripe` (Node) | somente `server/domain/payment/adapters/` |
+| `crypto` (Node), `@google-cloud/kms` | somente `server/infrastructure/crypto/`, `adapters/` e `utils/` de token/assinatura (§7.7) |
+| `i18next`, `react-i18next` | `src/shared/i18n/`; componentes e hooks usam `useTranslation`/`<Trans>` (§12) |
+| `@stripe/stripe-js`, `@stripe/connect-js` | somente `src/domain/payment/adapters/` |
+| `@stripe/react-stripe-js`, `@stripe/react-connect-js` | somente **UI adapters**: `src/domain/payment/adapters/ui/*.tsx` (ver 3.3) |
+| `leaflet`, `recharts`, `qrcode`, `react-easy-crop` | componentes do domínio que os usa, encapsulados em um único componente wrapper |
 
-A comunicação síncrona entre diferentes domínios deve ocorrer exclusivamente através de UseCases públicos do domínio de destino.
+### 3.3. UI Adapters (exceção controlada)
 
-Essa regra vale tanto para o Frontend quanto para o Backend:
+Componentes de SDK que **precisam** ser renderizados em JSX (Stripe Payment Element, Stripe Connect embedded components) são *UI adapters*:
 
-```
-Domain A
-   │
-   │ Public UseCase
-   ▼
-Domain B
-```
+* DEVEM ficar em `src/domain/<dominio>/adapters/ui/`.
+* DEVEM expor props neutras (ex: `clientSecret`, `onSucceeded`, `onFailed`) e nunca vazar tipos do SDK.
+* O restante da UI consome apenas esses wrappers.
 
-O UseCase público é o contrato de aplicação entre os domínios. O domínio consumidor não deve conhecer nem acessar a implementação interna do domínio de destino.
+### 3.4. Camadas e Regra de Dependência
 
-É proibido um domínio importar diretamente de outro domínio:
-
-* Services internos;
-* Repositories;
-* Ports internos;
-* Adapters;
-* Factories;
-* Controllers;
-* Routes;
-* Schemas internos;
-* DTOs internos;
-* infraestrutura;
-* SDKs;
-* coleções ou documentos do Firestore pertencentes ao outro domínio;
-* qualquer implementação privada do domínio de destino.
-
-A existência de uma index.ts, factory.ts ou outro módulo de exportação não transforma seus conteúdos em contratos permitidos para comunicação entre domínios. O contrato permitido é o UseCase público explicitamente exposto para consumo inter-domínio.
-
-#### 6.1.2. Frontend (Domínio ↔ Domínio)
-
-No Frontend (src/domain/<domain_A> para src/domain/<domain_B>), UseCases públicos são o único mecanismo de comunicação síncrona entre domínios.
-
-Hooks React pertencem à camada de integração com a UI e não devem ser utilizados como mecanismo de comunicação entre domínios. Services, Ports, adapters e componentes de outro domínio também não devem ser importados diretamente.
-
-Exemplo permitido:
+As setas indicam "pode importar". Toda seta ao contrário é proibida.
 
 ```
-src/domain/reviews
-        │
-        ▼
-Public UseCase de guide
-        │
-        ▼
-src/domain/guide
-```
-
-#### 6.1.3. Frontend ↔ Backend (Comunicação Externa)
-
-* O Frontend comunica-se com o Backend estritamente através de APIs HTTP/HTTPS públicas e autenticadas (/api/<domain>/*).
-* Requisições que exigem autenticação devem enviar o token JWT do Firebase via header Authorization: Bearer <token>.
-* O Frontend nunca interage diretamente com SDKs administrativos do Backend.
-
-#### 6.1.4. Backend (Domínio ↔ Domínio)
-
-No Backend (server/domain/<domain_A> para server/domain/<domain_B>), a comunicação síncrona deve ocorrer exclusivamente através dos UseCases públicos do domínio de destino.
-
-Exemplo permitido:
-
-```
-Reviews
-   │
-   ▼
-Guide UseCase público
-   │
-   ▼
-Guide
-```
-
-É proibido fazer chamadas HTTP internas entre domínios do mesmo Backend apenas para simular uma comunicação externa.
-
-Também é proibido acessar diretamente repositórios, bancos de dados, adapters ou qualquer infraestrutura pertencente a outro domínio.
-
-#### 6.1.5. Grafo de Dependências entre Domínios — Regra de Aciclicidade
-
-O grafo de dependências entre domínios deve permanecer acíclico (DAG — Directed Acyclic Graph).
-
-Nenhuma nova dependência entre domínios pode criar um ciclo direto ou indireto.
-
-Exemplo proibido:
-```
-A → B → A
-```
-
-Também é proibido:
-```
-A → B → C → D → A
-```
-
-O fato de todas as dependências utilizarem UseCases públicos não torna um ciclo permitido. UseCases públicos resolvem o encapsulamento da comunicação, mas não autorizam dependências circulares.
-
-Antes de introduzir uma nova dependência Domain A → Domain B, o agente deve verificar se existe qualquer caminho de dependência de B de volta para A.
-
-Se existir, a dependência direta não deve ser criada.
-
-#### 6.1.6. Dependência Bidirecional
-
-Não é permitido resolver uma necessidade de comunicação criando simultaneamente:
-```
-Domain A → Domain B
-Domain B → Domain A
-```
-
-Quando dois domínios precisarem participar do mesmo fluxo de negócio, deve-se avaliar, conforme o caso:
-
-1. Application/Composition UseCase: quando uma operação precisa coordenar dois ou mais domínios de forma síncrona;
-2. Domain/Application Event: quando um domínio precisa comunicar que um fato ocorreu e não necessita conhecer diretamente seus consumidores;
-3. Reestruturação da responsabilidade: quando o ciclo indicar que uma regra de negócio está posicionada no domínio incorreto.
-
-Não criar um módulo shared apenas para esconder ou contornar uma dependência circular.
-
-#### 6.1.7. Application/Composition UseCases
-
-Quando um fluxo de negócio precisar coordenar dois ou mais domínios e a comunicação direta criar uma dependência circular, a coordenação deve ocorrer em uma camada de Application/Composition apropriada.
-
-Exemplo:
-
-```
-Application/Composition UseCase
-        ├──→ Domain A UseCase
-        └──→ Domain B UseCase
-```
-
-A camada de orquestração coordena os contratos públicos dos domínios, mas não acessa suas implementações internas nem assume regras de negócio que pertencem aos domínios.
-
-Não criar uma camada de Application/Composition apenas para mover imports sem resolver a responsabilidade do fluxo.
-
-#### 6.1.8. Domain/Application Events
-
-Quando um domínio precisar comunicar que um fato ocorreu sem exigir uma resposta síncrona imediata, pode-se utilizar um Domain/Application Event.
-
-Exemplo:
-
-```
-ReviewCreated
+Backend
+  server.ts (composição raiz)
      │
-     ├──→ Notifications
-     ├──→ Analytics
-     └──→ Insights
+     ▼
+  interfaces HTTP  (routes/, controllers/, middlewares)
+     │
+     ▼
+  server/application/  (Application/Composition UseCases — orquestram ≥ 2 domínios)
+     │
+     ▼
+  server/domain/<X>/usecases  (contrato público do domínio)
+     │
+     ▼
+  services → ports ← adapters → SDKs / Firestore
+     │
+     ▼
+  server/shared/kernel  (tipos transversais neutros: AuthenticatedUserContext, MoneyMinor, Result, erros base)
+
+Frontend
+  src/main.tsx → src/app (rotas, providers, compositions)
+     │
+     ▼
+  src/domain/<X>/components → hooks → application/usecases → ports ← adapters
+     │
+     ▼
+  src/ui (design system, sem conhecer domínios)  ·  src/shared (utilitários puros, sem conhecer domínios)
 ```
 
-O domínio produtor do evento não deve importar diretamente os domínios consumidores.
+Regras:
 
-Events não devem ser utilizados apenas para esconder uma dependência síncrona que exige resposta imediata.
-
-#### 6.1.9. Factories e Inicialização de Módulos
-
-factory.ts é um ponto de composição e injeção de dependências do próprio domínio. Não é um mecanismo de comunicação entre domínios.
-
-Factories podem:
-
-* instanciar adapters;
-* instanciar services/useCases;
-* conectar Ports às suas implementações;
-* montar a composição interna do próprio domínio.
-
-Factories não devem:
-
-* ser importadas por outro domínio para obter UseCases ou Services;
-* importar routes/controllers de outros domínios;
-* executar efeitos colaterais durante a avaliação do módulo;
-* criar dependências circulares entre factories;
-* depender da inicialização prévia de outra factory para existir.
-
-A comunicação entre domínios deve consumir o UseCase público, não a Factory que o instancia.
-
-#### 6.1.10. Barrels (index.ts) e Fachadas Públicas
-
-index.ts pode funcionar como fachada de exportação do domínio, mas isso não altera a regra de comunicação: entre domínios, somente UseCases públicos são contratos de comunicação síncrona.
-
-Um domínio não deve importar o index.ts de outro domínio para acessar Services, Ports, factories, controllers, routes ou implementações internas.
-
-Barrels também não devem provocar carregamento prematuro de routes, controllers ou infraestrutura durante a inicialização de um domínio quando apenas um UseCase é necessário.
-
-Quando a composição HTTP precisar de routes/controllers, esses módulos devem ser carregados pelo ponto de composição apropriado, sem transformar seus exports em dependências inter-domínio.
-
-#### 6.1.11. Regra de Emergência para Correções de Runtime
-
-Uma dependência temporária fora do padrão pode ser utilizada somente para eliminar uma quebra crítica de inicialização ou runtime quando não houver correção segura imediata, desde que:
-
-1. seja necessária para restaurar o funcionamento;
-2. não comprometa segurança ou autorização;
-3. seja registrada explicitamente como débito arquitetural;
-4. tenha correção definitiva prevista para a refatoração do domínio responsável.
-
-Essa exceção não transforma acesso direto à infraestrutura de outro domínio em padrão arquitetural permitido e não deve ser reproduzida em novas implementações sem análise específica.
+1. `server/domain/**` NÃO DEVE importar `server/application/**`. Tipos transversais (ex: `AuthenticatedUserContext`) DEVEM morar em `server/shared/kernel/`.
+2. Controllers que chamam Application UseCases DEVEM viver na camada de interface HTTP, fora do domínio: `server/interfaces/http/<recurso>/`. Controllers que chamam só o próprio domínio PODEM continuar em `server/domain/<X>/controllers/`.
+3. `src/ui/**` e `src/shared/**` NÃO DEVEM importar `src/domain/**`. Quando um layout precisa de dado de domínio (ex: usuário logado no `Header`), o dado entra por props ou por composição em `src/app`.
+4. `server/infrastructure/**` contém apenas infraestrutura técnica transversal (cliente Firebase Admin, verificação de token, App Check, logger). Middlewares que precisam de UseCases (ex: `resolveGuideContext`) pertencem à camada de interface HTTP.
 
 ---
 
-### 6.2. Arquitetura de Segurança Zero-Trust e Múltiplas Camadas
+## 4. Estrutura de Diretórios Canônica
 
-**Premissa Fundamental:** O Backend NUNCA confia nos dados enviados pelo Frontend. Todas as entradas devem ser higienizadas, tipadas e validadas em cada etapa do fluxo.
-
-O fluxo de dados passa obrigatoriamente pelas seguintes 4 camadas de defesa:
+### 4.1. Backend
 
 ```
-[ Frontend ] ──(1. React Hook Form + Zod)──> [ HTTP Request ] ──> [ 2. Zod Backend ] ──> [ 3. DTO Backend ] ──> [ Service / DB ] ──> [ 4. Firestore Rules ]
+server/
+├── shared/kernel/              # Tipos e erros transversais neutros (sem SDK, sem domínio)
+├── infrastructure/             # firebase/adminClient, auth (token, App Check), logging, config
+├── interfaces/http/            # Controllers/rotas que orquestram Application UseCases
+├── application/usecases/       # Application/Composition UseCases (1 arquivo por caso de uso)
+├── domain/<dominio>/
+│   ├── adapters/               # Firestore (Admin SDK), Stripe, APIs externas
+│   ├── controllers/            # HTTP → DTO → UseCase do próprio domínio → resposta
+│   ├── dtos/                   # Objetos de entrada sanitizados + mappers de persistência
+│   ├── errors/                 # Erros tipados do domínio (com `code` estável)
+│   ├── ports/                  # Interfaces neutras
+│   ├── routes/                 # Endpoints Express + middlewares (auth, RBAC, rate limit)
+│   ├── schemas/                # ÚNICO lugar com schemas Zod de entrada HTTP
+│   ├── services/               # Regras de negócio puras (dependem só de ports)
+│   ├── types/                  # Entidades e value objects
+│   ├── usecases/               # Contrato público: 1 caso de uso por arquivo
+│   ├── utils/                  # Funções puras
+│   ├── factory.ts              # Composição interna (lazy)
+│   └── index.ts                # Fachada pública (Published Language, §5.2)
+└── scripts/                    # Scripts operacionais (consomem UseCases públicos)
 ```
 
-#### Camada 1: Validação no Frontend (React Hook Form + Zod)
+### 4.2. Frontend
 
-* **Objetivo:** Fornecer feedback instantâneo de UX ao usuário, validação declarativa de campos e impedir o envio de requisições malformadas.
-* **Implementação:** Todos os formulários e formulários reativos do cliente devem utilizar React Hook Form integrado ao Zod através de @hookform/resolvers/zod (useForm({ resolver: zodResolver(schema) })) antes de disparar chamadas para os Use Cases públicos ou adaptadores HTTP.
-
-#### Camada 2: Validação de Entrada no Backend (Zod)
-
-* **Objetivo:** Garantir a integridade estrutural e de tipos do payload de entrada no nível da API HTTP (req.body, req.params, req.query).
-* **Implementação:** Controllers e Middlewares de rota do Express devem validar a requisição com schema.safeParse(). Caso a validação falhe, a requisição é rejeitada imediatamente com status HTTP 400.
-
-#### Camada 3: DTOs no Backend (Data Transfer Objects)
-
-* **Objetivo:** Mapeamento, higienização e prevenção contra contaminação de propriedades (Mass Assignment / Field Pollution).
-* **Implementação:** Os dados validados pelo Zod são convertidos em DTOs neutros e imutáveis antes de serem repassados aos Services/Adapters. O DTO garante que campos extras ou maliciosos enviados pelo cliente (ex: isAdmin: true, isVerified: true) sejam descartados e que apenas os campos estritamente permitidos cheguem à camada de negócios.
-
-#### Camada 4: Regras de Segurança do Firestore (Firestore Security Rules)
-
-* **Objetivo:** Proteção em nível de motor de banco de dados e controle de acesso granular para leituras e escritas diretas.
-* **Implementação:** Arquivo firestore.rules. Valida autenticação (request.auth != null), autorização/propriedade (request.auth.uid == resource.data.ownerId), campos imutáveis, limite de tamanho de dados e restrições de esquema diretamente nas coleções do Firestore.
+```
+src/
+├── app/                        # Router, providers, compositions (único lugar que monta UI de vários domínios)
+├── ui/                         # Design system (GlassCard, Dialog, Toast…), sem domínio
+├── shared/                     # constants, i18n, utils puros, infraestrutura firebase client
+└── domain/<dominio>/
+    ├── adapters/               # HTTP (firebaseApiFetch), Firestore client (somente leitura), SDKs
+    │   └── ui/                 # UI adapters de SDK (§3.3)
+    ├── application/usecases/   # Casos de uso (sem JSX/DOM) — contrato público do domínio
+    ├── components/             # UI declarativa
+    ├── hooks/                  # Ligam usecases ao estado React
+    ├── ports/  schemas/  types/  stores/  utils/
+    ├── factory.ts
+    └── index.ts                # Fachada pública
+```
 
 ---
 
-### 6.3. Checklist Obrigatório para o Agente de IA
+## 5. Comunicação entre Domínios
 
-Em qualquer nova implementação ou modificação de funcionalidade existente no código fonte, certifique-se de:
+### 5.1. Canais permitidos
 
-1. Garantir que a comunicação síncrona entre domínios no Frontend utilize exclusivamente UseCases públicos do domínio correspondente.
-2. Garantir que a comunicação síncrona entre domínios no Backend utilize exclusivamente UseCases públicos do domínio correspondente.
-3. Verificar o grafo global de dependências e garantir que a nova dependência não crie ciclo direto ou indireto.
-4. Se o fluxo exigir coordenação de múltiplos domínios, avaliar Application/Composition UseCase antes de criar dependência bidirecional.
-5. Se o fluxo puder ser desacoplado, avaliar Domain/Application Event antes de criar chamadas diretas entre domínios.
-6. Garantir que nenhum domínio importe Services, Ports, Repositories, Adapters, Factories, Controllers, Routes ou infraestrutura de outro domínio.
-7. Garantir que o formulário/dados no Frontend possuam validação com React Hook Form + @hookform/resolvers/zod antes do envio.
-8. Garantir que a rota do Backend aplique validação com Zod (safeParse).
-9. Garantir que os payloads sejam mapeados por DTOs neutros no Backend antes de invocar os serviços de domínio.
-10. Manter as firestore.rules sincronizadas e auditadas para a coleção do banco.
+| De → Para | Canal obrigatório |
+|---|---|
+| Frontend domínio A → Frontend domínio B | UseCase público de B (via `index.ts` de B) |
+| Frontend → Backend | HTTPS `/api/<recurso>` autenticado (`Authorization: Bearer`), via adapter HTTP |
+| Backend domínio A → Backend domínio B | UseCase público de B (via `index.ts` de B) |
+| Fluxo que envolve ≥ 2 domínios com risco de ciclo | Application/Composition UseCase em `server/application/usecases/` |
+| "Algo aconteceu" sem precisar de resposta | Domain/Application Event (§5.6) |
+| UI de vários domínios na mesma tela | Composição em `src/app/compositions` (slots/props) |
+
+### 5.2. O que a fachada `index.ts` PODE exportar (Published Language)
+
+Para consumo por outros domínios, o `index.ts` PODE exportar **somente**:
+
+1. UseCases públicos;
+2. tipos de entrada/saída desses UseCases (DTOs públicos e entidades read-only);
+3. erros públicos do domínio (para `instanceof` e mapeamento HTTP);
+4. funções puras de regra de domínio sem I/O (ex: `canTransitionOrderStatus`);
+5. no frontend: componentes públicos destinados **exclusivamente** a `src/app/compositions`.
+
+É proibido importar de outro domínio por caminho interno (`../../outroDominio/services/...`, `.../schemas/...`, `.../context/...`, `.../components/...`). Só `index.ts`.
+
+### 5.3. Proibições
+
+Um domínio NÃO DEVE importar de outro: services, repositories, ports internos, adapters, factories, controllers, routes, schemas internos, DTOs internos, contexts React, stores internos, nem acessar coleções do Firestore que pertencem a outro domínio.
+
+### 5.4. Grafo acíclico (DAG) — obrigatório
+
+1. O grafo de dependências entre domínios DEVE ser acíclico, considerando também as camadas (`application`, `ui`, `shared`).
+2. Antes de criar `A → B`, o agente DEVE verificar se existe caminho `B → … → A` (consultar `docs/arquitetura/02-grafo-dependencias.md` e reexecutar a análise).
+3. Direção-alvo do backend (domínios mais à direita não conhecem os da esquerda):
+
+```
+reviews ─┐
+favorites┤
+insights ┼──► guide · events ◄── ticketing ◄── (application) ──► payment
+partners ┘                                     bookings (novo) ──► payment
+notifications  (folha: não importa nenhum domínio; recebe dados por parâmetro)
+users · admin · climawind · seo  (folhas)
+```
+
+4. `payment` é folha de negócio: NÃO DEVE conhecer `ticketing`, `bookings`, `partners` ou `admin`. Quem conhece "pedido de ingresso" ou "plano" é o Application UseCase que chama `payment`.
+
+### 5.5. Dependência bidirecional
+
+Proibido `A → B` e `B → A`. Resolver, nesta ordem de preferência: (1) mover a regra para o domínio correto; (2) Application/Composition UseCase; (3) Domain Event. Proibido criar módulo `shared` só para esconder o ciclo.
+
+### 5.6. Domain/Application Events
+
+* Contrato: `EventPublisherPort` com eventos tipados (ex: `ReviewCreated`, `TicketOrderPaid`, `BookingConfirmed`).
+* Implementação PODE ser in-process síncrona (MVP). Para efeitos colaterais que não podem ser perdidos (e-mail, notificação de venda, repasse), DEVE ser usado **Transactional Outbox**: gravar o evento no Firestore na mesma transação da mudança de estado e processá-lo por Cloud Function/Cloud Tasks com idempotência.
+* O produtor NÃO DEVE importar os consumidores.
+
+### 5.7. Factories e fachadas
+
+* `factory.ts` é composição interna; NÃO DEVE ser importada por outro domínio.
+* Factories NÃO DEVEM executar I/O, ler segredos obrigatórios ou lançar exceção na avaliação do módulo (§2.2.4).
+* `index.ts` NÃO DEVE reexportar routes/controllers (evita carregar HTTP quando só um UseCase é necessário).
+
+### 5.8. Regra de emergência
+
+Uma dependência fora do padrão só é permitida para restaurar funcionamento crítico, sem comprometer segurança, e DEVE ser registrada em `docs/arquitetura/debitos.md` com: arquivo, motivo, risco, data e correção prevista.
 
 ---
 
-## 7. Desenvolvimento com Foco Exclusivo no App Web em Produção (Production-First Web App)
+## 6. Leitura vs. Escrita (CQRS pragmático)
 
-Toda nova codificação — seja criação de novas configurações, desenvolvimento de funcionalidades/recursos, criação de rotas ou refatorações de código existente — deve ser realizada exclusivamente com foco e mentalidade voltados para o aplicativo Web em ambiente de Produção.
+### 6.1. Escritas — sempre no backend
 
-### 7.1. Princípios e Regras de Produção Obrigatórias
+* O frontend NUNCA chama `setDoc`, `addDoc`, `updateDoc`, `deleteDoc`, `writeBatch`, `runTransaction` nem `uploadBytes`.
+* Toda mutação passa por `POST | PUT | PATCH | DELETE /api/...` → autenticação → autorização → Zod → DTO → UseCase → adapter (Admin SDK).
+* Upload de arquivo também é escrita: DEVE passar pelo backend (validação de tipo/tamanho/dono) ou por URL assinada emitida pelo backend. Upload direto do navegador com preset não assinado é proibido para código novo (débito existente: Cloudinary em `src/domain/media`).
 
-1. **Pronto para Deploy Real (Zero Mocks / Zero Placeholders Descartáveis):**
-    * Todo código escrito deve estar pronto para operação real em produção.
-    * É proibido introduzir stubs temporários, dados hardcoded mascarados de lógica dinâmica ou soluções provisórias que não sustentem uso por usuários reais.
-    * Qualquer funcionalidade que conecte serviços externos (banco de dados, autenticação, pagamentos, previsão meteorológica) deve usar a infraestrutura real configurada e variáveis de ambiente seguras.
-2. **Experiência do Usuário (UX/UI) e Responsividade Multi-Dispositivo:**
-    * O app web deve funcionar com perfeição em navegadores reais em desktop, tablets e smartphones (Android/iOS, Safari Mobile, Chrome Mobile).
-    * Respeitar safe-areas de visualização móvel (viewport-fit=cover), áreas de toque mínimas de 44×44px e densidade visual coerente.
-    * Não admitir travamentos de tela, transbordamentos horizontais indesejados (horizontal scrollbars) ou layouts quebrados em nenhuma resolução.
-3. **SEO, Compartilhamento Social e Indexabilidade:**
-    * Toda nova página, rota ou visualização com conteúdo indexável deve nascer integrada às diretrizes de SEO (useSEO no frontend, rotas estáticas ou hidratação no backend).
-    * Garantir tags Open Graph e Twitter Cards com URLs absolutas para compartilhamento rico em redes sociais e mensageiros (WhatsApp, Instagram, Telegram, LinkedIn).
-4. **Resiliência, Tolerância a Falhas e Performance:**
-    * Nenhuma chamada assíncrona (API, Firestore, serviço de clima) pode deixar a aplicação em estado de carregamento infinito ou causar tela branca (uncaught runtime error).
-    * Tratamento obrigatório de erros com feedback visual consistente via componentes do design system (toasts/avisos amigáveis).
-    * Manter bundle leve: evitar bibliotecas pesadas redundantes e garantir que o build de produção (npm run build) execute de forma limpa e sem advertências críticas de tipagem.
+### 6.2. Leituras no frontend (Firestore Client SDK)
+
+PERMITIDO ler direto do Firestore (`onSnapshot`, `getDocs`) somente quando **todas** as condições forem verdadeiras:
+
+1. o dado é público (catálogo, eventos publicados, avaliações, perfis públicos) **ou** pertence ao próprio usuário autenticado;
+2. a coleção tem regra de leitura explícita em `firestore.rules` com teste em `firestore.rules.*.test.ts`;
+3. o documento não contém PII de terceiros, dados financeiros ou segredos.
+
+OBRIGATÓRIO ler via API do backend: pedidos, ingressos, tokens de QR Code, transações, reembolsos, contas Stripe conectadas, relatórios de venda, dados administrativos e qualquer coleção com `allow read: if false`.
+
+### 6.3. Modelagem para leitura pública
+
+Documentos lidos pelo cliente DEVEM ser **projeções públicas** (ex: `publicProfiles`, `publicPartners`) mantidas pelo backend. Nunca expor o documento interno completo para "economizar" uma coleção.
+
+### 6.4. Tempo real e custo
+
+* Toda escuta (`onSnapshot`) DEVE ter `limit()` e ser cancelada no `unmount`.
+* Listagens DEVEM ser paginadas por cursor (`startAfter`), nunca por `offset`.
+* Toda query composta DEVE ter índice declarado em `firestore.indexes.json`.
 
 ---
 
-### 7.2. Infraestrutura Híbrida de Produção: Firebase Hosting (Frontend) + Google Cloud Run (Backend)
+## 7. Segurança (Zero-Trust, defesa em profundidade)
 
-O projeto opera sob uma arquitetura híbrida de alta performance e segurança no ecossistema Google Cloud:
+**Premissa:** o backend nunca confia no frontend.
 
-1. **Frontend no Firebase Hosting:**
-    * Distribuição Global: Os artefatos compilados da Single-Page Application (SPA React / Vite em dist/) são servidos pela CDN global do Firebase Hosting com cache otimizado, compressão gzip/brotli e baixa latência.
-    * Domínio Canônico: O Firebase Hosting gerencia diretamente os domínios useguide.com.br e www.useguide.com.br com certificados SSL/TLS automáticos.
-    * Redirecionamento: Domínios padrão (.web.app e .firebaseapp.com) e o subdomínio www redirecionam via HTTP 301 para o domínio canônico https://useguide.com.br.
-2. **Backend no Google Cloud Run:**
-    * Execução do Servidor: O backend Node.js / Express (dist/server.cjs) roda como um serviço gerenciado no Cloud Run (use-guide na região us-east1).
-    * Segurança de Segredos: Todas as chaves e credenciais sensíveis (ex: FIREBASE_SERVICE_ACCOUNT_KEY, credenciais do Mercado Pago) permanecem restritas ao ambiente do servidor, nunca expostas ao navegador.
-    * Proteção de Acesso Direto: Caso a URL direta do Cloud Run (*.run.app) seja acessada no navegador, o servidor emite um redirecionamento HTTP 301 para https://useguide.com.br.
-3. **Comunicação Funcional entre Frontend e Backend (Rewrites Transparentes do Firebase Hosting):**
-    * Origem Única (Same-Origin): Para o navegador do usuário, Frontend e Backend operam sob o mesmo domínio (https://useguide.com.br). Isso elimina problemas de CORS, simplifica o envio de cookies/headers e previne bloqueios de segurança do navegador.
-    * Roteamento de Tráfego (firebase.json):
-        * O arquivo de configuração declara a regra de rewrite que conecta os dois serviços:
+### 7.1. Camadas — caminho de ESCRITA
+
+```
+[Frontend RHF+Zod] → [App Check] → [Auth: verifyIdToken] → [Autorização: RBAC + posse do recurso]
+   → [Zod safeParse] → [DTO allowlist] → [Regra de negócio no service] → [Transação Admin SDK]
+```
+
+> ⚠️ **As Firestore Security Rules NÃO protegem escritas feitas pelo Admin SDK** — o Admin SDK ignora as rules. No caminho de escrita, a autorização é responsabilidade exclusiva do backend.
+
+### 7.2. Camadas — caminho de LEITURA direta do cliente
+
+```
+[Frontend Client SDK] → [Firestore Security Rules] (+ App Check aplicado no Firestore em produção)
+```
+
+### 7.3. Regras de cada camada
+
+1. **Frontend:** formulários com React Hook Form + `zodResolver`. É só UX — não é controle de segurança.
+2. **App Check:** obrigatório em produção para `/api/*` (exceto webhooks, health e jobs internos autenticados).
+3. **Autenticação:** `verifyIdToken` com `checkRevoked: true` em operações sensíveis (pagamento, exclusão de conta, mudança de papel).
+4. **Autorização:** papel vindo de **custom claims** ou do documento do usuário lido no servidor; nunca do body. Toda operação em recurso DEVE checar posse (`ownerId === uid`) ou papel `admin`.
+5. **Validação:** `schema.safeParse()` em `body`, `params` e `query`; falha → `400` com `VALIDATION_ERROR`.
+6. **DTO:** allowlist de campos; campos como `isAdmin`, `isVerified`, `status`, `price`, `ownerId`, `partnerId` NUNCA vêm do cliente sem regra explícita.
+7. **Firestore Rules:** `default deny`; cada coleção nova DEVE nascer com regra e teste. Coleções só de backend: `allow read, write: if false`.
+8. **Storage Rules:** mesmo princípio; escrita via backend.
+
+### 7.4. Proteções transversais obrigatórias
+
+* **Rate limiting** em rotas públicas e de autenticação/pagamento (por IP + uid), com armazenamento compartilhado (não memória local do Cloud Run).
+* **`trust proxy`** DEVE ser configurado com o número exato de proxies, não `true`.
+* **Cabeçalhos:** Helmet com CSP (já existe em `server.ts`); toda origem nova (Stripe, mapas, CDN) DEVE ser adicionada explicitamente.
+* **Erros:** nunca devolver stack trace, mensagem do SDK ou detalhe interno ao cliente (§10.2).
+* **Segredos:** Secret Manager em produção; proibido commitar `.env`, chaves, service accounts ou PEMs.
+* **Links externos:** `window.open(url, '_blank', 'noopener,noreferrer')` e `rel="noopener noreferrer"`.
+* **Dependências:** `npm audit` sem vulnerabilidade *high/critical* para merge.
+
+### 7.5. Privacidade — LGPD (Lei 13.709/2018)
+
+* Coletar o mínimo necessário; CPF/CNPJ, telefone e documentos só quando exigidos pela regra de negócio.
+* PII NUNCA em logs, metadata do Stripe, analytics ou URLs.
+* O usuário DEVE conseguir exportar e excluir seus dados (`deleteUserAccountApplicationUseCase` é o ponto de entrada da exclusão e DEVE cobrir todos os domínios).
+* Dados financeiros e fiscais têm retenção legal: exclusão de conta DEVE anonimizar (e não apagar) registros de transação.
+* Incidente com dado pessoal DEVE ser comunicado ao responsável do produto imediatamente; a comunicação à ANPD e aos titulares segue a Resolução CD/ANPD nº 15/2024.
+
+### 7.6. Classificação de dados
+
+Todo campo novo DEVE ser classificado antes de ser persistido. A classe define onde o dado pode aparecer e como é protegido.
+
+| Classe | Exemplos | Leitura pelo cliente | Proteção obrigatória |
+|---|---|---|---|
+| **Pública** | nome do estabelecimento, fotos, preço exibido, avaliações, eventos publicados | direto do Firestore (§6.2) | integridade (escrita só pelo backend) |
+| **Interna** | contadores, status operacionais, logs de auditoria | só via API (admin/dono) | rules `if false` + autorização no backend |
+| **Confidencial (PII)** | e-mail, telefone, nome completo, endereço, data de nascimento, foto de perfil privada | só o próprio titular, via API ou documento próprio com rule | minimização, nunca em logs/metadata, mascaramento na exibição |
+| **Restrita (PII sensível)** | CPF, CNPJ de pessoa física (MEI), documentos de identidade, comprovantes de verificação | nunca em texto puro; exibir mascarado (`***.***.***-12`) | **criptografia em nível de campo** + *blind index* (§7.7) |
+| **Segredos** | chaves de API, `STRIPE_*`, PEMs, chaves HMAC, tokens de job | nunca | Secret Manager, rotação (§7.8) |
+| **Dados de cartão / bancários** | número do cartão, CVV, conta bancária do parceiro | nunca | **proibido armazenar**: ficam no Stripe (Payment Element e Connect onboarding) |
+
+### 7.7. Criptografia
+
+**Em repouso (base, já fornecida pelo Google Cloud):** Firestore, Cloud Storage, Secret Manager e discos do Cloud Run são criptografados por padrão com AES-256. Isso protege contra acesso físico ao disco; **não protege** contra leitura indevida por código, por um usuário com permissão IAM ampla ou por um export do banco. Por isso a classe *Restrita* exige criptografia adicional na aplicação.
+
+**Criptografia em nível de campo (classe Restrita):**
+
+1. Algoritmo: **AES-256-GCM** com IV aleatório de 96 bits por operação (nunca reutilizar IV com a mesma chave) e tag de autenticação de 128 bits.
+2. Gestão de chave: **envelope encryption** com **Cloud KMS** — a chave de dados (DEK) é gerada por registro ou por lote e guardada cifrada pela chave mestra do KMS (KEK). A KEK nunca sai do KMS.
+3. Formato persistido: `{ v: 1, kid: '<versão da chave>', iv, tag, ct }` em base64url. O `kid` permite rotação sem migração imediata.
+4. *Associated data* (AAD) DEVE incluir o ID do documento e o nome do campo, impedindo copiar o valor cifrado para outro registro.
+5. Contrato: `FieldEncryptionPort { encrypt(plain, context): Promise<EncryptedField>; decrypt(field, context): Promise<string> }` em `server/shared/kernel`, implementado por `server/infrastructure/crypto/kmsFieldEncryptionAdapter.ts`. Domínios usam o port, nunca o SDK do KMS.
+6. Criptografia e descriptografia acontecem **somente no backend**. O frontend nunca recebe chave nem dado Restrito descriptografado, salvo o próprio titular em tela específica e mascarada por padrão.
+7. No AI Studio, PODE ser usado um adapter local com chave de teste vinda do painel Secrets (`FIELD_ENCRYPTION_DEV_KEY`, 32 bytes base64). Esse adapter DEVE se recusar a iniciar com `NODE_ENV=production`.
+
+**Blind index (busca e unicidade sem expor o dado):**
+
+* Para verificar unicidade ou buscar por CPF/CNPJ, gravar `HMAC-SHA-256(PII_BLIND_INDEX_KEY, valorNormalizado)` em vez do valor.
+* IDs de documento, caminhos do Storage, URLs e nomes de arquivos NUNCA contêm PII. Débito existente: `partnerDocumentKeys/{cpfCnpjLimpo}` e os campos `cpfCnpj`/`cpfCnpjClean` em `partners` estão em texto puro.
+
+**Hash, tokens e assinaturas:**
+
+| Uso | Obrigatório | Proibido |
+|---|---|---|
+| Senhas de usuário | Firebase Auth (o backend nunca recebe nem guarda senha) | qualquer armazenamento próprio de senha |
+| Tokens opacos (QR de ingresso, convite, link de transferência, reset) | gerar com `crypto.randomBytes(≥ 16)` (≥ 128 bits); guardar só `HMAC-SHA-256` com chave do Secret Manager | guardar o token em texto puro; `Math.random()`; UUID como segredo |
+| Assinatura offline (check-in) | RSA-PSS SHA-256 com chave ≥ 3072 bits **ou** Ed25519; `kid` no token para rotação | RSA PKCS#1 v1.5 em código novo; chave privada no frontend |
+| Comparar segredos | `crypto.timingSafeEqual` sobre buffers de mesmo tamanho | `===` em segredos |
+| Integridade de webhook | verificação do SDK do provedor (`stripe.webhooks.constructEvent`) | verificação manual sem tolerância de tempo |
+| Algoritmos | SHA-256/384/512, HMAC-SHA-256, AES-256-GCM, Ed25519, RSA-PSS | MD5, SHA-1, AES-ECB, AES-CBC sem MAC, DES/3DES, criptografia "caseira" |
+
+**Segredo com fallback fixo é proibido.** Se um segredo obrigatório faltar, o código DEVE falhar na primeira chamada (§2.2.4) e nunca usar um valor padrão escrito no código. Débito existente: `DEFAULT_FALLBACK_QR_SECRET` em `server/domain/ticketing/utils/qrToken.ts`.
+
+**Onde o módulo `crypto` do Node PODE ser importado:** `server/infrastructure/crypto/`, `adapters/` e `utils/` puros de token/assinatura do próprio domínio. Nunca em controllers, componentes ou hooks.
+
+### 7.8. Gestão e rotação de chaves
+
+| Segredo | Armazenamento | Rotação | Observação |
+|---|---|---|---|
+| `STRIPE_SECRET_KEY` | Secret Manager | ao suspeitar de vazamento e na troca de responsável | preferir **restricted key** com permissões mínimas |
+| `STRIPE_WEBHOOK_SECRET` | Secret Manager | a cada 12 meses (o Stripe permite período de sobreposição de até 24 h) | um segredo por endpoint |
+| `TICKET_QR_SECRET` (HMAC) | Secret Manager | a cada 12 meses, com `kid` | manter a versão anterior ativa até expirarem os ingressos emitidos com ela |
+| `OFFLINE_CHECKIN_PRIVATE_KEY_PEM` / `TICKET_QR_PRIVATE_KEY_PEM` | Secret Manager | a cada 12 meses, com `OFFLINE_CHECKIN_KEY_ID` novo | a chave pública anterior continua aceita até o fim dos eventos |
+| `PII_BLIND_INDEX_KEY` (HMAC) | Secret Manager | só com reindexação planejada | trocar exige recalcular todos os índices |
+| KEK de campo | Cloud KMS | automática a cada 90 dias | versões antigas ficam ativas para descriptografia |
+| Chave de job interno (legado) | Secret Manager | a cada 90 dias até migrar para OIDC (§7.9) | ≥ 32 bytes aleatórios |
+
+Regras:
+
+1. Chaves de teste (AI Studio) e de produção são **sempre diferentes**. Nunca copiar segredo de produção para o AI Studio.
+2. A conta de serviço do Cloud Run recebe `roles/secretmanager.secretAccessor` **por segredo**, não no projeto inteiro.
+3. Rotação de segredo é ação irreversível de alto impacto: o agente DEVE pedir confirmação (§15).
+4. Segredo vazado (commit, log, print): revogar imediatamente, rotacionar e registrar o incidente. Apagar o commit não é suficiente.
+
+### 7.9. Segurança na transferência de dados (externa e interna)
+
+**Princípio:** todo canal é cifrado e autenticado. Rede interna do Google não é zona de confiança: o serviço do Cloud Run precisa aceitar invocação pública para funcionar com o rewrite do Firebase Hosting, então **toda** rota se autentica na aplicação.
+
+| Canal | Transporte | Autenticação | Regras |
+|---|---|---|---|
+| Navegador → Firebase Hosting (site e `/api/**`) | HTTPS, TLS ≥ 1.2, certificado gerenciado | ID Token no header `Authorization` + App Check | HSTS `max-age=63072000; includeSubDomains`; sem conteúdo misto; tokens nunca na URL/query |
+| Firebase Hosting → Cloud Run | HTTPS na rede do Google | a mesma da requisição original | o backend revalida tudo; não confiar em headers de proxy além de `X-Forwarded-For` tratado por `trust proxy` |
+| Acesso direto `*.run.app` | HTTPS | a mesma | páginas redirecionam para o domínio canônico; `/api` e `/internal` exigem autenticação |
+| Navegador → Firestore/Auth/Storage (Client SDK) | HTTPS/WebSocket TLS | ID Token + App Check | só leituras permitidas pelo §6.2 |
+| Cloud Run → Firestore/Auth/Storage/KMS/Secret Manager | TLS via SDK | ADC (conta de serviço do Cloud Run) | IAM de menor privilégio: `roles/datastore.user`, acesso ao bucket específico, `secretAccessor` por segredo, `cloudkms.cryptoKeyEncrypterDecrypter` só na chave usada |
+| Cloud Run → APIs externas (Stripe, Open-Meteo, MET Norway, Cloudinary) | HTTPS com validação de certificado | chave da API no servidor | timeout obrigatório (`AbortSignal.timeout`); retry com backoff só em operação idempotente; enviar o mínimo de dados e nenhuma PII; `User-Agent` identificável (exigido pela MET Norway) |
+| Stripe → Cloud Run (webhook) | HTTPS público | assinatura `Stripe-Signature` + segredo do endpoint | corpo bruto; idempotência em duas fases (§8.6) |
+| Cloud Scheduler / Cloud Functions → Cloud Run (`/internal/*`) | HTTPS | **alvo: token OIDC** da conta de serviço do job, validado no backend (audience = URL do serviço, e-mail da conta esperada) | legado: header `X-Internal-Job-Key` com `timingSafeEqual`; rotas internas nunca passam pelo rewrite do Hosting |
+| Backend → e-mail/push/WhatsApp | HTTPS do provedor | chave do provedor no servidor | sem dado Restrito no conteúdo; links com token assinado, de uso único e com expiração |
+
+Regras obrigatórias:
+
+1. É proibido desativar validação de certificado (`NODE_TLS_REJECT_UNAUTHORIZED=0`, `rejectUnauthorized: false`) em qualquer ambiente.
+2. **SSRF:** o backend NUNCA faz requisição para URL vinda do usuário (ex: "importar foto de link"). Se for necessário, usar allowlist de hosts, bloquear IPs privados/metadata (`169.254.169.254`, `10.0.0.0/8` etc.) e limitar tamanho e tempo.
+3. **CORS:** a API é same-origin; NÃO DEVE responder `Access-Control-Allow-Origin: *`. Se for preciso liberar outra origem (ex: domínio do AI Studio), usar allowlist explícita vinda da configuração.
+4. **DTO de saída:** respostas da API DEVEM ser montadas por allowlist de campos. É proibido devolver o documento do Firestore inteiro (vaza campos internos e PII).
+5. **Exportações e backups** (export do Firestore, relatórios CSV) contêm PII: bucket privado, acesso restrito por IAM, retenção definida e criptografia CMEK quando incluírem dados Restritos.
+6. **Logs** são transferência de dados: o §10.3 vale também para Cloud Functions e scripts.
+
+### 7.10. Segurança de aplicação (OWASP Top 10)
+
+| Risco OWASP 2021 | Controle obrigatório no Use Guide |
+|---|---|
+| A01 Controle de acesso quebrado | checar posse ou papel em **toda** rota; teste de IDOR para cada recurso (usuário A tentando ler/alterar pedido, ingresso, reserva ou item do usuário B → `403`/`404`) |
+| A02 Falhas criptográficas | §7.6–§7.9 |
+| A03 Injeção / XSS | React escapa por padrão; `dangerouslySetInnerHTML` proibido sem sanitização (DOMPurify); HTML gerado no servidor (`seoService`) DEVE escapar todo valor dinâmico; nunca montar query/caminho do Firestore com string não validada |
+| A04 Design inseguro | funcionalidades com dinheiro ou PII DEVEM ter modelagem de ameaças curta no PR (quem ataca, o quê, como bloqueamos) |
+| A05 Configuração insegura | CSP sem origens desnecessárias; erros sem `err.message` interno para o cliente (o handler global do `server.ts` hoje devolve `err.message` — débito); nada de rotas de debug em produção |
+| A06 Componentes vulneráveis | `npm audit` nos gates; atualizações de segurança semanais; lockfile versionado |
+| A07 Falhas de autenticação | e-mail verificado antes de comprar ou virar parceiro; **MFA obrigatório para admin** (Identity Platform); revogar sessões (`revokeRefreshTokens`) ao trocar senha, perder papel ou excluir conta |
+| A08 Integridade de dados e software | assinatura de webhooks; builds a partir do lockfile; nenhum script de terceiros fora da CSP |
+| A09 Falhas de log e monitoramento | log de auditoria (quem, o quê, quando, de onde) para ações de admin, mudanças de preço, reembolsos e mudanças de papel; alertas para picos de `401/403/429` e falhas de webhook |
+| A10 SSRF | §7.9 regra 2 |
+
+**Uploads (foto de perfil, fotos de itens, documentos de verificação):**
+
+* Validar tipo pelo conteúdo (*magic bytes*), não pela extensão; aceitar só JPEG, PNG, WebP (e PDF para documentos).
+* SVG proibido em upload de usuário (executa script).
+* Limite de tamanho no servidor; reprocessar imagens (redimensionar e regravar) removendo **metadados EXIF, incluindo localização GPS**.
+* Nome de arquivo gerado pelo servidor (aleatório); documentos de verificação em caminho privado, nunca públicos.
+
+**Papel de admin:** a custom claim `admin` só é concedida por script operacional auditado ou pelo console, nunca por endpoint da API.
+
+**Continuidade:** Firestore com *point-in-time recovery* ou exportação agendada; restauração testada pelo menos uma vez por trimestre.
+
+---
+
+## 8. Pagamentos — Stripe (fornecedor oficial)
+
+O Stripe é o **único** provedor de pagamentos. Referências a Mercado Pago no código, README ou `.env` são legado e DEVEM ser removidas.
+
+### 8.1. Modelo de marketplace
+
+* **Stripe Connect** com contas conectadas **Express** (`controller.stripe_dashboard.type = 'express'`), país `BR`, uma por parceiro (`paymentConnectedAccounts/{partnerId}`).
+* **Onboarding e gestão do parceiro** via Connect embedded components (Account Session gerada no backend).
+* **Tipo de cobrança padrão:** *destination charge* (`transfer_data.destination` + `application_fee_amount`). A plataforma é o *merchant of record*.
+  * Mudar para `on_behalf_of` (parceiro como merchant of record) é decisão de produto/jurídica (§15) — muda descritor na fatura, taxas, e exige que o parceiro tenha os métodos de pagamento ativos (ex: capability `pix_payments`).
+* **Taxa da plataforma:** calculada **somente no backend**, em centavos, a partir de `USE_GUIDE_PLATFORM_FEE_PERCENT` ou da configuração do plano. NUNCA aceitar valor de taxa ou de preço vindo do cliente.
+* Antes de criar cobrança para um parceiro, DEVE ser verificado `charges_enabled` e `payouts_enabled` da conta conectada (`assertPartnerReadyForPaidEventUseCase`).
+
+### 8.2. O que se vende e como
+
+| Produto | Fluxo Stripe |
+|---|---|
+| Ingresso de evento | PaymentIntent (destination charge) vinculado a `ticketOrder` com reserva de estoque |
+| Passeio, aluguel (quadriciclo), translado, entrada de atração privada | PaymentIntent (destination charge) vinculado a `booking` com reserva de disponibilidade (domínio `bookings`, §9.3) |
+| Plano do parceiro (mensal/trimestral/semestral) | **Stripe Billing (Subscriptions)** é o alvo. O pagamento avulso por PaymentIntent atual é débito registrado: não há renovação automática nem cobrança recorrente |
+
+### 8.3. Métodos de pagamento
+
+* Usar **dynamic payment methods** (`automatic_payment_methods: { enabled: true }`) e habilitar no Dashboard: cartão e **Pix** (Pix é suportado para contas BR e com Connect; valor mínimo de R$ 0,50; reembolso em até 90 dias; manual capture não é suportado no Pix).
+* Pix é assíncrono: o pedido só é confirmado pelo webhook `payment_intent.succeeded`. A UI DEVE mostrar o QR Code/instruções e aguardar o status (tempo real ou polling da API).
+* Pré-autorização (`capture_method: 'manual'`) só para cartão e somente se o produto exigir (ex: caução de aluguel).
+
+### 8.4. Fronteira frontend × backend
+
+* **Frontend:** só `VITE_STRIPE_PUBLISHABLE_KEY`; usa Payment Element com o `clientSecret` recebido do backend. Dados de cartão nunca tocam nosso servidor (escopo PCI SAQ A).
+* **Backend:** cria PaymentIntent, AccountSession, Refund; nunca expõe `sk_*`.
+* A confirmação no retorno do cliente (`redirect`/`return_url`) é apenas UX. **A fonte da verdade é o webhook.**
+
+### 8.5. Valor, idempotência e metadata
+
+* Preço DEVE ser recalculado no backend a partir do catálogo/estoque no momento da criação do pedido.
+* Toda chamada de escrita ao Stripe DEVE ter `idempotencyKey` determinística (ex: `pi_order_<orderId>`, `refund_<refundId>`).
+* `metadata` DEVE conter somente IDs internos (`referenceType`, `referenceId`, `partnerId`, `refundId`) — nunca PII.
+* Refunds DEVEM ser criados com `metadata.refundId` para reconciliação pelo webhook.
+
+### 8.6. Webhooks (fonte da verdade)
+
+1. Rota com `express.raw()` **antes** de `express.json()`, fora do App Check, assinatura verificada com `STRIPE_WEBHOOK_SECRET`.
+2. **Idempotência em duas fases:** reservar o `event.id` como `processing` (com prazo de expiração) → processar → marcar `processed`. Se o processamento falhar, liberar a reserva e responder `5xx` para o Stripe reenviar. É proibido marcar como processado antes de processar.
+3. Responder `2xx` rápido. Processamento pesado DEVE ir para fila (outbox/Cloud Tasks).
+4. Não depender da ordem dos eventos; ao receber um evento, consultar o estado atual do objeto quando necessário.
+5. Assinar somente os eventos usados. Mínimo: `payment_intent.succeeded`, `payment_intent.payment_failed`, `payment_intent.canceled`, `charge.refunded`, `refund.updated`, `charge.dispute.created`, `charge.dispute.closed`, `account.updated` (+ `invoice.*` e `customer.subscription.*` quando migrar planos para Billing).
+6. Status de refund `pending`/`requires_action` NÃO DEVE ser tratado como aprovado.
+7. Uma única rota de webhook por endpoint configurado no Stripe (remover rotas duplicadas).
+
+### 8.7. Reembolsos, cancelamentos e disputas
+
+* Política de cancelamento por produto (prazo, % reembolsável) DEVE ser dado do cadastro, exibida antes da compra e aplicada no backend.
+* Cancelamento de evento/passeio pelo organizador → reembolso integral com `refund_application_fee: true` e `reverse_transfer: true`.
+* Disputa → marcar pedido como `disputed`, bloquear check-in/uso e notificar admin.
+
+### 8.8. Testes de pagamento
+
+* AI Studio/dev usa somente chaves de teste; `stripe listen --forward-to localhost:3000/api/payment/webhook/stripe` para webhooks locais.
+* Todo fluxo de pagamento DEVE ter testes unitários do service com gateway fake e teste do handler de webhook (assinatura inválida, evento duplicado, falha no processamento → reenvio).
+
+---
+
+## 9. Regras de Negócio do Marketplace Turístico
+
+### 9.1. Catálogo (`guide`)
+
+* Tipos: restaurante, hospedagem, passeio, atração (pública/privada), dica. Cada tipo tem schema próprio de campos operacionais (horário, faixa de preço, localização).
+* Atração **pública** não é vendável. Atração **privada** PODE vender entradas se o parceiro dono tiver conta Stripe habilitada.
+* Parceiro só edita itens de que é dono (`ownerId`); verificação (`isVerified`) só por admin.
+
+### 9.2. Eventos e ingressos (`events`, `ticketing`)
+
+* Estoque DEVE ser controlado por transação + reserva com expiração (`inventoryReservations`), liberada por job (`expireTicketingOrders`).
+* QR Code de ingresso DEVE ser assinado (RSA-PSS — já implementado) e verificável offline no check-in.
+
+### 9.3. Reservas de serviços (`bookings` — novo domínio)
+
+Passeios, aluguéis, translados e entradas de atrações privadas compartilham o mesmo modelo e NÃO DEVEM ser implementados dentro de `ticketing` nem de `guide`:
+
+* Entidades: `BookableOffer` (vinculada a um item do `guide`), `AvailabilitySlot` (data/hora, capacidade), `Booking` (status: `pending_payment → confirmed → completed | canceled | refunded | no_show`), `BookingParticipant`.
+* Reserva de capacidade com expiração, igual a ingressos.
+* Translado: origem/destino, data/hora, número de passageiros e bagagem.
+* Aluguel: período (início/fim), caução opcional (pré-autorização de cartão), termo de responsabilidade aceito.
+* Antes de criar o domínio, o agente DEVE apresentar o desenho para aprovação (§15).
+
+### 9.4. Avaliações (`reviews`)
+
+* Uma avaliação por usuário por item (ID determinístico `buildReviewId`).
+* Para itens vendáveis, avaliação DEVERIA exigir compra/uso verificado (`getVerifiedAttendanceForReviewUseCase`), exibindo o selo "experiência verificada".
+* Agregados de nota (`rating`, `count`) atualizados em transação no backend; o parceiro NUNCA altera ou apaga avaliações de terceiros (só responde e denuncia).
+
+### 9.5. SEO de conteúdo (diferencial competitivo)
+
+* Toda página indexável DEVE ter título, descrição, canonical, Open Graph e Twitter Card com URL absoluta.
+* Páginas de item DEVEM emitir **JSON-LD schema.org** adequado: `Restaurant`, `LodgingBusiness`, `TouristAttraction`, `TouristTrip`, `Event` (com `Offer`), `AggregateRating`/`Review`.
+* `sitemap.xml` DEVE ser gerado a partir do catálogo publicado, não mantido à mão.
+
+---
+
+## 10. Contratos de API, Erros e Observabilidade
+
+### 10.1. API
+
+* Recursos no plural: `/api/<recurso>`; verbos HTTP semânticos; `201` em criação, `204` sem corpo.
+* Operações de criação com efeito financeiro DEVEM aceitar header `Idempotency-Key`.
+* Paginação por cursor: `?limit=&cursor=` → `{ data, nextCursor }`.
+* Mudança incompatível de contrato DEVE manter compatibilidade com o frontend publicado até o deploy simultâneo (Hosting e Cloud Run não sobem atomicamente).
+
+### 10.2. Formato único de erro
 
 ```json
-{
-  "hosting": {
-    "rewrites": [
-      {
-        "source": "/api/**",
-        "run": {
-          "serviceId": "use-guide",
-          "region": "us-east1"
-        }
-      },
-      {
-        "source": "**",
-        "destination": "/index.html"
-      }
-    ]
-  }
-}
+{ "error": { "code": "TICKET_TYPE_UNAVAILABLE", "message": "Ingresso esgotado.", "requestId": "..." } }
 ```
 
-    * Fluxo Operacional Passo a Passo:
-        1. Requisição de Telas e Assets: Quando o usuário navega pelas rotas da aplicação (ex: /, /eventos, /passeios), o Firebase Hosting resolve o caminho estático ou entrega o index.html da CDN instantaneamente.
-        2. Chamadas de API e Mutações (/api/*): Quando o Frontend dispara requisições HTTP para a API (ex: fetch('/api/payment/pix', ...) com o header Authorization: Bearer <token>), a CDN do Firebase Hosting identifica o padrão /api/**.
-        3. Proxy Reverso Interno: Em vez de responder com o frontend, o Firebase Hosting encaminha a requisição de forma transparente através da rede interna do Google para o container do Cloud Run.
-        4. Processamento e Resposta: O Cloud Run processa a lógica de negócio, autentica o usuário via Firebase Admin SDK, interage com o Firestore ou gateways externos e retorna a resposta HTTP. O Firebase Hosting repassa o resultado diretamente ao cliente sob o mesmo domínio.
+* `code` estável em `UPPER_SNAKE_CASE`, mapeado a partir de erros tipados do domínio; `message` segura para o usuário.
+* Mapeamento: validação `400`, não autenticado `401`, sem permissão `403`, não encontrado `404`, conflito/estoque `409`, regra de negócio `422`, rate limit `429`, dependência externa indisponível `503`, inesperado `500`.
+
+### 10.3. Logs e rastreio
+
+* Logs estruturados em JSON (Cloud Logging) com `severity`, `requestId`, `uid` (quando houver), `domain`, `operation`.
+* Propagar o trace do header `X-Cloud-Trace-Context` no campo `logging.googleapis.com/trace`.
+* Proibido logar tokens, PII, `clientSecret`, payload completo de webhook.
 
 ---
 
-## 8. Arquitetura CQRS / Separação Estrita de Leitura e Escrita (Frontend Reads vs Backend Writes)
+## 11. UI, UX e Layout
 
-### 8.1. FRONTEND: Leituras e Escutas em Tempo Real (Queries / Reads)
+### 11.1. Identidade visual
 
-* FRONTEND: faz somente Leituras e Escutas em Tempo Real (Queries / Reads), direto do Firestore no Frontend via Client SDK (onSnapshot, getDocs), aproveitando a CDN global do Google, cache offline e zero latência de servidor intermediário.
-* O Frontend nunca altera o banco de dados diretamente, sempre usa o backend para isso.
+* **Estilo:** Glassmorphism. Tema **dark é o padrão de design**. O código já possui tema `light`/`system` (`ThemeContext`, `AppearanceSettingsView`); todo componente novo DEVE funcionar nos dois temas usando tokens/variáveis CSS, nunca `text-white` fixo em superfície que muda de cor.
+* **Accent:** teal (`teal-400`/`teal-500`); emerald = sucesso; cyan = informação.
+* **Tipografia:** Inter (texto/UI) e Outfit (display). Proibida uma terceira fonte.
+* **Superfície elevada:** `GlassCard` (`src/ui/components/GlassCard.tsx`).
 
-**Comportamento no Frontend (src/)**
+### 11.2. Contraste (WCAG 2.2 AA)
 
-No Frontend, mantemos o isolamento via Ports & Adapters:
+* Texto normal ≥ **4.5:1**; texto grande (≥ 24px, ou ≥ 18.66px bold) e ícones informativos ≥ **3:1**.
+* Sobre fundo escuro sólido (`#020508`–`#0a0a0f`): `text-white/50` ≈ 5.3:1 (mínimo para texto funcional); `/40` ≈ 3.7:1 (só texto grande); `/30` e `/20` proibidos em texto informativo.
+* Sobre vidro (`bg-white/5` + blur) o contraste real é menor: validar com a cor efetiva do fundo.
 
-* Autenticação: O src/domain/auth/ continua usando o Client SDK para login com Google, e-mail/senha e obtenção do token JWT (getIdToken()).
-* Consultas e Tempo Real (Hooks): Listagem de estabelecimentos, eventos, condições do vento e notificações continuam usando onSnapshot / databaseAdapter.subscribeCollection(...) para que a tela atualize instantaneamente quando houver novidades.
-* Ações de Escrita e Modificação: O Frontend nunca chama setDoc, addDoc, updateDoc ou deleteDoc.
-* Quando o usuário clica em “Salvar Item”, “Excluir Item”, “Avaliar”, “Comprar Plano” ou “Atualizar Perfil”, o componente dispara um UseCase que envia um fetch('POST' | 'PUT' | 'DELETE', '/api/...') com o token no header Authorization: Bearer <token>.
-* **Regra Central:** O Frontend nunca altera o banco de dados diretamente, sempre usa o backend para isso.
+### 11.3. Responsividade (breakpoints padrão do Tailwind v4)
 
----
+| Prefixo | Largura mínima | Uso |
+|---|---|---|
+| (base) | 0 | celular — layout de referência (mobile-first) |
+| `sm:` | 640px | celular grande / tablet pequeno |
+| `md:` | 768px | tablet |
+| `lg:` | 1024px | desktop pequeno |
+| `xl:` | 1280px | desktop |
 
-### 8.2. BACKEND: Escritas, Mutações e Regras de Negócio (Commands / Writes)
+* Telas de conteúdo DEVEM ter largura máxima legível (ex: `max-w-7xl mx-auto`) e se adaptar ao desktop; modais e formulários PODEM usar `max-w-[480px]`–`max-w-lg`.
+* Grids de cards: `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3` (ou equivalente).
+* Informação funcional nunca existe só a partir de um breakpoint maior.
+* Respeitar safe areas (`viewport-fit=cover`, `env(safe-area-inset-*)`) e não criar scroll horizontal.
 
-* BACKEND: Escritas, Mutações e Regras de Negócio (Commands / Writes): Passam obrigatoriamente pela API do Backend via Express (firebase-admin), onde passam por autenticação JWT, validação rigorosa com Zod, higienização DTO e transações seguras antes de salvar no Firestore.
-* O Backend nunca confia no Frontend.
+### 11.4. Z-index
 
-**Comportamento no Backend (server/)**
+Usar exclusivamente `Z_INDEX` de `src/shared/constants/zIndex.ts`. Proibido valor numérico solto (`z-[130]`). Legado é migrado quando o arquivo for tocado.
 
-O Backend centraliza todo o fluxo transacional:
+### 11.5. Área de toque
 
-* Middleware de Autenticação (authMiddleware): Decodifica e valida a assinatura do token JWT do Firebase (admin.auth().verifyIdToken()). Injeta o usuário autenticado em req.user.
-* Validação e DTOs (Zod): Higieniza o payload recebido e descarta campos maliciosos ou não autorizados.
-* Camada de Negócio e Serviços (server/domain/*/services): Valida regras de negócio (ex: “esse usuário é o dono deste item?”, “o plano do parceiro está ativo?”).
-* Persistência via Admin SDK (server/domain/*/adapters): Executa a mutação com adminDb.collection('items').doc(id).update(...) ou transações atômicas adminDb.runTransaction(...).
-* **Regra Central:** O Backend nunca confia no Frontend.
+Elemento interativo ≥ **44×44 px** (Apple HIG); DEVERIA chegar a 48×48 px em ações primárias (Material Design). O ícone pode ser menor; a área clicável não.
 
----
+### 11.6. Feedback
 
-## 9. Processo de Decisão e Soluções Alternativas (Consulta Obrigatória ao Usuário)
+Proibidos `alert()`, `confirm()`, `prompt()`. Usar o toast do design system (`sonner`, encapsulado em `src/ui/components/Toast.tsx`) e `ConfirmDialog` para confirmações.
 
-* **Regra Obrigatória:** Sempre que o agente se deparar com duas ou mais abordagens ou soluções válidas para atender a um pedido ou resolver um problema (com diferentes trade-offs técnicos, arquiteturais, de complexidade, segurança, custos ou experiência do usuário), o agente NÃO deve tomar a decisão sozinho ou assumir uma escolha sem consulta prévia.
-* **Comportamento Esperado:**
-    1. Parar a execução antes de iniciar a modificação ou criação de código.
-    2. Apresentar de forma clara, sucinta e objetiva as alternativas identificadas.
-    3. Destacar os prós, contras e trade-offs fundamentais de cada opção.
-    4. Perguntar explicitamente ao usuário por qual solução ele prefere seguir.
-    5. Aguardar a resposta e confirmação do usuário antes de prosseguir com a implementação.
+### 11.7. Acessibilidade
 
----
+* Botão só com ícone → `aria-label` (traduzido).
+* Foco visível: `focus-visible:ring-2 focus-visible:ring-teal-400/50`; proibido `outline-none` sem substituto.
+* Texto escondido por design → `sr-only`.
+* Modais: foco preso, `Esc` fecha, foco volta ao gatilho (Radix Dialog já faz).
+* Respeitar `prefers-reduced-motion` em animações (`motion`).
 
-## 10. Modularidade Atômica e Princípio da Responsabilidade Única (Anti-God Files)
+### 11.8. Estados de dados
 
-Para evitar arquivos gigantes, componentes sobrecarregados e “God Hooks/God Components”, todo arquivo no Frontend e no Backend deve ter uma única razão para mudar. É estritamente proibido acumular múltiplas responsabilidades, visualizações distintas ou regras não correlatas no mesmo arquivo.
+Todo hook assíncrono expõe `data`, `loading` e `error`. Toda tela trata: carregando (skeleton), vazio, erro (com ação de tentar novamente) e offline (`useConnection`).
 
----
+### 11.9. Performance (Core Web Vitals)
 
-## 10.1. Regras de Ouro de Modularidade
+* Metas no p75 móvel: **LCP ≤ 2.5 s, INP ≤ 200 ms, CLS ≤ 0.1**.
+* Rotas e modais pesados (mapa, gráficos, checkout Stripe) DEVEM ser carregados sob demanda (`React.lazy`).
+* Imagens com `width`/`height`, `loading="lazy"` fora da dobra e formatos modernos.
 
-1. **Componentes Visuais Atômicos (components/):**
-    * Um componente de UI nunca deve renderizar um formulário, uma lista, um sumário de métricas e um seletor de filtros tudo junto no mesmo arquivo.
-    * Cada parte visual distinta deve ser extraída para seu próprio componente independente.
-    * O componente pai/container apenas orquestra a disposição desses blocos menores.
-2. **Casos de Uso Granulares (usecases/ ou services/):**
-    * Cada caso de uso deve residir em seu próprio arquivo dedicado (ex: createItemUseCase.ts, getItemsUseCase.ts).
-    * É proibido criar arquivos únicos com dezenas de funções utilitárias misturadas sem coesão.
-3. **Hooks Especializados (hooks/):**
-    * Hooks do React devem gerenciar um escopo bem delimitado de estado. Se um hook começar a acumular muitas variáveis de estado não relacionadas ou gerenciar fluxos completamente diferentes, ele deve ser desmembrado em hooks menores e compostos.
-4. **Limite Saudável de Linhas por Arquivo:**
-    * Como referência de boas práticas: arquivos com mais de 150–200 linhas geralmente são um forte sintoma de responsabilidades misturadas e devem ser inspecionados para refatoração e extração de sub-componentes.
+### 11.10. Conteúdo dinâmico
+
+Proibido texto fixo com aparência de dado real do item. Valores financeiros (preço, taxa, quantidade) DEVEM vir do backend/cadastro, nunca de constante no componente.
 
 ---
 
-## 10.2. Exemplo Canônico de Referência: O Domínio <modulo ou serviço>
+## 12. Internacionalização (i18n) e Localização
 
-A estrutura de qualquer domínio deve seguir o padrão de modularidade atômica abaixo:
+Idiomas suportados: **`pt-BR` (padrão e fonte da verdade)**, **`en`**, **`fr`**. Adicionar um idioma novo é decisão de produto (§15).
 
-1. **Divisão Atômica de Componentes (src/domain/<modulo>/components/):**
+### 12.1. Configuração atual (o que já existe)
 
-Em vez de um único arquivo de 600 linhas que acumula toda a interface, cada elemento visual tem seu próprio arquivo focado:
+| Item | Valor | Arquivo |
+|---|---|---|
+| Biblioteca | `i18next` + `react-i18next` | `src/shared/i18n/config.ts` |
+| Idiomas | `SUPPORTED_LOCALES = ['pt-BR', 'en', 'fr']`, `DEFAULT_LOCALE = 'pt-BR'` | `src/shared/i18n/locale.ts` |
+| Detecção do idioma inicial | 1º `localStorage['useguide.locale']` → 2º `navigator.languages` → 3º `pt-BR` | `resolveInitialLocale()` |
+| Normalização | `pt`, `pt-*` → `pt-BR`; `en-*` → `en`; `fr-*` → `fr`; outros → ignorado | `normalizeLocale()` |
+| Persistência e `<html lang>` | atualizados no evento `languageChanged` | `config.ts` |
+| Fallback | `fallbackLng: 'pt-BR'`, `load: 'currentOnly'`, `useSuspense: false` | `config.ts` |
+| Traduções | um único namespace `translation`, os 3 idiomas no mesmo arquivo, tipados por `TranslationResource` | `src/shared/i18n/resources.ts` |
 
-* `ItemRatingWidget.tsx`: Responsável exclusivamente por renderizar o componente interativo de nota/classificação (hover, clique, acessibilidade).
-* `ItemSummaryCard.tsx`: Responsável exclusivamente por exibir o resumo métrico e estatísticas consolidadas.
-* `ItemListFilter.tsx`: Responsável exclusivamente pelos controles de ordenação, filtros e busca.
-* `ItemFormModal.tsx`: Responsável exclusivamente pelo formulário de criação/edição de dados (integrado com React Hook Form + Zod).
-* `ItemCard.tsx`: Responsável exclusivamente pela renderização de um único registro e suas ações individuais.
-* `ItemList.tsx`: Responsável exclusivamente pela iteração da lista, paginação, scroll infinito e estados vazios (empty state) ou carregamento (skeletons).
-* `ItemSectionContainer.tsx`: Atua apenas como o orquestrador declarativo, organizando a montagem e disposição dos subcomponentes acima.
+**Débito:** só 6 arquivos usam `useTranslation`; a maior parte da UI, as mensagens do backend, os schemas Zod e os toasts têm texto em português fixo no código.
 
-2. **Divisão Granular de Casos de Uso (src/domain/<modulo>/application/usecases/):**
+### 12.2. Estrutura alvo
 
-Cada intenção do usuário ou regra de negócio isolada é um arquivo dedicado, viabilizando testes unitários sem acoplamento a frameworks:
+```
+src/shared/i18n/
+├── config.ts               # init do i18next (mantém as opções do 12.1)
+├── locale.ts               # idiomas, normalização, detecção, persistência
+├── loadNamespace.ts        # carregamento sob demanda via import() dinâmico
+├── i18next.d.ts            # tipagem das chaves (CustomTypeOptions)
+└── locales/
+    ├── pt-BR/  common.json  navigation.json  errors.json  validation.json
+    │           guide.json  events.json  ticketing.json  bookings.json
+    │           payment.json  partners.json  reviews.json  user.json  admin.json
+    ├── en/     (mesmos arquivos e mesmas chaves)
+    └── fr/     (mesmos arquivos e mesmas chaves)
+```
 
-* `createItemUseCase.ts` (Criar um novo registro e disparar validações)
-* `getItemsUseCase.ts` (Buscar registros paginados e com filtros)
-* `getItemByIdUseCase.ts` (Buscar um registro específico por ID)
-* `updateItemStatusUseCase.ts` (Atualizar o estado/status de um item)
-* `subscribeToItemsUseCase.ts` (Escuta em tempo real de eventos ou atualizações)
+Regras:
 
-3. **Utilitários Puros e Testáveis (src/domain/<modulo>/utils/):**
+1. **Um namespace por domínio** + `common`, `navigation`, `errors`, `validation`. Um domínio só usa o próprio namespace e os compartilhados.
+2. `pt-BR` é carregado no bundle inicial; `en` e `fr` são carregados sob demanda com `import()` dinâmico do Vite e `i18n.addResourceBundle` (sem dependência nova).
+3. **Tipagem obrigatória:** `i18next.d.ts` declara `CustomTypeOptions.resources` a partir dos JSON de `pt-BR`, para que chave inexistente quebre o `npm run typecheck`.
+4. Teste automatizado DEVE garantir que `en` e `fr` têm **exatamente o mesmo conjunto de chaves** que `pt-BR` (sem faltar nem sobrar).
 
-* `buildDeterministicId.ts`: Função pura para composição de chaves/IDs únicos.
-* `formatItemMetadata.ts`: Função pura de higienização, cálculo ou formatação de dados sem efeitos colaterais.
+### 12.3. Regras de chaves e textos
+
+* Chaves semânticas `namespace:area.elemento` (ex: `ticketing:checkout.payButton`). Proibido usar o texto em português como chave.
+* Proibido concatenar frases (`t('a') + nome + t('b')`). Usar interpolação: `t('ticketing:order.confirmed', { orderId })`.
+* Plural com as regras do i18next (`_one`, `_other`), que seguem `Intl.PluralRules`. Em francês 0 e 1 são singular; nunca resolver plural com `count === 1 ? ... : ...`.
+* `escapeValue: false` está correto porque o React já escapa. Por isso é proibido injetar tradução com `dangerouslySetInnerHTML`; marcação dentro de texto usa o componente `<Trans>`.
+* TODO texto visível é traduzido: rótulos, placeholders, `aria-label`, `alt`, `title`, toasts, diálogos, estados vazios e de erro, e-mails, notificações, PDFs e recibos.
+* Nomes próprios (Jericoacoara, Preá, nome do estabelecimento) não são traduzidos.
+* Francês e inglês podem ficar 20–30% maiores que o português: layouts NÃO DEVEM cortar texto nem depender de largura fixa. Testar telas novas em `fr`.
+
+### 12.4. Formatação regional
+
+* **Moeda:** `new Intl.NumberFormat(locale, { style: 'currency', currency: 'BRL' }).format(amountMinor / 100)`. Proibido montar `'R$ ' + valor`. A moeda continua BRL em todos os idiomas.
+* **Data e hora:** `Intl.DateTimeFormat(locale, { timeZone: 'America/Fortaleza', ... })` ou `date-fns` com o locale correspondente (`ptBR`, `enUS`, `fr`). Horário de evento, passeio e translado SEMPRE no fuso do negócio, com o fuso indicado quando o usuário estiver em outro.
+* **Números e unidades:** `Intl.NumberFormat`; unidades (km/h, nós, °C) com rótulo traduzido.
+* **Telefone:** armazenado em E.164; exibido formatado.
+* Máscaras de entrada (`currencyMask`, datas) DEVEM respeitar o idioma ativo.
+
+### 12.5. Camadas: quem traduz
+
+* **UseCases, services e o backend não devolvem texto final para a UI:** devolvem `code` (§10.2). O frontend traduz pela chave `errors:<CODE>`; o `message` em pt-BR do backend é só fallback.
+* **Schemas Zod do frontend** usam chaves como mensagem (`'validation:required'`) e o formulário exibe `t(error.message)`.
+* **Backend** lê o idioma do usuário em `users/{uid}.preferredLocale` (definido pelo app) ou no header `Accept-Language`, normalizado com as mesmas regras do `normalizeLocale`. A lista de idiomas do backend fica em `server/shared/kernel/locale.ts`, com teste que garante que é igual à do frontend.
+* **E-mails, notificações e PDFs** são gerados no idioma preferido do destinatário, não no de quem disparou a ação.
+* **Stripe:** passar o idioma ativo para o Payment Element (`locale` em `elements()`), para os Connect embedded components (`locale` em `loadConnectAndInitialize`) e `preferred_locales` no Customer, para recibos e e-mails do Stripe.
+
+### 12.6. Conteúdo cadastrado (itens, eventos, passeios, dicas)
+
+* Campos traduzíveis (título, descrição, regras, política de cancelamento) usam o tipo `LocalizedText = { 'pt-BR': string; en?: string; fr?: string }`. Campos não traduzíveis (preço, endereço, telefone) continuam simples.
+* Ordem de fallback na exibição: idioma ativo → `pt-BR`. A UI indica quando mostra o texto original por falta de tradução.
+* **Tradução automática** de conteúdo de parceiros (ex: com Gemini via `@google/genai`, já presente no projeto) é decisão de produto (§15): custo, qualidade e responsabilidade. Se adotada, roda **só no backend**, grava `translationSource: 'human' | 'machine'` por idioma, permite revisão pelo parceiro e a UI informa "traduzido automaticamente".
+* Avaliações ficam no idioma original; tradução, se existir, é opção do leitor ("ver tradução").
+* Política de cancelamento e termos de compra exibidos antes do pagamento DEVEM existir no idioma do comprador ou em pt-BR com aviso claro.
+
+### 12.7. SEO multilíngue
+
+* Cada idioma indexável DEVE ter URL própria. A estratégia (`/en/...`, `/fr/...` ou subdomínio) é decisão de produto (§15); parâmetro de query não é recomendado para indexação.
+* Obrigatório: `<html lang>`, `<link rel="alternate" hreflang="pt-BR|en|fr|x-default">`, canonical por idioma, `og:locale` e `og:locale:alternate`, sitemap com alternâncias de idioma e JSON-LD com `inLanguage`.
+* Hoje o Firebase Hosting serve `index.html` estático para todas as rotas (`"source": "**"`), então o `serverSeoService` do Cloud Run **não roda nas páginas em produção**. SEO por idioma depende de resolver isso (rewrite das rotas de conteúdo para o Cloud Run ou pré-renderização); é decisão de arquitetura (§15).
+
+### 12.8. Checklist de i18n para qualquer tela ou mensagem nova
+
+- [ ] Nenhum texto visível fixo no JSX, hook, schema ou toast
+- [ ] Chaves criadas em `pt-BR`, `en` e `fr` (o teste de paridade passa)
+- [ ] Plural e interpolação pelo i18next, sem concatenação
+- [ ] Moeda, data e número com `Intl`/`date-fns` no idioma ativo e no fuso `America/Fortaleza`
+- [ ] Erros do backend traduzidos por `code`
+- [ ] Layout verificado em `fr` (texto mais longo)
+
+---
+
+## 13. Modularidade e Responsabilidade Única
+
+* Cada arquivo tem uma razão para mudar. Componentes que misturam formulário + lista + filtros + métricas DEVEM ser divididos; o container só orquestra.
+* **Um UseCase por arquivo** (`createBookingUseCase.ts`). Arquivos agregadores existentes (`eventUseCases.ts`, `ticketingUseCases.ts`, `paymentUseCases.ts`) são débito: novos UseCases não entram neles.
+* Referência de tamanho: arquivo acima de **~200 linhas** DEVE ser avaliado para divisão; acima de **400** linhas, dividir ao tocar (exceto testes, schemas e mappers declarativos).
+* Hooks com estados não relacionados DEVEM ser divididos em hooks compostos.
+
+---
+
+## 14. Comentários e Clean Code
+
+**Regra central:** comente o **porquê**, nunca o **o quê**.
+
+* PROIBIDO: comentário que repete o código; blocos `@file`; histórico de migração; JSDoc com `@function`/`@description`/`@param {tipo}` redundantes.
+* PERMITIDO: restrição externa não óbvia; decisão de negócio incomum; link para documentação oficial; `TODO:` com contexto e referência ao débito.
+
+```typescript
+// ✅ Restrição externa
+// Stripe não garante ordem de entrega dos eventos; por isso relemos o PaymentIntent.
+// Referência: https://docs.stripe.com/webhooks#event-ordering
+
+// ✅ Decisão de HTTP não óbvia
+// 500 de propósito: o Stripe reenvia o evento por até 3 dias em live mode.
+return res.status(500).json({ error: { code: 'WEBHOOK_PROCESSING_FAILED' } });
+
+// ❌ Repete o código
+// Verifica se o usuário é admin
+if (user.admin) { ... }
+```
+
+| Camada | JSDoc público | Comentário inline |
+|---|---|---|
+| ports / adapters / services / usecases / constantes públicas | ✅ enxuto | restrições e referências externas |
+| controllers | ❌ | decisões de HTTP |
+| hooks / components React | ❌ | só restrições de SDK |
+
+Em qualquer edição: remover comentários "o quê", blocos `@file` e históricos; manter "porquê", referências e TODOs genuínos.
+
+**Tipagem:** `any` é proibido em código novo (usar `unknown` + validação). `@ts-ignore` proibido; `@ts-expect-error` só com justificativa.
+
+---
+
+## 15. Processo de Decisão
+
+* O agente DEVE parar e consultar o usuário, apresentando alternativas com prós/contras, quando a decisão:
+  1. mudar modelo de dados persistido ou exigir migração;
+  2. afetar dinheiro (preço, taxa, repasse, reembolso, merchant of record), segurança, privacidade ou conformidade;
+  3. adicionar dependência, serviço pago ou fornecedor novo;
+  4. alterar contrato de API pública ou comportamento visível ao usuário;
+  5. for irreversível ou difícil de desfazer (exclusão de dados, deploy, rotação de chaves).
+* Para escolhas reversíveis e locais (nome de variável, divisão de arquivo, ordem de imports), o agente DEVE seguir o padrão existente sem perguntar e registrar a escolha no resumo da entrega.
+
+---
+
+## 16. Qualidade, Testes e Entrega
+
+### 16.1. Gates obrigatórios antes de considerar uma tarefa concluída
+
+```bash
+npm run typecheck   # tsc --noEmit sem erros
+npm run lint        # biome sem erros
+npm test            # vitest verde
+npm run build       # build de produção sem erros
+npm run test:rules  # quando firestore.rules mudar (emulador)
+```
+
+### 16.2. Testes
+
+* Services e UseCases: testes unitários com adapters fake (sem rede, sem Firestore).
+* Schemas Zod: casos válidos e inválidos (inclusive campos extras maliciosos).
+* Controllers: status HTTP e formato de erro.
+* Firestore Rules: teste para cada coleção legível pelo cliente.
+* Segurança: teste de IDOR para cada recurso com dono (§7.10) e teste de que dado Restrito nunca sai em texto puro na resposta (§7.6).
+* i18n: teste de paridade de chaves entre `pt-BR`, `en` e `fr` (§12.2).
+* Bug corrigido → teste que falhava antes da correção.
+
+### 16.3. Entrega do agente (formato obrigatório da resposta)
+
+1. Resumo do que mudou e por quê;
+2. lista de arquivos criados/alterados/removidos;
+3. resultado dos gates (§16.1);
+4. variáveis de ambiente, índices, regras ou configurações do Stripe/Firebase que o usuário precisa aplicar;
+5. débitos criados ou resolvidos (`docs/arquitetura/debitos.md`).
+
+---
+
+## 17. Checklist Rápido do Agente
+
+- [ ] Funciona no AI Studio **e** em produção, sem SDK inicializado na importação (§2)
+- [ ] SDK de fornecedor só em `adapters/` (ou `adapters/ui/`) (§3.2)
+- [ ] Nenhum `domain → application`, `ui/shared → domain`, nem import interno de outro domínio (§3.4, §5.2)
+- [ ] Nenhum ciclo novo no grafo (§5.4)
+- [ ] Escrita só via backend; leitura direta só de dado público/do próprio usuário com rule testada (§6)
+- [ ] Auth + autorização de posse + Zod + DTO allowlist na rota (§7.3)
+- [ ] Campo novo classificado; dado Restrito cifrado (AES-256-GCM/KMS) com blind index; nenhum segredo com fallback fixo (§7.6–§7.8)
+- [ ] Canal de dados cifrado e autenticado; sem SSRF, sem CORS aberto, DTO de saída por allowlist (§7.9)
+- [ ] Dinheiro em centavos, preço e taxa calculados no backend, idempotência no Stripe, webhook como fonte da verdade (§8)
+- [ ] Erro no formato padrão, sem vazar detalhes; logs sem PII (§10)
+- [ ] Contraste, toque ≥ 44px, `aria-label`, foco visível, z-index da escala, responsivo, dois temas (§11)
+- [ ] Nenhum texto fixo; chaves nos 3 idiomas; moeda/data com `Intl` no fuso do negócio (§12)
+- [ ] Um UseCase por arquivo; arquivo grande dividido ao tocar (§13)
+- [ ] Gates de qualidade verdes (§16.1)

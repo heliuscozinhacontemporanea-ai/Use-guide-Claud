@@ -18,6 +18,8 @@ export interface TransactionRecord {
   paymentDetail?: Record<string, unknown>;
 }
 
+export type WebhookEventClaimResult = 'claimed' | 'already_processed' | 'in_progress';
+
 export interface TransactionRepositoryPort {
   updateTransactionStatus(
     transactionId: string,
@@ -51,8 +53,11 @@ export interface TransactionRepositoryPort {
   saveConnectedAccountRecord(
     record: StripeConnectedAccountRecord
   ): Promise<void>;
-  markWebhookEventProcessed(params: {
+  claimWebhookEvent(params: {
     eventId: string;
     eventType: string;
-  }): Promise<boolean>;
+    leaseMs: number;
+  }): Promise<WebhookEventClaimResult>;
+  completeWebhookEvent(eventId: string): Promise<void>;
+  releaseWebhookEvent(eventId: string, errorMessage: string): Promise<void>;
 }

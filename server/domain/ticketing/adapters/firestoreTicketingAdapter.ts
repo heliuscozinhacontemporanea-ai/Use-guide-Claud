@@ -1155,49 +1155,108 @@ export class FirestoreTicketingAdapter implements TicketingPort {
         (refundSnap.data() || {}) as Record<string, unknown>
       );
 
+      // Idempotência: se o reembolso já atingiu estado aprovado ou já está no mesmo status
+      // (com o mesmo providerRefundId), encerra sem duplicar efeitos colaterais (estoque/pedido).
+      if (
+        refund.status === 'approved' ||
+        (refund.status === status &&
+          (providerRefundId === undefined ||
+            providerRefundId === refund.providerRefundId))
+      ) {
+        return refund;
+      }
+
       const nowIso = new Date().toISOString();
       const patch: Record<string, unknown> = {
         status,
         ...(providerRefundId !== undefined ? { providerRefundId } : {}),
         ...(status === 'approved' ? { completedAt: nowIso } : {}),
       };
-      tx.update(refundRef, patch);
 
       if (status === 'approved') {
         const orderRef = adminDb
           .collection('ticketOrders')
           .doc(refund.orderId);
-        tx.update(orderRef, {
-          status: refund.ticketId ? 'partially_refunded' : 'refunded',
-          updatedAt: nowIso,
-        });
-
         const ticketsSnap = await tx.get(
           adminDb.collection('tickets').where('orderId', '==', refund.orderId)
         );
-        for (const doc of ticketsSnap.docs) {
-          if (refund.ticketId && doc.id !== refund.ticketId) continue;
+
+        const targetTicketDocs = ticketsSnap.docs.filter((doc) => {
+          if (refund.ticketId && doc.id !== refund.ticketId) return false;
           const tData = TicketPersistenceMapper.toDomain(
             doc.id,
             (doc.data() || {}) as Record<string, unknown>
           );
-          tx.update(doc.ref, { status: 'refunded' });
+          return tData.status !== 'refunded';
+        });
 
-          const typeRef = adminDb
-            .collection('ticketTypes')
-            .doc(tData.ticketTypeId);
+        // Firestore exige todas as leituras antes de qualquer escrita na transação
+        const decrementByTypeId = new Map<string, number>();
+        for (const doc of targetTicketDocs) {
+          const tData = TicketPersistenceMapper.toDomain(
+            doc.id,
+            (doc.data() || {}) as Record<string, unknown>
+          );
+          decrementByTypeId.set(
+            tData.ticketTypeId,
+            (decrementByTypeId.get(tData.ticketTypeId) || 0) + 1
+          );
+        }
+
+        const typeUpdates: Array<{
+          ref: FirebaseFirestore.DocumentReference;
+          newSoldCount: number;
+        }> = [];
+        for (const [ticketTypeId, decrementCount] of decrementByTypeId.entries()) {
+          const typeRef = adminDb.collection('ticketTypes').doc(ticketTypeId);
           const typeSnap = await tx.get(typeRef);
           if (typeSnap.exists) {
             const typeDomain = TicketTypePersistenceMapper.toDomain(
               typeSnap.id,
               (typeSnap.data() || {}) as Record<string, unknown>
             );
-            tx.update(typeRef, {
-              soldCount: Math.max(0, typeDomain.soldCount - 1),
-              updatedAt: nowIso,
+            typeUpdates.push({
+              ref: typeRef,
+              newSoldCount: Math.max(0, typeDomain.soldCount - decrementCount),
             });
           }
         }
+
+        tx.update(refundRef, patch);
+        tx.update(orderRef, {
+          status: refund.ticketId ? 'partially_refunded' : 'refunded',
+          updatedAt: nowIso,
+        });
+
+        for (const doc of targetTicketDocs) {
+          tx.update(doc.ref, { status: 'refunded' });
+        }
+
+        for (const typeUpdate of typeUpdates) {
+          tx.update(typeUpdate.ref, {
+            soldCount: typeUpdate.newSoldCount,
+            updatedAt: nowIso,
+          });
+        }
+      } else if (status === 'failed') {
+        const ticketsSnap = await tx.get(
+          adminDb.collection('tickets').where('orderId', '==', refund.orderId)
+        );
+        const pendingTicketDocs = ticketsSnap.docs.filter((doc) => {
+          if (refund.ticketId && doc.id !== refund.ticketId) return false;
+          const tData = TicketPersistenceMapper.toDomain(
+            doc.id,
+            (doc.data() || {}) as Record<string, unknown>
+          );
+          return tData.status === 'refund_pending';
+        });
+
+        tx.update(refundRef, patch);
+        for (const doc of pendingTicketDocs) {
+          tx.update(doc.ref, { status: 'issued' });
+        }
+      } else {
+        tx.update(refundRef, patch);
       }
 
       return {

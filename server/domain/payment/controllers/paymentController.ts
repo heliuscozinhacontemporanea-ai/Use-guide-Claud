@@ -11,9 +11,11 @@ import {
   getPartnerConnectAccountStatusUseCase,
 } from '../usecases/marketplaceConnectUseCases';
 import {
+  claimStripeWebhookEventUseCase,
+  completeStripeWebhookEventUseCase,
   constructStripeWebhookEventUseCase,
   createPlanPaymentIntentUseCase,
-  markStripeWebhookEventProcessedUseCase,
+  releaseStripeWebhookEventUseCase,
 } from '../usecases/paymentUseCases';
 
 export class PaymentController {
@@ -176,52 +178,63 @@ export class PaymentController {
   }
 
   static async stripeWebhook(req: Request, res: Response): Promise<Response> {
-    try {
-      const signature = req.headers['stripe-signature'];
-      if (!signature || typeof signature !== 'string') {
-        return res.status(400).json({ error: 'Assinatura Stripe ausente.' });
-      }
+    const signature = req.headers['stripe-signature'];
+    if (!signature || typeof signature !== 'string') {
+      return res.status(400).json({ error: 'Assinatura Stripe ausente.' });
+    }
 
-      const rawBody = req.body;
-      if (!Buffer.isBuffer(rawBody) && typeof rawBody !== 'string') {
-        return res.status(400).json({
-          error: 'Corpo bruto obrigatório para validação de webhook Stripe.',
-        });
-      }
-
-      let verifiedEvent;
-      try {
-        verifiedEvent = constructStripeWebhookEventUseCase(rawBody, signature);
-      } catch {
-        return res.status(400).json({
-          error: 'Assinatura de webhook Stripe inválida.',
-        });
-      }
-
-      console.info('[StripeWebhook]', {
-        eventId: verifiedEvent.id,
-        type: verifiedEvent.type,
+    const rawBody = req.body;
+    if (!Buffer.isBuffer(rawBody) && typeof rawBody !== 'string') {
+      return res.status(400).json({
+        error: 'Corpo bruto obrigatório para validação de webhook Stripe.',
       });
+    }
 
-      const isFirstProcess = await markStripeWebhookEventProcessedUseCase({
+    let verifiedEvent: ReturnType<typeof constructStripeWebhookEventUseCase>;
+    try {
+      verifiedEvent = constructStripeWebhookEventUseCase(rawBody, signature);
+    } catch {
+      return res.status(400).json({ error: 'Assinatura de webhook Stripe inválida.' });
+    }
+
+    try {
+      const claim = await claimStripeWebhookEventUseCase({
         eventId: verifiedEvent.id,
         eventType: verifiedEvent.type,
       });
-
-      if (!isFirstProcess) {
+      if (claim === 'already_processed') {
         return res.status(200).json({ received: true, duplicate: true });
       }
-
-      await reconcileStripeWebhookEventApplicationUseCase(verifiedEvent);
-
-      return res.status(200).json({ received: true });
+      if (claim === 'in_progress') {
+        // Não-2xx faz o Stripe reenviar depois, quando a reserva atual tiver expirado ou concluído.
+        return res.status(409).json({ received: false, inProgress: true });
+      }
     } catch (error: unknown) {
-      console.error('[PaymentController.stripeWebhook]', {
+      console.error('[PaymentController.stripeWebhook] claim', {
+        eventId: verifiedEvent.id,
         message: error instanceof Error ? error.message : 'Erro desconhecido',
       });
-      return res.status(400).json({
-        error: 'Não foi possível processar o evento de webhook.',
+      return res.status(500).json({ error: 'Falha temporária ao registrar o evento.' });
+    }
+
+    try {
+      await reconcileStripeWebhookEventApplicationUseCase(verifiedEvent);
+      await completeStripeWebhookEventUseCase(verifiedEvent.id);
+      console.info('[StripeWebhook] processed', {
+        eventId: verifiedEvent.id,
+        type: verifiedEvent.type,
       });
+      return res.status(200).json({ received: true });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Erro desconhecido';
+      console.error('[PaymentController.stripeWebhook] process', {
+        eventId: verifiedEvent.id,
+        type: verifiedEvent.type,
+        message,
+      });
+      await releaseStripeWebhookEventUseCase(verifiedEvent.id, message).catch(() => undefined);
+      // 500 de propósito: o Stripe reenvia o evento por até 3 dias em live mode.
+      return res.status(500).json({ error: 'Não foi possível processar o evento de webhook.' });
     }
   }
 }

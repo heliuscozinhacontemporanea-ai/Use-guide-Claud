@@ -3,7 +3,6 @@ import { createNotificationUseCase } from '../../domain/notifications';
 import { updatePartnerPlanFromPaymentUseCase } from '../../domain/partners';
 import {
   createPaymentForTicketOrderUseCase,
-  markStripeWebhookEventProcessedUseCase,
   PaymentDomainError,
   processProviderRefundUseCase,
   retrievePaymentIntentUseCase,
@@ -251,22 +250,24 @@ export async function reconcileStripeWebhookEventApplicationUseCase(
     return { processed: true, eventType: event.type };
   }
 
-  if (
-    event.type === 'charge.refunded' ||
-    event.type === 'refund.updated'
-  ) {
-    const refundMetadata =
-      (obj.metadata as Record<string, string> | undefined) || {};
+  if (event.type === 'refund.updated' || event.type === 'refund.created') {
+    const refundMetadata = (obj.metadata as Record<string, string> | undefined) || {};
+    const providerStatus = String(obj.status || '');
     if (refundMetadata.refundId) {
-      const status =
-        obj.status === 'failed' || obj.status === 'canceled'
-          ? 'failed'
-          : 'approved';
-      await finalizeTicketRefundStatusUseCase(
-        refundMetadata.refundId,
-        status,
-        String(obj.id || '')
-      );
+      if (providerStatus === 'succeeded') {
+        await finalizeTicketRefundStatusUseCase(refundMetadata.refundId, 'approved', String(obj.id || ''));
+      } else if (providerStatus === 'failed' || providerStatus === 'canceled') {
+        await finalizeTicketRefundStatusUseCase(refundMetadata.refundId, 'failed', String(obj.id || ''));
+      }
+      // 'pending' e 'requires_action' permanecem como pending_provider até o próximo refund.updated.
+    }
+    return { processed: true, eventType: event.type };
+  }
+
+  if (event.type === 'charge.refunded') {
+    const paymentIntentId = String(obj.payment_intent || '');
+    if (paymentIntentId && obj.refunded === true) {
+      await updatePaymentTransactionStatusUseCase(paymentIntentId, 'refunded');
     }
     return { processed: true, eventType: event.type };
   }
@@ -289,21 +290,6 @@ export async function reconcileStripeWebhookEventApplicationUseCase(
   }
 
   return { processed: true, eventType: event.type };
-}
-
-export async function handleStripeWebhookOrchestrationApplicationUseCase(
-  event: VerifiedWebhookEvent
-): Promise<{ processed: boolean; eventType: string }> {
-  const isFirstTime = await markStripeWebhookEventProcessedUseCase({
-    eventId: event.id,
-    eventType: event.type,
-  });
-
-  if (!isFirstTime) {
-    return { processed: false, eventType: event.type };
-  }
-
-  return reconcileStripeWebhookEventApplicationUseCase(event);
 }
 
 export async function processTicketRefundApplicationUseCase(
@@ -345,6 +331,7 @@ export async function processTicketRefundApplicationUseCase(
       reverseTransfer: true,
       refundApplicationFee: Boolean(params.isEventCanceledByOrganizer),
       idempotencyKey: `stripe_ref_${refund.id}_${params.idempotencyKey}`,
+      metadata: { refundId: refund.id, orderId: params.orderId, referenceType: 'ticket_refund' },
     });
 
     const finalStatus: Refund['status'] =

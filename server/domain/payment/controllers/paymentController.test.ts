@@ -1,17 +1,31 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type { Request } from 'express';
 import { PaymentController } from './paymentController';
 import { getPlanForPaymentApplicationUseCase } from '../../../application/usecases/getPlanForPaymentApplicationUseCase';
-import { createPlanPaymentIntentUseCase } from '../usecases/paymentUseCases';
+import { reconcileStripeWebhookEventApplicationUseCase } from '../../../application/usecases/ticketingPaymentOrchestrationUseCases';
+import {
+  claimStripeWebhookEventUseCase,
+  completeStripeWebhookEventUseCase,
+  constructStripeWebhookEventUseCase,
+  createPlanPaymentIntentUseCase,
+  releaseStripeWebhookEventUseCase,
+} from '../usecases/paymentUseCases';
 import { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
 
 vi.mock('../../../application/usecases/getPlanForPaymentApplicationUseCase', () => ({
   getPlanForPaymentApplicationUseCase: vi.fn(),
 }));
 
+vi.mock('../../../application/usecases/ticketingPaymentOrchestrationUseCases', () => ({
+  reconcileStripeWebhookEventApplicationUseCase: vi.fn(),
+}));
+
 vi.mock('../usecases/paymentUseCases', () => ({
   createPlanPaymentIntentUseCase: vi.fn(),
   constructStripeWebhookEventUseCase: vi.fn(),
-  markStripeWebhookEventProcessedUseCase: vi.fn(),
+  claimStripeWebhookEventUseCase: vi.fn(),
+  completeStripeWebhookEventUseCase: vi.fn(),
+  releaseStripeWebhookEventUseCase: vi.fn(),
   retrievePaymentIntentUseCase: vi.fn(),
   updateTransactionStatusUseCase: vi.fn(),
 }));
@@ -102,5 +116,99 @@ describe('PaymentController', () => {
         clientSecret: 'pi_123_secret_abc',
       })
     );
+  });
+
+  describe('stripeWebhook', () => {
+    const sampleEvent = {
+      id: 'evt_123',
+      type: 'payment_intent.succeeded',
+      created: 1700000000,
+      dataObject: { id: 'pi_123' },
+    };
+
+    it('retorna 400 quando a assinatura está ausente', async () => {
+      const webhookReq = {
+        headers: {},
+        body: Buffer.from('{}'),
+      } as unknown as Request;
+
+      await PaymentController.stripeWebhook(webhookReq, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+    });
+
+    it('retorna 200 com duplicate: true quando claim for already_processed e não chama reconcile', async () => {
+      const webhookReq = {
+        headers: { 'stripe-signature': 'sig_valid' },
+        body: Buffer.from('{}'),
+      } as unknown as Request;
+
+      vi.mocked(constructStripeWebhookEventUseCase).mockReturnValueOnce(sampleEvent);
+      vi.mocked(claimStripeWebhookEventUseCase).mockResolvedValueOnce('already_processed');
+
+      await PaymentController.stripeWebhook(webhookReq, res);
+
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({ received: true, duplicate: true });
+      expect(reconcileStripeWebhookEventApplicationUseCase).not.toHaveBeenCalled();
+    });
+
+    it('retorna 200 e chama completeStripeWebhookEventUseCase quando claim for claimed e reconcile suceder', async () => {
+      const webhookReq = {
+        headers: { 'stripe-signature': 'sig_valid' },
+        body: Buffer.from('{}'),
+      } as unknown as Request;
+
+      vi.mocked(constructStripeWebhookEventUseCase).mockReturnValueOnce(sampleEvent);
+      vi.mocked(claimStripeWebhookEventUseCase).mockResolvedValueOnce('claimed');
+      vi.mocked(reconcileStripeWebhookEventApplicationUseCase).mockResolvedValueOnce({
+        processed: true,
+        eventType: sampleEvent.type,
+      });
+      vi.mocked(completeStripeWebhookEventUseCase).mockResolvedValueOnce();
+
+      await PaymentController.stripeWebhook(webhookReq, res);
+
+      expect(reconcileStripeWebhookEventApplicationUseCase).toHaveBeenCalledWith(sampleEvent);
+      expect(completeStripeWebhookEventUseCase).toHaveBeenCalledWith('evt_123');
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({ received: true });
+    });
+
+    it('retorna 500, chama releaseStripeWebhookEventUseCase e não chama complete quando reconcile falha', async () => {
+      const webhookReq = {
+        headers: { 'stripe-signature': 'sig_valid' },
+        body: Buffer.from('{}'),
+      } as unknown as Request;
+
+      vi.mocked(constructStripeWebhookEventUseCase).mockReturnValueOnce(sampleEvent);
+      vi.mocked(claimStripeWebhookEventUseCase).mockResolvedValueOnce('claimed');
+      vi.mocked(reconcileStripeWebhookEventApplicationUseCase).mockRejectedValueOnce(
+        new Error('Falha no banco')
+      );
+      vi.mocked(releaseStripeWebhookEventUseCase).mockResolvedValueOnce();
+
+      await PaymentController.stripeWebhook(webhookReq, res);
+
+      expect(releaseStripeWebhookEventUseCase).toHaveBeenCalledWith('evt_123', 'Falha no banco');
+      expect(completeStripeWebhookEventUseCase).not.toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(500);
+    });
+
+    it('retorna 409 quando claim for in_progress', async () => {
+      const webhookReq = {
+        headers: { 'stripe-signature': 'sig_valid' },
+        body: Buffer.from('{}'),
+      } as unknown as Request;
+
+      vi.mocked(constructStripeWebhookEventUseCase).mockReturnValueOnce(sampleEvent);
+      vi.mocked(claimStripeWebhookEventUseCase).mockResolvedValueOnce('in_progress');
+
+      await PaymentController.stripeWebhook(webhookReq, res);
+
+      expect(res.status).toHaveBeenCalledWith(409);
+      expect(res.json).toHaveBeenCalledWith({ received: false, inProgress: true });
+      expect(reconcileStripeWebhookEventApplicationUseCase).not.toHaveBeenCalled();
+    });
   });
 });

@@ -1,4 +1,4 @@
-import { getApps, initializeApp, cert, applicationDefault } from 'firebase-admin/app';
+import { getApps, initializeApp, cert, applicationDefault, type App } from 'firebase-admin/app';
 import { getAuth, type Auth } from 'firebase-admin/auth';
 import { getFirestore, type Firestore } from 'firebase-admin/firestore';
 import { getStorage, type Storage } from 'firebase-admin/storage';
@@ -11,36 +11,51 @@ function requiredEnv(name: string): string {
   return value;
 }
 
-const databaseId = requiredEnv('FIRESTORE_DATABASE_ID');
-
-const storageBucket = requiredEnv('FIREBASE_STORAGE_BUCKET');
-
 function resolveCredential() {
   const saKey = process.env.FIREBASE_SERVICE_ACCOUNT_KEY?.trim();
   if (saKey) {
+    if (process.env.NODE_ENV === 'production') {
+      // Mantido por compatibilidade; o alvo em Cloud Run é ADC (AGENTS.md §2.1).
+      console.warn('[Firebase Admin] FIREBASE_SERVICE_ACCOUNT_KEY em produção: migre para ADC.');
+    }
     try {
       return cert(JSON.parse(saKey));
     } catch (error) {
-      console.warn(
-        '[Firebase Admin] Falha ao processar FIREBASE_SERVICE_ACCOUNT_KEY, utilizando ADC:',
-        error
-      );
+      console.warn('[Firebase Admin] FIREBASE_SERVICE_ACCOUNT_KEY inválida, utilizando ADC:', error);
     }
   }
+  // Cloud Run: credencial da conta de serviço anexada (ADC), sem chave JSON.
   return applicationDefault();
 }
 
-const firebaseAdminApp =
-  getApps()[0] ??
-  initializeApp({
-    credential: resolveCredential(),
-    projectId:
-      process.env.FIREBASE_PROJECT_ID?.trim() || process.env.VITE_FIREBASE_PROJECT_ID?.trim(),
-    storageBucket,
+let cachedApp: App | undefined;
+
+function getFirebaseAdminApp(): App {
+  if (cachedApp) return cachedApp;
+  cachedApp =
+    getApps()[0] ??
+    initializeApp({
+      credential: resolveCredential(),
+      projectId:
+        process.env.FIREBASE_PROJECT_ID?.trim() || process.env.VITE_FIREBASE_PROJECT_ID?.trim(),
+      storageBucket: requiredEnv('FIREBASE_STORAGE_BUCKET'),
+    });
+  return cachedApp;
+}
+
+function lazyInstance<T extends object>(create: () => T): T {
+  let instance: T | undefined;
+  return new Proxy({} as T, {
+    get(_target, property) {
+      instance ??= create();
+      const value = Reflect.get(instance, property, instance);
+      return typeof value === 'function' ? value.bind(instance) : value;
+    },
   });
+}
 
-export const adminDb: Firestore = getFirestore(firebaseAdminApp, databaseId);
-
-export const adminAuth: Auth = getAuth(firebaseAdminApp);
-
-export const adminStorage: Storage = getStorage(firebaseAdminApp);
+export const adminDb: Firestore = lazyInstance(() =>
+  getFirestore(getFirebaseAdminApp(), requiredEnv('FIRESTORE_DATABASE_ID'))
+);
+export const adminAuth: Auth = lazyInstance(() => getAuth(getFirebaseAdminApp()));
+export const adminStorage: Storage = lazyInstance(() => getStorage(getFirebaseAdminApp()));

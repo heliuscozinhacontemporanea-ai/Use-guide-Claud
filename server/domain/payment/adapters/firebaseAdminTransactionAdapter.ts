@@ -4,6 +4,7 @@ import type { PaymentStatus, PaymentTransaction } from '../ports/paymentGatewayP
 import type {
   TransactionRecord,
   TransactionRepositoryPort,
+  WebhookEventClaimResult,
 } from '../ports/transactionRepositoryPort';
 
 function mapDocToTransactionRecord(
@@ -253,24 +254,60 @@ export class FirebaseAdminTransactionAdapter implements TransactionRepositoryPor
       .set(record, { merge: true });
   }
 
-  async markWebhookEventProcessed(params: {
+  async claimWebhookEvent(params: {
     eventId: string;
     eventType: string;
-  }): Promise<boolean> {
-    const docRef = adminDb
-      .collection('stripeWebhookEvents')
-      .doc(params.eventId);
+    leaseMs: number;
+  }): Promise<WebhookEventClaimResult> {
+    const docRef = adminDb.collection('stripeWebhookEvents').doc(params.eventId);
     return adminDb.runTransaction(async (tx) => {
       const snap = await tx.get(docRef);
-      if (snap.exists) {
-        return false;
+      const now = Date.now();
+      const data = (snap.exists ? snap.data() : undefined) ?? {};
+      // Documentos sem `status` foram gravados pela versão antiga, que só gravava após processar.
+      if (snap.exists && (data.status === 'processed' || data.status === undefined)) {
+        return 'already_processed';
       }
-      tx.set(docRef, {
-        eventId: params.eventId,
-        eventType: params.eventType,
-        processedAt: new Date().toISOString(),
-      });
-      return true;
+      if (
+        data.status === 'processing' &&
+        typeof data.leaseExpiresAt === 'number' &&
+        data.leaseExpiresAt > now
+      ) {
+        return 'in_progress';
+      }
+      tx.set(
+        docRef,
+        {
+          eventId: params.eventId,
+          eventType: params.eventType,
+          status: 'processing',
+          leaseExpiresAt: now + params.leaseMs,
+          attempts: (typeof data.attempts === 'number' ? data.attempts : 0) + 1,
+          updatedAt: new Date(now).toISOString(),
+        },
+        { merge: true }
+      );
+      return 'claimed';
     });
+  }
+
+  async completeWebhookEvent(eventId: string): Promise<void> {
+    const now = new Date().toISOString();
+    await adminDb.collection('stripeWebhookEvents').doc(eventId).set(
+      { status: 'processed', processedAt: now, updatedAt: now, leaseExpiresAt: null },
+      { merge: true }
+    );
+  }
+
+  async releaseWebhookEvent(eventId: string, errorMessage: string): Promise<void> {
+    await adminDb.collection('stripeWebhookEvents').doc(eventId).set(
+      {
+        status: 'failed',
+        lastError: errorMessage.slice(0, 500),
+        updatedAt: new Date().toISOString(),
+        leaseExpiresAt: null,
+      },
+      { merge: true }
+    );
   }
 }

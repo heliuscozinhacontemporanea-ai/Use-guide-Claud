@@ -81,6 +81,7 @@ export class StripePaymentGatewayAdapter implements PaymentGatewayPort {
     const refund = await this.stripe.refunds.create(
       {
         payment_intent: input.paymentIntentId,
+        ...(input.metadata ? { metadata: input.metadata } : {}),
         ...(input.amountMinor !== undefined
           ? {
               amount: input.amountMinor,

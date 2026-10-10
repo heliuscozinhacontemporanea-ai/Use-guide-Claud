@@ -58,6 +58,7 @@ export interface RefundPaymentInput {
   reverseTransfer: boolean;
   refundApplicationFee: boolean;
   idempotencyKey: string;
+  metadata?: Record<string, string>;
 }
 
 export interface RefundPaymentResult {

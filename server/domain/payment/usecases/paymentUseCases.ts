@@ -4,6 +4,7 @@ import type {
   RefundPaymentResult,
   VerifiedWebhookEvent,
 } from '../ports/paymentGatewayPort';
+import type { WebhookEventClaimResult } from '../ports/transactionRepositoryPort';
 
 export async function createPaymentForTicketOrderUseCase(params: {
   orderId: string;
@@ -35,6 +36,7 @@ export async function processProviderRefundUseCase(params: {
   reverseTransfer?: boolean;
   refundApplicationFee?: boolean;
   idempotencyKey: string;
+  metadata?: Record<string, string>;
 }): Promise<RefundPaymentResult> {
   return stripePaymentService.refundPayment(params);
 }
@@ -50,11 +52,22 @@ export function constructStripeWebhookEventUseCase(
   return stripePaymentService.constructWebhookEvent(payload, signature);
 }
 
-export async function markStripeWebhookEventProcessedUseCase(params: {
+export async function claimStripeWebhookEventUseCase(params: {
   eventId: string;
   eventType: string;
-}): Promise<boolean> {
-  return stripePaymentService.markWebhookEventProcessed(params);
+}): Promise<WebhookEventClaimResult> {
+  return stripePaymentService.claimWebhookEvent(params);
+}
+
+export async function completeStripeWebhookEventUseCase(eventId: string): Promise<void> {
+  return stripePaymentService.completeWebhookEvent(eventId);
+}
+
+export async function releaseStripeWebhookEventUseCase(
+  eventId: string,
+  errorMessage: string
+): Promise<void> {
+  return stripePaymentService.releaseWebhookEvent(eventId, errorMessage);
 }
 
 export async function updatePaymentTransactionStatusUseCase(

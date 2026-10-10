@@ -9,7 +9,7 @@ O **Use Guide** é uma solução completa e robusta desenvolvida em arquitetura 
 O sistema é estruturado seguindo rigorosamente os padrões de **Ports & Adapters (Hexagonal Architecture)** e o **Princípio de Inversão de Dependência (DIP)**. 
 
 ### Princípios de Isolamento
-1. **Core Isolado (Lógica de Negócio):** Componentes de interface do usuário, casos de uso, controladores de rotas e serviços centrais são totalmente desacoplados de qualquer SDK de terceiros (ex: Firebase, Mercado Pago, Cloudinary).
+1. **Core Isolado (Lógica de Negócio):** Componentes de interface do usuário, casos de uso, controladores de rotas e serviços centrais são totalmente desacoplados de qualquer SDK de terceiros (ex: Firebase, Stripe, Cloudinary).
 2. **Ports (Contratos/Interfaces):** Definições puramente TypeScript contendo tipos de dados de domínio neutros. Nenhuma dependência externa vaza através dos contratos das portas.
 3. **Adapters (Implementações de Infraestrutura):** Arquivos concretos que implementam as portas e se acoplam aos SDKs externos. A substituição de qualquer infraestrutura (ex: trocar Firebase por PostgreSQL/Cloud SQL) requer apenas a criação de um novo Adapter, mantendo a lógica de negócios inalterada.
 4. **Composição via Factories:** As instâncias de serviços recebem os adaptadores ativos na inicialização usando padrões de fábrica estáticos localizados nas pastas `factory.ts`.
@@ -19,7 +19,7 @@ O sistema é estruturado seguindo rigorosamente os padrões de **Ports & Adapter
 ## 3. Módulos do Sistema
 
 ### Backend (`server/domain/`)
-- **Payment:** Gestão de pagamentos transparentes e assinaturas com integração direta ao Mercado Pago, englobando rotas de criação de preferência e tratamento de webhooks.
+- **Payment:** Stripe (PaymentIntents, Stripe Connect Express, webhooks).
 - **ClimaWind:** Roteamento e proxies climatológicos para obter dados em tempo real com segurança sem expor chaves sensíveis ao cliente.
 - **Notifications:** Canal de comunicação interna, alertas e painel de controle.
 
@@ -32,7 +32,7 @@ O sistema é estruturado seguindo rigorosamente os padrões de **Ports & Adapter
 - **Media:** Upload e manipulação de arquivos estáticos.
 - **Notifications:** Central de notificações em tempo real.
 - **Partners:** Gestão de anunciantes e parceiros cadastrados.
-- **Payment:** Interface visual de pagamentos integrada com o SDK React do Mercado Pago.
+- **Payment:** Stripe Payment Element e Connect embedded components.
 
 ---
 
@@ -40,7 +40,6 @@ O sistema é estruturado seguindo rigorosamente os padrões de **Ports & Adapter
 ```
 .
 ├── .env.example                 # Exemplo de configuração de variáveis de ambiente
-├── eslint.config.js             # Configurações de Linting com regras estritas ativadas
 ├── tsconfig.json                # Configuração TypeScript de alto rigor de tipagem
 ├── server.ts                    # Ponto de entrada do servidor Express full-stack
 ├── server/                      # Infraestrutura e domínios do Backend
@@ -79,10 +78,11 @@ APP_URL="http://localhost:3000"
 VITE_CLOUDINARY_CLOUD_NAME="seu_cloud_name"
 VITE_CLOUDINARY_UPLOAD_PRESET="seu_upload_preset"
 
-# Mercado Pago API Config
-MERCADO_PAGO_ACCESS_TOKEN="seu_access_token_privado"
-MERCADO_PAGO_WEBHOOK_SECRET="seu_webhook_secret"
-VITE_MERCADO_PAGO_PUBLIC_KEY="sua_chave_publica"
+# Stripe API Config
+STRIPE_SECRET_KEY="sua_chave_secreta_stripe"
+STRIPE_WEBHOOK_SECRET="seu_webhook_secret_stripe"
+VITE_STRIPE_PUBLISHABLE_KEY="sua_chave_publicavel_stripe"
+USE_GUIDE_PLATFORM_FEE_PERCENT="10"
 
 ```
 
@@ -129,11 +129,11 @@ O Use Guide utiliza o ecossistema do **Firebase** para persistência de dados e 
 
 ---
 
-## 10. Integração Mercado Pago
-A integração do sistema com o **Mercado Pago** utiliza checkout transparente para garantir excelente taxa de conversão:
-- **Port de Pagamento:** Define operações neutras de transações e criação de assinaturas recorrentes sem vazar dependências do SDK do Mercado Pago.
-- **Adapter de Pagamento:** Localizado isoladamente na camada de infraestrutura, consome o token e chaves privadas fornecidos no `.env` de maneira preguiçosa (Lazy Loading).
-- **Webhook Securo:** Rota dedicada no Express (`/api/payment/webhook`) para monitorar o status de transações e aplicar atualizações de planos de forma instantânea e resiliente a falhas temporárias.
+## 10. Integração Stripe
+A integração do sistema com o **Stripe** opera no modelo de marketplace com **Stripe Connect Express** e checkout via **Payment Element**:
+- **Port de Pagamento:** Define operações neutras de transações (`PaymentIntents`), sessões de onboarding (`Stripe Connect Express`) e reembolsos sem vazar dependências do SDK do Stripe.
+- **Adapter de Pagamento:** Localizado isoladamente na camada de infraestrutura (`server/domain/payment/adapters/` no backend e `src/domain/payment/adapters/` para **Stripe Payment Element e Connect embedded components** no frontend), inicializando as chaves do `.env` de maneira preguiçosa (Lazy Loading).
+- **Webhook Seguro:** Rota dedicada no Express (`/api/payment/webhook/stripe`) validada com `STRIPE_WEBHOOK_SECRET` para processar eventos de pagamento, repasses e atualizações de contas conectadas de forma idempotente.
 
 ---
 
