@@ -1,6 +1,7 @@
 import { Response } from 'express';
 import { AuthenticatedRequest } from '../../../infrastructure/auth/authMiddleware';
 import { userService } from '../factory';
+import { MediaDomainError } from '../../media';
 import { updateUserProfileSchema, uploadUserPhotoSchema } from '../schemas/userSchema';
 import { deleteUserAccountApplicationUseCase } from '../../../application/usecases/deleteUserAccountApplicationUseCase';
 
@@ -58,13 +59,14 @@ export class UserController {
         });
       }
 
-      const photoURL = await userService.uploadPhoto(
-        uid,
-        parseResult.data.photoBase64,
-        parseResult.data.mimeType
-      );
+      const photoURL = await userService.uploadPhoto(uid, parseResult.data.photoBase64);
       return res.status(200).json({ photoURL });
     } catch (error: any) {
+      if (error instanceof MediaDomainError) {
+        return res
+          .status(error.statusCode)
+          .json({ error: { code: error.code, message: error.message } });
+      }
       console.error('[UserController.uploadPhoto Error]:', error);
       return res.status(500).json({ error: 'Não foi possível realizar o upload da foto.' });
     }

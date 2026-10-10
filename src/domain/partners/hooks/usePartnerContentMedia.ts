@@ -1,11 +1,7 @@
 import { useCallback, useState } from 'react';
 import { useUI } from '../../../shared/stores/useUIStore';
-import { uploadImageUseCase } from '../../media';
+import { getImageUploadErrorMessage, uploadImageUseCase } from '../../media';
 import type { PartnerContentEditorState, PartnerContentRecord } from '../types/partnerContent';
-
-function getErrorMessage(error: unknown, fallback: string): string {
-  return error instanceof Error && error.message ? error.message : fallback;
-}
 
 export interface UsePartnerContentMediaProps {
   isEditing: PartnerContentEditorState | null;
@@ -62,7 +58,7 @@ export function usePartnerContentMedia({
           image: isEditing.image || uploadedUrls[0] || '',
         });
       } catch (error: unknown) {
-        showToast(`Erro no upload: ${getErrorMessage(error, 'Falha ao enviar imagem')}`, 'error');
+        showToast(getImageUploadErrorMessage(error), 'error');
       } finally {
         setUploadingState(false);
         e.target.value = '';

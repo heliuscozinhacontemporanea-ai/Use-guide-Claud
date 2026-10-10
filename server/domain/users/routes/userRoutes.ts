@@ -11,8 +11,8 @@ router.get('/me', verifyAuthToken, UserController.getProfile);
 router.put('/me', verifyAuthToken, UserController.updateProfile);
 router.post(
   '/me/photo',
-  express.json({ limit: '6mb' }),
   verifyAuthToken,
+  express.json({ limit: '6mb' }),
   UserController.uploadPhoto
 );
 router.delete('/me', verifyAuthToken, requireRecentAuthentication, UserController.deleteAccount);

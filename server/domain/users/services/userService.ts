@@ -1,3 +1,4 @@
+import { prepareImageForStorageUseCase } from '../../media';
 import { UserPort } from '../ports/userPort';
 import { UserProfileDto } from '../dtos/userDto';
 import { UpdateUserProfileInput } from '../schemas/userSchema';
@@ -26,11 +27,12 @@ export class UserService {
     return this.userPort.updateUserProfile(uid, input);
   }
 
-  async uploadPhoto(uid: string, photoBase64: string, mimeType: string): Promise<string> {
+  async uploadPhoto(uid: string, photoBase64: string): Promise<string> {
     if (!uid) {
       throw new Error('UID do usuário é obrigatório');
     }
-    return this.userPort.uploadUserPhoto(uid, photoBase64, mimeType);
+    const prepared = await prepareImageForStorageUseCase(photoBase64, 1024);
+    return this.userPort.uploadUserPhoto(uid, prepared.buffer, prepared.contentType);
   }
 
   async deleteAccount(uid: string): Promise<void> {

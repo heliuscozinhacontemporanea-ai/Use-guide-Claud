@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useUI } from '../../../shared/stores/useUIStore';
 import type { UserSession } from '../../auth';
-import { uploadImageUseCase } from '../../media';
+import { getImageUploadErrorMessage, uploadImageUseCase } from '../../media';
 import {
   createPartnerContentEventUseCase,
   createPartnerContentItemUseCase,
@@ -209,7 +209,9 @@ export function usePartnerContentActions({
         const imageUrls = await Promise.all(
           editorFormData.images.map(async (img: PartnerImage) => {
             if (img.file) {
-              return await uploadImageUseCase(img.file, 'guia_local');
+              return await uploadImageUseCase(img.file, 'guia_local').catch((error: unknown) => {
+                throw new Error(getImageUploadErrorMessage(error));
+              });
             }
             return img.preview;
           })

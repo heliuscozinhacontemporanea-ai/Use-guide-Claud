@@ -9,7 +9,7 @@ O **Use Guide** é uma solução completa e robusta desenvolvida em arquitetura 
 O sistema é estruturado seguindo rigorosamente os padrões de **Ports & Adapters (Hexagonal Architecture)** e o **Princípio de Inversão de Dependência (DIP)**. 
 
 ### Princípios de Isolamento
-1. **Core Isolado (Lógica de Negócio):** Componentes de interface do usuário, casos de uso, controladores de rotas e serviços centrais são totalmente desacoplados de qualquer SDK de terceiros (ex: Firebase, Stripe, Cloudinary).
+1. **Core Isolado (Lógica de Negócio):** Componentes de interface do usuário, casos de uso, controladores de rotas e serviços centrais são totalmente desacoplados de qualquer SDK de terceiros (ex: Firebase, Stripe).
 2. **Ports (Contratos/Interfaces):** Definições puramente TypeScript contendo tipos de dados de domínio neutros. Nenhuma dependência externa vaza através dos contratos das portas.
 3. **Adapters (Implementações de Infraestrutura):** Arquivos concretos que implementam as portas e se acoplam aos SDKs externos. A substituição de qualquer infraestrutura (ex: trocar Firebase por PostgreSQL/Cloud SQL) requer apenas a criação de um novo Adapter, mantendo a lógica de negócios inalterada.
 4. **Composição via Factories:** As instâncias de serviços recebem os adaptadores ativos na inicialização usando padrões de fábrica estáticos localizados nas pastas `factory.ts`.
@@ -73,10 +73,6 @@ VITE_GOOGLE_MAPS_API_KEY="chave_publica_frontend"
 
 # URL da Aplicação
 APP_URL="http://localhost:3000"
-
-# Cloudinary Config
-VITE_CLOUDINARY_CLOUD_NAME="seu_cloud_name"
-VITE_CLOUDINARY_UPLOAD_PRESET="seu_upload_preset"
 
 # Stripe API Config
 STRIPE_SECRET_KEY="sua_chave_secreta_stripe"

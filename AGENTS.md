@@ -81,6 +81,7 @@ O código DEVE funcionar **sem alterações** nos dois ambientes. Nenhuma funcio
 5. O servidor DEVE subir mesmo sem integrações opcionais configuradas (ex: Stripe ausente no AI Studio). Rotas dependentes DEVEM responder `503` com código de erro estável (§10.2), nunca derrubar o processo.
 6. É proibido código que só funciona em produção sem um caminho de teste no AI Studio (ex: modo teste do Stripe, emulador, dados de seed explícitos).
 7. Mocks, stubs e fakes são permitidos **somente** em arquivos de teste (`*.test.ts`) ou adapters in-memory usados exclusivamente por testes. É proibido dado fictício no código de produção (ver §11.10).
+8. Enquanto o app não for liberado para usuários, NÃO DEVE ser criado código de compatibilidade com dados ou versões anteriores (leitura de formatos antigos, rotas duplicadas, scripts de migração, segredos ou hashes legados). Mudanças de modelo de dados são feitas diretamente, e os dados de teste podem ser recriados. Esta regra deixa de valer na data de liberação, registrada em `docs/arquitetura/decisoes.md`.
 
 ### 2.3. Restrições de plataforma que o código DEVE respeitar
 
@@ -289,7 +290,7 @@ Uma dependência fora do padrão só é permitida para restaurar funcionamento c
 
 * O frontend NUNCA chama `setDoc`, `addDoc`, `updateDoc`, `deleteDoc`, `writeBatch`, `runTransaction` nem `uploadBytes`.
 * Toda mutação passa por `POST | PUT | PATCH | DELETE /api/...` → autenticação → autorização → Zod → DTO → UseCase → adapter (Admin SDK).
-* Upload de arquivo também é escrita: DEVE passar pelo backend (validação de tipo/tamanho/dono) ou por URL assinada emitida pelo backend. Upload direto do navegador com preset não assinado é proibido para código novo (débito existente: Cloudinary em `src/domain/media`).
+* Upload de arquivo também é escrita: DEVE passar pelo backend (`POST /api/media/images`), que valida, remove metadados e grava no Firebase Storage (decisão D4). Upload direto do navegador para qualquer provedor é proibido.
 
 ### 6.2. Leituras no frontend (Firestore Client SDK)
 
@@ -499,7 +500,7 @@ O Stripe é o **único** provedor de pagamentos. Referências a Mercado Pago no 
 |---|---|
 | Ingresso de evento | PaymentIntent (destination charge) vinculado a `ticketOrder` com reserva de estoque |
 | Passeio, aluguel (quadriciclo), translado, entrada de atração privada | PaymentIntent (destination charge) vinculado a `booking` com reserva de disponibilidade (domínio `bookings`, §9.3) |
-| Plano do parceiro (mensal/trimestral/semestral) | **Stripe Billing (Subscriptions)** é o alvo. O pagamento avulso por PaymentIntent atual é débito registrado: não há renovação automática nem cobrança recorrente |
+| Plano do parceiro (`monthly`, `semi-annual`, `annual`) | **Stripe Billing (Subscriptions)** no cartão, com renovação automática (decisão D2). Alternativa: pagamento único por Pix, sem renovação, concedendo exatamente a duração do plano |
 
 ### 8.3. Métodos de pagamento
 
@@ -587,7 +588,7 @@ Passeios, aluguéis, translados e entradas de atrações privadas compartilham o
 * Recursos no plural: `/api/<recurso>`; verbos HTTP semânticos; `201` em criação, `204` sem corpo.
 * Operações de criação com efeito financeiro DEVEM aceitar header `Idempotency-Key`.
 * Paginação por cursor: `?limit=&cursor=` → `{ data, nextCursor }`.
-* Mudança incompatível de contrato DEVE manter compatibilidade com o frontend publicado até o deploy simultâneo (Hosting e Cloud Run não sobem atomicamente).
+* Após a liberação para usuários, mudança incompatível de contrato DEVE manter compatibilidade com o frontend publicado até o deploy simultâneo (Hosting e Cloud Run não sobem atomicamente). Antes da liberação, vale o §2.2 item 8.
 
 ### 10.2. Formato único de erro
 
@@ -749,9 +750,9 @@ Regras:
 
 ### 12.7. SEO multilíngue
 
-* Cada idioma indexável DEVE ter URL própria. A estratégia (`/en/...`, `/fr/...` ou subdomínio) é decisão de produto (§15); parâmetro de query não é recomendado para indexação.
+* Cada idioma indexável DEVE ter URL própria (decisão D6): português na raiz, `en` e `fr` em pastas com slugs traduzidos (`/eventos`, `/en/events`, `/fr/evenements`). A fonte única do mapa é `src/shared/i18n/localizedRoutes.ts`, espelhada em `server/shared/kernel/localizedRoutes.ts` com teste de paridade. A URL tem prioridade sobre o idioma salvo no navegador.
 * Obrigatório: `<html lang>`, `<link rel="alternate" hreflang="pt-BR|en|fr|x-default">`, canonical por idioma, `og:locale` e `og:locale:alternate`, sitemap com alternâncias de idioma e JSON-LD com `inLanguage`.
-* Hoje o Firebase Hosting serve `index.html` estático para todas as rotas (`"source": "**"`), então o `serverSeoService` do Cloud Run **não roda nas páginas em produção**. SEO por idioma depende de resolver isso (rewrite das rotas de conteúdo para o Cloud Run ou pré-renderização); é decisão de arquitetura (§15).
+* O HTML das rotas de conteúdo DEVE passar pelo Cloud Run (`serverSeoService`), com cache na CDN do Hosting (`s-maxage=300`) e `sitemap.xml` dinâmico (decisão D7). A home `/` é servida estática pelo Hosting: seus metadados e `hreflang` ficam no `index.html`.
 
 ### 12.8. Checklist de i18n para qualquer tela ou mensagem nova
 
@@ -808,6 +809,8 @@ Em qualquer edição: remover comentários "o quê", blocos `@file` e histórico
 
 ## 15. Processo de Decisão
 
+* O AGENTS.md NÃO DEVE ser alterado por nenhum agente sem autorização explícita do responsável do produto. Para propor uma mudança, o agente DEVE descrever o texto atual, o texto proposto e o motivo, e aguardar a autorização antes de editar.
+* Decisões já aprovadas estão em `docs/arquitetura/decisoes.md` e DEVEM ser seguidas sem nova consulta. Decisão marcada como **em aberto** NÃO pode ser implementada.
 * O agente DEVE parar e consultar o usuário, apresentando alternativas com prós/contras, quando a decisão:
   1. mudar modelo de dados persistido ou exigir migração;
   2. afetar dinheiro (preço, taxa, repasse, reembolso, merchant of record), segurança, privacidade ou conformidade;

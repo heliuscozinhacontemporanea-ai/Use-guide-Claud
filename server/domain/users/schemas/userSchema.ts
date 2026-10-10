@@ -49,16 +49,14 @@ export const updateUserProfileSchema = z
 const MAX_PROFILE_PHOTO_BYTES = 5 * 1024 * 1024;
 const MAX_PROFILE_PHOTO_BASE64_LENGTH = Math.ceil(MAX_PROFILE_PHOTO_BYTES / 3) * 4 + 256;
 
-export const uploadUserPhotoSchema = z.object({
-  photoBase64: z
-    .string()
-    .min(1, 'Imagem é obrigatória')
-    .max(MAX_PROFILE_PHOTO_BASE64_LENGTH, 'Imagem excede o tamanho máximo permitido'),
-  mimeType: z
-    .enum(['image/jpeg', 'image/png', 'image/webp', 'image/jpg'])
-    .optional()
-    .default('image/jpeg'),
-});
+export const uploadUserPhotoSchema = z
+  .object({
+    photoBase64: z
+      .string()
+      .min(1, 'Imagem é obrigatória')
+      .max(MAX_PROFILE_PHOTO_BASE64_LENGTH, 'Imagem excede o tamanho máximo permitido'),
+  })
+  .strict();
 
 export type LoginUserInput = z.infer<typeof loginUserSchema>;
 export type RegisterUserInput = z.infer<typeof registerUserSchema>;

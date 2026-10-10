@@ -7,7 +7,7 @@ import { CATEGORIES } from '../../../../shared/constants/categories';
 import { useUI } from '../../../../shared/stores/useUIStore';
 import { Z_INDEX } from '../../../../shared/constants/zIndex';
 import type { GuideItem } from '../../../guide';
-import { uploadImageUseCase } from '../../../media';
+import { getImageUploadErrorMessage, uploadImageUseCase } from '../../../media';
 import {
   adminGuideEditorFormSchema,
   type AdminGuideEditorSchemaValues,
@@ -138,10 +138,7 @@ export function AdminEditorModal({
         form.setValue('image', uploadedUrls[0], { shouldDirty: true, shouldValidate: true });
       }
     } catch (error) {
-      showToast(
-        `Erro no upload: ${error instanceof Error ? error.message : 'Falha inesperada'}`,
-        'error'
-      );
+      showToast(getImageUploadErrorMessage(error), 'error');
     } finally {
       setIsUploading(false);
       e.target.value = '';

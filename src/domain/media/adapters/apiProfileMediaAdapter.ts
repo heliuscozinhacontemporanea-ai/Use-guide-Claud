@@ -23,10 +23,7 @@ export class ApiProfileMediaAdapter implements ProfileMediaPort {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          photoBase64,
-          mimeType: imageBlob.type || 'image/jpeg',
-        }),
+        body: JSON.stringify({ photoBase64 }),
       },
       { requireAuth: true }
     );

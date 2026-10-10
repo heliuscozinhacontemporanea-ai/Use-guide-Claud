@@ -109,7 +109,7 @@ export default defineConfig(() => {
               },
             },
             {
-              urlPattern: /^https:\/\/(images\.unsplash\.com|res\.cloudinary\.com)\/.*/i,
+              urlPattern: /^https:\/\/(images\.unsplash\.com|firebasestorage\.googleapis\.com)\/.*/i,
               handler: 'StaleWhileRevalidate',
               options: {
                 cacheName: 'external-images-cache',

@@ -18,6 +18,7 @@ import reviewRouter from './server/domain/reviews/routes/reviewRoutes';
 import insightsRouter from './server/domain/insights/routes/insightsRoutes';
 import adminRouter from './server/domain/admin/routes/adminRoutes';
 import favoriteRouter from './server/domain/favorites/routes/favoriteRoutes';
+import mediaRouter from './server/domain/media/routes/mediaRoutes';
 import { serverSeoService } from './server/domain/seo/seoService';
 import { verifyAppCheck } from './server/infrastructure/auth/appCheckMiddleware';
 
@@ -142,7 +143,10 @@ async function startServer() {
 
   // 4. express.json()
   app.use((req, res, next) => {
-    if (req.path === '/api/users/me/photo' && req.method === 'POST') {
+    if (
+      (req.path === '/api/users/me/photo' || req.path === '/api/media/images') &&
+      req.method === 'POST'
+    ) {
       return next();
     }
     return express.json({ limit: '256kb' })(req, res, next);
@@ -176,6 +180,7 @@ async function startServer() {
   app.use('/api/insights', insightsRouter);
   app.use('/api/admin', adminRouter);
   app.use('/api/favorites', favoriteRouter);
+  app.use('/api/media', mediaRouter);
 
   app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
     console.error('[Error Handler]', err);

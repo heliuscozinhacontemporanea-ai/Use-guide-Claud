@@ -1,10 +1,6 @@
 import { useCallback, useState } from 'react';
-import { uploadImageUseCase } from '../../media';
+import { getImageUploadErrorMessage, uploadImageUseCase } from '../../media';
 import type { PartnerImage } from '../types/partsForm';
-
-function getErrorMessage(error: unknown, fallback: string): string {
-  return error instanceof Error && error.message ? error.message : fallback;
-}
 
 export function usePartnerRegistrationMedia() {
   const [isUploading, setIsUploading] = useState(false);
@@ -29,8 +25,7 @@ export function usePartnerRegistrationMedia() {
       return uploadedUrls;
     } catch (err: unknown) {
       setIsUploading(false);
-      const errorMsg = getErrorMessage(err, 'Falha no upload das imagens do parceiro');
-      setUploadError(errorMsg);
+      setUploadError(getImageUploadErrorMessage(err));
       throw err;
     }
   }, []);

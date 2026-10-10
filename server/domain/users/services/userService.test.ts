@@ -1,5 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { prepareImageForStorageUseCase } from '../../media';
 import { UserService } from './userService';
+
+vi.mock('../../media', () => ({ prepareImageForStorageUseCase: vi.fn() }));
 import { UserPort } from '../ports/userPort';
 import { UserRole } from '../types/userTypes';
 
@@ -73,29 +76,30 @@ describe('UserService', () => {
   });
 
   describe('uploadPhoto', () => {
-    it('deve delegar upload de foto para o userPort e retornar o URL', async () => {
+    it('processa a imagem no domínio media e grava o resultado pelo userPort', async () => {
+      const processed = Buffer.from('webp-bytes');
+      vi.mocked(prepareImageForStorageUseCase).mockResolvedValueOnce({
+        buffer: processed,
+        contentType: 'image/webp',
+        width: 512,
+        height: 512,
+      });
       vi.mocked(userPortMock.uploadUserPhoto).mockResolvedValueOnce(
-        'https://storage.googleapis.com/test-bucket/profiles/user-123'
+        'https://storage.googleapis.com/test-bucket/profiles/user-123?v=1'
       );
 
-      const photoUrl = await userService.uploadPhoto(
-        'user-123',
-        'base64-image-string',
-        'image/jpeg'
-      );
+      const photoUrl = await userService.uploadPhoto('user-123', 'base64-image-string');
 
-      expect(photoUrl).toBe('https://storage.googleapis.com/test-bucket/profiles/user-123');
-      expect(userPortMock.uploadUserPhoto).toHaveBeenCalledWith(
-        'user-123',
-        'base64-image-string',
-        'image/jpeg'
-      );
+      expect(prepareImageForStorageUseCase).toHaveBeenCalledWith('base64-image-string', 1024);
+      expect(userPortMock.uploadUserPhoto).toHaveBeenCalledWith('user-123', processed, 'image/webp');
+      expect(photoUrl).toBe('https://storage.googleapis.com/test-bucket/profiles/user-123?v=1');
     });
 
     it('deve lançar erro se UID for vazio no upload de foto', async () => {
-      await expect(userService.uploadPhoto('', 'base64-string', 'image/jpeg')).rejects.toThrow(
+      await expect(userService.uploadPhoto('', 'base64-string')).rejects.toThrow(
         'UID do usuário é obrigatório'
       );
+      expect(prepareImageForStorageUseCase).not.toHaveBeenCalled();
     });
   });
 

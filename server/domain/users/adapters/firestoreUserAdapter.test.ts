@@ -176,33 +176,21 @@ describe('FirestoreUserAdapter', () => {
     });
   });
 
-  describe('uploadUserPhoto — Validação por Magic Bytes e Propagação de Erros', () => {
-    const jpegBase64 = Buffer.from([
-      0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46, 0x00, 0x01,
-    ]).toString('base64');
-    const pngBase64 = Buffer.from([
-      0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x00,
-    ]).toString('base64');
-    const webpBase64 = Buffer.from([
-      0x52, 0x49, 0x46, 0x46, 0x00, 0x00, 0x00, 0x00, 0x57, 0x45, 0x42, 0x50,
-    ]).toString('base64');
+  describe('uploadUserPhoto — gravação e propagação de erros', () => {
+    const webpImage = Buffer.from([0x52, 0x49, 0x46, 0x46, 0x00, 0x00, 0x00, 0x00, 0x57, 0x45, 0x42, 0x50]);
 
-    it('Caso 1 — JPEG válido: deve salvar no Storage com contentType image/jpeg e atualizar Auth e Firestore', async () => {
+    it('grava a imagem já processada com o contentType recebido e atualiza Auth e Firestore', async () => {
       mockFileSave.mockResolvedValueOnce(undefined);
       mockDocSet.mockResolvedValue(undefined);
       mockUpdateUser.mockResolvedValueOnce(undefined);
 
-      const url = await adapter.uploadUserPhoto(
-        'user-1',
-        `data:image/jpeg;base64,${jpegBase64}`,
-        'image/jpeg'
-      );
+      const url = await adapter.uploadUserPhoto('user-1', webpImage, 'image/webp');
 
-      expect(url).toBe('https://storage.googleapis.com/test-bucket/profiles/user-1');
+      expect(url).toMatch(/^https:\/\/storage\.googleapis\.com\/test-bucket\/profiles\/user-1\?v=\d+$/);
       expect(mockFileSave).toHaveBeenCalledWith(
-        expect.any(Buffer),
+        webpImage,
         expect.objectContaining({
-          metadata: { contentType: 'image/jpeg' },
+          metadata: { contentType: 'image/webp' },
           public: true,
         })
       );
@@ -210,86 +198,20 @@ describe('FirestoreUserAdapter', () => {
       expect(mockDocSet).toHaveBeenCalled();
     });
 
-    it('Caso 2 — PNG válido: deve derivar contentType image/png dos bytes', async () => {
-      mockFileSave.mockResolvedValueOnce(undefined);
-      mockDocSet.mockResolvedValue(undefined);
-      mockUpdateUser.mockResolvedValueOnce(undefined);
-
-      await adapter.uploadUserPhoto('user-1', pngBase64, 'image/png');
-
-      expect(mockFileSave).toHaveBeenCalledWith(
-        expect.any(Buffer),
-        expect.objectContaining({
-          metadata: { contentType: 'image/png' },
-        })
-      );
-    });
-
-    it('Caso 3 — WEBP válido: deve derivar contentType image/webp dos bytes', async () => {
-      mockFileSave.mockResolvedValueOnce(undefined);
-      mockDocSet.mockResolvedValue(undefined);
-      mockUpdateUser.mockResolvedValueOnce(undefined);
-
-      await adapter.uploadUserPhoto('user-1', webpBase64, 'image/webp');
-
-      expect(mockFileSave).toHaveBeenCalledWith(
-        expect.any(Buffer),
-        expect.objectContaining({
-          metadata: { contentType: 'image/webp' },
-        })
-      );
-    });
-
-    it('Caso 4 — Conteúdo inválido: deve rejeitar buffer de texto mesmo declarando image/jpeg', async () => {
-      const textBase64 = Buffer.from('Hello world this is plain text content').toString('base64');
-
-      await expect(adapter.uploadUserPhoto('user-1', textBase64, 'image/jpeg')).rejects.toThrow(
-        'Formato de imagem inválido'
-      );
-    });
-
-    it('Caso 5 — MIME declarado incorreto: deve usar o MIME verdadeiro extraído dos bytes (PNG)', async () => {
-      mockFileSave.mockResolvedValueOnce(undefined);
-      mockDocSet.mockResolvedValue(undefined);
-      mockUpdateUser.mockResolvedValueOnce(undefined);
-
-      // Declara image/jpeg mas os bytes são de PNG
-      await adapter.uploadUserPhoto('user-1', pngBase64, 'image/jpeg');
-
-      expect(mockFileSave).toHaveBeenCalledWith(
-        expect.any(Buffer),
-        expect.objectContaining({
-          metadata: { contentType: 'image/png' },
-        })
-      );
-    });
-
-    it('Caso 6 — Arquivo > 5 MB: deve rejeitar antes do upload', async () => {
-      const bigBuffer = Buffer.alloc(5 * 1024 * 1024 + 1);
-      bigBuffer[0] = 0xff;
-      bigBuffer[1] = 0xd8;
-      bigBuffer[2] = 0xff;
-      const bigBase64 = bigBuffer.toString('base64');
-
-      await expect(adapter.uploadUserPhoto('user-1', bigBase64, 'image/jpeg')).rejects.toThrow(
-        'Imagem excede o tamanho máximo permitido'
-      );
-    });
-
-    it('Caso 7 — Storage falha: deve propagar o erro sem captura silenciosa', async () => {
+    it('propaga falha do Storage sem captura silenciosa', async () => {
       mockFileSave.mockRejectedValueOnce(new Error('Storage write quota exceeded'));
 
-      await expect(adapter.uploadUserPhoto('user-1', jpegBase64, 'image/jpeg')).rejects.toThrow(
+      await expect(adapter.uploadUserPhoto('user-1', webpImage, 'image/webp')).rejects.toThrow(
         'Storage write quota exceeded'
       );
     });
 
-    it('Caso 8 — Firebase Auth falha: deve propagar o erro sem captura silenciosa', async () => {
+    it('propaga falha do Firebase Auth sem captura silenciosa', async () => {
       mockFileSave.mockResolvedValueOnce(undefined);
       mockDocSet.mockResolvedValue(undefined);
       mockUpdateUser.mockRejectedValueOnce(new Error('Auth service unavailable'));
 
-      await expect(adapter.uploadUserPhoto('user-1', jpegBase64, 'image/jpeg')).rejects.toThrow(
+      await expect(adapter.uploadUserPhoto('user-1', webpImage, 'image/webp')).rejects.toThrow(
         'Auth service unavailable'
       );
     });

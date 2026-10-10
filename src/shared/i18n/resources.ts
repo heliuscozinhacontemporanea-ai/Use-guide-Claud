@@ -55,6 +55,14 @@ export interface TranslationResource {
     attractions: string;
     tips: string;
   };
+  errors: {
+    media: {
+      IMAGE_TOO_LARGE: string;
+      INVALID_IMAGE: string;
+      UPLOAD_FAILED: string;
+      STORAGE_UNAVAILABLE: string;
+    };
+  };
 }
 const ptBR: TranslationResource = {
   common: {
@@ -112,6 +120,14 @@ const ptBR: TranslationResource = {
     restaurants: 'Restaurantes',
     attractions: 'Atrações',
     tips: 'Dicas',
+  },
+  errors: {
+    media: {
+      IMAGE_TOO_LARGE: 'A imagem passa de 6 MB. Escolha uma imagem menor.',
+      INVALID_IMAGE: 'Formato não suportado. Envie uma imagem JPEG, PNG ou WebP.',
+      UPLOAD_FAILED: 'Não foi possível enviar a imagem. Tente novamente.',
+      STORAGE_UNAVAILABLE: 'O armazenamento está indisponível no momento. Tente novamente em instantes.',
+    },
   },
 };
 const en: TranslationResource = {
@@ -171,6 +187,14 @@ const en: TranslationResource = {
     attractions: 'Attractions',
     tips: 'Tips',
   },
+  errors: {
+    media: {
+      IMAGE_TOO_LARGE: 'The image is larger than 6 MB. Choose a smaller image.',
+      INVALID_IMAGE: 'Unsupported format. Upload a JPEG, PNG or WebP image.',
+      UPLOAD_FAILED: 'The image could not be uploaded. Please try again.',
+      STORAGE_UNAVAILABLE: 'Storage is unavailable right now. Please try again shortly.',
+    },
+  },
 };
 const fr: TranslationResource = {
   common: {
@@ -228,6 +252,14 @@ const fr: TranslationResource = {
     restaurants: 'Restaurants',
     attractions: 'Attractions',
     tips: 'Conseils',
+  },
+  errors: {
+    media: {
+      IMAGE_TOO_LARGE: "L'image dépasse 6 Mo. Choisissez une image plus légère.",
+      INVALID_IMAGE: 'Format non pris en charge. Envoyez une image JPEG, PNG ou WebP.',
+      UPLOAD_FAILED: "Impossible d'envoyer l'image. Veuillez réessayer.",
+      STORAGE_UNAVAILABLE: 'Le stockage est indisponible pour le moment. Réessayez dans un instant.',
+    },
   },
 };
 export const resources = {

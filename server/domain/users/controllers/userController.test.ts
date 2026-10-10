@@ -162,7 +162,7 @@ describe('UserController', () => {
     it('deve retornar 200 com photoURL em caso de sucesso', async () => {
       const req = {
         user: { uid: 'user-1' },
-        body: { photoBase64: 'data:image/png;base64,abc12345', mimeType: 'image/png' },
+        body: { photoBase64: 'data:image/png;base64,abc12345' },
       } as unknown as AuthenticatedRequest;
 
       vi.mocked(userService.uploadPhoto).mockResolvedValueOnce(
