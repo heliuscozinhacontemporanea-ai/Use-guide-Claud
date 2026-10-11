@@ -1,9 +1,11 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { ROUTE_SEO_CONFIG, SEOMetadata, updateDocumentSEO } from '../utils/seo';
+import { useTranslation } from 'react-i18next';
+import { getRouteSeoMetadata, type SEOMetadata, updateDocumentSEO } from '../utils/seo';
 
 export function useSEO(customMetadata?: SEOMetadata) {
   const location = useLocation();
+  const { i18n } = useTranslation();
   const title = customMetadata?.title;
   const description = customMetadata?.description;
   const image = customMetadata?.image;
@@ -12,7 +14,7 @@ export function useSEO(customMetadata?: SEOMetadata) {
   const type = customMetadata?.type;
 
   useEffect(() => {
-    const routeConfig = ROUTE_SEO_CONFIG[location.pathname] || {};
+    const routeConfig = getRouteSeoMetadata(location.pathname);
     const finalMetadata: SEOMetadata = {
       ...routeConfig,
       ...(title !== undefined ? { title } : {}),
@@ -25,5 +27,6 @@ export function useSEO(customMetadata?: SEOMetadata) {
     };
 
     updateDocumentSEO(finalMetadata);
-  }, [location.pathname, title, description, image, canonicalUrl, author, type]);
+    // i18n.language: os textos da rota mudam quando o idioma muda.
+  }, [location.pathname, i18n.language, title, description, image, canonicalUrl, author, type]);
 }

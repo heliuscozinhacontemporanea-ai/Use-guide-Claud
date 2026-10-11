@@ -9,3 +9,13 @@ export {
   type Locale,
 } from './locale';
 export { i18n } from './config';
+export {
+  INDEXABLE_ROUTE_KEYS,
+  LOCALIZED_ROUTES,
+  localizedPath,
+  parseLocalizedPath,
+  ROUTE_KEYS,
+  resolveLocaleFromPathname,
+  switchLocalePath,
+  type RouteKey,
+} from './localizedRoutes';

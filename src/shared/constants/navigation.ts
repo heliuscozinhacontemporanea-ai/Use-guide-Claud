@@ -1,22 +1,28 @@
 import { Compass, Calendar, Map, BedDouble, Utensils, MapPin, Info } from 'lucide-react';
-export const NAVIGATION = [
-  { path: '/', translationKey: 'navigation.explore', icon: Compass },
-  { path: '/eventos', translationKey: 'navigation.events', icon: Calendar },
-  { path: '/passeios', translationKey: 'navigation.tours', icon: Map },
+import type { RouteKey } from '../i18n';
+
+export const NAVIGATION: ReadonlyArray<{
+  routeKey: RouteKey;
+  translationKey: string;
+  icon: typeof Compass;
+}> = [
+  { routeKey: 'explore', translationKey: 'navigation.explore', icon: Compass },
+  { routeKey: 'events', translationKey: 'navigation.events', icon: Calendar },
+  { routeKey: 'tours', translationKey: 'navigation.tours', icon: Map },
   {
-    path: '/pousadas',
+    routeKey: 'stays',
     translationKey: 'navigation.accommodations',
     icon: BedDouble,
   },
   {
-    path: '/restaurantes',
+    routeKey: 'restaurants',
     translationKey: 'navigation.restaurants',
     icon: Utensils,
   },
   {
-    path: '/pontos',
+    routeKey: 'attractions',
     translationKey: 'navigation.attractions',
     icon: MapPin,
   },
-  { path: '/info', translationKey: 'navigation.tips', icon: Info },
-] as const;
+  { routeKey: 'guide', translationKey: 'navigation.tips', icon: Info },
+];

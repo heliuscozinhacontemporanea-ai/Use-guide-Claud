@@ -2,6 +2,10 @@ import type {
   CreatePaymentIntentResponse,
   CreatePlanPaymentIntentPayload,
   PartnerConnectStatusResponse,
+  PaymentLocale,
+  PlanSubscription,
+  StartPlanSubscriptionPayload,
+  StartPlanSubscriptionResponse,
 } from '../types/payment';
 
 export interface PaymentApiPort {
@@ -14,4 +18,8 @@ export interface PaymentApiPort {
   getPartnerConnectStatus(): Promise<PartnerConnectStatusResponse>;
   createPartnerConnectAccount(): Promise<PartnerConnectStatusResponse>;
   createPartnerConnectAccountSession(): Promise<{ clientSecret: string }>;
+  startPlanSubscription(payload: StartPlanSubscriptionPayload): Promise<StartPlanSubscriptionResponse>;
+  getPlanSubscription(): Promise<PlanSubscription | null>;
+  setPlanSubscriptionRenewal(renew: boolean): Promise<PlanSubscription | null>;
+  createBillingPortalSession(locale: PaymentLocale): Promise<{ url: string }>;
 }

@@ -58,6 +58,8 @@
 | `activatePartnerTrialApplicationUseCase` | partners, guide, events |
 | `create/update/deletePartnerItemApplicationUseCase` | partners, guide |
 | `create/update/deletePartnerEventApplicationUseCase` | partners, events, guide |
+| `renderSeoPageApplicationUseCase`, `renderSitemapApplicationUseCase` | seo, guide, events (seo continua folha: recebe o catálogo pelo `SeoContentPort`; prompt 8) |
+| `startPartnerPlanSubscriptionApplicationUseCase`, `reconcilePlanSubscriptionWebhookApplicationUseCase` | admin, partners, payment, notifications (payment continua folha: só recebe IDs e valores; prompt 9) |
 | `eventLifecycleOrchestrationUseCases` | events, ticketing, notifications |
 | `ticketingPaymentOrchestrationUseCases` | ticketing, payment, partners, events, notifications |
 | `getPlanForPaymentApplicationUseCase` | admin |

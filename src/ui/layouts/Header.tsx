@@ -1,4 +1,5 @@
 import { useLocation } from 'react-router-dom';
+import { useLocalizedRouting } from '../../shared/hooks/useLocalizedRouting';
 import { Search, Handshake, User as UserIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuthContext } from '../../domain/auth/context/AuthContext';
@@ -35,23 +36,24 @@ export function Header({
   const userInitials = user
     ? getUserInitials(profile?.displayName || user.displayName, user.email)
     : '';
-  const isMainPage = pathname === '/';
+  const { routeKey } = useLocalizedRouting();
+  const isMainPage = routeKey === 'explore';
 
   const isAdminPage = pathname.startsWith('/admin');
 
   const getPageTitle = () => {
-    switch (pathname) {
-      case '/eventos':
+    switch (routeKey) {
+      case 'events':
         return t('header.pageTitles.events');
-      case '/passeios':
+      case 'tours':
         return t('header.pageTitles.tours');
-      case '/pousadas':
+      case 'stays':
         return t('header.pageTitles.accommodations');
-      case '/restaurantes':
+      case 'restaurants':
         return t('header.pageTitles.restaurants');
-      case '/pontos':
+      case 'attractions':
         return t('header.pageTitles.attractions');
-      case '/info':
+      case 'guide':
         return t('header.pageTitles.practicalGuide');
       default:
         return '';

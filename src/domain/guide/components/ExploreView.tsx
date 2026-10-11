@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocalizedRouting } from '../../../shared/hooks/useLocalizedRouting';
 import { SectionTitle } from './SectionTitle';
 import { StandardCard } from './StandardCard';
 import { LiveConditions } from '../../climawind/components/LiveConditions';
@@ -18,7 +18,7 @@ interface ExploreViewProps {
 }
 
 export function ExploreView({ onSelectItem, onStickyChange }: ExploreViewProps) {
-  const navigate = useNavigate();
+  const { goTo } = useLocalizedRouting();
   const { items: dbItems, events: dbEvents, loading, error, retry } = useGuideCatalog();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -307,7 +307,7 @@ export function ExploreView({ onSelectItem, onStickyChange }: ExploreViewProps) 
         {(appliedCategories.length === 0 || appliedCategories.includes('event')) &&
           (!hasActiveFiltersOrSearch || sections.events.length > 0) && (
             <>
-              <SectionTitle title="Próximos Eventos" onSeeAll={() => navigate('/eventos')} />
+              <SectionTitle title="Próximos Eventos" onSeeAll={() => goTo('events')} />
               <div className="px-10 flex gap-4 overflow-x-auto no-scrollbar pb-4 snap-x snap-mandatory">
                 {error ? (
                   <ErrorState message={error} onRetry={retry} />
@@ -341,7 +341,7 @@ export function ExploreView({ onSelectItem, onStickyChange }: ExploreViewProps) 
         {(appliedCategories.length === 0 || appliedCategories.includes('restaurant')) &&
           (!hasActiveFiltersOrSearch || sections.restaurants.length > 0) && (
             <>
-              <SectionTitle title="Sabores Locais" onSeeAll={() => navigate('/restaurantes')} />
+              <SectionTitle title="Sabores Locais" onSeeAll={() => goTo('restaurants')} />
               <div className="px-10 flex gap-4 overflow-x-auto no-scrollbar pb-4 snap-x snap-mandatory">
                 {error ? (
                   <ErrorState message={error} onRetry={retry} />
@@ -370,7 +370,7 @@ export function ExploreView({ onSelectItem, onStickyChange }: ExploreViewProps) 
         {(appliedCategories.length === 0 || appliedCategories.includes('hotel')) &&
           (!hasActiveFiltersOrSearch || sections.hotels.length > 0) && (
             <>
-              <SectionTitle title="Hospedagem" onSeeAll={() => navigate('/pousadas')} />
+              <SectionTitle title="Hospedagem" onSeeAll={() => goTo('stays')} />
               <div className="px-10 flex gap-4 overflow-x-auto no-scrollbar pb-4 snap-x snap-mandatory">
                 {error ? (
                   <ErrorState message={error} onRetry={retry} />
@@ -399,7 +399,7 @@ export function ExploreView({ onSelectItem, onStickyChange }: ExploreViewProps) 
         {(appliedCategories.length === 0 || appliedCategories.includes('tour')) &&
           (!hasActiveFiltersOrSearch || sections.tours.length > 0) && (
             <>
-              <SectionTitle title="Aventura & Passeios" onSeeAll={() => navigate('/passeios')} />
+              <SectionTitle title="Aventura & Passeios" onSeeAll={() => goTo('tours')} />
               <div className="px-10 flex gap-4 overflow-x-auto no-scrollbar pb-4 snap-x snap-mandatory">
                 {error ? (
                   <ErrorState message={error} onRetry={retry} />
@@ -428,7 +428,7 @@ export function ExploreView({ onSelectItem, onStickyChange }: ExploreViewProps) 
         {(appliedCategories.length === 0 || appliedCategories.includes('sight')) &&
           (!hasActiveFiltersOrSearch || sections.sights.length > 0) && (
             <>
-              <SectionTitle title="Atrações" onSeeAll={() => navigate('/pontos')} />
+              <SectionTitle title="Atrações" onSeeAll={() => goTo('attractions')} />
               <div className="px-10 flex gap-4 overflow-x-auto no-scrollbar pb-4 snap-x snap-mandatory">
                 {error ? (
                   <ErrorState message={error} onRetry={retry} />
@@ -457,7 +457,7 @@ export function ExploreView({ onSelectItem, onStickyChange }: ExploreViewProps) 
         {(appliedCategories.length === 0 || appliedCategories.includes('tips')) &&
           (!hasActiveFiltersOrSearch || sections.tips.length > 0) && (
             <>
-              <SectionTitle title="Guia Prático" onSeeAll={() => navigate('/info')} />
+              <SectionTitle title="Guia Prático" onSeeAll={() => goTo('guide')} />
               <div className="px-10 flex gap-4 overflow-x-auto no-scrollbar pb-4 snap-x snap-mandatory">
                 {error ? (
                   <ErrorState message={error} onRetry={retry} />

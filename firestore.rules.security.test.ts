@@ -230,6 +230,12 @@ describe('Firestore Rules — Security Suite', () => {
       await assertFails(getDoc(doc(db, 'transactions/tx-2')));
     });
 
+    it('partner → own partnerSubscriptions read and write denied (server-only)', async () => {
+      const db = testEnv.authenticatedContext('partner-1').firestore();
+      await assertFails(getDoc(doc(db, 'partnerSubscriptions/partner-1')));
+      await assertFails(setDoc(doc(db, 'partnerSubscriptions/partner-1'), { status: 'active' }));
+    });
+
     it('admin with admin=true claim → interactions and partners read allowed', async () => {
       const db = testEnv
         .authenticatedContext('admin-user', { admin: true })

@@ -6,8 +6,12 @@ import {
   persistLocale,
   resolveInitialLocale,
 } from './locale';
+import { resolveLocaleFromPathname } from './localizedRoutes';
 import { resources } from './resources';
-const initialLocale = resolveInitialLocale();
+// A URL tem prioridade sobre o idioma salvo (decisão D6); fora das rotas localizadas vale a preferência.
+const initialLocale =
+  (typeof window !== 'undefined' ? resolveLocaleFromPathname(window.location.pathname) : null) ??
+  resolveInitialLocale();
 i18n.use(initReactI18next).init({
   resources,
   lng: initialLocale,

@@ -2,6 +2,7 @@ export type { GuideVerificationUpdate } from './ports/guidePort';
 export type {
   GuideCatalogFields,
   GuideCreateItemInput,
+  GuideItemCategory,
   GuideItemRecord,
   GuideRatingAggregate,
   GuideUpdateItemInput,
@@ -16,7 +17,9 @@ export {
   getItemByIdUseCase,
   type PublicResourceDTO,
 } from './usecases/getItemByIdUseCase';
+export { getPublicGuideItemUseCase } from './usecases/getPublicGuideItemUseCase';
 export { getResourceOwnerIdUseCase } from './usecases/getResourceOwnerIdUseCase';
+export { listPublicGuideItemsUseCase } from './usecases/listPublicGuideItemsUseCase';
 export { updateGuideItemUseCase } from './usecases/updateGuideItemUseCase';
 export { updateOwnerVerificationUseCase } from './usecases/updateOwnerVerificationUseCase';
 export { updateReviewAggregateUseCase } from './usecases/updateReviewAggregateUseCase';

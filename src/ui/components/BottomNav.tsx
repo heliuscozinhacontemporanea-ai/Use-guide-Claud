@@ -1,35 +1,37 @@
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { NAVIGATION } from '../../shared/constants/navigation';
+import { useLocalizedRouting } from '../../shared/hooks/useLocalizedRouting';
+import type { RouteKey } from '../../shared/i18n';
 import { motion } from 'motion/react';
 import { cn } from '../../shared/utils/cn';
 import { useEffect, useRef } from 'react';
 import { Z_INDEX } from '../../shared/constants/zIndex';
 
 export function BottomNav() {
-  const { pathname } = useLocation();
+  const { routeKey, pathFor } = useLocalizedRouting();
   const { t } = useTranslation();
   const navRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!navRef.current) return;
 
-    // Define alignment rules based on requested groups
-    const alignLeft = ['/', '/eventos'];
-    const alignCenter = ['/passeios', '/pousadas', '/restaurantes'];
-    const alignRight = ['/pontos', '/info'];
+    const alignLeft: RouteKey[] = ['explore', 'events'];
+    const alignCenter: RouteKey[] = ['tours', 'stays', 'restaurants'];
+    const alignRight: RouteKey[] = ['attractions', 'guide'];
+    if (!routeKey) return;
 
     const container = navRef.current;
 
-    if (alignLeft.includes(pathname)) {
+    if (alignLeft.includes(routeKey)) {
       container.scrollTo({ left: 0, behavior: 'smooth' });
-    } else if (alignCenter.includes(pathname)) {
+    } else if (alignCenter.includes(routeKey)) {
       const scrollAmount = (container.scrollWidth - container.clientWidth) / 2;
       container.scrollTo({ left: scrollAmount, behavior: 'smooth' });
-    } else if (alignRight.includes(pathname)) {
+    } else if (alignRight.includes(routeKey)) {
       container.scrollTo({ left: container.scrollWidth, behavior: 'smooth' });
     }
-  }, [pathname]);
+  }, [routeKey]);
 
   return (
     <nav
@@ -45,8 +47,9 @@ export function BottomNav() {
       >
         {NAVIGATION.map((item) => (
           <NavLink
-            key={item.path}
-            to={item.path}
+            key={item.routeKey}
+            to={pathFor(item.routeKey)}
+            end
             aria-label={t(item.translationKey)}
             className={({ isActive }) =>
               cn(

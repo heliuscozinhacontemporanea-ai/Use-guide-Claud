@@ -1,18 +1,21 @@
-import React, { useEffect } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { AlertCircle, Clock, Lock, RefreshCw, ShieldCheck, X } from 'lucide-react';
+import { Lock, ShieldCheck, X } from 'lucide-react';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Z_INDEX } from '../../../shared/constants/zIndex';
 import { GlassCard } from '../../../ui/components/GlassCard';
-import { usePayment } from '../hooks/usePayment';
 import type { PaidPlanId } from '../types/payment';
-import { StripePaymentElement } from './StripePaymentElement';
-import { SuccessPaymentGlass } from './subcomponents/SuccessPaymentGlass';
+import { formatPlanAmount } from '../utils/formatPlanAmount';
+import { OneTimePlanCheckout } from './subcomponents/OneTimePlanCheckout';
+import { PaymentMethodChoice, type PlanPaymentMethod } from './subcomponents/PaymentMethodChoice';
+import { SubscriptionPlanCheckout } from './subcomponents/SubscriptionPlanCheckout';
 
 interface CheckoutModalProps {
   isOpen: boolean;
   onClose: () => void;
   planId: PaidPlanId;
   itemName: string;
+  /** Valor do plano em reais, como vem do cadastro (o backend recalcula). */
   amount: number;
   onPaymentSuccess?: (paymentId: string) => void;
 }
@@ -25,28 +28,16 @@ export function CheckoutModal({
   amount,
   onPaymentSuccess,
 }: CheckoutModalProps) {
-  const {
-    loading,
-    error,
-    setError,
-    clientSecret,
-    paymentIntentId,
-    status,
-    initializePlanPayment,
-    confirmPaymentOnBackend,
-    resetAttempt,
-  } = usePayment({
-    planId,
-    onSuccess: onPaymentSuccess,
-  });
-
-  useEffect(() => {
-    if (isOpen && planId && status === 'idle') {
-      initializePlanPayment();
-    }
-  }, [isOpen, planId, status, initializePlanPayment]);
+  const { t, i18n } = useTranslation();
+  const [method, setMethod] = useState<PlanPaymentMethod>('subscription');
+  const [confirmedMethod, setConfirmedMethod] = useState<PlanPaymentMethod | null>(null);
 
   if (!isOpen) return null;
+
+  const handleClose = () => {
+    setConfirmedMethod(null);
+    onClose();
+  };
 
   return (
     <AnimatePresence>
@@ -67,97 +58,67 @@ export function CheckoutModal({
                   <Lock size={18} />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-white">Checkout Seguro</h3>
+                  <h3 className="text-base font-bold text-white">{t('payment.checkout.title')}</h3>
                   <p className="text-xs text-white/60">{itemName}</p>
                 </div>
               </div>
-
               <button
                 type="button"
-                onClick={onClose}
-                aria-label="Fechar checkout"
+                onClick={handleClose}
+                aria-label={t('payment.checkout.close')}
                 className="w-11 h-11 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center text-white/70 focus-visible:ring-2 focus-visible:ring-teal-400/50 cursor-pointer"
               >
                 <X size={18} />
               </button>
             </div>
 
-            {status === 'succeeded' && paymentIntentId ? (
-              <SuccessPaymentGlass
-                itemName={itemName}
-                amount={amount}
-                paymentId={paymentIntentId}
-                onClose={onClose}
-              />
-            ) : (
+            <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-between gap-3">
+              <span className="text-xs text-white/60">{t('payment.checkout.totalLabel')}</span>
+              <span className="text-xl font-black text-teal-300">
+                {formatPlanAmount(amount, i18n.language)}
+                <span className="block text-[11px] font-medium text-white/60 text-right">
+                  {t(`payment.period.${planId}`)}
+                </span>
+              </span>
+            </div>
+
+            {confirmedMethod === null && (
               <div className="space-y-4">
-                <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-between">
-                  <div>
-                    <span className="text-xs text-white/50 block">Total a pagar</span>
-                    <span className="text-xs text-white/70 font-medium">{itemName}</span>
-                  </div>
-                  <span className="text-xl font-black text-teal-300">
-                    R$ {amount.toFixed(2)}
-                  </span>
-                </div>
-
-                {error && (
-                  <div className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/25 text-xs text-red-200 flex items-start gap-2.5">
-                    <AlertCircle size={16} className="text-red-400 shrink-0 mt-0.5" />
-                    <div className="flex-1 space-y-2">
-                      <p>{error}</p>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          resetAttempt();
-                          initializePlanPayment();
-                        }}
-                        className="min-h-11 px-3 rounded-lg bg-white/10 hover:bg-white/15 text-white font-semibold text-xs inline-flex items-center gap-1.5 cursor-pointer"
-                      >
-                        <RefreshCw size={13} />
-                        <span>Tentar novamente</span>
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {loading && (
-                  <div className="py-10 flex flex-col items-center justify-center gap-3 text-white/70">
-                    <RefreshCw size={22} className="animate-spin text-teal-400" />
-                    <span className="text-xs font-medium">
-                      Preparando ambiente seguro Stripe...
-                    </span>
-                  </div>
-                )}
-
-                {status === 'processing' && (
-                  <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-200 flex items-center gap-3">
-                    <Clock size={18} className="text-amber-300 shrink-0 animate-pulse" />
-                    <div>
-                      <p className="font-bold">Pagamento em processamento</p>
-                      <p className="text-white/60 mt-0.5">
-                        Estamos aguardando a confirmação final do Stripe para liberar seu plano.
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                {!loading && clientSecret && paymentIntentId && (
-                  <StripePaymentElement
-                    clientSecret={clientSecret}
-                    orderId={paymentIntentId}
-                    submitLabel={`Pagar R$ ${amount.toFixed(2)}`}
-                    onError={(msg) => setError(msg)}
-                    onSuccess={(piId) => confirmPaymentOnBackend(piId)}
-                  />
-                )}
-
-                <div className="flex items-center justify-center gap-2 pt-2 text-[11px] text-white/50">
-                  <ShieldCheck size={14} className="text-teal-400" />
-                  <span>Criptografia ponta a ponta via Stripe (Cartão e Pix)</span>
-                </div>
+                <PaymentMethodChoice value={method} onChange={setMethod} />
+                <button
+                  type="button"
+                  onClick={() => setConfirmedMethod(method)}
+                  className="w-full min-h-12 rounded-xl bg-teal-400 hover:bg-teal-300 text-slate-950 font-black text-sm cursor-pointer focus-visible:ring-2 focus-visible:ring-teal-400/50"
+                >
+                  {t('payment.checkout.continue')}
+                </button>
               </div>
             )}
+
+            {confirmedMethod === 'subscription' && (
+              <SubscriptionPlanCheckout
+                planId={planId}
+                itemName={itemName}
+                amount={amount}
+                onClose={handleClose}
+                onActivated={onPaymentSuccess}
+              />
+            )}
+
+            {confirmedMethod === 'one_time' && (
+              <OneTimePlanCheckout
+                planId={planId}
+                itemName={itemName}
+                amount={amount}
+                onClose={handleClose}
+                onPaymentSuccess={onPaymentSuccess}
+              />
+            )}
+
+            <div className="flex items-center justify-center gap-2 pt-2 text-[11px] text-white/60">
+              <ShieldCheck size={14} className="text-teal-400 shrink-0" />
+              <span>{t('payment.checkout.secureFooter')}</span>
+            </div>
           </GlassCard>
         </motion.div>
       </div>

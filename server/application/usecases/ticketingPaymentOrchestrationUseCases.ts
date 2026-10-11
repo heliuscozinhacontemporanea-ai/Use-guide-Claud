@@ -22,6 +22,10 @@ import {
   type TicketOrder,
 } from '../../domain/ticketing';
 import { activatePaidPlanApplicationUseCase } from './activatePaidPlanApplicationUseCase';
+import {
+  PLAN_SUBSCRIPTION_WEBHOOK_EVENTS,
+  reconcilePlanSubscriptionWebhookApplicationUseCase,
+} from './reconcilePlanSubscriptionWebhookApplicationUseCase';
 
 export interface OrchestrationActor {
   uid: string;
@@ -282,6 +286,11 @@ export async function reconcileStripeWebhookEventApplicationUseCase(
         paymentIntentId,
       });
     }
+    return { processed: true, eventType: event.type };
+  }
+
+  if (PLAN_SUBSCRIPTION_WEBHOOK_EVENTS.has(event.type)) {
+    await reconcilePlanSubscriptionWebhookApplicationUseCase(event);
     return { processed: true, eventType: event.type };
   }
 

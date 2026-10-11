@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { motion } from 'motion/react';
 import { Search, X } from 'lucide-react';
-import { useLocation } from 'react-router-dom';
+import { useLocalizedRouting } from '../../../shared/hooks/useLocalizedRouting';
 import { LOCATIONS } from '../../../shared/constants/locations';
 import { CATEGORIES } from '../../../shared/constants/categories';
 import { GuideItem, useGuideCatalog } from '../../guide';
@@ -80,27 +80,27 @@ export function SearchOverlay({ isOpen, onClose, onSelectItem }: SearchOverlayPr
   const [query, setQuery] = useState('');
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
   const { events: dbEvents, items: dbItems } = useGuideCatalog();
-  const location = useLocation();
-  const isMainPage = location.pathname === '/';
+  const { routeKey } = useLocalizedRouting();
+  const isMainPage = routeKey === 'explore';
 
   const activeCategory = useMemo(() => {
-    switch (location.pathname) {
-      case '/eventos':
+    switch (routeKey) {
+      case 'events':
         return 'event';
-      case '/passeios':
+      case 'tours':
         return 'tour';
-      case '/pousadas':
+      case 'stays':
         return 'hotel';
-      case '/restaurantes':
+      case 'restaurants':
         return 'restaurant';
-      case '/pontos':
+      case 'attractions':
         return 'sight';
-      case '/info':
+      case 'guide':
         return 'tips';
       default:
         return null;
     }
-  }, [location.pathname]);
+  }, [routeKey]);
 
   const searchPlaceholder = useMemo(() => {
     switch (activeCategory) {

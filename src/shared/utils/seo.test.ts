@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { updateDocumentSEO, ROUTE_SEO_CONFIG } from './seo';
+import { getRouteSeoMetadata, updateDocumentSEO } from './seo';
 
 describe('updateDocumentSEO utility', () => {
   beforeEach(() => {
@@ -91,14 +91,27 @@ describe('updateDocumentSEO utility', () => {
     expect(document.title).toBe('Jeri Wind Alert | Use Guide');
   });
 
-  it('has valid predefined configurations for primary routes', () => {
-    expect(ROUTE_SEO_CONFIG['/']).toBeDefined();
-    expect(ROUTE_SEO_CONFIG['/eventos']).toBeDefined();
-    expect(ROUTE_SEO_CONFIG['/passeios']).toBeDefined();
-    expect(ROUTE_SEO_CONFIG['/pousadas']).toBeDefined();
-    expect(ROUTE_SEO_CONFIG['/restaurantes']).toBeDefined();
-    expect(ROUTE_SEO_CONFIG['/pontos']).toBeDefined();
-    expect(ROUTE_SEO_CONFIG['/info']).toBeDefined();
-    expect(ROUTE_SEO_CONFIG['/admin']?.robots).toBe('noindex, nofollow');
+  it('monta os metadados da rota no idioma da URL', () => {
+    expect(getRouteSeoMetadata('/eventos')).toMatchObject({
+      title: 'Eventos & Experiências | Use Guide',
+      canonicalUrl: 'https://useguide.com.br/eventos',
+      locale: 'pt-BR',
+    });
+    expect(getRouteSeoMetadata('/fr/evenements')).toMatchObject({
+      title: 'Événements & Expériences | Use Guide',
+      canonicalUrl: 'https://useguide.com.br/fr/evenements',
+      locale: 'fr',
+    });
+    expect(getRouteSeoMetadata('/en/favorites').robots).toBe('noindex, follow');
+  });
+
+  it('rotas fora do mapa: admin noindex, desconhecida noindex', () => {
+    expect(getRouteSeoMetadata('/admin').robots).toBe('noindex, nofollow');
+    expect(getRouteSeoMetadata('/nao-existe').robots).toBe('noindex, follow');
+  });
+
+  it('og:locale segue o idioma da página', () => {
+    updateDocumentSEO({ title: 'x', locale: 'en' });
+    expect(document.querySelector('meta[property="og:locale"]')?.getAttribute('content')).toBe('en_US');
   });
 });

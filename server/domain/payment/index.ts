@@ -18,7 +18,23 @@ export {
   syncConnectedAccountFromWebhookUseCase,
 } from './usecases/marketplaceConnectUseCases';
 
+export { createBillingPortalSessionUseCase } from './usecases/billing/createBillingPortalSessionUseCase';
+export { getPartnerPlanSubscriptionUseCase } from './usecases/billing/getPartnerPlanSubscriptionUseCase';
+export { setPlanSubscriptionCancelAtPeriodEndUseCase } from './usecases/billing/setPlanSubscriptionCancelAtPeriodEndUseCase';
+export { startPlanSubscriptionUseCase } from './usecases/billing/startPlanSubscriptionUseCase';
+export { syncPlanSubscriptionUseCase } from './usecases/billing/syncPlanSubscriptionUseCase';
+
 export { PaymentDomainError } from './services/stripePaymentService';
+export type {
+  StartPlanSubscriptionInput,
+  StartPlanSubscriptionResult,
+} from './services/billingService';
+export type {
+  BillingLocale,
+  ProviderSubscriptionStatus,
+  SubscriptionSnapshot,
+} from './ports/billingGatewayPort';
+export type { PlanSubscriptionRecord } from './ports/planSubscriptionRepositoryPort';
 
 export type {
   ConnectedAccountStatus,

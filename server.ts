@@ -19,7 +19,9 @@ import insightsRouter from './server/domain/insights/routes/insightsRoutes';
 import adminRouter from './server/domain/admin/routes/adminRoutes';
 import favoriteRouter from './server/domain/favorites/routes/favoriteRoutes';
 import mediaRouter from './server/domain/media/routes/mediaRoutes';
-import { serverSeoService } from './server/domain/seo/seoService';
+import billingRouter from './server/interfaces/http/billing/billingRoutes';
+import { renderSeoPageApplicationUseCase } from './server/application/usecases/renderSeoPageApplicationUseCase';
+import { renderSitemapApplicationUseCase } from './server/application/usecases/renderSitemapApplicationUseCase';
 import { verifyAppCheck } from './server/infrastructure/auth/appCheckMiddleware';
 
 async function startServer() {
@@ -166,6 +168,7 @@ async function startServer() {
   });
 
   // 5. Normal routes
+  app.use('/api/payment/plans', billingRouter);
   app.use('/api/payment', paymentRouter);
   app.use('/api/weather', climaWindRouter);
   app.use('/api/notifications', notificationRouter);
@@ -193,6 +196,18 @@ async function startServer() {
     });
   });
 
+  app.get('/sitemap.xml', async (_req, res) => {
+    try {
+      const xml = await renderSitemapApplicationUseCase();
+      res.setHeader('Content-Type', 'application/xml; charset=utf-8');
+      res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=3600');
+      res.send(xml);
+    } catch (error) {
+      console.error('[sitemap]', error instanceof Error ? error.message : error);
+      res.status(503).end();
+    }
+  });
+
   if (process.env.NODE_ENV !== 'production') {
     const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
@@ -202,16 +217,21 @@ async function startServer() {
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), 'dist');
-    app.use(express.static(distPath));
-    app.get('*all', (req, res) => {
+    // index: false — o HTML sempre passa pelo SEO; o Hosting já entrega a home "/" estática.
+    app.use(express.static(distPath, { index: false }));
+    app.get('*all', async (req, res) => {
       try {
-        const hydratedHtml = serverSeoService.getHydratedHtml(
-          req.path,
-          req.query as Record<string, any>
-        );
+        const html = await renderSeoPageApplicationUseCase({
+          path: req.path,
+          query: req.query as Record<string, unknown>,
+        });
         res.setHeader('Content-Type', 'text/html; charset=utf-8');
-        res.send(hydratedHtml);
-      } catch {
+        // A CDN do Hosting guarda por 5 min; o navegador sempre revalida.
+        res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=300');
+        res.send(html);
+      } catch (error) {
+        console.error('[SEO render]', error instanceof Error ? error.message : error);
+        res.setHeader('Cache-Control', 'no-cache');
         res.sendFile(path.join(distPath, 'index.html'));
       }
     });

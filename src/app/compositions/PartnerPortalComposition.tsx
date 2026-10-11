@@ -6,7 +6,7 @@ import { getActiveSubscriptionPlansUseCase } from '../../domain/admin';
 import { UserRole } from '../../domain/auth/types/auth';
 import { useAuthContext } from '../../domain/auth/context/AuthContext';
 import { ReportsView } from '../../domain/insights';
-import { CheckoutModal, isPaidPlanId } from '../../domain/payment';
+import { CheckoutModal, isPaidPlanId, PlanSubscriptionCard } from '../../domain/payment';
 import { NotificationBell } from '../../domain/notifications';
 import { PartnerEventTicketingManager } from '../../domain/ticketing';
 import { ErrorState } from '../../ui/components/ErrorState';
@@ -121,6 +121,7 @@ export function PartnerPortalComposition() {
           />
         ) : null
       }
+      planSubscriptionSlot={<PlanSubscriptionCard />}
       renderEventTicketingManager={(eventListingId) => (
         <PartnerEventTicketingManager eventListingId={eventListingId} />
       )}

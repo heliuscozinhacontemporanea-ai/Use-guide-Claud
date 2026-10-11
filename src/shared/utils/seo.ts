@@ -1,3 +1,5 @@
+import { DEFAULT_LOCALE, i18n, type Locale, localizedPath, parseLocalizedPath } from '../i18n';
+
 export interface SEOMetadata {
   title?: string | undefined;
   description?: string | undefined;
@@ -10,6 +12,7 @@ export interface SEOMetadata {
   canonicalUrl?: string | undefined;
   author?: string | undefined;
   structuredData?: Record<string, any> | undefined;
+  locale?: Locale | undefined;
 }
 
 interface DefaultSEOMetadata {
@@ -51,65 +54,9 @@ const DEFAULT_SEO: DefaultSEOMetadata = {
   author: 'Use Guide',
 };
 
-export const ROUTE_SEO_CONFIG: Record<string, SEOMetadata> = {
-  '/': {
-    title: 'Explorar Jeri, Preá & Barrinha',
-    description:
-      'Guia interativo com mapa, previsão de vento em tempo real, gastronomia e os melhores locais de Jericoacoara, Preá e Barrinha.',
-    canonicalUrl: `${BASE_URL}/`,
-  },
-  '/eventos': {
-    title: 'Eventos & Experiências',
-    description:
-      'Fique por dentro das festas, sunsets, campeonatos de kitesurf e eventos culturais em Jericoacoara e região.',
-    keywords: ['eventos jeri', 'sunset jericoacoara', 'festas prea', 'shows jeri'],
-    canonicalUrl: `${BASE_URL}/eventos`,
-    type: 'event',
-  },
-  '/passeios': {
-    title: 'Aventura & Passeios',
-    description:
-      'Passeios de buggy, quadriciclo, lagoas cristalinas e roteiros imperdíveis no litoral leste e oeste de Jericoacoara.',
-    keywords: ['passeio de buggy', 'lagoa do paraiso', 'tatajuba', 'buraco azul', 'dunas jeri'],
-    canonicalUrl: `${BASE_URL}/passeios`,
-    type: 'place',
-  },
-  '/pousadas': {
-    title: 'Melhores Hospedagens & Pousadas',
-    description:
-      'Seleção curada das melhores pousadas, hotéis boutique e resorts à beira-mar em Jeri, Preá e Barrinha.',
-    keywords: [
-      'pousadas jericoacoara',
-      'hotel boutique prea',
-      'onde ficar em jeri',
-      'resorts jeri',
-    ],
-    canonicalUrl: `${BASE_URL}/pousadas`,
-    type: 'place',
-  },
-  '/restaurantes': {
-    title: 'Sabores Locais & Gastronomia',
-    description:
-      'Descubra os melhores restaurantes, bares de praia, frutos do mar frescos e alta gastronomia de Jeri e Preá.',
-    keywords: ['restaurantes jericoacoara', 'gastronomia jeri', 'frutos do mar prea', 'bares jeri'],
-    canonicalUrl: `${BASE_URL}/restaurantes`,
-    type: 'place',
-  },
-  '/pontos': {
-    title: 'Atrações & Pontos Turísticos',
-    description:
-      'Pedra Furada, Duna do Pôr do Sol, Lagoas e os cartões-postais mais famosos do Parque Nacional de Jericoacoara.',
-    keywords: ['pedra furada', 'duna do por do sol', 'arvore da preguica', 'atracoes jeri'],
-    canonicalUrl: `${BASE_URL}/pontos`,
-    type: 'place',
-  },
-  '/info': {
-    title: 'Guia Prático & Dicas Úteis',
-    description:
-      'Tudo o que você precisa saber: taxa de turismo, como chegar, melhor época, traslados e dicas essenciais.',
-    keywords: ['como chegar em jeri', 'taxa turismo jericoacoara', 'dicas uteis jeri'],
-    canonicalUrl: `${BASE_URL}/info`,
-  },
+const OG_LOCALE: Record<Locale, string> = { 'pt-BR': 'pt_BR', en: 'en_US', fr: 'fr_FR' };
+
+const NON_LOCALIZED_ROUTE_SEO: Record<string, SEOMetadata> = {
   '/admin': {
     title: 'Painel Administrativo',
     description: 'Área de gestão e moderação de conteúdo do Use Guide.',
@@ -121,6 +68,25 @@ export const ROUTE_SEO_CONFIG: Record<string, SEOMetadata> = {
     robots: 'noindex, nofollow',
   },
 };
+
+/**
+ * Metadados da rota no idioma da URL (decisão D6). Os textos ficam em `seo.routes` do i18n e o
+ * servidor usa os mesmos (teste de paridade em server/domain/seo).
+ */
+export function getRouteSeoMetadata(pathname: string): SEOMetadata {
+  const parsed = parseLocalizedPath(pathname);
+  if (!parsed) {
+    return NON_LOCALIZED_ROUTE_SEO[pathname] ?? { robots: 'noindex, follow' };
+  }
+  const { routeKey, locale } = parsed;
+  return {
+    title: i18n.t(`seo.routes.${routeKey}.title`, { lng: locale }),
+    description: i18n.t(`seo.routes.${routeKey}.description`, { lng: locale }),
+    canonicalUrl: `${BASE_URL}${localizedPath(routeKey, locale)}`,
+    locale,
+    ...(routeKey === 'favorites' ? { robots: 'noindex, follow' } : {}),
+  };
+}
 
 function toAbsoluteUrl(url: string | undefined): string {
   if (!url) return BASE_URL;
@@ -205,7 +171,10 @@ export function updateDocumentSEO(metadata: SEOMetadata = {}): void {
   getOrCreateMetaTag('property', 'og:url').setAttribute('content', url);
   getOrCreateMetaTag('property', 'og:type').setAttribute('content', type);
   getOrCreateMetaTag('property', 'og:site_name').setAttribute('content', 'Use Guide');
-  getOrCreateMetaTag('property', 'og:locale').setAttribute('content', 'pt_BR');
+  getOrCreateMetaTag('property', 'og:locale').setAttribute(
+    'content',
+    OG_LOCALE[metadata.locale ?? DEFAULT_LOCALE]
+  );
 
   getOrCreateMetaTag('name', 'twitter:card').setAttribute('content', 'summary_large_image');
   getOrCreateMetaTag('name', 'twitter:url').setAttribute('content', url);

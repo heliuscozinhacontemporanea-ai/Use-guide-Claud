@@ -62,6 +62,92 @@ export interface TranslationResource {
       UPLOAD_FAILED: string;
       STORAGE_UNAVAILABLE: string;
     };
+    payment: {
+      SUBSCRIPTION_ALREADY_ACTIVE: string;
+      SUBSCRIPTION_NOT_FOUND: string;
+      PLAN_INACTIVE: string;
+      VALIDATION_ERROR: string;
+      FORBIDDEN: string;
+      BILLING_UNAVAILABLE: string;
+      PAYMENT_FAILED: string;
+    };
+  };
+  payment: {
+    checkout: {
+      title: string;
+      close: string;
+      totalLabel: string;
+      retry: string;
+      preparing: string;
+      processingTitle: string;
+      processingDescription: string;
+      secureFooter: string;
+      methodLegend: string;
+      methodSubscription: string;
+      methodSubscriptionHint: string;
+      methodOneTime: string;
+      methodOneTimeHint: string;
+      continue: string;
+      subscribeButton: string;
+      payButton: string;
+      trialNotice: string;
+      activatingTitle: string;
+      activatingDescription: string;
+      activationDelayed: string;
+      successTitle: string;
+      successDescription: string;
+    };
+    period: {
+      monthly: string;
+      'semi-annual': string;
+      annual: string;
+    };
+    element: {
+      unavailable: string;
+      processing: string;
+      payNow: string;
+      saveCard: string;
+      paymentFailed: string;
+      confirmFailed: string;
+    };
+    subscription: {
+      title: string;
+      loading: string;
+      statusActive: string;
+      statusTrialing: string;
+      statusCancelScheduled: string;
+      statusPastDue: string;
+      statusCanceled: string;
+      statusIncomplete: string;
+      manageCard: string;
+      cancelRenewal: string;
+      resumeRenewal: string;
+      confirmCancel: string;
+      actionFailed: string;
+      loadFailed: string;
+      retry: string;
+    };
+  };
+  seo: {
+    routes: {
+      explore: { title: string; description: string };
+      events: { title: string; description: string };
+      tours: { title: string; description: string };
+      stays: { title: string; description: string };
+      restaurants: { title: string; description: string };
+      attractions: { title: string; description: string };
+      guide: { title: string; description: string };
+      favorites: { title: string; description: string };
+    };
+  };
+  pages: {
+    notFoundTitle: string;
+    notFoundDescription: string;
+    backHome: string;
+    checkoutResultMissing: string;
+    planPaymentTitle: string;
+    planPaymentDescription: string;
+    openPartnerArea: string;
   };
 }
 const ptBR: TranslationResource = {
@@ -128,6 +214,121 @@ const ptBR: TranslationResource = {
       UPLOAD_FAILED: 'Não foi possível enviar a imagem. Tente novamente.',
       STORAGE_UNAVAILABLE: 'O armazenamento está indisponível no momento. Tente novamente em instantes.',
     },
+    payment: {
+      SUBSCRIPTION_ALREADY_ACTIVE: 'Você já tem uma assinatura ativa.',
+      SUBSCRIPTION_NOT_FOUND: 'Nenhuma assinatura ativa encontrada.',
+      PLAN_INACTIVE: 'Este plano não está disponível no momento.',
+      VALIDATION_ERROR: 'Dados inválidos. Revise e tente novamente.',
+      FORBIDDEN: 'Conclua seu cadastro de parceiro antes de assinar.',
+      BILLING_UNAVAILABLE: 'Pagamentos indisponíveis no momento. Tente novamente em instantes.',
+      PAYMENT_FAILED: 'O pagamento não foi aprovado.',
+    },
+  },
+  payment: {
+    checkout: {
+      title: 'Checkout seguro',
+      close: 'Fechar checkout',
+      totalLabel: 'Total',
+      retry: 'Tentar novamente',
+      preparing: 'Preparando o ambiente seguro do Stripe…',
+      processingTitle: 'Pagamento em processamento',
+      processingDescription: 'Estamos aguardando a confirmação do Stripe para liberar seu plano.',
+      secureFooter:
+        'Pagamento processado pelo Stripe. Os dados do cartão não passam pelo Use Guide.',
+      methodLegend: 'Forma de pagamento',
+      methodSubscription: 'Cartão — renovação automática',
+      methodSubscriptionHint:
+        'Cobrança recorrente no cartão. Cancele quando quiser; o plano vale até o fim do período pago.',
+      methodOneTime: 'Pagamento único — Pix ou cartão',
+      methodOneTimeHint:
+        'Sem renovação automática. Para continuar com o selo, pague de novo ao fim do período.',
+      continue: 'Continuar',
+      subscribeButton: 'Assinar por {{amount}} {{period}}',
+      payButton: 'Pagar {{amount}}',
+      trialNotice: 'Seu período atual já está pago. Salve o cartão agora; a primeira cobrança acontece quando esse período terminar.',
+      activatingTitle: 'Confirmando sua assinatura',
+      activatingDescription: 'O Stripe está confirmando o pagamento. Isso leva alguns segundos.',
+      activationDelayed:
+        'A confirmação está demorando mais que o normal. Seu plano será ativado assim que o Stripe confirmar; você pode fechar esta janela.',
+      successTitle: 'Assinatura ativa',
+      successDescription: 'Seu plano {{plan}} está ativo e renova automaticamente.',
+    },
+    period: {
+      monthly: 'por mês',
+      'semi-annual': 'a cada 6 meses',
+      annual: 'por ano',
+    },
+    element: {
+      unavailable: 'Pagamentos online indisponíveis no momento.',
+      processing: 'Processando…',
+      payNow: 'Pagar agora',
+      saveCard: 'Salvar cartão',
+      paymentFailed: 'Não foi possível processar o pagamento.',
+      confirmFailed: 'Não foi possível confirmar o pagamento.',
+    },
+    subscription: {
+      title: 'Assinatura do plano',
+      loading: 'Carregando assinatura…',
+      statusActive: 'Ativa. Próxima cobrança em {{date}}.',
+      statusTrialing: 'Ativa. Primeira cobrança em {{date}}.',
+      statusCancelScheduled: 'Renovação cancelada. O plano vale até {{date}}.',
+      statusPastDue:
+        'Não conseguimos cobrar seu cartão. Atualize a forma de pagamento para manter o selo.',
+      statusCanceled: 'Assinatura encerrada.',
+      statusIncomplete: 'Pagamento da assinatura pendente.',
+      manageCard: 'Gerenciar cartão e faturas',
+      cancelRenewal: 'Cancelar renovação',
+      resumeRenewal: 'Retomar renovação',
+      confirmCancel: 'Cancelar a renovação automática? O plano continua ativo até {{date}}.',
+      actionFailed: 'Não foi possível concluir a ação. Tente novamente.',
+      loadFailed: 'Não foi possível carregar a assinatura.',
+      retry: 'Tentar novamente',
+    },
+  },
+  seo: {
+    routes: {
+      explore: {
+        title: 'Use Guide | Guia de Jericoacoara, Preá e Barrinha',
+        description: 'Descubra as melhores experiências, pousadas, restaurantes, passeios e condições de vento em tempo real em Jericoacoara, Preá e Barrinha.',
+      },
+      events: {
+        title: 'Eventos & Experiências | Use Guide',
+        description: 'Fique por dentro das festas, sunsets, campeonatos de kitesurf e eventos culturais em Jericoacoara e região.',
+      },
+      tours: {
+        title: 'Aventura & Passeios | Use Guide',
+        description: 'Passeios de buggy, quadriciclo, lagoas cristalinas e roteiros imperdíveis no litoral leste e oeste de Jericoacoara.',
+      },
+      stays: {
+        title: 'Melhores Hospedagens & Pousadas | Use Guide',
+        description: 'Seleção curada das melhores pousadas, hotéis boutique e resorts à beira-mar em Jeri, Preá e Barrinha.',
+      },
+      restaurants: {
+        title: 'Sabores Locais & Gastronomia | Use Guide',
+        description: 'Descubra os melhores restaurantes, bares de praia, frutos do mar frescos e alta gastronomia de Jeri e Preá.',
+      },
+      attractions: {
+        title: 'Atrações & Pontos Turísticos | Use Guide',
+        description: 'Pedra Furada, Duna do Pôr do Sol, Lagoas e os cartões-postais mais famosos do Parque Nacional de Jericoacoara.',
+      },
+      guide: {
+        title: 'Guia Prático & Dicas Úteis | Use Guide',
+        description: 'Tudo o que você precisa saber: taxa de turismo, como chegar, melhor época, traslados e dicas essenciais.',
+      },
+      favorites: {
+        title: 'Meus Favoritos | Use Guide',
+        description: 'Os lugares, passeios e eventos que você salvou no Use Guide.',
+      },
+    },
+  },
+  pages: {
+    notFoundTitle: 'Página não encontrada',
+    notFoundDescription: 'O endereço que você abriu não existe ou foi alterado.',
+    backHome: 'Voltar ao início',
+    checkoutResultMissing: 'Não encontramos o pedido deste pagamento.',
+    planPaymentTitle: 'Pagamento do plano em processamento',
+    planPaymentDescription: 'Assim que o Stripe confirmar, o selo aparece na sua área de parceiro.',
+    openPartnerArea: 'Abrir área do parceiro',
   },
 };
 const en: TranslationResource = {
@@ -194,6 +395,119 @@ const en: TranslationResource = {
       UPLOAD_FAILED: 'The image could not be uploaded. Please try again.',
       STORAGE_UNAVAILABLE: 'Storage is unavailable right now. Please try again shortly.',
     },
+    payment: {
+      SUBSCRIPTION_ALREADY_ACTIVE: 'You already have an active subscription.',
+      SUBSCRIPTION_NOT_FOUND: 'No active subscription found.',
+      PLAN_INACTIVE: 'This plan is not available right now.',
+      VALIDATION_ERROR: 'Invalid data. Please review and try again.',
+      FORBIDDEN: 'Complete your partner registration before subscribing.',
+      BILLING_UNAVAILABLE: 'Payments are unavailable right now. Please try again shortly.',
+      PAYMENT_FAILED: 'The payment was not approved.',
+    },
+  },
+  payment: {
+    checkout: {
+      title: 'Secure checkout',
+      close: 'Close checkout',
+      totalLabel: 'Total',
+      retry: 'Try again',
+      preparing: 'Preparing Stripe secure checkout…',
+      processingTitle: 'Payment processing',
+      processingDescription:
+        'We are waiting for Stripe to confirm the payment before activating your plan.',
+      secureFooter: 'Payment processed by Stripe. Card details never go through Use Guide.',
+      methodLegend: 'Payment method',
+      methodSubscription: 'Card — automatic renewal',
+      methodSubscriptionHint:
+        'Recurring card charge. Cancel anytime; the plan stays active until the end of the paid period.',
+      methodOneTime: 'One-time payment — Pix or card',
+      methodOneTimeHint: 'No automatic renewal. To keep the badge, pay again when the period ends.',
+      continue: 'Continue',
+      subscribeButton: 'Subscribe for {{amount}} {{period}}',
+      payButton: 'Pay {{amount}}',
+      trialNotice: 'Your current period is already paid. Save your card now; the first charge happens when that period ends.',
+      activatingTitle: 'Confirming your subscription',
+      activatingDescription: 'Stripe is confirming the payment. This takes a few seconds.',
+      activationDelayed:
+        'Confirmation is taking longer than usual. Your plan will be activated as soon as Stripe confirms; you can close this window.',
+      successTitle: 'Subscription active',
+      successDescription: 'Your {{plan}} plan is active and renews automatically.',
+    },
+    period: {
+      monthly: 'per month',
+      'semi-annual': 'every 6 months',
+      annual: 'per year',
+    },
+    element: {
+      unavailable: 'Online payments are unavailable right now.',
+      processing: 'Processing…',
+      payNow: 'Pay now',
+      saveCard: 'Save card',
+      paymentFailed: 'The payment could not be processed.',
+      confirmFailed: 'The payment could not be confirmed.',
+    },
+    subscription: {
+      title: 'Plan subscription',
+      loading: 'Loading subscription…',
+      statusActive: 'Active. Next charge on {{date}}.',
+      statusTrialing: 'Active. First charge on {{date}}.',
+      statusCancelScheduled: 'Renewal canceled. The plan is valid until {{date}}.',
+      statusPastDue: 'We could not charge your card. Update your payment method to keep the badge.',
+      statusCanceled: 'Subscription ended.',
+      statusIncomplete: 'Subscription payment pending.',
+      manageCard: 'Manage card and invoices',
+      cancelRenewal: 'Cancel renewal',
+      resumeRenewal: 'Resume renewal',
+      confirmCancel: 'Cancel automatic renewal? The plan stays active until {{date}}.',
+      actionFailed: 'The action could not be completed. Please try again.',
+      loadFailed: 'The subscription could not be loaded.',
+      retry: 'Try again',
+    },
+  },
+  seo: {
+    routes: {
+      explore: {
+        title: 'Use Guide | Jericoacoara, Preá & Barrinha Travel Guide',
+        description: 'Discover the best experiences, inns, restaurants, tours and real-time wind conditions in Jericoacoara, Preá and Barrinha.',
+      },
+      events: {
+        title: 'Events & Experiences | Use Guide',
+        description: 'Parties, sunsets, kitesurf competitions and cultural events in Jericoacoara and the region.',
+      },
+      tours: {
+        title: 'Adventure & Tours | Use Guide',
+        description: 'Buggy and quad bike tours, crystal-clear lagoons and must-do routes around Jericoacoara.',
+      },
+      stays: {
+        title: 'Best Stays & Inns | Use Guide',
+        description: 'A curated selection of the best inns, boutique hotels and beachfront resorts in Jeri, Preá and Barrinha.',
+      },
+      restaurants: {
+        title: 'Local Flavors & Dining | Use Guide',
+        description: 'The best restaurants, beach bars, fresh seafood and fine dining in Jeri and Preá.',
+      },
+      attractions: {
+        title: 'Attractions & Landmarks | Use Guide',
+        description: 'Pedra Furada, Sunset Dune, the lagoons and the most famous postcards of Jericoacoara National Park.',
+      },
+      guide: {
+        title: 'Practical Guide & Tips | Use Guide',
+        description: 'Everything you need to know: tourism fee, how to get there, best season, transfers and essential tips.',
+      },
+      favorites: {
+        title: 'My Favorites | Use Guide',
+        description: 'The places, tours and events you saved on Use Guide.',
+      },
+    },
+  },
+  pages: {
+    notFoundTitle: 'Page not found',
+    notFoundDescription: 'The address you opened does not exist or has changed.',
+    backHome: 'Back to home',
+    checkoutResultMissing: 'We could not find the order for this payment.',
+    planPaymentTitle: 'Plan payment processing',
+    planPaymentDescription: 'As soon as Stripe confirms, the badge appears in your partner area.',
+    openPartnerArea: 'Open partner area',
   },
 };
 const fr: TranslationResource = {
@@ -260,6 +574,124 @@ const fr: TranslationResource = {
       UPLOAD_FAILED: "Impossible d'envoyer l'image. Veuillez réessayer.",
       STORAGE_UNAVAILABLE: 'Le stockage est indisponible pour le moment. Réessayez dans un instant.',
     },
+    payment: {
+      SUBSCRIPTION_ALREADY_ACTIVE: 'Vous avez déjà un abonnement actif.',
+      SUBSCRIPTION_NOT_FOUND: 'Aucun abonnement actif trouvé.',
+      PLAN_INACTIVE: 'Ce forfait n’est pas disponible pour le moment.',
+      VALIDATION_ERROR: 'Données invalides. Vérifiez et réessayez.',
+      FORBIDDEN: 'Terminez votre inscription de partenaire avant de vous abonner.',
+      BILLING_UNAVAILABLE:
+        'Les paiements sont indisponibles pour le moment. Réessayez dans un instant.',
+      PAYMENT_FAILED: 'Le paiement n’a pas été approuvé.',
+    },
+  },
+  payment: {
+    checkout: {
+      title: 'Paiement sécurisé',
+      close: 'Fermer le paiement',
+      totalLabel: 'Total',
+      retry: 'Réessayer',
+      preparing: 'Préparation du paiement sécurisé Stripe…',
+      processingTitle: 'Paiement en cours',
+      processingDescription: 'Nous attendons la confirmation de Stripe pour activer votre forfait.',
+      secureFooter:
+        'Paiement traité par Stripe. Les données de carte ne passent jamais par Use Guide.',
+      methodLegend: 'Moyen de paiement',
+      methodSubscription: 'Carte — renouvellement automatique',
+      methodSubscriptionHint:
+        'Prélèvement récurrent sur la carte. Résiliable à tout moment ; le forfait reste actif jusqu’à la fin de la période payée.',
+      methodOneTime: 'Paiement unique — Pix ou carte',
+      methodOneTimeHint:
+        'Sans renouvellement automatique. Pour garder le badge, payez à nouveau à la fin de la période.',
+      continue: 'Continuer',
+      subscribeButton: 'S’abonner pour {{amount}} {{period}}',
+      payButton: 'Payer {{amount}}',
+      trialNotice:
+        'Votre période actuelle est déjà payée. Enregistrez votre carte maintenant ; le premier prélèvement aura lieu à la fin de cette période.',
+      activatingTitle: 'Confirmation de votre abonnement',
+      activatingDescription: 'Stripe confirme le paiement. Cela prend quelques secondes.',
+      activationDelayed:
+        'La confirmation prend plus de temps que d’habitude. Votre forfait sera activé dès que Stripe confirmera ; vous pouvez fermer cette fenêtre.',
+      successTitle: 'Abonnement actif',
+      successDescription: 'Votre forfait {{plan}} est actif et se renouvelle automatiquement.',
+    },
+    period: {
+      monthly: 'par mois',
+      'semi-annual': 'tous les 6 mois',
+      annual: 'par an',
+    },
+    element: {
+      unavailable: 'Les paiements en ligne sont indisponibles pour le moment.',
+      processing: 'Traitement…',
+      payNow: 'Payer maintenant',
+      saveCard: 'Enregistrer la carte',
+      paymentFailed: 'Le paiement n’a pas pu être traité.',
+      confirmFailed: 'Le paiement n’a pas pu être confirmé.',
+    },
+    subscription: {
+      title: 'Abonnement au forfait',
+      loading: 'Chargement de l’abonnement…',
+      statusActive: 'Actif. Prochain prélèvement le {{date}}.',
+      statusTrialing: 'Actif. Premier prélèvement le {{date}}.',
+      statusCancelScheduled: 'Renouvellement annulé. Le forfait est valable jusqu’au {{date}}.',
+      statusPastDue:
+        'Nous n’avons pas pu débiter votre carte. Mettez à jour votre moyen de paiement pour garder le badge.',
+      statusCanceled: 'Abonnement terminé.',
+      statusIncomplete: 'Paiement de l’abonnement en attente.',
+      manageCard: 'Gérer la carte et les factures',
+      cancelRenewal: 'Annuler le renouvellement',
+      resumeRenewal: 'Reprendre le renouvellement',
+      confirmCancel:
+        'Annuler le renouvellement automatique ? Le forfait reste actif jusqu’au {{date}}.',
+      actionFailed: 'L’action n’a pas pu aboutir. Veuillez réessayer.',
+      loadFailed: 'Impossible de charger l’abonnement.',
+      retry: 'Réessayer',
+    },
+  },
+  seo: {
+    routes: {
+      explore: {
+        title: 'Use Guide | Guide de Jericoacoara, Preá et Barrinha',
+        description: 'Découvrez les meilleures expériences, pousadas, restaurants, excursions et le vent en temps réel à Jericoacoara, Preá et Barrinha.',
+      },
+      events: {
+        title: 'Événements & Expériences | Use Guide',
+        description: 'Fêtes, couchers de soleil, compétitions de kitesurf et événements culturels à Jericoacoara et dans la région.',
+      },
+      tours: {
+        title: 'Aventure & Excursions | Use Guide',
+        description: 'Excursions en buggy et en quad, lagunes cristallines et itinéraires incontournables autour de Jericoacoara.',
+      },
+      stays: {
+        title: 'Meilleurs Hébergements | Use Guide',
+        description: 'Une sélection des meilleures pousadas, hôtels boutique et resorts en bord de mer à Jeri, Preá et Barrinha.',
+      },
+      restaurants: {
+        title: 'Saveurs Locales & Gastronomie | Use Guide',
+        description: 'Les meilleurs restaurants, bars de plage, fruits de mer frais et la haute gastronomie de Jeri et Preá.',
+      },
+      attractions: {
+        title: 'Attractions & Sites Touristiques | Use Guide',
+        description: 'Pedra Furada, la Dune du Coucher de Soleil, les lagunes et les cartes postales du Parc National de Jericoacoara.',
+      },
+      guide: {
+        title: 'Guide Pratique & Conseils | Use Guide',
+        description: 'Tout ce qu\'il faut savoir : taxe touristique, comment venir, meilleure saison, transferts et conseils essentiels.',
+      },
+      favorites: {
+        title: 'Mes Favoris | Use Guide',
+        description: 'Les lieux, excursions et événements que vous avez enregistrés sur Use Guide.',
+      },
+    },
+  },
+  pages: {
+    notFoundTitle: 'Page introuvable',
+    notFoundDescription: 'L’adresse que vous avez ouverte n’existe pas ou a changé.',
+    backHome: 'Retour à l’accueil',
+    checkoutResultMissing: 'Nous n’avons pas trouvé la commande de ce paiement.',
+    planPaymentTitle: 'Paiement du forfait en cours',
+    planPaymentDescription: 'Dès que Stripe confirme, le badge apparaît dans votre espace partenaire.',
+    openPartnerArea: 'Ouvrir l’espace partenaire',
   },
 };
 export const resources = {

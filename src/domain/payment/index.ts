@@ -1,5 +1,6 @@
 export { CheckoutModal } from './components/CheckoutModal';
-export { StripePaymentElement } from './components/StripePaymentElement';
+export { PlanSubscriptionCard } from './components/PlanSubscriptionCard';
+export { StripePaymentElement } from './adapters/ui/StripePaymentElement';
 export { StripeConnectProvider } from './components/StripeConnectProvider';
 export { PartnerStripeConnectPortal } from './components/PartnerStripeConnectPortal';
 export {

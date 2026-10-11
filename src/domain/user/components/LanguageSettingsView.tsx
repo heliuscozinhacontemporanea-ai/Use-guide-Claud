@@ -10,6 +10,7 @@ import {
   normalizeLocale,
 } from '../../../shared/i18n';
 import { cn } from '../../../shared/utils/cn';
+import { useLocalizedRouting } from '../../../shared/hooks/useLocalizedRouting';
 
 interface LanguageSettingsViewProps {
   onBack: () => void;
@@ -20,8 +21,9 @@ export function LanguageSettingsView({ onBack }: LanguageSettingsViewProps) {
   const currentLocale =
     normalizeLocale(i18n.resolvedLanguage ?? i18n.language) ?? DEFAULT_LOCALE;
 
+  const { switchLocale } = useLocalizedRouting();
   const handleSelectLocale = (locale: Locale) => {
-    void i18n.changeLanguage(locale);
+    switchLocale(locale);
   };
 
   return (

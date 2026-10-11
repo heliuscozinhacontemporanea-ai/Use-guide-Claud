@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useAuthContext } from '../../domain/auth/context/AuthContext';
 import { logoutUseCase } from '../../domain/auth';
 import { useNavigate } from 'react-router-dom';
+import { useLocalizedRouting } from '../../shared/hooks/useLocalizedRouting';
 import { cn } from '../../shared/utils/cn';
 import {
   useUserProfile,
@@ -36,6 +37,7 @@ export function SideMenu({ isOpen, onClose, onPartnersOpen, onAdminOpen }: SideM
   const { user } = useAuthContext();
   const { openLoginModal } = useUI();
   const navigate = useNavigate();
+  const { goTo } = useLocalizedRouting();
 
   const [isChangePasswordViewOpen, setIsChangePasswordViewOpen] = React.useState(false);
   const [isAboutViewOpen, setIsAboutViewOpen] = React.useState(false);
@@ -346,7 +348,7 @@ export function SideMenu({ isOpen, onClose, onPartnersOpen, onAdminOpen }: SideM
               onAccountOpen={() => setIsUserProfileOpen(true)}
               onFavoritesOpen={() => {
                 onClose();
-                navigate('/favoritos');
+                goTo('favorites');
               }}
               onTicketsOpen={() => setIsTicketsViewOpen(true)}
               onPartnersOpen={onPartnersOpen}

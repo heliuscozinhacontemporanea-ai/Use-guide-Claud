@@ -40,7 +40,10 @@
       },
       {
         "source": "**",
-        "destination": "/index.html"
+        "run": {
+          "serviceId": "use-guide",
+          "region": "us-east1"
+        }
       }
     ]
   },

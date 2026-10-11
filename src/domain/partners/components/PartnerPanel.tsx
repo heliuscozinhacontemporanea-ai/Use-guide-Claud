@@ -54,6 +54,7 @@ export interface PartnerPanelProps {
     onPaymentSuccess: () => Promise<void>;
   }) => React.ReactNode;
   renderEventTicketingManager?: (eventListingId: string) => React.ReactNode;
+  planSubscriptionSlot?: React.ReactNode;
 }
 
 export function PartnerPanel({
@@ -63,6 +64,7 @@ export function PartnerPanel({
   renderNotificationBell,
   renderCheckoutModal,
   renderEventTicketingManager,
+  planSubscriptionSlot,
 }: PartnerPanelProps) {
   const navigate = useNavigate();
 
@@ -211,6 +213,8 @@ export function PartnerPanel({
           onVerifyClick={() => setShowPlansModal(true)}
           notificationBell={renderNotificationBell?.(partnerProfile?.id || '')}
         />
+
+        {planSubscriptionSlot}
 
         <PartnerTabsNavigation
           activeTab={activeTab}

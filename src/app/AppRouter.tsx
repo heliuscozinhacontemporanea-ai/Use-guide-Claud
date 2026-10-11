@@ -1,16 +1,13 @@
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Route, Routes, useLocation, useSearchParams } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import { AdminDispatcher } from '../domain/admin/components/AdminDispatcher';
 import { LoginModal } from '../domain/auth/components/LoginModal';
-import { ResetPassword } from '../domain/auth/components/ResetPassword';
 import { useAuthContext } from '../domain/auth/context/AuthContext';
 import { UserRole } from '../domain/auth/types/auth';
 import { GuideItem, useGuideCatalog } from '../domain/guide';
 import { AttractionDetailModal } from '../domain/guide/components/AttractionDetailModal';
 import { EventDetailModal } from '../domain/guide/components/EventDetailModal';
-import { ExploreView } from '../domain/guide/components/ExploreView';
-import { GridView } from '../domain/guide/components/GridView';
 import { ItemDetailModal } from '../domain/guide/components/ItemDetailModal';
 import { RestaurantDetailModal } from '../domain/guide/components/RestaurantDetailModal';
 import { StayDetailModal } from '../domain/guide/components/StayDetailModal';
@@ -20,16 +17,17 @@ import { PartnersModal } from '../domain/partners';
 import { SearchOverlay } from '../domain/search';
 import { useConnection } from '../shared/hooks/useConnection';
 import { useScrollLock } from '../shared/hooks/useScrollLock';
+import { useLocalizedRouting, useSyncLocaleWithUrl } from '../shared/hooks/useLocalizedRouting';
 import { useSEO } from '../shared/hooks/useSEO';
 import { useUI } from '../shared/stores/useUIStore';
 import { cn } from '../shared/utils/cn';
 import { BackgroundBlobs } from '../ui/components/BackgroundBlobs';
 import { BottomNav } from '../ui/components/BottomNav';
 import { Header } from '../ui/layouts/Header';
-import { PageLayout } from '../ui/layouts/PageLayout';
 import { SideMenu } from '../ui/layouts/SideMenu';
 
 import { PartnerPortalComposition } from './compositions/PartnerPortalComposition';
+import { AppRoutes } from './routes/AppRoutes';
 
 export function AppRouter() {
   const { user } = useAuthContext();
@@ -37,6 +35,9 @@ export function AppRouter() {
   const isAdmin = user?.role === UserRole.ADMIN;
 
   const location = useLocation();
+  const { routeKey } = useLocalizedRouting();
+  const isExplorePage = routeKey === 'explore';
+  useSyncLocaleWithUrl();
   const connection = useConnection();
   const [searchParams, setSearchParams] = useSearchParams();
   const { isLoginModalOpen, isLoginClosingBySwipe, closeLoginModal, openLoginModal } = useUI();
@@ -306,7 +307,7 @@ export function AppRouter() {
             isMenuOpen={isMenuOpen}
             onMenuToggle={() => setIsMenuOpen((prev) => !prev)}
             isScrolled={isScrolled}
-            isSearchSticky={location.pathname === '/' ? isSearchSticky : false}
+            isSearchSticky={isExplorePage ? isSearchSticky : false}
             onAdminOpen={handleAdminOpen}
             isAdmin={isAdmin}
             isPartner={isPartner}
@@ -324,72 +325,14 @@ export function AppRouter() {
               key={location.pathname}
               className={cn(
                 'min-h-full max-w-2xl mx-auto w-full',
-                location.pathname === '/' ? 'pt-[70px]' : isResetPasswordPage ? 'pt-0' : 'pt-28'
+                isExplorePage ? 'pt-[70px]' : isResetPasswordPage ? 'pt-0' : 'pt-28'
               )}
             >
-              <Routes location={location}>
-                <Route
-                  path="/"
-                  element={
-                    <PageLayout>
-                      <ExploreView
-                        onSelectItem={setSelectedItem}
-                        onStickyChange={setIsSearchSticky}
-                      />
-                    </PageLayout>
-                  }
-                />
-                <Route
-                  path="/eventos"
-                  element={
-                    <PageLayout>
-                      <GridView category="event" onSelectItem={setSelectedItem} />
-                    </PageLayout>
-                  }
-                />
-                <Route
-                  path="/passeios"
-                  element={
-                    <PageLayout>
-                      <GridView category="tour" onSelectItem={setSelectedItem} />
-                    </PageLayout>
-                  }
-                />
-                <Route
-                  path="/pousadas"
-                  element={
-                    <PageLayout>
-                      <GridView category="hotel" onSelectItem={setSelectedItem} />
-                    </PageLayout>
-                  }
-                />
-                <Route
-                  path="/restaurantes"
-                  element={
-                    <PageLayout>
-                      <GridView category="restaurant" onSelectItem={setSelectedItem} />
-                    </PageLayout>
-                  }
-                />
-                <Route
-                  path="/pontos"
-                  element={
-                    <PageLayout>
-                      <GridView category="sight" onSelectItem={setSelectedItem} />
-                    </PageLayout>
-                  }
-                />
-                <Route
-                  path="/info"
-                  element={
-                    <PageLayout>
-                      <GridView category="tips" onSelectItem={setSelectedItem} />
-                    </PageLayout>
-                  }
-                />
-                <Route path="/admin" element={<AdminDispatcher />} />
-                <Route path="/reset-password" element={<ResetPassword />} />
-              </Routes>
+              <AppRoutes
+                location={location}
+                onSelectItem={setSelectedItem}
+                onStickyChange={setIsSearchSticky}
+              />
             </motion.div>
           </AnimatePresence>
         )}

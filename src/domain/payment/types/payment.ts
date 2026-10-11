@@ -33,3 +33,35 @@ export interface PartnerConnectStatusResponse {
   requirementsPastDue?: string[];
   status: 'pending' | 'restricted' | 'enabled' | 'disabled';
 }
+
+export type PaymentLocale = 'pt-BR' | 'en' | 'fr';
+
+export type PlanSubscriptionStatus =
+  | 'incomplete'
+  | 'incomplete_expired'
+  | 'trialing'
+  | 'active'
+  | 'past_due'
+  | 'canceled'
+  | 'unpaid'
+  | 'paused';
+
+export interface PlanSubscription {
+  planId: PaidPlanId;
+  status: PlanSubscriptionStatus;
+  currentPeriodEnd: string | null;
+  cancelAtPeriodEnd: boolean;
+}
+
+export interface StartPlanSubscriptionPayload {
+  planId: PaidPlanId;
+  locale: PaymentLocale;
+  idempotencyKey: string;
+}
+
+export interface StartPlanSubscriptionResponse {
+  subscriptionId: string;
+  status: PlanSubscriptionStatus;
+  clientSecret: string | null;
+  intentType: 'payment' | 'setup' | null;
+}

@@ -4,7 +4,30 @@ import type {
   CreatePaymentIntentResponse,
   CreatePlanPaymentIntentPayload,
   PartnerConnectStatusResponse,
+  PaymentLocale,
+  PlanSubscription,
+  StartPlanSubscriptionPayload,
+  StartPlanSubscriptionResponse,
 } from '../types/payment';
+
+const API_OPTIONS = { requireAuth: true, requireAppCheck: true } as const;
+
+/** Lança Error com o `code` estável do backend (AGENTS.md §10.2); a UI traduz pelo código. */
+async function readJsonOrThrow<T>(response: Response): Promise<T> {
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(typeof data?.error?.code === 'string' ? data.error.code : 'BILLING_UNAVAILABLE');
+  }
+  return data as T;
+}
+
+function postJson(path: string, body: unknown) {
+  return firebaseApiFetch(
+    path,
+    { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) },
+    API_OPTIONS
+  );
+}
 
 export class ApiPaymentAdapter implements PaymentApiPort {
   async createPlanPaymentIntent(
@@ -90,5 +113,35 @@ export class ApiPaymentAdapter implements PaymentApiPort {
       throw new Error(data.error?.message ?? data.error ?? 'Não foi possível iniciar a sessão financeira.');
     }
     return { clientSecret: data.clientSecret };
+  }
+
+  async startPlanSubscription(
+    payload: StartPlanSubscriptionPayload
+  ): Promise<StartPlanSubscriptionResponse> {
+    return readJsonOrThrow(await postJson('/api/payment/plans/subscriptions', payload));
+  }
+
+  async getPlanSubscription(): Promise<PlanSubscription | null> {
+    const response = await firebaseApiFetch(
+      '/api/payment/plans/subscription',
+      { method: 'GET' },
+      API_OPTIONS
+    );
+    const data = await readJsonOrThrow<{ subscription: PlanSubscription | null }>(response);
+    return data.subscription;
+  }
+
+  async setPlanSubscriptionRenewal(renew: boolean): Promise<PlanSubscription | null> {
+    const path = renew
+      ? '/api/payment/plans/subscription/resume'
+      : '/api/payment/plans/subscription/cancel';
+    const data = await readJsonOrThrow<{ subscription: PlanSubscription | null }>(
+      await postJson(path, {})
+    );
+    return data.subscription;
+  }
+
+  async createBillingPortalSession(locale: PaymentLocale): Promise<{ url: string }> {
+    return readJsonOrThrow(await postJson('/api/payment/plans/subscription/portal', { locale }));
   }
 }
