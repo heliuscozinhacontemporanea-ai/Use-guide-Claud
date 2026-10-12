@@ -116,7 +116,7 @@ export const adminGuideItemFormSchema = z.object({
   instagramLink: optionalUrl,
   websiteLink: optionalUrl,
   bookingLink: optionalUrl,
-  whatsappLink: z.string().trim().max(100).optional(),
+  phone: z.string().trim().max(100).optional(),
   googleMapsLink: optionalUrl,
   address: z.string().trim().max(500).optional(),
   tags: z
@@ -142,7 +142,7 @@ export const adminGuideEventFormSchema = z.object({
   instagramLink: optionalUrl,
   websiteLink: optionalUrl,
   bookingLink: optionalUrl,
-  whatsappLink: z.string().trim().max(100).optional(),
+  phone: z.string().trim().max(100).optional(),
   googleMapsLink: optionalUrl,
   address: z.string().trim().max(500).optional(),
   tags: z

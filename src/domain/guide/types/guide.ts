@@ -39,7 +39,16 @@ export interface GuideItemOperationalInfo {
   >;
 }
 
-export type GuideItemCategory = 'restaurant' | 'sight' | 'tour' | 'tips' | 'hotel';
+/** `producer`: perfil de produtor de eventos; não aparece nas listagens do guia (decisão D9). */
+export type GuideItemCategory =
+  | 'restaurant'
+  | 'sight'
+  | 'tour'
+  | 'tips'
+  | 'hotel'
+  | 'transfer'
+  | 'rental'
+  | 'producer';
 
 export type GuideContentType = 'item' | 'event';
 
@@ -61,7 +70,7 @@ export interface GuideItem {
   instagramLink?: string;
   websiteLink?: string;
   bookingLink?: string;
-  whatsappLink?: string;
+  phone?: string;
   googleMapsLink?: string;
   address?: string;
   tags?: string[];
@@ -93,7 +102,7 @@ export interface GuideCreateItemInput {
   instagramLink?: string;
   websiteLink?: string;
   bookingLink?: string;
-  whatsappLink?: string;
+  phone?: string;
   googleMapsLink?: string;
   address?: string;
   tags?: string[];

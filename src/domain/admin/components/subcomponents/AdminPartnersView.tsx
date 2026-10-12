@@ -81,7 +81,9 @@ export function AdminPartnersView({
                 </p>
                 <div className="flex flex-wrap items-center gap-3 mt-2">
                   <span className="px-2 py-0.5 rounded-md bg-white/5 text-[8px] font-black uppercase text-white/50 border border-white/10">
-                    Cat: {partner.category}
+                    {partner.listingsCount === 1
+                      ? '1 cadastro'
+                      : `${partner.listingsCount} cadastros`}
                   </span>
                   {(() => {
                     const badge = STATUS_BADGE[partner.status];

@@ -7,6 +7,8 @@ const SCHEMA_TYPE_BY_CATEGORY: Record<SeoGuideItem['category'], string> = {
   hotel: 'LodgingBusiness',
   sight: 'TouristAttraction',
   tour: 'TouristTrip',
+  transfer: 'TaxiService',
+  rental: 'LocalBusiness',
   tips: 'Article',
 };
 

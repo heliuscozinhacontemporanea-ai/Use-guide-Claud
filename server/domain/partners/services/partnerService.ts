@@ -3,7 +3,6 @@ import { PartnerPort } from '../ports/partnerPort';
 import { isValidCpfCnpj } from '../services/documentIdentity';
 import type {
   PartnerBusiness,
-  PartnerCategory,
   PartnerProfileDocument,
   PartnerRegistrationData,
   PartnerStatus,
@@ -11,13 +10,6 @@ import type {
   PartnerVerificationData,
   RegisterPartnerResult,
 } from '../types/partnerTypes';
-
-const VALID_PARTNER_CATEGORIES = new Set<PartnerCategory>([
-  'sight',
-  'hotel',
-  'restaurant',
-  'event',
-]);
 
 export class PartnerService {
   constructor(private readonly partnerPort: PartnerPort) {}
@@ -31,9 +23,6 @@ export class PartnerService {
         'INVALID_ARGUMENT',
         'UID do usuário é obrigatório para cadastrar como parceiro'
       );
-    }
-    if (!VALID_PARTNER_CATEGORIES.has(data.category)) {
-      throw new PartnerDomainError('INVALID_ARGUMENT', 'Categoria de parceiro inválida');
     }
     if (!data.cpfCnpj || !isValidCpfCnpj(data.cpfCnpj)) {
       throw new PartnerDomainError('INVALID_ARGUMENT', 'CPF/CNPJ inválido');

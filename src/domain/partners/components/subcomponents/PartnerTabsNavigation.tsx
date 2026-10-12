@@ -5,33 +5,28 @@ import { cn } from '../../../../shared/utils/cn';
 interface PartnerTabsNavigationProps {
   activeTab: 'items' | 'events' | 'reports';
   setActiveTab: (tab: 'items' | 'events' | 'reports') => void;
-  isEventProducer: boolean;
   isVerified: boolean;
 }
 
 export function PartnerTabsNavigation({
   activeTab,
   setActiveTab,
-  isEventProducer,
   isVerified,
 }: PartnerTabsNavigationProps) {
   return (
-    <div className={cn('grid gap-3', isEventProducer ? 'grid-cols-2' : 'grid-cols-3')}>
-      {/* Exibe "Meus Itens" somente se o parceiro não for estritamente de eventos */}
-      {!isEventProducer && (
-        <button
-          type="button"
-          onClick={() => setActiveTab('items')}
-          className={cn(
-            'py-4 rounded-2xl text-[11px] font-semibold tracking-wide transition-all flex items-center justify-center gap-2 cursor-pointer',
-            activeTab === 'items'
-              ? 'bg-teal-500 text-black shadow-lg shadow-teal-500/20'
-              : 'glassmorphism text-white/50 hover:bg-white/5 bg-white/3'
-          )}
-        >
-          <Layers size={14} /> Meus Itens
-        </button>
-      )}
+    <div className="grid grid-cols-3 gap-3">
+      <button
+        type="button"
+        onClick={() => setActiveTab('items')}
+        className={cn(
+          'py-4 rounded-2xl text-[11px] font-semibold tracking-wide transition-all flex items-center justify-center gap-2 cursor-pointer',
+          activeTab === 'items'
+            ? 'bg-teal-500 text-black shadow-lg shadow-teal-500/20'
+            : 'glassmorphism text-white/50 hover:bg-white/5 bg-white/3'
+        )}
+      >
+        <Layers size={14} /> Meus Itens
+      </button>
 
       {/* Aba de Agenda de Eventos */}
       <button

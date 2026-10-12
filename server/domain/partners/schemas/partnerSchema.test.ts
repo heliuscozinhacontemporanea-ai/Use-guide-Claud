@@ -6,7 +6,6 @@ describe('Partner Validation Schemas (Backend)', () => {
     it('should validate complete partner registration payload with valid CPF', () => {
       const result = registerPartnerSchema.safeParse({
         formData: {
-          category: 'hotel',
           cpfCnpj: '123.456.789-09',
           termsAccepted: true,
         },
@@ -17,7 +16,6 @@ describe('Partner Validation Schemas (Backend)', () => {
     it('should validate partner registration payload with valid numeric CNPJ', () => {
       const result = registerPartnerSchema.safeParse({
         formData: {
-          category: 'restaurant',
           cpfCnpj: '00.000.000/0001-91',
           termsAccepted: true,
         },
@@ -28,7 +26,6 @@ describe('Partner Validation Schemas (Backend)', () => {
     it('should validate partner registration payload with valid alphanumeric CNPJ', () => {
       const result = registerPartnerSchema.safeParse({
         formData: {
-          category: 'sight',
           cpfCnpj: '12.ABC.345/01DE-35',
           termsAccepted: true,
         },
@@ -39,7 +36,6 @@ describe('Partner Validation Schemas (Backend)', () => {
     it('should fail when termsAccepted is false', () => {
       const result = registerPartnerSchema.safeParse({
         formData: {
-          category: 'hotel',
           cpfCnpj: '123.456.789-09',
           termsAccepted: false,
         },
@@ -50,19 +46,7 @@ describe('Partner Validation Schemas (Backend)', () => {
     it('should fail when cpfCnpj is invalid', () => {
       const result = registerPartnerSchema.safeParse({
         formData: {
-          category: 'hotel',
           cpfCnpj: '123.456.789-00',
-          termsAccepted: true,
-        },
-      });
-      expect(result.success).toBe(false);
-    });
-
-    it('should fail when category is invalid', () => {
-      const result = registerPartnerSchema.safeParse({
-        formData: {
-          category: 'invalid_category',
-          cpfCnpj: '123.456.789-09',
           termsAccepted: true,
         },
       });

@@ -22,6 +22,8 @@ export interface TranslationResource {
     pageTitles: {
       events: string;
       tours: string;
+      transfers: string;
+      rentals: string;
       accommodations: string;
       restaurants: string;
       attractions: string;
@@ -137,6 +139,8 @@ export interface TranslationResource {
       explore: { title: string; description: string };
       events: { title: string; description: string };
       tours: { title: string; description: string };
+      transfers: { title: string; description: string };
+      rentals: { title: string; description: string };
       stays: { title: string; description: string };
       restaurants: { title: string; description: string };
       attractions: { title: string; description: string };
@@ -202,6 +206,8 @@ const ptBR: TranslationResource = {
     pageTitles: {
       events: 'Eventos & Experiências',
       tours: 'Aventura & Passeios',
+      transfers: 'Translados',
+      rentals: 'Aluguéis',
       accommodations: 'Melhores Hospedagens',
       restaurants: 'Sabores Locais',
       attractions: 'Atrações',
@@ -331,6 +337,16 @@ const ptBR: TranslationResource = {
         title: 'Aventura & Passeios | Use Guide',
         description: 'Passeios de buggy, quadriciclo, lagoas cristalinas e roteiros imperdíveis no litoral leste e oeste de Jericoacoara.',
       },
+      transfers: {
+        title: "Translados em Jericoacoara | Use Guide",
+        description:
+          "Transfers entre Fortaleza, Jijoca, Jericoacoara, Preá e Barrinha: veículos, capacidade e reserva.",
+      },
+      rentals: {
+        title: "Aluguéis em Jericoacoara | Use Guide",
+        description:
+          "Aluguel de quadriciclos, buggies, bicicletas e equipamentos em Jericoacoara e região.",
+      },
       stays: {
         title: 'Melhores Hospedagens & Pousadas | Use Guide',
         description: 'Seleção curada das melhores pousadas, hotéis boutique e resorts à beira-mar em Jeri, Preá e Barrinha.',
@@ -413,6 +429,8 @@ const en: TranslationResource = {
     pageTitles: {
       events: 'Events & Experiences',
       tours: 'Adventure & Tours',
+      transfers: 'Transfers',
+      rentals: 'Rentals',
       accommodations: 'Best Accommodations',
       restaurants: 'Local Flavors',
       attractions: 'Attractions',
@@ -540,6 +558,16 @@ const en: TranslationResource = {
         title: 'Adventure & Tours | Use Guide',
         description: 'Buggy and quad bike tours, crystal-clear lagoons and must-do routes around Jericoacoara.',
       },
+      transfers: {
+        title: "Transfers to Jericoacoara | Use Guide",
+        description:
+          "Transfers between Fortaleza, Jijoca, Jericoacoara, Preá and Barrinha: vehicles, capacity and booking.",
+      },
+      rentals: {
+        title: "Rentals in Jericoacoara | Use Guide",
+        description:
+          "Rent ATVs, buggies, bikes and gear in Jericoacoara and the region.",
+      },
       stays: {
         title: 'Best Stays & Inns | Use Guide',
         description: 'A curated selection of the best inns, boutique hotels and beachfront resorts in Jeri, Preá and Barrinha.',
@@ -622,6 +650,8 @@ const fr: TranslationResource = {
     pageTitles: {
       events: 'Événements & Expériences',
       tours: 'Aventure & Excursions',
+      transfers: 'Transferts',
+      rentals: 'Locations',
       accommodations: 'Meilleurs Hébergements',
       restaurants: 'Saveurs Locales',
       attractions: 'Attractions',
@@ -753,6 +783,16 @@ const fr: TranslationResource = {
       tours: {
         title: 'Aventure & Excursions | Use Guide',
         description: 'Excursions en buggy et en quad, lagunes cristallines et itinéraires incontournables autour de Jericoacoara.',
+      },
+      transfers: {
+        title: "Transferts à Jericoacoara | Use Guide",
+        description:
+          "Transferts entre Fortaleza, Jijoca, Jericoacoara, Preá et Barrinha : véhicules, capacité et réservation.",
+      },
+      rentals: {
+        title: "Locations à Jericoacoara | Use Guide",
+        description:
+          "Location de quads, buggys, vélos et équipements à Jericoacoara et dans la région.",
       },
       stays: {
         title: 'Meilleurs Hébergements | Use Guide',

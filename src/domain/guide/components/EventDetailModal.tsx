@@ -16,6 +16,7 @@ import { trackInteractionUseCase as trackInteraction } from '../../insights';
 import { FavoriteButton } from '../../favorites/components/FavoriteButton';
 import { ShareButton } from '../../../ui/components/ShareButton';
 import { useScrollBorderRadius } from '../../../ui/hooks/useScrollBorderRadius';
+import { whatsAppUrl } from '../../../shared/utils/phone';
 
 interface EventDetailModalProps {
   item: GuideItem | null;
@@ -196,12 +197,12 @@ export function EventDetailModal({ item, onClose }: EventDetailModalProps) {
             </GlassCard>
           )}
 
-          {item.whatsappLink && (
+          {whatsAppUrl(item.phone) && (
             <GlassCard
               whileTap={{ scale: 0.95 }}
               onClick={() => {
                 trackInteraction(item.id, 'whatsapp_click', 'events', item.partnerId);
-                window.open(item.whatsappLink, '_blank', 'noopener,noreferrer');
+                window.open(whatsAppUrl(item.phone) ?? '', '_blank', 'noopener,noreferrer');
               }}
               className="col-span-2 p-4 bg-[#25D366]/10 border-[#25D366]/20 text-center cursor-pointer hover:bg-[#25D366]/20 transition-all group flex flex-col items-center justify-center gap-1"
             >

@@ -1,7 +1,5 @@
 export type PartnerStatus = 'active' | 'pending' | 'suspended';
 
-export type PartnerCategory = 'sight' | 'hotel' | 'restaurant' | 'event';
-
 /** `admin`: selo concedido pelo admin, sem plano pago. */
 export type PartnerVerificationType =
   | 'trial'
@@ -20,7 +18,6 @@ export interface PartnerBusiness {
 }
 
 export interface PartnerRegistrationData {
-  category: PartnerCategory;
   cpfCnpj: string;
   termsAccepted: true;
 }
@@ -46,7 +43,6 @@ export interface PartnerTrialState {
 
 export interface PartnerPersistenceDocument {
   id: string;
-  category: string;
   cpfCnpj?: string;
   cpfCnpjClean?: string;
   status: PartnerStatus;
@@ -63,7 +59,6 @@ export interface PartnerPersistenceDocument {
 
 export interface PartnerProfileDTO {
   id: string;
-  category: PartnerCategory;
   cpfCnpj?: string;
   status: PartnerStatus;
   businesses: PartnerBusiness[];
@@ -80,7 +75,6 @@ export interface PartnerProfileDTO {
 export interface PublicPartnerProfileDTO {
   id: string;
   businesses: PartnerBusiness[];
-  category: PartnerCategory | null;
   isVerified: boolean;
   verifiedUntil: string | null;
   isVerificationSuspended: boolean;

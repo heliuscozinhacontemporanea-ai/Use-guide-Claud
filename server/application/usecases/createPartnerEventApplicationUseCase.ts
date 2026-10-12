@@ -11,16 +11,6 @@ import {
   linkBusinessUseCase,
 } from '../../domain/partners';
 
-function isEstablishmentRequired(
-  partnerCategory: string | null | undefined
-): boolean {
-  return (
-    partnerCategory === 'hotel' ||
-    partnerCategory === 'restaurant' ||
-    partnerCategory === 'sight'
-  );
-}
-
 export type CreatePartnerEventInput = Omit<CreateEventListingInput, 'ownerId'> & {
   name: string;
   image: string;
@@ -44,34 +34,21 @@ export async function createPartnerEventApplicationUseCase(
       'Perfil de parceiro não encontrado.'
     );
   }
-  const requiresEstablishment = isEstablishmentRequired(partnerProfile.category);
-  if (requiresEstablishment) {
-    if (!data.establishmentId) {
-      throw new PartnerDomainError(
-        'INVALID_ARGUMENT',
-        'Selecione o estabelecimento ao qual o evento pertence.'
-      );
-    }
-    const establishment = await getItemByIdUseCase(data.establishmentId);
-    if (!establishment) {
-      throw new PartnerDomainError(
-        'NOT_FOUND',
-        'Estabelecimento não encontrado.'
-      );
-    }
-    if (establishment.ownerId !== user.uid) {
-      throw new PartnerDomainError(
-        'FORBIDDEN',
-        'Você não possui permissão sobre este estabelecimento.'
-      );
-    }
-  } else if (
-    partnerProfile.category === 'event' &&
-    data.establishmentId
-  ) {
+  // Todo evento pertence a um estabelecimento ou ao perfil de produtor do parceiro (decisão D9).
+  if (!data.establishmentId) {
     throw new PartnerDomainError(
       'INVALID_ARGUMENT',
-      'Produtor de eventos não pode vincular evento a estabelecimento.'
+      'Selecione o estabelecimento ou o perfil de produtor do evento.'
+    );
+  }
+  const establishment = await getItemByIdUseCase(data.establishmentId);
+  if (!establishment) {
+    throw new PartnerDomainError('NOT_FOUND', 'Estabelecimento não encontrado.');
+  }
+  if (establishment.ownerId !== user.uid) {
+    throw new PartnerDomainError(
+      'FORBIDDEN',
+      'Você não possui permissão sobre este estabelecimento.'
     );
   }
 
@@ -79,7 +56,7 @@ export async function createPartnerEventApplicationUseCase(
     ...data,
     title: data.name,
     coverImage: data.image,
-    establishmentId: requiresEstablishment ? data.establishmentId : undefined,
+    establishmentId: data.establishmentId,
   });
 
   const eventId = created.listing.id;

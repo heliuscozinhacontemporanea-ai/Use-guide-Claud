@@ -445,7 +445,7 @@ export function Step5Media({
       )}
 
       {/* Section: Photos */}
-      {formData.category !== 'event' && (
+      {formData.category !== 'producer' && (
         <div className="space-y-6">
           <div className="flex items-center gap-2">
             <span className="p-2 rounded-xl bg-white/5 border border-white/10 text-indigo-400">

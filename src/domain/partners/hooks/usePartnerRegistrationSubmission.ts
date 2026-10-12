@@ -5,7 +5,7 @@ import { mapPartnerSubmissionToGuideItem } from '../application/mappers/partnerS
 import { createOrUpdatePartnerProfileUseCase } from '../application/usecases/createOrUpdatePartnerProfileUseCase';
 import { createPartnerContentItemUseCase } from '../application/usecases/createPartnerContentItemUseCase';
 import { partnerSubmissionSchema } from '../schemas/partnerSchema';
-import type { PartnerCategory, PartnerRegistrationPayload } from '../types/partner';
+import type { PartnerRegistrationPayload } from '../types/partner';
 import type { FormState } from '../types/partsForm';
 
 function isFirebaseAuthError(error: unknown, code: string): boolean {
@@ -15,19 +15,6 @@ function isFirebaseAuthError(error: unknown, code: string): boolean {
     'code' in error &&
     (error as { code?: unknown }).code === code
   );
-}
-
-function toPartnerCategory(value: string): PartnerCategory {
-  switch (value) {
-    case 'sight':
-    case 'hotel':
-    case 'restaurant':
-    case 'event':
-      return value;
-
-    default:
-      throw new Error('Categoria de Partner inválida.');
-  }
 }
 
 export function mapPartnerRegistrationPayload(formData: FormState): PartnerRegistrationPayload {
@@ -42,7 +29,6 @@ export function mapPartnerRegistrationPayload(formData: FormState): PartnerRegis
   }
 
   return {
-    category: toPartnerCategory(formData.category),
     cpfCnpj,
     termsAccepted: true,
   };
@@ -103,18 +89,8 @@ export function usePartnerRegistrationSubmission({
 
       const imageUrls = await uploadPartnerImages(values.images);
 
-      if (values.category !== 'event') {
-        const category = toPartnerCategory(values.category);
-
-        const guideItem = mapPartnerSubmissionToGuideItem(
-          {
-            ...values,
-            category,
-          },
-          imageUrls
-        );
-        await createPartnerContentItemUseCase(guideItem);
-      }
+      // O primeiro cadastro (estabelecimento ou perfil de produtor) nasce junto com o parceiro.
+      await createPartnerContentItemUseCase(mapPartnerSubmissionToGuideItem(values, imageUrls));
 
       if (setCurrentStep) setCurrentStep(6);
       setIsSubmitting(false);

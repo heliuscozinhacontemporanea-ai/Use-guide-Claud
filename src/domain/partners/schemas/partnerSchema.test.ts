@@ -66,7 +66,7 @@ describe('Partner Validation Schemas (Frontend)', () => {
       expect(result.success).toBe(false);
     });
 
-    it('deve aceitar categorias válidas: hotel, restaurant, sight, tour, event', () => {
+    it('deve aceitar categorias válidas: hotel, restaurant, sight, tour, producer', () => {
       for (const category of ['hotel', 'restaurant', 'sight', 'tour']) {
         const res = step1Schema.safeParse({
           category,
@@ -77,13 +77,21 @@ describe('Partner Validation Schemas (Frontend)', () => {
         expect(res.success).toBe(true);
       }
 
-      const resEvent = step1Schema.safeParse({
-        category: 'event',
+      // Perfil de produtor: nome obrigatório, descrição opcional.
+      const resProducer = step1Schema.safeParse({
+        category: 'producer',
+        businessName: 'Produtora Sol',
+        cpfCnpj: VALID_TEST_CPF,
+        description: '',
+      });
+      expect(resProducer.success).toBe(true);
+      const producerWithoutName = step1Schema.safeParse({
+        category: 'producer',
         businessName: '',
         cpfCnpj: VALID_TEST_CPF,
         description: '',
       });
-      expect(resEvent.success).toBe(true);
+      expect(producerWithoutName.success).toBe(false);
     });
   });
 

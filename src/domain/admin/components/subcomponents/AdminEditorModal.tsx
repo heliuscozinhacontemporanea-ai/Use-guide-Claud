@@ -96,7 +96,7 @@ export function AdminEditorModal({
       customCategory: isEditing?.customCategory,
       googleMapsLink: isEditing?.googleMapsLink,
       instagramLink: isEditing?.instagramLink,
-      whatsappLink: isEditing?.whatsappLink,
+      phone: isEditing?.phone,
       websiteLink: isEditing?.websiteLink,
       bookingLink: isEditing?.bookingLink,
       operationalInfo: isEditing?.operationalInfo as Record<string, unknown> | undefined,

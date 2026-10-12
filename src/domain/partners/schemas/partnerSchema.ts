@@ -2,7 +2,8 @@ import { z } from 'zod';
 import { isValidCpfCnpj } from '../../../shared/utils/documentValidator';
 import type { UserSession } from '../../auth';
 
-const partnerCategorySchema = z.enum(['sight', 'hotel', 'restaurant', 'event']);
+// Categoria do primeiro cadastro na inscrição; `producer` cria o perfil de produtor de eventos.
+const partnerCategorySchema = z.enum(['sight', 'hotel', 'restaurant', 'producer']);
 
 export const step1Schema = z
   .object({
@@ -15,14 +16,17 @@ export const step1Schema = z
     description: z.string().default(''),
   })
   .superRefine((data, ctx) => {
-    if (data.category !== 'event') {
-      if (!data.businessName || data.businessName.trim() === '') {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['businessName'],
-          message: 'Nome do estabelecimento é obrigatório',
-        });
-      }
+    if (!data.businessName || data.businessName.trim() === '') {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['businessName'],
+        message:
+          data.category === 'producer'
+            ? 'Nome do produtor é obrigatório'
+            : 'Nome do estabelecimento é obrigatório',
+      });
+    }
+    if (data.category !== 'producer') {
       if (!data.description || data.description.trim() === '') {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -59,7 +63,7 @@ export const step2Schema = z
         message: 'Link para reserva é obrigatório',
       });
     }
-    if (data.category !== 'event') {
+    if (data.category !== 'producer') {
       if (!data.googleMaps || data.googleMaps.trim() === '') {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -219,7 +223,7 @@ export const step5SchemaContext = (options: { currentUser?: UserSession | null }
       termsAccepted: z.literal(true),
     })
     .superRefine((data, ctx) => {
-      if (data.category !== 'event' && data.images.length === 0) {
+      if (data.category !== 'producer' && data.images.length === 0) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ['images'],

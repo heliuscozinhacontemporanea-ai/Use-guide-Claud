@@ -1,9 +1,10 @@
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import type { AdminGuideEditorSchemaValues } from '../../schemas/adminGuideEditorFormSchema';
+import { E164PhoneField } from '../../../../ui/components/E164PhoneField';
 
 export function AdminEditorLocation() {
-  const { register } = useFormContext<AdminGuideEditorSchemaValues>();
+  const { register, watch, setValue } = useFormContext<AdminGuideEditorSchemaValues>();
 
   return (
     <div className="pt-4 pb-2" id="links-integrations-section">
@@ -36,14 +37,16 @@ export function AdminEditorLocation() {
           />
         </div>
         <div className="space-y-2">
-          <label className="text-[9px] font-bold uppercase tracking-widest text-[#25D366] px-2">
-            WhatsApp
+          <label
+            htmlFor="admin-editor-phone"
+            className="text-[9px] font-bold uppercase tracking-widest text-[#25D366] px-2"
+          >
+            Telefone / WhatsApp
           </label>
-          <input
-            type="text"
-            placeholder="Link do WhatsApp..."
-            {...register('whatsappLink')}
-            className="w-full bg-[#25D366]/[0.05] border border-[#25D366]/20 rounded-xl p-4 text-base focus:outline-none focus:border-[#25D366]/50 transition-all placeholder:text-white/50"
+          <E164PhoneField
+            id="admin-editor-phone"
+            value={watch('phone')}
+            onChange={(e164) => setValue('phone', e164, { shouldDirty: true })}
           />
         </div>
         <div className="space-y-2">

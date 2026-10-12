@@ -10,7 +10,8 @@ describe('mapPartnerSubmissionToGuideItem', () => {
     description: 'Descrição de teste',
     region: 'Jericoacoara',
     address: 'Rua Principal, 100',
-    phone: '85999999999',
+    phone: '(85) 99999-9999',
+    phoneDdi: '+55',
     instagram: '@teste',
     website: 'https://teste.com',
     bookingLinks: 'https://booking.com',
@@ -100,5 +101,25 @@ describe('mapPartnerSubmissionToGuideItem', () => {
     expect(() => mapPartnerSubmissionToGuideItem(baseData, [])).toThrow(
       'Ao menos uma imagem é obrigatória'
     );
+  });
+
+  it('grava o telefone em E.164', () => {
+    const result = mapPartnerSubmissionToGuideItem(baseData, ['https://img1.jpg']);
+    expect(result.phone).toBe('+5585999999999');
+  });
+
+  it('perfil de produtor pode não ter fotos; estabelecimento precisa de ao menos uma', () => {
+    const producer = mapPartnerSubmissionToGuideItem(
+      { ...baseData, category: 'producer', description: '' },
+      []
+    );
+    expect(producer.category).toBe('producer');
+    expect(producer.operationalInfo).toBeUndefined();
+    expect(() => mapPartnerSubmissionToGuideItem(baseData, [])).toThrow();
+  });
+
+  it('não força o item como ativo (a edição não reativa item desativado)', () => {
+    const result = mapPartnerSubmissionToGuideItem(baseData, ['https://img1.jpg']);
+    expect(result).not.toHaveProperty('isActive');
   });
 });

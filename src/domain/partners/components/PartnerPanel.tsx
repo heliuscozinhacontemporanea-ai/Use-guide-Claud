@@ -95,7 +95,6 @@ export function PartnerPanel({
     setErrors,
     dataLoading,
     isVerified,
-    isEventProducer,
     itemsList,
     eventsList,
     handleDelete,
@@ -142,13 +141,6 @@ export function PartnerPanel({
     }
   }, [editorFormData, editorMethods]);
 
-  // Efeito reativo estrutural para garantir que parceiros cadastrados como produtores de eventos fiquem e usem unicamente a aba de eventos
-  React.useEffect(() => {
-    if (isEventProducer && activeTab === 'items') {
-      setActiveTab('events');
-    }
-  }, [isEventProducer, activeTab, setActiveTab]);
-
   // Efeito estratégico para bloquear scroll do body e corrigir deslocamento de cabeçalho no mobile devido ao teclado
   React.useEffect(() => {
     if (isEditing) {
@@ -184,7 +176,7 @@ export function PartnerPanel({
     { id: 'sight', label: 'Atrações Turísticas', icon: <Sparkles size={16} /> },
     { id: 'hotel', label: 'Hospedagem', icon: <Bed size={16} /> },
     { id: 'restaurant', label: 'Restaurantes', icon: <Utensils size={16} /> },
-    { id: 'event', label: 'Produtor de Eventos', icon: <Calendar size={16} /> },
+    { id: 'producer', label: 'Perfil de produtor de eventos', icon: <Calendar size={16} /> },
   ];
 
   if (userLoading || profileStatus === 'loading') {
@@ -232,7 +224,6 @@ export function PartnerPanel({
         <PartnerTabsNavigation
           activeTab={activeTab}
           setActiveTab={setActiveTab}
-          isEventProducer={isEventProducer}
           isVerified={isVerified}
         />
 
@@ -355,7 +346,6 @@ export function PartnerPanel({
                 onChange={(updatedItem) => setIsEditing(updatedItem)}
                 isUploading={isUploading}
                 onImageUpload={handleImageUpload}
-                partnerCategory={partnerProfile?.category}
                 businesses={partnerProfile?.businesses}
                 renderEventTicketingManager={renderEventTicketingManager}
               />

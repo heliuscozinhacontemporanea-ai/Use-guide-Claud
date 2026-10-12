@@ -3,7 +3,6 @@ import { toPartnerProfileDTO, toPublicPartnerProfileDTO } from './partnerMapper'
 
 describe('partnerMapper', () => {
   const rawPersistenceData = {
-    category: 'restaurant',
     cpfCnpj: '12.345.678/0001-90',
     cpfCnpjClean: '12345678000190',
     businesses: [
@@ -27,7 +26,6 @@ describe('partnerMapper', () => {
 
       expect(dto).toEqual({
         id: 'partner-123',
-        category: 'restaurant',
         cpfCnpj: '12.345.678/0001-90',
         businesses: [
           { businessId: 'item-1', businessName: 'Restaurante Sabor', type: 'item' },
@@ -45,22 +43,6 @@ describe('partnerMapper', () => {
       });
 
       expect((dto as any).cpfCnpjClean).toBeUndefined();
-    });
-
-    it('deve lançar erro se category for inválida e nunca converter silenciosamente para sight', () => {
-      expect(() =>
-        toPartnerProfileDTO('partner-123', {
-          ...rawPersistenceData,
-          category: 'invalid-cat',
-        })
-      ).toThrow('Categoria Parceiro inválida.');
-
-      expect(() =>
-        toPartnerProfileDTO('partner-123', {
-          ...rawPersistenceData,
-          category: '',
-        })
-      ).toThrow('Categoria Parceiro inválida.');
     });
 
     it('deve lançar erro se status for inválido', () => {
@@ -117,16 +99,6 @@ describe('partnerMapper', () => {
       ).toThrow('Status Partner inválido persistido no Firestore.');
     });
 
-    it('deve projetar category como null se category for inválida ou não reconhecida', () => {
-      const publicDto = toPublicPartnerProfileDTO('partner-123', {
-        ...rawPersistenceData,
-        category: 'unknown_cat',
-      });
-
-      expect(publicDto.category).toBeNull();
-      expect(publicDto.category).not.toBe('sight');
-    });
-
     it('deve projetar estritamente campos públicos sem vazar dados sensíveis ou de persistência', () => {
       const publicDto = toPublicPartnerProfileDTO('partner-123', rawPersistenceData);
 
@@ -136,7 +108,6 @@ describe('partnerMapper', () => {
           { businessId: 'item-1', businessName: 'Restaurante Sabor', type: 'item' },
           { businessId: 'event-1', businessName: 'Festival Gastronômico', type: 'event' },
         ],
-        category: 'restaurant',
         isVerified: true,
         verifiedUntil: '2026-12-31T23:59:59.000Z',
         isVerificationSuspended: false,

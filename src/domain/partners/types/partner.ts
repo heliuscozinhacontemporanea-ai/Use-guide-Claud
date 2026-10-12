@@ -4,12 +4,12 @@ export interface PartnerBusiness {
   type: 'item' | 'event';
 }
 
-export type PartnerCategory = 'sight' | 'hotel' | 'restaurant' | 'event';
+/** Categoria do primeiro cadastro na inscrição; `producer` cria o perfil de produtor de eventos. */
+export type PartnerSignupCategory = 'sight' | 'hotel' | 'restaurant' | 'producer';
 
 export interface PublicPartnerProfile {
   id: string;
   businesses: PartnerBusiness[];
-  category: PartnerCategory | null;
   isVerified: boolean;
   verifiedUntil: string | null;
   isVerificationSuspended: boolean;
@@ -17,7 +17,6 @@ export interface PublicPartnerProfile {
 }
 
 export interface PartnerRegistrationPayload {
-  category: PartnerCategory;
   cpfCnpj: string;
   termsAccepted: true;
 }
@@ -25,12 +24,14 @@ export interface PartnerRegistrationPayload {
 export interface PartnerSubmissionData {
   businessName: string;
   description: string;
-  category: PartnerCategory;
+  /** Categoria do cadastro (validada na conversão para item do guia). */
+  category: string;
   region: string;
   instagram: string;
   website: string;
   bookingLinks: string;
   phone: string;
+  phoneDdi: string;
   googleMaps: string;
   address: string;
   firstName: string;
@@ -76,7 +77,6 @@ export interface PartnerProfile {
   id: string;
   businessId?: string | null;
   businessName: string;
-  category: PartnerCategory;
   businesses?: PartnerBusiness[];
   cpfCnpj?: string;
   phone?: string;

@@ -1,6 +1,15 @@
 export type GuideVerificationType = 'trial' | 'monthly' | 'semi-annual' | 'annual' | 'admin' | null;
 
-export type GuideItemCategory = 'restaurant' | 'sight' | 'tour' | 'tips' | 'hotel';
+/** `producer`: perfil de produtor de eventos, sem endereço fixo; não aparece nas listagens do guia. */
+export type GuideItemCategory =
+  | 'restaurant'
+  | 'sight'
+  | 'tour'
+  | 'tips'
+  | 'hotel'
+  | 'transfer'
+  | 'rental'
+  | 'producer';
 
 export interface GuideOperationalInfo {
   tags?: string[];
@@ -22,6 +31,18 @@ export interface GuideOperationalInfo {
     included?: boolean;
     price?: string;
   };
+  /** Passeio, translado e aluguel (decisão D9). */
+  durationMinutes?: number;
+  meetingPoint?: string;
+  itinerary?: string;
+  includes?: string[];
+  transferRoutes?: Array<{ from: string; to: string }>;
+  vehicleTypes?: string[];
+  maxPassengers?: number;
+  luggageInfo?: string;
+  minRentalHours?: number;
+  depositRequired?: boolean;
+  driverLicenseRequired?: boolean;
   checkIn?: {
     from: string;
     to: string;
@@ -56,7 +77,7 @@ export interface GuideCatalogFields {
   instagramLink?: string;
   websiteLink?: string;
   bookingLink?: string;
-  whatsappLink?: string;
+  phone?: string;
   googleMapsLink?: string;
   address?: string;
   tags?: string[];
@@ -103,7 +124,7 @@ export interface GuideCreateItemInput {
   instagramLink?: string;
   websiteLink?: string;
   bookingLink?: string;
-  whatsappLink?: string;
+  phone?: string;
   googleMapsLink?: string;
   address?: string;
   tags?: string[];
@@ -123,7 +144,7 @@ export interface GuideUpdateItemInput {
   instagramLink?: string;
   websiteLink?: string;
   bookingLink?: string;
-  whatsappLink?: string;
+  phone?: string;
   googleMapsLink?: string;
   address?: string;
   tags?: string[];

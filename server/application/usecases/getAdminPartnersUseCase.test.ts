@@ -97,13 +97,13 @@ describe('getAdminPartnersUseCase (anti-N+1)', () => {
     expect(Object.keys(result[0] ?? {}).sort()).toEqual(
       [
         'businessName',
-        'category',
         'email',
         'firstName',
         'id',
         'isVerificationSuspended',
         'isVerified',
         'lastName',
+        'listingsCount',
         'status',
         'verificationType',
         'verifiedUntil',

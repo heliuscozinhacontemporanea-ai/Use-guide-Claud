@@ -1,11 +1,8 @@
 import { z } from 'zod';
 import { isValidCpfCnpj } from '../services/documentIdentity';
 
-const partnerCategorySchema = z.enum(['sight', 'hotel', 'restaurant', 'event']);
-
 const registerPartnerFormSchema = z
   .object({
-    category: partnerCategorySchema,
     cpfCnpj: z
       .string()
       .trim()

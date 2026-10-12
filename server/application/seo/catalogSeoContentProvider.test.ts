@@ -36,14 +36,14 @@ describe('CatalogSeoContentProvider', () => {
       image: 'https://x/y.webp',
       location: 'prea',
       ownerId: 'owner-1',
-      whatsappLink: 'https://wa.me/5588999999999',
+      phone: '+5588999999999',
       rating: 0,
       reviewCount: 0,
       isActive: true,
     });
     const item = await new CatalogSeoContentProvider().getGuideItem('a');
     expect(item).not.toHaveProperty('ownerId');
-    expect(item).not.toHaveProperty('whatsappLink');
+    expect(item).not.toHaveProperty('phone');
     expect(item).toMatchObject({ id: 'a', name: 'Pousada', category: 'hotel' });
   });
 
@@ -106,5 +106,24 @@ describe('CatalogSeoContentProvider', () => {
     });
     const item = await new CatalogSeoContentProvider().getGuideItem('t1');
     expect(item?.offer).toEqual({ lowestPriceMinor: 9000, inStock: true });
+  });
+
+  it('perfil de produtor não entra no sitemap nem ganha página do guia', async () => {
+    mocks.listPublicGuideItemsUseCase.mockResolvedValue([
+      { id: 'p1', category: 'producer' },
+      { id: 't1', category: 'transfer' },
+    ]);
+    mocks.listPublicEventListingsUseCase.mockResolvedValue([]);
+    mocks.getPublicGuideItemUseCase.mockResolvedValue({
+      id: 'p1',
+      name: 'Produtora',
+      category: 'producer',
+    });
+    const provider = new CatalogSeoContentProvider();
+
+    await expect(provider.listIndexableEntries()).resolves.toEqual([
+      { id: 't1', category: 'transfer' },
+    ]);
+    await expect(provider.getGuideItem('p1')).resolves.toBeNull();
   });
 });

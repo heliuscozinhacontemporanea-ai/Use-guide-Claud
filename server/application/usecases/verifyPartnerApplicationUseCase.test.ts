@@ -23,7 +23,6 @@ vi.mock('../../domain/events', () => ({
 describe('verifyPartnerApplicationUseCase', () => {
   const mockPreviousProfile: PartnerProfileDocument = {
     id: 'partner-123',
-    category: 'hotel',
     status: 'active',
     businesses: [],
     isVerified: false,

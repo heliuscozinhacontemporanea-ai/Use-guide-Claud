@@ -28,6 +28,7 @@ import {
   DAY_KEYS,
   DAY_LABELS_SHORT,
 } from '../../../shared/utils/operatingHoursStatus';
+import { whatsAppUrl } from '../../../shared/utils/phone';
 
 interface ItemDetailModalProps {
   item: GuideItem | null;
@@ -289,12 +290,12 @@ export function ItemDetailModal({ item, onClose }: ItemDetailModalProps) {
             </p>
           </GlassCard>
 
-          {item.whatsappLink && (
+          {whatsAppUrl(item.phone) && (
             <GlassCard
               whileTap={{ scale: 0.95 }}
               onClick={() => {
                 trackInteraction(item.id, 'whatsapp_click', 'items', item.partnerId);
-                window.open(item.whatsappLink, '_blank', 'noopener,noreferrer');
+                window.open(whatsAppUrl(item.phone) ?? '', '_blank', 'noopener,noreferrer');
               }}
               className="col-span-2 p-6 bg-[#25D366]/10 border-[#25D366]/20 text-center cursor-pointer hover:bg-[#25D366]/20 transition-all group"
             >

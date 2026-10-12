@@ -152,14 +152,12 @@ export class FirestorePartnerAdapter implements PartnerPort {
 
         const nextData = {
           ...oldData,
-          category: data.category,
           cpfCnpjClean: cleanDoc,
           cpfCnpj: data.cpfCnpj,
           termsAccepted: data.termsAccepted,
         };
 
         transaction.update(partnerRef, {
-          category: data.category,
           cpfCnpjClean: cleanDoc,
           cpfCnpj: data.cpfCnpj,
           termsAccepted: data.termsAccepted,
@@ -170,7 +168,6 @@ export class FirestorePartnerAdapter implements PartnerPort {
       } else {
         const nextData = {
           businesses: [],
-          category: data.category,
           cpfCnpjClean: cleanDoc,
           cpfCnpj: data.cpfCnpj,
           hasUsedTrial: false,
