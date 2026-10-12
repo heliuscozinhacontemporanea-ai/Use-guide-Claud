@@ -20,6 +20,9 @@ import adminRouter from './server/domain/admin/routes/adminRoutes';
 import favoriteRouter from './server/domain/favorites/routes/favoriteRoutes';
 import mediaRouter from './server/domain/media/routes/mediaRoutes';
 import billingRouter from './server/interfaces/http/billing/billingRoutes';
+import { bookingsRouter, partnerOffersRouter } from './server/interfaces/http/bookings/bookingsRoutes';
+import { InternalBookingsController } from './server/interfaces/http/bookings/internalBookingsController';
+import { verifyInternalJobKey } from './server/infrastructure/auth/internalJobAuth';
 import { renderSeoPageApplicationUseCase } from './server/application/usecases/renderSeoPageApplicationUseCase';
 import { renderSitemapApplicationUseCase } from './server/application/usecases/renderSitemapApplicationUseCase';
 import { verifyAppCheck } from './server/infrastructure/auth/appCheckMiddleware';
@@ -124,19 +127,21 @@ async function startServer() {
       environment: process.env.NODE_ENV || 'development',
     });
   });
+  // Rotas /internal nunca passam pelo rewrite do Hosting (AGENTS.md §7.9).
   app.post(
     '/internal/ticketing/expire-orders',
-    express.json({ limit: '64kb' }),
+    verifyInternalJobKey,
     TicketingController.expireOrdersInternalJob
   );
+  app.post('/internal/bookings/expire', verifyInternalJobKey, InternalBookingsController.expire);
+  app.post('/internal/bookings/complete', verifyInternalJobKey, InternalBookingsController.complete);
 
   // 3. App Check para rotas /api/*
   app.use('/api', (req, res, next) => {
     if (
       req.path === '/health' ||
       req.path === '/version' ||
-      req.path.startsWith('/payment/webhook') ||
-      req.path === '/ticketing/internal/expire-orders'
+      req.path.startsWith('/payment/webhook')
     ) {
       return next();
     }
@@ -168,11 +173,13 @@ async function startServer() {
   });
 
   // 5. Normal routes
+  app.use('/api/bookings', bookingsRouter);
   app.use('/api/payment/plans', billingRouter);
   app.use('/api/payment', paymentRouter);
   app.use('/api/weather', climaWindRouter);
   app.use('/api/notifications', notificationRouter);
   app.use('/api/users', userRouter);
+  app.use('/api/partners/offers', partnerOffersRouter);
   app.use('/api/partners', partnerRouter);
   app.use('/api/items', itemRouter);
   app.use('/api/events', publicEventsRouter);

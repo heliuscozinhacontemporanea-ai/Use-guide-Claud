@@ -27,6 +27,7 @@ import { Header } from '../ui/layouts/Header';
 import { SideMenu } from '../ui/layouts/SideMenu';
 
 import { PartnerPortalComposition } from './compositions/PartnerPortalComposition';
+import { ItemBookingComposition } from './compositions/ItemBookingComposition';
 import { AppRoutes } from './routes/AppRoutes';
 
 export function AppRouter() {
@@ -383,7 +384,11 @@ export function AppRouter() {
           <EventDetailModal item={selectedItem} onClose={() => setSelectedItem(null)} />
         )}
         {selectedItem?.category === 'tour' && (
-          <TourDetailModal item={selectedItem} onClose={() => setSelectedItem(null)} />
+          <TourDetailModal
+            item={selectedItem}
+            onClose={() => setSelectedItem(null)}
+            bookingPanel={<ItemBookingComposition guideItemId={selectedItem.id} />}
+          />
         )}
         {selectedItem?.category === 'hotel' && (
           <StayDetailModal item={selectedItem} onClose={() => setSelectedItem(null)} />
@@ -392,7 +397,11 @@ export function AppRouter() {
           <RestaurantDetailModal item={selectedItem} onClose={() => setSelectedItem(null)} />
         )}
         {selectedItem?.category === 'sight' && (
-          <AttractionDetailModal item={selectedItem} onClose={() => setSelectedItem(null)} />
+          <AttractionDetailModal
+            item={selectedItem}
+            onClose={() => setSelectedItem(null)}
+            bookingPanel={<ItemBookingComposition guideItemId={selectedItem.id} />}
+          />
         )}
         {selectedItem?.category === 'tips' && (
           <TipDetailModal item={selectedItem} onClose={() => setSelectedItem(null)} />

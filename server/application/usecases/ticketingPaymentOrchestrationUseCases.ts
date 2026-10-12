@@ -22,6 +22,7 @@ import {
   type TicketOrder,
 } from '../../domain/ticketing';
 import { activatePaidPlanApplicationUseCase } from './activatePaidPlanApplicationUseCase';
+import { reconcileBookingWebhookApplicationUseCase } from './bookings/reconcileBookingWebhookApplicationUseCase';
 import {
   PLAN_SUBSCRIPTION_WEBHOOK_EVENTS,
   reconcilePlanSubscriptionWebhookApplicationUseCase,
@@ -180,6 +181,10 @@ export async function reconcileStripeWebhookEventApplicationUseCase(
   event: VerifiedWebhookEvent
 ): Promise<{ processed: boolean; eventType: string }> {
   const obj = event.dataObject || {};
+
+  if (await reconcileBookingWebhookApplicationUseCase(event)) {
+    return { processed: true, eventType: event.type };
+  }
 
   if (event.type === 'account.updated') {
     const stripeAccountId = String(obj.id || event.account || '');

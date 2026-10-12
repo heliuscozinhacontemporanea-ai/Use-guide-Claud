@@ -58,6 +58,18 @@ export function buildGuideItemStructuredData(
   if (type === 'Restaurant' && item.cuisineType) {
     data.servesCuisine = item.cuisineType;
   }
+  if (item.offer) {
+    // schema.org espera o preço em reais com duas casas, como texto.
+    data.offers = {
+      '@type': 'Offer',
+      price: (item.offer.lowestPriceMinor / 100).toFixed(2),
+      priceCurrency: 'BRL',
+      availability: item.offer.inStock
+        ? 'https://schema.org/InStock'
+        : 'https://schema.org/SoldOut',
+      url: page.url,
+    };
+  }
   if (item.reviewCount > 0) {
     data.aggregateRating = {
       '@type': 'AggregateRating',

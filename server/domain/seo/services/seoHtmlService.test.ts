@@ -172,4 +172,24 @@ describe('SeoHtmlService.buildMetadata', () => {
     const meta = await service.buildMetadata('/fr/favoris', {});
     expect(meta.robots).toBe('noindex, follow');
   });
+
+  it('passeio com oferta publicada emite Offer com preço em reais e disponibilidade', async () => {
+    const { service } = createService({
+      getGuideItem: vi
+        .fn()
+        .mockResolvedValue(
+          buildItem({ category: 'tour', offer: { lowestPriceMinor: 15090, inStock: false } })
+        ),
+    });
+    const meta = await service.buildMetadata('/passeios', { item: 'item-1', type: 'item' });
+    expect(meta.structuredData).toMatchObject({
+      '@type': 'TouristTrip',
+      offers: {
+        '@type': 'Offer',
+        price: '150.90',
+        priceCurrency: 'BRL',
+        availability: 'https://schema.org/SoldOut',
+      },
+    });
+  });
 });

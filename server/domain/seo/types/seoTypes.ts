@@ -37,6 +37,8 @@ export interface SeoGuideItem {
   cuisineType?: string;
   rating: number;
   reviewCount: number;
+  /** Presente quando o item vende reservas (domínio bookings). */
+  offer?: { lowestPriceMinor: number; inStock: boolean };
 }
 
 export interface SeoEventOccurrence {

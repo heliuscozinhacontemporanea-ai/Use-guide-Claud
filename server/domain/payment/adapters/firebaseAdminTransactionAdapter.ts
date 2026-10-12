@@ -15,9 +15,7 @@ function mapDocToTransactionRecord(
     id,
     userId: typeof data.userId === 'string' ? data.userId : null,
     referenceType:
-      data.referenceType === 'ticket_order' || data.referenceType === 'plan_payment'
-        ? data.referenceType
-        : undefined,
+      typeof data.referenceType === 'string' && data.referenceType ? data.referenceType : undefined,
     referenceId: typeof data.referenceId === 'string' ? data.referenceId : null,
     providerPaymentId:
       typeof data.providerPaymentId === 'string' ? data.providerPaymentId : null,
@@ -151,7 +149,7 @@ export class FirebaseAdminTransactionAdapter implements TransactionRepositoryPor
     transactionId: string;
     idempotencyKey: string;
     userId: string;
-    referenceType: 'ticket_order' | 'plan_payment';
+    referenceType: string;
     referenceId: string;
     providerPaymentId: string;
     connectedAccountId?: string;

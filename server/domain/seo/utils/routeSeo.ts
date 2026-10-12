@@ -159,6 +159,20 @@ export const ROUTE_SEO_TEXTS: Record<RouteKey, Record<Locale, RouteText>> = {
       description: 'Les lieux, excursions et événements que vous avez enregistrés sur Use Guide.',
     },
   },
+  bookings: {
+    'pt-BR': {
+      title: 'Minhas Reservas | Use Guide',
+      description: 'Seus passeios e entradas reservados no Use Guide.',
+    },
+    en: {
+      title: 'My Bookings | Use Guide',
+      description: 'Your tours and entries booked on Use Guide.',
+    },
+    fr: {
+      title: 'Mes Réservations | Use Guide',
+      description: 'Vos excursions et entrées réservées sur Use Guide.',
+    },
+  },
 };
 
 /** Rotas fora do mapa de idiomas: nunca indexadas. */

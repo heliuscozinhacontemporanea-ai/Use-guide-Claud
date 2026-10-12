@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
+  getPublicOfferSummaryUseCase: vi.fn(),
   getPublicGuideItemUseCase: vi.fn(),
   listPublicGuideItemsUseCase: vi.fn(),
   getEventListingByIdUseCase: vi.fn(),
@@ -8,6 +9,9 @@ const mocks = vi.hoisted(() => ({
   listPublicEventListingsUseCase: vi.fn(),
 }));
 
+vi.mock('../../domain/bookings', () => ({
+  getPublicOfferSummaryUseCase: mocks.getPublicOfferSummaryUseCase,
+}));
 vi.mock('../../domain/guide', () => ({
   getPublicGuideItemUseCase: mocks.getPublicGuideItemUseCase,
   listPublicGuideItemsUseCase: mocks.listPublicGuideItemsUseCase,
@@ -84,5 +88,23 @@ describe('CatalogSeoContentProvider', () => {
         locationAddress: undefined,
       },
     ]);
+  });
+
+  it('passeio inclui o resumo da oferta vendável', async () => {
+    mocks.getPublicGuideItemUseCase.mockResolvedValue({
+      id: 't1',
+      name: 'Buggy',
+      description: '',
+      category: 'tour',
+      rating: 0,
+      reviewCount: 0,
+      isActive: true,
+    });
+    mocks.getPublicOfferSummaryUseCase.mockResolvedValue({
+      lowestUnitAmountMinor: 9000,
+      hasAvailability: true,
+    });
+    const item = await new CatalogSeoContentProvider().getGuideItem('t1');
+    expect(item?.offer).toEqual({ lowestPriceMinor: 9000, inStock: true });
   });
 });

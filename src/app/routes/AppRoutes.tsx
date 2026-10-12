@@ -10,10 +10,14 @@ import { NotFoundView } from '../../ui/components/NotFoundView';
 import { PageLayout } from '../../ui/layouts/PageLayout';
 import { CheckoutResultComposition } from '../compositions/CheckoutResultComposition';
 import { FavoritesPageComposition } from '../compositions/FavoritesPageComposition';
+import { MyBookingsPageComposition } from '../compositions/MyBookingsPageComposition';
 
 type GridCategory = 'event' | 'tour' | 'hotel' | 'restaurant' | 'sight' | 'tips';
 
-const GRID_CATEGORY: Record<Exclude<RouteKey, 'explore' | 'favorites'>, GridCategory> = {
+const GRID_CATEGORY: Record<
+  Exclude<RouteKey, 'explore' | 'favorites' | 'bookings'>,
+  GridCategory
+> = {
   events: 'event',
   tours: 'tour',
   stays: 'hotel',
@@ -37,6 +41,9 @@ export function AppRoutes({ location, onSelectItem, onStickyChange }: AppRoutesP
           <ExploreView onSelectItem={onSelectItem} onStickyChange={onStickyChange} />
         </PageLayout>
       );
+    }
+    if (routeKey === 'bookings') {
+      return <MyBookingsPageComposition />;
     }
     if (routeKey === 'favorites') {
       return <FavoritesPageComposition onSelectItem={onSelectItem} />;

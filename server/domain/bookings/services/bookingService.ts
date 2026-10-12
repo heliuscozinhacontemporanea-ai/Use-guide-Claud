@@ -1,0 +1,290 @@
+import type { Locale } from '../../../shared/kernel/locale';
+import { BookingDomainError } from '../errors/bookingDomainError';
+import type { BookingsPort, PageRequest } from '../ports/bookingsPort';
+import type {
+  Booking,
+  BookingActor,
+  BookingCancellation,
+  BookingParticipant,
+  Page,
+} from '../types/bookingTypes';
+import { buildBookingId } from '../utils/buildBookingId';
+import { priceBookingLines } from '../utils/bookingPricing';
+import { calculateCancellationRefund } from '../utils/cancellationRefund';
+
+// Tempo para pagar antes de a vaga voltar para a venda (inclui o Pix, que é assíncrono).
+const PAYMENT_WINDOW_MS = 15 * 60 * 1000;
+const SYSTEM_ACTOR = 'system';
+
+export interface CreatePendingBookingInput {
+  offerId: string;
+  slotId: string;
+  lines: Array<{ priceOptionId: string; quantity: number }>;
+  participants: Array<{ name: string }>;
+  idempotencyKey: string;
+  locale: Locale;
+}
+
+export interface BuyerCancellationResult {
+  booking: Booking;
+  refundPercent: 0 | 50 | 100;
+  refundAmountMinor: number;
+}
+
+export interface BookingDetails {
+  booking: Booking;
+  participants: BookingParticipant[];
+}
+
+export class BookingService {
+  constructor(
+    private readonly port: BookingsPort,
+    private readonly now: () => Date = () => new Date()
+  ) {}
+
+  async createPendingBooking(
+    actor: BookingActor,
+    input: CreatePendingBookingInput,
+    platformFeePercent: number
+  ): Promise<Booking> {
+    const offer = await this.port.getOffer(input.offerId);
+    if (offer?.status !== 'published') {
+      throw new BookingDomainError('NOT_FOUND', 'Oferta não encontrada.');
+    }
+    const slot = await this.port.getSlot(input.slotId);
+    if (slot?.offerId !== offer.id) {
+      throw new BookingDomainError('VALIDATION_ERROR', 'Horário não pertence a esta oferta.');
+    }
+    const priced = priceBookingLines(offer, input.lines, platformFeePercent);
+
+    const names = input.participants.map((participant) => participant.name.trim());
+    if (offer.requiresParticipantNames) {
+      if (names.length !== priced.participantsCount) {
+        throw new BookingDomainError('VALIDATION_ERROR', 'Informe o nome de cada participante.');
+      }
+      if (names.some((name) => name.length < 2 || name.length > 80)) {
+        throw new BookingDomainError('VALIDATION_ERROR', 'Nome de participante inválido.');
+      }
+    }
+
+    const nowDate = this.now();
+    const timestamp = nowDate.toISOString();
+    const booking: Booking = {
+      id: buildBookingId(actor.uid, input.idempotencyKey),
+      offerId: offer.id,
+      slotId: slot.id,
+      guideItemId: offer.guideItemId,
+      buyerId: actor.uid,
+      sellerPartnerId: offer.partnerId,
+      kind: offer.kind,
+      status: 'pending_payment',
+      ...priced,
+      expiresAt: new Date(nowDate.getTime() + PAYMENT_WINDOW_MS).toISOString(),
+      offerSnapshot: {
+        title: offer.title['pt-BR'],
+        startsAt: slot.startsAt,
+        ...(offer.durationMinutes ? { durationMinutes: offer.durationMinutes } : {}),
+        ...(offer.meetingPoint ? { meetingPoint: offer.meetingPoint.address } : {}),
+        cancellationPolicy: offer.cancellationPolicy,
+      },
+      locale: input.locale,
+      idempotencyKey: input.idempotencyKey,
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    };
+    const participants = offer.requiresParticipantNames
+      ? names.map((name, index) => ({ name, isLeadContact: index === 0 }))
+      : [];
+    return this.port.reserveCapacityAndCreateBooking(booking, participants);
+  }
+
+  async getBookingForActor(actor: BookingActor, bookingId: string): Promise<BookingDetails> {
+    const booking = await this.port.getBooking(bookingId);
+    const allowed =
+      booking &&
+      (actor.admin || booking.buyerId === actor.uid || booking.sellerPartnerId === actor.uid);
+    // Reserva de terceiros responde como inexistente (proteção contra IDOR, AGENTS.md §7.10).
+    if (!booking || !allowed) {
+      throw new BookingDomainError('NOT_FOUND', 'Reserva não encontrada.');
+    }
+    return { booking, participants: await this.port.getParticipants(bookingId) };
+  }
+
+  async getBooking(bookingId: string): Promise<Booking | null> {
+    return this.port.getBooking(bookingId);
+  }
+
+  async listBuyerBookings(actor: BookingActor, page: PageRequest): Promise<Page<Booking>> {
+    return this.port.listBookingsByBuyer(actor.uid, page);
+  }
+
+  async listOfferBookings(offerId: string, page: PageRequest): Promise<Page<Booking>> {
+    return this.port.listBookingsByOffer(offerId, page);
+  }
+
+  async confirmBookingPayment(bookingId: string, paymentIntentId: string): Promise<Booking> {
+    return this.port.confirmBookingAndCommitCapacity(bookingId, paymentIntentId);
+  }
+
+  /** A reserva continua aguardando pagamento: o comprador pode tentar de novo até expirar. */
+  async markBookingPaymentFailed(bookingId: string): Promise<void> {
+    await this.port.recordBookingAudit(bookingId, 'system:webhook', 'payment_failed');
+  }
+
+  async expireOverdueBookings(limit = 200): Promise<number> {
+    const overdue = await this.port.listExpiredPendingBookings(this.now().toISOString(), limit);
+    let expired = 0;
+    for (const booking of overdue) {
+      try {
+        await this.port.releaseCapacityAndSetStatus({
+          bookingId: booking.id,
+          to: 'expired',
+          actorUid: SYSTEM_ACTOR,
+          reason: 'payment_window_elapsed',
+        });
+        expired += 1;
+      } catch (error) {
+        // Uma reserva confirmada no meio do caminho não pode travar as demais.
+        if (!(error instanceof BookingDomainError)) throw error;
+      }
+    }
+    return expired;
+  }
+
+  /** Cancela pelo comprador e devolve o reembolso devido. Repetir devolve o mesmo resultado. */
+  async requestCancellationByBuyer(
+    actor: BookingActor,
+    bookingId: string,
+    reason: string
+  ): Promise<BuyerCancellationResult> {
+    const booking = await this.port.getBooking(bookingId);
+    if (!booking || booking.buyerId !== actor.uid) {
+      throw new BookingDomainError('NOT_FOUND', 'Reserva não encontrada.');
+    }
+    if (booking.status === 'canceled' && booking.cancellation?.by === 'buyer') {
+      return {
+        booking,
+        refundPercent: booking.cancellation.refundPercent,
+        refundAmountMinor: booking.cancellation.refundAmountMinor,
+      };
+    }
+    if (booking.status !== 'confirmed') {
+      throw new BookingDomainError(
+        'CANCELLATION_NOT_ALLOWED',
+        'Esta reserva não pode ser cancelada.'
+      );
+    }
+    const nowDate = this.now();
+    const refund = calculateCancellationRefund({
+      policy: booking.offerSnapshot.cancellationPolicy,
+      startsAt: booking.offerSnapshot.startsAt,
+      totalMinor: booking.totalMinor,
+      now: nowDate,
+    });
+    const cancellation: BookingCancellation = {
+      by: 'buyer',
+      ...refund,
+      reason: reason.slice(0, 300),
+      at: nowDate.toISOString(),
+    };
+    const updated = await this.port.releaseCapacityAndSetStatus({
+      bookingId,
+      to: 'canceled',
+      actorUid: actor.uid,
+      reason: 'buyer_canceled',
+      cancellation,
+    });
+    return { booking: updated, ...refund };
+  }
+
+  /** Desfaz a reserva pendente quando o pagamento nem chegou a ser criado. */
+  async cancelPendingBooking(bookingId: string, reason: string): Promise<Booking> {
+    return this.port.releaseCapacityAndSetStatus({
+      bookingId,
+      to: 'canceled',
+      actorUid: SYSTEM_ACTOR,
+      reason,
+    });
+  }
+
+  /** Cancela uma reserva do horário cancelado pelo parceiro: reembolso sempre integral. */
+  async cancelBookingForCanceledSlot(bookingId: string, actorUid: string): Promise<Booking> {
+    const booking = await this.port.getBooking(bookingId);
+    if (!booking) {
+      throw new BookingDomainError('NOT_FOUND', 'Reserva não encontrada.');
+    }
+    if (booking.status === 'canceled') {
+      return booking;
+    }
+    return this.port.releaseCapacityAndSetStatus({
+      bookingId,
+      to: 'canceled',
+      actorUid,
+      reason: 'slot_canceled_by_partner',
+      cancellation: {
+        by: 'partner',
+        refundPercent: 100,
+        refundAmountMinor: booking.status === 'confirmed' ? booking.totalMinor : 0,
+        reason: 'slot_canceled',
+        at: this.now().toISOString(),
+      },
+    });
+  }
+
+  async markBookingRefunded(bookingId: string): Promise<Booking> {
+    return this.port.setBookingStatus({
+      bookingId,
+      to: 'refunded',
+      actorUid: 'system:webhook',
+      reason: 'refund_succeeded',
+    });
+  }
+
+  async markBookingDisputed(bookingId: string): Promise<Booking> {
+    return this.port.setBookingStatus({
+      bookingId,
+      to: 'disputed',
+      actorUid: 'system:webhook',
+      reason: 'dispute_created',
+    });
+  }
+
+  async markBookingNoShow(actor: BookingActor, bookingId: string): Promise<Booking> {
+    const booking = await this.port.getBooking(bookingId);
+    if (!booking || (!actor.admin && booking.sellerPartnerId !== actor.uid)) {
+      throw new BookingDomainError('NOT_FOUND', 'Reserva não encontrada.');
+    }
+    if (this.now().getTime() < new Date(booking.offerSnapshot.startsAt).getTime()) {
+      throw new BookingDomainError('INVALID_TRANSITION', 'Só é possível marcar após o início.');
+    }
+    return this.port.setBookingStatus({
+      bookingId,
+      to: 'no_show',
+      actorUid: actor.uid,
+      reason: 'no_show',
+    });
+  }
+
+  async completeFinishedBookings(limit = 200): Promise<number> {
+    const nowDate = this.now();
+    const started = await this.port.listConfirmedBookingsStartedBefore(
+      nowDate.toISOString(),
+      limit
+    );
+    let completed = 0;
+    for (const booking of started) {
+      const endsAtMs =
+        new Date(booking.offerSnapshot.startsAt).getTime() +
+        (booking.offerSnapshot.durationMinutes ?? 0) * 60_000;
+      if (endsAtMs > nowDate.getTime()) continue;
+      await this.port.setBookingStatus({
+        bookingId: booking.id,
+        to: 'completed',
+        actorUid: SYSTEM_ACTOR,
+        reason: 'finished',
+      });
+      completed += 1;
+    }
+    return completed;
+  }
+}

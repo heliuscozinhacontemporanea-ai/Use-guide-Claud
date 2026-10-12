@@ -1,6 +1,7 @@
 import { Clock, SearchX } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { BookingResultView } from '../../domain/bookings';
 import { CheckoutResultView } from '../../domain/ticketing';
 import { useLocalizedRouting } from '../../shared/hooks/useLocalizedRouting';
 import { MessagePage } from '../../ui/components/MessagePage';
@@ -13,6 +14,7 @@ export function CheckoutResultComposition() {
   const [searchParams] = useSearchParams();
   const kind = searchParams.get('kind');
   const orderId = searchParams.get('orderId');
+  const bookingId = searchParams.get('bookingId');
   const paymentIntentId = searchParams.get('payment_intent') ?? undefined;
 
   if (kind === 'plan') {
@@ -26,6 +28,10 @@ export function CheckoutResultComposition() {
         onAction={() => navigate('/?partner=1')}
       />
     );
+  }
+
+  if (bookingId) {
+    return <BookingResultView bookingId={bookingId} onViewMyBookings={() => goTo('bookings')} />;
   }
 
   if (!orderId) {

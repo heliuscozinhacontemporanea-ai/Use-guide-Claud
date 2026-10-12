@@ -7,6 +7,7 @@ import { UserRole } from '../../domain/auth/types/auth';
 import { useAuthContext } from '../../domain/auth/context/AuthContext';
 import { ReportsView } from '../../domain/insights';
 import { CheckoutModal, isPaidPlanId, PlanSubscriptionCard } from '../../domain/payment';
+import { PartnerBookingsComposition } from './PartnerBookingsComposition';
 import { NotificationBell } from '../../domain/notifications';
 import { PartnerEventTicketingManager } from '../../domain/ticketing';
 import { ErrorState } from '../../ui/components/ErrorState';
@@ -122,6 +123,7 @@ export function PartnerPortalComposition() {
         ) : null
       }
       planSubscriptionSlot={<PlanSubscriptionCard />}
+      renderBookableOffersManager={(items) => <PartnerBookingsComposition items={items} />}
       renderEventTicketingManager={(eventListingId) => (
         <PartnerEventTicketingManager eventListingId={eventListingId} />
       )}

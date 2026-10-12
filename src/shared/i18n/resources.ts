@@ -1,4 +1,7 @@
+import { type BookingsTranslation, bookingsEn, bookingsFr, bookingsPtBR } from './bookingsResources';
+
 export interface TranslationResource {
+  bookings: BookingsTranslation;
   common: {
     language: string;
     locales: {
@@ -138,6 +141,7 @@ export interface TranslationResource {
       attractions: { title: string; description: string };
       guide: { title: string; description: string };
       favorites: { title: string; description: string };
+      bookings: { title: string; description: string };
     };
   };
   pages: {
@@ -151,6 +155,7 @@ export interface TranslationResource {
   };
 }
 const ptBR: TranslationResource = {
+  bookings: bookingsPtBR,
   common: {
     language: 'Idioma',
     locales: {
@@ -319,6 +324,10 @@ const ptBR: TranslationResource = {
         title: 'Meus Favoritos | Use Guide',
         description: 'Os lugares, passeios e eventos que você salvou no Use Guide.',
       },
+      bookings: {
+        title: 'Minhas Reservas | Use Guide',
+        description: 'Seus passeios e entradas reservados no Use Guide.',
+      },
     },
   },
   pages: {
@@ -332,6 +341,7 @@ const ptBR: TranslationResource = {
   },
 };
 const en: TranslationResource = {
+  bookings: bookingsEn,
   common: {
     language: 'Language',
     locales: {
@@ -498,6 +508,10 @@ const en: TranslationResource = {
         title: 'My Favorites | Use Guide',
         description: 'The places, tours and events you saved on Use Guide.',
       },
+      bookings: {
+        title: 'My Bookings | Use Guide',
+        description: 'Your tours and entries booked on Use Guide.',
+      },
     },
   },
   pages: {
@@ -511,6 +525,7 @@ const en: TranslationResource = {
   },
 };
 const fr: TranslationResource = {
+  bookings: bookingsFr,
   common: {
     language: 'Langue',
     locales: {
@@ -681,6 +696,10 @@ const fr: TranslationResource = {
       favorites: {
         title: 'Mes Favoris | Use Guide',
         description: 'Les lieux, excursions et événements que vous avez enregistrés sur Use Guide.',
+      },
+      bookings: {
+        title: 'Mes Réservations | Use Guide',
+        description: 'Vos excursions et entrées réservées sur Use Guide.',
       },
     },
   },

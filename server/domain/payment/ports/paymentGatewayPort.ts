@@ -21,7 +21,8 @@ export type PaymentReference =
 
 export interface PaymentTransaction {
   id: string;
-  referenceType: 'ticket_order' | 'plan_payment';
+  /** Quem vendeu o quê (ex: 'ticket_order', 'booking'); o payment não interpreta o valor. */
+  referenceType: string;
   referenceId: string;
   provider: 'stripe';
   providerPaymentId: string;

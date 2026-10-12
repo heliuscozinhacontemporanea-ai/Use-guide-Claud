@@ -183,7 +183,7 @@ export class EventListingPersistenceMapper {
     const nowIso = new Date().toISOString();
     const title = (input.title || input.name || '').trim();
     const coverImage = (input.coverImage || input.image || input.images[0] || '').trim();
-    const locationObj: EventLocation =
+    const rawLocationObj: EventLocation =
       typeof input.location === 'string'
         ? {
             name: input.location,
@@ -191,6 +191,15 @@ export class EventListingPersistenceMapper {
             googleMapsLink: input.googleMapsLink,
           }
         : input.location;
+    const locationObj: EventLocation = {
+      ...(rawLocationObj.name !== undefined ? { name: rawLocationObj.name } : {}),
+      ...(rawLocationObj.address !== undefined ? { address: rawLocationObj.address } : {}),
+      ...(rawLocationObj.googleMapsLink !== undefined
+        ? { googleMapsLink: rawLocationObj.googleMapsLink }
+        : {}),
+      ...(rawLocationObj.latitude !== undefined ? { latitude: rawLocationObj.latitude } : {}),
+      ...(rawLocationObj.longitude !== undefined ? { longitude: rawLocationObj.longitude } : {}),
+    };
 
     const status = input.status || (input.isActive === false ? 'paused' : 'published');
     const eventCategory = input.eventCategory || input.category || 'geral';

@@ -1,4 +1,4 @@
-import { randomUUID, timingSafeEqual } from 'crypto';
+import { randomUUID } from 'crypto';
 import { Request, Response } from 'express';
 import {
   confirmTicketOrderPaymentClientReturnApplicationUseCase,
@@ -219,21 +219,9 @@ export class TicketingController {
     }
   }
 
-  static async expireOrdersInternalJob(req: Request, res: Response) {
+  // A chave do job é verificada antes, pelo middleware verifyInternalJobKey.
+  static async expireOrdersInternalJob(_req: Request, res: Response) {
     try {
-      const configuredKey = process.env.TICKETING_EXPIRATION_JOB_KEY;
-      if (!configuredKey) {
-        return res.status(503).json({ error: 'TICKETING_EXPIRATION_JOB_KEY não configurada.' });
-      }
-      const providedKey = String(req.headers['x-internal-job-key'] || '');
-      const configuredBuf = Buffer.from(configuredKey, 'utf8');
-      const providedBuf = Buffer.from(providedKey, 'utf8');
-      if (
-        configuredBuf.length !== providedBuf.length ||
-        !timingSafeEqual(configuredBuf, providedBuf)
-      ) {
-        return res.status(401).json({ error: 'Chave de job interno inválida.' });
-      }
       const result = await expireAllOverdueOrdersUseCase();
       return res.status(200).json({ status: 'success', ...result });
     } catch (error) {

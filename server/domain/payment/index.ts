@@ -18,6 +18,8 @@ export {
   syncConnectedAccountFromWebhookUseCase,
 } from './usecases/marketplaceConnectUseCases';
 
+export { createMarketplacePaymentIntentUseCase } from './usecases/createMarketplacePaymentIntentUseCase';
+export { getPaymentReferenceUseCase } from './usecases/getPaymentReferenceUseCase';
 export { createBillingPortalSessionUseCase } from './usecases/billing/createBillingPortalSessionUseCase';
 export { getPartnerPlanSubscriptionUseCase } from './usecases/billing/getPartnerPlanSubscriptionUseCase';
 export { setPlanSubscriptionCancelAtPeriodEndUseCase } from './usecases/billing/setPlanSubscriptionCancelAtPeriodEndUseCase';

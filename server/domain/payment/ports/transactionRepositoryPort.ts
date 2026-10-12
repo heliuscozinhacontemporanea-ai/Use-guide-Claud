@@ -4,7 +4,7 @@ import type { PaymentStatus, PaymentTransaction } from './paymentGatewayPort';
 export interface TransactionRecord {
   id: string;
   userId: string | null;
-  referenceType?: 'ticket_order' | 'plan_payment';
+  referenceType?: string;
   referenceId?: string | null;
   providerPaymentId?: string | null;
   connectedAccountId?: string | null;
@@ -34,7 +34,7 @@ export interface TransactionRepositoryPort {
     transactionId: string;
     idempotencyKey: string;
     userId: string;
-    referenceType: 'ticket_order' | 'plan_payment';
+    referenceType: string;
     referenceId: string;
     providerPaymentId: string;
     connectedAccountId?: string;

@@ -36,6 +36,7 @@
 | reviews | notifications | `adapters/reviewNotificationAdapter.ts` | OK (port + adapter = anti-corruption layer) |
 | reviews | ticketing | `services/reviewService.ts` | OK (verificação de compra) |
 | ticketing | events | `services/ticketingService.ts` | OK |
+| bookings | guide | `adapters/guideBookableItemLookupAdapter.ts` | OK (port `BookableItemLookupPort`; guide não importa bookings; prompt 11) |
 
 ### 2.2. Dependências indiretas (fecho transitivo, só domínios)
 
@@ -47,6 +48,7 @@
 | favorites | events, guide | — |
 | insights | events, guide | — |
 | ticketing | events | — |
+| bookings | guide | — |
 | events, guide, users, admin, payment, climawind, seo | — | — (folhas) |
 
 ### 2.3. Camada `server/application` (Composition UseCases)
@@ -60,6 +62,8 @@
 | `create/update/deletePartnerEventApplicationUseCase` | partners, events, guide |
 | `renderSeoPageApplicationUseCase`, `renderSitemapApplicationUseCase` | seo, guide, events (seo continua folha: recebe o catálogo pelo `SeoContentPort`; prompt 8) |
 | `startPartnerPlanSubscriptionApplicationUseCase`, `reconcilePlanSubscriptionWebhookApplicationUseCase` | admin, partners, payment, notifications (payment continua folha: só recebe IDs e valores; prompt 9) |
+| `bookings/createBooking…`, `cancelBookingByBuyer…`, `cancelSlotByPartner…`, `reconcileBookingWebhook…` | bookings, payment, notifications (bookings não importa payment; payment só vê `referenceType`/`referenceId`; prompts 12 e 14) |
+| `seo/catalogSeoContentProvider` | seo, guide, events, bookings (resumo da oferta no JSON-LD; prompt 14) |
 | `eventLifecycleOrchestrationUseCases` | events, ticketing, notifications |
 | `ticketingPaymentOrchestrationUseCases` | ticketing, payment, partners, events, notifications |
 | `getPlanForPaymentApplicationUseCase` | admin |

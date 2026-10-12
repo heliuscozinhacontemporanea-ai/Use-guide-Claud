@@ -1,3 +1,4 @@
+import { getPublicOfferSummaryUseCase } from '../../domain/bookings';
 import {
   getEventListingByIdUseCase,
   listEventOccurrencesUseCase,
@@ -14,7 +15,19 @@ export class CatalogSeoContentProvider implements SeoContentPort {
   async getGuideItem(id: string): Promise<SeoGuideItem | null> {
     const item = await getPublicGuideItemUseCase(id);
     if (!item) return null;
+    const offer =
+      item.category === 'tour' || item.category === 'sight'
+        ? await getPublicOfferSummaryUseCase(item.id)
+        : null;
     return {
+      ...(offer
+        ? {
+            offer: {
+              lowestPriceMinor: offer.lowestUnitAmountMinor,
+              inStock: offer.hasAvailability,
+            },
+          }
+        : {}),
       id: item.id,
       name: item.name,
       description: item.description ?? '',

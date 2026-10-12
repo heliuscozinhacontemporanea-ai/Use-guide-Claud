@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import {
+  CalendarCheck,
   User,
   ChevronRight,
   Handshake,
@@ -30,6 +31,7 @@ interface MainMenuViewProps {
   onAccountOpen: () => void;
   onFavoritesOpen: () => void;
   onTicketsOpen?: () => void;
+  onBookingsOpen?: () => void;
   onPartnersOpen: () => void;
   onAboutOpen: () => void;
   onSupportOpen: () => void;
@@ -49,6 +51,7 @@ export function MainMenuView({
   onAccountOpen,
   onFavoritesOpen,
   onTicketsOpen,
+  onBookingsOpen,
   onPartnersOpen,
   onAboutOpen,
   onSupportOpen,
@@ -233,6 +236,25 @@ export function MainMenuView({
                       <Ticket size={16} />
                     </div>
                     <span className="text-white/80">Meus Ingressos</span>
+                  </div>
+                  <ChevronRight
+                    size={14}
+                    className="opacity-30 group-hover:opacity-100 group-hover:translate-x-1 transition-all"
+                  />
+                </button>
+              )}
+
+              {onBookingsOpen && (
+                <button
+                  type="button"
+                  onClick={onBookingsOpen}
+                  className="w-full flex items-center justify-between gap-3 p-4 rounded-[1.5rem] glassmorphism text-white active:scale-95 transition-all text-[10px] font-black uppercase tracking-[0.1em] border border-white/10 group focus-visible:ring-2 focus-visible:ring-teal-400/50"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-xl bg-teal-500/10 flex items-center justify-center text-teal-400 group-hover:bg-teal-500/20 group-hover:scale-110 transition-all shadow-lg shadow-teal-500/5">
+                      <CalendarCheck size={16} aria-hidden="true" />
+                    </div>
+                    <span className="text-white/80">{t('bookings.buyer.menuItem')}</span>
                   </div>
                   <ChevronRight
                     size={14}

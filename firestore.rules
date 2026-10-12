@@ -18,8 +18,11 @@ service cloud.firestore {
     }
     match /events/{eventId} {
       allow read: if
-        resource.data.status == 'published' &&
-        resource.data.visibility == 'public';
+        (resource.data.status == 'published' &&
+          resource.data.visibility == 'public') ||
+        (isAuthenticated() &&
+          resource.data.ownerId == request.auth.uid) ||
+        isAdmin();
       allow write: if false;
     }
     match /eventOccurrences/{occurrenceId} {
@@ -64,6 +67,26 @@ service cloud.firestore {
     }
     match /partnerSubscriptions/{partnerId} {
       allow read, write: if false;
+    }
+    match /bookableOffers/{offerId} {
+      allow read, write: if false;
+    }
+    match /publicBookableOffers/{offerId} {
+      allow read: if resource.data.status == 'published';
+      allow write: if false;
+    }
+    match /availabilitySlots/{slotId} {
+      allow read, write: if false;
+    }
+    match /bookings/{bookingId} {
+      allow read, write: if false;
+    }
+    match /bookingParticipants/{participantId} {
+      allow read, write: if false;
+    }
+    match /bookingAuditLogs/{logId} {
+      allow read: if isAdmin();
+      allow write: if false;
     }
     match /stripeWebhookEvents/{eventId} {
       allow read, write: if false;

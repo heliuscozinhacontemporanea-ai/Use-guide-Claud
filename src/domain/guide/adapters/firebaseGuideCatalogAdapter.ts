@@ -127,7 +127,11 @@ export class FirebaseGuideCatalogAdapter implements GuideCatalogPort {
           });
         emit();
       },
-      onError
+      onError,
+      [
+        { field: 'status', op: '==', value: 'published' },
+        { field: 'visibility', op: '==', value: 'public' },
+      ]
     );
 
     return () => {

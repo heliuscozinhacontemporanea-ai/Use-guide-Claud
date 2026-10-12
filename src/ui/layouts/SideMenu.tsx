@@ -351,6 +351,10 @@ export function SideMenu({ isOpen, onClose, onPartnersOpen, onAdminOpen }: SideM
                 goTo('favorites');
               }}
               onTicketsOpen={() => setIsTicketsViewOpen(true)}
+              onBookingsOpen={() => {
+                onClose();
+                goTo('bookings');
+              }}
               onPartnersOpen={onPartnersOpen}
               onAboutOpen={() => setIsAboutViewOpen(true)}
               onSupportOpen={() => setIsSupportViewOpen(true)}

@@ -55,6 +55,9 @@ export interface PartnerPanelProps {
   }) => React.ReactNode;
   renderEventTicketingManager?: (eventListingId: string) => React.ReactNode;
   planSubscriptionSlot?: React.ReactNode;
+  renderBookableOffersManager?: (
+    items: Array<{ id: string; name: string; category: string }>
+  ) => React.ReactNode;
 }
 
 export function PartnerPanel({
@@ -65,6 +68,7 @@ export function PartnerPanel({
   renderCheckoutModal,
   renderEventTicketingManager,
   planSubscriptionSlot,
+  renderBookableOffersManager,
 }: PartnerPanelProps) {
   const navigate = useNavigate();
 
@@ -247,25 +251,30 @@ export function PartnerPanel({
             </div>
           )
         ) : activeTab === 'items' ? (
-          <PartnerItemsTable
-            itemsList={itemsList}
-            loading={dataLoading}
-            onEditItem={(item) => handleEditItem(item)}
-            onToggleActive={handleToggleActive}
-            onCreateNew={() => {
-              const emptyForm = getEmptyFormData('');
-              setEditorFormData(emptyForm);
-              setCurrentStep(1);
-              setIsEditing({
-                id: '',
-                name: '',
-                description: '',
-                category: '',
-                image: '',
-                location: '',
-              });
-            }}
-          />
+          <>
+            <PartnerItemsTable
+              itemsList={itemsList}
+              loading={dataLoading}
+              onEditItem={(item) => handleEditItem(item)}
+              onToggleActive={handleToggleActive}
+              onCreateNew={() => {
+                const emptyForm = getEmptyFormData('');
+                setEditorFormData(emptyForm);
+                setCurrentStep(1);
+                setIsEditing({
+                  id: '',
+                  name: '',
+                  description: '',
+                  category: '',
+                  image: '',
+                  location: '',
+                });
+              }}
+            />
+            {renderBookableOffersManager?.(
+              itemsList.map((item) => ({ id: item.id, name: item.name, category: item.category }))
+            )}
+          </>
         ) : (
           <PartnerEventsTable
             eventsList={eventsList}

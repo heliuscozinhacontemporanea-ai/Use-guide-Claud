@@ -41,6 +41,7 @@ describe('localizedRoutes', () => {
 
   it('favoritos não é indexável', () => {
     expect(INDEXABLE_ROUTE_KEYS).not.toContain('favorites');
+    expect(INDEXABLE_ROUTE_KEYS).not.toContain('bookings');
     expect(INDEXABLE_ROUTE_KEYS).toHaveLength(7);
   });
 });

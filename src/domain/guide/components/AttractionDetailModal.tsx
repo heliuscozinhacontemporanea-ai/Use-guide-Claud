@@ -18,9 +18,11 @@ import { useScrollBorderRadius } from '../../../ui/hooks/useScrollBorderRadius';
 interface AttractionDetailModalProps {
   item: GuideItem | null;
   onClose: () => void;
+  /** Painel de reserva montado em src/app/compositions (o guia não conhece bookings). */
+  bookingPanel?: React.ReactNode;
 }
 
-export function AttractionDetailModal({ item, onClose }: AttractionDetailModalProps) {
+export function AttractionDetailModal({ item, onClose, bookingPanel }: AttractionDetailModalProps) {
   const [activeImage, setActiveImage] = useState(0);
   const { containerRef, borderRadius, scrollY } = useScrollBorderRadius();
 
@@ -186,6 +188,8 @@ export function AttractionDetailModal({ item, onClose }: AttractionDetailModalPr
             </GlassCard>
           )}
         </div>
+
+        {bookingPanel}
 
         <ReviewSection
           itemId={item.id}

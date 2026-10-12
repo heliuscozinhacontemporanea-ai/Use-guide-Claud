@@ -52,7 +52,6 @@ router.post(
 router.post('/orders/:id/expire', verifyAuthToken, TicketingController.expireOrder);
 router.post('/orders/:id/refund', verifyAuthToken, TicketingController.requestRefund);
 
-router.post('/internal/expire-orders', TicketingController.expireOrdersInternalJob);
 
 router.get('/tickets', verifyAuthToken, TicketingController.listUserTickets);
 router.get('/tickets/:id/qr', verifyAuthToken, TicketingController.getTicketQrToken);

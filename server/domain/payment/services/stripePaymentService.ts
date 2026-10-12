@@ -199,13 +199,63 @@ export class StripePaymentService {
     platformFeeMinor: number;
     idempotencyKey: string;
   }): Promise<CreatePaymentIntentResult & { transactionId: string }> {
-    const existingTx =
-      await this.transactionRepo.getTransactionByIdempotencyKey(
-        params.idempotencyKey
-      );
+    return this.createDestinationChargeIntent({
+      referenceType: 'ticket_order',
+      referenceId: params.orderId,
+      buyerId: params.buyerId,
+      sellerPartnerId: params.sellerPartnerId,
+      description: `Use Guide — ${params.eventTitle}`,
+      totalMinor: params.totalMinor,
+      platformFeeMinor: params.platformFeeMinor,
+      idempotencyKey: params.idempotencyKey,
+      extraMetadata: {
+        orderId: params.orderId,
+        ticketOrderId: params.orderId,
+        eventListingId: params.eventListingId,
+        occurrenceId: params.occurrenceId,
+      },
+    });
+  }
+
+  /** Venda de marketplace genérica (destination charge, decisão D1); o chamador define a referência. */
+  async createMarketplacePaymentIntent(params: {
+    referenceType: string;
+    referenceId: string;
+    buyerId: string;
+    sellerPartnerId: string;
+    description: string;
+    totalMinor: number;
+    platformFeeMinor: number;
+    idempotencyKey: string;
+  }): Promise<CreatePaymentIntentResult & { transactionId: string }> {
+    return this.createDestinationChargeIntent({ ...params, extraMetadata: {} });
+  }
+
+  /** Referência gravada na criação do pagamento (o objeto Dispute do Stripe não traz a metadata). */
+  async getPaymentReference(
+    paymentIntentId: string
+  ): Promise<{ referenceType: string; referenceId: string } | null> {
+    const record = await this.transactionRepo.getTransaction(paymentIntentId);
+    if (!record?.referenceType || !record.referenceId) return null;
+    return { referenceType: record.referenceType, referenceId: record.referenceId };
+  }
+
+  private async createDestinationChargeIntent(params: {
+    referenceType: string;
+    referenceId: string;
+    buyerId: string;
+    sellerPartnerId: string;
+    description: string;
+    totalMinor: number;
+    platformFeeMinor: number;
+    idempotencyKey: string;
+    extraMetadata: Record<string, string>;
+  }): Promise<CreatePaymentIntentResult & { transactionId: string }> {
+    const existingTx = await this.transactionRepo.getTransactionByIdempotencyKey(
+      params.idempotencyKey
+    );
     if (
-      existingTx &&
-      existingTx.providerPaymentId &&
+      existingTx?.providerPaymentId &&
       existingTx.paymentDetail &&
       typeof existingTx.paymentDetail.clientSecret === 'string'
     ) {
@@ -217,24 +267,20 @@ export class StripePaymentService {
       };
     }
 
-    const sellerAccount = await this.assertPartnerReadyForPaidEvent(
-      params.sellerPartnerId
-    );
+    const sellerAccount = await this.assertPartnerReadyForPaidEvent(params.sellerPartnerId);
 
     const result = await this.paymentGateway.createPaymentIntent({
-      orderId: params.orderId,
+      orderId: params.referenceId,
       amountMinor: params.totalMinor,
       currency: 'BRL',
-      description: `Use Guide — ${params.eventTitle}`,
+      description: params.description,
       connectedAccountId: sellerAccount.stripeAccountId,
       applicationFeeMinor: params.platformFeeMinor,
       paymentMethodTypes: ['card', 'pix'],
       metadata: {
-        referenceType: 'ticket_order',
-        orderId: params.orderId,
-        ticketOrderId: params.orderId,
-        eventListingId: params.eventListingId,
-        occurrenceId: params.occurrenceId,
+        referenceType: params.referenceType,
+        referenceId: params.referenceId,
+        ...params.extraMetadata,
         partnerId: params.sellerPartnerId,
       },
       idempotencyKey: params.idempotencyKey,
@@ -244,8 +290,8 @@ export class StripePaymentService {
       transactionId: result.paymentIntentId,
       idempotencyKey: params.idempotencyKey,
       userId: params.buyerId,
-      referenceType: 'ticket_order',
-      referenceId: params.orderId,
+      referenceType: params.referenceType,
+      referenceId: params.referenceId,
       providerPaymentId: result.paymentIntentId,
       connectedAccountId: sellerAccount.stripeAccountId,
       amountMinor: params.totalMinor,
@@ -255,7 +301,7 @@ export class StripePaymentService {
       paymentResult: {
         paymentIntentId: result.paymentIntentId,
         clientSecret: result.clientSecret,
-        orderId: params.orderId,
+        referenceId: params.referenceId,
         partnerId: params.sellerPartnerId,
       },
     });

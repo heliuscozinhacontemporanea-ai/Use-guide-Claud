@@ -64,6 +64,7 @@ describe('Firestore Rules — Security Suite', () => {
       await db.doc('events/event-draft').set({
         name: 'Festival Rascunho',
         eventCategory: 'show',
+        ownerId: 'partner-1',
         status: 'draft',
         visibility: 'public',
       });
@@ -172,6 +173,16 @@ describe('Firestore Rules — Security Suite', () => {
       await assertFails(getDoc(doc(db, 'events/event-draft')));
       await assertFails(getDoc(doc(db, 'events/event-paused')));
       await assertFails(getDoc(doc(db, 'events/event-private')));
+    });
+
+    it('owner and admin → can read non-public/draft events; other users cannot', async () => {
+      const ownerDb = testEnv.authenticatedContext('partner-1').firestore();
+      const otherUserDb = testEnv.authenticatedContext('user-1').firestore();
+      const adminDb = testEnv.authenticatedContext('admin-user', { admin: true }).firestore();
+
+      await assertSucceeds(getDoc(doc(ownerDb, 'events/event-draft')));
+      await assertSucceeds(getDoc(doc(adminDb, 'events/event-draft')));
+      await assertFails(getDoc(doc(otherUserDb, 'events/event-draft')));
     });
 
     it('anonymous → reviews read', async () => {

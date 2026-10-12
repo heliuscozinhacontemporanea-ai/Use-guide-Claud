@@ -143,7 +143,11 @@ describe('FirebaseGuideCatalogAdapter realtime', () => {
     expect(databaseDomain.subscribeToCollectionUseCase).toHaveBeenCalledWith(
       'events',
       expect.any(Function),
-      onError
+      onError,
+      [
+        { field: 'status', op: '==', value: 'published' },
+        { field: 'visibility', op: '==', value: 'public' },
+      ]
     );
 
     unsubscribe();

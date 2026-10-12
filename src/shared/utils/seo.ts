@@ -1,4 +1,11 @@
-import { DEFAULT_LOCALE, i18n, type Locale, localizedPath, parseLocalizedPath } from '../i18n';
+import {
+  DEFAULT_LOCALE,
+  i18n,
+  type Locale,
+  localizedPath,
+  PRIVATE_ROUTE_KEYS,
+  parseLocalizedPath,
+} from '../i18n';
 
 export interface SEOMetadata {
   title?: string | undefined;
@@ -84,7 +91,7 @@ export function getRouteSeoMetadata(pathname: string): SEOMetadata {
     description: i18n.t(`seo.routes.${routeKey}.description`, { lng: locale }),
     canonicalUrl: `${BASE_URL}${localizedPath(routeKey, locale)}`,
     locale,
-    ...(routeKey === 'favorites' ? { robots: 'noindex, follow' } : {}),
+    ...(PRIVATE_ROUTE_KEYS.includes(routeKey) ? { robots: 'noindex, follow' } : {}),
   };
 }
 
