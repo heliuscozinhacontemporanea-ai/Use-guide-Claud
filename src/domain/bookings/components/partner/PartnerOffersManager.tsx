@@ -28,9 +28,15 @@ interface PartnerOffersManagerProps {
   items: BookableGuideItem[];
   /** Aviso montado pela composição quando a conta financeira ainda não está habilitada. */
   accountNotice?: ReactNode;
+  /** Publicar só com a conta financeira pronta; o servidor confere de novo. */
+  canPublish: boolean;
 }
 
-export function PartnerOffersManager({ items, accountNotice }: PartnerOffersManagerProps) {
+export function PartnerOffersManager({
+  items,
+  accountNotice,
+  canPublish,
+}: PartnerOffersManagerProps) {
   const { t } = useTranslation();
   const offers = usePartnerOffers();
   const [view, setView] = useState<View>({ type: 'list' });
@@ -156,6 +162,7 @@ export function PartnerOffersManager({ items, accountNotice }: PartnerOffersMana
                           key={offer.id}
                           offer={offer}
                           busy={busyId === offer.id}
+                          canPublish={canPublish}
                           onEdit={() => setView({ type: 'editor', item, offer })}
                           onSlots={() => setView({ type: 'slots', offer })}
                           onBookings={() => setView({ type: 'bookings', offer })}

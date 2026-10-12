@@ -461,12 +461,7 @@ export function PartnerEventTicketingManager({
     await executeTokenOrIdValidation(checkInInput);
   };
 
-  const isStripeReady = Boolean(
-    merchantStatus?.connected &&
-      merchantStatus.chargesEnabled &&
-      merchantStatus.payoutsEnabled &&
-      merchantStatus.detailsSubmitted
-  );
+  const isStripeReady = merchantStatus?.readyForSales === true;
 
   return (
     <div className="space-y-4">

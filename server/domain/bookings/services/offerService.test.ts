@@ -104,6 +104,21 @@ describe('OfferService', () => {
     expect(port.publicOffers.has(offer.id)).toBe(false);
   });
 
+  it('verificação antes de publicar que recusa mantém a oferta fora do ar', async () => {
+    const { service, port } = setup();
+    const offer = await service.createOffer(OWNER, {
+      ...INPUT,
+      guideItemId: 'item-1',
+      kind: 'tour',
+    });
+    await expect(
+      service.setOfferStatus(OWNER, offer.id, 'published', async () => {
+        throw new Error('Stripe não está pronto');
+      })
+    ).rejects.toThrow('Stripe não está pronto');
+    expect(port.publicOffers.has(offer.id)).toBe(false);
+  });
+
   it('oferta de outro parceiro responde como inexistente', async () => {
     const { service } = setup();
     const offer = await service.createOffer(OWNER, {

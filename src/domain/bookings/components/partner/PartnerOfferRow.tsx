@@ -14,6 +14,7 @@ const STATUS_STYLE: Record<OfferStatus, string> = {
 interface PartnerOfferRowProps {
   offer: PartnerOffer;
   busy: boolean;
+  canPublish: boolean;
   onEdit: () => void;
   onSlots: () => void;
   onBookings: () => void;
@@ -23,6 +24,7 @@ interface PartnerOfferRowProps {
 export function PartnerOfferRow({
   offer,
   busy,
+  canPublish,
   onEdit,
   onSlots,
   onBookings,
@@ -74,7 +76,9 @@ export function PartnerOfferRow({
           ) : (
             <button
               type="button"
-              disabled={busy}
+              disabled={busy || !canPublish}
+              title={canPublish ? undefined : t('bookings.partner.publishNeedsStripe')}
+              aria-describedby={canPublish ? undefined : `publish-hint-${offer.id}`}
               onClick={() => onStatus('published')}
               className={BUTTON_SECONDARY}
             >
@@ -90,6 +94,11 @@ export function PartnerOfferRow({
             {t('bookings.partner.archive')}
           </button>
         </div>
+      )}
+      {!canPublish && offer.status !== 'published' && !archived && (
+        <p id={`publish-hint-${offer.id}`} className="text-[11px] text-amber-200">
+          {t('bookings.partner.publishNeedsStripe')}
+        </p>
       )}
     </li>
   );

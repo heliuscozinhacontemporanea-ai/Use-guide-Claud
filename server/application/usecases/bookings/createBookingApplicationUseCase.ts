@@ -6,6 +6,7 @@ import {
 } from '../../../domain/bookings';
 import { createMarketplacePaymentIntentUseCase } from '../../../domain/payment';
 import { resolvePlatformFeePercent } from '../../../shared/kernel/platformFee';
+import { isPartnerSuspended } from '../isPartnerSuspended';
 
 export interface BookingBuyer {
   uid: string;
@@ -38,6 +39,12 @@ export async function createBookingApplicationUseCase(
   );
 
   try {
+    if (await isPartnerSuspended(booking.sellerPartnerId)) {
+      throw new BookingDomainError(
+        'PARTNER_SUSPENDED',
+        'Este parceiro não está aceitando reservas no momento.'
+      );
+    }
     const payment = await createMarketplacePaymentIntentUseCase({
       referenceType: 'booking',
       referenceId: booking.id,
