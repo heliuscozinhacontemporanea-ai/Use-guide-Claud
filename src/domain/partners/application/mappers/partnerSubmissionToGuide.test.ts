@@ -75,7 +75,7 @@ describe('mapPartnerSubmissionToGuideItem', () => {
     });
   });
 
-  it('categoria inválida: deve lançar erro se a categoria for incompatível (ex: tour ou event)', () => {
+  it('categoria inválida: deve lançar erro se a categoria for incompatível (ex: event)', () => {
     const invalidCategoryData: PartnerSubmissionData = {
       ...baseData,
       category: 'event',
@@ -121,5 +121,70 @@ describe('mapPartnerSubmissionToGuideItem', () => {
   it('não força o item como ativo (a edição não reativa item desativado)', () => {
     const result = mapPartnerSubmissionToGuideItem(baseData, ['https://img1.jpg']);
     expect(result).not.toHaveProperty('isActive');
+  });
+  it('tour: converte a duração em minutos e mantém roteiro e itens inclusos', () => {
+    const result = mapPartnerSubmissionToGuideItem(
+      {
+        ...baseData,
+        category: 'tour',
+        tourDurationHours: '2,5',
+        meetingPoint: 'Praça principal',
+        itinerary: 'Lagoa do Paraíso e Pedra Furada',
+        tourIncludes: ['Guia'],
+      },
+      ['https://tour.jpg']
+    );
+    expect(result.category).toBe('tour');
+    expect(result.operationalInfo).toMatchObject({
+      durationMinutes: 150,
+      meetingPoint: 'Praça principal',
+      itinerary: 'Lagoa do Paraíso e Pedra Furada',
+      includes: ['Guia'],
+    });
+  });
+
+  it('transfer: descarta trechos incompletos e grava a capacidade como inteiro', () => {
+    const result = mapPartnerSubmissionToGuideItem(
+      {
+        ...baseData,
+        category: 'transfer',
+        transferRoutes: [
+          { from: 'Fortaleza', to: 'Jericoacoara' },
+          { from: 'Jijoca', to: '' },
+        ],
+        transferVehicles: ['4x4'],
+        maxPassengers: '6',
+        luggageInfo: '1 mala por pessoa',
+      },
+      ['https://transfer.jpg']
+    );
+    expect(result.category).toBe('transfer');
+    expect(result.operationalInfo).toMatchObject({
+      transferRoutes: [{ from: 'Fortaleza', to: 'Jericoacoara' }],
+      vehicleTypes: ['4x4'],
+      maxPassengers: 6,
+      luggageInfo: '1 mala por pessoa',
+    });
+  });
+
+  it('rental: grava período mínimo, caução e exigência de habilitação', () => {
+    const result = mapPartnerSubmissionToGuideItem(
+      {
+        ...baseData,
+        category: 'rental',
+        rentalVehicles: ['Quadriciclo'],
+        minRentalHours: '0',
+        depositRequired: true,
+        driverLicenseRequired: false,
+      },
+      ['https://rental.jpg']
+    );
+    expect(result.category).toBe('rental');
+    expect(result.operationalInfo).toMatchObject({
+      vehicleTypes: ['Quadriciclo'],
+      depositRequired: true,
+      driverLicenseRequired: false,
+    });
+    expect(result.operationalInfo).not.toHaveProperty('minRentalHours', 0);
   });
 });

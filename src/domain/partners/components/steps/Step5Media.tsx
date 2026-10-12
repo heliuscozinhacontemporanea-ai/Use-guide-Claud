@@ -277,15 +277,12 @@ export function Step5Media({
                             ))}
                           </div>
                         )}
-                        {(formData.menuLink || formData.menuFile) && (
+                        {formData.menuLink && (
                           <div className="space-y-1">
                             <p className="text-[9px] text-white/50 uppercase font-black">
                               Cardápio Digital
                             </p>
-                            <p className="text-xs text-indigo-400 truncate">
-                              {formData.menuLink ||
-                                (formData.menuFile ? `Arquivo: ${formData.menuFile.name}` : '')}
-                            </p>
+                            <p className="text-xs text-indigo-400 truncate">{formData.menuLink}</p>
                           </div>
                         )}
                       </div>

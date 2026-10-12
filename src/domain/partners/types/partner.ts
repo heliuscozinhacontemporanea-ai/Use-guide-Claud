@@ -5,7 +5,14 @@ export interface PartnerBusiness {
 }
 
 /** Categoria do primeiro cadastro na inscrição; `producer` cria o perfil de produtor de eventos. */
-export type PartnerSignupCategory = 'sight' | 'hotel' | 'restaurant' | 'producer';
+export type PartnerSignupCategory =
+  | 'sight'
+  | 'hotel'
+  | 'restaurant'
+  | 'tour'
+  | 'transfer'
+  | 'rental'
+  | 'producer';
 
 export interface PublicPartnerProfile {
   id: string;
@@ -63,6 +70,19 @@ export interface PartnerSubmissionData {
   sightAmenities?: string[];
   sightAccessType?: string;
   sightPrice?: string;
+  tourDurationHours?: string;
+  meetingPoint?: string;
+  itinerary?: string;
+  tourIncludes?: string[];
+  transferRoutes?: Array<{ from: string; to: string }>;
+  transferVehicles?: string[];
+  maxPassengers?: string;
+  luggageInfo?: string;
+  rentalVehicles?: string[];
+  minRentalHours?: string;
+  depositRequired?: boolean | null;
+  driverLicenseRequired?: boolean | null;
+  rentalIncludes?: string[];
 }
 
 export type PartnerVerificationType =
