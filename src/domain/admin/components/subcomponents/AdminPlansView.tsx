@@ -30,7 +30,7 @@ function AdminPlanCard({ plan }: { plan: SubscriptionPlan }) {
     resolver: zodResolver(adminPlanFormSchema),
     defaultValues: {
       name: plan.name,
-      price: maskCurrency(String(Math.round(plan.price * 100))),
+      price: maskCurrency(String(plan.priceMinor)),
       period: plan.period,
       description: plan.description ?? '',
       isActive: plan.isActive,
@@ -45,7 +45,7 @@ function AdminPlanCard({ plan }: { plan: SubscriptionPlan }) {
       const parsed = adminPlanFormSchema.parse(values);
       await updateSubscriptionPlanUseCase(plan.id, {
         name: parsed.name,
-        price: unmaskCurrency(parsed.price),
+        priceMinor: Math.round(unmaskCurrency(parsed.price) * 100),
         period: parsed.period,
         description: parsed.description,
         isActive: parsed.isActive,

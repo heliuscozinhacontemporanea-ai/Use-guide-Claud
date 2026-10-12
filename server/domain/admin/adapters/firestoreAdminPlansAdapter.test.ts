@@ -44,7 +44,7 @@ describe('FirestoreAdminPlansAdapter', () => {
 
     await adapter.updatePlan('monthly', {
       name: 'Plano Mensal',
-      price: 59.9,
+      priceMinor: 5990,
       description: 'Descrição atualizada',
       isActive: true,
     });
@@ -53,7 +53,7 @@ describe('FirestoreAdminPlansAdapter', () => {
     expect(mocks.doc).toHaveBeenCalledWith('monthly');
     expect(mocks.update).toHaveBeenCalledWith({
       name: 'Plano Mensal',
-      price: 59.9,
+      priceMinor: 5990,
       description: 'Descrição atualizada',
       isActive: true,
       updatedAt: 'SERVER_TIMESTAMP',

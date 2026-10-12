@@ -149,14 +149,21 @@ export function PartnerPortalComposition() {
         <ReportsView partnerId={partnerId} items={items} events={events} />
       )}
       renderNotificationBell={(partnerId) => <NotificationBell partnerId={partnerId} />}
-      renderCheckoutModal={({ isOpen, onClose, itemId, itemName, amount, onPaymentSuccess }) =>
+      renderCheckoutModal={({
+        isOpen,
+        onClose,
+        itemId,
+        itemName,
+        amountMinor,
+        onPaymentSuccess,
+      }) =>
         isPaidPlanId(itemId) ? (
           <CheckoutModal
             isOpen={isOpen}
             onClose={onClose}
             planId={itemId}
             itemName={itemName}
-            amount={amount}
+            amountMinor={amountMinor}
             onPaymentSuccess={onPaymentSuccess}
           />
         ) : null

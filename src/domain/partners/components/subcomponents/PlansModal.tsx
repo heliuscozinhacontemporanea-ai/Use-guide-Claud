@@ -6,6 +6,8 @@ import { PartnerProfile, SubscriptionPlan } from '../../types/partner';
 import { useUI } from '../../../../shared/stores/useUIStore';
 import { activateTrialUseCase } from '../../application/usecases/activateTrialUseCase';
 import { Z_INDEX } from '../../../../shared/constants/zIndex';
+import { formatMoneyMinor } from '../../../../shared/utils/money';
+import { useTranslation } from 'react-i18next';
 
 interface PlansModalProps {
   isOpen: boolean;
@@ -13,7 +15,7 @@ interface PlansModalProps {
   userId: string;
   partnerProfile?: PartnerProfile;
   plans: SubscriptionPlan[];
-  onSelectPaidPlan: (planId: string, planName: string, amount: number) => void;
+  onSelectPaidPlan: (planId: string, planName: string, amountMinor: number) => void;
 }
 
 export function PlansModal({
@@ -29,6 +31,7 @@ export function PlansModal({
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [showUpgradeView, setShowUpgradeView] = useState(false);
   const { showToast } = useUI();
+  const { i18n } = useTranslation();
 
   React.useEffect(() => {
     if (isOpen) {
@@ -108,21 +111,21 @@ export function PlansModal({
         onSelectPaidPlan(
           activeOption.id,
           `Selo de Empresa Verificada - ${activeOption.name}`,
-          activeOption.price
+          activeOption.priceMinor
         );
         onClose();
       }
     }
   };
 
-  const formatPrice = (price: number) => {
-    if (price === 0) return 'Grátis';
-    return `R$ ${price.toFixed(2).replace('.', ',')}`;
+  const formatPrice = (priceMinor: number) => {
+    if (priceMinor === 0) return 'Grátis';
+    return formatMoneyMinor(priceMinor, i18n.language);
   };
 
-  const formatMonthlyEquivalent = (val: number | null | undefined) => {
-    if (!val) return null;
-    return `R$ ${val.toFixed(2).replace('.', ',')}/mês`;
+  const formatMonthlyEquivalent = (valueMinor: number | null | undefined) => {
+    if (!valueMinor) return null;
+    return `${formatMoneyMinor(valueMinor, i18n.language)}/mês`;
   };
 
   return (
@@ -290,15 +293,15 @@ export function PlansModal({
                           <div className="text-right shrink-0">
                             <div className="flex items-baseline gap-1 justify-end">
                               <span className="text-lg font-black text-teal-400">
-                                {formatPrice(p.price)}
+                                {formatPrice(p.priceMinor)}
                               </span>
                               <span className="text-[10px] text-white/50 font-medium">
                                 {p.period}
                               </span>
                             </div>
-                            {p.monthlyEquivalent && (
+                            {p.monthlyEquivalentMinor && (
                               <span className="block text-[9px] text-teal-300/80 font-bold">
-                                {formatMonthlyEquivalent(p.monthlyEquivalent)}
+                                {formatMonthlyEquivalent(p.monthlyEquivalentMinor)}
                               </span>
                             )}
                           </div>

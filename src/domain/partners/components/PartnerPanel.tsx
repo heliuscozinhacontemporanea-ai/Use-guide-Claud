@@ -50,7 +50,7 @@ export interface PartnerPanelProps {
     onClose: () => void;
     itemId: string;
     itemName: string;
-    amount: number;
+    amountMinor: number;
     onPaymentSuccess: () => void;
   }) => React.ReactNode;
   renderEventTicketingManager?: (eventListingId: string) => React.ReactNode;
@@ -111,7 +111,7 @@ export function PartnerPanel({
   const [checkoutPlanInfo, setCheckoutPlanInfo] = React.useState({
     itemId: '',
     itemName: '',
-    amount: 0,
+    amountMinor: 0,
   });
 
   // O modal mostra a própria tela de sucesso; o perfil é recarregado quando o parceiro fecha.
@@ -589,8 +589,8 @@ export function PartnerPanel({
         userId={user.uid}
         partnerProfile={partnerProfile || undefined}
         plans={subscriptionPlans ?? []}
-        onSelectPaidPlan={(planId, planName, amount) => {
-          setCheckoutPlanInfo({ itemId: planId, itemName: planName, amount });
+        onSelectPaidPlan={(planId, planName, amountMinor) => {
+          setCheckoutPlanInfo({ itemId: planId, itemName: planName, amountMinor });
           setShowCheckoutModal(true);
         }}
       />
@@ -600,7 +600,7 @@ export function PartnerPanel({
         onClose: handleCheckoutClose,
         itemId: checkoutPlanInfo.itemId,
         itemName: checkoutPlanInfo.itemName,
-        amount: checkoutPlanInfo.amount,
+        amountMinor: checkoutPlanInfo.amountMinor,
         onPaymentSuccess: handleCheckoutSuccess,
       })}
 

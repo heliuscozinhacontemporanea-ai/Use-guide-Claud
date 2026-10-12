@@ -4,10 +4,10 @@ import { UpdateSubscriptionPlanDTO } from './updateSubscriptionPlanDTO';
 
 describe('UpdateSubscriptionPlanDTO', () => {
   it('mantém apenas campos informados e entrega objeto imutável', () => {
-    const parsed = updatePlanSchema.parse({ name: 'Plano Anual', price: '299,90'.replace(',', '.') });
+    const parsed = updatePlanSchema.parse({ name: 'Plano Anual', priceMinor: 29990 });
     const dto = UpdateSubscriptionPlanDTO.fromValidatedInput(parsed);
 
-    expect(dto.fields).toEqual({ name: 'Plano Anual', price: 299.9 });
+    expect(dto.fields).toEqual({ name: 'Plano Anual', priceMinor: 29990 });
     expect(Object.isFrozen(dto.fields)).toBe(true);
   });
 });

@@ -45,7 +45,7 @@ export class PaymentController {
         return res.status(400).json({ error: 'Plano inativo.' });
       }
 
-      const amountMinor = Math.round(Number(plan.price) * 100);
+      const amountMinor = plan.priceMinor;
       if (amountMinor <= 0) {
         return res
           .status(400)
