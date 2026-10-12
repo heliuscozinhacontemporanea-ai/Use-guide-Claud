@@ -1,13 +1,4 @@
-import {
-  BarChart3,
-  Home as Bed,
-  Calendar,
-  RefreshCw,
-  Sparkles,
-  Trash2,
-  Utensils,
-  X,
-} from 'lucide-react';
+import { BarChart3, RefreshCw, Trash2, X } from 'lucide-react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AnimatePresence, motion } from 'motion/react';
 import React, { useEffect, useRef } from 'react';
@@ -35,6 +26,7 @@ import { PartnerItemsTable } from './subcomponents/PartnerItemsTable';
 import { PartnerTabsNavigation } from './subcomponents/PartnerTabsNavigation';
 import { PlansModal } from './subcomponents/PlansModal';
 import { useLocalizedRouting } from '../../../shared/hooks/useLocalizedRouting';
+import { LISTING_CATEGORIES } from '../constants/listingCategories';
 
 export interface PartnerPanelProps {
   profile?: PartnerProfile;
@@ -172,12 +164,7 @@ export function PartnerPanel({
     }
   }, [isEditing]);
 
-  const categories = [
-    { id: 'sight', label: 'Atrações Turísticas', icon: <Sparkles size={16} /> },
-    { id: 'hotel', label: 'Hospedagem', icon: <Bed size={16} /> },
-    { id: 'restaurant', label: 'Restaurantes', icon: <Utensils size={16} /> },
-    { id: 'producer', label: 'Perfil de produtor de eventos', icon: <Calendar size={16} /> },
-  ];
+  const categories = LISTING_CATEGORIES;
 
   if (userLoading || profileStatus === 'loading') {
     return (
@@ -428,7 +415,9 @@ export function PartnerPanel({
                     <Step1CompanyInfo
                       formData={editorFormData}
                       setFormData={setEditorFormData}
-                      categories={categories.filter((c) => c.id !== 'event')}
+                      categories={categories}
+                      mode="editor"
+                      lockCategory={Boolean(isEditing?.id)}
                     />
                   </div>
 

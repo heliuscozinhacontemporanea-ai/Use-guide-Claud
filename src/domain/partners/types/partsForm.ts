@@ -29,7 +29,6 @@ export interface FormState {
   breakfastTypes: string[];
   amenities: string[];
   menuLink: string;
-  menuFile: File | null;
   subcategory: string;
   cuisineType: string;
   mealTypes: string[];
@@ -42,6 +41,22 @@ export interface FormState {
   sightAccessType: 'pago' | 'gratuito' | '';
   sightPrice: string;
   languages: string[];
+  // Passeio
+  tourDurationHours: string;
+  meetingPoint: string;
+  itinerary: string;
+  tourIncludes: string[];
+  // Translado
+  transferRoutes: Array<{ from: string; to: string }>;
+  transferVehicles: string[];
+  maxPassengers: string;
+  luggageInfo: string;
+  // Aluguel
+  rentalVehicles: string[];
+  minRentalHours: string;
+  depositRequired: boolean | null;
+  driverLicenseRequired: boolean | null;
+  rentalIncludes: string[];
   checkInFrom: string;
   checkInTo: string;
   checkOutFrom: string;

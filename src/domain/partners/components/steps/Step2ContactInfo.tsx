@@ -328,9 +328,9 @@ export function Step2ContactInfo({
             </div>
           </div>
         </div>
-      ) : formData.category === 'restaurant' ||
-        formData.category === 'sight' ||
-        formData.category === 'producer' ? (
+      ) : ['restaurant', 'sight', 'tour', 'transfer', 'rental', 'producer'].includes(
+          formData.category
+        ) ? (
         <div className="space-y-4">
           {/* Telefone / WhatsApp */}
           <div className="space-y-2">

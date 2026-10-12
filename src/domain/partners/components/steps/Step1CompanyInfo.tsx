@@ -20,12 +20,18 @@ interface Step1CompanyInfoProps {
   };
   setFormData: React.Dispatch<React.SetStateAction<any>>;
   categories: Category[];
+  // No editor do painel o CPF/CNPJ já pertence à conta do parceiro e não é editado por item.
+  mode?: 'signup' | 'editor';
+  // Trocar a categoria de um item existente mudaria o schema de operationalInfo já gravado.
+  lockCategory?: boolean;
 }
 
 export function Step1CompanyInfo({
   formData: propFormData,
   setFormData,
   categories,
+  mode = 'signup',
+  lockCategory = false,
 }: Step1CompanyInfoProps) {
   const formContext = useFormContext();
 
@@ -33,6 +39,7 @@ export function Step1CompanyInfo({
   const formErrors = formContext ? formContext.formState.errors : {};
 
   const handleCategoryChange = (catId: string) => {
+    if (lockCategory) return;
     if (formContext) {
       formContext.setValue('category', catId, { shouldValidate: true });
     }
@@ -63,6 +70,7 @@ export function Step1CompanyInfo({
   };
 
   const isEventProducer = formData.category === 'producer';
+  const showCpfCnpj = mode === 'signup';
 
   return (
     <div className="space-y-6">
@@ -87,8 +95,10 @@ export function Step1CompanyInfo({
                 key={cat.id}
                 type="button"
                 onClick={() => handleCategoryChange(cat.id)}
+                disabled={lockCategory && formData.category !== cat.id}
+                aria-pressed={formData.category === cat.id}
                 className={cn(
-                  'flex items-center gap-3 p-4 rounded-2xl border transition-all active:scale-95 cursor-pointer',
+                  'flex items-center gap-3 p-4 rounded-2xl border transition-all active:scale-95 cursor-pointer disabled:cursor-not-allowed disabled:opacity-40 disabled:active:scale-100',
                   formData.category === cat.id
                     ? 'bg-indigo-500/20 border-indigo-500 text-indigo-400 shadow-lg shadow-indigo-500/10'
                     : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10 hover:border-white/20'
@@ -108,6 +118,11 @@ export function Step1CompanyInfo({
               </button>
             ))}
           </div>
+          {lockCategory && (
+            <p className="text-xs text-white/50 font-medium ml-1">
+              A categoria não pode ser alterada depois do cadastro.
+            </p>
+          )}
           {formErrors.category && (
             <p className="text-xs text-red-400 font-medium ml-1">
               {formErrors.category.message?.toString()}
@@ -124,7 +139,7 @@ export function Step1CompanyInfo({
             className="space-y-6 pt-2 border-t border-white/5"
           >
             {/* Somente se for produtor de eventos: campo CPF/CNPJ obrigatório acima do nome */}
-            {isEventProducer && (
+            {showCpfCnpj && isEventProducer && (
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase tracking-widest text-white/50 ml-1">
                   CPF ou CNPJ <span className="text-red-500">*</span>
@@ -174,7 +189,7 @@ export function Step1CompanyInfo({
             </div>
 
             {/* CPF ou CNPJ para Atrações turísticas, Hospedagem e Restaurantes */}
-            {!isEventProducer && (
+            {showCpfCnpj && !isEventProducer && (
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase tracking-widest text-white/50 ml-1">
                   CPF ou CNPJ <span className="text-red-500">*</span>

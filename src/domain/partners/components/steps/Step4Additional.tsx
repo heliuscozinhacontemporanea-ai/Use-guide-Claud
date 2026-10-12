@@ -228,7 +228,7 @@ export function Step4Additional({ formData: propFormData, setFormData }: Step4Ad
             </AnimatePresence>
           </div>
         </div>
-      ) : formData.category === 'restaurant' || formData.category === 'sight' ? (
+      ) : ['restaurant', 'sight', 'tour', 'transfer', 'rental'].includes(formData.category) ? (
         <div className="space-y-10">
           {/* Idiomas */}
           <div className="space-y-4">
@@ -254,106 +254,112 @@ export function Step4Additional({ formData: propFormData, setFormData }: Step4Ad
             </div>
           </div>
 
-          {/* Horários de Funcionamento */}
-          <div className="space-y-6">
-            <label className="text-[10px] font-black uppercase tracking-widest text-indigo-400 block ml-1">
-              Horários de Funcionamento
-            </label>
+          {/* Horários de funcionamento: passeio e translado têm horários próprios na oferta. */}
+          {formData.category !== 'tour' && formData.category !== 'transfer' && (
+            <>
+              <div className="space-y-6">
+                <label className="text-[10px] font-black uppercase tracking-widest text-indigo-400 block ml-1">
+                  Horários de Funcionamento
+                </label>
 
-            <div className="space-y-3">
-              {['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'].map((day) => {
-                const hours = (formData.operatingHours?.[day] || {
-                  open: '08:00',
-                  close: '22:00',
-                  closed: false,
-                }) as OperatingDay;
-                return (
-                  <div
-                    key={day}
-                    className="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-4"
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-black text-white uppercase tracking-widest">
-                        {day}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const currentHours = formData.operatingHours || {};
-                          const dayData = currentHours[day] || {
-                            open: '08:00',
-                            close: '22:00',
-                            closed: false,
-                          };
-                          updateFieldValue('operatingHours', {
-                            ...currentHours,
-                            [day]: { ...dayData, closed: !dayData.closed },
-                          });
-                        }}
-                        className={cn(
-                          'px-3 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-widest transition-all',
-                          hours.closed
-                            ? 'bg-red-500/20 text-red-400 border border-red-500/20'
-                            : 'bg-white/10 text-white/50 border border-white/10'
-                        )}
-                      >
-                        {hours.closed ? 'Fechado' : 'Aberto'}
-                      </button>
-                    </div>
+                <div className="space-y-3">
+                  {['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'].map(
+                    (day) => {
+                      const hours = (formData.operatingHours?.[day] || {
+                        open: '08:00',
+                        close: '22:00',
+                        closed: false,
+                      }) as OperatingDay;
+                      return (
+                        <div
+                          key={day}
+                          className="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-4"
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] font-black text-white uppercase tracking-widest">
+                              {day}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const currentHours = formData.operatingHours || {};
+                                const dayData = currentHours[day] || {
+                                  open: '08:00',
+                                  close: '22:00',
+                                  closed: false,
+                                };
+                                updateFieldValue('operatingHours', {
+                                  ...currentHours,
+                                  [day]: { ...dayData, closed: !dayData.closed },
+                                });
+                              }}
+                              className={cn(
+                                'px-3 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-widest transition-all',
+                                hours.closed
+                                  ? 'bg-red-500/20 text-red-400 border border-red-500/20'
+                                  : 'bg-white/10 text-white/50 border border-white/10'
+                              )}
+                            >
+                              {hours.closed ? 'Fechado' : 'Aberto'}
+                            </button>
+                          </div>
 
-                    {!hours.closed && (
-                      <div className="flex items-center gap-4 w-[90%]">
-                        <div className="flex-1 space-y-1">
-                          <span className="text-[8px] text-white/50 uppercase font-black ml-1">
-                            Abertura
-                          </span>
-                          <input
-                            type="time"
-                            value={hours.open || ''}
-                            onChange={(e) => {
-                              const currentHours = formData.operatingHours || {};
-                              const dayData = currentHours[day] || {
-                                open: '08:00',
-                                close: '22:00',
-                                closed: false,
-                              };
-                              updateFieldValue('operatingHours', {
-                                ...currentHours,
-                                [day]: { ...dayData, open: e.target.value },
-                              });
-                            }}
-                            className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white text-[10px] font-bold focus:ring-1 focus:ring-indigo-500/50 outline-none"
-                          />
+                          {!hours.closed && (
+                            <div className="flex items-center gap-4 w-[90%]">
+                              <div className="flex-1 space-y-1">
+                                <span className="text-[8px] text-white/50 uppercase font-black ml-1">
+                                  Abertura
+                                </span>
+                                <input
+                                  type="time"
+                                  value={hours.open || ''}
+                                  onChange={(e) => {
+                                    const currentHours = formData.operatingHours || {};
+                                    const dayData = currentHours[day] || {
+                                      open: '08:00',
+                                      close: '22:00',
+                                      closed: false,
+                                    };
+                                    updateFieldValue('operatingHours', {
+                                      ...currentHours,
+                                      [day]: { ...dayData, open: e.target.value },
+                                    });
+                                  }}
+                                  className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white text-[10px] font-bold focus:ring-1 focus:ring-indigo-500/50 outline-none"
+                                />
+                              </div>
+                              <div className="flex-1 space-y-1">
+                                <span className="text-[8px] text-white/50 uppercase font-black ml-1">
+                                  Fechamento
+                                </span>
+                                <input
+                                  type="time"
+                                  value={hours.close || ''}
+                                  onChange={(e) => {
+                                    const currentHours = formData.operatingHours || {};
+                                    const dayData = currentHours[day] || {
+                                      open: '08:00',
+                                      close: '22:00',
+                                      closed: false,
+                                    };
+                                    updateFieldValue('operatingHours', {
+                                      ...currentHours,
+                                      [day]: { ...dayData, close: e.target.value },
+                                    });
+                                  }}
+                                  className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white text-[10px] font-bold focus:ring-1 focus:ring-indigo-500/50 outline-none"
+                                />
+                              </div>
+                            </div>
+                          )}
                         </div>
-                        <div className="flex-1 space-y-1">
-                          <span className="text-[8px] text-white/50 uppercase font-black ml-1">
-                            Fechamento
-                          </span>
-                          <input
-                            type="time"
-                            value={hours.close || ''}
-                            onChange={(e) => {
-                              const currentHours = formData.operatingHours || {};
-                              const dayData = currentHours[day] || {
-                                open: '08:00',
-                                close: '22:00',
-                                closed: false,
-                              };
-                              updateFieldValue('operatingHours', {
-                                ...currentHours,
-                                [day]: { ...dayData, close: e.target.value },
-                              });
-                            }}
-                            className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white text-[10px] font-bold focus:ring-1 focus:ring-indigo-500/50 outline-none"
-                          />
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+                      );
+                    }
+                  )}
+                </div>
+              </div>
+            </>
+          )}
         </div>
       ) : (
         <div className="py-20 text-center">
