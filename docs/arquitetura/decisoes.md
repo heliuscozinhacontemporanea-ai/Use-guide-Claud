@@ -76,3 +76,12 @@
 * **Decisão:** o HTML das rotas de conteúdo passa pelo Cloud Run (`serverSeoService`) com cache na CDN do Hosting (`Cache-Control: public, max-age=0, s-maxage=300`). Arquivos estáticos continuam servidos direto pelo Hosting. `min-instances=1` no Cloud Run.
 * `sitemap.xml` gerado dinamicamente pelo backend a partir do catálogo publicado.
 * **Prompt:** 8.
+
+## D8 — Painel admin: selo, suspensão e planos (2026-10-12)
+
+* **Selo pelo admin:** o admin só concede ou retira o selo; o servidor decide tipo e validade. Com plano pago ou trial em vigor, o plano nunca é alterado: retirar o selo marca `isVerificationSuspended`, conceder desfaz a suspensão. Sem plano, o admin concede o selo `verificationType: 'admin'` por um ano. Renovação de plano mantém uma suspensão feita pelo admin.
+* **Suspender:** grava `status: 'suspended'` e bloqueia o parceiro: perde o papel de parceiro no servidor (itens e eventos) e o portal mostra "conta suspensa". "Reativar" volta para `active`; "Aprovar" leva `pending` → `active`.
+* **Preço dos planos em centavos inteiros** (sem migração; dados de teste recriados).
+* **Oferta de reserva só é publicada com o Stripe do parceiro pronto** (bloqueio no servidor e botão desabilitado com explicação).
+* **Editor único** de item e evento para parceiro e admin (Prompts 18–19).
+* **Prompt:** 17, 17.1, 17.2, 18, 19.

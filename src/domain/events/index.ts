@@ -24,3 +24,4 @@ export type {
   EventOccurrence,
   UpdateEventListingInput,
 } from './types/event';
+export { CUSTOM_EVENT_CATEGORY, EVENT_CATEGORIES } from './constants/eventCategories';

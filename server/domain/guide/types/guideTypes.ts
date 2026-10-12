@@ -1,4 +1,4 @@
-export type GuideVerificationType = 'trial' | 'monthly' | 'semi-annual' | 'annual' | null;
+export type GuideVerificationType = 'trial' | 'monthly' | 'semi-annual' | 'annual' | 'admin' | null;
 
 export type GuideItemCategory = 'restaurant' | 'sight' | 'tour' | 'tips' | 'hotel';
 

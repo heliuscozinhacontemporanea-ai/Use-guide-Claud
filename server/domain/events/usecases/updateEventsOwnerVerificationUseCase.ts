@@ -5,7 +5,7 @@ export async function updateEventsOwnerVerificationUseCase(
   verification: {
     isVerified: boolean;
     verifiedUntil: string | null;
-    verificationType: 'trial' | 'monthly' | 'semi-annual' | 'annual' | null;
+    verificationType: 'trial' | 'monthly' | 'semi-annual' | 'annual' | 'admin' | null;
     isVerificationSuspended: boolean;
   }
 ): Promise<void> {

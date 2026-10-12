@@ -101,6 +101,7 @@ describe('getAdminPartnersUseCase (anti-N+1)', () => {
         'email',
         'firstName',
         'id',
+        'isVerificationSuspended',
         'isVerified',
         'lastName',
         'status',

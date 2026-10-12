@@ -1,11 +1,23 @@
 import React from 'react';
 import { useFieldArray, useFormContext } from 'react-hook-form';
 import { Plus, Trash2 } from 'lucide-react';
-import { isoToLocalDateTime, localDateTimeToIso } from '../../../partners/utils/dateTime';
+import {
+  businessDateTimeToIso,
+  isoToBusinessDateTime,
+} from '../../../../shared/utils/businessDateTime';
+import { CUSTOM_EVENT_CATEGORY, EVENT_CATEGORIES } from '../../../events';
 import { PartnerEventTicketingManager } from '../../../ticketing';
 import type { AdminGuideEditorSchemaValues } from '../../schemas/adminGuideEditorFormSchema';
 
-export function AdminEditorEventFields({ eventListingId }: { eventListingId?: string }) {
+interface AdminEditorEventFieldsProps {
+  eventListingId?: string;
+  occurrencesState: 'idle' | 'loading' | 'ready' | 'error';
+}
+
+export function AdminEditorEventFields({
+  eventListingId,
+  occurrencesState,
+}: AdminEditorEventFieldsProps) {
   const { control, register, setValue, watch } = useFormContext<AdminGuideEditorSchemaValues>();
   const { fields, append, remove } = useFieldArray({
     control,
@@ -13,9 +25,59 @@ export function AdminEditorEventFields({ eventListingId }: { eventListingId?: st
   });
 
   const occurrences = watch('occurrences') || [];
+  const eventCategory = watch('eventCategory') || '';
 
   return (
     <div className="space-y-4" id="event-occurrences-section">
+      <div className="space-y-1.5 px-2">
+        <label
+          htmlFor="admin-event-category"
+          className="text-[10px] font-black uppercase tracking-[0.2em] text-teal-400/50"
+        >
+          Categoria do Evento
+        </label>
+        <select
+          id="admin-event-category"
+          value={eventCategory}
+          onChange={(e) => {
+            setValue('eventCategory', e.target.value, { shouldDirty: true });
+            if (e.target.value !== CUSTOM_EVENT_CATEGORY) {
+              setValue('customCategory', '', { shouldDirty: true });
+            }
+          }}
+          className="w-full min-h-[44px] bg-white/[0.03] border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-teal-500/50"
+        >
+          <option value="">Selecione uma categoria...</option>
+          {EVENT_CATEGORIES.map((cat) => (
+            <option key={cat} value={cat}>
+              {cat}
+            </option>
+          ))}
+        </select>
+        {eventCategory === CUSTOM_EVENT_CATEGORY && (
+          <input
+            type="text"
+            aria-label="Nome da categoria"
+            placeholder="Nome da categoria"
+            maxLength={200}
+            {...register('customCategory')}
+            className="w-full min-h-[44px] bg-white/[0.03] border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-teal-500/50"
+          />
+        )}
+      </div>
+
+      {occurrencesState === 'loading' && (
+        <p role="status" className="px-2 text-xs text-white/60">
+          Carregando as sessões do evento...
+        </p>
+      )}
+      {occurrencesState === 'error' && (
+        <p role="alert" className="px-2 text-xs text-rose-300">
+          Não foi possível carregar as sessões deste evento. Feche e abra o editor de novo antes de
+          salvar.
+        </p>
+      )}
+      <p className="px-2 text-[11px] text-white/60">Horários no fuso de Fortaleza (UTC−3).</p>
       <div className="flex items-center justify-between px-2">
         <label className="text-[10px] font-black uppercase tracking-[0.2em] text-teal-400/50">
           Ocorrências do Evento
@@ -68,9 +130,9 @@ export function AdminEditorEventFields({ eventListingId }: { eventListingId?: st
                 </label>
                 <input
                   type="datetime-local"
-                  value={isoToLocalDateTime(occ?.startsAt)}
+                  value={isoToBusinessDateTime(occ?.startsAt)}
                   onChange={(e) => {
-                    const iso = localDateTimeToIso(e.target.value);
+                    const iso = businessDateTimeToIso(e.target.value);
                     setValue(`occurrences.${index}.startsAt`, iso, {
                       shouldDirty: true,
                       shouldValidate: true,
@@ -89,9 +151,9 @@ export function AdminEditorEventFields({ eventListingId }: { eventListingId?: st
                 </label>
                 <input
                   type="datetime-local"
-                  value={isoToLocalDateTime(occ?.endsAt)}
+                  value={isoToBusinessDateTime(occ?.endsAt)}
                   onChange={(e) => {
-                    const iso = localDateTimeToIso(e.target.value);
+                    const iso = businessDateTimeToIso(e.target.value);
                     setValue(`occurrences.${index}.endsAt`, iso, {
                       shouldDirty: true,
                       shouldValidate: true,

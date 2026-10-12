@@ -106,7 +106,7 @@ export function PlansModal({
       const activeOption = plans.find((p) => p.id === selectedPlan);
       if (activeOption) {
         onSelectPaidPlan(
-          `partner_verification_${activeOption.id}`,
+          activeOption.id,
           `Selo de Empresa Verificada - ${activeOption.name}`,
           activeOption.price
         );

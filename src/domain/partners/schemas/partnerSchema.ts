@@ -341,47 +341,8 @@ export const updatePartnerVerificationSchema = z
   .object({
     partnerId: z.string().min(1),
     isVerified: z.boolean(),
-    verifiedUntil: z
-      .string()
-      .datetime({
-        offset: true,
-      })
-      .nullable(),
-    verificationType: z.enum(['trial', 'monthly', 'semi-annual', 'annual']).nullable(),
   })
-  .superRefine((data, ctx) => {
-    if (data.isVerified && !data.verifiedUntil) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['verifiedUntil'],
-        message: 'verifiedUntil é obrigatório quando isVerified=true.',
-      });
-    }
-
-    if (data.isVerified && !data.verificationType) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['verificationType'],
-        message: 'verificationType é obrigatório quando isVerified=true.',
-      });
-    }
-
-    if (!data.isVerified && data.verifiedUntil !== null) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['verifiedUntil'],
-        message: 'verifiedUntil deve ser null quando isVerified=false.',
-      });
-    }
-
-    if (!data.isVerified && data.verificationType !== null) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['verificationType'],
-        message: 'verificationType deve ser null quando isVerified=false.',
-      });
-    }
-  });
+  .strict();
 
 export type PartnerSubmissionInput = z.infer<typeof partnerSubmissionSchema>;
 export type UpdatePartnerStatusInput = z.infer<typeof updatePartnerStatusSchema>;

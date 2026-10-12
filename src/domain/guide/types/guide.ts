@@ -71,7 +71,7 @@ export interface GuideItem {
   isVerified?: boolean;
   verifiedUntil?: string | null;
   isVerificationSuspended?: boolean;
-  verificationType?: 'trial' | 'monthly' | 'semi-annual' | 'annual' | null;
+  verificationType?: 'trial' | 'monthly' | 'semi-annual' | 'annual' | 'admin' | null;
   operationalInfo?: GuideItemOperationalInfo;
   isActive?: boolean;
   date?: string;

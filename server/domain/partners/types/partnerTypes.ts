@@ -2,7 +2,14 @@ export type PartnerStatus = 'active' | 'pending' | 'suspended';
 
 export type PartnerCategory = 'sight' | 'hotel' | 'restaurant' | 'event';
 
-export type PartnerVerificationType = 'trial' | 'monthly' | 'semi-annual' | 'annual' | null;
+/** `admin`: selo concedido pelo admin, sem plano pago. */
+export type PartnerVerificationType =
+  | 'trial'
+  | 'monthly'
+  | 'semi-annual'
+  | 'annual'
+  | 'admin'
+  | null;
 
 export type PartnerBusinessType = 'item' | 'event';
 

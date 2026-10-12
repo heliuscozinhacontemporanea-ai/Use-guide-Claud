@@ -1,11 +1,8 @@
-import {
-  getPartnerProfileUseCase,
-  updatePartnerVerificationProfileUseCase,
-} from '../../domain/partners';
-import { updateOwnerVerificationUseCase } from '../../domain/guide';
-import { updateEventsOwnerVerificationUseCase } from '../../domain/events';
+import { getPartnerProfileUseCase } from '../../domain/partners';
 import type { PartnerVerificationType } from '../../domain/partners';
+import { applyPartnerVerification } from './applyPartnerVerification';
 
+/** Selo vindo de plano (pagamento ou renovação). Uma suspensão do selo feita pelo admin é mantida. */
 export async function verifyPartnerApplicationUseCase(
   partnerId: string,
   isVerified: boolean,
@@ -18,33 +15,14 @@ export async function verifyPartnerApplicationUseCase(
     throw new Error('Perfil de parceiro não encontrado.');
   }
 
-  const verification = {
-    isVerified,
-    verifiedUntil,
-    verificationType,
-    isVerificationSuspended: false,
-  };
-
-  await updatePartnerVerificationProfileUseCase(partnerId, verification);
-
-  try {
-    await updateOwnerVerificationUseCase(partnerId, verification);
-    await updateEventsOwnerVerificationUseCase(partnerId, verification);
-  } catch (error) {
-    try {
-      await updatePartnerVerificationProfileUseCase(partnerId, {
-        isVerified: previous.isVerified,
-        verifiedUntil: previous.verifiedUntil,
-        verificationType: previous.verificationType,
-        isVerificationSuspended: previous.isVerificationSuspended,
-      });
-    } catch (rollbackError) {
-      console.error(
-        '[verifyPartnerApplicationUseCase] Falha no rollback do Partner:',
-        rollbackError
-      );
-    }
-
-    throw error;
-  }
+  await applyPartnerVerification(
+    partnerId,
+    {
+      isVerified,
+      verifiedUntil,
+      verificationType,
+      isVerificationSuspended: isVerified ? previous.isVerificationSuspended : false,
+    },
+    previous
+  );
 }

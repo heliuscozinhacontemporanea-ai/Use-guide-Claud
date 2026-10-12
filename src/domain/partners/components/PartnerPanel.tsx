@@ -51,13 +51,15 @@ export interface PartnerPanelProps {
     itemId: string;
     itemName: string;
     amount: number;
-    onPaymentSuccess: () => Promise<void>;
+    onPaymentSuccess: () => void;
   }) => React.ReactNode;
   renderEventTicketingManager?: (eventListingId: string) => React.ReactNode;
   planSubscriptionSlot?: React.ReactNode;
   renderBookableOffersManager?: (
     items: Array<{ id: string; name: string; category: string }>
   ) => React.ReactNode;
+  /** Chamado ao fechar o checkout depois de um pagamento confirmado, para recarregar o perfil. */
+  onPlanPurchased?: () => void;
 }
 
 export function PartnerPanel({
@@ -69,6 +71,7 @@ export function PartnerPanel({
   renderEventTicketingManager,
   planSubscriptionSlot,
   renderBookableOffersManager,
+  onPlanPurchased,
 }: PartnerPanelProps) {
   const { goTo } = useLocalizedRouting();
 
@@ -111,11 +114,17 @@ export function PartnerPanel({
     amount: 0,
   });
 
-  const handleCheckoutSuccess = async () => {
+  // O modal mostra a própria tela de sucesso; o perfil é recarregado quando o parceiro fecha.
+  const planPurchasedRef = useRef(false);
+  const handleCheckoutSuccess = () => {
+    planPurchasedRef.current = true;
+  };
+  const handleCheckoutClose = () => {
     setShowCheckoutModal(false);
-    console.info(
-      '[Checkout Success] Pagamento concluído. O status e a verificação serão sincronizados automaticamente pelo servidor/webhook.'
-    );
+    if (planPurchasedRef.current) {
+      planPurchasedRef.current = false;
+      onPlanPurchased?.();
+    }
   };
 
   const phoneRef = useRef<PhoneInputFieldRef | null>(null);
@@ -588,7 +597,7 @@ export function PartnerPanel({
 
       {renderCheckoutModal?.({
         isOpen: showCheckoutModal,
-        onClose: () => setShowCheckoutModal(false),
+        onClose: handleCheckoutClose,
         itemId: checkoutPlanInfo.itemId,
         itemName: checkoutPlanInfo.itemName,
         amount: checkoutPlanInfo.amount,

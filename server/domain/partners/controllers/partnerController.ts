@@ -1,7 +1,7 @@
 import { Response } from 'express';
 import { activatePartnerTrialApplicationUseCase } from '../../../application/usecases/activatePartnerTrialApplicationUseCase';
 import { registerPartnerApplicationUseCase } from '../../../application/usecases/registerPartnerApplicationUseCase';
-import { verifyPartnerApplicationUseCase } from '../../../application/usecases/verifyPartnerApplicationUseCase';
+import { setPartnerVerificationByAdminApplicationUseCase } from '../../../application/usecases/setPartnerVerificationByAdminApplicationUseCase';
 import { AuthenticatedRequest } from '../../../infrastructure/auth/authMiddleware';
 import { RegisterPartnerDTO } from '../dtos/RegisterPartnerDTO';
 import { VerifyPartnerDTO } from '../dtos/VerifyPartnerDTO';
@@ -93,12 +93,7 @@ export class PartnerController {
       }
 
       const dto = VerifyPartnerDTO.fromValidatedInput(parsed.data);
-      await verifyPartnerApplicationUseCase(
-        dto.partnerId,
-        dto.isVerified,
-        dto.verifiedUntil,
-        dto.verificationType
-      );
+      await setPartnerVerificationByAdminApplicationUseCase(dto.partnerId, dto.isVerified);
       return res
         .status(200)
         .json({ status: 'success', message: 'Selo de verificação atualizado com sucesso' });

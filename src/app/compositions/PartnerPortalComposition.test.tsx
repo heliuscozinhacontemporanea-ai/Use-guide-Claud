@@ -61,3 +61,18 @@ describe('PartnerPortalComposition', () => {
     expect(screen.getByRole('button', { name: 'Voltar ao início' })).toBeTruthy();
   });
 });
+
+describe('PartnerPortalComposition — parceiro suspenso', () => {
+  it('mostra o aviso de suspensão em vez do painel', async () => {
+    const { getPartnerProfileUseCase } = await import('../../domain/partners');
+    vi.mocked(getPartnerProfileUseCase).mockResolvedValue({
+      id: 'p1',
+      status: 'suspended',
+    } as never);
+    authState.value = { user: { uid: 'p1', role: UserRole.PARTNER }, loading: false };
+    await i18n.changeLanguage('pt-BR');
+    renderPortal();
+    expect(await screen.findByText('Conta de parceiro suspensa')).toBeTruthy();
+    expect(screen.queryByText('partner-panel')).toBeNull();
+  });
+});

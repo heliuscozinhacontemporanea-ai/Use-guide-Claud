@@ -157,6 +157,8 @@ export interface TranslationResource {
     partnerOnly: string;
     partnerProfileNotFound: string;
     partnerProfileLoadError: string;
+    partnerSuspendedTitle: string;
+    partnerSuspended: string;
   };
   settings: {
     title: string;
@@ -361,6 +363,8 @@ const ptBR: TranslationResource = {
     partnerOnly: 'Este painel é exclusivo para parceiros cadastrados.',
     partnerProfileNotFound: 'Não encontramos o seu cadastro de parceiro.',
     partnerProfileLoadError: 'Não foi possível carregar o seu cadastro de parceiro.',
+    partnerSuspendedTitle: 'Conta de parceiro suspensa',
+    partnerSuspended: 'Seu acesso ao painel foi suspenso pela equipe do Use Guide. Fale com o suporte para saber como reativar.',
   },
   settings: {
     title: 'Configurações',
@@ -568,6 +572,8 @@ const en: TranslationResource = {
     partnerOnly: 'This dashboard is only for registered partners.',
     partnerProfileNotFound: 'We couldn’t find your partner registration.',
     partnerProfileLoadError: 'We couldn’t load your partner registration.',
+    partnerSuspendedTitle: 'Partner account suspended',
+    partnerSuspended: 'Your dashboard access was suspended by the Use Guide team. Contact support to find out how to reactivate it.',
   },
   settings: {
     title: 'Settings',
@@ -780,6 +786,8 @@ const fr: TranslationResource = {
     partnerOnly: 'Ce tableau de bord est réservé aux partenaires inscrits.',
     partnerProfileNotFound: 'Nous n’avons pas trouvé votre inscription de partenaire.',
     partnerProfileLoadError: 'Impossible de charger votre inscription de partenaire.',
+    partnerSuspendedTitle: 'Compte partenaire suspendu',
+    partnerSuspended: 'Votre accès au tableau de bord a été suspendu par l’équipe Use Guide. Contactez le support pour savoir comment le réactiver.',
   },
   settings: {
     title: 'Paramètres',

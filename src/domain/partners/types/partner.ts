@@ -64,7 +64,13 @@ export interface PartnerSubmissionData {
   sightPrice?: string;
 }
 
-export type PartnerVerificationType = 'trial' | 'monthly' | 'semi-annual' | 'annual' | null;
+export type PartnerVerificationType =
+  | 'trial'
+  | 'monthly'
+  | 'semi-annual'
+  | 'annual'
+  | 'admin'
+  | null;
 
 export interface PartnerProfile {
   id: string;

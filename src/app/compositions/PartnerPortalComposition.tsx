@@ -25,6 +25,7 @@ export function PartnerPortalComposition() {
   const [profileLoading, setProfileLoading] = useState(true);
   const [profileError, setProfileError] = useState<string | null>(null);
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
+  const [profileVersion, setProfileVersion] = useState(0);
 
   useEffect(() => {
     let active = true;
@@ -58,7 +59,8 @@ export function PartnerPortalComposition() {
     }
 
     let active = true;
-    setProfileLoading(true);
+    // Recarga depois da compra de plano: mantém o painel na tela em vez do carregamento inicial.
+    setProfileLoading(profileVersion === 0);
     setProfileError(null);
 
     getPartnerProfileUseCase(user.uid)
@@ -90,7 +92,7 @@ export function PartnerPortalComposition() {
     return () => {
       active = false;
     };
-  }, [user, loading]);
+  }, [user, loading, profileVersion]);
 
   if (loading || profileLoading) {
     return (
@@ -112,6 +114,18 @@ export function PartnerPortalComposition() {
     );
   }
 
+  if (profile?.status === 'suspended') {
+    return (
+      <MessagePage
+        icon={ShieldAlert}
+        title={t('pages.partnerSuspendedTitle')}
+        description={t('pages.partnerSuspended')}
+        actionLabel={t('pages.backHome')}
+        onAction={() => goTo('explore')}
+      />
+    );
+  }
+
   // O portal esconde o cabeçalho e a navegação; a ação leva de volta ao guia.
   if (profileError || !profile) {
     return (
@@ -127,7 +141,9 @@ export function PartnerPortalComposition() {
 
   return (
     <PartnerPanel
+      key={profileVersion}
       profile={profile}
+      onPlanPurchased={() => setProfileVersion((version) => version + 1)}
       subscriptionPlans={plans}
       renderReports={({ partnerId, items, events }) => (
         <ReportsView partnerId={partnerId} items={items} events={events} />

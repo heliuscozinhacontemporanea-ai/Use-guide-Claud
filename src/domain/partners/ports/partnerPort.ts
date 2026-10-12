@@ -1,8 +1,4 @@
-import {
-  PartnerProfile,
-  PartnerRegistrationPayload,
-  PartnerVerificationType,
-} from '../types/partner';
+import { PartnerProfile, PartnerRegistrationPayload } from '../types/partner';
 
 export interface PartnerPort {
   registerPartner(payload: PartnerRegistrationPayload): Promise<void>;
@@ -10,11 +6,6 @@ export interface PartnerPort {
   getPartnerProfile(partnerId: string): Promise<PartnerProfile | null>;
   getAllPartners(): Promise<PartnerProfile[]>;
   updatePartnerStatus(partnerId: string, status: 'active' | 'pending' | 'suspended'): Promise<void>;
-  updatePartnerVerification(
-    partnerId: string,
-    isVerified: boolean,
-    verifiedUntil: string | null,
-    verificationType: PartnerVerificationType
-  ): Promise<void>;
+  updatePartnerVerification(partnerId: string, isVerified: boolean): Promise<void>;
   deletePartnerProfile(partnerId: string): Promise<void>;
 }

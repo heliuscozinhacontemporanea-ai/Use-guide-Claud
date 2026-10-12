@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import React from 'react';
 import { VerifiedBadge } from '../../../../ui/components/VerifiedBadge';
 import { PartnerProfile } from '../../types/partner';
+import { cn } from '../../../../shared/utils/cn';
 
 interface PartnerHeaderProps {
   partnerProfile: PartnerProfile | null;
@@ -12,15 +13,16 @@ interface PartnerHeaderProps {
   notificationBell?: React.ReactNode;
 }
 
-const getPlanName = (type: string | null | undefined): string => {
-  if (!type) return 'Trial';
-  const val = type.toLowerCase();
-  if (val === 'trial') return 'Trial';
-  if (val === 'mensal') return 'Mensal';
-  if (val === 'semestral') return 'Semestral';
-  if (val === 'anual') return 'Anual';
-  return type.charAt(0).toUpperCase() + type.slice(1);
+const PLAN_SUBTITLE: Record<string, string> = {
+  trial: 'Teste grátis',
+  monthly: 'Assinante plano “Mensal”',
+  'semi-annual': 'Assinante plano “Semestral”',
+  annual: 'Assinante plano “Anual”',
+  admin: 'Selo concedido pela equipe Use Guide',
 };
+
+const getPlanSubtitle = (type: string | null | undefined): string =>
+  (type && PLAN_SUBTITLE[type]) || 'Selo de empresa verificada';
 
 export function PartnerHeader({
   partnerProfile,
@@ -64,9 +66,15 @@ export function PartnerHeader({
               Status da Conta
             </div>
             <div className="flex items-center gap-2 mt-1">
-              <div className="w-2 h-2 rounded-full bg-emerald-500" />
+              <div
+                className={cn(
+                  'w-2 h-2 rounded-full',
+                  partnerProfile?.status === 'pending' ? 'bg-amber-500' : 'bg-emerald-500'
+                )}
+                aria-hidden="true"
+              />
               <span className="text-[10px] font-semibold text-white">
-                {partnerProfile?.status || 'Ativo'}
+                {partnerProfile?.status === 'pending' ? 'Em análise' : 'Ativo'}
               </span>
             </div>
           </div>
@@ -92,7 +100,7 @@ export function PartnerHeader({
                   Sua empresa é verificada
                 </span>
                 <p className="text-[10px] text-blue-400 font-extrabold uppercase tracking-widest mt-1">
-                  Assinante plano “{getPlanName(partnerProfile?.verificationType)}”
+                  {getPlanSubtitle(partnerProfile?.verificationType)}
                 </p>
               </div>
             </>
