@@ -58,13 +58,7 @@ describe('FavoritesList', () => {
     expect(screen.getByText('Passeio Lagoa do Paraíso')).toBeTruthy();
     fireEvent.click(screen.getByText('Passeio Lagoa do Paraíso'));
 
-    expect(onSelectItem).toHaveBeenCalledWith(
-      expect.objectContaining({
-        id: 'item-123',
-        category: 'tour',
-        name: 'Passeio Lagoa do Paraíso',
-      })
-    );
+    expect(onSelectItem).toHaveBeenCalledWith({ id: 'item-123', category: 'tour' });
   });
 
   it('chama removeFavoriteItem ao clicar no botão de remover', () => {
