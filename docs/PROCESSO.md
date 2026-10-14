@@ -57,9 +57,16 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 | 13 | D3 bookings — painel do parceiro | `53b8064` | ✅ zip 2026-10-12 | ✅ idêntico à referência |
 | 14 | D3 bookings — compra pelo turista | `d70d0d0` | ✅ zip 2026-10-12 | ✅ idêntico + 3 correções do AI Studio fora do escopo, corretas e adotadas; `.env.example` com valores reais → prompt 14.1 |
 | 14.1 | Functions: segredo e parâmetros; `.env.example` | `9368be2` | ⏳ enviar (lote 7) | — |
-| 15 | Um UseCase por arquivo | `f565f7b` | ⏳ enviar (lote 7) | — |
-| 16 | UX do menu e dos fluxos do usuário | `2ab647c` | ⏳ enviar (lote 8) | — |
-| A2 | AGENTS.md §13 sem agregadores (S9 aprovada) | `ec5533f` | ⏳ enviar (lote 8) | — |
+| 15 | Um UseCase por arquivo | `f565f7b` | ✅ zip 2026-10-14 | ✅ igual à referência |
+| 16 | UX do menu e dos fluxos do usuário | `2ab647c` | ✅ zip 2026-10-14 | ⚠️ código igual + mudanças fora do escopo (B15 resolvido com `any`, taxa da plataforma, `solicitacoes-agents.md` reescrito) → prompt 16.1 |
+| A2 | AGENTS.md §13 sem agregadores (S9 aprovada) | `ec5533f` | ✅ zip 2026-10-14 | ✅ igual à referência |
+| — | Padronização das Functions (feita pelo AI Studio, fora dos prompts) | — | ✅ zip 2026-10-14 | ✅ `checkExpiringPlans` passa a chamar `/internal/partners/check-expiring-plans` como os outros jobs (adotado); `firebase-admin` removido do `functions/package.json` sem atualizar o lock → prompt 16.1 |
+| 16.1 | Ajustes do lote 7/8 | `6022c0b` | ⏳ enviar (lote 9) | — |
+| 17 | Correções urgentes dos painéis | `d8125a7` | ⏳ enviar (lote 9) | — |
+| 17.1 | Planos em centavos | `f036c3e` | ⏳ enviar (lote 9) | — |
+| 17.2 | Oferta só com Stripe pronto | `5d66eea` | ⏳ enviar (lote 9) | — |
+| 18 | Vários cadastros, categorias novas, telefone E.164 | `37b8a4b` | ⏳ enviar (lote 10) | — |
+| 18.1 | Inscrição e editor com passeio/translado/aluguel | `ee0ac2d` | ⏳ enviar (lote 10) | — |
 
 ## Gates
 
