@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { listEventOccurrencesUseCase } from '../application/usecases/eventUseCases';
+import { listEventOccurrencesUseCase } from '../application/usecases/listEventOccurrencesUseCase';
 import type { EventOccurrence } from '../types/event';
 
 export function useEventOccurrences(eventListingId: string | undefined | null) {

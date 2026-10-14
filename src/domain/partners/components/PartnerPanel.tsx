@@ -12,7 +12,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { AnimatePresence, motion } from 'motion/react';
 import React, { useEffect, useRef } from 'react';
 import { FormProvider, useForm, type Resolver } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
 import { Z_INDEX } from '../../../shared/constants/zIndex';
 
 // Componentes estruturais e utilitários da UI
@@ -35,6 +34,7 @@ import { PartnerHeader } from './subcomponents/PartnerHeader';
 import { PartnerItemsTable } from './subcomponents/PartnerItemsTable';
 import { PartnerTabsNavigation } from './subcomponents/PartnerTabsNavigation';
 import { PlansModal } from './subcomponents/PlansModal';
+import { useLocalizedRouting } from '../../../shared/hooks/useLocalizedRouting';
 
 export interface PartnerPanelProps {
   profile?: PartnerProfile;
@@ -70,7 +70,7 @@ export function PartnerPanel({
   planSubscriptionSlot,
   renderBookableOffersManager,
 }: PartnerPanelProps) {
-  const navigate = useNavigate();
+  const { goTo } = useLocalizedRouting();
 
   const {
     user,
@@ -194,7 +194,7 @@ export function PartnerPanel({
           Este é o portal exclusivo para parceiros cadastrados.
         </p>
         <button
-          onClick={() => navigate('/')}
+          onClick={() => goTo('explore')}
           className="px-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-[11px] font-semibold tracking-wide text-white"
         >
           Voltar
@@ -212,7 +212,7 @@ export function PartnerPanel({
       >
         <PartnerHeader
           partnerProfile={partnerProfile}
-          onNavigateBack={() => navigate('/')}
+          onNavigateBack={() => goTo('explore')}
           isVerified={isVerified}
           onVerifyClick={() => setShowPlansModal(true)}
           notificationBell={renderNotificationBell?.(partnerProfile?.id || '')}

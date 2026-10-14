@@ -18,13 +18,11 @@ import { useAuthContext } from '../../auth/context/AuthContext';
 import { useEventOccurrences, type EventOccurrence } from '../../events';
 import { StripePaymentElement } from '../../payment';
 import { GlassCard } from '../../../ui/components/GlassCard';
-import {
-  confirmTicketOrderPaymentReturnUseCase,
-  createTicketOrderPaymentIntentUseCase,
-  createTicketOrderUseCase,
-  expireTicketOrderUseCase,
-  getTicketOrderUseCase,
-} from '../application/usecases/ticketingUseCases';
+import { confirmTicketOrderPaymentReturnUseCase } from '../application/usecases/confirmTicketOrderPaymentReturnUseCase';
+import { createTicketOrderPaymentIntentUseCase } from '../application/usecases/createTicketOrderPaymentIntentUseCase';
+import { createTicketOrderUseCase } from '../application/usecases/createTicketOrderUseCase';
+import { expireTicketOrderUseCase } from '../application/usecases/expireTicketOrderUseCase';
+import { getTicketOrderUseCase } from '../application/usecases/getTicketOrderUseCase';
 import { useCheckoutCountdown } from '../hooks/useCheckoutCountdown';
 import { usePublicTicketTypes } from '../hooks/useTicketTypes';
 import {

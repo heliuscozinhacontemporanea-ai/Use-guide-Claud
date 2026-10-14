@@ -1,7 +1,13 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { deleteCurrentUserUseCase } from './deleteCurrentUserUseCase';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  getIdTokenUseCase,
+  hasPasswordSignInUseCase,
+  logoutUseCase,
+  reauthenticateUseCase,
+  reauthenticateWithGoogleUseCase,
+} from '../../../auth';
 import { userAdapter } from '../../factory';
-import { reauthenticateUseCase, getIdTokenUseCase, logoutUseCase } from '../../../auth';
+import { deleteCurrentUserUseCase } from './deleteCurrentUserUseCase';
 
 vi.mock('../../factory', () => ({
   userAdapter: {
@@ -11,6 +17,8 @@ vi.mock('../../factory', () => ({
 
 vi.mock('../../../auth', () => ({
   reauthenticateUseCase: vi.fn(),
+  reauthenticateWithGoogleUseCase: vi.fn(),
+  hasPasswordSignInUseCase: vi.fn(),
   getIdTokenUseCase: vi.fn(),
   logoutUseCase: vi.fn(),
 }));
@@ -18,57 +26,48 @@ vi.mock('../../../auth', () => ({
 describe('deleteCurrentUserUseCase', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(logoutUseCase).mockResolvedValue(undefined);
+    vi.mocked(getIdTokenUseCase).mockResolvedValue('fresh-token');
   });
 
-  it('deve reautenticar, renovar token, excluir conta e deslogar quando email e senha forem fornecidos', async () => {
-    vi.mocked(reauthenticateUseCase).mockResolvedValueOnce(undefined as any);
-    vi.mocked(getIdTokenUseCase).mockResolvedValueOnce('fresh-token');
-    vi.mocked(userAdapter.deleteCurrentUser).mockResolvedValueOnce(undefined);
-    vi.mocked(logoutUseCase).mockResolvedValueOnce(undefined);
+  it('conta com senha: reautentica com a senha, renova o token, exclui e desloga', async () => {
+    vi.mocked(hasPasswordSignInUseCase).mockReturnValue(true);
 
     await deleteCurrentUserUseCase('test@example.com', 'ValidPass123!');
 
     expect(reauthenticateUseCase).toHaveBeenCalledWith('test@example.com', 'ValidPass123!');
+    expect(reauthenticateWithGoogleUseCase).not.toHaveBeenCalled();
     expect(getIdTokenUseCase).toHaveBeenCalledWith(true);
     expect(userAdapter.deleteCurrentUser).toHaveBeenCalledTimes(1);
     expect(logoutUseCase).toHaveBeenCalledTimes(1);
   });
 
-  it('deve permitir exclusão direta sem credenciais (ex: provedor Google autenticado recentemente)', async () => {
-    vi.mocked(userAdapter.deleteCurrentUser).mockResolvedValueOnce(undefined);
-    vi.mocked(logoutUseCase).mockResolvedValueOnce(undefined);
+  it('conta só com Google: confirma pelo popup do Google, sem pedir senha', async () => {
+    vi.mocked(hasPasswordSignInUseCase).mockReturnValue(false);
 
-    await deleteCurrentUserUseCase();
+    await deleteCurrentUserUseCase('google@example.com');
 
+    expect(reauthenticateWithGoogleUseCase).toHaveBeenCalledTimes(1);
     expect(reauthenticateUseCase).not.toHaveBeenCalled();
     expect(userAdapter.deleteCurrentUser).toHaveBeenCalledTimes(1);
-    expect(logoutUseCase).toHaveBeenCalledTimes(1);
   });
 
-  it('deve lidar com REAUTHENTICATION_REQUIRED e tentar reautenticar se credenciais estiverem disponíveis', async () => {
-    const reauthErr = new Error('REAUTHENTICATION_REQUIRED');
-    (reauthErr as any).code = 'REAUTHENTICATION_REQUIRED';
+  it('conta com senha sem a senha informada: não exclui', async () => {
+    vi.mocked(hasPasswordSignInUseCase).mockReturnValue(true);
 
-    vi.mocked(reauthenticateUseCase).mockResolvedValue(undefined as any);
-    vi.mocked(getIdTokenUseCase).mockResolvedValue('new-token');
-    // First call throws REAUTHENTICATION_REQUIRED, retry succeeds
-    vi.mocked(userAdapter.deleteCurrentUser)
-      .mockRejectedValueOnce(reauthErr)
-      .mockResolvedValueOnce(undefined);
-    vi.mocked(logoutUseCase).mockResolvedValueOnce(undefined);
-
-    await deleteCurrentUserUseCase('user@example.com', 'MyPassword123');
-
-    expect(userAdapter.deleteCurrentUser).toHaveBeenCalledTimes(2);
-    expect(logoutUseCase).toHaveBeenCalledTimes(1);
+    await expect(deleteCurrentUserUseCase('test@example.com')).rejects.toThrow(
+      'REAUTHENTICATION_REQUIRED'
+    );
+    expect(userAdapter.deleteCurrentUser).not.toHaveBeenCalled();
   });
 
-  it('deve propagar erro de REAUTHENTICATION_REQUIRED se não houver credenciais para reautenticar', async () => {
-    const reauthErr = new Error('REAUTHENTICATION_REQUIRED');
-    (reauthErr as any).code = 'REAUTHENTICATION_REQUIRED';
+  it('popup do Google cancelado: não exclui', async () => {
+    vi.mocked(hasPasswordSignInUseCase).mockReturnValue(false);
+    vi.mocked(reauthenticateWithGoogleUseCase).mockRejectedValueOnce(
+      Object.assign(new Error('closed'), { code: 'auth/popup-closed-by-user' })
+    );
 
-    vi.mocked(userAdapter.deleteCurrentUser).mockRejectedValueOnce(reauthErr);
-
-    await expect(deleteCurrentUserUseCase()).rejects.toThrow('REAUTHENTICATION_REQUIRED');
+    await expect(deleteCurrentUserUseCase('google@example.com')).rejects.toThrow('closed');
+    expect(userAdapter.deleteCurrentUser).not.toHaveBeenCalled();
   });
 });

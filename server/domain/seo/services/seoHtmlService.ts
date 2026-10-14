@@ -1,9 +1,5 @@
 import { DEFAULT_LOCALE, type Locale } from '../../../shared/kernel/locale';
-import {
-  PRIVATE_ROUTE_KEYS,
-  parseLocalizedPath,
-  type RouteKey,
-} from '../../../shared/kernel/localizedRoutes';
+import { parseLocalizedPath, type RouteKey } from '../../../shared/kernel/localizedRoutes';
 import type { HtmlTemplatePort } from '../ports/htmlTemplatePort';
 import type { SeoContentPort } from '../ports/seoContentPort';
 import type { SeoMetadata } from '../types/seoTypes';
@@ -66,7 +62,6 @@ function routeMetadata(routeKey: RouteKey, locale: Locale): SeoMetadata {
     locale,
     canonicalUrl: absoluteUrl(routeKey, locale),
     alternates: buildAlternates(routeKey),
-    ...(PRIVATE_ROUTE_KEYS.includes(routeKey) ? { robots: NOINDEX } : {}),
   };
 }
 

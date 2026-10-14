@@ -18,11 +18,9 @@ import {
 } from 'lucide-react';
 import { GlassCard } from '../../../ui/components/GlassCard';
 import { createStripeConnectInstance } from '../adapters/stripeConnectAdapter';
-import {
-  createPartnerConnectAccountSessionUseCase,
-  createPartnerConnectAccountUseCase,
-  getPartnerConnectStatusUseCase,
-} from '../application/usecases/paymentUseCases';
+import { createPartnerConnectAccountSessionUseCase } from '../application/usecases/createPartnerConnectAccountSessionUseCase';
+import { createPartnerConnectAccountUseCase } from '../application/usecases/createPartnerConnectAccountUseCase';
+import { getPartnerConnectStatusUseCase } from '../application/usecases/getPartnerConnectStatusUseCase';
 import type { PartnerConnectStatusResponse } from '../types/payment';
 import { StripeConnectProvider } from './StripeConnectProvider';
 

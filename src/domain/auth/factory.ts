@@ -12,6 +12,8 @@ import {
   createVerifyPasswordResetCodeUseCase,
   createConfirmPasswordResetUseCase,
   createReauthenticateUseCase,
+  createReauthenticateWithGoogleUseCase,
+  createHasPasswordSignInUseCase,
   createChangePasswordUseCase,
 } from './application/usecases';
 
@@ -28,4 +30,6 @@ export const resetPasswordUseCase = createResetPasswordUseCase(authPort);
 export const verifyPasswordResetCodeUseCase = createVerifyPasswordResetCodeUseCase(authPort);
 export const confirmPasswordResetUseCase = createConfirmPasswordResetUseCase(authPort);
 export const reauthenticateUseCase = createReauthenticateUseCase(authPort);
+export const reauthenticateWithGoogleUseCase = createReauthenticateWithGoogleUseCase(authPort);
+export const hasPasswordSignInUseCase = createHasPasswordSignInUseCase(authPort);
 export const changePasswordUseCase = createChangePasswordUseCase(authPort);

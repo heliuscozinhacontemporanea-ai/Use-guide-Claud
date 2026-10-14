@@ -14,10 +14,8 @@ import {
 import QRCode from 'qrcode';
 import { StripePaymentElement } from '../../payment';
 import { GlassCard } from '../../../ui/components/GlassCard';
-import {
-  confirmTicketOrderPaymentReturnUseCase,
-  createTicketOrderPaymentIntentUseCase,
-} from '../application/usecases/ticketingUseCases';
+import { confirmTicketOrderPaymentReturnUseCase } from '../application/usecases/confirmTicketOrderPaymentReturnUseCase';
+import { createTicketOrderPaymentIntentUseCase } from '../application/usecases/createTicketOrderPaymentIntentUseCase';
 import { useUserTicketsAndOrders } from '../hooks/useUserTickets';
 import { formatMoneyMinorBrl, type Ticket, type TicketOrder } from '../types/ticketing';
 

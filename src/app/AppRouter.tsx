@@ -19,19 +19,20 @@ import { useConnection } from '../shared/hooks/useConnection';
 import { useScrollLock } from '../shared/hooks/useScrollLock';
 import { useLocalizedRouting, useSyncLocaleWithUrl } from '../shared/hooks/useLocalizedRouting';
 import { useSEO } from '../shared/hooks/useSEO';
-import { useUI } from '../shared/stores/useUIStore';
+import { useUI, useUIStore } from '../shared/stores/useUIStore';
 import { cn } from '../shared/utils/cn';
 import { BackgroundBlobs } from '../ui/components/BackgroundBlobs';
 import { BottomNav } from '../ui/components/BottomNav';
 import { Header } from '../ui/layouts/Header';
-import { SideMenu } from '../ui/layouts/SideMenu';
 
 import { PartnerPortalComposition } from './compositions/PartnerPortalComposition';
 import { ItemBookingComposition } from './compositions/ItemBookingComposition';
+import { SideMenu } from './menu/SideMenu';
+import { useSideMenu } from './menu/useSideMenu';
 import { AppRoutes } from './routes/AppRoutes';
 
 export function AppRouter() {
-  const { user } = useAuthContext();
+  const { user, refreshProfile } = useAuthContext();
   const isPartner = user?.role === UserRole.PARTNER;
   const isAdmin = user?.role === UserRole.ADMIN;
 
@@ -42,6 +43,7 @@ export function AppRouter() {
   const connection = useConnection();
   const [searchParams, setSearchParams] = useSearchParams();
   const { isLoginModalOpen, isLoginClosingBySwipe, closeLoginModal, openLoginModal } = useUI();
+  const loginModalTab = useUIStore((state) => state.loginModalTab);
 
   useEffect(() => {
     if (searchParams.get('login') === '1') {
@@ -89,10 +91,25 @@ export function AppRouter() {
     }, 850);
   };
 
+  // O papel de parceiro vem do perfil no Firestore: recarrega antes de abrir o portal recém-liberado.
+  const openPartnerPortalAfterSignup = async () => {
+    await refreshProfile();
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.delete('partners');
+        next.delete('menu');
+        next.set('partner', '1');
+        return next;
+      },
+      { replace: true }
+    );
+  };
+
   const { items, events } = useGuideCatalog();
 
   const isSearchOpen = searchParams.get('search') === '1';
-  const isMenuOpen = searchParams.get('menu') === '1';
+  const { isOpen: isMenuOpen, openMenu, closeMenu } = useSideMenu();
   const isPartnersOpen = searchParams.get('partners') === '1';
 
   const itemIdParam = searchParams.get('item');
@@ -161,20 +178,6 @@ export function AppRouter() {
         nextParams.delete('type');
       }
 
-      return nextParams;
-    });
-  };
-
-  const setIsMenuOpen = (open: boolean | ((prev: boolean) => boolean)) => {
-    setSearchParams((prev) => {
-      const nextParams = new URLSearchParams(prev);
-      const currentMenuOpen = prev.get('menu') === '1';
-      const resolvedOpen = typeof open === 'function' ? open(currentMenuOpen) : open;
-      if (resolvedOpen) {
-        nextParams.set('menu', '1');
-      } else {
-        nextParams.delete('menu');
-      }
       return nextParams;
     });
   };
@@ -306,7 +309,7 @@ export function AppRouter() {
           <Header
             onSearchClick={() => setIsSearchOpen(true)}
             isMenuOpen={isMenuOpen}
-            onMenuToggle={() => setIsMenuOpen((prev) => !prev)}
+            onMenuToggle={() => (isMenuOpen ? closeMenu() : openMenu())}
             isScrolled={isScrolled}
             isSearchSticky={isExplorePage ? isSearchSticky : false}
             onAdminOpen={handleAdminOpen}
@@ -341,8 +344,6 @@ export function AppRouter() {
         {!isHideGlobalUI && <BottomNav />}
 
         <SideMenu
-          isOpen={isMenuOpen}
-          onClose={() => setIsMenuOpen(false)}
           onPartnersOpen={() => {
             setSearchParams(
               (prev) => {
@@ -368,7 +369,11 @@ export function AppRouter() {
           onAdminOpen={handleAdminOpen}
         />
 
-        <PartnersModal isOpen={isPartnersOpen} onClose={() => setIsPartnersOpen(false)} />
+        <PartnersModal
+          isOpen={isPartnersOpen}
+          onClose={() => setIsPartnersOpen(false)}
+          onOpenPartnerPanel={() => void openPartnerPortalAfterSignup()}
+        />
 
         <AnimatePresence>
           {isSearchOpen && (
@@ -411,7 +416,11 @@ export function AppRouter() {
             selectedItem.category
           ) && <ItemDetailModal item={selectedItem} onClose={() => setSelectedItem(null)} />}
 
-        <LoginModal isOpen={isLoginModalOpen} onClose={closeLoginModal} />
+        <LoginModal
+          isOpen={isLoginModalOpen}
+          onClose={closeLoginModal}
+          initialTab={loginModalTab}
+        />
       </motion.div>
     </div>
   );

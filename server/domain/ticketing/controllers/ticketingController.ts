@@ -1,10 +1,8 @@
 import { randomUUID } from 'crypto';
 import { Request, Response } from 'express';
-import {
-  confirmTicketOrderPaymentClientReturnApplicationUseCase,
-  createTicketOrderPaymentIntentApplicationUseCase,
-  processTicketRefundApplicationUseCase,
-} from '../../../application/usecases/ticketingPaymentOrchestrationUseCases';
+import { confirmTicketOrderPaymentClientReturnApplicationUseCase } from '../../../application/usecases/confirmTicketOrderPaymentClientReturnApplicationUseCase';
+import { createTicketOrderPaymentIntentApplicationUseCase } from '../../../application/usecases/createTicketOrderPaymentIntentApplicationUseCase';
+import { processTicketRefundApplicationUseCase } from '../../../application/usecases/processTicketRefundApplicationUseCase';
 import { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
 import { hashTicketIdForOfflineManifest } from '../adapters/rsaPssTicketQrTokenAdapter';
 import { TicketingDomainError } from '../errors/ticketingDomainError';
@@ -21,31 +19,29 @@ import {
   transferTicketSchema,
   updateTicketTypeSchema,
 } from '../schemas/ticketingSchema';
-import {
-  archiveTicketTypeUseCase,
-  checkInTicketUseCase,
-  createEventPromoCodeUseCase,
-  createOfflineCheckInSessionUseCase,
-  createTicketOrderUseCase,
-  createTicketTypeUseCase,
-  expireAllOverdueOrdersUseCase,
-  expireTicketOrderUseCase,
-  getEventSalesAnalyticsUseCase,
-  getTicketOrderUseCase,
-  getTicketQrTokenUseCase,
-  joinEventWaitlistUseCase,
-  listEventCheckInsForPartnerOrAdminUseCase,
-  listEventOrdersForPartnerOrAdminUseCase,
-  listEventRefundsForPartnerOrAdminUseCase,
-  listPublicTicketTypesByOccurrenceUseCase,
-  listTicketTypesForManagementUseCase,
-  listUserTicketOrdersUseCase,
-  listUserTicketsUseCase,
-  reissueTicketQrTokenUseCase,
-  syncOfflineCheckInsUseCase,
-  transferTicketUseCase,
-  updateTicketTypeUseCase,
-} from '../usecases/ticketingUseCases';
+import { archiveTicketTypeUseCase } from '../usecases/archiveTicketTypeUseCase';
+import { checkInTicketUseCase } from '../usecases/checkInTicketUseCase';
+import { createEventPromoCodeUseCase } from '../usecases/createEventPromoCodeUseCase';
+import { createOfflineCheckInSessionUseCase } from '../usecases/createOfflineCheckInSessionUseCase';
+import { createTicketOrderUseCase } from '../usecases/createTicketOrderUseCase';
+import { createTicketTypeUseCase } from '../usecases/createTicketTypeUseCase';
+import { expireAllOverdueOrdersUseCase } from '../usecases/expireAllOverdueOrdersUseCase';
+import { expireTicketOrderUseCase } from '../usecases/expireTicketOrderUseCase';
+import { getEventSalesAnalyticsUseCase } from '../usecases/getEventSalesAnalyticsUseCase';
+import { getTicketOrderUseCase } from '../usecases/getTicketOrderUseCase';
+import { getTicketQrTokenUseCase } from '../usecases/getTicketQrTokenUseCase';
+import { joinEventWaitlistUseCase } from '../usecases/joinEventWaitlistUseCase';
+import { listEventCheckInsForPartnerOrAdminUseCase } from '../usecases/listEventCheckInsForPartnerOrAdminUseCase';
+import { listEventOrdersForPartnerOrAdminUseCase } from '../usecases/listEventOrdersForPartnerOrAdminUseCase';
+import { listEventRefundsForPartnerOrAdminUseCase } from '../usecases/listEventRefundsForPartnerOrAdminUseCase';
+import { listPublicTicketTypesByOccurrenceUseCase } from '../usecases/listPublicTicketTypesByOccurrenceUseCase';
+import { listTicketTypesForManagementUseCase } from '../usecases/listTicketTypesForManagementUseCase';
+import { listUserTicketOrdersUseCase } from '../usecases/listUserTicketOrdersUseCase';
+import { listUserTicketsUseCase } from '../usecases/listUserTicketsUseCase';
+import { reissueTicketQrTokenUseCase } from '../usecases/reissueTicketQrTokenUseCase';
+import { syncOfflineCheckInsUseCase } from '../usecases/syncOfflineCheckInsUseCase';
+import { transferTicketUseCase } from '../usecases/transferTicketUseCase';
+import { updateTicketTypeUseCase } from '../usecases/updateTicketTypeUseCase';
 
 function getActor(req: AuthenticatedRequest) {
   return {

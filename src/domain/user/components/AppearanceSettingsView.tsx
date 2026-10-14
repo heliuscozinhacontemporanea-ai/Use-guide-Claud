@@ -8,30 +8,10 @@ interface AppearanceSettingsViewProps {
   onBack: () => void;
 }
 
-const THEME_OPTIONS: Array<{
-  id: Theme;
-  label: string;
-  subtitle: string;
-  icon: typeof Sun;
-}> = [
-  {
-    id: 'light',
-    label: 'Claro',
-    subtitle: 'Tema com tonalidade clara',
-    icon: Sun,
-  },
-  {
-    id: 'dark',
-    label: 'Escuro',
-    subtitle: 'Tema escuro padrão com efeito glassmorphism',
-    icon: Moon,
-  },
-  {
-    id: 'system',
-    label: 'Sistema',
-    subtitle: 'Acompanha a preferência do dispositivo',
-    icon: Monitor,
-  },
+const THEME_OPTIONS: Array<{ id: Theme; icon: typeof Sun }> = [
+  { id: 'light', icon: Sun },
+  { id: 'dark', icon: Moon },
+  { id: 'system', icon: Monitor },
 ];
 
 export function AppearanceSettingsView({ onBack }: AppearanceSettingsViewProps) {
@@ -43,17 +23,17 @@ export function AppearanceSettingsView({ onBack }: AppearanceSettingsViewProps) 
       <div className="flex items-center justify-center relative mb-8 pt-2 pr-2">
         <button
           onClick={onBack}
-          aria-label={t('header.closeMenu', 'Voltar')}
+          aria-label={t('settings.back')}
           className="absolute left-0 p-2 text-white/70 hover:text-white active:scale-90 transition-all z-10 focus-visible:ring-2 focus-visible:ring-teal-400/50 rounded-xl"
         >
           <ChevronLeft size={28} />
         </button>
         <div className="text-center">
           <h2 className="text-2xl font-display font-black mb-1 text-white leading-tight">
-            Aparência
+            {t('settings.appearance')}
           </h2>
           <p className="text-[10px] text-white/50 font-black uppercase tracking-widest">
-            Selecione o modo
+            {t('settings.appearanceSubtitle')}
           </p>
         </div>
       </div>
@@ -77,8 +57,10 @@ export function AppearanceSettingsView({ onBack }: AppearanceSettingsViewProps) 
               <div className="flex items-center gap-3.5">
                 <Icon size={18} className="text-white shrink-0" />
                 <div>
-                  <p className="text-sm font-bold leading-tight">{opt.label}</p>
-                  <p className="text-[11px] text-white/50 font-medium mt-0.5">{opt.subtitle}</p>
+                  <p className="text-sm font-bold leading-tight">{t(`settings.theme.${opt.id}`)}</p>
+                  <p className="text-[11px] text-white/50 font-medium mt-0.5">
+                    {t(`settings.themeDescription.${opt.id}`)}
+                  </p>
                 </div>
               </div>
 

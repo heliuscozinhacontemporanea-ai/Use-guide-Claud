@@ -1,8 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import {
-  listManagementTicketTypesUseCase,
-  listPublicTicketTypesUseCase,
-} from '../application/usecases/ticketingUseCases';
+import { listManagementTicketTypesUseCase } from '../application/usecases/listManagementTicketTypesUseCase';
+import { listPublicTicketTypesUseCase } from '../application/usecases/listPublicTicketTypesUseCase';
 import type { PublicTicketTypeProjection, TicketType } from '../types/ticketing';
 
 export function usePublicTicketTypes(occurrenceId?: string) {

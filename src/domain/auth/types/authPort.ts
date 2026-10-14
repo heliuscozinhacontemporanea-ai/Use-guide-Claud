@@ -19,6 +19,12 @@ export interface AuthPort {
 
   reauthenticate(email: string, currentPassword: string): Promise<void>;
 
+  /** Confirma a identidade de quem entrou com Google (não tem senha no Firebase Auth). */
+  reauthenticateWithGoogle(): Promise<void>;
+
+  /** Se a conta atual tem login por e-mail e senha. */
+  hasPasswordSignIn(): boolean;
+
   changePassword(newPassword: string): Promise<void>;
 
   getCurrentUser(): AuthIdentity | null;

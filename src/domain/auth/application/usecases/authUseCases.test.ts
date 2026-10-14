@@ -11,6 +11,8 @@ import {
   createVerifyPasswordResetCodeUseCase,
   createConfirmPasswordResetUseCase,
   createReauthenticateUseCase,
+  createReauthenticateWithGoogleUseCase,
+  createHasPasswordSignInUseCase,
   createChangePasswordUseCase,
 } from './index';
 import { AuthPort } from '../../types/authPort';
@@ -31,6 +33,8 @@ describe('Auth Use Cases (DIP & Injected AuthPort)', () => {
       verifyResetCode: vi.fn(),
       confirmReset: vi.fn(),
       reauthenticate: vi.fn(),
+      reauthenticateWithGoogle: vi.fn(),
+      hasPasswordSignIn: vi.fn(),
       changePassword: vi.fn(),
     };
   });
@@ -127,5 +131,20 @@ describe('Auth Use Cases (DIP & Injected AuthPort)', () => {
     const changePasswordUseCase = createChangePasswordUseCase(mockPort);
     await changePasswordUseCase('NewPass123!');
     expect(mockPort.changePassword).toHaveBeenCalledWith('NewPass123!');
+  });
+
+  it('createReauthenticateWithGoogleUseCase invokes injected AuthPort.reauthenticateWithGoogle', async () => {
+    vi.mocked(mockPort.reauthenticateWithGoogle).mockResolvedValueOnce();
+    const reauthenticateWithGoogleUseCase = createReauthenticateWithGoogleUseCase(mockPort);
+    await reauthenticateWithGoogleUseCase();
+    expect(mockPort.reauthenticateWithGoogle).toHaveBeenCalledTimes(1);
+  });
+
+  it('createHasPasswordSignInUseCase invokes injected AuthPort.hasPasswordSignIn', () => {
+    vi.mocked(mockPort.hasPasswordSignIn).mockReturnValueOnce(true);
+    const hasPasswordSignInUseCase = createHasPasswordSignInUseCase(mockPort);
+    const hasPassword = hasPasswordSignInUseCase();
+    expect(mockPort.hasPasswordSignIn).toHaveBeenCalledTimes(1);
+    expect(hasPassword).toBe(true);
   });
 });

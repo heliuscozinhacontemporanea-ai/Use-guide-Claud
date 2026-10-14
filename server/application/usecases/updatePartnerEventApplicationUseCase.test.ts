@@ -6,7 +6,7 @@ import {
   type EventListing,
 } from '../../domain/events';
 import { updateBusinessUseCase } from '../../domain/partners';
-import { updateEventListingSafelyApplicationUseCase } from './eventLifecycleOrchestrationUseCases';
+import { updateEventListingSafelyApplicationUseCase } from './updateEventListingSafelyApplicationUseCase';
 
 vi.mock('../../domain/events', () => ({
   getEventListingByIdUseCase: vi.fn(),
@@ -17,9 +17,7 @@ vi.mock('../../domain/partners', () => ({
   updateBusinessUseCase: vi.fn(),
 }));
 
-vi.mock('./eventLifecycleOrchestrationUseCases', () => ({
-  updateEventListingSafelyApplicationUseCase: vi.fn(),
-}));
+vi.mock('./updateEventListingSafelyApplicationUseCase', () => ({ updateEventListingSafelyApplicationUseCase: vi.fn() }));
 
 describe('updatePartnerEventApplicationUseCase', () => {
   const regularUser: AuthenticatedUserContext = {

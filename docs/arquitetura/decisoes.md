@@ -65,9 +65,9 @@
 | `restaurants` | `/restaurantes` | `/en/restaurants` | `/fr/restaurants` |
 | `attractions` | `/pontos` | `/en/attractions` | `/fr/attractions` |
 | `guide` | `/info` | `/en/travel-guide` | `/fr/guide-pratique` |
-| `favorites` | `/favoritos` | `/en/favorites` | `/fr/favoris` |
 
 * Rotas não indexáveis (`/admin`, `/reset-password`, `/checkout/result`) não ganham versão por idioma.
+* Favoritos, "Minhas reservas", ingressos, conta e configurações **não são páginas**: abrem dentro do menu lateral, com a sub-tela na URL (`?menu=favorites`, `?menu=bookings`, `?menu=tickets`…). Ajuste pedido pelo responsável do produto em 2026-10-12 (Prompt 16); as rotas `/favoritos` e `/reservas` foram removidas.
 * O idioma da URL tem prioridade sobre o salvo no navegador.
 * **Prompt:** 10.
 

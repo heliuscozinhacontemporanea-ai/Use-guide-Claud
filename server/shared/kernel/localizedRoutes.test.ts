@@ -13,8 +13,5 @@ describe('paridade frontend × backend', () => {
   it('mapa de rotas por idioma é igual', () => {
     expect(backendRoutes.LOCALIZED_ROUTES).toEqual(frontendRoutes.LOCALIZED_ROUTES);
     expect([...backendRoutes.ROUTE_KEYS]).toEqual([...frontendRoutes.ROUTE_KEYS]);
-    expect([...backendRoutes.INDEXABLE_ROUTE_KEYS]).toEqual([
-      ...frontendRoutes.INDEXABLE_ROUTE_KEYS,
-    ]);
   });
 });

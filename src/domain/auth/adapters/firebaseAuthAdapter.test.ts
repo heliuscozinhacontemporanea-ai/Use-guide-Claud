@@ -14,8 +14,10 @@ vi.mock('firebase/auth', () => ({
   confirmPasswordReset: vi.fn(),
   onAuthStateChanged: vi.fn(),
   reauthenticateWithCredential: vi.fn(),
+  reauthenticateWithPopup: vi.fn(),
   EmailAuthProvider: {
     credential: vi.fn(),
+    PROVIDER_ID: 'password',
   },
   updatePassword: vi.fn(),
 }));
@@ -26,6 +28,7 @@ vi.mock('../../../shared/infrastructure/firebase/firebaseAuth', () => ({
       uid: 'user-123',
       getIdToken: vi.fn().mockResolvedValue('id-token-xyz'),
       getIdTokenResult: vi.fn().mockResolvedValue({ claims: {} }),
+      providerData: [{ providerId: 'password' }],
     },
   },
   googleProvider: {},
@@ -122,5 +125,28 @@ describe('FirebaseAuthAdapter', () => {
     vi.mocked(firebaseAuth.verifyPasswordResetCode).mockRejectedValueOnce(invalidError);
 
     await expect(adapter.verifyResetCode('invalid-code')).rejects.toThrow('Invalid code');
+  });
+
+  it('reauthenticate executa reautenticação com senha', async () => {
+    vi.mocked(firebaseAuth.EmailAuthProvider.credential).mockReturnValueOnce({} as any);
+    vi.mocked(firebaseAuth.reauthenticateWithCredential).mockResolvedValueOnce({} as any);
+    await adapter.reauthenticate('user@example.com', 'password123');
+    expect(firebaseAuth.reauthenticateWithCredential).toHaveBeenCalled();
+  });
+
+  it('reauthenticateWithGoogle dispara popup com googleProvider', async () => {
+    vi.mocked(firebaseAuth.reauthenticateWithPopup).mockResolvedValueOnce({} as any);
+    await adapter.reauthenticateWithGoogle();
+    expect(firebaseAuth.reauthenticateWithPopup).toHaveBeenCalled();
+  });
+
+  it('hasPasswordSignIn retorna true quando providerData inclui password', () => {
+    expect(adapter.hasPasswordSignIn()).toBe(true);
+  });
+
+  it('changePassword atualiza a senha do usuário autenticado', async () => {
+    vi.mocked(firebaseAuth.updatePassword).mockResolvedValueOnce();
+    await adapter.changePassword('newPass123!');
+    expect(firebaseAuth.updatePassword).toHaveBeenCalledWith(expect.anything(), 'newPass123!');
   });
 });

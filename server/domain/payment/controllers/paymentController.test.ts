@@ -2,34 +2,27 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { Request } from 'express';
 import { PaymentController } from './paymentController';
 import { getPlanForPaymentApplicationUseCase } from '../../../application/usecases/getPlanForPaymentApplicationUseCase';
-import { reconcileStripeWebhookEventApplicationUseCase } from '../../../application/usecases/ticketingPaymentOrchestrationUseCases';
-import {
-  claimStripeWebhookEventUseCase,
-  completeStripeWebhookEventUseCase,
-  constructStripeWebhookEventUseCase,
-  createPlanPaymentIntentUseCase,
-  releaseStripeWebhookEventUseCase,
-  retrievePaymentIntentUseCase,
-} from '../usecases/paymentUseCases';
+import { reconcileStripeWebhookEventApplicationUseCase } from '../../../application/usecases/reconcileStripeWebhookEventApplicationUseCase';
+import { claimStripeWebhookEventUseCase } from '../usecases/claimStripeWebhookEventUseCase';
+import { completeStripeWebhookEventUseCase } from '../usecases/completeStripeWebhookEventUseCase';
+import { constructStripeWebhookEventUseCase } from '../usecases/constructStripeWebhookEventUseCase';
+import { createPlanPaymentIntentUseCase } from '../usecases/createPlanPaymentIntentUseCase';
+import { releaseStripeWebhookEventUseCase } from '../usecases/releaseStripeWebhookEventUseCase';
+import { retrievePaymentIntentUseCase } from '../usecases/retrievePaymentIntentUseCase';
 import { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
 
 vi.mock('../../../application/usecases/getPlanForPaymentApplicationUseCase', () => ({
   getPlanForPaymentApplicationUseCase: vi.fn(),
 }));
 
-vi.mock('../../../application/usecases/ticketingPaymentOrchestrationUseCases', () => ({
-  reconcileStripeWebhookEventApplicationUseCase: vi.fn(),
-}));
+vi.mock('../../../application/usecases/reconcileStripeWebhookEventApplicationUseCase', () => ({ reconcileStripeWebhookEventApplicationUseCase: vi.fn() }));
 
-vi.mock('../usecases/paymentUseCases', () => ({
-  createPlanPaymentIntentUseCase: vi.fn(),
-  constructStripeWebhookEventUseCase: vi.fn(),
-  claimStripeWebhookEventUseCase: vi.fn(),
-  completeStripeWebhookEventUseCase: vi.fn(),
-  releaseStripeWebhookEventUseCase: vi.fn(),
-  retrievePaymentIntentUseCase: vi.fn(),
-  updateTransactionStatusUseCase: vi.fn(),
-}));
+vi.mock('../usecases/createPlanPaymentIntentUseCase', () => ({ createPlanPaymentIntentUseCase: vi.fn() }));
+vi.mock('../usecases/constructStripeWebhookEventUseCase', () => ({ constructStripeWebhookEventUseCase: vi.fn() }));
+vi.mock('../usecases/claimStripeWebhookEventUseCase', () => ({ claimStripeWebhookEventUseCase: vi.fn() }));
+vi.mock('../usecases/completeStripeWebhookEventUseCase', () => ({ completeStripeWebhookEventUseCase: vi.fn() }));
+vi.mock('../usecases/releaseStripeWebhookEventUseCase', () => ({ releaseStripeWebhookEventUseCase: vi.fn() }));
+vi.mock('../usecases/retrievePaymentIntentUseCase', () => ({ retrievePaymentIntentUseCase: vi.fn() }));
 
 describe('PaymentController', () => {
   let req: Partial<AuthenticatedRequest>;

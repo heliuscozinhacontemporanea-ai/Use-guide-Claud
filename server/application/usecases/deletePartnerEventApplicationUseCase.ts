@@ -1,7 +1,7 @@
 import type { AuthenticatedUserContext } from '../security/authenticatedUserContext';
 import { getEventListingByIdUseCase } from '../../domain/events';
 import { linkBusinessUseCase, unlinkBusinessUseCase } from '../../domain/partners';
-import { deleteEventListingSafelyApplicationUseCase } from './eventLifecycleOrchestrationUseCases';
+import { deleteEventListingSafelyApplicationUseCase } from './deleteEventListingSafelyApplicationUseCase';
 
 function isNotFoundError(error: unknown): boolean {
   if (!error) return false;

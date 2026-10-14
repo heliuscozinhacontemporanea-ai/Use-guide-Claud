@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { motion } from 'motion/react';
 import {
   Lock,
@@ -17,10 +17,11 @@ import { resetPasswordSchema, ResetPasswordFormData } from '../schemas/authSchem
 import { checkPasswordRequirements } from '../utils/passwordRequirements';
 import { cn } from '../../../shared/utils/cn';
 import { useUIStore } from '../../../shared/stores/useUIStore';
+import { useLocalizedRouting } from '../../../shared/hooks/useLocalizedRouting';
 
 export function ResetPassword() {
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
+  const { goTo } = useLocalizedRouting();
   const oobCode = searchParams.get('oobCode');
 
   const [email, setEmail] = useState<string | null>(null);
@@ -116,7 +117,7 @@ export function ResetPassword() {
 
   const handleGoToLogin = () => {
     useUIStore.getState().openLoginModal();
-    navigate('/', { replace: true });
+    goTo('explore', '', { replace: true });
   };
 
   if (isLoading) {
@@ -146,8 +147,8 @@ export function ResetPassword() {
             <button
               type="button"
               onClick={() => {
-                useUIStore.getState().openLoginModal();
-                navigate('/');
+                useUIStore.getState().openPasswordRecovery();
+                goTo('explore');
               }}
               className="w-full h-12 min-h-[44px] bg-teal-500 text-black font-black uppercase text-xs rounded-2xl shadow-lg shadow-teal-500/20 active:scale-95 transition-all focus-visible:ring-2 focus-visible:ring-teal-400/50 flex items-center justify-center tracking-widest"
             >
@@ -155,7 +156,7 @@ export function ResetPassword() {
             </button>
             <button
               type="button"
-              onClick={() => navigate('/')}
+              onClick={() => goTo('explore')}
               className="w-full h-12 min-h-[44px] glassmorphism rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-white/5 transition-all text-white/70 hover:text-white focus-visible:ring-2 focus-visible:ring-teal-400/50"
             >
               Voltar ao Início

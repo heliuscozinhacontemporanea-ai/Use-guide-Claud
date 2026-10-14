@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { useNavigate } from 'react-router-dom';
 import { FormProvider } from 'react-hook-form';
 import {
   X,
@@ -34,6 +33,7 @@ import { Z_INDEX } from '../../../shared/constants/zIndex';
 interface PartnersModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onOpenPartnerPanel: () => void;
 }
 
 const CATEGORIES = [
@@ -45,8 +45,7 @@ const CATEGORIES = [
 
 const CATEGORY_IDS = CATEGORIES.map((c) => c.id);
 
-export function PartnersModal({ isOpen, onClose }: PartnersModalProps) {
-  const navigate = useNavigate();
+export function PartnersModal({ isOpen, onClose, onOpenPartnerPanel }: PartnersModalProps) {
   const [showForm, setShowForm] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -523,8 +522,8 @@ export function PartnersModal({ isOpen, onClose }: PartnersModalProps) {
                         businessName={formData.businessName}
                         onClose={() => handleClose()}
                         onAccessPanel={() => {
-                          onClose();
-                          navigate('/admin');
+                          handleClose();
+                          onOpenPartnerPanel();
                         }}
                       />
                     )}

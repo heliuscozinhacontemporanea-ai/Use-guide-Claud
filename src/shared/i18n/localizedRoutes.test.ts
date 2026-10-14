@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { SUPPORTED_LOCALES } from './locale';
 import {
-  INDEXABLE_ROUTE_KEYS,
   LOCALIZED_ROUTES,
   localizedPath,
   parseLocalizedPath,
@@ -39,9 +38,9 @@ describe('localizedRoutes', () => {
     expect(switchLocalePath('/admin', '', 'en')).toBe('/en');
   });
 
-  it('favoritos não é indexável', () => {
-    expect(INDEXABLE_ROUTE_KEYS).not.toContain('favorites');
-    expect(INDEXABLE_ROUTE_KEYS).not.toContain('bookings');
-    expect(INDEXABLE_ROUTE_KEYS).toHaveLength(7);
+  it('favoritos e reservas não são páginas: abrem no menu lateral', () => {
+    expect(parseLocalizedPath('/favoritos')).toBeNull();
+    expect(parseLocalizedPath('/en/bookings')).toBeNull();
+    expect(ROUTE_KEYS).toHaveLength(7);
   });
 });

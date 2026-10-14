@@ -20,7 +20,9 @@ interface AccountViewProps {
   setShowDeleteConfirm: (show: boolean) => void;
   onUpdateProfile: () => void;
   onChangePassword: () => void;
-  onDeleteAccount: (password: string) => void;
+  onDeleteAccount: (password?: string) => void;
+  /** Conta com login por senha; quem entra só com Google confirma pelo popup do Google. */
+  hasPassword: boolean;
   onBack: () => void;
 }
 
@@ -35,6 +37,7 @@ export function AccountView({
   onUpdateProfile,
   onChangePassword,
   onDeleteAccount,
+  hasPassword,
   onBack,
 }: AccountViewProps) {
   const [deletePassword, setDeletePassword] = React.useState('');
@@ -104,6 +107,10 @@ export function AccountView({
   };
 
   const handleDelete = () => {
+    if (!hasPassword) {
+      onDeleteAccount();
+      return;
+    }
     if (!deletePassword) return;
     onDeleteAccount(deletePassword);
   };
@@ -216,14 +223,16 @@ export function AccountView({
             </div>
           </div>
 
-          <button
-            onClick={onChangePassword}
-            disabled={isLoading}
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-white/5 text-white/80 text-[9px] font-black uppercase tracking-widest border border-white/10 active:scale-95 transition-all"
-          >
-            <Lock size={12} />
-            Alterar Senha
-          </button>
+          {hasPassword && (
+            <button
+              onClick={onChangePassword}
+              disabled={isLoading}
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-white/5 text-white/80 text-[9px] font-black uppercase tracking-widest border border-white/10 active:scale-95 transition-all"
+            >
+              <Lock size={12} />
+              Alterar Senha
+            </button>
+          )}
         </div>
 
         <div className="pt-2 flex justify-center">
@@ -252,38 +261,40 @@ export function AccountView({
                   ' Suas empresas e eventos cadastrados em sua conta também serão excluídos.'}
               </p>
 
-              <div className="space-y-1.5 pt-1">
-                <label className="text-[9px] font-black uppercase tracking-widest text-white/50 ml-1">
-                  Para confirmar, digite sua senha
-                </label>
-                <div className="relative">
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    value={deletePassword}
-                    onChange={(e) => setDeletePassword(e.target.value)}
-                    placeholder="Sua senha atual"
-                    maxLength={20}
-                    className="w-full h-11 bg-black/20 border border-white/5 rounded-xl px-4 pr-10 text-xs text-white focus:outline-none focus:border-rose-500/30 transition-colors"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white/50 transition-colors"
-                  >
-                    {showPassword ? (
-                      <Lock size={14} className="text-rose-500/50" />
-                    ) : (
-                      <Lock size={14} />
-                    )}
-                  </button>
+              {hasPassword && (
+                <div className="space-y-1.5 pt-1">
+                  <label className="text-[9px] font-black uppercase tracking-widest text-white/50 ml-1">
+                    Para confirmar, digite sua senha
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      value={deletePassword}
+                      onChange={(e) => setDeletePassword(e.target.value)}
+                      placeholder="Sua senha atual"
+                      maxLength={20}
+                      className="w-full h-11 bg-black/20 border border-white/5 rounded-xl px-4 pr-10 text-xs text-white focus:outline-none focus:border-rose-500/30 transition-colors"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white/50 transition-colors"
+                    >
+                      {showPassword ? (
+                        <Lock size={14} className="text-rose-500/50" />
+                      ) : (
+                        <Lock size={14} />
+                      )}
+                    </button>
+                  </div>
                 </div>
-              </div>
+              )}
 
               <div className="flex gap-2 pt-1">
                 <button
                   onClick={handleDelete}
-                  disabled={isLoading || !deletePassword}
+                  disabled={isLoading || (hasPassword && !deletePassword)}
                   className="flex-1 py-3 bg-rose-500 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl text-[9px] font-black uppercase tracking-widest active:scale-95 transition-all shadow-lg shadow-rose-500/10"
                 >
                   {isLoading ? 'Excluindo...' : 'Confirmar Exclusão'}

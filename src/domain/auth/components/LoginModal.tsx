@@ -11,9 +11,10 @@ import { cn } from '../../../shared/utils/cn';
 interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
+  initialTab?: 'login' | 'forgot';
 }
 
-export function LoginModal({ isOpen, onClose }: LoginModalProps) {
+export function LoginModal({ isOpen, onClose, initialTab = 'login' }: LoginModalProps) {
   const { login, signUp, loginWithGoogle, forgotPassword } = useAuth();
   const [activeTab, setActiveTab] = useState<'login' | 'register' | 'forgot'>('login');
   const [direction, setDirection] = useState<number>(0);
@@ -25,14 +26,16 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
   const touchStartY = useRef<number | null>(null);
 
   useEffect(() => {
-    if (!isOpen) {
+    if (isOpen) {
+      setActiveTab(initialTab);
+    } else {
       setActiveTab('login');
       setDirection(0);
       setPassedEmail('');
       setApiError(null);
       setIsLoading(false);
     }
-  }, [isOpen]);
+  }, [isOpen, initialTab]);
 
   const handleBack = () => {
     onClose();

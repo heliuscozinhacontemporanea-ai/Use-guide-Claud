@@ -31,17 +31,17 @@ export function LanguageSettingsView({ onBack }: LanguageSettingsViewProps) {
       <div className="flex items-center justify-center relative mb-8 pt-2 pr-2">
         <button
           onClick={onBack}
-          aria-label={t('header.closeMenu', 'Voltar')}
+          aria-label={t('settings.back')}
           className="absolute left-0 p-2 text-white/70 hover:text-white active:scale-90 transition-all z-10 focus-visible:ring-2 focus-visible:ring-teal-400/50 rounded-xl"
         >
           <ChevronLeft size={28} />
         </button>
         <div className="text-center">
           <h2 className="text-2xl font-display font-black mb-1 text-white leading-tight">
-            Idioma do Guide
+            {t('settings.language')}
           </h2>
           <p className="text-[10px] text-white/50 font-black uppercase tracking-widest">
-            Selecione o idioma
+            {t('settings.languageSubtitle')}
           </p>
         </div>
       </div>

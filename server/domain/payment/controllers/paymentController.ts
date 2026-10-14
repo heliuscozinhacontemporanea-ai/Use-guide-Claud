@@ -1,23 +1,19 @@
 import { randomUUID } from 'crypto';
 import type { Request, Response } from 'express';
 import { getPlanForPaymentApplicationUseCase } from '../../../application/usecases/getPlanForPaymentApplicationUseCase';
-import { reconcileStripeWebhookEventApplicationUseCase } from '../../../application/usecases/ticketingPaymentOrchestrationUseCases';
+import { reconcileStripeWebhookEventApplicationUseCase } from '../../../application/usecases/reconcileStripeWebhookEventApplicationUseCase';
 import type { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
 import { ConfirmPlanPaymentSchema, CreatePlanPaymentIntentSchema } from '../schemas/paymentSchema';
 import { PaymentDomainError } from '../services/stripePaymentService';
-import {
-  createPartnerConnectAccountSessionUseCase,
-  ensurePartnerConnectedAccountUseCase,
-  getPartnerConnectAccountStatusUseCase,
-} from '../usecases/marketplaceConnectUseCases';
-import {
-  claimStripeWebhookEventUseCase,
-  completeStripeWebhookEventUseCase,
-  constructStripeWebhookEventUseCase,
-  createPlanPaymentIntentUseCase,
-  releaseStripeWebhookEventUseCase,
-  retrievePaymentIntentUseCase,
-} from '../usecases/paymentUseCases';
+import { createPartnerConnectAccountSessionUseCase } from '../usecases/createPartnerConnectAccountSessionUseCase';
+import { ensurePartnerConnectedAccountUseCase } from '../usecases/ensurePartnerConnectedAccountUseCase';
+import { getPartnerConnectAccountStatusUseCase } from '../usecases/getPartnerConnectAccountStatusUseCase';
+import { claimStripeWebhookEventUseCase } from '../usecases/claimStripeWebhookEventUseCase';
+import { completeStripeWebhookEventUseCase } from '../usecases/completeStripeWebhookEventUseCase';
+import { constructStripeWebhookEventUseCase } from '../usecases/constructStripeWebhookEventUseCase';
+import { createPlanPaymentIntentUseCase } from '../usecases/createPlanPaymentIntentUseCase';
+import { releaseStripeWebhookEventUseCase } from '../usecases/releaseStripeWebhookEventUseCase';
+import { retrievePaymentIntentUseCase } from '../usecases/retrievePaymentIntentUseCase';
 
 export class PaymentController {
   static async createPlanPaymentIntent(

@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useAuthContext } from '../../auth/context/AuthContext';
-import { UserRole } from '../../auth/types/auth';
 import { deleteCurrentUserUseCase } from '../application/usecases/deleteCurrentUserUseCase';
 import { getCurrentUserUseCase } from '../application/usecases/getCurrentUserUseCase';
 import { updateCurrentUserUseCase } from '../application/usecases/updateCurrentUserUseCase';
@@ -9,7 +8,6 @@ import { PasswordData, ShowPasswordsData, UserData } from '../types/user';
 
 export function useUserProfile(onAccountDeleted?: () => void) {
   const { user } = useAuthContext();
-  const [isPartner, setIsPartner] = useState(false);
   const [userData, setUserData] = useState<UserData>({
     firstName: '',
     lastName: '',
@@ -30,8 +28,6 @@ export function useUserProfile(onAccountDeleted?: () => void) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  const isAdmin = user?.role === UserRole.ADMIN;
-
   useEffect(() => {
     if (user) {
       const fetchData = async () => {
@@ -45,7 +41,6 @@ export function useUserProfile(onAccountDeleted?: () => void) {
               lastName: userDoc.lastName || '',
               phone: userDoc.phone || '',
             });
-            setIsPartner(userDoc.role === UserRole.PARTNER);
           }
         } catch (err: unknown) {
           const errMsg = err instanceof Error ? err.message : 'Não foi possível carregar o perfil.';
@@ -56,10 +51,8 @@ export function useUserProfile(onAccountDeleted?: () => void) {
         }
       };
       fetchData();
-    } else {
-      setIsPartner(false);
     }
-  }, [user, isAdmin]);
+  }, [user]);
 
   useEffect(() => {
     if (message) {
@@ -105,7 +98,12 @@ export function useUserProfile(onAccountDeleted?: () => void) {
       const err = error as { message?: string; code?: string };
       console.error('[useUserProfile] Error updating password:', error);
       let text = err?.message || 'Erro ao atualizar senha. Siga os requisitos mínimos.';
-      if (err?.code === 'auth/invalid-credential' || err?.code === 'auth/wrong-password') {
+      if (
+        err?.code === 'auth/popup-closed-by-user' ||
+        err?.code === 'auth/cancelled-popup-request'
+      ) {
+        text = 'Exclusão cancelada: confirme com sua conta Google para continuar.';
+      } else if (err?.code === 'auth/invalid-credential' || err?.code === 'auth/wrong-password') {
         text = 'Senha atual incorreta.';
       }
       setError(text);
@@ -116,7 +114,7 @@ export function useUserProfile(onAccountDeleted?: () => void) {
     }
   };
 
-  const deleteAccount = async (password: string) => {
+  const deleteAccount = async (password?: string) => {
     if (!user || !user.email) return;
     setIsLoading(true);
     setMessage(null);
@@ -160,8 +158,6 @@ export function useUserProfile(onAccountDeleted?: () => void) {
     setShowPasswords,
     isLoading,
     error,
-    isPartner,
-    isAdmin,
     showDeleteConfirm,
     setShowDeleteConfirm,
     message,

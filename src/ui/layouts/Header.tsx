@@ -79,30 +79,28 @@ export function Header({
       />
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          {isMainPage && (
-            <button
-              onClick={onMenuToggle}
-              aria-label={isMenuOpen ? t('header.closeMenu') : t('header.openMenu')}
-              aria-expanded={isMenuOpen}
-              className="relative w-[34px] h-[34px] rounded-xl bg-white/10 border border-white/20 backdrop-blur-2xl p-0.5 flex items-center justify-center active:scale-90 transition-all hover:bg-white/20 text-white/80 shadow-md overflow-hidden group before:absolute before:inset-[-5px] before:content-[''] focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none"
-            >
-              {user && photoURL ? (
-                <img
-                  src={photoURL}
-                  alt={t('header.profileAlt')}
-                  className="w-full h-full rounded-[10px] object-cover"
-                />
-              ) : user && userInitials ? (
-                <div className="w-full h-full rounded-[10px] bg-teal-500/15 border border-teal-400/20 flex items-center justify-center font-display font-black text-[10px] text-teal-300 tracking-wider select-none uppercase">
-                  {userInitials}
-                </div>
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-teal-400/70 group-hover:text-teal-400 transition-colors">
-                  <UserIcon size={16} />
-                </div>
-              )}
-            </button>
-          )}
+          <button
+            onClick={onMenuToggle}
+            aria-label={isMenuOpen ? t('header.closeMenu') : t('header.openMenu')}
+            aria-expanded={isMenuOpen}
+            className="relative w-[34px] h-[34px] rounded-xl bg-white/10 border border-white/20 backdrop-blur-2xl p-0.5 flex items-center justify-center active:scale-90 transition-all hover:bg-white/20 text-white/80 shadow-md overflow-hidden group before:absolute before:inset-[-5px] before:content-[''] focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none"
+          >
+            {user && photoURL ? (
+              <img
+                src={photoURL}
+                alt={t('header.profileAlt')}
+                className="w-full h-full rounded-[10px] object-cover"
+              />
+            ) : user && userInitials ? (
+              <div className="w-full h-full rounded-[10px] bg-teal-500/15 border border-teal-400/20 flex items-center justify-center font-display font-black text-[10px] text-teal-300 tracking-wider select-none uppercase">
+                {userInitials}
+              </div>
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-teal-400/70 group-hover:text-teal-400 transition-colors">
+                <UserIcon size={16} />
+              </div>
+            )}
+          </button>
           {isMainPage && user && (isAdmin || isPartner) && (
             <button
               onClick={onAdminOpen}

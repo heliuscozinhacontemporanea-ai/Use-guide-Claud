@@ -1,8 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
-import {
-  confirmPlanPaymentReturnUseCase,
-  createPlanPaymentIntentUseCase,
-} from '../application/usecases/paymentUseCases';
+import { confirmPlanPaymentReturnUseCase } from '../application/usecases/confirmPlanPaymentReturnUseCase';
+import { createPlanPaymentIntentUseCase } from '../application/usecases/createPlanPaymentIntentUseCase';
 import type { PaidPlanId } from '../types/payment';
 
 interface UsePaymentProps {

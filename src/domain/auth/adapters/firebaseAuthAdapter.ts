@@ -8,6 +8,7 @@ import {
   confirmPasswordReset,
   onAuthStateChanged,
   reauthenticateWithCredential,
+  reauthenticateWithPopup,
   EmailAuthProvider,
   updatePassword,
 } from 'firebase/auth';
@@ -189,6 +190,19 @@ export class FirebaseAuthAdapter implements AuthPort {
     if (!auth.currentUser) throw new Error('Nenhum usuário autenticado.');
     const credential = EmailAuthProvider.credential(email, currentPassword);
     await reauthenticateWithCredential(auth.currentUser, credential);
+  }
+
+  async reauthenticateWithGoogle(): Promise<void> {
+    if (!auth.currentUser) throw new Error('Nenhum usuário autenticado.');
+    await reauthenticateWithPopup(auth.currentUser, googleProvider);
+  }
+
+  hasPasswordSignIn(): boolean {
+    return (
+      auth.currentUser?.providerData.some(
+        (provider) => provider.providerId === EmailAuthProvider.PROVIDER_ID
+      ) ?? false
+    );
   }
 
   async changePassword(newPassword: string): Promise<void> {

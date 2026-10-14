@@ -8,10 +8,8 @@ import {
   Ticket as TicketIcon,
 } from 'lucide-react';
 import { GlassCard } from '../../../ui/components/GlassCard';
-import {
-  confirmTicketOrderPaymentReturnUseCase,
-  getTicketOrderUseCase,
-} from '../application/usecases/ticketingUseCases';
+import { confirmTicketOrderPaymentReturnUseCase } from '../application/usecases/confirmTicketOrderPaymentReturnUseCase';
+import { getTicketOrderUseCase } from '../application/usecases/getTicketOrderUseCase';
 import { formatMoneyMinorBrl, type TicketOrder } from '../types/ticketing';
 
 interface CheckoutResultViewProps {

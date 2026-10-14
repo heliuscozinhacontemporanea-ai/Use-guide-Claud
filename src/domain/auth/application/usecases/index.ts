@@ -9,4 +9,6 @@ export * from './resetPasswordUseCase';
 export * from './verifyPasswordResetCodeUseCase';
 export * from './confirmPasswordResetUseCase';
 export * from './reauthenticateUseCase';
+export * from './reauthenticateWithGoogleUseCase';
+export * from './hasPasswordSignInUseCase';
 export * from './changePasswordUseCase';

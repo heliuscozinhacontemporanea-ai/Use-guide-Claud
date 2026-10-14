@@ -11,7 +11,6 @@ import {
   ChevronLeft,
   Camera,
   Heart,
-  LifeBuoy,
   Mail,
   Ticket,
 } from 'lucide-react';
@@ -186,7 +185,7 @@ export function MainMenuView({
 
         <div className="mt-2">
           <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50 mb-3 ml-1">
-            {t('menu.signInOrRegister')}
+            {user ? t('menu.yourArea') : t('menu.signInOrRegister')}
           </p>
 
           {user ? (
@@ -235,7 +234,7 @@ export function MainMenuView({
                     <div className="w-8 h-8 rounded-xl bg-teal-500/10 flex items-center justify-center text-teal-400 group-hover:bg-teal-500/20 group-hover:scale-110 transition-all shadow-lg shadow-teal-500/5">
                       <Ticket size={16} />
                     </div>
-                    <span className="text-white/80">Meus Ingressos</span>
+                    <span className="text-white/80">{t('menu.tickets')}</span>
                   </div>
                   <ChevronRight
                     size={14}
@@ -344,7 +343,7 @@ export function MainMenuView({
               {t('menu.servicesInfo')}
             </p>
 
-            {!isPartner && (
+            {!isPartner && !isAdmin && (
               <button
                 type="button"
                 onClick={onPartnersOpen}
@@ -362,22 +361,6 @@ export function MainMenuView({
                 />
               </button>
             )}
-
-            <button
-              type="button"
-              className="w-full flex items-center justify-between gap-3 p-4 rounded-[1.5rem] glassmorphism text-white active:scale-95 transition-all text-[10px] font-black uppercase tracking-[0.1em] border border-white/10 group focus-visible:ring-2 focus-visible:ring-teal-400/50"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-xl bg-red-500/10 flex items-center justify-center text-red-500 group-hover:bg-red-500/20 group-hover:scale-110 transition-all shadow-lg shadow-red-500/5">
-                  <LifeBuoy size={16} />
-                </div>
-                <span className="text-white/80">{t('menu.emergencyCenter')}</span>
-              </div>
-              <ChevronRight
-                size={14}
-                className="opacity-30 group-hover:opacity-100 group-hover:translate-x-1 transition-all"
-              />
-            </button>
 
             <button
               type="button"

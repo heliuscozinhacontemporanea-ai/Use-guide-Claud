@@ -1,5 +1,5 @@
 import { SUPPORTED_LOCALES } from '../../../shared/kernel/locale';
-import { INDEXABLE_ROUTE_KEYS, type RouteKey } from '../../../shared/kernel/localizedRoutes';
+import { ROUTE_KEYS, type RouteKey } from '../../../shared/kernel/localizedRoutes';
 import type { SeoContentPort } from '../ports/seoContentPort';
 import { absoluteUrl, buildAlternates, itemSearch } from '../utils/localizedUrls';
 import { CATEGORY_ROUTE_KEY } from '../utils/routeSeo';
@@ -36,7 +36,7 @@ export class SitemapService {
   async renderXml(): Promise<string> {
     const entries = await this.content.listIndexableEntries();
     const urls = [
-      ...INDEXABLE_ROUTE_KEYS.flatMap((routeKey) => renderPageUrls(routeKey, '')),
+      ...ROUTE_KEYS.flatMap((routeKey) => renderPageUrls(routeKey, '')),
       ...entries.flatMap((entry) =>
         renderPageUrls(
           CATEGORY_ROUTE_KEY[entry.category],

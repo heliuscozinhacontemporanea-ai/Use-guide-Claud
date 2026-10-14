@@ -3,12 +3,16 @@ import { toast } from 'sonner';
 import { ConfirmDialogData } from '../../ui/components/ConfirmDialog';
 
 export type ToastType = 'success' | 'error' | 'info';
+export type LoginModalTab = 'login' | 'forgot';
 
 export interface UIState {
   isLoginModalOpen: boolean;
+  loginModalTab: LoginModalTab;
   isLoginClosingBySwipe: boolean;
   confirmDialog: ConfirmDialogData | null;
   openLoginModal: () => void;
+  /** Abre o modal direto em "esqueci minha senha". */
+  openPasswordRecovery: () => void;
   closeLoginModal: () => void;
   setLoginClosingBySwipe: (val: boolean) => void;
   showToast: (message: string, type?: ToastType) => void;
@@ -18,10 +22,14 @@ export interface UIState {
 
 export const useUIStore = create<UIState>((set) => ({
   isLoginModalOpen: false,
+  loginModalTab: 'login',
   isLoginClosingBySwipe: false,
   confirmDialog: null,
 
-  openLoginModal: () => set({ isLoginModalOpen: true, isLoginClosingBySwipe: false }),
+  openLoginModal: () =>
+    set({ isLoginModalOpen: true, loginModalTab: 'login', isLoginClosingBySwipe: false }),
+  openPasswordRecovery: () =>
+    set({ isLoginModalOpen: true, loginModalTab: 'forgot', isLoginClosingBySwipe: false }),
   closeLoginModal: () => set({ isLoginModalOpen: false, isLoginClosingBySwipe: false }),
   setLoginClosingBySwipe: (val: boolean) => set({ isLoginClosingBySwipe: val }),
 

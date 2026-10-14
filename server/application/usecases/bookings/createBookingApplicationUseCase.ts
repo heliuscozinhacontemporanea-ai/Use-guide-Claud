@@ -29,7 +29,9 @@ export async function createBookingApplicationUseCase(
   if (!buyer.emailVerified) {
     throw new BookingDomainError('EMAIL_NOT_VERIFIED', 'Confirme seu e-mail antes de reservar.');
   }
-  const platformFeePercent = Number(process.env.USE_GUIDE_PLATFORM_FEE_PERCENT ?? 10);
+  const rawFee = process.env.USE_GUIDE_PLATFORM_FEE_PERCENT;
+  const parsedFee = rawFee ? Number(String(rawFee).replace('%', '').trim()) : 10;
+  const platformFeePercent = Number.isFinite(parsedFee) ? parsedFee : 10;
   const booking = await createPendingBookingUseCase(
     { uid: buyer.uid, admin: buyer.admin },
     input,

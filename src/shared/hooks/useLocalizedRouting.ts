@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { type NavigateOptions, useLocation, useNavigate } from 'react-router-dom';
 import {
   DEFAULT_LOCALE,
   type Locale,
@@ -23,7 +23,8 @@ export function useLocalizedRouting() {
   const pathFor = useCallback((routeKey: RouteKey) => localizedPath(routeKey, locale), [locale]);
 
   const goTo = useCallback(
-    (routeKey: RouteKey, search = '') => navigate(`${localizedPath(routeKey, locale)}${search}`),
+    (routeKey: RouteKey, search = '', options?: NavigateOptions) =>
+      navigate(`${localizedPath(routeKey, locale)}${search}`, options),
     [navigate, locale]
   );
 

@@ -768,7 +768,7 @@ Regras:
 ## 13. Modularidade e Responsabilidade Única
 
 * Cada arquivo tem uma razão para mudar. Componentes que misturam formulário + lista + filtros + métricas DEVEM ser divididos; o container só orquestra.
-* **Um UseCase por arquivo** (`createBookingUseCase.ts`). Arquivos agregadores existentes (`eventUseCases.ts`, `ticketingUseCases.ts`, `paymentUseCases.ts`) são débito: novos UseCases não entram neles.
+* **Um UseCase por arquivo** (`createBookingUseCase.ts`), com o nome do arquivo igual ao da função exportada. É proibido criar arquivo agregador de UseCases; tipos compartilhados entre UseCases ficam em arquivo próprio (ex: `orchestrationActor.ts`).
 * Referência de tamanho: arquivo acima de **~200 linhas** DEVE ser avaliado para divisão; acima de **400** linhas, dividir ao tocar (exceto testes, schemas e mappers declarativos).
 * Hooks com estados não relacionados DEVEM ser divididos em hooks compostos.
 

@@ -1,13 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
-import {
-  checkInTicketUseCase,
-  createPartnerConnectAccountUseCase,
-  getEventSalesAnalyticsUseCase,
-  getPartnerMerchantStatusUseCase,
-  listEventCheckInsUseCase,
-  listEventOrdersUseCase,
-  listEventRefundsUseCase,
-} from '../application/usecases/ticketingUseCases';
+import { checkInTicketUseCase } from '../application/usecases/checkInTicketUseCase';
+import { createPartnerConnectAccountUseCase } from '../application/usecases/createPartnerConnectAccountUseCase';
+import { getEventSalesAnalyticsUseCase } from '../application/usecases/getEventSalesAnalyticsUseCase';
+import { getPartnerMerchantStatusUseCase } from '../application/usecases/getPartnerMerchantStatusUseCase';
+import { listEventCheckInsUseCase } from '../application/usecases/listEventCheckInsUseCase';
+import { listEventOrdersUseCase } from '../application/usecases/listEventOrdersUseCase';
+import { listEventRefundsUseCase } from '../application/usecases/listEventRefundsUseCase';
 import type {
   EventCheckIn,
   EventSalesAnalytics,

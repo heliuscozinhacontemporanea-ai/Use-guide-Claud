@@ -60,6 +60,8 @@ interface ReportsViewProps {
   events: GuideItem[];
 }
 
+const PENDING_PREVIEW_COUNT = 3;
+
 export function ReportsView({ items, events }: ReportsViewProps) {
   const { showToast } = useUI();
   const [selectedEntity, setSelectedEntity] = useState<{
@@ -77,6 +79,7 @@ export function ReportsView({ items, events }: ReportsViewProps) {
   const [reviews, setReviews] = useState<PartnerReview[]>([]);
   const [replyText, setReplyText] = useState('');
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [showAllPending, setShowAllPending] = useState(false);
 
   useEffect(() => {
     if (selectedEntity) {
@@ -298,9 +301,6 @@ export function ReportsView({ items, events }: ReportsViewProps) {
                   Últimos 7 dias
                 </p>
               </div>
-              <button className="px-4 py-2 min-h-[44px] rounded-xl bg-white/5 border border-white/10 text-[9px] font-semibold tracking-wide text-white/50 hover:text-white hover:bg-white/10 transition-all">
-                Ver Histórico
-              </button>
             </div>
 
             <div className="h-64 w-full">
@@ -355,14 +355,24 @@ export function ReportsView({ items, events }: ReportsViewProps) {
                   {unansweredReviews.length} aguardando resposta
                 </p>
               </div>
-              <button className="px-4 py-2 min-h-[44px] rounded-xl bg-white/5 border border-white/10 text-[9px] font-semibold tracking-wide text-white/50 hover:text-white hover:bg-white/10 transition-all">
-                Ver Histórico
-              </button>
+              {unansweredReviews.length > PENDING_PREVIEW_COUNT && (
+                <button
+                  type="button"
+                  onClick={() => setShowAllPending((prev) => !prev)}
+                  aria-expanded={showAllPending}
+                  className="px-4 py-2 min-h-[44px] rounded-xl bg-white/5 border border-white/10 text-[9px] font-semibold tracking-wide text-white/50 hover:text-white hover:bg-white/10 transition-all focus-visible:ring-2 focus-visible:ring-teal-400/50"
+                >
+                  {showAllPending ? 'Mostrar menos' : 'Ver todas'}
+                </button>
+              )}
             </div>
 
             <div className="space-y-4">
               {unansweredReviews.length > 0 ? (
-                unansweredReviews.slice(0, 3).map((review) => (
+                (showAllPending
+                  ? unansweredReviews
+                  : unansweredReviews.slice(0, PENDING_PREVIEW_COUNT)
+                ).map((review) => (
                   <div
                     key={review.id}
                     className="p-5 rounded-2xl bg-white/5 border border-white/5 space-y-4"

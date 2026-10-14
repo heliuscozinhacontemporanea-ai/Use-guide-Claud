@@ -102,7 +102,6 @@ describe('updateDocumentSEO utility', () => {
       canonicalUrl: 'https://useguide.com.br/fr/evenements',
       locale: 'fr',
     });
-    expect(getRouteSeoMetadata('/en/favorites').robots).toBe('noindex, follow');
   });
 
   it('rotas fora do mapa: admin noindex, desconhecida noindex', () => {

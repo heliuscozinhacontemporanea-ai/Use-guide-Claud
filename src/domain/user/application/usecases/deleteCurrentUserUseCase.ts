@@ -1,30 +1,27 @@
 import { userAdapter } from '../../factory';
-import { reauthenticateUseCase, getIdTokenUseCase, logoutUseCase } from '../../../auth';
+import {
+  getIdTokenUseCase,
+  hasPasswordSignInUseCase,
+  logoutUseCase,
+  reauthenticateUseCase,
+  reauthenticateWithGoogleUseCase,
+} from '../../../auth';
+
+/** Excluir a conta exige login recente: senha para conta de e-mail, popup do Google para as demais. */
+async function confirmIdentity(email: string | undefined, password: string | undefined) {
+  if (hasPasswordSignInUseCase()) {
+    if (!email || !password) {
+      throw new Error('REAUTHENTICATION_REQUIRED');
+    }
+    await reauthenticateUseCase(email, password);
+  } else {
+    await reauthenticateWithGoogleUseCase();
+  }
+  await getIdTokenUseCase(true);
+}
 
 export async function deleteCurrentUserUseCase(email?: string, password?: string): Promise<void> {
-  if (email && password) {
-    await reauthenticateUseCase(email, password);
-    await getIdTokenUseCase(true);
-  }
-
-  try {
-    await userAdapter.deleteCurrentUser();
-  } catch (error: any) {
-    if (
-      error?.message === 'REAUTHENTICATION_REQUIRED' ||
-      error?.code === 'REAUTHENTICATION_REQUIRED'
-    ) {
-      if (email && password) {
-        await reauthenticateUseCase(email, password);
-        await getIdTokenUseCase(true);
-        await userAdapter.deleteCurrentUser();
-      } else {
-        throw error;
-      }
-    } else {
-      throw error;
-    }
-  }
-
+  await confirmIdentity(email, password);
+  await userAdapter.deleteCurrentUser();
   await logoutUseCase().catch(() => {});
 }

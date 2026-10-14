@@ -8,17 +8,17 @@ import { getAllPartnerIdsUseCase } from '../../partners';
 export class NotificationService {
   constructor(private repo: NotificationRepositoryPort) {}
 
-  async createNotification(input: CreateNotificationInput): Promise<void> {
+  async createNotification(input: CreateNotificationInput): Promise<boolean> {
     // If the type is configurable, check if the partner opted in
     if (input.type === 'review' || input.type === 'plan_expiring') {
       const enabled = await this.repo.isNotificationTypeEnabled(
         input.recipientPartnerId,
         input.type
       );
-      if (!enabled) return;
+      if (!enabled) return false;
     }
 
-    await this.repo.createNotification(input);
+    return this.repo.createNotification(input);
   }
 
   async sendAdminMessage(

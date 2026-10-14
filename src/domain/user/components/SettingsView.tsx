@@ -2,19 +2,13 @@ import React from 'react';
 import { ChevronLeft, ChevronRight, Languages, Sun, Moon, Monitor } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { DEFAULT_LOCALE, getLocaleDisplayLabel, i18n, normalizeLocale } from '../../../shared/i18n';
-import { useTheme, type Theme } from '../../../shared/context/ThemeContext';
+import { useTheme } from '../../../shared/context/ThemeContext';
 
 interface SettingsViewProps {
   onBack: () => void;
   onOpenLanguage: () => void;
   onOpenAppearance: () => void;
 }
-
-const THEME_LABELS: Record<Theme, string> = {
-  light: 'Claro',
-  dark: 'Escuro',
-  system: 'Sistema',
-};
 
 export function SettingsView({ onBack, onOpenLanguage, onOpenAppearance }: SettingsViewProps) {
   const { t } = useTranslation();
@@ -29,17 +23,17 @@ export function SettingsView({ onBack, onOpenLanguage, onOpenAppearance }: Setti
       <div className="flex items-center justify-center relative mb-8 pt-2 pr-2">
         <button
           onClick={onBack}
-          aria-label={t('header.closeMenu', 'Voltar')}
+          aria-label={t('settings.back')}
           className="absolute left-0 p-2 text-white/70 hover:text-white active:scale-90 transition-all z-10 focus-visible:ring-2 focus-visible:ring-teal-400/50 rounded-xl"
         >
           <ChevronLeft size={28} />
         </button>
         <div className="text-center">
           <h2 className="text-2xl font-display font-black mb-1 text-white leading-tight">
-            Configurações
+            {t('settings.title')}
           </h2>
           <p className="text-[10px] text-white/50 font-black uppercase tracking-widest">
-            Preferências do app
+            {t('settings.subtitle')}
           </p>
         </div>
       </div>
@@ -53,12 +47,12 @@ export function SettingsView({ onBack, onOpenLanguage, onOpenAppearance }: Setti
           <div className="flex items-center gap-3">
             <ThemeIcon size={18} className="text-white shrink-0" />
             <span className="text-sm font-semibold tracking-wide text-white/90 group-hover:text-white transition-colors">
-              Aparência
+              {t('settings.appearance')}
             </span>
           </div>
           <div className="flex items-center gap-2">
             <span className="text-xs text-white/50 font-medium">
-              {THEME_LABELS[theme]}
+              {t(`settings.theme.${theme}`)}
             </span>
             <ChevronRight size={16} className="text-white/40 group-hover:text-white/80 transition-colors" />
           </div>
@@ -72,7 +66,7 @@ export function SettingsView({ onBack, onOpenLanguage, onOpenAppearance }: Setti
           <div className="flex items-center gap-3">
             <Languages size={18} className="text-white shrink-0" />
             <span className="text-sm font-semibold tracking-wide text-white/90 group-hover:text-white transition-colors">
-              Idioma do Guide
+              {t('settings.language')}
             </span>
           </div>
           <div className="flex items-center gap-2">

@@ -1,10 +1,10 @@
 import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { UserRole } from '../../auth/types/auth';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuthContext } from '../../auth/context/AuthContext';
 import { ChevronLeft, RefreshCw, X } from 'lucide-react';
 import { useUI } from '../../../shared/stores/useUIStore';
+import { useLocalizedRouting } from '../../../shared/hooks/useLocalizedRouting';
 
 import {
   deletePartnerProfileUseCase,
@@ -52,7 +52,7 @@ import { AdminNotificationsView } from './subcomponents/AdminNotificationsView';
 export { ADMIN_CREATABLE_ITEM_CATEGORIES };
 
 export function AdminPanel() {
-  const navigate = useNavigate();
+  const { goTo } = useLocalizedRouting();
   const { user, loading: userLoading } = useAuthContext();
   const { showToast, confirmAction } = useUI();
   const [activeTab, setActiveTab] = useState<AdminTabId>('reports');
@@ -244,7 +244,7 @@ export function AdminPanel() {
         </p>
         <button
           type="button"
-          onClick={() => navigate('/')}
+          onClick={() => goTo('explore')}
           className="min-h-[44px] px-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-white/10 transition-all focus-visible:ring-2 focus-visible:ring-teal-400/50"
         >
           Voltar para o Início
@@ -269,7 +269,7 @@ export function AdminPanel() {
           <button
             type="button"
             aria-label="Voltar para Home"
-            onClick={() => navigate('/')}
+            onClick={() => goTo('explore')}
             className="w-11 h-11 flex items-center justify-center rounded-2xl bg-white/5 border border-white/10 text-white/50 hover:text-white hover:bg-white/10 transition-all active:scale-90 focus-visible:ring-2 focus-visible:ring-teal-400/50"
           >
             <ChevronLeft size={22} />

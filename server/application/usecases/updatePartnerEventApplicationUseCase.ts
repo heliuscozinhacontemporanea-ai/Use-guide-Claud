@@ -5,7 +5,7 @@ import {
   type UpdateEventListingInput,
 } from '../../domain/events';
 import { updateBusinessUseCase } from '../../domain/partners';
-import { updateEventListingSafelyApplicationUseCase } from './eventLifecycleOrchestrationUseCases';
+import { updateEventListingSafelyApplicationUseCase } from './updateEventListingSafelyApplicationUseCase';
 
 export async function updatePartnerEventApplicationUseCase(
   user: AuthenticatedUserContext,

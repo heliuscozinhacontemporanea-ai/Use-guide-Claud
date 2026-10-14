@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { RefreshCw } from 'lucide-react';
+import { LogIn, RefreshCw, ShieldAlert } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { PartnerPanel, getPartnerProfileUseCase } from '../../domain/partners';
 import type { PartnerProfile, SubscriptionPlan } from '../../domain/partners';
 import { getActiveSubscriptionPlansUseCase } from '../../domain/admin';
@@ -10,10 +11,15 @@ import { CheckoutModal, isPaidPlanId, PlanSubscriptionCard } from '../../domain/
 import { PartnerBookingsComposition } from './PartnerBookingsComposition';
 import { NotificationBell } from '../../domain/notifications';
 import { PartnerEventTicketingManager } from '../../domain/ticketing';
-import { ErrorState } from '../../ui/components/ErrorState';
+import { useLocalizedRouting } from '../../shared/hooks/useLocalizedRouting';
+import { useUI } from '../../shared/stores/useUIStore';
+import { MessagePage } from '../../ui/components/MessagePage';
 
 export function PartnerPortalComposition() {
+  const { t } = useTranslation();
   const { user, loading } = useAuthContext();
+  const { openLoginModal } = useUI();
+  const { goTo } = useLocalizedRouting();
 
   const [profile, setProfile] = useState<PartnerProfile | null>(null);
   const [profileLoading, setProfileLoading] = useState(true);
@@ -37,12 +43,16 @@ export function PartnerPortalComposition() {
   }, []);
 
   useEffect(() => {
-    if (loading || !user) {
+    if (loading) {
+      return;
+    }
+    if (!user) {
+      setProfileLoading(false);
       return;
     }
 
     if (user.role !== UserRole.PARTNER) {
-      setProfileError('Acesso permitido somente para parceiros.');
+      setProfileError('pages.partnerOnly');
       setProfileLoading(false);
       return;
     }
@@ -57,7 +67,7 @@ export function PartnerPortalComposition() {
           return;
         }
         if (!result) {
-          setProfileError('Perfil de parceiro não encontrado.');
+          setProfileError('pages.partnerProfileNotFound');
           setProfile(null);
           return;
         }
@@ -68,7 +78,7 @@ export function PartnerPortalComposition() {
           return;
         }
         console.error('[PartnerPortalComposition]', error);
-        setProfileError('Não foi possível carregar o perfil do parceiro.');
+        setProfileError('pages.partnerProfileLoadError');
         setProfile(null);
       })
       .finally(() => {
@@ -90,16 +100,29 @@ export function PartnerPortalComposition() {
     );
   }
 
-  if (profileError) {
+  if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#020508] p-6">
-        <ErrorState message={profileError} onRetry={() => window.location.reload()} />
-      </div>
+      <MessagePage
+        icon={LogIn}
+        title={t('pages.partnerAreaTitle')}
+        description={t('pages.partnerLoginRequired')}
+        actionLabel={t('pages.signIn')}
+        onAction={openLoginModal}
+      />
     );
   }
 
-  if (!user || !profile) {
-    return null;
+  // O portal esconde o cabeçalho e a navegação; a ação leva de volta ao guia.
+  if (profileError || !profile) {
+    return (
+      <MessagePage
+        icon={ShieldAlert}
+        title={t('pages.partnerAreaTitle')}
+        description={t(profileError ?? 'pages.partnerProfileNotFound')}
+        actionLabel={t('pages.backHome')}
+        onAction={() => goTo('explore')}
+      />
+    );
   }
 
   return (

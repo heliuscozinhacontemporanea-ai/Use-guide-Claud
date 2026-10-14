@@ -1,3 +1,4 @@
+import { ArrowLeft } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ConfirmDialog, type ConfirmDialogData } from '../../../../ui/components/ConfirmDialog';
@@ -42,7 +43,8 @@ function BookingCard({ booking, onCancel }: { booking: BookingSummary; onCancel?
   );
 }
 
-export function MyBookingsView() {
+/** Lista de reservas do comprador, aberta como sub-tela do menu lateral. */
+export function MyBookingsView({ onBack }: { onBack: () => void }) {
   const { t, i18n } = useTranslation();
   const { data, loading, error, hasMore, reload, loadMore, cancel } = useMyBookings();
   const [confirm, setConfirm] = useState<ConfirmDialogData | null>(null);
@@ -85,10 +87,20 @@ export function MyBookingsView() {
   };
 
   return (
-    <section className="max-w-2xl mx-auto px-4 pb-32 space-y-5">
-      <h1 className="text-2xl font-display font-black text-white">
-        {t('bookings.buyer.myBookingsTitle')}
-      </h1>
+    <section className="w-full space-y-5">
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={onBack}
+          aria-label={t('bookings.buyer.back')}
+          className="w-11 h-11 shrink-0 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center text-white/70 focus-visible:ring-2 focus-visible:ring-teal-400/50"
+        >
+          <ArrowLeft size={16} aria-hidden="true" />
+        </button>
+        <h2 className="text-xl font-display font-black text-white">
+          {t('bookings.buyer.myBookingsTitle')}
+        </h2>
+      </div>
       {notice && (
         <p role="status" className="text-sm text-teal-200">
           {notice}

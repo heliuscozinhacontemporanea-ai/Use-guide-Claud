@@ -58,6 +58,7 @@
 | `registerPartnerApplicationUseCase` | partners, users |
 | `verifyPartnerApplicationUseCase` | partners, guide, events |
 | `activatePartnerTrialApplicationUseCase` | partners, guide, events |
+| `checkExpiringPartnerPlansApplicationUseCase` | partners, notifications |
 | `create/update/deletePartnerItemApplicationUseCase` | partners, guide |
 | `create/update/deletePartnerEventApplicationUseCase` | partners, events, guide |
 | `renderSeoPageApplicationUseCase`, `renderSitemapApplicationUseCase` | seo, guide, events (seo continua folha: recebe o catálogo pelo `SeoContentPort`; prompt 8) |

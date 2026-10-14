@@ -1,13 +1,17 @@
+import { defineString } from 'firebase-functions/params';
 import { onSchedule } from 'firebase-functions/v2/scheduler';
-import { callInternalJob } from './callInternalJob';
+import { callInternalJob, internalJobKey } from './callInternalJob';
+
+const jobUrl = defineString('BOOKINGS_EXPIRATION_JOB_URL');
 
 // Devolve as vagas das reservas não pagas em 15 minutos.
 export const expireBookings = onSchedule(
   {
     schedule: '*/5 * * * *',
     timeZone: 'America/Fortaleza',
+    secrets: [internalJobKey],
   },
   async () => {
-    await callInternalJob(process.env.BOOKINGS_EXPIRATION_JOB_URL, 'expireBookings');
+    await callInternalJob(jobUrl.value(), 'expireBookings');
   }
 );

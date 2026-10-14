@@ -35,8 +35,10 @@ export interface TranslationResource {
     changeProfilePhoto: string;
     userFallback: string;
     signInOrRegister: string;
+    yourArea: string;
     account: string;
     favorites: string;
+    tickets: string;
     emailPassword: string;
     orUse: string;
     continueGoogle: string;
@@ -44,7 +46,6 @@ export interface TranslationResource {
     myPanel: string;
     servicesInfo: string;
     partnerProgram: string;
-    emergencyCenter: string;
     support: string;
     aboutApp: string;
     logout: string;
@@ -140,8 +141,6 @@ export interface TranslationResource {
       restaurants: { title: string; description: string };
       attractions: { title: string; description: string };
       guide: { title: string; description: string };
-      favorites: { title: string; description: string };
-      bookings: { title: string; description: string };
     };
   };
   pages: {
@@ -152,6 +151,31 @@ export interface TranslationResource {
     planPaymentTitle: string;
     planPaymentDescription: string;
     openPartnerArea: string;
+    partnerAreaTitle: string;
+    partnerLoginRequired: string;
+    signIn: string;
+    partnerOnly: string;
+    partnerProfileNotFound: string;
+    partnerProfileLoadError: string;
+  };
+  settings: {
+    title: string;
+    subtitle: string;
+    back: string;
+    appearance: string;
+    appearanceSubtitle: string;
+    language: string;
+    languageSubtitle: string;
+    theme: { light: string; dark: string; system: string };
+    themeDescription: { light: string; dark: string; system: string };
+  };
+  favorites: {
+    title: string;
+    subtitle: string;
+    back: string;
+    emptyTitle: string;
+    emptyDescription: string;
+    removeItem: string;
   };
 }
 const ptBR: TranslationResource = {
@@ -189,8 +213,10 @@ const ptBR: TranslationResource = {
     changeProfilePhoto: 'Alterar foto de perfil',
     userFallback: 'Usuário',
     signInOrRegister: 'Entrar ou cadastre-se',
+    yourArea: 'Sua área',
     account: 'Conta',
     favorites: 'Meus Favoritos',
+    tickets: 'Meus Ingressos',
     emailPassword: 'E-mail e Senha',
     orUse: 'Ou use',
     continueGoogle: 'Continuar com Google',
@@ -198,7 +224,6 @@ const ptBR: TranslationResource = {
     myPanel: 'Meu Painel',
     servicesInfo: 'Serviços & Info',
     partnerProgram: 'Programa de Parceiros',
-    emergencyCenter: 'Central de Emergência',
     support: 'Suporte / Ajuda',
     aboutApp: 'Sobre o App',
     logout: 'Sair',
@@ -320,14 +345,6 @@ const ptBR: TranslationResource = {
         title: 'Guia Prático & Dicas Úteis | Use Guide',
         description: 'Tudo o que você precisa saber: taxa de turismo, como chegar, melhor época, traslados e dicas essenciais.',
       },
-      favorites: {
-        title: 'Meus Favoritos | Use Guide',
-        description: 'Os lugares, passeios e eventos que você salvou no Use Guide.',
-      },
-      bookings: {
-        title: 'Minhas Reservas | Use Guide',
-        description: 'Seus passeios e entradas reservados no Use Guide.',
-      },
     },
   },
   pages: {
@@ -338,6 +355,36 @@ const ptBR: TranslationResource = {
     planPaymentTitle: 'Pagamento do plano em processamento',
     planPaymentDescription: 'Assim que o Stripe confirmar, o selo aparece na sua área de parceiro.',
     openPartnerArea: 'Abrir área do parceiro',
+    partnerAreaTitle: 'Área do parceiro',
+    partnerLoginRequired: 'Entre na sua conta de parceiro para abrir o painel.',
+    signIn: 'Entrar',
+    partnerOnly: 'Este painel é exclusivo para parceiros cadastrados.',
+    partnerProfileNotFound: 'Não encontramos o seu cadastro de parceiro.',
+    partnerProfileLoadError: 'Não foi possível carregar o seu cadastro de parceiro.',
+  },
+  settings: {
+    title: 'Configurações',
+    subtitle: 'Preferências do app',
+    back: 'Voltar',
+    appearance: 'Aparência',
+    appearanceSubtitle: 'Selecione o modo',
+    language: 'Idioma do Guide',
+    languageSubtitle: 'Selecione o idioma',
+    theme: { light: 'Claro', dark: 'Escuro', system: 'Sistema' },
+    themeDescription: {
+      light: 'Tema com tonalidade clara',
+      dark: 'Tema escuro padrão com efeito glassmorphism',
+      system: 'Acompanha a preferência do dispositivo',
+    },
+  },
+  favorites: {
+    title: 'Meus Favoritos',
+    subtitle: 'Seus itens salvos',
+    back: 'Voltar para o menu principal',
+    emptyTitle: 'Nenhum favorito salvo',
+    emptyDescription:
+      'Você ainda não favoritou nenhum item. Explore o guia e toque no coração para guardar o que gostou.',
+    removeItem: 'Remover {{name}} dos favoritos',
   },
 };
 const en: TranslationResource = {
@@ -375,8 +422,10 @@ const en: TranslationResource = {
     changeProfilePhoto: 'Change profile photo',
     userFallback: 'User',
     signInOrRegister: 'Sign in or register',
+    yourArea: 'Your area',
     account: 'Account',
     favorites: 'My Favorites',
+    tickets: 'My Tickets',
     emailPassword: 'Email & Password',
     orUse: 'Or use',
     continueGoogle: 'Continue with Google',
@@ -384,7 +433,6 @@ const en: TranslationResource = {
     myPanel: 'My Panel',
     servicesInfo: 'Services & Info',
     partnerProgram: 'Partner Program',
-    emergencyCenter: 'Emergency Center',
     support: 'Support / Help',
     aboutApp: 'About the App',
     logout: 'Sign out',
@@ -504,14 +552,6 @@ const en: TranslationResource = {
         title: 'Practical Guide & Tips | Use Guide',
         description: 'Everything you need to know: tourism fee, how to get there, best season, transfers and essential tips.',
       },
-      favorites: {
-        title: 'My Favorites | Use Guide',
-        description: 'The places, tours and events you saved on Use Guide.',
-      },
-      bookings: {
-        title: 'My Bookings | Use Guide',
-        description: 'Your tours and entries booked on Use Guide.',
-      },
     },
   },
   pages: {
@@ -522,6 +562,36 @@ const en: TranslationResource = {
     planPaymentTitle: 'Plan payment processing',
     planPaymentDescription: 'As soon as Stripe confirms, the badge appears in your partner area.',
     openPartnerArea: 'Open partner area',
+    partnerAreaTitle: 'Partner area',
+    partnerLoginRequired: 'Sign in to your partner account to open the dashboard.',
+    signIn: 'Sign in',
+    partnerOnly: 'This dashboard is only for registered partners.',
+    partnerProfileNotFound: 'We couldn’t find your partner registration.',
+    partnerProfileLoadError: 'We couldn’t load your partner registration.',
+  },
+  settings: {
+    title: 'Settings',
+    subtitle: 'App preferences',
+    back: 'Back',
+    appearance: 'Appearance',
+    appearanceSubtitle: 'Choose a mode',
+    language: 'Guide language',
+    languageSubtitle: 'Choose a language',
+    theme: { light: 'Light', dark: 'Dark', system: 'System' },
+    themeDescription: {
+      light: 'Light-toned theme',
+      dark: 'Default dark theme with glass effect',
+      system: 'Follows your device setting',
+    },
+  },
+  favorites: {
+    title: 'My Favorites',
+    subtitle: 'Your saved items',
+    back: 'Back to the main menu',
+    emptyTitle: 'No saved favorites',
+    emptyDescription:
+      "You haven't saved anything yet. Explore the guide and tap the heart to keep what you like.",
+    removeItem: 'Remove {{name}} from favorites',
   },
 };
 const fr: TranslationResource = {
@@ -559,8 +629,10 @@ const fr: TranslationResource = {
     changeProfilePhoto: 'Changer la photo de profil',
     userFallback: 'Utilisateur',
     signInOrRegister: 'Connexion ou inscription',
+    yourArea: 'Votre espace',
     account: 'Compte',
     favorites: 'Mes favoris',
+    tickets: 'Mes billets',
     emailPassword: 'E-mail et mot de passe',
     orUse: 'Ou utiliser',
     continueGoogle: 'Continuer avec Google',
@@ -568,7 +640,6 @@ const fr: TranslationResource = {
     myPanel: 'Mon espace',
     servicesInfo: 'Services et infos',
     partnerProgram: 'Programme partenaires',
-    emergencyCenter: 'Centre d’urgence',
     support: 'Support / Aide',
     aboutApp: 'À propos de l’app',
     logout: 'Se déconnecter',
@@ -693,14 +764,6 @@ const fr: TranslationResource = {
         title: 'Guide Pratique & Conseils | Use Guide',
         description: 'Tout ce qu\'il faut savoir : taxe touristique, comment venir, meilleure saison, transferts et conseils essentiels.',
       },
-      favorites: {
-        title: 'Mes Favoris | Use Guide',
-        description: 'Les lieux, excursions et événements que vous avez enregistrés sur Use Guide.',
-      },
-      bookings: {
-        title: 'Mes Réservations | Use Guide',
-        description: 'Vos excursions et entrées réservées sur Use Guide.',
-      },
     },
   },
   pages: {
@@ -711,6 +774,36 @@ const fr: TranslationResource = {
     planPaymentTitle: 'Paiement du forfait en cours',
     planPaymentDescription: 'Dès que Stripe confirme, le badge apparaît dans votre espace partenaire.',
     openPartnerArea: 'Ouvrir l’espace partenaire',
+    partnerAreaTitle: 'Espace partenaire',
+    partnerLoginRequired: 'Connectez-vous à votre compte partenaire pour ouvrir le tableau de bord.',
+    signIn: 'Se connecter',
+    partnerOnly: 'Ce tableau de bord est réservé aux partenaires inscrits.',
+    partnerProfileNotFound: 'Nous n’avons pas trouvé votre inscription de partenaire.',
+    partnerProfileLoadError: 'Impossible de charger votre inscription de partenaire.',
+  },
+  settings: {
+    title: 'Paramètres',
+    subtitle: 'Préférences de l’app',
+    back: 'Retour',
+    appearance: 'Apparence',
+    appearanceSubtitle: 'Choisissez un mode',
+    language: 'Langue du guide',
+    languageSubtitle: 'Choisissez une langue',
+    theme: { light: 'Clair', dark: 'Sombre', system: 'Système' },
+    themeDescription: {
+      light: 'Thème aux tons clairs',
+      dark: 'Thème sombre par défaut avec effet verre',
+      system: 'Suit le réglage de votre appareil',
+    },
+  },
+  favorites: {
+    title: 'Mes favoris',
+    subtitle: 'Vos éléments enregistrés',
+    back: 'Retour au menu principal',
+    emptyTitle: 'Aucun favori enregistré',
+    emptyDescription:
+      'Vous n’avez encore rien enregistré. Explorez le guide et touchez le cœur pour garder ce qui vous plaît.',
+    removeItem: 'Retirer {{name}} des favoris',
   },
 };
 export const resources = {

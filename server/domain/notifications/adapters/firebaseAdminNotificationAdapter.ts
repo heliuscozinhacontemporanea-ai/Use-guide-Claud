@@ -11,18 +11,30 @@ import {
 } from '../errors/notificationErrors';
 
 export class FirebaseAdminNotificationAdapter implements NotificationRepositoryPort {
-  async createNotification(input: CreateNotificationInput): Promise<void> {
+  async createNotification(input: CreateNotificationInput): Promise<boolean> {
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 30);
 
-    const docRef = adminDb.collection('notifications').doc();
+    const { id, ...rest } = input;
+    const docRef = id
+      ? adminDb.collection('notifications').doc(id)
+      : adminDb.collection('notifications').doc();
+
+    if (id) {
+      const existing = await docRef.get();
+      if (existing.exists) {
+        return false;
+      }
+    }
+
     await docRef.set({
-      ...input,
+      ...rest,
       relatedItemCollection: input.relatedItemCollection ?? input.itemCollection ?? null,
       read: false,
       createdAt: FieldValue.serverTimestamp(),
       expiresAt: Timestamp.fromDate(expiresAt),
     });
+    return true;
   }
 
   async createBulkNotifications(

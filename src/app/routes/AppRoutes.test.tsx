@@ -11,9 +11,6 @@ vi.mock('../../domain/guide/components/ExploreView', () => ({
 vi.mock('../../domain/guide/components/GridView', () => ({
   GridView: ({ category }: { category: string }) => <div>grid-{category}</div>,
 }));
-vi.mock('../../domain/favorites', () => ({
-  FavoritesList: () => <div>favorites-list</div>,
-}));
 vi.mock('../../domain/ticketing', () => ({
   CheckoutResultView: ({ orderId }: { orderId: string }) => <div>checkout-{orderId}</div>,
 }));
@@ -45,34 +42,35 @@ describe('AppRoutes', () => {
 
   it('rota em inglês renderiza a listagem e troca o idioma para en', async () => {
     renderAt('/en/tours');
-    expect(screen.getByText('grid-tour')).toBeTruthy();
+    expect(await screen.findByText('grid-tour')).toBeTruthy();
     await waitFor(() => expect(i18n.language).toBe('en'));
   });
 
-  it('slug traduzido em francês leva à mesma listagem', () => {
+  it('slug traduzido em francês leva à mesma listagem', async () => {
     renderAt('/fr/hebergements');
-    expect(screen.getByText('grid-hotel')).toBeTruthy();
+    expect(await screen.findByText('grid-hotel')).toBeTruthy();
   });
 
-  it('/favoritos renderiza a lista de favoritos', () => {
+  it('/favoritos não é página: favoritos ficam no menu lateral', async () => {
     renderAt('/favoritos');
-    expect(screen.getByText('favorites-list')).toBeTruthy();
+    expect(await screen.findByRole('heading', { level: 1 })).toBeTruthy();
+    expect(screen.queryByText(/grid-|explore-view/)).toBeNull();
   });
 
-  it('/checkout/result com orderId mostra o resultado do pedido', () => {
+  it('/checkout/result com orderId mostra o resultado do pedido', async () => {
     renderAt('/checkout/result?orderId=order-1');
-    expect(screen.getByText('checkout-order-1')).toBeTruthy();
+    expect(await screen.findByText('checkout-order-1')).toBeTruthy();
   });
 
-  it('/checkout/result de plano orienta a abrir a área do parceiro', () => {
+  it('/checkout/result de plano orienta a abrir a área do parceiro', async () => {
     renderAt('/checkout/result?kind=plan');
-    expect(screen.getByText('Pagamento do plano em processamento')).toBeTruthy();
+    expect(await screen.findByText('Pagamento do plano em processamento')).toBeTruthy();
   });
 
   it('rota inexistente renderiza a página não encontrada sem mudar o idioma', async () => {
     await i18n.changeLanguage('fr');
     renderAt('/rota-inexistente');
-    expect(screen.getByText('Page introuvable')).toBeTruthy();
+    expect(await screen.findByText('Page introuvable')).toBeTruthy();
     expect(i18n.language).toBe('fr');
   });
 });

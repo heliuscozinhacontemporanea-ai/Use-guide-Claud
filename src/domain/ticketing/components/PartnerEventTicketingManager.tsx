@@ -20,13 +20,11 @@ import {
 import { useEventOccurrences, type EventOccurrence } from '../../events';
 import { PartnerStripeConnectPortal } from '../../payment';
 import { GlassCard } from '../../../ui/components/GlassCard';
-import {
-  createOfflineCheckInSessionUseCase,
-  createTicketTypeUseCase,
-  deleteOrArchiveTicketTypeUseCase,
-  syncOfflineCheckInsUseCase,
-  updateTicketTypeUseCase,
-} from '../application/usecases/ticketingUseCases';
+import { createOfflineCheckInSessionUseCase } from '../application/usecases/createOfflineCheckInSessionUseCase';
+import { createTicketTypeUseCase } from '../application/usecases/createTicketTypeUseCase';
+import { deleteOrArchiveTicketTypeUseCase } from '../application/usecases/deleteOrArchiveTicketTypeUseCase';
+import { syncOfflineCheckInsUseCase } from '../application/usecases/syncOfflineCheckInsUseCase';
+import { updateTicketTypeUseCase } from '../application/usecases/updateTicketTypeUseCase';
 import { usePartnerEventSales, usePartnerMerchantAccount } from '../hooks/usePartnerEventSales';
 import { useManagementTicketTypes } from '../hooks/useTicketTypes';
 import { formatMoneyMinorBrl } from '../types/ticketing';

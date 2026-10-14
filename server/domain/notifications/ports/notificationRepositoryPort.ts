@@ -1,6 +1,7 @@
 import { NotificationSettingsPatch } from '../dtos/UpdateNotificationSettingsDTO';
 
 export interface CreateNotificationInput {
+  id?: string;
   recipientPartnerId: string;
   type: 'review' | 'admin_message' | 'plan_expiring';
   title: string;
@@ -11,7 +12,7 @@ export interface CreateNotificationInput {
 }
 
 export interface NotificationRepositoryPort {
-  createNotification(input: CreateNotificationInput): Promise<void>;
+  createNotification(input: CreateNotificationInput): Promise<boolean>;
   createBulkNotifications(
     recipientPartnerIds: string[],
     data: Omit<CreateNotificationInput, 'recipientPartnerId'>

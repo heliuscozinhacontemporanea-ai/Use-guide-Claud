@@ -1,12 +1,12 @@
 import { ChevronLeft, RefreshCw, ShieldAlert } from 'lucide-react';
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '../../auth/context/AuthContext';
 import { UserRole } from '../../auth/types/auth';
 import { AdminPanel } from './AdminPanel';
+import { useLocalizedRouting } from '../../../shared/hooks/useLocalizedRouting';
 
 function RestrictedAdminAccess() {
-  const navigate = useNavigate();
+  const { goTo } = useLocalizedRouting();
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#020508] p-6 text-center">
       <div className="w-20 h-20 rounded-full bg-rose-500/10 flex items-center justify-center text-rose-500 mb-6 border border-rose-500/20">
@@ -20,7 +20,7 @@ function RestrictedAdminAccess() {
       </p>
       <button
         type="button"
-        onClick={() => navigate('/')}
+        onClick={() => goTo('explore')}
         className="px-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-[11px] font-black uppercase tracking-widest text-white hover:bg-white/10 transition-all cursor-pointer"
       >
         <div className="flex items-center gap-2">
@@ -33,14 +33,14 @@ function RestrictedAdminAccess() {
 }
 
 export function AdminDispatcher() {
-  const navigate = useNavigate();
+  const { goTo } = useLocalizedRouting();
   const { user, loading } = useAuthContext();
 
   useEffect(() => {
     if (!loading && !user) {
-      navigate('/');
+      goTo('explore');
     }
-  }, [user, loading, navigate]);
+  }, [user, loading, goTo]);
 
   if (loading) {
     return (

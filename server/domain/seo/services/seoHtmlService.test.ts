@@ -167,7 +167,7 @@ describe('SeoHtmlService.buildMetadata', () => {
     expect(meta.canonicalUrl).toBe('https://useguide.com.br/en/stays?item=item-1&type=item');
   });
 
-  it('favoritos não é indexado', async () => {
+  it('caminho fora do mapa de rotas não é indexado', async () => {
     const { service } = createService();
     const meta = await service.buildMetadata('/fr/favoris', {});
     expect(meta.robots).toBe('noindex, follow');

@@ -1,12 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
-import {
-  getTicketQrTokenUseCase,
-  listUserOrdersUseCase,
-  listUserTicketsUseCase,
-  reissueTicketQrTokenUseCase,
-  requestTicketRefundUseCase,
-  transferTicketUseCase,
-} from '../application/usecases/ticketingUseCases';
+import { getTicketQrTokenUseCase } from '../application/usecases/getTicketQrTokenUseCase';
+import { listUserOrdersUseCase } from '../application/usecases/listUserOrdersUseCase';
+import { listUserTicketsUseCase } from '../application/usecases/listUserTicketsUseCase';
+import { reissueTicketQrTokenUseCase } from '../application/usecases/reissueTicketQrTokenUseCase';
+import { requestTicketRefundUseCase } from '../application/usecases/requestTicketRefundUseCase';
+import { transferTicketUseCase } from '../application/usecases/transferTicketUseCase';
 import type { Ticket, TicketOrder } from '../types/ticketing';
 
 export function useUserTicketsAndOrders(enabled = true) {

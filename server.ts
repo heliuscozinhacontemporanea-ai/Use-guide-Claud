@@ -22,6 +22,7 @@ import mediaRouter from './server/domain/media/routes/mediaRoutes';
 import billingRouter from './server/interfaces/http/billing/billingRoutes';
 import { bookingsRouter, partnerOffersRouter } from './server/interfaces/http/bookings/bookingsRoutes';
 import { InternalBookingsController } from './server/interfaces/http/bookings/internalBookingsController';
+import { InternalPartnersController } from './server/interfaces/http/partners/internalPartnersController';
 import { verifyInternalJobKey } from './server/infrastructure/auth/internalJobAuth';
 import { renderSeoPageApplicationUseCase } from './server/application/usecases/renderSeoPageApplicationUseCase';
 import { renderSitemapApplicationUseCase } from './server/application/usecases/renderSitemapApplicationUseCase';
@@ -135,6 +136,11 @@ async function startServer() {
   );
   app.post('/internal/bookings/expire', verifyInternalJobKey, InternalBookingsController.expire);
   app.post('/internal/bookings/complete', verifyInternalJobKey, InternalBookingsController.complete);
+  app.post(
+    '/internal/partners/check-expiring-plans',
+    verifyInternalJobKey,
+    InternalPartnersController.checkExpiringPlans
+  );
 
   // 3. App Check para rotas /api/*
   app.use('/api', (req, res, next) => {

@@ -1,51 +1,35 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useTranslation } from 'react-i18next';
 import { Heart, ChevronLeft, MapPin, Star, Trash2 } from 'lucide-react';
 import { useFavorites } from '../hooks/useFavorites';
 import { FavoriteItem } from '../types/favorite';
-import { databaseAdapter } from '../../database/factory';
 import { GuideItem } from '../../guide';
 import { Skeleton } from '../../../ui/components/Skeleton';
 
 interface FavoritesListProps {
   onBack: () => void;
   onSelectItem?: ((item: GuideItem) => void) | undefined;
-  onCloseMenu?: (() => void) | undefined;
 }
 
-export function FavoritesList({ onBack, onSelectItem, onCloseMenu }: FavoritesListProps) {
+export function FavoritesList({ onBack, onSelectItem }: FavoritesListProps) {
+  const { t } = useTranslation();
   const { favorites, loading, removeFavoriteItem } = useFavorites();
-  const [openingId, setOpeningId] = React.useState<string | null>(null);
 
-  const handleCardClick = async (fav: FavoriteItem) => {
+  const handleCardClick = (fav: FavoriteItem) => {
     if (!onSelectItem) return;
-    setOpeningId(fav.id);
-    try {
-      const colName = fav.itemCollection === 'events' ? 'events' : 'items';
-      const doc = await databaseAdapter.getDocument<GuideItem>(colName, fav.itemId);
-      if (doc) {
-        onSelectItem(doc);
-        onCloseMenu?.();
-      } else if (fav.itemDetails) {
-        const fallbackItem: GuideItem = {
-          id: fav.itemId,
-          name: fav.itemDetails.name,
-          description: fav.itemDetails.description || '',
-          category: (fav.itemDetails.category ||
-            (fav.itemCollection === 'events' ? 'event' : 'sight')) as any,
-          image: fav.itemDetails.image || '',
-          location: (fav.itemDetails.location as any) || 'jeri',
-          ownerId: fav.partnerId || '',
-          rating: fav.itemDetails.rating,
-        };
-        onSelectItem(fallbackItem);
-        onCloseMenu?.();
-      }
-    } catch (error) {
-      console.error('[FavoritesList.handleCardClick Error]:', error);
-    } finally {
-      setOpeningId(null);
-    }
+    const category =
+      fav.itemCollection === 'events' ? 'event' : (fav.itemDetails?.category || 'sight');
+    onSelectItem({
+      id: fav.itemId,
+      category,
+      name: fav.itemDetails?.name || '',
+      description: fav.itemDetails?.description || '',
+      image: fav.itemDetails?.image || '',
+      location: (fav.itemDetails?.location as any) || 'jeri',
+      ownerId: fav.partnerId || '',
+      rating: fav.itemDetails?.rating,
+    } as GuideItem);
   };
 
   return (
@@ -53,20 +37,20 @@ export function FavoritesList({ onBack, onSelectItem, onCloseMenu }: FavoritesLi
       <div className="flex items-center justify-between relative mb-2 pt-2">
         <button
           onClick={onBack}
-          aria-label="Voltar para o menu principal"
-          className="p-2 text-white/70 hover:text-white active:scale-90 transition-all rounded-full bg-white/5 border border-white/10"
+          aria-label={t('favorites.back')}
+          className="w-11 h-11 shrink-0 flex items-center justify-center text-white/70 hover:text-white active:scale-90 transition-all rounded-full bg-white/5 border border-white/10 focus-visible:ring-2 focus-visible:ring-teal-400/50"
         >
           <ChevronLeft size={22} />
         </button>
         <div className="text-center flex-1 mx-2">
           <h2 className="text-xl font-display font-black text-white leading-tight">
-            Meus Favoritos
+            {t('favorites.title')}
           </h2>
           <p className="text-[10px] text-white/50 font-black uppercase tracking-widest">
-            Seus itens salvos
+            {t('favorites.subtitle')}
           </p>
         </div>
-        <div className="w-9" />
+        <div className="w-11" />
       </div>
 
       {loading ? (
@@ -95,11 +79,10 @@ export function FavoritesList({ onBack, onSelectItem, onCloseMenu }: FavoritesLi
           </div>
           <div>
             <h3 className="text-base font-display font-bold text-white mb-1">
-              Nenhum favorito salvo
+              {t('favorites.emptyTitle')}
             </h3>
             <p className="text-xs text-white/60 leading-relaxed max-w-xs mx-auto">
-              Você ainda não favoritou nenhum item. Explore o guia e toque no ícone de coração para
-              guardar suas preferências!
+              {t('favorites.emptyDescription')}
             </p>
           </div>
         </motion.div>
@@ -124,7 +107,6 @@ export function FavoritesList({ onBack, onSelectItem, onCloseMenu }: FavoritesLi
                 >
                   <button
                     onClick={() => handleCardClick(fav)}
-                    disabled={openingId === fav.id}
                     className="flex-1 flex items-center gap-3 text-left overflow-hidden min-w-0"
                   >
                     {image ? (
@@ -166,7 +148,7 @@ export function FavoritesList({ onBack, onSelectItem, onCloseMenu }: FavoritesLi
                       e.stopPropagation();
                       removeFavoriteItem(fav.itemId);
                     }}
-                    aria-label={`Remover ${name} dos favoritos`}
+                    aria-label={t('favorites.removeItem', { name })}
                     className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 hover:bg-rose-500/20 hover:border-rose-500/30 text-white/50 hover:text-rose-400 flex items-center justify-center transition-all shrink-0 active:scale-95"
                   >
                     <Trash2 size={16} />

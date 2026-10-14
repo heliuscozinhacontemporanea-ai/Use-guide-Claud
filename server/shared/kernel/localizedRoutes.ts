@@ -8,8 +8,6 @@ export const ROUTE_KEYS = [
   'restaurants',
   'attractions',
   'guide',
-  'favorites',
-  'bookings',
 ] as const;
 export type RouteKey = (typeof ROUTE_KEYS)[number];
 
@@ -25,16 +23,7 @@ export const LOCALIZED_ROUTES: Record<RouteKey, Record<Locale, string>> = {
   restaurants: { 'pt-BR': '/restaurantes', en: '/en/restaurants', fr: '/fr/restaurants' },
   attractions: { 'pt-BR': '/pontos', en: '/en/attractions', fr: '/fr/attractions' },
   guide: { 'pt-BR': '/info', en: '/en/travel-guide', fr: '/fr/guide-pratique' },
-  favorites: { 'pt-BR': '/favoritos', en: '/en/favorites', fr: '/fr/favoris' },
-  bookings: { 'pt-BR': '/reservas', en: '/en/bookings', fr: '/fr/reservations' },
 };
-
-/** Páginas pessoais (favoritos, reservas) ficam fora do sitemap e com noindex. */
-export const PRIVATE_ROUTE_KEYS: readonly RouteKey[] = ['favorites', 'bookings'];
-
-export const INDEXABLE_ROUTE_KEYS: readonly RouteKey[] = ROUTE_KEYS.filter(
-  (key) => !PRIVATE_ROUTE_KEYS.includes(key)
-);
 
 function normalizePathname(pathname: string): string {
   return pathname.length > 1 && pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;

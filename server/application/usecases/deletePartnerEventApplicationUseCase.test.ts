@@ -6,7 +6,7 @@ import {
   type EventListing,
 } from '../../domain/events';
 import { linkBusinessUseCase, unlinkBusinessUseCase } from '../../domain/partners';
-import { deleteEventListingSafelyApplicationUseCase } from './eventLifecycleOrchestrationUseCases';
+import { deleteEventListingSafelyApplicationUseCase } from './deleteEventListingSafelyApplicationUseCase';
 
 vi.mock('../../domain/events', () => ({
   getEventListingByIdUseCase: vi.fn(),
@@ -17,9 +17,7 @@ vi.mock('../../domain/partners', () => ({
   unlinkBusinessUseCase: vi.fn(),
 }));
 
-vi.mock('./eventLifecycleOrchestrationUseCases', () => ({
-  deleteEventListingSafelyApplicationUseCase: vi.fn(),
-}));
+vi.mock('./deleteEventListingSafelyApplicationUseCase', () => ({ deleteEventListingSafelyApplicationUseCase: vi.fn() }));
 
 describe('deletePartnerEventApplicationUseCase', () => {
   const regularUser: AuthenticatedUserContext = {

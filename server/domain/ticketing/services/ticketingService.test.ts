@@ -171,6 +171,8 @@ describe('TicketingService', () => {
       }),
     };
 
+    process.env.USE_GUIDE_PLATFORM_FEE_PERCENT = '10';
+
     service = new TicketingService(mockPort, mockQrTokenPort);
   });
 
