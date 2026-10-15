@@ -14,7 +14,8 @@ import type { SeoContentPort, SeoEvent, SeoGuideItem, SeoSitemapEntry } from '..
 export class CatalogSeoContentProvider implements SeoContentPort {
   async getGuideItem(id: string): Promise<SeoGuideItem | null> {
     const item = await getPublicGuideItemUseCase(id);
-    if (!item) return null;
+    // Perfil de produtor não tem página própria no guia (decisão D9).
+    if (!item || item.category === 'producer') return null;
     const offer =
       item.category === 'tour' || item.category === 'sight'
         ? await getPublicOfferSummaryUseCase(item.id)
@@ -73,7 +74,9 @@ export class CatalogSeoContentProvider implements SeoContentPort {
       listPublicEventListingsUseCase(),
     ]);
     return [
-      ...items.map((item) => ({ id: item.id, category: item.category })),
+      ...items.flatMap((item) =>
+        item.category === 'producer' ? [] : [{ id: item.id, category: item.category }]
+      ),
       ...events.map((event) => ({ id: event.id, category: 'event' as const })),
     ];
   }

@@ -107,32 +107,19 @@ describe('PartnerService', () => {
   describe('registerPartner', () => {
     it('deve chamar registerPartner no port quando os dados forem válidos', async () => {
       await service.registerPartner('user-1', {
-        category: 'hotel',
         cpfCnpj: '52998224725',
         termsAccepted: true,
       });
 
       expect(partnerPort.registerPartner).toHaveBeenCalledWith('user-1', {
-        category: 'hotel',
         cpfCnpj: '52998224725',
         termsAccepted: true,
       });
     });
 
-    it('deve lançar erro se categoria for inválida', async () => {
-      await expect(
-        service.registerPartner('user-1', {
-          category: 'invalid-category' as never,
-          cpfCnpj: '52998224725',
-          termsAccepted: true,
-        })
-      ).rejects.toThrow('Categoria de parceiro inválida');
-    });
-
     it('deve lançar erro se CPF/CNPJ for inválido', async () => {
       await expect(
         service.registerPartner('user-1', {
-          category: 'hotel',
           cpfCnpj: '12345678900',
           termsAccepted: true,
         })
@@ -142,7 +129,6 @@ describe('PartnerService', () => {
     it('deve lançar erro se CPF/CNPJ estiver ausente', async () => {
       await expect(
         service.registerPartner('user-1', {
-          category: 'hotel',
           cpfCnpj: '' as never,
           termsAccepted: true,
         })
@@ -152,7 +138,6 @@ describe('PartnerService', () => {
     it('deve lançar erro se termsAccepted for false', async () => {
       await expect(
         service.registerPartner('user-1', {
-          category: 'hotel',
           cpfCnpj: '52998224725',
           termsAccepted: false as never,
         })

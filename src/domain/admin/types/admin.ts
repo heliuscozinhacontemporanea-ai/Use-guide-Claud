@@ -12,9 +12,11 @@ export interface AdminStats {
 export interface SubscriptionPlan {
   id: 'trial' | 'monthly' | 'semi-annual' | 'annual';
   name: string;
-  price: number;
+  /** Preço total do período, em centavos. */
+  priceMinor: number;
   period: string;
-  monthlyEquivalent: number | null;
+  /** Equivalente mensal em centavos (planos de 6 e 12 meses). */
+  monthlyEquivalentMinor: number | null;
   savingLabel: string | null;
   description: string;
   badge?: string;
@@ -27,9 +29,10 @@ export interface AdminPartnerSummary {
   firstName: string;
   lastName: string;
   email: string;
-  category: string;
+  listingsCount: number;
   status: 'active' | 'pending' | 'suspended';
   isVerified: boolean;
   verifiedUntil: string | null;
-  verificationType: 'trial' | 'monthly' | 'semi-annual' | 'annual' | null;
+  verificationType: 'trial' | 'monthly' | 'semi-annual' | 'annual' | 'admin' | null;
+  isVerificationSuspended: boolean;
 }

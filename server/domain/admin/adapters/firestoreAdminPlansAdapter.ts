@@ -14,12 +14,11 @@ function mapSubscriptionPlan(
   return {
     id: id as SubscriptionPlan['id'],
     name: typeof data.name === 'string' ? data.name : '',
-    price: typeof data.price === 'number' ? data.price : 0,
+    priceMinor: Number.isInteger(data.priceMinor) ? data.priceMinor : 0,
     period: typeof data.period === 'string' ? data.period : '',
-    monthlyEquivalent:
-      typeof data.monthlyEquivalent === 'number'
-        ? data.monthlyEquivalent
-        : null,
+    monthlyEquivalentMinor: Number.isInteger(data.monthlyEquivalentMinor)
+      ? data.monthlyEquivalentMinor
+      : null,
     savingLabel:
       typeof data.savingLabel === 'string'
         ? data.savingLabel

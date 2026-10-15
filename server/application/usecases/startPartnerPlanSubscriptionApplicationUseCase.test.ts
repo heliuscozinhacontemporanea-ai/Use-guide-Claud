@@ -18,7 +18,7 @@ function mockPlan(overrides: Record<string, unknown> = {}) {
   vi.mocked(getSubscriptionPlanByIdUseCase).mockResolvedValue({
     id: 'semi-annual',
     name: 'Semestral',
-    price: 249.9,
+    priceMinor: 24990,
     isActive: true,
     ...overrides,
   } as never);

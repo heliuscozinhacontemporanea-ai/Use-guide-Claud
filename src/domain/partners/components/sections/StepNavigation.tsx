@@ -7,14 +7,14 @@ interface StepNavigationProps {
 }
 
 export function StepNavigation({ category, currentStep }: StepNavigationProps) {
-  const steps = category === 'event' ? [1, 2, 5] : [1, 2, 3, 4, 5];
+  const steps = category === 'producer' ? [1, 2, 5] : [1, 2, 3, 4, 5];
 
   return (
     <div className="flex items-center gap-1.5 mt-1" id="step-navigation-indicators">
       {steps.map((step, idx) => {
         const isActive = currentStep === step;
         const isCompleted =
-          category === 'event' ? steps.indexOf(currentStep) > idx : currentStep > step;
+          category === 'producer' ? steps.indexOf(currentStep) > idx : currentStep > step;
 
         return (
           <div

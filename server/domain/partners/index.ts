@@ -13,7 +13,6 @@ export { deletePartnerProfileUseCase } from './usecases/deletePartnerProfileUseC
 
 export type {
   PartnerStatus,
-  PartnerCategory,
   PartnerVerificationType,
   PartnerBusinessType,
   PartnerBusiness,
@@ -27,3 +26,4 @@ export type {
 } from './types/partnerTypes';
 
 export { PartnerDomainError } from './errors/partnerDomainError';
+export { hasActivePlanVerification, resolveAdminVerification } from './utils/adminVerification';

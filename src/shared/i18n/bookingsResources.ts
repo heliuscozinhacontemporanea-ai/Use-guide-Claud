@@ -66,6 +66,8 @@ export interface BookingsTranslation {
     confirmArchive: string;
     actionFailed: string;
     stripeRequired: string;
+    publishNeedsStripe: string;
+    accountStatusError: string;
     fromPrice: string;
   };
   status: {
@@ -254,6 +256,8 @@ export const bookingsPtBR: BookingsTranslation = {
     confirmArchive: 'Arquivar esta oferta? Ela sai do site e não pode ser reaberta.',
     actionFailed: 'Não foi possível concluir a ação.',
     stripeRequired: 'Para vender reservas, conclua a configuração financeira da sua conta.',
+    publishNeedsStripe: 'Conclua a configuração financeira para publicar.',
+    accountStatusError: 'Não foi possível verificar sua conta financeira agora.',
     fromPrice: 'a partir de {{amount}}',
   },
   status: {
@@ -440,6 +444,8 @@ export const bookingsEn: BookingsTranslation = {
     confirmArchive: 'Archive this offer? It leaves the site and cannot be reopened.',
     actionFailed: 'The action could not be completed.',
     stripeRequired: 'To sell bookings, finish your account payment setup.',
+    publishNeedsStripe: 'Finish your payment setup to publish.',
+    accountStatusError: 'We couldn’t check your payment account right now.',
     fromPrice: 'from {{amount}}',
   },
   status: {
@@ -630,6 +636,8 @@ export const bookingsFr: BookingsTranslation = {
     actionFailed: 'L’action n’a pas pu aboutir.',
     stripeRequired:
       'Pour vendre des réservations, terminez la configuration financière de votre compte.',
+    publishNeedsStripe: 'Terminez la configuration financière pour publier.',
+    accountStatusError: 'Impossible de vérifier votre compte financier pour le moment.',
     fromPrice: 'à partir de {{amount}}',
   },
   status: {

@@ -8,7 +8,8 @@ export type BookingErrorCode =
   | 'INVALID_TRANSITION'
   | 'LATE_PAYMENT_REJECTED'
   | 'KIND_NOT_AVAILABLE'
-  | 'CANCELLATION_NOT_ALLOWED';
+  | 'CANCELLATION_NOT_ALLOWED'
+  | 'PARTNER_SUSPENDED';
 
 const STATUS_BY_CODE: Record<BookingErrorCode, number> = {
   VALIDATION_ERROR: 400,
@@ -21,6 +22,7 @@ const STATUS_BY_CODE: Record<BookingErrorCode, number> = {
   LATE_PAYMENT_REJECTED: 409,
   KIND_NOT_AVAILABLE: 422,
   CANCELLATION_NOT_ALLOWED: 422,
+  PARTNER_SUSPENDED: 403,
 };
 
 export class BookingDomainError extends Error {

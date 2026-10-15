@@ -4,12 +4,16 @@ import { useTranslation } from 'react-i18next';
 import { Heart, ChevronLeft, MapPin, Star, Trash2 } from 'lucide-react';
 import { useFavorites } from '../hooks/useFavorites';
 import { FavoriteItem } from '../types/favorite';
-import { GuideItem } from '../../guide';
 import { Skeleton } from '../../../ui/components/Skeleton';
+
+export interface FavoriteSelection {
+  id: string;
+  category: string;
+}
 
 interface FavoritesListProps {
   onBack: () => void;
-  onSelectItem?: ((item: GuideItem) => void) | undefined;
+  onSelectItem?: ((item: FavoriteSelection) => void) | undefined;
 }
 
 export function FavoritesList({ onBack, onSelectItem }: FavoritesListProps) {
@@ -18,18 +22,10 @@ export function FavoritesList({ onBack, onSelectItem }: FavoritesListProps) {
 
   const handleCardClick = (fav: FavoriteItem) => {
     if (!onSelectItem) return;
+    // A composição só precisa do id e da categoria: o detalhe é lido do catálogo pela URL.
     const category =
-      fav.itemCollection === 'events' ? 'event' : (fav.itemDetails?.category || 'sight');
-    onSelectItem({
-      id: fav.itemId,
-      category,
-      name: fav.itemDetails?.name || '',
-      description: fav.itemDetails?.description || '',
-      image: fav.itemDetails?.image || '',
-      location: (fav.itemDetails?.location as any) || 'jeri',
-      ownerId: fav.partnerId || '',
-      rating: fav.itemDetails?.rating,
-    } as GuideItem);
+      fav.itemCollection === 'events' ? 'event' : fav.itemDetails?.category || 'sight';
+    onSelectItem({ id: fav.itemId, category });
   };
 
   return (

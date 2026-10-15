@@ -26,47 +26,47 @@ describe('AdminPlansService', () => {
   it('delega updatePlan para o port quando planId for válido', async () => {
     await service.updatePlan('monthly', {
       name: 'Plano Mensal',
-      price: 49.9,
+      priceMinor: 4990,
       description: 'Acesso completo mensal',
     });
 
     expect(port.updatePlan).toHaveBeenCalledWith('monthly', {
       name: 'Plano Mensal',
-      price: 49.9,
+      priceMinor: 4990,
       description: 'Acesso completo mensal',
     });
   });
 
-  it('deriva monthlyEquivalent do preço para planos semestral e anual', async () => {
-    await service.updatePlan('annual', { price: 299.9 });
-    await service.updatePlan('semi-annual', { price: 150 });
+  it('deriva o equivalente mensal (centavos) do preço para planos semestral e anual', async () => {
+    await service.updatePlan('annual', { priceMinor: 29990 });
+    await service.updatePlan('semi-annual', { priceMinor: 15000 });
 
     expect(port.updatePlan).toHaveBeenNthCalledWith(1, 'annual', {
-      price: 299.9,
-      monthlyEquivalent: 24.99,
+      priceMinor: 29990,
+      monthlyEquivalentMinor: 2499,
     });
     expect(port.updatePlan).toHaveBeenNthCalledWith(2, 'semi-annual', {
-      price: 150,
-      monthlyEquivalent: 25,
+      priceMinor: 15000,
+      monthlyEquivalentMinor: 2500,
     });
   });
 
-  it('não altera monthlyEquivalent quando o preço não muda ou o plano é mensal', async () => {
+  it('não altera o equivalente mensal quando o preço não muda ou o plano é mensal', async () => {
     await service.updatePlan('annual', { name: 'Anual Premium' });
-    await service.updatePlan('monthly', { price: 49.9 });
+    await service.updatePlan('monthly', { priceMinor: 4990 });
 
     expect(port.updatePlan).toHaveBeenNthCalledWith(1, 'annual', { name: 'Anual Premium' });
-    expect(port.updatePlan).toHaveBeenNthCalledWith(2, 'monthly', { price: 49.9 });
+    expect(port.updatePlan).toHaveBeenNthCalledWith(2, 'monthly', { priceMinor: 4990 });
   });
 
   it('rejeita preço zero em plano pago, mas permite no trial', async () => {
-    await expect(service.updatePlan('monthly', { price: 0 })).rejects.toMatchObject({
+    await expect(service.updatePlan('monthly', { priceMinor: 0 })).rejects.toMatchObject({
       code: 'VALIDATION_ERROR',
     });
     expect(port.updatePlan).not.toHaveBeenCalled();
 
-    await service.updatePlan('trial', { price: 0 });
-    expect(port.updatePlan).toHaveBeenCalledWith('trial', { price: 0 });
+    await service.updatePlan('trial', { priceMinor: 0 });
+    expect(port.updatePlan).toHaveBeenCalledWith('trial', { priceMinor: 0 });
   });
 
   it('retorna null em getPlanById quando planId for vazio', async () => {
@@ -80,9 +80,9 @@ describe('AdminPlansService', () => {
     vi.mocked(port.getPlanById).mockResolvedValue({
       id: 'annual',
       name: 'Anual',
-      price: 299,
+      priceMinor: 29900,
       period: '/ano',
-      monthlyEquivalent: 24.9,
+      monthlyEquivalentMinor: 2492,
       savingLabel: 'Economize 20%',
       description: 'Plano anual',
       isActive: true,

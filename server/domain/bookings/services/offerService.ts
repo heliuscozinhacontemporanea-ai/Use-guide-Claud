@@ -127,15 +127,20 @@ export class OfferService {
     return updated;
   }
 
+  /** `beforePublish` recebe a oferta antes de ela ficar pública e pode recusar lançando um erro. */
   async setOfferStatus(
     actor: BookingActor,
     offerId: string,
-    status: Exclude<BookableOfferStatus, 'draft'>
+    status: Exclude<BookableOfferStatus, 'draft'>,
+    beforePublish?: (offer: BookableOffer) => Promise<void>
   ): Promise<BookableOffer> {
     const offer = await this.getOwnedOffer(actor, offerId);
     if (offer.status === status) return offer;
     if (!OFFER_STATUS_TRANSITIONS[offer.status].includes(status)) {
       throw new BookingDomainError('INVALID_TRANSITION', 'Mudança de status não permitida.');
+    }
+    if (status === 'published' && beforePublish) {
+      await beforePublish(offer);
     }
     const updated: BookableOffer = { ...offer, status, updatedAt: this.now().toISOString() };
     await this.port.saveOffer(updated);

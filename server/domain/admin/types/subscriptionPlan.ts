@@ -1,9 +1,11 @@
 export interface SubscriptionPlan {
   id: 'trial' | 'monthly' | 'semi-annual' | 'annual';
   name: string;
-  price: number;
+  /** Preço total do período, em centavos (AGENTS.md §1). */
+  priceMinor: number;
   period: string;
-  monthlyEquivalent: number | null;
+  /** Equivalente mensal em centavos, derivado do preço nos planos de 6 e 12 meses. */
+  monthlyEquivalentMinor: number | null;
   savingLabel: string | null;
   description: string;
   badge?: string;
@@ -12,12 +14,12 @@ export interface SubscriptionPlan {
 
 export interface UpdateSubscriptionPlanInput {
   name?: string;
-  price?: number;
+  priceMinor?: number;
   period?: string;
   description?: string;
   isActive?: boolean;
 }
 
 export type PersistedSubscriptionPlanUpdate = UpdateSubscriptionPlanInput & {
-  monthlyEquivalent?: number | null;
+  monthlyEquivalentMinor?: number | null;
 };

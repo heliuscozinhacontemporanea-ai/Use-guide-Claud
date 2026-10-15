@@ -12,6 +12,8 @@ export const CATEGORY_ROUTE_KEY: Record<SeoGuideCategory | 'event', RouteKey> = 
   restaurant: 'restaurants',
   hotel: 'stays',
   tour: 'tours',
+  transfer: 'transfers',
+  rental: 'rentals',
   sight: 'attractions',
   tips: 'guide',
   event: 'events',
@@ -75,6 +77,39 @@ export const ROUTE_SEO_TEXTS: Record<RouteKey, Record<Locale, RouteText>> = {
       title: 'Aventure & Excursions | Use Guide',
       description:
         'Excursions en buggy et en quad, lagunes cristallines et itinéraires incontournables autour de Jericoacoara.',
+    },
+  },
+  transfers: {
+    'pt-BR': {
+      title: 'Translados em Jericoacoara | Use Guide',
+      description:
+        'Transfers entre Fortaleza, Jijoca, Jericoacoara, Preá e Barrinha: veículos, capacidade e reserva.',
+    },
+    en: {
+      title: 'Transfers to Jericoacoara | Use Guide',
+      description:
+        'Transfers between Fortaleza, Jijoca, Jericoacoara, Preá and Barrinha: vehicles, capacity and booking.',
+    },
+    fr: {
+      title: 'Transferts à Jericoacoara | Use Guide',
+      description:
+        'Transferts entre Fortaleza, Jijoca, Jericoacoara, Preá et Barrinha : véhicules, capacité et réservation.',
+    },
+  },
+  rentals: {
+    'pt-BR': {
+      title: 'Aluguéis em Jericoacoara | Use Guide',
+      description:
+        'Aluguel de quadriciclos, buggies, bicicletas e equipamentos em Jericoacoara e região.',
+    },
+    en: {
+      title: 'Rentals in Jericoacoara | Use Guide',
+      description: 'Rent ATVs, buggies, bikes and gear in Jericoacoara and the region.',
+    },
+    fr: {
+      title: 'Locations à Jericoacoara | Use Guide',
+      description:
+        'Location de quads, buggys, vélos et équipements à Jericoacoara et dans la région.',
     },
   },
   stays: {

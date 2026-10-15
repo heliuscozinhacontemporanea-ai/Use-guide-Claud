@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { getDocumentUseCase } from '../../database';
 import {
   BarChart,
   Bar,
@@ -28,6 +27,7 @@ import { getReviewsUseCase, respondToReviewUseCase } from '../../reviews';
 import { GuideItem } from '../../guide';
 import { VerifiedBadge } from '../../../ui/components/VerifiedBadge';
 import { useUI } from '../../../shared/stores/useUIStore';
+import { ErrorState } from '../../../ui/components/ErrorState';
 
 interface InteractionHistory {
   date: string;
@@ -80,6 +80,7 @@ export function ReportsView({ items, events }: ReportsViewProps) {
   const [replyText, setReplyText] = useState('');
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [showAllPending, setShowAllPending] = useState(false);
+  const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
     if (selectedEntity) {
@@ -89,10 +90,9 @@ export function ReportsView({ items, events }: ReportsViewProps) {
 
   const loadReports = async (itemId: string, type: 'items' | 'events') => {
     setLoading(true);
+    setLoadError(false);
     try {
-      await getDocumentUseCase(type, itemId);
-
-      const realStats = await getItemStatsUseCase(itemId);
+      const realStats = await getItemStatsUseCase(itemId, type);
 
       const statsData = {
         views: realStats?.views || 0,
@@ -108,6 +108,7 @@ export function ReportsView({ items, events }: ReportsViewProps) {
       setReviews(reviewsPage.items as PartnerReview[]);
     } catch (error) {
       console.error('[loadReports Error]:', error);
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
@@ -236,6 +237,11 @@ export function ReportsView({ items, events }: ReportsViewProps) {
         <div className="py-20 text-center">
           <div className="w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto" />
         </div>
+      ) : loadError && selectedEntity ? (
+        <ErrorState
+          message="Não foi possível carregar o relatório deste item."
+          onRetry={() => loadReports(selectedEntity.id, selectedEntity.type)}
+        />
       ) : (
         <motion.div
           initial={{ opacity: 0, y: 20 }}

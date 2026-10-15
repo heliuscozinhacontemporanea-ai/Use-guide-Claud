@@ -10,7 +10,7 @@ import { SuccessPaymentGlass } from './SuccessPaymentGlass';
 interface OneTimePlanCheckoutProps {
   planId: PaidPlanId;
   itemName: string;
-  amount: number;
+  amountMinor: number;
   onClose: () => void;
   onPaymentSuccess?: (paymentId: string) => void;
 }
@@ -18,7 +18,7 @@ interface OneTimePlanCheckoutProps {
 export function OneTimePlanCheckout({
   planId,
   itemName,
-  amount,
+  amountMinor,
   onClose,
   onPaymentSuccess,
 }: OneTimePlanCheckoutProps) {
@@ -45,7 +45,7 @@ export function OneTimePlanCheckout({
     return (
       <SuccessPaymentGlass
         itemName={itemName}
-        amount={amount}
+        amountMinor={amountMinor}
         paymentId={paymentIntentId}
         onClose={onClose}
       />
@@ -76,7 +76,7 @@ export function OneTimePlanCheckout({
           clientSecret={clientSecret}
           orderId={paymentIntentId}
           submitLabel={t('payment.checkout.payButton', {
-            amount: formatPlanAmount(amount, i18n.language),
+            amount: formatPlanAmount(amountMinor, i18n.language),
           })}
           onError={(message) => setError(message)}
           onSuccess={(intentId) => confirmPaymentOnBackend(intentId)}

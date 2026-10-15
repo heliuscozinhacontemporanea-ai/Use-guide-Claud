@@ -1,4 +1,5 @@
 import type { PartnerContentItemInput } from '../../types/partnerContent';
+import { toE164 } from '../../../../shared/utils/phone';
 import type { PartnerSubmissionData } from '../../types/partner';
 
 function toGuideItemCategory(value: string): PartnerContentItemInput['category'] {
@@ -9,6 +10,14 @@ function toGuideItemCategory(value: string): PartnerContentItemInput['category']
       return 'restaurant';
     case 'sight':
       return 'sight';
+    case 'tour':
+      return 'tour';
+    case 'transfer':
+      return 'transfer';
+    case 'rental':
+      return 'rental';
+    case 'producer':
+      return 'producer';
     default:
       throw new Error('Categoria de Partner incompatível com conteúdo do Guide.');
   }
@@ -61,7 +70,44 @@ function buildOperationalInfo(formData: PartnerSubmissionData) {
       languages: formData.languages,
     };
   }
+  if (formData.category === 'tour') {
+    const hours = Number((formData.tourDurationHours ?? '').replace(',', '.'));
+    return {
+      durationMinutes: Number.isFinite(hours) && hours > 0 ? Math.round(hours * 60) : undefined,
+      meetingPoint: formData.meetingPoint,
+      itinerary: formData.itinerary,
+      includes: formData.tourIncludes,
+      languages: formData.languages,
+    };
+  }
+  if (formData.category === 'transfer') {
+    return {
+      transferRoutes: (formData.transferRoutes ?? []).filter(
+        (route) => route.from.trim() && route.to.trim()
+      ),
+      vehicleTypes: formData.transferVehicles,
+      maxPassengers: positiveInt(formData.maxPassengers),
+      luggageInfo: formData.luggageInfo,
+      languages: formData.languages,
+    };
+  }
+  if (formData.category === 'rental') {
+    return {
+      vehicleTypes: formData.rentalVehicles,
+      minRentalHours: positiveInt(formData.minRentalHours),
+      depositRequired: formData.depositRequired ?? undefined,
+      driverLicenseRequired: formData.driverLicenseRequired ?? undefined,
+      includes: formData.rentalIncludes,
+      operatingHours: formData.operatingHours,
+      languages: formData.languages,
+    };
+  }
   return undefined;
+}
+
+function positiveInt(value: string | undefined): number | undefined {
+  const parsed = Number.parseInt(value ?? '', 10);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
 }
 
 export function mapPartnerSubmissionToGuideItem(
@@ -71,11 +117,11 @@ export function mapPartnerSubmissionToGuideItem(
   if (!formData.region?.trim()) {
     throw new Error('Região é obrigatória');
   }
-  if (imageUrls.length === 0) {
+  const category = toGuideItemCategory(formData.category);
+  // Perfil de produtor pode não ter fotos; estabelecimentos precisam de ao menos uma.
+  if (imageUrls.length === 0 && category !== 'producer') {
     throw new Error('Ao menos uma imagem é obrigatória');
   }
-
-  const category = toGuideItemCategory(formData.category);
 
   return {
     name: formData.businessName,
@@ -87,10 +133,9 @@ export function mapPartnerSubmissionToGuideItem(
     instagramLink: formData.instagram,
     websiteLink: formData.website,
     bookingLink: formData.bookingLinks,
-    whatsappLink: formData.phone,
+    phone: toE164(formData.phoneDdi, formData.phone),
     googleMapsLink: formData.googleMaps,
     address: formData.address,
     operationalInfo: buildOperationalInfo(formData),
-    isActive: true,
   };
 }

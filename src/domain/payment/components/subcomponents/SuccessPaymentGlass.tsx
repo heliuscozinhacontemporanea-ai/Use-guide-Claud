@@ -1,21 +1,24 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { Check, CreditCard, Calendar, ShieldCheck, Mail } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { GlassCard } from '../../../../ui/components/GlassCard';
+import { formatPlanAmount } from '../../utils/formatPlanAmount';
 
 interface SuccessPaymentGlassProps {
   itemName: string;
-  amount: number;
+  amountMinor: number;
   paymentId: string;
   onClose: () => void;
 }
 
 export function SuccessPaymentGlass({
   itemName,
-  amount,
+  amountMinor,
   paymentId,
   onClose,
 }: SuccessPaymentGlassProps) {
+  const { i18n } = useTranslation();
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.92 }}
@@ -50,7 +53,9 @@ export function SuccessPaymentGlass({
       <GlassCard className="w-full p-5 space-y-4 bg-slate-900/35 border border-white/10 backdrop-blur-xl rounded-2xl text-left">
         <div className="flex justify-between items-center pb-3 border-b border-white/5">
           <span className="text-xs text-white/50">Valor Pago</span>
-          <span className="text-lg font-black text-teal-400">R$ {amount.toFixed(2)}</span>
+          <span className="text-lg font-black text-teal-400">
+            {formatPlanAmount(amountMinor, i18n.language)}
+          </span>
         </div>
 
         <div className="grid grid-cols-2 gap-3 text-xs">

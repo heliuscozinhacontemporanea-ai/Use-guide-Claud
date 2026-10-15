@@ -22,6 +22,8 @@ export interface TranslationResource {
     pageTitles: {
       events: string;
       tours: string;
+      transfers: string;
+      rentals: string;
       accommodations: string;
       restaurants: string;
       attractions: string;
@@ -137,6 +139,8 @@ export interface TranslationResource {
       explore: { title: string; description: string };
       events: { title: string; description: string };
       tours: { title: string; description: string };
+      transfers: { title: string; description: string };
+      rentals: { title: string; description: string };
       stays: { title: string; description: string };
       restaurants: { title: string; description: string };
       attractions: { title: string; description: string };
@@ -157,6 +161,8 @@ export interface TranslationResource {
     partnerOnly: string;
     partnerProfileNotFound: string;
     partnerProfileLoadError: string;
+    partnerSuspendedTitle: string;
+    partnerSuspended: string;
   };
   settings: {
     title: string;
@@ -200,6 +206,8 @@ const ptBR: TranslationResource = {
     pageTitles: {
       events: 'Eventos & Experiências',
       tours: 'Aventura & Passeios',
+      transfers: 'Translados',
+      rentals: 'Aluguéis',
       accommodations: 'Melhores Hospedagens',
       restaurants: 'Sabores Locais',
       attractions: 'Atrações',
@@ -329,6 +337,16 @@ const ptBR: TranslationResource = {
         title: 'Aventura & Passeios | Use Guide',
         description: 'Passeios de buggy, quadriciclo, lagoas cristalinas e roteiros imperdíveis no litoral leste e oeste de Jericoacoara.',
       },
+      transfers: {
+        title: "Translados em Jericoacoara | Use Guide",
+        description:
+          "Transfers entre Fortaleza, Jijoca, Jericoacoara, Preá e Barrinha: veículos, capacidade e reserva.",
+      },
+      rentals: {
+        title: "Aluguéis em Jericoacoara | Use Guide",
+        description:
+          "Aluguel de quadriciclos, buggies, bicicletas e equipamentos em Jericoacoara e região.",
+      },
       stays: {
         title: 'Melhores Hospedagens & Pousadas | Use Guide',
         description: 'Seleção curada das melhores pousadas, hotéis boutique e resorts à beira-mar em Jeri, Preá e Barrinha.',
@@ -361,6 +379,8 @@ const ptBR: TranslationResource = {
     partnerOnly: 'Este painel é exclusivo para parceiros cadastrados.',
     partnerProfileNotFound: 'Não encontramos o seu cadastro de parceiro.',
     partnerProfileLoadError: 'Não foi possível carregar o seu cadastro de parceiro.',
+    partnerSuspendedTitle: 'Conta de parceiro suspensa',
+    partnerSuspended: 'Seu acesso ao painel foi suspenso pela equipe do Use Guide. Fale com o suporte para saber como reativar.',
   },
   settings: {
     title: 'Configurações',
@@ -409,6 +429,8 @@ const en: TranslationResource = {
     pageTitles: {
       events: 'Events & Experiences',
       tours: 'Adventure & Tours',
+      transfers: 'Transfers',
+      rentals: 'Rentals',
       accommodations: 'Best Accommodations',
       restaurants: 'Local Flavors',
       attractions: 'Attractions',
@@ -536,6 +558,16 @@ const en: TranslationResource = {
         title: 'Adventure & Tours | Use Guide',
         description: 'Buggy and quad bike tours, crystal-clear lagoons and must-do routes around Jericoacoara.',
       },
+      transfers: {
+        title: "Transfers to Jericoacoara | Use Guide",
+        description:
+          "Transfers between Fortaleza, Jijoca, Jericoacoara, Preá and Barrinha: vehicles, capacity and booking.",
+      },
+      rentals: {
+        title: "Rentals in Jericoacoara | Use Guide",
+        description:
+          "Rent ATVs, buggies, bikes and gear in Jericoacoara and the region.",
+      },
       stays: {
         title: 'Best Stays & Inns | Use Guide',
         description: 'A curated selection of the best inns, boutique hotels and beachfront resorts in Jeri, Preá and Barrinha.',
@@ -568,6 +600,8 @@ const en: TranslationResource = {
     partnerOnly: 'This dashboard is only for registered partners.',
     partnerProfileNotFound: 'We couldn’t find your partner registration.',
     partnerProfileLoadError: 'We couldn’t load your partner registration.',
+    partnerSuspendedTitle: 'Partner account suspended',
+    partnerSuspended: 'Your dashboard access was suspended by the Use Guide team. Contact support to find out how to reactivate it.',
   },
   settings: {
     title: 'Settings',
@@ -616,6 +650,8 @@ const fr: TranslationResource = {
     pageTitles: {
       events: 'Événements & Expériences',
       tours: 'Aventure & Excursions',
+      transfers: 'Transferts',
+      rentals: 'Locations',
       accommodations: 'Meilleurs Hébergements',
       restaurants: 'Saveurs Locales',
       attractions: 'Attractions',
@@ -748,6 +784,16 @@ const fr: TranslationResource = {
         title: 'Aventure & Excursions | Use Guide',
         description: 'Excursions en buggy et en quad, lagunes cristallines et itinéraires incontournables autour de Jericoacoara.',
       },
+      transfers: {
+        title: "Transferts à Jericoacoara | Use Guide",
+        description:
+          "Transferts entre Fortaleza, Jijoca, Jericoacoara, Preá et Barrinha : véhicules, capacité et réservation.",
+      },
+      rentals: {
+        title: "Locations à Jericoacoara | Use Guide",
+        description:
+          "Location de quads, buggys, vélos et équipements à Jericoacoara et dans la région.",
+      },
       stays: {
         title: 'Meilleurs Hébergements | Use Guide',
         description: 'Une sélection des meilleures pousadas, hôtels boutique et resorts en bord de mer à Jeri, Preá et Barrinha.',
@@ -780,6 +826,8 @@ const fr: TranslationResource = {
     partnerOnly: 'Ce tableau de bord est réservé aux partenaires inscrits.',
     partnerProfileNotFound: 'Nous n’avons pas trouvé votre inscription de partenaire.',
     partnerProfileLoadError: 'Impossible de charger votre inscription de partenaire.',
+    partnerSuspendedTitle: 'Compte partenaire suspendu',
+    partnerSuspended: 'Votre accès au tableau de bord a été suspendu par l’équipe Use Guide. Contactez le support pour savoir comment le réactiver.',
   },
   settings: {
     title: 'Paramètres',

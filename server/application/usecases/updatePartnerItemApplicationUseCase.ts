@@ -16,7 +16,7 @@ function toItemRollbackInput(previous: { [key: string]: unknown }): GuideUpdateI
     'instagramLink',
     'websiteLink',
     'bookingLink',
-    'whatsappLink',
+    'phone',
     'googleMapsLink',
     'address',
   ] as const;

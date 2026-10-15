@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { E164_MESSAGE, E164_PATTERN } from '../../../shared/kernel/phone';
 
 const optionalUrl = z.string().url().or(z.literal('')).optional();
 
@@ -98,13 +99,13 @@ export const createEventListingSchema = z
     location: z.union([z.string().trim().min(1).max(200), eventLocationSchema]),
     address: z.string().trim().max(500).optional(),
     googleMapsLink: optionalUrl,
-    whatsappLink: z.string().trim().max(100).optional(),
+    phone: z.string().trim().regex(E164_PATTERN, E164_MESSAGE).optional(),
     websiteLink: optionalUrl,
     instagramLink: optionalUrl,
     bookingLink: optionalUrl,
     contact: z
       .object({
-        whatsapp: z.string().trim().max(100).optional(),
+        phone: z.string().trim().regex(E164_PATTERN, E164_MESSAGE).optional(),
         website: optionalUrl,
         instagram: optionalUrl,
         booking: optionalUrl,
@@ -153,13 +154,13 @@ export const updateEventListingSchema = z
     location: z.union([z.string().trim().min(1).max(200), eventLocationSchema]).optional(),
     address: z.string().trim().max(500).optional(),
     googleMapsLink: optionalUrl,
-    whatsappLink: z.string().trim().max(100).optional(),
+    phone: z.string().trim().regex(E164_PATTERN, E164_MESSAGE).optional(),
     websiteLink: optionalUrl,
     instagramLink: optionalUrl,
     bookingLink: optionalUrl,
     contact: z
       .object({
-        whatsapp: z.string().trim().max(100).optional(),
+        phone: z.string().trim().regex(E164_PATTERN, E164_MESSAGE).optional(),
         website: optionalUrl,
         instagram: optionalUrl,
         booking: optionalUrl,

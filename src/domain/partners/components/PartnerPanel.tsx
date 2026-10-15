@@ -1,13 +1,4 @@
-import {
-  BarChart3,
-  Home as Bed,
-  Calendar,
-  RefreshCw,
-  Sparkles,
-  Trash2,
-  Utensils,
-  X,
-} from 'lucide-react';
+import { BarChart3, RefreshCw, Trash2, X } from 'lucide-react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AnimatePresence, motion } from 'motion/react';
 import React, { useEffect, useRef } from 'react';
@@ -35,6 +26,7 @@ import { PartnerItemsTable } from './subcomponents/PartnerItemsTable';
 import { PartnerTabsNavigation } from './subcomponents/PartnerTabsNavigation';
 import { PlansModal } from './subcomponents/PlansModal';
 import { useLocalizedRouting } from '../../../shared/hooks/useLocalizedRouting';
+import { LISTING_CATEGORIES } from '../constants/listingCategories';
 
 export interface PartnerPanelProps {
   profile?: PartnerProfile;
@@ -50,14 +42,16 @@ export interface PartnerPanelProps {
     onClose: () => void;
     itemId: string;
     itemName: string;
-    amount: number;
-    onPaymentSuccess: () => Promise<void>;
+    amountMinor: number;
+    onPaymentSuccess: () => void;
   }) => React.ReactNode;
   renderEventTicketingManager?: (eventListingId: string) => React.ReactNode;
   planSubscriptionSlot?: React.ReactNode;
   renderBookableOffersManager?: (
     items: Array<{ id: string; name: string; category: string }>
   ) => React.ReactNode;
+  /** Chamado ao fechar o checkout depois de um pagamento confirmado, para recarregar o perfil. */
+  onPlanPurchased?: () => void;
 }
 
 export function PartnerPanel({
@@ -69,6 +63,7 @@ export function PartnerPanel({
   renderEventTicketingManager,
   planSubscriptionSlot,
   renderBookableOffersManager,
+  onPlanPurchased,
 }: PartnerPanelProps) {
   const { goTo } = useLocalizedRouting();
 
@@ -92,7 +87,6 @@ export function PartnerPanel({
     setErrors,
     dataLoading,
     isVerified,
-    isEventProducer,
     itemsList,
     eventsList,
     handleDelete,
@@ -108,14 +102,20 @@ export function PartnerPanel({
   const [checkoutPlanInfo, setCheckoutPlanInfo] = React.useState({
     itemId: '',
     itemName: '',
-    amount: 0,
+    amountMinor: 0,
   });
 
-  const handleCheckoutSuccess = async () => {
+  // O modal mostra a própria tela de sucesso; o perfil é recarregado quando o parceiro fecha.
+  const planPurchasedRef = useRef(false);
+  const handleCheckoutSuccess = () => {
+    planPurchasedRef.current = true;
+  };
+  const handleCheckoutClose = () => {
     setShowCheckoutModal(false);
-    console.info(
-      '[Checkout Success] Pagamento concluído. O status e a verificação serão sincronizados automaticamente pelo servidor/webhook.'
-    );
+    if (planPurchasedRef.current) {
+      planPurchasedRef.current = false;
+      onPlanPurchased?.();
+    }
   };
 
   const phoneRef = useRef<PhoneInputFieldRef | null>(null);
@@ -132,13 +132,6 @@ export function PartnerPanel({
       editorMethods.reset(editorFormData, { keepDefaultValues: true });
     }
   }, [editorFormData, editorMethods]);
-
-  // Efeito reativo estrutural para garantir que parceiros cadastrados como produtores de eventos fiquem e usem unicamente a aba de eventos
-  React.useEffect(() => {
-    if (isEventProducer && activeTab === 'items') {
-      setActiveTab('events');
-    }
-  }, [isEventProducer, activeTab, setActiveTab]);
 
   // Efeito estratégico para bloquear scroll do body e corrigir deslocamento de cabeçalho no mobile devido ao teclado
   React.useEffect(() => {
@@ -171,12 +164,7 @@ export function PartnerPanel({
     }
   }, [isEditing]);
 
-  const categories = [
-    { id: 'sight', label: 'Atrações Turísticas', icon: <Sparkles size={16} /> },
-    { id: 'hotel', label: 'Hospedagem', icon: <Bed size={16} /> },
-    { id: 'restaurant', label: 'Restaurantes', icon: <Utensils size={16} /> },
-    { id: 'event', label: 'Produtor de Eventos', icon: <Calendar size={16} /> },
-  ];
+  const categories = LISTING_CATEGORIES;
 
   if (userLoading || profileStatus === 'loading') {
     return (
@@ -223,7 +211,6 @@ export function PartnerPanel({
         <PartnerTabsNavigation
           activeTab={activeTab}
           setActiveTab={setActiveTab}
-          isEventProducer={isEventProducer}
           isVerified={isVerified}
         />
 
@@ -346,7 +333,6 @@ export function PartnerPanel({
                 onChange={(updatedItem) => setIsEditing(updatedItem)}
                 isUploading={isUploading}
                 onImageUpload={handleImageUpload}
-                partnerCategory={partnerProfile?.category}
                 businesses={partnerProfile?.businesses}
                 renderEventTicketingManager={renderEventTicketingManager}
               />
@@ -429,7 +415,9 @@ export function PartnerPanel({
                     <Step1CompanyInfo
                       formData={editorFormData}
                       setFormData={setEditorFormData}
-                      categories={categories.filter((c) => c.id !== 'event')}
+                      categories={categories}
+                      mode="editor"
+                      lockCategory={Boolean(isEditing?.id)}
                     />
                   </div>
 
@@ -580,18 +568,18 @@ export function PartnerPanel({
         userId={user.uid}
         partnerProfile={partnerProfile || undefined}
         plans={subscriptionPlans ?? []}
-        onSelectPaidPlan={(planId, planName, amount) => {
-          setCheckoutPlanInfo({ itemId: planId, itemName: planName, amount });
+        onSelectPaidPlan={(planId, planName, amountMinor) => {
+          setCheckoutPlanInfo({ itemId: planId, itemName: planName, amountMinor });
           setShowCheckoutModal(true);
         }}
       />
 
       {renderCheckoutModal?.({
         isOpen: showCheckoutModal,
-        onClose: () => setShowCheckoutModal(false),
+        onClose: handleCheckoutClose,
         itemId: checkoutPlanInfo.itemId,
         itemName: checkoutPlanInfo.itemName,
-        amount: checkoutPlanInfo.amount,
+        amountMinor: checkoutPlanInfo.amountMinor,
         onPaymentSuccess: handleCheckoutSuccess,
       })}
 

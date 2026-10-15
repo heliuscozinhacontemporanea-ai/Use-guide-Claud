@@ -18,6 +18,7 @@ import {
 import { cn } from '../../../shared/utils/cn';
 import { FAQCategoryType } from '../types/content';
 import { FAQ_DATA } from '../data/faqItems';
+import { whatsAppUrl } from '../../../shared/utils/phone';
 
 interface SupportViewProps {
   onBack: () => void;
@@ -31,8 +32,11 @@ export function SupportView({ onBack, userEmail }: SupportViewProps) {
   const [copiedEmail, setCopiedEmail] = useState(false);
 
   const supportEmail = 'atendimento@useguide.com.br';
-  const whatsappUrl =
-    'https://wa.me/5588999999999?text=Ol%C3%A1%2C%20preciso%20de%20suporte%20no%20Use%20Guide.';
+  // Número real vem da configuração (AGENTS.md §11.10: nada de número fictício no código).
+  const whatsappUrl = whatsAppUrl(
+    import.meta.env.VITE_SUPPORT_WHATSAPP?.trim(),
+    'Olá, preciso de suporte no Use Guide.'
+  );
 
   const filteredFaqs = FAQ_DATA.filter((item) => {
     const matchesCategory = activeCategory === 'all' || item.category === activeCategory;
@@ -68,24 +72,26 @@ export function SupportView({ onBack, userEmail }: SupportViewProps) {
       </div>
 
       <div className="grid grid-cols-2 gap-2 mb-4">
-        <a
-          href={whatsappUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-2.5 p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 active:scale-95 transition-all text-left group"
-        >
-          <div className="w-8 h-8 rounded-xl bg-emerald-500/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition-all">
-            <MessageSquare size={16} />
-          </div>
-          <div className="overflow-hidden">
-            <span className="block text-[10px] font-black uppercase tracking-wider text-emerald-400">
-              WhatsApp
-            </span>
-            <span className="block text-[8px] text-emerald-300/60 truncate">
-              Atendimento humano
-            </span>
-          </div>
-        </a>
+        {whatsappUrl && (
+          <a
+            href={whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2.5 p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 active:scale-95 transition-all text-left group"
+          >
+            <div className="w-8 h-8 rounded-xl bg-emerald-500/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition-all">
+              <MessageSquare size={16} />
+            </div>
+            <div className="overflow-hidden">
+              <span className="block text-[10px] font-black uppercase tracking-wider text-emerald-400">
+                WhatsApp
+              </span>
+              <span className="block text-[8px] text-emerald-300/60 truncate">
+                Atendimento humano
+              </span>
+            </div>
+          </a>
+        )}
 
         <button
           onClick={handleCopyEmail}

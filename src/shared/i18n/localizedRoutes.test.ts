@@ -41,6 +41,6 @@ describe('localizedRoutes', () => {
   it('favoritos e reservas não são páginas: abrem no menu lateral', () => {
     expect(parseLocalizedPath('/favoritos')).toBeNull();
     expect(parseLocalizedPath('/en/bookings')).toBeNull();
-    expect(ROUTE_KEYS).toHaveLength(7);
+    expect(ROUTE_KEYS).toHaveLength(9);
   });
 });

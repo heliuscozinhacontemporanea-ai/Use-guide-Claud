@@ -20,7 +20,7 @@ interface PartnerOption {
 type RecipientMode = AdminNotificationFormValues['recipientMode'];
 
 export function AdminNotificationsView() {
-  const { showToast } = useUI();
+  const { showToast, confirmAction } = useUI();
   const [partners, setPartners] = useState<PartnerOption[]>([]);
   const [isLoadingPartners, setIsLoadingPartners] = useState(true);
   const [partnersError, setPartnersError] = useState<string | null>(null);
@@ -85,6 +85,12 @@ export function AdminNotificationsView() {
   };
 
   const onSubmit = async (values: AdminNotificationFormValues) => {
+    if (
+      values.recipientMode === 'all' &&
+      !(await confirmAction(`Enviar este aviso para todos os ${partners.length} parceiros?`))
+    ) {
+      return;
+    }
     try {
       await sendAdminNotificationUseCase({
         recipientIds: values.recipientMode === 'all' ? 'all' : values.selectedPartnerIds,
@@ -143,7 +149,12 @@ export function AdminNotificationsView() {
               <button
                 key={mode}
                 type="button"
-                onClick={() => setValue('recipientMode', mode, { shouldValidate: true })}
+                onClick={() => {
+                  // A seleção anterior não vale para o novo modo (ex: três marcados em "Vários" e
+                  // depois "Um parceiro" enviaria para os três).
+                  setValue('recipientMode', mode, { shouldValidate: true });
+                  setValue('selectedPartnerIds', [], { shouldValidate: false });
+                }}
                 className={`flex-1 min-h-[44px] py-2 rounded-xl text-[10px] font-bold uppercase tracking-wide transition-colors focus-visible:ring-2 focus-visible:ring-teal-400/50 ${
                   recipientMode === mode
                     ? 'bg-teal-500/20 text-teal-300 border border-teal-500/30'
@@ -158,6 +169,9 @@ export function AdminNotificationsView() {
 
         {recipientMode !== 'all' && (
           <div className="max-h-40 overflow-y-auto space-y-1 no-scrollbar border border-white/5 rounded-xl p-2 bg-black/10">
+            {partners.length === 0 && (
+              <p className="p-2 text-xs text-white/60">Nenhum parceiro cadastrado ainda.</p>
+            )}
             {partners.map((partner) => (
               <label
                 key={partner.id}
@@ -203,7 +217,7 @@ export function AdminNotificationsView() {
 
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || partners.length === 0}
           aria-label="Enviar notificação"
           className="w-full min-h-[44px] flex items-center justify-center gap-2 py-2.5 bg-teal-500 text-black hover:bg-teal-400 transition-colors rounded-xl text-xs font-bold uppercase tracking-wide disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-teal-400/50"
         >

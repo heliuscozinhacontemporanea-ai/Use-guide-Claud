@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { eventRefundPolicySchema } from '../../events/schemas/eventSchema';
+import { E164_MESSAGE, E164_PATTERN } from '../../../shared/kernel/phone';
 
 const optionalUrl = z.string().url().or(z.literal('')).optional();
 
@@ -43,6 +44,25 @@ const operationalInfoSchema = z
       })
       .strict()
       .optional(),
+    // Passeio, translado e aluguel (decisão D9).
+    durationMinutes: z.number().int().min(15).max(10080).optional(),
+    meetingPoint: z.string().trim().max(300).optional(),
+    itinerary: z.string().trim().max(2000).optional(),
+    includes: stringArraySchema.max(30).optional(),
+    transferRoutes: z
+      .array(
+        z
+          .object({ from: z.string().trim().min(1).max(100), to: z.string().trim().min(1).max(100) })
+          .strict()
+      )
+      .max(30)
+      .optional(),
+    vehicleTypes: stringArraySchema.max(20).optional(),
+    maxPassengers: z.number().int().min(1).max(100).optional(),
+    luggageInfo: z.string().trim().max(500).optional(),
+    minRentalHours: z.number().int().min(1).max(720).optional(),
+    depositRequired: z.boolean().optional(),
+    driverLicenseRequired: z.boolean().optional(),
     childrenAllowed: z.boolean().optional(),
     petsPolicy: z.string().trim().max(1000).optional(),
     petsExtraCost: z.string().trim().max(200).optional(),
@@ -73,7 +93,7 @@ const commonFields = {
   websiteLink: optionalUrl,
   bookingLink: optionalUrl,
   googleMapsLink: optionalUrl,
-  whatsappLink: z.string().trim().max(100).optional(),
+  phone: z.string().trim().regex(E164_PATTERN, E164_MESSAGE).optional(),
   address: z.string().trim().max(500).optional(),
   tags: z.array(z.string().trim().min(1).max(100)).max(50).optional(),
   operationalInfo: operationalInfoSchema.optional(),
@@ -83,7 +103,7 @@ const commonFields = {
 export const createPartnerItemSchema = z
   .object({
     ...commonFields,
-    category: z.enum(['restaurant', 'sight', 'tour', 'tips', 'hotel']),
+    category: z.enum(['restaurant', 'sight', 'tour', 'tips', 'hotel', 'transfer', 'rental', 'producer']),
   })
   .strict();
 

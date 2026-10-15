@@ -1,4 +1,16 @@
 export interface GuideItemOperationalInfo {
+  /** Passeio, translado e aluguel (decisão D9). */
+  durationMinutes?: number;
+  meetingPoint?: string;
+  itinerary?: string;
+  includes?: string[];
+  transferRoutes?: Array<{ from: string; to: string }>;
+  vehicleTypes?: string[];
+  maxPassengers?: number;
+  luggageInfo?: string;
+  minRentalHours?: number;
+  depositRequired?: boolean;
+  driverLicenseRequired?: boolean;
   tags?: string[];
   cuisineType?: string;
   subcategory?: string;
@@ -39,7 +51,16 @@ export interface GuideItemOperationalInfo {
   >;
 }
 
-export type GuideItemCategory = 'restaurant' | 'sight' | 'tour' | 'tips' | 'hotel';
+/** `producer`: perfil de produtor de eventos; não aparece nas listagens do guia (decisão D9). */
+export type GuideItemCategory =
+  | 'restaurant'
+  | 'sight'
+  | 'tour'
+  | 'tips'
+  | 'hotel'
+  | 'transfer'
+  | 'rental'
+  | 'producer';
 
 export type GuideContentType = 'item' | 'event';
 
@@ -61,7 +82,7 @@ export interface GuideItem {
   instagramLink?: string;
   websiteLink?: string;
   bookingLink?: string;
-  whatsappLink?: string;
+  phone?: string;
   googleMapsLink?: string;
   address?: string;
   tags?: string[];
@@ -71,7 +92,7 @@ export interface GuideItem {
   isVerified?: boolean;
   verifiedUntil?: string | null;
   isVerificationSuspended?: boolean;
-  verificationType?: 'trial' | 'monthly' | 'semi-annual' | 'annual' | null;
+  verificationType?: 'trial' | 'monthly' | 'semi-annual' | 'annual' | 'admin' | null;
   operationalInfo?: GuideItemOperationalInfo;
   isActive?: boolean;
   date?: string;
@@ -93,7 +114,7 @@ export interface GuideCreateItemInput {
   instagramLink?: string;
   websiteLink?: string;
   bookingLink?: string;
-  whatsappLink?: string;
+  phone?: string;
   googleMapsLink?: string;
   address?: string;
   tags?: string[];

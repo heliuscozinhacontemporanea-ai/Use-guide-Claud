@@ -38,7 +38,7 @@ describe('SitemapService', () => {
       '<xhtml:link rel="alternate" hreflang="x-default" href="https://useguide.com.br/" />'
     );
     expect(xml).not.toContain('favoris');
-    // 7 rotas indexáveis + 1 evento, cada um em 3 idiomas.
-    expect(xml.match(/<url>/g)).toHaveLength(24);
+    // 9 rotas indexáveis + 1 evento, cada um em 3 idiomas.
+    expect(xml.match(/<url>/g)).toHaveLength(30);
   });
 });

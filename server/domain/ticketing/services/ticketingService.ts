@@ -16,6 +16,7 @@ import {
 } from '../errors/ticketingDomainError';
 import type { TicketQrTokenPort } from '../ports/ticketQrTokenPort';
 import type { TicketingPort } from '../ports/ticketingPort';
+import { resolvePlatformFeePercent } from '../../../shared/kernel/platformFee';
 import {
   assertMoneyMinor,
   canTransitionOrderStatus,
@@ -639,9 +640,7 @@ export class TicketingService {
     }
 
     const netSubtotalMinor = Math.max(0, subtotalMinor - discountMinor);
-    const rawFee = process.env.USE_GUIDE_PLATFORM_FEE_PERCENT;
-    const parsedFee = rawFee ? Number(String(rawFee).replace('%', '').trim()) : 10;
-    const feePercent = Number.isFinite(parsedFee) ? parsedFee : 10;
+    const feePercent = resolvePlatformFeePercent();
     const platformFeeMinor =
       netSubtotalMinor > 0 && feePercent > 0
         ? Math.round((netSubtotalMinor * feePercent) / 100)

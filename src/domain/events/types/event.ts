@@ -45,7 +45,7 @@ export interface EventListing {
   organizerId: string;
   location: EventLocation;
   contact?: {
-    whatsapp?: string;
+    phone?: string;
     website?: string;
     instagram?: string;
     booking?: string;
@@ -115,7 +115,7 @@ export interface CreateEventListingInput {
   location: EventLocation | string;
   address?: string;
   googleMapsLink?: string;
-  whatsappLink?: string;
+  phone?: string;
   websiteLink?: string;
   instagramLink?: string;
   bookingLink?: string;

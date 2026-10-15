@@ -1,24 +1,11 @@
 import { updatePartnerVerificationSchema } from '../../schemas/partnerSchema';
 import { partnerAdapter } from '../../factory';
-import type { PartnerVerificationType } from '../../types/partner';
 
+/** Admin concede ou retira o selo; o servidor preserva o plano pago do parceiro. */
 export async function updatePartnerVerificationUseCase(
   partnerId: string,
-  isVerified: boolean,
-  verifiedUntil: string | null = null,
-  verificationType: PartnerVerificationType = null
+  isVerified: boolean
 ): Promise<void> {
-  updatePartnerVerificationSchema.parse({
-    partnerId,
-    isVerified,
-    verifiedUntil,
-    verificationType,
-  });
-
-  return partnerAdapter.updatePartnerVerification(
-    partnerId,
-    isVerified,
-    verifiedUntil,
-    verificationType
-  );
+  updatePartnerVerificationSchema.parse({ partnerId, isVerified });
+  return partnerAdapter.updatePartnerVerification(partnerId, isVerified);
 }

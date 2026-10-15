@@ -228,6 +228,8 @@ export interface PartnerMerchantStatus {
   payoutsEnabled: boolean;
   detailsSubmitted: boolean;
   status: 'pending' | 'restricted' | 'enabled' | 'disabled';
+  /** Calculado no servidor: mesmo critério usado para vender. */
+  readyForSales: boolean;
 }
 
 export interface OfflineCheckInSessionResponse {

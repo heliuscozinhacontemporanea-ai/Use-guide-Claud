@@ -277,15 +277,12 @@ export function Step5Media({
                             ))}
                           </div>
                         )}
-                        {(formData.menuLink || formData.menuFile) && (
+                        {formData.menuLink && (
                           <div className="space-y-1">
                             <p className="text-[9px] text-white/50 uppercase font-black">
                               Cardápio Digital
                             </p>
-                            <p className="text-xs text-indigo-400 truncate">
-                              {formData.menuLink ||
-                                (formData.menuFile ? `Arquivo: ${formData.menuFile.name}` : '')}
-                            </p>
+                            <p className="text-xs text-indigo-400 truncate">{formData.menuLink}</p>
                           </div>
                         )}
                       </div>
@@ -445,7 +442,7 @@ export function Step5Media({
       )}
 
       {/* Section: Photos */}
-      {formData.category !== 'event' && (
+      {formData.category !== 'producer' && (
         <div className="space-y-6">
           <div className="flex items-center gap-2">
             <span className="p-2 rounded-xl bg-white/5 border border-white/10 text-indigo-400">

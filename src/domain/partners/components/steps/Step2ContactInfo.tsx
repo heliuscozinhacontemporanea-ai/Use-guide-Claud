@@ -328,9 +328,9 @@ export function Step2ContactInfo({
             </div>
           </div>
         </div>
-      ) : formData.category === 'restaurant' ||
-        formData.category === 'sight' ||
-        formData.category === 'event' ? (
+      ) : ['restaurant', 'sight', 'tour', 'transfer', 'rental', 'producer'].includes(
+          formData.category
+        ) ? (
         <div className="space-y-4">
           {/* Telefone / WhatsApp */}
           <div className="space-y-2">
@@ -365,7 +365,7 @@ export function Step2ContactInfo({
                   type="text"
                   value={formData.instagram || ''}
                   onChange={(e) => updateFieldValue('instagram', e.target.value)}
-                  placeholder={formData.category === 'event' ? '@perfil_evento' : '@perfil'}
+                  placeholder={formData.category === 'producer' ? '@perfil_evento' : '@perfil'}
                   maxLength={300}
                   className={cn(
                     'w-full bg-white/5 border rounded-2xl pl-12 pr-5 py-4 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all placeholder:text-white/50',
@@ -381,9 +381,9 @@ export function Step2ContactInfo({
                 )}
               </div>
             </div>
-            <div className={cn('space-y-2', formData.category === 'event' && 'hidden')}>
+            <div className={cn('space-y-2', formData.category === 'producer' && 'hidden')}>
               <label className="text-[10px] font-black uppercase tracking-widest text-white/50 ml-1">
-                {formData.category === 'event' ? 'Site / Link Vendas' : 'Site Próprio'}
+                {formData.category === 'producer' ? 'Site / Link Vendas' : 'Site Próprio'}
               </label>
               <div className="relative">
                 <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/50">
@@ -413,7 +413,7 @@ export function Step2ContactInfo({
 
           {/* Google Maps e Endereço */}
           <div className="space-y-4 pt-2">
-            <div className={cn('space-y-2', formData.category === 'event' && 'hidden')}>
+            <div className={cn('space-y-2', formData.category === 'producer' && 'hidden')}>
               <label className="text-[10px] font-black uppercase tracking-widest text-white/50 ml-1">
                 Link Google Maps{' '}
                 {(formData.category === 'restaurant' || formData.category === 'sight') && (

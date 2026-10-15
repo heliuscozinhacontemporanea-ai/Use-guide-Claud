@@ -16,7 +16,7 @@ interface CheckoutModalProps {
   planId: PaidPlanId;
   itemName: string;
   /** Valor do plano em reais, como vem do cadastro (o backend recalcula). */
-  amount: number;
+  amountMinor: number;
   onPaymentSuccess?: (paymentId: string) => void;
 }
 
@@ -25,7 +25,7 @@ export function CheckoutModal({
   onClose,
   planId,
   itemName,
-  amount,
+  amountMinor,
   onPaymentSuccess,
 }: CheckoutModalProps) {
   const { t, i18n } = useTranslation();
@@ -75,7 +75,7 @@ export function CheckoutModal({
             <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-between gap-3">
               <span className="text-xs text-white/60">{t('payment.checkout.totalLabel')}</span>
               <span className="text-xl font-black text-teal-300">
-                {formatPlanAmount(amount, i18n.language)}
+                {formatPlanAmount(amountMinor, i18n.language)}
                 <span className="block text-[11px] font-medium text-white/60 text-right">
                   {t(`payment.period.${planId}`)}
                 </span>
@@ -99,7 +99,7 @@ export function CheckoutModal({
               <SubscriptionPlanCheckout
                 planId={planId}
                 itemName={itemName}
-                amount={amount}
+                amountMinor={amountMinor}
                 onClose={handleClose}
                 onActivated={onPaymentSuccess}
               />
@@ -109,7 +109,7 @@ export function CheckoutModal({
               <OneTimePlanCheckout
                 planId={planId}
                 itemName={itemName}
-                amount={amount}
+                amountMinor={amountMinor}
                 onClose={handleClose}
                 onPaymentSuccess={onPaymentSuccess}
               />

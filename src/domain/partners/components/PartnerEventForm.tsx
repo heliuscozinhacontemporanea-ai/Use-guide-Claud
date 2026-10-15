@@ -22,20 +22,12 @@ import {
   partnerEventFormSchema,
   type PartnerEventFormValues,
 } from '../schemas/partnerEventFormSchema';
-import type { PartnerBusiness, PartnerCategory } from '../types/partner';
+import type { PartnerBusiness } from '../types/partner';
 import type { PartnerContentEditorState } from '../types/partnerContent';
-import { isoToLocalDateTime, localDateTimeToIso } from '../utils/dateTime';
+import { businessDateTimeToIso, isoToBusinessDateTime } from '../../../shared/utils/businessDateTime';
+import { EVENT_CATEGORIES } from '../../events';
+import { E164PhoneField } from '../../../ui/components/E164PhoneField';
 
-const EVENT_CATEGORIES = [
-  'Festa',
-  'Show',
-  'Feira',
-  'Festival',
-  'Competição',
-  'Corrida',
-  'Torneio',
-  'Outro',
-];
 
 function RegionDropdown({
   value,
@@ -110,7 +102,6 @@ interface PartnerEventFormProps {
   onChange: (updatedItem: PartnerContentEditorState) => void;
   isUploading: boolean;
   onImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  partnerCategory?: PartnerCategory | null;
   businesses?: PartnerBusiness[];
   renderEventTicketingManager?: (eventListingId: string) => React.ReactNode;
 }
@@ -120,7 +111,6 @@ export function PartnerEventForm({
   onChange,
   isUploading,
   onImageUpload,
-  partnerCategory,
   businesses,
   renderEventTicketingManager,
 }: PartnerEventFormProps) {
@@ -147,17 +137,12 @@ export function PartnerEventForm({
       images: item?.images || [],
       image: item?.image || '',
       entryType: item?.entryType || 'gratuito',
-      whatsappLink: item?.whatsappLink || '',
+      phone: item?.phone || '',
       websiteLink: item?.websiteLink || '',
       instagramLink: item?.instagramLink || '',
       address: item?.address || '',
     });
   }, [item, reset]);
-
-  const requiresEstablishment =
-    partnerCategory === 'hotel' ||
-    partnerCategory === 'restaurant' ||
-    partnerCategory === 'sight';
 
   const partnerEstablishments = (businesses ?? []).filter(
     (business) => business.type === 'item'
@@ -199,10 +184,11 @@ export function PartnerEventForm({
         </div>
 
         <div className="space-y-4">
-          {requiresEstablishment && (
+          {/* Todo evento pertence a um estabelecimento ou ao perfil de produtor (decisão D9). */}
+          {(
             <div className="space-y-2 relative" ref={establishmentRef}>
               <label className="text-[10px] font-black uppercase tracking-widest text-white/50 ml-1">
-                Estabelecimento do Evento <span className="text-rose-500 font-bold">*</span>
+                Estabelecimento ou perfil de produtor <span className="text-rose-500 font-bold">*</span>
               </label>
               {isEditingExistingEvent ? (
                 <div className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white/70 text-sm flex items-center justify-between cursor-not-allowed">
@@ -363,8 +349,8 @@ export function PartnerEventForm({
             </label>
             <input
               type="datetime-local"
-              value={isoToLocalDateTime(item.date)}
-              onChange={(e) => updateField('date', localDateTimeToIso(e.target.value))}
+              value={isoToBusinessDateTime(item.date)}
+              onChange={(e) => updateField('date', businessDateTimeToIso(e.target.value))}
               className="w-[85%] bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
             />
           </div>
@@ -375,8 +361,8 @@ export function PartnerEventForm({
             </label>
             <input
               type="datetime-local"
-              value={isoToLocalDateTime(item.endDate)}
-              onChange={(e) => updateField('endDate', localDateTimeToIso(e.target.value))}
+              value={isoToBusinessDateTime(item.endDate)}
+              onChange={(e) => updateField('endDate', businessDateTimeToIso(e.target.value))}
               className="w-[85%] bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
             />
           </div>
@@ -458,17 +444,11 @@ export function PartnerEventForm({
             <label className="text-[10px] font-black uppercase tracking-widest text-white/50 ml-1">
               WhatsApp de Contato / Reservas
             </label>
-            <div className="relative">
-              <Phone size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/50" />
-              <input
-                type="text"
-                placeholder="(85) 99999-9999"
-                value={item.whatsappLink || ''}
-                onChange={(e) => updateField('whatsappLink', e.target.value)}
-                maxLength={300}
-                className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-5 py-4 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
-              />
-            </div>
+            <E164PhoneField
+              id="partner-event-phone"
+              value={item.phone}
+              onChange={(e164) => updateField('phone', e164)}
+            />
           </div>
 
           <div className="space-y-2">
