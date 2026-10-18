@@ -17,7 +17,8 @@ const finiteNonNegativeNumber = z.preprocess(
 export const updatePlanSchema = z
   .object({
     name: z.string().trim().min(1).max(200).optional(),
-    price: finiteNonNegativeNumber.optional(),
+    // Centavos inteiros: R$ 49,90 = 4990.
+    priceMinor: z.number().int().nonnegative().max(100_000_000).optional(),
     period: z.string().trim().min(1).max(50).optional(),
     description: z.string().trim().max(300).optional(),
     isActive: z.boolean().optional(),
@@ -28,3 +29,4 @@ export const updatePlanSchema = z
   });
 
 export type UpdatePlanInput = z.infer<typeof updatePlanSchema>;
+

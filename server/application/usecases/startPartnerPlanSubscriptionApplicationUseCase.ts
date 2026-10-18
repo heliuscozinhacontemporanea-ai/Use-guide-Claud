@@ -38,7 +38,7 @@ export async function startPartnerPlanSubscriptionApplicationUseCase(
     locale: input.locale,
     planId: input.planId,
     planName: plan.name,
-    amountMinor: Math.round(Number(plan.price) * 100),
+    amountMinor: plan.priceMinor,
     ...BILLING_INTERVAL[input.planId],
     currentVerifiedUntil: profile.verifiedUntil ?? null,
     idempotencyKey: input.idempotencyKey,

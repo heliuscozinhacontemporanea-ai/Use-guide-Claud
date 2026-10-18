@@ -5,6 +5,8 @@ import {
   createPendingBookingUseCase,
 } from '../../../domain/bookings';
 import { createMarketplacePaymentIntentUseCase } from '../../../domain/payment';
+import { resolvePlatformFeePercent } from '../../../shared/kernel/platformFee';
+import { isPartnerSuspended } from '../isPartnerSuspended';
 
 export interface BookingBuyer {
   uid: string;
@@ -29,9 +31,7 @@ export async function createBookingApplicationUseCase(
   if (!buyer.emailVerified) {
     throw new BookingDomainError('EMAIL_NOT_VERIFIED', 'Confirme seu e-mail antes de reservar.');
   }
-  const rawFee = process.env.USE_GUIDE_PLATFORM_FEE_PERCENT;
-  const parsedFee = rawFee ? Number(String(rawFee).replace('%', '').trim()) : 10;
-  const platformFeePercent = Number.isFinite(parsedFee) ? parsedFee : 10;
+  const platformFeePercent = resolvePlatformFeePercent();
   const booking = await createPendingBookingUseCase(
     { uid: buyer.uid, admin: buyer.admin },
     input,
@@ -39,6 +39,12 @@ export async function createBookingApplicationUseCase(
   );
 
   try {
+    if (await isPartnerSuspended(booking.sellerPartnerId)) {
+      throw new BookingDomainError(
+        'PARTNER_SUSPENDED',
+        'Este parceiro não está aceitando reservas no momento.'
+      );
+    }
     const payment = await createMarketplacePaymentIntentUseCase({
       referenceType: 'booking',
       referenceId: booking.id,

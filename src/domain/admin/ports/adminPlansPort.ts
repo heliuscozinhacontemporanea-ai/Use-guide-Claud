@@ -9,7 +9,7 @@ export interface AdminPlansPort {
     planId: string,
     data: {
       name?: string;
-      price?: number;
+      priceMinor?: number;
       period?: string;
       description?: string;
       isActive?: boolean;

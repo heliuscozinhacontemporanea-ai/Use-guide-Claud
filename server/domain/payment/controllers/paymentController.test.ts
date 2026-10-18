@@ -81,7 +81,7 @@ describe('PaymentController', () => {
     vi.mocked(getPlanForPaymentApplicationUseCase).mockResolvedValueOnce({
       id: 'monthly',
       name: 'Plano Profissional',
-      price: 99.0,
+      priceMinor: 9900,
       isActive: true,
     } as any);
     vi.mocked(createPlanPaymentIntentUseCase).mockResolvedValueOnce({

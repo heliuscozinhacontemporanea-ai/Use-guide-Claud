@@ -20,6 +20,7 @@ import {
 import { useEventOccurrences, type EventOccurrence } from '../../events';
 import { PartnerStripeConnectPortal } from '../../payment';
 import { GlassCard } from '../../../ui/components/GlassCard';
+import { businessDateTimeToIso } from '../../../shared/utils/businessDateTime';
 import { createOfflineCheckInSessionUseCase } from '../application/usecases/createOfflineCheckInSessionUseCase';
 import { createTicketTypeUseCase } from '../application/usecases/createTicketTypeUseCase';
 import { deleteOrArchiveTicketTypeUseCase } from '../application/usecases/deleteOrArchiveTicketTypeUseCase';
@@ -396,10 +397,10 @@ export function PartnerEventTicketingManager({
         minPerOrder,
         maxPerOrder,
         ...(newSalesStartsAt
-          ? { salesStartsAt: new Date(newSalesStartsAt).toISOString() }
+          ? { salesStartsAt: businessDateTimeToIso(newSalesStartsAt) }
           : {}),
         ...(newSalesEndsAt
-          ? { salesEndsAt: new Date(newSalesEndsAt).toISOString() }
+          ? { salesEndsAt: businessDateTimeToIso(newSalesEndsAt) }
           : {}),
         visibility: newVisibility,
         requiresEligibilityProof: newRequiresEligibility,
@@ -461,12 +462,7 @@ export function PartnerEventTicketingManager({
     await executeTokenOrIdValidation(checkInInput);
   };
 
-  const isStripeReady = Boolean(
-    merchantStatus?.connected &&
-      merchantStatus.chargesEnabled &&
-      merchantStatus.payoutsEnabled &&
-      merchantStatus.detailsSubmitted
-  );
+  const isStripeReady = merchantStatus?.readyForSales === true;
 
   return (
     <div className="space-y-4">
@@ -510,6 +506,7 @@ export function PartnerEventTicketingManager({
                 month: 'short',
                 hour: '2-digit',
                 minute: '2-digit',
+                timeZone: 'America/Fortaleza',
               })}{' '}
               • Cap: {occ.capacity}
             </button>
@@ -775,11 +772,15 @@ export function PartnerEventTicketingManager({
                     <div className="text-[11px] text-white/50">
                       Janela:{' '}
                       {tt.salesStartsAt
-                        ? new Date(tt.salesStartsAt).toLocaleString('pt-BR')
+                        ? new Date(tt.salesStartsAt).toLocaleString('pt-BR', {
+                            timeZone: 'America/Fortaleza',
+                          })
                         : 'Imediato'}{' '}
                       até{' '}
                       {tt.salesEndsAt
-                        ? new Date(tt.salesEndsAt).toLocaleString('pt-BR')
+                        ? new Date(tt.salesEndsAt).toLocaleString('pt-BR', {
+                            timeZone: 'America/Fortaleza',
+                          })
                         : 'Início da sessão'}
                     </div>
                   )}
@@ -894,7 +895,9 @@ export function PartnerEventTicketingManager({
                   </div>
                   <div className="text-white/50">
                     Pedido #{ord.id.slice(0, 8)} •{' '}
-                    {new Date(ord.createdAt).toLocaleString('pt-BR')}
+                    {new Date(ord.createdAt).toLocaleString('pt-BR', {
+                      timeZone: 'America/Fortaleza',
+                    })}
                   </div>
                 </div>
                 <div className="text-right">
@@ -1050,7 +1053,9 @@ export function PartnerEventTicketingManager({
                   </span>
                 </div>
                 <span className="text-white/60">
-                  {new Date(ci.checkedInAt).toLocaleString('pt-BR')}
+                  {new Date(ci.checkedInAt).toLocaleString('pt-BR', {
+                    timeZone: 'America/Fortaleza',
+                  })}
                 </span>
               </div>
             ))}
@@ -1074,7 +1079,9 @@ export function PartnerEventTicketingManager({
                   </div>
                   <div className="text-white/60">{ref.reason}</div>
                   <div className="text-[11px] text-white/50">
-                    {new Date(ref.createdAt).toLocaleString('pt-BR')}
+                    {new Date(ref.createdAt).toLocaleString('pt-BR', {
+                      timeZone: 'America/Fortaleza',
+                    })}
                   </div>
                 </div>
                 <span

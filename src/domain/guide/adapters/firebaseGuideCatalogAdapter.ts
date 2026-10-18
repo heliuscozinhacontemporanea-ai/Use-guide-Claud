@@ -45,7 +45,8 @@ export function mapGuideItem(record: Record<string, unknown>): GuideItem {
       record.verificationType === 'trial' ||
       record.verificationType === 'monthly' ||
       record.verificationType === 'semi-annual' ||
-      record.verificationType === 'annual'
+      record.verificationType === 'annual' ||
+      record.verificationType === 'admin'
         ? record.verificationType
         : null,
     isVerificationSuspended:

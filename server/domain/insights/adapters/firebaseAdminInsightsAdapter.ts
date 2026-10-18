@@ -1,7 +1,24 @@
 import { InsightsRepositoryPort, CreateInteractionData } from '../ports/insightsRepositoryPort';
-import { ItemStats } from '../types/interaction';
+import type { InteractionType, ItemStats } from '../types/interaction';
 import { adminDb } from '../../../infrastructure/firebase/adminClient';
 import { FieldValue } from 'firebase-admin/firestore';
+
+// O tipo gravado é singular ('view'); o contador da resposta é 'views'.
+const STAT_COUNTER: Record<InteractionType, 'views' | 'whatsapp_click' | 'share' | 'favorite'> = {
+  view: 'views',
+  whatsapp_click: 'whatsapp_click',
+  share: 'share',
+  favorite: 'favorite',
+};
+
+/** Dia no fuso do negócio, para o gráfico dos últimos 7 dias não depender do fuso do servidor. */
+function formatBusinessDay(date: Date): string {
+  return date.toLocaleDateString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    timeZone: 'America/Fortaleza',
+  });
+}
 
 export class FirebaseAdminInsightsAdapter implements InsightsRepositoryPort {
   async recordInteraction(data: CreateInteractionData): Promise<void> {
@@ -34,14 +51,15 @@ export class FirebaseAdminInsightsAdapter implements InsightsRepositoryPort {
     for (let i = 6; i >= 0; i--) {
       const d = new Date();
       d.setDate(d.getDate() - i);
-      const dateStr = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+      const dateStr = formatBusinessDay(d);
       last7Days[dateStr] = 0;
     }
 
     snapshot.forEach((doc) => {
       const docData = doc.data();
-      if (docData.type in stats) {
-        (stats as Record<string, any>)[docData.type]++;
+      const counter = STAT_COUNTER[docData.type as InteractionType];
+      if (counter) {
+        stats[counter] += 1;
       }
 
       if (docData.type === 'view' && docData.timestamp) {
@@ -54,7 +72,7 @@ export class FirebaseAdminInsightsAdapter implements InsightsRepositoryPort {
           dateVal = new Date(docData.timestamp);
         }
 
-        const date = dateVal.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+        const date = formatBusinessDay(dateVal);
         if (date in last7Days && typeof last7Days[date] === 'number') {
           last7Days[date] += 1;
         }

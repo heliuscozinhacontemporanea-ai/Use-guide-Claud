@@ -10,7 +10,7 @@ import { CheckoutError, CheckoutLoading, CheckoutPending } from './CheckoutStatu
 interface SubscriptionPlanCheckoutProps {
   planId: PaidPlanId;
   itemName: string;
-  amount: number;
+  amountMinor: number;
   onClose: () => void;
   onActivated?: (subscriptionId: string) => void;
 }
@@ -18,7 +18,7 @@ interface SubscriptionPlanCheckoutProps {
 export function SubscriptionPlanCheckout({
   planId,
   itemName,
-  amount,
+  amountMinor,
   onClose,
   onActivated,
 }: SubscriptionPlanCheckoutProps) {
@@ -90,7 +90,7 @@ export function SubscriptionPlanCheckout({
             orderId={checkout.subscriptionId}
             intentType={checkout.intentType === 'setup' ? 'setup' : 'payment'}
             submitLabel={t('payment.checkout.subscribeButton', {
-              amount: formatPlanAmount(amount, i18n.language),
+              amount: formatPlanAmount(amountMinor, i18n.language),
               period: t(`payment.period.${planId}`),
             })}
             onError={fail}

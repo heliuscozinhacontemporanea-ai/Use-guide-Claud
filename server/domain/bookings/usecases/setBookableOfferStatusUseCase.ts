@@ -5,7 +5,8 @@ import type { BookableOffer, BookableOfferStatus, BookingActor } from '../types/
 export async function setBookableOfferStatusUseCase(
   actor: BookingActor,
   offerId: string,
-  status: Exclude<BookableOfferStatus, 'draft'>
+  status: Exclude<BookableOfferStatus, 'draft'>,
+  beforePublish?: (offer: BookableOffer) => Promise<void>
 ): Promise<BookableOffer> {
-  return getOfferService().setOfferStatus(actor, offerId, status);
+  return getOfferService().setOfferStatus(actor, offerId, status, beforePublish);
 }

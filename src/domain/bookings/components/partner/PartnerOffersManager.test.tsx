@@ -36,7 +36,10 @@ describe('PartnerOffersManager', () => {
     vi.mocked(listPartnerOffersUseCase).mockResolvedValue([]);
     await i18n.changeLanguage('fr');
     render(
-      <PartnerOffersManager items={[{ id: 'r1', name: 'Restaurante', category: 'restaurant' }]} />
+      <PartnerOffersManager
+        canPublish
+        items={[{ id: 'r1', name: 'Restaurante', category: 'restaurant' }]}
+      />
     );
     expect(
       await screen.findByText(
@@ -56,6 +59,7 @@ describe('PartnerOffersManager', () => {
     }));
     render(
       <PartnerOffersManager
+        canPublish
         items={[{ id: 'item-1', name: 'Lagoa do Paraíso', category: 'tour' }]}
       />
     );

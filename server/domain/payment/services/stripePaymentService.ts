@@ -10,6 +10,7 @@ import type {
   VerifiedWebhookEvent,
 } from '../ports/paymentGatewayPort';
 import type { TransactionRepositoryPort } from '../ports/transactionRepositoryPort';
+import { isSellerAccountReady } from '../utils/sellerReadiness';
 
 export class PaymentDomainError extends Error {
   constructor(
@@ -100,6 +101,7 @@ export class StripePaymentService {
     payoutsEnabled: boolean;
     detailsSubmitted: boolean;
     status: ConnectedAccountStatus['status'];
+    readyForSales: boolean;
   }> {
     const existing =
       await this.transactionRepo.getConnectedAccountRecord(partnerId);
@@ -110,6 +112,7 @@ export class StripePaymentService {
         payoutsEnabled: false,
         detailsSubmitted: false,
         status: 'pending',
+        readyForSales: false,
       };
     }
 
@@ -138,6 +141,7 @@ export class StripePaymentService {
       payoutsEnabled: status.payoutsEnabled,
       detailsSubmitted: status.detailsSubmitted,
       status: status.status,
+      readyForSales: isSellerAccountReady(status),
     };
   }
 
@@ -172,12 +176,7 @@ export class StripePaymentService {
     };
     await this.transactionRepo.saveConnectedAccountRecord(synced);
 
-    if (
-      !synced.chargesEnabled ||
-      !synced.payoutsEnabled ||
-      !synced.detailsSubmitted ||
-      synced.status !== 'enabled'
-    ) {
+    if (!isSellerAccountReady(synced)) {
       throw new PaymentDomainError(
         'SELLER_ACCOUNT_NOT_ELIGIBLE',
         'Vendas online indisponíveis. Conclua a configuração financeira.',

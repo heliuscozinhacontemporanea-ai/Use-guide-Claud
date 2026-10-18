@@ -14,12 +14,11 @@ function mapPlanRecord(id: string, data: Record<string, unknown>): SubscriptionP
   return {
     id: id as SubscriptionPlan['id'],
     name: typeof data.name === 'string' ? data.name : '',
-    price: typeof data.price === 'number' && Number.isFinite(data.price) ? data.price : 0,
+    priceMinor: Number.isInteger(data.priceMinor) ? (data.priceMinor as number) : 0,
     period: typeof data.period === 'string' ? data.period : '',
-    monthlyEquivalent:
-      typeof data.monthlyEquivalent === 'number' && Number.isFinite(data.monthlyEquivalent)
-        ? data.monthlyEquivalent
-        : null,
+    monthlyEquivalentMinor: Number.isInteger(data.monthlyEquivalentMinor)
+      ? (data.monthlyEquivalentMinor as number)
+      : null,
     savingLabel: typeof data.savingLabel === 'string' ? data.savingLabel : null,
     description: typeof data.description === 'string' ? data.description : '',
     badge: typeof data.badge === 'string' ? data.badge : undefined,

@@ -109,8 +109,8 @@ export class ApiPartnerAdapter implements PartnerPort {
   async updatePartnerVerification(
     partnerId: string,
     isVerified: boolean,
-    verifiedUntil: string | null,
-    verificationType: PartnerVerificationType
+    _verifiedUntil?: string | null,
+    _verificationType?: PartnerVerificationType
   ): Promise<void> {
     const res = await firebaseApiFetch(
       '/api/partners/verify',
@@ -122,8 +122,6 @@ export class ApiPartnerAdapter implements PartnerPort {
         body: JSON.stringify({
           partnerId,
           isVerified,
-          verifiedUntil,
-          verificationType,
         }),
       },
       { requireAuth: true }

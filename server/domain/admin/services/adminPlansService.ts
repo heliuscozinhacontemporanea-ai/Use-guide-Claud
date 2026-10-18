@@ -30,18 +30,18 @@ export class AdminPlansService {
       );
     }
 
-    if (planId !== 'trial' && data.price !== undefined && data.price <= 0) {
+    if (planId !== 'trial' && data.priceMinor !== undefined && data.priceMinor <= 0) {
       throw new AdminDomainError(
         'VALIDATION_ERROR',
         'Planos pagos exigem preço maior que zero'
       );
     }
 
-    // monthlyEquivalent é exibido ao parceiro e não é editável pelo admin: derivar do preço evita valor defasado.
+    // O equivalente mensal é exibido ao parceiro e não é editável pelo admin: derivar do preço evita valor defasado.
     const months = BILLING_MONTHS_BY_PLAN[planId as SubscriptionPlan['id']];
     const derived =
-      data.price !== undefined && months
-        ? { monthlyEquivalent: roundCurrency(data.price / months) }
+      data.priceMinor !== undefined && months
+        ? { monthlyEquivalentMinor: Math.round(data.priceMinor / months) }
         : {};
 
     await this.adminPlansPort.updatePlan(planId, { ...data, ...derived });

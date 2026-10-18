@@ -18,8 +18,11 @@ import {
   createAdminEventListingUseCase,
   createAdminEventOccurrenceUseCase,
   deleteAdminEventListingUseCase,
+  deleteAdminEventOccurrenceUseCase,
+  listEventOccurrencesUseCase,
   updateAdminEventListingUseCase,
   updateAdminEventOccurrenceUseCase,
+  EVENT_CATEGORIES,
 } from '../../events';
 import {
   createGuideItemUseCase,
@@ -87,20 +90,34 @@ export function AdminPanel() {
 
   const filteredItems = useMemo(() => {
     if (filter === 'all') return currentList;
-    return currentList.filter((item) => item.category === filter);
-  }, [currentList, filter]);
+    if (activeTab === 'events') {
+      return (eventsList as GuideItem[]).filter(
+        (item) => (item.eventCategory || 'Outro').toLowerCase() === filter.toLowerCase()
+      );
+    }
+    return itemsList.filter((item) => item.category === filter);
+  }, [currentList, filter, activeTab, eventsList, itemsList]);
 
-  const categories = useMemo(
-    () => [
+  const categories = useMemo(() => {
+    if (activeTab === 'events') {
+      return [
+        { id: 'all', label: 'Todos', color: 'bg-white/10' },
+        ...EVENT_CATEGORIES.map((cat) => ({
+          id: cat.toLowerCase(),
+          label: cat,
+          color: 'bg-teal-500/10 text-teal-400',
+        })),
+      ];
+    }
+    return [
       { id: 'all', label: 'Todos', color: 'bg-white/10' },
       ...Object.values(CATEGORIES).map((c) => ({
         id: c.id,
         label: c.label,
         color: `${c.bgClass} ${c.colorClass}`,
       })),
-    ],
-    []
-  );
+    ];
+  }, [activeTab]);
 
   const handleDelete = async (coll: string, id: string) => {
     if (!(await confirmAction('Excluir permanentemente?'))) return;
@@ -119,18 +136,8 @@ export function AdminPanel() {
   const handleToggleVerification = async (partner: AdminPartnerSummary) => {
     if (!(await confirmAction('Alterar status de verificação do parceiro?'))) return;
     const newVerified = !partner.isVerified;
-    const verifiedUntil = new Date();
-    verifiedUntil.setFullYear(verifiedUntil.getFullYear() + 1);
-    const verifiedUntilIso = newVerified ? verifiedUntil.toISOString() : null;
-    const verificationType = newVerified ? ('annual' as const) : null;
-
     try {
-      await updatePartnerVerificationUseCase(
-        partner.id,
-        newVerified,
-        verifiedUntilIso,
-        verificationType
-      );
+      await updatePartnerVerificationUseCase(partner.id, newVerified);
       patchPartner(partner.id, { isVerified: newVerified });
       showToast('Status de verificação atualizado com sucesso!', 'success');
     } catch {
@@ -139,13 +146,36 @@ export function AdminPanel() {
   };
 
   const handleToggleStatus = async (partner: AdminPartnerSummary) => {
-    if (!(await confirmAction('Alterar status do parceiro?'))) return;
-    const newStatus = partner.status === 'active' ? 'pending' : 'active';
+    const nextStatus = partner.status === 'active' ? 'suspended' : 'active';
+    const actionLabel =
+      partner.status === 'active'
+        ? 'Suspender o parceiro?'
+        : partner.status === 'suspended'
+        ? 'Reativar o parceiro?'
+        : 'Aprovar o cadastro do parceiro?';
+    if (!(await confirmAction(actionLabel))) return;
     try {
-      await updatePartnerStatusUseCase(partner.id, newStatus);
-      patchPartner(partner.id, { status: newStatus });
+      await updatePartnerStatusUseCase(partner.id, nextStatus);
+      patchPartner(partner.id, { status: nextStatus });
+      showToast(
+        nextStatus === 'suspended'
+          ? 'Parceiro suspenso com sucesso.'
+          : 'Parceiro ativado com sucesso!',
+        'success'
+      );
     } catch {
       showToast('Erro ao atualizar status', 'error');
+    }
+  };
+
+  const handleDeletePartner = async (id: string) => {
+    if (!(await confirmAction('Excluir este parceiro permanentemente?'))) return;
+    try {
+      await deletePartnerProfileUseCase(id);
+      removePartner(id);
+      showToast('Parceiro excluído com sucesso.', 'success');
+    } catch {
+      showToast('Erro ao excluir parceiro.', 'error');
     }
   };
 
@@ -180,6 +210,13 @@ export function AdminPanel() {
             toGuideEventUpdateInput(normalizedEventData)
           );
           if (Array.isArray(rawOccurrences)) {
+            const existingOccurrences = await listEventOccurrencesUseCase(editorData.id);
+            const keptIds = new Set(rawOccurrences.map((occ) => occ.id).filter(Boolean));
+            for (const existingOcc of existingOccurrences) {
+              if (!keptIds.has(existingOcc.id)) {
+                await deleteAdminEventOccurrenceUseCase(editorData.id, existingOcc.id);
+              }
+            }
             for (const occ of rawOccurrences) {
               if (occ.id) {
                 await updateAdminEventOccurrenceUseCase(editorData.id, occ.id, {
@@ -287,7 +324,13 @@ export function AdminPanel() {
           </div>
         </motion.div>
 
-        <AdminNavigation activeTab={activeTab} onSelectTab={setActiveTab} />
+        <AdminNavigation
+          activeTab={activeTab}
+          onSelectTab={(tab) => {
+            setFilter('all');
+            setActiveTab(tab);
+          }}
+        />
 
         <AnimatePresence mode="wait">
           <motion.div
@@ -317,10 +360,7 @@ export function AdminPanel() {
                   isLoading={partnersLoading}
                   onToggleVerification={handleToggleVerification}
                   onToggleStatus={handleToggleStatus}
-                  onDeletePartner={async (id) => {
-                    await deletePartnerProfileUseCase(id);
-                    removePartner(id);
-                  }}
+                  onDeletePartner={handleDeletePartner}
                 />
               )
             ) : activeTab === 'plans' ? (

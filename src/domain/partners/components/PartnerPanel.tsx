@@ -50,7 +50,7 @@ export interface PartnerPanelProps {
     onClose: () => void;
     itemId: string;
     itemName: string;
-    amount: number;
+    amountMinor: number;
     onPaymentSuccess: () => Promise<void>;
   }) => React.ReactNode;
   renderEventTicketingManager?: (eventListingId: string) => React.ReactNode;
@@ -58,6 +58,7 @@ export interface PartnerPanelProps {
   renderBookableOffersManager?: (
     items: Array<{ id: string; name: string; category: string }>
   ) => React.ReactNode;
+  onPlanPurchased?: () => void;
 }
 
 export function PartnerPanel({
@@ -69,6 +70,7 @@ export function PartnerPanel({
   renderEventTicketingManager,
   planSubscriptionSlot,
   renderBookableOffersManager,
+  onPlanPurchased,
 }: PartnerPanelProps) {
   const { goTo } = useLocalizedRouting();
 
@@ -108,7 +110,7 @@ export function PartnerPanel({
   const [checkoutPlanInfo, setCheckoutPlanInfo] = React.useState({
     itemId: '',
     itemName: '',
-    amount: 0,
+    amountMinor: 0,
   });
 
   const handleCheckoutSuccess = async () => {
@@ -204,7 +206,7 @@ export function PartnerPanel({
   }
 
   return (
-    <div className="min-h-screen pt-12 pb-40 px-4 bg-[#020508]/60 font-sans selection:bg-teal-500/30 relative overflow-hidden backdrop-blur-md">
+    <div className="min-h-screen pt-12 pb-40 px-4 bg-[#020508]/60 font-sans selection:bg-teal-500/30 relative overflow-x-hidden backdrop-blur-md">
       <BackgroundBlobs />
 
       <div
@@ -580,8 +582,8 @@ export function PartnerPanel({
         userId={user.uid}
         partnerProfile={partnerProfile || undefined}
         plans={subscriptionPlans ?? []}
-        onSelectPaidPlan={(planId, planName, amount) => {
-          setCheckoutPlanInfo({ itemId: planId, itemName: planName, amount });
+        onSelectPaidPlan={(planId, planName, amountMinor) => {
+          setCheckoutPlanInfo({ itemId: planId, itemName: planName, amountMinor });
           setShowCheckoutModal(true);
         }}
       />
@@ -591,7 +593,7 @@ export function PartnerPanel({
         onClose: () => setShowCheckoutModal(false),
         itemId: checkoutPlanInfo.itemId,
         itemName: checkoutPlanInfo.itemName,
-        amount: checkoutPlanInfo.amount,
+        amountMinor: checkoutPlanInfo.amountMinor,
         onPaymentSuccess: handleCheckoutSuccess,
       })}
 

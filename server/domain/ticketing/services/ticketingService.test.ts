@@ -52,6 +52,7 @@ describe('TicketingService', () => {
 
   beforeEach(() => {
     vi.stubEnv('TICKET_QR_SECRET', 'test-ticket-qr-secret-with-32-chars!');
+    vi.stubEnv('USE_GUIDE_PLATFORM_FEE_PERCENT', '10');
     vi.clearAllMocks();
 
     vi.mocked(getEventOccurrenceByIdUseCase).mockResolvedValue({
@@ -170,8 +171,6 @@ describe('TicketingService', () => {
         publicKeyJwk: { kty: 'RSA' },
       }),
     };
-
-    process.env.USE_GUIDE_PLATFORM_FEE_PERCENT = '10';
 
     service = new TicketingService(mockPort, mockQrTokenPort);
   });

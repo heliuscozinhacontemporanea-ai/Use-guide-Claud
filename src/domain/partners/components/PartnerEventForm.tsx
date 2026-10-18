@@ -24,18 +24,9 @@ import {
 } from '../schemas/partnerEventFormSchema';
 import type { PartnerBusiness, PartnerCategory } from '../types/partner';
 import type { PartnerContentEditorState } from '../types/partnerContent';
-import { isoToLocalDateTime, localDateTimeToIso } from '../utils/dateTime';
+import { businessDateTimeToIso, isoToBusinessDateTime } from '../../../shared/utils/businessDateTime';
+import { EVENT_CATEGORIES } from '../../events';
 
-const EVENT_CATEGORIES = [
-  'Festa',
-  'Show',
-  'Feira',
-  'Festival',
-  'Competição',
-  'Corrida',
-  'Torneio',
-  'Outro',
-];
 
 function RegionDropdown({
   value,
@@ -363,8 +354,8 @@ export function PartnerEventForm({
             </label>
             <input
               type="datetime-local"
-              value={isoToLocalDateTime(item.date)}
-              onChange={(e) => updateField('date', localDateTimeToIso(e.target.value))}
+              value={isoToBusinessDateTime(item.date)}
+              onChange={(e) => updateField('date', businessDateTimeToIso(e.target.value))}
               className="w-[85%] bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
             />
           </div>
@@ -375,8 +366,8 @@ export function PartnerEventForm({
             </label>
             <input
               type="datetime-local"
-              value={isoToLocalDateTime(item.endDate)}
-              onChange={(e) => updateField('endDate', localDateTimeToIso(e.target.value))}
+              value={isoToBusinessDateTime(item.endDate)}
+              onChange={(e) => updateField('endDate', businessDateTimeToIso(e.target.value))}
               className="w-[85%] bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
             />
           </div>

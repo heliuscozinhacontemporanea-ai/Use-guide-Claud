@@ -15,6 +15,8 @@ vi.mock('../../../domain/payment', () => ({
   createMarketplacePaymentIntentUseCase: vi.fn(),
   processProviderRefundUseCase: vi.fn().mockResolvedValue({}),
 }));
+vi.mock('../isPartnerSuspended', () => ({ isPartnerSuspended: vi.fn().mockResolvedValue(false) }));
+
 
 import {
   cancelBookingForCanceledSlotUseCase,
@@ -30,6 +32,7 @@ import {
 import { cancelBookingByBuyerApplicationUseCase } from './cancelBookingByBuyerApplicationUseCase';
 import { cancelSlotByPartnerApplicationUseCase } from './cancelSlotByPartnerApplicationUseCase';
 import { createBookingApplicationUseCase } from './createBookingApplicationUseCase';
+import { isPartnerSuspended } from '../isPartnerSuspended';
 
 const BOOKING = {
   id: 'bk_1',
@@ -90,6 +93,16 @@ describe('createBookingApplicationUseCase', () => {
     vi.mocked(createPendingBookingUseCase).mockResolvedValue(BOOKING as never);
     vi.mocked(createMarketplacePaymentIntentUseCase).mockRejectedValue(new Error('stripe down'));
     await expect(createBookingApplicationUseCase(BUYER, INPUT)).rejects.toThrow('stripe down');
+    expect(cancelPendingBookingUseCase).toHaveBeenCalledWith('bk_1', 'payment_init_failed');
+  });
+
+  it('parceiro suspenso: não cria pagamento e libera a vaga', async () => {
+    vi.mocked(createPendingBookingUseCase).mockResolvedValue(BOOKING as never);
+    vi.mocked(isPartnerSuspended).mockResolvedValueOnce(true);
+    await expect(createBookingApplicationUseCase(BUYER, INPUT)).rejects.toMatchObject({
+      code: 'PARTNER_SUSPENDED',
+    });
+    expect(createMarketplacePaymentIntentUseCase).not.toHaveBeenCalled();
     expect(cancelPendingBookingUseCase).toHaveBeenCalledWith('bk_1', 'payment_init_failed');
   });
 });

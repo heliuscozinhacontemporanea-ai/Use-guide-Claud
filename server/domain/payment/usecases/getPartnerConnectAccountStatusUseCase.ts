@@ -8,6 +8,7 @@ export async function getPartnerConnectAccountStatusUseCase(partnerId: string): 
   payoutsEnabled: boolean;
   detailsSubmitted: boolean;
   status: ConnectedAccountStatus['status'];
+  readyForSales: boolean;
 }> {
   return stripePaymentService.getPartnerAccountStatus(partnerId);
 }

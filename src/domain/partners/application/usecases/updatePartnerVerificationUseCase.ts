@@ -5,14 +5,14 @@ import type { PartnerVerificationType } from '../../types/partner';
 export async function updatePartnerVerificationUseCase(
   partnerId: string,
   isVerified: boolean,
-  verifiedUntil: string | null = null,
-  verificationType: PartnerVerificationType = null
+  verifiedUntil?: string | null,
+  verificationType?: PartnerVerificationType
 ): Promise<void> {
   updatePartnerVerificationSchema.parse({
     partnerId,
     isVerified,
-    verifiedUntil,
-    verificationType,
+    ...(verifiedUntil !== undefined ? { verifiedUntil } : {}),
+    ...(verificationType !== undefined ? { verificationType } : {}),
   });
 
   return partnerAdapter.updatePartnerVerification(

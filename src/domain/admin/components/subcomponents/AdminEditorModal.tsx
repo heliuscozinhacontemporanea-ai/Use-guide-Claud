@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FormProvider, useForm, type Resolver } from 'react-hook-form';
 import { motion, AnimatePresence } from 'motion/react';
@@ -6,6 +6,7 @@ import { X, Trash2, RefreshCw } from 'lucide-react';
 import { CATEGORIES } from '../../../../shared/constants/categories';
 import { useUI } from '../../../../shared/stores/useUIStore';
 import { Z_INDEX } from '../../../../shared/constants/zIndex';
+import { listEventOccurrencesUseCase } from '../../../events';
 import type { GuideItem } from '../../../guide';
 import { getImageUploadErrorMessage, uploadImageUseCase } from '../../../media';
 import {
@@ -25,12 +26,20 @@ export const ADMIN_CREATABLE_ITEM_CATEGORIES = [
   'sight',
 ] as const;
 
+export type AdminEditorSaveData = GuideItem & {
+  occurrences?: AdminGuideEditorSchemaValues['occurrences'];
+  /** Sessões salvas que o admin removeu no editor e devem ser apagadas no servidor. */
+  removedOccurrenceIds?: string[];
+};
+
+type OccurrencesLoadState = 'idle' | 'loading' | 'ready' | 'error';
+
 interface AdminEditorModalProps {
   isEditing: GuideItem;
   setIsEditing: (item: GuideItem | null) => void;
   activeTab: 'items' | 'events';
   isAdminUser: boolean;
-  onSave: (data: GuideItem & { occurrences?: AdminGuideEditorSchemaValues['occurrences'] }) => Promise<void>;
+  onSave: (data: AdminEditorSaveData) => Promise<void>;
   onDeleteConfirm: (id: string) => Promise<void>;
 }
 
@@ -46,6 +55,8 @@ export function AdminEditorModal({
   const [isLoading, setIsLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const { showToast } = useUI();
+  const [occurrencesState, setOccurrencesState] = useState<OccurrencesLoadState>('idle');
+  const savedOccurrenceIdsRef = useRef<string[]>([]);
 
   const form = useForm<AdminGuideEditorSchemaValues>({
     resolver: zodResolver(
@@ -76,15 +87,10 @@ export function AdminEditorModal({
       images: isEditing?.images || [],
       date: isEditing?.date,
       endDate: isEditing?.endDate,
+      // Evento novo começa com uma sessão; as sessões de um evento salvo vêm do servidor (efeito abaixo).
       occurrences:
-        activeTab === 'events'
-          ? [
-              {
-                startsAt: defaultStart,
-                endsAt: defaultEnd,
-                capacity: 100,
-              },
-            ]
+        activeTab === 'events' && !isEditing?.id
+          ? [{ startsAt: defaultStart, endsAt: defaultEnd, capacity: 100 }]
           : [],
       eventCategory: isEditing?.eventCategory,
       customCategory: isEditing?.customCategory,
@@ -95,6 +101,40 @@ export function AdminEditorModal({
       bookingLink: isEditing?.bookingLink,
       operationalInfo: isEditing?.operationalInfo as Record<string, unknown> | undefined,
     });
+  }, [isEditing.id, activeTab, form]);
+
+  useEffect(() => {
+    savedOccurrenceIdsRef.current = [];
+    if (activeTab !== 'events' || !isEditing.id) {
+      setOccurrencesState('idle');
+      return;
+    }
+    let active = true;
+    setOccurrencesState('loading');
+    listEventOccurrencesUseCase(isEditing.id)
+      .then((list) => {
+        if (!active) return;
+        savedOccurrenceIdsRef.current = list.map((occ) => occ.id);
+        form.setValue(
+          'occurrences',
+          list.map((occ) => ({
+            id: occ.id,
+            startsAt: occ.startsAt,
+            endsAt: occ.endsAt,
+            capacity: occ.capacity,
+            salesStartsAt: occ.salesStartsAt,
+            salesEndsAt: occ.salesEndsAt,
+          }))
+        );
+        setOccurrencesState('ready');
+      })
+      .catch((error: unknown) => {
+        console.error('[AdminEditorModal] sessões', error);
+        if (active) setOccurrencesState('error');
+      });
+    return () => {
+      active = false;
+    };
   }, [isEditing.id, activeTab, form]);
 
   const isCreatingNew = !isEditing?.id;
@@ -297,7 +337,10 @@ export function AdminEditorModal({
                   />
 
                   {activeTab === 'events' && (
-                    <AdminEditorEventFields eventListingId={isEditing.id || undefined} />
+                    <AdminEditorEventFields
+                      eventListingId={isEditing.id || undefined}
+                      occurrencesState={occurrencesState}
+                    />
                   )}
 
                   <AdminEditorLocation />

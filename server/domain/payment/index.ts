@@ -46,8 +46,4 @@ export type {
   RefundPaymentResult,
   VerifiedWebhookEvent,
 } from './ports/paymentGatewayPort';
-export type {
-  TransactionRecord,
-  TransactionRepositoryPort,
-  WebhookEventClaimResult,
-} from './ports/transactionRepositoryPort';
+

@@ -96,9 +96,11 @@ export interface PartnerProfile {
 export interface SubscriptionPlan {
   id: 'trial' | 'monthly' | 'semi-annual' | 'annual';
   name: string;
-  price: number;
+  /** Preço total do período, em centavos. */
+  priceMinor: number;
   period: string;
-  monthlyEquivalent: number | null;
+  /** Equivalente mensal em centavos (planos de 6 e 12 meses). */
+  monthlyEquivalentMinor: number | null;
   savingLabel: string | null;
   description: string;
   badge?: string;

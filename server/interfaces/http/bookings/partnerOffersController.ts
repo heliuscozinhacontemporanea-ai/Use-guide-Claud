@@ -1,12 +1,12 @@
 import type { Response } from 'express';
 import { cancelSlotByPartnerApplicationUseCase } from '../../../application/usecases/bookings/cancelSlotByPartnerApplicationUseCase';
+import { setBookableOfferStatusApplicationUseCase } from '../../../application/usecases/bookings/setBookableOfferStatusApplicationUseCase';
 import {
   createAvailabilitySlotsUseCase,
   createBookableOfferUseCase,
   listOfferBookingsForPartnerUseCase,
   listOfferSlotsForPartnerUseCase,
   listPartnerOffersUseCase,
-  setBookableOfferStatusUseCase,
   updateBookableOfferUseCase,
 } from '../../../domain/bookings';
 import type { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
@@ -77,7 +77,7 @@ export class PartnerOffersController {
       return sendError(res, 400, 'VALIDATION_ERROR', 'Status inválido.');
     }
     try {
-      const offer = await setBookableOfferStatusUseCase(actor, offerId.data, parsed.data.status);
+      const offer = await setBookableOfferStatusApplicationUseCase(actor, offerId.data, parsed.data.status);
       return res.status(200).json(toPartnerOffer(offer));
     } catch (error) {
       return handleBookingError(res, 'setOfferStatus', error);

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Users, CheckCircle, Clock, Trash2, RefreshCw } from 'lucide-react';
+import { Users, CheckCircle, Clock, Trash2, RefreshCw, AlertCircle } from 'lucide-react';
 import { cn } from '../../../../shared/utils/cn';
 import { VerifiedBadge } from '../../../../ui/components/VerifiedBadge';
 import { AdminPartnerSummary } from '../../types/admin';
@@ -66,6 +66,11 @@ export function AdminPartnersView({
                           Cadastro Ativo
                         </span>
                       </div>
+                    ) : partner.status === 'suspended' ? (
+                      <div className="flex items-center gap-1 text-rose-400">
+                        <AlertCircle size={10} />
+                        <span className="text-[8px] font-black uppercase italic">Suspenso</span>
+                      </div>
                     ) : (
                       <div className="flex items-center gap-1 text-amber-500">
                         <Clock size={10} />
@@ -107,7 +112,11 @@ export function AdminPartnersView({
                 )}
                 id={`btn-status-${partner.id}`}
               >
-                {partner.status === 'active' ? 'Suspender' : 'Ativar'}
+                {partner.status === 'active'
+                  ? 'Suspender'
+                  : partner.status === 'suspended'
+                  ? 'Reativar'
+                  : 'Aprovar'}
               </button>
 
               <button

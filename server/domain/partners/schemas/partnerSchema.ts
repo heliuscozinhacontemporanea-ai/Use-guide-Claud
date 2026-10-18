@@ -25,47 +25,8 @@ export const verifyPartnerSchema = z
   .object({
     partnerId: z.string().trim().min(1, 'ID do parceiro é obrigatório'),
     isVerified: z.boolean(),
-    verifiedUntil: z
-      .string()
-      .datetime({
-        offset: true,
-      })
-      .nullable(),
-    verificationType: z.enum(['trial', 'monthly', 'semi-annual', 'annual']).nullable(),
   })
-  .strict()
-  .superRefine((data, ctx) => {
-    if (data.isVerified) {
-      if (!data.verifiedUntil) {
-        ctx.addIssue({
-          code: 'custom',
-          path: ['verifiedUntil'],
-          message: 'verifiedUntil é obrigatório quando o parceiro está verificado.',
-        });
-      }
-      if (!data.verificationType) {
-        ctx.addIssue({
-          code: 'custom',
-          path: ['verificationType'],
-          message: 'verificationType é obrigatório quando o parceiro está verificado.',
-        });
-      }
-    }
-    if (!data.isVerified && data.verifiedUntil !== null) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['verifiedUntil'],
-        message: 'verifiedUntil deve ser null quando isVerified=false.',
-      });
-    }
-    if (!data.isVerified && data.verificationType !== null) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['verificationType'],
-        message: 'verificationType deve ser null quando isVerified=false.',
-      });
-    }
-  });
+  .strict();
 
 export const activateTrialSchema = z
   .object({

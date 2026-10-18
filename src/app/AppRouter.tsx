@@ -209,7 +209,6 @@ export function AppRouter() {
   useScrollLock(isMenuOpen);
   useScrollLock(isSearchOpen);
   useScrollLock(isPartnersOpen);
-  useScrollLock(isPartnerPortalOpen);
   useScrollLock(!!selectedItem);
   useScrollLock(isLoginModalOpen && !isMenuOpen);
 

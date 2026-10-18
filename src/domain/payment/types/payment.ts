@@ -32,6 +32,8 @@ export interface PartnerConnectStatusResponse {
   requirementsCurrentlyDue?: string[];
   requirementsPastDue?: string[];
   status: 'pending' | 'restricted' | 'enabled' | 'disabled';
+  /** Calculado no servidor: mesmo critério usado para vender. */
+  readyForSales: boolean;
 }
 
 export type PaymentLocale = 'pt-BR' | 'en' | 'fr';

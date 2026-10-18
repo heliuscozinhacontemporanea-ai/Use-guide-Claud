@@ -13,8 +13,8 @@ export interface PartnerPort {
   updatePartnerVerification(
     partnerId: string,
     isVerified: boolean,
-    verifiedUntil: string | null,
-    verificationType: PartnerVerificationType
+    verifiedUntil?: string | null,
+    verificationType?: PartnerVerificationType
   ): Promise<void>;
   deletePartnerProfile(partnerId: string): Promise<void>;
 }

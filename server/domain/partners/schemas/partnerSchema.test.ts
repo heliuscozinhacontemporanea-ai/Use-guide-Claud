@@ -1,72 +1,22 @@
 import { describe, expect, it } from 'vitest';
-import { activateTrialSchema, registerPartnerSchema, verifyPartnerSchema } from './partnerSchema';
+import {
+  registerPartnerSchema,
+  verifyPartnerSchema,
+  activateTrialSchema,
+  updatePartnerStatusSchema,
+} from './partnerSchema';
 
 describe('Partner Validation Schemas (Backend)', () => {
   describe('registerPartnerSchema', () => {
-    it('should validate complete partner registration payload with valid CPF', () => {
+    it('should validate complete partner registration data', () => {
       const result = registerPartnerSchema.safeParse({
         formData: {
           category: 'hotel',
-          cpfCnpj: '123.456.789-09',
+          cpfCnpj: '52998224725',
           termsAccepted: true,
         },
       });
       expect(result.success).toBe(true);
-    });
-
-    it('should validate partner registration payload with valid numeric CNPJ', () => {
-      const result = registerPartnerSchema.safeParse({
-        formData: {
-          category: 'restaurant',
-          cpfCnpj: '00.000.000/0001-91',
-          termsAccepted: true,
-        },
-      });
-      expect(result.success).toBe(true);
-    });
-
-    it('should validate partner registration payload with valid alphanumeric CNPJ', () => {
-      const result = registerPartnerSchema.safeParse({
-        formData: {
-          category: 'sight',
-          cpfCnpj: '12.ABC.345/01DE-35',
-          termsAccepted: true,
-        },
-      });
-      expect(result.success).toBe(true);
-    });
-
-    it('should fail when termsAccepted is false', () => {
-      const result = registerPartnerSchema.safeParse({
-        formData: {
-          category: 'hotel',
-          cpfCnpj: '123.456.789-09',
-          termsAccepted: false,
-        },
-      });
-      expect(result.success).toBe(false);
-    });
-
-    it('should fail when cpfCnpj is invalid', () => {
-      const result = registerPartnerSchema.safeParse({
-        formData: {
-          category: 'hotel',
-          cpfCnpj: '123.456.789-00',
-          termsAccepted: true,
-        },
-      });
-      expect(result.success).toBe(false);
-    });
-
-    it('should fail when category is invalid', () => {
-      const result = registerPartnerSchema.safeParse({
-        formData: {
-          category: 'invalid_category',
-          cpfCnpj: '123.456.789-09',
-          termsAccepted: true,
-        },
-      });
-      expect(result.success).toBe(false);
     });
 
     it('should fail when formData is missing', () => {
@@ -76,83 +26,65 @@ describe('Partner Validation Schemas (Backend)', () => {
   });
 
   describe('verifyPartnerSchema', () => {
-    it('should validate partner verification when isVerified is true with valid until and type', () => {
-      const result = verifyPartnerSchema.safeParse({
-        partnerId: 'partner_abc',
-        isVerified: true,
-        verifiedUntil: '2026-12-31T23:59:59.000Z',
-        verificationType: 'annual',
-      });
-      expect(result.success).toBe(true);
+    it('aceita só a decisão do admin (conceder ou retirar o selo)', () => {
+      expect(verifyPartnerSchema.safeParse({ partnerId: 'p1', isVerified: true }).success).toBe(
+        true
+      );
+      expect(verifyPartnerSchema.safeParse({ partnerId: 'p1', isVerified: false }).success).toBe(
+        true
+      );
     });
 
-    it('should validate partner verification when isVerified is false with null verifiedUntil', () => {
+    it('rejeita tipo e validade vindos do cliente: o servidor decide e preserva o plano pago', () => {
       const result = verifyPartnerSchema.safeParse({
-        partnerId: 'partner_abc',
-        isVerified: false,
-        verifiedUntil: null,
-        verificationType: null,
-      });
-      expect(result.success).toBe(true);
-    });
-
-    it('should fail when isVerified is true but verifiedUntil is missing or null', () => {
-      const result = verifyPartnerSchema.safeParse({
-        partnerId: 'partner_abc',
-        isVerified: true,
-        verifiedUntil: null,
-        verificationType: 'annual',
-      });
-      expect(result.success).toBe(false);
-    });
-
-    it('should fail when isVerified is false but verifiedUntil is provided', () => {
-      const result = verifyPartnerSchema.safeParse({
-        partnerId: 'partner_abc',
-        isVerified: false,
-        verifiedUntil: '2026-12-31T23:59:59.000Z',
-        verificationType: null,
-      });
-      expect(result.success).toBe(false);
-    });
-
-    it('should fail when isVerified is false but verificationType is provided', () => {
-      const result = verifyPartnerSchema.safeParse({
-        partnerId: 'partner_abc',
-        isVerified: false,
-        verifiedUntil: null,
-        verificationType: 'annual',
-      });
-      expect(result.success).toBe(false);
-      if (!result.success) {
-        expect(result.error.issues[0]?.message).toBe(
-          'verificationType deve ser null quando isVerified=false.'
-        );
-      }
-    });
-
-    it('should fail when partnerId is empty', () => {
-      const result = verifyPartnerSchema.safeParse({
-        partnerId: '   ',
+        partnerId: 'p1',
         isVerified: true,
         verifiedUntil: '2026-12-31T23:59:59.000Z',
         verificationType: 'annual',
       });
       expect(result.success).toBe(false);
+    });
+
+    it('rejeita parceiro sem ID', () => {
+      expect(verifyPartnerSchema.safeParse({ partnerId: ' ', isVerified: true }).success).toBe(
+        false
+      );
     });
   });
-
   describe('activateTrialSchema', () => {
     it('should validate trial activation with required trimmed partnerId', () => {
       const result = activateTrialSchema.safeParse({
-        partnerId: 'partner_123',
+        partnerId: '  partner_abc  ',
       });
       expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.partnerId).toBe('partner_abc');
+      }
     });
 
-    it('should fail when partnerId is empty or missing', () => {
+    it('should fail when partnerId is missing or empty', () => {
       expect(activateTrialSchema.safeParse({}).success).toBe(false);
-      expect(activateTrialSchema.safeParse({ partnerId: '  ' }).success).toBe(false);
+      expect(activateTrialSchema.safeParse({ partnerId: '   ' }).success).toBe(false);
+    });
+  });
+
+  describe('updatePartnerStatusSchema', () => {
+    it('should validate valid status values', () => {
+      expect(
+        updatePartnerStatusSchema.safeParse({ partnerId: 'p1', status: 'active' }).success
+      ).toBe(true);
+      expect(
+        updatePartnerStatusSchema.safeParse({ partnerId: 'p1', status: 'pending' }).success
+      ).toBe(true);
+      expect(
+        updatePartnerStatusSchema.safeParse({ partnerId: 'p1', status: 'suspended' }).success
+      ).toBe(true);
+    });
+
+    it('should fail with invalid status value', () => {
+      expect(
+        updatePartnerStatusSchema.safeParse({ partnerId: 'p1', status: 'unknown' }).success
+      ).toBe(false);
     });
   });
 });

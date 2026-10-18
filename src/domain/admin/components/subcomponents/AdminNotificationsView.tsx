@@ -137,13 +137,27 @@ export function AdminNotificationsView() {
     <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-4">
       <GlassCard className="p-5 space-y-4">
         <div>
-          <label className="text-[10px] uppercase text-white/50 mb-2 block">Destinatário</label>
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-[10px] uppercase text-white/50 block">Destinatário</label>
+            {recipientMode === 'multiple' && selectedPartnerIds.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setValue('selectedPartnerIds', [], { shouldValidate: true })}
+                className="text-[10px] text-teal-400 hover:text-teal-300 font-bold tracking-wider uppercase cursor-pointer"
+              >
+                Limpar seleção ({selectedPartnerIds.length})
+              </button>
+            )}
+          </div>
           <div className="flex gap-2">
             {(['single', 'multiple', 'all'] as RecipientMode[]).map((mode) => (
               <button
                 key={mode}
                 type="button"
-                onClick={() => setValue('recipientMode', mode, { shouldValidate: true })}
+                onClick={() => {
+                  setValue('recipientMode', mode, { shouldValidate: true });
+                  setValue('selectedPartnerIds', [], { shouldValidate: true });
+                }}
                 className={`flex-1 min-h-[44px] py-2 rounded-xl text-[10px] font-bold uppercase tracking-wide transition-colors focus-visible:ring-2 focus-visible:ring-teal-400/50 ${
                   recipientMode === mode
                     ? 'bg-teal-500/20 text-teal-300 border border-teal-500/30'

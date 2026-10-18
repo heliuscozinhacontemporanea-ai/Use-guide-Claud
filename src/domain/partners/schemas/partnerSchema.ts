@@ -346,10 +346,14 @@ export const updatePartnerVerificationSchema = z
       .datetime({
         offset: true,
       })
-      .nullable(),
-    verificationType: z.enum(['trial', 'monthly', 'semi-annual', 'annual']).nullable(),
+      .nullable()
+      .optional(),
+    verificationType: z.enum(['trial', 'monthly', 'semi-annual', 'annual']).nullable().optional(),
   })
   .superRefine((data, ctx) => {
+    if (data.isVerified && data.verifiedUntil === undefined && data.verificationType === undefined) {
+      return;
+    }
     if (data.isVerified && !data.verifiedUntil) {
       ctx.addIssue({
         code: 'custom',
@@ -366,7 +370,7 @@ export const updatePartnerVerificationSchema = z
       });
     }
 
-    if (!data.isVerified && data.verifiedUntil !== null) {
+    if (!data.isVerified && data.verifiedUntil !== null && data.verifiedUntil !== undefined) {
       ctx.addIssue({
         code: 'custom',
         path: ['verifiedUntil'],
@@ -374,7 +378,7 @@ export const updatePartnerVerificationSchema = z
       });
     }
 
-    if (!data.isVerified && data.verificationType !== null) {
+    if (!data.isVerified && data.verificationType !== null && data.verificationType !== undefined) {
       ctx.addIssue({
         code: 'custom',
         path: ['verificationType'],

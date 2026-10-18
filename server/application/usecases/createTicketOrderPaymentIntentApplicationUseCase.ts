@@ -7,6 +7,7 @@ import {
   type TicketOrder,
 } from '../../domain/ticketing';
 import { OrchestrationActor } from './orchestrationActor';
+import { isPartnerSuspended } from './isPartnerSuspended';
 
 export async function createTicketOrderPaymentIntentApplicationUseCase(
   actor: OrchestrationActor,
@@ -70,6 +71,13 @@ export async function createTicketOrderPaymentIntentApplicationUseCase(
   }
 
   const partnerId = listing.partnerId || listing.ownerId;
+
+  if (await isPartnerSuspended(partnerId)) {
+    throw new TicketingDomainError(
+      'FORBIDDEN',
+      'Este organizador não está vendendo ingressos no momento.'
+    );
+  }
 
   const paymentResult = await createPaymentForTicketOrderUseCase({
     orderId: order.id,

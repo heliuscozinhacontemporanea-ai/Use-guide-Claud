@@ -7,7 +7,7 @@ export class UpdateSubscriptionPlanDTO {
   static fromValidatedInput(input: UpdatePlanInput): UpdateSubscriptionPlanDTO {
     const fields: UpdateSubscriptionPlanInput = {};
     if (input.name !== undefined) fields.name = input.name;
-    if (input.price !== undefined) fields.price = input.price;
+    if (input.priceMinor !== undefined) fields.priceMinor = input.priceMinor;
     if (input.period !== undefined) fields.period = input.period;
     if (input.description !== undefined) fields.description = input.description;
     if (input.isActive !== undefined) fields.isActive = input.isActive;

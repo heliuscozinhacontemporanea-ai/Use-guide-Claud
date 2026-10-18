@@ -13,6 +13,7 @@ export interface AdminPartnerSummaryDTO {
   isVerified: boolean;
   verifiedUntil: string | null;
   verificationType: PartnerProfileDTO['verificationType'];
+  isVerificationSuspended: boolean;
 }
 
 export async function getAdminPartnersUseCase(): Promise<AdminPartnerSummaryDTO[]> {
@@ -36,6 +37,7 @@ export async function getAdminPartnersUseCase(): Promise<AdminPartnerSummaryDTO[
       isVerified: partner.isVerified,
       verifiedUntil: partner.verifiedUntil,
       verificationType: partner.verificationType,
+      isVerificationSuspended: partner.isVerificationSuspended,
     };
   });
 }

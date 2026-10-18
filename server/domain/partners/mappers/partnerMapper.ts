@@ -33,7 +33,13 @@ function toPartnerVerificationType(value: unknown): PartnerVerificationType {
     return null;
   }
 
-  if (value === 'trial' || value === 'monthly' || value === 'semi-annual' || value === 'annual') {
+  if (
+    value === 'trial' ||
+    value === 'monthly' ||
+    value === 'semi-annual' ||
+    value === 'annual' ||
+    value === 'admin'
+  ) {
     return value;
   }
 
