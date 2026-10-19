@@ -19,6 +19,7 @@
 | D7 | SEO em produção via Cloud Run | ✅ Aprovada | 2026-10-09 |
 | D8 | Painel admin: selo, suspensão e planos | ✅ Aprovada | 2026-10-12 |
 | D9 | Parceiros com vários estabelecimentos e novas categorias | ✅ Aprovada | 2026-10-12 |
+| D10 | Idioma na primeira visita (navegador) | ✅ Aprovada | 2026-10-19 |
 
 ---
 
@@ -105,3 +106,15 @@
 * **Formulário:** campo de arquivo do cardápio removido (fica só o link). **Telefone em E.164**, com o link do WhatsApp montado a partir dele.
 * **Ordem:** Prompt 17.2 (publicar só com Stripe pronto) → Prompt 18 (modelo de categorias + editor único).
 
+## D10 — Idioma na primeira visita (2026-10-19, opção B)
+
+* **Prioridade:**
+  1. URL com prefixo de idioma (`/en/...`, `/fr/...`): vale sempre.
+  2. Escolha explícita: `users/{uid}.preferredLocale` para quem tem conta; `localStorage['useguide.locale']` para visitante.
+  3. Idioma do navegador (`navigator.languages`), se for pt, en ou fr.
+  4. Português.
+* **Home `/`:** quando a preferência dos itens 2–4 não for português, o app redireciona para `/en` ou `/fr` (sem criar entrada no histórico). Robôs de busca nunca são redirecionados.
+* **Outras páginas em português** (links do Google, WhatsApp etc.): o app mantém o idioma do link e mostra um aviso: "Esta página está disponível em English — Mudar". Os dois botões do aviso (mudar ou manter) gravam a escolha, e o aviso não volta.
+* **Persistência só por escolha explícita** (Configurações ou aviso). Mudança causada pela URL não é gravada. Hoje o app grava o idioma da URL, e quem entra por `/` fica preso em português.
+* Escolha feita por quem tem conta vai para `preferredLocale` pela API (escrita no backend, §6.1) e vale em todos os aparelhos e nos e-mails (§12.5).
+* **Depende de:** S12 (AGENTS.md §12.1 e §12.7).

@@ -18,6 +18,7 @@
 | S9 | §13 | O texto cita agregadores de UseCases que o prompt 15 eliminou | ✅ Aprovada em 2026-10-12 (prompt A2) |
 | S10 | §13 e §16.1 | Formalizar que arquivo tocado sai sem avisos do lint e formatado | ✅ Aprovada em 2026-10-19 (prompt A3) |
 | S11 | §12.6 | Decisão D5 aprovada: Google Cloud Translation, sem tradução à mão, edição no idioma escolhido | ✅ Aprovada em 2026-10-19 (prompt A4) |
+| S12 | §12.1 e §12.7 | Decisão D10: idioma do navegador na primeira visita, persistência só por escolha explícita | ⏳ Aguardando autorização |
 
 ---
 
@@ -132,3 +133,21 @@
 > * Ordem de fallback na exibição: idioma ativo → `source`.
 > * **Avaliações** ficam no idioma original, com o idioma detectado gravado. A tradução é pedida pelo leitor ("Ver tradução"), inclusive por visitante sem conta, com rate limit por IP e uid, App Check, só os idiomas suportados e tamanho máximo. O resultado fica num cache do domínio `translation`, indexado pelo hash do texto e pelo idioma, e é reaproveitado para todos os leitores. Excluir a avaliação ou a conta apaga as entradas desse texto no cache (§7.5).
 > * Política de cancelamento e termos de compra exibidos antes do pagamento aparecem no idioma do comprador, por tradução automática com aviso, e com link para o original, que é o texto que vale.
+
+## S12 — §12.1 e §12.7: idioma na primeira visita (D10)
+
+**Por quê:** pela regra atual, a URL tem prioridade e o português fica na raiz `/`. Quem tem o navegador em inglês e abre a home recebe português, e o app ainda grava "pt-BR" como preferência. A decisão D10 (opção B) faz o idioma do navegador valer na home, sem prejudicar o SEO nem os links compartilhados.
+
+**Texto atual (§12.1, duas linhas da tabela):**
+> | Detecção do idioma inicial | 1º `localStorage['useguide.locale']` → 2º `navigator.languages` → 3º `pt-BR` | `resolveInitialLocale()` |
+> | Persistência e `<html lang>` | atualizados no evento `languageChanged` | `config.ts` |
+
+**Texto proposto:**
+> | Detecção do idioma inicial | 1º idioma da URL (`/en`, `/fr`) → 2º escolha explícita (`users/{uid}.preferredLocale` ou `localStorage['useguide.locale']`) → 3º `navigator.languages` → 4º `pt-BR` (decisão D10) | `resolveInitialLocale()` |
+> | Persistência e `<html lang>` | o idioma só é gravado quando a pessoa escolhe (Configurações ou aviso de idioma); mudança causada pela URL não é gravada. `<html lang>` acompanha o idioma ativo | `config.ts` |
+
+**Texto atual (§12.7, fim do 1º item):**
+> A URL tem prioridade sobre o idioma salvo no navegador.
+
+**Texto proposto:**
+> A URL com prefixo de idioma (`/en`, `/fr`) sempre vale. Na home `/`, quando a preferência (escolha salva → idioma do navegador) não for português, o app redireciona para `/en` ou `/fr` sem criar entrada no histórico; robôs de busca nunca são redirecionados. Nas demais páginas em português, o app mantém o idioma do link e mostra um aviso para trocar ("Esta página está disponível em English — Mudar"); a resposta ao aviso grava a escolha (decisão D10).
