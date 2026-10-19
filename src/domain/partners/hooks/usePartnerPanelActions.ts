@@ -11,11 +11,8 @@ export function usePartnerPanelActions(profileData?: PartnerProfile) {
   const items = usePartnerItems({
     user: profile.user,
     activeTab: layout.activeTab,
-    setActiveTab: layout.setActiveTab,
     isEditing: layout.isEditing,
     setIsEditing: layout.setIsEditing,
-    isVerified: profile.isVerified,
-    partnerProfile: profile.partnerProfile,
     setShowDeleteConfirm: layout.setShowDeleteConfirm,
     setIsLoading: profile.setIsLoading,
     setIsUploading: profile.setIsUploading,

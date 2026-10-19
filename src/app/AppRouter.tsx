@@ -15,7 +15,6 @@ import { TipDetailModal } from '../domain/guide/components/TipDetailModal';
 import { TourDetailModal } from '../domain/guide/components/TourDetailModal';
 import { PartnersModal } from '../domain/partners';
 import { SearchOverlay } from '../domain/search';
-import { useConnection } from '../shared/hooks/useConnection';
 import { useScrollLock } from '../shared/hooks/useScrollLock';
 import { useLocalizedRouting, useSyncLocaleWithUrl } from '../shared/hooks/useLocalizedRouting';
 import { useSEO } from '../shared/hooks/useSEO';
@@ -40,7 +39,6 @@ export function AppRouter() {
   const { routeKey } = useLocalizedRouting();
   const isExplorePage = routeKey === 'explore';
   useSyncLocaleWithUrl();
-  const connection = useConnection();
   const [searchParams, setSearchParams] = useSearchParams();
   const { isLoginModalOpen, isLoginClosingBySwipe, closeLoginModal, openLoginModal } = useUI();
   const loginModalTab = useUIStore((state) => state.loginModalTab);
@@ -255,6 +253,7 @@ export function AppRouter() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSearchSticky, setIsSearchSticky] = useState(false);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: a busca fixa volta ao normal a cada troca de rota.
   useEffect(() => {
     setIsSearchSticky(false);
   }, [location.pathname]);

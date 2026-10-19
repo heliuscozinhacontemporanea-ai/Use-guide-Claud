@@ -1,4 +1,3 @@
-import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Plus, RefreshCw, Star, MapPin, Edit2, Trash2, Layers } from 'lucide-react';
 import { cn } from '../../../../shared/utils/cn';

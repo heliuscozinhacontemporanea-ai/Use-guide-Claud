@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Bike, Star, Utensils, MapPin, Compass, Home, Info, Calendar } from 'lucide-react';
 import { GlassCard } from '../../../ui/components/GlassCard';
 import { CATEGORIES } from '../../../shared/constants/categories';

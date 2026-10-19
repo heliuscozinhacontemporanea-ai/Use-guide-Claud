@@ -59,8 +59,9 @@ export function usePartnerProfile(loadedProfile?: PartnerProfile) {
   const [userProfileData, setUserProfileData] =
     useState<Awaited<ReturnType<typeof getCurrentUserUseCase>>>(null);
 
+  const userId = user?.uid;
   useEffect(() => {
-    if (userLoading || !user) {
+    if (userLoading || !userId) {
       setUserProfileData(null);
       return;
     }
@@ -82,7 +83,7 @@ export function usePartnerProfile(loadedProfile?: PartnerProfile) {
     return () => {
       active = false;
     };
-  }, [user?.uid, userLoading]);
+  }, [userId, userLoading]);
 
   const [partnerProfile, setPartnerProfile] = useState<PartnerProfile | null>(
     loadedProfile || null

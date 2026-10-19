@@ -389,4 +389,3 @@ export function AdminPanel({ renderListingEditor }: AdminPanelProps = {}) {
     </div>
   );
 }
-

@@ -72,7 +72,8 @@ export function AdminEditorModal({
   useEffect(() => {
     const defaultStart = isEditing?.date || new Date().toISOString();
     const defaultEnd =
-      isEditing?.endDate || new Date(new Date(defaultStart).getTime() + 3 * 3600 * 1000).toISOString();
+      isEditing?.endDate ||
+      new Date(new Date(defaultStart).getTime() + 3 * 3600 * 1000).toISOString();
 
     form.reset({
       name: isEditing?.name || '',
@@ -97,7 +98,7 @@ export function AdminEditorModal({
       bookingLink: isEditing?.bookingLink,
       operationalInfo: isEditing?.operationalInfo as Record<string, unknown> | undefined,
     });
-  }, [isEditing.id, activeTab, form]);
+  }, [isEditing, activeTab, form]);
 
   useEffect(() => {
     savedOccurrenceIdsRef.current = [];
@@ -201,7 +202,8 @@ export function AdminEditorModal({
           ...values,
           category: values.category as GuideItem['category'],
           date: firstOccurrence?.startsAt || values.date,
-          endDate: firstOccurrence?.endsAt || values.endDate || firstOccurrence?.startsAt || values.date,
+          endDate:
+            firstOccurrence?.endsAt || values.endDate || firstOccurrence?.startsAt || values.date,
           occurrences: values.occurrences,
           removedOccurrenceIds: savedOccurrenceIdsRef.current.filter((id) => !keptIds.has(id)),
         });
@@ -219,10 +221,7 @@ export function AdminEditorModal({
               firstError[0]?.endsAt?.message ||
               firstError[0]?.capacity?.message
             : undefined;
-      showToast(
-        String(nestedMessage ?? 'Verifique os campos do formulário.'),
-        'error'
-      );
+      showToast(String(nestedMessage ?? 'Verifique os campos do formulário.'), 'error');
     }
   );
 
@@ -339,10 +338,7 @@ export function AdminEditorModal({
                     availableCategories={availableCategories}
                   />
 
-                  <AdminEditorGallery
-                    isUploading={isUploading}
-                    onImageUpload={handleImageUpload}
-                  />
+                  <AdminEditorGallery isUploading={isUploading} onImageUpload={handleImageUpload} />
 
                   {activeTab === 'events' && (
                     <AdminEditorEventFields
@@ -352,7 +348,6 @@ export function AdminEditorModal({
                   )}
 
                   <AdminEditorLocation />
-
                 </motion.div>
               )}
             </AnimatePresence>

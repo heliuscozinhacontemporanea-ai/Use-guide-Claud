@@ -9,7 +9,6 @@ import {
   updatePartnerContentItemUseCase,
 } from '../index';
 import { partnerEventFormSchema } from '../schemas/partnerEventFormSchema';
-import type { PartnerProfile } from '../types/partner';
 import type { PartnerContentEditorState, PartnerContentEventInput } from '../types/partnerContent';
 
 function getErrorMessage(error: unknown, fallback: string): string {
@@ -22,7 +21,6 @@ function toPlainRecord(value: object): Record<string, unknown> {
 
 export interface UsePartnerContentActionsProps {
   user: UserSession | null;
-  partnerProfile?: PartnerProfile | null;
   activeTab: 'items' | 'events' | 'reports';
   isEditing: PartnerContentEditorState | null;
   setIsEditing: (item: PartnerContentEditorState | null) => void;
@@ -32,7 +30,6 @@ export interface UsePartnerContentActionsProps {
 
 export function usePartnerContentActions({
   user,
-  partnerProfile,
   activeTab,
   isEditing,
   setIsEditing,

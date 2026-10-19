@@ -1,4 +1,3 @@
-import React from 'react';
 import { GuideItem } from '../../../guide';
 import { ErrorState } from '../../../../ui/components/ErrorState';
 import { AdminItemGrid } from './AdminItemGrid';
