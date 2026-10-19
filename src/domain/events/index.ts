@@ -25,3 +25,18 @@ export type {
   UpdateEventListingInput,
 } from './types/event';
 export { CUSTOM_EVENT_CATEGORY, EVENT_CATEGORIES } from './constants/eventCategories';
+export { saveEventSessionsUseCase } from './application/usecases/saveEventSessionsUseCase';
+export type { SaveEventSessionsInput } from './application/usecases/saveEventSessionsUseCase';
+export type {
+  EventSessionDraft,
+  EventSessionsLoadState,
+  EventSessionsScope,
+} from './types/eventSession';
+export {
+  eventDateRangeFromSessions,
+  newEventSessionDraft,
+  planEventSessionChanges,
+  validateEventSessions,
+} from './utils/eventSessions';
+// Só para src/app/compositions (§5.2).
+export { EventSessionsField, type EventSessionsFieldProps } from './components/EventSessionsField';

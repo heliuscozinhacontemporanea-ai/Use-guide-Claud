@@ -11,11 +11,9 @@ import { ErrorState } from '../../../ui/components/ErrorState';
 import { CATEGORIES } from '../../../shared/constants/categories';
 import {
   createAdminEventListingUseCase,
-  createAdminEventOccurrenceUseCase,
   deleteAdminEventListingUseCase,
-  deleteAdminEventOccurrenceUseCase,
+  saveEventSessionsUseCase,
   updateAdminEventListingUseCase,
-  updateAdminEventOccurrenceUseCase,
 } from '../../events';
 import {
   createGuideItemUseCase,
@@ -39,6 +37,7 @@ import { AdminStatsView } from './subcomponents/AdminStatsView';
 import { AdminPartnersView } from './subcomponents/AdminPartnersView';
 import { AdminGuideView } from './subcomponents/AdminGuideView';
 import { AdminEditorModal, type AdminEditorSaveData } from './subcomponents/AdminEditorModal';
+import type { AdminEventSlots } from './subcomponents/AdminEditorEventFields';
 import { AdminPlansView } from './subcomponents/AdminPlansView';
 import { AdminNotificationsView } from './subcomponents/AdminNotificationsView';
 
@@ -60,7 +59,7 @@ export interface AdminListingEditorProps {
   onClose: () => void;
 }
 
-export interface AdminPanelProps {
+export interface AdminPanelProps extends AdminEventSlots {
   /**
    * Editor de cadastro (o mesmo do parceiro), montado pela composição do app. Dicas e eventos
    * continuam no editor próprio do admin.
@@ -68,7 +67,11 @@ export interface AdminPanelProps {
   renderListingEditor?: (props: AdminListingEditorProps) => ReactNode;
 }
 
-export function AdminPanel({ renderListingEditor }: AdminPanelProps = {}) {
+export function AdminPanel({
+  renderListingEditor,
+  renderSessionsField,
+  renderTicketingManager,
+}: AdminPanelProps = {}) {
   const { goTo } = useLocalizedRouting();
   const { user, loading: userLoading } = useAuthContext();
   const { showToast, confirmAction } = useUI();
@@ -161,26 +164,12 @@ export function AdminPanel({ renderListingEditor }: AdminPanelProps = {}) {
             editorData.id,
             toGuideEventUpdateInput(normalizedEventData)
           );
-          for (const occurrenceId of editorData.removedOccurrenceIds ?? []) {
-            await deleteAdminEventOccurrenceUseCase(editorData.id, occurrenceId);
-          }
-          if (Array.isArray(rawOccurrences)) {
-            for (const occ of rawOccurrences) {
-              if (occ.id) {
-                await updateAdminEventOccurrenceUseCase(editorData.id, occ.id, {
-                  startsAt: occ.startsAt,
-                  endsAt: occ.endsAt,
-                  capacity: occ.capacity,
-                });
-              } else {
-                await createAdminEventOccurrenceUseCase(editorData.id, {
-                  startsAt: occ.startsAt,
-                  endsAt: occ.endsAt,
-                  capacity: occ.capacity,
-                });
-              }
-            }
-          }
+          await saveEventSessionsUseCase({
+            eventListingId: editorData.id,
+            scope: 'admin',
+            savedIds: editorData.savedOccurrenceIds ?? [],
+            sessions: rawOccurrences ?? [],
+          });
         } else {
           const eventPayload = toGuideEventInput(normalizedEventData);
           await createAdminEventListingUseCase({
@@ -365,6 +354,8 @@ export function AdminPanel({ renderListingEditor }: AdminPanelProps = {}) {
             activeTab={activeTab as 'items' | 'events'}
             isAdminUser={isAdminUser}
             onSave={handleSaveRecord}
+            renderSessionsField={renderSessionsField}
+            renderTicketingManager={renderTicketingManager}
             onDeleteConfirm={async (id) => {
               if (activeTab === 'items') {
                 await deleteGuideItemUseCase(id);

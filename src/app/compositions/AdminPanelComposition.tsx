@@ -1,5 +1,6 @@
 import { AdminDispatcher, type AdminListingEditorProps } from '../../domain/admin';
 import { useAuthContext } from '../../domain/auth/context/AuthContext';
+import { EventSessionsField } from '../../domain/events';
 import {
   createGuideItemUseCase,
   deleteGuideItemUseCase,
@@ -13,6 +14,7 @@ import {
   type PartnerContentItemInput,
   type PartnerContentRecord,
 } from '../../domain/partners';
+import { PartnerEventTicketingManager } from '../../domain/ticketing';
 
 // Cadastros novos que o admin pode criar pelo editor do parceiro (o servidor permite só estes ao admin).
 const ADMIN_LISTING_CATEGORIES = ['sight', 'tour'];
@@ -77,7 +79,18 @@ function AdminListingEditor({ item, onClose }: AdminListingEditorProps) {
   );
 }
 
-/** Painel admin com o editor de cadastro do parceiro (editor único, decisão D9). */
+/**
+ * Painel admin com os editores compartilhados: cadastro (o mesmo do parceiro, decisão D9), sessões do
+ * evento e gerenciador de ingressos.
+ */
 export function AdminPanelComposition() {
-  return <AdminDispatcher renderListingEditor={(props) => <AdminListingEditor {...props} />} />;
+  return (
+    <AdminDispatcher
+      renderListingEditor={(props) => <AdminListingEditor {...props} />}
+      renderSessionsField={(props) => <EventSessionsField {...props} />}
+      renderTicketingManager={(eventListingId) => (
+        <PartnerEventTicketingManager eventListingId={eventListingId} asAdmin />
+      )}
+    />
+  );
 }

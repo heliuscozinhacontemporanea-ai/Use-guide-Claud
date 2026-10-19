@@ -1,19 +1,20 @@
-import { BarChart3, RefreshCw, Trash2, X } from 'lucide-react';
-import { AnimatePresence, motion } from 'motion/react';
+import { BarChart3, RefreshCw } from 'lucide-react';
+import { AnimatePresence } from 'motion/react';
 import React, { useRef } from 'react';
-import { Z_INDEX } from '../../../shared/constants/zIndex';
 
 // Componentes estruturais e utilitários da UI
 import { BackgroundBlobs } from '../../../ui/components/BackgroundBlobs';
 import { createPartnerContentItemUseCase } from '../application/usecases/createPartnerContentItemUseCase';
 import { deletePartnerContentItemUseCase } from '../application/usecases/deletePartnerContentItemUseCase';
 import { updatePartnerContentItemUseCase } from '../application/usecases/updatePartnerContentItemUseCase';
+import { type EventSessionsFieldProps, newEventSessionDraft } from '../../events';
 import { useEditorScrollLock } from '../hooks/useEditorScrollLock';
+import { usePartnerEventSessions } from '../hooks/usePartnerEventSessions';
 import { usePartnerPanelActions } from '../hooks/usePartnerPanelActions';
 import { PartnerProfile, SubscriptionPlan } from '../types/partner';
 import type { PartnerContentRecord } from '../types/partnerContent';
 import { ListingEditor } from './ListingEditor';
-import { PartnerEventForm } from './PartnerEventForm';
+import { PartnerEventEditor } from './PartnerEventEditor';
 import { PartnerEventsTable } from './subcomponents/PartnerEventsTable';
 import { PartnerHeader } from './subcomponents/PartnerHeader';
 import { PartnerItemsTable } from './subcomponents/PartnerItemsTable';
@@ -39,6 +40,8 @@ export interface PartnerPanelProps {
     onPaymentSuccess: () => void;
   }) => React.ReactNode;
   renderEventTicketingManager?: (eventListingId: string) => React.ReactNode;
+  /** Campo de sessões do evento (domínio events), montado pela composição do app. */
+  renderEventSessionsField?: (props: EventSessionsFieldProps) => React.ReactNode;
   planSubscriptionSlot?: React.ReactNode;
   renderBookableOffersManager?: (
     items: Array<{ id: string; name: string; category: string }>
@@ -54,6 +57,7 @@ export function PartnerPanel({
   renderNotificationBell,
   renderCheckoutModal,
   renderEventTicketingManager,
+  renderEventSessionsField,
   planSubscriptionSlot,
   renderBookableOffersManager,
   onPlanPurchased,
@@ -88,6 +92,10 @@ export function PartnerPanel({
     PartnerContentRecord | null | undefined
   >(undefined);
   useEditorScrollLock(Boolean(isEditing));
+  const editingEventId = isEditing?.category === 'event' ? isEditing.id || undefined : undefined;
+  const eventSessions = usePartnerEventSessions(editingEventId, (sessions) =>
+    setIsEditing((current) => (current ? { ...current, sessions } : current))
+  );
 
   const [showPlansModal, setShowPlansModal] = React.useState(false);
   const [showCheckoutModal, setShowCheckoutModal] = React.useState(false);
@@ -216,85 +224,36 @@ export function PartnerPanel({
                 image: '',
                 images: [],
                 operationalInfo: {},
+                sessions: [newEventSessionDraft()],
               })
             }
           />
         )}
       </div>
 
-      {/* Editor Modal */}
       <AnimatePresence>
         {isEditing && isEditing.category === 'event' && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={(e) => {
-              if (e.target === e.currentTarget) setIsEditing(null);
-            }}
-            style={{ zIndex: Z_INDEX.modal }}
-            className="fixed inset-0 flex overflow-y-auto no-scrollbar justify-center items-start pt-[7.5vh] pb-[7.5vh] px-4 bg-black/5 backdrop-blur-xl"
-          >
-            <motion.div
-              initial={{ scale: 0.95, y: 15, opacity: 0 }}
-              animate={{ scale: 1, y: 0, opacity: 1 }}
-              exit={{ scale: 0.95, y: 15, opacity: 0 }}
-              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-              style={{ height: 'calc(85vh - env(safe-area-inset-bottom))' }}
-              className="w-full max-w-xl glassmorphism-vibrant bg-white/10 backdrop-blur-3xl rounded-[2.5rem] border border-white/10 overflow-hidden flex flex-col shadow-2xl relative z-10"
-            >
-              <div className="p-8 flex items-center justify-between flex-shrink-0">
-                <div>
-                  <h3 className="text-xl font-display font-black text-white tracking-tight">
-                    {isEditing.id ? 'Editar Evento' : 'Novo Evento'}
-                  </h3>
-                  <p className="text-[10px] text-white/50 font-medium tracking-wide">
-                    Preencha os detalhes do seu evento
-                  </p>
-                </div>
-                <button
-                  onClick={() => setIsEditing(null)}
-                  className="p-3 bg-white/5 rounded-2xl text-white/50"
-                >
-                  <X size={24} />
-                </button>
-              </div>
-
-              <PartnerEventForm
-                item={isEditing}
-                onChange={(updatedItem) => setIsEditing(updatedItem)}
-                isUploading={isUploading}
-                onImageUpload={handleImageUpload}
-                businesses={partnerProfile?.businesses}
-                renderEventTicketingManager={renderEventTicketingManager}
-              />
-
-              <div className="p-8 border-t border-white/5 flex gap-3 items-center flex-shrink-0">
-                <button
-                  onClick={async () => {
-                    await handleSaveEvent();
-                  }}
-                  disabled={isLoading}
-                  className={`flex-1 bg-[#00D4FF] text-black py-4 rounded-2xl font-semibold tracking-wide text-[12px] shadow-lg shadow-[#00D4FF]/20 active:scale-95 flex items-center justify-center gap-2 ${
-                    isLoading
-                      ? 'cursor-not-allowed opacity-80'
-                      : 'hover:scale-[1.02] cursor-pointer'
-                  }`}
-                >
-                  {isLoading && <RefreshCw className="animate-spin" size={16} />} Salvar
-                </button>
-                {isEditing.id && (
-                  <button
-                    onClick={() => setShowDeleteConfirm(true)}
-                    disabled={isLoading}
-                    className="py-4 px-4 aspect-square bg-rose-500/10 text-rose-500 border border-rose-500/20 rounded-2xl flex items-center justify-center transition-all hover:bg-rose-500 hover:text-white flex-shrink-0"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                )}
-              </div>
-            </motion.div>
-          </motion.div>
+          <PartnerEventEditor
+            item={isEditing}
+            onChange={(updatedItem) => setIsEditing(updatedItem)}
+            onClose={() => setIsEditing(null)}
+            onSave={() =>
+              handleSaveEvent({
+                sessionsLoadState: eventSessions.loadState,
+                savedSessionIds: eventSessions.savedIds,
+              })
+            }
+            isLoading={isLoading}
+            isUploading={isUploading}
+            onImageUpload={handleImageUpload}
+            businesses={partnerProfile?.businesses}
+            sessionsLoadState={eventSessions.loadState}
+            renderSessionsField={renderEventSessionsField}
+            renderEventTicketingManager={renderEventTicketingManager}
+            showDeleteConfirm={showDeleteConfirm}
+            onRequestDelete={setShowDeleteConfirm}
+            onConfirmDelete={handleDelete}
+          />
         )}
       </AnimatePresence>
 
@@ -314,56 +273,6 @@ export function PartnerPanel({
             onDelete={deletePartnerContentItemUseCase}
             onClose={() => setEditingListing(undefined)}
           />
-        )}
-      </AnimatePresence>
-
-      {/* Confirmação de exclusão de evento */}
-      <AnimatePresence>
-        {showDeleteConfirm && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            style={{ zIndex: Z_INDEX.modalNested }}
-            className="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center p-6"
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="w-full max-w-xs bg-[#0A0C10] rounded-[2.5rem] border border-white/10 p-8 text-center space-y-6"
-            >
-              <div className="w-16 h-16 rounded-2xl bg-rose-500/10 flex items-center justify-center text-rose-500 mx-auto shadow-2xl shadow-rose-500/10">
-                <Trash2 size={32} />
-              </div>
-              <div>
-                <h3 className="text-lg font-display font-black text-white">Excluir evento?</h3>
-                <p className="text-white/50 text-xs mt-2 leading-relaxed">
-                  Esta ação não poderá ser desfeita. Deseja realmente remover este evento?
-                </p>
-              </div>
-              <div className="flex flex-col gap-3">
-                <button
-                  onClick={handleDelete}
-                  disabled={isLoading}
-                  className="w-full bg-rose-500 text-white py-4 rounded-2xl font-bold uppercase tracking-widest text-[10px] shadow-xl shadow-rose-500/20 transition-all hover:bg-rose-400 active:scale-95 flex items-center justify-center gap-2"
-                >
-                  {isLoading ? (
-                    <RefreshCw className="animate-spin" size={14} />
-                  ) : (
-                    <Trash2 size={14} />
-                  )}{' '}
-                  Excluir
-                </button>
-                <button
-                  onClick={() => setShowDeleteConfirm(false)}
-                  className="w-full bg-white/5 text-white/50 py-4 rounded-2xl font-bold uppercase tracking-widest text-[10px] hover:bg-white/10 transition-all"
-                >
-                  Cancelar
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
         )}
       </AnimatePresence>
 

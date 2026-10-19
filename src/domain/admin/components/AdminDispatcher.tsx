@@ -28,7 +28,7 @@ function RestrictedAdminAccess() {
   );
 }
 
-export function AdminDispatcher({ renderListingEditor }: AdminPanelProps = {}) {
+export function AdminDispatcher(slots: AdminPanelProps = {}) {
   const { goTo } = useLocalizedRouting();
   const { user, loading } = useAuthContext();
 
@@ -57,5 +57,5 @@ export function AdminDispatcher({ renderListingEditor }: AdminPanelProps = {}) {
     return <RestrictedAdminAccess />;
   }
 
-  return <AdminPanel renderListingEditor={renderListingEditor} />;
+  return <AdminPanel {...slots} />;
 }

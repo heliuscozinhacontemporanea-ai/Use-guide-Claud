@@ -1,3 +1,4 @@
+import type { EventSessionDraft } from '../../events';
 export interface PartnerOperationalInfo {
   /** Passeio, translado e aluguel (decisão D9). */
   durationMinutes?: number;
@@ -69,6 +70,8 @@ export type EventEntryType = 'pago' | 'gratuito';
 
 export type PartnerContentEditorState = Omit<PartnerContentRecord, 'category'> & {
   category: PartnerContentCategory | '';
+  /** Sessões do evento em edição; as já salvas são lidas ao abrir o editor. */
+  sessions?: EventSessionDraft[];
 };
 
 export interface PartnerContentRecord {
@@ -144,4 +147,6 @@ export interface PartnerContentEventInput {
   tags?: string[];
   operationalInfo?: Record<string, unknown>;
   isActive?: boolean;
+  /** Sessões iniciais do evento novo; depois, as sessões são gravadas pelo domínio events. */
+  occurrences?: Array<{ startsAt: string; endsAt: string; capacity: number }>;
 }

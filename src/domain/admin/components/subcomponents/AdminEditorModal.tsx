@@ -6,7 +6,12 @@ import { X, Trash2, RefreshCw } from 'lucide-react';
 import { CATEGORIES } from '../../../../shared/constants/categories';
 import { useUI } from '../../../../shared/stores/useUIStore';
 import { Z_INDEX } from '../../../../shared/constants/zIndex';
-import { listEventOccurrencesUseCase } from '../../../events';
+import {
+  eventDateRangeFromSessions,
+  listEventOccurrencesUseCase,
+  validateEventSessions,
+  type EventSessionsLoadState,
+} from '../../../events';
 import type { GuideItem } from '../../../guide';
 import { getImageUploadErrorMessage, uploadImageUseCase } from '../../../media';
 import {
@@ -16,7 +21,7 @@ import {
 import { AdminEditorBasicInfo } from './AdminEditorBasicInfo';
 import { AdminEditorGallery } from './AdminEditorGallery';
 import { AdminEditorLocation } from './AdminEditorLocation';
-import { AdminEditorEventFields } from './AdminEditorEventFields';
+import { AdminEditorEventFields, type AdminEventSlots } from './AdminEditorEventFields';
 import { AdminEditorActions } from './AdminEditorActions';
 
 // Atrações e passeios usam o editor de cadastro do parceiro (decisão D9); aqui ficam as dicas.
@@ -24,13 +29,11 @@ export const ADMIN_CREATABLE_ITEM_CATEGORIES = ['tips'] as const;
 
 export type AdminEditorSaveData = GuideItem & {
   occurrences?: AdminGuideEditorSchemaValues['occurrences'];
-  /** Sessões salvas que o admin removeu no editor e devem ser apagadas no servidor. */
-  removedOccurrenceIds?: string[];
+  /** Sessões que existiam quando o editor abriu (as ausentes de `occurrences` são apagadas). */
+  savedOccurrenceIds?: string[];
 };
 
-type OccurrencesLoadState = 'idle' | 'loading' | 'ready' | 'error';
-
-interface AdminEditorModalProps {
+interface AdminEditorModalProps extends AdminEventSlots {
   isEditing: GuideItem;
   setIsEditing: (item: GuideItem | null) => void;
   activeTab: 'items' | 'events';
@@ -46,12 +49,14 @@ export function AdminEditorModal({
   isAdminUser,
   onSave,
   onDeleteConfirm,
+  renderSessionsField,
+  renderTicketingManager,
 }: AdminEditorModalProps) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const { showToast } = useUI();
-  const [occurrencesState, setOccurrencesState] = useState<OccurrencesLoadState>('idle');
+  const [occurrencesState, setOccurrencesState] = useState<EventSessionsLoadState>('idle');
   const savedOccurrenceIdsRef = useRef<string[]>([]);
 
   const form = useForm<AdminGuideEditorSchemaValues>({
@@ -191,21 +196,23 @@ export function AdminEditorModal({
         showToast('Aguarde o carregamento das sessões do evento antes de salvar.', 'error');
         return;
       }
+      const sessions = values.occurrences ?? [];
+      if (activeTab === 'events') {
+        const sessionsError = validateEventSessions(sessions);
+        if (sessionsError) {
+          showToast(sessionsError, 'error');
+          return;
+        }
+      }
       setIsLoading(true);
       try {
-        const firstOccurrence = values.occurrences?.[0];
-        const keptIds = new Set(
-          (values.occurrences ?? []).map((occ) => occ.id).filter((id): id is string => Boolean(id))
-        );
         await onSave({
           ...isEditing,
           ...values,
           category: values.category as GuideItem['category'],
-          date: firstOccurrence?.startsAt || values.date,
-          endDate:
-            firstOccurrence?.endsAt || values.endDate || firstOccurrence?.startsAt || values.date,
-          occurrences: values.occurrences,
-          removedOccurrenceIds: savedOccurrenceIdsRef.current.filter((id) => !keptIds.has(id)),
+          ...(activeTab === 'events' ? eventDateRangeFromSessions(sessions) : {}),
+          occurrences: sessions,
+          savedOccurrenceIds: savedOccurrenceIdsRef.current,
         });
       } finally {
         setIsLoading(false);
@@ -344,6 +351,8 @@ export function AdminEditorModal({
                     <AdminEditorEventFields
                       eventListingId={isEditing.id || undefined}
                       occurrencesState={occurrencesState}
+                      renderSessionsField={renderSessionsField}
+                      renderTicketingManager={renderTicketingManager}
                     />
                   )}
 
