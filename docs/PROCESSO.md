@@ -71,13 +71,14 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 | 18 | Vários cadastros, categorias novas, telefone E.164 | `78c9c7d` | ⚠️ zip 2026-10-19 | ❌ só em parte: conta com categoria (inscrição recusada, perfil não carrega), `whatsappLink`, rótulos; + correção do AI Studio no `guideService` (adotada) → prompt 18.0.1 |
 | 18.0.1 | Completa o 18 | `64b792a` | ✅ zip 2026-10-19 (2º) | ✅ igual à referência |
 | 18.1 | Inscrição e editor com passeio/translado/aluguel | `1c15de9` | ✅ zip 2026-10-19 (2º) | ✅ igual + ícones de translado e produtor que existem no `StandardCard` (adotado) |
-| 18.2 | Editor único de cadastro (parceiro e admin) + lint dos arquivos tocados | `fbfbfe9` + `c2658aa` | ⏳ enviar (lote 12) | — |
-| A3 | AGENTS.md: lint dos arquivos tocados (S10), tradução automática (S11/D5) e idioma da primeira visita (S12/D10) — junta A3, A4 e A5 | `003cc6e~1..41190ee` | ⏳ enviar (lote 12) | — |
-| 18.2.1 | Sessões do evento no editor (parceiro e admin) | `ce7f92a` | ⏳ enviar (lote 12) | — |
-| 18.2.2 | Contato do evento em um só lugar (B19) | `94a3ad6` | ⏳ enviar (lote 12) | — |
-| 18.2.3 | Visualizações de visitantes nos insights; relatório com a divisão | `45b17ec` | ⏳ enviar (lote 12) | — |
-| 18.2.4 | Idioma do navegador na primeira visita (D10) | `93c6c9b` | ⏳ enviar (lote 12) | — |
-| 18.3.0a | Verificação por estabelecimento, backend (D12) | `3cc54e6` | ⏳ enviar (lote 12) | — |
+| 18.2 | Editor único de cadastro (parceiro e admin) + lint dos arquivos tocados | `fbfbfe9` + `c2658aa` | ⚠️ zip 2026-10-19 (3º) | ❌ só em parte: `usePartnerProfile` antigo, sem "Nova dica" → 18.2.5 |
+| A3 | AGENTS.md: lint dos arquivos tocados (S10), tradução automática (S11/D5) e idioma da primeira visita (S12/D10) — junta A3, A4 e A5 | `003cc6e~1..41190ee` | ✅ zip 2026-10-19 (3º) | ✅ AGENTS.md igual; textos de `solicitacoes`/`debitos` reescritos → 18.2.5 |
+| 18.2.1 | Sessões do evento no editor (parceiro e admin) | `ce7f92a` | ⚠️ zip 2026-10-19 (3º) | ❌ só em parte: sessões não gravadas (`usePartnerContentActions` antigo) → 18.2.5 |
+| 18.2.2 | Contato do evento em um só lugar (B19) | `94a3ad6` | ✅ zip 2026-10-19 (3º) | ✅ igual à referência |
+| 18.2.3 | Visualizações de visitantes nos insights; relatório com a divisão | `45b17ec` | ✅ zip 2026-10-19 (3º) | ✅ igual à referência |
+| 18.2.4 | Idioma do navegador na primeira visita (D10) | `93c6c9b` | ✅ zip 2026-10-19 (3º) | ✅ igual (`resources.ts` só reformatado → 18.2.5) |
+| 18.2.5 | Correção do lote 12 | `fada927..345ccbb` | ⏳ enviar (lote 13) | — |
+| 18.3.0a | Verificação por estabelecimento, backend (D12) | `3cc54e6` | ⏳ enviar (lote 13) | — |
 
 ## Gates
 

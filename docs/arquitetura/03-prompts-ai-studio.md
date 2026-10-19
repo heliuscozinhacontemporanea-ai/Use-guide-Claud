@@ -99,7 +99,7 @@
 
 ---
 
-# Lote 12 (Prompts 18.2, A3, 18.2.1, 18.2.2, 18.2.3, 18.2.4 e 18.3.0a) — aplicar sobre o zip de 2026-10-19 (2º)
+# Lote 12 (Prompts 18.2, A3, 18.2.1, 18.2.2, 18.2.3 e 18.2.4) — aplicar sobre o zip de 2026-10-19 (2º)
 
 > O lote 11 chegou igual à referência. O AI Studio também trocou os ícones de translado e produtor por ícones que existem no `StandardCard`; a troca foi adotada, e o 18.2 acrescenta o do aluguel.
 
@@ -111,7 +111,6 @@
 | 4 | `prompts/prompt-18.2.2.md` | Contato do evento só nos campos do topo (B19); `eventsService` dividido em anúncios e sessões | `94a3ad6` |
 | 5 | `prompts/prompt-18.2.3.md` | Visualizações de visitantes nos insights (erro do modal de detalhe), relatório com total e divisão em percentual, métricas com checagem de dono no backend, `trust proxy` por `TRUST_PROXY_HOPS` | `45b17ec` |
 | 6 | `prompts/prompt-18.2.4.md` | Idioma do navegador na primeira visita (D10): home redireciona para /en ou /fr, aviso nas páginas em português, idioma gravado só por escolha, `preferredLocale` na conta | `93c6c9b` |
-| 7 | `prompts/prompt-18.3.0a.md` | Verificação por estabelecimento no backend (D12): criptografia de campo com Cloud KMS, índice cego, documentos privados, fila do admin, venda bloqueada sem verificação | `3cc54e6` |
 
 > **Envie um prompt por mensagem**, nesta ordem.
 
@@ -125,3 +124,22 @@
 | `npm run build` | ✅ |
 
 > **Antes do 18.2.3**, no painel Secrets do AI Studio: `INSIGHTS_VIEWER_KEY` (32 caracteres aleatórios ou mais). Em produção: o mesmo segredo no Secret Manager (com valor diferente) e `TRUST_PROXY_HOPS` no Cloud Run; o TTL de `interactionGuards.expiresAt` sobe com `firebase deploy --only firestore:indexes`.
+
+> **Resultado (zip de 2026-10-19, 3º, `main` `fada927`):**
+> - **Aplicados corretamente:** A3, 18.2.2, 18.2.3 e 18.2.4. Todos os arquivos novos do lote vieram iguais à referência.
+> - **Partes não aplicadas:**
+>   - 18.2: `usePartnerProfile.ts` antigo, "Nova dica" do admin, `ListingEditorProps`;
+>   - 18.2.1: `usePartnerContentActions.ts` antigo, então as sessões editadas não eram gravadas.
+> - **Reescritas próprias do AI Studio:** `PartnerPortalComposition`, `AdminPanel`, `AdminEditorModal`, `AdminEditorEventFields`, `PartnerPanel`, `adminPlanSchema` e outros 3 arquivos. Todas descartadas: regressões sem ganho, com 4 testes falhando.
+> - **Correção:** Prompt 18.2.5 (lote 13).
+
+---
+
+# Lote 13 (Prompts 18.2.5 e 18.3.0a) — aplicar sobre o zip de 2026-10-19 (3º)
+
+| Ordem | Arquivo | Tema | Commit de referência |
+|---|---|---|---|
+| 1 | `prompts/prompt-18.2.5.md` | Correção do lote 12: completa o 18.2 e o 18.2.1 e desfaz as reescritas | `fada927..345ccbb` (= `93c6c9b`) |
+| 2 | `prompts/prompt-18.3.0a.md` | Verificação por estabelecimento no backend (D12): criptografia de campo com Cloud KMS, índice cego, documentos privados, fila do admin, venda bloqueada sem verificação | `3cc54e6` |
+
+> **Envie um prompt por mensagem**, nesta ordem. **Antes do 18.3.0a**, no painel Secrets do AI Studio: `FIELD_ENCRYPTION_DEV_KEY` (32 bytes em base64) e `PII_BLIND_INDEX_KEY` (32 caracteres ou mais).

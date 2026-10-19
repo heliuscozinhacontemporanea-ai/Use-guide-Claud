@@ -1,6 +1,6 @@
 # Prompt 18.3.0a — Verificação por estabelecimento (backend)
 
-> Lote 12, gerado do commit de referência `3cc54e6` da branch `claude/agents-md-v2`. Aplique depois do 18.2.4. Cole o bloco abaixo no agente do AI Studio, inteiro, de uma vez.
+> Lote 13, gerado do commit de referência `3cc54e6` da branch `claude/agents-md-v2`. Aplique depois do 18.2.5. Cole o bloco abaixo no agente do AI Studio, inteiro, de uma vez.
 
 ---
 
