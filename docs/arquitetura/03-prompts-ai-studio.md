@@ -99,18 +99,17 @@
 
 ---
 
-# Lote 12 (Prompts 18.2, A3, 18.2.1, 18.2.2, 18.2.3 e A4) — aplicar sobre o zip de 2026-10-19 (2º)
+# Lote 12 (Prompts 18.2, A3, 18.2.1, 18.2.2 e 18.2.3) — aplicar sobre o zip de 2026-10-19 (2º)
 
 > O lote 11 chegou igual à referência. O AI Studio também trocou os ícones de translado e produtor por ícones que existem no `StandardCard`; a troca foi adotada, e o 18.2 acrescenta o do aluguel.
 
 | Ordem | Arquivo | Tema | Commit de referência |
 |---|---|---|---|
 | 1 | `prompts/prompt-18.2.md` | Editor único de cadastro: `ListingEditor` no painel do parceiro e no admin (via `AdminPanelComposition`), dicas e eventos no editor do admin; avisos do lint corrigidos nos arquivos tocados | `fbfbfe9` + `c2658aa` |
-| 2 | `prompts/prompt-A3.md` | AGENTS.md §13 e §16.1: arquivo tocado sai sem avisos do lint (S10 aprovada) | `003cc6e` |
+| 2 | `prompts/prompt-A3.md` | AGENTS.md (só documentação): §13 e §16.1, arquivo tocado sem avisos do lint (S10); §12.6, tradução automática (S11/D5); §12.1 e §12.7, idioma da primeira visita (S12/D10). Junta os antigos A3, A4 e A5 | `003cc6e~1..41190ee` |
 | 3 | `prompts/prompt-18.2.1.md` | Sessões do evento no editor (parceiro e admin): `EventSessionsField`, `saveEventSessionsUseCase`, `PartnerEventForm` dividido | `ce7f92a` |
 | 4 | `prompts/prompt-18.2.2.md` | Contato do evento só nos campos do topo (B19); `eventsService` dividido em anúncios e sessões | `94a3ad6` |
 | 5 | `prompts/prompt-18.2.3.md` | Visualizações de visitantes nos insights (erro do modal de detalhe), relatório com total e divisão em percentual, métricas com checagem de dono no backend, `trust proxy` por `TRUST_PROXY_HOPS` | `45b17ec` |
-| 6 | `prompts/prompt-A4.md` | AGENTS.md §12.6 (tradução automática, S11/D5) e §12.1/§12.7 (idioma da primeira visita, S12/D10; inclui o A5); só documentação | `9fcc0bb..173c42e` |
 
 > **Envie um prompt por mensagem**, nesta ordem.
 

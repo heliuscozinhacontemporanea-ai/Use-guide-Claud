@@ -72,11 +72,10 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 | 18.0.1 | Completa o 18 | `64b792a` | ✅ zip 2026-10-19 (2º) | ✅ igual à referência |
 | 18.1 | Inscrição e editor com passeio/translado/aluguel | `1c15de9` | ✅ zip 2026-10-19 (2º) | ✅ igual + ícones de translado e produtor que existem no `StandardCard` (adotado) |
 | 18.2 | Editor único de cadastro (parceiro e admin) + lint dos arquivos tocados | `fbfbfe9` + `c2658aa` | ⏳ enviar (lote 12) | — |
-| A3 | AGENTS.md: arquivo tocado sem avisos do lint (S10 aprovada) | `003cc6e` | ⏳ enviar (lote 12) | — |
+| A3 | AGENTS.md: lint dos arquivos tocados (S10), tradução automática (S11/D5) e idioma da primeira visita (S12/D10) — junta A3, A4 e A5 | `003cc6e~1..41190ee` | ⏳ enviar (lote 12) | — |
 | 18.2.1 | Sessões do evento no editor (parceiro e admin) | `ce7f92a` | ⏳ enviar (lote 12) | — |
 | 18.2.2 | Contato do evento em um só lugar (B19) | `94a3ad6` | ⏳ enviar (lote 12) | — |
 | 18.2.3 | Visualizações de visitantes nos insights; relatório com a divisão | `45b17ec` | ⏳ enviar (lote 12) | — |
-| A4 | AGENTS.md §12.6 (tradução, S11/D5) e §12.1/§12.7 (idioma da primeira visita, S12/D10; inclui o A5) | `173c42e` | ⏳ enviar (lote 12) | — |
 
 ## Gates
 

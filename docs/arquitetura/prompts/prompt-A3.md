@@ -1,6 +1,6 @@
 # Prompt A3 — AGENTS.md: lint, tradução automática e idioma da primeira visita (S10, S11 e S12)
 
-> Lote 12. Junta os antigos A3 e A4 (pedido do responsável do produto); gerado de `003cc6e~1..173c42e` da branch `claude/agents-md-v2`, só os arquivos de documentação abaixo. Aplique depois do 18.2. Cole o bloco abaixo no agente do AI Studio, inteiro, de uma vez.
+> Lote 12. Junta os antigos A3 e A4 (pedido do responsável do produto); gerado de `003cc6e~1..41190ee` da branch `claude/agents-md-v2`, só os arquivos de documentação abaixo. Aplique depois do 18.2. Cole o bloco abaixo no agente do AI Studio, inteiro, de uma vez.
 
 ---
 
@@ -149,7 +149,7 @@ Aplique as mudanças abaixo EXATAMENTE como estão (formato unified diff: linhas
  > O AGENTS.md só muda com autorização explícita do responsável do produto. Cada item abaixo diz **o que** mudaria, **por quê** e o texto proposto.
  > Resposta de 2026-10-10: aprovadas S1, S2, S3, S4, S5, S7 e S8 (aplicadas pelo prompt A1). S6 não aprovada.
  > Resposta de 2026-10-12: aprovada S9 (aplicada pelo prompt A2).
-+> Resposta de 2026-10-19: aprovadas S10 (prompt A3), S11 e S12 (as duas no prompt A4).
++> Resposta de 2026-10-19: aprovadas S10, S11 e S12 (as três no prompt A3).
  
  | # | Seção | Motivo | Status |
  |---|---|---|---|
@@ -159,8 +159,8 @@ Aplique as mudanças abaixo EXATAMENTE como estão (formato unified diff: linhas
  | S9 | §13 | O texto cita agregadores de UseCases que o prompt 15 eliminou | ✅ Aprovada em 2026-10-12 (prompt A2) |
 -| S10 | §13 e §16.1 | Formalizar que arquivo tocado sai sem avisos do lint e formatado | ⏳ Aguardando autorização |
 +| S10 | §13 e §16.1 | Formalizar que arquivo tocado sai sem avisos do lint e formatado | ✅ Aprovada em 2026-10-19 (prompt A3) |
-+| S11 | §12.6 | Decisão D5 aprovada: Google Cloud Translation, sem tradução à mão, edição no idioma escolhido | ✅ Aprovada em 2026-10-19 (prompt A4) |
-+| S12 | §12.1 e §12.7 | Decisão D10: idioma do navegador na primeira visita, persistência só por escolha explícita | ✅ Aprovada em 2026-10-19 (prompt A4, junto com a S11) |
++| S11 | §12.6 | Decisão D5 aprovada: Google Cloud Translation, sem tradução à mão, edição no idioma escolhido | ✅ Aprovada em 2026-10-19 (prompt A3) |
++| S12 | §12.1 e §12.7 | Decisão D10: idioma do navegador na primeira visita, persistência só por escolha explícita | ✅ Aprovada em 2026-10-19 (prompt A3) |
  
  ---
  
