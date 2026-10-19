@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Route, Routes, type Location } from 'react-router-dom';
-import { AdminDispatcher } from '../../domain/admin/components/AdminDispatcher';
+import { AdminPanelComposition } from '../compositions/AdminPanelComposition';
 import { ResetPassword } from '../../domain/auth/components/ResetPassword';
 import type { GuideItem } from '../../domain/guide';
 import { ExploreView } from '../../domain/guide/components/ExploreView';
@@ -66,7 +66,7 @@ export function AppRoutes({ location, onSelectItem, onStickyChange }: AppRoutesP
         ))
       )}
       <Route path="/checkout/result" element={<CheckoutResultComposition />} />
-      <Route path="/admin" element={<AdminDispatcher />} />
+      <Route path="/admin" element={<AdminPanelComposition />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="*" element={<NotFoundView />} />
     </Routes>

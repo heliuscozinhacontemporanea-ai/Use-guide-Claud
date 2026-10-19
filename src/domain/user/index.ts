@@ -18,6 +18,7 @@ export type { UserPort } from './ports/userPort';
 
 export { getCurrentUserUseCase } from './application/usecases/getCurrentUserUseCase';
 export { updateCurrentUserUseCase } from './application/usecases/updateCurrentUserUseCase';
+export { updatePreferredLocaleUseCase } from './application/usecases/updatePreferredLocaleUseCase';
 export { updatePasswordUseCase } from './application/usecases/updatePasswordUseCase';
 export { deleteCurrentUserUseCase } from './application/usecases/deleteCurrentUserUseCase';
 

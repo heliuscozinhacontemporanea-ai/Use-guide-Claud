@@ -103,15 +103,6 @@ export const createEventListingSchema = z
     websiteLink: optionalUrl,
     instagramLink: optionalUrl,
     bookingLink: optionalUrl,
-    contact: z
-      .object({
-        phone: z.string().trim().regex(E164_PATTERN, E164_MESSAGE).optional(),
-        website: optionalUrl,
-        instagram: optionalUrl,
-        booking: optionalUrl,
-      })
-      .strict()
-      .optional(),
     refundPolicy: eventRefundPolicySchema.optional(),
     ageRestriction: z
       .object({
@@ -158,15 +149,6 @@ export const updateEventListingSchema = z
     websiteLink: optionalUrl,
     instagramLink: optionalUrl,
     bookingLink: optionalUrl,
-    contact: z
-      .object({
-        phone: z.string().trim().regex(E164_PATTERN, E164_MESSAGE).optional(),
-        website: optionalUrl,
-        instagram: optionalUrl,
-        booking: optionalUrl,
-      })
-      .strict()
-      .optional(),
     refundPolicy: eventRefundPolicySchema.optional(),
     ageRestriction: z
       .object({

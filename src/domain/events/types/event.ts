@@ -44,12 +44,10 @@ export interface EventListing {
   isActive: boolean;
   organizerId: string;
   location: EventLocation;
-  contact?: {
-    phone?: string;
-    website?: string;
-    instagram?: string;
-    booking?: string;
-  };
+  phone?: string;
+  websiteLink?: string;
+  instagramLink?: string;
+  bookingLink?: string;
   refundPolicy: EventRefundPolicy;
   maxTicketsPerUserPerOccurrence?: number;
   ageRestriction?: {

@@ -1,4 +1,4 @@
-import { eventsService } from '../factory';
+import { eventOccurrencesService } from '../factory';
 import type { EventActorContext } from '../services/eventsService';
 
 export async function deleteEventOccurrenceUseCase(
@@ -6,5 +6,5 @@ export async function deleteEventOccurrenceUseCase(
   occurrenceId: string,
   hasCommercialHistory = false
 ): Promise<{ mode: 'deleted' | 'canceled' }> {
-  return eventsService.deleteOccurrence(actor, occurrenceId, hasCommercialHistory);
+  return eventOccurrencesService.deleteOccurrence(actor, occurrenceId, hasCommercialHistory);
 }

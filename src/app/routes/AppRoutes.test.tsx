@@ -14,8 +14,8 @@ vi.mock('../../domain/guide/components/GridView', () => ({
 vi.mock('../../domain/ticketing', () => ({
   CheckoutResultView: ({ orderId }: { orderId: string }) => <div>checkout-{orderId}</div>,
 }));
-vi.mock('../../domain/admin/components/AdminDispatcher', () => ({
-  AdminDispatcher: () => <div>admin</div>,
+vi.mock('../compositions/AdminPanelComposition', () => ({
+  AdminPanelComposition: () => <div>admin</div>,
 }));
 vi.mock('../../domain/auth/components/ResetPassword', () => ({
   ResetPassword: () => <div>reset</div>,

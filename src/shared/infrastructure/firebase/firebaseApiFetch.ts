@@ -3,6 +3,8 @@ import { getFirebaseAppCheckToken } from './firebaseAppCheck';
 
 export interface FirebaseApiFetchOptions {
   requireAuth?: boolean;
+  /** Anexa o token só quando há usuário logado; a rota aceita visitantes. */
+  optionalAuth?: boolean;
   requireAppCheck?: boolean;
 }
 
@@ -11,20 +13,21 @@ export async function firebaseApiFetch(
   init: RequestInit = {},
   options: FirebaseApiFetchOptions = {}
 ): Promise<Response> {
-  const { requireAuth = false, requireAppCheck = true } = options;
+  const { requireAuth = false, optionalAuth = false, requireAppCheck = true } = options;
 
   const headers = new Headers(init.headers);
 
-  if (requireAuth) {
+  if (requireAuth || optionalAuth) {
     const currentUser = auth.currentUser;
 
-    if (!currentUser) {
+    if (!currentUser && requireAuth) {
       throw new Error('Usuário não autenticado');
     }
 
-    const idToken = await currentUser.getIdToken();
-
-    headers.set('Authorization', `Bearer ${idToken}`);
+    if (currentUser) {
+      const idToken = await currentUser.getIdToken();
+      headers.set('Authorization', `Bearer ${idToken}`);
+    }
   }
 
   if (requireAppCheck) {

@@ -10,7 +10,9 @@ interface PartnerHeaderProps {
   onNavigateBack: () => void;
   isVerified: boolean;
   onVerifyClick?: () => void;
+  onOpenPlansModal?: () => void;
   notificationBell?: React.ReactNode;
+  renderNotificationBell?: (partnerId: string) => React.ReactNode;
 }
 
 const PLAN_SUBTITLE: Record<string, string> = {
@@ -29,7 +31,9 @@ export function PartnerHeader({
   onNavigateBack,
   isVerified,
   onVerifyClick,
+  onOpenPlansModal,
   notificationBell,
+  renderNotificationBell,
 }: PartnerHeaderProps) {
   return (
     <div className="space-y-6">
@@ -78,7 +82,7 @@ export function PartnerHeader({
               </span>
             </div>
           </div>
-          {notificationBell}
+          {renderNotificationBell && partnerProfile ? renderNotificationBell(partnerProfile.id) : notificationBell}
         </div>
       </motion.div>
 
@@ -88,7 +92,7 @@ export function PartnerHeader({
         initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, ease: 'easeOut', delay: 0.05 }}
-        onClick={onVerifyClick}
+        onClick={onOpenPlansModal || onVerifyClick}
         className="py-4 px-6 rounded-3xl border border-white/10 bg-white/5 glassmorphism-vibrant flex items-center justify-between gap-6 w-full text-left cursor-pointer"
       >
         <div className="flex items-center gap-4">

@@ -10,7 +10,12 @@ import type {
 
 function toIsoString(val: unknown, fallback: string): string {
   if (typeof val === 'string' && val.trim().length > 0) return val;
-  if (val && typeof val === 'object' && 'toDate' in val && typeof (val as { toDate: () => Date }).toDate === 'function') {
+  if (
+    val &&
+    typeof val === 'object' &&
+    'toDate' in val &&
+    typeof (val as { toDate: () => Date }).toDate === 'function'
+  ) {
     return (val as { toDate: () => Date }).toDate().toISOString();
   }
   return fallback;
@@ -31,7 +36,10 @@ export class EventListingPersistenceMapper {
     const location: EventLocation =
       rawLoc && typeof rawLoc === 'object'
         ? {
-            name: typeof (rawLoc as Record<string, unknown>).name === 'string' ? String((rawLoc as Record<string, unknown>).name) : undefined,
+            name:
+              typeof (rawLoc as Record<string, unknown>).name === 'string'
+                ? String((rawLoc as Record<string, unknown>).name)
+                : undefined,
             address:
               typeof (rawLoc as Record<string, unknown>).address === 'string'
                 ? String((rawLoc as Record<string, unknown>).address)
@@ -44,8 +52,14 @@ export class EventListingPersistenceMapper {
                 : typeof raw.googleMapsLink === 'string'
                   ? raw.googleMapsLink
                   : undefined,
-            latitude: typeof (rawLoc as Record<string, unknown>).latitude === 'number' ? Number((rawLoc as Record<string, unknown>).latitude) : undefined,
-            longitude: typeof (rawLoc as Record<string, unknown>).longitude === 'number' ? Number((rawLoc as Record<string, unknown>).longitude) : undefined,
+            latitude:
+              typeof (rawLoc as Record<string, unknown>).latitude === 'number'
+                ? Number((rawLoc as Record<string, unknown>).latitude)
+                : undefined,
+            longitude:
+              typeof (rawLoc as Record<string, unknown>).longitude === 'number'
+                ? Number((rawLoc as Record<string, unknown>).longitude)
+                : undefined,
           }
         : {
             name: typeof rawLoc === 'string' ? rawLoc : 'Jericoacoara',
@@ -105,20 +119,10 @@ export class EventListingPersistenceMapper {
       isActive: status === 'published',
       organizerId: String(raw.organizerId || ownerId),
       location,
-      contact: {
-        phone:
-          (raw.contact as Record<string, string> | undefined)?.phone ||
-          (typeof raw.phone === 'string' ? raw.phone : undefined),
-        website:
-          (raw.contact as Record<string, string> | undefined)?.website ||
-          (typeof raw.websiteLink === 'string' ? raw.websiteLink : undefined),
-        instagram:
-          (raw.contact as Record<string, string> | undefined)?.instagram ||
-          (typeof raw.instagramLink === 'string' ? raw.instagramLink : undefined),
-        booking:
-          (raw.contact as Record<string, string> | undefined)?.booking ||
-          (typeof raw.bookingLink === 'string' ? raw.bookingLink : undefined),
-      },
+      phone: typeof raw.phone === 'string' ? raw.phone : undefined,
+      websiteLink: typeof raw.websiteLink === 'string' ? raw.websiteLink : undefined,
+      instagramLink: typeof raw.instagramLink === 'string' ? raw.instagramLink : undefined,
+      bookingLink: typeof raw.bookingLink === 'string' ? raw.bookingLink : undefined,
       refundPolicy: {
         enabled:
           typeof (raw.refundPolicy as Record<string, unknown> | undefined)?.enabled === 'boolean'
@@ -230,32 +234,10 @@ export class EventListingPersistenceMapper {
       ...(locationObj.googleMapsLink || input.googleMapsLink
         ? { googleMapsLink: locationObj.googleMapsLink || input.googleMapsLink }
         : {}),
-      ...(input.phone || input.contact?.phone
-        ? { phone: input.phone || input.contact?.phone }
-        : {}),
-      ...(input.websiteLink || input.contact?.website
-        ? { websiteLink: input.websiteLink || input.contact?.website }
-        : {}),
-      ...(input.instagramLink || input.contact?.instagram
-        ? { instagramLink: input.instagramLink || input.contact?.instagram }
-        : {}),
-      ...(input.bookingLink || input.contact?.booking
-        ? { bookingLink: input.bookingLink || input.contact?.booking }
-        : {}),
-      contact: {
-        ...(input.contact?.phone || input.phone
-          ? { phone: input.contact?.phone || input.phone }
-          : {}),
-        ...(input.contact?.website || input.websiteLink
-          ? { website: input.contact?.website || input.websiteLink }
-          : {}),
-        ...(input.contact?.instagram || input.instagramLink
-          ? { instagram: input.contact?.instagram || input.instagramLink }
-          : {}),
-        ...(input.contact?.booking || input.bookingLink
-          ? { booking: input.contact?.booking || input.bookingLink }
-          : {}),
-      },
+      ...(input.phone ? { phone: input.phone } : {}),
+      ...(input.websiteLink ? { websiteLink: input.websiteLink } : {}),
+      ...(input.instagramLink ? { instagramLink: input.instagramLink } : {}),
+      ...(input.bookingLink ? { bookingLink: input.bookingLink } : {}),
       refundPolicy: input.refundPolicy || {
         enabled: true,
         cancellationWindowHours: 24,
@@ -321,7 +303,6 @@ export class EventListingPersistenceMapper {
     if (input.websiteLink !== undefined) patch.websiteLink = input.websiteLink;
     if (input.instagramLink !== undefined) patch.instagramLink = input.instagramLink;
     if (input.bookingLink !== undefined) patch.bookingLink = input.bookingLink;
-    if (input.contact !== undefined) patch.contact = input.contact;
     if (input.refundPolicy !== undefined) patch.refundPolicy = input.refundPolicy;
     if (input.ageRestriction !== undefined) patch.ageRestriction = input.ageRestriction;
     if (input.entryType !== undefined) {
@@ -329,8 +310,7 @@ export class EventListingPersistenceMapper {
       patch.pricingMode = input.entryType === 'pago' ? 'paid' : 'free';
     }
     if (input.pricingMode !== undefined) patch.pricingMode = input.pricingMode;
-    if (input.startingPriceMinor !== undefined)
-      patch.startingPriceMinor = input.startingPriceMinor;
+    if (input.startingPriceMinor !== undefined) patch.startingPriceMinor = input.startingPriceMinor;
     if (input.maxTicketsPerUserPerOccurrence !== undefined)
       patch.maxTicketsPerUserPerOccurrence = input.maxTicketsPerUserPerOccurrence;
     if (input.date !== undefined) patch.date = input.date;

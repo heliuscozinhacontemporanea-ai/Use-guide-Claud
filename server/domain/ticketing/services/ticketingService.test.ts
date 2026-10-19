@@ -17,10 +17,7 @@ vi.mock('../../events', () => ({
   updateEventListingPricingSummaryUseCase: vi.fn().mockResolvedValue(undefined),
 }));
 
-import {
-  getEventListingByIdUseCase,
-  getEventOccurrenceByIdUseCase,
-} from '../../events';
+import { getEventListingByIdUseCase, getEventOccurrenceByIdUseCase } from '../../events';
 
 function createMockTicketType(overrides: Partial<TicketType> = {}): TicketType {
   return {
@@ -84,7 +81,6 @@ describe('TicketingService', () => {
       status: 'published',
       isActive: true,
       location: { name: 'Praia do Preá' },
-      contact: {},
       refundPolicy: { enabled: true, cancellationWindowHours: 48 },
       entryType: 'pago',
       pricingMode: 'paid',
@@ -94,14 +90,14 @@ describe('TicketingService', () => {
     });
 
     mockPort = {
-      createTicketType: vi.fn().mockImplementation(async (input) =>
-        createMockTicketType({ ...input, id: 'tt_created' })
-      ),
+      createTicketType: vi
+        .fn()
+        .mockImplementation(async (input) => createMockTicketType({ ...input, id: 'tt_created' })),
       getTicketTypeById: vi.fn().mockResolvedValue(createMockTicketType()),
       listTicketTypesByOccurrenceId: vi.fn().mockResolvedValue([createMockTicketType()]),
-      updateTicketType: vi.fn().mockImplementation(async (_id, patch) =>
-        createMockTicketType(patch)
-      ),
+      updateTicketType: vi
+        .fn()
+        .mockImplementation(async (_id, patch) => createMockTicketType(patch)),
       deleteTicketType: vi.fn().mockResolvedValue(undefined),
       reserveInventoryAndCreateOrderAtomic: vi.fn().mockImplementation(async (input) => ({
         order: {

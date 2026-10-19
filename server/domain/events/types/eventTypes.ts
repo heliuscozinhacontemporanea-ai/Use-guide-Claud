@@ -35,12 +35,11 @@ export interface EventListing {
   isActive: boolean;
   organizerId: string;
   location: EventLocation;
-  contact?: {
-    phone?: string;
-    website?: string;
-    instagram?: string;
-    booking?: string;
-  };
+  /** Contato do evento: campos no topo, como nos itens do guia (B19). Telefone em E.164. */
+  phone?: string;
+  websiteLink?: string;
+  instagramLink?: string;
+  bookingLink?: string;
   refundPolicy: {
     enabled: boolean;
     cancellationWindowHours?: number;
@@ -124,12 +123,6 @@ export interface CreateEventListingInput {
   websiteLink?: string;
   instagramLink?: string;
   bookingLink?: string;
-  contact?: {
-    phone?: string;
-    website?: string;
-    instagram?: string;
-    booking?: string;
-  };
   refundPolicy?: {
     enabled: boolean;
     cancellationWindowHours?: number;
@@ -171,12 +164,6 @@ export interface UpdateEventListingInput {
   websiteLink?: string;
   instagramLink?: string;
   bookingLink?: string;
-  contact?: {
-    phone?: string;
-    website?: string;
-    instagram?: string;
-    booking?: string;
-  };
   refundPolicy?: {
     enabled: boolean;
     cancellationWindowHours?: number;

@@ -103,6 +103,12 @@ export interface PartnerContentRecord {
   eventCategory?: string;
   customCategory?: string;
   entryType?: EventEntryType;
+  sessions?: Array<{
+    id?: string;
+    startsAt: string;
+    endsAt: string;
+    capacity: number;
+  }>;
 }
 
 export interface PartnerContentItemInput {

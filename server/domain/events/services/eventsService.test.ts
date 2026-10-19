@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { EventOccurrencesService } from './eventOccurrencesService';
 import { EventsService } from './eventsService';
 import type { EventsPort } from '../ports/eventsPort';
 import type { EventListing, EventOccurrence } from '../types/eventTypes';
@@ -71,10 +72,12 @@ const sampleOccurrence: EventOccurrence = {
 describe('EventsService', () => {
   let port: EventsPort;
   let service: EventsService;
+  let occurrences: EventOccurrencesService;
 
   beforeEach(() => {
     port = createMockPort();
     service = new EventsService(port);
+    occurrences = new EventOccurrencesService(port);
   });
 
   it('creates an EventListing and its initial EventOccurrences with audit log', async () => {
@@ -128,11 +131,9 @@ describe('EventsService', () => {
     vi.mocked(port.getListingById).mockResolvedValue(sampleListing);
 
     await expect(
-      service.updateListing(
-        { uid: 'partner-other', admin: false },
-        'ev-1',
-        { title: 'Tentativa Inválida' }
-      )
+      service.updateListing({ uid: 'partner-other', admin: false }, 'ev-1', {
+        title: 'Tentativa Inválida',
+      })
     ).rejects.toMatchObject({
       code: 'FORBIDDEN',
     });
@@ -165,7 +166,7 @@ describe('EventsService', () => {
     vi.mocked(port.getListingById).mockResolvedValue(sampleListing);
 
     await expect(
-      service.updateOccurrence(
+      occurrences.updateOccurrence(
         { uid: 'partner-1', admin: false },
         'occ-1',
         { capacity: 20 },
@@ -193,7 +194,7 @@ describe('EventsService', () => {
       postponementReason: 'Chuva forte',
     });
 
-    const result = await service.postponeOccurrence(
+    const result = await occurrences.postponeOccurrence(
       { uid: 'partner-1', admin: false },
       'occ-1',
       {

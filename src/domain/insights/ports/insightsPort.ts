@@ -9,5 +9,5 @@ export interface InsightsPort {
     userId?: string | null
   ): Promise<void>;
 
-  getItemStats(itemId: string, itemCollection?: 'items' | 'events'): Promise<ItemStats | null>;
+  getItemStats(itemId: string, itemCollection?: 'items' | 'events'): Promise<ItemStats>;
 }

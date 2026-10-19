@@ -1,80 +1,66 @@
-import { Response } from 'express';
-import { z } from 'zod';
+import type { Response } from 'express';
+import type { AuthenticatedRequest } from '../../../infrastructure/auth/authMiddleware';
+import { InsightsAccessError, InsightsUnavailableError } from '../errors/insightsErrors';
 import { insightsService } from '../factory';
-import { AuthenticatedRequest } from '../../../infrastructure/auth/authMiddleware';
+import { getItemStatsParamsSchema, trackInteractionSchema } from '../schemas/insightsSchemas';
 
-const trackInteractionSchema = z
-  .object({
-    itemId: z.string().trim().min(1, 'ID do item é obrigatório'),
-    itemCollection: z.enum(['items', 'events']),
-    type: z.enum(['view', 'whatsapp_click', 'share', 'favorite']),
-  })
-  .strict();
-
-const getItemStatsParamsSchema = z.object({
-  itemId: z.string().trim().min(1, 'ID do item é obrigatório'),
-  itemCollection: z.enum(['items', 'events']).optional(),
-});
+function sendError(res: Response, status: number, code: string, message: string): void {
+  res.status(status).json({ error: { code, message } });
+}
 
 export class InsightsController {
   static async trackInteraction(req: AuthenticatedRequest, res: Response): Promise<void> {
+    const parsed = trackInteractionSchema.safeParse(req.body);
+    if (!parsed.success) {
+      sendError(res, 400, 'VALIDATION_ERROR', 'Interação inválida.');
+      return;
+    }
     try {
-      const parseResult = trackInteractionSchema.safeParse(req.body);
-      if (!parseResult.success) {
-        res.status(400).json({
-          error: 'Erro de validação no payload de interação',
-          details: parseResult.error.issues,
-        });
+      const counted = await insightsService.trackInteraction({
+        ...parsed.data,
+        uid: req.user?.uid ?? null,
+        ip: req.ip ?? null,
+      });
+      // 202: a interação foi aceita; repetida na janela de 30 min não soma de novo.
+      res.status(202).json({ counted });
+    } catch (error) {
+      if (error instanceof InsightsUnavailableError) {
+        sendError(res, 503, error.code, error.message);
         return;
       }
-
-      const userId = req.user?.uid ?? null;
-
-      await insightsService.trackInteraction({
-        itemId: parseResult.data.itemId,
-        itemCollection: parseResult.data.itemCollection,
-        type: parseResult.data.type,
-        userId,
+      console.error('[InsightsController.trackInteraction]', {
+        name: error instanceof Error ? error.name : 'UnknownError',
       });
-
-      res.status(200).json({ success: true, message: 'Interação registrada com sucesso.' });
-    } catch (error) {
-      console.error('[InsightsController.trackInteraction Error]:', error);
-      res.status(500).json({ error: 'Erro interno ao registrar interação.' });
+      sendError(res, 500, 'INTERNAL_ERROR', 'Não foi possível registrar a interação.');
     }
   }
 
   static async getItemStats(req: AuthenticatedRequest, res: Response): Promise<void> {
+    if (!req.user) {
+      sendError(res, 401, 'UNAUTHENTICATED', 'Faça login para ver as métricas.');
+      return;
+    }
+    const parsed = getItemStatsParamsSchema.safeParse(req.params);
+    if (!parsed.success) {
+      sendError(res, 400, 'VALIDATION_ERROR', 'Item inválido.');
+      return;
+    }
     try {
-      if (!req.user) {
-        res.status(401).json({ error: 'Não autenticado' });
-        return;
-      }
-
-      const parseResult = getItemStatsParamsSchema.safeParse(req.params);
-      if (!parseResult.success) {
-        res.status(400).json({
-          error: 'Erro de validação no parâmetro da requisição',
-          details: parseResult.error.issues,
-        });
-        return;
-      }
-
-      const itemCollection = (parseResult.data.itemCollection ||
-        req.query.itemCollection ||
-        'items') as 'items' | 'events';
-      const stats = await insightsService.getItemStats(parseResult.data.itemId, itemCollection, {
-        uid: req.user.uid,
-        admin: req.user.admin,
-      });
+      const stats = await insightsService.getItemStats(
+        parsed.data.itemId,
+        parsed.data.itemCollection,
+        { uid: req.user.uid, admin: req.user.admin }
+      );
       res.status(200).json({ success: true, data: stats });
-    } catch (error: any) {
-      if (error?.message === 'FORBIDDEN') {
-        res.status(403).json({ error: 'Acesso não autorizado às métricas deste item.' });
+    } catch (error) {
+      if (error instanceof InsightsAccessError) {
+        sendError(res, 403, error.code, error.message);
         return;
       }
-      console.error('[InsightsController.getItemStats Error]:', error);
-      res.status(500).json({ error: 'Erro interno ao obter estatísticas.' });
+      console.error('[InsightsController.getItemStats]', {
+        name: error instanceof Error ? error.name : 'UnknownError',
+      });
+      sendError(res, 500, 'INTERNAL_ERROR', 'Não foi possível carregar as métricas.');
     }
   }
 }

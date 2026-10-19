@@ -1,3 +1,4 @@
+import { type Locale, SUPPORTED_LOCALES } from '../../../shared/kernel/locale';
 import { UserRole } from '../types/userTypes';
 
 export interface PrivateUserProfileDto {
@@ -8,6 +9,7 @@ export interface PrivateUserProfileDto {
   phone: string;
   photoURL?: string;
   role: UserRole;
+  preferredLocale: Locale | null;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -33,6 +35,7 @@ export function toPrivateUserProfileDto(raw: unknown, uid: string): PrivateUserP
     phone: typeof data.phone === 'string' ? data.phone : '',
     photoURL: typeof data.photoURL === 'string' ? data.photoURL : '',
     role,
+    preferredLocale: SUPPORTED_LOCALES.find((locale) => locale === data.preferredLocale) ?? null,
     createdAt: typeof data.createdAt === 'string' ? data.createdAt : '',
     updatedAt: typeof data.updatedAt === 'string' ? data.updatedAt : '',
   };

@@ -1,7 +1,19 @@
-import { type BookingsTranslation, bookingsEn, bookingsFr, bookingsPtBR } from './bookingsResources';
+import {
+  type BookingsTranslation,
+  bookingsEn,
+  bookingsFr,
+  bookingsPtBR,
+} from './bookingsResources';
+import {
+  type InsightsTranslation,
+  insightsEn,
+  insightsFr,
+  insightsPtBR,
+} from './insightsResources';
 
 export interface TranslationResource {
   bookings: BookingsTranslation;
+  insights: InsightsTranslation;
   common: {
     language: string;
     locales: {
@@ -166,6 +178,12 @@ export interface TranslationResource {
     partnerSuspendedTitle: string;
     partnerSuspended: string;
   };
+  localeSuggestion: {
+    label: string;
+    message: string;
+    switch: string;
+    keep: string;
+  };
   settings: {
     title: string;
     subtitle: string;
@@ -188,6 +206,7 @@ export interface TranslationResource {
 }
 const ptBR: TranslationResource = {
   bookings: bookingsPtBR,
+  insights: insightsPtBR,
   common: {
     language: 'Idioma',
     locales: {
@@ -384,7 +403,14 @@ const ptBR: TranslationResource = {
     partnerProfileNotFound: 'Não encontramos o seu cadastro de parceiro.',
     partnerProfileLoadError: 'Não foi possível carregar o seu cadastro de parceiro.',
     partnerSuspendedTitle: 'Conta de parceiro suspensa',
-    partnerSuspended: 'Seu acesso ao painel foi suspenso pela equipe do Use Guide. Fale com o suporte para saber como reativar.',
+    partnerSuspended:
+      'Seu acesso ao painel foi suspenso pela equipe do Use Guide. Fale com o suporte para saber como reativar.',
+  },
+  localeSuggestion: {
+    label: 'Sugestão de idioma',
+    message: 'Esta página também está disponível em português.',
+    switch: 'Ver em português',
+    keep: 'Continuar em português',
   },
   settings: {
     title: 'Configurações',
@@ -413,6 +439,7 @@ const ptBR: TranslationResource = {
 };
 const en: TranslationResource = {
   bookings: bookingsEn,
+  insights: insightsEn,
   common: {
     language: 'Language',
     locales: {
@@ -607,7 +634,14 @@ const en: TranslationResource = {
     partnerProfileNotFound: 'We couldn’t find your partner registration.',
     partnerProfileLoadError: 'We couldn’t load your partner registration.',
     partnerSuspendedTitle: 'Partner account suspended',
-    partnerSuspended: 'Your dashboard access was suspended by the Use Guide team. Contact support to find out how to reactivate it.',
+    partnerSuspended:
+      'Your dashboard access was suspended by the Use Guide team. Contact support to find out how to reactivate it.',
+  },
+  localeSuggestion: {
+    label: 'Language suggestion',
+    message: 'This page is also available in English.',
+    switch: 'View in English',
+    keep: 'Continue in Portuguese',
   },
   settings: {
     title: 'Settings',
@@ -636,6 +670,7 @@ const en: TranslationResource = {
 };
 const fr: TranslationResource = {
   bookings: bookingsFr,
+  insights: insightsFr,
   common: {
     language: 'Langue',
     locales: {
@@ -835,7 +870,14 @@ const fr: TranslationResource = {
     partnerProfileNotFound: 'Nous n’avons pas trouvé votre inscription de partenaire.',
     partnerProfileLoadError: 'Impossible de charger votre inscription de partenaire.',
     partnerSuspendedTitle: 'Compte partenaire suspendu',
-    partnerSuspended: 'Votre accès au tableau de bord a été suspendu par l’équipe Use Guide. Contactez le support pour savoir comment le réactiver.',
+    partnerSuspended:
+      'Votre accès au tableau de bord a été suspendu par l’équipe Use Guide. Contactez le support pour savoir comment le réactiver.',
+  },
+  localeSuggestion: {
+    label: 'Suggestion de langue',
+    message: 'Cette page est aussi disponible en français.',
+    switch: 'Voir en français',
+    keep: 'Continuer en portugais',
   },
   settings: {
     title: 'Paramètres',

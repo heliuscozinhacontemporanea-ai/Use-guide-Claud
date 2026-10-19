@@ -20,10 +20,14 @@ import adminRouter from './server/domain/admin/routes/adminRoutes';
 import favoriteRouter from './server/domain/favorites/routes/favoriteRoutes';
 import mediaRouter from './server/domain/media/routes/mediaRoutes';
 import billingRouter from './server/interfaces/http/billing/billingRoutes';
-import { bookingsRouter, partnerOffersRouter } from './server/interfaces/http/bookings/bookingsRoutes';
+import {
+  bookingsRouter,
+  partnerOffersRouter,
+} from './server/interfaces/http/bookings/bookingsRoutes';
 import { InternalBookingsController } from './server/interfaces/http/bookings/internalBookingsController';
 import { InternalPartnersController } from './server/interfaces/http/partners/internalPartnersController';
 import { verifyInternalJobKey } from './server/infrastructure/auth/internalJobAuth';
+import { resolveTrustProxyHops } from './server/infrastructure/config/trustProxy';
 import { renderSeoPageApplicationUseCase } from './server/application/usecases/renderSeoPageApplicationUseCase';
 import { renderSitemapApplicationUseCase } from './server/application/usecases/renderSitemapApplicationUseCase';
 import { verifyAppCheck } from './server/infrastructure/auth/appCheckMiddleware';
@@ -35,7 +39,7 @@ async function startServer() {
   if (!Number.isInteger(PORT) || PORT < 1 || PORT > 65535) {
     throw new Error(`PORT inválida: ${rawPort}`);
   }
-  app.set('trust proxy', true);
+  app.set('trust proxy', resolveTrustProxyHops());
   const isProduction = process.env.NODE_ENV === 'production';
   if (isProduction) {
     app.use(
@@ -135,7 +139,11 @@ async function startServer() {
     TicketingController.expireOrdersInternalJob
   );
   app.post('/internal/bookings/expire', verifyInternalJobKey, InternalBookingsController.expire);
-  app.post('/internal/bookings/complete', verifyInternalJobKey, InternalBookingsController.complete);
+  app.post(
+    '/internal/bookings/complete',
+    verifyInternalJobKey,
+    InternalBookingsController.complete
+  );
   app.post(
     '/internal/partners/check-expiring-plans',
     verifyInternalJobKey,
@@ -198,16 +206,27 @@ async function startServer() {
   app.use('/api/favorites', favoriteRouter);
   app.use('/api/media', mediaRouter);
 
-  app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-    console.error('[Error Handler]', err);
-    const statusCode = err.status || err.statusCode || 500;
-    res.status(statusCode).json({
-      error: {
-        message: err.message || 'Erro interno do servidor',
-        status: statusCode,
-      },
-    });
-  });
+  // Erros não tratados (inclusive do body-parser) nunca devolvem a mensagem interna (AGENTS.md §10.2).
+  app.use(
+    (err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+      const details = (err ?? {}) as {
+        name?: string;
+        type?: string;
+        status?: number;
+        statusCode?: number;
+      };
+      const rawStatus = details.status ?? details.statusCode;
+      const statusCode = rawStatus && rawStatus >= 400 && rawStatus < 500 ? rawStatus : 500;
+      console.error('[Error Handler]', { name: details.name, type: details.type, statusCode });
+      const error =
+        statusCode === 413
+          ? { code: 'PAYLOAD_TOO_LARGE', message: 'Requisição grande demais.' }
+          : statusCode < 500
+            ? { code: 'BAD_REQUEST', message: 'Requisição inválida.' }
+            : { code: 'INTERNAL_ERROR', message: 'Erro interno do servidor.' };
+      res.status(statusCode).json({ error });
+    }
+  );
 
   app.get('/sitemap.xml', async (_req, res) => {
     try {

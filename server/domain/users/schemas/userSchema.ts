@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { SUPPORTED_LOCALES } from '../../../shared/kernel/locale';
 
 export const loginUserSchema = z.object({
   email: z.string().min(1, 'E-mail é obrigatório').email('Formato de e-mail inválido'),
@@ -46,6 +47,13 @@ export const updateUserProfileSchema = z
   })
   .strict();
 
+/** Idioma escolhido pela pessoa; vale em todos os aparelhos e nos e-mails (decisão D10, AGENTS.md §12.5). */
+export const updateUserPreferencesSchema = z
+  .object({
+    preferredLocale: z.enum(SUPPORTED_LOCALES),
+  })
+  .strict();
+
 const MAX_PROFILE_PHOTO_BYTES = 5 * 1024 * 1024;
 const MAX_PROFILE_PHOTO_BASE64_LENGTH = Math.ceil(MAX_PROFILE_PHOTO_BYTES / 3) * 4 + 256;
 
@@ -62,4 +70,5 @@ export type LoginUserInput = z.infer<typeof loginUserSchema>;
 export type RegisterUserInput = z.infer<typeof registerUserSchema>;
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 export type UpdateUserProfileInput = z.infer<typeof updateUserProfileSchema>;
+export type UpdateUserPreferencesInput = z.infer<typeof updateUserPreferencesSchema>;
 export type UploadUserPhotoInput = z.infer<typeof uploadUserPhotoSchema>;

@@ -5,7 +5,7 @@ import {
   getLocaleDisplayLabel,
   normalizeLocale,
   persistLocale,
-  resolveInitialLocale,
+  resolvePreferredLocale,
 } from './locale';
 describe('locale', () => {
   beforeEach(() => {
@@ -28,7 +28,7 @@ describe('locale', () => {
   });
   it('prioriza o locale persistido', () => {
     window.localStorage.setItem(LOCALE_STORAGE_KEY, 'en');
-    expect(resolveInitialLocale()).toBe('en');
+    expect(resolvePreferredLocale()).toBe('en');
   });
   it('usa pt-BR como fallback final', () => {
     window.localStorage.removeItem(LOCALE_STORAGE_KEY);
@@ -40,7 +40,7 @@ describe('locale', () => {
       configurable: true,
       value: 'de-DE',
     });
-    expect(resolveInitialLocale()).toBe(DEFAULT_LOCALE);
+    expect(resolvePreferredLocale()).toBe(DEFAULT_LOCALE);
   });
   it('persiste somente o locale canônico recebido', () => {
     persistLocale('pt-BR');

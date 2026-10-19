@@ -1,6 +1,6 @@
 import { Response, NextFunction } from 'express';
 import { AuthenticatedRequest, AuthenticatedUser } from './authenticatedRequest';
-import { AuthTokenVerifier, AuthTokenVerifierOptions } from './ports/authTokenVerifier';
+import { AuthTokenVerifier } from './ports/authTokenVerifier';
 import { defaultAuthTokenVerifier } from './adapters/firebaseAuthTokenVerifier';
 
 export type { AuthenticatedRequest, AuthenticatedUser };
@@ -44,6 +44,21 @@ export async function verifyAuthToken(
     console.error('[Verify Auth Token Error]:', error);
     return res.status(401).json({ error: 'Não autorizado: Token inválido ou expirado' });
   }
+}
+
+/**
+ * Rotas públicas que aceitam visitante sem login: identifica o usuário quando há token. Token
+ * presente e inválido continua sendo recusado, para não contar um usuário como anônimo por engano.
+ */
+export async function identifyUserIfPresent(
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) {
+  if (!extractBearerToken(req.headers.authorization)) {
+    return next();
+  }
+  return verifyAuthToken(req, res, next);
 }
 
 export async function verifyAdminToken(

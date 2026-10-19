@@ -2,7 +2,7 @@ import { ChevronLeft, RefreshCw, ShieldAlert } from 'lucide-react';
 import { useEffect } from 'react';
 import { useAuthContext } from '../../auth/context/AuthContext';
 import { UserRole } from '../../auth/types/auth';
-import { AdminPanel } from './AdminPanel';
+import { AdminPanel, type AdminPanelProps } from './AdminPanel';
 import { useLocalizedRouting } from '../../../shared/hooks/useLocalizedRouting';
 
 function RestrictedAdminAccess() {
@@ -12,12 +12,8 @@ function RestrictedAdminAccess() {
       <div className="w-20 h-20 rounded-full bg-rose-500/10 flex items-center justify-center text-rose-500 mb-6 border border-rose-500/20">
         <ShieldAlert size={32} />
       </div>
-      <h2 className="text-2xl font-display font-extrabold mb-2 text-white">
-        Acesso Restrito
-      </h2>
-      <p className="text-white/50 mb-8 max-w-xs">
-        Este portal é exclusivo para administradores.
-      </p>
+      <h2 className="text-2xl font-display font-extrabold mb-2 text-white">Acesso Restrito</h2>
+      <p className="text-white/50 mb-8 max-w-xs">Este portal é exclusivo para administradores.</p>
       <button
         type="button"
         onClick={() => goTo('explore')}
@@ -32,7 +28,7 @@ function RestrictedAdminAccess() {
   );
 }
 
-export function AdminDispatcher() {
+export function AdminDispatcher(slots: AdminPanelProps = {}) {
   const { goTo } = useLocalizedRouting();
   const { user, loading } = useAuthContext();
 
@@ -45,10 +41,7 @@ export function AdminDispatcher() {
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#020508]">
-        <RefreshCw
-          className="animate-spin text-teal-500 mb-4"
-          size={32}
-        />
+        <RefreshCw className="animate-spin text-teal-500 mb-4" size={32} />
         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">
           Verificando Credenciais...
         </p>
@@ -64,5 +57,5 @@ export function AdminDispatcher() {
     return <RestrictedAdminAccess />;
   }
 
-  return <AdminPanel />;
+  return <AdminPanel {...slots} />;
 }

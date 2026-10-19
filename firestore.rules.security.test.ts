@@ -142,11 +142,14 @@ describe('Firestore Rules — Security Suite', () => {
         status: 'approved',
       });
 
-      await db.doc('interactions/inter-1').set({
+      await db.doc('interactionStats/items_item-1_2026-10-19').set({
         itemId: 'item-1',
         itemCollection: 'items',
-        type: 'view',
+        day: '2026-10-19',
+        viewsSignedIn: 1,
       });
+
+      await db.doc('interactionGuards/guard-1').set({ expiresAt: new Date() });
 
       await db.doc('favorites/fav-1').set({
         userId: 'user-1',
@@ -247,25 +250,31 @@ describe('Firestore Rules — Security Suite', () => {
       await assertFails(setDoc(doc(db, 'partnerSubscriptions/partner-1'), { status: 'active' }));
     });
 
-    it('admin with admin=true claim → interactions and partners read allowed', async () => {
+    it('admin with admin=true claim → partners read allowed', async () => {
       const db = testEnv
         .authenticatedContext('admin-user', { admin: true })
         .firestore();
-      await assertSucceeds(getDoc(doc(db, 'interactions/inter-1')));
       await assertSucceeds(getDoc(doc(db, 'partners/partner-1')));
     });
 
-    it('fake admin with admin=false and role=admin → interactions and partners read denied', async () => {
+    it('fake admin with admin=false and role=admin → partners read denied', async () => {
       const fakeAdminDb = testEnv
         .authenticatedContext('user-1', { admin: false, role: 'admin' })
         .firestore();
-      await assertFails(getDoc(doc(fakeAdminDb, 'interactions/inter-1')));
       await assertFails(getDoc(doc(fakeAdminDb, 'partners/partner-1')));
     });
 
-    it('non-admin → interactions read denied', async () => {
-      const db = testEnv.authenticatedContext('user-1').firestore();
-      await assertFails(getDoc(doc(db, 'interactions/inter-1')));
+    it('insights → interactionStats e interactionGuards negados até para admin', async () => {
+      const adminDb = testEnv.authenticatedContext('admin-user', { admin: true }).firestore();
+      const ownerDb = testEnv.authenticatedContext('partner-1').firestore();
+      const anonDb = testEnv.unauthenticatedContext().firestore();
+      for (const db of [adminDb, ownerDb, anonDb]) {
+        await assertFails(getDoc(doc(db, 'interactionStats/items_item-1_2026-10-19')));
+        await assertFails(getDoc(doc(db, 'interactionGuards/guard-1')));
+        await assertFails(
+          setDoc(doc(db, 'interactionStats/items_item-1_2026-10-19'), { viewsAnonymous: 999 })
+        );
+      }
     });
   });
 
@@ -336,11 +345,13 @@ describe('Firestore Rules — Security Suite', () => {
       await assertFails(deleteDoc(doc(db, 'transactions/tx-1')));
     });
 
-    it('client → interactions write negado', async () => {
+    it('client → interactionStats e interactionGuards write negado', async () => {
       const db = testEnv.authenticatedContext('user-1').firestore();
-      await assertFails(setDoc(doc(db, 'interactions/inter-new'), { type: 'view' }));
-      await assertFails(updateDoc(doc(db, 'interactions/inter-1'), { type: 'share' }));
-      await assertFails(deleteDoc(doc(db, 'interactions/inter-1')));
+      const statPath = 'interactionStats/items_item-1_2026-10-19';
+      await assertFails(updateDoc(doc(db, statPath), { viewsSignedIn: 999 }));
+      await assertFails(deleteDoc(doc(db, statPath)));
+      await assertFails(setDoc(doc(db, 'interactionGuards/guard-new'), { expiresAt: new Date() }));
+      await assertFails(deleteDoc(doc(db, 'interactionGuards/guard-1')));
     });
 
     it('client → favorites write negado', async () => {

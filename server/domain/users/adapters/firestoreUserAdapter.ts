@@ -1,6 +1,6 @@
 import { UserPort } from '../ports/userPort';
 import { UserProfileDto, toUserProfileDto } from '../dtos/userDto';
-import { UpdateUserProfileInput } from '../schemas/userSchema';
+import { UpdateUserPreferencesInput, UpdateUserProfileInput } from '../schemas/userSchema';
 import { adminDb, adminAuth, adminStorage } from '../../../infrastructure/firebase/adminClient';
 import { FieldValue } from 'firebase-admin/firestore';
 
@@ -59,6 +59,16 @@ export class FirestoreUserAdapter implements UserPort {
     return toUserProfileDto(updatedSnap.data(), uid);
   }
 
+  async updateUserPreferences(uid: string, data: UpdateUserPreferencesInput): Promise<void> {
+    await adminDb
+      .collection('users')
+      .doc(uid)
+      .set(
+        { preferredLocale: data.preferredLocale, updatedAt: new Date().toISOString() },
+        { merge: true }
+      );
+  }
+
   async uploadUserPhoto(uid: string, image: Buffer, contentType: string): Promise<string> {
     const bucket = adminStorage.bucket();
     const file = bucket.file(`profiles/${uid}`);
@@ -108,8 +118,9 @@ export class FirestoreUserAdapter implements UserPort {
 
     try {
       await adminAuth.deleteUser(uid);
-    } catch (error: any) {
-      if (error?.code !== 'auth/user-not-found') {
+    } catch (error) {
+      // Exclusão idempotente: a conta pode já ter saído do Firebase Auth numa tentativa anterior.
+      if ((error as { code?: unknown } | null)?.code !== 'auth/user-not-found') {
         throw error;
       }
     }

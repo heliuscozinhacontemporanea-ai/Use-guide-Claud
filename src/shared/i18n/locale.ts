@@ -18,7 +18,8 @@ export function normalizeLocale(value: string | null | undefined): Locale | null
   }
   return null;
 }
-function readPersistedLocale(): Locale | null {
+/** Idioma escolhido pela pessoa (Configurações ou aviso de idioma); `null` se nunca escolheu. */
+export function readSavedLocale(): Locale | null {
   if (typeof window === 'undefined') {
     return null;
   }
@@ -33,14 +34,15 @@ function readBrowserLocales(): string[] {
     return [];
   }
   const languages = Array.isArray(navigator.languages) ? navigator.languages : [];
-  return [...languages, navigator.language].filter(
-    (language): language is string => Boolean(language)
+  return [...languages, navigator.language].filter((language): language is string =>
+    Boolean(language)
   );
 }
-export function resolveInitialLocale(): Locale {
-  const persistedLocale = readPersistedLocale();
-  if (persistedLocale) {
-    return persistedLocale;
+/** Preferência sem olhar a URL: escolha salva → idioma do navegador → pt-BR (decisão D10). */
+export function resolvePreferredLocale(): Locale {
+  const savedLocale = readSavedLocale();
+  if (savedLocale) {
+    return savedLocale;
   }
   for (const candidate of readBrowserLocales()) {
     const locale = normalizeLocale(candidate);
@@ -72,7 +74,6 @@ export function getLocaleDisplayLabel(targetLocale: Locale, currentLocale: Local
         return 'English';
       case 'fr':
         return 'Anglais';
-      case 'pt-BR':
       default:
         return 'Inglês';
     }
@@ -84,7 +85,6 @@ export function getLocaleDisplayLabel(targetLocale: Locale, currentLocale: Local
         return 'Français';
       case 'en':
         return 'French';
-      case 'pt-BR':
       default:
         return 'Francês';
     }
@@ -92,4 +92,3 @@ export function getLocaleDisplayLabel(targetLocale: Locale, currentLocale: Local
 
   return targetLocale;
 }
-

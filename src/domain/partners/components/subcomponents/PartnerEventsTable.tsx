@@ -9,7 +9,8 @@ interface PartnerEventsTableProps {
   loading: boolean;
   onEditEvent: (item: PartnerContentRecord) => void;
   onToggleActive: (eventId: string, currentActiveState: boolean) => Promise<void>;
-  onCreateNew: () => void;
+  onCreateNew?: () => void;
+  onCreateNewEvent?: () => void;
 }
 
 export function PartnerEventsTable({
@@ -18,6 +19,7 @@ export function PartnerEventsTable({
   onEditEvent,
   onToggleActive,
   onCreateNew,
+  onCreateNewEvent,
 }: PartnerEventsTableProps) {
   return (
     <div className="space-y-6">
@@ -27,7 +29,7 @@ export function PartnerEventsTable({
         </h2>
         <button
           type="button"
-          onClick={onCreateNew}
+          onClick={onCreateNew || onCreateNewEvent}
           className="min-h-[44px] px-6 py-4 rounded-2xl text-[11px] font-semibold tracking-wide transition-all flex items-center gap-2 text-black bg-[#00D4FF] shadow-[#00D4FF]/20 shadow-lg cursor-pointer hover:bg-[#3be0ff] focus-visible:ring-2 focus-visible:ring-teal-400/50"
         >
           <Plus size={16} strokeWidth={3} /> Criar Novo

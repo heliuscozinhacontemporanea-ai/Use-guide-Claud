@@ -22,7 +22,7 @@ vi.mock('../../../infrastructure/firebase/adminClient', () => ({
   },
   adminAuth: {
     deleteUser: (uid: string) => mockDeleteUser(uid),
-    updateUser: (uid: string, data: any) => mockUpdateUser(uid, data),
+    updateUser: (uid: string, data: unknown) => mockUpdateUser(uid, data),
   },
   adminStorage: {
     bucket: () => ({
@@ -97,6 +97,7 @@ describe('FirestoreUserAdapter', () => {
         phone: '11999999999',
         photoURL: '',
         role: 'user',
+        preferredLocale: null,
         createdAt: '',
         updatedAt: '',
       });
@@ -149,8 +150,9 @@ describe('FirestoreUserAdapter', () => {
     it('deve ser idempotente quando o usuário já foi excluído do Firebase Auth', async () => {
       mockFileDelete.mockResolvedValueOnce(undefined);
       mockDocDelete.mockResolvedValue(undefined);
-      const notFoundError: any = new Error('User not found');
-      notFoundError.code = 'auth/user-not-found';
+      const notFoundError = Object.assign(new Error('User not found'), {
+        code: 'auth/user-not-found',
+      });
       mockDeleteUser.mockRejectedValueOnce(notFoundError);
 
       await expect(adapter.deleteUserAccount('uid-already-deleted')).resolves.not.toThrow();
@@ -159,8 +161,9 @@ describe('FirestoreUserAdapter', () => {
     it('deve propagar outros erros do Firebase Auth', async () => {
       mockFileDelete.mockResolvedValueOnce(undefined);
       mockDocDelete.mockResolvedValue(undefined);
-      const networkError: any = new Error('Network timeout');
-      networkError.code = 'auth/internal-error';
+      const networkError = Object.assign(new Error('Network timeout'), {
+        code: 'auth/internal-error',
+      });
       mockDeleteUser.mockRejectedValueOnce(networkError);
 
       await expect(adapter.deleteUserAccount('uid-123')).rejects.toThrow('Network timeout');
@@ -177,7 +180,9 @@ describe('FirestoreUserAdapter', () => {
   });
 
   describe('uploadUserPhoto — gravação e propagação de erros', () => {
-    const webpImage = Buffer.from([0x52, 0x49, 0x46, 0x46, 0x00, 0x00, 0x00, 0x00, 0x57, 0x45, 0x42, 0x50]);
+    const webpImage = Buffer.from([
+      0x52, 0x49, 0x46, 0x46, 0x00, 0x00, 0x00, 0x00, 0x57, 0x45, 0x42, 0x50,
+    ]);
 
     it('grava a imagem já processada com o contentType recebido e atualiza Auth e Firestore', async () => {
       mockFileSave.mockResolvedValueOnce(undefined);
@@ -186,7 +191,9 @@ describe('FirestoreUserAdapter', () => {
 
       const url = await adapter.uploadUserPhoto('user-1', webpImage, 'image/webp');
 
-      expect(url).toMatch(/^https:\/\/storage\.googleapis\.com\/test-bucket\/profiles\/user-1\?v=\d+$/);
+      expect(url).toMatch(
+        /^https:\/\/storage\.googleapis\.com\/test-bucket\/profiles\/user-1\?v=\d+$/
+      );
       expect(mockFileSave).toHaveBeenCalledWith(
         webpImage,
         expect.objectContaining({

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { LogIn, RefreshCw, ShieldAlert } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { PartnerPanel, getPartnerProfileUseCase } from '../../domain/partners';
@@ -6,6 +6,7 @@ import type { PartnerProfile, SubscriptionPlan } from '../../domain/partners';
 import { getActiveSubscriptionPlansUseCase } from '../../domain/admin';
 import { UserRole } from '../../domain/auth/types/auth';
 import { useAuthContext } from '../../domain/auth/context/AuthContext';
+import { EventSessionsField } from '../../domain/events';
 import { ReportsView } from '../../domain/insights';
 import { CheckoutModal, isPaidPlanId, PlanSubscriptionCard } from '../../domain/payment';
 import { PartnerBookingsComposition } from './PartnerBookingsComposition';
@@ -13,90 +14,72 @@ import { NotificationBell } from '../../domain/notifications';
 import { PartnerEventTicketingManager } from '../../domain/ticketing';
 import { useLocalizedRouting } from '../../shared/hooks/useLocalizedRouting';
 import { useUI } from '../../shared/stores/useUIStore';
-import { MessagePage } from '../../ui/components/MessagePage';
 
 export function PartnerPortalComposition() {
   const { t } = useTranslation();
-  const { user, loading } = useAuthContext();
-  const { openLoginModal } = useUI();
+  const { user, loading: userLoading } = useAuthContext();
   const { goTo } = useLocalizedRouting();
-
-  const [profile, setProfile] = useState<PartnerProfile | null>(null);
-  const [profileLoading, setProfileLoading] = useState(true);
-  const [profileError, setProfileError] = useState<string | null>(null);
-  const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
-  const [profileVersion, setProfileVersion] = useState(0);
+  const { showToast } = useUI();
+  const [subscriptionPlans, setSubscriptionPlans] = useState<SubscriptionPlan[]>([]);
+  const [partnerProfile, setPartnerProfile] = useState<PartnerProfile | null>(null);
+  const [profileStatus, setProfileStatus] = useState<'loading' | 'active' | 'pending' | 'suspended' | 'none'>('loading');
 
   useEffect(() => {
     let active = true;
-    getActiveSubscriptionPlansUseCase()
-      .then((loadedPlans) => {
+    async function loadData() {
+      if (!user) {
         if (active) {
-          setPlans(loadedPlans as unknown as SubscriptionPlan[]);
+          setProfileStatus('none');
+          setPartnerProfile(null);
         }
-      })
-      .catch((err) => {
-        console.error('[PartnerPortalComposition] Erro ao carregar planos:', err);
-      });
+        return;
+      }
+
+      setProfileStatus('loading');
+      try {
+        const [profile, plans] = await Promise.all([
+          getPartnerProfileUseCase(user.uid),
+          getActiveSubscriptionPlansUseCase(),
+        ]);
+        if (!active) return;
+        setSubscriptionPlans(plans);
+        if (profile) {
+          setPartnerProfile(profile);
+          setProfileStatus((profile.status as any) || 'none');
+        } else {
+          setPartnerProfile(null);
+          setProfileStatus('none');
+        }
+      } catch (err) {
+        console.error('Erro ao carregar perfil do parceiro:', err);
+        if (active) {
+          setProfileStatus('none');
+          showToast('Erro ao carregar dados do parceiro', 'error');
+        }
+      }
+    }
+    loadData();
     return () => {
       active = false;
     };
-  }, []);
+  }, [user, showToast]);
 
-  useEffect(() => {
-    if (loading) {
-      return;
+  const handlePlanPurchased = async () => {
+    if (!user) return;
+    try {
+      const profile = await getPartnerProfileUseCase(user.uid);
+      if (profile) {
+        setPartnerProfile(profile);
+        setProfileStatus((profile.status as any) || 'none');
+      }
+    } catch (err) {
+      console.error('Erro ao atualizar perfil pós-pagamento:', err);
     }
-    if (!user) {
-      setProfileLoading(false);
-      return;
-    }
+  };
 
-    if (user.role !== UserRole.PARTNER) {
-      setProfileError('pages.partnerOnly');
-      setProfileLoading(false);
-      return;
-    }
-
-    let active = true;
-    // Recarga depois da compra de plano: mantém o painel na tela em vez do carregamento inicial.
-    setProfileLoading(profileVersion === 0);
-    setProfileError(null);
-
-    getPartnerProfileUseCase(user.uid)
-      .then((result) => {
-        if (!active) {
-          return;
-        }
-        if (!result) {
-          setProfileError('pages.partnerProfileNotFound');
-          setProfile(null);
-          return;
-        }
-        setProfile(result);
-      })
-      .catch((error: unknown) => {
-        if (!active) {
-          return;
-        }
-        console.error('[PartnerPortalComposition]', error);
-        setProfileError('pages.partnerProfileLoadError');
-        setProfile(null);
-      })
-      .finally(() => {
-        if (active) {
-          setProfileLoading(false);
-        }
-      });
-
-    return () => {
-      active = false;
-    };
-  }, [user, loading, profileVersion]);
-
-  if (loading || profileLoading) {
+  if (userLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#020508]">
+      <div className="min-h-screen flex items-center justify-center bg-slate-950">
         <RefreshCw className="animate-spin text-teal-500" size={32} />
       </div>
     );
@@ -104,64 +87,57 @@ export function PartnerPortalComposition() {
 
   if (!user) {
     return (
-      <MessagePage
-        icon={LogIn}
-        title={t('pages.partnerAreaTitle')}
-        description={t('pages.partnerLoginRequired')}
-        actionLabel={t('pages.signIn')}
-        onAction={openLoginModal}
-      />
+      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-950 p-6 text-center">
+        <div className="w-16 h-16 rounded-3xl bg-teal-500/10 flex items-center justify-center text-teal-400 mb-6">
+          <LogIn size={32} />
+        </div>
+        <h2 className="text-xl font-display font-bold text-white mb-2">Portal do Parceiro</h2>
+        <p className="text-white/50 text-xs mb-8 max-w-xs">
+          Faça login para gerenciar seu estabelecimento, ver métricas e atrair mais clientes.
+        </p>
+        <button
+          onClick={() => goTo('explore')}
+          className="px-8 py-4 rounded-2xl bg-teal-500 text-black font-black uppercase tracking-widest text-[10px]"
+        >
+          Voltar para Home
+        </button>
+      </div>
     );
   }
 
-  if (profile?.status === 'suspended') {
+  if (profileStatus === 'suspended') {
     return (
-      <MessagePage
-        icon={ShieldAlert}
-        title={t('pages.partnerSuspendedTitle')}
-        description={t('pages.partnerSuspended')}
-        actionLabel={t('pages.backHome')}
-        onAction={() => goTo('explore')}
-      />
-    );
-  }
-
-  // O portal esconde o cabeçalho e a navegação; a ação leva de volta ao guia.
-  if (profileError || !profile) {
-    return (
-      <MessagePage
-        icon={ShieldAlert}
-        title={t('pages.partnerAreaTitle')}
-        description={t(profileError ?? 'pages.partnerProfileNotFound')}
-        actionLabel={t('pages.backHome')}
-        onAction={() => goTo('explore')}
-      />
+      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-950 p-6 text-center">
+        <div className="w-16 h-16 rounded-3xl bg-rose-500/10 flex items-center justify-center text-rose-500 mb-6">
+          <ShieldAlert size={32} />
+        </div>
+        <h2 className="text-xl font-display font-bold text-white mb-2">Conta Suspensa</h2>
+        <p className="text-white/50 text-xs mb-8 max-w-xs">
+          O acesso ao portal de parceiros está temporariamente suspenso. Entre em contato com o suporte para mais informações.
+        </p>
+        <button
+          onClick={() => goTo('explore')}
+          className="px-8 py-4 rounded-2xl bg-white/10 text-white font-black uppercase tracking-widest text-[10px]"
+        >
+          Voltar para Home
+        </button>
+      </div>
     );
   }
 
   return (
     <PartnerPanel
-      key={profileVersion}
-      profile={profile}
-      onPlanPurchased={() => setProfileVersion((version) => version + 1)}
-      subscriptionPlans={plans}
-      renderReports={({ partnerId, items, events }) => (
-        <ReportsView partnerId={partnerId} items={items} events={events} />
-      )}
+      profile={partnerProfile ?? undefined}
+      subscriptionPlans={subscriptionPlans}
+      onPlanPurchased={handlePlanPurchased}
+      renderReports={(props) => <ReportsView {...props} />}
       renderNotificationBell={(partnerId) => <NotificationBell partnerId={partnerId} />}
-      renderCheckoutModal={({
-        isOpen,
-        onClose,
-        itemId,
-        itemName,
-        amountMinor,
-        onPaymentSuccess,
-      }) =>
-        isPaidPlanId(itemId) ? (
+      renderCheckoutModal={({ isOpen, onClose, planId, itemName, amountMinor, onPaymentSuccess }) =>
+        isOpen ? (
           <CheckoutModal
             isOpen={isOpen}
             onClose={onClose}
-            planId={itemId}
+            planId={planId as any}
             itemName={itemName}
             amountMinor={amountMinor}
             onPaymentSuccess={onPaymentSuccess}
@@ -173,6 +149,7 @@ export function PartnerPortalComposition() {
       renderEventTicketingManager={(eventListingId) => (
         <PartnerEventTicketingManager eventListingId={eventListingId} />
       )}
+      renderEventSessionsField={(props) => <EventSessionsField {...props} />}
     />
   );
 }
