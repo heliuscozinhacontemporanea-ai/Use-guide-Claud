@@ -683,9 +683,9 @@ Idiomas suportados: **`pt-BR` (padrão e fonte da verdade)**, **`en`**, **`fr`**
 |---|---|---|
 | Biblioteca | `i18next` + `react-i18next` | `src/shared/i18n/config.ts` |
 | Idiomas | `SUPPORTED_LOCALES = ['pt-BR', 'en', 'fr']`, `DEFAULT_LOCALE = 'pt-BR'` | `src/shared/i18n/locale.ts` |
-| Detecção do idioma inicial | 1º `localStorage['useguide.locale']` → 2º `navigator.languages` → 3º `pt-BR` | `resolveInitialLocale()` |
+| Detecção do idioma inicial | 1º idioma da URL (`/en`, `/fr`) → 2º escolha explícita (`users/{uid}.preferredLocale` ou `localStorage['useguide.locale']`) → 3º `navigator.languages` → 4º `pt-BR` (decisão D10) | `resolveInitialLocale()` |
 | Normalização | `pt`, `pt-*` → `pt-BR`; `en-*` → `en`; `fr-*` → `fr`; outros → ignorado | `normalizeLocale()` |
-| Persistência e `<html lang>` | atualizados no evento `languageChanged` | `config.ts` |
+| Persistência e `<html lang>` | o idioma só é gravado quando a pessoa escolhe (Configurações ou aviso de idioma); mudança causada pela URL não é gravada. `<html lang>` acompanha o idioma ativo | `config.ts` |
 | Fallback | `fallbackLng: 'pt-BR'`, `load: 'currentOnly'`, `useSuspense: false` | `config.ts` |
 | Traduções | um único namespace `translation`, os 3 idiomas no mesmo arquivo, tipados por `TranslationResource` | `src/shared/i18n/resources.ts` |
 
@@ -752,7 +752,7 @@ Regras:
 
 ### 12.7. SEO multilíngue
 
-* Cada idioma indexável DEVE ter URL própria (decisão D6): português na raiz, `en` e `fr` em pastas com slugs traduzidos (`/eventos`, `/en/events`, `/fr/evenements`). A fonte única do mapa é `src/shared/i18n/localizedRoutes.ts`, espelhada em `server/shared/kernel/localizedRoutes.ts` com teste de paridade. A URL tem prioridade sobre o idioma salvo no navegador.
+* Cada idioma indexável DEVE ter URL própria (decisão D6): português na raiz, `en` e `fr` em pastas com slugs traduzidos (`/eventos`, `/en/events`, `/fr/evenements`). A fonte única do mapa é `src/shared/i18n/localizedRoutes.ts`, espelhada em `server/shared/kernel/localizedRoutes.ts` com teste de paridade. A URL com prefixo de idioma (`/en`, `/fr`) sempre vale. Na home `/`, quando a preferência (escolha salva → idioma do navegador) não for português, o app redireciona para `/en` ou `/fr` sem criar entrada no histórico; robôs de busca nunca são redirecionados. Nas demais páginas em português, o app mantém o idioma do link e mostra um aviso para trocar ("Esta página está disponível em English — Mudar"); a resposta ao aviso grava a escolha (decisão D10).
 * Obrigatório: `<html lang>`, `<link rel="alternate" hreflang="pt-BR|en|fr|x-default">`, canonical por idioma, `og:locale` e `og:locale:alternate`, sitemap com alternâncias de idioma e JSON-LD com `inLanguage`.
 * O HTML das rotas de conteúdo DEVE passar pelo Cloud Run (`serverSeoService`), com cache na CDN do Hosting (`s-maxage=300`) e `sitemap.xml` dinâmico (decisão D7). A home `/` é servida estática pelo Hosting: seus metadados e `hreflang` ficam no `index.html`.
 
