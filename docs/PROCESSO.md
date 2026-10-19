@@ -80,6 +80,7 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 | 18.2.5 | Correção do lote 12 | `fada927..345ccbb` | ⏳ enviar (lote 13) | — |
 | 18.3.0a | Verificação por estabelecimento, backend (D12) | `3cc54e6` | ⏳ enviar (lote 13) | — |
 | 18.3.0b | Conta do parceiro sem documento nem status pendente (D12, P0) | `46236f5` | ⏳ enviar (lote 13) | — |
+| A4 | AGENTS.md §7.7: débito de `partnerDocumentKeys` resolvido (S13) | `e2651db` | ⏳ enviar (lote 13) | — |
 
 ## Gates
 
