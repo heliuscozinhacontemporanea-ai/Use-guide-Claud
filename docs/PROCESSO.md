@@ -33,6 +33,7 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 
 * **AGENTS.md não é alterado** por nenhum prompt nem pelo Claude sem sua autorização (agora também escrito no §15). Propostas ficam em `docs/arquitetura/solicitacoes-agents.md`.
 * **Sem código legado ou de transição** enquanto o app não for liberado para usuários.
+* **Prompt para o AI Studio tem no máximo 150 KB** (regra de 2026-10-19). Acima disso, é dividido em partes que compilam sozinhas, e cada parte é enviada numa mensagem separada.
 * **Arquivo tocado sai sem avisos do lint e formatado** (regra de 2026-10-19; proposta S10 para o AGENTS.md).
 
 ## Acompanhamento dos prompts
@@ -72,7 +73,7 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 | 18.1 | Inscrição e editor com passeio/translado/aluguel | `1c15de9` | ✅ zip 2026-10-19 (2º) | ✅ igual + ícones de translado e produtor que existem no `StandardCard` (adotado) |
 | 18.2 | Editor único de cadastro (parceiro e admin) + lint dos arquivos tocados | `fbfbfe9` + `c2658aa` | ⏳ enviar (lote 12) | — |
 | A3 | AGENTS.md: arquivo tocado sem avisos do lint (S10 aprovada) | `003cc6e` | ⏳ enviar (lote 12) | — |
-| 18.2.1 | Sessões do evento no editor (parceiro e admin), em duas partes | `ce7f92a` | ⏳ enviar (lote 12) | — |
+| 18.2.1 | Sessões do evento no editor (parceiro e admin) | `ce7f92a` | ⏳ enviar (lote 12) | — |
 
 ## Gates
 

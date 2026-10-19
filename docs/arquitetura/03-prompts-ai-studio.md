@@ -99,7 +99,7 @@
 
 ---
 
-# Lote 12 (Prompts 18.2, A3, 18.2.1a e 18.2.1b) — aplicar sobre o zip de 2026-10-19 (2º)
+# Lote 12 (Prompts 18.2, A3 e 18.2.1) — aplicar sobre o zip de 2026-10-19 (2º)
 
 > O lote 11 chegou igual à referência. O AI Studio também trocou os ícones de translado e produtor por ícones que existem no `StandardCard`; a troca foi adotada, e o 18.2 acrescenta o do aluguel.
 
@@ -107,10 +107,9 @@
 |---|---|---|---|
 | 1 | `prompts/prompt-18.2.md` | Editor único de cadastro: `ListingEditor` no painel do parceiro e no admin (via `AdminPanelComposition`), dicas e eventos no editor do admin; avisos do lint corrigidos nos arquivos tocados | `fbfbfe9` + `c2658aa` |
 | 2 | `prompts/prompt-A3.md` | AGENTS.md §13 e §16.1: arquivo tocado sai sem avisos do lint (S10 aprovada) | `003cc6e` |
-| 3 | `prompts/prompt-18.2.1a.md` | Sessões do evento, parte a: domínio events (`EventSessionsField`, `saveEventSessionsUseCase`) e admin | `ce7f92a` |
-| 4 | `prompts/prompt-18.2.1b.md` | Sessões do evento, parte b: editor de evento do parceiro com datas e capacidade, `PartnerEventForm` dividido | `ce7f92a` |
+| 3 | `prompts/prompt-18.2.1.md` | Sessões do evento no editor (parceiro e admin): `EventSessionsField`, `saveEventSessionsUseCase`, `PartnerEventForm` dividido | `ce7f92a` |
 
-> **Envie um prompt por mensagem**, nesta ordem. O 18.2.1 foi dividido em duas partes porque inteiro passaria de 120 KB (o 18.1, com esse tamanho, foi ignorado no lote 10).
+> **Envie um prompt por mensagem**, nesta ordem.
 
 | Gate | Resultado na referência (`ce7f92a`) |
 |---|---|
