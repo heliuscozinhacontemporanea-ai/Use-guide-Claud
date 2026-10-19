@@ -14,9 +14,11 @@
 | D2 | Planos dos parceiros com Stripe Billing | ✅ Aprovada | 2026-10-09 |
 | D3 | Domínio `bookings` em fases | ✅ Aprovada | 2026-10-09 |
 | D4 | Upload de imagens via backend para Firebase Storage | ✅ Aprovada | 2026-10-09 |
-| D5 | Tradução automática do conteúdo dos parceiros | ⏳ **Em aberto** | — |
+| D5 | Tradução automática do conteúdo (Google Cloud Translation) | ✅ Aprovada | 2026-10-19 |
 | D6 | URLs por idioma | ✅ Aprovada | 2026-10-09 |
 | D7 | SEO em produção via Cloud Run | ✅ Aprovada | 2026-10-09 |
+| D8 | Painel admin: selo, suspensão e planos | ✅ Aprovada | 2026-10-12 |
+| D9 | Parceiros com vários estabelecimentos e novas categorias | ✅ Aprovada | 2026-10-12 |
 
 ---
 
@@ -47,10 +49,17 @@
 * **Processamento:** validação por *magic bytes*, rotação pela orientação EXIF, redimensionamento (máx. 2048 px), conversão para WebP e remoção de todos os metadados (incluindo GPS), com a biblioteca `sharp` (dependência aprovada).
 * **Prompt:** 7.
 
-## D5 — Tradução automática (EM ABERTO)
+## D5 — Tradução automática do conteúdo (2026-10-19)
 
-* Opções: (a) tradução automática com Gemini no backend, marcada como `machine` e editável pelo parceiro; (b) só tradução humana.
-* Até a decisão, o modelo `LocalizedText` (AGENTS.md §12.6) PODE ser preparado, mas nenhuma chamada de tradução automática DEVE ser implementada.
+* **Fornecedor:** Google Cloud Translation, só no backend, atrás de um port (domínio `translation`, folha). Crédito mensal sem custo de 500 mil caracteres; acima disso, US$ 20 por milhão. Conta de serviço do Cloud Run com `roles/cloudtranslate.user` (sem chave nova).
+* **Sem tradução feita à mão** e sem revisão pelo parceiro, por enquanto. Pode entrar quando o app crescer (campo `origin` opcional nas traduções, sem quebrar os dados).
+* **Identificador = hash do texto original** (SHA-256). Quando o parceiro altera um campo, o job traduz só esse campo e grava por cima da versão anterior. Texto igual nunca é traduzido duas vezes.
+* **Edição no idioma escolhido (opção A):** o editor mostra os campos no idioma de Configurações. Salvar um campo em outro idioma faz dele o novo original daquele campo, e as outras versões são traduzidas de novo a partir dele, com aviso antes de salvar. Nome, telefone, endereço, preço, horários e opções fixas são iguais em todos os idiomas.
+* **Tradução em segundo plano:** o salvamento grava o original e um evento na outbox (AGENTS.md §5.6); o job traduz depois. Enquanto não termina, a interface mostra o original com aviso.
+* **Avaliações:** ficam no idioma original. "Ver tradução" sob demanda, **também para visitante sem conta**, com limite de requisições por IP e uid, App Check, só os idiomas suportados e tamanho máximo. O resultado fica num cache indexado por hash e idioma e é reaproveitado para todos os leitores. Excluir avaliação ou conta apaga as entradas desse texto no cache.
+* **Política de cancelamento e termos:** tradução automática com aviso e link para o original, que é o texto que vale.
+* **Texto fixo da interface** (botões, menus, erros, e-mails) não usa a API: continua nos arquivos de tradução.
+* **Depende de:** S11 (novo texto do AGENTS.md §12.6).
 
 ## D6 — URLs por idioma
 
