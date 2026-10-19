@@ -770,6 +770,7 @@ Regras:
 * Cada arquivo tem uma razão para mudar. Componentes que misturam formulário + lista + filtros + métricas DEVEM ser divididos; o container só orquestra.
 * **Um UseCase por arquivo** (`createBookingUseCase.ts`), com o nome do arquivo igual ao da função exportada. É proibido criar arquivo agregador de UseCases; tipos compartilhados entre UseCases ficam em arquivo próprio (ex: `orchestrationActor.ts`).
 * Referência de tamanho: arquivo acima de **~200 linhas** DEVE ser avaliado para divisão; acima de **400** linhas, dividir ao tocar (exceto testes, schemas e mappers declarativos).
+* Arquivo tocado DEVE sair sem avisos do lint (`npx biome lint <arquivo>`) e formatado (`npx biome format --write <arquivo>`). Aviso que não puder ser corrigido sem mudar comportamento recebe `biome-ignore` com justificativa ou vai para `docs/arquitetura/debitos.md`.
 * Hooks com estados não relacionados DEVEM ser divididos em hooks compostos.
 
 ---
@@ -827,7 +828,7 @@ Em qualquer edição: remover comentários "o quê", blocos `@file` e histórico
 
 ```bash
 npm run typecheck   # tsc --noEmit sem erros
-npm run lint        # biome sem erros
+npm run lint        # biome sem erros; arquivos tocados sem avisos (§13)
 npm test            # vitest verde
 npm run build       # build de produção sem erros
 npm run test:rules  # quando firestore.rules mudar (emulador)
