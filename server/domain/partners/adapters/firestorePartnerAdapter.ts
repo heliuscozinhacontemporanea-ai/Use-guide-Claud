@@ -6,7 +6,6 @@ import {
   toPublicPartnerProfileDTO as toPublicPartnerProfile,
 } from '../mappers/partnerMapper';
 import { PartnerPort } from '../ports/partnerPort';
-import { normalizeDocument } from '../services/documentIdentity';
 import type {
   PartnerBusiness,
   PartnerProfileDocument,
@@ -16,27 +15,6 @@ import type {
   PartnerVerificationData,
   RegisterPartnerResult,
 } from '../types/partnerTypes';
-
-function getPersistedDocumentKey(
-  data: Record<string, unknown>
-): string | null {
-  const candidate =
-    typeof data.cpfCnpjClean === 'string' &&
-    data.cpfCnpjClean.trim()
-      ? data.cpfCnpjClean
-      : typeof data.cpfCnpj === 'string' &&
-          data.cpfCnpj.trim()
-        ? data.cpfCnpj
-        : null;
-
-  if (!candidate) {
-    return null;
-  }
-
-  const normalized = normalizeDocument(candidate);
-
-  return normalized || null;
-}
 
 export class FirestorePartnerAdapter implements PartnerPort {
   private async mutatePartnerAtomically(
@@ -101,11 +79,6 @@ export class FirestorePartnerAdapter implements PartnerPort {
     await adminDb.runTransaction(async (transaction) => {
       const snap = await transaction.get(partnerRef);
       if (snap.exists) {
-        const data = (snap.data() || {}) as Record<string, unknown>;
-        const cleanDoc = getPersistedDocumentKey(data);
-        if (cleanDoc) {
-          transaction.delete(adminDb.collection('partnerDocumentKeys').doc(cleanDoc));
-        }
         transaction.delete(partnerRef);
       }
       transaction.delete(publicRef);
@@ -116,76 +89,34 @@ export class FirestorePartnerAdapter implements PartnerPort {
     uid: string,
     data: PartnerRegistrationData
   ): Promise<RegisterPartnerResult> {
-    const cleanDoc = normalizeDocument(data.cpfCnpj);
-    if (!cleanDoc) {
-      throw new PartnerDomainError('INVALID_ARGUMENT', 'CPF/CNPJ é obrigatório');
-    }
     const partnerRef = adminDb.collection('partners').doc(uid);
     const publicRef = adminDb.collection('publicPartners').doc(uid);
     let created = false;
 
     await adminDb.runTransaction(async (transaction) => {
-      const docKeyRef = adminDb.collection('partnerDocumentKeys').doc(cleanDoc);
-      const docKeySnap = await transaction.get(docKeyRef);
-      if (docKeySnap.exists) {
-        const keyData = docKeySnap.data() as { partnerId?: string } | undefined;
-        if (keyData?.partnerId && keyData.partnerId !== uid) {
-          throw new PartnerDomainError('CONFLICT', 'CPF/CNPJ já cadastrado para outro parceiro.');
-        }
-      }
-
       const partnerSnap = await transaction.get(partnerRef);
-      const exists = partnerSnap.exists;
-      created = !exists;
+      created = !partnerSnap.exists;
 
-      transaction.set(docKeyRef, {
-        partnerId: uid,
-        createdAt: FieldValue.serverTimestamp(),
-      });
-
-      if (exists) {
-        const oldData = (partnerSnap.data() || {}) as Record<string, unknown>;
-        const oldDoc = getPersistedDocumentKey(oldData);
-        if (oldDoc && oldDoc !== cleanDoc) {
-          transaction.delete(adminDb.collection('partnerDocumentKeys').doc(oldDoc));
-        }
-
-        const nextData = {
-          ...oldData,
-          cpfCnpjClean: cleanDoc,
-          cpfCnpj: data.cpfCnpj,
-          termsAccepted: data.termsAccepted,
-        };
-
+      if (!created) {
         transaction.update(partnerRef, {
-          cpfCnpjClean: cleanDoc,
-          cpfCnpj: data.cpfCnpj,
           termsAccepted: data.termsAccepted,
           updatedAt: FieldValue.serverTimestamp(),
         });
-
-        transaction.set(publicRef, toPublicPartnerProfile(uid, nextData));
-      } else {
-        const nextData = {
-          businesses: [],
-          cpfCnpjClean: cleanDoc,
-          cpfCnpj: data.cpfCnpj,
-          hasUsedTrial: false,
-          isVerified: false,
-          verificationType: null,
-          verifiedUntil: null,
-          isVerificationSuspended: false,
-          status: 'active',
-          termsAccepted: data.termsAccepted,
-        };
-
-        transaction.set(partnerRef, {
-          ...nextData,
-          createdAt: FieldValue.serverTimestamp(),
-        });
-
-        transaction.set(publicRef, toPublicPartnerProfile(uid, nextData));
+        return;
       }
+
+      const nextData = {
+        businesses: [],
+        hasUsedTrial: false,
+        isVerified: false,
+        verificationType: null,
+        verifiedUntil: null,
+        isVerificationSuspended: false,
+        status: 'active',
+        termsAccepted: data.termsAccepted,
+      };
+      transaction.set(partnerRef, { ...nextData, createdAt: FieldValue.serverTimestamp() });
+      transaction.set(publicRef, toPublicPartnerProfile(uid, nextData));
     });
 
     return { created };

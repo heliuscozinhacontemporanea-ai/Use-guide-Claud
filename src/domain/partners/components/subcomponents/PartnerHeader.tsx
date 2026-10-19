@@ -69,12 +69,12 @@ export function PartnerHeader({
               <div
                 className={cn(
                   'w-2 h-2 rounded-full',
-                  partnerProfile?.status === 'pending' ? 'bg-amber-500' : 'bg-emerald-500'
+                  partnerProfile?.status === 'suspended' ? 'bg-rose-500' : 'bg-emerald-500'
                 )}
                 aria-hidden="true"
               />
               <span className="text-[10px] font-semibold text-white">
-                {partnerProfile?.status === 'pending' ? 'Em análise' : 'Ativo'}
+                {partnerProfile?.status === 'suspended' ? 'Suspensa' : 'Ativa'}
               </span>
             </div>
           </div>

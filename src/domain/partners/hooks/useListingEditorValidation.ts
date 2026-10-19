@@ -18,15 +18,8 @@ function collectErrors(schema: SectionSchema, formData: FormState): ListingEdito
   return errors;
 }
 
-/**
- * Sem CPF/CNPJ no formulário (editor do admin), a identidade é validada só por nome e descrição;
- * o perfil de produtor não tem descrição obrigatória.
- */
 function isIdentityValid(formData: FormState): boolean {
-  if (!formData.category) return false;
-  if (formData.cpfCnpj) return step1Schema.safeParse(formData).success;
-  if (!formData.businessName?.trim()) return false;
-  return formData.category === 'producer' || Boolean(formData.description?.trim());
+  return step1Schema.safeParse(formData).success;
 }
 
 /** Validação do editor de cadastro: as mesmas regras da inscrição, seção por seção. */

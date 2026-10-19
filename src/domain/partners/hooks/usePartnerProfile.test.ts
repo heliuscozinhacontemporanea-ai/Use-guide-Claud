@@ -49,7 +49,6 @@ describe('usePartnerProfile', () => {
     businessName: 'Pousada Sol',
     businessId: 'bus-1',
     businesses: [{ businessId: 'bus-1', businessName: 'Pousada Sol', type: 'item' }],
-    cpfCnpj: '12.345.678/0001-90',
     verificationType: 'annual',
     isVerified: true,
     verifiedUntil: '2026-12-31T23:59:59.000Z',
@@ -129,14 +128,12 @@ describe('usePartnerProfile', () => {
       status: 'active',
     };
 
-    expect((mockPublicPartner as any).cpfCnpj).toBeUndefined();
-    expect((mockPublicPartner as any).verificationType).toBeUndefined();
+    expect(mockPublicPartner).not.toHaveProperty('verificationType');
 
     await act(async () => {
       partnerProfileCallback?.(mockPublicPartner);
     });
 
-    expect(result.current.partnerProfile?.cpfCnpj).toBe('12.345.678/0001-90');
     expect(result.current.partnerProfile?.verificationType).toBe('annual');
     expect(result.current.partnerProfile?.verifiedUntil).toBe('2027-01-01T00:00:00.000Z');
   });

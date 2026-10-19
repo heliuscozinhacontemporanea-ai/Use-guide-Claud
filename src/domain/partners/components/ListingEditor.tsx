@@ -29,8 +29,6 @@ export interface ListingEditorProps {
   /** Categorias que podem ser escolhidas num cadastro novo (padrão: todas as do parceiro). */
   allowedCategoryIds?: string[];
   currentUser: UserSession | null;
-  /** CPF/CNPJ da conta do parceiro; o admin edita sem ele. */
-  cpfCnpj?: string;
   onSave: (input: PartnerContentItemInput, itemId: string | null) => Promise<void>;
   onDelete?: (itemId: string) => Promise<void>;
   onClose: () => void;
@@ -44,14 +42,13 @@ export function ListingEditor({
   item,
   allowedCategoryIds,
   currentUser,
-  cpfCnpj,
   onSave,
   onDelete,
   onClose,
 }: ListingEditorProps) {
   const { showToast } = useUI();
   const [formData, setFormData] = useState<FormState>(() =>
-    item ? mapItemToFormData(item, cpfCnpj) : { ...getEmptyFormData(''), cpfCnpj: cpfCnpj ?? '' }
+    item ? mapItemToFormData(item) : getEmptyFormData('')
   );
   const [isSaving, setIsSaving] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -174,7 +171,6 @@ export function ListingEditor({
                   formData={formData}
                   setFormData={setFormData}
                   categories={categories}
-                  mode="editor"
                   lockCategory={Boolean(item?.id)}
                 />
               </div>

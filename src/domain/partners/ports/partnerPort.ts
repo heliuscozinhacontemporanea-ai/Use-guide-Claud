@@ -1,11 +1,11 @@
-import { PartnerProfile, PartnerRegistrationPayload } from '../types/partner';
+import { PartnerAccountStatus, PartnerProfile, PartnerRegistrationPayload } from '../types/partner';
 
 export interface PartnerPort {
   registerPartner(payload: PartnerRegistrationPayload): Promise<void>;
   activateTrial(partnerId: string): Promise<void>;
   getPartnerProfile(partnerId: string): Promise<PartnerProfile | null>;
   getAllPartners(): Promise<PartnerProfile[]>;
-  updatePartnerStatus(partnerId: string, status: 'active' | 'pending' | 'suspended'): Promise<void>;
+  updatePartnerStatus(partnerId: string, status: PartnerAccountStatus): Promise<void>;
   updatePartnerVerification(partnerId: string, isVerified: boolean): Promise<void>;
   deletePartnerProfile(partnerId: string): Promise<void>;
 }

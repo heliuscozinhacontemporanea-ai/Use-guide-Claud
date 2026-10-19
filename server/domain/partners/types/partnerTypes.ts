@@ -1,4 +1,5 @@
-export type PartnerStatus = 'active' | 'pending' | 'suspended';
+/** A verificação é por estabelecimento (D12); o status da conta só serve para suspensão. */
+export type PartnerStatus = 'active' | 'suspended';
 
 /** `admin`: selo concedido pelo admin, sem plano pago. */
 export type PartnerVerificationType =
@@ -18,7 +19,6 @@ export interface PartnerBusiness {
 }
 
 export interface PartnerRegistrationData {
-  cpfCnpj: string;
   termsAccepted: true;
 }
 
@@ -43,8 +43,6 @@ export interface PartnerTrialState {
 
 export interface PartnerPersistenceDocument {
   id: string;
-  cpfCnpj?: string;
-  cpfCnpjClean?: string;
   status: PartnerStatus;
   businesses: PartnerBusiness[];
   isVerified: boolean;
@@ -59,7 +57,6 @@ export interface PartnerPersistenceDocument {
 
 export interface PartnerProfileDTO {
   id: string;
-  cpfCnpj?: string;
   status: PartnerStatus;
   businesses: PartnerBusiness[];
   isVerified: boolean;

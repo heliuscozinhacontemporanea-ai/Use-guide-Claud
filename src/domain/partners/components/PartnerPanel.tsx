@@ -262,7 +262,6 @@ export function PartnerPanel({
           <ListingEditor
             item={editingListing}
             currentUser={user}
-            cpfCnpj={partnerProfile?.cpfCnpj}
             onSave={async (input, itemId) => {
               if (itemId) {
                 await updatePartnerContentItemUseCase(itemId, input);

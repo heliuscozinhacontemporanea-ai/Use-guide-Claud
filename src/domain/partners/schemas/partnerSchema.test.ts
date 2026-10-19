@@ -1,3 +1,4 @@
+import type { UserSession } from '../../auth';
 import { describe, expect, it } from 'vitest';
 import {
   partnerSubmissionSchema,
@@ -9,58 +10,21 @@ import {
   updatePartnerVerificationSchema,
 } from './partnerSchema';
 
-// Valid CPF with correct checksum: 52998224725 / 529.982.247-25
-// Valid CNPJ with correct checksum: 00000000000191 / 00.000.000/0001-91
-const VALID_TEST_CPF = '529.982.247-25';
-const VALID_TEST_CNPJ = '00.000.000/0001-91';
-const INVALID_TEST_CPF = '111.111.111-11';
-const INVALID_TEST_CNPJ = '12.345.678/0001-00';
-
 describe('Partner Validation Schemas (Frontend)', () => {
-  describe('CPF/CNPJ e Categoria (step1Schema)', () => {
-    it('deve validar hotel com CPF/CNPJ válido (CNPJ)', () => {
+  describe('Categoria e identidade (step1Schema)', () => {
+    it('deve validar hotel com nome e descrição', () => {
       const result = step1Schema.safeParse({
         category: 'hotel',
         businessName: 'Pousada Sol & Mar',
-        cpfCnpj: VALID_TEST_CNPJ,
         description: 'Uma linda pousada em Jericoacoara com vista para o mar.',
       });
       expect(result.success).toBe(true);
-    });
-
-    it('deve validar hotel com CPF/CNPJ válido (CPF)', () => {
-      const result = step1Schema.safeParse({
-        category: 'hotel',
-        businessName: 'Pousada Sol & Mar',
-        cpfCnpj: VALID_TEST_CPF,
-        description: 'Uma linda pousada em Jericoacoara com vista para o mar.',
-      });
-      expect(result.success).toBe(true);
-    });
-
-    it('deve falhar quando CPF/CNPJ for inválido (CPF ou CNPJ com formato/checksum incorreto)', () => {
-      const resultCpf = step1Schema.safeParse({
-        category: 'hotel',
-        businessName: 'Pousada Sol & Mar',
-        cpfCnpj: INVALID_TEST_CPF,
-        description: 'Descrição válida',
-      });
-      expect(resultCpf.success).toBe(false);
-
-      const resultCnpj = step1Schema.safeParse({
-        category: 'hotel',
-        businessName: 'Pousada Sol & Mar',
-        cpfCnpj: INVALID_TEST_CNPJ,
-        description: 'Descrição válida',
-      });
-      expect(resultCnpj.success).toBe(false);
     });
 
     it('deve falhar quando a categoria for vazia', () => {
       const result = step1Schema.safeParse({
         category: '',
         businessName: 'Pousada Sol & Mar',
-        cpfCnpj: VALID_TEST_CNPJ,
         description: 'Descrição válida',
       });
       expect(result.success).toBe(false);
@@ -71,7 +35,6 @@ describe('Partner Validation Schemas (Frontend)', () => {
         const res = step1Schema.safeParse({
           category,
           businessName: 'Empresa Teste',
-          cpfCnpj: VALID_TEST_CPF,
           description: 'Descrição válida do estabelecimento',
         });
         expect(res.success).toBe(true);
@@ -81,14 +44,12 @@ describe('Partner Validation Schemas (Frontend)', () => {
       const resProducer = step1Schema.safeParse({
         category: 'producer',
         businessName: 'Produtora Sol',
-        cpfCnpj: VALID_TEST_CPF,
         description: '',
       });
       expect(resProducer.success).toBe(true);
       const producerWithoutName = step1Schema.safeParse({
         category: 'producer',
         businessName: '',
-        cpfCnpj: VALID_TEST_CPF,
         description: '',
       });
       expect(producerWithoutName.success).toBe(false);
@@ -238,7 +199,7 @@ describe('Partner Validation Schemas (Frontend)', () => {
 
     it('deve permitir cadastro sem senha se houver sessão de usuário existente (currentUser)', () => {
       const schema = step5SchemaContext({
-        currentUser: { uid: 'user_123', email: 'carlos@hotel.com' } as any,
+        currentUser: { uid: 'user_123', email: 'carlos@hotel.com' } as UserSession,
       });
 
       const result = schema.safeParse({
@@ -257,7 +218,6 @@ describe('Partner Validation Schemas (Frontend)', () => {
         category: 'hotel',
         phone: '85988888888',
         termsAccepted: true,
-        cpfCnpj: VALID_TEST_CNPJ,
       });
       expect(result.success).toBe(true);
     });
@@ -268,7 +228,6 @@ describe('Partner Validation Schemas (Frontend)', () => {
         category: 'invalid-cat',
         phone: '85988888888',
         termsAccepted: true,
-        cpfCnpj: VALID_TEST_CNPJ,
       });
       expect(resultCategory.success).toBe(false);
 
@@ -277,9 +236,14 @@ describe('Partner Validation Schemas (Frontend)', () => {
         category: 'hotel',
         phone: '85988888888',
         termsAccepted: false,
-        cpfCnpj: VALID_TEST_CNPJ,
       });
       expect(resultTerms.success).toBe(false);
+    });
+
+    it('updatePartnerStatusSchema recusa o status pendente: a conta só é suspensa (D12)', () => {
+      expect(
+        updatePartnerStatusSchema.safeParse({ partnerId: 'partner-123', status: 'pending' }).success
+      ).toBe(false);
     });
 
     it('deve validar updatePartnerStatusSchema', () => {

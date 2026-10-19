@@ -3,59 +3,27 @@ import { activateTrialSchema, registerPartnerSchema, verifyPartnerSchema } from 
 
 describe('Partner Validation Schemas (Backend)', () => {
   describe('registerPartnerSchema', () => {
-    it('should validate complete partner registration payload with valid CPF', () => {
-      const result = registerPartnerSchema.safeParse({
-        formData: {
-          cpfCnpj: '123.456.789-09',
-          termsAccepted: true,
-        },
-      });
-      expect(result.success).toBe(true);
+    it('aceita só o aceite dos termos: o documento é do estabelecimento (D12)', () => {
+      expect(registerPartnerSchema.safeParse({ formData: { termsAccepted: true } }).success).toBe(
+        true
+      );
     });
 
-    it('should validate partner registration payload with valid numeric CNPJ', () => {
+    it('recusa CPF/CNPJ na conta (campo extra)', () => {
       const result = registerPartnerSchema.safeParse({
-        formData: {
-          cpfCnpj: '00.000.000/0001-91',
-          termsAccepted: true,
-        },
+        formData: { cpfCnpj: '529.982.247-25', termsAccepted: true },
       });
-      expect(result.success).toBe(true);
-    });
-
-    it('should validate partner registration payload with valid alphanumeric CNPJ', () => {
-      const result = registerPartnerSchema.safeParse({
-        formData: {
-          cpfCnpj: '12.ABC.345/01DE-35',
-          termsAccepted: true,
-        },
-      });
-      expect(result.success).toBe(true);
+      expect(result.success).toBe(false);
     });
 
     it('should fail when termsAccepted is false', () => {
-      const result = registerPartnerSchema.safeParse({
-        formData: {
-          cpfCnpj: '123.456.789-09',
-          termsAccepted: false,
-        },
-      });
-      expect(result.success).toBe(false);
-    });
-
-    it('should fail when cpfCnpj is invalid', () => {
-      const result = registerPartnerSchema.safeParse({
-        formData: {
-          cpfCnpj: '123.456.789-00',
-          termsAccepted: true,
-        },
-      });
-      expect(result.success).toBe(false);
+      expect(registerPartnerSchema.safeParse({ formData: { termsAccepted: false } }).success).toBe(
+        false
+      );
     });
 
     it('should fail when formData is missing', () => {
-      const result = registerPartnerSchema.safeParse({});
-      expect(result.success).toBe(false);
+      expect(registerPartnerSchema.safeParse({}).success).toBe(false);
     });
   });
 

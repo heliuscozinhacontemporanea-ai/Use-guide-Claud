@@ -111,9 +111,6 @@ service cloud.firestore {
         );
       allow create, update, delete: if false;
     }
-    match /partnerDocumentKeys/{documentId} {
-      allow read, write: if false;
-    }
     match /publicPartners/{partnerId} {
       allow read: if true;
       allow write: if false;

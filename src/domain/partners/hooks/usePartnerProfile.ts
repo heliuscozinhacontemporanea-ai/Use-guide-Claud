@@ -129,7 +129,6 @@ export function usePartnerProfile(loadedProfile?: PartnerProfile) {
           businessId: firstBusiness?.businessId ?? loadedProfile?.businessId ?? null,
           businessName: firstBusiness?.businessName ?? loadedProfile?.businessName ?? '',
           businesses,
-          cpfCnpj: loadedProfile?.cpfCnpj,
           firstName: userProfileData?.firstName ?? loadedProfile?.firstName ?? '',
           lastName: userProfileData?.lastName ?? loadedProfile?.lastName ?? '',
           email: userProfileData?.email ?? loadedProfile?.email ?? '',

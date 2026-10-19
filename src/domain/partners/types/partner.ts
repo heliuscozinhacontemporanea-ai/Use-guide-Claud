@@ -14,17 +14,20 @@ export type PartnerSignupCategory =
   | 'rental'
   | 'producer';
 
+/** Status da conta só serve para suspensão; a verificação é por estabelecimento (D12). */
+export type PartnerAccountStatus = 'active' | 'suspended';
+
 export interface PublicPartnerProfile {
   id: string;
   businesses: PartnerBusiness[];
   isVerified: boolean;
   verifiedUntil: string | null;
   isVerificationSuspended: boolean;
-  status: 'active' | 'pending' | 'suspended';
+  status: PartnerAccountStatus;
 }
 
+/** A conta não tem documento: CPF/CNPJ é de cada estabelecimento, na verificação (D12). */
 export interface PartnerRegistrationPayload {
-  cpfCnpj: string;
   termsAccepted: true;
 }
 
@@ -44,7 +47,6 @@ export interface PartnerSubmissionData {
   firstName: string;
   lastName: string;
   email: string;
-  cpfCnpj: string;
   childrenAllowed?: boolean | null;
   petsPolicy?: string;
   petsExtraCost?: string;
@@ -98,7 +100,6 @@ export interface PartnerProfile {
   businessId?: string | null;
   businessName: string;
   businesses?: PartnerBusiness[];
-  cpfCnpj?: string;
   phone?: string;
   phoneDdi?: string;
   instagram?: string;
@@ -113,7 +114,7 @@ export interface PartnerProfile {
   verifiedUntil?: string | null;
   verificationType?: PartnerVerificationType;
   hasUsedTrial?: boolean;
-  status?: 'active' | 'pending' | 'suspended';
+  status?: PartnerAccountStatus;
   firstName?: string;
   lastName?: string;
   email?: string;

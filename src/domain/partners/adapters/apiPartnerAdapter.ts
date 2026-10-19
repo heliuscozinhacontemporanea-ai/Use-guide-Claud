@@ -1,6 +1,6 @@
 import { firebaseApiFetch } from '../../../shared/infrastructure/firebase/firebaseApiFetch';
 import { PartnerPort } from '../ports/partnerPort';
-import { PartnerProfile, PartnerRegistrationPayload } from '../types/partner';
+import { PartnerAccountStatus, PartnerProfile, PartnerRegistrationPayload } from '../types/partner';
 
 export class ApiPartnerAdapter implements PartnerPort {
   async registerPartner(payload: PartnerRegistrationPayload): Promise<void> {
@@ -80,10 +80,7 @@ export class ApiPartnerAdapter implements PartnerPort {
     return response.json();
   }
 
-  async updatePartnerStatus(
-    partnerId: string,
-    status: 'active' | 'pending' | 'suspended'
-  ): Promise<void> {
+  async updatePartnerStatus(partnerId: string, status: PartnerAccountStatus): Promise<void> {
     const res = await firebaseApiFetch(
       '/api/partners/status',
       {

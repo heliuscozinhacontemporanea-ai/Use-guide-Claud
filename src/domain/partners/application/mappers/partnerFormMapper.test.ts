@@ -29,24 +29,10 @@ describe('partnerFormMapper', () => {
   };
 
   describe('mapItemToFormData', () => {
-    it('deve mapear item do Guide para FormState preenchendo cpfCnpj com partnerCpfCnpj e sem acessar guideItem.cpfCnpj', () => {
-      const partnerCpfCnpj = '12.345.678/0001-90';
+    it('deve mapear item do Guide para FormState', () => {
+      const formData = mapItemToFormData(mockPartnerRecord);
 
-      const guideItemProxy = new Proxy(
-        { ...mockPartnerRecord } as PartnerContentRecord & { cpfCnpj?: string },
-        {
-          get(target, prop, receiver) {
-            if (prop === 'cpfCnpj') {
-              throw new Error('guideItem.cpfCnpj não deve ser acessado pelo mapper!');
-            }
-            return Reflect.get(target, prop, receiver);
-          },
-        }
-      );
-
-      const formData = mapItemToFormData(guideItemProxy, partnerCpfCnpj);
-
-      expect(formData.cpfCnpj).toBe(partnerCpfCnpj);
+      expect(formData).not.toHaveProperty('cpfCnpj');
       expect(formData.businessName).toBe('Restaurante Mar Aberto');
       expect(formData.category).toBe('restaurant');
       expect(formData.region).toBe('Jericoacoara');
@@ -54,7 +40,7 @@ describe('partnerFormMapper', () => {
     });
 
     it('deve formatar imagens com file === undefined estrito e sem casts', () => {
-      const formData = mapItemToFormData(mockPartnerRecord, '12345678900');
+      const formData = mapItemToFormData(mockPartnerRecord);
 
       expect(formData.images).toHaveLength(2);
       expect(formData.images[0]).toEqual({
@@ -72,7 +58,6 @@ describe('partnerFormMapper', () => {
 
       expect(emptyForm.category).toBe('hotel');
       expect(emptyForm.businessName).toBe('');
-      expect(emptyForm.cpfCnpj).toBe('');
       expect(emptyForm.images).toEqual([]);
       expect(emptyForm.termsAccepted).toBe(true);
     });

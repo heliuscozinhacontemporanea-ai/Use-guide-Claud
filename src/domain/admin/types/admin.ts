@@ -30,7 +30,7 @@ export interface AdminPartnerSummary {
   lastName: string;
   email: string;
   listingsCount: number;
-  status: 'active' | 'pending' | 'suspended';
+  status: 'active' | 'suspended';
   isVerified: boolean;
   verifiedUntil: string | null;
   verificationType: 'trial' | 'monthly' | 'semi-annual' | 'annual' | 'admin' | null;

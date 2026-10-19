@@ -6,7 +6,6 @@ describe('mapPartnerSubmissionToGuideItem', () => {
   const baseData: PartnerSubmissionData = {
     businessName: 'Estabelecimento Teste',
     category: 'hotel',
-    cpfCnpj: '12.345.678/0001-90',
     description: 'Descrição de teste',
     region: 'Jericoacoara',
     address: 'Rua Principal, 100',

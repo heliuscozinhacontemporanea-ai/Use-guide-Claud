@@ -9,7 +9,7 @@ import type {
 } from '../types/partnerTypes';
 
 function toPartnerStatus(value: unknown): PartnerStatus {
-  if (value === 'active' || value === 'pending' || value === 'suspended') {
+  if (value === 'active' || value === 'suspended') {
     return value;
   }
 
@@ -75,7 +75,6 @@ export function toPartnerProfileDTO(id: string, raw: Record<string, unknown>): P
   return {
     id,
     businesses,
-    cpfCnpj: typeof raw.cpfCnpj === 'string' ? raw.cpfCnpj : undefined,
     isVerified: raw.isVerified === true,
     verifiedUntil: toIsoString(raw.verifiedUntil),
     verificationType: toPartnerVerificationType(raw.verificationType),

@@ -4,7 +4,6 @@ export const INITIAL_FORM_DATA: FormState = {
   businessName: '',
   category: '',
   description: '',
-  cpfCnpj: '',
   phone: '',
   phoneDdi: '+55',
   instagram: '',

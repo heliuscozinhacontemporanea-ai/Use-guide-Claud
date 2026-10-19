@@ -151,3 +151,13 @@
 
 **Texto proposto:**
 > A URL com prefixo de idioma (`/en`, `/fr`) sempre vale. Na home `/`, quando a preferência (escolha salva → idioma do navegador) não for português, o app redireciona para `/en` ou `/fr` sem criar entrada no histórico; robôs de busca nunca são redirecionados. Nas demais páginas em português, o app mantém o idioma do link e mostra um aviso para trocar ("Esta página está disponível em English — Mudar"); a resposta ao aviso grava a escolha (decisão D10).
+
+## S13 — §7.7: débito de `partnerDocumentKeys` resolvido (Prompt 18.3.0b)
+
+**Por quê:** o Prompt 18.3.0b tirou o documento da conta do parceiro (D12, P0). `partnerDocumentKeys` e os campos `cpfCnpj`/`cpfCnpjClean` não existem mais; CPF/CNPJ fica só na verificação de cada estabelecimento, cifrado e com índice cego. A frase do §7.7 passou a descrever um débito que não existe.
+
+**Texto atual (§7.7, fim do bloco "Blind index"):**
+> * IDs de documento, caminhos do Storage, URLs e nomes de arquivos NUNCA contêm PII. Débito existente: `partnerDocumentKeys/{cpfCnpjLimpo}` e os campos `cpfCnpj`/`cpfCnpjClean` em `partners` estão em texto puro.
+
+**Texto proposto:**
+> * IDs de documento, caminhos do Storage, URLs e nomes de arquivos NUNCA contêm PII.
