@@ -65,9 +65,10 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 | 17 | Correções urgentes dos painéis | `d8125a7` | ⚠️ zip 2026-10-18 | ❌ só em parte: admin de parceiros, editor de evento (risco de apagar sessões), avisos, relatórios e selo do parceiro na versão antiga → prompt 17.3 |
 | 17.1 | Planos em centavos | `f036c3e` | ⚠️ zip 2026-10-18 | ⚠️ restos do preço em reais, adapter com `price`, data de cobrança sem fuso → prompt 17.3 |
 | 17.2 | Oferta só com Stripe pronto | `5d66eea` | ✅ zip 2026-10-18 | ✅ igual + datas no fuso de Fortaleza no gerenciador de ingressos (fora do escopo, correto, adotado) |
-| 17.3 | Completa o lote 9 | `3fd9a3f` | ⏳ enviar (lote 10) | — |
-| 18 | Vários cadastros, categorias novas, telefone E.164 | `78c9c7d` | ⏳ enviar (lote 10) | — |
-| 18.1 | Inscrição e editor com passeio/translado/aluguel | `82b7084` | ⏳ enviar (lote 10) | — |
+| 17.3 | Completa o lote 9 | `3fd9a3f` | ✅ zip 2026-10-19 | ✅ igual à referência |
+| 18 | Vários cadastros, categorias novas, telefone E.164 | `78c9c7d` | ⚠️ zip 2026-10-19 | ❌ só em parte: conta com categoria (inscrição recusada, perfil não carrega), `whatsappLink`, rótulos; + correção do AI Studio no `guideService` (adotada) → prompt 18.0.1 |
+| 18.0.1 | Completa o 18 | `64b792a` | ⏳ enviar (lote 11) | — |
+| 18.1 | Inscrição e editor com passeio/translado/aluguel | `1c15de9` | ❌ não aplicado no lote 10 → reenviar (lote 11) | — |
 
 ## Gates
 

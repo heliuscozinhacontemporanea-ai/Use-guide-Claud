@@ -68,21 +68,31 @@
 
 ---
 
-# Lote 10 (Prompts 17.3, 18 e 18.1) — aplicar sobre o zip de 2026-10-18
+# Lote 10 (Prompts 17.3, 18 e 18.1) ⚠️ aplicado em parte (zip 2026-10-19) → completado pelo lote 11
 
-> Comparação do zip de 2026-10-18: o 16.1 e o 17.2 vieram corretos; o 17 e o 17.1 vieram só em parte (painel admin de parceiros, editor de eventos, avisos, relatórios, selo do parceiro, restos do preço em reais). O 17.3 devolve esses arquivos ao resultado esperado. A referência foi refeita sobre o zip, então os diffs aplicam direto no código atual do AI Studio.
+---
+
+# Lote 11 (Prompts 18.0.1 e 18.1) — aplicar sobre o zip de 2026-10-19
+
+> Comparação do zip de 2026-10-19:
+> - o 17.3 veio correto;
+> - o 18 veio só em parte: a conta do parceiro voltou a ter categoria, a inscrição é recusada pelo servidor e o perfil do parceiro não carrega;
+> - o 18.1 não foi aplicado.
+>
+> O AI Studio também corrigiu uma falha da referência: o parceiro não podia criar passeio, translado, aluguel nem perfil de produtor. A correção foi adotada, junto com as seções da Explore, os filtros e o menu.
+>
+> **Envie o 18.1 sozinho, numa mensagem separada do 18.0.1.** O prompt é grande (cerca de 120 KB) e, no lote 10, foi ignorado.
 
 | Ordem | Arquivo | Tema | Commit de referência |
 |---|---|---|---|
-| 1 | `prompts/prompt-17.3.md` | Completa o 17 e o 17.1 (admin, editor de evento, avisos, relatórios, selo, planos) | `3fd9a3f` |
-| 2 | `prompts/prompt-18.md` | Conta do parceiro sem categoria, categorias `transfer`/`rental`/`producer`, rotas `/translados` e `/alugueis`, telefone em E.164 (`whatsappLink` → `phone`) | `78c9c7d` |
-| 3 | `prompts/prompt-18.1.md` | Inscrição e editor do parceiro com os campos de passeio, translado e aluguel; editor sem CPF/CNPJ e com categoria travada | `82b7084` |
+| 1 | `prompts/prompt-18.0.1.md` | Completa o 18: conta sem categoria (inscrição e perfil voltam a funcionar), `whatsappLink` removido, rótulos e títulos das categorias, chaves do menu | `64b792a` |
+| 2 | `prompts/prompt-18.1.md` | Inscrição e editor do parceiro com os campos de passeio, translado e aluguel; editor sem CPF/CNPJ e com categoria travada | `1c15de9` |
 
-| Gate | Resultado na referência (`82b7084`) |
+| Gate | Resultado na referência (`1c15de9`) |
 |---|---|
 | `npm run typecheck` | ✅ |
 | `npx biome lint .` | ✅ 0 erros |
-| `npm test` | ✅ 138 arquivos, 784 testes |
+| `npm test` | ✅ 139 arquivos, 786 testes |
 | `npm run build` | ✅ |
 
-**Ação manual depois do 18:** os dados de teste com `whatsappLink` ou com categoria na conta do parceiro podem ser recriados (§2.2 item 8); configure `VITE_SUPPORT_WHATSAPP` (E.164) nos Secrets do AI Studio e no build de produção.
+**Ação manual:** configure `VITE_SUPPORT_WHATSAPP` (E.164) nos Secrets do AI Studio e no build de produção, se ainda não fez.

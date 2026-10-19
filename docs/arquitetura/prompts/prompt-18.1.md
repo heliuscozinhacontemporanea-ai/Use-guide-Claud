@@ -1,6 +1,6 @@
 # Prompt 18.1 — Inscrição e editor do parceiro com passeio, translado e aluguel
 
-> Lote 10, gerado do commit de referência `82b7084` da branch `claude/agents-md-v2`. Aplique depois do Prompt 18. Cole o bloco abaixo no agente do AI Studio, inteiro, de uma vez.
+> Lote 11, gerado do commit de referência `1c15de9` da branch `claude/agents-md-v2`. Aplique depois do Prompt 18.0.1. Cole o bloco abaixo no agente do AI Studio, inteiro, de uma vez.
 
 ---
 
@@ -10,6 +10,8 @@ O formulário de inscrição e o editor do painel passam a ter os campos própri
 
 ~~~~text
 Siga o AGENTS.md. NÃO altere o AGENTS.md. O app ainda não foi liberado para usuários: nenhum código de compatibilidade ou transição (§2.2 item 8).
+
+IMPORTANTE: este prompt NÃO foi aplicado no lote 10. Aplique os diffs abaixo EXATAMENTE, inclusive os arquivos novos em src/domain/partners/components/steps/details/ e src/domain/partners/constants/listingCategories.tsx. Não reescreva os arquivos do seu jeito.
 
 O QUE MUDA:
 1) Step3Details vira despachante por categoria; componentes em src/domain/partners/components/steps/details/ (hotel, restaurante, atração, passeio, translado, aluguel).
@@ -2858,6 +2860,6 @@ export const LISTING_CATEGORIES: ListingCategoryOption[] = [
    checkOutFrom: string;
 
 VERIFICAÇÃO (obrigatória):
-- `npm run typecheck`, `npx biome lint .` (0 erros), `npm test` → 138 arquivos, 784 testes, `npm run build`.
+- `npm run typecheck`, `npx biome lint .` (0 erros), `npm test` → 139 arquivos, 786 testes, `npm run build`.
 Responda no formato do AGENTS.md §16.3.
 ~~~~
