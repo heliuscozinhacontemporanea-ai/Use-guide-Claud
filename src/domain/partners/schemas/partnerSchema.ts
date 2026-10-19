@@ -128,15 +128,20 @@ export const step3Schema = z
       require(Number.isFinite(hours) && hours > 0, 'tourDurationHours', 'Informe a duração');
       require(data.meetingPoint.trim() !== '', 'meetingPoint', 'Informe o ponto de encontro');
     } else if (data.category === 'transfer') {
-      require(data.transferRoutes.some(
-        (route) => route.from.trim() && route.to.trim()
-      ), 'transferRoutes', 'Informe ao menos um trecho com origem e destino');
+      require(
+        data.transferRoutes.some((route) => route.from.trim() && route.to.trim()),
+        'transferRoutes',
+        'Informe ao menos um trecho com origem e destino'
+      );
       require(data.transferVehicles.length > 0, 'transferVehicles', 'Escolha ao menos um veículo');
       require(Number.parseInt(data.maxPassengers, 10) > 0, 'maxPassengers', 'Informe a capacidade');
     } else if (data.category === 'rental') {
       require(data.rentalVehicles.length > 0, 'rentalVehicles', 'Escolha o que é alugado');
-      require(Number.parseInt(data.minRentalHours, 10) >
-        0, 'minRentalHours', 'Informe o período mínimo');
+      require(
+        Number.parseInt(data.minRentalHours, 10) > 0,
+        'minRentalHours',
+        'Informe o período mínimo'
+      );
     }
     if (data.category === 'hotel') {
       if (data.servesBreakfast === null || data.servesBreakfast === undefined) {

@@ -33,7 +33,7 @@ export const CATEGORIES = {
     bgClass: 'bg-sky-500/10',
     borderClass: 'border-sky-500/20',
     badgeClass: 'bg-sky-500/20 text-sky-300 border-sky-500/20',
-    icon: 'Car',
+    icon: 'Compass',
   },
   rental: {
     id: 'rental',
@@ -69,7 +69,7 @@ export const CATEGORIES = {
     bgClass: 'bg-fuchsia-500/10',
     borderClass: 'border-fuchsia-500/20',
     badgeClass: 'bg-fuchsia-500/20 text-fuchsia-300 border-fuchsia-500/20',
-    icon: 'Sparkles',
+    icon: 'Calendar',
   },
   event: {
     id: 'event',

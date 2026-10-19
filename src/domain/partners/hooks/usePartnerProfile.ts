@@ -169,7 +169,6 @@ export function usePartnerProfile(loadedProfile?: PartnerProfile) {
 
         setPartnerProfile(partnerProfileData);
         setProfileStatus('ready');
-
       },
       (error) => {
         handleFirestoreError(error, OperationType.GET, path, user);
@@ -194,7 +193,6 @@ export function usePartnerProfile(loadedProfile?: PartnerProfile) {
     !partnerProfile?.isVerificationSuspended &&
     (!partnerProfile?.verifiedUntil || new Date(partnerProfile.verifiedUntil) > new Date())
   );
-
 
   const isStep1Valid = (): boolean => {
     if (!editorFormData?.category) return false;
