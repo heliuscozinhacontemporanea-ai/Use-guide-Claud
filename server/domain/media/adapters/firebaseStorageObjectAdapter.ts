@@ -19,6 +19,24 @@ export class FirebaseStorageObjectAdapter implements ObjectStoragePort {
     return { path, url };
   }
 
+  async savePrivate(path: string, data: Buffer, contentType: string): Promise<void> {
+    await adminStorage
+      .bucket()
+      .file(path)
+      .save(data, {
+        resumable: false,
+        metadata: { contentType, cacheControl: 'private, no-store' },
+      });
+  }
+
+  async readPrivate(path: string): Promise<{ data: Buffer; contentType: string } | null> {
+    const file = adminStorage.bucket().file(path);
+    const [exists] = await file.exists();
+    if (!exists) return null;
+    const [[data], [metadata]] = await Promise.all([file.download(), file.getMetadata()]);
+    return { data, contentType: String(metadata.contentType ?? 'application/octet-stream') };
+  }
+
   async delete(path: string): Promise<void> {
     await adminStorage.bucket().file(path).delete({ ignoreNotFound: true });
   }

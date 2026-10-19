@@ -1,4 +1,5 @@
 import { getEventListingByIdUseCase } from '../../domain/events';
+import { assertListingCanSellUseCase, ListingVerificationError } from '../../domain/partners';
 import { createPaymentForTicketOrderUseCase } from '../../domain/payment';
 import {
   confirmTicketOrderPaymentUseCase,
@@ -77,6 +78,19 @@ export async function createTicketOrderPaymentIntentApplicationUseCase(
       'FORBIDDEN',
       'Este organizador não está vendendo ingressos no momento.'
     );
+  }
+
+  // Ingresso pago só de evento cujo estabelecimento ou perfil de produtor foi verificado (D12).
+  try {
+    await assertListingCanSellUseCase(listing.establishmentId ?? '');
+  } catch (error) {
+    if (error instanceof ListingVerificationError) {
+      throw new TicketingDomainError(
+        'UNPROCESSABLE_ENTITY',
+        'Este organizador ainda não está liberado para vender ingressos.'
+      );
+    }
+    throw error;
   }
 
   const paymentResult = await createPaymentForTicketOrderUseCase({

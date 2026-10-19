@@ -149,6 +149,16 @@ service cloud.firestore {
     match /paymentTransactions/{transactionId} {
       allow read, write: if false;
     }
+    // Verificação dos estabelecimentos (D12): documento cifrado e arquivos privados, só pelo backend.
+    match /listingVerifications/{itemId} {
+      allow read, write: if false;
+    }
+    match /verificationDocuments/{documentIndex} {
+      allow read, write: if false;
+    }
+    match /verificationOwners/{ownerId} {
+      allow read, write: if false;
+    }
     // Métricas lidas só pela API (dono do item ou admin); as guardas de deduplicação nunca saem do backend.
     match /interactionStats/{statId} {
       allow read, write: if false;

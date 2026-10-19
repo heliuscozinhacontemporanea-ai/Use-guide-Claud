@@ -5,12 +5,13 @@ import {
   BookingDomainError,
   setBookableOfferStatusUseCase,
 } from '../../../domain/bookings';
+import { assertListingCanSellUseCase } from '../../../domain/partners';
 import { assertPartnerReadyForPaidEventUseCase } from '../../../domain/payment';
 import { isPartnerSuspended } from '../isPartnerSuspended';
 
 /**
- * Publicar exige parceiro ativo e conta Stripe pronta para vender (decisão D8): sem isso o turista
- * veria uma oferta pública cujo pagamento falha.
+ * Publicar exige parceiro ativo, estabelecimento verificado com CNPJ (D12) e conta Stripe pronta para
+ * vender (D8): sem isso o turista veria uma oferta pública cujo pagamento falha.
  */
 export async function setBookableOfferStatusApplicationUseCase(
   actor: BookingActor,
@@ -24,6 +25,7 @@ export async function setBookableOfferStatusApplicationUseCase(
         'Conta de parceiro suspensa: não é possível publicar ofertas.'
       );
     }
+    await assertListingCanSellUseCase(offer.guideItemId);
     await assertPartnerReadyForPaidEventUseCase(offer.partnerId);
   });
 }
