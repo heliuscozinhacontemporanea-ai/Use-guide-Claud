@@ -1,32 +1,25 @@
 import { BarChart3, RefreshCw, Trash2, X } from 'lucide-react';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { AnimatePresence, motion } from 'motion/react';
-import React, { useEffect, useRef } from 'react';
-import { FormProvider, useForm, type Resolver } from 'react-hook-form';
+import React, { useRef } from 'react';
 import { Z_INDEX } from '../../../shared/constants/zIndex';
 
 // Componentes estruturais e utilitários da UI
 import { BackgroundBlobs } from '../../../ui/components/BackgroundBlobs';
-import { PhoneInputFieldRef } from '../../../ui/components/PhoneInputField';
-import { INITIAL_FORM_DATA } from '../constants/formDefaults';
-import { getEmptyFormData, usePartnerPanelActions } from '../hooks/usePartnerPanelActions';
-import { partnerSubmissionSchema } from '../schemas/partnerSchema';
+import { createPartnerContentItemUseCase } from '../application/usecases/createPartnerContentItemUseCase';
+import { deletePartnerContentItemUseCase } from '../application/usecases/deletePartnerContentItemUseCase';
+import { updatePartnerContentItemUseCase } from '../application/usecases/updatePartnerContentItemUseCase';
+import { useEditorScrollLock } from '../hooks/useEditorScrollLock';
+import { usePartnerPanelActions } from '../hooks/usePartnerPanelActions';
 import { PartnerProfile, SubscriptionPlan } from '../types/partner';
 import type { PartnerContentRecord } from '../types/partnerContent';
-import type { FormState } from '../types/partsForm';
+import { ListingEditor } from './ListingEditor';
 import { PartnerEventForm } from './PartnerEventForm';
-import { Step1CompanyInfo } from './steps/Step1CompanyInfo';
-import { Step2ContactInfo } from './steps/Step2ContactInfo';
-import { Step3Details } from './steps/Step3Details';
-import { Step4Additional } from './steps/Step4Additional';
-import { Step5Media } from './steps/Step5Media';
 import { PartnerEventsTable } from './subcomponents/PartnerEventsTable';
 import { PartnerHeader } from './subcomponents/PartnerHeader';
 import { PartnerItemsTable } from './subcomponents/PartnerItemsTable';
 import { PartnerTabsNavigation } from './subcomponents/PartnerTabsNavigation';
 import { PlansModal } from './subcomponents/PlansModal';
 import { useLocalizedRouting } from '../../../shared/hooks/useLocalizedRouting';
-import { LISTING_CATEGORIES } from '../constants/listingCategories';
 
 export interface PartnerPanelProps {
   profile?: PartnerProfile;
@@ -80,11 +73,6 @@ export function PartnerPanel({
     isUploading,
     showDeleteConfirm,
     setShowDeleteConfirm,
-    setCurrentStep,
-    editorFormData,
-    setEditorFormData,
-    errors,
-    setErrors,
     dataLoading,
     isVerified,
     itemsList,
@@ -93,9 +81,13 @@ export function PartnerPanel({
     handleToggleActive,
     handleImageUpload,
     handleSaveEvent,
-    handleSaveItem,
-    handleEditItem,
   } = usePartnerPanelActions(profile);
+
+  // `null` abre o editor para um cadastro novo; `undefined` mantém fechado.
+  const [editingListing, setEditingListing] = React.useState<
+    PartnerContentRecord | null | undefined
+  >(undefined);
+  useEditorScrollLock(Boolean(isEditing));
 
   const [showPlansModal, setShowPlansModal] = React.useState(false);
   const [showCheckoutModal, setShowCheckoutModal] = React.useState(false);
@@ -117,54 +109,6 @@ export function PartnerPanel({
       onPlanPurchased?.();
     }
   };
-
-  const phoneRef = useRef<PhoneInputFieldRef | null>(null);
-  const fileInputRefForEditor = useRef<HTMLInputElement | null>(null);
-
-  const editorMethods = useForm<FormState>({
-    resolver: zodResolver(partnerSubmissionSchema) as unknown as Resolver<FormState>,
-    defaultValues: INITIAL_FORM_DATA,
-    mode: 'onChange',
-  });
-
-  useEffect(() => {
-    if (editorFormData) {
-      editorMethods.reset(editorFormData, { keepDefaultValues: true });
-    }
-  }, [editorFormData, editorMethods]);
-
-  // Efeito estratégico para bloquear scroll do body e corrigir deslocamento de cabeçalho no mobile devido ao teclado
-  React.useEffect(() => {
-    if (isEditing) {
-      const originalStyle = window.getComputedStyle(document.body).overflow;
-      document.body.style.overflow = 'hidden';
-
-      const handleFocusOut = () => {
-        setTimeout(() => {
-          const activeEl = document.activeElement;
-          if (
-            activeEl &&
-            (activeEl.tagName === 'INPUT' ||
-              activeEl.tagName === 'TEXTAREA' ||
-              activeEl.getAttribute('contenteditable') === 'true')
-          ) {
-            return;
-          }
-          window.scrollTo({ top: 0, behavior: 'instant' });
-        }, 120);
-      };
-
-      document.addEventListener('focusout', handleFocusOut);
-
-      return () => {
-        document.body.style.overflow = originalStyle;
-        document.removeEventListener('focusout', handleFocusOut);
-        window.scrollTo({ top: 0, behavior: 'instant' });
-      };
-    }
-  }, [isEditing]);
-
-  const categories = LISTING_CATEGORIES;
 
   if (userLoading || profileStatus === 'loading') {
     return (
@@ -196,7 +140,7 @@ export function PartnerPanel({
       <BackgroundBlobs />
 
       <div
-        className={`max-w-4xl mx-auto space-y-8 relative z-10 transition-all duration-300 ${isEditing ? 'opacity-0 scale-[0.98] pointer-events-none h-0 overflow-hidden' : 'opacity-100 scale-100'}`}
+        className={`max-w-4xl mx-auto space-y-8 relative z-10 transition-all duration-300 ${isEditing || editingListing !== undefined ? 'opacity-0 scale-[0.98] pointer-events-none h-0 overflow-hidden' : 'opacity-100 scale-100'}`}
       >
         <PartnerHeader
           partnerProfile={partnerProfile}
@@ -242,21 +186,9 @@ export function PartnerPanel({
             <PartnerItemsTable
               itemsList={itemsList}
               loading={dataLoading}
-              onEditItem={(item) => handleEditItem(item)}
+              onEditItem={(item) => setEditingListing(item)}
               onToggleActive={handleToggleActive}
-              onCreateNew={() => {
-                const emptyForm = getEmptyFormData('');
-                setEditorFormData(emptyForm);
-                setCurrentStep(1);
-                setIsEditing({
-                  id: '',
-                  name: '',
-                  description: '',
-                  category: '',
-                  image: '',
-                  location: '',
-                });
-              }}
+              onCreateNew={() => setEditingListing(null)}
             />
             {renderBookableOffersManager?.(
               itemsList.map((item) => ({ id: item.id, name: item.name, category: item.category }))
@@ -364,155 +296,28 @@ export function PartnerPanel({
             </motion.div>
           </motion.div>
         )}
+      </AnimatePresence>
 
-        {isEditing && isEditing.category !== 'event' && editorFormData && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={(e) => {
-              if (e.target === e.currentTarget) {
-                setIsEditing(null);
-                setEditorFormData(null);
+      <AnimatePresence>
+        {editingListing !== undefined && (
+          <ListingEditor
+            item={editingListing}
+            currentUser={user}
+            cpfCnpj={partnerProfile?.cpfCnpj}
+            onSave={async (input, itemId) => {
+              if (itemId) {
+                await updatePartnerContentItemUseCase(itemId, input);
+              } else {
+                await createPartnerContentItemUseCase(input);
               }
             }}
-            style={{ zIndex: Z_INDEX.modal }}
-            className="fixed inset-0 flex overflow-y-auto no-scrollbar justify-center items-start pt-[7.5vh] pb-[7.5vh] px-4 bg-black/5 backdrop-blur-xl animate-fade-in"
-          >
-            <motion.div
-              initial={{ scale: 0.95, y: 15, opacity: 0 }}
-              animate={{ scale: 1, y: 0, opacity: 1 }}
-              exit={{ scale: 0.95, y: 15, opacity: 0 }}
-              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-              style={{ height: 'calc(85vh - env(safe-area-inset-bottom))' }}
-              className="w-full max-w-2xl glassmorphism-vibrant bg-white/10 backdrop-blur-3xl rounded-[2.5rem] border border-white/10 overflow-hidden flex flex-col shadow-2xl relative z-10"
-            >
-              <div className="p-8 pb-4 flex items-center justify-between flex-shrink-0">
-                <div>
-                  <h3 className="text-xl font-display font-black text-white tracking-tight">
-                    {isEditing.id ? 'Editar Estabelecimento' : 'Novo Estabelecimento'}
-                  </h3>
-                  <p className="text-[10px] text-white/50 font-medium tracking-wide uppercase mt-0.5">
-                    Ficha Única de Cadastro •{' '}
-                    {categories.find((c) => c.id === editorFormData.category)?.label ||
-                      'Selecione uma Categoria'}
-                  </p>
-                </div>
-                <button
-                  onClick={() => {
-                    setIsEditing(null);
-                    setEditorFormData(null);
-                  }}
-                  className="p-3 bg-white/5 rounded-2xl text-white/50 hover:bg-white/10 transition-colors"
-                >
-                  <X size={24} />
-                </button>
-              </div>
-
-              <FormProvider {...editorMethods}>
-                <div className="flex-1 overflow-y-auto px-8 py-10 space-y-12 no-scrollbar scroll-smooth">
-                  <div className="space-y-6">
-                    <Step1CompanyInfo
-                      formData={editorFormData}
-                      setFormData={setEditorFormData}
-                      categories={categories}
-                      mode="editor"
-                      lockCategory={Boolean(isEditing?.id)}
-                    />
-                  </div>
-
-                  {editorFormData.category && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.4 }}
-                      className="space-y-12"
-                    >
-                      <div className="space-y-6">
-                        <Step2ContactInfo
-                          formData={editorFormData}
-                          setFormData={setEditorFormData}
-                          errors={errors}
-                          setErrors={setErrors}
-                          phoneRef={phoneRef}
-                          categories={categories}
-                        />
-                      </div>
-
-                      <div className="space-y-6">
-                        <Step3Details
-                          formData={editorFormData}
-                          setFormData={setEditorFormData}
-                          errors={errors}
-                          setErrors={setErrors}
-                          categories={categories}
-                        />
-                      </div>
-
-                      <div className="space-y-6">
-                        <Step4Additional
-                          formData={editorFormData}
-                          setFormData={setEditorFormData}
-                          errors={errors}
-                          setErrors={setErrors}
-                          categories={categories}
-                        />
-                      </div>
-
-                      <div className="space-y-6">
-                        <Step5Media
-                          formData={editorFormData}
-                          setFormData={setEditorFormData}
-                          currentUser={user}
-                          categories={categories}
-                          setCurrentStep={() => {}}
-                          fileInputRef={fileInputRefForEditor}
-                          hideReview={true}
-                        />
-                      </div>
-                    </motion.div>
-                  )}
-                </div>
-              </FormProvider>
-
-              {editorFormData.category && (
-                <div className="p-8 border-t border-white/5 flex flex-row items-center gap-4 w-full flex-shrink-0">
-                  <button
-                    type="button"
-                    disabled={isLoading}
-                    onClick={async () => {
-                      await handleSaveItem(() => phoneRef.current?.validate() ?? true);
-                    }}
-                    className={`py-4 rounded-2xl font-semibold tracking-wide text-[12px] active:scale-95 transition-all shadow-xl flex items-center justify-center gap-2 ${
-                      isEditing.id ? 'flex-1' : 'w-full'
-                    } bg-teal-500 text-black shadow-teal-500/20 ${
-                      isLoading
-                        ? 'cursor-not-allowed opacity-80'
-                        : 'hover:scale-[1.02] cursor-pointer'
-                    }`}
-                  >
-                    {isLoading && <RefreshCw className="animate-spin" size={16} />}
-                    Salvar
-                  </button>
-
-                  {isEditing.id && (
-                    <button
-                      type="button"
-                      onClick={() => setShowDeleteConfirm(true)}
-                      disabled={isLoading}
-                      className="py-4 px-4 aspect-square bg-rose-500/10 text-rose-500 border border-rose-500/20 rounded-2xl flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all flex-shrink-0"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  )}
-                </div>
-              )}
-            </motion.div>
-          </motion.div>
+            onDelete={deletePartnerContentItemUseCase}
+            onClose={() => setEditingListing(undefined)}
+          />
         )}
       </AnimatePresence>
 
-      {/* Delete Confirmation Overlay */}
+      {/* Confirmação de exclusão de evento */}
       <AnimatePresence>
         {showDeleteConfirm && (
           <motion.div
@@ -532,9 +337,9 @@ export function PartnerPanel({
                 <Trash2 size={32} />
               </div>
               <div>
-                <h3 className="text-lg font-display font-black text-white">Excluir Item?</h3>
+                <h3 className="text-lg font-display font-black text-white">Excluir evento?</h3>
                 <p className="text-white/50 text-xs mt-2 leading-relaxed">
-                  Esta ação não poderá ser desfeita. Deseja realmente remover este item?
+                  Esta ação não poderá ser desfeita. Deseja realmente remover este evento?
                 </p>
               </div>
               <div className="flex flex-col gap-3">

@@ -18,6 +18,8 @@ interface AdminItemGridProps {
   filteredItems: GuideItem[];
   dataLoading: boolean;
   onInitNew: () => void;
+  /** Dicas usam o editor do admin; o botão principal abre o editor de cadastro. */
+  onInitNewTip?: () => void;
   onEdit: (item: GuideItem) => void;
   onDelete: (coll: string, id: string) => Promise<void>;
 }
@@ -30,6 +32,7 @@ export function AdminItemGrid({
   filteredItems,
   dataLoading,
   onInitNew,
+  onInitNewTip,
   onEdit,
   onDelete,
 }: AdminItemGridProps) {
@@ -44,6 +47,17 @@ export function AdminItemGrid({
         </h2>
 
         <div className="flex items-center gap-3">
+          {onInitNewTip && (
+            <button
+              type="button"
+              onClick={onInitNewTip}
+              className="min-h-[44px] flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all active:scale-95 bg-white/5 border border-white/10 text-white/70 hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-teal-400/50"
+              id="btn-add-new-tip"
+            >
+              <Plus size={16} strokeWidth={3} aria-hidden="true" />
+              Nova dica
+            </button>
+          )}
           <button
             type="button"
             onClick={onInitNew}

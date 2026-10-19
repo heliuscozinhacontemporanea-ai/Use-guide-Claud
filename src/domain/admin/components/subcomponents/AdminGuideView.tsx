@@ -19,6 +19,7 @@ interface AdminGuideViewProps {
   dataError: string | null;
   onRetry: () => void;
   onInitNew: () => void;
+  onInitNewTip?: () => void;
   onEdit: (item: GuideItem) => void;
   onDelete: (coll: string, id: string) => Promise<void>;
 }
@@ -33,6 +34,7 @@ export function AdminGuideView({
   dataError,
   onRetry,
   onInitNew,
+  onInitNewTip,
   onEdit,
   onDelete,
 }: AdminGuideViewProps) {
@@ -53,6 +55,7 @@ export function AdminGuideView({
       filteredItems={filteredItems}
       dataLoading={dataLoading}
       onInitNew={onInitNew}
+      onInitNewTip={onInitNewTip}
       onEdit={onEdit}
       onDelete={onDelete}
     />

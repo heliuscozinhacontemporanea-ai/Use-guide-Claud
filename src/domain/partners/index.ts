@@ -12,6 +12,7 @@ export { getPartnerProfileUseCase } from './application/usecases/getPartnerProfi
 export { subscribeToPartnerProfileUseCase } from './application/usecases/subscribeToPartnerProfileUseCase';
 export { updatePartnerStatusUseCase } from './application/usecases/updatePartnerStatusUseCase';
 export { updatePartnerVerificationUseCase } from './application/usecases/updatePartnerVerificationUseCase';
+export { ListingEditor, type ListingEditorProps } from './components/ListingEditor';
 export { PartnerEventForm } from './components/PartnerEventForm';
 export {
   LanguagesForm,
@@ -25,7 +26,6 @@ export { PartnersModal } from './components/PartnersModal';
 export { mapPartnerRegistrationPayload, usePartnerForm } from './hooks/usePartnerForm';
 export { usePartnerContentActions } from './hooks/usePartnerContentActions';
 export { usePartnerContentCatalog } from './hooks/usePartnerContentCatalog';
-export { usePartnerContentEditor } from './hooks/usePartnerContentEditor';
 export { usePartnerContentMedia } from './hooks/usePartnerContentMedia';
 export { usePartnerItems } from './hooks/usePartnerItems';
 export { usePartnerLayoutState } from './hooks/usePartnerLayoutState';
@@ -50,5 +50,6 @@ export type {
 export type {
   PartnerContentEventInput,
   PartnerContentItemInput,
+  PartnerContentRecord,
 } from './types/partnerContent';
 export type { FormState, OperatingDay, PartnerImage } from './types/partsForm';

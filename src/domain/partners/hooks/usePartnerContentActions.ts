@@ -1,24 +1,16 @@
 import { useCallback } from 'react';
 import { useUI } from '../../../shared/stores/useUIStore';
 import type { UserSession } from '../../auth';
-import { getImageUploadErrorMessage, uploadImageUseCase } from '../../media';
 import {
   createPartnerContentEventUseCase,
-  createPartnerContentItemUseCase,
   deletePartnerContentEventUseCase,
   deletePartnerContentItemUseCase,
   updatePartnerContentEventUseCase,
   updatePartnerContentItemUseCase,
 } from '../index';
-import { mapPartnerSubmissionToGuideItem } from '../application/mappers/partnerSubmissionToGuide';
 import { partnerEventFormSchema } from '../schemas/partnerEventFormSchema';
 import type { PartnerProfile } from '../types/partner';
-import type {
-  PartnerContentEditorState,
-  PartnerContentEventInput,
-  PartnerContentItemInput,
-} from '../types/partnerContent';
-import type { FormState, PartnerImage } from '../types/partsForm';
+import type { PartnerContentEditorState, PartnerContentEventInput } from '../types/partnerContent';
 
 function getErrorMessage(error: unknown, fallback: string): string {
   return error instanceof Error && error.message ? error.message : fallback;
@@ -34,11 +26,8 @@ export interface UsePartnerContentActionsProps {
   activeTab: 'items' | 'events' | 'reports';
   isEditing: PartnerContentEditorState | null;
   setIsEditing: (item: PartnerContentEditorState | null) => void;
-  editorFormData: FormState | null;
-  setEditorFormData: (data: FormState | null) => void;
   setShowDeleteConfirm: (val: boolean) => void;
   setIsLoading: (val: boolean) => void;
-  validateAll: (phoneValidateFn: () => boolean) => boolean;
 }
 
 export function usePartnerContentActions({
@@ -47,11 +36,8 @@ export function usePartnerContentActions({
   activeTab,
   isEditing,
   setIsEditing,
-  editorFormData,
-  setEditorFormData,
   setShowDeleteConfirm,
   setIsLoading,
-  validateAll,
 }: UsePartnerContentActionsProps) {
   const { showToast } = useUI();
 
@@ -176,75 +162,9 @@ export function usePartnerContentActions({
     }
   }, [isEditing, user?.uid, setIsLoading, setIsEditing, showToast]);
 
-  const handleSaveItem = useCallback(
-    async (phoneValidateFn: () => boolean) => {
-      if (!editorFormData || !user?.uid || !isEditing) return;
-      if (!validateAll(phoneValidateFn)) return;
-
-      if (!editorFormData.region?.trim()) {
-        showToast('A região é obrigatória.', 'error');
-        return;
-      }
-
-      setIsLoading(true);
-      const itemId = isEditing.id;
-      try {
-        const imageUrls = await Promise.all(
-          editorFormData.images.map(async (img: PartnerImage) => {
-            if (img.file) {
-              return await uploadImageUseCase(img.file, 'guia_local').catch((error: unknown) => {
-                throw new Error(getImageUploadErrorMessage(error));
-              });
-            }
-            return img.preview;
-          })
-        );
-
-        const validUrls = imageUrls.filter((url): url is string => Boolean(url));
-        if (validUrls.length === 0) {
-          showToast('Ao menos uma imagem é obrigatória.', 'error');
-          setIsLoading(false);
-          return;
-        }
-
-        // Mesma conversão da inscrição: o editor mostra e grava exatamente os campos do formulário.
-        const itemData: PartnerContentItemInput = mapPartnerSubmissionToGuideItem(
-          editorFormData,
-          validUrls
-        );
-
-        if (!itemId) {
-          await createPartnerContentItemUseCase(itemData);
-        } else {
-          await updatePartnerContentItemUseCase(itemId, itemData);
-        }
-
-        setIsEditing(null);
-        setEditorFormData(null);
-        showToast('Estabelecimento salvo com sucesso!', 'success');
-      } catch (e: unknown) {
-        console.error('Erro ao salvar item:', e);
-        showToast(getErrorMessage(e, 'Erro ao salvar item'), 'error');
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [
-      editorFormData,
-      user?.uid,
-      isEditing,
-      validateAll,
-      setIsLoading,
-      setIsEditing,
-      setEditorFormData,
-      showToast,
-    ]
-  );
-
   return {
     handleDelete,
     handleToggleActive,
     handleSaveEvent,
-    handleSaveItem,
   };
 }

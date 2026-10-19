@@ -2,7 +2,7 @@ import { ChevronLeft, RefreshCw, ShieldAlert } from 'lucide-react';
 import { useEffect } from 'react';
 import { useAuthContext } from '../../auth/context/AuthContext';
 import { UserRole } from '../../auth/types/auth';
-import { AdminPanel } from './AdminPanel';
+import { AdminPanel, type AdminPanelProps } from './AdminPanel';
 import { useLocalizedRouting } from '../../../shared/hooks/useLocalizedRouting';
 
 function RestrictedAdminAccess() {
@@ -32,7 +32,7 @@ function RestrictedAdminAccess() {
   );
 }
 
-export function AdminDispatcher() {
+export function AdminDispatcher({ renderListingEditor }: AdminPanelProps = {}) {
   const { goTo } = useLocalizedRouting();
   const { user, loading } = useAuthContext();
 
@@ -64,5 +64,5 @@ export function AdminDispatcher() {
     return <RestrictedAdminAccess />;
   }
 
-  return <AdminPanel />;
+  return <AdminPanel renderListingEditor={renderListingEditor} />;
 }

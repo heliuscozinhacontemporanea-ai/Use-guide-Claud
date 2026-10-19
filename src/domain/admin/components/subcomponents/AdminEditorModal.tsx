@@ -16,15 +16,11 @@ import {
 import { AdminEditorBasicInfo } from './AdminEditorBasicInfo';
 import { AdminEditorGallery } from './AdminEditorGallery';
 import { AdminEditorLocation } from './AdminEditorLocation';
-import { AdminEditorOperationalInfo } from './AdminEditorOperationalInfo';
 import { AdminEditorEventFields } from './AdminEditorEventFields';
 import { AdminEditorActions } from './AdminEditorActions';
 
-export const ADMIN_CREATABLE_ITEM_CATEGORIES = [
-  'tips',
-  'tour',
-  'sight',
-] as const;
+// Atrações e passeios usam o editor de cadastro do parceiro (decisão D9); aqui ficam as dicas.
+export const ADMIN_CREATABLE_ITEM_CATEGORIES = ['tips'] as const;
 
 export type AdminEditorSaveData = GuideItem & {
   occurrences?: AdminGuideEditorSchemaValues['occurrences'];
@@ -357,7 +353,6 @@ export function AdminEditorModal({
 
                   <AdminEditorLocation />
 
-                  {activeTab === 'items' && <AdminEditorOperationalInfo />}
                 </motion.div>
               )}
             </AnimatePresence>

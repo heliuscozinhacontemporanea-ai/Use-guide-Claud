@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
-import { AdminDispatcher } from '../domain/admin/components/AdminDispatcher';
+import { AdminPanelComposition } from './compositions/AdminPanelComposition';
 import { LoginModal } from '../domain/auth/components/LoginModal';
 import { useAuthContext } from '../domain/auth/context/AuthContext';
 import { UserRole } from '../domain/auth/types/auth';
@@ -319,7 +319,7 @@ export function AppRouter() {
         )}
 
         {isAdminOpen ? (
-          <AdminDispatcher />
+          <AdminPanelComposition />
         ) : isPartnerPortalOpen ? (
           <PartnerPortalComposition />
         ) : (

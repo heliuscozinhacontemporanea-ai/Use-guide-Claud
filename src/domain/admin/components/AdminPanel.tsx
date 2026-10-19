@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { type ReactNode, useMemo, useState } from 'react';
 import { UserRole } from '../../auth/types/auth';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuthContext } from '../../auth/context/AuthContext';
@@ -38,23 +38,45 @@ import { AdminNavigation, type AdminTabId } from './subcomponents/AdminNavigatio
 import { AdminStatsView } from './subcomponents/AdminStatsView';
 import { AdminPartnersView } from './subcomponents/AdminPartnersView';
 import { AdminGuideView } from './subcomponents/AdminGuideView';
-import {
-  ADMIN_CREATABLE_ITEM_CATEGORIES,
-  AdminEditorModal,
-  type AdminEditorSaveData,
-} from './subcomponents/AdminEditorModal';
+import { AdminEditorModal, type AdminEditorSaveData } from './subcomponents/AdminEditorModal';
 import { AdminPlansView } from './subcomponents/AdminPlansView';
 import { AdminNotificationsView } from './subcomponents/AdminNotificationsView';
 
-export { ADMIN_CREATABLE_ITEM_CATEGORIES };
+function newRecord(category: 'tips' | 'event'): GuideItem {
+  return {
+    id: '',
+    name: '',
+    description: '',
+    image: '',
+    images: [],
+    category,
+    location: 'Jericoacoara',
+  } as GuideItem;
+}
 
-export function AdminPanel() {
+export interface AdminListingEditorProps {
+  /** Cadastro a editar; `null` cria um novo. */
+  item: GuideItem | null;
+  onClose: () => void;
+}
+
+export interface AdminPanelProps {
+  /**
+   * Editor de cadastro (o mesmo do parceiro), montado pela composição do app. Dicas e eventos
+   * continuam no editor próprio do admin.
+   */
+  renderListingEditor?: (props: AdminListingEditorProps) => ReactNode;
+}
+
+export function AdminPanel({ renderListingEditor }: AdminPanelProps = {}) {
   const { goTo } = useLocalizedRouting();
   const { user, loading: userLoading } = useAuthContext();
   const { showToast, confirmAction } = useUI();
   const [activeTab, setActiveTab] = useState<AdminTabId>('reports');
   const [filter, setFilter] = useState<string>('all');
   const [isEditing, setIsEditing] = useState<GuideItem | null>(null);
+  // `null` abre o editor de cadastro para um item novo; `undefined` mantém fechado.
+  const [editingListing, setEditingListing] = useState<GuideItem | null | undefined>(undefined);
 
   const isAdminUser = user?.role === UserRole.ADMIN;
 
@@ -299,29 +321,41 @@ export function AdminPanel() {
                 dataError={dataError}
                 onRetry={retryCatalog}
                 onInitNew={() => {
-                  const initialCategory = activeTab === 'items' ? 'tips' : 'event';
-                  setIsEditing({
-                    id: '',
-                    name: '',
-                    description: '',
-                    image: '',
-                    images: [],
-                    category: initialCategory,
-                    location: 'Jericoacoara',
-                  } as GuideItem);
+                  if (activeTab === 'items' && renderListingEditor) {
+                    setEditingListing(null);
+                    return;
+                  }
+                  setIsEditing(newRecord(activeTab === 'items' ? 'tips' : 'event'));
                 }}
-                onEdit={(item) =>
+                onInitNewTip={
+                  activeTab === 'items' && renderListingEditor
+                    ? () => setIsEditing(newRecord('tips'))
+                    : undefined
+                }
+                onEdit={(item) => {
+                  if (activeTab === 'items' && item.category !== 'tips' && renderListingEditor) {
+                    setEditingListing(item);
+                    return;
+                  }
                   setIsEditing({
                     ...item,
                     images: item.images || (item.image ? [item.image] : []),
-                  })
-                }
+                  });
+                }}
                 onDelete={handleDelete}
               />
             )}
           </motion.div>
         </AnimatePresence>
       </div>
+
+      <AnimatePresence>
+        {editingListing !== undefined &&
+          renderListingEditor?.({
+            item: editingListing,
+            onClose: () => setEditingListing(undefined),
+          })}
+      </AnimatePresence>
 
       <AnimatePresence>
         {isEditing && (

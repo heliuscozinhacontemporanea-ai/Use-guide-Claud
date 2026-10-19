@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Star, Utensils, MapPin, Compass, Home, Info, Calendar } from 'lucide-react';
+import { Bike, Star, Utensils, MapPin, Compass, Home, Info, Calendar } from 'lucide-react';
 import { GlassCard } from '../../../ui/components/GlassCard';
 import { CATEGORIES } from '../../../shared/constants/categories';
 import { GuideItem } from '../types/guide';
@@ -14,7 +14,9 @@ interface StandardCardProps {
   className?: string;
 }
 
-const IconMap: Record<string, any> = {
+// Nomes de ícone usados em CATEGORIES (src/shared/constants/categories.ts).
+const IconMap: Record<string, typeof Info> = {
+  Bike,
   Utensils,
   MapPin,
   Compass,
