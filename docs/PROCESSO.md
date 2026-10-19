@@ -74,6 +74,7 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 | 18.2 | Editor único de cadastro (parceiro e admin) + lint dos arquivos tocados | `fbfbfe9` + `c2658aa` | ⏳ enviar (lote 12) | — |
 | A3 | AGENTS.md: arquivo tocado sem avisos do lint (S10 aprovada) | `003cc6e` | ⏳ enviar (lote 12) | — |
 | 18.2.1 | Sessões do evento no editor (parceiro e admin) | `ce7f92a` | ⏳ enviar (lote 12) | — |
+| 18.2.2 | Contato do evento em um só lugar (B19) | `94a3ad6` | ⏳ enviar (lote 12) | — |
 
 ## Gates
 

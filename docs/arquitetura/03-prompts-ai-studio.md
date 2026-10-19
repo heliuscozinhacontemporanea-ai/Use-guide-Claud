@@ -99,7 +99,7 @@
 
 ---
 
-# Lote 12 (Prompts 18.2, A3 e 18.2.1) — aplicar sobre o zip de 2026-10-19 (2º)
+# Lote 12 (Prompts 18.2, A3, 18.2.1 e 18.2.2) — aplicar sobre o zip de 2026-10-19 (2º)
 
 > O lote 11 chegou igual à referência. O AI Studio também trocou os ícones de translado e produtor por ícones que existem no `StandardCard`; a troca foi adotada, e o 18.2 acrescenta o do aluguel.
 
@@ -108,13 +108,14 @@
 | 1 | `prompts/prompt-18.2.md` | Editor único de cadastro: `ListingEditor` no painel do parceiro e no admin (via `AdminPanelComposition`), dicas e eventos no editor do admin; avisos do lint corrigidos nos arquivos tocados | `fbfbfe9` + `c2658aa` |
 | 2 | `prompts/prompt-A3.md` | AGENTS.md §13 e §16.1: arquivo tocado sai sem avisos do lint (S10 aprovada) | `003cc6e` |
 | 3 | `prompts/prompt-18.2.1.md` | Sessões do evento no editor (parceiro e admin): `EventSessionsField`, `saveEventSessionsUseCase`, `PartnerEventForm` dividido | `ce7f92a` |
+| 4 | `prompts/prompt-18.2.2.md` | Contato do evento só nos campos do topo (B19); `eventsService` dividido em anúncios e sessões | `94a3ad6` |
 
 > **Envie um prompt por mensagem**, nesta ordem.
 
-| Gate | Resultado na referência (`ce7f92a`) |
+| Gate | Resultado na referência (`94a3ad6`) |
 |---|---|
 | `npm run typecheck` | ✅ |
 | `npx biome lint .` | ✅ 0 erros |
-| `npx biome lint` nos arquivos tocados | ✅ 0 avisos (total do projeto: 315) |
-| `npm test` | ✅ 144 arquivos, 801 testes |
+| `npx biome lint` nos arquivos tocados | ✅ 0 avisos (total do projeto: 313) |
+| `npm test` | ✅ 145 arquivos, 804 testes |
 | `npm run build` | ✅ |
