@@ -135,11 +135,12 @@
 
 ---
 
-# Lote 13 (Prompts 18.2.5 e 18.3.0a) — aplicar sobre o zip de 2026-10-19 (3º)
+# Lote 13 (Prompts 18.2.5, 18.3.0a e 18.3.0b) — aplicar sobre o zip de 2026-10-19 (3º)
 
 | Ordem | Arquivo | Tema | Commit de referência |
 |---|---|---|---|
 | 1 | `prompts/prompt-18.2.5.md` | Correção do lote 12: completa o 18.2 e o 18.2.1 e desfaz as reescritas | `fada927..345ccbb` (= `93c6c9b`) |
 | 2 | `prompts/prompt-18.3.0a.md` | Verificação por estabelecimento no backend (D12): criptografia de campo com Cloud KMS, índice cego, documentos privados, fila do admin, venda bloqueada sem verificação | `3cc54e6` |
+| 3 | `prompts/prompt-18.3.0b.md` | Conta do parceiro sem CPF/CNPJ e sem status pendente (D12, P0); inscrição dividida em peças menores | `46236f5` |
 
 > **Envie um prompt por mensagem**, nesta ordem. **Antes do 18.3.0a**, no painel Secrets do AI Studio: `FIELD_ENCRYPTION_DEV_KEY` (32 bytes em base64) e `PII_BLIND_INDEX_KEY` (32 caracteres ou mais).

@@ -79,6 +79,7 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 | 18.2.4 | Idioma do navegador na primeira visita (D10) | `93c6c9b` | ✅ zip 2026-10-19 (3º) | ✅ igual (`resources.ts` só reformatado → 18.2.5) |
 | 18.2.5 | Correção do lote 12 | `fada927..345ccbb` | ⏳ enviar (lote 13) | — |
 | 18.3.0a | Verificação por estabelecimento, backend (D12) | `3cc54e6` | ⏳ enviar (lote 13) | — |
+| 18.3.0b | Conta do parceiro sem documento nem status pendente (D12, P0) | `46236f5` | ⏳ enviar (lote 13) | — |
 
 ## Gates
 
