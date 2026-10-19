@@ -1,7 +1,7 @@
 import { prepareImageForStorageUseCase } from '../../media';
 import { UserPort } from '../ports/userPort';
 import { UserProfileDto } from '../dtos/userDto';
-import { UpdateUserProfileInput } from '../schemas/userSchema';
+import { UpdateUserPreferencesInput, UpdateUserProfileInput } from '../schemas/userSchema';
 
 export class UserService {
   constructor(private userPort: UserPort) {}
@@ -25,6 +25,13 @@ export class UserService {
       throw new Error('UID do usuário é obrigatório');
     }
     return this.userPort.updateUserProfile(uid, input);
+  }
+
+  async updatePreferences(uid: string, input: UpdateUserPreferencesInput): Promise<void> {
+    if (!uid) {
+      throw new Error('UID do usuário é obrigatório');
+    }
+    await this.userPort.updateUserPreferences(uid, input);
   }
 
   async uploadPhoto(uid: string, photoBase64: string): Promise<string> {

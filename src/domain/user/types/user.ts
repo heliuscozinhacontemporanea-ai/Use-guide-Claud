@@ -1,3 +1,5 @@
+import type { Locale } from '../../../shared/i18n';
+
 export type UserRole = 'user' | 'partner';
 
 export interface UserProfile {
@@ -9,6 +11,8 @@ export interface UserProfile {
   phone?: string;
   photoURL?: string | null;
   role?: UserRole;
+  /** Idioma escolhido pela pessoa; `null` enquanto ela não escolheu (decisão D10). */
+  preferredLocale?: Locale | null;
   createdAt?: string | Date;
   updatedAt?: string | Date;
 }

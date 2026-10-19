@@ -7,6 +7,7 @@ export const Z_INDEX = {
   card: 10,
   header: 100,
   bottomNav: 110,
+  banner: 120,
   dropdown: 200,
   overlay: 1000,
   modal: 1100,

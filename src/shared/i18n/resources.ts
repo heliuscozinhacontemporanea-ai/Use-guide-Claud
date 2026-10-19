@@ -178,6 +178,12 @@ export interface TranslationResource {
     partnerSuspendedTitle: string;
     partnerSuspended: string;
   };
+  localeSuggestion: {
+    label: string;
+    message: string;
+    switch: string;
+    keep: string;
+  };
   settings: {
     title: string;
     subtitle: string;
@@ -408,6 +414,12 @@ const ptBR: TranslationResource = {
     partnerSuspendedTitle: 'Conta de parceiro suspensa',
     partnerSuspended:
       'Seu acesso ao painel foi suspenso pela equipe do Use Guide. Fale com o suporte para saber como reativar.',
+  },
+  localeSuggestion: {
+    label: 'Sugestão de idioma',
+    message: 'Esta página também está disponível em português.',
+    switch: 'Ver em português',
+    keep: 'Continuar em português',
   },
   settings: {
     title: 'Configurações',
@@ -640,6 +652,12 @@ const en: TranslationResource = {
     partnerSuspendedTitle: 'Partner account suspended',
     partnerSuspended:
       'Your dashboard access was suspended by the Use Guide team. Contact support to find out how to reactivate it.',
+  },
+  localeSuggestion: {
+    label: 'Language suggestion',
+    message: 'This page is also available in English.',
+    switch: 'View in English',
+    keep: 'Continue in Portuguese',
   },
   settings: {
     title: 'Settings',
@@ -880,6 +898,12 @@ const fr: TranslationResource = {
     partnerSuspendedTitle: 'Compte partenaire suspendu',
     partnerSuspended:
       'Votre accès au tableau de bord a été suspendu par l’équipe Use Guide. Contactez le support pour savoir comment le réactiver.',
+  },
+  localeSuggestion: {
+    label: 'Suggestion de langue',
+    message: 'Cette page est aussi disponible en français.',
+    switch: 'Voir en français',
+    keep: 'Continuer en portugais',
   },
   settings: {
     title: 'Paramètres',

@@ -3,12 +3,19 @@ export {
   LOCALE_STORAGE_KEY,
   SUPPORTED_LOCALES,
   normalizeLocale,
-  persistLocale,
-  resolveInitialLocale,
+  readSavedLocale,
+  resolvePreferredLocale,
   getLocaleDisplayLabel,
   type Locale,
 } from './locale';
 export { i18n } from './config';
+export {
+  isCrawler,
+  resolveHomeRedirect,
+  resolveInitialLocale,
+  suggestedLocaleFor,
+} from './initialLocale';
+export { onLocaleChoice, saveLocaleChoice, type LocaleChoiceSource } from './localeChoice';
 export {
   LOCALIZED_ROUTES,
   localizedPath,

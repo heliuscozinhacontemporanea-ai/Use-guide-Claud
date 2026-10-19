@@ -1,4 +1,5 @@
 import { UserPort } from '../ports/userPort';
+import type { Locale } from '../../../shared/i18n';
 import { UserProfile, UserData } from '../types/user';
 import { firebaseApiFetch } from '../../../shared/infrastructure/firebase/firebaseApiFetch';
 
@@ -39,6 +40,21 @@ export class ApiUserAdapter implements UserPort {
     return await response.json();
   }
 
+  async updatePreferredLocale(locale: Locale): Promise<void> {
+    const response = await firebaseApiFetch(
+      '/api/users/me/preferences',
+      {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ preferredLocale: locale }),
+      },
+      { requireAuth: true }
+    );
+    if (!response.ok) {
+      throw new Error(`USER_PREFERENCES_${response.status}`);
+    }
+  }
+
   async deleteCurrentUser(): Promise<void> {
     const response = await firebaseApiFetch(
       '/api/users/me',
@@ -51,9 +67,9 @@ export class ApiUserAdapter implements UserPort {
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       if (response.status === 401 && errorData.error === 'REAUTHENTICATION_REQUIRED') {
-        const error = new Error('REAUTHENTICATION_REQUIRED');
-        (error as any).code = 'REAUTHENTICATION_REQUIRED';
-        throw error;
+        throw Object.assign(new Error('REAUTHENTICATION_REQUIRED'), {
+          code: 'REAUTHENTICATION_REQUIRED',
+        });
       }
       throw new Error(errorData.error || 'Falha ao excluir conta via API');
     }

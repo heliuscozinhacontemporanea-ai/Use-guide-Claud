@@ -8,6 +8,7 @@ import {
   normalizeLocale,
   parseLocalizedPath,
   type RouteKey,
+  saveLocaleChoice,
   switchLocalePath,
 } from '../i18n';
 
@@ -28,8 +29,10 @@ export function useLocalizedRouting() {
     [navigate, locale]
   );
 
+  /** Troca escolhida pela pessoa: grava a escolha e leva para a mesma página no novo idioma. */
   const switchLocale = useCallback(
     (target: Locale) => {
+      saveLocaleChoice(target);
       if (parsed) {
         navigate(switchLocalePath(location.pathname, location.search, target));
       }

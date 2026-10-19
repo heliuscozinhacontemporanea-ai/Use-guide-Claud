@@ -15,6 +15,7 @@ describe('UserService', () => {
       getUserProfile: vi.fn(),
       getUserProfilesBatch: vi.fn(),
       updateUserProfile: vi.fn(),
+      updateUserPreferences: vi.fn(),
       uploadUserPhoto: vi.fn(),
       upgradeRoleToPartner: vi.fn(),
       deleteUserAccount: vi.fn(),
@@ -33,6 +34,7 @@ describe('UserService', () => {
         lastName: 'Silva',
         phone: '11999999999',
         role: 'user' as UserRole,
+        preferredLocale: null,
       };
       vi.mocked(userPortMock.getUserProfile).mockResolvedValueOnce(mockProfile);
 
@@ -56,6 +58,7 @@ describe('UserService', () => {
         lastName: 'Souza',
         phone: '11988888888',
         role: 'user' as UserRole,
+        preferredLocale: null,
       };
       vi.mocked(userPortMock.updateUserProfile).mockResolvedValueOnce(updatedProfile);
 
@@ -91,7 +94,11 @@ describe('UserService', () => {
       const photoUrl = await userService.uploadPhoto('user-123', 'base64-image-string');
 
       expect(prepareImageForStorageUseCase).toHaveBeenCalledWith('base64-image-string', 1024);
-      expect(userPortMock.uploadUserPhoto).toHaveBeenCalledWith('user-123', processed, 'image/webp');
+      expect(userPortMock.uploadUserPhoto).toHaveBeenCalledWith(
+        'user-123',
+        processed,
+        'image/webp'
+      );
       expect(photoUrl).toBe('https://storage.googleapis.com/test-bucket/profiles/user-123?v=1');
     });
 
@@ -126,6 +133,13 @@ describe('UserService', () => {
       await expect(userService.deleteAccount('')).rejects.toThrow(
         'UID do usuário é obrigatório para exclusão'
       );
+    });
+  });
+
+  it('grava o idioma escolhido na conta', async () => {
+    await userService.updatePreferences('user-123', { preferredLocale: 'fr' });
+    expect(userPortMock.updateUserPreferences).toHaveBeenCalledWith('user-123', {
+      preferredLocale: 'fr',
     });
   });
 });

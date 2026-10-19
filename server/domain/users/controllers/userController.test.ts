@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { UserController } from './userController';
 import { userService } from '../factory';
 import { Response } from 'express';
+import type { UserProfileDto } from '../dtos/userDto';
 import { AuthenticatedRequest } from '../../../infrastructure/auth/authMiddleware';
 import { deleteUserAccountApplicationUseCase } from '../../../application/usecases/deleteUserAccountApplicationUseCase';
 
@@ -13,24 +14,22 @@ vi.mock('../factory', () => ({
   userService: {
     getProfile: vi.fn(),
     updateProfile: vi.fn(),
+    updatePreferences: vi.fn(),
     uploadPhoto: vi.fn(),
     deleteAccount: vi.fn(),
   },
 }));
 
 describe('UserController', () => {
-  let mockRes: Partial<Response>;
-  let statusMock: any;
-  let jsonMock: any;
+  let mockRes: Response;
+  let statusMock: ReturnType<typeof vi.fn>;
+  let jsonMock: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     vi.clearAllMocks();
     jsonMock = vi.fn();
     statusMock = vi.fn().mockReturnValue({ json: jsonMock });
-    mockRes = {
-      status: statusMock,
-      json: jsonMock,
-    };
+    mockRes = { status: statusMock, json: jsonMock } as unknown as Response;
   });
 
   describe('getProfile', () => {
@@ -45,7 +44,7 @@ describe('UserController', () => {
     it('deve retornar 200 com os dados do perfil quando autenticado', async () => {
       const req = { user: { uid: 'user-1' } } as unknown as AuthenticatedRequest;
       const profile = { uid: 'user-1', firstName: 'Ana', email: 'ana@test.com' };
-      vi.mocked(userService.getProfile).mockResolvedValueOnce(profile as any);
+      vi.mocked(userService.getProfile).mockResolvedValueOnce(profile as unknown as UserProfileDto);
 
       await UserController.getProfile(req, mockRes as Response);
 
@@ -109,7 +108,9 @@ describe('UserController', () => {
         email: 'carlos@test.com',
         role: 'user',
       };
-      vi.mocked(userService.updateProfile).mockResolvedValueOnce(updated as any);
+      vi.mocked(userService.updateProfile).mockResolvedValueOnce(
+        updated as unknown as UserProfileDto
+      );
 
       await UserController.updateProfile(req, mockRes as Response);
 
@@ -226,6 +227,46 @@ describe('UserController', () => {
 
       expect(statusMock).toHaveBeenCalledWith(500);
       expect(jsonMock).toHaveBeenCalledWith({ error: 'Não foi possível excluir a conta.' });
+    });
+  });
+
+  describe('updatePreferences', () => {
+    function preferencesResponse() {
+      const res = { status: vi.fn(), json: vi.fn(), end: vi.fn() };
+      res.status.mockReturnValue(res);
+      return res;
+    }
+
+    it('grava o idioma e responde 204', async () => {
+      const res = preferencesResponse();
+      const req = {
+        user: { uid: 'user-1' },
+        body: { preferredLocale: 'en' },
+      } as unknown as AuthenticatedRequest;
+      await UserController.updatePreferences(req, res as unknown as Response);
+      expect(userService.updatePreferences).toHaveBeenCalledWith('user-1', {
+        preferredLocale: 'en',
+      });
+      expect(res.status).toHaveBeenCalledWith(204);
+      expect(res.end).toHaveBeenCalled();
+    });
+
+    it('idioma não suportado ou campo extra responde 400 VALIDATION_ERROR', async () => {
+      for (const body of [{ preferredLocale: 'es' }, { preferredLocale: 'en', role: 'admin' }]) {
+        const res = preferencesResponse();
+        const req = { user: { uid: 'user-1' }, body } as unknown as AuthenticatedRequest;
+        await UserController.updatePreferences(req, res as unknown as Response);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json.mock.calls[0]?.[0].error.code).toBe('VALIDATION_ERROR');
+      }
+      expect(userService.updatePreferences).not.toHaveBeenCalled();
+    });
+
+    it('sem login responde 401', async () => {
+      const res = preferencesResponse();
+      const req = { body: { preferredLocale: 'en' } } as unknown as AuthenticatedRequest;
+      await UserController.updatePreferences(req, res as unknown as Response);
+      expect(res.status).toHaveBeenCalledWith(401);
     });
   });
 });

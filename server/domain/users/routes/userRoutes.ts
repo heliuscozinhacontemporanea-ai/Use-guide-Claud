@@ -9,6 +9,7 @@ const router = Router();
 
 router.get('/me', verifyAuthToken, UserController.getProfile);
 router.put('/me', verifyAuthToken, UserController.updateProfile);
+router.put('/me/preferences', verifyAuthToken, UserController.updatePreferences);
 router.post(
   '/me/photo',
   verifyAuthToken,

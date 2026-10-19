@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { checkPasswordRequirements } from '../../auth';
+import { SUPPORTED_LOCALES } from '../../../shared/i18n';
 
 export const updateProfileSchema = z.object({
   firstName: z
@@ -14,6 +15,8 @@ export const updateProfileSchema = z.object({
 });
 
 export type UpdateProfileFormData = z.infer<typeof updateProfileSchema>;
+
+export const preferredLocaleSchema = z.enum(SUPPORTED_LOCALES);
 
 export const updatePasswordSchema = z
   .object({
