@@ -46,7 +46,6 @@ describe('usePartnerProfile', () => {
 
   const mockLoadedProfile: PartnerProfile = {
     id: 'partner-user-1',
-    category: 'hotel',
     businessName: 'Pousada Sol',
     businessId: 'bus-1',
     businesses: [{ businessId: 'bus-1', businessName: 'Pousada Sol', type: 'item' }],
@@ -99,7 +98,6 @@ describe('usePartnerProfile', () => {
 
     const mockPublicPartner: PublicPartnerProfile = {
       id: 'partner-user-1',
-      category: 'hotel',
       businesses: [{ businessId: 'bus-1', businessName: 'Pousada Sol Atualizada', type: 'item' }],
       isVerified: true,
       verifiedUntil: '2026-12-31T23:59:59.000Z',
@@ -124,7 +122,6 @@ describe('usePartnerProfile', () => {
 
     const mockPublicPartner: PublicPartnerProfile = {
       id: 'partner-user-1',
-      category: 'hotel',
       businesses: [{ businessId: 'bus-1', businessName: 'Pousada Sol', type: 'item' }],
       isVerified: true,
       verifiedUntil: '2027-01-01T00:00:00.000Z',

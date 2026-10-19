@@ -1,4 +1,5 @@
 import { z } from 'zod';
+ 
 
 export const updatePlanSchema = z
   .object({
@@ -15,4 +16,3 @@ export const updatePlanSchema = z
   });
 
 export type UpdatePlanInput = z.infer<typeof updatePlanSchema>;
-

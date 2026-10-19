@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { subscribeToGuideManagementCatalogUseCase } from '../../guide';
 import type { PartnerContentRecord } from '../types/partnerContent';
-import { whatsAppUrl } from '../../../shared/utils/phone';
 
 export interface UsePartnerContentCatalogProps {
   userId?: string | null;
@@ -47,7 +46,6 @@ export function usePartnerContentCatalog({ userId, activeTab }: UsePartnerConten
           websiteLink: item.websiteLink,
           bookingLink: item.bookingLink,
           phone: item.phone,
-          whatsappLink: item.phone ? (whatsAppUrl(item.phone) ?? undefined) : undefined,
           googleMapsLink: item.googleMapsLink,
           address: item.address,
           tags: item.tags,
@@ -80,7 +78,6 @@ export function usePartnerContentCatalog({ userId, activeTab }: UsePartnerConten
           websiteLink: event.websiteLink,
           bookingLink: event.bookingLink,
           phone: event.phone,
-          whatsappLink: event.phone ? (whatsAppUrl(event.phone) ?? undefined) : undefined,
           googleMapsLink: event.googleMapsLink,
           address: event.address,
           tags: event.tags,

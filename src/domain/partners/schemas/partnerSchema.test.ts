@@ -77,13 +77,21 @@ describe('Partner Validation Schemas (Frontend)', () => {
         expect(res.success).toBe(true);
       }
 
+      // Perfil de produtor: nome obrigatório, descrição opcional.
       const resProducer = step1Schema.safeParse({
+        category: 'producer',
+        businessName: 'Produtora Sol',
+        cpfCnpj: VALID_TEST_CPF,
+        description: '',
+      });
+      expect(resProducer.success).toBe(true);
+      const producerWithoutName = step1Schema.safeParse({
         category: 'producer',
         businessName: '',
         cpfCnpj: VALID_TEST_CPF,
         description: '',
       });
-      expect(resProducer.success).toBe(true);
+      expect(producerWithoutName.success).toBe(false);
     });
   });
 
@@ -145,6 +153,49 @@ describe('Partner Validation Schemas (Frontend)', () => {
         cuisineType: 'Frutos do Mar',
       });
       expect(result.success).toBe(true);
+    });
+
+    it('tour exige duração positiva e ponto de encontro', () => {
+      expect(
+        step3Schema.safeParse({ category: 'tour', tourDurationHours: '3', meetingPoint: 'Vila' })
+          .success
+      ).toBe(true);
+      const invalid = step3Schema.safeParse({ category: 'tour', tourDurationHours: '0' });
+      expect(invalid.success).toBe(false);
+      const paths = invalid.error?.issues.map((issue) => issue.path[0]);
+      expect(paths).toEqual(expect.arrayContaining(['tourDurationHours', 'meetingPoint']));
+    });
+
+    it('transfer exige um trecho completo, um veículo e a capacidade', () => {
+      expect(
+        step3Schema.safeParse({
+          category: 'transfer',
+          transferRoutes: [{ from: 'Fortaleza', to: 'Jericoacoara' }],
+          transferVehicles: ['Van'],
+          maxPassengers: '12',
+        }).success
+      ).toBe(true);
+      const invalid = step3Schema.safeParse({
+        category: 'transfer',
+        transferRoutes: [{ from: 'Fortaleza', to: ' ' }],
+      });
+      const paths = invalid.error?.issues.map((issue) => issue.path[0]);
+      expect(paths).toEqual(
+        expect.arrayContaining(['transferRoutes', 'transferVehicles', 'maxPassengers'])
+      );
+    });
+
+    it('rental exige o que é alugado e o período mínimo', () => {
+      expect(
+        step3Schema.safeParse({
+          category: 'rental',
+          rentalVehicles: ['Quadriciclo'],
+          minRentalHours: '2',
+        }).success
+      ).toBe(true);
+      const invalid = step3Schema.safeParse({ category: 'rental' });
+      const paths = invalid.error?.issues.map((issue) => issue.path[0]);
+      expect(paths).toEqual(expect.arrayContaining(['rentalVehicles', 'minRentalHours']));
     });
   });
 

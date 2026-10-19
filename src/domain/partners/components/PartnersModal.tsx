@@ -8,10 +8,6 @@ import {
   Handshake,
   ChevronLeft,
   ChevronRight,
-  Camera,
-  Bed,
-  Utensils,
-  Sparkles,
   Loader2,
 } from 'lucide-react';
 import { ModalLayout } from '../../../ui/layouts/ModalLayout';
@@ -29,6 +25,7 @@ import { ErrorState } from './sections/ErrorState';
 import { Step6Success } from './steps/Step6Success';
 import { usePartnerForm } from '../hooks/usePartnerForm';
 import { Z_INDEX } from '../../../shared/constants/zIndex';
+import { LISTING_CATEGORIES } from '../constants/listingCategories';
 
 interface PartnersModalProps {
   isOpen: boolean;
@@ -36,12 +33,7 @@ interface PartnersModalProps {
   onOpenPartnerPanel: () => void;
 }
 
-const CATEGORIES = [
-  { id: 'sight', label: 'Atrações turísticas', icon: <Camera size={18} /> },
-  { id: 'hotel', label: 'Hospedagem', icon: <Bed size={18} /> },
-  { id: 'restaurant', label: 'Restaurantes', icon: <Utensils size={18} /> },
-  { id: 'producer', label: 'Eventos (sou produtor)', icon: <Sparkles size={18} /> },
-];
+const CATEGORIES = LISTING_CATEGORIES;
 
 const CATEGORY_IDS = CATEGORIES.map((c) => c.id);
 

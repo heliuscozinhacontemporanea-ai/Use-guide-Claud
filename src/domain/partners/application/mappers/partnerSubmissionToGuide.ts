@@ -10,6 +10,12 @@ function toGuideItemCategory(value: string): PartnerContentItemInput['category']
       return 'restaurant';
     case 'sight':
       return 'sight';
+    case 'tour':
+      return 'tour';
+    case 'transfer':
+      return 'transfer';
+    case 'rental':
+      return 'rental';
     case 'producer':
       return 'producer';
     default:
@@ -64,7 +70,44 @@ function buildOperationalInfo(formData: PartnerSubmissionData) {
       languages: formData.languages,
     };
   }
+  if (formData.category === 'tour') {
+    const hours = Number((formData.tourDurationHours ?? '').replace(',', '.'));
+    return {
+      durationMinutes: Number.isFinite(hours) && hours > 0 ? Math.round(hours * 60) : undefined,
+      meetingPoint: formData.meetingPoint,
+      itinerary: formData.itinerary,
+      includes: formData.tourIncludes,
+      languages: formData.languages,
+    };
+  }
+  if (formData.category === 'transfer') {
+    return {
+      transferRoutes: (formData.transferRoutes ?? []).filter(
+        (route) => route.from.trim() && route.to.trim()
+      ),
+      vehicleTypes: formData.transferVehicles,
+      maxPassengers: positiveInt(formData.maxPassengers),
+      luggageInfo: formData.luggageInfo,
+      languages: formData.languages,
+    };
+  }
+  if (formData.category === 'rental') {
+    return {
+      vehicleTypes: formData.rentalVehicles,
+      minRentalHours: positiveInt(formData.minRentalHours),
+      depositRequired: formData.depositRequired ?? undefined,
+      driverLicenseRequired: formData.driverLicenseRequired ?? undefined,
+      includes: formData.rentalIncludes,
+      operatingHours: formData.operatingHours,
+      languages: formData.languages,
+    };
+  }
   return undefined;
+}
+
+function positiveInt(value: string | undefined): number | undefined {
+  const parsed = Number.parseInt(value ?? '', 10);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
 }
 
 export function mapPartnerSubmissionToGuideItem(
@@ -90,7 +133,7 @@ export function mapPartnerSubmissionToGuideItem(
     instagramLink: formData.instagram,
     websiteLink: formData.website,
     bookingLink: formData.bookingLinks,
-    phone: toE164(formData.phoneDdi ?? '+55', formData.phone),
+    phone: toE164(formData.phoneDdi, formData.phone),
     googleMapsLink: formData.googleMaps,
     address: formData.address,
     operationalInfo: buildOperationalInfo(formData),

@@ -57,10 +57,7 @@ function handleFirestoreError(
   console.error('Firestore Error [Domain Profile]:', JSON.stringify(errInfo));
 }
 
-export function usePartnerProfile(
-  loadedProfile?: PartnerProfile,
-  onAutoSwitchTab?: (tab: 'events' | 'items') => void
-) {
+export function usePartnerProfile(loadedProfile?: PartnerProfile) {
   const [user, setUser] = useState<UserSession | null>(null);
   const [userLoading, setUserLoading] = useState(true);
 
@@ -114,13 +111,6 @@ export function usePartnerProfile(
   const [profileError, setProfileError] = useState<string | null>(null);
   const [profileStatus, setProfileStatus] = useState<'loading' | 'ready' | 'empty'>('loading');
 
-  const hasAutoSwitchedRef = useRef(false);
-  const onAutoSwitchTabRef = useRef(onAutoSwitchTab);
-
-  useEffect(() => {
-    onAutoSwitchTabRef.current = onAutoSwitchTab;
-  }, [onAutoSwitchTab]);
-
   useEffect(() => {
     if (userLoading || !user) {
       return;
@@ -147,26 +137,6 @@ export function usePartnerProfile(
           return;
         }
 
-        const category = publicPartner.category ?? loadedProfile?.category;
-
-        if (!category) {
-          const error = new Error('Categoria do parceiro ausente ou inválida.');
-
-          handleFirestoreError(error, OperationType.GET, path, user);
-
-          setProfileError('Não foi possível validar a categoria do parceiro.');
-
-          if (loadedProfile) {
-            setPartnerProfile(loadedProfile);
-            setProfileStatus('ready');
-          } else {
-            setPartnerProfile(null);
-            setProfileStatus('empty');
-          }
-
-          return;
-        }
-
         const businesses = publicPartner.businesses ?? loadedProfile?.businesses ?? [];
         const firstBusiness = businesses[0];
 
@@ -175,7 +145,6 @@ export function usePartnerProfile(
           id: targetPartnerId,
           businessId: firstBusiness?.businessId ?? loadedProfile?.businessId ?? null,
           businessName: firstBusiness?.businessName ?? loadedProfile?.businessName ?? '',
-          category,
           businesses,
           cpfCnpj: loadedProfile?.cpfCnpj,
           firstName: userProfileData?.firstName ?? loadedProfile?.firstName ?? '',
@@ -200,15 +169,6 @@ export function usePartnerProfile(
 
         setPartnerProfile(partnerProfileData);
         setProfileStatus('ready');
-
-        if (
-          publicPartner.category === 'producer' &&
-          onAutoSwitchTabRef.current &&
-          !hasAutoSwitchedRef.current
-        ) {
-          hasAutoSwitchedRef.current = true;
-          onAutoSwitchTabRef.current('events');
-        }
       },
       (error) => {
         handleFirestoreError(error, OperationType.GET, path, user);
@@ -233,8 +193,6 @@ export function usePartnerProfile(
     !partnerProfile?.isVerificationSuspended &&
     (!partnerProfile?.verifiedUntil || new Date(partnerProfile.verifiedUntil) > new Date())
   );
-
-  const isEventProducer = partnerProfile?.category === 'producer';
 
   const isStep1Valid = (): boolean => {
     if (!editorFormData?.category) return false;
@@ -352,7 +310,6 @@ export function usePartnerProfile(
     setIsUploading,
     profileError,
     isVerified,
-    isEventProducer,
     isStep1Valid,
     validateStep2,
     validateStep3,

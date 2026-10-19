@@ -1,4 +1,16 @@
 export interface PartnerOperationalInfo {
+  /** Passeio, translado e aluguel (decisão D9). */
+  durationMinutes?: number;
+  meetingPoint?: string;
+  itinerary?: string;
+  includes?: string[];
+  transferRoutes?: Array<{ from: string; to: string }>;
+  vehicleTypes?: string[];
+  maxPassengers?: number;
+  luggageInfo?: string;
+  minRentalHours?: number;
+  depositRequired?: boolean;
+  driverLicenseRequired?: boolean;
   tags?: string[];
   cuisineType?: string;
   subcategory?: string;
@@ -49,10 +61,10 @@ export type PartnerContentCategory =
   | 'tour'
   | 'tips'
   | 'hotel'
-  | 'event'
-  | 'producer'
   | 'transfer'
-  | 'rental';
+  | 'rental'
+  | 'producer'
+  | 'event';
 export type EventEntryType = 'pago' | 'gratuito';
 
 export type PartnerContentEditorState = Omit<PartnerContentRecord, 'category'> & {
@@ -73,7 +85,6 @@ export interface PartnerContentRecord {
   instagramLink?: string;
   websiteLink?: string;
   bookingLink?: string;
-  whatsappLink?: string;
   phone?: string;
   googleMapsLink?: string;
   address?: string;
@@ -97,14 +108,13 @@ export interface PartnerContentRecord {
 export interface PartnerContentItemInput {
   name: string;
   description: string;
-  category: 'sight' | 'hotel' | 'restaurant' | 'producer';
+  category: 'sight' | 'hotel' | 'restaurant' | 'tour' | 'transfer' | 'rental' | 'producer';
   image: string;
   images: string[];
   location: string;
   instagramLink?: string;
   websiteLink?: string;
   bookingLink?: string;
-  whatsappLink?: string;
   phone?: string;
   googleMapsLink?: string;
   address?: string;
@@ -128,7 +138,6 @@ export interface PartnerContentEventInput {
   instagramLink?: string;
   websiteLink?: string;
   bookingLink?: string;
-  whatsappLink?: string;
   phone?: string;
   googleMapsLink?: string;
   address?: string;

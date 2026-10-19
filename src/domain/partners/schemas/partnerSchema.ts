@@ -2,7 +2,16 @@ import { z } from 'zod';
 import { isValidCpfCnpj } from '../../../shared/utils/documentValidator';
 import type { UserSession } from '../../auth';
 
-const partnerCategorySchema = z.enum(['sight', 'hotel', 'restaurant', 'producer']);
+// Categoria do primeiro cadastro na inscrição; `producer` cria o perfil de produtor de eventos.
+const partnerCategorySchema = z.enum([
+  'sight',
+  'hotel',
+  'restaurant',
+  'tour',
+  'transfer',
+  'rental',
+  'producer',
+]);
 
 export const step1Schema = z
   .object({
@@ -15,14 +24,17 @@ export const step1Schema = z
     description: z.string().default(''),
   })
   .superRefine((data, ctx) => {
+    if (!data.businessName || data.businessName.trim() === '') {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['businessName'],
+        message:
+          data.category === 'producer'
+            ? 'Nome do produtor é obrigatório'
+            : 'Nome do estabelecimento é obrigatório',
+      });
+    }
     if (data.category !== 'producer') {
-      if (!data.businessName || data.businessName.trim() === '') {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['businessName'],
-          message: 'Nome do estabelecimento é obrigatório',
-        });
-      }
       if (!data.description || data.description.trim() === '') {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -91,14 +103,46 @@ export const step3Schema = z
     additionalServices: z.array(z.string()).optional().default([]),
     amenitiesRestaurant: z.array(z.string()).optional().default([]),
     menuLink: z.string().optional().default(''),
-    menuFile: z.any().optional().nullable(),
     sightAccessType: z.string().optional().default(''),
     sightPrice: z.string().optional().default(''),
     sightServices: z.array(z.string()).optional().default([]),
     sightAmenities: z.array(z.string()).optional().default([]),
     sightActivities: z.array(z.string()).optional().default([]),
+    tourDurationHours: z.string().optional().default(''),
+    meetingPoint: z.string().optional().default(''),
+    transferRoutes: z
+      .array(z.object({ from: z.string(), to: z.string() }))
+      .optional()
+      .default([]),
+    transferVehicles: z.array(z.string()).optional().default([]),
+    maxPassengers: z.string().optional().default(''),
+    rentalVehicles: z.array(z.string()).optional().default([]),
+    minRentalHours: z.string().optional().default(''),
   })
   .superRefine((data, ctx) => {
+    const require = (ok: boolean, path: string, message: string) => {
+      if (!ok) ctx.addIssue({ code: z.ZodIssueCode.custom, path: [path], message });
+    };
+    if (data.category === 'tour') {
+      const hours = Number(data.tourDurationHours.replace(',', '.'));
+      require(Number.isFinite(hours) && hours > 0, 'tourDurationHours', 'Informe a duração');
+      require(data.meetingPoint.trim() !== '', 'meetingPoint', 'Informe o ponto de encontro');
+    } else if (data.category === 'transfer') {
+      require(
+        data.transferRoutes.some((route) => route.from.trim() && route.to.trim()),
+        'transferRoutes',
+        'Informe ao menos um trecho com origem e destino'
+      );
+      require(data.transferVehicles.length > 0, 'transferVehicles', 'Escolha ao menos um veículo');
+      require(Number.parseInt(data.maxPassengers, 10) > 0, 'maxPassengers', 'Informe a capacidade');
+    } else if (data.category === 'rental') {
+      require(data.rentalVehicles.length > 0, 'rentalVehicles', 'Escolha o que é alugado');
+      require(
+        Number.parseInt(data.minRentalHours, 10) > 0,
+        'minRentalHours',
+        'Informe o período mínimo'
+      );
+    }
     if (data.category === 'hotel') {
       if (data.servesBreakfast === null || data.servesBreakfast === undefined) {
         ctx.addIssue({
@@ -316,7 +360,6 @@ export const partnerSubmissionSchema = z.object({
     )
     .optional(),
   menuLink: z.string().optional().default(''),
-  menuFile: z.any().optional().nullable(),
   sightActivities: z.array(z.string()).optional().default([]),
   sightServices: z.array(z.string()).optional().default([]),
   sightAmenities: z.array(z.string()).optional().default([]),

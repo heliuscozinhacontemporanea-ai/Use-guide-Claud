@@ -10,6 +10,7 @@ import {
   updatePartnerContentEventUseCase,
   updatePartnerContentItemUseCase,
 } from '../index';
+import { mapPartnerSubmissionToGuideItem } from '../application/mappers/partnerSubmissionToGuide';
 import { partnerEventFormSchema } from '../schemas/partnerEventFormSchema';
 import type { PartnerProfile } from '../types/partner';
 import type {
@@ -21,19 +22,6 @@ import type { FormState, PartnerImage } from '../types/partsForm';
 
 function getErrorMessage(error: unknown, fallback: string): string {
   return error instanceof Error && error.message ? error.message : fallback;
-}
-
-function toPartnerItemCategory(value: string): PartnerContentItemInput['category'] {
-  switch (value) {
-    case 'hotel':
-      return 'hotel';
-    case 'restaurant':
-      return 'restaurant';
-    case 'sight':
-      return 'sight';
-    default:
-      throw new Error('Categoria de item inválida.');
-  }
 }
 
 function toPlainRecord(value: object): Record<string, unknown> {
@@ -115,13 +103,8 @@ export function usePartnerContentActions({
   const handleSaveEvent = useCallback(async () => {
     if (!isEditing || !user?.uid) return;
 
-    const requiresEstablishment =
-      partnerProfile?.category === 'hotel' ||
-      partnerProfile?.category === 'restaurant' ||
-      partnerProfile?.category === 'sight';
-
-    if (!isEditing.id && requiresEstablishment && !isEditing.establishmentId?.trim()) {
-      showToast('Selecione o estabelecimento ao qual o evento pertence.', 'error');
+    if (!isEditing.id && !isEditing.establishmentId?.trim()) {
+      showToast('Selecione o estabelecimento ou o perfil de produtor do evento.', 'error');
       return;
     }
 
@@ -138,7 +121,7 @@ export function usePartnerContentActions({
       images: isEditing.images ?? [],
       image: isEditing.image,
       entryType: isEditing.entryType || 'gratuito',
-      whatsappLink: isEditing.whatsappLink,
+      phone: isEditing.phone,
       websiteLink: isEditing.websiteLink,
       instagramLink: isEditing.instagramLink,
       address: isEditing.address,
@@ -164,11 +147,11 @@ export function usePartnerContentActions({
         eventCategory: isEditing.eventCategory || 'geral',
         customCategory: isEditing.customCategory,
         entryType: parsedEvent.data.entryType,
-        establishmentId: requiresEstablishment ? isEditing.establishmentId : undefined,
+        establishmentId: isEditing.establishmentId,
         instagramLink: isEditing.instagramLink,
         websiteLink: isEditing.websiteLink,
         bookingLink: isEditing.bookingLink,
-        whatsappLink: isEditing.whatsappLink,
+        phone: isEditing.phone,
         googleMapsLink: isEditing.googleMapsLink,
         address: isEditing.address,
         tags: isEditing.tags,
@@ -191,7 +174,7 @@ export function usePartnerContentActions({
     } finally {
       setIsLoading(false);
     }
-  }, [isEditing, user?.uid, partnerProfile?.category, setIsLoading, setIsEditing, showToast]);
+  }, [isEditing, user?.uid, setIsLoading, setIsEditing, showToast]);
 
   const handleSaveItem = useCallback(
     async (phoneValidateFn: () => boolean) => {
@@ -224,71 +207,11 @@ export function usePartnerContentActions({
           return;
         }
 
-        const itemData: PartnerContentItemInput = {
-          name: editorFormData.businessName,
-          description: editorFormData.description,
-          category: toPartnerItemCategory(editorFormData.category),
-          image: validUrls[0] || '',
-          images: validUrls,
-          location: editorFormData.region.trim(),
-          instagramLink: editorFormData.instagram,
-          websiteLink: editorFormData.website,
-          bookingLink: editorFormData.bookingLinks,
-          whatsappLink: editorFormData.phone,
-          googleMapsLink: editorFormData.googleMaps,
-          address: editorFormData.address,
-          operationalInfo: {
-            ...(editorFormData.category === 'hotel' && {
-              childrenAllowed:
-                editorFormData.childrenAllowed !== null
-                  ? editorFormData.childrenAllowed
-                  : undefined,
-              petsPolicy: editorFormData.petsPolicy,
-              petsExtraCost: editorFormData.petsExtraCost,
-              checkIn: {
-                from: editorFormData.checkInFrom,
-                to: editorFormData.checkInTo,
-              },
-              checkOut: {
-                from: editorFormData.checkOutFrom,
-                to: editorFormData.checkOutTo,
-              },
-              languages: editorFormData.languages,
-              amenities: editorFormData.amenities,
-              breakfast: {
-                serves:
-                  editorFormData.servesBreakfast !== null
-                    ? editorFormData.servesBreakfast
-                    : undefined,
-                included:
-                  editorFormData.breakfastIncluded !== null
-                    ? editorFormData.breakfastIncluded
-                    : undefined,
-                price: editorFormData.breakfastPrice,
-                types: editorFormData.breakfastTypes,
-              },
-            }),
-            ...(editorFormData.category === 'restaurant' && {
-              subcategory: editorFormData.subcategory,
-              cuisineType: editorFormData.cuisineType,
-              mealTypes: editorFormData.mealTypes,
-              additionalServices: editorFormData.additionalServices,
-              amenities: editorFormData.amenitiesRestaurant,
-              operatingHours: editorFormData.operatingHours,
-              languages: editorFormData.languages,
-              menuLink: editorFormData.menuLink || '',
-            }),
-            ...(editorFormData.category === 'sight' && {
-              activities: editorFormData.sightActivities,
-              services: editorFormData.sightServices,
-              amenities: editorFormData.sightAmenities,
-              access: editorFormData.sightAccessType || undefined,
-              price: editorFormData.sightPrice,
-              operatingHours: editorFormData.operatingHours,
-              languages: editorFormData.languages,
-            }),
-          },
-        };
+        // Mesma conversão da inscrição: o editor mostra e grava exatamente os campos do formulário.
+        const itemData: PartnerContentItemInput = mapPartnerSubmissionToGuideItem(
+          editorFormData,
+          validUrls
+        );
 
         if (!itemId) {
           await createPartnerContentItemUseCase(itemData);
