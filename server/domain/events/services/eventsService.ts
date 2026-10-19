@@ -2,79 +2,27 @@ import {
   EventDomainError,
   EventNotFoundError,
   EventOwnershipError,
-  OccurrenceNotFoundError,
 } from '../errors/eventDomainError';
 import type { EventsPort } from '../ports/eventsPort';
 import {
-  canTransitionOccurrenceStatus,
   type CreateEventListingInput,
   type CreateEventOccurrenceInput,
   type EventListing,
   type EventOccurrence,
   type EventRatingSummary,
   type UpdateEventListingInput,
-  type UpdateEventOccurrenceInput,
 } from '../types/eventTypes';
+import {
+  assertCanManageListing,
+  type EventActorContext,
+  validateOccurrenceTiming,
+} from './eventAccess';
 
-export interface EventActorContext {
-  uid: string;
-  admin?: boolean;
-  role?: string;
-}
+export type { EventActorContext } from './eventAccess';
 
+/** Anúncios de evento: criação, edição, publicação, duplicação e exclusão. */
 export class EventsService {
   constructor(private readonly eventsPort: EventsPort) {}
-
-  private assertCanManageListing(actor: EventActorContext, listing: EventListing): void {
-    if (actor.admin === true) {
-      return;
-    }
-    if (!actor.uid || listing.ownerId !== actor.uid) {
-      throw new EventOwnershipError();
-    }
-  }
-
-  private validateOccurrenceTiming(input: {
-    startsAt: string;
-    endsAt: string;
-    capacity: number;
-    salesStartsAt?: string;
-    salesEndsAt?: string;
-  }): void {
-    if (!Number.isInteger(input.capacity) || input.capacity <= 0) {
-      throw new EventDomainError(
-        'INVALID_ARGUMENT',
-        'A capacidade da ocorrência deve ser maior que zero.'
-      );
-    }
-    const startMs = new Date(input.startsAt).getTime();
-    const endMs = new Date(input.endsAt).getTime();
-    if (!Number.isFinite(startMs) || !Number.isFinite(endMs) || endMs <= startMs) {
-      throw new EventDomainError(
-        'INVALID_ARGUMENT',
-        'A data/hora de término deve ser posterior à data/hora de início.'
-      );
-    }
-    if (input.salesStartsAt && input.salesEndsAt) {
-      const salesStartMs = new Date(input.salesStartsAt).getTime();
-      const salesEndMs = new Date(input.salesEndsAt).getTime();
-      if (!Number.isFinite(salesStartMs) || !Number.isFinite(salesEndMs) || salesEndMs <= salesStartMs) {
-        throw new EventDomainError(
-          'INVALID_ARGUMENT',
-          'O encerramento das vendas deve ser posterior ao início das vendas.'
-        );
-      }
-    }
-    if (input.salesEndsAt) {
-      const salesEndMs = new Date(input.salesEndsAt).getTime();
-      if (!Number.isFinite(salesEndMs) || salesEndMs > startMs) {
-        throw new EventDomainError(
-          'INVALID_ARGUMENT',
-          'O encerramento das vendas não pode ultrapassar o início da ocorrência.'
-        );
-      }
-    }
-  }
 
   async createListing(
     actor: EventActorContext,
@@ -100,7 +48,7 @@ export class EventsService {
           : [];
 
     for (const occ of initialOccurrences) {
-      this.validateOccurrenceTiming(occ);
+      validateOccurrenceTiming(occ);
     }
 
     const firstOcc = initialOccurrences[0];
@@ -171,7 +119,7 @@ export class EventsService {
     if (!existing) {
       throw new EventNotFoundError();
     }
-    this.assertCanManageListing(actor, existing);
+    assertCanManageListing(actor, existing);
 
     const safeInput: UpdateEventListingInput = { ...input };
     delete (safeInput as Record<string, unknown>).ownerId;
@@ -216,7 +164,7 @@ export class EventsService {
     if (!existing) {
       throw new EventNotFoundError();
     }
-    this.assertCanManageListing(actor, existing);
+    assertCanManageListing(actor, existing);
 
     if (hasCommercialHistory) {
       await this.eventsPort.updateListing(id, { status: 'archived', isActive: false });
@@ -252,7 +200,7 @@ export class EventsService {
     if (!existing) {
       throw new EventNotFoundError();
     }
-    this.assertCanManageListing(actor, existing);
+    assertCanManageListing(actor, existing);
 
     return this.eventsPort.createListing({
       ownerId: actor.admin ? existing.ownerId : actor.uid,
@@ -273,309 +221,15 @@ export class EventsService {
       isActive: false,
       organizerId: existing.organizerId,
       location: existing.location,
-      contact: existing.contact,
+      phone: existing.phone,
+      websiteLink: existing.websiteLink,
+      instagramLink: existing.instagramLink,
+      bookingLink: existing.bookingLink,
       refundPolicy: existing.refundPolicy,
       ageRestriction: existing.ageRestriction,
       entryType: existing.entryType,
       pricingMode: existing.pricingMode,
     });
-  }
-
-  async createOccurrence(
-    actor: EventActorContext,
-    input: CreateEventOccurrenceInput
-  ): Promise<EventOccurrence> {
-    const listing = await this.eventsPort.getListingById(input.eventListingId);
-    if (!listing) {
-      throw new EventNotFoundError();
-    }
-    this.assertCanManageListing(actor, listing);
-    this.validateOccurrenceTiming(input);
-
-    const occurrence = await this.eventsPort.createOccurrence(input);
-
-    if (!listing.date) {
-      await this.eventsPort.updateListing(listing.id, {
-        date: occurrence.startsAt,
-        endDate: occurrence.endsAt,
-      });
-    }
-
-    await this.eventsPort.createAuditLog({
-      actorId: actor.uid,
-      actorType: actor.admin ? 'admin' : 'partner',
-      resourceType: 'occurrence',
-      resourceId: occurrence.id,
-      action: 'occurrence.created',
-      after: occurrence,
-    });
-
-    return occurrence;
-  }
-
-  async getOccurrenceById(occurrenceId: string): Promise<EventOccurrence | null> {
-    return this.eventsPort.getOccurrenceById(occurrenceId);
-  }
-
-  async listOccurrencesByListingId(
-    eventListingId: string,
-    options?: { publicOnly?: boolean }
-  ): Promise<EventOccurrence[]> {
-    const listing = await this.eventsPort.getListingById(eventListingId);
-    if (!listing) {
-      return [];
-    }
-    if (options?.publicOnly && (listing.status !== 'published' || listing.visibility !== 'public')) {
-      return [];
-    }
-    const occurrences = await this.eventsPort.listOccurrencesByListingId(eventListingId);
-    if (options?.publicOnly) {
-      return occurrences.filter((occ) => occ.status !== 'canceled');
-    }
-    return occurrences;
-  }
-
-  async updateOccurrence(
-    actor: EventActorContext,
-    occurrenceId: string,
-    input: UpdateEventOccurrenceInput,
-    committedTicketsCount = 0
-  ): Promise<EventOccurrence> {
-    const occurrence = await this.eventsPort.getOccurrenceById(occurrenceId);
-    if (!occurrence) {
-      throw new OccurrenceNotFoundError();
-    }
-    const listing = await this.eventsPort.getListingById(occurrence.eventListingId);
-    if (!listing) {
-      throw new EventNotFoundError();
-    }
-    this.assertCanManageListing(actor, listing);
-
-    if (input.status && !canTransitionOccurrenceStatus(occurrence.status, input.status)) {
-      throw new EventDomainError(
-        'UNPROCESSABLE_ENTITY',
-        `Transição de status inválida de ${occurrence.status} para ${input.status}.`
-      );
-    }
-
-    if (input.capacity !== undefined && input.capacity < committedTicketsCount) {
-      throw new EventDomainError(
-        'UNPROCESSABLE_ENTITY',
-        'A capacidade não pode ser reduzida abaixo da quantidade de ingressos vendidos ou reservados.'
-      );
-    }
-
-    if (
-      committedTicketsCount > 0 &&
-      ((input.startsAt && input.startsAt !== occurrence.startsAt) ||
-        (input.endsAt && input.endsAt !== occurrence.endsAt))
-    ) {
-      throw new EventDomainError(
-        'UNPROCESSABLE_ENTITY',
-        'Ocorrência com vendas ativas deve ser adiada/reagendada via operação de adiamento para preservar o histórico.'
-      );
-    }
-
-    const nextStartsAt = input.startsAt || occurrence.startsAt;
-    const nextEndsAt = input.endsAt || occurrence.endsAt;
-    const nextCapacity = input.capacity ?? occurrence.capacity;
-    const nextSalesStart = input.salesStartsAt ?? occurrence.salesStartsAt;
-    const nextSalesEnd = input.salesEndsAt ?? occurrence.salesEndsAt;
-
-    this.validateOccurrenceTiming({
-      startsAt: nextStartsAt,
-      endsAt: nextEndsAt,
-      capacity: nextCapacity,
-      salesStartsAt: nextSalesStart,
-      salesEndsAt: nextSalesEnd,
-    });
-
-    const updated = await this.eventsPort.updateOccurrence(occurrenceId, input);
-
-    await this.eventsPort.createAuditLog({
-      actorId: actor.uid,
-      actorType: actor.admin ? 'admin' : 'partner',
-      resourceType: 'occurrence',
-      resourceId: occurrenceId,
-      action: 'occurrence.updated',
-      before: occurrence,
-      after: updated,
-    });
-
-    return updated;
-  }
-
-  async cancelOccurrence(
-    actor: EventActorContext,
-    occurrenceId: string,
-    reason?: string
-  ): Promise<EventOccurrence> {
-    const occurrence = await this.eventsPort.getOccurrenceById(occurrenceId);
-    if (!occurrence) {
-      throw new OccurrenceNotFoundError();
-    }
-    const listing = await this.eventsPort.getListingById(occurrence.eventListingId);
-    if (!listing) {
-      throw new EventNotFoundError();
-    }
-    this.assertCanManageListing(actor, listing);
-
-    if (!canTransitionOccurrenceStatus(occurrence.status, 'canceled')) {
-      throw new EventDomainError(
-        'UNPROCESSABLE_ENTITY',
-        `Não é possível cancelar uma ocorrência no status ${occurrence.status}.`
-      );
-    }
-
-    const updated = await this.eventsPort.updateOccurrence(occurrenceId, {
-      status: 'canceled',
-      cancellationReason: reason || 'Cancelado pela organização.',
-    });
-
-    await this.eventsPort.createAuditLog({
-      actorId: actor.uid,
-      actorType: actor.admin ? 'admin' : 'partner',
-      resourceType: 'occurrence',
-      resourceId: occurrenceId,
-      action: 'occurrence.canceled',
-      reason,
-      before: occurrence,
-      after: updated,
-    });
-
-    return updated;
-  }
-
-  async postponeOccurrence(
-    actor: EventActorContext,
-    occurrenceId: string,
-    replacement: {
-      startsAt: string;
-      endsAt: string;
-      salesStartsAt?: string;
-      salesEndsAt?: string;
-      reason: string;
-    }
-  ): Promise<{ postponedOccurrence: EventOccurrence; newOccurrence: EventOccurrence }> {
-    const occurrence = await this.eventsPort.getOccurrenceById(occurrenceId);
-    if (!occurrence) {
-      throw new OccurrenceNotFoundError();
-    }
-    const listing = await this.eventsPort.getListingById(occurrence.eventListingId);
-    if (!listing) {
-      throw new EventNotFoundError();
-    }
-    this.assertCanManageListing(actor, listing);
-
-    if (!canTransitionOccurrenceStatus(occurrence.status, 'postponed')) {
-      throw new EventDomainError(
-        'UNPROCESSABLE_ENTITY',
-        `Não é possível adiar uma ocorrência no status ${occurrence.status}.`
-      );
-    }
-
-    this.validateOccurrenceTiming({
-      startsAt: replacement.startsAt,
-      endsAt: replacement.endsAt,
-      capacity: occurrence.capacity,
-      salesStartsAt: replacement.salesStartsAt,
-      salesEndsAt: replacement.salesEndsAt,
-    });
-
-    const newOccurrence = await this.eventsPort.createOccurrence({
-      eventListingId: occurrence.eventListingId,
-      startsAt: replacement.startsAt,
-      endsAt: replacement.endsAt,
-      capacity: occurrence.capacity,
-      salesStartsAt: replacement.salesStartsAt,
-      salesEndsAt: replacement.salesEndsAt,
-      locationOverride: occurrence.locationOverride,
-      rescheduledFromOccurrenceId: occurrence.id,
-    });
-
-    const postponedOccurrence = await this.eventsPort.updateOccurrence(occurrence.id, {
-      status: 'postponed',
-      postponementReason: replacement.reason,
-      rescheduledToOccurrenceId: newOccurrence.id,
-    });
-
-    await this.eventsPort.createAuditLog({
-      actorId: actor.uid,
-      actorType: actor.admin ? 'admin' : 'partner',
-      resourceType: 'occurrence',
-      resourceId: occurrence.id,
-      action: 'occurrence.postponed',
-      reason: replacement.reason,
-      before: occurrence,
-      after: {
-        postponedOccurrenceId: postponedOccurrence.id,
-        newOccurrenceId: newOccurrence.id,
-      },
-    });
-
-    return { postponedOccurrence, newOccurrence };
-  }
-
-  async completeOccurrence(
-    actor: EventActorContext,
-    occurrenceId: string
-  ): Promise<EventOccurrence> {
-    const occurrence = await this.eventsPort.getOccurrenceById(occurrenceId);
-    if (!occurrence) {
-      throw new OccurrenceNotFoundError();
-    }
-    const listing = await this.eventsPort.getListingById(occurrence.eventListingId);
-    if (!listing) {
-      throw new EventNotFoundError();
-    }
-    this.assertCanManageListing(actor, listing);
-
-    if (!canTransitionOccurrenceStatus(occurrence.status, 'completed')) {
-      throw new EventDomainError(
-        'UNPROCESSABLE_ENTITY',
-        `Não é possível concluir uma ocorrência no status ${occurrence.status}.`
-      );
-    }
-
-    return this.eventsPort.updateOccurrence(occurrenceId, {
-      status: 'completed',
-    });
-  }
-
-  async deleteOccurrence(
-    actor: EventActorContext,
-    occurrenceId: string,
-    hasCommercialHistory: boolean
-  ): Promise<{ mode: 'deleted' | 'canceled' }> {
-    const occurrence = await this.eventsPort.getOccurrenceById(occurrenceId);
-    if (!occurrence) {
-      throw new OccurrenceNotFoundError();
-    }
-    const listing = await this.eventsPort.getListingById(occurrence.eventListingId);
-    if (!listing) {
-      throw new EventNotFoundError();
-    }
-    this.assertCanManageListing(actor, listing);
-
-    if (hasCommercialHistory) {
-      await this.cancelOccurrence(
-        actor,
-        occurrenceId,
-        'Cancelada por exclusão com histórico comercial.'
-      );
-      return { mode: 'canceled' };
-    }
-
-    await this.eventsPort.deleteOccurrence(occurrenceId);
-    await this.eventsPort.createAuditLog({
-      actorId: actor.uid,
-      actorType: actor.admin ? 'admin' : 'partner',
-      resourceType: 'occurrence',
-      resourceId: occurrenceId,
-      action: 'occurrence.deleted',
-    });
-
-    return { mode: 'deleted' };
   }
 
   async updateRatingSummary(eventListingId: string, summary: EventRatingSummary): Promise<void> {
@@ -591,14 +245,14 @@ export class EventsService {
       isVerificationSuspended: boolean;
     }
   ): Promise<void> {
-    if (!ownerId || !ownerId.trim()) {
+    if (!ownerId?.trim()) {
       throw new EventDomainError('INVALID_ARGUMENT', 'ID do proprietário inválido');
     }
     await this.eventsPort.updateVerificationByOwner(ownerId, verification);
   }
 
   async deleteListingsByOwner(ownerId: string): Promise<void> {
-    if (!ownerId || !ownerId.trim()) {
+    if (!ownerId?.trim()) {
       return;
     }
     await this.eventsPort.deleteListingsByOwner(ownerId);

@@ -1,4 +1,4 @@
-import { eventsService } from '../factory';
+import { eventOccurrencesService } from '../factory';
 import type { EventActorContext } from '../services/eventsService';
 import type { EventOccurrence, UpdateEventOccurrenceInput } from '../types/eventTypes';
 
@@ -8,5 +8,10 @@ export async function updateEventOccurrenceUseCase(
   input: UpdateEventOccurrenceInput,
   committedTicketsCount = 0
 ): Promise<EventOccurrence> {
-  return eventsService.updateOccurrence(actor, occurrenceId, input, committedTicketsCount);
+  return eventOccurrencesService.updateOccurrence(
+    actor,
+    occurrenceId,
+    input,
+    committedTicketsCount
+  );
 }

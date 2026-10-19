@@ -1,4 +1,4 @@
-import { eventsService } from '../factory';
+import { eventOccurrencesService } from '../factory';
 import type { EventActorContext } from '../services/eventsService';
 import type { EventOccurrence } from '../types/eventTypes';
 
@@ -13,5 +13,5 @@ export async function postponeEventOccurrenceUseCase(
     reason: string;
   }
 ): Promise<{ postponedOccurrence: EventOccurrence; newOccurrence: EventOccurrence }> {
-  return eventsService.postponeOccurrence(actor, occurrenceId, replacement);
+  return eventOccurrencesService.postponeOccurrence(actor, occurrenceId, replacement);
 }

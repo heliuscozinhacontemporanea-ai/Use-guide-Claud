@@ -1,8 +1,8 @@
-import { eventsService } from '../factory';
+import { eventOccurrencesService } from '../factory';
 import type { EventOccurrence } from '../types/eventTypes';
 
 export async function getEventOccurrenceByIdUseCase(
   occurrenceId: string
 ): Promise<EventOccurrence | null> {
-  return eventsService.getOccurrenceById(occurrenceId);
+  return eventOccurrencesService.getOccurrenceById(occurrenceId);
 }
