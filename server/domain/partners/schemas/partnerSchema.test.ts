@@ -85,7 +85,6 @@ describe('Partner Validation Schemas (Backend)', () => {
       );
     });
   });
-
   describe('activateTrialSchema', () => {
     it('should validate trial activation with required trimmed partnerId', () => {
       const result = activateTrialSchema.safeParse({

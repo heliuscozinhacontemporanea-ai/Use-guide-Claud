@@ -77,13 +77,21 @@ describe('Partner Validation Schemas (Frontend)', () => {
         expect(res.success).toBe(true);
       }
 
+      // Perfil de produtor: nome obrigatório, descrição opcional.
       const resProducer = step1Schema.safeParse({
+        category: 'producer',
+        businessName: 'Produtora Sol',
+        cpfCnpj: VALID_TEST_CPF,
+        description: '',
+      });
+      expect(resProducer.success).toBe(true);
+      const producerWithoutName = step1Schema.safeParse({
         category: 'producer',
         businessName: '',
         cpfCnpj: VALID_TEST_CPF,
         description: '',
       });
-      expect(resProducer.success).toBe(true);
+      expect(producerWithoutName.success).toBe(false);
     });
   });
 

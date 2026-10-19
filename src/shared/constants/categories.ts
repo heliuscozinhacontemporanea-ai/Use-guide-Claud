@@ -19,7 +19,7 @@ export const CATEGORIES = {
   },
   tour: {
     id: 'tour',
-    label: 'Aventura',
+    label: 'Passeios',
     colorClass: 'text-cyan-400',
     bgClass: 'bg-cyan-500/10',
     borderClass: 'border-cyan-500/20',
@@ -28,7 +28,7 @@ export const CATEGORIES = {
   },
   transfer: {
     id: 'transfer',
-    label: 'Translado',
+    label: 'Translados',
     colorClass: 'text-sky-400',
     bgClass: 'bg-sky-500/10',
     borderClass: 'border-sky-500/20',
@@ -37,12 +37,12 @@ export const CATEGORIES = {
   },
   rental: {
     id: 'rental',
-    label: 'Aluguel',
-    colorClass: 'text-violet-400',
-    bgClass: 'bg-violet-500/10',
-    borderClass: 'border-violet-500/20',
-    badgeClass: 'bg-violet-500/20 text-violet-300 border-violet-500/20',
-    icon: 'KeyRound',
+    label: 'Aluguéis',
+    colorClass: 'text-orange-400',
+    bgClass: 'bg-orange-500/10',
+    borderClass: 'border-orange-500/20',
+    badgeClass: 'bg-orange-500/20 text-orange-300 border-orange-500/20',
+    icon: 'Bike',
   },
   hotel: {
     id: 'hotel',
@@ -64,7 +64,7 @@ export const CATEGORIES = {
   },
   producer: {
     id: 'producer',
-    label: 'Produtora',
+    label: 'Produtor de eventos',
     colorClass: 'text-fuchsia-400',
     bgClass: 'bg-fuchsia-500/10',
     borderClass: 'border-fuchsia-500/20',
@@ -81,4 +81,3 @@ export const CATEGORIES = {
     icon: 'Calendar',
   },
 } as const;
-

@@ -78,7 +78,7 @@ describe('mapPartnerSubmissionToGuideItem', () => {
   it('categoria inválida: deve lançar erro se a categoria for incompatível (ex: tour ou event)', () => {
     const invalidCategoryData: PartnerSubmissionData = {
       ...baseData,
-      category: 'event' as any,
+      category: 'event',
     };
 
     expect(() => mapPartnerSubmissionToGuideItem(invalidCategoryData, ['https://img.jpg'])).toThrow(

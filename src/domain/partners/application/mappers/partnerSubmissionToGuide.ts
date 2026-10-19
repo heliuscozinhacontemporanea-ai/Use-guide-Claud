@@ -90,7 +90,7 @@ export function mapPartnerSubmissionToGuideItem(
     instagramLink: formData.instagram,
     websiteLink: formData.website,
     bookingLink: formData.bookingLinks,
-    phone: toE164(formData.phoneDdi ?? '+55', formData.phone),
+    phone: toE164(formData.phoneDdi, formData.phone),
     googleMapsLink: formData.googleMaps,
     address: formData.address,
     operationalInfo: buildOperationalInfo(formData),

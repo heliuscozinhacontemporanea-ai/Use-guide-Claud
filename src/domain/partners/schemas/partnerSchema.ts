@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { isValidCpfCnpj } from '../../../shared/utils/documentValidator';
 import type { UserSession } from '../../auth';
 
+// Categoria do primeiro cadastro na inscrição; `producer` cria o perfil de produtor de eventos.
 const partnerCategorySchema = z.enum(['sight', 'hotel', 'restaurant', 'producer']);
 
 export const step1Schema = z
@@ -15,14 +16,17 @@ export const step1Schema = z
     description: z.string().default(''),
   })
   .superRefine((data, ctx) => {
+    if (!data.businessName || data.businessName.trim() === '') {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['businessName'],
+        message:
+          data.category === 'producer'
+            ? 'Nome do produtor é obrigatório'
+            : 'Nome do estabelecimento é obrigatório',
+      });
+    }
     if (data.category !== 'producer') {
-      if (!data.businessName || data.businessName.trim() === '') {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['businessName'],
-          message: 'Nome do estabelecimento é obrigatório',
-        });
-      }
       if (!data.description || data.description.trim() === '') {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,

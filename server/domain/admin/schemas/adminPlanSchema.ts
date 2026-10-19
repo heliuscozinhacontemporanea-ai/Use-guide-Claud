@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+
 export const updatePlanSchema = z
   .object({
     name: z.string().trim().min(1).max(200).optional(),
@@ -15,4 +16,3 @@ export const updatePlanSchema = z
   });
 
 export type UpdatePlanInput = z.infer<typeof updatePlanSchema>;
-

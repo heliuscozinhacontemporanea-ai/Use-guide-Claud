@@ -13,9 +13,7 @@ export { getEmptyFormData, mapItemToFormData, isValidUrl };
 export function usePartnerPanelActions(profileData?: PartnerProfile) {
   const layout = usePartnerLayoutState();
 
-  const profile = usePartnerProfile(profileData, (autoTab) => {
-    layout.setActiveTab(autoTab);
-  });
+  const profile = usePartnerProfile(profileData);
 
   const items = usePartnerItems({
     user: profile.user,
@@ -41,7 +39,6 @@ export function usePartnerPanelActions(profileData?: PartnerProfile) {
     partnerProfile: profile.partnerProfile,
     profileStatus: profile.profileStatus,
     isVerified: profile.isVerified,
-    isEventProducer: profile.isEventProducer,
 
     activeTab: layout.activeTab,
     setActiveTab: layout.setActiveTab,
