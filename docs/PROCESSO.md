@@ -76,6 +76,7 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 | 18.2.1 | Sessões do evento no editor (parceiro e admin) | `ce7f92a` | ⏳ enviar (lote 12) | — |
 | 18.2.2 | Contato do evento em um só lugar (B19) | `94a3ad6` | ⏳ enviar (lote 12) | — |
 | 18.2.3 | Visualizações de visitantes nos insights; relatório com a divisão | `45b17ec` | ⏳ enviar (lote 12) | — |
+| 18.2.4 | Idioma do navegador na primeira visita (D10) | `93c6c9b` | ⏳ enviar (lote 12) | — |
 
 ## Gates
 

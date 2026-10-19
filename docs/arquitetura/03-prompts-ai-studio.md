@@ -99,7 +99,7 @@
 
 ---
 
-# Lote 12 (Prompts 18.2, A3, 18.2.1, 18.2.2 e 18.2.3) — aplicar sobre o zip de 2026-10-19 (2º)
+# Lote 12 (Prompts 18.2, A3, 18.2.1, 18.2.2, 18.2.3 e 18.2.4) — aplicar sobre o zip de 2026-10-19 (2º)
 
 > O lote 11 chegou igual à referência. O AI Studio também trocou os ícones de translado e produtor por ícones que existem no `StandardCard`; a troca foi adotada, e o 18.2 acrescenta o do aluguel.
 
@@ -110,15 +110,16 @@
 | 3 | `prompts/prompt-18.2.1.md` | Sessões do evento no editor (parceiro e admin): `EventSessionsField`, `saveEventSessionsUseCase`, `PartnerEventForm` dividido | `ce7f92a` |
 | 4 | `prompts/prompt-18.2.2.md` | Contato do evento só nos campos do topo (B19); `eventsService` dividido em anúncios e sessões | `94a3ad6` |
 | 5 | `prompts/prompt-18.2.3.md` | Visualizações de visitantes nos insights (erro do modal de detalhe), relatório com total e divisão em percentual, métricas com checagem de dono no backend, `trust proxy` por `TRUST_PROXY_HOPS` | `45b17ec` |
+| 6 | `prompts/prompt-18.2.4.md` | Idioma do navegador na primeira visita (D10): home redireciona para /en ou /fr, aviso nas páginas em português, idioma gravado só por escolha, `preferredLocale` na conta | `93c6c9b` |
 
 > **Envie um prompt por mensagem**, nesta ordem.
 
-| Gate | Resultado na referência (`45b17ec`) |
+| Gate | Resultado na referência (`93c6c9b`) |
 |---|---|
 | `npm run typecheck` | ✅ |
 | `npx biome lint .` | ✅ 0 erros |
-| `npx biome lint` nos arquivos tocados | ✅ 0 avisos (total do projeto: 303) |
-| `npm test` | ✅ 150 arquivos, 824 testes |
+| `npx biome lint` nos arquivos tocados | ✅ 0 avisos (total do projeto: 290) |
+| `npm test` | ✅ 154 arquivos, 846 testes |
 | `npm run test:rules` | ✅ 4 arquivos, 60 testes |
 | `npm run build` | ✅ |
 
