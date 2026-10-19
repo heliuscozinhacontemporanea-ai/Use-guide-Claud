@@ -72,7 +72,7 @@
 
 ---
 
-# Lote 11 (Prompts 18.0.1 e 18.1) — aplicar sobre o zip de 2026-10-19
+# Lote 11 (Prompts 18.0.1 e 18.1) ✅ aplicado (zip 2026-10-19, 2º)
 
 > Comparação do zip de 2026-10-19:
 > - o 17.3 veio correto;
@@ -96,3 +96,20 @@
 | `npm run build` | ✅ |
 
 **Ação manual:** configure `VITE_SUPPORT_WHATSAPP` (E.164) nos Secrets do AI Studio e no build de produção, se ainda não fez.
+
+---
+
+# Lote 12 (Prompt 18.2) — aplicar sobre o zip de 2026-10-19 (2º)
+
+> O lote 11 chegou igual à referência. O AI Studio também trocou os ícones de translado e produtor por ícones que existem no `StandardCard`; a troca foi adotada, e o 18.2 acrescenta o do aluguel.
+
+| Ordem | Arquivo | Tema | Commit de referência |
+|---|---|---|---|
+| 1 | `prompts/prompt-18.2.md` | Editor único de cadastro: `ListingEditor` no painel do parceiro e no admin (via `AdminPanelComposition`), dicas e eventos no editor do admin | `fbfbfe9` |
+
+| Gate | Resultado na referência (`fbfbfe9`) |
+|---|---|
+| `npm run typecheck` | ✅ |
+| `npx biome lint .` | ✅ 0 erros |
+| `npm test` | ✅ 141 arquivos, 792 testes |
+| `npm run build` | ✅ |

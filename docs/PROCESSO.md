@@ -67,8 +67,9 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 | 17.2 | Oferta só com Stripe pronto | `5d66eea` | ✅ zip 2026-10-18 | ✅ igual + datas no fuso de Fortaleza no gerenciador de ingressos (fora do escopo, correto, adotado) |
 | 17.3 | Completa o lote 9 | `3fd9a3f` | ✅ zip 2026-10-19 | ✅ igual à referência |
 | 18 | Vários cadastros, categorias novas, telefone E.164 | `78c9c7d` | ⚠️ zip 2026-10-19 | ❌ só em parte: conta com categoria (inscrição recusada, perfil não carrega), `whatsappLink`, rótulos; + correção do AI Studio no `guideService` (adotada) → prompt 18.0.1 |
-| 18.0.1 | Completa o 18 | `64b792a` | ⏳ enviar (lote 11) | — |
-| 18.1 | Inscrição e editor com passeio/translado/aluguel | `1c15de9` | ❌ não aplicado no lote 10 → reenviar (lote 11) | — |
+| 18.0.1 | Completa o 18 | `64b792a` | ✅ zip 2026-10-19 (2º) | ✅ igual à referência |
+| 18.1 | Inscrição e editor com passeio/translado/aluguel | `1c15de9` | ✅ zip 2026-10-19 (2º) | ✅ igual + ícones de translado e produtor que existem no `StandardCard` (adotado) |
+| 18.2 | Editor único de cadastro (parceiro e admin) | `fbfbfe9` | ⏳ enviar (lote 12) | — |
 
 ## Gates
 
