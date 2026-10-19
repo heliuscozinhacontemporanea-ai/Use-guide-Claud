@@ -21,6 +21,7 @@
 | D9 | Parceiros com vários estabelecimentos e novas categorias | ✅ Aprovada | 2026-10-12 |
 | D10 | Idioma na primeira visita (navegador) | ✅ Aprovada | 2026-10-19 |
 | D11 | Plano "Use Guide Verificado", selo e destaque por estabelecimento | ✅ Aprovada | 2026-10-19 |
+| D12 | Verificação e documento por estabelecimento; venda só com verificação | ✅ Aprovada | 2026-10-19 |
 
 ---
 
@@ -125,7 +126,8 @@
 Detalha o item "Selo e plano por estabelecimento" da D9. Modelo de referência: Meta Verified para empresas (assinatura que libera o selo, mas só para quem passou por verificação).
 
 * **Dono do plano:** cada estabelecimento e o perfil de produtor (documentos em `items`). Estado do plano em `listingPlans/{itemId}` (só backend); o item recebe a cópia pública. Os campos de plano e selo saem de `partners/{uid}`, sem migração (§2.2 item 8).
-* **Selo:** aparece só com **plano ativo do estabelecimento** (pago, trial ou concedido pelo admin) **e conta do parceiro aprovada pelo admin** (status `active`, documentos CPF/CNPJ conferidos). Ao tocar no selo, o app explica: "Responsável verificado pelo Use Guide · assinante do plano Use Guide Verificado".
+* **Selo:** aparece só com **plano ativo do estabelecimento** (pago, trial ou concedido pelo admin) **e estabelecimento verificado pelo admin** (D12). Ao tocar no selo, o app explica: "Responsável verificado pelo Use Guide · assinante do plano Use Guide Verificado".
+* **Plano e trial antes da verificação:** bloqueados (código `LISTING_PENDING_VERIFICATION`); avaliações, respostas e cadastro continuam liberados.
 * **Nome do plano:** "Use Guide Verificado" (períodos mensal, semestral e anual).
 * **Trial:** uma vez **por conta**, 7 dias; o parceiro escolhe o estabelecimento.
 * **Preço:** cheio por estabelecimento (catálogo atual), sem desconto por quantidade.
@@ -136,3 +138,23 @@ Detalha o item "Selo e plano por estabelecimento" da D9. Modelo de referência: 
 * **Benefícios:** avaliações e respostas **sempre liberadas**, com ou sem plano. As métricas (insights) de um estabelecimento exigem o plano daquele estabelecimento, conferido no backend.
 * **Destaque nas listas (opção C):** **3 vagas** "Destaque" no topo de cada lista (valor de configuração), em rodízio diário entre os estabelecimentos com plano ativo; o resto da lista em ordem orgânica (nota, avaliações), com assinantes e não assinantes juntos. A vaga paga é sempre identificada como "Destaque" (CDC art. 36).
 * **Prompts:** 18.3 (backend) e 18.3.1 (frontend).
+
+## D12 — Verificação e documento por estabelecimento (2026-10-19)
+
+Referências: Receita Federal (IN RFB nº 2.119/2022: cada estabelecimento tem CNPJ próprio, matriz ou filial), Google (verificação por local), Airbnb, Booking, GetYourGuide e Stripe (verificação em registro oficial antes de pagar o parceiro).
+
+* **Verificação por estabelecimento** (P0). O cadastro da conta deixa de pedir CPF/CNPJ; o status da conta fica só para suspensão. Cada estabelecimento nasce "aguardando verificação".
+* **Documento:** no cadastro de cada estabelecimento, o parceiro escolhe CPF ou CNPJ.
+  * **CNPJ:** 1 estabelecimento por CNPJ (filial usa o CNPJ da filial).
+  * **CPF** (P4, opção B): pode ter vários estabelecimentos; o admin confere o CPF uma vez, e os outros estabelecimentos com o mesmo CPF já nascem conferidos.
+  * **Perfil de produtor** (P6, opção A): usa o documento de um estabelecimento da mesma conta, fora da regra 1:1.
+* **Venda** (P1, opção A): exige estabelecimento verificado pelo admin **e** conta Stripe pronta.
+* **CPF não vende** (P3, opção A): vender exige CNPJ (MEI serve). Estabelecimento com CPF aparece no guia, pode ter plano e selo, mas não vende.
+* **Prova do CNPJ** (P2, opção A): o parceiro envia o PDF do Cartão CNPJ (Comprovante de Inscrição e de Situação Cadastral), e o admin confere na Receita antes de aprovar: situação "ATIVA" e nome compatível com o estabelecimento.
+* **Vínculo pessoa-empresa** (P5, opção A): o titular da conta precisa ser sócio ou administrador no Quadro de Sócios e Administradores (QSA) da Receita, ou o titular do MEI, e envia foto do documento de identidade (RG ou CNH). Gerente ou funcionário entra com autorização assinada por um sócio.
+* **Cadastur** (P7, opção A): campo opcional e informativo por enquanto.
+* **Proteção dos dados:**
+  * CPF, CNPJ de pessoa física (MEI) e documentos de identidade são classe Restrita (AGENTS.md §7.6). O número fica cifrado (AES-256-GCM com Cloud KMS) e a unicidade usa índice cego (HMAC), conforme §7.7. Isso resolve o débito de `partnerDocumentKeys/{cpfCnpj}` em texto puro.
+  * Os arquivos ficam em pasta privada do Storage, com nome gerado pelo servidor, e são apagados quando o estabelecimento ou a conta é excluído.
+* **Repasse** (P8, opção A): uma conta Stripe por documento, no Prompt 18.4. Até lá, só vende o estabelecimento cujo documento é o da conta Stripe do parceiro.
+* **Ordem** (P9): 18.3.0 (documento, criptografia e verificação por estabelecimento) → 18.3 (plano e selo, backend) → 18.3.1 (telas) → 18.4 (Stripe por documento) → 19.x (tradução).
