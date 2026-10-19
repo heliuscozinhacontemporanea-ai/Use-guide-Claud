@@ -105,11 +105,12 @@
 
 | Ordem | Arquivo | Tema | Commit de referência |
 |---|---|---|---|
-| 1 | `prompts/prompt-18.2.md` | Editor único de cadastro: `ListingEditor` no painel do parceiro e no admin (via `AdminPanelComposition`), dicas e eventos no editor do admin | `fbfbfe9` |
+| 1 | `prompts/prompt-18.2.md` | Editor único de cadastro: `ListingEditor` no painel do parceiro e no admin (via `AdminPanelComposition`), dicas e eventos no editor do admin; avisos do lint corrigidos nos arquivos tocados | `fbfbfe9` + `c2658aa` |
 
-| Gate | Resultado na referência (`fbfbfe9`) |
+| Gate | Resultado na referência (`c2658aa`) |
 |---|---|
 | `npm run typecheck` | ✅ |
 | `npx biome lint .` | ✅ 0 erros |
+| `npx biome lint` nos arquivos tocados | ✅ 0 avisos (total do projeto: 318) |
 | `npm test` | ✅ 141 arquivos, 792 testes |
 | `npm run build` | ✅ |

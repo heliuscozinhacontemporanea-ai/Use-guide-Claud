@@ -33,6 +33,7 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 
 * **AGENTS.md não é alterado** por nenhum prompt nem pelo Claude sem sua autorização (agora também escrito no §15). Propostas ficam em `docs/arquitetura/solicitacoes-agents.md`.
 * **Sem código legado ou de transição** enquanto o app não for liberado para usuários.
+* **Arquivo tocado sai sem avisos do lint e formatado** (regra de 2026-10-19; proposta S10 para o AGENTS.md).
 
 ## Acompanhamento dos prompts
 
@@ -69,7 +70,7 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 | 18 | Vários cadastros, categorias novas, telefone E.164 | `78c9c7d` | ⚠️ zip 2026-10-19 | ❌ só em parte: conta com categoria (inscrição recusada, perfil não carrega), `whatsappLink`, rótulos; + correção do AI Studio no `guideService` (adotada) → prompt 18.0.1 |
 | 18.0.1 | Completa o 18 | `64b792a` | ✅ zip 2026-10-19 (2º) | ✅ igual à referência |
 | 18.1 | Inscrição e editor com passeio/translado/aluguel | `1c15de9` | ✅ zip 2026-10-19 (2º) | ✅ igual + ícones de translado e produtor que existem no `StandardCard` (adotado) |
-| 18.2 | Editor único de cadastro (parceiro e admin) | `fbfbfe9` | ⏳ enviar (lote 12) | — |
+| 18.2 | Editor único de cadastro (parceiro e admin) + lint dos arquivos tocados | `fbfbfe9` + `c2658aa` | ⏳ enviar (lote 12) | — |
 
 ## Gates
 

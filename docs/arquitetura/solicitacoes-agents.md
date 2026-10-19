@@ -15,6 +15,7 @@
 | S7 | §12.7 | Decisões D6 (URLs por idioma) e D7 (SEO no Cloud Run) | ✅ Aprovada em 2026-10-10 (prompt A1) |
 | S8 | §15 | Referenciar o registro de decisões aprovadas | ✅ Aprovada em 2026-10-10 (prompt A1) |
 | S9 | §13 | O texto cita agregadores de UseCases que o prompt 15 eliminou | ✅ Aprovada em 2026-10-12 (prompt A2) |
+| S10 | §13 e §16.1 | Formalizar que arquivo tocado sai sem avisos do lint e formatado | ⏳ Aguardando autorização |
 
 ---
 
@@ -93,3 +94,20 @@
 
 **Texto proposto:**
 > * **Um UseCase por arquivo** (`createBookingUseCase.ts`), com o nome do arquivo igual ao da função exportada. É proibido criar arquivo agregador de UseCases; tipos compartilhados entre UseCases ficam em arquivo próprio (ex: `orchestrationActor.ts`).
+
+## S10 — §13 e §16.1: arquivo tocado sai sem avisos do lint
+
+**Por quê:** regra dada pelo responsável do produto em 2026-10-19: quando uma refatoração toca um arquivo, os problemas presentes nesse arquivo devem ser corrigidos. Hoje o §16.1 só exige "biome sem erros", e o projeto acumula cerca de 320 avisos (`any`, imports sem uso, dependências de efeito). Sem a regra escrita, o agente do AI Studio não a conhece.
+
+**Texto atual (§13, último item da lista de tamanho):**
+> * Referência de tamanho: arquivo acima de **~200 linhas** DEVE ser avaliado para divisão; acima de **400** linhas, dividir ao tocar (exceto testes, schemas e mappers declarativos).
+
+**Texto proposto (novo item no §13, logo depois):**
+> * Arquivo tocado DEVE sair sem avisos do lint (`npx biome lint <arquivo>`) e formatado (`npx biome format --write <arquivo>`). Aviso que não puder ser corrigido sem mudar comportamento recebe `biome-ignore` com justificativa ou vai para `docs/arquitetura/debitos.md`.
+
+**Texto atual (§16.1):**
+> npm run lint        # biome sem erros
+
+**Texto proposto (§16.1):**
+> npm run lint        # biome sem erros; arquivos tocados sem avisos (§13)
+

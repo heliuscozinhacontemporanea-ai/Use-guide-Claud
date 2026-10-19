@@ -1,6 +1,6 @@
 # Prompt 18.2 — Editor único de cadastro (parceiro e admin)
 
-> Lote 12, gerado do commit de referência `fbfbfe9` da branch `claude/agents-md-v2`. Aplique sobre o zip de 2026-10-19 (2º), que já tem o lote 11. Cole o bloco abaixo no agente do AI Studio, inteiro, de uma vez.
+> Lote 12, gerado dos commits de referência `fbfbfe9` e `c2658aa` da branch `claude/agents-md-v2`. Aplique sobre o zip de 2026-10-19 (2º), que já tem o lote 11. Cole o bloco abaixo no agente do AI Studio, inteiro, de uma vez.
 
 ---
 
@@ -26,6 +26,7 @@ O QUE MUDA:
 5) StandardCard: ícone Bike no mapa de ícones (o aluguel mostrava o ícone genérico).
 6) docs/arquitetura/debitos.md: B17 atualizado e resolução "Editor único de cadastro — Prompt 18.2".
 7) Testes novos: useListingEditorValidation.test.ts e AdminItemGrid.test.tsx.
+8) Avisos do lint corrigidos nos arquivos tocados (regra: arquivo tocado sai sem avisos): dependências dos efeitos do AdminEditorModal e do usePartnerProfile, useConnection sem uso no AppRouter, parâmetros sem uso nos hooks do painel e imports de React sem uso. Os arquivos tocados ficam formatados pelo biome.
 
 ARQUIVOS (crie, altere ou apague exatamente estes):
 - docs/arquitetura/debitos.md (alterar)
@@ -96,7 +97,31 @@ Aplique as mudanças abaixo EXATAMENTE como estão (formato unified diff: linhas
  import { LoginModal } from '../domain/auth/components/LoginModal';
  import { useAuthContext } from '../domain/auth/context/AuthContext';
  import { UserRole } from '../domain/auth/types/auth';
-@@ -319,7 +319,7 @@ export function AppRouter() {
+@@ -15,7 +15,6 @@ import { TipDetailModal } from '../domain/guide/components/TipDetailModal';
+ import { TourDetailModal } from '../domain/guide/components/TourDetailModal';
+ import { PartnersModal } from '../domain/partners';
+ import { SearchOverlay } from '../domain/search';
+-import { useConnection } from '../shared/hooks/useConnection';
+ import { useScrollLock } from '../shared/hooks/useScrollLock';
+ import { useLocalizedRouting, useSyncLocaleWithUrl } from '../shared/hooks/useLocalizedRouting';
+ import { useSEO } from '../shared/hooks/useSEO';
+@@ -40,7 +39,6 @@ export function AppRouter() {
+   const { routeKey } = useLocalizedRouting();
+   const isExplorePage = routeKey === 'explore';
+   useSyncLocaleWithUrl();
+-  const connection = useConnection();
+   const [searchParams, setSearchParams] = useSearchParams();
+   const { isLoginModalOpen, isLoginClosingBySwipe, closeLoginModal, openLoginModal } = useUI();
+   const loginModalTab = useUIStore((state) => state.loginModalTab);
+@@ -255,6 +253,7 @@ export function AppRouter() {
+   const [isScrolled, setIsScrolled] = useState(false);
+   const [isSearchSticky, setIsSearchSticky] = useState(false);
+ 
++  // biome-ignore lint/correctness/useExhaustiveDependencies: a busca fixa volta ao normal a cada troca de rota.
+   useEffect(() => {
+     setIsSearchSticky(false);
+   }, [location.pathname]);
+@@ -319,7 +318,7 @@ export function AppRouter() {
          )}
  
          {isAdminOpen ? (
@@ -233,7 +258,22 @@ export function AdminPanelComposition() {
  import { useLocalizedRouting } from '../../../shared/hooks/useLocalizedRouting';
  
  function RestrictedAdminAccess() {
-@@ -32,7 +32,7 @@ function RestrictedAdminAccess() {
+@@ -12,12 +12,8 @@ function RestrictedAdminAccess() {
+       <div className="w-20 h-20 rounded-full bg-rose-500/10 flex items-center justify-center text-rose-500 mb-6 border border-rose-500/20">
+         <ShieldAlert size={32} />
+       </div>
+-      <h2 className="text-2xl font-display font-extrabold mb-2 text-white">
+-        Acesso Restrito
+-      </h2>
+-      <p className="text-white/50 mb-8 max-w-xs">
+-        Este portal é exclusivo para administradores.
+-      </p>
++      <h2 className="text-2xl font-display font-extrabold mb-2 text-white">Acesso Restrito</h2>
++      <p className="text-white/50 mb-8 max-w-xs">Este portal é exclusivo para administradores.</p>
+       <button
+         type="button"
+         onClick={() => goTo('explore')}
+@@ -32,7 +28,7 @@ function RestrictedAdminAccess() {
    );
  }
  
@@ -242,7 +282,19 @@ export function AdminPanelComposition() {
    const { goTo } = useLocalizedRouting();
    const { user, loading } = useAuthContext();
  
-@@ -64,5 +64,5 @@ export function AdminDispatcher() {
+@@ -45,10 +41,7 @@ export function AdminDispatcher() {
+   if (loading) {
+     return (
+       <div className="min-h-screen flex flex-col items-center justify-center bg-[#020508]">
+-        <RefreshCw
+-          className="animate-spin text-teal-500 mb-4"
+-          size={32}
+-        />
++        <RefreshCw className="animate-spin text-teal-500 mb-4" size={32} />
+         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">
+           Verificando Credenciais...
+         </p>
+@@ -64,5 +57,5 @@ export function AdminDispatcher() {
      return <RestrictedAdminAccess />;
    }
  
@@ -366,6 +418,11 @@ export function AdminPanelComposition() {
        <AnimatePresence>
          {isEditing && (
            <AdminEditorModal
+@@ -355,4 +389,3 @@ export function AdminPanel() {
+     </div>
+   );
+ }
+-
 
 === src/domain/admin/components/subcomponents/AdminEditorModal.tsx — diff ===
 @@ -16,15 +16,11 @@ import {
@@ -386,10 +443,64 @@ export function AdminPanelComposition() {
  
  export type AdminEditorSaveData = GuideItem & {
    occurrences?: AdminGuideEditorSchemaValues['occurrences'];
-@@ -357,7 +353,6 @@ export function AdminEditorModal({
+@@ -76,7 +72,8 @@ export function AdminEditorModal({
+   useEffect(() => {
+     const defaultStart = isEditing?.date || new Date().toISOString();
+     const defaultEnd =
+-      isEditing?.endDate || new Date(new Date(defaultStart).getTime() + 3 * 3600 * 1000).toISOString();
++      isEditing?.endDate ||
++      new Date(new Date(defaultStart).getTime() + 3 * 3600 * 1000).toISOString();
+ 
+     form.reset({
+       name: isEditing?.name || '',
+@@ -101,7 +98,7 @@ export function AdminEditorModal({
+       bookingLink: isEditing?.bookingLink,
+       operationalInfo: isEditing?.operationalInfo as Record<string, unknown> | undefined,
+     });
+-  }, [isEditing.id, activeTab, form]);
++  }, [isEditing, activeTab, form]);
+ 
+   useEffect(() => {
+     savedOccurrenceIdsRef.current = [];
+@@ -205,7 +202,8 @@ export function AdminEditorModal({
+           ...values,
+           category: values.category as GuideItem['category'],
+           date: firstOccurrence?.startsAt || values.date,
+-          endDate: firstOccurrence?.endsAt || values.endDate || firstOccurrence?.startsAt || values.date,
++          endDate:
++            firstOccurrence?.endsAt || values.endDate || firstOccurrence?.startsAt || values.date,
+           occurrences: values.occurrences,
+           removedOccurrenceIds: savedOccurrenceIdsRef.current.filter((id) => !keptIds.has(id)),
+         });
+@@ -223,10 +221,7 @@ export function AdminEditorModal({
+               firstError[0]?.endsAt?.message ||
+               firstError[0]?.capacity?.message
+             : undefined;
+-      showToast(
+-        String(nestedMessage ?? 'Verifique os campos do formulário.'),
+-        'error'
+-      );
++      showToast(String(nestedMessage ?? 'Verifique os campos do formulário.'), 'error');
+     }
+   );
+ 
+@@ -343,10 +338,7 @@ export function AdminEditorModal({
+                     availableCategories={availableCategories}
+                   />
+ 
+-                  <AdminEditorGallery
+-                    isUploading={isUploading}
+-                    onImageUpload={handleImageUpload}
+-                  />
++                  <AdminEditorGallery isUploading={isUploading} onImageUpload={handleImageUpload} />
+ 
+                   {activeTab === 'events' && (
+                     <AdminEditorEventFields
+@@ -356,8 +348,6 @@ export function AdminEditorModal({
+                   )}
  
                    <AdminEditorLocation />
- 
+-
 -                  {activeTab === 'items' && <AdminEditorOperationalInfo />}
                  </motion.div>
                )}
@@ -398,7 +509,12 @@ export function AdminPanelComposition() {
 === src/domain/admin/components/subcomponents/AdminEditorOperationalInfo.tsx — APAGUE este arquivo ===
 
 === src/domain/admin/components/subcomponents/AdminGuideView.tsx — diff ===
-@@ -19,6 +19,7 @@ interface AdminGuideViewProps {
+@@ -1,4 +1,3 @@
+-import React from 'react';
+ import { GuideItem } from '../../../guide';
+ import { ErrorState } from '../../../../ui/components/ErrorState';
+ import { AdminItemGrid } from './AdminItemGrid';
+@@ -19,6 +18,7 @@ interface AdminGuideViewProps {
    dataError: string | null;
    onRetry: () => void;
    onInitNew: () => void;
@@ -406,7 +522,7 @@ export function AdminPanelComposition() {
    onEdit: (item: GuideItem) => void;
    onDelete: (coll: string, id: string) => Promise<void>;
  }
-@@ -33,6 +34,7 @@ export function AdminGuideView({
+@@ -33,6 +33,7 @@ export function AdminGuideView({
    dataError,
    onRetry,
    onInitNew,
@@ -414,7 +530,7 @@ export function AdminPanelComposition() {
    onEdit,
    onDelete,
  }: AdminGuideViewProps) {
-@@ -53,6 +55,7 @@ export function AdminGuideView({
+@@ -53,6 +54,7 @@ export function AdminGuideView({
        filteredItems={filteredItems}
        dataLoading={dataLoading}
        onInitNew={onInitNew}
@@ -463,7 +579,12 @@ describe('AdminItemGrid', () => {
 });
 
 === src/domain/admin/components/subcomponents/AdminItemGrid.tsx — diff ===
-@@ -18,6 +18,8 @@ interface AdminItemGridProps {
+@@ -1,4 +1,3 @@
+-import React from 'react';
+ import { motion, AnimatePresence } from 'motion/react';
+ import { Plus, RefreshCw, Star, MapPin, Edit2, Trash2, Layers } from 'lucide-react';
+ import { cn } from '../../../../shared/utils/cn';
+@@ -18,6 +17,8 @@ interface AdminItemGridProps {
    filteredItems: GuideItem[];
    dataLoading: boolean;
    onInitNew: () => void;
@@ -472,7 +593,7 @@ describe('AdminItemGrid', () => {
    onEdit: (item: GuideItem) => void;
    onDelete: (coll: string, id: string) => Promise<void>;
  }
-@@ -30,6 +32,7 @@ export function AdminItemGrid({
+@@ -30,6 +31,7 @@ export function AdminItemGrid({
    filteredItems,
    dataLoading,
    onInitNew,
@@ -480,7 +601,7 @@ describe('AdminItemGrid', () => {
    onEdit,
    onDelete,
  }: AdminItemGridProps) {
-@@ -44,6 +47,17 @@ export function AdminItemGrid({
+@@ -44,6 +46,17 @@ export function AdminItemGrid({
          </h2>
  
          <div className="flex items-center gap-3">
@@ -509,8 +630,9 @@ describe('AdminItemGrid', () => {
 
 === src/domain/guide/components/StandardCard.tsx — diff ===
 @@ -1,5 +1,5 @@
- import React, { useState } from 'react';
+-import React, { useState } from 'react';
 -import { Star, Utensils, MapPin, Compass, Home, Info, Calendar } from 'lucide-react';
++import { useState } from 'react';
 +import { Bike, Star, Utensils, MapPin, Compass, Home, Info, Calendar } from 'lucide-react';
  import { GlassCard } from '../../../ui/components/GlassCard';
  import { CATEGORIES } from '../../../shared/constants/categories';
@@ -1363,7 +1485,7 @@ export function useListingEditorValidation(formData: FormState) {
 }
 
 === src/domain/partners/hooks/usePartnerContentActions.ts — diff ===
-@@ -1,24 +1,16 @@
+@@ -1,24 +1,15 @@
  import { useCallback } from 'react';
  import { useUI } from '../../../shared/stores/useUIStore';
  import type { UserSession } from '../../auth';
@@ -1378,7 +1500,7 @@ export function useListingEditorValidation(formData: FormState) {
  } from '../index';
 -import { mapPartnerSubmissionToGuideItem } from '../application/mappers/partnerSubmissionToGuide';
  import { partnerEventFormSchema } from '../schemas/partnerEventFormSchema';
- import type { PartnerProfile } from '../types/partner';
+-import type { PartnerProfile } from '../types/partner';
 -import type {
 -  PartnerContentEditorState,
 -  PartnerContentEventInput,
@@ -1389,7 +1511,11 @@ export function useListingEditorValidation(formData: FormState) {
  
  function getErrorMessage(error: unknown, fallback: string): string {
    return error instanceof Error && error.message ? error.message : fallback;
-@@ -34,11 +26,8 @@ export interface UsePartnerContentActionsProps {
+@@ -30,28 +21,20 @@ function toPlainRecord(value: object): Record<string, unknown> {
+ 
+ export interface UsePartnerContentActionsProps {
+   user: UserSession | null;
+-  partnerProfile?: PartnerProfile | null;
    activeTab: 'items' | 'events' | 'reports';
    isEditing: PartnerContentEditorState | null;
    setIsEditing: (item: PartnerContentEditorState | null) => void;
@@ -1401,7 +1527,8 @@ export function useListingEditorValidation(formData: FormState) {
  }
  
  export function usePartnerContentActions({
-@@ -47,11 +36,8 @@ export function usePartnerContentActions({
+   user,
+-  partnerProfile,
    activeTab,
    isEditing,
    setIsEditing,
@@ -1413,7 +1540,7 @@ export function useListingEditorValidation(formData: FormState) {
  }: UsePartnerContentActionsProps) {
    const { showToast } = useUI();
  
-@@ -176,75 +162,9 @@ export function usePartnerContentActions({
+@@ -176,75 +159,9 @@ export function usePartnerContentActions({
      }
    }, [isEditing, user?.uid, setIsLoading, setIsEditing, showToast]);
  
@@ -1493,9 +1620,9 @@ export function useListingEditorValidation(formData: FormState) {
 === src/domain/partners/hooks/usePartnerContentEditor.ts — APAGUE este arquivo ===
 
 === src/domain/partners/hooks/usePartnerItems.ts — diff ===
-@@ -1,10 +1,8 @@
+@@ -1,28 +1,17 @@
  import type { UserSession } from '../../auth';
- import type { PartnerProfile } from '../types/partner';
+-import type { PartnerProfile } from '../types/partner';
 -import type { PartnerContentEditorState, PartnerContentRecord } from '../types/partnerContent';
 -import type { FormState } from '../types/partsForm';
 +import type { PartnerContentEditorState } from '../types/partnerContent';
@@ -1505,14 +1632,15 @@ export function useListingEditorValidation(formData: FormState) {
  import { usePartnerContentMedia } from './usePartnerContentMedia';
  
  export interface UsePartnerItemsProps {
-@@ -13,16 +11,11 @@ export interface UsePartnerItemsProps {
-   setActiveTab?: (tab: 'items' | 'events' | 'reports') => void;
+   user: UserSession | null;
+   activeTab: 'items' | 'events' | 'reports';
+-  setActiveTab?: (tab: 'items' | 'events' | 'reports') => void;
    isEditing: PartnerContentEditorState | null;
    setIsEditing: (item: PartnerContentEditorState | null) => void;
 -  editorFormData: FormState | null;
 -  setEditorFormData: (data: FormState | null) => void;
-   isVerified?: boolean;
-   partnerProfile?: PartnerProfile | null;
+-  isVerified?: boolean;
+-  partnerProfile?: PartnerProfile | null;
 -  setCurrentStep: (step: number) => void;
 -  setIsSelectingCategory: (val: boolean) => void;
    setShowDeleteConfirm: (val: boolean) => void;
@@ -1522,13 +1650,13 @@ export function useListingEditorValidation(formData: FormState) {
  }
  
  export function usePartnerItems({
-@@ -30,15 +23,10 @@ export function usePartnerItems({
+@@ -30,15 +19,9 @@ export function usePartnerItems({
    activeTab,
    isEditing,
    setIsEditing,
 -  editorFormData,
 -  setEditorFormData,
-   partnerProfile,
+-  partnerProfile,
 -  setCurrentStep,
 -  setIsSelectingCategory,
    setShowDeleteConfirm,
@@ -1538,7 +1666,7 @@ export function useListingEditorValidation(formData: FormState) {
  }: UsePartnerItemsProps) {
    const {
      itemsList,
-@@ -53,14 +41,6 @@ export function usePartnerItems({
+@@ -53,14 +36,6 @@ export function usePartnerItems({
      activeTab,
    });
  
@@ -1553,7 +1681,7 @@ export function useListingEditorValidation(formData: FormState) {
    const { isUploading, handleImageUpload, handleRemoveImage, handleReorderImages } =
      usePartnerContentMedia({
        isEditing,
-@@ -69,19 +49,15 @@ export function usePartnerItems({
+@@ -69,19 +44,14 @@ export function usePartnerItems({
        setIsUploading,
      });
  
@@ -1572,7 +1700,6 @@ export function useListingEditorValidation(formData: FormState) {
 -    });
 +  const { handleDelete, handleToggleActive, handleSaveEvent } = usePartnerContentActions({
 +    user,
-+    partnerProfile,
 +    activeTab,
 +    isEditing,
 +    setIsEditing,
@@ -1582,7 +1709,7 @@ export function useListingEditorValidation(formData: FormState) {
  
    return {
      itemsList,
-@@ -98,9 +74,5 @@ export function usePartnerItems({
+@@ -98,9 +68,5 @@ export function usePartnerItems({
      handleRemoveImage,
      handleReorderImages,
      handleSaveEvent,
@@ -1647,14 +1774,17 @@ export function useListingEditorValidation(formData: FormState) {
  export function usePartnerPanelActions(profileData?: PartnerProfile) {
    const layout = usePartnerLayoutState();
  
-@@ -21,16 +14,11 @@ export function usePartnerPanelActions(profileData?: PartnerProfile) {
-     setActiveTab: layout.setActiveTab,
+@@ -18,19 +11,11 @@ export function usePartnerPanelActions(profileData?: PartnerProfile) {
+   const items = usePartnerItems({
+     user: profile.user,
+     activeTab: layout.activeTab,
+-    setActiveTab: layout.setActiveTab,
      isEditing: layout.isEditing,
      setIsEditing: layout.setIsEditing,
 -    editorFormData: profile.editorFormData,
 -    setEditorFormData: profile.setEditorFormData,
-     isVerified: profile.isVerified,
-     partnerProfile: profile.partnerProfile,
+-    isVerified: profile.isVerified,
+-    partnerProfile: profile.partnerProfile,
 -    setCurrentStep: layout.setCurrentStep,
 -    setIsSelectingCategory: layout.setIsSelectingCategory,
      setShowDeleteConfirm: layout.setShowDeleteConfirm,
@@ -1664,7 +1794,7 @@ export function useListingEditorValidation(formData: FormState) {
    });
  
    return {
-@@ -44,18 +32,11 @@ export function usePartnerPanelActions(profileData?: PartnerProfile) {
+@@ -44,18 +29,11 @@ export function usePartnerPanelActions(profileData?: PartnerProfile) {
      setActiveTab: layout.setActiveTab,
      isEditing: layout.isEditing,
      setIsEditing: layout.setIsEditing,
@@ -1683,7 +1813,7 @@ export function useListingEditorValidation(formData: FormState) {
  
      dataLoading: items.dataLoading,
      currentList: items.currentList,
-@@ -66,8 +47,5 @@ export function usePartnerPanelActions(profileData?: PartnerProfile) {
+@@ -66,8 +44,5 @@ export function usePartnerPanelActions(profileData?: PartnerProfile) {
      handleToggleActive: items.handleToggleActive,
      handleImageUpload: items.handleImageUpload,
      handleSaveEvent: items.handleSaveEvent,
@@ -1718,9 +1848,23 @@ export function useListingEditorValidation(formData: FormState) {
  
  enum OperationType {
    CREATE = 'create',
-@@ -98,14 +84,10 @@ export function usePartnerProfile(loadedProfile?: PartnerProfile) {
+@@ -73,8 +59,9 @@ export function usePartnerProfile(loadedProfile?: PartnerProfile) {
+   const [userProfileData, setUserProfileData] =
+     useState<Awaited<ReturnType<typeof getCurrentUserUseCase>>>(null);
+ 
++  const userId = user?.uid;
+   useEffect(() => {
+-    if (userLoading || !user) {
++    if (userLoading || !userId) {
+       setUserProfileData(null);
+       return;
+     }
+@@ -96,16 +83,12 @@ export function usePartnerProfile(loadedProfile?: PartnerProfile) {
+     return () => {
+       active = false;
      };
-   }, [user?.uid, userLoading]);
+-  }, [user?.uid, userLoading]);
++  }, [userId, userLoading]);
  
 -  const { showToast } = useUI();
    const [partnerProfile, setPartnerProfile] = useState<PartnerProfile | null>(
@@ -1733,7 +1877,7 @@ export function useListingEditorValidation(formData: FormState) {
    const [isLoading, setIsLoading] = useState(false);
    const [isUploading, setIsUploading] = useState(false);
    const [profileError, setProfileError] = useState<string | null>(null);
-@@ -194,126 +176,17 @@ export function usePartnerProfile(loadedProfile?: PartnerProfile) {
+@@ -194,126 +177,17 @@ export function usePartnerProfile(loadedProfile?: PartnerProfile) {
      (!partnerProfile?.verifiedUntil || new Date(partnerProfile.verifiedUntil) > new Date())
    );
  
