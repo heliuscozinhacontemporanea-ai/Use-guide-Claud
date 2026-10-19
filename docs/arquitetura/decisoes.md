@@ -20,6 +20,7 @@
 | D8 | Painel admin: selo, suspensão e planos | ✅ Aprovada | 2026-10-12 |
 | D9 | Parceiros com vários estabelecimentos e novas categorias | ✅ Aprovada | 2026-10-12 |
 | D10 | Idioma na primeira visita (navegador) | ✅ Aprovada | 2026-10-19 |
+| D11 | Plano "Use Guide Verificado", selo e destaque por estabelecimento | ✅ Aprovada | 2026-10-19 |
 
 ---
 
@@ -118,3 +119,20 @@
 * **Persistência só por escolha explícita** (Configurações ou aviso). Mudança causada pela URL não é gravada. Hoje o app grava o idioma da URL, e quem entra por `/` fica preso em português.
 * Escolha feita por quem tem conta vai para `preferredLocale` pela API (escrita no backend, §6.1) e vale em todos os aparelhos e nos e-mails (§12.5).
 * **Depende de:** S12 (AGENTS.md §12.1 e §12.7).
+
+## D11 — Plano "Use Guide Verificado", selo e destaque por estabelecimento (2026-10-19)
+
+Detalha o item "Selo e plano por estabelecimento" da D9. Modelo de referência: Meta Verified para empresas (assinatura que libera o selo, mas só para quem passou por verificação).
+
+* **Dono do plano:** cada estabelecimento e o perfil de produtor (documentos em `items`). Estado do plano em `listingPlans/{itemId}` (só backend); o item recebe a cópia pública. Os campos de plano e selo saem de `partners/{uid}`, sem migração (§2.2 item 8).
+* **Selo:** aparece só com **plano ativo do estabelecimento** (pago, trial ou concedido pelo admin) **e conta do parceiro aprovada pelo admin** (status `active`, documentos CPF/CNPJ conferidos). Ao tocar no selo, o app explica: "Responsável verificado pelo Use Guide · assinante do plano Use Guide Verificado".
+* **Nome do plano:** "Use Guide Verificado" (períodos mensal, semestral e anual).
+* **Trial:** uma vez **por conta**, 7 dias; o parceiro escolhe o estabelecimento.
+* **Preço:** cheio por estabelecimento (catálogo atual), sem desconto por quantidade.
+* **Cobrança:** uma assinatura do Stripe por estabelecimento (`planSubscriptions/{itemId}`), um cliente Stripe por conta; metadata com `itemId` e `partnerId`. O Pix avulso também leva `itemId`.
+* **Eventos:** herdam o selo do estabelecimento ou do perfil de produtor ao qual pertencem (`establishmentId`).
+* **Admin:** concede ou retira o selo por estabelecimento, com as regras da D8.
+* **Expiração:** job diário desliga o selo vencido em itens e eventos; os cards públicos também conferem `verifiedUntil`. A folga de 2 dias da renovação no cartão continua.
+* **Benefícios:** avaliações e respostas **sempre liberadas**, com ou sem plano. As métricas (insights) de um estabelecimento exigem o plano daquele estabelecimento, conferido no backend.
+* **Destaque nas listas (opção C):** **3 vagas** "Destaque" no topo de cada lista (valor de configuração), em rodízio diário entre os estabelecimentos com plano ativo; o resto da lista em ordem orgânica (nota, avaliações), com assinantes e não assinantes juntos. A vaga paga é sempre identificada como "Destaque" (CDC art. 36).
+* **Prompts:** 18.3 (backend) e 18.3.1 (frontend).
