@@ -295,8 +295,8 @@
       "indexes": []
     },
     {
-      "collectionGroup": "interactions",
-      "fieldPath": "timestamp",
+      "collectionGroup": "interactionGuards",
+      "fieldPath": "expiresAt",
       "ttl": true,
       "indexes": []
     }

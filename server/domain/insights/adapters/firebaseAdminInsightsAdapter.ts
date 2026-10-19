@@ -1,85 +1,110 @@
-import { InsightsRepositoryPort, CreateInteractionData } from '../ports/insightsRepositoryPort';
-import type { InteractionType, ItemStats } from '../types/interaction';
+import { FieldValue, Timestamp } from 'firebase-admin/firestore';
 import { adminDb } from '../../../infrastructure/firebase/adminClient';
-import { FieldValue } from 'firebase-admin/firestore';
+import type {
+  InsightsRepositoryPort,
+  RecordInteractionInput,
+} from '../ports/insightsRepositoryPort';
+import type { InteractionCounter, ItemStats } from '../types/interaction';
+import { lastBusinessDays } from '../utils/businessDay';
 
-// O tipo gravado é singular ('view'); o contador da resposta é 'views'.
-const STAT_COUNTER: Record<InteractionType, 'views' | 'whatsapp_click' | 'share' | 'favorite'> = {
-  view: 'views',
-  whatsapp_click: 'whatsapp_click',
-  share: 'share',
-  favorite: 'favorite',
-};
+// Coleções só do backend (firestore.rules nega leitura e escrita ao cliente).
+const STATS_COLLECTION = 'interactionStats';
+const GUARDS_COLLECTION = 'interactionGuards';
+const HISTORY_DAYS = 7;
+const COUNTERS: InteractionCounter[] = [
+  'viewsSignedIn',
+  'viewsAnonymous',
+  'whatsapp_click',
+  'share',
+  'favorite',
+];
 
-/** Dia no fuso do negócio, para o gráfico dos últimos 7 dias não depender do fuso do servidor. */
-function formatBusinessDay(date: Date): string {
-  return date.toLocaleDateString('pt-BR', {
-    day: '2-digit',
-    month: '2-digit',
-    timeZone: 'America/Fortaleza',
-  });
+function statsDocId(itemCollection: string, itemId: string, day: string): string {
+  return `${itemCollection}_${itemId}_${day}`;
+}
+
+function counterValue(data: Record<string, unknown>, counter: InteractionCounter): number {
+  const value = data[counter];
+  return typeof value === 'number' && Number.isFinite(value) ? value : 0;
+}
+
+/** Rótulo dd/mm do gráfico a partir do dia AAAA-MM-DD. */
+function dayLabel(day: string): string {
+  const [, month, date] = day.split('-');
+  return `${date}/${month}`;
 }
 
 export class FirebaseAdminInsightsAdapter implements InsightsRepositoryPort {
-  async recordInteraction(data: CreateInteractionData): Promise<void> {
-    await adminDb.collection('interactions').add({
-      itemId: data.itemId,
-      itemCollection: data.itemCollection,
-      type: data.type,
-      timestamp: FieldValue.serverTimestamp(),
-      userId: data.userId || null,
-      partnerId: data.partnerId || null,
+  async recordInteraction(input: RecordInteractionInput): Promise<boolean> {
+    const guardRef = adminDb.collection(GUARDS_COLLECTION).doc(input.guardId);
+    const statsRef = adminDb
+      .collection(STATS_COLLECTION)
+      .doc(statsDocId(input.itemCollection, input.itemId, input.day));
+
+    return adminDb.runTransaction(async (transaction) => {
+      const guard = await transaction.get(guardRef);
+      const expiresAt = guard.exists ? guard.get('expiresAt') : null;
+      if (expiresAt instanceof Timestamp && expiresAt.toMillis() > input.now.getTime()) {
+        return false;
+      }
+      // expiresAt também alimenta a política de TTL do Firestore, que apaga as chaves vencidas.
+      transaction.set(guardRef, {
+        expiresAt: Timestamp.fromMillis(input.now.getTime() + input.guardWindowMs),
+      });
+      transaction.set(
+        statsRef,
+        {
+          itemId: input.itemId,
+          itemCollection: input.itemCollection,
+          day: input.day,
+          [input.counter]: FieldValue.increment(1),
+        },
+        { merge: true }
+      );
+      return true;
     });
   }
 
-  async getItemStats(itemId: string, itemCollection: 'items' | 'events'): Promise<ItemStats> {
+  async getItemStats(
+    itemId: string,
+    itemCollection: 'items' | 'events',
+    today: Date
+  ): Promise<ItemStats> {
     const snapshot = await adminDb
-      .collection('interactions')
+      .collection(STATS_COLLECTION)
       .where('itemId', '==', itemId)
       .where('itemCollection', '==', itemCollection)
       .get();
 
-    const stats: ItemStats = {
-      views: 0,
-      whatsapp_click: 0,
-      share: 0,
-      favorite: 0,
-      history: [],
-    };
-
-    const last7Days: Record<string, number> = {};
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(d.getDate() - i);
-      const dateStr = formatBusinessDay(d);
-      last7Days[dateStr] = 0;
+    const totals = Object.fromEntries(COUNTERS.map((counter) => [counter, 0])) as Record<
+      InteractionCounter,
+      number
+    >;
+    const viewsByDay = new Map<string, number>();
+    for (const doc of snapshot.docs) {
+      const data = doc.data();
+      for (const counter of COUNTERS) {
+        totals[counter] += counterValue(data, counter);
+      }
+      if (typeof data.day === 'string') {
+        viewsByDay.set(
+          data.day,
+          counterValue(data, 'viewsSignedIn') + counterValue(data, 'viewsAnonymous')
+        );
+      }
     }
 
-    snapshot.forEach((doc) => {
-      const docData = doc.data();
-      const counter = STAT_COUNTER[docData.type as InteractionType];
-      if (counter) {
-        stats[counter] += 1;
-      }
-
-      if (docData.type === 'view' && docData.timestamp) {
-        let dateVal: Date;
-        if (typeof docData.timestamp.toDate === 'function') {
-          dateVal = docData.timestamp.toDate();
-        } else if (typeof docData.timestamp.seconds === 'number') {
-          dateVal = new Date(docData.timestamp.seconds * 1000);
-        } else {
-          dateVal = new Date(docData.timestamp);
-        }
-
-        const date = formatBusinessDay(dateVal);
-        if (date in last7Days && typeof last7Days[date] === 'number') {
-          last7Days[date] += 1;
-        }
-      }
-    });
-
-    stats.history = Object.entries(last7Days).map(([date, views]) => ({ date, views }));
-    return stats;
+    return {
+      views: totals.viewsSignedIn + totals.viewsAnonymous,
+      viewsSignedIn: totals.viewsSignedIn,
+      viewsAnonymous: totals.viewsAnonymous,
+      whatsapp_click: totals.whatsapp_click,
+      share: totals.share,
+      favorite: totals.favorite,
+      history: lastBusinessDays(today, HISTORY_DAYS).map((day) => ({
+        date: dayLabel(day),
+        views: viewsByDay.get(day) ?? 0,
+      })),
+    };
   }
 }

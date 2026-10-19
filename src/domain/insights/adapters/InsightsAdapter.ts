@@ -6,9 +6,7 @@ export class InsightsAdapter implements InsightsPort {
   async trackInteraction(
     itemId: string,
     type: InteractionType,
-    collectionName: 'items' | 'events',
-    _partnerId?: string,
-    _userId?: string | null
+    collectionName: 'items' | 'events'
   ): Promise<void> {
     try {
       await firebaseApiFetch(
@@ -24,7 +22,7 @@ export class InsightsAdapter implements InsightsPort {
             type,
           }),
         },
-        { requireAuth: true }
+        { optionalAuth: true }
       );
     } catch (error) {
       console.error('[InsightsAdapter.trackInteraction Error]:', error);
@@ -34,17 +32,16 @@ export class InsightsAdapter implements InsightsPort {
   async getItemStats(
     itemId: string,
     itemCollection: 'items' | 'events' = 'items'
-  ): Promise<ItemStats | null> {
-    try {
-      const res = await firebaseApiFetch(`/api/insights/stats/${itemCollection}/${itemId}`);
-      if (res.ok) {
-        const json = await res.json();
-        return json.data || null;
-      }
-      return null;
-    } catch (error) {
-      console.error('[InsightsAdapter.getItemStats Error]:', error);
-      return null;
+  ): Promise<ItemStats> {
+    const res = await firebaseApiFetch(
+      `/api/insights/stats/${itemCollection}/${encodeURIComponent(itemId)}`,
+      {},
+      { requireAuth: true }
+    );
+    if (!res.ok) {
+      throw new Error(`INSIGHTS_STATS_${res.status}`);
     }
+    const json = (await res.json()) as { data: ItemStats };
+    return json.data;
   }
 }

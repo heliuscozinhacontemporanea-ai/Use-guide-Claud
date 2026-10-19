@@ -10,7 +10,7 @@ const getItemStatsSchema = z.object({
 export async function getItemStatsUseCase(
   itemId: string,
   itemCollection: 'items' | 'events' = 'items'
-): Promise<ItemStats | null> {
+): Promise<ItemStats> {
   getItemStatsSchema.parse({ itemId, itemCollection });
   return insightsAdapter.getItemStats(itemId, itemCollection);
 }

@@ -7,6 +7,7 @@ import { GuidePort } from '../domain/guide/ports/guidePort';
 import { GuideDomainError } from '../domain/guide/errors/guideDomainError';
 import { InsightsService } from '../domain/insights/services/insightsService';
 import { InsightsRepositoryPort } from '../domain/insights/ports/insightsRepositoryPort';
+import { InsightsAccessError } from '../domain/insights/errors/insightsErrors';
 import { getResourceOwnerIdUseCase } from '../domain/guide/usecases/getResourceOwnerIdUseCase';
 
 vi.mock('../domain/guide/usecases/getResourceOwnerIdUseCase', () => ({
@@ -129,20 +130,22 @@ describe('Security Audit - Mass Assignment and Cross-Owner Defenses', () => {
         getItemStats: vi.fn(),
       };
 
-      const insightsService = new InsightsService(mockRepo);
+      const insightsService = new InsightsService(mockRepo, { keyFor: (viewer) => viewer });
 
       await expect(
         insightsService.getItemStats('item-secret-id', 'items', {
           uid: 'intruder-user-id',
           admin: false,
         })
-      ).rejects.toThrow('FORBIDDEN');
+      ).rejects.toBeInstanceOf(InsightsAccessError);
     });
 
     it('InsightsService: allows item owner to access their item stats', async () => {
       vi.mocked(getResourceOwnerIdUseCase).mockResolvedValue('partner-legitimate-owner');
       const mockStats = {
         views: 120,
+        viewsSignedIn: 20,
+        viewsAnonymous: 100,
         whatsapp_click: 15,
         share: 5,
         favorite: 10,
@@ -154,7 +157,7 @@ describe('Security Audit - Mass Assignment and Cross-Owner Defenses', () => {
         getItemStats: vi.fn().mockResolvedValue(mockStats),
       };
 
-      const insightsService = new InsightsService(mockRepo);
+      const insightsService = new InsightsService(mockRepo, { keyFor: (viewer) => viewer });
 
       const stats = await insightsService.getItemStats('item-secret-id', 'items', {
         uid: 'partner-legitimate-owner',
@@ -169,6 +172,8 @@ describe('Security Audit - Mass Assignment and Cross-Owner Defenses', () => {
       vi.mocked(getResourceOwnerIdUseCase).mockResolvedValue('partner-legitimate-owner');
       const mockStats = {
         views: 50,
+        viewsSignedIn: 10,
+        viewsAnonymous: 40,
         whatsapp_click: 5,
         share: 2,
         favorite: 3,
@@ -180,7 +185,7 @@ describe('Security Audit - Mass Assignment and Cross-Owner Defenses', () => {
         getItemStats: vi.fn().mockResolvedValue(mockStats),
       };
 
-      const insightsService = new InsightsService(mockRepo);
+      const insightsService = new InsightsService(mockRepo, { keyFor: (viewer) => viewer });
 
       const stats = await insightsService.getItemStats('item-secret-id', 'items', {
         uid: 'admin-user-id',
