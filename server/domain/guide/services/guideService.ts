@@ -16,6 +16,10 @@ const PARTNER_CREATABLE_ITEM_CATEGORIES = [
   'sight',
   'hotel',
   'restaurant',
+  'tour',
+  'transfer',
+  'rental',
+  'producer',
 ] as const;
 
 function canManageGuide(user: AuthenticatedUserContext): boolean {

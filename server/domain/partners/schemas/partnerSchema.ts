@@ -1,11 +1,8 @@
 import { z } from 'zod';
 import { isValidCpfCnpj } from '../services/documentIdentity';
 
-const partnerCategorySchema = z.enum(['sight', 'hotel', 'restaurant', 'event']);
-
 const registerPartnerFormSchema = z
   .object({
-    category: partnerCategorySchema,
     cpfCnpj: z
       .string()
       .trim()
@@ -21,6 +18,8 @@ export const registerPartnerSchema = z
   })
   .strict();
 
+// O admin só diz se concede ou retira o selo; tipo e validade são decididos no servidor
+// para nunca sobrescrever o plano pago do parceiro.
 export const verifyPartnerSchema = z
   .object({
     partnerId: z.string().trim().min(1, 'ID do parceiro é obrigatório'),

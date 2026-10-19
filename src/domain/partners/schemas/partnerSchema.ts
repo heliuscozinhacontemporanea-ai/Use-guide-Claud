@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { isValidCpfCnpj } from '../../../shared/utils/documentValidator';
 import type { UserSession } from '../../auth';
 
-const partnerCategorySchema = z.enum(['sight', 'hotel', 'restaurant', 'event']);
+const partnerCategorySchema = z.enum(['sight', 'hotel', 'restaurant', 'producer']);
 
 export const step1Schema = z
   .object({
@@ -15,7 +15,7 @@ export const step1Schema = z
     description: z.string().default(''),
   })
   .superRefine((data, ctx) => {
-    if (data.category !== 'event') {
+    if (data.category !== 'producer') {
       if (!data.businessName || data.businessName.trim() === '') {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -59,7 +59,7 @@ export const step2Schema = z
         message: 'Link para reserva é obrigatório',
       });
     }
-    if (data.category !== 'event') {
+    if (data.category !== 'producer') {
       if (!data.googleMaps || data.googleMaps.trim() === '') {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -219,7 +219,7 @@ export const step5SchemaContext = (options: { currentUser?: UserSession | null }
       termsAccepted: z.literal(true),
     })
     .superRefine((data, ctx) => {
-      if (data.category !== 'event' && data.images.length === 0) {
+      if (data.category !== 'producer' && data.images.length === 0) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ['images'],
@@ -341,51 +341,8 @@ export const updatePartnerVerificationSchema = z
   .object({
     partnerId: z.string().min(1),
     isVerified: z.boolean(),
-    verifiedUntil: z
-      .string()
-      .datetime({
-        offset: true,
-      })
-      .nullable()
-      .optional(),
-    verificationType: z.enum(['trial', 'monthly', 'semi-annual', 'annual']).nullable().optional(),
   })
-  .superRefine((data, ctx) => {
-    if (data.isVerified && data.verifiedUntil === undefined && data.verificationType === undefined) {
-      return;
-    }
-    if (data.isVerified && !data.verifiedUntil) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['verifiedUntil'],
-        message: 'verifiedUntil é obrigatório quando isVerified=true.',
-      });
-    }
-
-    if (data.isVerified && !data.verificationType) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['verificationType'],
-        message: 'verificationType é obrigatório quando isVerified=true.',
-      });
-    }
-
-    if (!data.isVerified && data.verifiedUntil !== null && data.verifiedUntil !== undefined) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['verifiedUntil'],
-        message: 'verifiedUntil deve ser null quando isVerified=false.',
-      });
-    }
-
-    if (!data.isVerified && data.verificationType !== null && data.verificationType !== undefined) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['verificationType'],
-        message: 'verificationType deve ser null quando isVerified=false.',
-      });
-    }
-  });
+  .strict();
 
 export type PartnerSubmissionInput = z.infer<typeof partnerSubmissionSchema>;
 export type UpdatePartnerStatusInput = z.infer<typeof updatePartnerStatusSchema>;

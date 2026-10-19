@@ -27,7 +27,7 @@ import { VerifiedBadge } from '../../../ui/components/VerifiedBadge';
 
 export function StandardCard({ item, variant = 'square', onClick, className }: StandardCardProps) {
   const [imageError, setImageError] = useState(false);
-  const cat = CATEGORIES[item.category];
+  const cat = (CATEGORIES as Record<string, any>)[item.category] || CATEGORIES.tips;
 
   const variantClasses = {
     square: 'aspect-square min-w-[280px]',

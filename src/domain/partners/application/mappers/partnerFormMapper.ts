@@ -1,3 +1,4 @@
+import { splitE164 } from '../../../../shared/utils/phone';
 import type { PartnerContentRecord } from '../../types/partnerContent';
 import type { FormState } from '../../types/partsForm';
 
@@ -76,8 +77,8 @@ export const mapItemToFormData = (item: PartnerContentRecord, partnerCpfCnpj = '
     category: item.category || '',
     description: item.description || '',
     cpfCnpj: partnerCpfCnpj,
-    phone: item.whatsappLink || '',
-    phoneDdi: '+55',
+    phone: splitE164(item.phone).nationalNumber,
+    phoneDdi: splitE164(item.phone).ddi,
     instagram: item.instagramLink || '',
     website: item.websiteLink || '',
     bookingLinks: item.bookingLink || '',

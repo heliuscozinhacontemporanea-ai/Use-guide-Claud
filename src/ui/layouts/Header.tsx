@@ -47,6 +47,10 @@ export function Header({
         return t('header.pageTitles.events');
       case 'tours':
         return t('header.pageTitles.tours');
+      case 'transfers':
+        return t('header.pageTitles.transfers');
+      case 'rentals':
+        return t('header.pageTitles.rentals');
       case 'stays':
         return t('header.pageTitles.accommodations');
       case 'restaurants':

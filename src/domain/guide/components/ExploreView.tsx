@@ -202,6 +202,8 @@ export function ExploreView({ onSelectItem, onStickyChange }: ExploreViewProps) 
       hotels: filterByCategory(dbItems, 'hotel'),
       restaurants: filterByCategory(dbItems, 'restaurant'),
       tours: filterByCategory(dbItems, 'tour'),
+      transfers: filterByCategory(dbItems, 'transfer'),
+      rentals: filterByCategory(dbItems, 'rental'),
       sights: filterByCategory(dbItems, 'sight'),
       tips: filterByCategory(dbItems, 'tips'),
     };
@@ -222,6 +224,8 @@ export function ExploreView({ onSelectItem, onStickyChange }: ExploreViewProps) 
     sections.hotels.length > 0 ||
     sections.restaurants.length > 0 ||
     sections.tours.length > 0 ||
+    sections.transfers.length > 0 ||
+    sections.rentals.length > 0 ||
     sections.sights.length > 0 ||
     sections.tips.length > 0;
 
@@ -411,6 +415,64 @@ export function ExploreView({ onSelectItem, onStickyChange }: ExploreViewProps) 
                   ))
                 ) : (
                   sections.tours
+                    .slice(0, 10)
+                    .map((item) => (
+                      <StandardCard
+                        key={item.id}
+                        item={item}
+                        variant="landscape"
+                        onClick={() => onSelectItem(item)}
+                      />
+                    ))
+                )}
+              </div>
+            </>
+          )}
+
+        {(appliedCategories.length === 0 || appliedCategories.includes('transfer')) &&
+          (!hasActiveFiltersOrSearch || sections.transfers.length > 0) && (
+            <>
+              <SectionTitle title="Translados & Transporte" onSeeAll={() => goTo('transfers')} />
+              <div className="px-10 flex gap-4 overflow-x-auto no-scrollbar pb-4 snap-x snap-mandatory">
+                {error ? (
+                  <ErrorState message={error} onRetry={retry} />
+                ) : loading ? (
+                  [1, 2, 3].map((i) => (
+                    <div key={i} className="min-w-[300px] snap-center">
+                      <Skeleton className="aspect-video w-full rounded-3xl" />
+                    </div>
+                  ))
+                ) : (
+                  sections.transfers
+                    .slice(0, 10)
+                    .map((item) => (
+                      <StandardCard
+                        key={item.id}
+                        item={item}
+                        variant="landscape"
+                        onClick={() => onSelectItem(item)}
+                      />
+                    ))
+                )}
+              </div>
+            </>
+          )}
+
+        {(appliedCategories.length === 0 || appliedCategories.includes('rental')) &&
+          (!hasActiveFiltersOrSearch || sections.rentals.length > 0) && (
+            <>
+              <SectionTitle title="Aluguéis" onSeeAll={() => goTo('rentals')} />
+              <div className="px-10 flex gap-4 overflow-x-auto no-scrollbar pb-4 snap-x snap-mandatory">
+                {error ? (
+                  <ErrorState message={error} onRetry={retry} />
+                ) : loading ? (
+                  [1, 2, 3].map((i) => (
+                    <div key={i} className="min-w-[300px] snap-center">
+                      <Skeleton className="aspect-video w-full rounded-3xl" />
+                    </div>
+                  ))
+                ) : (
+                  sections.rentals
                     .slice(0, 10)
                     .map((item) => (
                       <StandardCard

@@ -1,10 +1,6 @@
 import { firebaseApiFetch } from '../../../shared/infrastructure/firebase/firebaseApiFetch';
 import { PartnerPort } from '../ports/partnerPort';
-import {
-  PartnerProfile,
-  PartnerRegistrationPayload,
-  PartnerVerificationType,
-} from '../types/partner';
+import { PartnerProfile, PartnerRegistrationPayload } from '../types/partner';
 
 export class ApiPartnerAdapter implements PartnerPort {
   async registerPartner(payload: PartnerRegistrationPayload): Promise<void> {
@@ -106,12 +102,7 @@ export class ApiPartnerAdapter implements PartnerPort {
     }
   }
 
-  async updatePartnerVerification(
-    partnerId: string,
-    isVerified: boolean,
-    _verifiedUntil?: string | null,
-    _verificationType?: PartnerVerificationType
-  ): Promise<void> {
+  async updatePartnerVerification(partnerId: string, isVerified: boolean): Promise<void> {
     const res = await firebaseApiFetch(
       '/api/partners/verify',
       {
@@ -119,10 +110,7 @@ export class ApiPartnerAdapter implements PartnerPort {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          partnerId,
-          isVerified,
-        }),
+        body: JSON.stringify({ partnerId, isVerified }),
       },
       { requireAuth: true }
     );

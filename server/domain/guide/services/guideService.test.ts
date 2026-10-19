@@ -114,10 +114,18 @@ describe('GuideService', () => {
       expect(port.createItem).not.toHaveBeenCalled();
     });
 
-    it('deve permitir partner criar hotel, restaurant e sight', async () => {
+    it('deve permitir partner criar hotel, restaurant, sight, tour, transfer, rental e producer', async () => {
       vi.mocked(port.createItem).mockResolvedValue('item-partner');
 
-      for (const category of ['hotel', 'restaurant', 'sight'] as const) {
+      for (const category of [
+        'hotel',
+        'restaurant',
+        'sight',
+        'tour',
+        'transfer',
+        'rental',
+        'producer',
+      ] as const) {
         const result = await service.createItem(partnerUser, {
           name: `Parceiro ${category}`,
           description: 'Descrição',
@@ -130,8 +138,8 @@ describe('GuideService', () => {
       }
     });
 
-    it('deve bloquear partner de criar tips ou tour com FORBIDDEN', async () => {
-      for (const category of ['tips', 'tour'] as const) {
+    it('deve bloquear partner de criar tips com FORBIDDEN', async () => {
+      for (const category of ['tips'] as const) {
         await expect(
           service.createItem(partnerUser, {
             name: `Editorial ${category}`,

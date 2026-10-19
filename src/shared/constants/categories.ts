@@ -26,6 +26,24 @@ export const CATEGORIES = {
     badgeClass: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/20',
     icon: 'Compass',
   },
+  transfer: {
+    id: 'transfer',
+    label: 'Translado',
+    colorClass: 'text-sky-400',
+    bgClass: 'bg-sky-500/10',
+    borderClass: 'border-sky-500/20',
+    badgeClass: 'bg-sky-500/20 text-sky-300 border-sky-500/20',
+    icon: 'Car',
+  },
+  rental: {
+    id: 'rental',
+    label: 'Aluguel',
+    colorClass: 'text-violet-400',
+    bgClass: 'bg-violet-500/10',
+    borderClass: 'border-violet-500/20',
+    badgeClass: 'bg-violet-500/20 text-violet-300 border-violet-500/20',
+    icon: 'KeyRound',
+  },
   hotel: {
     id: 'hotel',
     label: 'Hospedagem',
@@ -44,6 +62,15 @@ export const CATEGORIES = {
     badgeClass: 'bg-amber-500/20 text-amber-300 border-amber-500/20',
     icon: 'Info',
   },
+  producer: {
+    id: 'producer',
+    label: 'Produtora',
+    colorClass: 'text-fuchsia-400',
+    bgClass: 'bg-fuchsia-500/10',
+    borderClass: 'border-fuchsia-500/20',
+    badgeClass: 'bg-fuchsia-500/20 text-fuchsia-300 border-fuchsia-500/20',
+    icon: 'Sparkles',
+  },
   event: {
     id: 'event',
     label: 'Evento',
@@ -54,3 +81,4 @@ export const CATEGORIES = {
     icon: 'Calendar',
   },
 } as const;
+

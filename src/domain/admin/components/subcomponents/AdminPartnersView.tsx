@@ -1,15 +1,40 @@
 import React from 'react';
-import { Users, CheckCircle, Clock, Trash2, RefreshCw, AlertCircle } from 'lucide-react';
+import { Users, CheckCircle, Clock, Trash2, RefreshCw, Ban } from 'lucide-react';
 import { cn } from '../../../../shared/utils/cn';
 import { VerifiedBadge } from '../../../../ui/components/VerifiedBadge';
 import { AdminPartnerSummary } from '../../types/admin';
+
+const STATUS_BADGE: Record<
+  AdminPartnerSummary['status'],
+  { label: string; className: string; icon: typeof Clock }
+> = {
+  active: { label: 'Cadastro Ativo', className: 'text-emerald-400', icon: CheckCircle },
+  pending: { label: 'Pendente', className: 'text-amber-500', icon: Clock },
+  suspended: { label: 'Suspenso', className: 'text-rose-400', icon: Ban },
+};
+
+const PLAN_LABEL: Record<NonNullable<AdminPartnerSummary['verificationType']>, string> = {
+  trial: 'Teste grátis',
+  monthly: 'Plano mensal',
+  'semi-annual': 'Plano semestral',
+  annual: 'Plano anual',
+  admin: 'Selo concedido pelo admin',
+};
+
+/** Selo visível para o público: verificado e não suspenso pelo admin. */
+function hasVisibleSeal(partner: AdminPartnerSummary): boolean {
+  return partner.isVerified && !partner.isVerificationSuspended;
+}
+
+const ROW_BUTTON =
+  'flex-1 sm:flex-none min-h-[44px] px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all focus-visible:ring-2 focus-visible:ring-teal-400/50';
 
 interface AdminPartnersViewProps {
   partners: AdminPartnerSummary[];
   isLoading: boolean;
   onToggleVerification: (partner: AdminPartnerSummary) => Promise<void>;
   onToggleStatus: (partner: AdminPartnerSummary) => Promise<void>;
-  onDeletePartner: (id: string) => Promise<void>;
+  onDeletePartner: (partner: AdminPartnerSummary) => Promise<void>;
 }
 
 export function AdminPartnersView({
@@ -54,77 +79,86 @@ export function AdminPartnersView({
                 <p className="text-[10px] text-white/50 font-bold uppercase tracking-widest">
                   {partner.firstName} {partner.lastName} • {partner.email}
                 </p>
-                <div className="flex items-center gap-3 mt-2">
+                <div className="flex flex-wrap items-center gap-3 mt-2">
                   <span className="px-2 py-0.5 rounded-md bg-white/5 text-[8px] font-black uppercase text-white/50 border border-white/10">
-                    Cat: {partner.category}
+                    {partner.listingsCount === 1
+                      ? '1 cadastro'
+                      : `${partner.listingsCount} cadastros`}
                   </span>
-                  <div className="flex items-center gap-1.5">
-                    {partner.status === 'active' ? (
-                      <div className="flex items-center gap-1 text-emerald-400">
-                        <CheckCircle size={10} />
+                  {(() => {
+                    const badge = STATUS_BADGE[partner.status];
+                    const StatusIcon = badge.icon;
+                    return (
+                      <div className={cn('flex items-center gap-1', badge.className)}>
+                        <StatusIcon size={10} aria-hidden="true" />
                         <span className="text-[8px] font-black uppercase italic">
-                          Cadastro Ativo
+                          {badge.label}
                         </span>
                       </div>
-                    ) : partner.status === 'suspended' ? (
-                      <div className="flex items-center gap-1 text-rose-400">
-                        <AlertCircle size={10} />
-                        <span className="text-[8px] font-black uppercase italic">Suspenso</span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-1 text-amber-500">
-                        <Clock size={10} />
-                        <span className="text-[8px] font-black uppercase italic">Pendente</span>
-                      </div>
-                    )}
-                    {partner.isVerified && (
-                      <div className="flex items-center gap-1 text-blue-400 ml-2">
-                        <VerifiedBadge size="sm" />
-                        <span className="text-[8px] font-black uppercase italic">Verificado</span>
-                      </div>
-                    )}
-                  </div>
+                    );
+                  })()}
+                  {hasVisibleSeal(partner) && (
+                    <div className="flex items-center gap-1 text-blue-400">
+                      <VerifiedBadge size="sm" />
+                      <span className="text-[8px] font-black uppercase italic">Verificado</span>
+                    </div>
+                  )}
+                  {partner.isVerified && partner.verificationType && (
+                    <span className="text-[8px] font-black uppercase text-white/60">
+                      {PLAN_LABEL[partner.verificationType]}
+                      {partner.verifiedUntil &&
+                        ` até ${new Intl.DateTimeFormat('pt-BR', {
+                          timeZone: 'America/Fortaleza',
+                          dateStyle: 'short',
+                        }).format(new Date(partner.verifiedUntil))}`}
+                      {partner.isVerificationSuspended && ' · selo suspenso'}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
 
             <div className="flex items-center gap-2 w-full sm:w-auto justify-end border-t sm:border-t-0 border-white/5 pt-4 sm:pt-0">
               <button
+                type="button"
                 onClick={() => onToggleVerification(partner)}
                 className={cn(
-                  'flex-1 sm:flex-none px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all',
-                  partner.isVerified
-                    ? 'bg-blue-500 text-black font-black'
-                    : 'bg-blue-500/10 text-blue-500 hover:bg-blue-500 hover:text-black'
+                  ROW_BUTTON,
+                  hasVisibleSeal(partner)
+                    ? 'bg-blue-500/10 text-blue-400 hover:bg-blue-500 hover:text-black'
+                    : 'bg-blue-500 text-black'
                 )}
                 id={`btn-verify-${partner.id}`}
               >
-                {partner.isVerified ? 'Verificado' : 'Verificar'}
+                {hasVisibleSeal(partner) ? 'Retirar selo' : 'Conceder selo'}
               </button>
 
               <button
+                type="button"
                 onClick={() => onToggleStatus(partner)}
                 className={cn(
-                  'flex-1 sm:flex-none px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all',
-                  partner.status === 'active'
-                    ? 'bg-amber-500/10 text-amber-500 hover:bg-amber-500 hover:text-black'
-                    : 'bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-black'
+                  ROW_BUTTON,
+                  partner.status === 'suspended'
+                    ? 'bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-black'
+                    : 'bg-amber-500/10 text-amber-500 hover:bg-amber-500 hover:text-black'
                 )}
                 id={`btn-status-${partner.id}`}
               >
-                {partner.status === 'active'
-                  ? 'Suspender'
-                  : partner.status === 'suspended'
+                {partner.status === 'suspended'
                   ? 'Reativar'
-                  : 'Aprovar'}
+                  : partner.status === 'pending'
+                    ? 'Aprovar'
+                    : 'Suspender'}
               </button>
 
               <button
-                onClick={() => onDeletePartner(partner.id)}
-                className="p-3 rounded-xl bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition-all shadow-lg shadow-rose-500/10"
+                type="button"
+                onClick={() => onDeletePartner(partner)}
+                aria-label={`Excluir parceiro ${partner.businessName}`}
+                className="w-11 h-11 flex items-center justify-center rounded-xl bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition-all shadow-lg shadow-rose-500/10 focus-visible:ring-2 focus-visible:ring-teal-400/50"
                 id={`btn-delete-${partner.id}`}
               >
-                <Trash2 size={16} />
+                <Trash2 size={16} aria-hidden="true" />
               </button>
             </div>
           </div>

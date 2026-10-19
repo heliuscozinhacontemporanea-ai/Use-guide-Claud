@@ -4,7 +4,7 @@ export interface PartnerBusiness {
   type: 'item' | 'event';
 }
 
-export type PartnerCategory = 'sight' | 'hotel' | 'restaurant' | 'event';
+export type PartnerCategory = 'sight' | 'hotel' | 'restaurant' | 'producer';
 
 export interface PublicPartnerProfile {
   id: string;
@@ -31,6 +31,7 @@ export interface PartnerSubmissionData {
   website: string;
   bookingLinks: string;
   phone: string;
+  phoneDdi?: string;
   googleMaps: string;
   address: string;
   firstName: string;
@@ -64,7 +65,13 @@ export interface PartnerSubmissionData {
   sightPrice?: string;
 }
 
-export type PartnerVerificationType = 'trial' | 'monthly' | 'semi-annual' | 'annual' | null;
+export type PartnerVerificationType =
+  | 'trial'
+  | 'monthly'
+  | 'semi-annual'
+  | 'annual'
+  | 'admin'
+  | null;
 
 export interface PartnerProfile {
   id: string;

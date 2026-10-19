@@ -10,10 +10,6 @@ const BILLING_MONTHS_BY_PLAN: Partial<Record<SubscriptionPlan['id'], number>> = 
   annual: 12,
 };
 
-function roundCurrency(value: number): number {
-  return Math.round(value * 100) / 100;
-}
-
 export class AdminPlansService {
   constructor(
     private readonly adminPlansPort: AdminPlansPort

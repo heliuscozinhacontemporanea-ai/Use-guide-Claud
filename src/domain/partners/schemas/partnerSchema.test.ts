@@ -66,7 +66,7 @@ describe('Partner Validation Schemas (Frontend)', () => {
       expect(result.success).toBe(false);
     });
 
-    it('deve aceitar categorias válidas: hotel, restaurant, sight, tour, event', () => {
+    it('deve aceitar categorias válidas: hotel, restaurant, sight, tour, producer', () => {
       for (const category of ['hotel', 'restaurant', 'sight', 'tour']) {
         const res = step1Schema.safeParse({
           category,
@@ -77,13 +77,13 @@ describe('Partner Validation Schemas (Frontend)', () => {
         expect(res.success).toBe(true);
       }
 
-      const resEvent = step1Schema.safeParse({
-        category: 'event',
+      const resProducer = step1Schema.safeParse({
+        category: 'producer',
         businessName: '',
         cpfCnpj: VALID_TEST_CPF,
         description: '',
       });
-      expect(resEvent.success).toBe(true);
+      expect(resProducer.success).toBe(true);
     });
   });
 
@@ -240,61 +240,18 @@ describe('Partner Validation Schemas (Frontend)', () => {
       expect(result.data?.status).toBe('suspended');
     });
 
-    it('deve validar updatePartnerVerificationSchema quando verificado e com tipo válido', () => {
-      const result = updatePartnerVerificationSchema.safeParse({
-        partnerId: 'partner-123',
-        isVerified: true,
-        verifiedUntil: '2027-01-01T00:00:00.000Z',
-        verificationType: 'annual',
-      });
-      expect(result.success).toBe(true);
-    });
-
-    it('updatePartnerVerificationSchema: deve falhar quando isVerified=true sem verifiedUntil ou sem verificationType', () => {
-      const missingDate = updatePartnerVerificationSchema.safeParse({
-        partnerId: 'partner-123',
-        isVerified: true,
-        verifiedUntil: null,
-        verificationType: 'monthly',
-      });
-      expect(missingDate.success).toBe(false);
-
-      const missingType = updatePartnerVerificationSchema.safeParse({
-        partnerId: 'partner-123',
-        isVerified: true,
-        verifiedUntil: '2027-01-01T00:00:00.000Z',
-        verificationType: null,
-      });
-      expect(missingType.success).toBe(false);
-    });
-
-    it('updatePartnerVerificationSchema: deve falhar quando isVerified=false com verifiedUntil diferente de null', () => {
-      const invalidNotVerified = updatePartnerVerificationSchema.safeParse({
-        partnerId: 'partner-123',
-        isVerified: false,
-        verifiedUntil: '2027-01-01T00:00:00.000Z',
-        verificationType: null,
-      });
-      expect(invalidNotVerified.success).toBe(false);
-
-      const validNotVerified = updatePartnerVerificationSchema.safeParse({
-        partnerId: 'partner-123',
-        isVerified: false,
-        verifiedUntil: null,
-        verificationType: null,
-      });
-      expect(validNotVerified.success).toBe(true);
-    });
-
-    it('updatePartnerVerificationSchema: deve rejeitar verificationType quando isVerified=false', () => {
-      const result = updatePartnerVerificationSchema.safeParse({
-        partnerId: 'partner-123',
-        isVerified: false,
-        verifiedUntil: null,
-        verificationType: 'annual',
-      });
-
-      expect(result.success).toBe(false);
+    it('updatePartnerVerificationSchema aceita só partnerId e isVerified', () => {
+      expect(
+        updatePartnerVerificationSchema.safeParse({ partnerId: 'partner-123', isVerified: true })
+          .success
+      ).toBe(true);
+      expect(
+        updatePartnerVerificationSchema.safeParse({
+          partnerId: 'partner-123',
+          isVerified: true,
+          verificationType: 'annual',
+        }).success
+      ).toBe(false);
     });
   });
 });

@@ -6,5 +6,10 @@ export function formatPlanAmount(amountMinor: number, locale: string): string {
 }
 
 export function formatBillingDate(iso: string, locale: string): string {
-  return new Intl.DateTimeFormat(locale, { dateStyle: 'short' }).format(new Date(iso));
+  return new Intl.DateTimeFormat(locale, {
+    timeZone: 'America/Fortaleza',
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+  }).format(new Date(iso));
 }

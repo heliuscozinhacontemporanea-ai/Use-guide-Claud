@@ -8,7 +8,8 @@ export interface AdminPartnerSummaryDTO {
   firstName: string;
   lastName: string;
   email: string;
-  category: PartnerProfileDTO['category'];
+  /** Estabelecimentos e eventos vinculados ao parceiro (a categoria é de cada estabelecimento). */
+  listingsCount: number;
   status: PartnerProfileDTO['status'];
   isVerified: boolean;
   verifiedUntil: string | null;
@@ -32,7 +33,7 @@ export async function getAdminPartnersUseCase(): Promise<AdminPartnerSummaryDTO[
       firstName: user?.firstName || '',
       lastName: user?.lastName || '',
       email: user?.email || '',
-      category: partner.category,
+      listingsCount: partner.businesses?.length ?? 0,
       status: partner.status,
       isVerified: partner.isVerified,
       verifiedUntil: partner.verifiedUntil,

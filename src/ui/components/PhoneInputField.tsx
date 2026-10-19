@@ -3,24 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { ChevronDown, Phone } from 'lucide-react';
 import { cn } from '../../shared/utils/cn';
 import { Z_INDEX } from '../../shared/constants/zIndex';
-
-const COUNTRY_CODES = [
-  { code: '+55', name: 'Brasil' },
-  { code: '+1', name: 'EUA/Canadá' },
-  { code: '+351', name: 'Portugal' },
-  { code: '+34', name: 'Espanha' },
-  { code: '+33', name: 'França' },
-  { code: '+44', name: 'Reino Unido' },
-  { code: '+49', name: 'Alemanha' },
-  { code: '+39', name: 'Itália' },
-  { code: '+54', name: 'Argentina' },
-  { code: '+598', name: 'Uruguai' },
-  { code: '+56', name: 'Chile' },
-  { code: '+57', name: 'Colômbia' },
-  { code: '+52', name: 'México' },
-  { code: '+81', name: 'Japão' },
-  { code: '+86', name: 'China' },
-];
+import { COUNTRY_CODES } from '../../shared/constants/countryCodes';
 
 interface PhoneInputFieldProps {
   id?: string;

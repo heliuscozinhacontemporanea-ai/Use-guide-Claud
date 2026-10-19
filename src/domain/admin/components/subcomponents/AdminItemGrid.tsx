@@ -65,7 +65,7 @@ export function AdminItemGrid({
         </div>
       </div>
 
-      {(activeTab === 'items' || activeTab === 'events') && (
+      {activeTab === 'items' && (
         <div
           className="flex gap-2.5 pb-4 overflow-x-auto no-scrollbar -mx-4 px-4"
           id="categories-filter-bar"

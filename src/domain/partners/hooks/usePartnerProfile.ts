@@ -202,7 +202,7 @@ export function usePartnerProfile(
         setProfileStatus('ready');
 
         if (
-          publicPartner.category === 'event' &&
+          publicPartner.category === 'producer' &&
           onAutoSwitchTabRef.current &&
           !hasAutoSwitchedRef.current
         ) {
@@ -234,7 +234,7 @@ export function usePartnerProfile(
     (!partnerProfile?.verifiedUntil || new Date(partnerProfile.verifiedUntil) > new Date())
   );
 
-  const isEventProducer = partnerProfile?.category === 'event';
+  const isEventProducer = partnerProfile?.category === 'producer';
 
   const isStep1Valid = (): boolean => {
     if (!editorFormData?.category) return false;

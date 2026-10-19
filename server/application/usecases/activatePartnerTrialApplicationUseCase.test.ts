@@ -30,7 +30,6 @@ describe('activatePartnerTrialApplicationUseCase', () => {
 
   const mockPreviousProfile: PartnerProfileDocument = {
     id: 'partner-123',
-    category: 'restaurant',
     status: 'active',
     businesses: [],
     isVerified: false,

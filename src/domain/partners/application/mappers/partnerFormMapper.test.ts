@@ -10,7 +10,7 @@ describe('partnerFormMapper', () => {
     description: 'Frutos do mar e vista da praia',
     location: 'jeri',
     address: 'Rua Principal, 100',
-    whatsappLink: '88999999999',
+    phone: '88999999999',
     instagramLink: 'https://instagram.com/maraberto',
     websiteLink: 'https://maraberto.com.br',
     bookingLink: '',

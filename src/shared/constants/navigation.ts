@@ -1,4 +1,4 @@
-import { Compass, Calendar, Map, BedDouble, Utensils, MapPin, Info } from 'lucide-react';
+import { Compass, Calendar, Map, Car, KeyRound, BedDouble, Utensils, MapPin, Info } from 'lucide-react';
 import type { RouteKey } from '../i18n';
 
 export const NAVIGATION: ReadonlyArray<{
@@ -9,6 +9,8 @@ export const NAVIGATION: ReadonlyArray<{
   { routeKey: 'explore', translationKey: 'navigation.explore', icon: Compass },
   { routeKey: 'events', translationKey: 'navigation.events', icon: Calendar },
   { routeKey: 'tours', translationKey: 'navigation.tours', icon: Map },
+  { routeKey: 'transfers', translationKey: 'navigation.transfers', icon: Car },
+  { routeKey: 'rentals', translationKey: 'navigation.rentals', icon: KeyRound },
   {
     routeKey: 'stays',
     translationKey: 'navigation.accommodations',

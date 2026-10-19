@@ -22,7 +22,7 @@ function toPartnerCategory(value: string): PartnerCategory {
     case 'sight':
     case 'hotel':
     case 'restaurant':
-    case 'event':
+    case 'producer':
       return value;
 
     default:

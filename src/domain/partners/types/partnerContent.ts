@@ -43,7 +43,16 @@ export interface PartnerOperationalInfo {
   >;
 }
 
-export type PartnerContentCategory = 'restaurant' | 'sight' | 'tour' | 'tips' | 'hotel' | 'event';
+export type PartnerContentCategory =
+  | 'restaurant'
+  | 'sight'
+  | 'tour'
+  | 'tips'
+  | 'hotel'
+  | 'event'
+  | 'producer'
+  | 'transfer'
+  | 'rental';
 export type EventEntryType = 'pago' | 'gratuito';
 
 export type PartnerContentEditorState = Omit<PartnerContentRecord, 'category'> & {
@@ -65,6 +74,7 @@ export interface PartnerContentRecord {
   websiteLink?: string;
   bookingLink?: string;
   whatsappLink?: string;
+  phone?: string;
   googleMapsLink?: string;
   address?: string;
   tags?: string[];
@@ -87,7 +97,7 @@ export interface PartnerContentRecord {
 export interface PartnerContentItemInput {
   name: string;
   description: string;
-  category: 'sight' | 'hotel' | 'restaurant';
+  category: 'sight' | 'hotel' | 'restaurant' | 'producer';
   image: string;
   images: string[];
   location: string;
@@ -95,6 +105,7 @@ export interface PartnerContentItemInput {
   websiteLink?: string;
   bookingLink?: string;
   whatsappLink?: string;
+  phone?: string;
   googleMapsLink?: string;
   address?: string;
   tags?: string[];
@@ -118,6 +129,7 @@ export interface PartnerContentEventInput {
   websiteLink?: string;
   bookingLink?: string;
   whatsappLink?: string;
+  phone?: string;
   googleMapsLink?: string;
   address?: string;
   tags?: string[];

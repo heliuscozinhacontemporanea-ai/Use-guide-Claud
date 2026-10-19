@@ -62,7 +62,7 @@ export function Step1CompanyInfo({
     setFormData((prev: any) => ({ ...prev, description: sliced }));
   };
 
-  const isEventProducer = formData.category === 'event';
+  const isEventProducer = formData.category === 'producer';
 
   return (
     <div className="space-y-6">
@@ -152,7 +152,8 @@ export function Step1CompanyInfo({
             {/* Nome da Empresa */}
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase tracking-widest text-white/50 ml-1">
-                Nome da Empresa {!isEventProducer && <span className="text-red-500">*</span>}
+                {isEventProducer ? 'Nome do Produtor' : 'Nome da Empresa'}{' '}
+                <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"

@@ -294,7 +294,6 @@ describe('FirestorePartnerAdapter', () => {
     it('rejeita termsAccepted=false', () => {
       const result = registerPartnerSchema.safeParse({
         formData: {
-          category: 'hotel',
           cpfCnpj: '52998224725',
           termsAccepted: false,
         },
@@ -309,7 +308,6 @@ describe('FirestorePartnerAdapter', () => {
       const uid = 'partner-user-1';
 
       const result = await adapter.registerPartner(uid, {
-        category: 'hotel',
         cpfCnpj: '52998224725',
         termsAccepted: true,
       });
@@ -319,7 +317,6 @@ describe('FirestorePartnerAdapter', () => {
       expect(
         store.get(getDocKey('partners', uid))?.data
       ).toMatchObject({
-        category: 'hotel',
         cpfCnpj: '52998224725',
         cpfCnpjClean: '52998224725',
         isVerified: false,
@@ -344,7 +341,6 @@ describe('FirestorePartnerAdapter', () => {
         store.get(getDocKey('publicPartners', uid))?.data
       ).toMatchObject({
         id: uid,
-        category: 'hotel',
         isVerified: false,
         verifiedUntil: null,
         isVerificationSuspended: false,
@@ -370,7 +366,6 @@ describe('FirestorePartnerAdapter', () => {
 
       await expect(
         adapter.registerPartner('new-user', {
-          category: 'restaurant',
           cpfCnpj: '529.982.247-25',
           termsAccepted: true,
         })
@@ -386,22 +381,18 @@ describe('FirestorePartnerAdapter', () => {
       const uid = 'partner-user-1';
 
       await adapter.registerPartner(uid, {
-        category: 'hotel',
         cpfCnpj: '52998224725',
         termsAccepted: true,
       });
 
       const result = await adapter.registerPartner(uid, {
-        category: 'restaurant',
         cpfCnpj: '529.982.247-25',
         termsAccepted: true,
       });
 
       expect(result.created).toBe(false);
 
-      expect(
-        store.get(getDocKey('partners', uid))?.data.category
-      ).toBe('restaurant');
+      expect(store.get(getDocKey('partners', uid))?.data).not.toHaveProperty('category');
 
       expect(
         store.get(
@@ -417,13 +408,11 @@ describe('FirestorePartnerAdapter', () => {
       const uid = 'partner-user-1';
 
       await adapter.registerPartner(uid, {
-        category: 'hotel',
         cpfCnpj: '52998224725',
         termsAccepted: true,
       });
 
       await adapter.registerPartner(uid, {
-        category: 'hotel',
         cpfCnpj: '00.000.000/0001-91',
         termsAccepted: true,
       });
@@ -454,7 +443,6 @@ describe('FirestorePartnerAdapter', () => {
         exists: true,
         version: 1,
         data: {
-          category: 'hotel',
           cpfCnpj: '529.982.247-25',
           businesses: [],
           isVerified: false,
@@ -482,7 +470,6 @@ describe('FirestorePartnerAdapter', () => {
       );
 
       await adapter.registerPartner(uid, {
-        category: 'hotel',
         cpfCnpj: '00.000.000/0001-91',
         termsAccepted: true,
       });
@@ -515,7 +502,6 @@ describe('FirestorePartnerAdapter', () => {
         exists: true,
         version: 1,
         data: {
-          category: 'hotel',
           cpfCnpj: '529.982.247-25',
           businesses: [],
           isVerified: false,
@@ -593,7 +579,6 @@ describe('FirestorePartnerAdapter', () => {
       const uid = 'partner-status';
 
       await adapter.registerPartner(uid, {
-        category: 'hotel',
         cpfCnpj: '52998224725',
         termsAccepted: true,
       });
@@ -624,7 +609,6 @@ describe('FirestorePartnerAdapter', () => {
 
     beforeEach(async () => {
       await adapter.registerPartner(uid, {
-        category: 'hotel',
         cpfCnpj: '52998224725',
         termsAccepted: true,
       });
@@ -715,7 +699,6 @@ describe('FirestorePartnerAdapter', () => {
       const uid = 'partner-verification';
 
       await adapter.registerPartner(uid, {
-        category: 'hotel',
         cpfCnpj: '52998224725',
         termsAccepted: true,
       });
@@ -752,7 +735,6 @@ describe('FirestorePartnerAdapter', () => {
         adapter.registerPartner(
           'partner-concurrent-A',
           {
-            category: 'hotel',
             cpfCnpj: '52998224725',
             termsAccepted: true,
           }
@@ -760,7 +742,6 @@ describe('FirestorePartnerAdapter', () => {
         adapter.registerPartner(
           'partner-concurrent-B',
           {
-            category: 'restaurant',
             cpfCnpj: '52998224725',
             termsAccepted: true,
           }

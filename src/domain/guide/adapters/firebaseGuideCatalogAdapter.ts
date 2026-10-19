@@ -24,7 +24,7 @@ export function mapGuideItem(record: Record<string, unknown>): GuideItem {
     instagramLink: typeof record.instagramLink === 'string' ? record.instagramLink : undefined,
     websiteLink: typeof record.websiteLink === 'string' ? record.websiteLink : undefined,
     bookingLink: typeof record.bookingLink === 'string' ? record.bookingLink : undefined,
-    whatsappLink: typeof record.whatsappLink === 'string' ? record.whatsappLink : undefined,
+    phone: typeof record.phone === 'string' ? record.phone : undefined,
     googleMapsLink: typeof record.googleMapsLink === 'string' ? record.googleMapsLink : undefined,
     address: typeof record.address === 'string' ? record.address : undefined,
     tags: Array.isArray(record.tags)
@@ -104,7 +104,10 @@ export class FirebaseGuideCatalogAdapter implements GuideCatalogPort {
     const unsubscribeItems = subscribeToCollectionUseCase(
       'items',
       (records) => {
-        items = records.map(mapGuideItem).filter((item) => item.isActive !== false);
+        // Perfil de produtor não é item do guia: só serve de vínculo para os eventos (decisão D9).
+        items = records
+          .map(mapGuideItem)
+          .filter((item) => item.isActive !== false && item.category !== 'producer');
         emit();
       },
       onError

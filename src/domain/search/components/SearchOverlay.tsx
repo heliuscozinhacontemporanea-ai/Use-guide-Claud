@@ -400,10 +400,10 @@ export function SearchOverlay({ isOpen, onClose, onSelectItem }: SearchOverlayPr
                     <span
                       className={cn(
                         'text-[9px] font-black tracking-widest uppercase',
-                        CATEGORIES[item.category]?.colorClass || 'text-emerald-400'
+                        (CATEGORIES as Record<string, any>)[item.category]?.colorClass || 'text-emerald-400'
                       )}
                     >
-                      {CATEGORIES[item.category]?.label || item.category}
+                      {(CATEGORIES as Record<string, any>)[item.category]?.label || item.category}
                     </span>
                     <span className="text-[10px] font-bold text-white/50">
                       {LOCATIONS.find((l) => l.id === item.location)?.name || item.location}

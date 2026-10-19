@@ -5,6 +5,8 @@ export { REGIONS } from '../../../shared/constants/regions';
 export const CATEGORY_FILTERS: CategoryFilter[] = [
   { id: 'event', label: 'Eventos' },
   { id: 'tour', label: 'Passeios' },
+  { id: 'transfer', label: 'Translados' },
+  { id: 'rental', label: 'Aluguéis' },
   { id: 'hotel', label: 'Hospedagens' },
   { id: 'restaurant', label: 'Restaurantes' },
   { id: 'sight', label: 'Atrações' },

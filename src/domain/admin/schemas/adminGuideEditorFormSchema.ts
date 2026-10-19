@@ -42,7 +42,7 @@ export const adminGuideEditorFormSchema = z
     customCategory: z.string().optional(),
     googleMapsLink: z.string().optional(),
     instagramLink: z.string().optional(),
-    whatsappLink: z.string().optional(),
+    phone: z.string().optional(),
     websiteLink: z.string().optional(),
     bookingLink: z.string().optional(),
     operationalInfo: z.record(z.string(), z.unknown()).optional(),

@@ -96,7 +96,7 @@ export function AdminEditorModal({
       customCategory: isEditing?.customCategory,
       googleMapsLink: isEditing?.googleMapsLink,
       instagramLink: isEditing?.instagramLink,
-      whatsappLink: isEditing?.whatsappLink,
+      phone: isEditing?.phone,
       websiteLink: isEditing?.websiteLink,
       bookingLink: isEditing?.bookingLink,
       operationalInfo: isEditing?.operationalInfo as Record<string, unknown> | undefined,
@@ -185,11 +185,21 @@ export function AdminEditorModal({
     }
   };
 
+  // Sem a lista real de sessões, salvar trataria as sessões existentes como removidas.
+  const occurrencesBlocked = occurrencesState === 'loading' || occurrencesState === 'error';
+
   const handleSaveWrapper = form.handleSubmit(
     async (values) => {
+      if (occurrencesBlocked) {
+        showToast('Aguarde o carregamento das sessões do evento antes de salvar.', 'error');
+        return;
+      }
       setIsLoading(true);
       try {
         const firstOccurrence = values.occurrences?.[0];
+        const keptIds = new Set(
+          (values.occurrences ?? []).map((occ) => occ.id).filter((id): id is string => Boolean(id))
+        );
         await onSave({
           ...isEditing,
           ...values,
@@ -197,6 +207,7 @@ export function AdminEditorModal({
           date: firstOccurrence?.startsAt || values.date,
           endDate: firstOccurrence?.endsAt || values.endDate || firstOccurrence?.startsAt || values.date,
           occurrences: values.occurrences,
+          removedOccurrenceIds: savedOccurrenceIdsRef.current.filter((id) => !keptIds.has(id)),
         });
       } finally {
         setIsLoading(false);
@@ -226,7 +237,8 @@ export function AdminEditorModal({
       setIsEditing(null);
       setShowDeleteConfirm(false);
     } catch (err) {
-      console.error(err);
+      console.error('[AdminEditorModal] excluir', err);
+      showToast('Não foi possível excluir o registro.', 'error');
     } finally {
       setIsLoading(false);
     }

@@ -1,4 +1,5 @@
 import type { PartnerContentItemInput } from '../../types/partnerContent';
+import { toE164 } from '../../../../shared/utils/phone';
 import type { PartnerSubmissionData } from '../../types/partner';
 
 function toGuideItemCategory(value: string): PartnerContentItemInput['category'] {
@@ -9,6 +10,8 @@ function toGuideItemCategory(value: string): PartnerContentItemInput['category']
       return 'restaurant';
     case 'sight':
       return 'sight';
+    case 'producer':
+      return 'producer';
     default:
       throw new Error('Categoria de Partner incompatível com conteúdo do Guide.');
   }
@@ -71,11 +74,11 @@ export function mapPartnerSubmissionToGuideItem(
   if (!formData.region?.trim()) {
     throw new Error('Região é obrigatória');
   }
-  if (imageUrls.length === 0) {
+  const category = toGuideItemCategory(formData.category);
+  // Perfil de produtor pode não ter fotos; estabelecimentos precisam de ao menos uma.
+  if (imageUrls.length === 0 && category !== 'producer') {
     throw new Error('Ao menos uma imagem é obrigatória');
   }
-
-  const category = toGuideItemCategory(formData.category);
 
   return {
     name: formData.businessName,
@@ -87,10 +90,9 @@ export function mapPartnerSubmissionToGuideItem(
     instagramLink: formData.instagram,
     websiteLink: formData.website,
     bookingLink: formData.bookingLinks,
-    whatsappLink: formData.phone,
+    phone: toE164(formData.phoneDdi ?? '+55', formData.phone),
     googleMapsLink: formData.googleMaps,
     address: formData.address,
     operationalInfo: buildOperationalInfo(formData),
-    isActive: true,
   };
 }

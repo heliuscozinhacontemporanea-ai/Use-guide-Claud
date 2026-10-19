@@ -40,7 +40,7 @@ const CATEGORIES = [
   { id: 'sight', label: 'Atrações turísticas', icon: <Camera size={18} /> },
   { id: 'hotel', label: 'Hospedagem', icon: <Bed size={18} /> },
   { id: 'restaurant', label: 'Restaurantes', icon: <Utensils size={18} /> },
-  { id: 'event', label: 'Produtor de Eventos', icon: <Sparkles size={18} /> },
+  { id: 'producer', label: 'Eventos (sou produtor)', icon: <Sparkles size={18} /> },
 ];
 
 const CATEGORY_IDS = CATEGORIES.map((c) => c.id);
@@ -165,7 +165,7 @@ export function PartnersModal({ isOpen, onClose, onOpenPartnerPanel }: PartnersM
                         disabled={
                           !formData.category ||
                           !formData.cpfCnpj ||
-                          (formData.category !== 'event' &&
+                          (formData.category !== 'producer' &&
                             (!formData.businessName || !formData.description))
                         }
                         onClick={() => {
@@ -177,7 +177,7 @@ export function PartnersModal({ isOpen, onClose, onOpenPartnerPanel }: PartnersM
                           'flex-[2] flex items-center justify-center gap-2 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] active:scale-95 transition-all shadow-xl',
                           !formData.category ||
                             !formData.cpfCnpj ||
-                            (formData.category !== 'event' &&
+                            (formData.category !== 'producer' &&
                               (!formData.businessName || !formData.description))
                             ? 'bg-white/5 text-white/50 cursor-not-allowed'
                             : 'bg-indigo-500 text-white shadow-indigo-500/20 hover:scale-[1.02] cursor-pointer'
@@ -219,7 +219,7 @@ export function PartnersModal({ isOpen, onClose, onOpenPartnerPanel }: PartnersM
                         type="button"
                         disabled={(() => {
                           if (!formData.phone) return true;
-                          if (formData.category !== 'event') {
+                          if (formData.category !== 'producer') {
                             if (!formData.region || !formData.googleMaps) return true;
                             if (formData.category === 'hotel' && !formData.bookingLinks)
                               return true;
@@ -228,14 +228,14 @@ export function PartnersModal({ isOpen, onClose, onOpenPartnerPanel }: PartnersM
                         })()}
                         onClick={() => {
                           if (validateStep2()) {
-                            setCurrentStep(formData.category === 'event' ? 5 : 3);
+                            setCurrentStep(formData.category === 'producer' ? 5 : 3);
                           }
                         }}
                         className={cn(
                           'flex-[2] flex items-center justify-center gap-2 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] active:scale-95 transition-all shadow-xl',
                           (() => {
                             if (!formData.phone) return true;
-                            if (formData.category !== 'event') {
+                            if (formData.category !== 'producer') {
                               if (!formData.region || !formData.googleMaps) return true;
                               if (formData.category === 'hotel' && !formData.bookingLinks)
                                 return true;
@@ -431,7 +431,7 @@ export function PartnersModal({ isOpen, onClose, onOpenPartnerPanel }: PartnersM
                     <div className="flex items-center gap-4 pt-4 pb-10">
                       <button
                         type="button"
-                        onClick={() => setCurrentStep(formData.category === 'event' ? 2 : 4)}
+                        onClick={() => setCurrentStep(formData.category === 'producer' ? 2 : 4)}
                         className="flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl border border-white/10 text-white font-black uppercase tracking-widest text-[10px] hover:bg-white/5 active:scale-95 transition-all"
                       >
                         <ChevronLeft size={14} />
@@ -441,7 +441,7 @@ export function PartnersModal({ isOpen, onClose, onOpenPartnerPanel }: PartnersM
                         type="button"
                         disabled={
                           !formData.termsAccepted ||
-                          (formData.images.length === 0 && formData.category !== 'event') ||
+                          (formData.images.length === 0 && formData.category !== 'producer') ||
                           (!currentUser &&
                             (!formData.firstName ||
                               !formData.email ||
@@ -461,7 +461,7 @@ export function PartnersModal({ isOpen, onClose, onOpenPartnerPanel }: PartnersM
                         className={cn(
                           'flex-[2] flex items-center justify-center gap-2 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] active:scale-95 transition-all shadow-xl',
                           !formData.termsAccepted ||
-                            (formData.images.length === 0 && formData.category !== 'event') ||
+                            (formData.images.length === 0 && formData.category !== 'producer') ||
                             (!currentUser &&
                               (!formData.firstName ||
                                 !formData.email ||

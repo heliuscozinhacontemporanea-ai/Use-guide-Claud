@@ -23,7 +23,14 @@ export interface SeoAlternate {
   href: string;
 }
 
-export type SeoGuideCategory = 'restaurant' | 'sight' | 'tour' | 'tips' | 'hotel';
+export type SeoGuideCategory =
+  | 'restaurant'
+  | 'sight'
+  | 'tour'
+  | 'tips'
+  | 'hotel'
+  | 'transfer'
+  | 'rental';
 
 /** Projeção pública de um item do guia: só campos que podem aparecer no HTML indexável. */
 export interface SeoGuideItem {

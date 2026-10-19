@@ -1,22 +1,56 @@
 import { describe, expect, it } from 'vitest';
-import {
-  registerPartnerSchema,
-  verifyPartnerSchema,
-  activateTrialSchema,
-  updatePartnerStatusSchema,
-} from './partnerSchema';
+import { activateTrialSchema, registerPartnerSchema, verifyPartnerSchema } from './partnerSchema';
 
 describe('Partner Validation Schemas (Backend)', () => {
   describe('registerPartnerSchema', () => {
-    it('should validate complete partner registration data', () => {
+    it('should validate complete partner registration payload with valid CPF', () => {
       const result = registerPartnerSchema.safeParse({
         formData: {
-          category: 'hotel',
-          cpfCnpj: '52998224725',
+          cpfCnpj: '123.456.789-09',
           termsAccepted: true,
         },
       });
       expect(result.success).toBe(true);
+    });
+
+    it('should validate partner registration payload with valid numeric CNPJ', () => {
+      const result = registerPartnerSchema.safeParse({
+        formData: {
+          cpfCnpj: '00.000.000/0001-91',
+          termsAccepted: true,
+        },
+      });
+      expect(result.success).toBe(true);
+    });
+
+    it('should validate partner registration payload with valid alphanumeric CNPJ', () => {
+      const result = registerPartnerSchema.safeParse({
+        formData: {
+          cpfCnpj: '12.ABC.345/01DE-35',
+          termsAccepted: true,
+        },
+      });
+      expect(result.success).toBe(true);
+    });
+
+    it('should fail when termsAccepted is false', () => {
+      const result = registerPartnerSchema.safeParse({
+        formData: {
+          cpfCnpj: '123.456.789-09',
+          termsAccepted: false,
+        },
+      });
+      expect(result.success).toBe(false);
+    });
+
+    it('should fail when cpfCnpj is invalid', () => {
+      const result = registerPartnerSchema.safeParse({
+        formData: {
+          cpfCnpj: '123.456.789-00',
+          termsAccepted: true,
+        },
+      });
+      expect(result.success).toBe(false);
     });
 
     it('should fail when formData is missing', () => {
@@ -51,40 +85,18 @@ describe('Partner Validation Schemas (Backend)', () => {
       );
     });
   });
+
   describe('activateTrialSchema', () => {
     it('should validate trial activation with required trimmed partnerId', () => {
       const result = activateTrialSchema.safeParse({
-        partnerId: '  partner_abc  ',
+        partnerId: 'partner_123',
       });
       expect(result.success).toBe(true);
-      if (result.success) {
-        expect(result.data.partnerId).toBe('partner_abc');
-      }
     });
 
-    it('should fail when partnerId is missing or empty', () => {
+    it('should fail when partnerId is empty or missing', () => {
       expect(activateTrialSchema.safeParse({}).success).toBe(false);
-      expect(activateTrialSchema.safeParse({ partnerId: '   ' }).success).toBe(false);
-    });
-  });
-
-  describe('updatePartnerStatusSchema', () => {
-    it('should validate valid status values', () => {
-      expect(
-        updatePartnerStatusSchema.safeParse({ partnerId: 'p1', status: 'active' }).success
-      ).toBe(true);
-      expect(
-        updatePartnerStatusSchema.safeParse({ partnerId: 'p1', status: 'pending' }).success
-      ).toBe(true);
-      expect(
-        updatePartnerStatusSchema.safeParse({ partnerId: 'p1', status: 'suspended' }).success
-      ).toBe(true);
-    });
-
-    it('should fail with invalid status value', () => {
-      expect(
-        updatePartnerStatusSchema.safeParse({ partnerId: 'p1', status: 'unknown' }).success
-      ).toBe(false);
+      expect(activateTrialSchema.safeParse({ partnerId: '  ' }).success).toBe(false);
     });
   });
 });

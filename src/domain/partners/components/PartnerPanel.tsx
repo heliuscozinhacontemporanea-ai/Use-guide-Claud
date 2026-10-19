@@ -51,7 +51,7 @@ export interface PartnerPanelProps {
     itemId: string;
     itemName: string;
     amountMinor: number;
-    onPaymentSuccess: () => Promise<void>;
+    onPaymentSuccess: () => void;
   }) => React.ReactNode;
   renderEventTicketingManager?: (eventListingId: string) => React.ReactNode;
   planSubscriptionSlot?: React.ReactNode;
@@ -94,7 +94,6 @@ export function PartnerPanel({
     setErrors,
     dataLoading,
     isVerified,
-    isEventProducer,
     itemsList,
     eventsList,
     handleDelete,
@@ -113,11 +112,17 @@ export function PartnerPanel({
     amountMinor: 0,
   });
 
-  const handleCheckoutSuccess = async () => {
+  // O modal mostra a própria tela de sucesso; o perfil é recarregado quando o parceiro fecha.
+  const planPurchasedRef = useRef(false);
+  const handleCheckoutSuccess = () => {
+    planPurchasedRef.current = true;
+  };
+  const handleCheckoutClose = () => {
     setShowCheckoutModal(false);
-    console.info(
-      '[Checkout Success] Pagamento concluído. O status e a verificação serão sincronizados automaticamente pelo servidor/webhook.'
-    );
+    if (planPurchasedRef.current) {
+      planPurchasedRef.current = false;
+      onPlanPurchased?.();
+    }
   };
 
   const phoneRef = useRef<PhoneInputFieldRef | null>(null);
@@ -134,13 +139,6 @@ export function PartnerPanel({
       editorMethods.reset(editorFormData, { keepDefaultValues: true });
     }
   }, [editorFormData, editorMethods]);
-
-  // Efeito reativo estrutural para garantir que parceiros cadastrados como produtores de eventos fiquem e usem unicamente a aba de eventos
-  React.useEffect(() => {
-    if (isEventProducer && activeTab === 'items') {
-      setActiveTab('events');
-    }
-  }, [isEventProducer, activeTab, setActiveTab]);
 
   // Efeito estratégico para bloquear scroll do body e corrigir deslocamento de cabeçalho no mobile devido ao teclado
   React.useEffect(() => {
@@ -177,7 +175,7 @@ export function PartnerPanel({
     { id: 'sight', label: 'Atrações Turísticas', icon: <Sparkles size={16} /> },
     { id: 'hotel', label: 'Hospedagem', icon: <Bed size={16} /> },
     { id: 'restaurant', label: 'Restaurantes', icon: <Utensils size={16} /> },
-    { id: 'event', label: 'Produtor de Eventos', icon: <Calendar size={16} /> },
+    { id: 'producer', label: 'Perfil de produtor de eventos', icon: <Calendar size={16} /> },
   ];
 
   if (userLoading || profileStatus === 'loading') {
@@ -225,7 +223,6 @@ export function PartnerPanel({
         <PartnerTabsNavigation
           activeTab={activeTab}
           setActiveTab={setActiveTab}
-          isEventProducer={isEventProducer}
           isVerified={isVerified}
         />
 
@@ -348,7 +345,6 @@ export function PartnerPanel({
                 onChange={(updatedItem) => setIsEditing(updatedItem)}
                 isUploading={isUploading}
                 onImageUpload={handleImageUpload}
-                partnerCategory={partnerProfile?.category}
                 businesses={partnerProfile?.businesses}
                 renderEventTicketingManager={renderEventTicketingManager}
               />
@@ -590,7 +586,7 @@ export function PartnerPanel({
 
       {renderCheckoutModal?.({
         isOpen: showCheckoutModal,
-        onClose: () => setShowCheckoutModal(false),
+        onClose: handleCheckoutClose,
         itemId: checkoutPlanInfo.itemId,
         itemName: checkoutPlanInfo.itemName,
         amountMinor: checkoutPlanInfo.amountMinor,

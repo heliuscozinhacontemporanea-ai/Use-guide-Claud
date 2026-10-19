@@ -13,7 +13,6 @@ export { deletePartnerProfileUseCase } from './usecases/deletePartnerProfileUseC
 
 export type {
   PartnerStatus,
-  PartnerCategory,
   PartnerVerificationType,
   PartnerBusinessType,
   PartnerBusiness,

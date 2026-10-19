@@ -2,7 +2,6 @@ import { PartnerDomainError } from '../errors/partnerDomainError';
 import type {
   PartnerBusiness,
   PartnerBusinessType,
-  PartnerCategory,
   PartnerProfileDTO,
   PartnerStatus,
   PartnerVerificationType,
@@ -49,21 +48,6 @@ function toPartnerVerificationType(value: unknown): PartnerVerificationType {
   );
 }
 
-function toPartnerCategory(value: unknown): PartnerCategory {
-  if (value === 'sight' || value === 'hotel' || value === 'restaurant' || value === 'event') {
-    return value;
-  }
-
-  throw new PartnerDomainError('INVALID_ARGUMENT', 'Categoria Parceiro inválida.');
-}
-
-function toNullablePartnerCategory(value: unknown): PartnerCategory | null {
-  if (value === 'sight' || value === 'hotel' || value === 'restaurant' || value === 'event') {
-    return value;
-  }
-  return null;
-}
-
 function toIsoString(value: unknown): string | null {
   if (!value) return null;
   if (typeof value === 'string') return value;
@@ -91,7 +75,6 @@ export function toPartnerProfileDTO(id: string, raw: Record<string, unknown>): P
   return {
     id,
     businesses,
-    category: toPartnerCategory(raw.category),
     cpfCnpj: typeof raw.cpfCnpj === 'string' ? raw.cpfCnpj : undefined,
     isVerified: raw.isVerified === true,
     verifiedUntil: toIsoString(raw.verifiedUntil),
@@ -120,7 +103,6 @@ export function toPublicPartnerProfileDTO(
   return {
     id: partnerId,
     businesses,
-    category: toNullablePartnerCategory(raw.category),
     isVerified: raw.isVerified === true,
     verifiedUntil: raw.isVerified === true ? toIsoString(raw.verifiedUntil) : null,
     isVerificationSuspended: raw.isVerificationSuspended === true,

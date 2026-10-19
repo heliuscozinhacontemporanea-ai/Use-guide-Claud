@@ -20,6 +20,7 @@ export const partnerEventFormSchema = z
     images: z.array(z.string()).min(1, 'Ao menos uma imagem é obrigatória.'),
     image: z.string().optional(),
     entryType: eventEntryTypeSchema.default('gratuito'),
+    phone: z.string().optional(),
     whatsappLink: z.string().optional(),
     websiteLink: z.string().optional(),
     instagramLink: z.string().optional(),

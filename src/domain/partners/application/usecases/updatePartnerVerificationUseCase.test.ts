@@ -16,109 +16,16 @@ describe('updatePartnerVerificationUseCase', () => {
     vi.clearAllMocks();
   });
 
-  it('aceita verificationType=trial', async () => {
-    await updatePartnerVerificationUseCase(
-      'partner-1',
-      true,
-      '2027-01-01T00:00:00.000Z',
-      'trial'
-    );
+  it('envia só a decisão do admin (conceder ou retirar o selo)', async () => {
+    await updatePartnerVerificationUseCase('partner-1', true);
+    expect(updatePartnerVerification).toHaveBeenCalledWith('partner-1', true);
 
-    expect(updatePartnerVerification).toHaveBeenCalledWith(
-      'partner-1',
-      true,
-      '2027-01-01T00:00:00.000Z',
-      'trial'
-    );
+    await updatePartnerVerificationUseCase('partner-1', false);
+    expect(updatePartnerVerification).toHaveBeenLastCalledWith('partner-1', false);
   });
 
-  it('aceita verificationType=monthly', async () => {
-    await updatePartnerVerificationUseCase(
-      'partner-1',
-      true,
-      '2027-01-01T00:00:00.000Z',
-      'monthly'
-    );
-
-    expect(updatePartnerVerification).toHaveBeenCalledWith(
-      'partner-1',
-      true,
-      '2027-01-01T00:00:00.000Z',
-      'monthly'
-    );
-  });
-
-  it('aceita verificationType=semi-annual', async () => {
-    await updatePartnerVerificationUseCase(
-      'partner-1',
-      true,
-      '2027-01-01T00:00:00.000Z',
-      'semi-annual'
-    );
-
-    expect(updatePartnerVerification).toHaveBeenCalledWith(
-      'partner-1',
-      true,
-      '2027-01-01T00:00:00.000Z',
-      'semi-annual'
-    );
-  });
-
-  it('aceita verificationType=annual', async () => {
-    await updatePartnerVerificationUseCase(
-      'partner-1',
-      true,
-      '2027-01-01T00:00:00.000Z',
-      'annual'
-    );
-
-    expect(updatePartnerVerification).toHaveBeenCalledWith(
-      'partner-1',
-      true,
-      '2027-01-01T00:00:00.000Z',
-      'annual'
-    );
-  });
-
-  it('aceita estado não verificado somente com verificationType=null', async () => {
-    await updatePartnerVerificationUseCase(
-      'partner-1',
-      false,
-      null,
-      null
-    );
-
-    expect(updatePartnerVerification).toHaveBeenCalledWith(
-      'partner-1',
-      false,
-      null,
-      null
-    );
-  });
-
-  it('rejeita estado não verificado com verificationType preenchido', async () => {
-    await expect(
-      updatePartnerVerificationUseCase(
-        'partner-1',
-        false,
-        null,
-        'annual'
-      )
-    ).rejects.toThrow(
-      'verificationType deve ser null quando isVerified=false.'
-    );
-
+  it('rejeita parceiro sem ID', async () => {
+    await expect(updatePartnerVerificationUseCase('', true)).rejects.toThrow();
     expect(updatePartnerVerification).not.toHaveBeenCalled();
-  });
-
-  it('rejeita verificationType inválido', async () => {
-    await expect(
-      updatePartnerVerificationUseCase(
-        'partner-1',
-        true,
-        '2027-01-01T00:00:00.000Z',
-        'weekly' as never
-      )
-    ).rejects.toThrow();
   });
 });

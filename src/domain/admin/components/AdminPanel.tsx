@@ -6,11 +6,6 @@ import { ChevronLeft, RefreshCw, X } from 'lucide-react';
 import { useUI } from '../../../shared/stores/useUIStore';
 import { useLocalizedRouting } from '../../../shared/hooks/useLocalizedRouting';
 
-import {
-  deletePartnerProfileUseCase,
-  updatePartnerStatusUseCase,
-  updatePartnerVerificationUseCase,
-} from '../../partners';
 import { BackgroundBlobs } from '../../../ui/components/BackgroundBlobs';
 import { ErrorState } from '../../../ui/components/ErrorState';
 import { CATEGORIES } from '../../../shared/constants/categories';
@@ -19,10 +14,8 @@ import {
   createAdminEventOccurrenceUseCase,
   deleteAdminEventListingUseCase,
   deleteAdminEventOccurrenceUseCase,
-  listEventOccurrencesUseCase,
   updateAdminEventListingUseCase,
   updateAdminEventOccurrenceUseCase,
-  EVENT_CATEGORIES,
 } from '../../events';
 import {
   createGuideItemUseCase,
@@ -38,8 +31,8 @@ import {
 } from '../application/mappers/adminGuideEditorMapper';
 import { useAdminGuideCatalog } from '../hooks/useAdminGuideCatalog';
 import { useAdminPartners } from '../hooks/useAdminPartners';
+import { useAdminPartnerActions } from '../hooks/useAdminPartnerActions';
 import { useAdminStats } from '../hooks/useAdminStats';
-import type { AdminPartnerSummary } from '../types/admin';
 
 import { AdminNavigation, type AdminTabId } from './subcomponents/AdminNavigation';
 import { AdminStatsView } from './subcomponents/AdminStatsView';
@@ -48,6 +41,7 @@ import { AdminGuideView } from './subcomponents/AdminGuideView';
 import {
   ADMIN_CREATABLE_ITEM_CATEGORIES,
   AdminEditorModal,
+  type AdminEditorSaveData,
 } from './subcomponents/AdminEditorModal';
 import { AdminPlansView } from './subcomponents/AdminPlansView';
 import { AdminNotificationsView } from './subcomponents/AdminNotificationsView';
@@ -88,36 +82,23 @@ export function AdminPanel() {
 
   const currentList = activeTab === 'events' ? eventsList : itemsList;
 
+  // O filtro de categoria só existe na aba de itens; na agenda todos os eventos aparecem.
   const filteredItems = useMemo(() => {
-    if (filter === 'all') return currentList;
-    if (activeTab === 'events') {
-      return (eventsList as GuideItem[]).filter(
-        (item) => (item.eventCategory || 'Outro').toLowerCase() === filter.toLowerCase()
-      );
-    }
-    return itemsList.filter((item) => item.category === filter);
-  }, [currentList, filter, activeTab, eventsList, itemsList]);
+    if (activeTab !== 'items' || filter === 'all') return currentList;
+    return currentList.filter((item) => item.category === filter);
+  }, [activeTab, currentList, filter]);
 
-  const categories = useMemo(() => {
-    if (activeTab === 'events') {
-      return [
-        { id: 'all', label: 'Todos', color: 'bg-white/10' },
-        ...EVENT_CATEGORIES.map((cat) => ({
-          id: cat.toLowerCase(),
-          label: cat,
-          color: 'bg-teal-500/10 text-teal-400',
-        })),
-      ];
-    }
-    return [
+  const categories = useMemo(
+    () => [
       { id: 'all', label: 'Todos', color: 'bg-white/10' },
       ...Object.values(CATEGORIES).map((c) => ({
         id: c.id,
         label: c.label,
         color: `${c.bgClass} ${c.colorClass}`,
       })),
-    ];
-  }, [activeTab]);
+    ],
+    []
+  );
 
   const handleDelete = async (coll: string, id: string) => {
     if (!(await confirmAction('Excluir permanentemente?'))) return;
@@ -127,59 +108,17 @@ export function AdminPanel() {
       } else if (coll === 'events') {
         await deleteAdminEventListingUseCase(id);
       }
+      showToast('Registro excluído.', 'success');
     } catch (error) {
       console.error(`Erro ao deletar em ${coll}/${id}:`, error);
       showToast('Não foi possível excluir o registro.', 'error');
     }
   };
 
-  const handleToggleVerification = async (partner: AdminPartnerSummary) => {
-    if (!(await confirmAction('Alterar status de verificação do parceiro?'))) return;
-    const newVerified = !partner.isVerified;
-    try {
-      await updatePartnerVerificationUseCase(partner.id, newVerified);
-      patchPartner(partner.id, { isVerified: newVerified });
-      showToast('Status de verificação atualizado com sucesso!', 'success');
-    } catch {
-      showToast('Erro ao atualizar verificação', 'error');
-    }
-  };
+  const { handleToggleVerification, handleToggleStatus, handleDeletePartner } =
+    useAdminPartnerActions({ reloadPartners: fetchPartners, patchPartner, removePartner });
 
-  const handleToggleStatus = async (partner: AdminPartnerSummary) => {
-    const nextStatus = partner.status === 'active' ? 'suspended' : 'active';
-    const actionLabel =
-      partner.status === 'active'
-        ? 'Suspender o parceiro?'
-        : partner.status === 'suspended'
-        ? 'Reativar o parceiro?'
-        : 'Aprovar o cadastro do parceiro?';
-    if (!(await confirmAction(actionLabel))) return;
-    try {
-      await updatePartnerStatusUseCase(partner.id, nextStatus);
-      patchPartner(partner.id, { status: nextStatus });
-      showToast(
-        nextStatus === 'suspended'
-          ? 'Parceiro suspenso com sucesso.'
-          : 'Parceiro ativado com sucesso!',
-        'success'
-      );
-    } catch {
-      showToast('Erro ao atualizar status', 'error');
-    }
-  };
-
-  const handleDeletePartner = async (id: string) => {
-    if (!(await confirmAction('Excluir este parceiro permanentemente?'))) return;
-    try {
-      await deletePartnerProfileUseCase(id);
-      removePartner(id);
-      showToast('Parceiro excluído com sucesso.', 'success');
-    } catch {
-      showToast('Erro ao excluir parceiro.', 'error');
-    }
-  };
-
-  const handleSaveRecord = async (editorData: GuideItem) => {
+  const handleSaveRecord = async (editorData: AdminEditorSaveData) => {
     try {
       if (activeTab === 'items') {
         if (editorData.id) {
@@ -193,30 +132,17 @@ export function AdminPanel() {
           endDate: editorData.endDate || editorData.date,
           eventCategory: editorData.eventCategory || 'geral',
         };
-        const rawOccurrences = (
-          editorData as GuideItem & {
-            occurrences?: Array<{
-              id?: string;
-              startsAt: string;
-              endsAt: string;
-              capacity: number;
-            }>;
-          }
-        ).occurrences;
+        const rawOccurrences = editorData.occurrences;
 
         if (editorData.id) {
           await updateAdminEventListingUseCase(
             editorData.id,
             toGuideEventUpdateInput(normalizedEventData)
           );
+          for (const occurrenceId of editorData.removedOccurrenceIds ?? []) {
+            await deleteAdminEventOccurrenceUseCase(editorData.id, occurrenceId);
+          }
           if (Array.isArray(rawOccurrences)) {
-            const existingOccurrences = await listEventOccurrencesUseCase(editorData.id);
-            const keptIds = new Set(rawOccurrences.map((occ) => occ.id).filter(Boolean));
-            for (const existingOcc of existingOccurrences) {
-              if (!keptIds.has(existingOcc.id)) {
-                await deleteAdminEventOccurrenceUseCase(editorData.id, existingOcc.id);
-              }
-            }
             for (const occ of rawOccurrences) {
               if (occ.id) {
                 await updateAdminEventOccurrenceUseCase(editorData.id, occ.id, {
@@ -248,6 +174,7 @@ export function AdminPanel() {
         }
       }
       setIsEditing(null);
+      showToast('Registro salvo.', 'success');
     } catch (error: unknown) {
       console.error('[AdminPanel.handleSaveRecord]', error);
       showToast(
@@ -324,13 +251,7 @@ export function AdminPanel() {
           </div>
         </motion.div>
 
-        <AdminNavigation
-          activeTab={activeTab}
-          onSelectTab={(tab) => {
-            setFilter('all');
-            setActiveTab(tab);
-          }}
-        />
+        <AdminNavigation activeTab={activeTab} onSelectTab={setActiveTab} />
 
         <AnimatePresence mode="wait">
           <motion.div
@@ -416,6 +337,7 @@ export function AdminPanel() {
               } else {
                 await deleteAdminEventListingUseCase(id);
               }
+              showToast('Registro excluído.', 'success');
             }}
           />
         )}

@@ -10,11 +10,21 @@ import { NotFoundView } from '../../ui/components/NotFoundView';
 import { PageLayout } from '../../ui/layouts/PageLayout';
 import { CheckoutResultComposition } from '../compositions/CheckoutResultComposition';
 
-type GridCategory = 'event' | 'tour' | 'hotel' | 'restaurant' | 'sight' | 'tips';
+type GridCategory =
+  | 'event'
+  | 'tour'
+  | 'transfer'
+  | 'rental'
+  | 'hotel'
+  | 'restaurant'
+  | 'sight'
+  | 'tips';
 
 const GRID_CATEGORY: Record<Exclude<RouteKey, 'explore'>, GridCategory> = {
   events: 'event',
   tours: 'tour',
+  transfers: 'transfer',
+  rentals: 'rental',
   stays: 'hotel',
   restaurants: 'restaurant',
   attractions: 'sight',

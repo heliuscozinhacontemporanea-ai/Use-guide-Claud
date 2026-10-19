@@ -145,7 +145,10 @@
             "sight",
             "tour",
             "tips",
-            "hotel"
+            "hotel",
+            "transfer",
+            "rental",
+            "producer"
           ]
         },
         "image": { "type": "string" },
@@ -159,7 +162,7 @@
         "instagramLink": { "type": "string" },
         "websiteLink": { "type": "string" },
         "bookingLink": { "type": "string" },
-        "whatsappLink": { "type": "string" },
+        "phone": { "type": "string", "description": "Telefone em E.164 (ex: +5588999999999)." },
         "googleMapsLink": { "type": "string" },
         "address": { "type": "string" },
         "tags": {
@@ -201,10 +204,6 @@
       "description": "Business partner profile information with decoupled user attributes.",
       "type": "object",
       "properties": {
-        "category": {
-          "type": "string",
-          "description": "The category of the partner (restaurant, hotel, sight, event, etc.)."
-        },
         "businesses": {
           "type": "array",
           "description": "Array of assigned business objects containing businessId, name and type.",

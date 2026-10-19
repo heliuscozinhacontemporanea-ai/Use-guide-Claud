@@ -127,6 +127,7 @@ export class OfferService {
     return updated;
   }
 
+  /** `beforePublish` recebe a oferta antes de ela ficar pública e pode recusar lançando um erro. */
   async setOfferStatus(
     actor: BookingActor,
     offerId: string,

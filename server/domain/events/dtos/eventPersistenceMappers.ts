@@ -106,9 +106,9 @@ export class EventListingPersistenceMapper {
       organizerId: String(raw.organizerId || ownerId),
       location,
       contact: {
-        whatsapp:
-          (raw.contact as Record<string, string> | undefined)?.whatsapp ||
-          (typeof raw.whatsappLink === 'string' ? raw.whatsappLink : undefined),
+        phone:
+          (raw.contact as Record<string, string> | undefined)?.phone ||
+          (typeof raw.phone === 'string' ? raw.phone : undefined),
         website:
           (raw.contact as Record<string, string> | undefined)?.website ||
           (typeof raw.websiteLink === 'string' ? raw.websiteLink : undefined),
@@ -230,8 +230,8 @@ export class EventListingPersistenceMapper {
       ...(locationObj.googleMapsLink || input.googleMapsLink
         ? { googleMapsLink: locationObj.googleMapsLink || input.googleMapsLink }
         : {}),
-      ...(input.whatsappLink || input.contact?.whatsapp
-        ? { whatsappLink: input.whatsappLink || input.contact?.whatsapp }
+      ...(input.phone || input.contact?.phone
+        ? { phone: input.phone || input.contact?.phone }
         : {}),
       ...(input.websiteLink || input.contact?.website
         ? { websiteLink: input.websiteLink || input.contact?.website }
@@ -243,8 +243,8 @@ export class EventListingPersistenceMapper {
         ? { bookingLink: input.bookingLink || input.contact?.booking }
         : {}),
       contact: {
-        ...(input.contact?.whatsapp || input.whatsappLink
-          ? { whatsapp: input.contact?.whatsapp || input.whatsappLink }
+        ...(input.contact?.phone || input.phone
+          ? { phone: input.contact?.phone || input.phone }
           : {}),
         ...(input.contact?.website || input.websiteLink
           ? { website: input.contact?.website || input.websiteLink }
@@ -317,7 +317,7 @@ export class EventListingPersistenceMapper {
     }
     if (input.address !== undefined) patch.address = input.address;
     if (input.googleMapsLink !== undefined) patch.googleMapsLink = input.googleMapsLink;
-    if (input.whatsappLink !== undefined) patch.whatsappLink = input.whatsappLink;
+    if (input.phone !== undefined) patch.phone = input.phone;
     if (input.websiteLink !== undefined) patch.websiteLink = input.websiteLink;
     if (input.instagramLink !== undefined) patch.instagramLink = input.instagramLink;
     if (input.bookingLink !== undefined) patch.bookingLink = input.bookingLink;

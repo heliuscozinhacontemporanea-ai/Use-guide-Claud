@@ -53,17 +53,15 @@ describe('createPartnerEventApplicationUseCase', () => {
     mocks.linkBusinessUseCase.mockResolvedValue(undefined);
   });
 
-  it.each(['hotel', 'restaurant', 'sight'] as const)(
-    'permite partner %s criar evento vinculado a establishmentId próprio',
+  it.each(['hotel', 'restaurant', 'sight', 'producer'])(
+    'cria evento vinculado a cadastro próprio (%s)',
     async (category) => {
-      mocks.getPartnerProfileUseCase.mockResolvedValue({
-        id: 'partner-1',
-        category,
-      });
+      mocks.getPartnerProfileUseCase.mockResolvedValue({ id: 'partner-1' });
       mocks.getItemByIdUseCase.mockResolvedValue({
         id: 'est-1',
         ownerId: 'partner-1',
-        name: 'Meu Estabelecimento',
+        category,
+        name: 'Meu cadastro',
       });
 
       const eventId = await createPartnerEventApplicationUseCase(partnerUser, {
@@ -72,90 +70,52 @@ describe('createPartnerEventApplicationUseCase', () => {
       });
 
       expect(eventId).toBe('event-created-1');
-      expect(mocks.getItemByIdUseCase).toHaveBeenCalledWith('est-1');
       expect(mocks.createEventListingUseCase).toHaveBeenCalledWith(
         partnerUser,
-        expect.objectContaining({
-          establishmentId: 'est-1',
-        })
+        expect.objectContaining({ establishmentId: 'est-1' })
       );
-    }
-  );
-
-  it.each(['hotel', 'restaurant', 'sight'] as const)(
-    'rejeita partner %s sem establishmentId',
-    async (category) => {
-      mocks.getPartnerProfileUseCase.mockResolvedValue({
-        id: 'partner-1',
-        category,
+      expect(mocks.linkBusinessUseCase).toHaveBeenCalledWith('partner-1', {
+        businessId: 'event-created-1',
+        businessName: 'Sunset Jeri',
+        type: 'event',
       });
-
-      await expect(
-        createPartnerEventApplicationUseCase(partnerUser, {
-          ...baseEventInput,
-        })
-      ).rejects.toThrow('Selecione o estabelecimento ao qual o evento pertence.');
-
-      expect(mocks.createEventListingUseCase).not.toHaveBeenCalled();
     }
   );
 
-  it('rejeita partner tentando usar establishment de outro owner', async () => {
-    mocks.getPartnerProfileUseCase.mockResolvedValue({
-      id: 'partner-1',
-      category: 'hotel',
-    });
-    mocks.getItemByIdUseCase.mockResolvedValue({
-      id: 'est-other',
-      ownerId: 'partner-2',
-      name: 'Hotel de Outro Parceiro',
-    });
-
+  it('recusa evento sem estabelecimento nem perfil de produtor', async () => {
+    mocks.getPartnerProfileUseCase.mockResolvedValue({ id: 'partner-1' });
     await expect(
-      createPartnerEventApplicationUseCase(partnerUser, {
-        ...baseEventInput,
-        establishmentId: 'est-other',
-      })
-    ).rejects.toThrow('Você não possui permissão sobre este estabelecimento.');
-
+      createPartnerEventApplicationUseCase(partnerUser, baseEventInput)
+    ).rejects.toMatchObject({ code: 'INVALID_ARGUMENT' });
     expect(mocks.createEventListingUseCase).not.toHaveBeenCalled();
   });
 
-  it('permite event producer criar evento sem establishmentId', async () => {
-    mocks.getPartnerProfileUseCase.mockResolvedValue({
-      id: 'partner-1',
-      category: 'event',
-    });
-
-    const eventId = await createPartnerEventApplicationUseCase(partnerUser, {
-      ...baseEventInput,
-    });
-
-    expect(eventId).toBe('event-created-1');
-    expect(mocks.getItemByIdUseCase).not.toHaveBeenCalled();
-    expect(mocks.createEventListingUseCase).toHaveBeenCalledWith(
-      partnerUser,
-      expect.objectContaining({
-        establishmentId: undefined,
+  it('recusa cadastro de outro parceiro', async () => {
+    mocks.getPartnerProfileUseCase.mockResolvedValue({ id: 'partner-1' });
+    mocks.getItemByIdUseCase.mockResolvedValue({ id: 'est-x', ownerId: 'outro' });
+    await expect(
+      createPartnerEventApplicationUseCase(partnerUser, {
+        ...baseEventInput,
+        establishmentId: 'est-x',
       })
-    );
+    ).rejects.toMatchObject({ code: 'FORBIDDEN' });
+    expect(mocks.createEventListingUseCase).not.toHaveBeenCalled();
   });
 
-  it('rejeita event producer enviando establishmentId', async () => {
-    mocks.getPartnerProfileUseCase.mockResolvedValue({
-      id: 'partner-1',
-      category: 'event',
-    });
-
+  it('desfaz o evento se o vínculo com o parceiro falhar', async () => {
+    mocks.getPartnerProfileUseCase.mockResolvedValue({ id: 'partner-1' });
+    mocks.getItemByIdUseCase.mockResolvedValue({ id: 'est-1', ownerId: 'partner-1' });
+    mocks.linkBusinessUseCase.mockRejectedValue(new Error('falhou'));
     await expect(
       createPartnerEventApplicationUseCase(partnerUser, {
         ...baseEventInput,
         establishmentId: 'est-1',
       })
-    ).rejects.toThrow(
-      'Produtor de eventos não pode vincular evento a estabelecimento.'
+    ).rejects.toThrow('falhou');
+    expect(mocks.deleteOrArchiveEventListingUseCase).toHaveBeenCalledWith(
+      partnerUser,
+      'event-created-1',
+      false
     );
-
-    expect(mocks.createEventListingUseCase).not.toHaveBeenCalled();
   });
 });

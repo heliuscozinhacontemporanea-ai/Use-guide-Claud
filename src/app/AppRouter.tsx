@@ -387,7 +387,9 @@ export function AppRouter() {
         {selectedItem?.category === 'event' && (
           <EventDetailModal item={selectedItem} onClose={() => setSelectedItem(null)} />
         )}
-        {selectedItem?.category === 'tour' && (
+        {(selectedItem?.category === 'tour' ||
+          selectedItem?.category === 'transfer' ||
+          selectedItem?.category === 'rental') && (
           <TourDetailModal
             item={selectedItem}
             onClose={() => setSelectedItem(null)}
@@ -411,7 +413,7 @@ export function AppRouter() {
           <TipDetailModal item={selectedItem} onClose={() => setSelectedItem(null)} />
         )}
         {selectedItem &&
-          !['event', 'tour', 'hotel', 'restaurant', 'sight', 'tips'].includes(
+          !['event', 'tour', 'transfer', 'rental', 'hotel', 'restaurant', 'sight', 'tips'].includes(
             selectedItem.category
           ) && <ItemDetailModal item={selectedItem} onClose={() => setSelectedItem(null)} />}
 
