@@ -1,9 +1,10 @@
-import React from 'react';
+
 import { Plus, MapPin, Edit2, RefreshCw } from 'lucide-react';
 import { motion } from 'motion/react';
 import type { PartnerContentRecord } from '../../types/partnerContent';
 import { cn } from '../../../../shared/utils/cn';
 import { VerifiedBadge } from '../../../../ui/components/VerifiedBadge';
+import { VerificationStatusChip } from '../verification/VerificationStatusChip';
 
 interface PartnerItemsTableProps {
   itemsList: PartnerContentRecord[];
@@ -11,6 +12,9 @@ interface PartnerItemsTableProps {
   onEditItem: (item: PartnerContentRecord) => void;
   onToggleActive: (itemId: string, currentActiveState: boolean) => Promise<void>;
   onCreateNew: () => void;
+  /** Muda depois de um envio de verificação, para os selos relerem o status. */
+  verificationVersion: number;
+  onVerifyItem: (item: PartnerContentRecord) => void;
 }
 
 export function PartnerItemsTable({
@@ -19,6 +23,8 @@ export function PartnerItemsTable({
   onEditItem,
   onToggleActive,
   onCreateNew,
+  verificationVersion,
+  onVerifyItem,
 }: PartnerItemsTableProps) {
   return (
     <div className="space-y-6">
@@ -99,6 +105,16 @@ export function PartnerItemsTable({
                     </span>
                   )}
                 </div>
+                {item.id && (
+                  <div className="mt-2">
+                    <VerificationStatusChip
+                      key={`${item.id}-${verificationVersion}`}
+                      itemId={item.id}
+                      name={item.name}
+                      onOpen={() => onVerifyItem(item)}
+                    />
+                  </div>
+                )}
               </div>
 
               <button

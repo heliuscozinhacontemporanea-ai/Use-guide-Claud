@@ -13,6 +13,7 @@ export { subscribeToPartnerProfileUseCase } from './application/usecases/subscri
 export { updatePartnerStatusUseCase } from './application/usecases/updatePartnerStatusUseCase';
 export { updatePartnerVerificationUseCase } from './application/usecases/updatePartnerVerificationUseCase';
 export { ListingEditor, type ListingEditorProps } from './components/ListingEditor';
+export { ListingVerificationQueue } from './components/verification/ListingVerificationQueue';
 export { PartnerEventForm } from './components/PartnerEventForm';
 export {
   LanguagesForm,

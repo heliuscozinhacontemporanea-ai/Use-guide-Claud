@@ -19,6 +19,8 @@ import { PartnerEventsTable } from './subcomponents/PartnerEventsTable';
 import { PartnerHeader } from './subcomponents/PartnerHeader';
 import { PartnerItemsTable } from './subcomponents/PartnerItemsTable';
 import { PartnerTabsNavigation } from './subcomponents/PartnerTabsNavigation';
+import { ListingVerificationDialog } from './verification/ListingVerificationDialog';
+import type { VerificationListingOption } from './verification/verificationListingOption';
 import { PlansModal } from './subcomponents/PlansModal';
 import { useLocalizedRouting } from '../../../shared/hooks/useLocalizedRouting';
 
@@ -96,6 +98,12 @@ export function PartnerPanel({
   const eventSessions = usePartnerEventSessions(editingEventId, (sessions) =>
     setIsEditing((current) => (current ? { ...current, sessions } : current))
   );
+
+  const [verifyingListing, setVerifyingListing] = React.useState<VerificationListingOption | null>(
+    null
+  );
+  // Troca a chave dos selos de verificação para relerem o status depois de um envio.
+  const [verificationVersion, setVerificationVersion] = React.useState(0);
 
   const [showPlansModal, setShowPlansModal] = React.useState(false);
   const [showCheckoutModal, setShowCheckoutModal] = React.useState(false);
@@ -197,6 +205,10 @@ export function PartnerPanel({
               onEditItem={(item) => setEditingListing(item)}
               onToggleActive={handleToggleActive}
               onCreateNew={() => setEditingListing(null)}
+              verificationVersion={verificationVersion}
+              onVerifyItem={(item) =>
+                setVerifyingListing({ id: item.id, name: item.name, category: item.category })
+              }
             />
             {renderBookableOffersManager?.(
               itemsList.map((item) => ({ id: item.id, name: item.name, category: item.category }))
@@ -274,6 +286,21 @@ export function PartnerPanel({
           />
         )}
       </AnimatePresence>
+
+      {verifyingListing && (
+        <ListingVerificationDialog
+          listing={verifyingListing}
+          accountListings={itemsList.map((item) => ({
+            id: item.id,
+            name: item.name,
+            category: item.category,
+          }))}
+          onClose={() => {
+            setVerifyingListing(null);
+            setVerificationVersion((version) => version + 1);
+          }}
+        />
+      )}
 
       <PlansModal
         isOpen={showPlansModal}

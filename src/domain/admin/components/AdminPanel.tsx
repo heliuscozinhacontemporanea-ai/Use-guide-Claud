@@ -65,10 +65,13 @@ export interface AdminPanelProps extends AdminEventSlots {
    * continuam no editor próprio do admin.
    */
   renderListingEditor?: (props: AdminListingEditorProps) => ReactNode;
+  /** Fila de verificação dos estabelecimentos (domínio partners), montada pela composição. */
+  renderVerificationQueue?: () => ReactNode;
 }
 
 export function AdminPanel({
   renderListingEditor,
+  renderVerificationQueue,
   renderSessionsField,
   renderTicketingManager,
 }: AdminPanelProps = {}) {
@@ -262,7 +265,11 @@ export function AdminPanel({
           </div>
         </motion.div>
 
-        <AdminNavigation activeTab={activeTab} onSelectTab={setActiveTab} />
+        <AdminNavigation
+          activeTab={activeTab}
+          onSelectTab={setActiveTab}
+          showVerifications={Boolean(renderVerificationQueue)}
+        />
 
         <AnimatePresence mode="wait">
           <motion.div
@@ -295,6 +302,8 @@ export function AdminPanel({
                   onDeletePartner={handleDeletePartner}
                 />
               )
+            ) : activeTab === 'verifications' ? (
+              renderVerificationQueue?.()
             ) : activeTab === 'plans' ? (
               <AdminPlansView />
             ) : activeTab === 'notifications' ? (

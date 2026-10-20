@@ -1,10 +1,10 @@
 import type { Response } from 'express';
 import { getListingVerificationApplicationUseCase } from '../../../application/usecases/listingVerification/getListingVerificationApplicationUseCase';
+import { listListingVerificationsApplicationUseCase } from '../../../application/usecases/listingVerification/listListingVerificationsApplicationUseCase';
 import { readListingVerificationFileApplicationUseCase } from '../../../application/usecases/listingVerification/readListingVerificationFileApplicationUseCase';
 import { submitListingVerificationApplicationUseCase } from '../../../application/usecases/listingVerification/submitListingVerificationApplicationUseCase';
 import {
   ListingVerificationError,
-  listListingVerificationsUseCase,
   reviewListingVerificationUseCase,
 } from '../../../domain/partners';
 import type { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
@@ -79,7 +79,7 @@ export class ListingVerificationController {
     const query = ListListingVerificationsQuerySchema.safeParse(req.query);
     if (!query.success) return sendError(res, 400, 'VALIDATION_ERROR', 'Filtro inválido.');
     try {
-      const page = await listListingVerificationsUseCase(
+      const page = await listListingVerificationsApplicationUseCase(
         actor,
         query.data.status,
         query.data.limit,

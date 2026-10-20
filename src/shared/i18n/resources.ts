@@ -10,10 +10,17 @@ import {
   insightsFr,
   insightsPtBR,
 } from './insightsResources';
+import {
+  type VerificationTranslation,
+  verificationEn,
+  verificationFr,
+  verificationPtBR,
+} from './verificationResources';
 
 export interface TranslationResource {
   bookings: BookingsTranslation;
   insights: InsightsTranslation;
+  verification: VerificationTranslation;
   common: {
     language: string;
     locales: {
@@ -207,6 +214,7 @@ export interface TranslationResource {
 const ptBR: TranslationResource = {
   bookings: bookingsPtBR,
   insights: insightsPtBR,
+  verification: verificationPtBR,
   common: {
     language: 'Idioma',
     locales: {
@@ -449,6 +457,7 @@ const ptBR: TranslationResource = {
 const en: TranslationResource = {
   bookings: bookingsEn,
   insights: insightsEn,
+  verification: verificationEn,
   common: {
     language: 'Language',
     locales: {
@@ -687,6 +696,7 @@ const en: TranslationResource = {
 const fr: TranslationResource = {
   bookings: bookingsFr,
   insights: insightsFr,
+  verification: verificationFr,
   common: {
     language: 'Langue',
     locales: {

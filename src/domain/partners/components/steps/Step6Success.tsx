@@ -1,6 +1,7 @@
-import React from 'react';
+
 import { motion } from 'motion/react';
-import { CheckCircle2, Rocket } from 'lucide-react';
+import { CheckCircle2, Rocket, ShieldCheck } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface Step6SuccessProps {
   businessName: string;
@@ -9,6 +10,7 @@ interface Step6SuccessProps {
 }
 
 export function Step6Success({ businessName, onClose, onAccessPanel }: Step6SuccessProps) {
+  const { t } = useTranslation();
   return (
     <div
       className="flex flex-col items-center justify-center py-6 text-center space-y-8"
@@ -51,6 +53,10 @@ export function Step6Success({ businessName, onClose, onAccessPanel }: Step6Succ
               </li>
             ))}
           </ul>
+          <p className="flex items-start gap-2 pt-2 text-xs text-white/80">
+            <ShieldCheck size={14} className="text-teal-400 shrink-0 mt-0.5" aria-hidden="true" />
+            {t('verification.signup.nextStep')}
+          </p>
         </div>
         <div className="flex flex-col gap-3 pt-2">
           <button
