@@ -143,6 +143,6 @@
 | 2 | `prompts/prompt-18.3.0a.md` | Verificação por estabelecimento no backend (D12): criptografia de campo com Cloud KMS, índice cego, documentos privados, fila do admin, venda bloqueada sem verificação | `3cc54e6` |
 | 3 | `prompts/prompt-18.3.0b.md` | Conta do parceiro sem CPF/CNPJ e sem status pendente (D12, P0); inscrição dividida em peças menores | `46236f5` |
 | 4 | `prompts/prompt-A4.md` | AGENTS.md §7.7: tira o débito de `partnerDocumentKeys`, já resolvido (S13) | `e2651db` |
-| 5 | `prompts/prompt-18.3.0c.md` | Telas de verificação por estabelecimento (D12): selo e envio no painel do parceiro, fila do admin, textos nos 3 idiomas | `3e75156` |
+| 5 | `prompts/prompt-18.3.0c.md` | Telas de verificação por estabelecimento (D12): selo e envio no painel do parceiro, fila do admin, textos nos 3 idiomas; ajustes do preview | `3e75156` + `3406b93` |
 
 > **Envie um prompt por mensagem**, nesta ordem. **Antes do 18.3.0a**, no painel Secrets do AI Studio: `FIELD_ENCRYPTION_DEV_KEY` (32 bytes em base64) e `PII_BLIND_INDEX_KEY` (32 caracteres ou mais).

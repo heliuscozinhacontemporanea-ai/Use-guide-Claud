@@ -1,6 +1,6 @@
 # Prompt 18.3.0c — Telas de verificação por estabelecimento
 
-> Lote 13, gerado do commit de referência `3e75156` da branch `claude/agents-md-v2`. Aplique depois do A4. Cole o bloco abaixo no agente do AI Studio, inteiro, de uma vez.
+> Lote 13, gerado do commits de referência `3e75156` e `3406b93` da branch `claude/agents-md-v2`. Aplique depois do A4. Cole o bloco abaixo no agente do AI Studio, inteiro, de uma vez.
 
 ---
 
@@ -27,7 +27,12 @@ O QUE MUDA:
    - components/verification/: selo de status em cada cadastro do painel, diálogo de envio (CPF ou CNPJ, vínculo, arquivos, Cadastur; o perfil de produtor escolhe um estabelecimento da conta), painel de status com documento mascarado, fila do admin (filtro por status, abrir arquivos privados, aprovar com confirmação, recusar com motivo).
 4) Painel do parceiro: selo em cada cadastro (PartnerItemsTable) e diálogo (PartnerPanel). Fim da inscrição (Step6Success): próximo passo aponta para a verificação.
 5) Painel admin: aba Verificações, montada pela composição (AdminPanelComposition → renderVerificationQueue). O domínio admin não importa o partners (§5.3).
-6) i18n: src/shared/i18n/verificationResources.ts nos 3 idiomas, registrado em resources.ts; erros traduzidos pelo code (§12.5); datas no fuso America/Fortaleza.
+6) i18n: src/shared/i18n/verificationResources.ts e partnersResources.ts nos 3 idiomas, registrados em resources.ts; erros traduzidos pelo code (§12.5); datas no fuso America/Fortaleza.
+7) Ajustes vistos no preview:
+   - ConfirmDialog (src/ui) ganha tone 'positive' (botão verde) e confirmLabel; Cancelar/Confirmar traduzidos (common.cancel, common.confirm); confirmAction(message, options) no useUIStore;
+   - aprovar verificação usa o tom positivo e o rótulo "Aprovar";
+   - Step6Success traduzido, com a verificação como primeiro dos próximos passos;
+   - PartnerItemsTable: o cartão deixa de ser role="button"; um botão "Editar {{nome}}" cobre o cartão e o selo e o interruptor ficam por cima (sem botão dentro de botão, §11.7).
 
 ARQUIVOS (crie, altere ou apague exatamente estes):
 - server/application/usecases/listingVerification/listListingVerificationsApplicationUseCase.test.ts (criar)
@@ -51,6 +56,7 @@ ARQUIVOS (crie, altere ou apague exatamente estes):
 - src/domain/partners/application/usecases/submitListingVerificationUseCase.ts (criar)
 - src/domain/partners/components/PartnerPanel.tsx (alterar)
 - src/domain/partners/components/steps/Step6Success.tsx (alterar)
+- src/domain/partners/components/subcomponents/PartnerItemsTable.test.tsx (criar)
 - src/domain/partners/components/subcomponents/PartnerItemsTable.tsx (alterar)
 - src/domain/partners/components/verification/DocumentVerificationForm.tsx (criar)
 - src/domain/partners/components/verification/LinkedVerificationForm.tsx (criar)
@@ -75,8 +81,11 @@ ARQUIVOS (crie, altere ou apague exatamente estes):
 - src/domain/partners/schemas/listingVerificationFormSchema.ts (criar)
 - src/domain/partners/types/listingVerification.ts (criar)
 - src/domain/partners/utils/verificationErrorMessage.ts (criar)
+- src/shared/i18n/partnersResources.ts (criar)
 - src/shared/i18n/resources.ts (alterar)
 - src/shared/i18n/verificationResources.ts (criar)
+- src/shared/stores/useUIStore.ts (alterar)
+- src/ui/components/ConfirmDialog.tsx (alterar)
 
 Aplique as mudanças abaixo EXATAMENTE como estão (formato unified diff: linhas com "-" saem, linhas com "+" entram; as demais são contexto para localizar o trecho). Não reformate outros trechos dos arquivos.
 
@@ -671,42 +680,194 @@ export function submitListingVerificationUseCase(
          onClose={() => setShowPlansModal(false)}
 
 === src/domain/partners/components/steps/Step6Success.tsx — diff ===
-@@ -1,6 +1,7 @@
+@@ -1,6 +1,6 @@
 -import React from 'react';
-+
  import { motion } from 'motion/react';
 -import { CheckCircle2, Rocket } from 'lucide-react';
 +import { CheckCircle2, Rocket, ShieldCheck } from 'lucide-react';
-+import { useTranslation } from 'react-i18next';
++import { Trans, useTranslation } from 'react-i18next';
  
  interface Step6SuccessProps {
    businessName: string;
-@@ -9,6 +10,7 @@ interface Step6SuccessProps {
+@@ -8,7 +8,11 @@ interface Step6SuccessProps {
+   onAccessPanel: () => void;
  }
  
++const STEPS = ['photos', 'manage'] as const;
++
  export function Step6Success({ businessName, onClose, onAccessPanel }: Step6SuccessProps) {
 +  const { t } = useTranslation();
++
    return (
      <div
        className="flex flex-col items-center justify-center py-6 text-center space-y-8"
-@@ -51,6 +53,10 @@ export function Step6Success({ businessName, onClose, onAccessPanel }: Step6Succ
+@@ -16,11 +20,12 @@ export function Step6Success({ businessName, onClose, onAccessPanel }: Step6Succ
+     >
+       <div className="relative">
+         <div className="w-24 h-24 rounded-[2.5rem] bg-emerald-500/10 flex items-center justify-center text-emerald-400 border border-emerald-500/20 shadow-[0_0_40px_rgba(16,185,129,0.1)]">
+-          <CheckCircle2 size={48} />
++          <CheckCircle2 size={48} aria-hidden="true" />
+         </div>
+         <motion.div
+           initial={{ scale: 0 }}
+           animate={{ scale: 1 }}
++          aria-hidden="true"
+           className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white text-xs font-bold"
+         >
+           🚀
+@@ -29,25 +34,35 @@ export function Step6Success({ businessName, onClose, onAccessPanel }: Step6Succ
+       <div className="space-y-4">
+         <div className="space-y-2">
+           <h3 className="text-2xl font-black text-white uppercase tracking-tight">
+-            Cadastro Concluído!
++            {t('partners.signupSuccess.title')}
+           </h3>
+           <p className="text-white/50 text-sm max-w-[280px] mx-auto leading-relaxed">
+-            Parabéns! Sua empresa <span className="text-white font-bold">{businessName}</span> foi
+-            registrada com sucesso e já está{' '}
+-            <span className="text-emerald-400 font-bold uppercase">Ativa</span> no Use Guide.
++            <Trans
++              i18nKey="partners.signupSuccess.message"
++              values={{ name: businessName }}
++              components={{
++                name: <span className="text-white font-bold" />,
++                active: <span className="text-emerald-400 font-bold uppercase" />,
++              }}
++            />
+           </p>
+         </div>
+         <div className="p-4 bg-white/5 rounded-2xl border border-white/10 text-left space-y-2">
+-          <p className="text-[10px] font-black uppercase text-indigo-400">Próximos Passos</p>
+-          <ul className="space-y-1.5">
+-            {[
+-              'Acesse seu Painel do Parceiro agora',
+-              'Complete seu perfil com fotos',
+-              'Gerencie seus itens e eventos',
+-            ].map((tip, i) => (
+-              <li key={i} className="flex items-center gap-2 text-[10px] text-white/60 font-bold">
+-                <div className="w-1 h-1 rounded-full bg-emerald-400" />
+-                {tip}
++          <p className="text-[10px] font-black uppercase text-indigo-400">
++            {t('partners.signupSuccess.nextStepsTitle')}
++          </p>
++          <ul className="space-y-2">
++            <li className="flex items-start gap-2 text-xs text-white/80 font-semibold">
++              <ShieldCheck size={14} className="text-teal-400 shrink-0 mt-0.5" aria-hidden="true" />
++              {t('partners.signupSuccess.steps.verify')}
++            </li>
++            {STEPS.map((step) => (
++              <li
++                key={step}
++                className="flex items-center gap-2 text-[10px] text-white/60 font-bold"
++              >
++                <div className="w-1 h-1 rounded-full bg-emerald-400 ml-1.5 mr-1" />
++                {t(`partners.signupSuccess.steps.${step}`)}
                </li>
              ))}
            </ul>
-+          <p className="flex items-start gap-2 pt-2 text-xs text-white/80">
-+            <ShieldCheck size={14} className="text-teal-400 shrink-0 mt-0.5" aria-hidden="true" />
-+            {t('verification.signup.nextStep')}
-+          </p>
-         </div>
-         <div className="flex flex-col gap-3 pt-2">
+@@ -56,19 +71,19 @@ export function Step6Success({ businessName, onClose, onAccessPanel }: Step6Succ
            <button
+             type="button"
+             onClick={onAccessPanel}
+-            className="w-full py-5 rounded-[2rem] bg-indigo-500 text-white font-black uppercase tracking-widest text-[11px] hover:bg-indigo-400 shadow-xl shadow-indigo-500/20 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
++            className="w-full py-5 rounded-[2rem] bg-indigo-500 text-white font-black uppercase tracking-widest text-[11px] hover:bg-indigo-400 shadow-xl shadow-indigo-500/20 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer focus-visible:ring-2 focus-visible:ring-teal-400/50"
+             id="success-access-panel-btn"
+           >
+-            <Rocket size={16} />
+-            Acessar Painel do Parceiro
++            <Rocket size={16} aria-hidden="true" />
++            {t('partners.signupSuccess.accessPanel')}
+           </button>
+           <button
+             type="button"
+             onClick={onClose}
+-            className="w-full py-4 rounded-[2rem] bg-white/5 border border-white/10 text-white/50 font-black uppercase tracking-widest text-[10px] hover:bg-white/10 active:scale-95 transition-all cursor-pointer"
++            className="w-full py-4 rounded-[2rem] bg-white/5 border border-white/10 text-white/50 font-black uppercase tracking-widest text-[10px] hover:bg-white/10 active:scale-95 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-teal-400/50"
+             id="success-back-home-btn"
+           >
+-            Voltar para Home
++            {t('partners.signupSuccess.backHome')}
+           </button>
+         </div>
+       </div>
+
+=== src/domain/partners/components/subcomponents/PartnerItemsTable.test.tsx — ARQUIVO NOVO, conteúdo completo ===
+import { fireEvent, render, screen } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { i18n } from '../../../../shared/i18n';
+import type { PartnerContentRecord } from '../../types/partnerContent';
+
+vi.mock('../verification/VerificationStatusChip', () => ({
+  VerificationStatusChip: ({ onOpen }: { onOpen: () => void }) => (
+    <button type="button" onClick={onOpen}>
+      selo
+    </button>
+  ),
+}));
+
+import { PartnerItemsTable } from './PartnerItemsTable';
+
+const item = {
+  id: 'item-1',
+  name: 'Pousada Sol',
+  category: 'hotel',
+  description: '',
+  image: '',
+  location: 'jeri',
+  isActive: true,
+} as PartnerContentRecord;
+
+function renderTable() {
+  const props = {
+    onEditItem: vi.fn(),
+    onToggleActive: vi.fn().mockResolvedValue(undefined),
+    onVerifyItem: vi.fn(),
+  };
+  render(
+    <PartnerItemsTable
+      itemsList={[item]}
+      loading={false}
+      onCreateNew={vi.fn()}
+      verificationVersion={0}
+      {...props}
+    />
+  );
+  return props;
+}
+
+describe('PartnerItemsTable', () => {
+  beforeEach(async () => {
+    await i18n.changeLanguage('pt-BR');
+  });
+
+  it('cartão sem botão dentro de botão: editar, selo e interruptor são irmãos', () => {
+    const props = renderTable();
+    const edit = screen.getByRole('button', { name: 'Editar Pousada Sol' });
+    expect(edit.querySelector('button')).toBeNull();
+    expect(screen.getByRole('switch').closest('[role="button"]')).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: 'selo' }));
+    expect(props.onVerifyItem).toHaveBeenCalledWith(item);
+    expect(props.onEditItem).not.toHaveBeenCalled();
+
+    fireEvent.click(edit);
+    expect(props.onEditItem).toHaveBeenCalledWith(item);
+  });
+
+  it('interruptor ativa ou desativa sem abrir o editor', () => {
+    const props = renderTable();
+    fireEvent.click(screen.getByRole('switch'));
+    expect(props.onToggleActive).toHaveBeenCalledWith('item-1', true);
+    expect(props.onEditItem).not.toHaveBeenCalled();
+  });
+});
 
 === src/domain/partners/components/subcomponents/PartnerItemsTable.tsx — diff ===
 @@ -1,9 +1,10 @@
 -import React from 'react';
-+
  import { Plus, MapPin, Edit2, RefreshCw } from 'lucide-react';
  import { motion } from 'motion/react';
++import { useTranslation } from 'react-i18next';
  import type { PartnerContentRecord } from '../../types/partnerContent';
  import { cn } from '../../../../shared/utils/cn';
  import { VerifiedBadge } from '../../../../ui/components/VerifiedBadge';
@@ -724,21 +885,58 @@ export function submitListingVerificationUseCase(
  }
  
  export function PartnerItemsTable({
-@@ -19,6 +23,8 @@ export function PartnerItemsTable({
+@@ -19,7 +23,10 @@ export function PartnerItemsTable({
    onEditItem,
    onToggleActive,
    onCreateNew,
 +  verificationVersion,
 +  onVerifyItem,
  }: PartnerItemsTableProps) {
++  const { t } = useTranslation();
    return (
      <div className="space-y-6">
-@@ -99,6 +105,16 @@ export function PartnerItemsTable({
+       <div className="flex items-center justify-between">
+@@ -47,20 +54,22 @@ export function PartnerItemsTable({
+           itemsList.map((item) => (
+             <motion.div
+               key={item.id}
+-              role="button"
+-              tabIndex={0}
+-              onClick={() => onEditItem(item)}
+-              onKeyDown={(event) => {
+-                if (event.key === 'Enter' || event.key === ' ') {
+-                  event.preventDefault();
+-                  onEditItem(item);
+-                }
+-              }}
+               whileHover={{ scale: 1.01, backgroundColor: 'rgba(255, 255, 255, 0.08)' }}
+-              whileTap={{ scale: 0.95 }}
+-              className="group relative bg-white/5 border border-white/10 glassmorphism-vibrant rounded-3xl p-4 pr-16 flex items-center gap-4 cursor-pointer active:scale-95 transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400/50"
++              className="group relative bg-white/5 border border-white/10 glassmorphism-vibrant rounded-3xl p-4 pr-16 flex items-center gap-4 transition-all duration-300"
+             >
+-              <div className="w-20 h-20 rounded-2xl overflow-hidden border border-white/10 flex-shrink-0">
++              {/* Cobre o cartão inteiro e vem antes no DOM: o selo e o interruptor, posicionados
++                  depois, ficam por cima sem um botão dentro do outro. */}
++              <button
++                type="button"
++                onClick={() => onEditItem(item)}
++                aria-label={t('partners.items.edit', { name: item.name })}
++                className="absolute inset-0 rounded-3xl flex items-end justify-end p-4 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400/50"
++              >
++                <span className="p-2 rounded-xl bg-white/5 text-white/50 group-hover:text-teal-400 group-hover:bg-teal-400/10 transition-all">
++                  <Edit2 size={13} aria-hidden="true" />
++                </span>
++              </button>
++              <div className="w-20 h-20 rounded-2xl overflow-hidden border border-white/10 flex-shrink-0 pointer-events-none">
+                 <img
+                   src={item.image}
+                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+@@ -99,6 +108,16 @@ export function PartnerItemsTable({
                      </span>
                    )}
                  </div>
 +                {item.id && (
-+                  <div className="mt-2">
++                  <div className="mt-2 relative w-fit">
 +                    <VerificationStatusChip
 +                      key={`${item.id}-${verificationVersion}`}
 +                      itemId={item.id}
@@ -750,6 +948,33 @@ export function submitListingVerificationUseCase(
                </div>
  
                <button
+@@ -110,13 +129,12 @@ export function PartnerItemsTable({
+                     ? `Desativar estabelecimento ${item.name}`
+                     : `Ativar estabelecimento ${item.name}`
+                 }
+-                onClick={async (event) => {
+-                  event.stopPropagation();
++                onClick={async () => {
+                   if (item.id) {
+                     await onToggleActive(item.id, item.isActive !== false);
+                   }
+                 }}
+-                className="absolute top-2 right-2 z-20 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl focus-visible:ring-2 focus-visible:ring-teal-400/50"
++                className="absolute top-2 right-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl focus-visible:ring-2 focus-visible:ring-teal-400/50"
+               >
+                 <span
+                   className={cn(
+@@ -132,10 +150,6 @@ export function PartnerItemsTable({
+                   />
+                 </span>
+               </button>
+-
+-              <div className="absolute bottom-4 right-4 p-2 rounded-xl bg-white/5 text-white/50 group-hover:text-teal-400 group-hover:bg-teal-400/10 transition-all">
+-                <Edit2 size={13} />
+-              </div>
+             </motion.div>
+           ))
+         )}
 
 === src/domain/partners/components/verification/DocumentVerificationForm.tsx — ARQUIVO NOVO, conteúdo completo ===
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -1385,7 +1610,15 @@ describe('VerificationQueueCard', () => {
     useUIStore.setState({ confirmAction });
     render(<VerificationQueueCard entry={entry} onReview={onReview} onOpenFile={vi.fn()} />);
     fireEvent.click(screen.getByRole('button', { name: 'Aprovar' }));
-    await waitFor(() => expect(confirmAction).toHaveBeenCalled());
+    await waitFor(() =>
+      expect(confirmAction).toHaveBeenCalledWith(
+        expect.stringContaining('Aprovar a verificação?'),
+        {
+          tone: 'positive',
+          confirmLabel: 'Aprovar',
+        }
+      )
+    );
     expect(onReview).not.toHaveBeenCalled();
   });
 });
@@ -1561,7 +1794,12 @@ export function VerificationQueueCard({ entry, onReview, onOpenFile }: Verificat
               type="button"
               disabled={busy}
               onClick={async () => {
-                if (await confirmAction(t('verification.admin.approveConfirm'))) {
+                if (
+                  await confirmAction(t('verification.admin.approveConfirm'), {
+                    tone: 'positive',
+                    confirmLabel: t('verification.admin.approve'),
+                  })
+                ) {
                   await review('approve');
                 }
               }}
@@ -1658,11 +1896,7 @@ export function VerificationStatusChip({ itemId, name, onOpen }: VerificationSta
   return (
     <button
       type="button"
-      onClick={(event) => {
-        event.stopPropagation();
-        onOpen();
-      }}
-      onKeyDown={(event) => event.stopPropagation()}
+      onClick={onOpen}
       disabled={loading}
       aria-label={t('verification.chipLabel', { name, status: label })}
       className={cn(
@@ -2238,11 +2472,96 @@ export function getVerificationErrorMessage(error: unknown): string {
   return i18n.t(`verification.errors.${known}`);
 }
 
+=== src/shared/i18n/partnersResources.ts — ARQUIVO NOVO, conteúdo completo ===
+/** Textos do domínio partners (pt-BR é a fonte; en e fr têm as mesmas chaves, garantidas pelo tipo). */
+export interface PartnersTranslation {
+  signupSuccess: {
+    title: string;
+    /** `<name>` e `<active>` viram destaque pelo componente `<Trans>`. */
+    message: string;
+    nextStepsTitle: string;
+    steps: {
+      verify: string;
+      photos: string;
+      manage: string;
+    };
+    accessPanel: string;
+    backHome: string;
+  };
+  items: {
+    edit: string;
+  };
+}
+
+export const partnersPtBR: PartnersTranslation = {
+  signupSuccess: {
+    title: 'Cadastro concluído!',
+    message:
+      'Parabéns! Sua empresa <name>{{name}}</name> foi registrada e já está <active>ativa</active> no Use Guide.',
+    nextStepsTitle: 'Próximos passos',
+    steps: {
+      verify: 'Envie a verificação do estabelecimento no painel: ela libera o selo e as vendas',
+      photos: 'Complete o cadastro com fotos',
+      manage: 'Gerencie seus estabelecimentos e eventos',
+    },
+    accessPanel: 'Acessar painel do parceiro',
+    backHome: 'Voltar para o início',
+  },
+  items: {
+    edit: 'Editar {{name}}',
+  },
+};
+
+export const partnersEn: PartnersTranslation = {
+  signupSuccess: {
+    title: 'Sign-up complete!',
+    message:
+      'Congratulations! Your business <name>{{name}}</name> is registered and already <active>active</active> on Use Guide.',
+    nextStepsTitle: 'Next steps',
+    steps: {
+      verify: 'Send the business verification from the panel: it unlocks the badge and sales',
+      photos: 'Add photos to your listing',
+      manage: 'Manage your businesses and events',
+    },
+    accessPanel: 'Open partner panel',
+    backHome: 'Back to home',
+  },
+  items: {
+    edit: 'Edit {{name}}',
+  },
+};
+
+export const partnersFr: PartnersTranslation = {
+  signupSuccess: {
+    title: 'Inscription terminée !',
+    message:
+      'Félicitations ! Votre entreprise <name>{{name}}</name> est enregistrée et déjà <active>active</active> sur Use Guide.',
+    nextStepsTitle: 'Prochaines étapes',
+    steps: {
+      verify:
+        'Envoyez la vérification de l’établissement depuis le panneau : elle débloque le badge et les ventes',
+      photos: 'Ajoutez des photos à votre fiche',
+      manage: 'Gérez vos établissements et événements',
+    },
+    accessPanel: 'Ouvrir le panneau partenaire',
+    backHome: 'Retour à l’accueil',
+  },
+  items: {
+    edit: 'Modifier {{name}}',
+  },
+};
+
 === src/shared/i18n/resources.ts — diff ===
-@@ -10,10 +10,17 @@ import {
+@@ -10,12 +10,28 @@ import {
    insightsFr,
    insightsPtBR,
  } from './insightsResources';
++import {
++  type PartnersTranslation,
++  partnersEn,
++  partnersFr,
++  partnersPtBR,
++} from './partnersResources';
 +import {
 +  type VerificationTranslation,
 +  verificationEn,
@@ -2253,34 +2572,54 @@ export function getVerificationErrorMessage(error: unknown): string {
  export interface TranslationResource {
    bookings: BookingsTranslation;
    insights: InsightsTranslation;
++  partners: PartnersTranslation;
 +  verification: VerificationTranslation;
    common: {
      language: string;
++    cancel: string;
++    confirm: string;
      locales: {
-@@ -207,6 +214,7 @@ export interface TranslationResource {
+       ptBR: string;
+       en: string;
+@@ -207,8 +223,12 @@ export interface TranslationResource {
  const ptBR: TranslationResource = {
    bookings: bookingsPtBR,
    insights: insightsPtBR,
++  partners: partnersPtBR,
 +  verification: verificationPtBR,
    common: {
      language: 'Idioma',
++    cancel: 'Cancelar',
++    confirm: 'Confirmar',
      locales: {
-@@ -449,6 +457,7 @@ const ptBR: TranslationResource = {
+       ptBR: 'Português (Brasil)',
+       en: 'English',
+@@ -449,8 +469,12 @@ const ptBR: TranslationResource = {
  const en: TranslationResource = {
    bookings: bookingsEn,
    insights: insightsEn,
++  partners: partnersEn,
 +  verification: verificationEn,
    common: {
      language: 'Language',
++    cancel: 'Cancel',
++    confirm: 'Confirm',
      locales: {
-@@ -687,6 +696,7 @@ const en: TranslationResource = {
+       ptBR: 'Português (Brasil)',
+       en: 'English',
+@@ -687,8 +711,12 @@ const en: TranslationResource = {
  const fr: TranslationResource = {
    bookings: bookingsFr,
    insights: insightsFr,
++  partners: partnersFr,
 +  verification: verificationFr,
    common: {
      language: 'Langue',
++    cancel: 'Annuler',
++    confirm: 'Confirmer',
      locales: {
+       ptBR: 'Português (Brasil)',
+       en: 'English',
 
 === src/shared/i18n/verificationResources.ts — ARQUIVO NOVO, conteúdo completo ===
 /** Textos da verificação por estabelecimento (D12). pt-BR é a fonte; en e fr têm as mesmas chaves. */
@@ -2376,9 +2715,6 @@ export interface VerificationTranslation {
     confirmReject: string;
     cancel: string;
     rejected: string;
-  };
-  signup: {
-    nextStep: string;
   };
   errors: {
     VALIDATION_ERROR: string;
@@ -2494,10 +2830,6 @@ export const verificationPtBR: VerificationTranslation = {
     confirmReject: 'Confirmar recusa',
     cancel: 'Cancelar',
     rejected: 'Verificação recusada.',
-  },
-  signup: {
-    nextStep:
-      'Próximo passo: envie a verificação do estabelecimento no painel. Ela libera o selo do Use Guide e as vendas.',
   },
   errors: {
     VALIDATION_ERROR: 'Confira os dados e os arquivos da verificação.',
@@ -2615,10 +2947,6 @@ export const verificationEn: VerificationTranslation = {
     cancel: 'Cancel',
     rejected: 'Verification declined.',
   },
-  signup: {
-    nextStep:
-      'Next step: send the business verification from the panel. It unlocks the Use Guide badge and sales.',
-  },
   errors: {
     VALIDATION_ERROR: 'Check the verification details and files.',
     UNAUTHENTICATED: 'Sign in again to continue.',
@@ -2735,10 +3063,6 @@ export const verificationFr: VerificationTranslation = {
     cancel: 'Annuler',
     rejected: 'Vérification refusée.',
   },
-  signup: {
-    nextStep:
-      'Prochaine étape : envoyez la vérification de l’établissement depuis le panneau. Elle débloque le badge Use Guide et les ventes.',
-  },
   errors: {
     VALIDATION_ERROR: 'Vérifiez les informations et les fichiers.',
     UNAUTHENTICATED: 'Reconnectez-vous pour continuer.',
@@ -2757,8 +3081,125 @@ export const verificationFr: VerificationTranslation = {
   },
 };
 
+=== src/shared/stores/useUIStore.ts — diff ===
+@@ -1,6 +1,6 @@
+ import { create } from 'zustand';
+ import { toast } from 'sonner';
+-import { ConfirmDialogData } from '../../ui/components/ConfirmDialog';
++import type { ConfirmDialogData, ConfirmDialogTone } from '../../ui/components/ConfirmDialog';
+ 
+ export type ToastType = 'success' | 'error' | 'info';
+ export type LoginModalTab = 'login' | 'forgot';
+@@ -16,7 +16,10 @@ export interface UIState {
+   closeLoginModal: () => void;
+   setLoginClosingBySwipe: (val: boolean) => void;
+   showToast: (message: string, type?: ToastType) => void;
+-  confirmAction: (message: string) => Promise<boolean>;
++  confirmAction: (
++    message: string,
++    options?: { tone?: ConfirmDialogTone; confirmLabel?: string }
++  ) => Promise<boolean>;
+   closeConfirmDialog: () => void;
+ }
+ 
+@@ -41,18 +44,18 @@ export const useUIStore = create<UIState>((set) => ({
+       case 'error':
+         toast.error(message);
+         break;
+-      case 'info':
+       default:
+         toast.info(message);
+         break;
+     }
+   },
+ 
+-  confirmAction: (message: string): Promise<boolean> => {
++  confirmAction: (message, options) => {
+     return new Promise((resolve) => {
+       set({
+         confirmDialog: {
+           message,
++          ...options,
+           onConfirm: () => {
+             set({ confirmDialog: null });
+             resolve(true);
+
+=== src/ui/components/ConfirmDialog.tsx — diff ===
+@@ -1,12 +1,20 @@
+ import * as RadixDialog from '@radix-ui/react-dialog';
+-import { AlertTriangle } from 'lucide-react';
++import { AlertTriangle, CheckCircle2 } from 'lucide-react';
++import { useTranslation } from 'react-i18next';
++import { cn } from '../../shared/utils/cn';
+ import { GlassCard } from './GlassCard';
+ import { Z_INDEX } from '../../shared/constants/zIndex';
+ 
++/** `danger` (padrão) para excluir ou cancelar; `positive` para aprovar ou liberar algo. */
++export type ConfirmDialogTone = 'danger' | 'positive';
++
+ export interface ConfirmDialogData {
+   message: string;
+   onConfirm: () => void;
+   onCancel: () => void;
++  tone?: ConfirmDialogTone;
++  /** Rótulo do botão de confirmar; o padrão é "Confirmar". */
++  confirmLabel?: string;
+ }
+ 
+ interface ConfirmDialogProps {
+@@ -14,6 +22,9 @@ interface ConfirmDialogProps {
+ }
+ 
+ export function ConfirmDialog({ data }: ConfirmDialogProps) {
++  const { t } = useTranslation();
++  const positive = data?.tone === 'positive';
++  const Icon = positive ? CheckCircle2 : AlertTriangle;
+   return (
+     <RadixDialog.Root
+       open={!!data}
+@@ -31,24 +42,33 @@ export function ConfirmDialog({ data }: ConfirmDialogProps) {
+           style={{ zIndex: Z_INDEX.modalNested }}
+         >
+           <GlassCard className="p-6 flex flex-col items-center text-center gap-4">
+-            <AlertTriangle size={28} className="text-amber-400" />
++            <Icon
++              size={28}
++              className={positive ? 'text-emerald-400' : 'text-amber-400'}
++              aria-hidden="true"
++            />
+             <RadixDialog.Title className="text-sm font-medium text-white/90 leading-relaxed">
+               {data?.message}
+             </RadixDialog.Title>
+             <div className="flex gap-3 w-full">
+               <button
++                type="button"
+                 onClick={data?.onCancel}
+-                aria-label="Cancelar"
+                 className="flex-1 min-h-[44px] py-2.5 rounded-xl bg-white/10 text-white/70 text-xs font-bold uppercase tracking-wide hover:bg-white/15 transition-colors focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none"
+               >
+-                Cancelar
++                {t('common.cancel')}
+               </button>
+               <button
++                type="button"
+                 onClick={data?.onConfirm}
+-                aria-label="Confirmar"
+-                className="flex-1 min-h-[44px] py-2.5 rounded-xl bg-rose-500/80 text-white text-xs font-bold uppercase tracking-wide hover:bg-rose-500 transition-colors focus-visible:ring-2 focus-visible:ring-rose-400/50 focus-visible:outline-none"
++                className={cn(
++                  'flex-1 min-h-[44px] py-2.5 rounded-xl text-xs font-bold uppercase tracking-wide transition-colors focus-visible:ring-2 focus-visible:outline-none',
++                  positive
++                    ? 'bg-emerald-500 text-black hover:bg-emerald-400 focus-visible:ring-emerald-400/50'
++                    : 'bg-rose-500/80 text-white hover:bg-rose-500 focus-visible:ring-rose-400/50'
++                )}
+               >
+-                Confirmar
++                {data?.confirmLabel ?? t('common.confirm')}
+               </button>
+             </div>
+           </GlassCard>
+
 VERIFICAÇÃO (obrigatória):
-- `npm run typecheck`, `npx biome lint .` (0 erros; arquivos tocados sem avisos), `npm test` → 167 arquivos, 902 testes, `npm run build`;
+- `npm run typecheck`, `npx biome lint .` (0 erros; arquivos tocados sem avisos), `npm test` → 168 arquivos, 904 testes, `npm run build`;
 - no app: painel do parceiro → um cadastro → selo "Verificar estabelecimento" → enviar com CNPJ e arquivos de teste; painel admin → aba Verificações → abrir os arquivos, aprovar ou recusar. Repita em `fr` para ver se o texto não corta.
 
 Antes de testar no AI Studio, confirme no painel Secrets: FIELD_ENCRYPTION_DEV_KEY e PII_BLIND_INDEX_KEY (18.3.0a).
