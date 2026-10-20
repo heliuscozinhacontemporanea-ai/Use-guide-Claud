@@ -392,7 +392,7 @@ Todo campo novo DEVE ser classificado antes de ser persistido. A classe define o
 **Blind index (busca e unicidade sem expor o dado):**
 
 * Para verificar unicidade ou buscar por CPF/CNPJ, gravar `HMAC-SHA-256(PII_BLIND_INDEX_KEY, valorNormalizado)` em vez do valor.
-* IDs de documento, caminhos do Storage, URLs e nomes de arquivos NUNCA contêm PII. Débito existente: `partnerDocumentKeys/{cpfCnpjLimpo}` e os campos `cpfCnpj`/`cpfCnpjClean` em `partners` estão em texto puro.
+* IDs de documento, caminhos do Storage, URLs e nomes de arquivos NUNCA contêm PII.
 
 **Hash, tokens e assinaturas:**
 

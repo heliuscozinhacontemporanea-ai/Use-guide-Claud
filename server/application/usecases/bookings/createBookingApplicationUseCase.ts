@@ -4,6 +4,7 @@ import {
   cancelPendingBookingUseCase,
   createPendingBookingUseCase,
 } from '../../../domain/bookings';
+import { assertListingCanSellUseCase } from '../../../domain/partners';
 import { createMarketplacePaymentIntentUseCase } from '../../../domain/payment';
 import { resolvePlatformFeePercent } from '../../../shared/kernel/platformFee';
 import { isPartnerSuspended } from '../isPartnerSuspended';
@@ -45,6 +46,8 @@ export async function createBookingApplicationUseCase(
         'Este parceiro não está aceitando reservas no momento.'
       );
     }
+    // Rechecado na compra: a verificação pode ter sido revista depois de a oferta ser publicada.
+    await assertListingCanSellUseCase(booking.guideItemId);
     const payment = await createMarketplacePaymentIntentUseCase({
       referenceType: 'booking',
       referenceId: booking.id,

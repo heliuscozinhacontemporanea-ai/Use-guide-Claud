@@ -1,13 +1,23 @@
-import React from 'react';
+
 import { motion } from 'motion/react';
-import { Award, Bell, Calendar, Database, Layers, Users } from 'lucide-react';
+import { Award, Bell, Calendar, Database, Layers, ShieldCheck, Users } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '../../../../shared/utils/cn';
 
-export type AdminTabId = 'items' | 'events' | 'reports' | 'partners' | 'plans' | 'notifications';
+export type AdminTabId =
+  | 'items'
+  | 'events'
+  | 'reports'
+  | 'partners'
+  | 'verifications'
+  | 'plans'
+  | 'notifications';
 
 interface AdminNavigationProps {
   activeTab: AdminTabId;
   onSelectTab: (tab: AdminTabId) => void;
+  /** A fila de verificação vem de outro domínio; a aba só aparece quando a composição a monta. */
+  showVerifications?: boolean;
 }
 
 const ADMIN_TABS = [
@@ -24,6 +34,13 @@ const ADMIN_TABS = [
     icon: Users,
     color: 'bg-indigo-500',
     shadow: 'shadow-indigo-500/40',
+  },
+  {
+    id: 'verifications' as const,
+    label: '',
+    icon: ShieldCheck,
+    color: 'bg-emerald-500',
+    shadow: 'shadow-emerald-500/40',
   },
   {
     id: 'items' as const,
@@ -55,7 +72,15 @@ const ADMIN_TABS = [
   },
 ];
 
-export function AdminNavigation({ activeTab, onSelectTab }: AdminNavigationProps) {
+export function AdminNavigation({
+  activeTab,
+  onSelectTab,
+  showVerifications = false,
+}: AdminNavigationProps) {
+  const { t } = useTranslation();
+  const tabs = ADMIN_TABS.filter((tab) => tab.id !== 'verifications' || showVerifications).map(
+    (tab) => (tab.id === 'verifications' ? { ...tab, label: t('verification.admin.tab') } : tab)
+  );
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -63,7 +88,7 @@ export function AdminNavigation({ activeTab, onSelectTab }: AdminNavigationProps
       className="flex gap-2 p-2 glassmorphism rounded-[2rem] sticky top-20 z-50 shadow-2xl"
       id="admin-navigation-tabs"
     >
-      {ADMIN_TABS.map((tab) => (
+      {tabs.map((tab) => (
         <button
           key={tab.id}
           type="button"

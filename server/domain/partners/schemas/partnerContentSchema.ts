@@ -52,7 +52,10 @@ const operationalInfoSchema = z
     transferRoutes: z
       .array(
         z
-          .object({ from: z.string().trim().min(1).max(100), to: z.string().trim().min(1).max(100) })
+          .object({
+            from: z.string().trim().min(1).max(100),
+            to: z.string().trim().min(1).max(100),
+          })
           .strict()
       )
       .max(30)
@@ -103,7 +106,16 @@ const commonFields = {
 export const createPartnerItemSchema = z
   .object({
     ...commonFields,
-    category: z.enum(['restaurant', 'sight', 'tour', 'tips', 'hotel', 'transfer', 'rental', 'producer']),
+    category: z.enum([
+      'restaurant',
+      'sight',
+      'tour',
+      'tips',
+      'hotel',
+      'transfer',
+      'rental',
+      'producer',
+    ]),
   })
   .strict();
 
@@ -180,7 +192,4 @@ export const createPartnerEventSchema = z
     }
   });
 
-export const updatePartnerEventSchema = z
-  .object(eventFields)
-  .partial()
-  .strict();
+export const updatePartnerEventSchema = z.object(eventFields).partial().strict();

@@ -6,7 +6,6 @@ export const getEmptyFormData = (category = ''): FormState => ({
   businessName: '',
   category,
   description: '',
-  cpfCnpj: '',
   phone: '',
   phoneDdi: '+55',
   instagram: '',
@@ -78,7 +77,7 @@ const ensureArray = (val: string[] | string | undefined): string[] => {
   return [val];
 };
 
-export const mapItemToFormData = (item: PartnerContentRecord, partnerCpfCnpj = ''): FormState => {
+export const mapItemToFormData = (item: PartnerContentRecord): FormState => {
   const opInfo = item.operationalInfo ?? {};
   const access = opInfo.access;
   const sightAccessType: 'pago' | 'gratuito' | '' =
@@ -88,7 +87,6 @@ export const mapItemToFormData = (item: PartnerContentRecord, partnerCpfCnpj = '
     businessName: item.name || '',
     category: item.category || '',
     description: item.description || '',
-    cpfCnpj: partnerCpfCnpj,
     phone: splitE164(item.phone).nationalNumber,
     phoneDdi: splitE164(item.phone).ddi,
     instagram: item.instagramLink || '',

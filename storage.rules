@@ -9,6 +9,10 @@ service firebase.storage {
       allow read: if true;
       allow write: if false;
     }
+    // Documentos de verificação (D12): privados; só o backend lê, pelo Admin SDK.
+    match /verification/{allPaths=**} {
+      allow read, write: if false;
+    }
     match /{allPaths=**} {
       allow read, write: if false;
     }

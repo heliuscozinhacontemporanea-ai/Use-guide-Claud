@@ -5,9 +5,6 @@ export class RegisterPartnerDTO {
   private constructor(public readonly formData: PartnerRegistrationData) {}
 
   static fromValidatedInput(input: RegisterPartnerInput): RegisterPartnerDTO {
-    return new RegisterPartnerDTO({
-      cpfCnpj: input.formData.cpfCnpj,
-      termsAccepted: input.formData.termsAccepted,
-    });
+    return new RegisterPartnerDTO({ termsAccepted: input.formData.termsAccepted });
   }
 }

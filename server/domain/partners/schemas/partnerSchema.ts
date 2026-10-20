@@ -1,13 +1,8 @@
 import { z } from 'zod';
-import { isValidCpfCnpj } from '../services/documentIdentity';
 
+// O documento é de cada estabelecimento, enviado na verificação (D12); a conta só aceita os termos.
 const registerPartnerFormSchema = z
   .object({
-    cpfCnpj: z
-      .string()
-      .trim()
-      .min(1, 'CPF/CNPJ é obrigatório')
-      .refine(isValidCpfCnpj, 'CPF/CNPJ inválido'),
     termsAccepted: z.literal(true),
   })
   .strict();
@@ -36,7 +31,7 @@ export const activateTrialSchema = z
 export const updatePartnerStatusSchema = z
   .object({
     partnerId: z.string().trim().min(1),
-    status: z.enum(['active', 'pending', 'suspended']),
+    status: z.enum(['active', 'suspended']),
   })
   .strict();
 

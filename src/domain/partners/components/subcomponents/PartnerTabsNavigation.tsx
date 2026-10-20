@@ -6,8 +6,6 @@ interface PartnerTabsNavigationProps {
   activeTab: 'items' | 'events' | 'reports';
   setActiveTab: (tab: 'items' | 'events' | 'reports') => void;
   isVerified: boolean;
-  hasItems?: boolean;
-  hasEvents?: boolean;
 }
 
 export function PartnerTabsNavigation({

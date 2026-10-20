@@ -14,7 +14,6 @@ export interface FormState {
   businessName: string;
   category: string;
   description: string;
-  cpfCnpj: string;
   phone: string;
   phoneDdi: string;
   instagram: string;

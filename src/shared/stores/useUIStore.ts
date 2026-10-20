@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { toast } from 'sonner';
-import { ConfirmDialogData } from '../../ui/components/ConfirmDialog';
+import type { ConfirmDialogData, ConfirmDialogTone } from '../../ui/components/ConfirmDialog';
 
 export type ToastType = 'success' | 'error' | 'info';
 export type LoginModalTab = 'login' | 'forgot';
@@ -16,7 +16,10 @@ export interface UIState {
   closeLoginModal: () => void;
   setLoginClosingBySwipe: (val: boolean) => void;
   showToast: (message: string, type?: ToastType) => void;
-  confirmAction: (message: string) => Promise<boolean>;
+  confirmAction: (
+    message: string,
+    options?: { tone?: ConfirmDialogTone; confirmLabel?: string }
+  ) => Promise<boolean>;
   closeConfirmDialog: () => void;
 }
 
@@ -41,18 +44,18 @@ export const useUIStore = create<UIState>((set) => ({
       case 'error':
         toast.error(message);
         break;
-      case 'info':
       default:
         toast.info(message);
         break;
     }
   },
 
-  confirmAction: (message: string): Promise<boolean> => {
+  confirmAction: (message, options) => {
     return new Promise((resolve) => {
       set({
         confirmDialog: {
           message,
+          ...options,
           onConfirm: () => {
             set({ confirmDialog: null });
             resolve(true);

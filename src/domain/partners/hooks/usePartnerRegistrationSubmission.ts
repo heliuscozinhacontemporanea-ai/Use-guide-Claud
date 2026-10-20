@@ -22,16 +22,7 @@ export function mapPartnerRegistrationPayload(formData: FormState): PartnerRegis
     throw new Error('Você precisa aceitar os termos de parceria.');
   }
 
-  const cpfCnpj = formData.cpfCnpj.trim();
-
-  if (!cpfCnpj) {
-    throw new Error('CPF/CNPJ é obrigatório.');
-  }
-
-  return {
-    cpfCnpj,
-    termsAccepted: true,
-  };
+  return { termsAccepted: true };
 }
 
 export interface UsePartnerRegistrationSubmissionProps {

@@ -1,22 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { subscribeToPartnerProfileUseCase } from '../application/usecases/subscribeToPartnerProfileUseCase';
 import { subscribeToAuthStateUseCase, type UserSession } from '../../auth';
 import { getCurrentUserUseCase } from '../../user';
 import { PartnerProfile } from '../types/partner';
-import { FormState } from '../types/partsForm';
-import { isValidCpfCnpj } from '../../../shared/utils/documentValidator';
-import { useUI } from '../../../shared/stores/useUIStore';
-import {
-  getEmptyFormData,
-  mapItemToFormData,
-  isValidUrl,
-} from '../application/mappers/partnerFormMapper';
-import {
-  step1Schema,
-  step2Schema,
-  step3Schema,
-  step4Schema,
-} from '../schemas/partnerSchema';
 
 enum OperationType {
   CREATE = 'create',
@@ -73,8 +59,9 @@ export function usePartnerProfile(loadedProfile?: PartnerProfile) {
   const [userProfileData, setUserProfileData] =
     useState<Awaited<ReturnType<typeof getCurrentUserUseCase>>>(null);
 
+  const userId = user?.uid;
   useEffect(() => {
-    if (userLoading || !user) {
+    if (userLoading || !userId) {
       setUserProfileData(null);
       return;
     }
@@ -96,15 +83,11 @@ export function usePartnerProfile(loadedProfile?: PartnerProfile) {
     return () => {
       active = false;
     };
-  }, [user?.uid, userLoading]);
+  }, [userId, userLoading]);
 
-  const { showToast } = useUI();
   const [partnerProfile, setPartnerProfile] = useState<PartnerProfile | null>(
     loadedProfile || null
   );
-
-  const [editorFormData, setEditorFormData] = useState<FormState | null>(null);
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   const [isLoading, setIsLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -146,7 +129,6 @@ export function usePartnerProfile(loadedProfile?: PartnerProfile) {
           businessId: firstBusiness?.businessId ?? loadedProfile?.businessId ?? null,
           businessName: firstBusiness?.businessName ?? loadedProfile?.businessName ?? '',
           businesses,
-          cpfCnpj: loadedProfile?.cpfCnpj,
           firstName: userProfileData?.firstName ?? loadedProfile?.firstName ?? '',
           lastName: userProfileData?.lastName ?? loadedProfile?.lastName ?? '',
           email: userProfileData?.email ?? loadedProfile?.email ?? '',
@@ -194,126 +176,17 @@ export function usePartnerProfile(loadedProfile?: PartnerProfile) {
     (!partnerProfile?.verifiedUntil || new Date(partnerProfile.verifiedUntil) > new Date())
   );
 
-  const isStep1Valid = (): boolean => {
-    if (!editorFormData?.category) return false;
-    if (editorFormData.cpfCnpj) {
-      return step1Schema.safeParse(editorFormData).success;
-    }
-    return Boolean(editorFormData.businessName?.trim() && editorFormData.description?.trim());
-  };
-
-  const validateStep2 = (phoneIsValid: boolean): boolean => {
-    if (!editorFormData) return false;
-    if (!phoneIsValid) {
-      return false;
-    }
-    const parsed = step2Schema.safeParse(editorFormData);
-    if (!parsed.success) {
-      const newErrors: { [key: string]: string } = {};
-      parsed.error.issues.forEach((issue) => {
-        const field = issue.path[0]?.toString();
-        if (field) {
-          newErrors[field] = issue.message;
-        }
-      });
-      setErrors(newErrors);
-      return false;
-    }
-    setErrors({});
-    return true;
-  };
-
-  const validateStep3 = (): boolean => {
-    if (!editorFormData) return false;
-    const parsed = step3Schema.safeParse(editorFormData);
-    if (!parsed.success) {
-      const newErrors: { [key: string]: string } = {};
-      parsed.error.issues.forEach((issue) => {
-        const field = issue.path[0]?.toString();
-        if (field) {
-          newErrors[field] = issue.message;
-        }
-      });
-      setErrors(newErrors);
-      return false;
-    }
-    setErrors({});
-    return true;
-  };
-
-  const validateStep4 = (): boolean => {
-    if (!editorFormData) return false;
-    const parsed = step4Schema.safeParse(editorFormData);
-    if (!parsed.success) {
-      const newErrors: { [key: string]: string } = {};
-      parsed.error.issues.forEach((issue) => {
-        const field = issue.path[0]?.toString();
-        if (field) {
-          newErrors[field] = issue.message;
-        }
-      });
-      setErrors(newErrors);
-      return false;
-    }
-    setErrors({});
-    return true;
-  };
-
-  const validateAll = (phoneValidateFn: () => boolean): boolean => {
-    if (!editorFormData) return false;
-    if (!isStep1Valid()) {
-      showToast(
-        'Por favor, preencha o Nome, Descrição e CPF/CNPJ na Identidade da Empresa.',
-        'error'
-      );
-      return false;
-    }
-    const phoneIsValid = phoneValidateFn();
-    if (!validateStep2(phoneIsValid)) {
-      showToast(
-        'Por favor, verifique se o telefone e os links informados em Contato e Localização estão corretos.',
-        'error'
-      );
-      return false;
-    }
-    if (!validateStep3()) {
-      showToast(
-        'Por favor, preencha todas as informações obrigatórias de Comodidades e Detalhes específicas do seu segmento.',
-        'error'
-      );
-      return false;
-    }
-    if (!validateStep4()) {
-      showToast('Por favor, preencha as regras em Operação e Regras.', 'error');
-      return false;
-    }
-    if (!editorFormData.images || editorFormData.images.length === 0) {
-      showToast('Por favor, adicione pelo menos uma foto para o estabelecimento.', 'error');
-      return false;
-    }
-    return true;
-  };
-
   return {
     user,
     userLoading,
     partnerProfile,
     setPartnerProfile,
     profileStatus,
-    editorFormData,
-    setEditorFormData,
-    errors,
-    setErrors,
     isLoading,
     setIsLoading,
     isUploading,
     setIsUploading,
     profileError,
     isVerified,
-    isStep1Valid,
-    validateStep2,
-    validateStep3,
-    validateStep4,
-    validateAll,
   };
 }

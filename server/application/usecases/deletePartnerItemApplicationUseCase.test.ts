@@ -6,7 +6,12 @@ import {
   getItemByIdUseCase,
   type PublicResourceDTO,
 } from '../../domain/guide';
-import { linkBusinessUseCase, unlinkBusinessUseCase } from '../../domain/partners';
+import {
+  deleteListingVerificationUseCase,
+  linkBusinessUseCase,
+  unlinkBusinessUseCase,
+} from '../../domain/partners';
+import { deleteVerificationFileUseCase } from '../../domain/media';
 
 vi.mock('../../domain/guide', () => ({
   getItemByIdUseCase: vi.fn(),
@@ -16,6 +21,11 @@ vi.mock('../../domain/guide', () => ({
 vi.mock('../../domain/partners', () => ({
   linkBusinessUseCase: vi.fn(),
   unlinkBusinessUseCase: vi.fn(),
+  deleteListingVerificationUseCase: vi.fn().mockResolvedValue(['verification/partner-B/c.pdf']),
+}));
+
+vi.mock('../../domain/media', () => ({
+  deleteVerificationFileUseCase: vi.fn().mockResolvedValue(undefined),
 }));
 
 describe('deletePartnerItemApplicationUseCase', () => {
@@ -51,6 +61,8 @@ describe('deletePartnerItemApplicationUseCase', () => {
     expect(unlinkBusinessUseCase).toHaveBeenCalledWith('partner-B', 'item-100');
     expect(deleteGuideItemUseCase).toHaveBeenCalledWith(regularUser, 'item-100');
     expect(linkBusinessUseCase).not.toHaveBeenCalled();
+    expect(deleteListingVerificationUseCase).toHaveBeenCalledWith('item-100');
+    expect(deleteVerificationFileUseCase).toHaveBeenCalledWith('verification/partner-B/c.pdf');
   });
 
   it('unlink falha + Guide não é apagado', async () => {

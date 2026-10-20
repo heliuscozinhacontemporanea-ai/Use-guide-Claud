@@ -11,6 +11,7 @@ import {
 } from '../../domain/guide';
 import {
   ListingEditor,
+  ListingVerificationQueue,
   type PartnerContentItemInput,
   type PartnerContentRecord,
 } from '../../domain/partners';
@@ -80,13 +81,14 @@ function AdminListingEditor({ item, onClose }: AdminListingEditorProps) {
 }
 
 /**
- * Painel admin com os editores compartilhados: cadastro (o mesmo do parceiro, decisão D9), sessões do
- * evento e gerenciador de ingressos.
+ * Painel admin com os editores compartilhados: cadastro (o mesmo do parceiro, decisão D9), fila de
+ * verificação dos estabelecimentos (D12), sessões do evento e gerenciador de ingressos.
  */
 export function AdminPanelComposition() {
   return (
     <AdminDispatcher
       renderListingEditor={(props) => <AdminListingEditor {...props} />}
+      renderVerificationQueue={() => <ListingVerificationQueue />}
       renderSessionsField={(props) => <EventSessionsField {...props} />}
       renderTicketingManager={(eventListingId) => (
         <PartnerEventTicketingManager eventListingId={eventListingId} asAdmin />

@@ -1,5 +1,10 @@
 export { uploadContentImageUseCase } from './usecases/uploadContentImageUseCase';
 export { prepareImageForStorageUseCase } from './usecases/prepareImageForStorageUseCase';
+export { storeVerificationFileUseCase } from './usecases/storeVerificationFileUseCase';
+export { isOwnVerificationFileUseCase } from './usecases/isOwnVerificationFileUseCase';
+export { readVerificationFileUseCase } from './usecases/readVerificationFileUseCase';
+export { deleteVerificationFileUseCase } from './usecases/deleteVerificationFileUseCase';
+export type { StoredPrivateDocument } from './services/privateDocumentService';
 export { MediaDomainError } from './errors/mediaDomainError';
 export type { ProcessedImage } from './ports/imageProcessorPort';
 export type { ContentImageFolder } from './types/mediaTypes';

@@ -43,7 +43,6 @@ export function PartnerEventForm({
             Datas e capacidade
           </h3>
         </div>
-
         {renderSessionsField?.({
           sessions: item.sessions ?? [],
           onChange: (sessions) => onChange({ ...item, sessions }),
