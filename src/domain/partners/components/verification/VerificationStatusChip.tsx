@@ -19,11 +19,7 @@ export function VerificationStatusChip({ itemId, name, onOpen }: VerificationSta
   return (
     <button
       type="button"
-      onClick={(event) => {
-        event.stopPropagation();
-        onOpen();
-      }}
-      onKeyDown={(event) => event.stopPropagation()}
+      onClick={onOpen}
       disabled={loading}
       aria-label={t('verification.chipLabel', { name, status: label })}
       className={cn(

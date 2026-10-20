@@ -92,9 +92,6 @@ export interface VerificationTranslation {
     cancel: string;
     rejected: string;
   };
-  signup: {
-    nextStep: string;
-  };
   errors: {
     VALIDATION_ERROR: string;
     UNAUTHENTICATED: string;
@@ -209,10 +206,6 @@ export const verificationPtBR: VerificationTranslation = {
     confirmReject: 'Confirmar recusa',
     cancel: 'Cancelar',
     rejected: 'Verificação recusada.',
-  },
-  signup: {
-    nextStep:
-      'Próximo passo: envie a verificação do estabelecimento no painel. Ela libera o selo do Use Guide e as vendas.',
   },
   errors: {
     VALIDATION_ERROR: 'Confira os dados e os arquivos da verificação.',
@@ -330,10 +323,6 @@ export const verificationEn: VerificationTranslation = {
     cancel: 'Cancel',
     rejected: 'Verification declined.',
   },
-  signup: {
-    nextStep:
-      'Next step: send the business verification from the panel. It unlocks the Use Guide badge and sales.',
-  },
   errors: {
     VALIDATION_ERROR: 'Check the verification details and files.',
     UNAUTHENTICATED: 'Sign in again to continue.',
@@ -449,10 +438,6 @@ export const verificationFr: VerificationTranslation = {
     confirmReject: 'Confirmer le refus',
     cancel: 'Annuler',
     rejected: 'Vérification refusée.',
-  },
-  signup: {
-    nextStep:
-      'Prochaine étape : envoyez la vérification de l’établissement depuis le panneau. Elle débloque le badge Use Guide et les ventes.',
   },
   errors: {
     VALIDATION_ERROR: 'Vérifiez les informations et les fichiers.',

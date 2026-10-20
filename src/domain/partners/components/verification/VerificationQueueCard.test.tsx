@@ -57,7 +57,15 @@ describe('VerificationQueueCard', () => {
     useUIStore.setState({ confirmAction });
     render(<VerificationQueueCard entry={entry} onReview={onReview} onOpenFile={vi.fn()} />);
     fireEvent.click(screen.getByRole('button', { name: 'Aprovar' }));
-    await waitFor(() => expect(confirmAction).toHaveBeenCalled());
+    await waitFor(() =>
+      expect(confirmAction).toHaveBeenCalledWith(
+        expect.stringContaining('Aprovar a verificação?'),
+        {
+          tone: 'positive',
+          confirmLabel: 'Aprovar',
+        }
+      )
+    );
     expect(onReview).not.toHaveBeenCalled();
   });
 });

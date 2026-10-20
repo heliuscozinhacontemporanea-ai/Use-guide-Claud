@@ -1,6 +1,6 @@
-
 import { Plus, MapPin, Edit2, RefreshCw } from 'lucide-react';
 import { motion } from 'motion/react';
+import { useTranslation } from 'react-i18next';
 import type { PartnerContentRecord } from '../../types/partnerContent';
 import { cn } from '../../../../shared/utils/cn';
 import { VerifiedBadge } from '../../../../ui/components/VerifiedBadge';
@@ -26,6 +26,7 @@ export function PartnerItemsTable({
   verificationVersion,
   onVerifyItem,
 }: PartnerItemsTableProps) {
+  const { t } = useTranslation();
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -53,20 +54,22 @@ export function PartnerItemsTable({
           itemsList.map((item) => (
             <motion.div
               key={item.id}
-              role="button"
-              tabIndex={0}
-              onClick={() => onEditItem(item)}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter' || event.key === ' ') {
-                  event.preventDefault();
-                  onEditItem(item);
-                }
-              }}
               whileHover={{ scale: 1.01, backgroundColor: 'rgba(255, 255, 255, 0.08)' }}
-              whileTap={{ scale: 0.95 }}
-              className="group relative bg-white/5 border border-white/10 glassmorphism-vibrant rounded-3xl p-4 pr-16 flex items-center gap-4 cursor-pointer active:scale-95 transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400/50"
+              className="group relative bg-white/5 border border-white/10 glassmorphism-vibrant rounded-3xl p-4 pr-16 flex items-center gap-4 transition-all duration-300"
             >
-              <div className="w-20 h-20 rounded-2xl overflow-hidden border border-white/10 flex-shrink-0">
+              {/* Cobre o cartão inteiro e vem antes no DOM: o selo e o interruptor, posicionados
+                  depois, ficam por cima sem um botão dentro do outro. */}
+              <button
+                type="button"
+                onClick={() => onEditItem(item)}
+                aria-label={t('partners.items.edit', { name: item.name })}
+                className="absolute inset-0 rounded-3xl flex items-end justify-end p-4 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400/50"
+              >
+                <span className="p-2 rounded-xl bg-white/5 text-white/50 group-hover:text-teal-400 group-hover:bg-teal-400/10 transition-all">
+                  <Edit2 size={13} aria-hidden="true" />
+                </span>
+              </button>
+              <div className="w-20 h-20 rounded-2xl overflow-hidden border border-white/10 flex-shrink-0 pointer-events-none">
                 <img
                   src={item.image}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
@@ -106,7 +109,7 @@ export function PartnerItemsTable({
                   )}
                 </div>
                 {item.id && (
-                  <div className="mt-2">
+                  <div className="mt-2 relative w-fit">
                     <VerificationStatusChip
                       key={`${item.id}-${verificationVersion}`}
                       itemId={item.id}
@@ -126,13 +129,12 @@ export function PartnerItemsTable({
                     ? `Desativar estabelecimento ${item.name}`
                     : `Ativar estabelecimento ${item.name}`
                 }
-                onClick={async (event) => {
-                  event.stopPropagation();
+                onClick={async () => {
                   if (item.id) {
                     await onToggleActive(item.id, item.isActive !== false);
                   }
                 }}
-                className="absolute top-2 right-2 z-20 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl focus-visible:ring-2 focus-visible:ring-teal-400/50"
+                className="absolute top-2 right-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl focus-visible:ring-2 focus-visible:ring-teal-400/50"
               >
                 <span
                   className={cn(
@@ -148,10 +150,6 @@ export function PartnerItemsTable({
                   />
                 </span>
               </button>
-
-              <div className="absolute bottom-4 right-4 p-2 rounded-xl bg-white/5 text-white/50 group-hover:text-teal-400 group-hover:bg-teal-400/10 transition-all">
-                <Edit2 size={13} />
-              </div>
             </motion.div>
           ))
         )}

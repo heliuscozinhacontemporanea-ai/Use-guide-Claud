@@ -168,7 +168,12 @@ export function VerificationQueueCard({ entry, onReview, onOpenFile }: Verificat
               type="button"
               disabled={busy}
               onClick={async () => {
-                if (await confirmAction(t('verification.admin.approveConfirm'))) {
+                if (
+                  await confirmAction(t('verification.admin.approveConfirm'), {
+                    tone: 'positive',
+                    confirmLabel: t('verification.admin.approve'),
+                  })
+                ) {
                   await review('approve');
                 }
               }}
