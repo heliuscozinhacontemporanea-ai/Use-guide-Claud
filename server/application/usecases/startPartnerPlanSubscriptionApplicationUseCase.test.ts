@@ -1,7 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('../../domain/admin', () => ({ getSubscriptionPlanByIdUseCase: vi.fn() }));
-vi.mock('../../domain/partners', () => ({ getPartnerProfileUseCase: vi.fn() }));
+vi.mock('../../domain/partners', () => ({
+  getPartnerProfileUseCase: vi.fn(),
+  isPaidListingPlanType: (value: string) =>
+    value === 'monthly' || value === 'semi-annual' || value === 'annual',
+}));
 vi.mock('../../domain/payment', async () => {
   const { PaymentDomainError } = await import('../../domain/payment/services/stripePaymentService');
   return { PaymentDomainError, startPlanSubscriptionUseCase: vi.fn().mockResolvedValue({}) };
@@ -79,7 +83,7 @@ describe('startPartnerPlanSubscriptionApplicationUseCase', () => {
       amountMinor: 24990,
       interval: 'month',
       intervalCount: 6,
-      currentVerifiedUntil: '2026-12-01T00:00:00.000Z',
+      currentVerifiedUntil: null,
       idempotencyKey: 'key-12345',
     });
   });

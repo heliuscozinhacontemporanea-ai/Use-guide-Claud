@@ -22,6 +22,7 @@ vi.mock('../../domain/partners', () => ({
   linkBusinessUseCase: vi.fn(),
   unlinkBusinessUseCase: vi.fn(),
   deleteListingVerificationUseCase: vi.fn().mockResolvedValue(['verification/partner-B/c.pdf']),
+  deleteListingPlanUseCase: vi.fn(),
 }));
 
 vi.mock('../../domain/media', () => ({

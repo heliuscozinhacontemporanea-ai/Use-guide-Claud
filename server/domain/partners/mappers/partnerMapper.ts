@@ -4,7 +4,6 @@ import type {
   PartnerBusinessType,
   PartnerProfileDTO,
   PartnerStatus,
-  PartnerVerificationType,
   PublicPartnerProfileDTO,
 } from '../types/partnerTypes';
 
@@ -25,27 +24,6 @@ function toPartnerBusinessType(value: unknown): PartnerBusinessType {
   }
 
   throw new PartnerDomainError('INVALID_ARGUMENT', 'Tipo de negócio Parceiro inválido.');
-}
-
-function toPartnerVerificationType(value: unknown): PartnerVerificationType {
-  if (value === null || value === undefined) {
-    return null;
-  }
-
-  if (
-    value === 'trial' ||
-    value === 'monthly' ||
-    value === 'semi-annual' ||
-    value === 'annual' ||
-    value === 'admin'
-  ) {
-    return value;
-  }
-
-  throw new PartnerDomainError(
-    'INVALID_ARGUMENT',
-    'Tipo de verificação Partner inválido persistido no Firestore.'
-  );
 }
 
 function toIsoString(value: unknown): string | null {
@@ -75,10 +53,6 @@ export function toPartnerProfileDTO(id: string, raw: Record<string, unknown>): P
   return {
     id,
     businesses,
-    isVerified: raw.isVerified === true,
-    verifiedUntil: toIsoString(raw.verifiedUntil),
-    verificationType: toPartnerVerificationType(raw.verificationType),
-    isVerificationSuspended: raw.isVerificationSuspended === true,
     status: toPartnerStatus(raw.status),
     hasUsedTrial: raw.hasUsedTrial === true,
     termsAccepted: raw.termsAccepted === true,
@@ -102,9 +76,6 @@ export function toPublicPartnerProfileDTO(
   return {
     id: partnerId,
     businesses,
-    isVerified: raw.isVerified === true,
-    verifiedUntil: raw.isVerified === true ? toIsoString(raw.verifiedUntil) : null,
-    isVerificationSuspended: raw.isVerificationSuspended === true,
     status: toPartnerStatus(raw.status),
   };
 }

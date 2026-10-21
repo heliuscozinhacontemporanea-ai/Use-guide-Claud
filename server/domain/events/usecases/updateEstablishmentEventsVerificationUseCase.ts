@@ -1,7 +1,7 @@
 import { eventsService } from '../factory';
 
-export async function updateEventsOwnerVerificationUseCase(
-  ownerId: string,
+export async function updateEstablishmentEventsVerificationUseCase(
+  establishmentId: string,
   verification: {
     isVerified: boolean;
     verifiedUntil: string | null;
@@ -9,5 +9,5 @@ export async function updateEventsOwnerVerificationUseCase(
     isVerificationSuspended: boolean;
   }
 ): Promise<void> {
-  return eventsService.updateOwnerVerification(ownerId, verification);
+  return eventsService.updateEstablishmentVerification(establishmentId, verification);
 }

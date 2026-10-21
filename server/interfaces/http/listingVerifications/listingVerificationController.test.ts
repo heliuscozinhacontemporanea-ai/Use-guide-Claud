@@ -36,13 +36,18 @@ vi.mock(
     listListingVerificationsApplicationUseCase: mocks.list,
   })
 );
+vi.mock(
+  '../../../application/usecases/listingPlans/reviewListingVerificationApplicationUseCase',
+  () => ({
+    reviewListingVerificationApplicationUseCase: mocks.review,
+  })
+);
 vi.mock('../../../domain/partners', async () => {
   const { ListingVerificationError } = await import(
     '../../../domain/partners/errors/listingVerificationError'
   );
   return {
     ListingVerificationError,
-    reviewListingVerificationUseCase: mocks.review,
   };
 });
 

@@ -2,14 +2,13 @@ import type { Request, Response } from 'express';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
-  checkExpiringPartnerPlansApplicationUseCase: vi.fn(),
+  runListingPlanMaintenanceApplicationUseCase: vi.fn(),
 }));
 
 vi.mock(
-  '../../../application/usecases/checkExpiringPartnerPlansApplicationUseCase',
+  '../../../application/usecases/listingPlans/runListingPlanMaintenanceApplicationUseCase',
   () => ({
-    checkExpiringPartnerPlansApplicationUseCase:
-      mocks.checkExpiringPartnerPlansApplicationUseCase,
+    runListingPlanMaintenanceApplicationUseCase: mocks.runListingPlanMaintenanceApplicationUseCase,
   })
 );
 
@@ -31,27 +30,24 @@ describe('InternalPartnersController.checkExpiringPlans', () => {
     };
   });
 
-  it('retorna 200 com a quantidade de parceiros notificados', async () => {
-    mocks.checkExpiringPartnerPlansApplicationUseCase.mockResolvedValue(3);
+  it('retorna 200 com os selos vencidos e os avisos enviados', async () => {
+    mocks.runListingPlanMaintenanceApplicationUseCase.mockResolvedValue({
+      expired: 1,
+      notified: 3,
+    });
 
-    await InternalPartnersController.checkExpiringPlans(
-      req as Request,
-      res as Response
-    );
+    await InternalPartnersController.checkExpiringPlans(req as Request, res as Response);
 
     expect(statusMock).toHaveBeenCalledWith(200);
-    expect(jsonMock).toHaveBeenCalledWith({ notified: 3 });
+    expect(jsonMock).toHaveBeenCalledWith({ expired: 1, notified: 3 });
   });
 
   it('retorna 500 com código de erro interno em caso de falha', async () => {
-    mocks.checkExpiringPartnerPlansApplicationUseCase.mockRejectedValue(
+    mocks.runListingPlanMaintenanceApplicationUseCase.mockRejectedValue(
       new Error('Database unavailable')
     );
 
-    await InternalPartnersController.checkExpiringPlans(
-      req as Request,
-      res as Response
-    );
+    await InternalPartnersController.checkExpiringPlans(req as Request, res as Response);
 
     expect(statusMock).toHaveBeenCalledWith(500);
     expect(jsonMock).toHaveBeenCalledWith({

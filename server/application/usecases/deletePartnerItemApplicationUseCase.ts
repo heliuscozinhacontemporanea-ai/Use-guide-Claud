@@ -1,6 +1,7 @@
 import type { AuthenticatedUserContext } from '../security/authenticatedUserContext';
 import { getItemByIdUseCase, deleteGuideItemUseCase } from '../../domain/guide';
 import {
+  deleteListingPlanUseCase,
   deleteListingVerificationUseCase,
   linkBusinessUseCase,
   unlinkBusinessUseCase,
@@ -64,4 +65,5 @@ export async function deletePartnerItemApplicationUseCase(
 
   // Documento e arquivos de verificação saem junto com o estabelecimento (LGPD, §7.5).
   await deleteVerificationFiles(await deleteListingVerificationUseCase(id));
+  await deleteListingPlanUseCase(id);
 }

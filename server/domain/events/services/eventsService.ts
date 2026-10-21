@@ -236,8 +236,8 @@ export class EventsService {
     await this.eventsPort.updateRatingSummary(eventListingId, summary);
   }
 
-  async updateOwnerVerification(
-    ownerId: string,
+  async updateEstablishmentVerification(
+    establishmentId: string,
     verification: {
       isVerified: boolean;
       verifiedUntil: string | null;
@@ -245,10 +245,10 @@ export class EventsService {
       isVerificationSuspended: boolean;
     }
   ): Promise<void> {
-    if (!ownerId?.trim()) {
-      throw new EventDomainError('INVALID_ARGUMENT', 'ID do proprietário inválido');
+    if (!establishmentId?.trim()) {
+      throw new EventDomainError('INVALID_ARGUMENT', 'ID do estabelecimento inválido');
     }
-    await this.eventsPort.updateVerificationByOwner(ownerId, verification);
+    await this.eventsPort.updateVerificationByEstablishment(establishmentId, verification);
   }
 
   async deleteListingsByOwner(ownerId: string): Promise<void> {

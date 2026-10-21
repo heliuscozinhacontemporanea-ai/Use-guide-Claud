@@ -24,13 +24,11 @@ describe('getAdminPartnersUseCase (anti-N+1)', () => {
       {
         id: 'partner-1',
         status: 'active',
-        isVerified: true,
         businesses: [{ businessId: 'b-1', businessName: 'Pousada A', type: 'item' }],
       },
       {
         id: 'partner-2',
         status: 'suspended',
-        isVerified: false,
         businesses: [{ businessId: 'b-2', businessName: 'Restaurante B', type: 'item' }],
       },
     ]);
@@ -77,9 +75,6 @@ describe('getAdminPartnersUseCase (anti-N+1)', () => {
         id: 'partner-1',
         category: 'hotel',
         status: 'active',
-        isVerified: true,
-        verifiedUntil: null,
-        verificationType: null,
         hasUsedTrial: true,
         termsAccepted: true,
         businesses: [],
@@ -93,19 +88,7 @@ describe('getAdminPartnersUseCase (anti-N+1)', () => {
     expect(result[0]).not.toHaveProperty('hasUsedTrial');
     expect(result[0]).not.toHaveProperty('termsAccepted');
     expect(Object.keys(result[0] ?? {}).sort()).toEqual(
-      [
-        'businessName',
-        'email',
-        'firstName',
-        'id',
-        'isVerificationSuspended',
-        'isVerified',
-        'lastName',
-        'listingsCount',
-        'status',
-        'verificationType',
-        'verifiedUntil',
-      ].sort()
+      ['businessName', 'email', 'firstName', 'id', 'lastName', 'listingsCount', 'status'].sort()
     );
   });
 });

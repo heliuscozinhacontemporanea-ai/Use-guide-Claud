@@ -7,10 +7,6 @@ describe('partnerMapper', () => {
       { businessId: 'item-1', businessName: 'Restaurante Sabor', type: 'item' },
       { businessId: 'event-1', businessName: 'Festival Gastronômico', type: 'event' },
     ],
-    isVerified: true,
-    verifiedUntil: '2026-12-31T23:59:59.000Z',
-    verificationType: 'annual',
-    isVerificationSuspended: false,
     status: 'active',
     hasUsedTrial: true,
     termsAccepted: true,
@@ -28,10 +24,6 @@ describe('partnerMapper', () => {
           { businessId: 'item-1', businessName: 'Restaurante Sabor', type: 'item' },
           { businessId: 'event-1', businessName: 'Festival Gastronômico', type: 'event' },
         ],
-        isVerified: true,
-        verifiedUntil: '2026-12-31T23:59:59.000Z',
-        verificationType: 'annual',
-        isVerificationSuspended: false,
         status: 'active',
         hasUsedTrial: true,
         termsAccepted: true,
@@ -47,15 +39,6 @@ describe('partnerMapper', () => {
           status,
         })
       ).toThrow('Status Partner inválido persistido no Firestore.');
-    });
-
-    it('deve lançar erro se verificationType for inválido', () => {
-      expect(() =>
-        toPartnerProfileDTO('partner-123', {
-          ...rawPersistenceData,
-          verificationType: 'invalid-type',
-        })
-      ).toThrow('Tipo de verificação Partner inválido persistido no Firestore.');
     });
 
     it('deve lançar erro se business.type for inválido e nunca converter silenciosamente para item', () => {
@@ -103,15 +86,12 @@ describe('partnerMapper', () => {
           { businessId: 'item-1', businessName: 'Restaurante Sabor', type: 'item' },
           { businessId: 'event-1', businessName: 'Festival Gastronômico', type: 'event' },
         ],
-        isVerified: true,
-        verifiedUntil: '2026-12-31T23:59:59.000Z',
-        isVerificationSuspended: false,
         status: 'active',
       });
 
       expect(publicDto).not.toHaveProperty('termsAccepted');
       expect(publicDto).not.toHaveProperty('hasUsedTrial');
-      expect(publicDto).not.toHaveProperty('verificationType');
+      expect(publicDto).not.toHaveProperty('isVerified');
     });
   });
 });

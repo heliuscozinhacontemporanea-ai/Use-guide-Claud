@@ -10,6 +10,7 @@ import {
   getPartnerProfileUseCase,
   linkBusinessUseCase,
 } from '../../domain/partners';
+import { syncListingSealApplicationUseCase } from './listingPlans/syncListingSealApplicationUseCase';
 
 export type CreatePartnerEventInput = Omit<CreateEventListingInput, 'ownerId'> & {
   name: string;
@@ -29,10 +30,7 @@ export async function createPartnerEventApplicationUseCase(
 ): Promise<string> {
   const partnerProfile = await getPartnerProfileUseCase(user.uid);
   if (!partnerProfile) {
-    throw new PartnerDomainError(
-      'NOT_FOUND',
-      'Perfil de parceiro não encontrado.'
-    );
+    throw new PartnerDomainError('NOT_FOUND', 'Perfil de parceiro não encontrado.');
   }
   // Todo evento pertence a um estabelecimento ou ao perfil de produtor do parceiro (decisão D9).
   if (!data.establishmentId) {
@@ -77,5 +75,7 @@ export async function createPartnerEventApplicationUseCase(
     }
     throw error;
   }
+  // O evento herda o selo do estabelecimento ou do perfil de produtor (D11).
+  await syncListingSealApplicationUseCase(data.establishmentId);
   return eventId;
 }

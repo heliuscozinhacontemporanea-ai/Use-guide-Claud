@@ -10,8 +10,6 @@ router.post('/register', verifyAuthToken, PartnerController.registerOrUpgrade);
 router.get('/profile', verifyAuthToken, PartnerController.getProfile);
 router.get('/profile/:partnerId', verifyAuthToken, PartnerController.getProfile);
 router.patch('/status', verifyAdminToken, PartnerController.updateStatus);
-router.patch('/verify', verifyAdminToken, PartnerController.verifyPartner);
-router.post('/activate-trial', verifyAuthToken, PartnerController.activateTrial);
 
 router.post('/items', verifyAuthToken, resolveGuideContext, PartnerContentController.createItem);
 router.put('/items/:id', verifyAuthToken, resolveGuideContext, PartnerContentController.updateItem);

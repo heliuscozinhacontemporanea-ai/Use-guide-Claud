@@ -17,8 +17,9 @@ export interface EventsPort {
   updateListing(id: string, input: UpdateEventListingInput): Promise<EventListing>;
   deleteListing(id: string): Promise<void>;
   updateRatingSummary(id: string, summary: EventRatingSummary): Promise<void>;
-  updateVerificationByOwner(
-    ownerId: string,
+  /** Eventos herdam o selo do estabelecimento ou perfil de produtor ao qual pertencem (D11). */
+  updateVerificationByEstablishment(
+    establishmentId: string,
     verification: {
       isVerified: boolean;
       verifiedUntil: string | null;

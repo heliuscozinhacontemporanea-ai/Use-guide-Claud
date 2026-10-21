@@ -11,8 +11,6 @@ import type {
   PartnerProfileDocument,
   PartnerRegistrationData,
   PartnerStatus,
-  PartnerTrialState,
-  PartnerVerificationData,
   RegisterPartnerResult,
 } from '../types/partnerTypes';
 
@@ -108,10 +106,6 @@ export class FirestorePartnerAdapter implements PartnerPort {
       const nextData = {
         businesses: [],
         hasUsedTrial: false,
-        isVerified: false,
-        verificationType: null,
-        verifiedUntil: null,
-        isVerificationSuspended: false,
         status: 'active',
         termsAccepted: data.termsAccepted,
       };
@@ -180,95 +174,6 @@ export class FirestorePartnerAdapter implements PartnerPort {
           businesses,
         })
       );
-    });
-  }
-
-  async updatePartnerVerificationProfile(
-    partnerId: string,
-    verification: PartnerVerificationData
-  ): Promise<void> {
-    await this.mutatePartnerAtomically(partnerId, () => ({
-      ...verification,
-    }));
-  }
-
-  async activateTrialAtomically(partnerId: string, verifiedUntil: string): Promise<void> {
-    const ref = adminDb.collection('partners').doc(partnerId);
-    const publicPartnerRef = adminDb.collection('publicPartners').doc(partnerId);
-    await adminDb.runTransaction(async (transaction) => {
-      const snapshot = await transaction.get(ref);
-      if (!snapshot.exists) {
-        throw new PartnerDomainError('NOT_FOUND', 'Perfil de parceiro não encontrado');
-      }
-      const data = snapshot.data() ?? {};
-      if (data.status === 'suspended') {
-        throw new PartnerDomainError(
-          'FORBIDDEN',
-          'Parceiro suspenso não pode ativar o período de testes.'
-        );
-      }
-      if (data.hasUsedTrial === true) {
-        throw new PartnerDomainError('CONFLICT', 'O período de testes já foi utilizado.');
-      }
-      const currentExpiry = data.verifiedUntil;
-      if (data.isVerified === true && currentExpiry) {
-        const expiryDate =
-          typeof currentExpiry.toDate === 'function'
-            ? currentExpiry.toDate()
-            : new Date(currentExpiry);
-        if (
-          expiryDate instanceof Date &&
-          !Number.isNaN(expiryDate.getTime()) &&
-          expiryDate > new Date()
-        ) {
-          throw new PartnerDomainError('CONFLICT', 'O parceiro já possui uma verificação ativa.');
-        }
-      }
-
-      const nextData = {
-        ...data,
-        isVerified: true,
-        verifiedUntil,
-        verificationType: 'trial',
-        isVerificationSuspended: false,
-        hasUsedTrial: true,
-      };
-
-      transaction.update(ref, {
-        isVerified: true,
-        verifiedUntil,
-        verificationType: 'trial',
-        isVerificationSuspended: false,
-        hasUsedTrial: true,
-        updatedAt: FieldValue.serverTimestamp(),
-      });
-
-      transaction.set(publicPartnerRef, toPublicPartnerProfile(partnerId, nextData));
-    });
-  }
-
-  async restoreTrialStateAtomically(partnerId: string, state: PartnerTrialState): Promise<void> {
-    const partnerRef = adminDb.collection('partners').doc(partnerId);
-    const publicRef = adminDb.collection('publicPartners').doc(partnerId);
-
-    await adminDb.runTransaction(async (transaction) => {
-      const snapshot = await transaction.get(partnerRef);
-      if (!snapshot.exists) {
-        throw new PartnerDomainError('NOT_FOUND', 'Perfil de parceiro não encontrado');
-      }
-
-      const current = snapshot.data() ?? {};
-      const next = {
-        ...current,
-        ...state,
-      };
-
-      transaction.update(partnerRef, {
-        ...state,
-        updatedAt: FieldValue.serverTimestamp(),
-      });
-
-      transaction.set(publicRef, toPublicPartnerProfile(partnerId, next));
     });
   }
 }

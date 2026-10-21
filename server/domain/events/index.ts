@@ -21,7 +21,7 @@ export { updateEventListingPricingSummaryUseCase } from './usecases/updateEventL
 export { updateEventListingUseCase } from './usecases/updateEventListingUseCase';
 export { updateEventOccurrenceUseCase } from './usecases/updateEventOccurrenceUseCase';
 export { updateEventRatingSummaryUseCase } from './usecases/updateEventRatingSummaryUseCase';
-export { updateEventsOwnerVerificationUseCase } from './usecases/updateEventsOwnerVerificationUseCase';
+export { updateEstablishmentEventsVerificationUseCase } from './usecases/updateEstablishmentEventsVerificationUseCase';
 
 export {
   EventDomainError,

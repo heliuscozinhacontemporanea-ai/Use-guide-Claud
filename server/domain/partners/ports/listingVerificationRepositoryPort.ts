@@ -25,6 +25,8 @@ export interface ListingVerificationRepositoryPort {
     cursor: string | null
   ): Promise<ListingVerificationPage>;
   getSalesDocumentIndex(ownerId: string): Promise<string | null>;
+  /** Perfis de produtor que usam o documento deste estabelecimento (modo `linked`). */
+  listLinkedItemIds(sourceItemId: string): Promise<string[]>;
   /** Apaga o registro e libera o CNPJ; devolve o registro apagado (para remover os arquivos). */
   delete(itemId: string): Promise<ListingVerificationRecord | null>;
   deleteByOwner(ownerId: string): Promise<ListingVerificationRecord[]>;

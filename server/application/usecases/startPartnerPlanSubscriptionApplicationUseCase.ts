@@ -40,7 +40,7 @@ export async function startPartnerPlanSubscriptionApplicationUseCase(
     planName: plan.name,
     amountMinor: plan.priceMinor,
     ...BILLING_INTERVAL[input.planId],
-    currentVerifiedUntil: profile.verifiedUntil ?? null,
+    currentVerifiedUntil: null,
     idempotencyKey: input.idempotencyKey,
   });
 }

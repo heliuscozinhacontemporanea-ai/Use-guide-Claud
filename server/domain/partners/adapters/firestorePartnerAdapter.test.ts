@@ -274,10 +274,7 @@ describe('FirestorePartnerAdapter', () => {
       expect(result.created).toBe(true);
       const partner = store.get(getDocKey('partners', uid))?.data;
       expect(partner).toMatchObject({
-        isVerified: false,
-        verifiedUntil: null,
-        verificationType: null,
-        isVerificationSuspended: false,
+        hasUsedTrial: false,
         status: 'active',
         termsAccepted: true,
         businesses: [],
@@ -287,7 +284,6 @@ describe('FirestorePartnerAdapter', () => {
       expect([...store.keys()].some((key) => key.startsWith('partnerDocumentKeys/'))).toBe(false);
       expect(store.get(getDocKey('publicPartners', uid))?.data).toMatchObject({
         id: uid,
-        isVerified: false,
         status: 'active',
         businesses: [],
       });
@@ -417,30 +413,14 @@ describe('FirestorePartnerAdapter', () => {
     });
   });
 
-  describe('verification', () => {
-    it('persiste e projeta isVerificationSuspended', async () => {
-      const uid = 'partner-verification';
-
-      await adapter.registerPartner(uid, {
-        termsAccepted: true,
-      });
-
-      await adapter.updatePartnerVerificationProfile(uid, {
-        isVerified: true,
-        verifiedUntil: '2027-01-01T00:00:00.000Z',
-        verificationType: 'annual',
-        isVerificationSuspended: true,
-      });
-
-      expect(store.get(getDocKey('partners', uid))?.data).toMatchObject({
-        isVerified: true,
-        isVerificationSuspended: true,
-      });
-
-      expect(store.get(getDocKey('publicPartners', uid))?.data).toMatchObject({
-        isVerified: true,
-        isVerificationSuspended: true,
-      });
+  describe('plano e selo (D11)', () => {
+    it('a conta não guarda plano nem selo: só a marca do trial', async () => {
+      const uid = 'partner-sem-selo';
+      await adapter.registerPartner(uid, { termsAccepted: true });
+      const partner = store.get(getDocKey('partners', uid))?.data;
+      expect(partner).toMatchObject({ hasUsedTrial: false });
+      expect(partner).not.toHaveProperty('isVerified');
+      expect(store.get(getDocKey('publicPartners', uid))?.data).not.toHaveProperty('isVerified');
     });
   });
 });

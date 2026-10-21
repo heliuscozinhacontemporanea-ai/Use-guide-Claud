@@ -1,15 +1,6 @@
 /** A verificação é por estabelecimento (D12); o status da conta só serve para suspensão. */
 export type PartnerStatus = 'active' | 'suspended';
 
-/** `admin`: selo concedido pelo admin, sem plano pago. */
-export type PartnerVerificationType =
-  | 'trial'
-  | 'monthly'
-  | 'semi-annual'
-  | 'annual'
-  | 'admin'
-  | null;
-
 export type PartnerBusinessType = 'item' | 'event';
 
 export interface PartnerBusiness {
@@ -26,29 +17,11 @@ export interface RegisterPartnerResult {
   created: boolean;
 }
 
-export interface PartnerVerificationData {
-  isVerified: boolean;
-  verifiedUntil: string | null;
-  verificationType: PartnerVerificationType;
-  isVerificationSuspended: boolean;
-}
-
-export interface PartnerTrialState {
-  hasUsedTrial: boolean;
-  isVerified: boolean;
-  verifiedUntil: string | null;
-  verificationType: PartnerVerificationType;
-  isVerificationSuspended: boolean;
-}
-
 export interface PartnerPersistenceDocument {
   id: string;
   status: PartnerStatus;
   businesses: PartnerBusiness[];
-  isVerified: boolean;
-  verifiedUntil: string | null;
-  verificationType: PartnerVerificationType;
-  isVerificationSuspended: boolean;
+  /** Um trial por conta (D11); o plano e o selo são de cada estabelecimento (`listingPlans`). */
   hasUsedTrial: boolean;
   termsAccepted: boolean;
   createdAt?: unknown;
@@ -59,10 +32,7 @@ export interface PartnerProfileDTO {
   id: string;
   status: PartnerStatus;
   businesses: PartnerBusiness[];
-  isVerified: boolean;
-  verifiedUntil: string | null;
-  verificationType: PartnerVerificationType;
-  isVerificationSuspended: boolean;
+  /** Um trial por conta (D11); o plano e o selo são de cada estabelecimento (`listingPlans`). */
   hasUsedTrial: boolean;
   termsAccepted: boolean;
   createdAt?: string;
@@ -72,9 +42,6 @@ export interface PartnerProfileDTO {
 export interface PublicPartnerProfileDTO {
   id: string;
   businesses: PartnerBusiness[];
-  isVerified: boolean;
-  verifiedUntil: string | null;
-  isVerificationSuspended: boolean;
   status: PartnerStatus;
 }
 

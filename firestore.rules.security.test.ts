@@ -357,6 +357,15 @@ describe('Firestore Rules — Security Suite', () => {
       }
     });
 
+    it('plano (D11): listingPlans negado até para o dono e admin', async () => {
+      const adminDb = testEnv.authenticatedContext('admin-user', { admin: true }).firestore();
+      const ownerDb = testEnv.authenticatedContext('partner-1').firestore();
+      for (const db of [adminDb, ownerDb]) {
+        await assertFails(getDoc(doc(db, 'listingPlans/item-1')));
+        await assertFails(setDoc(doc(db, 'listingPlans/item-1'), { planType: 'annual' }));
+      }
+    });
+
     it('client → interactionStats e interactionGuards write negado', async () => {
       const db = testEnv.authenticatedContext('user-1').firestore();
       const statPath = 'interactionStats/items_item-1_2026-10-19';

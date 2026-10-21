@@ -156,6 +156,10 @@ service cloud.firestore {
     match /verificationOwners/{ownerId} {
       allow read, write: if false;
     }
+    // Plano de cada estabelecimento (D11): só backend; o cliente lê a cópia pública do selo no item.
+    match /listingPlans/{itemId} {
+      allow read, write: if false;
+    }
     // Métricas lidas só pela API (dono do item ou admin); as guardas de deduplicação nunca saem do backend.
     match /interactionStats/{statId} {
       allow read, write: if false;

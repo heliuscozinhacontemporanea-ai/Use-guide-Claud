@@ -21,5 +21,5 @@ export { getPublicGuideItemUseCase } from './usecases/getPublicGuideItemUseCase'
 export { getResourceOwnerIdUseCase } from './usecases/getResourceOwnerIdUseCase';
 export { listPublicGuideItemsUseCase } from './usecases/listPublicGuideItemsUseCase';
 export { updateGuideItemUseCase } from './usecases/updateGuideItemUseCase';
-export { updateOwnerVerificationUseCase } from './usecases/updateOwnerVerificationUseCase';
+export { updateItemVerificationUseCase } from './usecases/updateItemVerificationUseCase';
 export { updateReviewAggregateUseCase } from './usecases/updateReviewAggregateUseCase';

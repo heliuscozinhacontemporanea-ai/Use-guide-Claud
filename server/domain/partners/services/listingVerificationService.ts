@@ -166,6 +166,11 @@ export class ListingVerificationService {
     }
   }
 
+  /** Perfis de produtor ligados a este estabelecimento: herdam a verificação dele. */
+  listLinkedItemIds(sourceItemId: string): Promise<string[]> {
+    return this.repository.listLinkedItemIds(sourceItemId);
+  }
+
   async deleteForListing(itemId: string): Promise<string[]> {
     const removed = await this.repository.delete(itemId);
     return removed ? filePaths(removed) : [];
