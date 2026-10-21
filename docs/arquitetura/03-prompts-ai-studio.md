@@ -146,3 +146,12 @@
 | 5 | `prompts/prompt-18.3.0c.md` | Telas de verificação por estabelecimento (D12): selo e envio no painel do parceiro, fila do admin, textos nos 3 idiomas; ajustes do preview | `3e75156` + `3406b93` |
 
 > **Envie um prompt por mensagem**, nesta ordem. **Antes do 18.3.0a**, no painel Secrets do AI Studio: `FIELD_ENCRYPTION_DEV_KEY` (32 bytes em base64) e `PII_BLIND_INDEX_KEY` (32 caracteres ou mais).
+
+# Lote 14 (Prompts 18.3a e 18.3b) — aplicar depois do lote 13
+
+| Ordem | Arquivo | Tema | Commit de referência |
+|---|---|---|---|
+| 1 | `prompts/prompt-18.3a.md` | Plano e selo por estabelecimento no backend (D11): `listingPlans`, selo = plano + verificação, trial e selo do admin por estabelecimento, job diário de vencimento | `bd14c0f` |
+| 2 | `prompts/prompt-18.3b.md` | Cobrança do plano por estabelecimento: assinatura e Pix com `itemId`, cancelamento nas exclusões | `cd31a44` |
+
+> **Envie um prompt por mensagem**, nesta ordem. Até o 18.3.1 (telas), trial, compra de plano e selo do admin pelo painel ficam fora do ar.
