@@ -1,8 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+const m = vi.hoisted(() => ({ assertPurchasable: vi.fn() }));
+
 vi.mock('../../domain/admin', () => ({ getSubscriptionPlanByIdUseCase: vi.fn() }));
 vi.mock('../../domain/partners', () => ({
-  getPartnerProfileUseCase: vi.fn(),
   isPaidListingPlanType: (value: string) =>
     value === 'monthly' || value === 'semi-annual' || value === 'annual',
 }));
@@ -10,13 +11,22 @@ vi.mock('../../domain/payment', async () => {
   const { PaymentDomainError } = await import('../../domain/payment/services/stripePaymentService');
   return { PaymentDomainError, startPlanSubscriptionUseCase: vi.fn().mockResolvedValue({}) };
 });
+vi.mock('./listingPlans/assertListingPlanPurchasableApplicationUseCase', () => ({
+  assertListingPlanPurchasableApplicationUseCase: m.assertPurchasable,
+}));
 
 import { getSubscriptionPlanByIdUseCase } from '../../domain/admin';
-import { getPartnerProfileUseCase } from '../../domain/partners';
 import { startPlanSubscriptionUseCase } from '../../domain/payment';
+import { PaymentDomainError } from '../../domain/payment/services/stripePaymentService';
 import { startPartnerPlanSubscriptionApplicationUseCase } from './startPartnerPlanSubscriptionApplicationUseCase';
 
 const ACTOR = { uid: 'p1', email: 'p1@example.com' };
+const INPUT = {
+  itemId: 'item-1',
+  planId: 'semi-annual',
+  locale: 'pt-BR' as const,
+  idempotencyKey: 'key-12345',
+};
 
 function mockPlan(overrides: Record<string, unknown> = {}) {
   vi.mocked(getSubscriptionPlanByIdUseCase).mockResolvedValue({
@@ -28,53 +38,43 @@ function mockPlan(overrides: Record<string, unknown> = {}) {
   } as never);
 }
 
-describe('startPartnerPlanSubscriptionApplicationUseCase', () => {
-  beforeEach(() => vi.clearAllMocks());
+describe('startPartnerPlanSubscriptionApplicationUseCase (D11)', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    m.assertPurchasable.mockResolvedValue({ currentPlanUntil: null });
+  });
 
   it('recusa plano que não é pago', async () => {
     await expect(
-      startPartnerPlanSubscriptionApplicationUseCase(ACTOR, {
-        planId: 'trial',
-        locale: 'pt-BR',
-        idempotencyKey: 'key-12345',
-      })
+      startPartnerPlanSubscriptionApplicationUseCase(ACTOR, { ...INPUT, planId: 'trial' })
     ).rejects.toMatchObject({ code: 'VALIDATION_ERROR' });
   });
 
   it('recusa plano inativo', async () => {
     mockPlan({ isActive: false });
     await expect(
-      startPartnerPlanSubscriptionApplicationUseCase(ACTOR, {
-        planId: 'semi-annual',
-        locale: 'pt-BR',
-        idempotencyKey: 'key-12345',
-      })
+      startPartnerPlanSubscriptionApplicationUseCase(ACTOR, INPUT)
     ).rejects.toMatchObject({ code: 'PLAN_INACTIVE' });
   });
 
-  it('recusa usuário sem cadastro de parceiro', async () => {
+  it('estabelecimento sem verificação não assina', async () => {
     mockPlan();
-    vi.mocked(getPartnerProfileUseCase).mockResolvedValue(null as never);
+    m.assertPurchasable.mockRejectedValue(
+      new PaymentDomainError('LISTING_PENDING_VERIFICATION', 'Verifique antes.', 422)
+    );
     await expect(
-      startPartnerPlanSubscriptionApplicationUseCase(ACTOR, {
-        planId: 'semi-annual',
-        locale: 'pt-BR',
-        idempotencyKey: 'key-12345',
-      })
-    ).rejects.toMatchObject({ code: 'FORBIDDEN', statusCode: 403 });
+      startPartnerPlanSubscriptionApplicationUseCase(ACTOR, INPUT)
+    ).rejects.toMatchObject({ code: 'LISTING_PENDING_VERIFICATION', statusCode: 422 });
+    expect(startPlanSubscriptionUseCase).not.toHaveBeenCalled();
   });
 
-  it('calcula o valor em centavos e o intervalo no backend', async () => {
+  it('valor e intervalo no backend; período já pago do estabelecimento vira teste', async () => {
     mockPlan();
-    vi.mocked(getPartnerProfileUseCase).mockResolvedValue({
-      verifiedUntil: '2026-12-01T00:00:00.000Z',
-    } as never);
-    await startPartnerPlanSubscriptionApplicationUseCase(ACTOR, {
-      planId: 'semi-annual',
-      locale: 'en',
-      idempotencyKey: 'key-12345',
-    });
+    m.assertPurchasable.mockResolvedValue({ currentPlanUntil: '2026-12-01T00:00:00.000Z' });
+    await startPartnerPlanSubscriptionApplicationUseCase(ACTOR, { ...INPUT, locale: 'en' });
+    expect(m.assertPurchasable).toHaveBeenCalledWith(ACTOR, 'item-1');
     expect(startPlanSubscriptionUseCase).toHaveBeenCalledWith({
+      itemId: 'item-1',
       partnerId: 'p1',
       email: 'p1@example.com',
       locale: 'en',
@@ -83,7 +83,7 @@ describe('startPartnerPlanSubscriptionApplicationUseCase', () => {
       amountMinor: 24990,
       interval: 'month',
       intervalCount: 6,
-      currentVerifiedUntil: null,
+      currentVerifiedUntil: '2026-12-01T00:00:00.000Z',
       idempotencyKey: 'key-12345',
     });
   });

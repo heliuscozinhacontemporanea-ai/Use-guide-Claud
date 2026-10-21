@@ -1,6 +1,7 @@
 import { randomUUID } from 'crypto';
 import type { Request, Response } from 'express';
 import { getPlanForPaymentApplicationUseCase } from '../../../application/usecases/getPlanForPaymentApplicationUseCase';
+import { assertListingPlanPurchasableApplicationUseCase } from '../../../application/usecases/listingPlans/assertListingPlanPurchasableApplicationUseCase';
 import { reconcileStripeWebhookEventApplicationUseCase } from '../../../application/usecases/reconcileStripeWebhookEventApplicationUseCase';
 import type { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
 import { ConfirmPlanPaymentSchema, CreatePlanPaymentIntentSchema } from '../schemas/paymentSchema';
@@ -36,7 +37,7 @@ export class PaymentController {
         });
       }
 
-      const { planId, idempotencyKey } = parsed.data;
+      const { itemId, planId, idempotencyKey } = parsed.data;
       const plan = await getPlanForPaymentApplicationUseCase(planId);
       if (!plan) {
         return res.status(400).json({ error: 'Plano inexistente.' });
@@ -47,13 +48,15 @@ export class PaymentController {
 
       const amountMinor = plan.priceMinor;
       if (amountMinor <= 0) {
-        return res
-          .status(400)
-          .json({ error: 'Plano gratuito não requer pagamento via Stripe.' });
+        return res.status(400).json({ error: 'Plano gratuito não requer pagamento via Stripe.' });
       }
+
+      // Plano é do estabelecimento verificado e do próprio comprador (D11).
+      await assertListingPlanPurchasableApplicationUseCase({ uid: req.user.uid }, itemId);
 
       const result = await createPlanPaymentIntentUseCase({
         buyerId: req.user.uid,
+        itemId,
         planId: plan.id,
         planName: plan.name,
         amountMinor,
@@ -80,10 +83,7 @@ export class PaymentController {
     }
   }
 
-  static async createConnectedAccount(
-    req: AuthenticatedRequest,
-    res: Response
-  ): Promise<Response> {
+  static async createConnectedAccount(req: AuthenticatedRequest, res: Response): Promise<Response> {
     try {
       if (!req.user?.uid) {
         return res.status(401).json({ error: 'Não autenticado.' });
@@ -95,10 +95,7 @@ export class PaymentController {
       });
 
       return res.status(200).json({
-        connected:
-          record.chargesEnabled &&
-          record.payoutsEnabled &&
-          record.detailsSubmitted,
+        connected: record.chargesEnabled && record.payoutsEnabled && record.detailsSubmitted,
         accountId: record.stripeAccountId,
         chargesEnabled: record.chargesEnabled,
         payoutsEnabled: record.payoutsEnabled,
@@ -111,8 +108,7 @@ export class PaymentController {
         message: error instanceof Error ? error.message : 'Erro desconhecido',
       });
       return res.status(503).json({
-        error:
-          'Não foi possível iniciar a configuração financeira no momento.',
+        error: 'Não foi possível iniciar a configuração financeira no momento.',
       });
     }
   }
@@ -140,16 +136,12 @@ export class PaymentController {
         message: error instanceof Error ? error.message : 'Erro desconhecido',
       });
       return res.status(503).json({
-        error:
-          'Não foi possível iniciar a configuração financeira no momento.',
+        error: 'Não foi possível iniciar a configuração financeira no momento.',
       });
     }
   }
 
-  static async getConnectStatus(
-    req: AuthenticatedRequest,
-    res: Response
-  ): Promise<Response> {
+  static async getConnectStatus(req: AuthenticatedRequest, res: Response): Promise<Response> {
     try {
       if (!req.user?.uid) {
         return res.status(401).json({ error: 'Não autenticado.' });
@@ -168,8 +160,7 @@ export class PaymentController {
         message: error instanceof Error ? error.message : 'Erro desconhecido',
       });
       return res.status(503).json({
-        error:
-          'Não foi possível consultar a configuração financeira no momento.',
+        error: 'Não foi possível consultar a configuração financeira no momento.',
       });
     }
   }

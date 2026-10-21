@@ -1,5 +1,4 @@
 import { getSubscriptionPlanByIdUseCase } from '../../domain/admin';
-import { getPartnerProfileUseCase } from '../../domain/partners';
 import {
   type BillingLocale,
   PaymentDomainError,
@@ -7,6 +6,7 @@ import {
   startPlanSubscriptionUseCase,
 } from '../../domain/payment';
 import { isPaidPlanId, type PaidPlanId } from './activatePaidPlanApplicationUseCase';
+import { assertListingPlanPurchasableApplicationUseCase } from './listingPlans/assertListingPlanPurchasableApplicationUseCase';
 
 const BILLING_INTERVAL: Record<PaidPlanId, { interval: 'month' | 'year'; intervalCount: number }> =
   {
@@ -15,10 +15,10 @@ const BILLING_INTERVAL: Record<PaidPlanId, { interval: 'month' | 'year'; interva
     annual: { interval: 'year', intervalCount: 1 },
   };
 
-/** Assinatura no cartão com renovação automática (decisão D2). O Pix avulso continua no fluxo de PaymentIntent. */
+/** Assinatura no cartão do plano de um estabelecimento (D2, D11). O Pix avulso segue no PaymentIntent. */
 export async function startPartnerPlanSubscriptionApplicationUseCase(
   actor: { uid: string; email?: string },
-  input: { planId: string; locale: BillingLocale; idempotencyKey: string }
+  input: { itemId: string; planId: string; locale: BillingLocale; idempotencyKey: string }
 ): Promise<StartPlanSubscriptionResult> {
   if (!isPaidPlanId(input.planId)) {
     throw new PaymentDomainError('VALIDATION_ERROR', 'Plano inválido.', 400);
@@ -27,12 +27,13 @@ export async function startPartnerPlanSubscriptionApplicationUseCase(
   if (!plan || plan.isActive === false) {
     throw new PaymentDomainError('PLAN_INACTIVE', 'Plano indisponível.', 422);
   }
-  const profile = await getPartnerProfileUseCase(actor.uid);
-  if (!profile) {
-    throw new PaymentDomainError('FORBIDDEN', 'Cadastro de parceiro não encontrado.', 403);
-  }
+  const { currentPlanUntil } = await assertListingPlanPurchasableApplicationUseCase(
+    actor,
+    input.itemId
+  );
 
   return startPlanSubscriptionUseCase({
+    itemId: input.itemId,
     partnerId: actor.uid,
     email: actor.email,
     locale: input.locale,
@@ -40,7 +41,7 @@ export async function startPartnerPlanSubscriptionApplicationUseCase(
     planName: plan.name,
     amountMinor: plan.priceMinor,
     ...BILLING_INTERVAL[input.planId],
-    currentVerifiedUntil: null,
+    currentVerifiedUntil: currentPlanUntil,
     idempotencyKey: input.idempotencyKey,
   });
 }

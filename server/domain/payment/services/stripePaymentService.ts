@@ -34,15 +34,11 @@ export class StripePaymentService {
     partnerId: string;
     email: string;
   }): Promise<StripeConnectedAccountRecord> {
-    const existing = await this.transactionRepo.getConnectedAccountRecord(
-      params.partnerId
-    );
+    const existing = await this.transactionRepo.getConnectedAccountRecord(params.partnerId);
     const nowIso = new Date().toISOString();
 
     if (existing?.stripeAccountId) {
-      const status = await this.marketplaceAccount.getAccountStatus(
-        existing.stripeAccountId
-      );
+      const status = await this.marketplaceAccount.getAccountStatus(existing.stripeAccountId);
       const updated: StripeConnectedAccountRecord = {
         partnerId: params.partnerId,
         stripeAccountId: status.accountId,
@@ -65,9 +61,7 @@ export class StripePaymentService {
       country: 'BR',
     });
 
-    const status = await this.marketplaceAccount.getAccountStatus(
-      created.accountId
-    );
+    const status = await this.marketplaceAccount.getAccountStatus(created.accountId);
 
     const record: StripeConnectedAccountRecord = {
       partnerId: params.partnerId,
@@ -103,9 +97,8 @@ export class StripePaymentService {
     status: ConnectedAccountStatus['status'];
     readyForSales: boolean;
   }> {
-    const existing =
-      await this.transactionRepo.getConnectedAccountRecord(partnerId);
-    if (!existing || !existing.stripeAccountId) {
+    const existing = await this.transactionRepo.getConnectedAccountRecord(partnerId);
+    if (!existing?.stripeAccountId) {
       return {
         connected: false,
         chargesEnabled: false,
@@ -116,9 +109,7 @@ export class StripePaymentService {
       };
     }
 
-    const status = await this.marketplaceAccount.getAccountStatus(
-      existing.stripeAccountId
-    );
+    const status = await this.marketplaceAccount.getAccountStatus(existing.stripeAccountId);
     const nowIso = new Date().toISOString();
 
     await this.transactionRepo.saveConnectedAccountRecord({
@@ -145,12 +136,9 @@ export class StripePaymentService {
     };
   }
 
-  async assertPartnerReadyForPaidEvent(
-    partnerId: string
-  ): Promise<StripeConnectedAccountRecord> {
-    const existing =
-      await this.transactionRepo.getConnectedAccountRecord(partnerId);
-    if (!existing || !existing.stripeAccountId) {
+  async assertPartnerReadyForPaidEvent(partnerId: string): Promise<StripeConnectedAccountRecord> {
+    const existing = await this.transactionRepo.getConnectedAccountRecord(partnerId);
+    if (!existing?.stripeAccountId) {
       throw new PaymentDomainError(
         'SELLER_ACCOUNT_NOT_ELIGIBLE',
         'Vendas online indisponíveis. Conclua a configuração financeira.',
@@ -158,9 +146,7 @@ export class StripePaymentService {
       );
     }
 
-    const status = await this.marketplaceAccount.getAccountStatus(
-      existing.stripeAccountId
-    );
+    const status = await this.marketplaceAccount.getAccountStatus(existing.stripeAccountId);
     const nowIso = new Date().toISOString();
     const synced: StripeConnectedAccountRecord = {
       partnerId,
@@ -313,18 +299,18 @@ export class StripePaymentService {
 
   async createPlanPaymentIntent(params: {
     buyerId: string;
+    /** Estabelecimento que recebe o plano (D11). */
+    itemId: string;
     planId: string;
     planName: string;
     amountMinor: number;
     idempotencyKey: string;
   }): Promise<CreatePaymentIntentResult & { transactionId: string }> {
-    const existingTx =
-      await this.transactionRepo.getTransactionByIdempotencyKey(
-        params.idempotencyKey
-      );
+    const existingTx = await this.transactionRepo.getTransactionByIdempotencyKey(
+      params.idempotencyKey
+    );
     if (
-      existingTx &&
-      existingTx.providerPaymentId &&
+      existingTx?.providerPaymentId &&
       existingTx.paymentDetail &&
       typeof existingTx.paymentDetail.clientSecret === 'string'
     ) {
@@ -347,6 +333,7 @@ export class StripePaymentService {
         referenceType: 'plan_payment',
         planId: params.planId,
         partnerId: params.buyerId,
+        itemId: params.itemId,
       },
       idempotencyKey: params.idempotencyKey,
     });
@@ -366,6 +353,7 @@ export class StripePaymentService {
         paymentIntentId: result.paymentIntentId,
         clientSecret: result.clientSecret,
         planId: params.planId,
+        itemId: params.itemId,
       },
     });
 
@@ -397,10 +385,7 @@ export class StripePaymentService {
     return this.paymentGateway.retrievePaymentIntent(paymentIntentId);
   }
 
-  constructWebhookEvent(
-    payload: string | Buffer,
-    signature: string
-  ): VerifiedWebhookEvent {
+  constructWebhookEvent(payload: string | Buffer, signature: string): VerifiedWebhookEvent {
     return this.paymentGateway.constructWebhookEvent(payload, signature);
   }
 
@@ -421,18 +406,12 @@ export class StripePaymentService {
     status: string,
     statusDetail?: string
   ): Promise<boolean> {
-    return this.transactionRepo.updateTransactionStatus(
-      paymentIntentId,
-      status,
-      statusDetail
-    );
+    return this.transactionRepo.updateTransactionStatus(paymentIntentId, status, statusDetail);
   }
 
   async syncConnectedAccountFromWebhook(stripeAccountId: string): Promise<void> {
     const existing =
-      await this.transactionRepo.getConnectedAccountRecordByStripeAccountId(
-        stripeAccountId
-      );
+      await this.transactionRepo.getConnectedAccountRecordByStripeAccountId(stripeAccountId);
     if (!existing) return;
     const status = await this.marketplaceAccount.getAccountStatus(stripeAccountId);
     await this.transactionRepo.saveConnectedAccountRecord({

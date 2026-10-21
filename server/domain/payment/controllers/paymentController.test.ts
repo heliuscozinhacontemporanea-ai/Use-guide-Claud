@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { Request } from 'express';
+import type { Request, Response } from 'express';
 import { PaymentController } from './paymentController';
 import { getPlanForPaymentApplicationUseCase } from '../../../application/usecases/getPlanForPaymentApplicationUseCase';
 import { reconcileStripeWebhookEventApplicationUseCase } from '../../../application/usecases/reconcileStripeWebhookEventApplicationUseCase';
@@ -15,25 +15,47 @@ vi.mock('../../../application/usecases/getPlanForPaymentApplicationUseCase', () 
   getPlanForPaymentApplicationUseCase: vi.fn(),
 }));
 
-vi.mock('../../../application/usecases/reconcileStripeWebhookEventApplicationUseCase', () => ({ reconcileStripeWebhookEventApplicationUseCase: vi.fn() }));
+vi.mock('../../../application/usecases/reconcileStripeWebhookEventApplicationUseCase', () => ({
+  reconcileStripeWebhookEventApplicationUseCase: vi.fn(),
+}));
 
-vi.mock('../usecases/createPlanPaymentIntentUseCase', () => ({ createPlanPaymentIntentUseCase: vi.fn() }));
-vi.mock('../usecases/constructStripeWebhookEventUseCase', () => ({ constructStripeWebhookEventUseCase: vi.fn() }));
-vi.mock('../usecases/claimStripeWebhookEventUseCase', () => ({ claimStripeWebhookEventUseCase: vi.fn() }));
-vi.mock('../usecases/completeStripeWebhookEventUseCase', () => ({ completeStripeWebhookEventUseCase: vi.fn() }));
-vi.mock('../usecases/releaseStripeWebhookEventUseCase', () => ({ releaseStripeWebhookEventUseCase: vi.fn() }));
-vi.mock('../usecases/retrievePaymentIntentUseCase', () => ({ retrievePaymentIntentUseCase: vi.fn() }));
+vi.mock('../usecases/createPlanPaymentIntentUseCase', () => ({
+  createPlanPaymentIntentUseCase: vi.fn(),
+}));
+vi.mock(
+  '../../../application/usecases/listingPlans/assertListingPlanPurchasableApplicationUseCase',
+  () => ({
+    assertListingPlanPurchasableApplicationUseCase: vi
+      .fn()
+      .mockResolvedValue({ currentPlanUntil: null }),
+  })
+);
+vi.mock('../usecases/constructStripeWebhookEventUseCase', () => ({
+  constructStripeWebhookEventUseCase: vi.fn(),
+}));
+vi.mock('../usecases/claimStripeWebhookEventUseCase', () => ({
+  claimStripeWebhookEventUseCase: vi.fn(),
+}));
+vi.mock('../usecases/completeStripeWebhookEventUseCase', () => ({
+  completeStripeWebhookEventUseCase: vi.fn(),
+}));
+vi.mock('../usecases/releaseStripeWebhookEventUseCase', () => ({
+  releaseStripeWebhookEventUseCase: vi.fn(),
+}));
+vi.mock('../usecases/retrievePaymentIntentUseCase', () => ({
+  retrievePaymentIntentUseCase: vi.fn(),
+}));
 
 describe('PaymentController', () => {
   let req: Partial<AuthenticatedRequest>;
-  let res: any;
+  let res: Response & { status: ReturnType<typeof vi.fn>; json: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
     vi.clearAllMocks();
     res = {
       status: vi.fn().mockReturnThis(),
       json: vi.fn().mockReturnThis(),
-    };
+    } as unknown as typeof res;
   });
 
   it('rejects unauthenticated request with 401', async () => {
@@ -73,6 +95,7 @@ describe('PaymentController', () => {
         authTime: 1700000000,
       },
       body: {
+        itemId: 'item-1',
         planId: 'monthly',
         idempotencyKey: 'unique-key-12345',
       },
@@ -83,7 +106,7 @@ describe('PaymentController', () => {
       name: 'Plano Profissional',
       priceMinor: 9900,
       isActive: true,
-    } as any);
+    } as never);
     vi.mocked(createPlanPaymentIntentUseCase).mockResolvedValueOnce({
       paymentIntentId: 'pi_123',
       clientSecret: 'pi_123_secret_abc',
@@ -96,6 +119,7 @@ describe('PaymentController', () => {
     expect(createPlanPaymentIntentUseCase).toHaveBeenCalledWith(
       expect.objectContaining({
         buyerId: 'user-123',
+        itemId: 'item-1',
         planId: 'monthly',
         planName: 'Plano Profissional',
         amountMinor: 9900,
@@ -221,7 +245,7 @@ describe('PaymentController', () => {
         status: 'succeeded',
         amountMinor: 9900,
         metadata: { partnerId: 'outro', referenceType: 'plan_payment' },
-      } as any);
+      } as never);
       await PaymentController.confirmPlanPayment(
         { user, body: { paymentIntentId: 'pi_abc' } } as AuthenticatedRequest,
         res
@@ -235,7 +259,7 @@ describe('PaymentController', () => {
         status: 'succeeded',
         amountMinor: 9900,
         metadata: { partnerId: 'partner-1', referenceType: 'plan_payment' },
-      } as any);
+      } as never);
       await PaymentController.confirmPlanPayment(
         { user, body: { paymentIntentId: 'pi_abc' } } as AuthenticatedRequest,
         res

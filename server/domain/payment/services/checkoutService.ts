@@ -9,6 +9,7 @@ export class CheckoutService {
 
   async createPlanPaymentIntent(params: {
     buyerId: string;
+    itemId: string;
     planId: string;
     planName: string;
     amountMinor: number;

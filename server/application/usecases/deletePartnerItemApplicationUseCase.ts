@@ -6,6 +6,7 @@ import {
   linkBusinessUseCase,
   unlinkBusinessUseCase,
 } from '../../domain/partners';
+import { cancelListingPlanSubscriptionUseCase } from '../../domain/payment';
 import { deleteVerificationFiles } from './listingVerification/deleteVerificationFiles';
 
 function isNotFoundError(error: unknown): boolean {
@@ -65,5 +66,7 @@ export async function deletePartnerItemApplicationUseCase(
 
   // Documento e arquivos de verificação saem junto com o estabelecimento (LGPD, §7.5).
   await deleteVerificationFiles(await deleteListingVerificationUseCase(id));
+  // O plano sai junto: a assinatura do estabelecimento para de cobrar na hora (B24).
+  await cancelListingPlanSubscriptionUseCase(id);
   await deleteListingPlanUseCase(id);
 }

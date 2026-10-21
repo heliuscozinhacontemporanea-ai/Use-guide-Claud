@@ -1,8 +1,9 @@
 import { getBillingService } from '../../factory';
 import type { PlanSubscriptionRecord } from '../../ports/planSubscriptionRepositoryPort';
 
-export async function getPartnerPlanSubscriptionUseCase(
+export async function getListingPlanSubscriptionUseCase(
+  itemId: string,
   partnerId: string
 ): Promise<PlanSubscriptionRecord | null> {
-  return getBillingService().getPartnerSubscription(partnerId);
+  return getBillingService().getListingSubscription(itemId, partnerId);
 }

@@ -11,7 +11,7 @@ vi.mock('../../../domain/payment', async () => {
   return {
     PaymentDomainError,
     createBillingPortalSessionUseCase: vi.fn(),
-    getPartnerPlanSubscriptionUseCase: vi.fn(),
+    getListingPlanSubscriptionUseCase: vi.fn(),
     setPlanSubscriptionCancelAtPeriodEndUseCase: vi.fn(),
   };
 });
@@ -19,7 +19,7 @@ vi.mock('../../../domain/payment', async () => {
 import { startPartnerPlanSubscriptionApplicationUseCase } from '../../../application/usecases/startPartnerPlanSubscriptionApplicationUseCase';
 import {
   createBillingPortalSessionUseCase,
-  getPartnerPlanSubscriptionUseCase,
+  getListingPlanSubscriptionUseCase,
   PaymentDomainError,
 } from '../../../domain/payment';
 import type { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
@@ -31,11 +31,20 @@ function createResponse() {
   return { res: { status } as unknown as Response, status, json };
 }
 
-function request(body: unknown, uid: string | null = 'p1') {
-  return { body, user: uid ? { uid, email: 'p1@example.com' } : undefined } as AuthenticatedRequest;
+function request(body: unknown, uid: string | null = 'p1', query: unknown = {}) {
+  return {
+    body,
+    query,
+    user: uid ? { uid, email: 'p1@example.com' } : undefined,
+  } as AuthenticatedRequest;
 }
 
-const VALID_BODY = { planId: 'monthly', locale: 'pt-BR', idempotencyKey: 'key-12345' };
+const VALID_BODY = {
+  itemId: 'item-1',
+  planId: 'monthly',
+  locale: 'pt-BR',
+  idempotencyKey: 'key-12345',
+};
 
 describe('BillingController', () => {
   beforeEach(() => vi.clearAllMocks());
@@ -102,7 +111,8 @@ describe('BillingController', () => {
   });
 
   it('GET não devolve o ID do cliente no Stripe', async () => {
-    vi.mocked(getPartnerPlanSubscriptionUseCase).mockResolvedValue({
+    vi.mocked(getListingPlanSubscriptionUseCase).mockResolvedValue({
+      itemId: 'item-1',
       partnerId: 'p1',
       stripeCustomerId: 'cus_secret',
       stripeSubscriptionId: 'sub_1',
@@ -113,11 +123,13 @@ describe('BillingController', () => {
       updatedAt: '2026-10-10T12:00:00.000Z',
     });
     const { res, status, json } = createResponse();
-    await BillingController.getSubscription(request(undefined), res);
+    await BillingController.getSubscription(request(undefined, 'p1', { itemId: 'item-1' }), res);
+    expect(getListingPlanSubscriptionUseCase).toHaveBeenCalledWith('item-1', 'p1');
     expect(status).toHaveBeenCalledWith(200);
     const body = json.mock.calls[0]?.[0];
     expect(body).toEqual({
       subscription: {
+        itemId: 'item-1',
         planId: 'monthly',
         status: 'active',
         currentPeriodEnd: '2026-11-10T12:00:00.000Z',
@@ -125,6 +137,13 @@ describe('BillingController', () => {
       },
     });
     expect(JSON.stringify(body)).not.toContain('cus_secret');
+  });
+
+  it('GET sem itemId: 400', async () => {
+    const { res, status } = createResponse();
+    await BillingController.getSubscription(request(undefined), res);
+    expect(status).toHaveBeenCalledWith(400);
+    expect(getListingPlanSubscriptionUseCase).not.toHaveBeenCalled();
   });
 
   it('portal usa APP_URL do servidor, nunca do cliente', async () => {

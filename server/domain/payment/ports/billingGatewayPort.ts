@@ -53,6 +53,8 @@ export interface BillingGatewayPort {
   }): Promise<CreateSubscriptionResult>;
   getSubscription(subscriptionId: string): Promise<SubscriptionSnapshot>;
   setCancelAtPeriodEnd(subscriptionId: string, cancel: boolean): Promise<SubscriptionSnapshot>;
+  /** Cancela na hora, sem cobrança proporcional: usado quando o estabelecimento ou a conta é excluído. */
+  cancelNow(subscriptionId: string): Promise<SubscriptionSnapshot>;
   createBillingPortalSession(params: {
     customerId: string;
     returnUrl: string;

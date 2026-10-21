@@ -20,6 +20,8 @@ const LIVE_STATUSES: ReadonlySet<ProviderSubscriptionStatus> = new Set([
 const MIN_TRIAL_MS = 48 * 60 * 60 * 1000;
 
 export interface StartPlanSubscriptionInput {
+  /** Estabelecimento ou perfil de produtor dono do plano (D11). */
+  itemId: string;
   partnerId: string;
   email?: string;
   locale: BillingLocale;
@@ -53,17 +55,19 @@ export class BillingService {
     if (!Number.isInteger(input.amountMinor) || input.amountMinor <= 0) {
       throw new PaymentDomainError('INVALID_AMOUNT', 'Valor do plano inválido.', 422);
     }
-    const existing = await this.repository.get(input.partnerId);
+    const existing = await this.repository.get(input.itemId);
     if (existing && LIVE_STATUSES.has(existing.status)) {
       throw new PaymentDomainError(
         'SUBSCRIPTION_ALREADY_ACTIVE',
-        'Você já tem uma assinatura ativa.',
+        'Este estabelecimento já tem uma assinatura ativa.',
         409
       );
     }
 
+    // Um cliente no Stripe por conta, para todas as assinaturas dos estabelecimentos dela.
     const customerId = await this.gateway.ensureCustomer({
-      existingCustomerId: existing?.stripeCustomerId || null,
+      existingCustomerId:
+        existing?.stripeCustomerId || (await this.findCustomerId(input.partnerId)),
       partnerId: input.partnerId,
       email: input.email,
       locale: input.locale,
@@ -84,11 +88,13 @@ export class BillingService {
         referenceType: 'plan_subscription',
         partnerId: input.partnerId,
         planId: input.planId,
+        itemId: input.itemId,
       },
-      idempotencyKey: `sub_${input.partnerId}_${input.idempotencyKey}`,
+      idempotencyKey: `sub_${input.itemId}_${input.idempotencyKey}`,
     });
 
     await this.repository.save({
+      itemId: input.itemId,
       partnerId: input.partnerId,
       stripeCustomerId: customerId,
       stripeSubscriptionId: created.subscriptionId,
@@ -107,14 +113,14 @@ export class BillingService {
     };
   }
 
-  /** Relê a assinatura no provedor (fonte da verdade) e atualiza o registro do parceiro. */
+  /** Relê a assinatura no provedor (fonte da verdade) e atualiza o registro do estabelecimento. */
   async syncSubscription(subscriptionId: string): Promise<SubscriptionSnapshot> {
     const snapshot = await this.gateway.getSubscription(subscriptionId);
-    const partnerId = snapshot.metadata.partnerId;
-    if (!partnerId) {
+    const { partnerId, itemId } = snapshot.metadata;
+    if (!partnerId || !itemId) {
       return snapshot;
     }
-    const existing = await this.repository.get(partnerId);
+    const existing = await this.repository.get(itemId);
     // Uma tentativa antiga que expirou não pode sobrescrever a assinatura vigente.
     if (
       existing?.stripeSubscriptionId &&
@@ -123,23 +129,46 @@ export class BillingService {
     ) {
       return snapshot;
     }
-    await this.repository.save(this.toRecord(partnerId, snapshot, existing));
+    await this.repository.save(this.toRecord(itemId, partnerId, snapshot, existing));
     return snapshot;
   }
 
-  async getPartnerSubscription(partnerId: string): Promise<PlanSubscriptionRecord | null> {
-    return this.repository.get(partnerId);
+  /** Assinatura do estabelecimento; de outra conta é tratada como inexistente (IDOR, §7.10). */
+  async getListingSubscription(
+    itemId: string,
+    partnerId: string
+  ): Promise<PlanSubscriptionRecord | null> {
+    const record = await this.repository.get(itemId);
+    return record?.partnerId === partnerId ? record : null;
   }
 
-  async setCancelAtPeriodEnd(partnerId: string, cancel: boolean): Promise<PlanSubscriptionRecord> {
-    const existing = await this.repository.get(partnerId);
+  async setCancelAtPeriodEnd(
+    itemId: string,
+    partnerId: string,
+    cancel: boolean
+  ): Promise<PlanSubscriptionRecord> {
+    const existing = await this.getListingSubscription(itemId, partnerId);
     if (!existing?.stripeSubscriptionId || !LIVE_STATUSES.has(existing.status)) {
       throw new PaymentDomainError('SUBSCRIPTION_NOT_FOUND', 'Nenhuma assinatura ativa.', 404);
     }
     const snapshot = await this.gateway.setCancelAtPeriodEnd(existing.stripeSubscriptionId, cancel);
-    const record = this.toRecord(partnerId, snapshot, existing);
+    const record = this.toRecord(itemId, partnerId, snapshot, existing);
     await this.repository.save(record);
     return record;
+  }
+
+  /** Estabelecimento excluído: a assinatura dele para de cobrar na hora. */
+  async cancelForListing(itemId: string): Promise<void> {
+    const existing = await this.repository.get(itemId);
+    if (!existing) return;
+    await this.cancelRecord(existing);
+  }
+
+  /** Conta excluída: todas as assinaturas dos estabelecimentos dela param de cobrar. */
+  async cancelForPartner(partnerId: string): Promise<void> {
+    for (const record of await this.repository.listByPartner(partnerId)) {
+      await this.cancelRecord(record);
+    }
   }
 
   async createPortalSession(
@@ -147,15 +176,26 @@ export class BillingService {
     returnUrl: string,
     locale: BillingLocale
   ): Promise<{ url: string }> {
-    const existing = await this.repository.get(partnerId);
-    if (!existing?.stripeCustomerId) {
+    const customerId = await this.findCustomerId(partnerId);
+    if (!customerId) {
       throw new PaymentDomainError('SUBSCRIPTION_NOT_FOUND', 'Nenhuma assinatura encontrada.', 404);
     }
     return this.gateway.createBillingPortalSession({
-      customerId: existing.stripeCustomerId,
+      customerId,
       returnUrl,
       locale,
     });
+  }
+
+  private async findCustomerId(partnerId: string): Promise<string | null> {
+    const records = await this.repository.listByPartner(partnerId);
+    return records.find((record) => record.stripeCustomerId)?.stripeCustomerId ?? null;
+  }
+
+  private async cancelRecord(record: PlanSubscriptionRecord): Promise<void> {
+    if (!record.stripeSubscriptionId || !LIVE_STATUSES.has(record.status)) return;
+    const snapshot = await this.gateway.cancelNow(record.stripeSubscriptionId);
+    await this.repository.save(this.toRecord(record.itemId, record.partnerId, snapshot, record));
   }
 
   private resolveTrialEnd(currentVerifiedUntil: string | null): number | null {
@@ -168,11 +208,13 @@ export class BillingService {
   }
 
   private toRecord(
+    itemId: string,
     partnerId: string,
     snapshot: SubscriptionSnapshot,
     existing: PlanSubscriptionRecord | null
   ): PlanSubscriptionRecord {
     return {
+      itemId,
       partnerId,
       stripeCustomerId: snapshot.customerId,
       stripeSubscriptionId: snapshot.subscriptionId,

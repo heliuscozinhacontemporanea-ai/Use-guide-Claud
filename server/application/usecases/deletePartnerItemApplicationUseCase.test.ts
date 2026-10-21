@@ -25,6 +25,10 @@ vi.mock('../../domain/partners', () => ({
   deleteListingPlanUseCase: vi.fn(),
 }));
 
+vi.mock('../../domain/payment', () => ({
+  cancelListingPlanSubscriptionUseCase: vi.fn(),
+}));
+
 vi.mock('../../domain/media', () => ({
   deleteVerificationFileUseCase: vi.fn().mockResolvedValue(undefined),
 }));

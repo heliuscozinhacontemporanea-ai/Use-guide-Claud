@@ -1,7 +1,8 @@
 import type { ProviderSubscriptionStatus } from './billingGatewayPort';
 
-/** Coleção interna `partnerSubscriptions/{partnerId}` (só backend). */
+/** Coleção interna `planSubscriptions/{itemId}` (só backend): uma assinatura por estabelecimento (D11). */
 export interface PlanSubscriptionRecord {
+  itemId: string;
   partnerId: string;
   stripeCustomerId: string;
   stripeSubscriptionId: string | null;
@@ -13,6 +14,7 @@ export interface PlanSubscriptionRecord {
 }
 
 export interface PlanSubscriptionRepositoryPort {
-  get(partnerId: string): Promise<PlanSubscriptionRecord | null>;
+  get(itemId: string): Promise<PlanSubscriptionRecord | null>;
   save(record: PlanSubscriptionRecord): Promise<void>;
+  listByPartner(partnerId: string): Promise<PlanSubscriptionRecord[]>;
 }

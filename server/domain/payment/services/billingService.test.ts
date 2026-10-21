@@ -23,19 +23,33 @@ function createGateway(overrides: Partial<BillingGatewayPort> = {}): BillingGate
     }),
     getSubscription: vi.fn(),
     setCancelAtPeriodEnd: vi.fn(),
+    cancelNow: vi.fn().mockResolvedValue({
+      subscriptionId: 'sub_1',
+      customerId: 'cus_1',
+      status: 'canceled',
+      currentPeriodEnd: null,
+      cancelAtPeriodEnd: false,
+      metadata: {},
+    }),
     createBillingPortalSession: vi.fn().mockResolvedValue({ url: 'https://billing.stripe.com/x' }),
     ...overrides,
   };
 }
 
 function createRepository(
-  record: PlanSubscriptionRecord | null = null
+  record: PlanSubscriptionRecord | null = null,
+  byPartner: PlanSubscriptionRecord[] = record ? [record] : []
 ): PlanSubscriptionRepositoryPort {
-  return { get: vi.fn().mockResolvedValue(record), save: vi.fn().mockResolvedValue(undefined) };
+  return {
+    get: vi.fn().mockResolvedValue(record),
+    save: vi.fn().mockResolvedValue(undefined),
+    listByPartner: vi.fn().mockResolvedValue(byPartner),
+  };
 }
 
 function buildRecord(overrides: Partial<PlanSubscriptionRecord> = {}): PlanSubscriptionRecord {
   return {
+    itemId: 'item-1',
     partnerId: 'p1',
     stripeCustomerId: 'cus_1',
     stripeSubscriptionId: 'sub_1',
@@ -52,6 +66,7 @@ function buildInput(
   overrides: Partial<StartPlanSubscriptionInput> = {}
 ): StartPlanSubscriptionInput {
   return {
+    itemId: 'item-1',
     partnerId: 'p1',
     email: 'parceiro@example.com',
     locale: 'pt-BR',
@@ -73,7 +88,12 @@ function snapshot(overrides: Partial<SubscriptionSnapshot> = {}): SubscriptionSn
     status: 'active',
     currentPeriodEnd: '2026-11-10T12:00:00.000Z',
     cancelAtPeriodEnd: false,
-    metadata: { referenceType: 'plan_subscription', partnerId: 'p1', planId: 'monthly' },
+    metadata: {
+      referenceType: 'plan_subscription',
+      partnerId: 'p1',
+      planId: 'monthly',
+      itemId: 'item-1',
+    },
     ...overrides,
   };
 }
@@ -100,7 +120,7 @@ describe('BillingService.startPlanSubscription', () => {
     );
   });
 
-  it('usa lookupKey por plano e valor, metadata só com IDs e chave idempotente do parceiro', async () => {
+  it('usa lookupKey por plano e valor, metadata só com IDs e chave idempotente do estabelecimento', async () => {
     const gateway = createGateway();
     const repository = createRepository();
     const service = new BillingService(gateway, repository, () => NOW);
@@ -117,11 +137,17 @@ describe('BillingService.startPlanSubscription', () => {
       customerId: 'cus_1',
       priceId: 'price_1',
       trialEndUnixSeconds: null,
-      metadata: { referenceType: 'plan_subscription', partnerId: 'p1', planId: 'monthly' },
-      idempotencyKey: 'sub_p1_key-12345',
+      metadata: {
+        referenceType: 'plan_subscription',
+        partnerId: 'p1',
+        planId: 'monthly',
+        itemId: 'item-1',
+      },
+      idempotencyKey: 'sub_item-1_key-12345',
     });
     expect(repository.save).toHaveBeenCalledWith(
       expect.objectContaining({
+        itemId: 'item-1',
         partnerId: 'p1',
         stripeSubscriptionId: 'sub_1',
         status: 'incomplete',
@@ -190,7 +216,7 @@ describe('BillingService.syncSubscription', () => {
     expect(repository.save).not.toHaveBeenCalled();
   });
 
-  it('ignora assinatura sem partnerId na metadata', async () => {
+  it('ignora assinatura sem partnerId ou itemId na metadata', async () => {
     const repository = createRepository();
     const gateway = createGateway({
       getSubscription: vi.fn().mockResolvedValue(snapshot({ metadata: {} })),
@@ -203,7 +229,7 @@ describe('BillingService.syncSubscription', () => {
 describe('BillingService.setCancelAtPeriodEnd e portal', () => {
   it('sem assinatura ativa → 404', async () => {
     const service = new BillingService(createGateway(), createRepository(), () => NOW);
-    await expect(service.setCancelAtPeriodEnd('p1', true)).rejects.toMatchObject({
+    await expect(service.setCancelAtPeriodEnd('item-1', 'p1', true)).rejects.toMatchObject({
       code: 'SUBSCRIPTION_NOT_FOUND',
       statusCode: 404,
     });
@@ -215,6 +241,7 @@ describe('BillingService.setCancelAtPeriodEnd e portal', () => {
     });
     const repository = createRepository(buildRecord());
     const record = await new BillingService(gateway, repository, () => NOW).setCancelAtPeriodEnd(
+      'item-1',
       'p1',
       true
     );
@@ -234,5 +261,43 @@ describe('BillingService.setCancelAtPeriodEnd e portal', () => {
       returnUrl: 'https://useguide.com.br/?partner=1',
       locale: 'fr',
     });
+  });
+
+  it('assinatura de outra conta é tratada como inexistente', async () => {
+    const service = new BillingService(createGateway(), createRepository(buildRecord()), () => NOW);
+    expect(await service.getListingSubscription('item-1', 'intruso')).toBeNull();
+    await expect(service.setCancelAtPeriodEnd('item-1', 'intruso', true)).rejects.toMatchObject({
+      code: 'SUBSCRIPTION_NOT_FOUND',
+    });
+  });
+});
+
+describe('BillingService: um cliente por conta e cancelamento nas exclusões (B24)', () => {
+  it('estabelecimento novo reaproveita o cliente Stripe da conta', async () => {
+    const gateway = createGateway();
+    const repository = createRepository(null, [buildRecord({ itemId: 'item-9' })]);
+    await new BillingService(gateway, repository, () => NOW).startPlanSubscription(buildInput());
+    expect(gateway.ensureCustomer).toHaveBeenCalledWith(
+      expect.objectContaining({ existingCustomerId: 'cus_1', partnerId: 'p1' })
+    );
+  });
+
+  it('excluir o estabelecimento cancela na hora só a assinatura viva dele', async () => {
+    const gateway = createGateway();
+    const repository = createRepository(buildRecord());
+    await new BillingService(gateway, repository, () => NOW).cancelForListing('item-1');
+    expect(gateway.cancelNow).toHaveBeenCalledWith('sub_1');
+    expect(repository.save).toHaveBeenCalledWith(expect.objectContaining({ status: 'canceled' }));
+  });
+
+  it('excluir a conta cancela todas as assinaturas vivas e ignora as encerradas', async () => {
+    const gateway = createGateway();
+    const repository = createRepository(null, [
+      buildRecord({ itemId: 'item-1', stripeSubscriptionId: 'sub_1' }),
+      buildRecord({ itemId: 'item-2', stripeSubscriptionId: 'sub_2', status: 'canceled' }),
+    ]);
+    await new BillingService(gateway, repository, () => NOW).cancelForPartner('p1');
+    expect(gateway.cancelNow).toHaveBeenCalledTimes(1);
+    expect(gateway.cancelNow).toHaveBeenCalledWith('sub_1');
   });
 });

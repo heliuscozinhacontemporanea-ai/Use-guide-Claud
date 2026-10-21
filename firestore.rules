@@ -65,7 +65,7 @@ service cloud.firestore {
     match /paymentConnectedAccounts/{partnerId} {
       allow read, write: if false;
     }
-    match /partnerSubscriptions/{partnerId} {
+    match /planSubscriptions/{itemId} {
       allow read, write: if false;
     }
     match /bookableOffers/{offerId} {

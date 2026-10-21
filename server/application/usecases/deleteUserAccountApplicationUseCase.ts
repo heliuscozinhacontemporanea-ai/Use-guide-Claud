@@ -5,6 +5,7 @@ import {
   deleteOwnerListingVerificationsUseCase,
   deletePartnerProfileUseCase,
 } from '../../domain/partners';
+import { cancelPartnerPlanSubscriptionsUseCase } from '../../domain/payment';
 import { deleteReviewsByUserUseCase } from '../../domain/reviews';
 import { deleteUserAccountUseCase } from '../../domain/users';
 import { deleteVerificationFiles } from './listingVerification/deleteVerificationFiles';
@@ -16,7 +17,7 @@ export interface UserDeletionCoordinatorDependencies {
   deleteEventsByOwner?: (uid: string) => Promise<void>;
   /** Verificações, documentos cifrados e arquivos enviados (D12). */
   deleteListingVerifications?: (uid: string) => Promise<void>;
-  /** Planos dos estabelecimentos (D11). */
+  /** Planos dos estabelecimentos (D11): cancela as assinaturas no Stripe e apaga os planos. */
   deleteListingPlans?: (uid: string) => Promise<void>;
   deleteUserAccount: (uid: string) => Promise<void>;
 }
@@ -30,7 +31,10 @@ export async function deleteUserAccountApplicationUseCase(
     deleteEventsByOwner: (id) => deleteEventsByOwnerUseCase(id),
     deleteListingVerifications: async (id) =>
       deleteVerificationFiles(await deleteOwnerListingVerificationsUseCase(id)),
-    deleteListingPlans: (id) => deleteOwnerListingPlansUseCase(id),
+    deleteListingPlans: async (id) => {
+      await cancelPartnerPlanSubscriptionsUseCase(id);
+      await deleteOwnerListingPlansUseCase(id);
+    },
     deleteUserAccount: (id) => deleteUserAccountUseCase(id),
   }
 ): Promise<void> {
