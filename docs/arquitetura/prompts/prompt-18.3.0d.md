@@ -1039,4 +1039,6 @@ VERIFICAÇÃO (obrigatória):
 Depois deste, siga com o lote 14 (18.3a, 18.3b e 18.3c), nesta ordem.
 
 Responda no formato do AGENTS.md §16.3.
+
+LIMPEZA (obrigatória, ao terminar de implementar): apague todos os arquivos de public/assets/aistudio/, inclusive o deste prompt. São cópias dos textos colados no chat, salvas automaticamente pelo AI Studio, e public/ vai para o site publicado. Se a pasta ficar vazia, apague a pasta também.
 ~~~~

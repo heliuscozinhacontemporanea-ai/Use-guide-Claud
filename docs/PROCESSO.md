@@ -34,6 +34,7 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 * **AGENTS.md não é alterado** por nenhum prompt nem pelo Claude sem sua autorização (agora também escrito no §15). Propostas ficam em `docs/arquitetura/solicitacoes-agents.md`.
 * **Sem código legado ou de transição** enquanto o app não for liberado para usuários.
 * **Prompt para o AI Studio tem no máximo 150 KB** (regra de 2026-10-19). Acima disso, é dividido em partes que compilam sozinhas, e cada parte é enviada numa mensagem separada.
+* **Todo prompt termina pedindo a limpeza de `public/assets/aistudio/`** (regra de 2026-10-22). O AI Studio salva ali, como anexo, o texto longo colado no chat (`Paste_<data>_<hash>`), e `public/` vai para o site publicado. Ao conferir um zip, arquivo nessa pasta não conta como divergência; ele só é apagado.
 * **Arquivo tocado sai sem avisos do lint e formatado** (regra de 2026-10-19; proposta S10 para o AGENTS.md).
 
 ## Acompanhamento dos prompts

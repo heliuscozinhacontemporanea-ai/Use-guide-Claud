@@ -1199,4 +1199,6 @@ CONFIGURAÇÃO: FEATURED_SLOTS_PER_LIST é opcional (sem ela valem 3 vagas). Em 
 FIREBASE: publique as regras (`firebase deploy --only firestore:rules`).
 
 Responda no formato do AGENTS.md §16.3.
+
+LIMPEZA (obrigatória, ao terminar de implementar): apague todos os arquivos de public/assets/aistudio/, inclusive o deste prompt. São cópias dos textos colados no chat, salvas automaticamente pelo AI Studio, e public/ vai para o site publicado. Se a pasta ficar vazia, apague a pasta também.
 ~~~~
