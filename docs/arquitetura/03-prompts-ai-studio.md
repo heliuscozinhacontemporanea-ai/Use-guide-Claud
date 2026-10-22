@@ -147,11 +147,12 @@
 
 > **Envie um prompt por mensagem**, nesta ordem. **Antes do 18.3.0a**, no painel Secrets do AI Studio: `FIELD_ENCRYPTION_DEV_KEY` (32 bytes em base64) e `PII_BLIND_INDEX_KEY` (32 caracteres ou mais).
 
-# Lote 14 (Prompts 18.3a e 18.3b) — aplicar depois do lote 13
+# Lote 14 (Prompts 18.3a, 18.3b e 18.3c) — aplicar depois do lote 13
 
 | Ordem | Arquivo | Tema | Commit de referência |
 |---|---|---|---|
 | 1 | `prompts/prompt-18.3a.md` | Plano e selo por estabelecimento no backend (D11): `listingPlans`, selo = plano + verificação, trial e selo do admin por estabelecimento, job diário de vencimento | `bd14c0f` |
 | 2 | `prompts/prompt-18.3b.md` | Cobrança do plano por estabelecimento: assinatura e Pix com `itemId`, cancelamento nas exclusões | `cd31a44` |
+| 3 | `prompts/prompt-18.3c.md` | Métricas exigem o plano do estabelecimento (`403 LISTING_PLAN_REQUIRED`); rodízio diário do "Destaque" em `featuredListings/{lista}` | `f5b42a0` |
 
-> **Envie um prompt por mensagem**, nesta ordem. Até o 18.3.1 (telas), trial, compra de plano e selo do admin pelo painel ficam fora do ar.
+> **Envie um prompt por mensagem**, nesta ordem. Até o 18.3.1 (telas), trial, compra de plano e selo do admin pelo painel ficam fora do ar, e as métricas de estabelecimento sem plano mostram erro.
