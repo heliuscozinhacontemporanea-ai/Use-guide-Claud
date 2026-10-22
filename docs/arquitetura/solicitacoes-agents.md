@@ -19,6 +19,7 @@
 | S10 | §13 e §16.1 | Formalizar que arquivo tocado sai sem avisos do lint e formatado | ✅ Aprovada em 2026-10-19 (prompt A3) |
 | S11 | §12.6 | Decisão D5 aprovada: Google Cloud Translation, sem tradução à mão, edição no idioma escolhido | ✅ Aprovada em 2026-10-19 (prompt A3) |
 | S12 | §12.1 e §12.7 | Decisão D10: idioma do navegador na primeira visita, persistência só por escolha explícita | ✅ Aprovada em 2026-10-19 (prompt A3) |
+| S13 | §7.7 | O débito de `partnerDocumentKeys` foi resolvido no Prompt 18.3.0b | ✅ Aprovada em 2026-10-19 (prompt A4) |
 
 ---
 
@@ -98,14 +99,14 @@
 **Texto proposto:**
 > * **Um UseCase por arquivo** (`createBookingUseCase.ts`), com o nome do arquivo igual ao da função exportada. É proibido criar arquivo agregador de UseCases; tipos compartilhados entre UseCases ficam em arquivo próprio (ex: `orchestrationActor.ts`).
 
-## S10 — §13 e §16.1: arquivos tocados sem avisos do lint
+## S10 — §13 e §16.1: arquivo tocado sai sem avisos do lint
 
-**Por quê:** garantir que nenhum código novo introduza avisos do linter (Biome).
+**Por quê:** regra dada pelo responsável do produto em 2026-10-19: quando uma refatoração toca um arquivo, os problemas presentes nesse arquivo devem ser corrigidos. Hoje o §16.1 só exige "biome sem erros", e o projeto acumula cerca de 320 avisos (`any`, imports sem uso, dependências de efeito). Sem a regra escrita, o agente do AI Studio não a conhece.
 
-**Texto atual (§13):**
-> (sem essa linha)
+**Texto atual (§13, último item da lista de tamanho):**
+> * Referência de tamanho: arquivo acima de **~200 linhas** DEVE ser avaliado para divisão; acima de **400** linhas, dividir ao tocar (exceto testes, schemas e mappers declarativos).
 
-**Texto proposto (§13):**
+**Texto proposto (novo item no §13, logo depois):**
 > * Arquivo tocado DEVE sair sem avisos do lint (`npx biome lint <arquivo>`) e formatado (`npx biome format --write <arquivo>`). Aviso que não puder ser corrigido sem mudar comportamento recebe `biome-ignore` com justificativa ou vai para `docs/arquitetura/debitos.md`.
 
 **Texto atual (§16.1):**
@@ -151,3 +152,13 @@
 
 **Texto proposto:**
 > A URL com prefixo de idioma (`/en`, `/fr`) sempre vale. Na home `/`, quando a preferência (escolha salva → idioma do navegador) não for português, o app redireciona para `/en` ou `/fr` sem criar entrada no histórico; robôs de busca nunca são redirecionados. Nas demais páginas em português, o app mantém o idioma do link e mostra um aviso para trocar ("Esta página está disponível em English — Mudar"); a resposta ao aviso grava a escolha (decisão D10).
+
+## S13 — §7.7: débito de `partnerDocumentKeys` resolvido (Prompt 18.3.0b)
+
+**Por quê:** o Prompt 18.3.0b tirou o documento da conta do parceiro (D12, P0). `partnerDocumentKeys` e os campos `cpfCnpj`/`cpfCnpjClean` não existem mais; CPF/CNPJ fica só na verificação de cada estabelecimento, cifrado e com índice cego. A frase do §7.7 passou a descrever um débito que não existe.
+
+**Texto atual (§7.7, fim do bloco "Blind index"):**
+> * IDs de documento, caminhos do Storage, URLs e nomes de arquivos NUNCA contêm PII. Débito existente: `partnerDocumentKeys/{cpfCnpjLimpo}` e os campos `cpfCnpj`/`cpfCnpjClean` em `partners` estão em texto puro.
+
+**Texto proposto:**
+> * IDs de documento, caminhos do Storage, URLs e nomes de arquivos NUNCA contêm PII.

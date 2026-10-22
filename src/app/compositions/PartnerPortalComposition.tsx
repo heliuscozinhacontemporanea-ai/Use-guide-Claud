@@ -14,72 +14,90 @@ import { NotificationBell } from '../../domain/notifications';
 import { PartnerEventTicketingManager } from '../../domain/ticketing';
 import { useLocalizedRouting } from '../../shared/hooks/useLocalizedRouting';
 import { useUI } from '../../shared/stores/useUIStore';
+import { MessagePage } from '../../ui/components/MessagePage';
 
 export function PartnerPortalComposition() {
   const { t } = useTranslation();
-  const { user, loading: userLoading } = useAuthContext();
+  const { user, loading } = useAuthContext();
+  const { openLoginModal } = useUI();
   const { goTo } = useLocalizedRouting();
-  const { showToast } = useUI();
-  const [subscriptionPlans, setSubscriptionPlans] = useState<SubscriptionPlan[]>([]);
-  const [partnerProfile, setPartnerProfile] = useState<PartnerProfile | null>(null);
-  const [profileStatus, setProfileStatus] = useState<'loading' | 'active' | 'pending' | 'suspended' | 'none'>('loading');
+
+  const [profile, setProfile] = useState<PartnerProfile | null>(null);
+  const [profileLoading, setProfileLoading] = useState(true);
+  const [profileError, setProfileError] = useState<string | null>(null);
+  const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
+  const [profileVersion, setProfileVersion] = useState(0);
 
   useEffect(() => {
     let active = true;
-    async function loadData() {
-      if (!user) {
+    getActiveSubscriptionPlansUseCase()
+      .then((loadedPlans) => {
         if (active) {
-          setProfileStatus('none');
-          setPartnerProfile(null);
+          setPlans(loadedPlans as unknown as SubscriptionPlan[]);
         }
-        return;
-      }
-
-      setProfileStatus('loading');
-      try {
-        const [profile, plans] = await Promise.all([
-          getPartnerProfileUseCase(user.uid),
-          getActiveSubscriptionPlansUseCase(),
-        ]);
-        if (!active) return;
-        setSubscriptionPlans(plans);
-        if (profile) {
-          setPartnerProfile(profile);
-          setProfileStatus((profile.status as any) || 'none');
-        } else {
-          setPartnerProfile(null);
-          setProfileStatus('none');
-        }
-      } catch (err) {
-        console.error('Erro ao carregar perfil do parceiro:', err);
-        if (active) {
-          setProfileStatus('none');
-          showToast('Erro ao carregar dados do parceiro', 'error');
-        }
-      }
-    }
-    loadData();
+      })
+      .catch((err) => {
+        console.error('[PartnerPortalComposition] Erro ao carregar planos:', err);
+      });
     return () => {
       active = false;
     };
-  }, [user, showToast]);
+  }, []);
 
-  const handlePlanPurchased = async () => {
-    if (!user) return;
-    try {
-      const profile = await getPartnerProfileUseCase(user.uid);
-      if (profile) {
-        setPartnerProfile(profile);
-        setProfileStatus((profile.status as any) || 'none');
-      }
-    } catch (err) {
-      console.error('Erro ao atualizar perfil pós-pagamento:', err);
+  useEffect(() => {
+    if (loading) {
+      return;
     }
-  };
+    if (!user) {
+      setProfileLoading(false);
+      return;
+    }
 
-  if (userLoading) {
+    if (user.role !== UserRole.PARTNER) {
+      setProfileError('pages.partnerOnly');
+      setProfileLoading(false);
+      return;
+    }
+
+    let active = true;
+    // Recarga depois da compra de plano: mantém o painel na tela em vez do carregamento inicial.
+    setProfileLoading(profileVersion === 0);
+    setProfileError(null);
+
+    getPartnerProfileUseCase(user.uid)
+      .then((result) => {
+        if (!active) {
+          return;
+        }
+        if (!result) {
+          setProfileError('pages.partnerProfileNotFound');
+          setProfile(null);
+          return;
+        }
+        setProfile(result);
+      })
+      .catch((error: unknown) => {
+        if (!active) {
+          return;
+        }
+        console.error('[PartnerPortalComposition]', error);
+        setProfileError('pages.partnerProfileLoadError');
+        setProfile(null);
+      })
+      .finally(() => {
+        if (active) {
+          setProfileLoading(false);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [user, loading, profileVersion]);
+
+  if (loading || profileLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-950">
+      <div className="min-h-screen flex items-center justify-center bg-[#020508]">
         <RefreshCw className="animate-spin text-teal-500" size={32} />
       </div>
     );
@@ -87,57 +105,64 @@ export function PartnerPortalComposition() {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-950 p-6 text-center">
-        <div className="w-16 h-16 rounded-3xl bg-teal-500/10 flex items-center justify-center text-teal-400 mb-6">
-          <LogIn size={32} />
-        </div>
-        <h2 className="text-xl font-display font-bold text-white mb-2">Portal do Parceiro</h2>
-        <p className="text-white/50 text-xs mb-8 max-w-xs">
-          Faça login para gerenciar seu estabelecimento, ver métricas e atrair mais clientes.
-        </p>
-        <button
-          onClick={() => goTo('explore')}
-          className="px-8 py-4 rounded-2xl bg-teal-500 text-black font-black uppercase tracking-widest text-[10px]"
-        >
-          Voltar para Home
-        </button>
-      </div>
+      <MessagePage
+        icon={LogIn}
+        title={t('pages.partnerAreaTitle')}
+        description={t('pages.partnerLoginRequired')}
+        actionLabel={t('pages.signIn')}
+        onAction={openLoginModal}
+      />
     );
   }
 
-  if (profileStatus === 'suspended') {
+  if (profile?.status === 'suspended') {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-950 p-6 text-center">
-        <div className="w-16 h-16 rounded-3xl bg-rose-500/10 flex items-center justify-center text-rose-500 mb-6">
-          <ShieldAlert size={32} />
-        </div>
-        <h2 className="text-xl font-display font-bold text-white mb-2">Conta Suspensa</h2>
-        <p className="text-white/50 text-xs mb-8 max-w-xs">
-          O acesso ao portal de parceiros está temporariamente suspenso. Entre em contato com o suporte para mais informações.
-        </p>
-        <button
-          onClick={() => goTo('explore')}
-          className="px-8 py-4 rounded-2xl bg-white/10 text-white font-black uppercase tracking-widest text-[10px]"
-        >
-          Voltar para Home
-        </button>
-      </div>
+      <MessagePage
+        icon={ShieldAlert}
+        title={t('pages.partnerSuspendedTitle')}
+        description={t('pages.partnerSuspended')}
+        actionLabel={t('pages.backHome')}
+        onAction={() => goTo('explore')}
+      />
+    );
+  }
+
+  // O portal esconde o cabeçalho e a navegação; a ação leva de volta ao guia.
+  if (profileError || !profile) {
+    return (
+      <MessagePage
+        icon={ShieldAlert}
+        title={t('pages.partnerAreaTitle')}
+        description={t(profileError ?? 'pages.partnerProfileNotFound')}
+        actionLabel={t('pages.backHome')}
+        onAction={() => goTo('explore')}
+      />
     );
   }
 
   return (
     <PartnerPanel
-      profile={partnerProfile ?? undefined}
-      subscriptionPlans={subscriptionPlans}
-      onPlanPurchased={handlePlanPurchased}
-      renderReports={(props) => <ReportsView {...props} />}
+      key={profileVersion}
+      profile={profile}
+      onPlanPurchased={() => setProfileVersion((version) => version + 1)}
+      subscriptionPlans={plans}
+      renderReports={({ partnerId, items, events }) => (
+        <ReportsView partnerId={partnerId} items={items} events={events} />
+      )}
       renderNotificationBell={(partnerId) => <NotificationBell partnerId={partnerId} />}
-      renderCheckoutModal={({ isOpen, onClose, planId, itemName, amountMinor, onPaymentSuccess }) =>
-        isOpen ? (
+      renderCheckoutModal={({
+        isOpen,
+        onClose,
+        planId,
+        itemName,
+        amountMinor,
+        onPaymentSuccess,
+      }) =>
+        isPaidPlanId(planId) ? (
           <CheckoutModal
             isOpen={isOpen}
             onClose={onClose}
-            planId={planId as any}
+            planId={planId}
             itemName={itemName}
             amountMinor={amountMinor}
             onPaymentSuccess={onPaymentSuccess}

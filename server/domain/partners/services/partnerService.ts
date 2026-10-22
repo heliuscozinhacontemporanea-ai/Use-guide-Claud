@@ -1,6 +1,5 @@
 import { PartnerDomainError } from '../errors/partnerDomainError';
 import { PartnerPort } from '../ports/partnerPort';
-import { isValidCpfCnpj } from '../services/documentIdentity';
 import type {
   PartnerBusiness,
   PartnerProfileDocument,
@@ -18,14 +17,11 @@ export class PartnerService {
     uid: string,
     data: PartnerRegistrationData
   ): Promise<RegisterPartnerResult> {
-    if (!uid || !uid.trim()) {
+    if (!uid?.trim()) {
       throw new PartnerDomainError(
         'INVALID_ARGUMENT',
         'UID do usuário é obrigatório para cadastrar como parceiro'
       );
-    }
-    if (!data.cpfCnpj || !isValidCpfCnpj(data.cpfCnpj)) {
-      throw new PartnerDomainError('INVALID_ARGUMENT', 'CPF/CNPJ inválido');
     }
     if (data.termsAccepted !== true) {
       throw new PartnerDomainError(
@@ -40,7 +36,7 @@ export class PartnerService {
     partnerId: string,
     verification: PartnerVerificationData
   ): Promise<void> {
-    if (!partnerId || !partnerId.trim()) {
+    if (!partnerId?.trim()) {
       throw new PartnerDomainError(
         'INVALID_ARGUMENT',
         'ID do parceiro é obrigatório para verificação'
@@ -81,7 +77,7 @@ export class PartnerService {
   }
 
   async getProfile(partnerId: string): Promise<PartnerProfileDocument | null> {
-    if (!partnerId || !partnerId.trim()) {
+    if (!partnerId?.trim()) {
       throw new PartnerDomainError('INVALID_ARGUMENT', 'ID do parceiro é obrigatório');
     }
     return this.partnerPort.getPartnerProfile(partnerId);
@@ -92,7 +88,7 @@ export class PartnerService {
     partnerId: string,
     status: PartnerStatus
   ): Promise<void> {
-    if (!partnerId || !partnerId.trim()) {
+    if (!partnerId?.trim()) {
       throw new PartnerDomainError('INVALID_ARGUMENT', 'ID do parceiro é obrigatório');
     }
     if (!actor.admin) {
@@ -113,12 +109,12 @@ export class PartnerService {
   }
 
   async deletePartnerProfile(partnerId: string): Promise<void> {
-    if (!partnerId || !partnerId.trim()) return;
+    if (!partnerId?.trim()) return;
     return this.partnerPort.deletePartnerProfile(partnerId);
   }
 
   async activateTrial(actor: { uid: string; admin?: boolean }, partnerId: string): Promise<string> {
-    if (!partnerId || !partnerId.trim()) {
+    if (!partnerId?.trim()) {
       throw new PartnerDomainError('INVALID_ARGUMENT', 'ID do parceiro é obrigatório');
     }
     if (!actor.admin && actor.uid !== partnerId) {
@@ -137,7 +133,7 @@ export class PartnerService {
   }
 
   async restoreTrialState(partnerId: string, state: PartnerTrialState): Promise<void> {
-    if (!partnerId || !partnerId.trim()) {
+    if (!partnerId?.trim()) {
       throw new PartnerDomainError('INVALID_ARGUMENT', 'ID do parceiro é obrigatório');
     }
 

@@ -20,6 +20,7 @@ import adminRouter from './server/domain/admin/routes/adminRoutes';
 import favoriteRouter from './server/domain/favorites/routes/favoriteRoutes';
 import mediaRouter from './server/domain/media/routes/mediaRoutes';
 import billingRouter from './server/interfaces/http/billing/billingRoutes';
+import listingVerificationRouter from './server/interfaces/http/listingVerifications/listingVerificationRoutes';
 import {
   bookingsRouter,
   partnerOffersRouter,
@@ -193,6 +194,7 @@ async function startServer() {
   app.use('/api/weather', climaWindRouter);
   app.use('/api/notifications', notificationRouter);
   app.use('/api/users', userRouter);
+  app.use('/api/listing-verifications', listingVerificationRouter);
   app.use('/api/partners/offers', partnerOffersRouter);
   app.use('/api/partners', partnerRouter);
   app.use('/api/items', itemRouter);

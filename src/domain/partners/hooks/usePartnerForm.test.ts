@@ -1,9 +1,9 @@
 import { act, renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { subscribeToAuthStateUseCase } from '../../auth';
+import { subscribeToAuthStateUseCase, type UserSession } from '../../auth';
 import { usePartnerForm } from './usePartnerForm';
 
-let authCallback: ((session: any) => void) | null = null;
+let authCallback: ((session: UserSession | null) => void) | null = null;
 
 vi.mock('../../auth', () => ({
   subscribeToAuthStateUseCase: vi.fn((cb) => {
@@ -50,7 +50,7 @@ describe('usePartnerForm Hook', () => {
     expect(subscribeToAuthStateUseCase).toHaveBeenCalled();
     expect(result.current.currentUser).toBeNull();
 
-    const mockSession = { uid: 'user-777', email: 'parceiro@exemplo.com' };
+    const mockSession = { uid: 'user-777', email: 'parceiro@exemplo.com' } as UserSession;
 
     act(() => {
       if (authCallback) {
@@ -61,34 +61,31 @@ describe('usePartnerForm Hook', () => {
     expect(result.current.currentUser).toEqual(mockSession);
   });
 
-  it('category & CPF/CNPJ: valida etapa 1 e define erro quando CPF/CNPJ for inválido', () => {
+  it('etapa 1: exige o nome do estabelecimento', () => {
     const { result } = renderHook(() => usePartnerForm(categories, mockSetCurrentStep));
 
     act(() => {
       result.current.methods.setValue('category', 'hotel');
-      result.current.methods.setValue('cpfCnpj', '111.111.111-11');
-      result.current.methods.setValue('businessName', 'Pousada Sol');
       result.current.methods.setValue(
         'description',
         'Pousada linda em Jericoacoara com vista para as dunas.'
       );
     });
 
-    let isValid = false;
+    let isValid = true;
     act(() => {
       isValid = result.current.isStep1Valid();
     });
 
     expect(isValid).toBe(false);
-    expect(result.current.errors.cpfCnpj).toBeDefined();
+    expect(result.current.errors.businessName).toBeDefined();
   });
 
-  it('category & CPF/CNPJ: valida etapa 1 e retorna true quando categoria e CPF/CNPJ forem válidos', () => {
+  it('etapa 1: válida com categoria, nome e descrição, sem CPF/CNPJ na conta (D12)', () => {
     const { result } = renderHook(() => usePartnerForm(categories, mockSetCurrentStep));
 
     act(() => {
       result.current.methods.setValue('category', 'hotel');
-      result.current.methods.setValue('cpfCnpj', '529.982.247-25');
       result.current.methods.setValue('businessName', 'Pousada Sol');
       result.current.methods.setValue(
         'description',

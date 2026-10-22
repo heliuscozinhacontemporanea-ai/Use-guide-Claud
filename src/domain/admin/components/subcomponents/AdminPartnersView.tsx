@@ -1,4 +1,3 @@
-import React from 'react';
 import { Users, CheckCircle, Clock, Trash2, RefreshCw, Ban } from 'lucide-react';
 import { cn } from '../../../../shared/utils/cn';
 import { VerifiedBadge } from '../../../../ui/components/VerifiedBadge';
@@ -9,7 +8,6 @@ const STATUS_BADGE: Record<
   { label: string; className: string; icon: typeof Clock }
 > = {
   active: { label: 'Cadastro Ativo', className: 'text-emerald-400', icon: CheckCircle },
-  pending: { label: 'Pendente', className: 'text-amber-500', icon: Clock },
   suspended: { label: 'Suspenso', className: 'text-rose-400', icon: Ban },
 };
 
@@ -144,11 +142,7 @@ export function AdminPartnersView({
                 )}
                 id={`btn-status-${partner.id}`}
               >
-                {partner.status === 'suspended'
-                  ? 'Reativar'
-                  : partner.status === 'pending'
-                    ? 'Aprovar'
-                    : 'Suspender'}
+                {partner.status === 'suspended' ? 'Reativar' : 'Suspender'}
               </button>
 
               <button

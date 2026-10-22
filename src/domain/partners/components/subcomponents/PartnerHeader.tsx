@@ -10,9 +10,7 @@ interface PartnerHeaderProps {
   onNavigateBack: () => void;
   isVerified: boolean;
   onVerifyClick?: () => void;
-  onOpenPlansModal?: () => void;
   notificationBell?: React.ReactNode;
-  renderNotificationBell?: (partnerId: string) => React.ReactNode;
 }
 
 const PLAN_SUBTITLE: Record<string, string> = {
@@ -31,9 +29,7 @@ export function PartnerHeader({
   onNavigateBack,
   isVerified,
   onVerifyClick,
-  onOpenPlansModal,
   notificationBell,
-  renderNotificationBell,
 }: PartnerHeaderProps) {
   return (
     <div className="space-y-6">
@@ -73,16 +69,16 @@ export function PartnerHeader({
               <div
                 className={cn(
                   'w-2 h-2 rounded-full',
-                  partnerProfile?.status === 'pending' ? 'bg-amber-500' : 'bg-emerald-500'
+                  partnerProfile?.status === 'suspended' ? 'bg-rose-500' : 'bg-emerald-500'
                 )}
                 aria-hidden="true"
               />
               <span className="text-[10px] font-semibold text-white">
-                {partnerProfile?.status === 'pending' ? 'Em análise' : 'Ativo'}
+                {partnerProfile?.status === 'suspended' ? 'Suspensa' : 'Ativa'}
               </span>
             </div>
           </div>
-          {renderNotificationBell && partnerProfile ? renderNotificationBell(partnerProfile.id) : notificationBell}
+          {notificationBell}
         </div>
       </motion.div>
 
@@ -92,7 +88,7 @@ export function PartnerHeader({
         initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, ease: 'easeOut', delay: 0.05 }}
-        onClick={onOpenPlansModal || onVerifyClick}
+        onClick={onVerifyClick}
         className="py-4 px-6 rounded-3xl border border-white/10 bg-white/5 glassmorphism-vibrant flex items-center justify-between gap-6 w-full text-left cursor-pointer"
       >
         <div className="flex items-center gap-4">

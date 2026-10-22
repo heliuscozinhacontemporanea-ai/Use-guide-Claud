@@ -3,7 +3,7 @@ import { motion } from 'motion/react';
 import { Building2 } from 'lucide-react';
 import { useFormContext } from 'react-hook-form';
 import { cn } from '../../../../shared/utils/cn';
-import { maskCpfCnpj } from '../../../../shared/utils/documentValidator';
+import type { FormState } from '../../types/partsForm';
 
 interface Category {
   id: string;
@@ -12,16 +12,9 @@ interface Category {
 }
 
 interface Step1CompanyInfoProps {
-  formData: {
-    category: string;
-    businessName: string;
-    description: string;
-    cpfCnpj: string;
-  };
-  setFormData: React.Dispatch<React.SetStateAction<any>>;
+  formData: Pick<FormState, 'category' | 'businessName' | 'description'>;
+  setFormData: React.Dispatch<React.SetStateAction<FormState>>;
   categories: Category[];
-  // No editor do painel o CPF/CNPJ já pertence à conta do parceiro e não é editado por item.
-  mode?: 'signup' | 'editor';
   // Trocar a categoria de um item existente mudaria o schema de operationalInfo já gravado.
   lockCategory?: boolean;
 }
@@ -30,7 +23,6 @@ export function Step1CompanyInfo({
   formData: propFormData,
   setFormData,
   categories,
-  mode = 'signup',
   lockCategory = false,
 }: Step1CompanyInfoProps) {
   const formContext = useFormContext();
@@ -43,22 +35,14 @@ export function Step1CompanyInfo({
     if (formContext) {
       formContext.setValue('category', catId, { shouldValidate: true });
     }
-    setFormData((prev: any) => ({ ...prev, category: catId }));
-  };
-
-  const handleCpfCnpjChange = (value: string) => {
-    const masked = maskCpfCnpj(value);
-    if (formContext) {
-      formContext.setValue('cpfCnpj', masked, { shouldValidate: true });
-    }
-    setFormData((prev: any) => ({ ...prev, cpfCnpj: masked }));
+    setFormData((prev) => ({ ...prev, category: catId }));
   };
 
   const handleBusinessNameChange = (value: string) => {
     if (formContext) {
       formContext.setValue('businessName', value, { shouldValidate: true });
     }
-    setFormData((prev: any) => ({ ...prev, businessName: value }));
+    setFormData((prev) => ({ ...prev, businessName: value }));
   };
 
   const handleDescriptionChange = (value: string) => {
@@ -66,11 +50,10 @@ export function Step1CompanyInfo({
     if (formContext) {
       formContext.setValue('description', sliced, { shouldValidate: true });
     }
-    setFormData((prev: any) => ({ ...prev, description: sliced }));
+    setFormData((prev) => ({ ...prev, description: sliced }));
   };
 
   const isEventProducer = formData.category === 'producer';
-  const showCpfCnpj = mode === 'signup';
 
   return (
     <div className="space-y-6">
@@ -138,32 +121,6 @@ export function Step1CompanyInfo({
             transition={{ duration: 0.3 }}
             className="space-y-6 pt-2 border-t border-white/5"
           >
-            {/* Somente se for produtor de eventos: campo CPF/CNPJ obrigatório acima do nome */}
-            {showCpfCnpj && isEventProducer && (
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-white/50 ml-1">
-                  CPF ou CNPJ <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={formData.cpfCnpj || ''}
-                  onChange={(e) => handleCpfCnpjChange(e.target.value)}
-                  placeholder="Ex: 00.000.000/0001-00 ou 000.000.000-00"
-                  className={cn(
-                    'w-full bg-white/5 border rounded-2xl px-5 py-4 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all placeholder:text-white/50',
-                    formErrors.cpfCnpj ? 'border-red-500/50' : 'border-white/10'
-                  )}
-                  maxLength={18}
-                  required
-                />
-                {formErrors.cpfCnpj && (
-                  <p className="text-xs text-red-400 font-medium ml-1">
-                    {formErrors.cpfCnpj.message?.toString()}
-                  </p>
-                )}
-              </div>
-            )}
-
             {/* Nome da Empresa */}
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase tracking-widest text-white/50 ml-1">
@@ -187,32 +144,6 @@ export function Step1CompanyInfo({
                 </p>
               )}
             </div>
-
-            {/* CPF ou CNPJ para Atrações turísticas, Hospedagem e Restaurantes */}
-            {showCpfCnpj && !isEventProducer && (
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-white/50 ml-1">
-                  CPF ou CNPJ <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={formData.cpfCnpj || ''}
-                  onChange={(e) => handleCpfCnpjChange(e.target.value)}
-                  placeholder="Ex: 00.000.000/0001-00 ou 000.000.000-00"
-                  className={cn(
-                    'w-full bg-white/5 border rounded-2xl px-5 py-4 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all placeholder:text-white/50',
-                    formErrors.cpfCnpj ? 'border-red-500/50' : 'border-white/10'
-                  )}
-                  maxLength={18}
-                  required
-                />
-                {formErrors.cpfCnpj && (
-                  <p className="text-xs text-red-400 font-medium ml-1">
-                    {formErrors.cpfCnpj.message?.toString()}
-                  </p>
-                )}
-              </div>
-            )}
 
             {/* Descrição - Removida para produtor de eventos */}
             {!isEventProducer && (

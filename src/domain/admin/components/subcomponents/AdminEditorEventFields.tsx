@@ -32,14 +32,24 @@ export function AdminEditorEventFields({
   const eventCategory = watch('eventCategory') || '';
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-2">
-        <label className="text-[10px] font-black uppercase tracking-widest text-white/50 ml-1">
-          Categoria do Evento <span className="text-rose-500 font-bold">*</span>
+    <div className="space-y-4" id="event-occurrences-section">
+      <div className="space-y-1.5 px-2">
+        <label
+          htmlFor="admin-event-category"
+          className="text-[10px] font-black uppercase tracking-[0.2em] text-teal-400/50"
+        >
+          Categoria do Evento
         </label>
         <select
-          {...register('eventCategory')}
-          className="w-full bg-white/[0.03] border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-teal-500/50"
+          id="admin-event-category"
+          value={eventCategory}
+          onChange={(e) => {
+            setValue('eventCategory', e.target.value, { shouldDirty: true });
+            if (e.target.value !== CUSTOM_EVENT_CATEGORY) {
+              setValue('customCategory', '', { shouldDirty: true });
+            }
+          }}
+          className="w-full min-h-[44px] bg-white/[0.03] border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-teal-500/50"
         >
           <option value="">Selecione uma categoria...</option>
           {EVENT_CATEGORIES.map((cat) => (
@@ -48,21 +58,17 @@ export function AdminEditorEventFields({
             </option>
           ))}
         </select>
-      </div>
-
-      {eventCategory === CUSTOM_EVENT_CATEGORY && (
-        <div className="space-y-2">
-          <label className="text-[10px] font-black uppercase tracking-widest text-white/50 ml-1">
-            Especifique a Categoria <span className="text-rose-500 font-bold">*</span>
-          </label>
+        {eventCategory === CUSTOM_EVENT_CATEGORY && (
           <input
             type="text"
+            aria-label="Nome da categoria"
+            placeholder="Nome da categoria"
+            maxLength={200}
             {...register('customCategory')}
-            placeholder="Ex: Luau, Workshop..."
-            className="w-full bg-white/[0.03] border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-teal-500/50"
+            className="w-full min-h-[44px] bg-white/[0.03] border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-teal-500/50"
           />
-        </div>
-      )}
+        )}
+      </div>
 
       {renderSessionsField?.({
         sessions: (occurrences ?? []).map((occ) => ({

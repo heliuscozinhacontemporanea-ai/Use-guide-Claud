@@ -16,7 +16,7 @@ vi.mock('../../../domain/payment', () => ({
   processProviderRefundUseCase: vi.fn().mockResolvedValue({}),
 }));
 vi.mock('../isPartnerSuspended', () => ({ isPartnerSuspended: vi.fn().mockResolvedValue(false) }));
-
+vi.mock('../../../domain/partners', () => ({ assertListingCanSellUseCase: vi.fn() }));
 
 import {
   cancelBookingForCanceledSlotUseCase,
@@ -33,6 +33,7 @@ import { cancelBookingByBuyerApplicationUseCase } from './cancelBookingByBuyerAp
 import { cancelSlotByPartnerApplicationUseCase } from './cancelSlotByPartnerApplicationUseCase';
 import { createBookingApplicationUseCase } from './createBookingApplicationUseCase';
 import { isPartnerSuspended } from '../isPartnerSuspended';
+import { assertListingCanSellUseCase } from '../../../domain/partners';
 
 const BOOKING = {
   id: 'bk_1',
@@ -101,6 +102,18 @@ describe('createBookingApplicationUseCase', () => {
     vi.mocked(isPartnerSuspended).mockResolvedValueOnce(true);
     await expect(createBookingApplicationUseCase(BUYER, INPUT)).rejects.toMatchObject({
       code: 'PARTNER_SUSPENDED',
+    });
+    expect(createMarketplacePaymentIntentUseCase).not.toHaveBeenCalled();
+    expect(cancelPendingBookingUseCase).toHaveBeenCalledWith('bk_1', 'payment_init_failed');
+  });
+
+  it('estabelecimento sem verificação: não cria pagamento e libera a vaga (D12)', async () => {
+    vi.mocked(createPendingBookingUseCase).mockResolvedValue(BOOKING as never);
+    vi.mocked(assertListingCanSellUseCase).mockRejectedValueOnce(
+      Object.assign(new Error('não verificado'), { code: 'LISTING_NOT_VERIFIED' })
+    );
+    await expect(createBookingApplicationUseCase(BUYER, INPUT)).rejects.toMatchObject({
+      code: 'LISTING_NOT_VERIFIED',
     });
     expect(createMarketplacePaymentIntentUseCase).not.toHaveBeenCalled();
     expect(cancelPendingBookingUseCase).toHaveBeenCalledWith('bk_1', 'payment_init_failed');

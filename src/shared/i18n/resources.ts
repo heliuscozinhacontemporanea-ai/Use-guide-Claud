@@ -10,12 +10,28 @@ import {
   insightsFr,
   insightsPtBR,
 } from './insightsResources';
+import {
+  type PartnersTranslation,
+  partnersEn,
+  partnersFr,
+  partnersPtBR,
+} from './partnersResources';
+import {
+  type VerificationTranslation,
+  verificationEn,
+  verificationFr,
+  verificationPtBR,
+} from './verificationResources';
 
 export interface TranslationResource {
   bookings: BookingsTranslation;
   insights: InsightsTranslation;
+  partners: PartnersTranslation;
+  verification: VerificationTranslation;
   common: {
     language: string;
+    cancel: string;
+    confirm: string;
     locales: {
       ptBR: string;
       en: string;
@@ -207,8 +223,12 @@ export interface TranslationResource {
 const ptBR: TranslationResource = {
   bookings: bookingsPtBR,
   insights: insightsPtBR,
+  partners: partnersPtBR,
+  verification: verificationPtBR,
   common: {
     language: 'Idioma',
+    cancel: 'Cancelar',
+    confirm: 'Confirmar',
     locales: {
       ptBR: 'Português (Brasil)',
       en: 'English',
@@ -273,7 +293,8 @@ const ptBR: TranslationResource = {
       IMAGE_TOO_LARGE: 'A imagem passa de 6 MB. Escolha uma imagem menor.',
       INVALID_IMAGE: 'Formato não suportado. Envie uma imagem JPEG, PNG ou WebP.',
       UPLOAD_FAILED: 'Não foi possível enviar a imagem. Tente novamente.',
-      STORAGE_UNAVAILABLE: 'O armazenamento está indisponível no momento. Tente novamente em instantes.',
+      STORAGE_UNAVAILABLE:
+        'O armazenamento está indisponível no momento. Tente novamente em instantes.',
     },
     payment: {
       SUBSCRIPTION_ALREADY_ACTIVE: 'Você já tem uma assinatura ativa.',
@@ -306,7 +327,8 @@ const ptBR: TranslationResource = {
       continue: 'Continuar',
       subscribeButton: 'Assinar por {{amount}} {{period}}',
       payButton: 'Pagar {{amount}}',
-      trialNotice: 'Seu período atual já está pago. Salve o cartão agora; a primeira cobrança acontece quando esse período terminar.',
+      trialNotice:
+        'Seu período atual já está pago. Salve o cartão agora; a primeira cobrança acontece quando esse período terminar.',
       activatingTitle: 'Confirmando sua assinatura',
       activatingDescription: 'O Stripe está confirmando o pagamento. Isso leva alguns segundos.',
       activationDelayed:
@@ -350,41 +372,48 @@ const ptBR: TranslationResource = {
     routes: {
       explore: {
         title: 'Use Guide | Guia de Jericoacoara, Preá e Barrinha',
-        description: 'Descubra as melhores experiências, pousadas, restaurantes, passeios e condições de vento em tempo real em Jericoacoara, Preá e Barrinha.',
+        description:
+          'Descubra as melhores experiências, pousadas, restaurantes, passeios e condições de vento em tempo real em Jericoacoara, Preá e Barrinha.',
       },
       events: {
         title: 'Eventos & Experiências | Use Guide',
-        description: 'Fique por dentro das festas, sunsets, campeonatos de kitesurf e eventos culturais em Jericoacoara e região.',
+        description:
+          'Fique por dentro das festas, sunsets, campeonatos de kitesurf e eventos culturais em Jericoacoara e região.',
       },
       tours: {
         title: 'Aventura & Passeios | Use Guide',
-        description: 'Passeios de buggy, quadriciclo, lagoas cristalinas e roteiros imperdíveis no litoral leste e oeste de Jericoacoara.',
+        description:
+          'Passeios de buggy, quadriciclo, lagoas cristalinas e roteiros imperdíveis no litoral leste e oeste de Jericoacoara.',
       },
       transfers: {
-        title: "Translados em Jericoacoara | Use Guide",
+        title: 'Translados em Jericoacoara | Use Guide',
         description:
-          "Transfers entre Fortaleza, Jijoca, Jericoacoara, Preá e Barrinha: veículos, capacidade e reserva.",
+          'Transfers entre Fortaleza, Jijoca, Jericoacoara, Preá e Barrinha: veículos, capacidade e reserva.',
       },
       rentals: {
-        title: "Aluguéis em Jericoacoara | Use Guide",
+        title: 'Aluguéis em Jericoacoara | Use Guide',
         description:
-          "Aluguel de quadriciclos, buggies, bicicletas e equipamentos em Jericoacoara e região.",
+          'Aluguel de quadriciclos, buggies, bicicletas e equipamentos em Jericoacoara e região.',
       },
       stays: {
         title: 'Melhores Hospedagens & Pousadas | Use Guide',
-        description: 'Seleção curada das melhores pousadas, hotéis boutique e resorts à beira-mar em Jeri, Preá e Barrinha.',
+        description:
+          'Seleção curada das melhores pousadas, hotéis boutique e resorts à beira-mar em Jeri, Preá e Barrinha.',
       },
       restaurants: {
         title: 'Sabores Locais & Gastronomia | Use Guide',
-        description: 'Descubra os melhores restaurantes, bares de praia, frutos do mar frescos e alta gastronomia de Jeri e Preá.',
+        description:
+          'Descubra os melhores restaurantes, bares de praia, frutos do mar frescos e alta gastronomia de Jeri e Preá.',
       },
       attractions: {
         title: 'Atrações & Pontos Turísticos | Use Guide',
-        description: 'Pedra Furada, Duna do Pôr do Sol, Lagoas e os cartões-postais mais famosos do Parque Nacional de Jericoacoara.',
+        description:
+          'Pedra Furada, Duna do Pôr do Sol, Lagoas e os cartões-postais mais famosos do Parque Nacional de Jericoacoara.',
       },
       guide: {
         title: 'Guia Prático & Dicas Úteis | Use Guide',
-        description: 'Tudo o que você precisa saber: taxa de turismo, como chegar, melhor época, traslados e dicas essenciais.',
+        description:
+          'Tudo o que você precisa saber: taxa de turismo, como chegar, melhor época, traslados e dicas essenciais.',
       },
     },
   },
@@ -440,8 +469,12 @@ const ptBR: TranslationResource = {
 const en: TranslationResource = {
   bookings: bookingsEn,
   insights: insightsEn,
+  partners: partnersEn,
+  verification: verificationEn,
   common: {
     language: 'Language',
+    cancel: 'Cancel',
+    confirm: 'Confirm',
     locales: {
       ptBR: 'Português (Brasil)',
       en: 'English',
@@ -538,7 +571,8 @@ const en: TranslationResource = {
       continue: 'Continue',
       subscribeButton: 'Subscribe for {{amount}} {{period}}',
       payButton: 'Pay {{amount}}',
-      trialNotice: 'Your current period is already paid. Save your card now; the first charge happens when that period ends.',
+      trialNotice:
+        'Your current period is already paid. Save your card now; the first charge happens when that period ends.',
       activatingTitle: 'Confirming your subscription',
       activatingDescription: 'Stripe is confirming the payment. This takes a few seconds.',
       activationDelayed:
@@ -581,41 +615,47 @@ const en: TranslationResource = {
     routes: {
       explore: {
         title: 'Use Guide | Jericoacoara, Preá & Barrinha Travel Guide',
-        description: 'Discover the best experiences, inns, restaurants, tours and real-time wind conditions in Jericoacoara, Preá and Barrinha.',
+        description:
+          'Discover the best experiences, inns, restaurants, tours and real-time wind conditions in Jericoacoara, Preá and Barrinha.',
       },
       events: {
         title: 'Events & Experiences | Use Guide',
-        description: 'Parties, sunsets, kitesurf competitions and cultural events in Jericoacoara and the region.',
+        description:
+          'Parties, sunsets, kitesurf competitions and cultural events in Jericoacoara and the region.',
       },
       tours: {
         title: 'Adventure & Tours | Use Guide',
-        description: 'Buggy and quad bike tours, crystal-clear lagoons and must-do routes around Jericoacoara.',
+        description:
+          'Buggy and quad bike tours, crystal-clear lagoons and must-do routes around Jericoacoara.',
       },
       transfers: {
-        title: "Transfers to Jericoacoara | Use Guide",
+        title: 'Transfers to Jericoacoara | Use Guide',
         description:
-          "Transfers between Fortaleza, Jijoca, Jericoacoara, Preá and Barrinha: vehicles, capacity and booking.",
+          'Transfers between Fortaleza, Jijoca, Jericoacoara, Preá and Barrinha: vehicles, capacity and booking.',
       },
       rentals: {
-        title: "Rentals in Jericoacoara | Use Guide",
-        description:
-          "Rent ATVs, buggies, bikes and gear in Jericoacoara and the region.",
+        title: 'Rentals in Jericoacoara | Use Guide',
+        description: 'Rent ATVs, buggies, bikes and gear in Jericoacoara and the region.',
       },
       stays: {
         title: 'Best Stays & Inns | Use Guide',
-        description: 'A curated selection of the best inns, boutique hotels and beachfront resorts in Jeri, Preá and Barrinha.',
+        description:
+          'A curated selection of the best inns, boutique hotels and beachfront resorts in Jeri, Preá and Barrinha.',
       },
       restaurants: {
         title: 'Local Flavors & Dining | Use Guide',
-        description: 'The best restaurants, beach bars, fresh seafood and fine dining in Jeri and Preá.',
+        description:
+          'The best restaurants, beach bars, fresh seafood and fine dining in Jeri and Preá.',
       },
       attractions: {
         title: 'Attractions & Landmarks | Use Guide',
-        description: 'Pedra Furada, Sunset Dune, the lagoons and the most famous postcards of Jericoacoara National Park.',
+        description:
+          'Pedra Furada, Sunset Dune, the lagoons and the most famous postcards of Jericoacoara National Park.',
       },
       guide: {
         title: 'Practical Guide & Tips | Use Guide',
-        description: 'Everything you need to know: tourism fee, how to get there, best season, transfers and essential tips.',
+        description:
+          'Everything you need to know: tourism fee, how to get there, best season, transfers and essential tips.',
       },
     },
   },
@@ -671,8 +711,12 @@ const en: TranslationResource = {
 const fr: TranslationResource = {
   bookings: bookingsFr,
   insights: insightsFr,
+  partners: partnersFr,
+  verification: verificationFr,
   common: {
     language: 'Langue',
+    cancel: 'Annuler',
+    confirm: 'Confirmer',
     locales: {
       ptBR: 'Português (Brasil)',
       en: 'English',
@@ -737,7 +781,8 @@ const fr: TranslationResource = {
       IMAGE_TOO_LARGE: "L'image dépasse 6 Mo. Choisissez une image plus légère.",
       INVALID_IMAGE: 'Format non pris en charge. Envoyez une image JPEG, PNG ou WebP.',
       UPLOAD_FAILED: "Impossible d'envoyer l'image. Veuillez réessayer.",
-      STORAGE_UNAVAILABLE: 'Le stockage est indisponible pour le moment. Réessayez dans un instant.',
+      STORAGE_UNAVAILABLE:
+        'Le stockage est indisponible pour le moment. Réessayez dans un instant.',
     },
     payment: {
       SUBSCRIPTION_ALREADY_ACTIVE: 'Vous avez déjà un abonnement actif.',
@@ -817,41 +862,48 @@ const fr: TranslationResource = {
     routes: {
       explore: {
         title: 'Use Guide | Guide de Jericoacoara, Preá et Barrinha',
-        description: 'Découvrez les meilleures expériences, pousadas, restaurants, excursions et le vent en temps réel à Jericoacoara, Preá et Barrinha.',
+        description:
+          'Découvrez les meilleures expériences, pousadas, restaurants, excursions et le vent en temps réel à Jericoacoara, Preá et Barrinha.',
       },
       events: {
         title: 'Événements & Expériences | Use Guide',
-        description: 'Fêtes, couchers de soleil, compétitions de kitesurf et événements culturels à Jericoacoara et dans la région.',
+        description:
+          'Fêtes, couchers de soleil, compétitions de kitesurf et événements culturels à Jericoacoara et dans la région.',
       },
       tours: {
         title: 'Aventure & Excursions | Use Guide',
-        description: 'Excursions en buggy et en quad, lagunes cristallines et itinéraires incontournables autour de Jericoacoara.',
+        description:
+          'Excursions en buggy et en quad, lagunes cristallines et itinéraires incontournables autour de Jericoacoara.',
       },
       transfers: {
-        title: "Transferts à Jericoacoara | Use Guide",
+        title: 'Transferts à Jericoacoara | Use Guide',
         description:
-          "Transferts entre Fortaleza, Jijoca, Jericoacoara, Preá et Barrinha : véhicules, capacité et réservation.",
+          'Transferts entre Fortaleza, Jijoca, Jericoacoara, Preá et Barrinha : véhicules, capacité et réservation.',
       },
       rentals: {
-        title: "Locations à Jericoacoara | Use Guide",
+        title: 'Locations à Jericoacoara | Use Guide',
         description:
-          "Location de quads, buggys, vélos et équipements à Jericoacoara et dans la région.",
+          'Location de quads, buggys, vélos et équipements à Jericoacoara et dans la région.',
       },
       stays: {
         title: 'Meilleurs Hébergements | Use Guide',
-        description: 'Une sélection des meilleures pousadas, hôtels boutique et resorts en bord de mer à Jeri, Preá et Barrinha.',
+        description:
+          'Une sélection des meilleures pousadas, hôtels boutique et resorts en bord de mer à Jeri, Preá et Barrinha.',
       },
       restaurants: {
         title: 'Saveurs Locales & Gastronomie | Use Guide',
-        description: 'Les meilleurs restaurants, bars de plage, fruits de mer frais et la haute gastronomie de Jeri et Preá.',
+        description:
+          'Les meilleurs restaurants, bars de plage, fruits de mer frais et la haute gastronomie de Jeri et Preá.',
       },
       attractions: {
         title: 'Attractions & Sites Touristiques | Use Guide',
-        description: 'Pedra Furada, la Dune du Coucher de Soleil, les lagunes et les cartes postales du Parc National de Jericoacoara.',
+        description:
+          'Pedra Furada, la Dune du Coucher de Soleil, les lagunes et les cartes postales du Parc National de Jericoacoara.',
       },
       guide: {
         title: 'Guide Pratique & Conseils | Use Guide',
-        description: 'Tout ce qu\'il faut savoir : taxe touristique, comment venir, meilleure saison, transferts et conseils essentiels.',
+        description:
+          "Tout ce qu'il faut savoir : taxe touristique, comment venir, meilleure saison, transferts et conseils essentiels.",
       },
     },
   },
@@ -861,10 +913,12 @@ const fr: TranslationResource = {
     backHome: 'Retour à l’accueil',
     checkoutResultMissing: 'Nous n’avons pas trouvé la commande de ce paiement.',
     planPaymentTitle: 'Paiement du forfait en cours',
-    planPaymentDescription: 'Dès que Stripe confirme, le badge apparaît dans votre espace partenaire.',
+    planPaymentDescription:
+      'Dès que Stripe confirme, le badge apparaît dans votre espace partenaire.',
     openPartnerArea: 'Ouvrir l’espace partenaire',
     partnerAreaTitle: 'Espace partenaire',
-    partnerLoginRequired: 'Connectez-vous à votre compte partenaire pour ouvrir le tableau de bord.',
+    partnerLoginRequired:
+      'Connectez-vous à votre compte partenaire pour ouvrir le tableau de bord.',
     signIn: 'Se connecter',
     partnerOnly: 'Ce tableau de bord est réservé aux partenaires inscrits.',
     partnerProfileNotFound: 'Nous n’avons pas trouvé votre inscription de partenaire.',

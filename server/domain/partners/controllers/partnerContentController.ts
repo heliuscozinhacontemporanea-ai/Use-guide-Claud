@@ -11,9 +11,7 @@ import { cancelEventOccurrenceAndRefundApplicationUseCase } from '../../../appli
 import { deleteEventOccurrenceSafelyApplicationUseCase } from '../../../application/usecases/deleteEventOccurrenceSafelyApplicationUseCase';
 import { postponeEventOccurrenceAndNotifyApplicationUseCase } from '../../../application/usecases/postponeEventOccurrenceAndNotifyApplicationUseCase';
 import { updateEventOccurrenceSafelyApplicationUseCase } from '../../../application/usecases/updateEventOccurrenceSafelyApplicationUseCase';
-import {
-  createEventOccurrenceUseCase,
-} from '../../events';
+import { createEventOccurrenceUseCase } from '../../events';
 import {
   getEventSalesAnalyticsUseCase,
   listEventCheckInsForPartnerOrAdminUseCase,

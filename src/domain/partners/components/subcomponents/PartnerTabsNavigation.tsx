@@ -1,4 +1,3 @@
-import React from 'react';
 import { Layers, Calendar, BarChart3, Clock } from 'lucide-react';
 import { cn } from '../../../../shared/utils/cn';
 
@@ -6,8 +5,6 @@ interface PartnerTabsNavigationProps {
   activeTab: 'items' | 'events' | 'reports';
   setActiveTab: (tab: 'items' | 'events' | 'reports') => void;
   isVerified: boolean;
-  hasItems?: boolean;
-  hasEvents?: boolean;
 }
 
 export function PartnerTabsNavigation({

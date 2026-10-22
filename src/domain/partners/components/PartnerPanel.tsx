@@ -19,6 +19,8 @@ import { PartnerEventsTable } from './subcomponents/PartnerEventsTable';
 import { PartnerHeader } from './subcomponents/PartnerHeader';
 import { PartnerItemsTable } from './subcomponents/PartnerItemsTable';
 import { PartnerTabsNavigation } from './subcomponents/PartnerTabsNavigation';
+import { ListingVerificationDialog } from './verification/ListingVerificationDialog';
+import type { VerificationListingOption } from './verification/verificationListingOption';
 import { PlansModal } from './subcomponents/PlansModal';
 import { useLocalizedRouting } from '../../../shared/hooks/useLocalizedRouting';
 
@@ -97,6 +99,12 @@ export function PartnerPanel({
     setIsEditing((current) => (current ? { ...current, sessions } : current))
   );
 
+  const [verifyingListing, setVerifyingListing] = React.useState<VerificationListingOption | null>(
+    null
+  );
+  // Troca a chave dos selos de verificação para relerem o status depois de um envio.
+  const [verificationVersion, setVerificationVersion] = React.useState(0);
+
   const [showPlansModal, setShowPlansModal] = React.useState(false);
   const [showCheckoutModal, setShowCheckoutModal] = React.useState(false);
   const [checkoutPlanInfo, setCheckoutPlanInfo] = React.useState({
@@ -158,8 +166,8 @@ export function PartnerPanel({
           partnerProfile={partnerProfile}
           isVerified={isVerified}
           onNavigateBack={() => goTo('explore')}
-          onOpenPlansModal={() => setShowPlansModal(true)}
-          renderNotificationBell={renderNotificationBell}
+          onVerifyClick={() => setShowPlansModal(true)}
+          notificationBell={renderNotificationBell?.(partnerProfile?.id || '')}
         />
 
         {planSubscriptionSlot}
@@ -168,8 +176,6 @@ export function PartnerPanel({
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           isVerified={isVerified}
-          hasItems={itemsList.length > 0}
-          hasEvents={eventsList.length > 0}
         />
 
         <AnimatePresence mode="wait">
@@ -182,13 +188,26 @@ export function PartnerPanel({
             id="partner-tab-content"
           >
             {activeTab === 'items' ? (
-              <PartnerItemsTable
-                itemsList={itemsList}
-                loading={dataLoading}
-                onEditItem={(item) => setEditingListing(item)}
-                onToggleActive={handleToggleActive}
-                onCreateNew={() => setEditingListing(null)}
-              />
+              <>
+                <PartnerItemsTable
+                  itemsList={itemsList}
+                  loading={dataLoading}
+                  onEditItem={(item) => setEditingListing(item)}
+                  onToggleActive={handleToggleActive}
+                  onCreateNew={() => setEditingListing(null)}
+                  verificationVersion={verificationVersion}
+                  onVerifyItem={(item) =>
+                    setVerifyingListing({ id: item.id, name: item.name, category: item.category })
+                  }
+                />
+                {renderBookableOffersManager?.(
+                  itemsList.map((item) => ({
+                    id: item.id,
+                    name: item.name,
+                    category: item.category,
+                  }))
+                )}
+              </>
             ) : activeTab === 'events' ? (
               <PartnerEventsTable
                 eventsList={eventsList}
@@ -240,7 +259,12 @@ export function PartnerPanel({
             item={isEditing}
             onChange={(updatedItem) => setIsEditing(updatedItem)}
             onClose={() => setIsEditing(null)}
-            onSave={handleSaveEvent}
+            onSave={() =>
+              handleSaveEvent({
+                sessionsLoadState: eventSessions.loadState,
+                savedSessionIds: eventSessions.savedIds,
+              })
+            }
             isLoading={isLoading}
             isUploading={isUploading}
             onImageUpload={handleImageUpload}
@@ -250,7 +274,7 @@ export function PartnerPanel({
             renderEventTicketingManager={renderEventTicketingManager}
             showDeleteConfirm={showDeleteConfirm}
             onRequestDelete={setShowDeleteConfirm}
-            onConfirmDelete={handleDelete}
+            onConfirmDelete={() => handleDelete(isEditing.id)}
           />
         )}
       </AnimatePresence>
@@ -260,7 +284,6 @@ export function PartnerPanel({
           <ListingEditor
             item={editingListing}
             currentUser={user}
-            cpfCnpj={partnerProfile?.cpfCnpj}
             onSave={async (input, itemId) => {
               if (itemId) {
                 await updatePartnerContentItemUseCase(itemId, input);
@@ -273,6 +296,21 @@ export function PartnerPanel({
           />
         )}
       </AnimatePresence>
+
+      {verifyingListing && (
+        <ListingVerificationDialog
+          listing={verifyingListing}
+          accountListings={itemsList.map((item) => ({
+            id: item.id,
+            name: item.name,
+            category: item.category,
+          }))}
+          onClose={() => {
+            setVerifyingListing(null);
+            setVerificationVersion((version) => version + 1);
+          }}
+        />
+      )}
 
       <PlansModal
         isOpen={showPlansModal}
@@ -287,14 +325,15 @@ export function PartnerPanel({
       />
 
       <AnimatePresence>
-        {showCheckoutModal && renderCheckoutModal?.({
-          isOpen: showCheckoutModal,
-          onClose: handleCheckoutClose,
-          planId: checkoutPlanInfo.itemId,
-          itemName: checkoutPlanInfo.itemName,
-          amountMinor: checkoutPlanInfo.amountMinor,
-          onPaymentSuccess: handleCheckoutSuccess,
-        })}
+        {showCheckoutModal &&
+          renderCheckoutModal?.({
+            isOpen: showCheckoutModal,
+            onClose: handleCheckoutClose,
+            planId: checkoutPlanInfo.itemId,
+            itemName: checkoutPlanInfo.itemName,
+            amountMinor: checkoutPlanInfo.amountMinor,
+            onPaymentSuccess: handleCheckoutSuccess,
+          })}
       </AnimatePresence>
     </div>
   );

@@ -29,7 +29,7 @@ describe('getAdminPartnersUseCase (anti-N+1)', () => {
       },
       {
         id: 'partner-2',
-        status: 'pending',
+        status: 'suspended',
         isVerified: false,
         businesses: [{ businessId: 'b-2', businessName: 'Restaurante B', type: 'item' }],
       },
@@ -71,12 +71,11 @@ describe('getAdminPartnersUseCase (anti-N+1)', () => {
     });
   });
 
-  it('não expõe documento fiscal nem campos internos do parceiro ao painel admin', async () => {
+  it('não expõe campos internos do parceiro ao painel admin', async () => {
     mocks.getAllPartnersUseCase.mockResolvedValue([
       {
         id: 'partner-1',
         category: 'hotel',
-        cpfCnpj: '12345678000199',
         status: 'active',
         isVerified: true,
         verifiedUntil: null,
@@ -91,7 +90,6 @@ describe('getAdminPartnersUseCase (anti-N+1)', () => {
     const result = await getAdminPartnersUseCase();
 
     expect(result).toHaveLength(1);
-    expect(result[0]).not.toHaveProperty('cpfCnpj');
     expect(result[0]).not.toHaveProperty('hasUsedTrial');
     expect(result[0]).not.toHaveProperty('termsAccepted');
     expect(Object.keys(result[0] ?? {}).sort()).toEqual(

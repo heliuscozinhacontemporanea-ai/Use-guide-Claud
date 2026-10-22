@@ -3,8 +3,6 @@ import { toPartnerProfileDTO, toPublicPartnerProfileDTO } from './partnerMapper'
 
 describe('partnerMapper', () => {
   const rawPersistenceData = {
-    cpfCnpj: '12.345.678/0001-90',
-    cpfCnpjClean: '12345678000190',
     businesses: [
       { businessId: 'item-1', businessName: 'Restaurante Sabor', type: 'item' },
       { businessId: 'event-1', businessName: 'Festival Gastronômico', type: 'event' },
@@ -21,12 +19,11 @@ describe('partnerMapper', () => {
   };
 
   describe('toPartnerProfileDTO', () => {
-    it('deve converter dados brutos em PartnerProfileDTO sem expor cpfCnpjClean', () => {
+    it('deve converter dados brutos em PartnerProfileDTO', () => {
       const dto = toPartnerProfileDTO('partner-123', rawPersistenceData);
 
       expect(dto).toEqual({
         id: 'partner-123',
-        cpfCnpj: '12.345.678/0001-90',
         businesses: [
           { businessId: 'item-1', businessName: 'Restaurante Sabor', type: 'item' },
           { businessId: 'event-1', businessName: 'Festival Gastronômico', type: 'event' },
@@ -41,15 +38,13 @@ describe('partnerMapper', () => {
         createdAt: '2026-01-01T00:00:00.000Z',
         updatedAt: '2026-01-02T00:00:00.000Z',
       });
-
-      expect((dto as any).cpfCnpjClean).toBeUndefined();
     });
 
-    it('deve lançar erro se status for inválido', () => {
+    it.each(['invalid-status', 'pending'])('deve lançar erro se status for %s', (status) => {
       expect(() =>
         toPartnerProfileDTO('partner-123', {
           ...rawPersistenceData,
-          status: 'invalid-status',
+          status,
         })
       ).toThrow('Status Partner inválido persistido no Firestore.');
     });
@@ -114,11 +109,9 @@ describe('partnerMapper', () => {
         status: 'active',
       });
 
-      expect((publicDto as any).cpfCnpj).toBeUndefined();
-      expect((publicDto as any).cpfCnpjClean).toBeUndefined();
-      expect((publicDto as any).termsAccepted).toBeUndefined();
-      expect((publicDto as any).hasUsedTrial).toBeUndefined();
-      expect((publicDto as any).verificationType).toBeUndefined();
+      expect(publicDto).not.toHaveProperty('termsAccepted');
+      expect(publicDto).not.toHaveProperty('hasUsedTrial');
+      expect(publicDto).not.toHaveProperty('verificationType');
     });
   });
 });

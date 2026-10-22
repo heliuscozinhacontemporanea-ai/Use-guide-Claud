@@ -12,6 +12,8 @@ export { getPartnerProfileUseCase } from './application/usecases/getPartnerProfi
 export { subscribeToPartnerProfileUseCase } from './application/usecases/subscribeToPartnerProfileUseCase';
 export { updatePartnerStatusUseCase } from './application/usecases/updatePartnerStatusUseCase';
 export { updatePartnerVerificationUseCase } from './application/usecases/updatePartnerVerificationUseCase';
+export { ListingEditor, type ListingEditorProps } from './components/ListingEditor';
+export { ListingVerificationQueue } from './components/verification/ListingVerificationQueue';
 export { PartnerEventForm } from './components/PartnerEventForm';
 export {
   LanguagesForm,
@@ -22,7 +24,6 @@ export {
 } from './components/PartnerItemForms';
 export { PartnerPanel } from './components/PartnerPanel';
 export { PartnersModal } from './components/PartnersModal';
-export { ListingEditor } from './components/ListingEditor';
 export { mapPartnerRegistrationPayload, usePartnerForm } from './hooks/usePartnerForm';
 export { usePartnerContentActions } from './hooks/usePartnerContentActions';
 export { usePartnerContentCatalog } from './hooks/usePartnerContentCatalog';
@@ -48,7 +49,6 @@ export type {
   SubscriptionPlan,
 } from './types/partner';
 export type {
-  PartnerContentEditorState,
   PartnerContentEventInput,
   PartnerContentItemInput,
   PartnerContentRecord,

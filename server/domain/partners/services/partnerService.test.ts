@@ -105,42 +105,15 @@ describe('PartnerService', () => {
   });
 
   describe('registerPartner', () => {
-    it('deve chamar registerPartner no port quando os dados forem válidos', async () => {
-      await service.registerPartner('user-1', {
-        cpfCnpj: '52998224725',
-        termsAccepted: true,
-      });
+    it('deve chamar registerPartner no port só com o aceite dos termos', async () => {
+      await service.registerPartner('user-1', { termsAccepted: true });
 
-      expect(partnerPort.registerPartner).toHaveBeenCalledWith('user-1', {
-        cpfCnpj: '52998224725',
-        termsAccepted: true,
-      });
-    });
-
-    it('deve lançar erro se CPF/CNPJ for inválido', async () => {
-      await expect(
-        service.registerPartner('user-1', {
-          cpfCnpj: '12345678900',
-          termsAccepted: true,
-        })
-      ).rejects.toThrow('CPF/CNPJ inválido');
-    });
-
-    it('deve lançar erro se CPF/CNPJ estiver ausente', async () => {
-      await expect(
-        service.registerPartner('user-1', {
-          cpfCnpj: '' as never,
-          termsAccepted: true,
-        })
-      ).rejects.toThrow('CPF/CNPJ inválido');
+      expect(partnerPort.registerPartner).toHaveBeenCalledWith('user-1', { termsAccepted: true });
     });
 
     it('deve lançar erro se termsAccepted for false', async () => {
       await expect(
-        service.registerPartner('user-1', {
-          cpfCnpj: '52998224725',
-          termsAccepted: false as never,
-        })
+        service.registerPartner('user-1', { termsAccepted: false as never })
       ).rejects.toThrow('É necessário aceitar os termos de parceria');
     });
   });
