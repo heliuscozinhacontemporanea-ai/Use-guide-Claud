@@ -41,6 +41,9 @@ class InMemoryPlans implements ListingPlanRepositoryPort {
       (p) => p.sealActive && p.planUntil !== null && p.planUntil > fromIso && p.planUntil <= toIso
     );
   }
+  async listActive(nowIso: string) {
+    return [...this.plans.values()].filter((p) => p.planUntil !== null && p.planUntil > nowIso);
+  }
   async delete(itemId: string) {
     this.plans.delete(itemId);
   }
@@ -111,6 +114,45 @@ describe('ListingPlanService (D11)', () => {
     await expect(service.getView({ uid: 'intruso' }, pousada, 'approved')).rejects.toMatchObject({
       code: 'FORBIDDEN',
     });
+  });
+
+  it('métricas exigem plano em vigor no estabelecimento', async () => {
+    await expect(service.assertPlanActive('item-1')).rejects.toMatchObject({
+      code: 'LISTING_PLAN_REQUIRED',
+      statusCode: 403,
+    });
+    const expired: ListingPlanRecord = {
+      itemId: 'item-1',
+      ownerId: 'owner-1',
+      planType: 'monthly',
+      planUntil: '2026-10-20T12:00:00.000Z',
+      sealSuspended: false,
+      sealActive: false,
+      updatedAt: '',
+    };
+    await repo.save(expired);
+    await expect(service.assertPlanActive('item-1')).rejects.toMatchObject({
+      code: 'LISTING_PLAN_REQUIRED',
+    });
+    await repo.save({ ...expired, planUntil: '2026-11-20T12:00:00.000Z' });
+    await expect(service.assertPlanActive('item-1')).resolves.toBeUndefined();
+  });
+
+  it('destaque: só planos em vigor de contas não suspensas', async () => {
+    const base: ListingPlanRecord = {
+      itemId: 'item-1',
+      ownerId: 'owner-1',
+      planType: 'annual',
+      planUntil: '2027-01-01T00:00:00.000Z',
+      sealSuspended: false,
+      sealActive: true,
+      updatedAt: '',
+    };
+    await repo.save(base);
+    await repo.save({ ...base, itemId: 'item-2', planUntil: '2026-10-01T00:00:00.000Z' });
+    await repo.save({ ...base, itemId: 'item-3', ownerId: 'owner-2' });
+    repo.suspended.add('owner-2');
+    expect(await service.listActivePlanItemIds(50)).toEqual(['item-1']);
   });
 
   it('lista selos ligados já vencidos e os que vencem em breve', async () => {

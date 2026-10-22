@@ -366,6 +366,23 @@ describe('Firestore Rules — Security Suite', () => {
       }
     });
 
+    it('destaque (D11): featuredListings tem leitura pública e escrita negada até para admin', async () => {
+      await testEnv.withSecurityRulesDisabled(async (context) => {
+        await setDoc(doc(context.firestore(), 'featuredListings/hotel'), {
+          list: 'hotel',
+          listingIds: ['item-1'],
+        });
+      });
+      const anonDb = testEnv.unauthenticatedContext().firestore();
+      await assertSucceeds(getDoc(doc(anonDb, 'featuredListings/hotel')));
+      const adminDb = testEnv.authenticatedContext('admin-user', { admin: true }).firestore();
+      const ownerDb = testEnv.authenticatedContext('partner-1').firestore();
+      for (const db of [adminDb, ownerDb]) {
+        await assertFails(setDoc(doc(db, 'featuredListings/hotel'), { listingIds: ['item-2'] }));
+        await assertFails(deleteDoc(doc(db, 'featuredListings/hotel')));
+      }
+    });
+
     it('client → interactionStats e interactionGuards write negado', async () => {
       const db = testEnv.authenticatedContext('user-1').firestore();
       const statPath = 'interactionStats/items_item-1_2026-10-19';

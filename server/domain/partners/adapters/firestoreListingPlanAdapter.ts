@@ -62,6 +62,16 @@ export class FirestoreListingPlanAdapter implements ListingPlanRepositoryPort {
     return snapshot.docs.map((doc) => doc.data() as ListingPlanRecord);
   }
 
+  async listActive(nowIso: string, limit: number): Promise<ListingPlanRecord[]> {
+    const snapshot = await adminDb
+      .collection(PLANS)
+      .where('planUntil', '>', nowIso)
+      .orderBy('planUntil', 'asc')
+      .limit(limit)
+      .get();
+    return snapshot.docs.map((doc) => doc.data() as ListingPlanRecord);
+  }
+
   async listExpiringWithSeal(
     fromIso: string,
     toIso: string,

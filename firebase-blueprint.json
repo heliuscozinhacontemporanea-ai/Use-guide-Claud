@@ -222,6 +222,18 @@
       },
       "required": ["businesses", "hasUsedTrial", "status", "createdAt"]
     },
+    "FeaturedListings": {
+      "title": "FeaturedListings",
+      "description": "Public projection of the daily \"Destaque\" rotation of one list (D11), written by the backend job.",
+      "type": "object",
+      "properties": {
+        "list": { "type": "string", "enum": ["hotel", "restaurant", "tour", "sight", "transfer", "rental", "events"] },
+        "listingIds": { "type": "array", "items": { "type": "string" } },
+        "day": { "type": "string", "description": "Rotation day in America/Fortaleza (YYYY-MM-DD)." },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["list", "listingIds", "day", "updatedAt"]
+    },
     "ListingPlan": {
       "title": "ListingPlan",
       "description": "Backend-only plan of one establishment or producer profile (D11). Items and events carry the public seal copy.",
@@ -614,6 +626,10 @@
     "/partners/{userId}": {
       "schema": "Partner",
       "description": "Partner profiles linked to their business items."
+    },
+    "/featuredListings/{list}": {
+      "schema": "FeaturedListings",
+      "description": "Daily featured listings per list (public read, backend write)."
     },
     "/listingPlans/{itemId}": {
       "schema": "ListingPlan",

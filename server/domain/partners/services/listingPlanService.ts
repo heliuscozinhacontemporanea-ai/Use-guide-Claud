@@ -104,6 +104,17 @@ export class ListingPlanService {
     }
   }
 
+  /** Métricas do estabelecimento exigem o plano dele em vigor (D11); avaliações seguem livres. */
+  async assertPlanActive(itemId: string): Promise<void> {
+    const record = await this.repository.get(itemId);
+    if (!record || !isPlanActive(record, this.now())) {
+      throw new ListingPlanError(
+        'LISTING_PLAN_REQUIRED',
+        'As métricas deste estabelecimento fazem parte do plano Use Guide Verificado.'
+      );
+    }
+  }
+
   async getPlanUntil(itemId: string): Promise<string | null> {
     const record = await this.repository.get(itemId);
     return record && isPlanActive(record, this.now()) ? record.planUntil : null;
@@ -162,6 +173,19 @@ export class ListingPlanService {
     const now = this.now();
     const until = new Date(now.getTime() + withinDays * DAY_MS);
     return this.repository.listExpiringWithSeal(now.toISOString(), until.toISOString(), limit);
+  }
+
+  /** Estabelecimentos com plano em vigor e conta ativa: são os que entram no destaque (D11). */
+  async listActivePlanItemIds(limit: number): Promise<string[]> {
+    const records = await this.repository.listActive(this.now().toISOString(), limit);
+    const owners = [...new Set(records.map((record) => record.ownerId))];
+    const suspended = new Set<string>();
+    for (const ownerId of owners) {
+      if (await this.repository.isOwnerSuspended(ownerId)) suspended.add(ownerId);
+    }
+    return records
+      .filter((record) => record.planType !== null && !suspended.has(record.ownerId))
+      .map((record) => record.itemId);
   }
 
   deleteForListing(itemId: string): Promise<void> {

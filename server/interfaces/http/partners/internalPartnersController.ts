@@ -1,12 +1,15 @@
 import type { Request, Response } from 'express';
+import { refreshFeaturedListingsApplicationUseCase } from '../../../application/usecases/featured/refreshFeaturedListingsApplicationUseCase';
 import { runListingPlanMaintenanceApplicationUseCase } from '../../../application/usecases/listingPlans/runListingPlanMaintenanceApplicationUseCase';
 
-// Chamado pelo job agendado checkExpiringPlans; a chave já foi conferida por verifyInternalJobKey.
+// Chamado pelo job diário checkExpiringPlans; a chave já foi conferida por verifyInternalJobKey.
+// O rodízio do destaque roda depois da manutenção para já não contar os planos que venceram.
 export class InternalPartnersController {
   static async checkExpiringPlans(_req: Request, res: Response): Promise<Response> {
     try {
-      const result = await runListingPlanMaintenanceApplicationUseCase();
-      return res.status(200).json(result);
+      const maintenance = await runListingPlanMaintenanceApplicationUseCase();
+      const featured = await refreshFeaturedListingsApplicationUseCase();
+      return res.status(200).json({ ...maintenance, featured });
     } catch (error) {
       console.error('[partners.checkExpiringPlansJob]', {
         name: error instanceof Error ? error.name : 'UnknownError',

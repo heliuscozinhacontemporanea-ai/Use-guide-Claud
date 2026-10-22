@@ -160,6 +160,11 @@ service cloud.firestore {
     match /listingPlans/{itemId} {
       allow read, write: if false;
     }
+    // Rodízio diário do "Destaque" (D11): projeção pública gravada só pelo job do backend.
+    match /featuredListings/{list} {
+      allow read: if true;
+      allow write: if false;
+    }
     // Métricas lidas só pela API (dono do item ou admin); as guardas de deduplicação nunca saem do backend.
     match /interactionStats/{statId} {
       allow read, write: if false;

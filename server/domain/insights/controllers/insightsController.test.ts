@@ -1,15 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Response } from 'express';
 import type { AuthenticatedRequest } from '../../../infrastructure/auth/authMiddleware';
-import { InsightsAccessError, InsightsUnavailableError } from '../errors/insightsErrors';
+import { InsightsUnavailableError } from '../errors/insightsErrors';
 import { insightsService } from '../factory';
 import { InsightsController } from './insightsController';
 
 vi.mock('../factory', () => ({
-  insightsService: { trackInteraction: vi.fn(), getItemStats: vi.fn() },
+  insightsService: { trackInteraction: vi.fn() },
 }));
-
-const USER = { uid: 'partner-1', admin: false, emailVerified: true, authTime: 1 };
 
 function mockResponse() {
   const res = { status: vi.fn(), json: vi.fn() };
@@ -64,26 +62,5 @@ describe('InsightsController', () => {
     );
     expect(res.status).toHaveBeenCalledWith(503);
     expect(res.json.mock.calls[0]?.[0].error.code).toBe('INSIGHTS_UNAVAILABLE');
-  });
-
-  it('stats de item de outro parceiro responde 403 FORBIDDEN', async () => {
-    vi.mocked(insightsService.getItemStats).mockRejectedValue(new InsightsAccessError());
-    const res = mockResponse();
-    await InsightsController.getItemStats(
-      request({ user: USER, params: { itemCollection: 'items', itemId: 'item-b' } }),
-      res as unknown as Response
-    );
-    expect(res.status).toHaveBeenCalledWith(403);
-    expect(res.json.mock.calls[0]?.[0].error.code).toBe('FORBIDDEN');
-  });
-
-  it('stats sem login responde 401', async () => {
-    const res = mockResponse();
-    await InsightsController.getItemStats(
-      request({ params: { itemCollection: 'items', itemId: 'item-1' } }),
-      res as unknown as Response
-    );
-    expect(res.status).toHaveBeenCalledWith(401);
-    expect(insightsService.getItemStats).not.toHaveBeenCalled();
   });
 });

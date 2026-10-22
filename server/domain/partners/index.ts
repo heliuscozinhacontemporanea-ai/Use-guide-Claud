@@ -21,6 +21,8 @@ export { getListingPlanViewUseCase } from './usecases/getListingPlanViewUseCase'
 export { activateListingTrialUseCase } from './usecases/activateListingTrialUseCase';
 export { assertListingPlanPurchasableUseCase } from './usecases/assertListingPlanPurchasableUseCase';
 export { getListingPlanUntilUseCase } from './usecases/getListingPlanUntilUseCase';
+export { assertListingPlanActiveUseCase } from './usecases/assertListingPlanActiveUseCase';
+export { listActivePlanItemIdsUseCase } from './usecases/listActivePlanItemIdsUseCase';
 export { applyListingPaidPlanUseCase } from './usecases/applyListingPaidPlanUseCase';
 export { setListingSealByAdminUseCase } from './usecases/setListingSealByAdminUseCase';
 export { computeListingSealUseCase } from './usecases/computeListingSealUseCase';

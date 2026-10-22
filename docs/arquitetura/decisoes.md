@@ -141,6 +141,11 @@ Detalha o item "Selo e plano por estabelecimento" da D9. Modelo de referência: 
   * **Divisão:** 18.3a (plano por estabelecimento, selo, trial, selo do admin, job diário) → 18.3b (cobrança no Stripe por estabelecimento) → 18.3c (métricas exigindo o plano e destaque) → 18.3.1 (telas).
   * **Lista do destaque = categoria** (hospedagens, restaurantes, passeios, atrações, translados, aluguéis e eventos), cada uma com 3 vagas.
   * **Rodízio por job diário no backend:** sorteio com semente fixa do dia, gravado numa projeção pública (`featuredListings/{categoria}`) lida pelos cards; igual para todos os visitantes.
+  * **Como o 18.3c implementa:**
+    * métricas em `GET /api/insights/stats/:colecao/:id` (camada `interfaces/http/insights`): primeiro a posse, depois o plano; sem plano responde `403 LISTING_PLAN_REQUIRED`. O evento usa o plano do estabelecimento dele; evento sem estabelecimento não tem métricas. O admin vê sem plano;
+    * candidatos do destaque: itens públicos com plano em vigor, de contas não suspensas; eventos públicos ativos de estabelecimento com plano. Listas: `hotel`, `restaurant`, `tour`, `sight`, `transfer`, `rental` e `events` (dicas e perfis de produtor ficam fora);
+    * o dia do sorteio é o de `America/Fortaleza` e a semente é `dia:lista`; vagas em `FEATURED_SLOTS_PER_LIST` (padrão 3, de 0 a 12);
+    * roda no job diário de planos (`checkExpiringPlans`), depois da manutenção dos selos; nenhuma Cloud Function nova.
 * **Prompts:** 18.3a, 18.3b, 18.3c (backend) e 18.3.1 (frontend).
 
 ## D12 — Verificação e documento por estabelecimento (2026-10-19)

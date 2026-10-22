@@ -12,6 +12,8 @@ export interface ListingPlanRepositoryPort {
   listExpiredWithSeal(nowIso: string, limit: number): Promise<ListingPlanRecord[]>;
   /** Planos com selo público ligado que vencem entre as duas datas. */
   listExpiringWithSeal(fromIso: string, toIso: string, limit: number): Promise<ListingPlanRecord[]>;
+  /** Planos em vigor (validade depois de `nowIso`), para o rodízio do destaque. */
+  listActive(nowIso: string, limit: number): Promise<ListingPlanRecord[]>;
   delete(itemId: string): Promise<void>;
   deleteByOwner(ownerId: string): Promise<void>;
 }
