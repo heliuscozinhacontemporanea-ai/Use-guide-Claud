@@ -77,11 +77,12 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 | 18.2.2 | Contato do evento em um só lugar (B19) | `94a3ad6` | ✅ zip 2026-10-19 (3º) | ✅ igual à referência |
 | 18.2.3 | Visualizações de visitantes nos insights; relatório com a divisão | `45b17ec` | ✅ zip 2026-10-19 (3º) | ✅ igual à referência |
 | 18.2.4 | Idioma do navegador na primeira visita (D10) | `93c6c9b` | ✅ zip 2026-10-19 (3º) | ✅ igual (`resources.ts` só reformatado → 18.2.5) |
-| 18.2.5 | Correção do lote 12 | `fada927..345ccbb` | ⏳ enviar (lote 13) | — |
-| 18.3.0a | Verificação por estabelecimento, backend (D12) | `3cc54e6` | ⏳ enviar (lote 13) | — |
-| 18.3.0b | Conta do parceiro sem documento nem status pendente (D12, P0) | `46236f5` | ⏳ enviar (lote 13) | — |
-| A4 | AGENTS.md §7.7: débito de `partnerDocumentKeys` resolvido (S13) | `e2651db` | ⏳ enviar (lote 13) | — |
-| 18.3.0c | Telas de verificação por estabelecimento (D12) | `3e75156` + `3406b93` | ⏳ enviar (lote 13) | — |
+| 18.2.5 | Correção do lote 12 | `fada927..345ccbb` | ⚠️ zip 2026-10-22 | ❌ só em parte: `usePartnerProfile`, `usePartnerContentActions`, `AdminEditorModal` e `AdminPanel` reescritos; D11 e D12 fora do `decisoes.md` → 18.3.0d |
+| 18.3.0a | Verificação por estabelecimento, backend (D12) | `3cc54e6` | ✅ zip 2026-10-22 | ✅ igual à referência |
+| 18.3.0b | Conta do parceiro sem documento nem status pendente (D12, P0) | `46236f5` | ✅ zip 2026-10-22 | ✅ igual, exceto `usePartnerProfile` (→ 18.3.0d) |
+| A4 | AGENTS.md §7.7: débito de `partnerDocumentKeys` resolvido (S13) | `e2651db` | ✅ zip 2026-10-22 | ✅ igual à referência |
+| 18.3.0c | Telas de verificação por estabelecimento (D12) | `3e75156` + `3406b93` | ⚠️ zip 2026-10-22 | ⚠️ telas novas iguais; `PartnerPanel` e `PartnerPortalComposition` reescritos; prompts colados salvos em `public/assets/aistudio/` → 18.3.0d. Imports sem uso e linha em branco removidos em 3 arquivos (adotado) |
+| 18.3.0d | Correção do lote 13 | `467cd02..996437c` | ⏳ enviar (lote 13b) | — |
 | 18.3a | Plano e selo por estabelecimento, backend (D11) | `bd14c0f` | ⏳ enviar (lote 14) | — |
 | 18.3b | Cobrança do plano por estabelecimento (D11) | `cd31a44` | ⏳ enviar (lote 14) | — |
 | 18.3c | Métricas com plano e destaque em rodízio (D11) | `f5b42a0` | ⏳ enviar (lote 14) | — |

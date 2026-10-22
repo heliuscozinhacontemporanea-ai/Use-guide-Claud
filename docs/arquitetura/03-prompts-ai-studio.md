@@ -147,7 +147,15 @@
 
 > **Envie um prompt por mensagem**, nesta ordem. **Antes do 18.3.0a**, no painel Secrets do AI Studio: `FIELD_ENCRYPTION_DEV_KEY` (32 bytes em base64) e `PII_BLIND_INDEX_KEY` (32 caracteres ou mais).
 
-# Lote 14 (Prompts 18.3a, 18.3b e 18.3c) — aplicar depois do lote 13
+# Lote 13b (Prompt 18.3.0d) — aplicar sobre o zip de 2026-10-22
+
+| Ordem | Arquivo | Tema | Commit de referência |
+|---|---|---|---|
+| 1 | `prompts/prompt-18.3.0d.md` | Correção do lote 13: painéis do parceiro e do admin de volta à referência, D11 e D12 no `decisoes.md`, prompts colados fora de `public/` | `467cd02..996437c` |
+
+> O resto do lote 13 voltou igual à referência (backend da verificação, regras, A4 e telas novas de verificação).
+
+# Lote 14 (Prompts 18.3a, 18.3b e 18.3c) — aplicar depois do lote 13b
 
 | Ordem | Arquivo | Tema | Commit de referência |
 |---|---|---|---|

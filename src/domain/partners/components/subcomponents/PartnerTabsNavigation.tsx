@@ -1,4 +1,3 @@
-import React from 'react';
 import { Layers, Calendar, BarChart3, Clock } from 'lucide-react';
 import { cn } from '../../../../shared/utils/cn';
 

@@ -1,4 +1,3 @@
-
 import { motion } from 'motion/react';
 import { Award, Bell, Calendar, Database, Layers, ShieldCheck, Users } from 'lucide-react';
 import { useTranslation } from 'react-i18next';

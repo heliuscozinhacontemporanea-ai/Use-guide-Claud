@@ -1,4 +1,3 @@
-import React from 'react';
 import { Plus, MapPin, Edit2, RefreshCw } from 'lucide-react';
 import { motion } from 'motion/react';
 import type { PartnerContentRecord } from '../../types/partnerContent';
