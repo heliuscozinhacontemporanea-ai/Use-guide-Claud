@@ -23,7 +23,7 @@
 | D11 | Plano "Use Guide Verificado", selo e destaque por estabelecimento | ✅ Aprovada | 2026-10-19 |
 | D12 | Verificação e documento por estabelecimento; venda só com verificação | ✅ Aprovada | 2026-10-19 |
 | D13 | Troca de período do plano na próxima renovação | ✅ Aprovada | 2026-10-24 |
-| D14 | Repasse por documento, retenção até o serviço, taxas e cancelamentos | ✅ Aprovada (2 pontos em aberto) | 2026-10-24 |
+| D14 | Repasse por documento, retenção até o serviço, taxas e cancelamentos | ✅ Aprovada (1 ponto em aberto) | 2026-10-24 |
 
 ---
 
@@ -204,7 +204,7 @@ Objetivo: proteger os dois lados, o consumidor (o dinheiro só sai depois do ser
   * a multa é cobrada **na hora, no cartão ou por Pix**, e o cancelamento só é confirmado depois do pagamento.
 * **Adiantamento de recebíveis (10A):** fora do 18.4. Depende de convite do Stripe e de contrato com gestor de fundos parceiro.
 * **Em aberto (decidir antes do código):**
-  1. Reagendamento: o comprador que não aceitar a nova data recebe reembolso integral? E o proprietário paga multa nesse caso?
+  1. ~~Reagendamento~~ — decidido em 2026-10-24: o comprador que não aceitar a nova data recebe reembolso integral (ingresso + taxa de serviço) e o proprietário **não** paga multa sobre esses ingressos, porque reagendou em vez de cancelar.
   2. Multa não paga: o que acontece com o evento e com os compradores se o proprietário não pagar a multa (o cancelamento fica pendente e o evento continua de pé)?
 * **Prompts:** 18.4 (contas por documento, retenção e liberação) e seguintes; desenho apresentado para aprovação antes do código.
 
