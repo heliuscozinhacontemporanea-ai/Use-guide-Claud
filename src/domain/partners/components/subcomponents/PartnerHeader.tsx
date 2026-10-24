@@ -38,7 +38,7 @@ export function PartnerHeader({
               Painel do Parceiro
             </h1>
             <div className="flex items-center gap-2">
-              <p className="text-[10px] text-teal-400 font-semibold tracking-wide">
+              <p className="text-[10px] text-accent font-semibold tracking-wide">
                 {partnerProfile?.businessName || 'Meu Negócio'}
               </p>
             </div>

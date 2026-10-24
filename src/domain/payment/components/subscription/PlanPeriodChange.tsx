@@ -45,9 +45,9 @@ export function PlanPeriodChange({
           aria-pressed={selected === plan.id}
           onClick={() => setSelected(plan.id)}
           className={cn(
-            'w-full min-h-[48px] px-4 py-3 rounded-xl border text-left flex items-center justify-between gap-3 cursor-pointer focus-visible:ring-2 focus-visible:ring-teal-400/50',
+            'press w-full min-h-[48px] px-4 py-3 rounded-xl border text-left flex items-center justify-between gap-3 cursor-pointer focus-visible:ring-2 focus-visible:ring-teal-400/50',
             selected === plan.id
-              ? 'bg-teal-500/10 border-teal-500/40'
+              ? 'bg-accent-soft border-accent-line'
               : 'bg-white/5 border-white/10 hover:bg-white/10'
           )}
         >
@@ -59,7 +59,7 @@ export function PlanPeriodChange({
               </span>
             )}
           </span>
-          <span className="text-sm font-black text-teal-300">
+          <span className="text-sm font-black text-accent">
             {formatPlanAmount(plan.priceMinor, i18n.language)}
           </span>
         </button>

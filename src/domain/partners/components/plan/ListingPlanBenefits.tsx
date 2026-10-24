@@ -16,7 +16,7 @@ export function ListingPlanBenefits() {
       <ul className="space-y-2">
         {BENEFITS.map(({ key, Icon }) => (
           <li key={key} className="flex items-start gap-2 text-xs text-white/70">
-            <Icon size={14} className="text-teal-400 shrink-0 mt-0.5" aria-hidden="true" />
+            <Icon size={14} className="text-accent shrink-0 mt-0.5" aria-hidden="true" />
             {t(`listingPlan.benefits.${key}`)}
           </li>
         ))}

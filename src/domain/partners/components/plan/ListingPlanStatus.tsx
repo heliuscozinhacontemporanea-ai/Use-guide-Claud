@@ -28,7 +28,7 @@ export function ListingPlanStatus({ view }: { view: ListingPlanView }) {
       <p
         className={
           view.sealSuspended || !view.seal.isVerified
-            ? 'text-xs text-amber-200'
+            ? 'text-xs text-warn'
             : 'text-xs text-white/70'
         }
       >

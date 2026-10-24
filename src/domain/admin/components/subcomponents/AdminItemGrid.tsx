@@ -95,7 +95,7 @@ export function AdminItemGrid({
               className={cn(
                 'min-h-[44px] whitespace-nowrap px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border shrink-0 focus-visible:ring-2 focus-visible:ring-teal-400/50',
                 filter === cat.id
-                  ? 'bg-white text-black border-white shadow-xl scale-105'
+                  ? 'bg-ink text-app border-ink shadow-xl scale-105'
                   : 'bg-white/[0.03] text-white/50 border-white/10 hover:bg-white/10'
               )}
             >
@@ -107,7 +107,7 @@ export function AdminItemGrid({
 
       {dataLoading ? (
         <div className="py-24 text-center">
-          <div className="inline-block animate-spin mb-6 text-teal-500">
+          <div className="inline-block animate-spin mb-6 text-accent">
             <RefreshCw size={32} />
           </div>
           <div className="animate-pulse text-white/50 font-black uppercase tracking-[0.4em] text-[10px] italic">
@@ -174,13 +174,13 @@ export function AdminItemGrid({
                             'Evento'}
                         </span>
                         {ratingAverage !== null && (
-                          <div className="flex items-center gap-1 text-amber-500 text-[8px] font-black">
+                          <div className="flex items-center gap-1 text-warn text-[8px] font-black">
                             <Star size={8} fill="currentColor" /> {ratingAverage.toFixed(1)}
                           </div>
                         )}
                       </div>
 
-                      <h4 className="font-display font-bold text-white text-sm line-clamp-1 group-hover:text-teal-400 transition-colors uppercase tracking-tight">
+                      <h4 className="font-display font-bold text-white text-sm line-clamp-1 group-hover:text-accent transition-colors uppercase tracking-tight">
                         {item.name}
                       </h4>
 
@@ -200,7 +200,7 @@ export function AdminItemGrid({
                               event.stopPropagation();
                               onEdit(item);
                             }}
-                            className="w-11 h-11 flex items-center justify-center rounded-xl bg-teal-500/10 text-teal-400 hover:bg-teal-500 hover:text-black transition-all focus-visible:ring-2 focus-visible:ring-teal-400/50"
+                            className="w-11 h-11 flex items-center justify-center rounded-xl bg-accent-soft text-accent hover:bg-teal-500 hover:text-black transition-all focus-visible:ring-2 focus-visible:ring-teal-400/50"
                           >
                             <Edit2 size={14} strokeWidth={2.5} />
                           </button>
@@ -211,7 +211,7 @@ export function AdminItemGrid({
                               event.stopPropagation();
                               onDelete(activeTab === 'items' ? 'items' : 'events', item.id);
                             }}
-                            className="w-11 h-11 flex items-center justify-center rounded-xl bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition-all shadow-lg shadow-rose-500/10 focus-visible:ring-2 focus-visible:ring-teal-400/50"
+                            className="w-11 h-11 flex items-center justify-center rounded-xl bg-danger-soft text-danger hover:bg-rose-500 hover:text-on-fill transition-all shadow-lg shadow-rose-500/10 focus-visible:ring-2 focus-visible:ring-teal-400/50"
                           >
                             <Trash2 size={14} strokeWidth={2.5} />
                           </button>

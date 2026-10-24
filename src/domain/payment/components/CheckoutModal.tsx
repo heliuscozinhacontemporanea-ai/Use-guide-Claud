@@ -54,10 +54,10 @@ export function CheckoutModal({
           exit={{ opacity: 0, scale: 0.95, y: 12 }}
           className="w-full max-w-[480px] mx-auto my-auto"
         >
-          <GlassCard className="p-6 border border-white/15 bg-slate-950/90 shadow-2xl space-y-5 relative">
+          <GlassCard className="p-6 border border-white/15 bg-surface shadow-2xl space-y-5 relative">
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-xl bg-teal-500/15 border border-teal-500/30 flex items-center justify-center text-teal-300">
+                <div className="w-10 h-10 rounded-xl bg-accent-soft border border-accent-line flex items-center justify-center text-accent">
                   <Lock size={18} />
                 </div>
                 <div>
@@ -69,7 +69,7 @@ export function CheckoutModal({
                 type="button"
                 onClick={handleClose}
                 aria-label={t('payment.checkout.close')}
-                className="w-11 h-11 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center text-white/70 focus-visible:ring-2 focus-visible:ring-teal-400/50 cursor-pointer"
+                className="press w-11 h-11 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center text-white/70 focus-visible:ring-2 focus-visible:ring-teal-400/50 cursor-pointer"
               >
                 <X size={18} />
               </button>
@@ -77,7 +77,7 @@ export function CheckoutModal({
 
             <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-between gap-3">
               <span className="text-xs text-white/60">{t('payment.checkout.totalLabel')}</span>
-              <span className="text-xl font-black text-teal-300">
+              <span className="text-xl font-black text-accent">
                 {formatPlanAmount(amountMinor, i18n.language)}
                 <span className="block text-[11px] font-medium text-white/60 text-right">
                   {t(`payment.period.${planId}`)}
@@ -91,7 +91,7 @@ export function CheckoutModal({
                 <button
                   type="button"
                   onClick={() => setConfirmedMethod(method)}
-                  className="w-full min-h-12 rounded-xl bg-teal-400 hover:bg-teal-300 text-slate-950 font-black text-sm cursor-pointer focus-visible:ring-2 focus-visible:ring-teal-400/50"
+                  className="press w-full min-h-12 rounded-xl bg-teal-400 hover:bg-teal-300 text-slate-950 font-black text-sm cursor-pointer focus-visible:ring-2 focus-visible:ring-teal-400/50"
                 >
                   {t('payment.checkout.continue')}
                 </button>
@@ -121,7 +121,7 @@ export function CheckoutModal({
             )}
 
             <div className="flex items-center justify-center gap-2 pt-2 text-[11px] text-white/60">
-              <ShieldCheck size={14} className="text-teal-400 shrink-0" />
+              <ShieldCheck size={14} className="text-accent shrink-0" />
               <span>{t('payment.checkout.secureFooter')}</span>
             </div>
           </GlassCard>

@@ -28,7 +28,7 @@ export function BackgroundBlobs() {
       className={cn(
         'fixed inset-0 -z-10 overflow-hidden pointer-events-none transition-all duration-700 ease-in-out',
         isLight
-          ? 'bg-gradient-to-br from-[#ffffff] via-[#f7f9fc] to-[#edf2f7]'
+          ? 'bg-gradient-to-br from-[#f6f1e7] via-[#f3eee4] to-[#ece4d5]'
           : 'bg-gradient-to-br from-[#060B1E] via-[#010A01] to-[#000033]'
       )}
     >
@@ -36,7 +36,7 @@ export function BackgroundBlobs() {
       <svg
         className={cn(
           'absolute inset-0 w-full h-full transition-all duration-700 ease-in-out',
-          isLight ? 'opacity-[0.12] text-slate-400' : 'opacity-[0.06] text-cyan-500/60'
+          isLight ? 'opacity-[0.12] text-stone-400' : 'opacity-[0.06] text-cyan-500/60'
         )}
         xmlns="http://www.w3.org/2000/svg"
       >

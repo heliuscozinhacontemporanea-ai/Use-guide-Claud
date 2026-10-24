@@ -33,7 +33,7 @@ interface ListingPlanDialogProps {
 }
 
 const buttonClass =
-  'w-full min-h-12 rounded-2xl text-xs font-black flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-teal-400/50';
+  'press w-full min-h-12 rounded-2xl text-xs font-black flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-teal-400/50';
 
 export function ListingPlanDialog({
   listing,
@@ -98,7 +98,7 @@ export function ListingPlanDialog({
           </p>
         ) : error || !plan.data ? (
           <div className="space-y-3">
-            <p className="text-sm text-rose-300">{error}</p>
+            <p className="text-sm text-danger">{error}</p>
             <button
               type="button"
               onClick={() => {
@@ -138,8 +138,8 @@ export function ListingPlanDialog({
                 </button>
               </>
             ) : (
-              <div className="space-y-3 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20">
-                <p className="text-xs text-amber-100 leading-relaxed">
+              <div className="space-y-3 p-4 rounded-2xl bg-warn-soft border border-warn-line">
+                <p className="text-xs text-warn leading-relaxed">
                   {t('listingPlan.verificationRequired')}
                 </p>
                 <button

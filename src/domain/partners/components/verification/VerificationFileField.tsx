@@ -37,8 +37,8 @@ export function VerificationFileField({
         type="button"
         onClick={() => inputRef.current?.click()}
         className={cn(
-          'w-full min-h-[44px] flex items-center gap-2 px-4 rounded-2xl border bg-white/5 text-xs text-white/80 hover:bg-white/10 transition-colors focus-visible:ring-2 focus-visible:ring-teal-400/50',
-          error ? 'border-rose-500/50' : 'border-white/10'
+          'press w-full min-h-[44px] flex items-center gap-2 px-4 rounded-2xl border bg-white/5 text-xs text-white/80 hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-teal-400/50',
+          error ? 'border-danger-line' : 'border-white/10'
         )}
       >
         <FileUp size={14} aria-hidden="true" />
@@ -48,12 +48,10 @@ export function VerificationFileField({
             : t('verification.form.chooseFile')}
         </span>
         {file && (
-          <span className="ml-auto text-teal-300 shrink-0">
-            {t('verification.form.replaceFile')}
-          </span>
+          <span className="ml-auto text-accent shrink-0">{t('verification.form.replaceFile')}</span>
         )}
       </button>
-      {error && <p className="text-xs text-rose-300">{error}</p>}
+      {error && <p className="text-xs text-danger">{error}</p>}
     </div>
   );
 }

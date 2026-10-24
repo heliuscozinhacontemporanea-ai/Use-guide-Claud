@@ -38,7 +38,7 @@ export function PaymentMethodChoice({ value, onChange }: PaymentMethodChoiceProp
             key={option}
             className={`flex items-start gap-3 min-h-11 p-3.5 rounded-2xl border cursor-pointer transition-colors focus-within:ring-2 focus-within:ring-teal-400/50 ${
               selected
-                ? 'border-teal-400/60 bg-teal-500/10'
+                ? 'border-accent-line bg-accent-soft'
                 : 'border-white/10 bg-white/[0.03] hover:bg-white/[0.06]'
             }`}
           >
@@ -50,10 +50,7 @@ export function PaymentMethodChoice({ value, onChange }: PaymentMethodChoiceProp
               onChange={() => onChange(option)}
               className="sr-only"
             />
-            <Icon
-              size={18}
-              className={selected ? 'text-teal-300 mt-0.5' : 'text-white/60 mt-0.5'}
-            />
+            <Icon size={18} className={selected ? 'text-accent mt-0.5' : 'text-white/60 mt-0.5'} />
             <span className="flex-1">
               <span className="block text-sm font-bold text-white">{labels[option].title}</span>
               <span className="block text-xs text-white/60 mt-0.5">{labels[option].hint}</span>

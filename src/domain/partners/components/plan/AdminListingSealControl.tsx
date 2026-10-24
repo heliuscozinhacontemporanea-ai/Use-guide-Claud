@@ -72,9 +72,9 @@ export function AdminListingSealControl({ itemId, name }: AdminListingSealContro
           name,
         })}
         className={cn(
-          'min-h-[44px] px-4 rounded-xl text-[10px] font-black uppercase tracking-widest disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-teal-400/50',
+          'press min-h-[44px] px-4 rounded-xl text-[10px] font-black uppercase tracking-widest disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-teal-400/50',
           hasSeal
-            ? 'bg-blue-500/10 text-blue-300 hover:bg-blue-500 hover:text-black'
+            ? 'bg-seal-soft text-seal hover:bg-blue-500 hover:text-black'
             : 'bg-blue-500 text-black hover:bg-blue-400'
         )}
       >

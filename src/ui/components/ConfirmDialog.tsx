@@ -34,17 +34,17 @@ export function ConfirmDialog({ data }: ConfirmDialogProps) {
     >
       <RadixDialog.Portal>
         <RadixDialog.Overlay
-          className="fixed inset-0 bg-black/70 backdrop-blur-sm animate-fade-in"
+          className="fixed inset-0 bg-scrim backdrop-blur-sm animate-fade-in data-[state=closed]:animate-fade-out motion-reduce:animate-none"
           style={{ zIndex: Z_INDEX.overlay }}
         />
         <RadixDialog.Content
-          className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)] max-w-xs outline-none animate-scale-in"
+          className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)] max-w-xs outline-none animate-scale-in data-[state=closed]:animate-scale-out motion-reduce:animate-none"
           style={{ zIndex: Z_INDEX.modalNested }}
         >
           <GlassCard className="p-6 flex flex-col items-center text-center gap-4">
             <Icon
               size={28}
-              className={positive ? 'text-emerald-400' : 'text-amber-400'}
+              className={positive ? 'text-success' : 'text-warn'}
               aria-hidden="true"
             />
             <RadixDialog.Title className="text-sm font-medium text-white/90 leading-relaxed">
@@ -54,7 +54,7 @@ export function ConfirmDialog({ data }: ConfirmDialogProps) {
               <button
                 type="button"
                 onClick={data?.onCancel}
-                className="flex-1 min-h-[44px] py-2.5 rounded-xl bg-white/10 text-white/70 text-xs font-bold uppercase tracking-wide hover:bg-white/15 transition-colors focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none"
+                className="press flex-1 min-h-[44px] py-2.5 rounded-xl bg-white/10 text-white/70 text-xs font-bold uppercase tracking-wide hover:bg-white/15 focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none"
               >
                 {t('common.cancel')}
               </button>
@@ -62,10 +62,10 @@ export function ConfirmDialog({ data }: ConfirmDialogProps) {
                 type="button"
                 onClick={data?.onConfirm}
                 className={cn(
-                  'flex-1 min-h-[44px] py-2.5 rounded-xl text-xs font-bold uppercase tracking-wide transition-colors focus-visible:ring-2 focus-visible:outline-none',
+                  'press flex-1 min-h-[44px] py-2.5 rounded-xl text-xs font-bold uppercase tracking-wide focus-visible:ring-2 focus-visible:outline-none',
                   positive
                     ? 'bg-emerald-500 text-black hover:bg-emerald-400 focus-visible:ring-emerald-400/50'
-                    : 'bg-rose-500/80 text-white hover:bg-rose-500 focus-visible:ring-rose-400/50'
+                    : 'bg-rose-600 !text-[#fff8f0] hover:bg-rose-500 focus-visible:ring-rose-400/50'
                 )}
               >
                 {data?.confirmLabel ?? t('common.confirm')}

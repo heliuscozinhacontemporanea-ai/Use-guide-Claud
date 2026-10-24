@@ -14,9 +14,9 @@ interface ListingPlanOptionsProps {
 
 const optionClass = (isSelected: boolean) =>
   cn(
-    'w-full min-h-[56px] p-4 rounded-2xl border text-left flex items-center justify-between gap-3 cursor-pointer transition-colors focus-visible:ring-2 focus-visible:ring-teal-400/50',
+    'press w-full min-h-[56px] p-4 rounded-2xl border text-left flex items-center justify-between gap-3 cursor-pointer focus-visible:ring-2 focus-visible:ring-teal-400/50',
     isSelected
-      ? 'bg-teal-500/10 border-teal-500/40'
+      ? 'bg-accent-soft border-accent-line'
       : 'bg-white/5 border-white/10 hover:bg-white/10'
   );
 
@@ -50,7 +50,7 @@ export function ListingPlanOptions({
               {t('listingPlan.options.trialHint')}
             </span>
           </span>
-          <span className="text-sm font-black text-teal-300">{t('listingPlan.options.free')}</span>
+          <span className="text-sm font-black text-accent">{t('listingPlan.options.free')}</span>
         </button>
       )}
       {paidPlans.length === 0 ? (
@@ -71,7 +71,7 @@ export function ListingPlanOptions({
               )}
             </span>
             <span className="text-right shrink-0">
-              <span className="block text-sm font-black text-teal-300">
+              <span className="block text-sm font-black text-accent">
                 {formatMoneyMinor(plan.priceMinor, i18n.language)}
               </span>
               {plan.monthlyEquivalentMinor ? (

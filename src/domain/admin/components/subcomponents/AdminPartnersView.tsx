@@ -6,8 +6,8 @@ const STATUS_BADGE: Record<
   AdminPartnerSummary['status'],
   { label: string; className: string; icon: typeof Clock }
 > = {
-  active: { label: 'Cadastro Ativo', className: 'text-emerald-400', icon: CheckCircle },
-  suspended: { label: 'Suspenso', className: 'text-rose-400', icon: Ban },
+  active: { label: 'Cadastro Ativo', className: 'text-success', icon: CheckCircle },
+  suspended: { label: 'Suspenso', className: 'text-danger', icon: Ban },
 };
 
 const ROW_BUTTON =
@@ -29,7 +29,7 @@ export function AdminPartnersView({
   if (isLoading) {
     return (
       <div className="py-24 text-center">
-        <RefreshCw className="animate-spin text-indigo-500 mx-auto" size={32} />
+        <RefreshCw className="animate-spin text-seal mx-auto" size={32} />
       </div>
     );
   }
@@ -51,7 +51,7 @@ export function AdminPartnersView({
             id={`partner-row-${partner.id}`}
           >
             <div className="flex items-center gap-5 w-full sm:w-auto">
-              <div className="w-14 h-14 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 group-hover:scale-110 transition-transform">
+              <div className="w-14 h-14 rounded-2xl bg-seal-soft flex items-center justify-center text-seal group-hover:scale-110 transition-transform">
                 <Users size={24} />
               </div>
               <div>
@@ -90,8 +90,8 @@ export function AdminPartnersView({
                 className={cn(
                   ROW_BUTTON,
                   partner.status === 'suspended'
-                    ? 'bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-black'
-                    : 'bg-amber-500/10 text-amber-500 hover:bg-amber-500 hover:text-black'
+                    ? 'bg-success-soft text-success hover:bg-emerald-500 hover:text-black'
+                    : 'bg-warn-soft text-warn hover:bg-amber-500 hover:text-black'
                 )}
                 id={`btn-status-${partner.id}`}
               >
@@ -102,7 +102,7 @@ export function AdminPartnersView({
                 type="button"
                 onClick={() => onDeletePartner(partner)}
                 aria-label={`Excluir parceiro ${partner.businessName}`}
-                className="w-11 h-11 flex items-center justify-center rounded-xl bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition-all shadow-lg shadow-rose-500/10 focus-visible:ring-2 focus-visible:ring-teal-400/50"
+                className="w-11 h-11 flex items-center justify-center rounded-xl bg-danger-soft text-danger hover:bg-rose-500 hover:text-on-fill transition-all shadow-lg shadow-rose-500/10 focus-visible:ring-2 focus-visible:ring-teal-400/50"
                 id={`btn-delete-${partner.id}`}
               >
                 <Trash2 size={16} aria-hidden="true" />

@@ -56,14 +56,14 @@ export function SubscriptionDetails({
     <>
       <p
         className={
-          subscription.status === 'past_due' ? 'text-sm text-amber-200' : 'text-sm text-white/80'
+          subscription.status === 'past_due' ? 'text-sm text-warn' : 'text-sm text-white/80'
         }
       >
         {message}
       </p>
       {pending && subscription.pendingChangeAt && (
-        <div className="flex flex-wrap items-center gap-3 p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/20">
-          <p className="text-xs text-cyan-100 flex-1 min-w-[12rem]">
+        <div className="flex flex-wrap items-center gap-3 p-3 rounded-xl bg-info-soft border border-info-line">
+          <p className="text-xs text-info flex-1 min-w-[12rem]">
             {t('payment.subscription.pendingChange', {
               date: formatBillingDate(subscription.pendingChangeAt, i18n.language),
               plan: pending.name,

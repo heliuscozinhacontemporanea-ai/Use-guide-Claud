@@ -138,7 +138,7 @@ export function PartnerPanel({
   if (userLoading || profileStatus === 'loading') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-950">
-        <RefreshCw className="animate-spin text-teal-500" size={32} />
+        <RefreshCw className="animate-spin text-accent" size={32} />
       </div>
     );
   }
@@ -152,7 +152,7 @@ export function PartnerPanel({
         </p>
         <button
           onClick={() => goTo('explore')}
-          className="px-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-[11px] font-semibold tracking-wide text-white"
+          className="press px-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-[11px] font-semibold tracking-wide text-white"
         >
           Voltar
         </button>
@@ -161,7 +161,7 @@ export function PartnerPanel({
   }
 
   return (
-    <div className="min-h-screen pt-12 pb-40 px-4 bg-[#020508]/60 font-sans selection:bg-teal-500/30 relative overflow-x-hidden backdrop-blur-md">
+    <div className="min-h-screen pt-12 pb-40 px-4 bg-app/60 font-sans selection:bg-teal-500/30 relative overflow-x-hidden backdrop-blur-md">
       <BackgroundBlobs />
 
       <div

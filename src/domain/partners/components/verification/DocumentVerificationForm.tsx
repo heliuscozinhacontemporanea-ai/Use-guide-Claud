@@ -67,13 +67,13 @@ export function DocumentVerificationForm({ submitting, onSubmit }: DocumentVerif
           inputMode="numeric"
           autoComplete="off"
           maxLength={documentType === 'cnpj' ? 18 : 14}
-          className={cn(INPUT, errors.document ? 'border-rose-500/50' : 'border-white/10')}
+          className={cn(INPUT, errors.document ? 'border-danger-line' : 'border-white/10')}
           {...register('document', {
             onChange: (event) => setValue('document', maskCpfCnpj(event.target.value)),
           })}
         />
         {errors.document && (
-          <p className="text-xs text-rose-300">{errorText(errors.document.message)}</p>
+          <p className="text-xs text-danger">{errorText(errors.document.message)}</p>
         )}
       </div>
 
@@ -160,7 +160,7 @@ export function DocumentVerificationForm({ submitting, onSubmit }: DocumentVerif
       <button
         type="submit"
         disabled={submitting}
-        className="w-full min-h-[48px] flex items-center justify-center gap-2 rounded-2xl bg-teal-500 text-black text-xs font-bold hover:bg-teal-400 disabled:opacity-60 transition-colors focus-visible:ring-2 focus-visible:ring-teal-400/50"
+        className="press w-full min-h-[48px] flex items-center justify-center gap-2 rounded-2xl bg-teal-500 text-black text-xs font-bold hover:bg-teal-400 disabled:opacity-60 focus-visible:ring-2 focus-visible:ring-teal-400/50"
       >
         {submitting && <Loader2 size={14} className="animate-spin" aria-hidden="true" />}
         {submitting ? t('verification.form.submitting') : t('verification.form.submit')}

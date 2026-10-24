@@ -61,7 +61,7 @@ export function PlanSubscriptionCard({
   return (
     <GlassCard className="p-5 space-y-3 border border-white/10">
       <div className="flex items-center gap-2">
-        <CreditCard size={18} className="text-teal-300" aria-hidden="true" />
+        <CreditCard size={18} className="text-accent" aria-hidden="true" />
         <h2 className="text-sm font-bold text-white">{t('payment.subscription.title')}</h2>
       </div>
       {loading && (
@@ -72,11 +72,11 @@ export function PlanSubscriptionCard({
       )}
       {!loading && error && (
         <div className="flex flex-wrap items-center gap-3" role="alert">
-          <p className="text-xs text-red-200">{error}</p>
+          <p className="text-xs text-danger">{error}</p>
           <button
             type="button"
             onClick={() => void reload()}
-            className="min-h-11 px-3 rounded-lg bg-white/10 hover:bg-white/15 text-white text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-teal-400/50"
+            className="press min-h-11 px-3 rounded-lg bg-white/10 hover:bg-white/15 text-white text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-teal-400/50"
           >
             <RefreshCw size={13} aria-hidden="true" />
             <span>{t('payment.subscription.retry')}</span>

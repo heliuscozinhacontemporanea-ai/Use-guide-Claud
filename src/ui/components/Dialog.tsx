@@ -25,18 +25,30 @@ export function Dialog({
     <RadixDialog.Root open={open} onOpenChange={onOpenChange}>
       <RadixDialog.Portal>
         <RadixDialog.Overlay
-          className="fixed inset-0 bg-black/70 backdrop-blur-md animate-fade-in"
+          className="fixed inset-0 bg-scrim backdrop-blur-md animate-fade-in data-[state=closed]:animate-fade-out motion-reduce:animate-none"
           style={{ zIndex: Z_INDEX.overlay }}
         />
+        {/* Celular: folha que sobe da borda (como num app nativo). Do sm em diante: cartão central. */}
         <RadixDialog.Content
           className={cn(
-            'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)] max-w-md p-6 rounded-3xl bg-neutral-900/90 border border-white/10 shadow-2xl backdrop-blur-xl text-white outline-none animate-scale-in',
+            'fixed inset-x-0 bottom-0 mx-auto w-full max-w-md max-h-[92dvh] overflow-y-auto p-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] rounded-t-3xl bg-surface border border-line shadow-2xl backdrop-blur-xl text-ink outline-none overscroll-contain animate-sheet-up data-[state=closed]:animate-sheet-down motion-reduce:animate-none',
+            'sm:inset-x-auto sm:bottom-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-[calc(100%-2rem)] sm:pb-6 sm:rounded-3xl sm:animate-scale-in sm:data-[state=closed]:animate-scale-out',
             className
           )}
           style={{ zIndex: Z_INDEX.modal }}
+          // O Radix foca o primeiro controle (o botão fechar) e o anel de foco aparece sem o usuário usar o teclado.
+          // Focar a própria folha mantém o Tab e o leitor de tela começando dentro do diálogo.
+          onOpenAutoFocus={(event) => {
+            event.preventDefault();
+            (event.currentTarget as HTMLElement).focus();
+          }}
         >
+          <div
+            aria-hidden="true"
+            className="mx-auto -mt-2 mb-4 h-1.5 w-10 rounded-full bg-line sm:hidden"
+          />
           {title && (
-            <RadixDialog.Title className="text-lg font-bold text-white tracking-tight mb-1">
+            <RadixDialog.Title className="text-lg font-bold text-ink tracking-tight mb-1 pr-10">
               {title}
             </RadixDialog.Title>
           )}
@@ -50,7 +62,7 @@ export function Dialog({
 
           <RadixDialog.Close
             aria-label="Fechar modal"
-            className="absolute top-4 right-4 w-11 h-11 flex items-center justify-center rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-colors focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none"
+            className="press absolute top-4 right-4 w-11 h-11 flex items-center justify-center rounded-full text-white/60 hover:text-white hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none"
           >
             <X size={20} />
           </RadixDialog.Close>

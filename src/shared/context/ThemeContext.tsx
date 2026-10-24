@@ -4,6 +4,8 @@ export type Theme = 'light' | 'dark' | 'system';
 
 interface ThemeContextType {
   theme: Theme;
+  /** Tema efetivo depois de resolver `system` pela preferência do aparelho. */
+  resolvedTheme: 'light' | 'dark';
   setTheme: (theme: Theme) => void;
 }
 
@@ -11,14 +13,17 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>(() => {
+    // O escuro é o padrão de design (AGENTS.md §11.1); claro e sistema são escolhas da pessoa.
     const saved = localStorage.getItem('theme');
-    return (saved as Theme) || 'system';
+    return saved === 'light' || saved === 'dark' || saved === 'system' ? saved : 'dark';
   });
 
   const setTheme = (newTheme: Theme) => {
     localStorage.setItem('theme', newTheme);
     setThemeState(newTheme);
   };
+
+  const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('dark');
 
   useEffect(() => {
     const root = document.documentElement;
@@ -29,6 +34,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
           ? window.matchMedia('(prefers-color-scheme: dark)').matches
           : theme === 'dark';
 
+      setResolvedTheme(isDark ? 'dark' : 'light');
+      // Barra de status do celular na cor do fundo, como num app nativo.
+      document
+        .querySelector('meta[name="theme-color"]')
+        ?.setAttribute('content', isDark ? '#060b1e' : '#f3eee4');
       if (isDark) {
         root.classList.remove('light');
         root.classList.add('dark');
@@ -49,7 +59,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }
   }, [theme]);
 
-  return <ThemeContext.Provider value={{ theme, setTheme }}>{children}</ThemeContext.Provider>;
+  return (
+    <ThemeContext.Provider value={{ theme, resolvedTheme, setTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
 }
 
 export function useTheme() {
