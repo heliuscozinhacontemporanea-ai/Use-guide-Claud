@@ -37,6 +37,7 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 * **No AI Studio, os testes rodam com `npx vitest related --run <arquivos do prompt>`** (decisão de 2026-10-24), com a lista exata gerada pelo gerador de prompts, em vez da suíte inteira. Typecheck, lint e build continuam no projeto todo. A suíte completa roda aqui, na referência antes de gerar o prompt e no zip quando ele volta.
 * **Todo prompt termina pedindo a limpeza de `public/assets/aistudio/`** (regra de 2026-10-22). O AI Studio salva ali, como anexo, o texto longo colado no chat (`Paste_<data>_<hash>`), e `public/` vai para o site publicado. Ao conferir um zip, arquivo nessa pasta não conta como divergência; ele só é apagado.
 * **Arquivo tocado sai sem avisos do lint e formatado** (regra de 2026-10-19; proposta S10 para o AGENTS.md).
+* **Tela tocada sai nos dois temas e com cara de app nativo** (regra de 2026-10-24; proposta S14 para o AGENTS.md): cores pelos tokens `--ug-*`; o claro nunca é branco puro (fundo `#f3eee4`, superfícies `#faf6ee`); modal vira folha inferior no celular; botões com `press`; um só efeito de toque por elemento (sem somar `press` a `whileTap`, `whileHover` ou `active:scale`); animações respeitam `prefers-reduced-motion`. A conferência inclui prints no claro e no escuro.
 
 ## Acompanhamento dos prompts
 
@@ -92,6 +93,7 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 | 18.3b.2 | Troca de período na próxima renovação, backend (D13) | `e261e1d` | ⏳ enviar (lote 15) | — |
 | 18.3.1a | Plano e selo por estabelecimento no painel do parceiro (D11, D13) | `4f3fddb` + `cf21b31` | ⏳ enviar (lote 15) | — |
 | 18.3.1b | Selo do admin por estabelecimento, explicação do selo e "Destaque" (D11) | `37fe44f` + `55d0cc1` | ⏳ enviar (lote 15) | — |
+| 18.3.1c | Telas tocadas nos temas claro e escuro, com toque e transições de app nativo | `52392fe` | ⏳ enviar (lote 15) | — |
 
 ## Gates
 

@@ -20,6 +20,7 @@
 | S11 | §12.6 | Decisão D5 aprovada: Google Cloud Translation, sem tradução à mão, edição no idioma escolhido | ✅ Aprovada em 2026-10-19 (prompt A3) |
 | S12 | §12.1 e §12.7 | Decisão D10: idioma do navegador na primeira visita, persistência só por escolha explícita | ✅ Aprovada em 2026-10-19 (prompt A3) |
 | S13 | §7.7 | O débito de `partnerDocumentKeys` foi resolvido no Prompt 18.3.0b | ✅ Aprovada em 2026-10-19 (prompt A4) |
+| S14 | §11.1 e §11 (nova subseção) | Tema claro sem branco puro e regras de experiência de app nativo | ⏳ Aguardando autorização |
 
 ---
 
@@ -162,3 +163,24 @@
 
 **Texto proposto:**
 > * IDs de documento, caminhos do Storage, URLs e nomes de arquivos NUNCA contêm PII.
+
+## S14 — §11.1 e nova §11.11: tema claro sem branco puro e experiência de app nativo
+
+**Por quê:** pedido de 2026-10-24. O app é web, mas deve se comportar como app nativo, e o claro em branco puro cansa a vista. Hoje o §11.1 só diz que o componente funciona nos dois temas; não fixa a cor do claro nem como transições e toque devem se comportar, e efeitos somados (escala do toque + `whileTap` + transform de centralização) já causaram conflito.
+
+**Texto atual (§11.1, 1º item):**
+> * **Estilo:** Glassmorphism. Tema **dark é o padrão de design**. O código já possui tema `light`/`system` (`ThemeContext`, `AppearanceSettingsView`); todo componente novo DEVE funcionar nos dois temas usando tokens/variáveis CSS, nunca `text-white` fixo em superfície que muda de cor.
+
+**Texto proposto (§11.1, 1º item):**
+> * **Estilo:** Glassmorphism. Tema **dark é o padrão de design**; em Configurações a pessoa escolhe claro, escuro ou sistema (`ThemeContext`, `AppearanceSettingsView`). Todo componente novo ou tocado DEVE funcionar nos dois temas com os tokens `--ug-*` de `src/index.css` (`bg-app`, `text-ink`, `bg-surface`, `border-line`, `text-warn`, `text-danger`…), nunca `text-white` fixo em superfície que muda de cor. O tema claro NUNCA usa branco puro: fundo off-white bege (`#f3eee4`) e superfícies `#faf6ee`. O tema é aplicado antes da primeira pintura (sem piscar) e o `theme-color` acompanha o tema.
+
+**Texto proposto (nova §11.11):**
+> ### 11.11. Experiência de app nativo
+>
+> * Modais e diálogos: folha que sobe da borda inferior no celular (com alça e safe area) e cartão central do `sm:` em diante, pelo `Dialog` do design system.
+> * Entrada e saída animadas (fade, escala, folha), com saída pelo `data-state` do Radix; duração de 150–300 ms.
+> * Retorno ao toque em todo botão (`press`: escala 0,97, sem destaque azul de toque, `touch-action: manipulation`).
+> * **Um efeito por propriedade em cada elemento:** não somar `press` a `whileTap`/`whileHover` do `motion` nem a `active:scale-*`; animações usam as propriedades `scale`/`translate`, nunca `transform` quando o elemento já é centralizado por `transform`.
+> * Tudo respeita `prefers-reduced-motion` (`motion-reduce:animate-none` e `MotionConfig reducedMotion="user"`).
+> * Ao abrir um diálogo o foco vai para o próprio diálogo, sem anel de foco num botão que a pessoa não tocou.
+
