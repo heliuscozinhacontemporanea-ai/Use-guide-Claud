@@ -23,7 +23,7 @@
 | D11 | Plano "Use Guide Verificado", selo e destaque por estabelecimento | ✅ Aprovada | 2026-10-19 |
 | D12 | Verificação e documento por estabelecimento; venda só com verificação | ✅ Aprovada | 2026-10-19 |
 | D13 | Troca de período do plano na próxima renovação | ✅ Aprovada | 2026-10-24 |
-| D14 | Repasse por documento, retenção até o serviço, taxas e cancelamentos | ✅ Aprovada (1 ponto em aberto) | 2026-10-24 |
+| D14 | Repasse por documento, retenção até o serviço, taxas e cancelamentos | ✅ Aprovada (políticas de cancelamento em decisão) | 2026-10-24 |
 
 ---
 
@@ -196,7 +196,7 @@ Objetivo: proteger os dois lados, o consumidor (o dinheiro só sai depois do ser
   * **Ofertas vendáveis do `bookings`** (passeio, aluguel, translado, entrada de atração privada): taxa da plataforma de **15%**, descontada do proprietário. O cliente paga o preço anunciado e o Use Guide paga as tarifas do Stripe.
   * **Ingressos de eventos:** taxa da plataforma de **10%**, descontada do proprietário, mais **taxa de serviço de R$ 3,00 por ingresso**, paga pelo comprador. No cadastro do evento, o proprietário escolhe **repassar** a taxa ao comprador ou **absorver**; se absorver, o comprador não paga os R$ 3,00 e a taxa da plataforma passa a **12,5%**.
   * Valores calculados só no backend, em centavos (AGENTS.md §8.1).
-* **Cancelamento pelo cliente (9B, pode mudar no futuro):** segue a política de cancelamento cadastrada pelo proprietário; a taxa de serviço **não volta**, nem dentro do prazo.
+* **Cancelamento pelo cliente (9B, revisado):** ver "Direito de arrependimento" abaixo.
 * **Cancelamento do evento pelo organizador:**
   * reembolso **integral** ao comprador, inclusive a taxa de serviço;
   * **multa de 20%** sobre o valor dos ingressos vendidos (sem as taxas de serviço), paga pelo proprietário à plataforma, **sempre**, inclusive em força maior;
@@ -205,6 +205,7 @@ Objetivo: proteger os dois lados, o consumidor (o dinheiro só sai depois do ser
 * **Adiantamento de recebíveis (10A):** fora do 18.4. Depende de convite do Stripe e de contrato com gestor de fundos parceiro.
 * **Em aberto (decidir antes do código):**
   1. ~~Reagendamento~~ — decidido em 2026-10-24: o comprador que não aceitar a nova data recebe reembolso integral (ingresso + taxa de serviço) e o proprietário **não** paga multa sobre esses ingressos, porque reagendou em vez de cancelar.
-  2. Multa não paga: o que acontece com o evento e com os compradores se o proprietário não pagar a multa (o cancelamento fica pendente e o evento continua de pé)?
+  2. ~~Multa não paga~~ — decidido em 2026-10-24: o pedido de cancelamento pausa as vendas na hora e o proprietário paga a multa no cartão ou Pix; o reembolso dos compradores sai assim que o proprietário confirma o cancelamento, sem esperar a multa; se a multa não for paga em **24 h**, ela é descontada dos repasses pendentes e futuros do documento, que fica bloqueado para novas vendas até quitar. Cancelamento silencioso (o evento não acontece e as reclamações confirmam) tem o mesmo tratamento. Prazo de 24 h, e não 48 h, para não se confundir com a janela de reclamação de 48 h antes do repasse.
+* **Direito de arrependimento (revisão do item 9, 2026-10-24):** desistência em até **7 dias da compra** tem reembolso integral, inclusive a taxa de serviço (CDC art. 49; multa do Procon-MG à Sympla em fev/2026). Depois de 7 dias, vale a política de cancelamento do proprietário, e a taxa de serviço não volta. As políticas são **opções definidas pela plataforma**; o proprietário só escolhe uma. Opções e limite do arrependimento perto da data do serviço: em decisão.
 * **Prompts:** 18.4 (contas por documento, retenção e liberação) e seguintes; desenho apresentado para aprovação antes do código.
 
