@@ -17,10 +17,8 @@ export interface UserDeletionCoordinatorDependencies {
   deleteEventsByOwner?: (uid: string) => Promise<void>;
   /** Verificações, documentos cifrados e arquivos enviados (D12). */
   deleteListingVerifications?: (uid: string) => Promise<void>;
-  /** Planos dos estabelecimentos (D11). */
+  /** Planos dos estabelecimentos (D11): cancela as assinaturas no Stripe e apaga os planos. */
   deleteListingPlans?: (uid: string) => Promise<void>;
-  /** Assinaturas ativas no Stripe (B24). */
-  cancelPlanSubscriptions?: (uid: string) => Promise<void>;
   deleteUserAccount: (uid: string) => Promise<void>;
 }
 
@@ -33,8 +31,10 @@ export async function deleteUserAccountApplicationUseCase(
     deleteEventsByOwner: (id) => deleteEventsByOwnerUseCase(id),
     deleteListingVerifications: async (id) =>
       deleteVerificationFiles(await deleteOwnerListingVerificationsUseCase(id)),
-    deleteListingPlans: (id) => deleteOwnerListingPlansUseCase(id),
-    cancelPlanSubscriptions: (id) => cancelPartnerPlanSubscriptionsUseCase(id),
+    deleteListingPlans: async (id) => {
+      await cancelPartnerPlanSubscriptionsUseCase(id);
+      await deleteOwnerListingPlansUseCase(id);
+    },
     deleteUserAccount: (id) => deleteUserAccountUseCase(id),
   }
 ): Promise<void> {
@@ -49,9 +49,6 @@ export async function deleteUserAccountApplicationUseCase(
   }
   if (deps.deleteListingVerifications) {
     await deps.deleteListingVerifications(uid);
-  }
-  if (deps.cancelPlanSubscriptions) {
-    await deps.cancelPlanSubscriptions(uid);
   }
   if (deps.deleteListingPlans) {
     await deps.deleteListingPlans(uid);

@@ -49,11 +49,6 @@ describe('usePartnerProfile', () => {
     businessName: 'Pousada Sol',
     businessId: 'bus-1',
     businesses: [{ businessId: 'bus-1', businessName: 'Pousada Sol', type: 'item' }],
-    verificationType: 'annual',
-    isVerified: true,
-    verifiedUntil: '2026-12-31T23:59:59.000Z',
-    isVerificationSuspended: false,
-    hasUsedTrial: true,
     status: 'active',
   };
 
@@ -98,9 +93,6 @@ describe('usePartnerProfile', () => {
     const mockPublicPartner: PublicPartnerProfile = {
       id: 'partner-user-1',
       businesses: [{ businessId: 'bus-1', businessName: 'Pousada Sol Atualizada', type: 'item' }],
-      isVerified: true,
-      verifiedUntil: '2026-12-31T23:59:59.000Z',
-      isVerificationSuspended: false,
       status: 'active',
     };
 
@@ -112,30 +104,24 @@ describe('usePartnerProfile', () => {
     expect(result.current.profileStatus).toBe('ready');
   });
 
-  it('publicPartner NÃO contém cpfCnpj e verificationType, confirmando que esses dados continuam vindos do perfil carregado', async () => {
+  it('a conta não carrega selo nem plano: eles são de cada estabelecimento (D11)', async () => {
     const { result } = renderHook(() => usePartnerProfile(mockLoadedProfile));
 
     await act(async () => {
       authCallback?.(mockPartnerUser);
     });
 
-    const mockPublicPartner: PublicPartnerProfile = {
-      id: 'partner-user-1',
-      businesses: [{ businessId: 'bus-1', businessName: 'Pousada Sol', type: 'item' }],
-      isVerified: true,
-      verifiedUntil: '2027-01-01T00:00:00.000Z',
-      isVerificationSuspended: false,
-      status: 'active',
-    };
-
-    expect(mockPublicPartner).not.toHaveProperty('verificationType');
-
     await act(async () => {
-      partnerProfileCallback?.(mockPublicPartner);
+      partnerProfileCallback?.({
+        id: 'partner-user-1',
+        businesses: [{ businessId: 'bus-1', businessName: 'Pousada Sol', type: 'item' }],
+        status: 'active',
+      });
     });
 
-    expect(result.current.partnerProfile?.verificationType).toBe('annual');
-    expect(result.current.partnerProfile?.verifiedUntil).toBe('2027-01-01T00:00:00.000Z');
+    expect(result.current.partnerProfile).not.toHaveProperty('isVerified');
+    expect(result.current.partnerProfile).not.toHaveProperty('verificationType');
+    expect(result.current).not.toHaveProperty('isVerified');
   });
 
   it('Firestore subscription error -> define profileError, faz fallback para o perfil carregado e não lança exceção incontrolável', async () => {

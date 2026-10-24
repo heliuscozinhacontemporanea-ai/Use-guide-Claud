@@ -4,6 +4,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('../../../application/usecases/startPartnerPlanSubscriptionApplicationUseCase', () => ({
   startPartnerPlanSubscriptionApplicationUseCase: vi.fn(),
 }));
+vi.mock('../../../application/usecases/changePartnerPlanSubscriptionApplicationUseCase', () => ({
+  changePartnerPlanSubscriptionApplicationUseCase: vi.fn(),
+}));
 vi.mock('../../../domain/payment', async () => {
   const { PaymentDomainError } = await import(
     '../../../domain/payment/services/stripePaymentService'
@@ -16,6 +19,7 @@ vi.mock('../../../domain/payment', async () => {
   };
 });
 
+import { changePartnerPlanSubscriptionApplicationUseCase } from '../../../application/usecases/changePartnerPlanSubscriptionApplicationUseCase';
 import { startPartnerPlanSubscriptionApplicationUseCase } from '../../../application/usecases/startPartnerPlanSubscriptionApplicationUseCase';
 import {
   createBillingPortalSessionUseCase,
@@ -120,6 +124,8 @@ describe('BillingController', () => {
       status: 'active',
       currentPeriodEnd: '2026-11-10T12:00:00.000Z',
       cancelAtPeriodEnd: false,
+      pendingPlanId: 'annual',
+      pendingChangeAt: '2026-11-10T12:00:00.000Z',
       updatedAt: '2026-10-10T12:00:00.000Z',
     });
     const { res, status, json } = createResponse();
@@ -134,6 +140,8 @@ describe('BillingController', () => {
         status: 'active',
         currentPeriodEnd: '2026-11-10T12:00:00.000Z',
         cancelAtPeriodEnd: false,
+        pendingPlanId: 'annual',
+        pendingChangeAt: '2026-11-10T12:00:00.000Z',
       },
     });
     expect(JSON.stringify(body)).not.toContain('cus_secret');
@@ -167,5 +175,43 @@ describe('BillingController', () => {
     await BillingController.createPortalSession(request({ locale: 'en' }), res);
     expect(status).toHaveBeenCalledWith(503);
     expect(createBillingPortalSessionUseCase).not.toHaveBeenCalled();
+  });
+
+  it('troca de período: só itemId, período e chave; o valor vem do servidor (D13)', async () => {
+    const { res, status } = createResponse();
+    await BillingController.changePlan(
+      request({ itemId: 'item-1', planId: 'annual', idempotencyKey: 'key-12345', amountMinor: 1 }),
+      res
+    );
+    expect(status).toHaveBeenCalledWith(400);
+    expect(changePartnerPlanSubscriptionApplicationUseCase).not.toHaveBeenCalled();
+  });
+
+  it('troca de período devolve a troca agendada sem o ID do cliente', async () => {
+    vi.mocked(changePartnerPlanSubscriptionApplicationUseCase).mockResolvedValue({
+      itemId: 'item-1',
+      partnerId: 'p1',
+      stripeCustomerId: 'cus_secret',
+      stripeSubscriptionId: 'sub_1',
+      planId: 'monthly',
+      status: 'active',
+      currentPeriodEnd: '2026-11-10T12:00:00.000Z',
+      cancelAtPeriodEnd: false,
+      pendingPlanId: 'annual',
+      pendingChangeAt: '2026-11-10T12:00:00.000Z',
+      updatedAt: '2026-10-10T12:00:00.000Z',
+    });
+    const { res, status, json } = createResponse();
+    await BillingController.changePlan(
+      request({ itemId: 'item-1', planId: 'annual', idempotencyKey: 'key-12345' }),
+      res
+    );
+    expect(changePartnerPlanSubscriptionApplicationUseCase).toHaveBeenCalledWith(
+      { uid: 'p1' },
+      { itemId: 'item-1', planId: 'annual', idempotencyKey: 'key-12345' }
+    );
+    expect(status).toHaveBeenCalledWith(200);
+    expect(json.mock.calls[0]?.[0].subscription.pendingPlanId).toBe('annual');
+    expect(JSON.stringify(json.mock.calls[0]?.[0])).not.toContain('cus_secret');
   });
 });

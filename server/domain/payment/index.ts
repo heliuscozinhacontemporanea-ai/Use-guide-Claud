@@ -16,16 +16,18 @@ export { syncConnectedAccountFromWebhookUseCase } from './usecases/syncConnected
 
 export { createMarketplacePaymentIntentUseCase } from './usecases/createMarketplacePaymentIntentUseCase';
 export { getPaymentReferenceUseCase } from './usecases/getPaymentReferenceUseCase';
-export { cancelListingPlanSubscriptionUseCase } from './usecases/billing/cancelListingPlanSubscriptionUseCase';
-export { cancelPartnerPlanSubscriptionsUseCase } from './usecases/billing/cancelPartnerPlanSubscriptionsUseCase';
 export { createBillingPortalSessionUseCase } from './usecases/billing/createBillingPortalSessionUseCase';
 export { getListingPlanSubscriptionUseCase } from './usecases/billing/getListingPlanSubscriptionUseCase';
+export { cancelListingPlanSubscriptionUseCase } from './usecases/billing/cancelListingPlanSubscriptionUseCase';
+export { cancelPartnerPlanSubscriptionsUseCase } from './usecases/billing/cancelPartnerPlanSubscriptionsUseCase';
+export { schedulePlanSubscriptionChangeUseCase } from './usecases/billing/schedulePlanSubscriptionChangeUseCase';
 export { setPlanSubscriptionCancelAtPeriodEndUseCase } from './usecases/billing/setPlanSubscriptionCancelAtPeriodEndUseCase';
 export { startPlanSubscriptionUseCase } from './usecases/billing/startPlanSubscriptionUseCase';
 export { syncPlanSubscriptionUseCase } from './usecases/billing/syncPlanSubscriptionUseCase';
 
 export { PaymentDomainError } from './services/stripePaymentService';
 export type {
+  SchedulePlanChangeInput,
   StartPlanSubscriptionInput,
   StartPlanSubscriptionResult,
 } from './services/billingService';
@@ -48,4 +50,3 @@ export type {
   RefundPaymentResult,
   VerifiedWebhookEvent,
 } from './ports/paymentGatewayPort';
-

@@ -11,6 +11,8 @@ export interface InsightsTranslation {
     title: string;
     loading: string;
     loadError: string;
+    planRequiredTitle: string;
+    planRequired: string;
   };
   stats: {
     views: string;
@@ -58,6 +60,9 @@ export const insightsPtBR: InsightsTranslation = {
     title: 'Relatório de insights',
     loading: 'Carregando o relatório...',
     loadError: 'Não foi possível carregar o relatório deste item.',
+    planRequiredTitle: 'Métricas do plano Use Guide Verificado',
+    planRequired:
+      'As métricas deste cadastro fazem parte do plano do estabelecimento. Ative o plano em Meus Itens. As avaliações continuam liberadas.',
   },
   stats: {
     views: 'Visualizações',
@@ -105,6 +110,9 @@ export const insightsEn: InsightsTranslation = {
     title: 'Insights report',
     loading: 'Loading the report...',
     loadError: 'We could not load the report for this item.',
+    planRequiredTitle: 'Use Guide Verified plan metrics',
+    planRequired:
+      'Metrics for this listing are part of the business plan. Start the plan in My Items. Reviews stay available.',
   },
   stats: {
     views: 'Views',
@@ -152,6 +160,9 @@ export const insightsFr: InsightsTranslation = {
     title: 'Rapport de statistiques',
     loading: 'Chargement du rapport...',
     loadError: 'Impossible de charger le rapport de cet élément.',
+    planRequiredTitle: "Statistiques de l'offre Use Guide Vérifié",
+    planRequired:
+      "Les statistiques de cette fiche font partie de l'offre de l'établissement. Activez l'offre dans Mes éléments. Les avis restent disponibles.",
   },
   stats: {
     views: 'Vues',

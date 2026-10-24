@@ -1,6 +1,6 @@
 import type { ProviderSubscriptionStatus } from './billingGatewayPort';
 
-/** Coleção interna `planSubscriptions/{itemId}` (D11, só backend). */
+/** Coleção interna `planSubscriptions/{itemId}` (só backend): uma assinatura por estabelecimento (D11). */
 export interface PlanSubscriptionRecord {
   itemId: string;
   partnerId: string;
@@ -10,6 +10,9 @@ export interface PlanSubscriptionRecord {
   status: ProviderSubscriptionStatus;
   currentPeriodEnd: string | null;
   cancelAtPeriodEnd: boolean;
+  /** Período escolhido para a próxima renovação (D13); `null` sem troca agendada. */
+  pendingPlanId: string | null;
+  pendingChangeAt: string | null;
   updatedAt: string;
 }
 

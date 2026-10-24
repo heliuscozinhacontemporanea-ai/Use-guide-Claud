@@ -23,7 +23,6 @@ export function usePartnerPanelActions(profileData?: PartnerProfile) {
     userLoading: profile.userLoading,
     partnerProfile: profile.partnerProfile,
     profileStatus: profile.profileStatus,
-    isVerified: profile.isVerified,
 
     activeTab: layout.activeTab,
     setActiveTab: layout.setActiveTab,

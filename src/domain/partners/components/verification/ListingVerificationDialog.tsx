@@ -66,7 +66,7 @@ export function ListingVerificationDialog({
           </p>
         ) : error ? (
           <div className="space-y-3">
-            <p className="text-sm text-rose-300">{error}</p>
+            <p className="text-sm text-danger">{error}</p>
             <button
               type="button"
               onClick={() => void reload()}

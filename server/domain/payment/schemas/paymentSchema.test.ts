@@ -1,8 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  CreatePlanPaymentIntentSchema,
-  CreateTicketPaymentIntentSchema,
-} from './paymentSchema';
+import { CreatePlanPaymentIntentSchema, CreateTicketPaymentIntentSchema } from './paymentSchema';
 
 describe('Payment Schemas - Mass Assignment Protection and Strictness', () => {
   const validPlanPayload = {

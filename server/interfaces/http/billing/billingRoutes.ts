@@ -12,6 +12,7 @@ const router = Router();
 
 router.post('/subscriptions', verifyAuthTokenStrict, BillingController.startSubscription);
 router.get('/subscription', verifyAuthToken, BillingController.getSubscription);
+router.post('/subscription/change', verifyAuthTokenStrict, BillingController.changePlan);
 router.post('/subscription/cancel', verifyAuthTokenStrict, BillingController.cancelAtPeriodEnd);
 router.post('/subscription/resume', verifyAuthTokenStrict, BillingController.resume);
 router.post('/subscription/portal', verifyAuthTokenStrict, BillingController.createPortalSession);

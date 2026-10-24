@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import type { PartnerContentRecord } from '../../types/partnerContent';
 import { cn } from '../../../../shared/utils/cn';
 import { VerifiedBadge } from '../../../../ui/components/VerifiedBadge';
+import { ListingPlanChip } from '../plan/ListingPlanChip';
 import { VerificationStatusChip } from '../verification/VerificationStatusChip';
 
 interface PartnerItemsTableProps {
@@ -15,6 +16,9 @@ interface PartnerItemsTableProps {
   /** Muda depois de um envio de verificação, para os selos relerem o status. */
   verificationVersion: number;
   onVerifyItem: (item: PartnerContentRecord) => void;
+  /** Muda depois de ativar ou comprar um plano, para os selos de plano relerem o estado. */
+  planVersion: number;
+  onOpenPlan: (item: PartnerContentRecord) => void;
 }
 
 export function PartnerItemsTable({
@@ -25,6 +29,8 @@ export function PartnerItemsTable({
   onCreateNew,
   verificationVersion,
   onVerifyItem,
+  planVersion,
+  onOpenPlan,
 }: PartnerItemsTableProps) {
   const { t } = useTranslation();
   return (
@@ -63,9 +69,9 @@ export function PartnerItemsTable({
                 type="button"
                 onClick={() => onEditItem(item)}
                 aria-label={t('partners.items.edit', { name: item.name })}
-                className="absolute inset-0 rounded-3xl flex items-end justify-end p-4 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400/50"
+                className="press absolute inset-0 rounded-3xl flex items-end justify-end p-4 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400/50"
               >
-                <span className="p-2 rounded-xl bg-white/5 text-white/50 group-hover:text-teal-400 group-hover:bg-teal-400/10 transition-all">
+                <span className="p-2 rounded-xl bg-white/5 text-white/50 group-hover:text-accent group-hover:bg-accent-soft transition-all">
                   <Edit2 size={13} aria-hidden="true" />
                 </span>
               </button>
@@ -99,7 +105,7 @@ export function PartnerItemsTable({
                 </div>
                 <div className="mt-2 flex items-center gap-2">
                   {item.isActive !== false ? (
-                    <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-500 text-[9px] font-semibold">
+                    <span className="px-2 py-0.5 rounded-md bg-success-soft text-success text-[9px] font-semibold">
                       Ativo
                     </span>
                   ) : (
@@ -109,12 +115,18 @@ export function PartnerItemsTable({
                   )}
                 </div>
                 {item.id && (
-                  <div className="mt-2 relative w-fit">
+                  <div className="mt-2 relative flex flex-wrap gap-2">
                     <VerificationStatusChip
                       key={`${item.id}-${verificationVersion}`}
                       itemId={item.id}
                       name={item.name}
                       onOpen={() => onVerifyItem(item)}
+                    />
+                    <ListingPlanChip
+                      key={`${item.id}-plan-${planVersion}-${verificationVersion}`}
+                      itemId={item.id}
+                      name={item.name}
+                      onOpen={() => onOpenPlan(item)}
                     />
                   </div>
                 )}
@@ -134,7 +146,7 @@ export function PartnerItemsTable({
                     await onToggleActive(item.id, item.isActive !== false);
                   }
                 }}
-                className="absolute top-2 right-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl focus-visible:ring-2 focus-visible:ring-teal-400/50"
+                className="press absolute top-2 right-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl focus-visible:ring-2 focus-visible:ring-teal-400/50"
               >
                 <span
                   className={cn(

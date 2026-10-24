@@ -57,12 +57,12 @@ export function LinkedVerificationForm({
             </option>
           ))}
         </select>
-        {error && <p className="text-xs text-rose-300">{error}</p>}
+        {error && <p className="text-xs text-danger">{error}</p>}
       </div>
       <button
         type="submit"
         disabled={submitting}
-        className="w-full min-h-[48px] flex items-center justify-center gap-2 rounded-2xl bg-teal-500 text-black text-xs font-bold hover:bg-teal-400 disabled:opacity-60 transition-colors focus-visible:ring-2 focus-visible:ring-teal-400/50"
+        className="press w-full min-h-[48px] flex items-center justify-center gap-2 rounded-2xl bg-teal-500 text-black text-xs font-bold hover:bg-teal-400 disabled:opacity-60 focus-visible:ring-2 focus-visible:ring-teal-400/50"
       >
         {submitting && <Loader2 size={14} className="animate-spin" aria-hidden="true" />}
         {submitting ? t('verification.form.submitting') : t('verification.form.submit')}

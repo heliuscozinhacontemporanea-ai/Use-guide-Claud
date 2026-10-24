@@ -1,4 +1,5 @@
 import type { Response } from 'express';
+import { changePartnerPlanSubscriptionApplicationUseCase } from '../../../application/usecases/changePartnerPlanSubscriptionApplicationUseCase';
 import { startPartnerPlanSubscriptionApplicationUseCase } from '../../../application/usecases/startPartnerPlanSubscriptionApplicationUseCase';
 import {
   createBillingPortalSessionUseCase,
@@ -10,6 +11,7 @@ import {
 import type { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
 import {
   BillingPortalSchema,
+  ChangePlanSubscriptionSchema,
   ListingSubscriptionSchema,
   StartPlanSubscriptionSchema,
 } from './schemas/billingSchemas';
@@ -37,6 +39,8 @@ function toPublicSubscription(record: PlanSubscriptionRecord | null) {
     status: record.status,
     currentPeriodEnd: record.currentPeriodEnd,
     cancelAtPeriodEnd: record.cancelAtPeriodEnd,
+    pendingPlanId: record.pendingPlanId,
+    pendingChangeAt: record.pendingChangeAt,
   };
 }
 
@@ -73,6 +77,25 @@ export class BillingController {
       return res.status(200).json({ subscription: toPublicSubscription(record) });
     } catch (error: unknown) {
       return handleError(res, 'getSubscription', error);
+    }
+  }
+
+  static async changePlan(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    if (!req.user?.uid) {
+      return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
+    }
+    const parsed = ChangePlanSubscriptionSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return sendError(res, 400, 'VALIDATION_ERROR', 'Dados da troca de período inválidos.');
+    }
+    try {
+      const record = await changePartnerPlanSubscriptionApplicationUseCase(
+        { uid: req.user.uid },
+        parsed.data
+      );
+      return res.status(200).json({ subscription: toPublicSubscription(record) });
+    } catch (error: unknown) {
+      return handleError(res, 'changePlan', error);
     }
   }
 

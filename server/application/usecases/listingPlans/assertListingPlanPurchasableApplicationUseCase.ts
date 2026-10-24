@@ -7,22 +7,24 @@ import {
 import { PaymentDomainError } from '../../../domain/payment';
 import { loadPlanListing } from './loadPlanListing';
 
-/** Garante que o estabelecimento pertence ao parceiro, está ativo e tem documento aprovado (D11). */
+/**
+ * Antes de cobrar o plano: o estabelecimento é do comprador e já foi verificado (D11). Devolve a
+ * validade do plano em vigor, para a assinatura não cobrar de novo o período já pago. O erro sai
+ * como `PaymentDomainError` porque `payment` é folha e não conhece `partners` (AGENTS.md §5.4).
+ */
 export async function assertListingPlanPurchasableApplicationUseCase(
-  actorUid: string,
+  actor: { uid: string; admin?: boolean },
   itemId: string
-): Promise<{ currentPaidUntil: string | null }> {
+): Promise<{ currentPlanUntil: string | null }> {
   try {
-    const [listing, verification] = await Promise.all([
-      loadPlanListing(itemId),
-      getListingVerificationStatusUseCase(itemId),
-    ]);
-    await assertListingPlanPurchasableUseCase({ uid: actorUid }, listing, verification);
-    return { currentPaidUntil: await getListingPlanUntilUseCase(itemId) };
+    const listing = await loadPlanListing(itemId);
+    const verification = await getListingVerificationStatusUseCase(itemId);
+    await assertListingPlanPurchasableUseCase(actor, listing, verification);
   } catch (error) {
     if (error instanceof ListingPlanError) {
       throw new PaymentDomainError(error.code, error.message, error.statusCode);
     }
     throw error;
   }
+  return { currentPlanUntil: await getListingPlanUntilUseCase(itemId) };
 }

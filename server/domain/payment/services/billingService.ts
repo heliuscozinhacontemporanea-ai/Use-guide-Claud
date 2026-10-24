@@ -35,6 +35,18 @@ export interface StartPlanSubscriptionInput {
   idempotencyKey: string;
 }
 
+/** Troca de período na próxima renovação (D13): o preço vem do catálogo, nunca do cliente. */
+export interface SchedulePlanChangeInput {
+  itemId: string;
+  partnerId: string;
+  planId: string;
+  planName: string;
+  amountMinor: number;
+  interval: 'month' | 'year';
+  intervalCount: number;
+  idempotencyKey: string;
+}
+
 export interface StartPlanSubscriptionResult {
   subscriptionId: string;
   status: ProviderSubscriptionStatus;
@@ -102,6 +114,8 @@ export class BillingService {
       status: created.status,
       currentPeriodEnd: created.currentPeriodEnd,
       cancelAtPeriodEnd: false,
+      pendingPlanId: null,
+      pendingChangeAt: null,
       updatedAt: this.now().toISOString(),
     });
 
@@ -147,14 +161,61 @@ export class BillingService {
     partnerId: string,
     cancel: boolean
   ): Promise<PlanSubscriptionRecord> {
-    const existing = await this.getListingSubscription(itemId, partnerId);
-    if (!existing?.stripeSubscriptionId || !LIVE_STATUSES.has(existing.status)) {
-      throw new PaymentDomainError('SUBSCRIPTION_NOT_FOUND', 'Nenhuma assinatura ativa.', 404);
-    }
+    const existing = await this.requireLiveSubscription(itemId, partnerId);
     const snapshot = await this.gateway.setCancelAtPeriodEnd(existing.stripeSubscriptionId, cancel);
     const record = this.toRecord(itemId, partnerId, snapshot, existing);
     await this.repository.save(record);
     return record;
+  }
+
+  /**
+   * Troca de período na próxima renovação (D13). Escolher o período atual desfaz a troca agendada.
+   * Com a renovação cancelada, a troca a retoma: o parceiro escolheu continuar em outro período.
+   */
+  async schedulePlanChange(input: SchedulePlanChangeInput): Promise<PlanSubscriptionRecord> {
+    if (!Number.isInteger(input.amountMinor) || input.amountMinor <= 0) {
+      throw new PaymentDomainError('INVALID_AMOUNT', 'Valor do plano inválido.', 422);
+    }
+    const existing = await this.requireLiveSubscription(input.itemId, input.partnerId);
+    if (existing.status === 'past_due') {
+      throw new PaymentDomainError(
+        'SUBSCRIPTION_PAST_DUE',
+        'Atualize a forma de pagamento antes de trocar o período.',
+        409
+      );
+    }
+    const subscriptionId = existing.stripeSubscriptionId;
+
+    if (input.planId === existing.planId) {
+      const snapshot = await this.gateway.releaseSchedule(subscriptionId);
+      return this.saveSnapshot(existing, snapshot, null);
+    }
+
+    if (existing.cancelAtPeriodEnd) {
+      await this.gateway.setCancelAtPeriodEnd(subscriptionId, false);
+    }
+    const priceId = await this.gateway.ensureRecurringPrice({
+      lookupKey: `plan_${input.planId}_${input.amountMinor}`,
+      amountMinor: input.amountMinor,
+      interval: input.interval,
+      intervalCount: input.intervalCount,
+      nickname: input.planName,
+    });
+    const snapshot = await this.gateway.schedulePriceChange({
+      subscriptionId,
+      priceId,
+      metadata: {
+        referenceType: 'plan_subscription',
+        partnerId: input.partnerId,
+        planId: input.planId,
+        itemId: input.itemId,
+      },
+      idempotencyKey: `sub_change_${input.itemId}_${input.idempotencyKey}`,
+    });
+    return this.saveSnapshot(existing, snapshot, {
+      planId: input.planId,
+      changeAt: snapshot.currentPeriodEnd,
+    });
   }
 
   /** Estabelecimento excluído: a assinatura dele para de cobrar na hora. */
@@ -185,6 +246,31 @@ export class BillingService {
       returnUrl,
       locale,
     });
+  }
+
+  private async requireLiveSubscription(
+    itemId: string,
+    partnerId: string
+  ): Promise<PlanSubscriptionRecord & { stripeSubscriptionId: string }> {
+    const existing = await this.getListingSubscription(itemId, partnerId);
+    if (!existing?.stripeSubscriptionId || !LIVE_STATUSES.has(existing.status)) {
+      throw new PaymentDomainError('SUBSCRIPTION_NOT_FOUND', 'Nenhuma assinatura ativa.', 404);
+    }
+    return { ...existing, stripeSubscriptionId: existing.stripeSubscriptionId };
+  }
+
+  private async saveSnapshot(
+    existing: PlanSubscriptionRecord,
+    snapshot: SubscriptionSnapshot,
+    pending: { planId: string; changeAt: string | null } | null
+  ): Promise<PlanSubscriptionRecord> {
+    const record: PlanSubscriptionRecord = {
+      ...this.toRecord(existing.itemId, existing.partnerId, snapshot, existing),
+      pendingPlanId: pending?.planId ?? null,
+      pendingChangeAt: pending?.changeAt ?? null,
+    };
+    await this.repository.save(record);
+    return record;
   }
 
   private async findCustomerId(partnerId: string): Promise<string | null> {
@@ -222,7 +308,22 @@ export class BillingService {
       status: snapshot.status,
       currentPeriodEnd: snapshot.currentPeriodEnd,
       cancelAtPeriodEnd: snapshot.cancelAtPeriodEnd,
+      ...this.pendingAfterSync(snapshot, existing),
       updatedAt: this.now().toISOString(),
     };
+  }
+
+  /** A troca sai do registro quando o agendamento some ou quando o novo período já entrou. */
+  private pendingAfterSync(
+    snapshot: SubscriptionSnapshot,
+    existing: PlanSubscriptionRecord | null
+  ): Pick<PlanSubscriptionRecord, 'pendingPlanId' | 'pendingChangeAt'> {
+    const stillPending =
+      Boolean(existing?.pendingPlanId) &&
+      snapshot.scheduleId !== null &&
+      snapshot.metadata.planId !== existing?.pendingPlanId;
+    return stillPending && existing
+      ? { pendingPlanId: existing.pendingPlanId, pendingChangeAt: existing.pendingChangeAt }
+      : { pendingPlanId: null, pendingChangeAt: null };
   }
 }

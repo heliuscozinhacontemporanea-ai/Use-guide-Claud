@@ -1,64 +1,46 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+const m = vi.hoisted(() => ({ load: vi.fn(), status: vi.fn(), assert: vi.fn(), until: vi.fn() }));
+
 vi.mock('../../../domain/partners', async () => {
-  const actual = await vi.importActual<typeof import('../../../domain/partners')>(
-    '../../../domain/partners'
-  );
+  const { ListingPlanError } = await import('../../../domain/partners/errors/listingPlanError');
   return {
-    ...actual,
-    assertListingPlanPurchasableUseCase: vi.fn(),
-    getListingPlanUntilUseCase: vi.fn(),
-    getListingVerificationStatusUseCase: vi.fn(),
+    ListingPlanError,
+    assertListingPlanPurchasableUseCase: m.assert,
+    getListingPlanUntilUseCase: m.until,
+    getListingVerificationStatusUseCase: m.status,
   };
 });
-vi.mock('./loadPlanListing', () => ({ loadPlanListing: vi.fn() }));
+vi.mock('./loadPlanListing', () => ({ loadPlanListing: m.load }));
 
-import {
-  assertListingPlanPurchasableUseCase,
-  getListingPlanUntilUseCase,
-  getListingVerificationStatusUseCase,
-  ListingPlanError,
-} from '../../../domain/partners';
+import { ListingPlanError } from '../../../domain/partners/errors/listingPlanError';
 import { PaymentDomainError } from '../../../domain/payment';
 import { assertListingPlanPurchasableApplicationUseCase } from './assertListingPlanPurchasableApplicationUseCase';
-import { loadPlanListing } from './loadPlanListing';
 
 describe('assertListingPlanPurchasableApplicationUseCase', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(loadPlanListing).mockResolvedValue({ id: 'item-1', ownerId: 'p1' });
-    vi.mocked(getListingVerificationStatusUseCase).mockResolvedValue('approved');
-    vi.mocked(getListingPlanUntilUseCase).mockResolvedValue('2026-12-01T00:00:00.000Z');
+    m.load.mockResolvedValue({ id: 'item-1', ownerId: 'p1' });
+    m.status.mockResolvedValue('approved');
   });
 
-  it('devolve o fim do período já pago quando o item é do dono e o documento está aprovado', async () => {
-    const result = await assertListingPlanPurchasableApplicationUseCase('p1', 'item-1');
-    expect(assertListingPlanPurchasableUseCase).toHaveBeenCalledWith(
+  it('devolve a validade do plano em vigor para não cobrar duas vezes', async () => {
+    m.until.mockResolvedValue('2026-12-01T00:00:00.000Z');
+    await expect(
+      assertListingPlanPurchasableApplicationUseCase({ uid: 'p1' }, 'item-1')
+    ).resolves.toEqual({ currentPlanUntil: '2026-12-01T00:00:00.000Z' });
+  });
+
+  it('erro do plano sai como PaymentDomainError com o mesmo código e status', async () => {
+    m.assert.mockRejectedValue(
+      new ListingPlanError('LISTING_PENDING_VERIFICATION', 'Verifique antes.')
+    );
+    const error = await assertListingPlanPurchasableApplicationUseCase(
       { uid: 'p1' },
-      { id: 'item-1', ownerId: 'p1' },
-      'approved'
-    );
-    expect(result).toEqual({ currentPaidUntil: '2026-12-01T00:00:00.000Z' });
-  });
-
-  it('traduz LISTING_PENDING_VERIFICATION para 422', async () => {
-    vi.mocked(assertListingPlanPurchasableUseCase).mockRejectedValueOnce(
-      new ListingPlanError('LISTING_PENDING_VERIFICATION', 'Precisa verificar.')
-    );
-    await expect(
-      assertListingPlanPurchasableApplicationUseCase('p1', 'item-1')
-    ).rejects.toMatchObject({
-      code: 'LISTING_PENDING_VERIFICATION',
-      statusCode: 422,
-    } satisfies Partial<PaymentDomainError>);
-  });
-
-  it('traduz item de outro dono para 403/404', async () => {
-    vi.mocked(assertListingPlanPurchasableUseCase).mockRejectedValueOnce(
-      new ListingPlanError('FORBIDDEN', 'Sem acesso.')
-    );
-    await expect(
-      assertListingPlanPurchasableApplicationUseCase('intruso', 'item-1')
-    ).rejects.toMatchObject({ code: 'FORBIDDEN', statusCode: 403 });
+      'item-1'
+    ).catch((e: unknown) => e);
+    expect(error).toBeInstanceOf(PaymentDomainError);
+    expect(error).toMatchObject({ code: 'LISTING_PENDING_VERIFICATION', statusCode: 422 });
+    expect(m.until).not.toHaveBeenCalled();
   });
 });

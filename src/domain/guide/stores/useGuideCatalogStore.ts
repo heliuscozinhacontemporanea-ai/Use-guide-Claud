@@ -1,10 +1,12 @@
 import { create } from 'zustand';
 import { subscribeGuideCatalog } from '../factory';
+import type { FeaturedListings } from '../types/featuredListing';
 import { GuideItem } from '../types/guide';
 
 interface GuideCatalogState {
   items: GuideItem[];
   events: GuideItem[];
+  featured: FeaturedListings;
   loading: boolean;
   error: string | null;
   subscriberCount: number;
@@ -16,6 +18,7 @@ interface GuideCatalogState {
 export const useGuideCatalogStore = create<GuideCatalogState>((set, get) => ({
   items: [],
   events: [],
+  featured: {},
   loading: true,
   error: null,
   subscriberCount: 0,
@@ -29,10 +32,11 @@ export const useGuideCatalogStore = create<GuideCatalogState>((set, get) => ({
 
     if (current.subscriberCount === 0) {
       const unsubscribe = subscribeGuideCatalog(
-        ({ items, events }) => {
+        ({ items, events, featured }) => {
           set({
             items,
             events,
+            featured,
             loading: false,
             error: null,
           });
@@ -83,6 +87,7 @@ export const useGuideCatalogStore = create<GuideCatalogState>((set, get) => ({
     set({
       items: [],
       events: [],
+      featured: {},
       loading: true,
       error: null,
       catalogUnsubscribe: null,
@@ -90,10 +95,11 @@ export const useGuideCatalogStore = create<GuideCatalogState>((set, get) => ({
 
     if (current.subscriberCount > 0) {
       const unsubscribe = subscribeGuideCatalog(
-        ({ items, events }) => {
+        ({ items, events, featured }) => {
           set({
             items,
             events,
+            featured,
             loading: false,
             error: null,
           });

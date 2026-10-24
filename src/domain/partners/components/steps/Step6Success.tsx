@@ -19,14 +19,14 @@ export function Step6Success({ businessName, onClose, onAccessPanel }: Step6Succ
       id="success-step-container"
     >
       <div className="relative">
-        <div className="w-24 h-24 rounded-[2.5rem] bg-emerald-500/10 flex items-center justify-center text-emerald-400 border border-emerald-500/20 shadow-[0_0_40px_rgba(16,185,129,0.1)]">
+        <div className="w-24 h-24 rounded-[2.5rem] bg-success-soft flex items-center justify-center text-success border border-success-line shadow-[0_0_40px_rgba(16,185,129,0.1)]">
           <CheckCircle2 size={48} aria-hidden="true" />
         </div>
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           aria-hidden="true"
-          className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white text-xs font-bold"
+          className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-on-fill text-xs font-bold"
         >
           🚀
         </motion.div>
@@ -42,18 +42,18 @@ export function Step6Success({ businessName, onClose, onAccessPanel }: Step6Succ
               values={{ name: businessName }}
               components={{
                 name: <span className="text-white font-bold" />,
-                active: <span className="text-emerald-400 font-bold uppercase" />,
+                active: <span className="text-success font-bold uppercase" />,
               }}
             />
           </p>
         </div>
         <div className="p-4 bg-white/5 rounded-2xl border border-white/10 text-left space-y-2">
-          <p className="text-[10px] font-black uppercase text-indigo-400">
+          <p className="text-[10px] font-black uppercase text-seal">
             {t('partners.signupSuccess.nextStepsTitle')}
           </p>
           <ul className="space-y-2">
             <li className="flex items-start gap-2 text-xs text-white/80 font-semibold">
-              <ShieldCheck size={14} className="text-teal-400 shrink-0 mt-0.5" aria-hidden="true" />
+              <ShieldCheck size={14} className="text-accent shrink-0 mt-0.5" aria-hidden="true" />
               {t('partners.signupSuccess.steps.verify')}
             </li>
             {STEPS.map((step) => (
@@ -71,7 +71,7 @@ export function Step6Success({ businessName, onClose, onAccessPanel }: Step6Succ
           <button
             type="button"
             onClick={onAccessPanel}
-            className="w-full py-5 rounded-[2rem] bg-indigo-500 text-white font-black uppercase tracking-widest text-[11px] hover:bg-indigo-400 shadow-xl shadow-indigo-500/20 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer focus-visible:ring-2 focus-visible:ring-teal-400/50"
+            className="w-full py-5 rounded-[2rem] bg-indigo-500 text-on-fill font-black uppercase tracking-widest text-[11px] hover:bg-indigo-400 shadow-xl shadow-indigo-500/20 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer focus-visible:ring-2 focus-visible:ring-teal-400/50"
             id="success-access-panel-btn"
           >
             <Rocket size={16} aria-hidden="true" />

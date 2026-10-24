@@ -2,13 +2,15 @@ import { useCallback, useRef, useState } from 'react';
 import { confirmPlanPaymentReturnUseCase } from '../application/usecases/confirmPlanPaymentReturnUseCase';
 import { createPlanPaymentIntentUseCase } from '../application/usecases/createPlanPaymentIntentUseCase';
 import type { PaidPlanId } from '../types/payment';
+import { getPaymentErrorMessage } from '../utils/paymentErrorMessage';
 
 interface UsePaymentProps {
+  itemId: string;
   planId: PaidPlanId;
   onSuccess?: (paymentId: string) => void;
 }
 
-export function usePayment({ planId, onSuccess }: UsePaymentProps) {
+export function usePayment({ itemId, planId, onSuccess }: UsePaymentProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
@@ -24,6 +26,7 @@ export function usePayment({ planId, onSuccess }: UsePaymentProps) {
     setError(null);
     try {
       const response = await createPlanPaymentIntentUseCase({
+        itemId,
         planId,
         idempotencyKey: idempotencyKeyRef.current,
       });
@@ -34,14 +37,12 @@ export function usePayment({ planId, onSuccess }: UsePaymentProps) {
         onSuccess?.(response.paymentIntentId);
       }
     } catch (err: unknown) {
-      setError(
-        err instanceof Error ? err.message : 'Não foi possível iniciar o pagamento via Stripe.'
-      );
+      setError(getPaymentErrorMessage(err));
       setStatus('failed');
     } finally {
       setLoading(false);
     }
-  }, [planId, onSuccess]);
+  }, [itemId, planId, onSuccess]);
 
   const confirmPaymentOnBackend = useCallback(
     async (resolvedPaymentIntentId?: string) => {
@@ -57,16 +58,12 @@ export function usePayment({ planId, onSuccess }: UsePaymentProps) {
           onSuccess?.(targetId);
         } else if (res.status === 'failed' || res.status === 'canceled') {
           setStatus('failed');
-          setError('O pagamento não foi aprovado.');
+          setError(getPaymentErrorMessage(new Error('PAYMENT_FAILED')));
         } else {
           setStatus('processing');
         }
       } catch (err: unknown) {
-        setError(
-          err instanceof Error
-            ? err.message
-            : 'Aguardando confirmação final do pagamento.'
-        );
+        setError(err instanceof Error ? err.message : 'Aguardando confirmação final do pagamento.');
       }
     },
     [paymentIntentId, onSuccess]

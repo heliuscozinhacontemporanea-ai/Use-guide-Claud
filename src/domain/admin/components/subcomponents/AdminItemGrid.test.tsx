@@ -34,4 +34,32 @@ describe('AdminItemGrid', () => {
     render(<AdminItemGrid {...baseProps} activeTab="events" onInitNew={vi.fn()} />);
     expect(screen.queryByRole('button', { name: /Nova dica/ })).toBeNull();
   });
+
+  it('selo do estabelecimento abre sem disparar o editor; dicas não têm selo (D11)', () => {
+    const onEdit = vi.fn();
+    const items = [
+      {
+        id: 'item-1',
+        name: 'Pousada Sol',
+        category: 'hotel',
+        description: '',
+        image: '',
+        location: 'jeri',
+      },
+      { id: 'tip-1', name: 'Dica', category: 'tips', description: '', image: '', location: 'jeri' },
+    ];
+    render(
+      <AdminItemGrid
+        {...baseProps}
+        activeTab="items"
+        onInitNew={vi.fn()}
+        filteredItems={items as never}
+        onEdit={onEdit}
+        renderListingSeal={(item) => <button type="button">{`selo ${item.name}`}</button>}
+      />
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'selo Pousada Sol' }));
+    expect(onEdit).not.toHaveBeenCalled();
+    expect(screen.queryByRole('button', { name: 'selo Dica' })).toBeNull();
+  });
 });

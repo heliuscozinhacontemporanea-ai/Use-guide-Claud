@@ -1,28 +1,14 @@
 import { Users, CheckCircle, Clock, Trash2, RefreshCw, Ban } from 'lucide-react';
 import { cn } from '../../../../shared/utils/cn';
-import { VerifiedBadge } from '../../../../ui/components/VerifiedBadge';
 import { AdminPartnerSummary } from '../../types/admin';
 
 const STATUS_BADGE: Record<
   AdminPartnerSummary['status'],
   { label: string; className: string; icon: typeof Clock }
 > = {
-  active: { label: 'Cadastro Ativo', className: 'text-emerald-400', icon: CheckCircle },
-  suspended: { label: 'Suspenso', className: 'text-rose-400', icon: Ban },
+  active: { label: 'Cadastro Ativo', className: 'text-success', icon: CheckCircle },
+  suspended: { label: 'Suspenso', className: 'text-danger', icon: Ban },
 };
-
-const PLAN_LABEL: Record<NonNullable<AdminPartnerSummary['verificationType']>, string> = {
-  trial: 'Teste grátis',
-  monthly: 'Plano mensal',
-  'semi-annual': 'Plano semestral',
-  annual: 'Plano anual',
-  admin: 'Selo concedido pelo admin',
-};
-
-/** Selo visível para o público: verificado e não suspenso pelo admin. */
-function hasVisibleSeal(partner: AdminPartnerSummary): boolean {
-  return partner.isVerified && !partner.isVerificationSuspended;
-}
 
 const ROW_BUTTON =
   'flex-1 sm:flex-none min-h-[44px] px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all focus-visible:ring-2 focus-visible:ring-teal-400/50';
@@ -30,7 +16,6 @@ const ROW_BUTTON =
 interface AdminPartnersViewProps {
   partners: AdminPartnerSummary[];
   isLoading: boolean;
-  onToggleVerification: (partner: AdminPartnerSummary) => Promise<void>;
   onToggleStatus: (partner: AdminPartnerSummary) => Promise<void>;
   onDeletePartner: (partner: AdminPartnerSummary) => Promise<void>;
 }
@@ -38,14 +23,13 @@ interface AdminPartnersViewProps {
 export function AdminPartnersView({
   partners,
   isLoading,
-  onToggleVerification,
   onToggleStatus,
   onDeletePartner,
 }: AdminPartnersViewProps) {
   if (isLoading) {
     return (
       <div className="py-24 text-center">
-        <RefreshCw className="animate-spin text-indigo-500 mx-auto" size={32} />
+        <RefreshCw className="animate-spin text-seal mx-auto" size={32} />
       </div>
     );
   }
@@ -67,7 +51,7 @@ export function AdminPartnersView({
             id={`partner-row-${partner.id}`}
           >
             <div className="flex items-center gap-5 w-full sm:w-auto">
-              <div className="w-14 h-14 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 group-hover:scale-110 transition-transform">
+              <div className="w-14 h-14 rounded-2xl bg-seal-soft flex items-center justify-center text-seal group-hover:scale-110 transition-transform">
                 <Users size={24} />
               </div>
               <div>
@@ -95,23 +79,6 @@ export function AdminPartnersView({
                       </div>
                     );
                   })()}
-                  {hasVisibleSeal(partner) && (
-                    <div className="flex items-center gap-1 text-blue-400">
-                      <VerifiedBadge size="sm" />
-                      <span className="text-[8px] font-black uppercase italic">Verificado</span>
-                    </div>
-                  )}
-                  {partner.isVerified && partner.verificationType && (
-                    <span className="text-[8px] font-black uppercase text-white/60">
-                      {PLAN_LABEL[partner.verificationType]}
-                      {partner.verifiedUntil &&
-                        ` até ${new Intl.DateTimeFormat('pt-BR', {
-                          timeZone: 'America/Fortaleza',
-                          dateStyle: 'short',
-                        }).format(new Date(partner.verifiedUntil))}`}
-                      {partner.isVerificationSuspended && ' · selo suspenso'}
-                    </span>
-                  )}
                 </div>
               </div>
             </div>
@@ -119,26 +86,12 @@ export function AdminPartnersView({
             <div className="flex items-center gap-2 w-full sm:w-auto justify-end border-t sm:border-t-0 border-white/5 pt-4 sm:pt-0">
               <button
                 type="button"
-                onClick={() => onToggleVerification(partner)}
-                className={cn(
-                  ROW_BUTTON,
-                  hasVisibleSeal(partner)
-                    ? 'bg-blue-500/10 text-blue-400 hover:bg-blue-500 hover:text-black'
-                    : 'bg-blue-500 text-black'
-                )}
-                id={`btn-verify-${partner.id}`}
-              >
-                {hasVisibleSeal(partner) ? 'Retirar selo' : 'Conceder selo'}
-              </button>
-
-              <button
-                type="button"
                 onClick={() => onToggleStatus(partner)}
                 className={cn(
                   ROW_BUTTON,
                   partner.status === 'suspended'
-                    ? 'bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-black'
-                    : 'bg-amber-500/10 text-amber-500 hover:bg-amber-500 hover:text-black'
+                    ? 'bg-success-soft text-success hover:bg-emerald-500 hover:text-black'
+                    : 'bg-warn-soft text-warn hover:bg-amber-500 hover:text-black'
                 )}
                 id={`btn-status-${partner.id}`}
               >
@@ -149,7 +102,7 @@ export function AdminPartnersView({
                 type="button"
                 onClick={() => onDeletePartner(partner)}
                 aria-label={`Excluir parceiro ${partner.businessName}`}
-                className="w-11 h-11 flex items-center justify-center rounded-xl bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition-all shadow-lg shadow-rose-500/10 focus-visible:ring-2 focus-visible:ring-teal-400/50"
+                className="w-11 h-11 flex items-center justify-center rounded-xl bg-danger-soft text-danger hover:bg-rose-500 hover:text-on-fill transition-all shadow-lg shadow-rose-500/10 focus-visible:ring-2 focus-visible:ring-teal-400/50"
                 id={`btn-delete-${partner.id}`}
               >
                 <Trash2 size={16} aria-hidden="true" />

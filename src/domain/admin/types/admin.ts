@@ -31,8 +31,4 @@ export interface AdminPartnerSummary {
   email: string;
   listingsCount: number;
   status: 'active' | 'suspended';
-  isVerified: boolean;
-  verifiedUntil: string | null;
-  verificationType: 'trial' | 'monthly' | 'semi-annual' | 'annual' | 'admin' | null;
-  isVerificationSuspended: boolean;
 }

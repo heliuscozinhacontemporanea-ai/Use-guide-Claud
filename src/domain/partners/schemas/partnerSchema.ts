@@ -365,13 +365,5 @@ export const updatePartnerStatusSchema = z.object({
   status: z.enum(['active', 'suspended']),
 });
 
-export const updatePartnerVerificationSchema = z
-  .object({
-    partnerId: z.string().min(1),
-    isVerified: z.boolean(),
-  })
-  .strict();
-
 export type PartnerSubmissionInput = z.infer<typeof partnerSubmissionSchema>;
 export type UpdatePartnerStatusInput = z.infer<typeof updatePartnerStatusSchema>;
-export type UpdatePartnerVerificationInput = z.infer<typeof updatePartnerVerificationSchema>;

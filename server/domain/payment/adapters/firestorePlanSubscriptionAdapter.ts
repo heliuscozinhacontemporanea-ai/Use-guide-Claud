@@ -16,6 +16,8 @@ function toRecord(itemId: string, data: Partial<PlanSubscriptionRecord>): PlanSu
     status: data.status ?? 'incomplete',
     currentPeriodEnd: data.currentPeriodEnd ?? null,
     cancelAtPeriodEnd: data.cancelAtPeriodEnd === true,
+    pendingPlanId: data.pendingPlanId ?? null,
+    pendingChangeAt: data.pendingChangeAt ?? null,
     updatedAt: String(data.updatedAt ?? ''),
   };
 }
@@ -23,8 +25,7 @@ function toRecord(itemId: string, data: Partial<PlanSubscriptionRecord>): PlanSu
 export class FirestorePlanSubscriptionAdapter implements PlanSubscriptionRepositoryPort {
   async get(itemId: string): Promise<PlanSubscriptionRecord | null> {
     const snapshot = await adminDb.collection(COLLECTION).doc(itemId).get();
-    if (!snapshot.exists) return null;
-    return toRecord(itemId, snapshot.data() as Partial<PlanSubscriptionRecord>);
+    return snapshot.exists ? toRecord(itemId, snapshot.data() ?? {}) : null;
   }
 
   async save(record: PlanSubscriptionRecord): Promise<void> {
@@ -32,13 +33,7 @@ export class FirestorePlanSubscriptionAdapter implements PlanSubscriptionReposit
   }
 
   async listByPartner(partnerId: string): Promise<PlanSubscriptionRecord[]> {
-    const snapshot = await adminDb
-      .collection(COLLECTION)
-      .where('partnerId', '==', partnerId)
-      .limit(50)
-      .get();
-    return snapshot.docs.map((doc) =>
-      toRecord(doc.id, doc.data() as Partial<PlanSubscriptionRecord>)
-    );
+    const snapshot = await adminDb.collection(COLLECTION).where('partnerId', '==', partnerId).get();
+    return snapshot.docs.map((doc) => toRecord(doc.id, doc.data()));
   }
 }

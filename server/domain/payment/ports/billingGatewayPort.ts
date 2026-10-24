@@ -16,6 +16,8 @@ export interface SubscriptionSnapshot {
   status: ProviderSubscriptionStatus;
   currentPeriodEnd: string | null;
   cancelAtPeriodEnd: boolean;
+  /** Agendamento de troca de preço ligado à assinatura, se houver. */
+  scheduleId: string | null;
   metadata: Record<string, string>;
 }
 
@@ -53,6 +55,19 @@ export interface BillingGatewayPort {
   }): Promise<CreateSubscriptionResult>;
   getSubscription(subscriptionId: string): Promise<SubscriptionSnapshot>;
   setCancelAtPeriodEnd(subscriptionId: string, cancel: boolean): Promise<SubscriptionSnapshot>;
+  /**
+   * Troca o preço na próxima renovação (D13): o período atual segue igual e a fase seguinte já
+   * começa no novo preço e com a nova metadata, sem proração e sem pedir o cartão de novo.
+   */
+  schedulePriceChange(params: {
+    subscriptionId: string;
+    priceId: string;
+    metadata: Record<string, string>;
+    idempotencyKey: string;
+  }): Promise<SubscriptionSnapshot>;
+  /** Desfaz a troca agendada; a assinatura continua no preço atual. */
+  releaseSchedule(subscriptionId: string): Promise<SubscriptionSnapshot>;
+  /** Cancela na hora, sem cobrança proporcional: usado quando o estabelecimento ou a conta é excluído. */
   cancelNow(subscriptionId: string): Promise<SubscriptionSnapshot>;
   createBillingPortalSession(params: {
     customerId: string;

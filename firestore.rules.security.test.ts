@@ -244,7 +244,7 @@ describe('Firestore Rules — Security Suite', () => {
       await assertFails(getDoc(doc(db, 'transactions/tx-2')));
     });
 
-    it('partner → own planSubscriptions read and write denied (server-only)', async () => {
+    it('partner → planSubscriptions do próprio estabelecimento negado (só backend, D11)', async () => {
       const db = testEnv.authenticatedContext('partner-1').firestore();
       await assertFails(getDoc(doc(db, 'planSubscriptions/item-1')));
       await assertFails(setDoc(doc(db, 'planSubscriptions/item-1'), { status: 'active' }));

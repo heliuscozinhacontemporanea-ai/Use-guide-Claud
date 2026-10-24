@@ -141,11 +141,6 @@ export function usePartnerProfile(loadedProfile?: PartnerProfile) {
           address: loadedProfile?.address,
           region: loadedProfile?.region,
           images: loadedProfile?.images,
-          isVerified: publicPartner.isVerified,
-          verifiedUntil: publicPartner.verifiedUntil,
-          verificationType: loadedProfile?.verificationType ?? null,
-          isVerificationSuspended: publicPartner.isVerificationSuspended,
-          hasUsedTrial: loadedProfile?.hasUsedTrial ?? false,
           status: publicPartner.status,
         };
 
@@ -170,12 +165,6 @@ export function usePartnerProfile(loadedProfile?: PartnerProfile) {
     return () => unsubscribe();
   }, [user, userLoading, loadedProfile, userProfileData]);
 
-  const isVerified = !!(
-    partnerProfile?.isVerified &&
-    !partnerProfile?.isVerificationSuspended &&
-    (!partnerProfile?.verifiedUntil || new Date(partnerProfile.verifiedUntil) > new Date())
-  );
-
   return {
     user,
     userLoading,
@@ -187,6 +176,5 @@ export function usePartnerProfile(loadedProfile?: PartnerProfile) {
     isUploading,
     setIsUploading,
     profileError,
-    isVerified,
   };
 }

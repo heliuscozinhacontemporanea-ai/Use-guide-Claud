@@ -22,25 +22,6 @@ export class ApiPartnerAdapter implements PartnerPort {
     }
   }
 
-  async activateTrial(partnerId: string): Promise<void> {
-    const res = await firebaseApiFetch(
-      '/api/partners/activate-trial',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ partnerId }),
-      },
-      { requireAuth: true }
-    );
-
-    if (!res.ok) {
-      const errorData = await res.json().catch(() => ({}));
-      throw new Error(errorData.error || 'Erro ao ativar o período de testes grátis no backend');
-    }
-  }
-
   async getPartnerProfile(partnerId: string): Promise<PartnerProfile | null> {
     const response = await firebaseApiFetch(
       `/api/partners/profile/${encodeURIComponent(partnerId)}`,
@@ -96,25 +77,6 @@ export class ApiPartnerAdapter implements PartnerPort {
     if (!res.ok) {
       const errorData = await res.json().catch(() => ({}));
       throw new Error(errorData.error || 'Erro ao atualizar status do parceiro no backend');
-    }
-  }
-
-  async updatePartnerVerification(partnerId: string, isVerified: boolean): Promise<void> {
-    const res = await firebaseApiFetch(
-      '/api/partners/verify',
-      {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ partnerId, isVerified }),
-      },
-      { requireAuth: true }
-    );
-
-    if (!res.ok) {
-      const errorData = await res.json().catch(() => ({}));
-      throw new Error(errorData.error || 'Erro ao atualizar verificação do parceiro no backend');
     }
   }
 

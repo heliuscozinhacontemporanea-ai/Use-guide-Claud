@@ -4,10 +4,9 @@ export const CreatePlanPaymentIntentSchema = z
   .object({
     itemId: z
       .string()
-      .trim()
-      .min(1, 'itemId é obrigatório')
-      .max(128, 'itemId inválido')
-      .regex(/^[\w-]+$/, 'itemId inválido'),
+      .min(1)
+      .max(128)
+      .regex(/^[\w-]+$/),
     planId: z.enum(['monthly', 'semi-annual', 'annual']),
     idempotencyKey: z
       .string()
@@ -20,7 +19,12 @@ export const CreatePlanPaymentIntentSchema = z
 export type CreatePlanPaymentIntentDTO = z.infer<typeof CreatePlanPaymentIntentSchema>;
 
 export const ConfirmPlanPaymentSchema = z
-  .object({ paymentIntentId: z.string().trim().regex(/^pi_[A-Za-z0-9]+$/) })
+  .object({
+    paymentIntentId: z
+      .string()
+      .trim()
+      .regex(/^pi_[A-Za-z0-9]+$/),
+  })
   .strict();
 
 export const CreateTicketPaymentIntentSchema = z

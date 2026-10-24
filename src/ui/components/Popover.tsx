@@ -11,6 +11,8 @@ interface PopoverProps {
   side?: 'top' | 'right' | 'bottom' | 'left';
   showCloseButton?: boolean;
   className?: string;
+  /** Dentro de um modal, o popover precisa ficar acima dele. */
+  zIndex?: number;
 }
 
 export function Popover({
@@ -20,6 +22,7 @@ export function Popover({
   side = 'bottom',
   showCloseButton = false,
   className,
+  zIndex = Z_INDEX.dropdown,
 }: PopoverProps) {
   return (
     <RadixPopover.Root>
@@ -31,10 +34,10 @@ export function Popover({
           side={side}
           sideOffset={8}
           className={cn(
-            'p-4 rounded-2xl bg-neutral-900/95 border border-white/10 shadow-2xl backdrop-blur-xl text-white outline-none animate-scale-in max-w-xs w-full',
+            'p-4 rounded-2xl bg-surface border border-line shadow-2xl backdrop-blur-xl text-ink outline-none animate-scale-in data-[state=closed]:animate-scale-out motion-reduce:animate-none max-w-xs w-full origin-(--radix-popover-content-transform-origin)',
             className
           )}
-          style={{ zIndex: Z_INDEX.dropdown }}
+          style={{ zIndex }}
         >
           {children}
 
@@ -47,7 +50,7 @@ export function Popover({
             </RadixPopover.Close>
           )}
 
-          <RadixPopover.Arrow className="fill-neutral-900/95" />
+          <RadixPopover.Arrow className="fill-surface-solid" />
         </RadixPopover.Content>
       </RadixPopover.Portal>
     </RadixPopover.Root>

@@ -29,8 +29,11 @@ function createGateway(overrides: Partial<BillingGatewayPort> = {}): BillingGate
       status: 'canceled',
       currentPeriodEnd: null,
       cancelAtPeriodEnd: false,
+      scheduleId: null,
       metadata: {},
     }),
+    schedulePriceChange: vi.fn(),
+    releaseSchedule: vi.fn(),
     createBillingPortalSession: vi.fn().mockResolvedValue({ url: 'https://billing.stripe.com/x' }),
     ...overrides,
   };
@@ -57,6 +60,8 @@ function buildRecord(overrides: Partial<PlanSubscriptionRecord> = {}): PlanSubsc
     status: 'active',
     currentPeriodEnd: '2026-11-10T12:00:00.000Z',
     cancelAtPeriodEnd: false,
+    pendingPlanId: null,
+    pendingChangeAt: null,
     updatedAt: '2026-10-10T12:00:00.000Z',
     ...overrides,
   };
@@ -88,6 +93,7 @@ function snapshot(overrides: Partial<SubscriptionSnapshot> = {}): SubscriptionSn
     status: 'active',
     currentPeriodEnd: '2026-11-10T12:00:00.000Z',
     cancelAtPeriodEnd: false,
+    scheduleId: null,
     metadata: {
       referenceType: 'plan_subscription',
       partnerId: 'p1',
@@ -299,5 +305,123 @@ describe('BillingService: um cliente por conta e cancelamento nas exclusões (B2
     await new BillingService(gateway, repository, () => NOW).cancelForPartner('p1');
     expect(gateway.cancelNow).toHaveBeenCalledTimes(1);
     expect(gateway.cancelNow).toHaveBeenCalledWith('sub_1');
+  });
+});
+
+describe('BillingService.schedulePlanChange (D13)', () => {
+  const CHANGE = {
+    itemId: 'item-1',
+    partnerId: 'p1',
+    planId: 'annual',
+    planName: 'Anual',
+    amountMinor: 49900,
+    interval: 'year' as const,
+    intervalCount: 1,
+    idempotencyKey: 'key-12345',
+  };
+
+  it('agenda o novo preço para a renovação, com a metadata do plano novo', async () => {
+    const repository = createRepository(buildRecord());
+    const gateway = createGateway({
+      ensureRecurringPrice: vi.fn().mockResolvedValue('price_annual'),
+      schedulePriceChange: vi.fn().mockResolvedValue(snapshot({ scheduleId: 'sub_sched_1' })),
+    });
+    const record = await new BillingService(gateway, repository, () => NOW).schedulePlanChange(
+      CHANGE
+    );
+    expect(gateway.ensureRecurringPrice).toHaveBeenCalledWith(
+      expect.objectContaining({
+        lookupKey: 'plan_annual_49900',
+        interval: 'year',
+        intervalCount: 1,
+      })
+    );
+    expect(gateway.schedulePriceChange).toHaveBeenCalledWith({
+      subscriptionId: 'sub_1',
+      priceId: 'price_annual',
+      metadata: {
+        referenceType: 'plan_subscription',
+        partnerId: 'p1',
+        planId: 'annual',
+        itemId: 'item-1',
+      },
+      idempotencyKey: 'sub_change_item-1_key-12345',
+    });
+    expect(record).toMatchObject({
+      planId: 'monthly',
+      pendingPlanId: 'annual',
+      pendingChangeAt: '2026-11-10T12:00:00.000Z',
+    });
+    expect(repository.save).toHaveBeenCalledWith(record);
+  });
+
+  it('escolher o período atual desfaz a troca agendada', async () => {
+    const repository = createRepository(buildRecord({ pendingPlanId: 'annual' }));
+    const gateway = createGateway({ releaseSchedule: vi.fn().mockResolvedValue(snapshot()) });
+    const record = await new BillingService(gateway, repository, () => NOW).schedulePlanChange({
+      ...CHANGE,
+      planId: 'monthly',
+    });
+    expect(gateway.releaseSchedule).toHaveBeenCalledWith('sub_1');
+    expect(gateway.schedulePriceChange).not.toHaveBeenCalled();
+    expect(record.pendingPlanId).toBeNull();
+  });
+
+  it('com a renovação cancelada, a troca retoma a renovação', async () => {
+    const repository = createRepository(buildRecord({ cancelAtPeriodEnd: true }));
+    const gateway = createGateway({
+      setCancelAtPeriodEnd: vi.fn().mockResolvedValue(snapshot()),
+      schedulePriceChange: vi.fn().mockResolvedValue(snapshot({ scheduleId: 'sub_sched_1' })),
+    });
+    await new BillingService(gateway, repository, () => NOW).schedulePlanChange(CHANGE);
+    expect(gateway.setCancelAtPeriodEnd).toHaveBeenCalledWith('sub_1', false);
+  });
+
+  it('pagamento atrasado ou assinatura de outra conta não trocam', async () => {
+    const pastDue = new BillingService(
+      createGateway(),
+      createRepository(buildRecord({ status: 'past_due' })),
+      () => NOW
+    );
+    await expect(pastDue.schedulePlanChange(CHANGE)).rejects.toMatchObject({
+      code: 'SUBSCRIPTION_PAST_DUE',
+      statusCode: 409,
+    });
+    const otherAccount = new BillingService(
+      createGateway(),
+      createRepository(buildRecord({ partnerId: 'p2' })),
+      () => NOW
+    );
+    await expect(otherAccount.schedulePlanChange(CHANGE)).rejects.toMatchObject({
+      code: 'SUBSCRIPTION_NOT_FOUND',
+    });
+  });
+
+  it('a troca sai do registro quando o novo período entra ou o agendamento some', async () => {
+    const repository = createRepository(
+      buildRecord({ pendingPlanId: 'annual', pendingChangeAt: '2026-11-10T12:00:00.000Z' })
+    );
+    const applied = snapshot({
+      scheduleId: null,
+      metadata: { ...snapshot().metadata, planId: 'annual' },
+    });
+    const gateway = createGateway({ getSubscription: vi.fn().mockResolvedValue(applied) });
+    await new BillingService(gateway, repository, () => NOW).syncSubscription('sub_1');
+    expect(repository.save).toHaveBeenCalledWith(
+      expect.objectContaining({ planId: 'annual', pendingPlanId: null, pendingChangeAt: null })
+    );
+  });
+
+  it('sync mantém a troca enquanto o agendamento existe', async () => {
+    const repository = createRepository(
+      buildRecord({ pendingPlanId: 'annual', pendingChangeAt: '2026-11-10T12:00:00.000Z' })
+    );
+    const gateway = createGateway({
+      getSubscription: vi.fn().mockResolvedValue(snapshot({ scheduleId: 'sub_sched_1' })),
+    });
+    await new BillingService(gateway, repository, () => NOW).syncSubscription('sub_1');
+    expect(repository.save).toHaveBeenCalledWith(
+      expect.objectContaining({ planId: 'monthly', pendingPlanId: 'annual' })
+    );
   });
 });

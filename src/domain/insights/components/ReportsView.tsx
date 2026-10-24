@@ -1,4 +1,4 @@
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Lock } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -81,7 +81,7 @@ export function ReportsView({ items, events }: ReportsViewProps) {
             className={cn(
               'inline-block mb-1 px-2 py-0.5 rounded text-[8px] font-bold tracking-widest',
               selected.type === 'items'
-                ? 'bg-teal-500/20 text-teal-400'
+                ? 'bg-accent-soft text-accent'
                 : 'bg-[#00D4FF]/20 text-[#00D4FF]'
             )}
           >
@@ -97,7 +97,7 @@ export function ReportsView({ items, events }: ReportsViewProps) {
                 <VerifiedBadge size="md" className="text-[18px] flex-shrink-0" />
               )}
           </h3>
-          <p className="text-[10px] text-amber-500 font-semibold tracking-wide">
+          <p className="text-[10px] text-warn font-semibold tracking-wide">
             {t('insights.reports.title')}
           </p>
         </div>
@@ -111,8 +111,23 @@ export function ReportsView({ items, events }: ReportsViewProps) {
           />
           <span className="sr-only">{t('insights.reports.loading')}</span>
         </div>
-      ) : report.error || !report.stats ? (
+      ) : report.error ? (
         <ErrorState message={t('insights.reports.loadError')} onRetry={report.reload} />
+      ) : report.statsLocked || !report.stats ? (
+        <div className="space-y-8">
+          <div className="p-6 rounded-[2rem] border border-warn-line bg-warn-soft flex items-start gap-3">
+            <Lock size={18} className="text-warn shrink-0 mt-0.5" aria-hidden="true" />
+            <div className="space-y-1">
+              <h4 className="text-sm font-bold text-white">
+                {t('insights.reports.planRequiredTitle')}
+              </h4>
+              <p className="text-xs text-warn leading-relaxed">
+                {t('insights.reports.planRequired')}
+              </p>
+            </div>
+          </div>
+          <PendingReviewsPanel reviews={report.reviews} onReplied={report.markReplied} />
+        </div>
       ) : (
         <motion.div
           initial={{ opacity: 0, y: 20 }}

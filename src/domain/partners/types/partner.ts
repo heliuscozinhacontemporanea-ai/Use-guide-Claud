@@ -17,12 +17,10 @@ export type PartnerSignupCategory =
 /** Status da conta só serve para suspensão; a verificação é por estabelecimento (D12). */
 export type PartnerAccountStatus = 'active' | 'suspended';
 
+/** Projeção pública da conta: o selo e o plano são de cada estabelecimento (D11). */
 export interface PublicPartnerProfile {
   id: string;
   businesses: PartnerBusiness[];
-  isVerified: boolean;
-  verifiedUntil: string | null;
-  isVerificationSuspended: boolean;
   status: PartnerAccountStatus;
 }
 
@@ -87,14 +85,6 @@ export interface PartnerSubmissionData {
   rentalIncludes?: string[];
 }
 
-export type PartnerVerificationType =
-  | 'trial'
-  | 'monthly'
-  | 'semi-annual'
-  | 'annual'
-  | 'admin'
-  | null;
-
 export interface PartnerProfile {
   id: string;
   businessId?: string | null;
@@ -109,11 +99,6 @@ export interface PartnerProfile {
   address?: string;
   region?: string;
   images?: string[];
-  isVerified?: boolean;
-  isVerificationSuspended?: boolean;
-  verifiedUntil?: string | null;
-  verificationType?: PartnerVerificationType;
-  hasUsedTrial?: boolean;
   status?: PartnerAccountStatus;
   firstName?: string;
   lastName?: string;

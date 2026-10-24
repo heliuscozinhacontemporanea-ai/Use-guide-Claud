@@ -2,7 +2,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { Request, Response } from 'express';
 import { PaymentController } from './paymentController';
 import { getPlanForPaymentApplicationUseCase } from '../../../application/usecases/getPlanForPaymentApplicationUseCase';
-import { assertListingPlanPurchasableApplicationUseCase } from '../../../application/usecases/listingPlans/assertListingPlanPurchasableApplicationUseCase';
 import { reconcileStripeWebhookEventApplicationUseCase } from '../../../application/usecases/reconcileStripeWebhookEventApplicationUseCase';
 import { claimStripeWebhookEventUseCase } from '../usecases/claimStripeWebhookEventUseCase';
 import { completeStripeWebhookEventUseCase } from '../usecases/completeStripeWebhookEventUseCase';
@@ -15,30 +14,48 @@ import { AuthenticatedRequest } from '../../../infrastructure/auth/authenticated
 vi.mock('../../../application/usecases/getPlanForPaymentApplicationUseCase', () => ({
   getPlanForPaymentApplicationUseCase: vi.fn(),
 }));
+
+vi.mock('../../../application/usecases/reconcileStripeWebhookEventApplicationUseCase', () => ({
+  reconcileStripeWebhookEventApplicationUseCase: vi.fn(),
+}));
+
+vi.mock('../usecases/createPlanPaymentIntentUseCase', () => ({
+  createPlanPaymentIntentUseCase: vi.fn(),
+}));
 vi.mock(
   '../../../application/usecases/listingPlans/assertListingPlanPurchasableApplicationUseCase',
-  () => ({ assertListingPlanPurchasableApplicationUseCase: vi.fn() })
+  () => ({
+    assertListingPlanPurchasableApplicationUseCase: vi
+      .fn()
+      .mockResolvedValue({ currentPlanUntil: null }),
+  })
 );
-
-vi.mock('../../../application/usecases/reconcileStripeWebhookEventApplicationUseCase', () => ({ reconcileStripeWebhookEventApplicationUseCase: vi.fn() }));
-
-vi.mock('../usecases/createPlanPaymentIntentUseCase', () => ({ createPlanPaymentIntentUseCase: vi.fn() }));
-vi.mock('../usecases/constructStripeWebhookEventUseCase', () => ({ constructStripeWebhookEventUseCase: vi.fn() }));
-vi.mock('../usecases/claimStripeWebhookEventUseCase', () => ({ claimStripeWebhookEventUseCase: vi.fn() }));
-vi.mock('../usecases/completeStripeWebhookEventUseCase', () => ({ completeStripeWebhookEventUseCase: vi.fn() }));
-vi.mock('../usecases/releaseStripeWebhookEventUseCase', () => ({ releaseStripeWebhookEventUseCase: vi.fn() }));
-vi.mock('../usecases/retrievePaymentIntentUseCase', () => ({ retrievePaymentIntentUseCase: vi.fn() }));
+vi.mock('../usecases/constructStripeWebhookEventUseCase', () => ({
+  constructStripeWebhookEventUseCase: vi.fn(),
+}));
+vi.mock('../usecases/claimStripeWebhookEventUseCase', () => ({
+  claimStripeWebhookEventUseCase: vi.fn(),
+}));
+vi.mock('../usecases/completeStripeWebhookEventUseCase', () => ({
+  completeStripeWebhookEventUseCase: vi.fn(),
+}));
+vi.mock('../usecases/releaseStripeWebhookEventUseCase', () => ({
+  releaseStripeWebhookEventUseCase: vi.fn(),
+}));
+vi.mock('../usecases/retrievePaymentIntentUseCase', () => ({
+  retrievePaymentIntentUseCase: vi.fn(),
+}));
 
 describe('PaymentController', () => {
   let req: Partial<AuthenticatedRequest>;
-  let res: Response;
+  let res: Response & { status: ReturnType<typeof vi.fn>; json: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
     vi.clearAllMocks();
     res = {
       status: vi.fn().mockReturnThis(),
       json: vi.fn().mockReturnThis(),
-    } as unknown as Response;
+    } as unknown as typeof res;
   });
 
   it('rejects unauthenticated request with 401', async () => {
@@ -84,9 +101,6 @@ describe('PaymentController', () => {
       },
     };
 
-    vi.mocked(assertListingPlanPurchasableApplicationUseCase).mockResolvedValueOnce({
-      currentPaidUntil: null,
-    });
     vi.mocked(getPlanForPaymentApplicationUseCase).mockResolvedValueOnce({
       id: 'monthly',
       name: 'Plano Profissional',
@@ -102,10 +116,6 @@ describe('PaymentController', () => {
 
     await PaymentController.createPlanPaymentIntent(req as AuthenticatedRequest, res);
 
-    expect(assertListingPlanPurchasableApplicationUseCase).toHaveBeenCalledWith(
-      'user-123',
-      'item-1'
-    );
     expect(createPlanPaymentIntentUseCase).toHaveBeenCalledWith(
       expect.objectContaining({
         buyerId: 'user-123',

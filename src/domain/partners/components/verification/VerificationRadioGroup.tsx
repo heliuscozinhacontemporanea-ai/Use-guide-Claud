@@ -27,7 +27,7 @@ export function VerificationRadioGroup<T extends string>({
             className={cn(
               'min-h-[44px] flex items-center gap-2 px-4 py-2 rounded-2xl border text-xs cursor-pointer transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-teal-400/50',
               value === option.value
-                ? 'border-teal-400/60 bg-teal-400/10 text-white'
+                ? 'border-accent-line bg-accent-soft text-white'
                 : 'border-white/10 bg-white/5 text-white/70 hover:bg-white/10'
             )}
           >
@@ -43,7 +43,7 @@ export function VerificationRadioGroup<T extends string>({
           </label>
         ))}
       </div>
-      {error && <p className="text-xs text-rose-300">{error}</p>}
+      {error && <p className="text-xs text-danger">{error}</p>}
     </fieldset>
   );
 }

@@ -1,4 +1,4 @@
-import { BarChart3, RefreshCw } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
 import { AnimatePresence } from 'motion/react';
 import React, { useRef } from 'react';
 
@@ -21,7 +21,7 @@ import { PartnerItemsTable } from './subcomponents/PartnerItemsTable';
 import { PartnerTabsNavigation } from './subcomponents/PartnerTabsNavigation';
 import { ListingVerificationDialog } from './verification/ListingVerificationDialog';
 import type { VerificationListingOption } from './verification/verificationListingOption';
-import { PlansModal } from './subcomponents/PlansModal';
+import { ListingPlanDialog, type PaidPlanSelection } from './plan/ListingPlanDialog';
 import { useLocalizedRouting } from '../../../shared/hooks/useLocalizedRouting';
 
 export interface PartnerPanelProps {
@@ -36,7 +36,9 @@ export interface PartnerPanelProps {
   renderCheckoutModal?: (props: {
     isOpen: boolean;
     onClose: () => void;
+    /** Estabelecimento que recebe o plano (D11). */
     itemId: string;
+    planId: string;
     itemName: string;
     amountMinor: number;
     onPaymentSuccess: () => void;
@@ -44,7 +46,11 @@ export interface PartnerPanelProps {
   renderEventTicketingManager?: (eventListingId: string) => React.ReactNode;
   /** Campo de sessões do evento (domínio events), montado pela composição do app. */
   renderEventSessionsField?: (props: EventSessionsFieldProps) => React.ReactNode;
-  planSubscriptionSlot?: React.ReactNode;
+  /** Assinatura no cartão do plano de um estabelecimento, montada pela composição. */
+  renderPlanSubscription?: (
+    itemId: string,
+    onLiveChange: (live: boolean) => void
+  ) => React.ReactNode;
   renderBookableOffersManager?: (
     items: Array<{ id: string; name: string; category: string }>
   ) => React.ReactNode;
@@ -60,7 +66,7 @@ export function PartnerPanel({
   renderCheckoutModal,
   renderEventTicketingManager,
   renderEventSessionsField,
-  planSubscriptionSlot,
+  renderPlanSubscription,
   renderBookableOffersManager,
   onPlanPurchased,
 }: PartnerPanelProps) {
@@ -80,7 +86,6 @@ export function PartnerPanel({
     showDeleteConfirm,
     setShowDeleteConfirm,
     dataLoading,
-    isVerified,
     itemsList,
     eventsList,
     handleDelete,
@@ -105,10 +110,13 @@ export function PartnerPanel({
   // Troca a chave dos selos de verificação para relerem o status depois de um envio.
   const [verificationVersion, setVerificationVersion] = React.useState(0);
 
-  const [showPlansModal, setShowPlansModal] = React.useState(false);
+  const [planListing, setPlanListing] = React.useState<{ id: string; name: string } | null>(null);
+  // Troca a chave dos selos de plano para relerem o estado depois do trial ou da compra.
+  const [planVersion, setPlanVersion] = React.useState(0);
   const [showCheckoutModal, setShowCheckoutModal] = React.useState(false);
-  const [checkoutPlanInfo, setCheckoutPlanInfo] = React.useState({
+  const [checkoutPlanInfo, setCheckoutPlanInfo] = React.useState<PaidPlanSelection>({
     itemId: '',
+    planId: 'monthly',
     itemName: '',
     amountMinor: 0,
   });
@@ -122,6 +130,7 @@ export function PartnerPanel({
     setShowCheckoutModal(false);
     if (planPurchasedRef.current) {
       planPurchasedRef.current = false;
+      setPlanVersion((version) => version + 1);
       onPlanPurchased?.();
     }
   };
@@ -129,7 +138,7 @@ export function PartnerPanel({
   if (userLoading || profileStatus === 'loading') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-950">
-        <RefreshCw className="animate-spin text-teal-500" size={32} />
+        <RefreshCw className="animate-spin text-accent" size={32} />
       </div>
     );
   }
@@ -143,7 +152,7 @@ export function PartnerPanel({
         </p>
         <button
           onClick={() => goTo('explore')}
-          className="px-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-[11px] font-semibold tracking-wide text-white"
+          className="press px-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-[11px] font-semibold tracking-wide text-white"
         >
           Voltar
         </button>
@@ -152,7 +161,7 @@ export function PartnerPanel({
   }
 
   return (
-    <div className="min-h-screen pt-12 pb-40 px-4 bg-[#020508]/60 font-sans selection:bg-teal-500/30 relative overflow-x-hidden backdrop-blur-md">
+    <div className="min-h-screen pt-12 pb-40 px-4 bg-app/60 font-sans selection:bg-teal-500/30 relative overflow-x-hidden backdrop-blur-md">
       <BackgroundBlobs />
 
       <div
@@ -161,42 +170,13 @@ export function PartnerPanel({
         <PartnerHeader
           partnerProfile={partnerProfile}
           onNavigateBack={() => goTo('explore')}
-          isVerified={isVerified}
-          onVerifyClick={() => setShowPlansModal(true)}
           notificationBell={renderNotificationBell?.(partnerProfile?.id || '')}
         />
 
-        {planSubscriptionSlot}
-
-        <PartnerTabsNavigation
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          isVerified={isVerified}
-        />
+        <PartnerTabsNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
 
         {activeTab === 'reports' ? (
-          isVerified ? (
-            renderReports?.({ partnerId: user.uid, items: itemsList, events: eventsList })
-          ) : (
-            <div className="py-24 text-center glassmorphism rounded-[3rem] border border-white/10 p-12">
-              <div className="w-20 h-20 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500 mx-auto mb-6 shadow-[0_0_30px_rgba(59,130,246,0.2)]">
-                <BarChart3 size={40} />
-              </div>
-              <h3 className="text-xl font-display font-black text-white mb-2">
-                Relatórios Bloqueados
-              </h3>
-              <p className="text-white/50 text-sm max-w-xs mx-auto mb-8">
-                O acesso aos relatórios é exclusivo para parceiros com o selo de verificação ativo.
-              </p>
-              <button
-                type="button"
-                onClick={() => setShowPlansModal(true)}
-                className="px-8 py-4 bg-blue-500 text-black rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-2xl shadow-blue-500/30 hover:bg-blue-400 transition-all cursor-pointer"
-              >
-                Ativar Verificação
-              </button>
-            </div>
-          )
+          renderReports?.({ partnerId: user.uid, items: itemsList, events: eventsList })
         ) : activeTab === 'items' ? (
           <>
             <PartnerItemsTable
@@ -209,6 +189,8 @@ export function PartnerPanel({
               onVerifyItem={(item) =>
                 setVerifyingListing({ id: item.id, name: item.name, category: item.category })
               }
+              planVersion={planVersion}
+              onOpenPlan={(item) => setPlanListing({ id: item.id, name: item.name })}
             />
             {renderBookableOffersManager?.(
               itemsList.map((item) => ({ id: item.id, name: item.name, category: item.category }))
@@ -302,22 +284,39 @@ export function PartnerPanel({
         />
       )}
 
-      <PlansModal
-        isOpen={showPlansModal}
-        onClose={() => setShowPlansModal(false)}
-        userId={user.uid}
-        partnerProfile={partnerProfile || undefined}
-        plans={subscriptionPlans ?? []}
-        onSelectPaidPlan={(planId, planName, amountMinor) => {
-          setCheckoutPlanInfo({ itemId: planId, itemName: planName, amountMinor });
-          setShowCheckoutModal(true);
-        }}
-      />
+      {planListing && (
+        <ListingPlanDialog
+          listing={planListing}
+          plans={subscriptionPlans ?? []}
+          onClose={() => {
+            setPlanListing(null);
+            setPlanVersion((version) => version + 1);
+          }}
+          onVerify={() => {
+            const listing = itemsList.find((item) => item.id === planListing.id);
+            setPlanListing(null);
+            if (listing) {
+              setVerifyingListing({
+                id: listing.id,
+                name: listing.name,
+                category: listing.category,
+              });
+            }
+          }}
+          onSelectPaidPlan={(selection) => {
+            setPlanListing(null);
+            setCheckoutPlanInfo(selection);
+            setShowCheckoutModal(true);
+          }}
+          renderSubscription={renderPlanSubscription}
+        />
+      )}
 
       {renderCheckoutModal?.({
         isOpen: showCheckoutModal,
         onClose: handleCheckoutClose,
         itemId: checkoutPlanInfo.itemId,
+        planId: checkoutPlanInfo.planId,
         itemName: checkoutPlanInfo.itemName,
         amountMinor: checkoutPlanInfo.amountMinor,
         onPaymentSuccess: handleCheckoutSuccess,

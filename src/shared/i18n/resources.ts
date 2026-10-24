@@ -11,6 +11,12 @@ import {
   insightsPtBR,
 } from './insightsResources';
 import {
+  type ListingPlanTranslation,
+  listingPlanEn,
+  listingPlanFr,
+  listingPlanPtBR,
+} from './listingPlanResources';
+import {
   type PartnersTranslation,
   partnersEn,
   partnersFr,
@@ -26,12 +32,21 @@ import {
 export interface TranslationResource {
   bookings: BookingsTranslation;
   insights: InsightsTranslation;
+  listingPlan: ListingPlanTranslation;
   partners: PartnersTranslation;
   verification: VerificationTranslation;
   common: {
     language: string;
     cancel: string;
     confirm: string;
+    /** Selo "Use Guide Verificado" explicado ao toque (D11). */
+    seal: {
+      label: string;
+      title: string;
+      explanation: string;
+    };
+    /** Vaga paga identificada como tal (D11, CDC art. 36). */
+    featured: string;
     locales: {
       ptBR: string;
       en: string;
@@ -106,6 +121,11 @@ export interface TranslationResource {
       FORBIDDEN: string;
       BILLING_UNAVAILABLE: string;
       PAYMENT_FAILED: string;
+      NOT_FOUND: string;
+      LISTING_PENDING_VERIFICATION: string;
+      PLAN_ALREADY_ACTIVE: string;
+      PARTNER_SUSPENDED: string;
+      SUBSCRIPTION_PAST_DUE: string;
     };
   };
   payment: {
@@ -162,6 +182,14 @@ export interface TranslationResource {
       actionFailed: string;
       loadFailed: string;
       retry: string;
+      changePeriod: string;
+      changeTitle: string;
+      changeHint: string;
+      changeConfirm: string;
+      changeBack: string;
+      currentPeriod: string;
+      pendingChange: string;
+      keepCurrent: string;
     };
   };
   seo: {
@@ -223,12 +251,20 @@ export interface TranslationResource {
 const ptBR: TranslationResource = {
   bookings: bookingsPtBR,
   insights: insightsPtBR,
+  listingPlan: listingPlanPtBR,
   partners: partnersPtBR,
   verification: verificationPtBR,
   common: {
     language: 'Idioma',
     cancel: 'Cancelar',
     confirm: 'Confirmar',
+    seal: {
+      label: 'Ver o que significa o selo Use Guide Verificado',
+      title: 'Use Guide Verificado',
+      explanation:
+        'Responsável verificado pelo Use Guide · assinante do plano Use Guide Verificado.',
+    },
+    featured: 'Destaque',
     locales: {
       ptBR: 'Português (Brasil)',
       en: 'English',
@@ -304,6 +340,12 @@ const ptBR: TranslationResource = {
       FORBIDDEN: 'Conclua seu cadastro de parceiro antes de assinar.',
       BILLING_UNAVAILABLE: 'Pagamentos indisponíveis no momento. Tente novamente em instantes.',
       PAYMENT_FAILED: 'O pagamento não foi aprovado.',
+      NOT_FOUND: 'Estabelecimento não encontrado.',
+      LISTING_PENDING_VERIFICATION:
+        'O estabelecimento precisa ser verificado pela equipe antes do plano.',
+      PLAN_ALREADY_ACTIVE: 'Este estabelecimento já tem um plano em vigor.',
+      PARTNER_SUSPENDED: 'Sua conta está suspensa.',
+      SUBSCRIPTION_PAST_DUE: 'Atualize a forma de pagamento antes de trocar o período.',
     },
   },
   payment: {
@@ -366,6 +408,15 @@ const ptBR: TranslationResource = {
       actionFailed: 'Não foi possível concluir a ação. Tente novamente.',
       loadFailed: 'Não foi possível carregar a assinatura.',
       retry: 'Tentar novamente',
+      changePeriod: 'Trocar período',
+      changeTitle: 'Novo período a partir da próxima renovação',
+      changeHint:
+        'O período atual segue até {{date}}. Os benefícios são os mesmos; muda só o ciclo e o valor da cobrança.',
+      changeConfirm: 'Trocar na próxima renovação ({{date}})',
+      changeBack: 'Voltar',
+      currentPeriod: 'Atual',
+      pendingChange: 'A partir de {{date}}, o plano passa para {{plan}} ({{amount}}).',
+      keepCurrent: 'Manter o período atual',
     },
   },
   seo: {
@@ -469,12 +520,19 @@ const ptBR: TranslationResource = {
 const en: TranslationResource = {
   bookings: bookingsEn,
   insights: insightsEn,
+  listingPlan: listingPlanEn,
   partners: partnersEn,
   verification: verificationEn,
   common: {
     language: 'Language',
     cancel: 'Cancel',
     confirm: 'Confirm',
+    seal: {
+      label: 'See what the Use Guide Verified badge means',
+      title: 'Use Guide Verified',
+      explanation: 'Owner verified by Use Guide · subscriber of the Use Guide Verified plan.',
+    },
+    featured: 'Featured',
     locales: {
       ptBR: 'Português (Brasil)',
       en: 'English',
@@ -549,6 +607,11 @@ const en: TranslationResource = {
       FORBIDDEN: 'Complete your partner registration before subscribing.',
       BILLING_UNAVAILABLE: 'Payments are unavailable right now. Please try again shortly.',
       PAYMENT_FAILED: 'The payment was not approved.',
+      NOT_FOUND: 'Business not found.',
+      LISTING_PENDING_VERIFICATION: 'The team must verify the business before a plan.',
+      PLAN_ALREADY_ACTIVE: 'This business already has an active plan.',
+      PARTNER_SUSPENDED: 'Your account is suspended.',
+      SUBSCRIPTION_PAST_DUE: 'Update your payment method before changing the period.',
     },
   },
   payment: {
@@ -609,6 +672,15 @@ const en: TranslationResource = {
       actionFailed: 'The action could not be completed. Please try again.',
       loadFailed: 'The subscription could not be loaded.',
       retry: 'Try again',
+      changePeriod: 'Change period',
+      changeTitle: 'New period from the next renewal',
+      changeHint:
+        'The current period runs until {{date}}. The benefits are the same; only the billing cycle and amount change.',
+      changeConfirm: 'Change at the next renewal ({{date}})',
+      changeBack: 'Back',
+      currentPeriod: 'Current',
+      pendingChange: 'From {{date}}, the plan switches to {{plan}} ({{amount}}).',
+      keepCurrent: 'Keep the current period',
     },
   },
   seo: {
@@ -711,12 +783,19 @@ const en: TranslationResource = {
 const fr: TranslationResource = {
   bookings: bookingsFr,
   insights: insightsFr,
+  listingPlan: listingPlanFr,
   partners: partnersFr,
   verification: verificationFr,
   common: {
     language: 'Langue',
     cancel: 'Annuler',
     confirm: 'Confirmer',
+    seal: {
+      label: 'Voir ce que signifie le badge Use Guide Vérifié',
+      title: 'Use Guide Vérifié',
+      explanation: "Responsable vérifié par Use Guide · abonné à l'offre Use Guide Vérifié.",
+    },
+    featured: 'À la une',
     locales: {
       ptBR: 'Português (Brasil)',
       en: 'English',
@@ -793,6 +872,11 @@ const fr: TranslationResource = {
       BILLING_UNAVAILABLE:
         'Les paiements sont indisponibles pour le moment. Réessayez dans un instant.',
       PAYMENT_FAILED: 'Le paiement n’a pas été approuvé.',
+      NOT_FOUND: 'Établissement introuvable.',
+      LISTING_PENDING_VERIFICATION: "L'équipe doit vérifier l'établissement avant l'offre.",
+      PLAN_ALREADY_ACTIVE: 'Cet établissement a déjà une offre active.',
+      PARTNER_SUSPENDED: 'Votre compte est suspendu.',
+      SUBSCRIPTION_PAST_DUE: 'Mettez à jour votre moyen de paiement avant de changer de période.',
     },
   },
   payment: {
@@ -856,6 +940,15 @@ const fr: TranslationResource = {
       actionFailed: 'L’action n’a pas pu aboutir. Veuillez réessayer.',
       loadFailed: 'Impossible de charger l’abonnement.',
       retry: 'Réessayer',
+      changePeriod: 'Changer de période',
+      changeTitle: 'Nouvelle période à partir du prochain renouvellement',
+      changeHint:
+        "La période actuelle court jusqu'au {{date}}. Les avantages sont les mêmes ; seuls le cycle et le montant de la facturation changent.",
+      changeConfirm: 'Changer au prochain renouvellement ({{date}})',
+      changeBack: 'Retour',
+      currentPeriod: 'Actuelle',
+      pendingChange: 'À partir du {{date}}, le forfait passe à {{plan}} ({{amount}}).',
+      keepCurrent: 'Garder la période actuelle',
     },
   },
   seo: {

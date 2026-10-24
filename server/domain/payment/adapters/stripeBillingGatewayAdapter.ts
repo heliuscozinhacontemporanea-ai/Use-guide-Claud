@@ -23,8 +23,19 @@ function toSnapshot(subscription: Stripe.Subscription): SubscriptionSnapshot {
     status: subscription.status as ProviderSubscriptionStatus,
     currentPeriodEnd: toIso(periodEnd),
     cancelAtPeriodEnd: subscription.cancel_at_period_end,
+    scheduleId: scheduleIdOf(subscription),
     metadata: { ...(subscription.metadata ?? {}) },
   };
+}
+
+function scheduleIdOf(subscription: Stripe.Subscription): string | null {
+  const schedule = subscription.schedule;
+  if (!schedule) return null;
+  return typeof schedule === 'string' ? schedule : schedule.id;
+}
+
+function priceIdOf(price: string | Stripe.Price | Stripe.DeletedPrice): string {
+  return typeof price === 'string' ? price : price.id;
 }
 
 export class StripeBillingGatewayAdapter implements BillingGatewayPort {
@@ -158,12 +169,76 @@ export class StripeBillingGatewayAdapter implements BillingGatewayPort {
     subscriptionId: string,
     cancel: boolean
   ): Promise<SubscriptionSnapshot> {
+    // Cancelar a renovação desfaz a troca agendada: a fase seguinte deixaria de existir.
+    if (cancel) await this.releaseSchedule(subscriptionId);
     return toSnapshot(
       await this.stripe.subscriptions.update(subscriptionId, { cancel_at_period_end: cancel })
     );
   }
 
+  // Referência: https://docs.stripe.com/billing/subscriptions/subscription-schedules#changing-subscriptions
+  async schedulePriceChange(params: {
+    subscriptionId: string;
+    priceId: string;
+    metadata: Record<string, string>;
+    idempotencyKey: string;
+  }): Promise<SubscriptionSnapshot> {
+    const subscription = await this.stripe.subscriptions.retrieve(params.subscriptionId);
+    const scheduleId =
+      scheduleIdOf(subscription) ??
+      (
+        await this.stripe.subscriptionSchedules.create(
+          { from_subscription: params.subscriptionId },
+          { idempotencyKey: `${params.idempotencyKey}_schedule` }
+        )
+      ).id;
+    const schedule = await this.stripe.subscriptionSchedules.retrieve(scheduleId);
+    const nowSeconds = Math.floor(Date.now() / 1000);
+    const current =
+      schedule.phases.find(
+        (phase) => phase.start_date <= nowSeconds && phase.end_date > nowSeconds
+      ) ?? schedule.phases[0];
+    if (!current) {
+      throw new Error('Agendamento da assinatura sem fase atual.');
+    }
+    // O Stripe apaga o que não for repetido na atualização: a fase atual volta inteira.
+    await this.stripe.subscriptionSchedules.update(
+      scheduleId,
+      {
+        end_behavior: 'release',
+        phases: [
+          {
+            start_date: current.start_date,
+            end_date: current.end_date,
+            items: current.items.map((item) => ({
+              price: priceIdOf(item.price),
+              quantity: item.quantity ?? 1,
+            })),
+            metadata: current.metadata ?? subscription.metadata ?? {},
+            ...(current.trial_end ? { trial_end: current.trial_end } : {}),
+          },
+          {
+            items: [{ price: params.priceId, quantity: 1 }],
+            metadata: params.metadata,
+            proration_behavior: 'none',
+          },
+        ],
+      },
+      { idempotencyKey: params.idempotencyKey }
+    );
+    return this.getSubscription(params.subscriptionId);
+  }
+
+  async releaseSchedule(subscriptionId: string): Promise<SubscriptionSnapshot> {
+    const subscription = await this.stripe.subscriptions.retrieve(subscriptionId);
+    const scheduleId = scheduleIdOf(subscription);
+    if (!scheduleId) return toSnapshot(subscription);
+    await this.stripe.subscriptionSchedules.release(scheduleId);
+    return this.getSubscription(subscriptionId);
+  }
+
   async cancelNow(subscriptionId: string): Promise<SubscriptionSnapshot> {
+    await this.releaseSchedule(subscriptionId);
     return toSnapshot(await this.stripe.subscriptions.cancel(subscriptionId));
   }
 

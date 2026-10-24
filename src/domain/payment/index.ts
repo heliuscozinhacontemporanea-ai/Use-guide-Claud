@@ -15,4 +15,5 @@ export type {
   PaidPlanId,
   PartnerConnectStatusResponse,
   PaymentStatus,
+  PlanPeriodOption,
 } from './types/payment';

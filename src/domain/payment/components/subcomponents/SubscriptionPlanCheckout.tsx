@@ -8,6 +8,7 @@ import { formatPlanAmount } from '../../utils/formatPlanAmount';
 import { CheckoutError, CheckoutLoading, CheckoutPending } from './CheckoutStatusNotice';
 
 interface SubscriptionPlanCheckoutProps {
+  itemId: string;
   planId: PaidPlanId;
   itemName: string;
   amountMinor: number;
@@ -16,6 +17,7 @@ interface SubscriptionPlanCheckoutProps {
 }
 
 export function SubscriptionPlanCheckout({
+  itemId,
   planId,
   itemName,
   amountMinor,
@@ -24,7 +26,7 @@ export function SubscriptionPlanCheckout({
 }: SubscriptionPlanCheckoutProps) {
   const { t, i18n } = useTranslation();
   const { status, error, checkout, start, waitForActivation, fail, reset } =
-    usePlanSubscriptionCheckout(planId);
+    usePlanSubscriptionCheckout(itemId, planId);
 
   useEffect(() => {
     if (status === 'idle') {
@@ -47,7 +49,7 @@ export function SubscriptionPlanCheckout({
   if (status === 'active') {
     return (
       <div className="py-6 flex flex-col items-center text-center gap-3" role="status">
-        <CheckCircle2 size={40} className="text-emerald-400" />
+        <CheckCircle2 size={40} className="text-success" />
         <p className="text-base font-bold text-white">{t('payment.checkout.successTitle')}</p>
         <p className="text-xs text-white/70">
           {t('payment.checkout.successDescription', { plan: itemName })}
@@ -55,7 +57,7 @@ export function SubscriptionPlanCheckout({
         <button
           type="button"
           onClick={onClose}
-          className="min-h-11 px-5 rounded-xl bg-teal-400 hover:bg-teal-300 text-slate-950 text-sm font-bold cursor-pointer focus-visible:ring-2 focus-visible:ring-teal-400/50"
+          className="press min-h-11 px-5 rounded-xl bg-teal-400 hover:bg-teal-300 text-slate-950 text-sm font-bold cursor-pointer focus-visible:ring-2 focus-visible:ring-teal-400/50"
         >
           {t('payment.checkout.close')}
         </button>

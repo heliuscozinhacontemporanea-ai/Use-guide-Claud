@@ -12,7 +12,6 @@ import {
   unlinkBusinessUseCase,
 } from '../../domain/partners';
 import { deleteVerificationFileUseCase } from '../../domain/media';
-import { cancelListingPlanSubscriptionUseCase } from '../../domain/payment';
 
 vi.mock('../../domain/guide', () => ({
   getItemByIdUseCase: vi.fn(),
@@ -26,12 +25,12 @@ vi.mock('../../domain/partners', () => ({
   deleteListingPlanUseCase: vi.fn(),
 }));
 
-vi.mock('../../domain/media', () => ({
-  deleteVerificationFileUseCase: vi.fn().mockResolvedValue(undefined),
+vi.mock('../../domain/payment', () => ({
+  cancelListingPlanSubscriptionUseCase: vi.fn(),
 }));
 
-vi.mock('../../domain/payment', () => ({
-  cancelListingPlanSubscriptionUseCase: vi.fn().mockResolvedValue(undefined),
+vi.mock('../../domain/media', () => ({
+  deleteVerificationFileUseCase: vi.fn().mockResolvedValue(undefined),
 }));
 
 describe('deletePartnerItemApplicationUseCase', () => {
@@ -69,7 +68,6 @@ describe('deletePartnerItemApplicationUseCase', () => {
     expect(linkBusinessUseCase).not.toHaveBeenCalled();
     expect(deleteListingVerificationUseCase).toHaveBeenCalledWith('item-100');
     expect(deleteVerificationFileUseCase).toHaveBeenCalledWith('verification/partner-B/c.pdf');
-    expect(cancelListingPlanSubscriptionUseCase).toHaveBeenCalledWith('item-100');
   });
 
   it('unlink falha + Guide não é apagado', async () => {

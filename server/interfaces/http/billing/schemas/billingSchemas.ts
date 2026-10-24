@@ -15,6 +15,15 @@ export const StartPlanSubscriptionSchema = z
   })
   .strict();
 
+/** Troca de período na próxima renovação (D13); o valor vem do catálogo no servidor. */
+export const ChangePlanSubscriptionSchema = z
+  .object({
+    itemId: ITEM_ID,
+    planId: z.enum(['monthly', 'semi-annual', 'annual']),
+    idempotencyKey: z.string().min(8).max(150),
+  })
+  .strict();
+
 /** Assinatura de um estabelecimento: `?itemId=` na leitura, `{ itemId }` em cancelar e retomar. */
 export const ListingSubscriptionSchema = z.object({ itemId: ITEM_ID }).strict();
 

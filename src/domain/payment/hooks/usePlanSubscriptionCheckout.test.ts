@@ -13,10 +13,13 @@ vi.mock('../application/usecases/getPlanSubscriptionUseCase', () => ({
 }));
 
 const ACTIVE = {
+  itemId: 'item-1',
   planId: 'monthly' as const,
   status: 'active' as const,
   currentPeriodEnd: '2026-11-10T12:00:00.000Z',
   cancelAtPeriodEnd: false,
+  pendingPlanId: null,
+  pendingChangeAt: null,
 };
 
 describe('usePlanSubscriptionCheckout', () => {
@@ -33,12 +36,12 @@ describe('usePlanSubscriptionCheckout', () => {
       clientSecret: 'seti_secret',
       intentType: 'setup',
     });
-    const { result } = renderHook(() => usePlanSubscriptionCheckout('annual'));
+    const { result } = renderHook(() => usePlanSubscriptionCheckout('item-1', 'annual'));
     await act(async () => {
       await result.current.start();
     });
     expect(startPlanSubscriptionUseCase).toHaveBeenCalledWith(
-      expect.objectContaining({ planId: 'annual', locale: expect.any(String) })
+      expect.objectContaining({ itemId: 'item-1', planId: 'annual', locale: expect.any(String) })
     );
     expect(result.current.status).toBe('ready');
     expect(result.current.checkout?.intentType).toBe('setup');
@@ -49,7 +52,7 @@ describe('usePlanSubscriptionCheckout', () => {
     vi.mocked(startPlanSubscriptionUseCase).mockRejectedValue(
       new Error('SUBSCRIPTION_ALREADY_ACTIVE')
     );
-    const { result } = renderHook(() => usePlanSubscriptionCheckout('monthly'));
+    const { result } = renderHook(() => usePlanSubscriptionCheckout('item-1', 'monthly'));
     await act(async () => {
       await result.current.start();
     });
@@ -62,7 +65,7 @@ describe('usePlanSubscriptionCheckout', () => {
     vi.mocked(getPlanSubscriptionUseCase)
       .mockResolvedValueOnce({ ...ACTIVE, status: 'incomplete' })
       .mockResolvedValueOnce(ACTIVE);
-    const { result } = renderHook(() => usePlanSubscriptionCheckout('monthly'));
+    const { result } = renderHook(() => usePlanSubscriptionCheckout('item-1', 'monthly'));
     await act(async () => {
       result.current.waitForActivation();
       await vi.advanceTimersByTimeAsync(0);
@@ -73,11 +76,12 @@ describe('usePlanSubscriptionCheckout', () => {
     });
     expect(result.current.status).toBe('active');
     expect(getPlanSubscriptionUseCase).toHaveBeenCalledTimes(2);
+    expect(getPlanSubscriptionUseCase).toHaveBeenCalledWith('item-1');
   });
 
   it('para de consultar depois de 60 s e avisa que a confirmação atrasou', async () => {
     vi.mocked(getPlanSubscriptionUseCase).mockResolvedValue({ ...ACTIVE, status: 'incomplete' });
-    const { result } = renderHook(() => usePlanSubscriptionCheckout('monthly'));
+    const { result } = renderHook(() => usePlanSubscriptionCheckout('item-1', 'monthly'));
     await act(async () => {
       result.current.waitForActivation();
       await vi.advanceTimersByTimeAsync(61_000);

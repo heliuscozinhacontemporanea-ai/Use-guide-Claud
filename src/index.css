@@ -1,3 +1,4 @@
+/* biome-ignore-all lint/complexity/noImportantStyles: o tema claro legado sobrescreve classes fixas (text-white, bg-white/5) de telas ainda sem tokens; sai quando todas usarem --ug-* (débito em docs/arquitetura/debitos.md). */
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;600;700;800&display=swap");
 @import "tailwindcss";
 
@@ -19,6 +20,96 @@
     }
   }
   --animate-pulse-slow: pulse-slow 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+
+  /* Transições de app nativo: entrada e saída curtas, curva de desaceleração (iOS/Material). */
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+  @keyframes fade-out {
+    to {
+      opacity: 0;
+    }
+  }
+  /* `scale` e `translate` são propriedades próprias: não brigam com o translate de centralização. */
+  @keyframes scale-in {
+    from {
+      opacity: 0;
+      scale: 0.96;
+    }
+  }
+  @keyframes scale-out {
+    to {
+      opacity: 0;
+      scale: 0.96;
+    }
+  }
+  @keyframes sheet-up {
+    from {
+      translate: 0 100%;
+    }
+  }
+  @keyframes sheet-down {
+    to {
+      translate: 0 100%;
+    }
+  }
+  --animate-fade-in: fade-in 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  --animate-fade-out: fade-out 150ms ease-in forwards;
+  --animate-scale-in: scale-in 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  --animate-scale-out: scale-out 150ms ease-in forwards;
+  --animate-sheet-up: sheet-up 280ms cubic-bezier(0.32, 0.72, 0, 1);
+  --animate-sheet-down: sheet-down 220ms cubic-bezier(0.32, 0.72, 0, 1) forwards;
+}
+
+/*
+ * Tokens que mudam com o tema (AGENTS.md §11.1). O claro usa tons de linho, nunca branco puro,
+ * para cansar menos a vista; o escuro é o padrão de design.
+ */
+@theme inline {
+  --color-app: var(--ug-app);
+  --color-ink: var(--ug-ink);
+  --color-surface: var(--ug-surface);
+  --color-surface-solid: var(--ug-surface-solid);
+  --color-line: var(--ug-line);
+  --color-scrim: var(--ug-scrim);
+  --color-accent: var(--ug-accent);
+  --color-accent-soft: var(--ug-accent-soft);
+  --color-accent-line: var(--ug-accent-line);
+  --color-warn: var(--ug-warn);
+  --color-warn-soft: var(--ug-warn-soft);
+  --color-warn-line: var(--ug-warn-line);
+  --color-info: var(--ug-info);
+  --color-info-soft: var(--ug-info-soft);
+  --color-info-line: var(--ug-info-line);
+  --color-success: var(--ug-success);
+  --color-success-soft: var(--ug-success-soft);
+  --color-success-line: var(--ug-success-line);
+  --color-danger: var(--ug-danger);
+  --color-danger-soft: var(--ug-danger-soft);
+  --color-danger-line: var(--ug-danger-line);
+  --color-seal: var(--ug-seal);
+  --color-seal-soft: var(--ug-seal-soft);
+  /* Texto sobre botão ou etiqueta colorida: claro nos dois temas, sem branco puro. */
+  --color-on-fill: #fff8f0;
+}
+
+/* Toque de app nativo: sem o flash azul do navegador e sem a espera do toque duplo. */
+@utility press {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition-property: scale, background-color, border-color, color, opacity, box-shadow;
+  transition-duration: 150ms;
+  transition-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+  &:active:not(:disabled) {
+    scale: 0.97;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    &:active:not(:disabled) {
+      scale: 1;
+    }
+  }
 }
 
 /* Leaflet Overrides for Glassmorphism */
@@ -80,96 +171,144 @@
   --glass-border: rgba(255, 255, 255, 0.1);
   --liquid-accent: #0d9488; /* Teal 600 */
   --liquid-gradient: linear-gradient(135deg, #0d9488 0%, #0891b2 100%);
+
+  --ug-app: #060b1e;
+  --ug-ink: #ffffff;
+  --ug-surface: rgba(20, 22, 28, 0.94);
+  --ug-surface-solid: #14161c;
+  --ug-line: rgba(255, 255, 255, 0.1);
+  --ug-scrim: rgba(0, 0, 0, 0.7);
+  --ug-accent: #5eead4;
+  --ug-accent-soft: rgba(20, 184, 166, 0.12);
+  --ug-accent-line: rgba(20, 184, 166, 0.35);
+  --ug-warn: #fcd34d;
+  --ug-warn-soft: rgba(245, 158, 11, 0.1);
+  --ug-warn-line: rgba(245, 158, 11, 0.25);
+  --ug-info: #a5f3fc;
+  --ug-info-soft: rgba(6, 182, 212, 0.1);
+  --ug-info-line: rgba(6, 182, 212, 0.25);
+  --ug-success: #6ee7b7;
+  --ug-success-soft: rgba(16, 185, 129, 0.1);
+  --ug-success-line: rgba(16, 185, 129, 0.25);
+  --ug-danger: #fda4af;
+  --ug-danger-soft: rgba(244, 63, 94, 0.1);
+  --ug-danger-line: rgba(244, 63, 94, 0.25);
+  --ug-seal: #93c5fd;
+  --ug-seal-soft: rgba(59, 130, 246, 0.12);
 }
 
-/* Light Theme Variables and Class Overrides */
+/* Tema claro em tons de linho: fundo, superfícies e tinta quentes, sem branco puro. */
 :root.light {
-  --glass-bg: rgba(12, 17, 29, 0.05);
-  --glass-border: rgba(12, 17, 29, 0.1);
+  --glass-bg: rgba(35, 29, 22, 0.04);
+  --glass-border: rgba(35, 29, 22, 0.1);
+
+  --ug-app: #f3eee4;
+  --ug-ink: #231d16;
+  --ug-surface: rgba(250, 246, 238, 0.97);
+  --ug-surface-solid: #faf6ee;
+  --ug-line: rgba(35, 29, 22, 0.12);
+  --ug-scrim: rgba(35, 29, 22, 0.35);
+  --ug-accent: #0f766e;
+  --ug-accent-soft: rgba(13, 148, 136, 0.12);
+  --ug-accent-line: rgba(13, 148, 136, 0.4);
+  --ug-warn: #92400e;
+  --ug-warn-soft: rgba(217, 119, 6, 0.12);
+  --ug-warn-line: rgba(217, 119, 6, 0.35);
+  --ug-info: #155e75;
+  --ug-info-soft: rgba(8, 145, 178, 0.12);
+  --ug-info-line: rgba(8, 145, 178, 0.35);
+  --ug-success: #065f46;
+  --ug-success-soft: rgba(5, 150, 105, 0.12);
+  --ug-success-line: rgba(5, 150, 105, 0.35);
+  --ug-danger: #9f1239;
+  --ug-danger-soft: rgba(225, 29, 72, 0.1);
+  --ug-danger-line: rgba(225, 29, 72, 0.3);
+  --ug-seal: #1d4ed8;
+  --ug-seal-soft: rgba(37, 99, 235, 0.12);
 }
 
 :root.light body {
-  background-color: #f4f7f6 !important;
-  color: #0c111d !important;
+  background-color: var(--ug-app) !important;
+  color: #231d16 !important;
 }
 
 :root.light .bg-slate-950,
 :root.light .bg-\[\#020508\] {
-  background-color: #f4f7f6 !important;
+  background-color: var(--ug-app) !important;
 }
 
 /* Remove fixed background overlay to let BackgroundBlobs handle it dynamically */
 
 :root.light .text-white {
-  color: #0c111d !important;
+  color: #231d16 !important;
 }
 :root.light .text-white\/90 {
-  color: rgba(12, 17, 29, 0.9) !important;
+  color: rgba(35, 29, 22, 0.9) !important;
 }
 :root.light .text-white\/80 {
-  color: rgba(12, 17, 29, 0.8) !important;
+  color: rgba(35, 29, 22, 0.8) !important;
 }
 :root.light .text-white\/70,
 :root.light .text-zinc-300 {
-  color: rgba(12, 17, 29, 0.7) !important;
+  color: rgba(35, 29, 22, 0.7) !important;
 }
 :root.light .text-white\/60,
 :root.light .text-zinc-400,
 :root.light .text-slate-300 {
-  color: rgba(12, 17, 29, 0.6) !important;
+  color: rgba(35, 29, 22, 0.6) !important;
 }
 :root.light .text-white\/50,
 :root.light .text-slate-400 {
-  color: rgba(12, 17, 29, 0.5) !important;
+  color: rgba(35, 29, 22, 0.5) !important;
 }
 :root.light .text-white\/40,
 :root.light .text-zinc-500,
 :root.light .text-slate-500 {
-  color: rgba(12, 17, 29, 0.4) !important;
+  color: rgba(35, 29, 22, 0.4) !important;
 }
 :root.light .text-white\/30 {
-  color: rgba(12, 17, 29, 0.3) !important;
+  color: rgba(35, 29, 22, 0.3) !important;
 }
 :root.light .text-white\/20,
 :root.light .text-white\/10 {
-  color: rgba(12, 17, 29, 0.2) !important;
+  color: rgba(35, 29, 22, 0.2) !important;
 }
 
 :root.light .transparent-glass-light {
-  background-color: rgba(255, 255, 255, 0.6) !important;
+  background-color: rgba(250, 246, 238, 0.6) !important;
 }
 
 /* Borders and Glass */
 :root.light .border-white\/10 {
-  border-color: rgba(12, 17, 29, 0.08) !important;
+  border-color: rgba(35, 29, 22, 0.08) !important;
 }
 :root.light .border-white\/20 {
-  border-color: rgba(12, 17, 29, 0.12) !important;
+  border-color: rgba(35, 29, 22, 0.12) !important;
 }
 :root.light .border-white\/30 {
-  border-color: rgba(12, 17, 29, 0.2) !important;
+  border-color: rgba(35, 29, 22, 0.2) !important;
 }
 :root.light .bg-white\/5 {
-  background-color: rgba(12, 17, 29, 0.03) !important;
+  background-color: rgba(35, 29, 22, 0.03) !important;
 }
 :root.light .bg-white\/10 {
-  background-color: rgba(12, 17, 29, 0.06) !important;
+  background-color: rgba(35, 29, 22, 0.06) !important;
 }
 :root.light .bg-white\/20 {
-  background-color: rgba(12, 17, 29, 0.12) !important;
+  background-color: rgba(35, 29, 22, 0.12) !important;
 }
 :root.light .bg-white\/80 {
-  background-color: rgba(255, 255, 255, 0.95) !important;
+  background-color: rgba(250, 246, 238, 0.95) !important;
 }
 :root.light .bg-zinc-950,
 :root.light .bg-zinc-900 {
-  background-color: #ffffff !important;
+  background-color: var(--ug-surface-solid) !important;
 }
 :root.light .bg-black\/60 {
-  background-color: rgba(255, 255, 255, 0.7) !important;
+  background-color: rgba(243, 238, 228, 0.7) !important;
 }
 :root.light .bg-black\/80 {
-  background-color: rgba(255, 255, 255, 0.8) !important;
+  background-color: rgba(243, 238, 228, 0.8) !important;
 }
 
 @layer base {
@@ -191,9 +330,9 @@
 }
 
 :root.light .glassmorphism {
-  background-color: rgba(255, 255, 255, 0.45);
-  border-color: rgba(12, 17, 29, 0.08);
-  box-shadow: 0 4px 24px 0 rgba(12, 17, 29, 0.04);
+  background-color: rgba(250, 246, 238, 0.55);
+  border-color: rgba(35, 29, 22, 0.08);
+  box-shadow: 0 4px 24px 0 rgba(35, 29, 22, 0.04);
 }
 
 .glassmorphism-vibrant {
@@ -204,11 +343,11 @@
 }
 
 :root.light .glassmorphism-vibrant {
-  background-color: rgba(255, 255, 255, 0.65);
-  border-color: rgba(12, 17, 29, 0.12);
+  background-color: rgba(250, 246, 238, 0.72);
+  border-color: rgba(35, 29, 22, 0.12);
   box-shadow:
-    inset 0 0 20px rgba(255, 255, 255, 0.3),
-    0 8px 32px 0 rgba(12, 17, 29, 0.06);
+    inset 0 0 20px rgba(250, 246, 238, 0.35),
+    0 8px 32px 0 rgba(35, 29, 22, 0.06);
 }
 
 .no-scrollbar::-webkit-scrollbar {

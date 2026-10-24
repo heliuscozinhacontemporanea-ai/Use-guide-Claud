@@ -44,7 +44,7 @@ export function PendingReviewCard({ review, onReplied }: PendingReviewCardProps)
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
           <div
-            className="w-8 h-8 shrink-0 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-500 text-xs font-bold"
+            className="w-8 h-8 shrink-0 rounded-full bg-warn-soft flex items-center justify-center text-warn text-xs font-bold"
             aria-hidden="true"
           >
             {review.userName?.charAt(0).toUpperCase()}
@@ -64,7 +64,7 @@ export function PendingReviewCard({ review, onReplied }: PendingReviewCardProps)
                   size={8}
                   aria-hidden="true"
                   className={cn(
-                    star < review.rating ? 'text-amber-400 fill-amber-400' : 'text-white/20'
+                    star < review.rating ? 'text-warn fill-amber-400' : 'text-white/20'
                   )}
                 />
               ))}
@@ -91,14 +91,14 @@ export function PendingReviewCard({ review, onReplied }: PendingReviewCardProps)
               type="button"
               onClick={send}
               disabled={sending || !replyText.trim()}
-              className="flex-1 min-h-[44px] bg-amber-500 text-black py-2.5 rounded-xl text-[9px] font-semibold tracking-wide flex items-center justify-center gap-2 disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-teal-400/50"
+              className="press flex-1 min-h-[44px] bg-amber-500 text-black py-2.5 rounded-xl text-[9px] font-semibold tracking-wide flex items-center justify-center gap-2 disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-teal-400/50"
             >
               <Send size={12} aria-hidden="true" /> {t('insights.reviews.send')}
             </button>
             <button
               type="button"
               onClick={cancel}
-              className="px-4 py-2.5 min-h-[44px] rounded-xl bg-white/5 text-[9px] font-semibold tracking-wide text-white/60 focus-visible:ring-2 focus-visible:ring-teal-400/50"
+              className="press px-4 py-2.5 min-h-[44px] rounded-xl bg-white/5 text-[9px] font-semibold tracking-wide text-white/60 focus-visible:ring-2 focus-visible:ring-teal-400/50"
             >
               {t('insights.reviews.cancel')}
             </button>
@@ -108,7 +108,7 @@ export function PendingReviewCard({ review, onReplied }: PendingReviewCardProps)
         <button
           type="button"
           onClick={() => setReplying(true)}
-          className="text-[9px] font-bold tracking-wide text-amber-500 hover:text-amber-400 flex items-center gap-1.5 transition-colors min-h-[44px] focus-visible:ring-2 focus-visible:ring-teal-400/50"
+          className="press text-[9px] font-bold tracking-wide text-warn hover:text-warn flex items-center gap-1.5 min-h-[44px] focus-visible:ring-2 focus-visible:ring-teal-400/50"
         >
           <MessageSquare size={12} aria-hidden="true" /> {t('insights.reviews.reply')}
         </button>

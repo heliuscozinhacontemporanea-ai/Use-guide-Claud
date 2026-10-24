@@ -10,7 +10,7 @@ import type {
 
 const MIN_REASON = 5;
 const BUTTON =
-  'min-h-[44px] inline-flex items-center gap-2 px-4 rounded-2xl text-xs font-semibold transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-teal-400/50';
+  'press min-h-[44px] inline-flex items-center gap-2 px-4 rounded-2xl text-xs font-semibold disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-teal-400/50';
 
 interface VerificationQueueCardProps {
   entry: ListingVerificationQueueEntry;
@@ -148,7 +148,7 @@ export function VerificationQueueCard({ entry, onReview, onOpenFile }: Verificat
                 type="button"
                 disabled={busy || reason.trim().length < MIN_REASON}
                 onClick={() => void review('reject')}
-                className={`${BUTTON} bg-rose-500 text-white hover:bg-rose-400`}
+                className={`${BUTTON} bg-rose-600 text-on-fill hover:bg-rose-500`}
               >
                 {t('verification.admin.confirmReject')}
               </button>
@@ -186,7 +186,7 @@ export function VerificationQueueCard({ entry, onReview, onOpenFile }: Verificat
               type="button"
               disabled={busy}
               onClick={() => setRejecting(true)}
-              className={`${BUTTON} border border-rose-500/30 text-rose-300 hover:bg-rose-500/10`}
+              className={`${BUTTON} border border-danger-line text-danger hover:bg-danger-soft`}
             >
               <X size={14} aria-hidden="true" />
               {t('verification.admin.reject')}

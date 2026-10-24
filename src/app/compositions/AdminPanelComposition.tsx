@@ -10,6 +10,7 @@ import {
   updateGuideItemUseCase,
 } from '../../domain/guide';
 import {
+  AdminListingSealControl,
   ListingEditor,
   ListingVerificationQueue,
   type PartnerContentItemInput,
@@ -82,13 +83,14 @@ function AdminListingEditor({ item, onClose }: AdminListingEditorProps) {
 
 /**
  * Painel admin com os editores compartilhados: cadastro (o mesmo do parceiro, decisão D9), fila de
- * verificação dos estabelecimentos (D12), sessões do evento e gerenciador de ingressos.
+ * verificação dos estabelecimentos (D12), selo por estabelecimento (D11), sessões do evento e gerenciador de ingressos.
  */
 export function AdminPanelComposition() {
   return (
     <AdminDispatcher
       renderListingEditor={(props) => <AdminListingEditor {...props} />}
       renderVerificationQueue={() => <ListingVerificationQueue />}
+      renderListingSeal={(item) => <AdminListingSealControl itemId={item.id} name={item.name} />}
       renderSessionsField={(props) => <EventSessionsField {...props} />}
       renderTicketingManager={(eventListingId) => (
         <PartnerEventTicketingManager eventListingId={eventListingId} asAdmin />
