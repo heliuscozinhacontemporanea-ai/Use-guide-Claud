@@ -4,7 +4,7 @@
 
 ## 1. Objetivo
 
-* Cada CPF/CNPJ verificado recebe na **própria conta Stripe Express**; cada estabelecimento vende pela conta do seu documento (resolve B22).
+* Cada CNPJ verificado recebe na **própria conta Stripe Express** (CPF não vende, D12/P3); cada estabelecimento vende pela conta do seu documento (resolve B22).
 * O dinheiro fica no saldo do Use Guide e só é transferido **48 h depois do fim do serviço**, se não houver reclamação.
 * Taxas por tipo de produto, políticas de cancelamento da plataforma, direito de arrependimento, multa por cancelamento de evento e compensação de dívidas.
 
@@ -12,7 +12,7 @@
 
 | Coleção | Dono (domínio) | Campos principais | Classe (§7.6) |
 |---|---|---|---|
-| `paymentAccounts/{accountKey}` | `payment` | `accountKey` = índice cego do documento (HMAC, já existe no D12), `ownerUid`, `documentType` (`cpf`/`cnpj`), `stripeAccountId`, `status`, `chargesEnabled`, `payoutsEnabled`, `requirementsDue[]`, `blockedReason` (`debt` \| null), datas | Interna |
+| `paymentAccounts/{accountKey}` | `payment` | `accountKey` = índice cego do documento (HMAC, já existe no D12), `ownerUid`, `stripeAccountId`, `status`, `chargesEnabled`, `payoutsEnabled`, `requirementsDue[]`, `blockedReason` (`debt` \| null), datas | Interna |
 | `payoutEntries/{entryId}` | `payment` | `referenceType`/`referenceId` (pedido de ingresso ou reserva), `accountKey`, `paymentIntentId`, `chargeId`, `grossMinor`, `buyerServiceFeeMinor`, `platformFeeMinor`, `partnerAmountMinor`, `serviceEndsAt`, `releaseAt` (= fim + 48 h), `status` (`pending` → `released` \| `on_hold` \| `refunded` \| `partially_refunded`), `holdReason`, `holdUntil`, `transferId`, `offsetDebtIds[]` | Interna (financeiro) |
 | `accountDebts/{debtId}` | `payment` | `accountKey`, `reason` (`event_cancellation_penalty` \| `dispute_without_proof`), `referenceId`, `amountMinor`, `paidMinor`, `status` (`open` → `paid` \| `offset`), `dueAt` (24 h), `paymentIntentId` | Interna (financeiro) |
 | `saleClaims/{claimId}` | `payment` | `referenceType`/`referenceId`, `buyerUid`, `reason` (lista fechada), `openedAt`, `decideBy` (+5 dias), `status` (`open` → `refunded` \| `released` \| `expired`), `decidedBy` | Confidencial (texto livre do comprador fica fora do log) |

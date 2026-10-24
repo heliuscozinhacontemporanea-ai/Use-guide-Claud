@@ -186,7 +186,7 @@ Mensal, semestral e anual do "Use Guide Verificado" dão os mesmos benefícios (
 
 Objetivo: proteger os dois lados, o consumidor (o dinheiro só sai depois do serviço) e o proprietário (repasse automático, com data certa e regras fixas). Pesquisa de mercado (Airbnb, Sympla, GetYourGuide, Viator, Booking.com) e regras do Stripe no Brasil registradas na conversa de 2026-10-24.
 
-* **Contas de recebimento (1A, confirma D12/P8):** um login por pessoa e uma conta Stripe Express por CPF/CNPJ. Cada estabelecimento recebe na conta do seu documento. Resolve o débito B22.
+* **Contas de recebimento (1A, confirma D12/P8):** um login por pessoa e uma conta Stripe Express por documento. Como só CNPJ vende (D12/P3), na prática é uma conta por CNPJ; estabelecimento com CPF não tem conta de recebimento. Cada estabelecimento recebe na conta do seu documento. Resolve o débito B22.
 * **Retenção até o serviço (2B):** a cobrança é feita na plataforma, sem destino (*separate charges and transfers*), e o Use Guide continua *merchant of record* (D1). O backend registra um repasse pendente por venda e um job transfere à conta do documento na data de liberação, com `source_transaction` e chave de idempotência. Motivo: no Brasil o repasse da conta conectada ao banco é sempre automático e diário, então não dá para segurar o dinheiro na conta do proprietário. Muda o AGENTS.md §8.1 (proposta S15).
 * **Data de liberação (3):** fim do serviço (evento, passeio, aluguel, translado ou entrada) + **48 h** de janela de reclamação. O dinheiro continua sujeito ao prazo do meio de pagamento no Stripe (cartão 30 dias corridos, Pix 2 dias úteis); vale a data mais tardia.
 * **Reclamação (4):** suspende o repasse daquela venda; a análise tem prazo máximo de **5 dias**. Sem decisão nesse prazo, o repasse é liberado.
@@ -201,7 +201,7 @@ Objetivo: proteger os dois lados, o consumidor (o dinheiro só sai depois do ser
   * reembolso **integral** ao comprador, inclusive a taxa de serviço;
   * **multa de 20%** sobre o valor dos ingressos vendidos (sem as taxas de serviço), paga pelo proprietário à plataforma, **sempre**, inclusive em força maior;
   * com comprovação de força maior, a primeira solução oferecida pela plataforma é o **reagendamento** do evento;
-  * a multa é cobrada **na hora, no cartão ou por Pix**, e o cancelamento só é confirmado depois do pagamento.
+  * a multa é cobrada **na hora, no cartão ou por Pix**; o reembolso dos compradores **não espera** o pagamento da multa (ver "Multa não paga" abaixo).
 * **Adiantamento de recebíveis (10A):** fora do 18.4. Depende de convite do Stripe e de contrato com gestor de fundos parceiro.
 * **Em aberto (decidir antes do código):**
   1. ~~Reagendamento~~ — decidido em 2026-10-24: o comprador que não aceitar a nova data recebe reembolso integral (ingresso + taxa de serviço) e o proprietário **não** paga multa sobre esses ingressos, porque reagendou em vez de cancelar.
