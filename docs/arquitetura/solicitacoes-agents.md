@@ -5,7 +5,7 @@
 > Resposta de 2026-10-12: aprovada S9 (aplicada pelo prompt A2).
 > Resposta de 2026-10-19: aprovadas S10, S11 e S12 (as três no prompt A3).
 > Resposta de 2026-10-24: aprovada S14 (aplicada pelo prompt A5).
-> Resposta de 2026-10-24: aprovada S15 (aplicada junto com o prompt do 18.4).
+> Resposta de 2026-10-24: aprovada S15 (aplicada pelo prompt A5, junto com a S14).
 
 | # | Seção | Motivo | Status |
 |---|---|---|---|
@@ -23,7 +23,7 @@
 | S12 | §12.1 e §12.7 | Decisão D10: idioma do navegador na primeira visita, persistência só por escolha explícita | ✅ Aprovada em 2026-10-19 (prompt A3) |
 | S13 | §7.7 | O débito de `partnerDocumentKeys` foi resolvido no Prompt 18.3.0b | ✅ Aprovada em 2026-10-19 (prompt A4) |
 | S14 | §11.1 e §11 (nova subseção) | Tema claro sem branco puro e regras de experiência de app nativo | ✅ Aprovada em 2026-10-24 (prompt A5) |
-| S15 | §8.1 e §8.7 | D14: conta por documento, cobrança na plataforma com transferência depois do serviço, taxas por tipo, multa e reagendamento | ✅ Aprovada em 2026-10-24 (aplicar com o prompt do 18.4) |
+| S15 | §8.1 e §8.7 | D14: conta por documento, cobrança na plataforma com transferência depois do serviço, taxas por tipo, multa e reagendamento | ✅ Aprovada em 2026-10-24 (prompt A5, junto com a S14) |
 
 ---
 
@@ -187,29 +187,11 @@
 > * Tudo respeita `prefers-reduced-motion` (`motion-reduce:animate-none` e `MotionConfig reducedMotion="user"`).
 > * Ao abrir um diálogo o foco vai para o próprio diálogo, sem anel de foco num botão que a pessoa não tocou.
 
-## S15 — §8.1 e §8.7: repasse por documento e retenção até o serviço (D14)
+## S15 — §8.1, §8.2, §8.3 e §8.7: repasse por documento e retenção até o serviço (D14)
 
-**Por quê:** decisão D14. No Brasil o repasse da conta conectada ao banco é sempre automático e diário, então a *destination charge* entrega o dinheiro ao proprietário antes do serviço (no Pix, em 2 dias úteis). Para proteger o consumidor e o proprietário, a cobrança fica na plataforma e a transferência sai depois do serviço, para a conta do documento do estabelecimento.
+**Por quê:** decisão D14. No Brasil o repasse da conta conectada ao banco é sempre automático e diário, então a *destination charge* entrega o dinheiro ao proprietário antes do serviço (no Pix, em 2 dias úteis). Para proteger o consumidor e o proprietário, a cobrança fica na plataforma e a transferência sai 48 h depois do fim do serviço, para a conta do documento do estabelecimento. O texto final é o do AGENTS.md aplicado pelo prompt A5 (junto com a S14):
 
-**Texto atual (§8.1):**
-> * **Stripe Connect** com contas conectadas **Express** (`controller.stripe_dashboard.type = 'express'`), país `BR`, uma por parceiro (`paymentConnectedAccounts/{partnerId}`).
-> * **Tipo de cobrança padrão:** *destination charge* (`transfer_data.destination` + `application_fee_amount`). A plataforma é o *merchant of record*.
-> * **Taxa da plataforma:** calculada **somente no backend**, em centavos, a partir de `USE_GUIDE_PLATFORM_FEE_PERCENT` ou da configuração do plano. NUNCA aceitar valor de taxa ou de preço vindo do cliente.
-> * Antes de criar cobrança para um parceiro, DEVE ser verificado `charges_enabled` e `payouts_enabled` da conta conectada (`assertPartnerReadyForPaidEventUseCase`).
-
-**Texto proposto (§8.1):**
-> * **Stripe Connect** com contas conectadas **Express** (`controller.stripe_dashboard.type = 'express'`), país `BR`, **uma por documento** (CPF/CNPJ verificado do estabelecimento). Um login pode ter várias contas; cada estabelecimento recebe na conta do seu documento (D12, D14).
-> * **Tipo de cobrança padrão:** cobrança na plataforma com **transferência separada** (*separate charges and transfers*). A plataforma é o *merchant of record*. Cada venda gera um repasse pendente, transferido por job à conta do documento no **fim do serviço + 48 h** (janela de reclamação), com `source_transaction` e chave de idempotência. Reclamação aberta suspende o repasse da venda por até 5 dias. É proibido transferir antes do fim do serviço.
-> * **Taxa da plataforma:** calculada **somente no backend**, em centavos, por tipo de produto (D14): ofertas do `bookings` 15%; ingressos 10% + taxa de serviço de R$ 3,00 por ingresso paga pelo comprador, ou 12,5% sem taxa de serviço quando o proprietário escolhe absorvê-la. As tarifas do Stripe são pagas pela plataforma. NUNCA aceitar valor de taxa ou de preço vindo do cliente.
-> * Antes de criar cobrança para um estabelecimento, DEVE ser verificado `charges_enabled` e `payouts_enabled` da conta conectada do documento dele.
-
-**Texto atual (§8.7, 2º item):**
-> * Cancelamento de evento/passeio pelo organizador → reembolso integral com `refund_application_fee: true` e `reverse_transfer: true`.
-
-**Texto proposto (§8.7, 2º item em diante):**
-> * Cancelamento de evento/passeio pelo organizador → reembolso integral ao comprador, inclusive a taxa de serviço, feito do saldo da plataforma (o repasse ainda não saiu). No evento, multa de 20% sobre o valor dos ingressos vendidos (sem as taxas de serviço), paga pelo proprietário na hora, no cartão ou por Pix, sempre, inclusive em força maior.
-> * Força maior comprovada → a primeira solução oferecida é o reagendamento. Comprador que não aceitar a nova data recebe reembolso integral, sem multa para o proprietário.
-> * Cancelamento pelo cliente → em até 7 dias da compra e até 48 h antes do início, reembolso integral, inclusive a taxa de serviço (CDC art. 49). Fora disso, segue a política escolhida pelo proprietário entre as opções da plataforma (D14), gravada no pedido; a taxa de serviço não volta. No-show não tem reembolso. Translado retém no máximo 5% (Código Civil art. 740).
-> * Multa não paga em 24 h → descontada dos repasses pendentes e futuros do documento, que fica bloqueado para novas vendas; o reembolso dos compradores nunca espera a multa.
-> * Estorno fraudulento com prova de check-in → a plataforma contesta e absorve; sem prova, o valor é descontado de repasses futuros do documento.
-
+* **§8.1:** conta Express por documento (CNPJ); cobrança na plataforma com transferência separada 48 h depois do fim do serviço; reclamação suspende por até 5 dias; taxas por tipo de produto (15%; 10% + R$ 3,00 por ingresso ou 12,5% absorvida), sobre o valor que o proprietário fica num reembolso parcial; checagem da conta do documento e do bloqueio por dívida antes de vender.
+* **§8.2:** ingressos e reservas com PaymentIntent na plataforma e transferência depois do serviço.
+* **§8.3:** Pix só para serviço até 80 dias depois da compra (reembolso de Pix só em até 90 dias).
+* **§8.7:** políticas de cancelamento da plataforma, gravadas no pedido e só mais flexíveis depois de publicar; arrependimento em 7 dias até 48 h antes do início; no-show sem reembolso; translado com retenção máxima de 5%; cancelamento pelo proprietário com reembolso integral, multa de 20%, compensação em 24 h e bloqueio; reagendamento em força maior; disputa com suspensão do repasse.

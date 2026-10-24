@@ -212,6 +212,11 @@ Objetivo: proteger os dois lados, o consumidor (o dinheiro só sai depois do ser
   * **Passeios, aluguéis e entradas de atrações privadas:** **Flexível (padrão)** — integral até 24 h antes · Moderada — integral até 5 dias antes, 50% até 24 h antes · Rígida — 50% até 7 dias antes · Sem reembolso (só o arrependimento legal). No-show não tem reembolso.
   * **Translados (Código Civil art. 740, retenção máxima de 5%):** Flexível — integral até 24 h antes · Padrão translado — 95% até 24 h antes; com menos de 24 h ou no-show, sem reembolso.
   * **Regras:** o pedido grava a política vigente na compra, e é ela que vale para aquela compra; depois de publicar, o proprietário só pode mudar para uma opção mais flexível; a política aparece antes do pagamento, com o preço total e a taxa de serviço destacada (STJ, EDcl no REsp 1.737.428); o reembolso é calculado só no backend, em centavos.
-* **Validação jurídica antes das chaves `sk_live_` (junto com a condição da D1):** termos do parceiro (multa de 20%, compensação com repasses, bloqueio), limite de 48 h do arrependimento e políticas de cancelamento.
+* **Lacunas fechadas (2026-10-24):**
+  * **Pix e o limite de 90 dias do reembolso:** Pix só é oferecido quando o serviço acontece até 80 dias depois da compra; para datas mais distantes, só cartão.
+  * **Reembolso parcial:** a taxa da plataforma incide sobre o valor que o proprietário fica.
+  * **Cancelamento pelo proprietário de passeio, aluguel, translado ou entrada:** mesmas regras do evento — reembolso integral ao comprador, multa de 20% sobre o valor vendido, reagendamento primeiro em força maior (inclusive vento e mar), sem multa sobre quem não aceitar a nova data.
+* **Desenho do 18.4 aprovado (2026-10-24, `06-repasse-design.md`):** a conta do CNPJ é do titular, e o cadastro de um representante com o mesmo CNPJ só recebe nela depois que o titular aprova o vínculo; taxas em pontos-base por variável de ambiente, sem valor padrão no código; job de liberação de hora em hora; 6 prompts (18.4a a 18.4f). A S15 entra no AGENTS.md pelo prompt A5, junto com a S14.
+* **Validação jurídica antes das chaves `sk_live_` (junto com a condição da D1):** termos do parceiro (multa de 20%, inclusive em força maior — Código Civil art. 393 —, compensação com repasses, bloqueio), limite de 48 h do arrependimento, políticas de cancelamento e a guarda do dinheiro no saldo do Stripe até o serviço (regulação do Banco Central).
 * **Prompts:** 18.4 (contas por documento, retenção e liberação) e seguintes; desenho apresentado para aprovação antes do código.
 

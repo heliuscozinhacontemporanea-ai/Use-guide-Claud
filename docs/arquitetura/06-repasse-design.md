@@ -1,6 +1,6 @@
 # Desenho do 18.4 — Repasse por documento e retenção até o serviço (D12/P8, D14, S15)
 
-> Status: **proposta, aguardando aprovação** (AGENTS.md §15). Nenhum código antes da aprovação.
+> Status: **aprovado em 2026-10-24** (D14). Pontos da seção 8 decididos: conta do titular (1A), taxas em pontos-base, job de hora em hora, 6 prompts.
 
 ## 1. Objetivo
 
@@ -31,6 +31,7 @@ Sai `paymentConnectedAccounts/{partnerId}` (sem migração, §2.2.8). Nenhum ID 
   * `bookings`: 15% do preço.
   * ingresso `pass_to_buyer`: 10% do preço + R$ 3,00 por ingresso pago pelo comprador.
   * ingresso `absorb`: 12,5% do preço, sem taxa ao comprador.
+  * reembolso parcial: a taxa incide sobre o valor que o proprietário fica.
   * Percentuais em **pontos-base** (1500, 1000, 1250) e taxa em centavos (300), vindos de variáveis de ambiente documentadas no `.env.example`; arredondamento para baixo a favor do proprietário. Substitui `USE_GUIDE_PLATFORM_FEE_PERCENT`.
 * `calculateBuyerRefund({ preset, productKind, purchasedAt, startsAt, now, paidMinor, serviceFeeMinor })`:
   1. até 7 dias da compra **e** até 48 h antes do início → 100% + taxa de serviço (arrependimento);
@@ -49,7 +50,7 @@ Sai `paymentConnectedAccounts/{partnerId}` (sem migração, §2.2.8). Nenhum ID 
 
 ### 4.2 Compra
 1. PaymentIntent na plataforma **sem** `transfer_data`, com `transfer_group` = ID do pedido, `metadata` só com IDs (`referenceType`, `referenceId`, `accountKey`), valor = preço + taxa de serviço (se houver), idempotência `pi_<referenceId>`.
-2. Checkout mostra preço, taxa de serviço destacada, total e a política de cancelamento antes de pagar (STJ, EDcl no REsp 1.737.428).
+2. Checkout mostra preço, taxa de serviço destacada, total e a política de cancelamento antes de pagar (STJ, EDcl no REsp 1.737.428). Pix só aparece quando o serviço acontece até 80 dias depois da compra (`paymentMethodTypes` = só `card` caso contrário).
 3. `payment_intent.succeeded` (webhook, duas fases) → confirma o pedido e cria o `payoutEntry` `pending` com `releaseAt`.
 
 ### 4.3 Liberação (job)
@@ -69,9 +70,9 @@ Sai `paymentConnectedAccounts/{partnerId}` (sem migração, §2.2.8). Nenhum ID 
 * O comprador abre em "Minhas compras" até 48 h depois do fim do serviço (motivo de lista fechada). A entrada vira `on_hold` com `holdUntil` = + 5 dias.
 * O admin decide: reembolso (total/parcial) ou liberação. Sem decisão em 5 dias, o job libera.
 
-### 4.6 Cancelamento do evento pelo organizador
+### 4.6 Cancelamento pelo proprietário (evento, passeio, aluguel, translado ou entrada)
 1. Pedido de cancelamento: vendas pausadas na hora; se houver força maior comprovada, a tela oferece primeiro o reagendamento.
-2. Ao confirmar: cria a dívida de 20% sobre o valor dos ingressos vendidos (sem taxas de serviço) e abre o pagamento (cartão ou Pix, PaymentIntent na plataforma, sem transferência).
+2. Ao confirmar: cria a dívida de 20% sobre o valor vendido (ingressos ou reservas, sem taxas de serviço) e abre o pagamento (cartão ou Pix, PaymentIntent na plataforma, sem transferência).
 3. Reembolso integral aos compradores, inclusive a taxa de serviço, **sem esperar a multa**; as entradas viram `refunded`.
 4. Job após 24 h: dívida aberta → desconta dos repasses pendentes do documento e marca a conta `blockedReason: debt` até quitar.
 * Reagendamento: comprador que não aceitar a nova data recebe reembolso integral, sem multa.
@@ -103,7 +104,7 @@ Sai `paymentConnectedAccounts/{partnerId}` (sem migração, §2.2.8). Nenhum ID 
 |---|---|
 | 18.4a | Contas por documento (backend): `paymentAccounts`, Account Session por documento, `account.updated`, checagem antes de vender; sai a trava B22 |
 | 18.4b | Taxas por produto, presets de cancelamento e arrependimento (regras puras, schemas, campos de evento/oferta, snapshot no pedido) |
-| 18.4c + A6 | Cobrança na plataforma, `payoutEntries`, job de liberação, reembolso antes da liberação, disputas; A6 aplica a S15 no AGENTS.md |
+| 18.4c | Cobrança na plataforma, `payoutEntries`, job de liberação, reembolso antes da liberação, disputas (a S15 já entra no AGENTS.md pelo A5) |
 | 18.4d | Reclamações, cancelamento de evento com multa, dívidas, compensação e bloqueio |
 | 18.4e | Telas do parceiro (recebimentos, extrato, dívidas, política, taxa de serviço) |
 | 18.4f | Telas do comprador e do admin |
