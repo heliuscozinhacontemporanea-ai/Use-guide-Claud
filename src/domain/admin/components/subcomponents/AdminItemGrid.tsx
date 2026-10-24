@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Plus, RefreshCw, Star, MapPin, Edit2, Trash2, Layers } from 'lucide-react';
 import { cn } from '../../../../shared/utils/cn';
@@ -21,6 +22,8 @@ interface AdminItemGridProps {
   onInitNewTip?: () => void;
   onEdit: (item: GuideItem) => void;
   onDelete: (coll: string, id: string) => Promise<void>;
+  /** Selo do estabelecimento (D11); dicas não têm plano. */
+  renderListingSeal?: (item: GuideItem) => ReactNode;
 }
 
 export function AdminItemGrid({
@@ -34,6 +37,7 @@ export function AdminItemGrid({
   onInitNewTip,
   onEdit,
   onDelete,
+  renderListingSeal,
 }: AdminItemGridProps) {
   return (
     <div className="space-y-6" id="items-grid-viewport">
@@ -213,6 +217,16 @@ export function AdminItemGrid({
                           </button>
                         </div>
                       </div>
+                      {renderListingSeal && item.category !== 'tips' && (
+                        // O cartão abre o editor: clique e teclado do selo não sobem até ele.
+                        <div
+                          className="mt-2"
+                          onClick={(event) => event.stopPropagation()}
+                          onKeyDown={(event) => event.stopPropagation()}
+                        >
+                          {renderListingSeal(item)}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </motion.div>

@@ -1,6 +1,5 @@
 import { Users, CheckCircle, Clock, Trash2, RefreshCw, Ban } from 'lucide-react';
 import { cn } from '../../../../shared/utils/cn';
-import { VerifiedBadge } from '../../../../ui/components/VerifiedBadge';
 import { AdminPartnerSummary } from '../../types/admin';
 
 const STATUS_BADGE: Record<
@@ -11,26 +10,12 @@ const STATUS_BADGE: Record<
   suspended: { label: 'Suspenso', className: 'text-rose-400', icon: Ban },
 };
 
-const PLAN_LABEL: Record<NonNullable<AdminPartnerSummary['verificationType']>, string> = {
-  trial: 'Teste grátis',
-  monthly: 'Plano mensal',
-  'semi-annual': 'Plano semestral',
-  annual: 'Plano anual',
-  admin: 'Selo concedido pelo admin',
-};
-
-/** Selo visível para o público: verificado e não suspenso pelo admin. */
-function hasVisibleSeal(partner: AdminPartnerSummary): boolean {
-  return partner.isVerified && !partner.isVerificationSuspended;
-}
-
 const ROW_BUTTON =
   'flex-1 sm:flex-none min-h-[44px] px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all focus-visible:ring-2 focus-visible:ring-teal-400/50';
 
 interface AdminPartnersViewProps {
   partners: AdminPartnerSummary[];
   isLoading: boolean;
-  onToggleVerification: (partner: AdminPartnerSummary) => Promise<void>;
   onToggleStatus: (partner: AdminPartnerSummary) => Promise<void>;
   onDeletePartner: (partner: AdminPartnerSummary) => Promise<void>;
 }
@@ -38,7 +23,6 @@ interface AdminPartnersViewProps {
 export function AdminPartnersView({
   partners,
   isLoading,
-  onToggleVerification,
   onToggleStatus,
   onDeletePartner,
 }: AdminPartnersViewProps) {
@@ -95,42 +79,11 @@ export function AdminPartnersView({
                       </div>
                     );
                   })()}
-                  {hasVisibleSeal(partner) && (
-                    <div className="flex items-center gap-1 text-blue-400">
-                      <VerifiedBadge size="sm" />
-                      <span className="text-[8px] font-black uppercase italic">Verificado</span>
-                    </div>
-                  )}
-                  {partner.isVerified && partner.verificationType && (
-                    <span className="text-[8px] font-black uppercase text-white/60">
-                      {PLAN_LABEL[partner.verificationType]}
-                      {partner.verifiedUntil &&
-                        ` até ${new Intl.DateTimeFormat('pt-BR', {
-                          timeZone: 'America/Fortaleza',
-                          dateStyle: 'short',
-                        }).format(new Date(partner.verifiedUntil))}`}
-                      {partner.isVerificationSuspended && ' · selo suspenso'}
-                    </span>
-                  )}
                 </div>
               </div>
             </div>
 
             <div className="flex items-center gap-2 w-full sm:w-auto justify-end border-t sm:border-t-0 border-white/5 pt-4 sm:pt-0">
-              <button
-                type="button"
-                onClick={() => onToggleVerification(partner)}
-                className={cn(
-                  ROW_BUTTON,
-                  hasVisibleSeal(partner)
-                    ? 'bg-blue-500/10 text-blue-400 hover:bg-blue-500 hover:text-black'
-                    : 'bg-blue-500 text-black'
-                )}
-                id={`btn-verify-${partner.id}`}
-              >
-                {hasVisibleSeal(partner) ? 'Retirar selo' : 'Conceder selo'}
-              </button>
-
               <button
                 type="button"
                 onClick={() => onToggleStatus(partner)}

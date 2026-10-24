@@ -80,25 +80,6 @@ export class ApiPartnerAdapter implements PartnerPort {
     }
   }
 
-  async updatePartnerVerification(partnerId: string, isVerified: boolean): Promise<void> {
-    const res = await firebaseApiFetch(
-      '/api/partners/verify',
-      {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ partnerId, isVerified }),
-      },
-      { requireAuth: true }
-    );
-
-    if (!res.ok) {
-      const errorData = await res.json().catch(() => ({}));
-      throw new Error(errorData.error || 'Erro ao atualizar verificação do parceiro no backend');
-    }
-  }
-
   async deletePartnerProfile(partnerId: string): Promise<void> {
     const res = await firebaseApiFetch(
       `/api/partners/${partnerId}`,

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { GuideItem } from '../../../guide';
 import { ErrorState } from '../../../../ui/components/ErrorState';
 import { AdminItemGrid } from './AdminItemGrid';
@@ -21,6 +22,7 @@ interface AdminGuideViewProps {
   onInitNewTip?: () => void;
   onEdit: (item: GuideItem) => void;
   onDelete: (coll: string, id: string) => Promise<void>;
+  renderListingSeal?: (item: GuideItem) => ReactNode;
 }
 
 export function AdminGuideView({
@@ -36,6 +38,7 @@ export function AdminGuideView({
   onInitNewTip,
   onEdit,
   onDelete,
+  renderListingSeal,
 }: AdminGuideViewProps) {
   if (dataError) {
     return (
@@ -57,6 +60,7 @@ export function AdminGuideView({
       onInitNewTip={onInitNewTip}
       onEdit={onEdit}
       onDelete={onDelete}
+      renderListingSeal={renderListingSeal}
     />
   );
 }

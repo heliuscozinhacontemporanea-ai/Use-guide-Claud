@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { isListingSealVisible } from '../utils/listingSeal';
 import { motion } from 'motion/react';
 import { X, Star, MapPin, Utensils, MessageCircle } from 'lucide-react';
 import { GlassCard } from '../../../ui/components/GlassCard';
@@ -9,7 +10,7 @@ import { GuideItem } from '../types/guide';
 import { ReviewSection } from '../../reviews';
 import { optimizeImage } from '../../../shared/utils/formatters';
 import { cn } from '../../../shared/utils/cn';
-import { VerifiedBadge } from '../../../ui/components/VerifiedBadge';
+import { VerifiedSealButton } from '../../../ui/components/VerifiedSealButton';
 import { trackInteractionUseCase as trackInteraction } from '../../insights';
 import { FavoriteButton } from '../../favorites/components/FavoriteButton';
 import { ShareButton } from '../../../ui/components/ShareButton';
@@ -156,7 +157,7 @@ export function RestaurantDetailModal({ item, onClose }: RestaurantDetailModalPr
           <div className="space-y-1 font-display">
             <h2 className="text-3xl font-display font-black text-white leading-tight flex items-center gap-2 flex-wrap mb-1">
               {item.name}
-              {item.isVerified && !item.isVerificationSuspended && <VerifiedBadge size="md" />}
+              {isListingSealVisible(item) && <VerifiedSealButton size="md" />}
             </h2>
             <div className="flex items-center gap-2 text-white/50 text-sm font-medium">
               <MapPin size={16} />

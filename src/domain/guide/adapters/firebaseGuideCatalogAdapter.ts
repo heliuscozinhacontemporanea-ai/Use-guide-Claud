@@ -1,4 +1,5 @@
 import { subscribeToCollectionUseCase } from '../../database';
+import type { FeaturedListings } from '../types/featuredListing';
 import { GuideCatalogPort, GuideCatalogSnapshot } from '../ports/guideCatalogPort';
 import { GuideItem } from '../types/guide';
 
@@ -86,6 +87,22 @@ export function isActiveEvent(event: GuideItem): boolean {
   return end >= Date.now();
 }
 
+// Uma projeção por lista (7 hoje); o limite só protege a escuta (AGENTS.md §6.4).
+const FEATURED_LISTS_LIMIT = 20;
+
+export function toFeaturedListings(
+  records: Array<{ list?: string; listingIds?: unknown }>
+): FeaturedListings {
+  const featured: FeaturedListings = {};
+  for (const record of records) {
+    if (typeof record.list !== 'string' || !Array.isArray(record.listingIds)) continue;
+    featured[record.list as keyof FeaturedListings] = record.listingIds.filter(
+      (id): id is string => typeof id === 'string'
+    );
+  }
+  return featured;
+}
+
 export class FirebaseGuideCatalogAdapter implements GuideCatalogPort {
   subscribe(
     onUpdate: (snapshot: GuideCatalogSnapshot) => void,
@@ -93,11 +110,13 @@ export class FirebaseGuideCatalogAdapter implements GuideCatalogPort {
   ): () => void {
     let items: GuideItem[] = [];
     let events: GuideItem[] = [];
+    let featured: FeaturedListings = {};
 
     const emit = () => {
       onUpdate({
         items,
         events,
+        featured,
       });
     };
 
@@ -138,9 +157,30 @@ export class FirebaseGuideCatalogAdapter implements GuideCatalogPort {
       ]
     );
 
+    // Destaque é complemento da lista: se a leitura falhar, o catálogo segue sem as vagas.
+    const unsubscribeFeatured = subscribeToCollectionUseCase<{
+      list?: string;
+      listingIds?: unknown;
+    }>(
+      'featuredListings',
+      (records) => {
+        featured = toFeaturedListings(records);
+        emit();
+      },
+      (error) => {
+        console.error('[FirebaseGuideCatalogAdapter.featured]', error);
+        featured = {};
+        emit();
+      },
+      undefined,
+      undefined,
+      FEATURED_LISTS_LIMIT
+    );
+
     return () => {
       unsubscribeItems();
       unsubscribeEvents();
+      unsubscribeFeatured();
     };
   }
 }

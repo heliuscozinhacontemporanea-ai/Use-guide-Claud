@@ -7,7 +7,6 @@ import {
   step3Schema,
   step5SchemaContext,
   updatePartnerStatusSchema,
-  updatePartnerVerificationSchema,
 } from './partnerSchema';
 
 describe('Partner Validation Schemas (Frontend)', () => {
@@ -253,20 +252,6 @@ describe('Partner Validation Schemas (Frontend)', () => {
       });
       expect(result.success).toBe(true);
       expect(result.data?.status).toBe('suspended');
-    });
-
-    it('updatePartnerVerificationSchema aceita só partnerId e isVerified', () => {
-      expect(
-        updatePartnerVerificationSchema.safeParse({ partnerId: 'partner-123', isVerified: true })
-          .success
-      ).toBe(true);
-      expect(
-        updatePartnerVerificationSchema.safeParse({
-          partnerId: 'partner-123',
-          isVerified: true,
-          verificationType: 'annual',
-        }).success
-      ).toBe(false);
     });
   });
 });

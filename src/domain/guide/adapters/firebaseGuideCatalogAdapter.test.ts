@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { isActiveEvent, mapGuideItem } from './firebaseGuideCatalogAdapter';
+import { isActiveEvent, mapGuideItem, toFeaturedListings } from './firebaseGuideCatalogAdapter';
 
 describe('isActiveEvent', () => {
   it('rejeita evento sem data', () => {
@@ -154,5 +154,18 @@ describe('FirebaseGuideCatalogAdapter realtime', () => {
 
     expect(unsubscribeItems).toHaveBeenCalledTimes(1);
     expect(unsubscribeEvents).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('toFeaturedListings (D11)', () => {
+  it('monta as vagas por lista e ignora registro malformado', () => {
+    expect(
+      toFeaturedListings([
+        { list: 'hotel', listingIds: ['h1', 'h2', 3] },
+        { list: 'events', listingIds: ['e1'] },
+        { listingIds: ['x'] },
+        { list: 'tour', listingIds: 'nao-e-lista' },
+      ])
+    ).toEqual({ hotel: ['h1', 'h2'], events: ['e1'] });
   });
 });

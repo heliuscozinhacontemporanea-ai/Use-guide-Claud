@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { isListingSealVisible } from '../utils/listingSeal';
 import { Bike, Star, Utensils, MapPin, Compass, Home, Info, Calendar } from 'lucide-react';
 import { GlassCard } from '../../../ui/components/GlassCard';
 import { CATEGORIES } from '../../../shared/constants/categories';
@@ -12,6 +14,8 @@ interface StandardCardProps {
   variant?: 'square' | 'portrait' | 'landscape' | 'video' | 'circle' | 'horizontal' | 'banner';
   onClick: () => void;
   className?: string;
+  /** Vaga paga do dia (D11): sempre identificada como "Destaque" (CDC art. 36). */
+  featured?: boolean;
 }
 
 // Nomes de ícone usados em CATEGORIES (src/shared/constants/categories.ts).
@@ -27,7 +31,14 @@ const IconMap: Record<string, typeof Info> = {
 
 import { VerifiedBadge } from '../../../ui/components/VerifiedBadge';
 
-export function StandardCard({ item, variant = 'square', onClick, className }: StandardCardProps) {
+export function StandardCard({
+  item,
+  variant = 'square',
+  onClick,
+  className,
+  featured = false,
+}: StandardCardProps) {
+  const { t } = useTranslation();
   const [imageError, setImageError] = useState(false);
   const cat = CATEGORIES[item.category];
 
@@ -99,7 +110,13 @@ export function StandardCard({ item, variant = 'square', onClick, className }: S
         )}
 
         {/* Badges Overlay */}
-        <div className="absolute top-3 left-3 z-20"></div>
+        <div className="absolute top-3 left-3 z-20">
+          {featured && (
+            <span className="px-2 py-1 rounded-lg bg-amber-400 text-slate-950 text-[10px] font-black uppercase tracking-wider shadow-lg">
+              {t('common.featured')}
+            </span>
+          )}
+        </div>
 
         <div className="absolute top-3 right-3 z-20 flex flex-col gap-2 items-end">
           {item.rating && item.rating > 0 ? (
@@ -166,7 +183,7 @@ export function StandardCard({ item, variant = 'square', onClick, className }: S
                 )}
               >
                 {item.name}
-                {item.isVerified && !item.isVerificationSuspended && <VerifiedBadge size="sm" />}
+                {isListingSealVisible(item) && <VerifiedBadge size="sm" />}
               </h4>
             </div>
           </div>

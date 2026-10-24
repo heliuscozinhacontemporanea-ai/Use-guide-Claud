@@ -39,6 +39,14 @@ export interface TranslationResource {
     language: string;
     cancel: string;
     confirm: string;
+    /** Selo "Use Guide Verificado" explicado ao toque (D11). */
+    seal: {
+      label: string;
+      title: string;
+      explanation: string;
+    };
+    /** Vaga paga identificada como tal (D11, CDC art. 36). */
+    featured: string;
     locales: {
       ptBR: string;
       en: string;
@@ -250,6 +258,13 @@ const ptBR: TranslationResource = {
     language: 'Idioma',
     cancel: 'Cancelar',
     confirm: 'Confirmar',
+    seal: {
+      label: 'Ver o que significa o selo Use Guide Verificado',
+      title: 'Use Guide Verificado',
+      explanation:
+        'Responsável verificado pelo Use Guide · assinante do plano Use Guide Verificado.',
+    },
+    featured: 'Destaque',
     locales: {
       ptBR: 'Português (Brasil)',
       en: 'English',
@@ -512,6 +527,12 @@ const en: TranslationResource = {
     language: 'Language',
     cancel: 'Cancel',
     confirm: 'Confirm',
+    seal: {
+      label: 'See what the Use Guide Verified badge means',
+      title: 'Use Guide Verified',
+      explanation: 'Owner verified by Use Guide · subscriber of the Use Guide Verified plan.',
+    },
+    featured: 'Featured',
     locales: {
       ptBR: 'Português (Brasil)',
       en: 'English',
@@ -769,6 +790,12 @@ const fr: TranslationResource = {
     language: 'Langue',
     cancel: 'Annuler',
     confirm: 'Confirmer',
+    seal: {
+      label: 'Voir ce que signifie le badge Use Guide Vérifié',
+      title: 'Use Guide Vérifié',
+      explanation: "Responsable vérifié par Use Guide · abonné à l'offre Use Guide Vérifié.",
+    },
+    featured: 'À la une',
     locales: {
       ptBR: 'Português (Brasil)',
       en: 'English',

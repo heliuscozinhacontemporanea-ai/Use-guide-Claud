@@ -24,4 +24,12 @@ export class ApiListingPlanAdapter implements ListingPlanPort {
   activateTrial(itemId: string): Promise<ListingPlanView> {
     return call(`${planPath(itemId)}/trial`, { method: 'POST' });
   }
+
+  setSeal(itemId: string, grant: boolean): Promise<ListingPlanView> {
+    return call(`${planPath(itemId)}/seal`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ grant }),
+    });
+  }
 }

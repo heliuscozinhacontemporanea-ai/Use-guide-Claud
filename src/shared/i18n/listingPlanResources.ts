@@ -54,6 +54,17 @@ export interface ListingPlanTranslation {
   };
   trialActivated: string;
   checkoutName: string;
+  admin: {
+    grant: string;
+    revoke: string;
+    grantLabel: string;
+    revokeLabel: string;
+    confirmGrant: string;
+    confirmRevoke: string;
+    granted: string;
+    grantedPendingVerification: string;
+    revoked: string;
+  };
   errors: {
     VALIDATION_ERROR: string;
     FORBIDDEN: string;
@@ -123,6 +134,19 @@ export const listingPlanPtBR: ListingPlanTranslation = {
   },
   trialActivated: 'Teste grátis ativado até {{date}}.',
   checkoutName: 'Use Guide Verificado · {{plan}} · {{name}}',
+  admin: {
+    grant: 'Conceder selo',
+    revoke: 'Retirar selo',
+    grantLabel: 'Conceder selo a {{name}}',
+    revokeLabel: 'Retirar selo de {{name}}',
+    confirmGrant: 'Conceder o selo a {{name}}? Um plano pago em vigor não é alterado.',
+    confirmRevoke:
+      'Retirar o selo de {{name}}? Um plano pago em vigor é mantido; só o selo deixa de aparecer.',
+    granted: 'Selo concedido.',
+    grantedPendingVerification:
+      'Selo concedido. Ele aparece quando a verificação do estabelecimento for aprovada.',
+    revoked: 'Selo retirado.',
+  },
   errors: {
     VALIDATION_ERROR: 'Dados inválidos. Revise e tente novamente.',
     FORBIDDEN: 'Este estabelecimento não é da sua conta.',
@@ -192,6 +216,19 @@ export const listingPlanEn: ListingPlanTranslation = {
   },
   trialActivated: 'Free trial active until {{date}}.',
   checkoutName: 'Use Guide Verified · {{plan}} · {{name}}',
+  admin: {
+    grant: 'Grant badge',
+    revoke: 'Remove badge',
+    grantLabel: 'Grant badge to {{name}}',
+    revokeLabel: 'Remove badge from {{name}}',
+    confirmGrant: 'Grant the badge to {{name}}? An active paid plan is not changed.',
+    confirmRevoke:
+      'Remove the badge from {{name}}? An active paid plan is kept; only the badge stops showing.',
+    granted: 'Badge granted.',
+    grantedPendingVerification:
+      'Badge granted. It shows once the business verification is approved.',
+    revoked: 'Badge removed.',
+  },
   errors: {
     VALIDATION_ERROR: 'Invalid data. Please review and try again.',
     FORBIDDEN: 'This business does not belong to your account.',
@@ -261,6 +298,19 @@ export const listingPlanFr: ListingPlanTranslation = {
   },
   trialActivated: "Essai gratuit actif jusqu'au {{date}}.",
   checkoutName: 'Use Guide Vérifié · {{plan}} · {{name}}',
+  admin: {
+    grant: 'Accorder le badge',
+    revoke: 'Retirer le badge',
+    grantLabel: 'Accorder le badge à {{name}}',
+    revokeLabel: 'Retirer le badge de {{name}}',
+    confirmGrant: "Accorder le badge à {{name}} ? Une offre payante en cours n'est pas modifiée.",
+    confirmRevoke:
+      'Retirer le badge de {{name}} ? Une offre payante en cours est conservée ; seul le badge disparaît.',
+    granted: 'Badge accordé.',
+    grantedPendingVerification:
+      "Badge accordé. Il s'affiche une fois la vérification de l'établissement approuvée.",
+    revoked: 'Badge retiré.',
+  },
   errors: {
     VALIDATION_ERROR: 'Données invalides. Vérifiez et réessayez.',
     FORBIDDEN: "Cet établissement n'appartient pas à votre compte.",

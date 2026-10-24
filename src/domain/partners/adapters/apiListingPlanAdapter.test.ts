@@ -29,6 +29,16 @@ describe('ApiListingPlanAdapter', () => {
     expect(fetchMock.mock.calls[0]?.[1]).toMatchObject({ method: 'POST' });
   });
 
+  it('admin concede o selo por PUT só com { grant }', async () => {
+    fetchMock.mockResolvedValue(ok({ data: { itemId: 'item-1', planType: 'admin' } }));
+    await adapter.setSeal('item-1', true);
+    expect(fetchMock.mock.calls[0]?.[0]).toBe('/api/listing-plans/item-1/seal');
+    expect(fetchMock.mock.calls[0]?.[1]).toMatchObject({
+      method: 'PUT',
+      body: JSON.stringify({ grant: true }),
+    });
+  });
+
   it('lança o code estável do erro', async () => {
     fetchMock.mockResolvedValue(
       new Response(JSON.stringify({ error: { code: 'TRIAL_ALREADY_USED' } }), { status: 409 })

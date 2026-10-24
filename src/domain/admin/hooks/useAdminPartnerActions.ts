@@ -1,39 +1,17 @@
 import { useUI } from '../../../shared/stores/useUIStore';
-import {
-  deletePartnerProfileUseCase,
-  updatePartnerStatusUseCase,
-  updatePartnerVerificationUseCase,
-} from '../../partners';
+import { deletePartnerProfileUseCase, updatePartnerStatusUseCase } from '../../partners';
 import type { AdminPartnerSummary } from '../types/admin';
 
 interface UseAdminPartnerActionsParams {
-  reloadPartners: () => Promise<void>;
   patchPartner: (id: string, patch: Partial<AdminPartnerSummary>) => void;
   removePartner: (id: string) => void;
 }
 
 export function useAdminPartnerActions({
-  reloadPartners,
   patchPartner,
   removePartner,
 }: UseAdminPartnerActionsParams) {
   const { showToast, confirmAction } = useUI();
-
-  const handleToggleVerification = async (partner: AdminPartnerSummary) => {
-    const hasSeal = partner.isVerified && !partner.isVerificationSuspended;
-    const message = hasSeal
-      ? `Retirar o selo de verificação de ${partner.businessName}? Um plano pago em vigor é mantido; só o selo deixa de aparecer.`
-      : `Conceder o selo de verificação a ${partner.businessName}? Um plano pago em vigor não é alterado.`;
-    if (!(await confirmAction(message))) return;
-    try {
-      await updatePartnerVerificationUseCase(partner.id, !hasSeal);
-      showToast(hasSeal ? 'Selo retirado.' : 'Selo concedido.', 'success');
-      // Tipo e validade do selo são decididos pelo servidor; a lista é recarregada para refleti-los.
-      await reloadPartners();
-    } catch {
-      showToast('Erro ao atualizar verificação', 'error');
-    }
-  };
 
   const handleToggleStatus = async (partner: AdminPartnerSummary) => {
     const newStatus = partner.status === 'active' ? 'suspended' : 'active';
@@ -69,5 +47,5 @@ export function useAdminPartnerActions({
     }
   };
 
-  return { handleToggleVerification, handleToggleStatus, handleDeletePartner };
+  return { handleToggleStatus, handleDeletePartner };
 }

@@ -67,11 +67,14 @@ export interface AdminPanelProps extends AdminEventSlots {
   renderListingEditor?: (props: AdminListingEditorProps) => ReactNode;
   /** Fila de verificação dos estabelecimentos (domínio partners), montada pela composição. */
   renderVerificationQueue?: () => ReactNode;
+  /** Selo de cada estabelecimento (D11, domínio partners), montado pela composição. */
+  renderListingSeal?: (item: GuideItem) => ReactNode;
 }
 
 export function AdminPanel({
   renderListingEditor,
   renderVerificationQueue,
+  renderListingSeal,
   renderSessionsField,
   renderTicketingManager,
 }: AdminPanelProps = {}) {
@@ -143,8 +146,10 @@ export function AdminPanel({
     }
   };
 
-  const { handleToggleVerification, handleToggleStatus, handleDeletePartner } =
-    useAdminPartnerActions({ reloadPartners: fetchPartners, patchPartner, removePartner });
+  const { handleToggleStatus, handleDeletePartner } = useAdminPartnerActions({
+    patchPartner,
+    removePartner,
+  });
 
   const handleSaveRecord = async (editorData: AdminEditorSaveData) => {
     try {
@@ -297,7 +302,6 @@ export function AdminPanel({
                 <AdminPartnersView
                   partners={partners}
                   isLoading={partnersLoading}
-                  onToggleVerification={handleToggleVerification}
                   onToggleStatus={handleToggleStatus}
                   onDeletePartner={handleDeletePartner}
                 />
@@ -341,6 +345,7 @@ export function AdminPanel({
                   });
                 }}
                 onDelete={handleDelete}
+                renderListingSeal={activeTab === 'items' ? renderListingSeal : undefined}
               />
             )}
           </motion.div>

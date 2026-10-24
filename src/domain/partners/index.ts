@@ -10,8 +10,8 @@ export { getAllPartnersUseCase } from './application/usecases/getAllPartnersUseC
 export { getPartnerProfileUseCase } from './application/usecases/getPartnerProfileUseCase';
 export { subscribeToPartnerProfileUseCase } from './application/usecases/subscribeToPartnerProfileUseCase';
 export { updatePartnerStatusUseCase } from './application/usecases/updatePartnerStatusUseCase';
-export { updatePartnerVerificationUseCase } from './application/usecases/updatePartnerVerificationUseCase';
 export { ListingEditor, type ListingEditorProps } from './components/ListingEditor';
+export { AdminListingSealControl } from './components/plan/AdminListingSealControl';
 export { ListingVerificationQueue } from './components/verification/ListingVerificationQueue';
 export { PartnerEventForm } from './components/PartnerEventForm';
 export {
@@ -36,9 +36,7 @@ export {
   type PartnerSubmissionInput,
   partnerSubmissionSchema,
   type UpdatePartnerStatusInput,
-  type UpdatePartnerVerificationInput,
   updatePartnerStatusSchema,
-  updatePartnerVerificationSchema,
 } from './schemas/partnerSchema';
 export type {
   PartnerBusiness,
