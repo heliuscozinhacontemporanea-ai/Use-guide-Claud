@@ -83,10 +83,11 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 | 18.3.0b | Conta do parceiro sem documento nem status pendente (D12, P0) | `46236f5` | ✅ zip 2026-10-22 | ✅ igual, exceto `usePartnerProfile` (→ 18.3.0d) |
 | A4 | AGENTS.md §7.7: débito de `partnerDocumentKeys` resolvido (S13) | `e2651db` | ✅ zip 2026-10-22 | ✅ igual à referência |
 | 18.3.0c | Telas de verificação por estabelecimento (D12) | `3e75156` + `3406b93` | ⚠️ zip 2026-10-22 | ⚠️ telas novas iguais; `PartnerPanel` e `PartnerPortalComposition` reescritos; prompts colados salvos em `public/assets/aistudio/` → 18.3.0d. Imports sem uso e linha em branco removidos em 3 arquivos (adotado) |
-| 18.3.0d | Correção do lote 13 | `467cd02..996437c` | ⏳ enviar (lote 13b) | — |
-| 18.3a | Plano e selo por estabelecimento, backend (D11) | `bd14c0f` | ⏳ enviar (lote 14) | — |
-| 18.3b | Cobrança do plano por estabelecimento (D11) | `cd31a44` | ⏳ enviar (lote 14) | — |
-| 18.3c | Métricas com plano e destaque em rodízio (D11) | `f5b42a0` | ⏳ enviar (lote 14) | — |
+| 18.3.0d | Correção do lote 13 | `467cd02..996437c` | ✅ zip 2026-10-24 | ✅ igual à referência; `public/assets/aistudio/` limpo |
+| 18.3a | Plano e selo por estabelecimento, backend (D11) | `bd14c0f` | ✅ zip 2026-10-24 | ✅ igual à referência |
+| 18.3b | Cobrança do plano por estabelecimento (D11) | `cd31a44` | ⚠️ zip 2026-10-24 | ⚠️ funciona, mas 17 arquivos reescritos (nomes, comentários do porquê removidos, 5 arquivos fora do formato) → 18.3b.1 |
+| 18.3c | Métricas com plano e destaque em rodízio (D11) | `f5b42a0` | ✅ zip 2026-10-24 | ✅ igual à referência |
+| 18.3b.1 | Correção do 18.3b | `0fec4b9..faba4ec` | ⏳ enviar (lote 15) | — |
 
 ## Gates
 
