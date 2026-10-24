@@ -64,6 +64,7 @@ export interface ListingPlanTranslation {
     granted: string;
     grantedPendingVerification: string;
     revoked: string;
+    noPlan: string;
   };
   errors: {
     VALIDATION_ERROR: string;
@@ -146,6 +147,7 @@ export const listingPlanPtBR: ListingPlanTranslation = {
     grantedPendingVerification:
       'Selo concedido. Ele aparece quando a verificação do estabelecimento for aprovada.',
     revoked: 'Selo retirado.',
+    noPlan: 'Sem plano',
   },
   errors: {
     VALIDATION_ERROR: 'Dados inválidos. Revise e tente novamente.',
@@ -228,6 +230,7 @@ export const listingPlanEn: ListingPlanTranslation = {
     grantedPendingVerification:
       'Badge granted. It shows once the business verification is approved.',
     revoked: 'Badge removed.',
+    noPlan: 'No plan',
   },
   errors: {
     VALIDATION_ERROR: 'Invalid data. Please review and try again.',
@@ -310,6 +313,7 @@ export const listingPlanFr: ListingPlanTranslation = {
     grantedPendingVerification:
       "Badge accordé. Il s'affiche une fois la vérification de l'établissement approuvée.",
     revoked: 'Badge retiré.',
+    noPlan: 'Sans offre',
   },
   errors: {
     VALIDATION_ERROR: 'Données invalides. Vérifiez et réessayez.',

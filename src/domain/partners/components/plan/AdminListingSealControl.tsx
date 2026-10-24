@@ -58,7 +58,11 @@ export function AdminListingSealControl({ itemId, name }: AdminListingSealContro
     <div className="flex flex-wrap items-center gap-2">
       <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-white/70">
         <BadgeCheck size={12} aria-hidden="true" />
-        {loading ? t('listingPlan.dialog.loading') : t(`listingPlan.chip.${status}`, { date })}
+        {loading
+          ? t('listingPlan.dialog.loading')
+          : status === 'none'
+            ? t('listingPlan.admin.noPlan')
+            : t(`listingPlan.chip.${status}`, { date })}
       </span>
       <button
         type="button"
