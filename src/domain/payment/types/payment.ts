@@ -56,6 +56,16 @@ export interface PlanSubscription {
   status: PlanSubscriptionStatus;
   currentPeriodEnd: string | null;
   cancelAtPeriodEnd: boolean;
+  /** Período escolhido para a próxima renovação (D13); `null` sem troca agendada. */
+  pendingPlanId: PaidPlanId | null;
+  pendingChangeAt: string | null;
+}
+
+/** Período do catálogo exibido na troca; o backend recalcula o valor ao cobrar (§8.5). */
+export interface PlanPeriodOption {
+  id: PaidPlanId;
+  name: string;
+  priceMinor: number;
 }
 
 export interface StartPlanSubscriptionPayload {

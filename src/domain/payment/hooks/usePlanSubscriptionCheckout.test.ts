@@ -18,6 +18,8 @@ const ACTIVE = {
   status: 'active' as const,
   currentPeriodEnd: '2026-11-10T12:00:00.000Z',
   cancelAtPeriodEnd: false,
+  pendingPlanId: null,
+  pendingChangeAt: null,
 };
 
 describe('usePlanSubscriptionCheckout', () => {

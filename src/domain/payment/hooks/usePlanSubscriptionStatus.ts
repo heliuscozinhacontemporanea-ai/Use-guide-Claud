@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DEFAULT_LOCALE, normalizeLocale } from '../../../shared/i18n';
+import { changePlanSubscriptionUseCase } from '../application/usecases/changePlanSubscriptionUseCase';
 import { createBillingPortalSessionUseCase } from '../application/usecases/createBillingPortalSessionUseCase';
 import { getPlanSubscriptionUseCase } from '../application/usecases/getPlanSubscriptionUseCase';
 import { setPlanSubscriptionRenewalUseCase } from '../application/usecases/setPlanSubscriptionRenewalUseCase';
-import type { PlanSubscription } from '../types/payment';
+import type { PaidPlanId, PlanSubscription } from '../types/payment';
 import { getPaymentErrorMessage } from '../utils/paymentErrorMessage';
 
 export function usePlanSubscriptionStatus(itemId: string) {
@@ -45,6 +46,30 @@ export function usePlanSubscriptionStatus(itemId: string) {
     [itemId]
   );
 
+  /** Uma chave por clique: o botão fica travado enquanto a troca anterior não volta. */
+  const changePlan = useCallback(
+    async (planId: PaidPlanId) => {
+      setActing(true);
+      setError(null);
+      try {
+        setData(
+          await changePlanSubscriptionUseCase({
+            itemId,
+            planId,
+            idempotencyKey: crypto.randomUUID(),
+          })
+        );
+        return true;
+      } catch (err: unknown) {
+        setError(getPaymentErrorMessage(err));
+        return false;
+      } finally {
+        setActing(false);
+      }
+    },
+    [itemId]
+  );
+
   const openPortal = useCallback(async () => {
     setActing(true);
     setError(null);
@@ -59,5 +84,5 @@ export function usePlanSubscriptionStatus(itemId: string) {
     }
   }, [i18n.language]);
 
-  return { data, loading, error, acting, reload, setRenewal, openPortal };
+  return { data, loading, error, acting, reload, setRenewal, changePlan, openPortal };
 }

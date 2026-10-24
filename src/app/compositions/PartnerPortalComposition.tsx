@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { LogIn, RefreshCw, ShieldAlert } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { PartnerPanel, getPartnerProfileUseCase } from '../../domain/partners';
@@ -8,7 +8,12 @@ import { UserRole } from '../../domain/auth/types/auth';
 import { useAuthContext } from '../../domain/auth/context/AuthContext';
 import { EventSessionsField } from '../../domain/events';
 import { ReportsView } from '../../domain/insights';
-import { CheckoutModal, isPaidPlanId, PlanSubscriptionCard } from '../../domain/payment';
+import {
+  CheckoutModal,
+  isPaidPlanId,
+  type PlanPeriodOption,
+  PlanSubscriptionCard,
+} from '../../domain/payment';
 import { PartnerBookingsComposition } from './PartnerBookingsComposition';
 import { NotificationBell } from '../../domain/notifications';
 import { PartnerEventTicketingManager } from '../../domain/ticketing';
@@ -27,6 +32,15 @@ export function PartnerPortalComposition() {
   const [profileError, setProfileError] = useState<string | null>(null);
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [profileVersion, setProfileVersion] = useState(0);
+  const periodOptions = useMemo<PlanPeriodOption[]>(
+    () =>
+      plans.flatMap((plan) =>
+        isPaidPlanId(plan.id) && plan.isActive !== false
+          ? [{ id: plan.id, name: plan.name, priceMinor: plan.priceMinor }]
+          : []
+      ),
+    [plans]
+  );
 
   useEffect(() => {
     let active = true;
@@ -171,7 +185,9 @@ export function PartnerPortalComposition() {
           />
         ) : null
       }
-      renderPlanSubscription={(itemId) => <PlanSubscriptionCard itemId={itemId} />}
+      renderPlanSubscription={(itemId, onLiveChange) => (
+        <PlanSubscriptionCard itemId={itemId} plans={periodOptions} onLiveChange={onLiveChange} />
+      )}
       renderBookableOffersManager={(items) => <PartnerBookingsComposition items={items} />}
       renderEventTicketingManager={(eventListingId) => (
         <PartnerEventTicketingManager eventListingId={eventListingId} />

@@ -91,4 +91,25 @@ describe('ListingPlanDialog (D11)', () => {
     await screen.findByText(/Plano Teste grátis em vigor/);
     expect(m.trial).toHaveBeenCalledWith('item-1');
   });
+
+  it('com assinatura viva no cartão, a compra nova some e a troca fica na assinatura (D13)', async () => {
+    m.getVerification.mockResolvedValue({ itemId: 'item-1', status: 'approved' });
+    render(
+      <ListingPlanDialog
+        listing={LISTING}
+        plans={PLANS}
+        onClose={vi.fn()}
+        onVerify={vi.fn()}
+        onSelectPaidPlan={vi.fn()}
+        renderSubscription={(_itemId, onLiveChange) => (
+          <button type="button" onClick={() => onLiveChange(true)}>
+            assinatura
+          </button>
+        )}
+      />
+    );
+    fireEvent.click(await screen.findByRole('button', { name: 'assinatura' }));
+    expect(screen.queryByRole('button', { name: 'Seguir para o pagamento' })).toBeNull();
+    expect(screen.queryByRole('button', { name: /Anual/ })).toBeNull();
+  });
 });

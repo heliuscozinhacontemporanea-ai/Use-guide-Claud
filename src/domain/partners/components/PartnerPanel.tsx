@@ -47,7 +47,10 @@ export interface PartnerPanelProps {
   /** Campo de sessões do evento (domínio events), montado pela composição do app. */
   renderEventSessionsField?: (props: EventSessionsFieldProps) => React.ReactNode;
   /** Assinatura no cartão do plano de um estabelecimento, montada pela composição. */
-  renderPlanSubscription?: (itemId: string) => React.ReactNode;
+  renderPlanSubscription?: (
+    itemId: string,
+    onLiveChange: (live: boolean) => void
+  ) => React.ReactNode;
   renderBookableOffersManager?: (
     items: Array<{ id: string; name: string; category: string }>
   ) => React.ReactNode;

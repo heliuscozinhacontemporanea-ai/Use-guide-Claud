@@ -25,8 +25,11 @@ interface ListingPlanDialogProps {
   onClose: () => void;
   onVerify: () => void;
   onSelectPaidPlan: (selection: PaidPlanSelection) => void;
-  /** Assinatura no cartão deste estabelecimento (domínio payment), montada pela composição. */
-  renderSubscription?: (itemId: string) => ReactNode;
+  /**
+   * Assinatura no cartão deste estabelecimento (domínio payment), montada pela composição. Com
+   * assinatura viva, a troca de período fica nela (D13) e o diálogo esconde a compra nova.
+   */
+  renderSubscription?: (itemId: string, onLiveChange: (live: boolean) => void) => ReactNode;
 }
 
 const buttonClass =
@@ -45,6 +48,7 @@ export function ListingPlanDialog({
   const plan = useListingPlan(listing.id);
   const verification = useListingVerification(listing.id);
   const [choice, setChoice] = useState<ListingPlanChoice | null>(null);
+  const [subscriptionLive, setSubscriptionLive] = useState(false);
   const loading = plan.loading || verification.loading;
   const error = plan.error ?? verification.error;
   const verified = verification.data?.status === 'approved';
@@ -110,9 +114,9 @@ export function ListingPlanDialog({
         ) : (
           <>
             <ListingPlanStatus view={plan.data} />
-            {renderSubscription?.(listing.id)}
+            {renderSubscription?.(listing.id, setSubscriptionLive)}
             <ListingPlanBenefits />
-            {verified ? (
+            {subscriptionLive ? null : verified ? (
               <>
                 <ListingPlanOptions
                   plans={plans}

@@ -3,6 +3,7 @@ import type { PaymentApiPort } from '../ports/paymentApiPort';
 import type {
   CreatePaymentIntentResponse,
   CreatePlanPaymentIntentPayload,
+  PaidPlanId,
   PartnerConnectStatusResponse,
   PaymentLocale,
   PlanSubscription,
@@ -150,6 +151,17 @@ export class ApiPaymentAdapter implements PaymentApiPort {
       : '/api/payment/plans/subscription/cancel';
     const data = await readJsonOrThrow<{ subscription: PlanSubscription | null }>(
       await postJson(path, { itemId })
+    );
+    return data.subscription;
+  }
+
+  async changePlanSubscription(params: {
+    itemId: string;
+    planId: PaidPlanId;
+    idempotencyKey: string;
+  }): Promise<PlanSubscription | null> {
+    const data = await readJsonOrThrow<{ subscription: PlanSubscription | null }>(
+      await postJson('/api/payment/plans/subscription/change', params)
     );
     return data.subscription;
   }

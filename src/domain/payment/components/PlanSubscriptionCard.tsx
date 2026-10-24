@@ -1,99 +1,40 @@
 import { CreditCard, RefreshCw } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ConfirmDialog, type ConfirmDialogData } from '../../../ui/components/ConfirmDialog';
 import { GlassCard } from '../../../ui/components/GlassCard';
 import { Skeleton } from '../../../ui/components/Skeleton';
 import { usePlanSubscriptionStatus } from '../hooks/usePlanSubscriptionStatus';
-import type { PlanSubscription } from '../types/payment';
+import type { PlanPeriodOption } from '../types/payment';
 import { formatBillingDate } from '../utils/formatPlanAmount';
+import { PlanPeriodChange } from './subscription/PlanPeriodChange';
+import { SubscriptionDetails } from './subscription/SubscriptionDetails';
+import { LIVE_SUBSCRIPTION_STATUSES } from './subscription/subscriptionStatus';
 
-const LIVE_STATUSES: ReadonlySet<PlanSubscription['status']> = new Set([
-  'active',
-  'trialing',
-  'past_due',
-]);
-
-function useStatusMessage(subscription: PlanSubscription): string {
-  const { t, i18n } = useTranslation();
-  const date = subscription.currentPeriodEnd
-    ? formatBillingDate(subscription.currentPeriodEnd, i18n.language)
-    : '';
-  if (subscription.status === 'past_due' || subscription.status === 'unpaid') {
-    return t('payment.subscription.statusPastDue');
-  }
-  if (subscription.status === 'canceled' || subscription.status === 'incomplete_expired') {
-    return t('payment.subscription.statusCanceled');
-  }
-  if (subscription.status === 'incomplete' || subscription.status === 'paused') {
-    return t('payment.subscription.statusIncomplete');
-  }
-  if (subscription.cancelAtPeriodEnd) {
-    return t('payment.subscription.statusCancelScheduled', { date });
-  }
-  return subscription.status === 'trialing'
-    ? t('payment.subscription.statusTrialing', { date })
-    : t('payment.subscription.statusActive', { date });
-}
-
-function SubscriptionDetails({
-  subscription,
-  acting,
-  onManage,
-  onToggleRenewal,
-}: {
-  subscription: PlanSubscription;
-  acting: boolean;
-  onManage: () => void;
-  onToggleRenewal: () => void;
-}) {
-  const { t } = useTranslation();
-  const message = useStatusMessage(subscription);
-  const isLive = LIVE_STATUSES.has(subscription.status);
-  const buttonClass =
-    'min-h-11 px-4 rounded-xl text-xs font-bold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-teal-400/50';
-
-  return (
-    <>
-      <p
-        className={
-          subscription.status === 'past_due' ? 'text-sm text-amber-200' : 'text-sm text-white/80'
-        }
-      >
-        {message}
-      </p>
-      {isLive && (
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={onManage}
-            disabled={acting}
-            className={`${buttonClass} bg-teal-400 hover:bg-teal-300 text-slate-950`}
-          >
-            {t('payment.subscription.manageCard')}
-          </button>
-          <button
-            type="button"
-            onClick={onToggleRenewal}
-            disabled={acting}
-            className={`${buttonClass} bg-white/10 hover:bg-white/15 text-white`}
-          >
-            {subscription.cancelAtPeriodEnd
-              ? t('payment.subscription.resumeRenewal')
-              : t('payment.subscription.cancelRenewal')}
-          </button>
-        </div>
-      )}
-    </>
-  );
+interface PlanSubscriptionCardProps {
+  itemId: string;
+  /** Períodos pagos do catálogo, para a troca na próxima renovação (D13). */
+  plans?: PlanPeriodOption[];
+  /** Avisa se o estabelecimento tem assinatura viva: quem monta o card esconde a compra nova. */
+  onLiveChange?: (live: boolean) => void;
 }
 
 /** Assinatura do plano de um estabelecimento. Não renderiza nada se ele nunca assinou. */
-export function PlanSubscriptionCard({ itemId }: { itemId: string }) {
+export function PlanSubscriptionCard({
+  itemId,
+  plans = [],
+  onLiveChange,
+}: PlanSubscriptionCardProps) {
   const { t, i18n } = useTranslation();
-  const { data, loading, error, acting, reload, setRenewal, openPortal } =
+  const { data, loading, error, acting, reload, setRenewal, changePlan, openPortal } =
     usePlanSubscriptionStatus(itemId);
   const [confirm, setConfirm] = useState<ConfirmDialogData | null>(null);
+  const [changing, setChanging] = useState(false);
+
+  const live = Boolean(data && LIVE_SUBSCRIPTION_STATUSES.has(data.status));
+  useEffect(() => {
+    if (!loading) onLiveChange?.(live);
+  }, [live, loading, onLiveChange]);
 
   if (!loading && !error && !data) {
     return null;
@@ -120,7 +61,7 @@ export function PlanSubscriptionCard({ itemId }: { itemId: string }) {
   return (
     <GlassCard className="p-5 space-y-3 border border-white/10">
       <div className="flex items-center gap-2">
-        <CreditCard size={18} className="text-teal-300" />
+        <CreditCard size={18} className="text-teal-300" aria-hidden="true" />
         <h2 className="text-sm font-bold text-white">{t('payment.subscription.title')}</h2>
       </div>
       {loading && (
@@ -137,17 +78,33 @@ export function PlanSubscriptionCard({ itemId }: { itemId: string }) {
             onClick={() => void reload()}
             className="min-h-11 px-3 rounded-lg bg-white/10 hover:bg-white/15 text-white text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-teal-400/50"
           >
-            <RefreshCw size={13} />
+            <RefreshCw size={13} aria-hidden="true" />
             <span>{t('payment.subscription.retry')}</span>
           </button>
         </div>
       )}
-      {!loading && data && (
+      {!loading && data && changing && (
+        <PlanPeriodChange
+          subscription={data}
+          plans={plans}
+          acting={acting}
+          onBack={() => setChanging(false)}
+          onConfirm={(planId) => {
+            void changePlan(planId).then((done) => {
+              if (done) setChanging(false);
+            });
+          }}
+        />
+      )}
+      {!loading && data && !changing && (
         <SubscriptionDetails
           subscription={data}
+          plans={plans}
           acting={acting}
           onManage={() => void openPortal()}
           onToggleRenewal={requestToggleRenewal}
+          onChangePeriod={() => setChanging(true)}
+          onKeepCurrent={() => void changePlan(data.planId)}
         />
       )}
       <ConfirmDialog data={confirm} />
