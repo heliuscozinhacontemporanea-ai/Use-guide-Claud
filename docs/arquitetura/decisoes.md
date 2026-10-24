@@ -23,6 +23,7 @@
 | D11 | Plano "Use Guide Verificado", selo e destaque por estabelecimento | ✅ Aprovada | 2026-10-19 |
 | D12 | Verificação e documento por estabelecimento; venda só com verificação | ✅ Aprovada | 2026-10-19 |
 | D13 | Troca de período do plano na próxima renovação | ✅ Aprovada | 2026-10-24 |
+| D14 | Repasse por documento, retenção até o serviço, taxas e cancelamentos | ✅ Aprovada (2 pontos em aberto) | 2026-10-24 |
 
 ---
 
@@ -180,4 +181,30 @@ Mensal, semestral e anual do "Use Guide Verificado" dão os mesmos benefícios (
 * **Registro:** `planSubscriptions/{itemId}` guarda `pendingPlanId` e `pendingChangeAt` até o novo período entrar.
 * **Descartadas:** B (troca imediata com proração) e C (troca pelo portal do Stripe).
 * **Prompts:** 18.3b.2 (backend) e 18.3.1a (telas).
+
+## D14 — Repasse por documento, retenção até o serviço, taxas e cancelamentos (2026-10-24)
+
+Objetivo: proteger os dois lados, o consumidor (o dinheiro só sai depois do serviço) e o proprietário (repasse automático, com data certa e regras fixas). Pesquisa de mercado (Airbnb, Sympla, GetYourGuide, Viator, Booking.com) e regras do Stripe no Brasil registradas na conversa de 2026-10-24.
+
+* **Contas de recebimento (1A, confirma D12/P8):** um login por pessoa e uma conta Stripe Express por CPF/CNPJ. Cada estabelecimento recebe na conta do seu documento. Resolve o débito B22.
+* **Retenção até o serviço (2B):** a cobrança é feita na plataforma, sem destino (*separate charges and transfers*), e o Use Guide continua *merchant of record* (D1). O backend registra um repasse pendente por venda e um job transfere à conta do documento na data de liberação, com `source_transaction` e chave de idempotência. Motivo: no Brasil o repasse da conta conectada ao banco é sempre automático e diário, então não dá para segurar o dinheiro na conta do proprietário. Muda o AGENTS.md §8.1 (proposta S15).
+* **Data de liberação (3):** fim do serviço (evento, passeio, aluguel, translado ou entrada) + **48 h** de janela de reclamação. O dinheiro continua sujeito ao prazo do meio de pagamento no Stripe (cartão 30 dias corridos, Pix 2 dias úteis); vale a data mais tardia.
+* **Reclamação (4):** suspende o repasse daquela venda; a análise tem prazo máximo de **5 dias**. Sem decisão nesse prazo, o repasse é liberado.
+* **Estorno fraudulento (5A):** com prova de check-in, a plataforma contesta e absorve o prejuízo. Sem prova, o valor é descontado de repasses futuros do documento.
+* **No-show (6A):** cliente que não aparece não tem reembolso e o proprietário recebe normalmente.
+* **Taxas (7 e 8):**
+  * **Ofertas vendáveis do `bookings`** (passeio, aluguel, translado, entrada de atração privada): taxa da plataforma de **15%**, descontada do proprietário. O cliente paga o preço anunciado e o Use Guide paga as tarifas do Stripe.
+  * **Ingressos de eventos:** taxa da plataforma de **10%**, descontada do proprietário, mais **taxa de serviço de R$ 3,00 por ingresso**, paga pelo comprador. No cadastro do evento, o proprietário escolhe **repassar** a taxa ao comprador ou **absorver**; se absorver, o comprador não paga os R$ 3,00 e a taxa da plataforma passa a **12,5%**.
+  * Valores calculados só no backend, em centavos (AGENTS.md §8.1).
+* **Cancelamento pelo cliente (9B, pode mudar no futuro):** segue a política de cancelamento cadastrada pelo proprietário; a taxa de serviço **não volta**, nem dentro do prazo.
+* **Cancelamento do evento pelo organizador:**
+  * reembolso **integral** ao comprador, inclusive a taxa de serviço;
+  * **multa de 20%** sobre o valor dos ingressos vendidos (sem as taxas de serviço), paga pelo proprietário à plataforma, **sempre**, inclusive em força maior;
+  * com comprovação de força maior, a primeira solução oferecida pela plataforma é o **reagendamento** do evento;
+  * a multa é cobrada **na hora, no cartão ou por Pix**, e o cancelamento só é confirmado depois do pagamento.
+* **Adiantamento de recebíveis (10A):** fora do 18.4. Depende de convite do Stripe e de contrato com gestor de fundos parceiro.
+* **Em aberto (decidir antes do código):**
+  1. Reagendamento: o comprador que não aceitar a nova data recebe reembolso integral? E o proprietário paga multa nesse caso?
+  2. Multa não paga: o que acontece com o evento e com os compradores se o proprietário não pagar a multa (o cancelamento fica pendente e o evento continua de pé)?
+* **Prompts:** 18.4 (contas por documento, retenção e liberação) e seguintes; desenho apresentado para aprovação antes do código.
 
