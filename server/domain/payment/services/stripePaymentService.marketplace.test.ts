@@ -1,5 +1,4 @@
 import { describe, expect, it, vi } from 'vitest';
-import type { MarketplaceAccountPort } from '../ports/marketplaceAccountPort';
 import type { PaymentGatewayPort } from '../ports/paymentGatewayPort';
 import type { TransactionRepositoryPort } from '../ports/transactionRepositoryPort';
 import { StripePaymentService } from './stripePaymentService';
@@ -12,29 +11,22 @@ function setup(existingTx: unknown = null) {
       status: 'pending',
     }),
   } as unknown as PaymentGatewayPort;
-  const account = {
-    getAccountStatus: vi.fn().mockResolvedValue({
-      accountId: 'acct_1',
-      status: 'enabled',
-      chargesEnabled: true,
-      payoutsEnabled: true,
-      detailsSubmitted: true,
-      requirementsCurrentlyDue: [],
-      requirementsPastDue: [],
-    }),
-  } as unknown as MarketplaceAccountPort;
+  const accounts = {
+    assertReady: vi.fn().mockResolvedValue({ accountKey: 'key-cnpj-1', stripeAccountId: 'acct_1' }),
+  };
   const repo = {
     getTransactionByIdempotencyKey: vi.fn().mockResolvedValue(existingTx),
-    getConnectedAccountRecord: vi
-      .fn()
-      .mockResolvedValue({ partnerId: 'p1', stripeAccountId: 'acct_1', createdAt: '' }),
-    saveConnectedAccountRecord: vi.fn().mockResolvedValue(undefined),
     saveTransactionRecord: vi.fn().mockResolvedValue({ id: 'pi_1' }),
     getTransaction: vi
       .fn()
       .mockResolvedValue({ id: 'pi_1', referenceType: 'booking', referenceId: 'bk_1' }),
   } as unknown as TransactionRepositoryPort;
-  return { service: new StripePaymentService(gateway, account, repo), gateway, repo };
+  return {
+    service: new StripePaymentService(gateway, repo, accounts),
+    gateway,
+    repo,
+    accounts,
+  };
 }
 
 const PARAMS = {
@@ -42,6 +34,7 @@ const PARAMS = {
   referenceId: 'bk_1',
   buyerId: 'buyer-1',
   sellerPartnerId: 'p1',
+  sellerAccountKey: 'key-cnpj-1',
   description: 'Use Guide — Passeio',
   totalMinor: 20000,
   platformFeeMinor: 2000,
@@ -49,9 +42,10 @@ const PARAMS = {
 };
 
 describe('StripePaymentService — vendas de marketplace', () => {
-  it('cria destination charge com taxa e metadata só com IDs', async () => {
-    const { service, gateway, repo } = setup();
+  it('cria destination charge para a conta do CNPJ, com taxa e metadata só com IDs', async () => {
+    const { service, gateway, repo, accounts } = setup();
     const result = await service.createMarketplacePaymentIntent(PARAMS);
+    expect(accounts.assertReady).toHaveBeenCalledWith('key-cnpj-1');
     expect(gateway.createPaymentIntent).toHaveBeenCalledWith(
       expect.objectContaining({
         amountMinor: 20000,
@@ -86,6 +80,7 @@ describe('StripePaymentService — vendas de marketplace', () => {
       orderId: 'order-1',
       buyerId: 'buyer-1',
       sellerPartnerId: 'p1',
+      sellerAccountKey: 'key-cnpj-1',
       eventListingId: 'event-1',
       occurrenceId: 'occ-1',
       eventTitle: 'Show',

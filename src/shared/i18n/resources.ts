@@ -17,6 +17,12 @@ import {
   listingPlanPtBR,
 } from './listingPlanResources';
 import {
+  type PaymentAccountsTranslation,
+  paymentAccountsEn,
+  paymentAccountsFr,
+  paymentAccountsPtBR,
+} from './paymentAccountsResources';
+import {
   type PartnersTranslation,
   partnersEn,
   partnersFr,
@@ -34,6 +40,7 @@ export interface TranslationResource {
   insights: InsightsTranslation;
   listingPlan: ListingPlanTranslation;
   partners: PartnersTranslation;
+  paymentAccounts: PaymentAccountsTranslation;
   verification: VerificationTranslation;
   common: {
     language: string;
@@ -253,6 +260,7 @@ const ptBR: TranslationResource = {
   insights: insightsPtBR,
   listingPlan: listingPlanPtBR,
   partners: partnersPtBR,
+  paymentAccounts: paymentAccountsPtBR,
   verification: verificationPtBR,
   common: {
     language: 'Idioma',
@@ -522,6 +530,7 @@ const en: TranslationResource = {
   insights: insightsEn,
   listingPlan: listingPlanEn,
   partners: partnersEn,
+  paymentAccounts: paymentAccountsEn,
   verification: verificationEn,
   common: {
     language: 'Language',
@@ -785,6 +794,7 @@ const fr: TranslationResource = {
   insights: insightsFr,
   listingPlan: listingPlanFr,
   partners: partnersFr,
+  paymentAccounts: paymentAccountsFr,
   verification: verificationFr,
   common: {
     language: 'Langue',

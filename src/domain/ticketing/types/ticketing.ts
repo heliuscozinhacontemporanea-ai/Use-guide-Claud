@@ -221,17 +221,6 @@ export interface EventSalesAnalytics {
   ordersPending: number;
 }
 
-export interface PartnerMerchantStatus {
-  connected: boolean;
-  accountId?: string;
-  chargesEnabled: boolean;
-  payoutsEnabled: boolean;
-  detailsSubmitted: boolean;
-  status: 'pending' | 'restricted' | 'enabled' | 'disabled';
-  /** Calculado no servidor: mesmo critério usado para vender. */
-  readyForSales: boolean;
-}
-
 export interface OfflineCheckInSessionResponse {
   session: {
     id: string;

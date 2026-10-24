@@ -62,7 +62,8 @@ service cloud.firestore {
     match /eventWaitlistEntries/{entryId} {
       allow read, write: if false;
     }
-    match /paymentConnectedAccounts/{partnerId} {
+    // Conta Stripe de cada CNPJ (D14): só backend; o parceiro vê o status pela API.
+    match /paymentAccounts/{accountKey} {
       allow read, write: if false;
     }
     match /planSubscriptions/{itemId} {
@@ -151,9 +152,6 @@ service cloud.firestore {
       allow read, write: if false;
     }
     match /verificationDocuments/{documentIndex} {
-      allow read, write: if false;
-    }
-    match /verificationOwners/{ownerId} {
       allow read, write: if false;
     }
     // Plano de cada estabelecimento (D11): só backend; o cliente lê a cópia pública do selo no item.

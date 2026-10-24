@@ -13,7 +13,6 @@ import type {
 
 const VERIFICATIONS = 'listingVerifications';
 const DOCUMENTS = 'verificationDocuments';
-const OWNERS = 'verificationOwners';
 
 function toRecord(data: DocumentData): ListingVerificationRecord {
   return data as ListingVerificationRecord;
@@ -77,23 +76,13 @@ export class FirestoreListingVerificationAdapter implements ListingVerificationR
 
   async saveReview(record: ListingVerificationRecord): Promise<void> {
     await adminDb.runTransaction(async (transaction) => {
-      const ownerRef = adminDb.collection(OWNERS).doc(record.ownerId);
-      const ownerSnapshot = await transaction.get(ownerRef);
       transaction.set(adminDb.collection(VERIFICATIONS).doc(record.itemId), record);
       if (record.status !== 'approved' || !record.documentIndex) return;
-
       transaction.set(
         adminDb.collection(DOCUMENTS).doc(record.documentIndex),
         { verifiedAt: record.reviewedAt },
         { merge: true }
       );
-      if (record.documentType === 'cnpj' && !ownerSnapshot.get('salesDocumentIndex')) {
-        transaction.set(
-          ownerRef,
-          { ownerId: record.ownerId, salesDocumentIndex: record.documentIndex },
-          { merge: true }
-        );
-      }
     });
   }
 
@@ -127,10 +116,9 @@ export class FirestoreListingVerificationAdapter implements ListingVerificationR
     return snapshot.docs.map((doc) => doc.id);
   }
 
-  async getSalesDocumentIndex(ownerId: string): Promise<string | null> {
-    const snapshot = await adminDb.collection(OWNERS).doc(ownerId).get();
-    const value = snapshot.get('salesDocumentIndex');
-    return typeof value === 'string' ? value : null;
+  async listByOwner(ownerId: string): Promise<ListingVerificationRecord[]> {
+    const snapshot = await adminDb.collection(VERIFICATIONS).where('ownerId', '==', ownerId).get();
+    return snapshot.docs.map((doc) => toRecord(doc.data()));
   }
 
   async delete(itemId: string): Promise<ListingVerificationRecord | null> {
@@ -152,7 +140,6 @@ export class FirestoreListingVerificationAdapter implements ListingVerificationR
     ]);
     const batch = adminDb.batch();
     for (const doc of [...records.docs, ...entries.docs]) batch.delete(doc.ref);
-    batch.delete(adminDb.collection(OWNERS).doc(ownerId));
     await batch.commit();
     return records.docs.map((doc) => toRecord(doc.data()));
   }

@@ -5,9 +5,7 @@ import type {
   MarketplaceAccountPort,
 } from '../ports/marketplaceAccountPort';
 
-function deriveAccountStatus(
-  account: Stripe.Account
-): ConnectedAccountStatus['status'] {
+function deriveAccountStatus(account: Stripe.Account): ConnectedAccountStatus['status'] {
   if (account.requirements?.disabled_reason) {
     if (account.charges_enabled && account.payouts_enabled) {
       return 'enabled';
@@ -45,44 +43,46 @@ export class StripeConnectMarketplaceAdapter implements MarketplaceAccountPort {
     return this.stripeClient;
   }
 
-  async createConnectedAccount(
-    input: CreateConnectedAccountInput
-  ): Promise<{ accountId: string }> {
-    const account = await this.stripe.accounts.create({
-      country: 'BR',
-      ...(input.email ? { email: input.email } : {}),
-      controller: {
-        fees: {
-          payer: 'application',
+  async createConnectedAccount(input: CreateConnectedAccountInput): Promise<{ accountId: string }> {
+    const account = await this.stripe.accounts.create(
+      {
+        country: 'BR',
+        business_type: 'company',
+        company: { tax_id: input.companyTaxId },
+        ...(input.email ? { email: input.email } : {}),
+        controller: {
+          fees: {
+            payer: 'application',
+          },
+          losses: {
+            payments: 'application',
+          },
+          stripe_dashboard: {
+            type: 'express',
+          },
         },
-        losses: {
-          payments: 'application',
+        capabilities: {
+          card_payments: {
+            requested: true,
+          },
+          transfers: {
+            requested: true,
+          },
         },
-        stripe_dashboard: {
-          type: 'express',
+        metadata: {
+          accountKey: input.accountKey,
+          ownerUid: input.ownerUid,
         },
       },
-      capabilities: {
-        card_payments: {
-          requested: true,
-        },
-        transfers: {
-          requested: true,
-        },
-      },
-      metadata: {
-        partnerId: input.partnerId,
-      },
-    });
+      { idempotencyKey: `acct_${input.accountKey}` }
+    );
 
     return {
       accountId: account.id,
     };
   }
 
-  async createAccountSession(
-    accountId: string
-  ): Promise<{ clientSecret: string }> {
+  async createAccountSession(accountId: string): Promise<{ clientSecret: string }> {
     const session = await this.stripe.accountSessions.create({
       account: accountId,
       components: {

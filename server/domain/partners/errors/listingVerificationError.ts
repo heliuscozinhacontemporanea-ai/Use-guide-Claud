@@ -7,8 +7,7 @@ export type ListingVerificationErrorCode =
   | 'ALREADY_VERIFIED'
   | 'NOT_PENDING'
   | 'LISTING_NOT_VERIFIED'
-  | 'CPF_CANNOT_SELL'
-  | 'SALES_DOCUMENT_MISMATCH';
+  | 'CPF_CANNOT_SELL';
 
 const STATUS: Record<ListingVerificationErrorCode, number> = {
   VALIDATION_ERROR: 400,
@@ -20,7 +19,6 @@ const STATUS: Record<ListingVerificationErrorCode, number> = {
   NOT_PENDING: 409,
   LISTING_NOT_VERIFIED: 422,
   CPF_CANNOT_SELL: 422,
-  SALES_DOCUMENT_MISMATCH: 422,
 };
 
 export class ListingVerificationError extends Error {

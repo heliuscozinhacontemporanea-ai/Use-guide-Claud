@@ -23,6 +23,7 @@ import billingRouter from './server/interfaces/http/billing/billingRoutes';
 import listingVerificationRouter from './server/interfaces/http/listingVerifications/listingVerificationRoutes';
 import listingStatsRouter from './server/interfaces/http/insights/listingStatsRoutes';
 import listingPlanRouter from './server/interfaces/http/listingPlans/listingPlanRoutes';
+import paymentAccountRouter from './server/interfaces/http/paymentAccounts/paymentAccountRoutes';
 import {
   bookingsRouter,
   partnerOffersRouter,
@@ -192,6 +193,7 @@ async function startServer() {
   // 5. Normal routes
   app.use('/api/bookings', bookingsRouter);
   app.use('/api/payment/plans', billingRouter);
+  app.use('/api/payment-accounts', paymentAccountRouter);
   app.use('/api/payment', paymentRouter);
   app.use('/api/weather', climaWindRouter);
   app.use('/api/notifications', notificationRouter);

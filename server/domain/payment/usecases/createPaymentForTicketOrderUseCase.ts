@@ -5,6 +5,7 @@ export async function createPaymentForTicketOrderUseCase(params: {
   orderId: string;
   buyerId: string;
   sellerPartnerId: string;
+  sellerAccountKey: string;
   eventListingId: string;
   occurrenceId: string;
   eventTitle: string;

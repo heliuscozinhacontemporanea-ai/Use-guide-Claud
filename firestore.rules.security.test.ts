@@ -345,15 +345,22 @@ describe('Firestore Rules — Security Suite', () => {
       await assertFails(deleteDoc(doc(db, 'transactions/tx-1')));
     });
 
-    it('verificação (D12): listingVerifications, verificationDocuments e verificationOwners negados até para o dono e admin', async () => {
+    it('verificação (D12): listingVerifications e verificationDocuments negados até para o dono e admin', async () => {
       const adminDb = testEnv.authenticatedContext('admin-user', { admin: true }).firestore();
       const ownerDb = testEnv.authenticatedContext('partner-1').firestore();
       for (const db of [adminDb, ownerDb]) {
         await assertFails(getDoc(doc(db, 'listingVerifications/item-1')));
         await assertFails(getDoc(doc(db, 'verificationDocuments/idx-1')));
-        await assertFails(getDoc(doc(db, 'verificationOwners/partner-1')));
         await assertFails(setDoc(doc(db, 'listingVerifications/item-1'), { status: 'approved' }));
-        await assertFails(setDoc(doc(db, 'verificationOwners/partner-1'), { salesDocumentIndex: 'x' }));
+      }
+    });
+
+    it('conta de recebimento (D14): paymentAccounts negado até para o dono e admin', async () => {
+      const adminDb = testEnv.authenticatedContext('admin-user', { admin: true }).firestore();
+      const ownerDb = testEnv.authenticatedContext('partner-1').firestore();
+      for (const db of [adminDb, ownerDb]) {
+        await assertFails(getDoc(doc(db, 'paymentAccounts/idx-1')));
+        await assertFails(setDoc(doc(db, 'paymentAccounts/idx-1'), { ownerUid: 'partner-1' }));
       }
     });
 

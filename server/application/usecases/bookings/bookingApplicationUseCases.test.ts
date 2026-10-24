@@ -56,7 +56,10 @@ const INPUT = {
 const BUYER = { uid: 'buyer-1', admin: false, emailVerified: true };
 
 describe('createBookingApplicationUseCase', () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(assertListingCanSellUseCase).mockResolvedValue({ accountKey: 'key-cnpj-1' });
+  });
 
   it('e-mail não verificado → EMAIL_NOT_VERIFIED, sem reservar vaga', async () => {
     await expect(
@@ -76,6 +79,7 @@ describe('createBookingApplicationUseCase', () => {
         referenceType: 'booking',
         referenceId: 'bk_1',
         sellerPartnerId: 'p1',
+        sellerAccountKey: 'key-cnpj-1',
         totalMinor: 20000,
         platformFeeMinor: 2000,
         idempotencyKey: 'pi_booking_bk_1',

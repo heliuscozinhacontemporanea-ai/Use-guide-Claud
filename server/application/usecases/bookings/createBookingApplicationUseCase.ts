@@ -47,12 +47,13 @@ export async function createBookingApplicationUseCase(
       );
     }
     // Rechecado na compra: a verificação pode ter sido revista depois de a oferta ser publicada.
-    await assertListingCanSellUseCase(booking.guideItemId);
+    const { accountKey } = await assertListingCanSellUseCase(booking.guideItemId);
     const payment = await createMarketplacePaymentIntentUseCase({
       referenceType: 'booking',
       referenceId: booking.id,
       buyerId: buyer.uid,
       sellerPartnerId: booking.sellerPartnerId,
+      sellerAccountKey: accountKey,
       description: `Use Guide — ${booking.offerSnapshot.title}`,
       totalMinor: booking.totalMinor,
       platformFeeMinor: booking.platformFeeMinor,

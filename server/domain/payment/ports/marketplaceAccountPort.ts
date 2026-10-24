@@ -1,6 +1,9 @@
 export interface CreateConnectedAccountInput {
-  partnerId: string;
+  accountKey: string;
+  ownerUid: string;
   email: string;
+  /** CNPJ do estabelecimento verificado: o Stripe confere no cadastro que a conta é dessa empresa. */
+  companyTaxId: string;
   country: 'BR';
 }
 
@@ -14,28 +17,11 @@ export interface ConnectedAccountStatus {
   status: 'pending' | 'restricted' | 'enabled' | 'disabled';
 }
 
-export interface StripeConnectedAccountRecord {
-  partnerId: string;
-  stripeAccountId: string;
-  status: 'pending' | 'restricted' | 'enabled' | 'disabled';
-  chargesEnabled: boolean;
-  payoutsEnabled: boolean;
-  detailsSubmitted: boolean;
-  requirementsCurrentlyDue: string[];
-  requirementsPastDue: string[];
-  createdAt: string;
-  updatedAt: string;
-}
-
 export interface MarketplaceAccountPort {
-  createConnectedAccount(
-    input: CreateConnectedAccountInput
-  ): Promise<{
+  createConnectedAccount(input: CreateConnectedAccountInput): Promise<{
     accountId: string;
   }>;
-  createAccountSession(
-    accountId: string
-  ): Promise<{
+  createAccountSession(accountId: string): Promise<{
     clientSecret: string;
   }>;
   getAccountStatus(accountId: string): Promise<ConnectedAccountStatus>;

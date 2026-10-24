@@ -9,7 +9,9 @@ import type {
   ListingVerificationFiles,
   ListingVerificationRecord,
   ListingVerificationStatus,
+  ListingSalesAccount,
   ListingVerificationView,
+  OwnerSalesDocument,
   SubmitListingVerificationInput,
   VerificationDecision,
   VerificationListing,
@@ -139,10 +141,10 @@ export class ListingVerificationService {
   }
 
   /**
-   * Venda exige estabelecimento verificado com CNPJ (D12). Até o Prompt 18.4 (conta Stripe por documento),
-   * só vende o CNPJ fixado como documento de vendas da conta, para o dinheiro não cair em outra empresa.
+   * Venda exige estabelecimento verificado com CNPJ (D12). Devolve a conta de recebimento do documento:
+   * cada CNPJ recebe na própria conta Stripe (D14).
    */
-  async assertCanSell(itemId: string): Promise<void> {
+  async assertCanSell(itemId: string): Promise<ListingSalesAccount> {
     const stored = await this.repository.get(itemId);
     const record = stored ? await this.resolve(stored) : null;
     if (record?.status !== 'approved') {
@@ -151,19 +153,56 @@ export class ListingVerificationService {
         'O estabelecimento precisa ser verificado pelo Use Guide antes de vender.'
       );
     }
-    if (record.documentType !== 'cnpj') {
+    if (record.documentType !== 'cnpj' || !record.documentIndex) {
       throw new ListingVerificationError(
         'CPF_CANNOT_SELL',
         'Para vender é preciso cadastrar o estabelecimento com CNPJ (MEI serve).'
       );
     }
-    const salesDocument = await this.repository.getSalesDocumentIndex(record.ownerId);
-    if (salesDocument && salesDocument !== record.documentIndex) {
-      throw new ListingVerificationError(
-        'SALES_DOCUMENT_MISMATCH',
-        'Por enquanto só um CNPJ por conta pode vender.'
-      );
+    return { accountKey: record.documentIndex };
+  }
+
+  /** CNPJs aprovados da conta, cada um com os cadastros (e perfis de produtor) que vendem por ele. */
+  async listSalesDocuments(ownerId: string): Promise<OwnerSalesDocument[]> {
+    const records = await Promise.all(
+      (await this.repository.listByOwner(ownerId)).map((record) => this.resolve(record))
+    );
+    const byAccount = new Map<string, OwnerSalesDocument>();
+    for (const record of records) {
+      if (record.status !== 'approved' || record.documentType !== 'cnpj') continue;
+      if (!record.documentIndex || !record.maskedDocument) continue;
+      const entry = byAccount.get(record.documentIndex) ?? {
+        accountKey: record.documentIndex,
+        maskedDocument: record.maskedDocument,
+        itemIds: [],
+      };
+      entry.itemIds.push(record.itemId);
+      byAccount.set(record.documentIndex, entry);
     }
+    return [...byAccount.values()];
+  }
+
+  /**
+   * CNPJ em texto puro, só para pré-preencher a conta Stripe do próprio documento (o Stripe confere o
+   * CNPJ no cadastro). Nunca sai do backend.
+   */
+  async getSalesDocument(ownerId: string, accountKey: string): Promise<string> {
+    const records = await this.repository.listByOwner(ownerId);
+    const record = records.find(
+      (candidate) =>
+        candidate.mode === 'document' &&
+        candidate.status === 'approved' &&
+        candidate.documentType === 'cnpj' &&
+        candidate.documentIndex === accountKey &&
+        candidate.document
+    );
+    if (!record?.document) {
+      throw new ListingVerificationError('NOT_FOUND', 'Documento de vendas não encontrado.');
+    }
+    return this.encryption.decrypt(record.document, {
+      documentId: record.itemId,
+      field: 'document',
+    });
   }
 
   /** Perfis de produtor ligados a este estabelecimento: herdam a verificação dele. */

@@ -14,6 +14,8 @@ export { listListingVerificationsUseCase } from './usecases/listListingVerificat
 export { getListingVerificationFilePathUseCase } from './usecases/getListingVerificationFilePathUseCase';
 export { getListingVerificationStatusUseCase } from './usecases/getListingVerificationStatusUseCase';
 export { assertListingCanSellUseCase } from './usecases/assertListingCanSellUseCase';
+export { listOwnerSalesDocumentsUseCase } from './usecases/listOwnerSalesDocumentsUseCase';
+export { getOwnerSalesDocumentUseCase } from './usecases/getOwnerSalesDocumentUseCase';
 export { deleteListingVerificationUseCase } from './usecases/deleteListingVerificationUseCase';
 export { deleteOwnerListingVerificationsUseCase } from './usecases/deleteOwnerListingVerificationsUseCase';
 export { listLinkedListingIdsUseCase } from './usecases/listLinkedListingIdsUseCase';
@@ -46,11 +48,13 @@ export type {
 export type {
   ListingDocumentType,
   ListingHolderRole,
+  ListingSalesAccount,
   ListingVerificationFiles,
   ListingVerificationStatus,
   ListingVerificationView,
   SubmitListingVerificationInput,
   VerificationDecision,
+  OwnerSalesDocument,
   VerificationListing,
 } from './types/listingVerification';
 

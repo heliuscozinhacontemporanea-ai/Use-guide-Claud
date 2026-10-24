@@ -102,7 +102,7 @@ Sai `paymentConnectedAccounts/{partnerId}` (sem migração, §2.2.8). Nenhum ID 
 
 | Prompt | Conteúdo |
 |---|---|
-| 18.4a | Contas por documento (backend): `paymentAccounts`, Account Session por documento, `account.updated`, checagem antes de vender; sai a trava B22 |
+| 18.4a ✅ | Contas por documento: `paymentAccounts`, Account Session por documento (CNPJ pré-preenchido), `account.updated`, checagem antes de vender; sai a trava B22; portal de recebimentos com um cartão por CNPJ |
 | 18.4b | Taxas por produto, presets de cancelamento e arrependimento (regras puras, schemas, campos de evento/oferta, snapshot no pedido) |
 | 18.4c | Cobrança na plataforma, `payoutEntries`, job de liberação, reembolso antes da liberação, disputas (a S15 já entra no AGENTS.md pelo A5) |
 | 18.4d | Reclamações, cancelamento de evento com multa, dívidas, compensação e bloqueio |
@@ -111,7 +111,7 @@ Sai `paymentConnectedAccounts/{partnerId}` (sem migração, §2.2.8). Nenhum ID 
 
 ## 8. Pontos para aprovação
 
-1. **Mesmo documento em dois logins** (titular e representante, D12): a conta pertence ao **titular** que verificou primeiro; cadastros de um representante com o mesmo documento recebem na conta do titular só depois que o titular aprovar o vínculo no painel. Alternativa: bloquear e o admin resolve.
+1. **Mesmo documento em dois logins** (resolvido pela D12: `DOCUMENT_IN_USE` já impede o mesmo CPF/CNPJ em duas contas, então a conta do CNPJ é sempre do único login que o verificou) (titular e representante, D12): a conta pertence ao **titular** que verificou primeiro; cadastros de um representante com o mesmo documento recebem na conta do titular só depois que o titular aprovar o vínculo no painel. Alternativa: bloquear e o admin resolve.
 2. **Taxas em variáveis de ambiente** em pontos-base (`BOOKINGS_PLATFORM_FEE_BPS=1500`, `TICKETS_PLATFORM_FEE_BPS=1000`, `TICKETS_ABSORBED_FEE_BPS=1250`, `TICKET_SERVICE_FEE_MINOR=300`), sem valor padrão no código: falta de configuração dá `503` na venda.
 3. **Job de liberação a cada hora** (Cloud Scheduler).
 4. **Divisão em 6 prompts** acima.

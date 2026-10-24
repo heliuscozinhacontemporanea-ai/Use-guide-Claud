@@ -4,13 +4,15 @@ vi.mock('../../../domain/bookings', async () => {
   const { BookingDomainError } = await import('../../../domain/bookings/errors/bookingDomainError');
   return { BookingDomainError, setBookableOfferStatusUseCase: vi.fn() };
 });
-vi.mock('../../../domain/payment', () => ({ assertPartnerReadyForPaidEventUseCase: vi.fn() }));
+vi.mock('../../../domain/payment', () => ({ assertPaymentAccountReadyUseCase: vi.fn() }));
 vi.mock('../isPartnerSuspended', () => ({ isPartnerSuspended: vi.fn() }));
-vi.mock('../../../domain/partners', () => ({ assertListingCanSellUseCase: vi.fn() }));
+vi.mock('../../../domain/partners', () => ({
+  assertListingCanSellUseCase: vi.fn().mockResolvedValue({ accountKey: 'key-cnpj-1' }),
+}));
 
 import { setBookableOfferStatusUseCase } from '../../../domain/bookings';
 import { assertListingCanSellUseCase } from '../../../domain/partners';
-import { assertPartnerReadyForPaidEventUseCase } from '../../../domain/payment';
+import { assertPaymentAccountReadyUseCase } from '../../../domain/payment';
 import { isPartnerSuspended } from '../isPartnerSuspended';
 import { setBookableOfferStatusApplicationUseCase } from './setBookableOfferStatusApplicationUseCase';
 
@@ -29,12 +31,13 @@ describe('setBookableOfferStatusApplicationUseCase', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(isPartnerSuspended).mockResolvedValue(false);
+    vi.mocked(assertListingCanSellUseCase).mockResolvedValue({ accountKey: 'key-cnpj-1' });
   });
 
-  it('publica quando o parceiro está ativo e o Stripe está pronto', async () => {
+  it('publica quando o parceiro está ativo e a conta do CNPJ está pronta (D14)', async () => {
     await setBookableOfferStatusApplicationUseCase(ACTOR, 'o1', 'published');
     await runPublishGuard();
-    expect(assertPartnerReadyForPaidEventUseCase).toHaveBeenCalledWith('p1');
+    expect(assertPaymentAccountReadyUseCase).toHaveBeenCalledWith('key-cnpj-1');
     expect(assertListingCanSellUseCase).toHaveBeenCalledWith('item-1');
   });
 
@@ -44,11 +47,11 @@ describe('setBookableOfferStatusApplicationUseCase', () => {
     );
     await setBookableOfferStatusApplicationUseCase(ACTOR, 'o1', 'published');
     await expect(runPublishGuard()).rejects.toMatchObject({ code: 'LISTING_NOT_VERIFIED' });
-    expect(assertPartnerReadyForPaidEventUseCase).not.toHaveBeenCalled();
+    expect(assertPaymentAccountReadyUseCase).not.toHaveBeenCalled();
   });
 
   it('Stripe não pronto: a publicação é recusada', async () => {
-    vi.mocked(assertPartnerReadyForPaidEventUseCase).mockRejectedValue(
+    vi.mocked(assertPaymentAccountReadyUseCase).mockRejectedValue(
       Object.assign(new Error('Conclua a configuração financeira.'), {
         code: 'SELLER_ACCOUNT_NOT_ELIGIBLE',
       })
@@ -61,6 +64,6 @@ describe('setBookableOfferStatusApplicationUseCase', () => {
     vi.mocked(isPartnerSuspended).mockResolvedValue(true);
     await setBookableOfferStatusApplicationUseCase(ACTOR, 'o1', 'published');
     await expect(runPublishGuard()).rejects.toMatchObject({ code: 'PARTNER_SUSPENDED' });
-    expect(assertPartnerReadyForPaidEventUseCase).not.toHaveBeenCalled();
+    expect(assertPaymentAccountReadyUseCase).not.toHaveBeenCalled();
   });
 });

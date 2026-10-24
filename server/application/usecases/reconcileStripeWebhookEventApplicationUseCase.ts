@@ -1,6 +1,6 @@
 import { createNotificationUseCase } from '../../domain/notifications';
 import {
-  syncConnectedAccountFromWebhookUseCase,
+  syncPaymentAccountFromWebhookUseCase,
   updatePaymentTransactionStatusUseCase,
   type VerifiedWebhookEvent,
 } from '../../domain/payment';
@@ -29,7 +29,7 @@ export async function reconcileStripeWebhookEventApplicationUseCase(
   if (event.type === 'account.updated') {
     const stripeAccountId = String(obj.id || event.account || '');
     if (stripeAccountId) {
-      await syncConnectedAccountFromWebhookUseCase(stripeAccountId);
+      await syncPaymentAccountFromWebhookUseCase(stripeAccountId);
     }
     return { processed: true, eventType: event.type };
   }

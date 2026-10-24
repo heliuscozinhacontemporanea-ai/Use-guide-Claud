@@ -8,11 +8,10 @@ export { releaseStripeWebhookEventUseCase } from './usecases/releaseStripeWebhoo
 export { retrievePaymentIntentUseCase } from './usecases/retrievePaymentIntentUseCase';
 export { updatePaymentTransactionStatusUseCase } from './usecases/updatePaymentTransactionStatusUseCase';
 
-export { assertPartnerReadyForPaidEventUseCase } from './usecases/assertPartnerReadyForPaidEventUseCase';
-export { createPartnerConnectAccountSessionUseCase } from './usecases/createPartnerConnectAccountSessionUseCase';
-export { ensurePartnerConnectedAccountUseCase } from './usecases/ensurePartnerConnectedAccountUseCase';
-export { getPartnerConnectAccountStatusUseCase } from './usecases/getPartnerConnectAccountStatusUseCase';
-export { syncConnectedAccountFromWebhookUseCase } from './usecases/syncConnectedAccountFromWebhookUseCase';
+export { assertPaymentAccountReadyUseCase } from './usecases/assertPaymentAccountReadyUseCase';
+export { createPaymentAccountSessionUseCase } from './usecases/createPaymentAccountSessionUseCase';
+export { listOwnerPaymentAccountsUseCase } from './usecases/listOwnerPaymentAccountsUseCase';
+export { syncPaymentAccountFromWebhookUseCase } from './usecases/syncPaymentAccountFromWebhookUseCase';
 
 export { createMarketplacePaymentIntentUseCase } from './usecases/createMarketplacePaymentIntentUseCase';
 export { getPaymentReferenceUseCase } from './usecases/getPaymentReferenceUseCase';
@@ -38,12 +37,9 @@ export type {
 } from './ports/billingGatewayPort';
 export type { PlanSubscriptionRecord } from './ports/planSubscriptionRepositoryPort';
 
-export type {
-  ConnectedAccountStatus,
-  CreateConnectedAccountInput,
-  MarketplaceAccountPort,
-  StripeConnectedAccountRecord,
-} from './ports/marketplaceAccountPort';
+export type { ConnectedAccountStatus } from './ports/marketplaceAccountPort';
+export type { PaymentAccountView } from './types/paymentAccount';
+export type { EnsurePaymentAccountInput } from './services/paymentAccountService';
 export type {
   CreatePaymentIntentResult,
   PaymentGatewayPort,

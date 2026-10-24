@@ -81,8 +81,11 @@ export async function createTicketOrderPaymentIntentApplicationUseCase(
   }
 
   // Ingresso pago só de evento cujo estabelecimento ou perfil de produtor foi verificado (D12).
+  let sellerAccountKey: string;
   try {
-    await assertListingCanSellUseCase(listing.establishmentId ?? '');
+    ({ accountKey: sellerAccountKey } = await assertListingCanSellUseCase(
+      listing.establishmentId ?? ''
+    ));
   } catch (error) {
     if (error instanceof ListingVerificationError) {
       throw new TicketingDomainError(
@@ -97,6 +100,7 @@ export async function createTicketOrderPaymentIntentApplicationUseCase(
     orderId: order.id,
     buyerId: order.buyerId,
     sellerPartnerId: partnerId,
+    sellerAccountKey,
     eventListingId: order.eventListingId,
     occurrenceId: order.occurrenceId,
     eventTitle: order.eventSnapshot?.title || listing.title,
