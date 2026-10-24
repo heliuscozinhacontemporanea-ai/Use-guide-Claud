@@ -209,6 +209,7 @@
 **Texto proposto (§8.7, 2º item em diante):**
 > * Cancelamento de evento/passeio pelo organizador → reembolso integral ao comprador, inclusive a taxa de serviço, feito do saldo da plataforma (o repasse ainda não saiu). No evento, multa de 20% sobre o valor dos ingressos vendidos (sem as taxas de serviço), paga pelo proprietário na hora, no cartão ou por Pix, sempre, inclusive em força maior.
 > * Força maior comprovada → a primeira solução oferecida é o reagendamento. Comprador que não aceitar a nova data recebe reembolso integral, sem multa para o proprietário.
-> * Cancelamento pelo cliente → segue a política de cancelamento do proprietário; a taxa de serviço não volta. No-show não tem reembolso.
+> * Cancelamento pelo cliente → em até 7 dias da compra e até 48 h antes do início, reembolso integral, inclusive a taxa de serviço (CDC art. 49). Fora disso, segue a política escolhida pelo proprietário entre as opções da plataforma (D14), gravada no pedido; a taxa de serviço não volta. No-show não tem reembolso. Translado retém no máximo 5% (Código Civil art. 740).
+> * Multa não paga em 24 h → descontada dos repasses pendentes e futuros do documento, que fica bloqueado para novas vendas; o reembolso dos compradores nunca espera a multa.
 > * Estorno fraudulento com prova de check-in → a plataforma contesta e absorve; sem prova, o valor é descontado de repasses futuros do documento.
 

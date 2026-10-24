@@ -23,7 +23,7 @@
 | D11 | Plano "Use Guide Verificado", selo e destaque por estabelecimento | ✅ Aprovada | 2026-10-19 |
 | D12 | Verificação e documento por estabelecimento; venda só com verificação | ✅ Aprovada | 2026-10-19 |
 | D13 | Troca de período do plano na próxima renovação | ✅ Aprovada | 2026-10-24 |
-| D14 | Repasse por documento, retenção até o serviço, taxas e cancelamentos | ✅ Aprovada (políticas de cancelamento em decisão) | 2026-10-24 |
+| D14 | Repasse por documento, retenção até o serviço, taxas e cancelamentos | ✅ Aprovada | 2026-10-24 |
 
 ---
 
@@ -206,6 +206,12 @@ Objetivo: proteger os dois lados, o consumidor (o dinheiro só sai depois do ser
 * **Em aberto (decidir antes do código):**
   1. ~~Reagendamento~~ — decidido em 2026-10-24: o comprador que não aceitar a nova data recebe reembolso integral (ingresso + taxa de serviço) e o proprietário **não** paga multa sobre esses ingressos, porque reagendou em vez de cancelar.
   2. ~~Multa não paga~~ — decidido em 2026-10-24: o pedido de cancelamento pausa as vendas na hora e o proprietário paga a multa no cartão ou Pix; o reembolso dos compradores sai assim que o proprietário confirma o cancelamento, sem esperar a multa; se a multa não for paga em **24 h**, ela é descontada dos repasses pendentes e futuros do documento, que fica bloqueado para novas vendas até quitar. Cancelamento silencioso (o evento não acontece e as reclamações confirmam) tem o mesmo tratamento. Prazo de 24 h, e não 48 h, para não se confundir com a janela de reclamação de 48 h antes do repasse.
-* **Direito de arrependimento (revisão do item 9, 2026-10-24):** desistência em até **7 dias da compra** tem reembolso integral, inclusive a taxa de serviço (CDC art. 49; multa do Procon-MG à Sympla em fev/2026). Depois de 7 dias, vale a política de cancelamento do proprietário, e a taxa de serviço não volta. As políticas são **opções definidas pela plataforma**; o proprietário só escolhe uma. Opções e limite do arrependimento perto da data do serviço: em decisão.
+* **Direito de arrependimento (revisão do item 9, 2026-10-24):** desistência em até **7 dias da compra** e até **48 h antes do início** do serviço tem reembolso integral, inclusive a taxa de serviço (CDC art. 49; Decreto 7.962/2013; multa do Procon-MG à Sympla em fev/2026). A desistência é feita no app, pelo mesmo canal da compra. Fora disso, vale a política escolhida pelo proprietário, e a taxa de serviço não volta.
+* **Políticas de cancelamento (opções da plataforma; o proprietário escolhe uma):**
+  * **Ingressos de eventos:** Flexível (integral até 24 h antes do início) · Moderada (integral até 7 dias antes) · Rígida (integral até 30 dias antes) · Sem reembolso (só o arrependimento legal). Em todas, **no-show** (não comparecer) não tem reembolso.
+  * **Passeios, aluguéis e entradas de atrações privadas:** **Flexível (padrão)** — integral até 24 h antes · Moderada — integral até 5 dias antes, 50% até 24 h antes · Rígida — 50% até 7 dias antes · Sem reembolso (só o arrependimento legal). No-show não tem reembolso.
+  * **Translados (Código Civil art. 740, retenção máxima de 5%):** Flexível — integral até 24 h antes · Padrão translado — 95% até 24 h antes; com menos de 24 h ou no-show, sem reembolso.
+  * **Regras:** o pedido grava a política vigente na compra, e é ela que vale para aquela compra; depois de publicar, o proprietário só pode mudar para uma opção mais flexível; a política aparece antes do pagamento, com o preço total e a taxa de serviço destacada (STJ, EDcl no REsp 1.737.428); o reembolso é calculado só no backend, em centavos.
+* **Validação jurídica antes das chaves `sk_live_` (junto com a condição da D1):** termos do parceiro (multa de 20%, compensação com repasses, bloqueio), limite de 48 h do arrependimento e políticas de cancelamento.
 * **Prompts:** 18.4 (contas por documento, retenção e liberação) e seguintes; desenho apresentado para aprovação antes do código.
 
