@@ -1,12 +1,10 @@
 import type { Response } from 'express';
 import { getListingVerificationApplicationUseCase } from '../../../application/usecases/listingVerification/getListingVerificationApplicationUseCase';
 import { listListingVerificationsApplicationUseCase } from '../../../application/usecases/listingVerification/listListingVerificationsApplicationUseCase';
+import { reviewListingVerificationApplicationUseCase } from '../../../application/usecases/listingPlans/reviewListingVerificationApplicationUseCase';
 import { readListingVerificationFileApplicationUseCase } from '../../../application/usecases/listingVerification/readListingVerificationFileApplicationUseCase';
 import { submitListingVerificationApplicationUseCase } from '../../../application/usecases/listingVerification/submitListingVerificationApplicationUseCase';
-import {
-  ListingVerificationError,
-  reviewListingVerificationUseCase,
-} from '../../../domain/partners';
+import { ListingVerificationError } from '../../../domain/partners';
 import type { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
 import { CryptoUnavailableError } from '../../../shared/kernel/fieldEncryption';
 import {
@@ -100,7 +98,7 @@ export class ListingVerificationController {
       return sendError(res, 400, 'VALIDATION_ERROR', 'Revisão inválida.');
     }
     try {
-      const view = await reviewListingVerificationUseCase(
+      const view = await reviewListingVerificationApplicationUseCase(
         actor,
         params.data.itemId,
         body.data.decision,

@@ -4,26 +4,41 @@ import type {
   PlanSubscriptionRepositoryPort,
 } from '../ports/planSubscriptionRepositoryPort';
 
-const COLLECTION = 'partnerSubscriptions';
+const COLLECTION = 'planSubscriptions';
+
+function toRecord(itemId: string, data: Partial<PlanSubscriptionRecord>): PlanSubscriptionRecord {
+  return {
+    itemId,
+    partnerId: String(data.partnerId ?? ''),
+    stripeCustomerId: String(data.stripeCustomerId ?? ''),
+    stripeSubscriptionId: data.stripeSubscriptionId ?? null,
+    planId: String(data.planId ?? ''),
+    status: data.status ?? 'incomplete',
+    currentPeriodEnd: data.currentPeriodEnd ?? null,
+    cancelAtPeriodEnd: data.cancelAtPeriodEnd === true,
+    updatedAt: String(data.updatedAt ?? ''),
+  };
+}
 
 export class FirestorePlanSubscriptionAdapter implements PlanSubscriptionRepositoryPort {
-  async get(partnerId: string): Promise<PlanSubscriptionRecord | null> {
-    const snapshot = await adminDb.collection(COLLECTION).doc(partnerId).get();
+  async get(itemId: string): Promise<PlanSubscriptionRecord | null> {
+    const snapshot = await adminDb.collection(COLLECTION).doc(itemId).get();
     if (!snapshot.exists) return null;
-    const data = snapshot.data() as Partial<PlanSubscriptionRecord>;
-    return {
-      partnerId,
-      stripeCustomerId: String(data.stripeCustomerId ?? ''),
-      stripeSubscriptionId: data.stripeSubscriptionId ?? null,
-      planId: String(data.planId ?? ''),
-      status: data.status ?? 'incomplete',
-      currentPeriodEnd: data.currentPeriodEnd ?? null,
-      cancelAtPeriodEnd: data.cancelAtPeriodEnd === true,
-      updatedAt: String(data.updatedAt ?? ''),
-    };
+    return toRecord(itemId, snapshot.data() as Partial<PlanSubscriptionRecord>);
   }
 
   async save(record: PlanSubscriptionRecord): Promise<void> {
-    await adminDb.collection(COLLECTION).doc(record.partnerId).set(record);
+    await adminDb.collection(COLLECTION).doc(record.itemId).set(record);
+  }
+
+  async listByPartner(partnerId: string): Promise<PlanSubscriptionRecord[]> {
+    const snapshot = await adminDb
+      .collection(COLLECTION)
+      .where('partnerId', '==', partnerId)
+      .limit(50)
+      .get();
+    return snapshot.docs.map((doc) =>
+      toRecord(doc.id, doc.data() as Partial<PlanSubscriptionRecord>)
+    );
   }
 }

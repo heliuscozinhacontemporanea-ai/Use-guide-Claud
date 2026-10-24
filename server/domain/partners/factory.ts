@@ -2,6 +2,8 @@ import { PartnerService } from './services/partnerService';
 import { FirestorePartnerAdapter } from './adapters/firestorePartnerAdapter';
 import { FirestoreListingVerificationAdapter } from './adapters/firestoreListingVerificationAdapter';
 import { ListingVerificationService } from './services/listingVerificationService';
+import { FirestoreListingPlanAdapter } from './adapters/firestoreListingPlanAdapter';
+import { ListingPlanService } from './services/listingPlanService';
 import { blindIndex, fieldEncryption } from '../../infrastructure/crypto/fieldEncryptionFactory';
 
 const partnerAdapter = new FirestorePartnerAdapter();
@@ -19,3 +21,5 @@ export function getListingVerificationService(): ListingVerificationService {
   );
   return listingVerificationService;
 }
+
+export const listingPlanService = new ListingPlanService(new FirestoreListingPlanAdapter());

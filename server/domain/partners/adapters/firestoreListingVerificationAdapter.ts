@@ -119,6 +119,14 @@ export class FirestoreListingVerificationAdapter implements ListingVerificationR
     };
   }
 
+  async listLinkedItemIds(sourceItemId: string): Promise<string[]> {
+    const snapshot = await adminDb
+      .collection(VERIFICATIONS)
+      .where('sourceItemId', '==', sourceItemId)
+      .get();
+    return snapshot.docs.map((doc) => doc.id);
+  }
+
   async getSalesDocumentIndex(ownerId: string): Promise<string | null> {
     const snapshot = await adminDb.collection(OWNERS).doc(ownerId).get();
     const value = snapshot.get('salesDocumentIndex');

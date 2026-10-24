@@ -1,6 +1,7 @@
 import { randomUUID } from 'crypto';
 import type { Request, Response } from 'express';
 import { getPlanForPaymentApplicationUseCase } from '../../../application/usecases/getPlanForPaymentApplicationUseCase';
+import { assertListingPlanPurchasableApplicationUseCase } from '../../../application/usecases/listingPlans/assertListingPlanPurchasableApplicationUseCase';
 import { reconcileStripeWebhookEventApplicationUseCase } from '../../../application/usecases/reconcileStripeWebhookEventApplicationUseCase';
 import type { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
 import { ConfirmPlanPaymentSchema, CreatePlanPaymentIntentSchema } from '../schemas/paymentSchema';
@@ -36,7 +37,7 @@ export class PaymentController {
         });
       }
 
-      const { planId, idempotencyKey } = parsed.data;
+      const { itemId, planId, idempotencyKey } = parsed.data;
       const plan = await getPlanForPaymentApplicationUseCase(planId);
       if (!plan) {
         return res.status(400).json({ error: 'Plano inexistente.' });
@@ -51,9 +52,11 @@ export class PaymentController {
           .status(400)
           .json({ error: 'Plano gratuito não requer pagamento via Stripe.' });
       }
+      await assertListingPlanPurchasableApplicationUseCase(req.user.uid, itemId);
 
       const result = await createPlanPaymentIntentUseCase({
         buyerId: req.user.uid,
+        itemId,
         planId: plan.id,
         planName: plan.name,
         amountMinor,

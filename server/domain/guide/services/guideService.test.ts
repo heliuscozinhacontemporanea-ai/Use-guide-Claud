@@ -10,7 +10,7 @@ function createGuidePortMock(): GuidePort {
     updateItem: vi.fn(),
     deleteItem: vi.fn(),
     getItemById: vi.fn(),
-    updateVerificationByOwner: vi.fn(),
+    updateItemVerification: vi.fn(),
     updateReviewAggregate: vi.fn(),
     deleteResourcesByOwner: vi.fn(),
     getAllItems: vi.fn(),
@@ -246,15 +246,15 @@ describe('GuideService', () => {
     });
   });
 
-  describe('updateOwnerVerification', () => {
+  describe('updateItemVerification', () => {
     it('delegates verification update to the Guide port', async () => {
-      await service.updateOwnerVerification('partner-1', {
+      await service.updateItemVerification('item-1', {
         isVerified: true,
         verifiedUntil: '2026-12-31T23:59:59.000Z',
         verificationType: 'annual',
         isVerificationSuspended: false,
       });
-      expect(port.updateVerificationByOwner).toHaveBeenCalledWith('partner-1', {
+      expect(port.updateItemVerification).toHaveBeenCalledWith('item-1', {
         isVerified: true,
         verifiedUntil: '2026-12-31T23:59:59.000Z',
         verificationType: 'annual',
@@ -262,9 +262,9 @@ describe('GuideService', () => {
       });
     });
 
-    it('rejeita ownerId vazio', async () => {
+    it('rejeita itemId vazio', async () => {
       await expect(
-        service.updateOwnerVerification('   ', {
+        service.updateItemVerification('   ', {
           isVerified: true,
           verifiedUntil: null,
           verificationType: null,
@@ -273,7 +273,7 @@ describe('GuideService', () => {
       ).rejects.toMatchObject({
         code: 'INVALID_ID',
       });
-      expect(port.updateVerificationByOwner).not.toHaveBeenCalled();
+      expect(port.updateItemVerification).not.toHaveBeenCalled();
     });
   });
 });

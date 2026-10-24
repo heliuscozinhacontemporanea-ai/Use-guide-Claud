@@ -53,6 +53,7 @@ export interface BillingGatewayPort {
   }): Promise<CreateSubscriptionResult>;
   getSubscription(subscriptionId: string): Promise<SubscriptionSnapshot>;
   setCancelAtPeriodEnd(subscriptionId: string, cancel: boolean): Promise<SubscriptionSnapshot>;
+  cancelNow(subscriptionId: string): Promise<SubscriptionSnapshot>;
   createBillingPortalSession(params: {
     customerId: string;
     returnUrl: string;

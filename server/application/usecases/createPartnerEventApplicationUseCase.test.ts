@@ -21,6 +21,10 @@ vi.mock('../../domain/guide', () => ({
   getItemByIdUseCase: mocks.getItemByIdUseCase,
 }));
 
+vi.mock('./listingPlans/syncListingSealApplicationUseCase', () => ({
+  syncListingSealApplicationUseCase: vi.fn(),
+}));
+
 vi.mock('../../domain/events', () => ({
   createEventListingUseCase: mocks.createEventListingUseCase,
   deleteOrArchiveEventListingUseCase: mocks.deleteOrArchiveEventListingUseCase,

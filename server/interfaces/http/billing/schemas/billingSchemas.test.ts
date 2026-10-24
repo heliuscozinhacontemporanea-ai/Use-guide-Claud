@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { BillingPortalSchema, StartPlanSubscriptionSchema } from './billingSchemas';
 
 describe('StartPlanSubscriptionSchema', () => {
-  const valid = { planId: 'annual', locale: 'fr', idempotencyKey: 'key-12345' };
+  const valid = { itemId: 'item-1', planId: 'annual', locale: 'fr', idempotencyKey: 'key-12345' };
 
   it('aceita entrada válida', () => {
     expect(StartPlanSubscriptionSchema.safeParse(valid).success).toBe(true);

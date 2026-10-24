@@ -5,8 +5,6 @@ import type {
   PartnerProfileDocument,
   PartnerRegistrationData,
   PartnerStatus,
-  PartnerTrialState,
-  PartnerVerificationData,
   RegisterPartnerResult,
 } from '../types/partnerTypes';
 
@@ -30,50 +28,6 @@ export class PartnerService {
       );
     }
     return this.partnerPort.registerPartner(uid, data);
-  }
-
-  async updatePartnerVerificationProfile(
-    partnerId: string,
-    verification: PartnerVerificationData
-  ): Promise<void> {
-    if (!partnerId?.trim()) {
-      throw new PartnerDomainError(
-        'INVALID_ARGUMENT',
-        'ID do parceiro é obrigatório para verificação'
-      );
-    }
-
-    if (verification.isVerified) {
-      if (!verification.verifiedUntil) {
-        throw new PartnerDomainError(
-          'INVALID_ARGUMENT',
-          'verifiedUntil é obrigatório quando o parceiro está verificado'
-        );
-      }
-
-      if (!verification.verificationType) {
-        throw new PartnerDomainError(
-          'INVALID_ARGUMENT',
-          'verificationType é obrigatório quando o parceiro está verificado'
-        );
-      }
-    } else {
-      if (verification.verifiedUntil !== null) {
-        throw new PartnerDomainError(
-          'INVALID_ARGUMENT',
-          'verifiedUntil deve ser null quando o parceiro não está verificado'
-        );
-      }
-
-      if (verification.verificationType !== null) {
-        throw new PartnerDomainError(
-          'INVALID_ARGUMENT',
-          'verificationType deve ser null quando o parceiro não está verificado'
-        );
-      }
-    }
-
-    await this.partnerPort.updatePartnerVerificationProfile(partnerId, verification);
   }
 
   async getProfile(partnerId: string): Promise<PartnerProfileDocument | null> {
@@ -111,33 +65,6 @@ export class PartnerService {
   async deletePartnerProfile(partnerId: string): Promise<void> {
     if (!partnerId?.trim()) return;
     return this.partnerPort.deletePartnerProfile(partnerId);
-  }
-
-  async activateTrial(actor: { uid: string; admin?: boolean }, partnerId: string): Promise<string> {
-    if (!partnerId?.trim()) {
-      throw new PartnerDomainError('INVALID_ARGUMENT', 'ID do parceiro é obrigatório');
-    }
-    if (!actor.admin && actor.uid !== partnerId) {
-      throw new PartnerDomainError(
-        'FORBIDDEN',
-        'Não autorizado a ativar trial para outro parceiro'
-      );
-    }
-
-    const expirationDate = new Date();
-    expirationDate.setDate(expirationDate.getDate() + 7);
-    const verifiedUntil = expirationDate.toISOString();
-
-    await this.partnerPort.activateTrialAtomically(partnerId, verifiedUntil);
-    return verifiedUntil;
-  }
-
-  async restoreTrialState(partnerId: string, state: PartnerTrialState): Promise<void> {
-    if (!partnerId?.trim()) {
-      throw new PartnerDomainError('INVALID_ARGUMENT', 'ID do parceiro é obrigatório');
-    }
-
-    return this.partnerPort.restoreTrialStateAtomically(partnerId, state);
   }
 
   async linkBusiness(partnerId: string, business: PartnerBusiness): Promise<void> {

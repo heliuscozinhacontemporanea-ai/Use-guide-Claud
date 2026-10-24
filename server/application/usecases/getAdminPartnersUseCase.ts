@@ -11,10 +11,6 @@ export interface AdminPartnerSummaryDTO {
   /** Estabelecimentos e eventos vinculados ao parceiro (a categoria é de cada estabelecimento). */
   listingsCount: number;
   status: PartnerProfileDTO['status'];
-  isVerified: boolean;
-  verifiedUntil: string | null;
-  verificationType: PartnerProfileDTO['verificationType'];
-  isVerificationSuspended: boolean;
 }
 
 export async function getAdminPartnersUseCase(): Promise<AdminPartnerSummaryDTO[]> {
@@ -35,10 +31,6 @@ export async function getAdminPartnersUseCase(): Promise<AdminPartnerSummaryDTO[
       email: user?.email || '',
       listingsCount: partner.businesses?.length ?? 0,
       status: partner.status,
-      isVerified: partner.isVerified,
-      verifiedUntil: partner.verifiedUntil,
-      verificationType: partner.verificationType,
-      isVerificationSuspended: partner.isVerificationSuspended,
     };
   });
 }

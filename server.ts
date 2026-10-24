@@ -21,6 +21,8 @@ import favoriteRouter from './server/domain/favorites/routes/favoriteRoutes';
 import mediaRouter from './server/domain/media/routes/mediaRoutes';
 import billingRouter from './server/interfaces/http/billing/billingRoutes';
 import listingVerificationRouter from './server/interfaces/http/listingVerifications/listingVerificationRoutes';
+import listingStatsRouter from './server/interfaces/http/insights/listingStatsRoutes';
+import listingPlanRouter from './server/interfaces/http/listingPlans/listingPlanRoutes';
 import {
   bookingsRouter,
   partnerOffersRouter,
@@ -195,6 +197,7 @@ async function startServer() {
   app.use('/api/notifications', notificationRouter);
   app.use('/api/users', userRouter);
   app.use('/api/listing-verifications', listingVerificationRouter);
+  app.use('/api/listing-plans', listingPlanRouter);
   app.use('/api/partners/offers', partnerOffersRouter);
   app.use('/api/partners', partnerRouter);
   app.use('/api/items', itemRouter);
@@ -203,6 +206,7 @@ async function startServer() {
   app.use('/api/admin/events', adminTicketingEventsRouter);
   app.use('/api/ticketing', ticketingRouter);
   app.use('/api/reviews', reviewRouter);
+  app.use('/api/insights/stats', listingStatsRouter);
   app.use('/api/insights', insightsRouter);
   app.use('/api/admin', adminRouter);
   app.use('/api/favorites', favoriteRouter);

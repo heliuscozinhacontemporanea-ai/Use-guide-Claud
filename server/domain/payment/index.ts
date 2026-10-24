@@ -16,8 +16,10 @@ export { syncConnectedAccountFromWebhookUseCase } from './usecases/syncConnected
 
 export { createMarketplacePaymentIntentUseCase } from './usecases/createMarketplacePaymentIntentUseCase';
 export { getPaymentReferenceUseCase } from './usecases/getPaymentReferenceUseCase';
+export { cancelListingPlanSubscriptionUseCase } from './usecases/billing/cancelListingPlanSubscriptionUseCase';
+export { cancelPartnerPlanSubscriptionsUseCase } from './usecases/billing/cancelPartnerPlanSubscriptionsUseCase';
 export { createBillingPortalSessionUseCase } from './usecases/billing/createBillingPortalSessionUseCase';
-export { getPartnerPlanSubscriptionUseCase } from './usecases/billing/getPartnerPlanSubscriptionUseCase';
+export { getListingPlanSubscriptionUseCase } from './usecases/billing/getListingPlanSubscriptionUseCase';
 export { setPlanSubscriptionCancelAtPeriodEndUseCase } from './usecases/billing/setPlanSubscriptionCancelAtPeriodEndUseCase';
 export { startPlanSubscriptionUseCase } from './usecases/billing/startPlanSubscriptionUseCase';
 export { syncPlanSubscriptionUseCase } from './usecases/billing/syncPlanSubscriptionUseCase';

@@ -29,14 +29,20 @@ export class FirestoreEventAdapter implements EventsPort {
     if (!snap.exists) {
       return null;
     }
-    return EventListingPersistenceMapper.toDomain(snap.id, (snap.data() || {}) as Record<string, unknown>);
+    return EventListingPersistenceMapper.toDomain(
+      snap.id,
+      (snap.data() || {}) as Record<string, unknown>
+    );
   }
 
   async listPublicListings(): Promise<EventListing[]> {
     const snap = await adminDb.collection('events').get();
     return snap.docs
       .map((doc) =>
-        EventListingPersistenceMapper.toDomain(doc.id, (doc.data() || {}) as Record<string, unknown>)
+        EventListingPersistenceMapper.toDomain(
+          doc.id,
+          (doc.data() || {}) as Record<string, unknown>
+        )
       )
       .filter((item) => item.status === 'published' && item.visibility === 'public');
   }
@@ -80,8 +86,8 @@ export class FirestoreEventAdapter implements EventsPort {
     });
   }
 
-  async updateVerificationByOwner(
-    ownerId: string,
+  async updateVerificationByEstablishment(
+    establishmentId: string,
     verification: {
       isVerified: boolean;
       verifiedUntil: string | null;
@@ -89,7 +95,10 @@ export class FirestoreEventAdapter implements EventsPort {
       isVerificationSuspended: boolean;
     }
   ): Promise<void> {
-    const eventsSnapshot = await adminDb.collection('events').where('ownerId', '==', ownerId).get();
+    const eventsSnapshot = await adminDb
+      .collection('events')
+      .where('establishmentId', '==', establishmentId)
+      .get();
     if (eventsSnapshot.empty) {
       return;
     }

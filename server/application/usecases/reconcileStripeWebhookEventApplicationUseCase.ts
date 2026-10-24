@@ -59,8 +59,14 @@ export async function reconcileStripeWebhookEventApplicationUseCase(
           message: `Pedido #${confirmed.order.id.slice(0, 8)} confirmado via Stripe (${confirmed.tickets.length} ingresso(s)).`,
         }).catch(() => undefined);
       }
-    } else if (metadata.referenceType === 'plan_payment' && metadata.partnerId && metadata.planId) {
+    } else if (
+      metadata.referenceType === 'plan_payment' &&
+      metadata.partnerId &&
+      metadata.planId &&
+      metadata.itemId
+    ) {
       await activatePaidPlanApplicationUseCase({
+        itemId: metadata.itemId,
         partnerId: metadata.partnerId,
         planId: metadata.planId,
         paymentReference: paymentIntentId,

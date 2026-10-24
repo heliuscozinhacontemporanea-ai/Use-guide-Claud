@@ -41,11 +41,12 @@ export async function reconcilePlanSubscriptionWebhookApplicationUseCase(
 
   // Os eventos podem chegar fora de ordem: relemos a assinatura em vez de confiar no payload.
   const snapshot = await syncPlanSubscriptionUseCase(subscriptionId);
-  const { referenceType, partnerId, planId } = snapshot.metadata;
-  if (referenceType !== 'plan_subscription' || !partnerId || !planId) return;
+  const { referenceType, partnerId, planId, itemId } = snapshot.metadata;
+  if (referenceType !== 'plan_subscription' || !partnerId || !planId || !itemId) return;
 
   if (event.type === 'invoice.paid') {
     await activatePaidPlanApplicationUseCase({
+      itemId,
       partnerId,
       planId,
       paymentReference: String(obj.id || ''),

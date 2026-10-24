@@ -3,6 +3,7 @@ import type { CreatePaymentIntentResult } from '../ports/paymentGatewayPort';
 
 export async function createPlanPaymentIntentUseCase(params: {
   buyerId: string;
+  itemId: string;
   planId: string;
   planName: string;
   amountMinor: number;

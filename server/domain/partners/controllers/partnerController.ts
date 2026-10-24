@@ -1,18 +1,10 @@
 import { Response } from 'express';
-import { activatePartnerTrialApplicationUseCase } from '../../../application/usecases/activatePartnerTrialApplicationUseCase';
 import { registerPartnerApplicationUseCase } from '../../../application/usecases/registerPartnerApplicationUseCase';
-import { setPartnerVerificationByAdminApplicationUseCase } from '../../../application/usecases/setPartnerVerificationByAdminApplicationUseCase';
 import { AuthenticatedRequest } from '../../../infrastructure/auth/authMiddleware';
 import { RegisterPartnerDTO } from '../dtos/RegisterPartnerDTO';
-import { VerifyPartnerDTO } from '../dtos/VerifyPartnerDTO';
 import { PartnerDomainError } from '../errors/partnerDomainError';
 import { partnerService } from '../factory';
-import {
-  activateTrialSchema,
-  registerPartnerSchema,
-  updatePartnerStatusSchema,
-  verifyPartnerSchema,
-} from '../schemas/partnerSchema';
+import { registerPartnerSchema, updatePartnerStatusSchema } from '../schemas/partnerSchema';
 
 function handleControllerError(res: Response, error: unknown, defaultMessage: string): Response {
   if (error instanceof PartnerDomainError) {
@@ -82,50 +74,6 @@ export class PartnerController {
         .json({ status: 'success', message: 'Parceiro cadastrado com sucesso' });
     } catch (error: unknown) {
       return handleControllerError(res, error, 'Erro ao cadastrar parceiro');
-    }
-  }
-
-  static async verifyPartner(req: AuthenticatedRequest, res: Response) {
-    try {
-      const parsed = verifyPartnerSchema.safeParse(req.body);
-      if (!parsed.success) {
-        return res.status(400).json({ error: 'Dados inválidos', details: parsed.error.format() });
-      }
-
-      const dto = VerifyPartnerDTO.fromValidatedInput(parsed.data);
-      await setPartnerVerificationByAdminApplicationUseCase(dto.partnerId, dto.isVerified);
-      return res
-        .status(200)
-        .json({ status: 'success', message: 'Selo de verificação atualizado com sucesso' });
-    } catch (error: unknown) {
-      return handleControllerError(res, error, 'Erro ao alterar verificação');
-    }
-  }
-
-  static async activateTrial(req: AuthenticatedRequest, res: Response) {
-    try {
-      const uid = req.user?.uid;
-      if (!uid) {
-        return res.status(401).json({ error: 'Não autenticado' });
-      }
-
-      const parsed = activateTrialSchema.safeParse(req.body);
-      if (!parsed.success) {
-        return res.status(400).json({ error: 'Dados inválidos', details: parsed.error.format() });
-      }
-
-      if (parsed.data.partnerId && parsed.data.partnerId !== uid && !req.user?.admin) {
-        return res.status(403).json({ error: 'Não é permitido ativar trial para outro parceiro' });
-      }
-
-      const targetUid = req.user?.admin && parsed.data.partnerId ? parsed.data.partnerId : uid;
-
-      await activatePartnerTrialApplicationUseCase({ uid, admin: req.user?.admin }, targetUid);
-      return res
-        .status(200)
-        .json({ status: 'success', message: 'Período de testes de 7 dias grátis ativado' });
-    } catch (error: unknown) {
-      return handleControllerError(res, error, 'Erro ao ativar trial');
     }
   }
 

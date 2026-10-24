@@ -347,25 +347,45 @@ export function AdminPanel({
         </AnimatePresence>
       </div>
 
-      {isEditing && (
-        <AdminEditorModal
-          isEditing={isEditing}
-          setIsEditing={setIsEditing}
-          activeTab={activeTab}
-          isAdminUser={isAdminUser}
-          onSave={handleSaveRecord}
-          onDeleteConfirm={(id) => handleDelete(activeTab === 'events' ? 'events' : 'items', id)}
-          showToast={showToast}
-          renderSessionsField={renderSessionsField}
-          renderTicketingManager={renderTicketingManager}
-        />
-      )}
+      <AnimatePresence>
+        {editingListing !== undefined &&
+          renderListingEditor?.({
+            item: editingListing,
+            onClose: () => setEditingListing(undefined),
+          })}
+      </AnimatePresence>
 
-      {editingListing !== undefined &&
-        renderListingEditor?.({
-          item: editingListing,
-          onClose: () => setEditingListing(undefined),
-        })}
+      <AnimatePresence>
+        {isEditing && (
+          <AdminEditorModal
+            isEditing={isEditing}
+            setIsEditing={setIsEditing}
+            activeTab={activeTab as 'items' | 'events'}
+            isAdminUser={isAdminUser}
+            onSave={handleSaveRecord}
+            renderSessionsField={renderSessionsField}
+            renderTicketingManager={renderTicketingManager}
+            onDeleteConfirm={async (id) => {
+              if (activeTab === 'items') {
+                await deleteGuideItemUseCase(id);
+              } else {
+                await deleteAdminEventListingUseCase(id);
+              }
+              showToast('Registro excluído.', 'success');
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      <style>{`
+        .no-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .no-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
     </div>
   );
 }

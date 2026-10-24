@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { Request } from 'express';
+import type { Request, Response } from 'express';
 import { PaymentController } from './paymentController';
 import { getPlanForPaymentApplicationUseCase } from '../../../application/usecases/getPlanForPaymentApplicationUseCase';
+import { assertListingPlanPurchasableApplicationUseCase } from '../../../application/usecases/listingPlans/assertListingPlanPurchasableApplicationUseCase';
 import { reconcileStripeWebhookEventApplicationUseCase } from '../../../application/usecases/reconcileStripeWebhookEventApplicationUseCase';
 import { claimStripeWebhookEventUseCase } from '../usecases/claimStripeWebhookEventUseCase';
 import { completeStripeWebhookEventUseCase } from '../usecases/completeStripeWebhookEventUseCase';
@@ -14,6 +15,10 @@ import { AuthenticatedRequest } from '../../../infrastructure/auth/authenticated
 vi.mock('../../../application/usecases/getPlanForPaymentApplicationUseCase', () => ({
   getPlanForPaymentApplicationUseCase: vi.fn(),
 }));
+vi.mock(
+  '../../../application/usecases/listingPlans/assertListingPlanPurchasableApplicationUseCase',
+  () => ({ assertListingPlanPurchasableApplicationUseCase: vi.fn() })
+);
 
 vi.mock('../../../application/usecases/reconcileStripeWebhookEventApplicationUseCase', () => ({ reconcileStripeWebhookEventApplicationUseCase: vi.fn() }));
 
@@ -26,14 +31,14 @@ vi.mock('../usecases/retrievePaymentIntentUseCase', () => ({ retrievePaymentInte
 
 describe('PaymentController', () => {
   let req: Partial<AuthenticatedRequest>;
-  let res: any;
+  let res: Response;
 
   beforeEach(() => {
     vi.clearAllMocks();
     res = {
       status: vi.fn().mockReturnThis(),
       json: vi.fn().mockReturnThis(),
-    };
+    } as unknown as Response;
   });
 
   it('rejects unauthenticated request with 401', async () => {
@@ -73,17 +78,21 @@ describe('PaymentController', () => {
         authTime: 1700000000,
       },
       body: {
+        itemId: 'item-1',
         planId: 'monthly',
         idempotencyKey: 'unique-key-12345',
       },
     };
 
+    vi.mocked(assertListingPlanPurchasableApplicationUseCase).mockResolvedValueOnce({
+      currentPaidUntil: null,
+    });
     vi.mocked(getPlanForPaymentApplicationUseCase).mockResolvedValueOnce({
       id: 'monthly',
       name: 'Plano Profissional',
       priceMinor: 9900,
       isActive: true,
-    } as any);
+    } as never);
     vi.mocked(createPlanPaymentIntentUseCase).mockResolvedValueOnce({
       paymentIntentId: 'pi_123',
       clientSecret: 'pi_123_secret_abc',
@@ -93,9 +102,14 @@ describe('PaymentController', () => {
 
     await PaymentController.createPlanPaymentIntent(req as AuthenticatedRequest, res);
 
+    expect(assertListingPlanPurchasableApplicationUseCase).toHaveBeenCalledWith(
+      'user-123',
+      'item-1'
+    );
     expect(createPlanPaymentIntentUseCase).toHaveBeenCalledWith(
       expect.objectContaining({
         buyerId: 'user-123',
+        itemId: 'item-1',
         planId: 'monthly',
         planName: 'Plano Profissional',
         amountMinor: 9900,
@@ -221,7 +235,7 @@ describe('PaymentController', () => {
         status: 'succeeded',
         amountMinor: 9900,
         metadata: { partnerId: 'outro', referenceType: 'plan_payment' },
-      } as any);
+      } as never);
       await PaymentController.confirmPlanPayment(
         { user, body: { paymentIntentId: 'pi_abc' } } as AuthenticatedRequest,
         res
@@ -235,7 +249,7 @@ describe('PaymentController', () => {
         status: 'succeeded',
         amountMinor: 9900,
         metadata: { partnerId: 'partner-1', referenceType: 'plan_payment' },
-      } as any);
+      } as never);
       await PaymentController.confirmPlanPayment(
         { user, body: { paymentIntentId: 'pi_abc' } } as AuthenticatedRequest,
         res

@@ -163,6 +163,10 @@ export class StripeBillingGatewayAdapter implements BillingGatewayPort {
     );
   }
 
+  async cancelNow(subscriptionId: string): Promise<SubscriptionSnapshot> {
+    return toSnapshot(await this.stripe.subscriptions.cancel(subscriptionId));
+  }
+
   async createBillingPortalSession(params: {
     customerId: string;
     returnUrl: string;

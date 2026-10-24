@@ -22,7 +22,8 @@ export interface GuidePort {
   getItemById(id: string): Promise<GuideItemRecord | null>;
   updateItem(id: string, data: GuideUpdateItemInput): Promise<void>;
   deleteItem(id: string): Promise<void>;
-  updateVerificationByOwner(ownerId: string, verification: GuideVerificationUpdate): Promise<void>;
+  /** Cópia pública do selo do estabelecimento (D11); o plano fica em `listingPlans`. */
+  updateItemVerification(itemId: string, verification: GuideVerificationUpdate): Promise<void>;
   updateReviewAggregate(
     resourceType: 'items',
     resourceId: string,

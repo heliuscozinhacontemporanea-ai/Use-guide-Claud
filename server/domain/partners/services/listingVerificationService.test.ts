@@ -56,6 +56,11 @@ class InMemoryRepository implements ListingVerificationRepositoryPort {
       nextCursor: null,
     };
   }
+  async listLinkedItemIds(sourceItemId: string) {
+    return [...this.records.values()]
+      .filter((r) => r.sourceItemId === sourceItemId)
+      .map((r) => r.itemId);
+  }
   async getSalesDocumentIndex(ownerId: string) {
     return this.salesDocuments.get(ownerId) ?? null;
   }

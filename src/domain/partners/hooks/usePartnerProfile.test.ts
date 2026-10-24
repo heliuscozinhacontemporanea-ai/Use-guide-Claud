@@ -112,7 +112,7 @@ describe('usePartnerProfile', () => {
     expect(result.current.profileStatus).toBe('ready');
   });
 
-  it('publicPartner NÃO contém verificationType, confirmando que esses dados continuam vindos do perfil carregado', async () => {
+  it('publicPartner NÃO contém cpfCnpj e verificationType, confirmando que esses dados continuam vindos do perfil carregado', async () => {
     const { result } = renderHook(() => usePartnerProfile(mockLoadedProfile));
 
     await act(async () => {

@@ -244,10 +244,10 @@ describe('Firestore Rules — Security Suite', () => {
       await assertFails(getDoc(doc(db, 'transactions/tx-2')));
     });
 
-    it('partner → own partnerSubscriptions read and write denied (server-only)', async () => {
+    it('partner → own planSubscriptions read and write denied (server-only)', async () => {
       const db = testEnv.authenticatedContext('partner-1').firestore();
-      await assertFails(getDoc(doc(db, 'partnerSubscriptions/partner-1')));
-      await assertFails(setDoc(doc(db, 'partnerSubscriptions/partner-1'), { status: 'active' }));
+      await assertFails(getDoc(doc(db, 'planSubscriptions/item-1')));
+      await assertFails(setDoc(doc(db, 'planSubscriptions/item-1'), { status: 'active' }));
     });
 
     it('admin with admin=true claim → partners read allowed', async () => {
@@ -354,6 +354,32 @@ describe('Firestore Rules — Security Suite', () => {
         await assertFails(getDoc(doc(db, 'verificationOwners/partner-1')));
         await assertFails(setDoc(doc(db, 'listingVerifications/item-1'), { status: 'approved' }));
         await assertFails(setDoc(doc(db, 'verificationOwners/partner-1'), { salesDocumentIndex: 'x' }));
+      }
+    });
+
+    it('plano (D11): listingPlans negado até para o dono e admin', async () => {
+      const adminDb = testEnv.authenticatedContext('admin-user', { admin: true }).firestore();
+      const ownerDb = testEnv.authenticatedContext('partner-1').firestore();
+      for (const db of [adminDb, ownerDb]) {
+        await assertFails(getDoc(doc(db, 'listingPlans/item-1')));
+        await assertFails(setDoc(doc(db, 'listingPlans/item-1'), { planType: 'annual' }));
+      }
+    });
+
+    it('destaque (D11): featuredListings tem leitura pública e escrita negada até para admin', async () => {
+      await testEnv.withSecurityRulesDisabled(async (context) => {
+        await setDoc(doc(context.firestore(), 'featuredListings/hotel'), {
+          list: 'hotel',
+          listingIds: ['item-1'],
+        });
+      });
+      const anonDb = testEnv.unauthenticatedContext().firestore();
+      await assertSucceeds(getDoc(doc(anonDb, 'featuredListings/hotel')));
+      const adminDb = testEnv.authenticatedContext('admin-user', { admin: true }).firestore();
+      const ownerDb = testEnv.authenticatedContext('partner-1').firestore();
+      for (const db of [adminDb, ownerDb]) {
+        await assertFails(setDoc(doc(db, 'featuredListings/hotel'), { listingIds: ['item-2'] }));
+        await assertFails(deleteDoc(doc(db, 'featuredListings/hotel')));
       }
     });
 

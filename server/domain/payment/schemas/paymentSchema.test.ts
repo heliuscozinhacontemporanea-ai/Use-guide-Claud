@@ -6,6 +6,7 @@ import {
 
 describe('Payment Schemas - Mass Assignment Protection and Strictness', () => {
   const validPlanPayload = {
+    itemId: 'item-1',
     planId: 'monthly',
     idempotencyKey: 'idemp-key-12345',
   };

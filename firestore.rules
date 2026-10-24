@@ -65,7 +65,7 @@ service cloud.firestore {
     match /paymentConnectedAccounts/{partnerId} {
       allow read, write: if false;
     }
-    match /partnerSubscriptions/{partnerId} {
+    match /planSubscriptions/{itemId} {
       allow read, write: if false;
     }
     match /bookableOffers/{offerId} {
@@ -155,6 +155,15 @@ service cloud.firestore {
     }
     match /verificationOwners/{ownerId} {
       allow read, write: if false;
+    }
+    // Plano de cada estabelecimento (D11): só backend; o cliente lê a cópia pública do selo no item.
+    match /listingPlans/{itemId} {
+      allow read, write: if false;
+    }
+    // Rodízio diário do "Destaque" (D11): projeção pública gravada só pelo job do backend.
+    match /featuredListings/{list} {
+      allow read: if true;
+      allow write: if false;
     }
     // Métricas lidas só pela API (dono do item ou admin); as guardas de deduplicação nunca saem do backend.
     match /interactionStats/{statId} {

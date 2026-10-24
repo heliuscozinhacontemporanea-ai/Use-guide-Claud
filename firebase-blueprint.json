@@ -216,15 +216,38 @@
             }
           }
         },
-        "hasUsedTrial": { "type": "boolean" },
-        "isVerified": { "type": "boolean" },
-        "verifiedUntil": { "type": "string", "format": "date-time" },
-        "isVerificationSuspended": { "type": "boolean" },
-        "verificationType": { "type": "string", "enum": ["trial", "monthly", "semi-annual", "annual"] },
-        "status": { "type": "string", "enum": ["active", "pending", "rejected", "suspended"] },
+        "hasUsedTrial": { "type": "boolean", "description": "One trial per account (D11); plan and seal live in listingPlans." },
+        "status": { "type": "string", "enum": ["active", "suspended"] },
         "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["businesses", "hasUsedTrial", "isVerified", "status", "createdAt"]
+      "required": ["businesses", "hasUsedTrial", "status", "createdAt"]
+    },
+    "FeaturedListings": {
+      "title": "FeaturedListings",
+      "description": "Public projection of the daily \"Destaque\" rotation of one list (D11), written by the backend job.",
+      "type": "object",
+      "properties": {
+        "list": { "type": "string", "enum": ["hotel", "restaurant", "tour", "sight", "transfer", "rental", "events"] },
+        "listingIds": { "type": "array", "items": { "type": "string" } },
+        "day": { "type": "string", "description": "Rotation day in America/Fortaleza (YYYY-MM-DD)." },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["list", "listingIds", "day", "updatedAt"]
+    },
+    "ListingPlan": {
+      "title": "ListingPlan",
+      "description": "Backend-only plan of one establishment or producer profile (D11). Items and events carry the public seal copy.",
+      "type": "object",
+      "properties": {
+        "itemId": { "type": "string" },
+        "ownerId": { "type": "string" },
+        "planType": { "type": ["string", "null"], "enum": ["trial", "monthly", "semi-annual", "annual", "admin", null] },
+        "planUntil": { "type": ["string", "null"], "format": "date-time" },
+        "sealSuspended": { "type": "boolean" },
+        "sealActive": { "type": "boolean" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["itemId", "ownerId", "planType", "planUntil", "sealSuspended", "sealActive", "updatedAt"]
     },
     "Transaction": {
       "title": "Transaction",
@@ -603,6 +626,14 @@
     "/partners/{userId}": {
       "schema": "Partner",
       "description": "Partner profiles linked to their business items."
+    },
+    "/featuredListings/{list}": {
+      "schema": "FeaturedListings",
+      "description": "Daily featured listings per list (public read, backend write)."
+    },
+    "/listingPlans/{itemId}": {
+      "schema": "ListingPlan",
+      "description": "Plan and seal of each establishment (backend only)."
     },
     "/transactions/{transactionId}": {
       "schema": "Transaction",

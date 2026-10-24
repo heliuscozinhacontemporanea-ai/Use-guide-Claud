@@ -22,7 +22,12 @@ const PLAN_SNAPSHOT = {
   status: 'active' as const,
   currentPeriodEnd: '2026-11-10T12:00:00.000Z',
   cancelAtPeriodEnd: false,
-  metadata: { referenceType: 'plan_subscription', partnerId: 'p1', planId: 'monthly' },
+  metadata: {
+    referenceType: 'plan_subscription',
+    partnerId: 'p1',
+    planId: 'monthly',
+    itemId: 'item-1',
+  },
 };
 
 function invoiceEvent(type: string) {
@@ -61,6 +66,7 @@ describe('reconcilePlanSubscriptionWebhookApplicationUseCase', () => {
     await reconcilePlanSubscriptionWebhookApplicationUseCase(invoiceEvent('invoice.paid'));
     expect(syncPlanSubscriptionUseCase).toHaveBeenCalledWith('sub_1');
     expect(activatePaidPlanApplicationUseCase).toHaveBeenCalledWith({
+      itemId: 'item-1',
       partnerId: 'p1',
       planId: 'monthly',
       paymentReference: 'in_1',

@@ -153,16 +153,16 @@ export function PartnerPortalComposition() {
       renderCheckoutModal={({
         isOpen,
         onClose,
-        planId,
+        itemId,
         itemName,
         amountMinor,
         onPaymentSuccess,
       }) =>
-        isPaidPlanId(planId) ? (
+        isPaidPlanId(itemId) ? (
           <CheckoutModal
             isOpen={isOpen}
             onClose={onClose}
-            planId={planId}
+            planId={itemId}
             itemName={itemName}
             amountMinor={amountMinor}
             onPaymentSuccess={onPaymentSuccess}

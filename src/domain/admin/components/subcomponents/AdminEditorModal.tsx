@@ -4,38 +4,42 @@ import { FormProvider, useForm, type Resolver } from 'react-hook-form';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Trash2, RefreshCw } from 'lucide-react';
 import { CATEGORIES } from '../../../../shared/constants/categories';
-import { uploadImageUseCase, getImageUploadErrorMessage } from '../../../../domain/media';
+import { useUI } from '../../../../shared/stores/useUIStore';
 import { Z_INDEX } from '../../../../shared/constants/zIndex';
+import {
+  eventDateRangeFromSessions,
+  listEventOccurrencesUseCase,
+  validateEventSessions,
+  type EventSessionsLoadState,
+} from '../../../events';
+import type { GuideItem } from '../../../guide';
+import { getImageUploadErrorMessage, uploadImageUseCase } from '../../../media';
 import {
   adminGuideEditorFormSchema,
   type AdminGuideEditorSchemaValues,
 } from '../../schemas/adminGuideEditorFormSchema';
-import { listEventOccurrencesUseCase, validateEventSessions } from '../../../events';
-import type { GuideItem } from '../../../guide';
 import { AdminEditorBasicInfo } from './AdminEditorBasicInfo';
 import { AdminEditorGallery } from './AdminEditorGallery';
 import { AdminEditorLocation } from './AdminEditorLocation';
 import { AdminEditorEventFields, type AdminEventSlots } from './AdminEditorEventFields';
 import { AdminEditorActions } from './AdminEditorActions';
 
-export interface AdminEditorSaveData extends GuideItem {
-  occurrences?: Array<{
-    id?: string;
-    startsAt: string;
-    endsAt: string;
-    capacity: number;
-  }>;
+// Atrações e passeios usam o editor de cadastro do parceiro (decisão D9); aqui ficam as dicas.
+export const ADMIN_CREATABLE_ITEM_CATEGORIES = ['tips'] as const;
+
+export type AdminEditorSaveData = GuideItem & {
+  occurrences?: AdminGuideEditorSchemaValues['occurrences'];
+  /** Sessões que existiam quando o editor abriu (as ausentes de `occurrences` são apagadas). */
   savedOccurrenceIds?: string[];
-}
+};
 
 interface AdminEditorModalProps extends AdminEventSlots {
   isEditing: GuideItem;
   setIsEditing: (item: GuideItem | null) => void;
-  activeTab: string;
+  activeTab: 'items' | 'events';
   isAdminUser: boolean;
   onSave: (data: AdminEditorSaveData) => Promise<void>;
   onDeleteConfirm: (id: string) => Promise<void>;
-  showToast: (msg: string, type: 'success' | 'error') => void;
 }
 
 export function AdminEditorModal({
@@ -45,16 +49,14 @@ export function AdminEditorModal({
   isAdminUser,
   onSave,
   onDeleteConfirm,
-  showToast,
   renderSessionsField,
   renderTicketingManager,
 }: AdminEditorModalProps) {
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [occurrencesState, setOccurrencesState] = useState<'idle' | 'loading' | 'ready' | 'error'>(
-    'idle'
-  );
+  const { showToast } = useUI();
+  const [occurrencesState, setOccurrencesState] = useState<EventSessionsLoadState>('idle');
   const savedOccurrenceIdsRef = useRef<string[]>([]);
 
   const form = useForm<AdminGuideEditorSchemaValues>({
@@ -141,9 +143,15 @@ export function AdminEditorModal({
 
   const availableCategories =
     activeTab === 'items'
-      ? Object.values(CATEGORIES).filter((c) =>
-          isCreatingNew ? c.id === 'tips' : c.id !== 'event'
-        )
+      ? Object.values(CATEGORIES).filter((c) => {
+          if (c.id === 'event') return false;
+          if (isCreatingNew) {
+            return ADMIN_CREATABLE_ITEM_CATEGORIES.includes(
+              c.id as (typeof ADMIN_CREATABLE_ITEM_CATEGORIES)[number]
+            );
+          }
+          return true;
+        })
       : [{ id: 'event', label: CATEGORIES.event.label }];
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -202,6 +210,7 @@ export function AdminEditorModal({
           ...isEditing,
           ...values,
           category: values.category as GuideItem['category'],
+          ...(activeTab === 'events' ? eventDateRangeFromSessions(sessions) : {}),
           occurrences: sessions,
           savedOccurrenceIds: savedOccurrenceIdsRef.current,
         });

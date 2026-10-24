@@ -2,22 +2,23 @@ import { useCallback } from 'react';
 import { useUI } from '../../../shared/stores/useUIStore';
 import type { UserSession } from '../../auth';
 import {
+  createPartnerContentEventUseCase,
+  deletePartnerContentEventUseCase,
+  deletePartnerContentItemUseCase,
+  updatePartnerContentEventUseCase,
+  updatePartnerContentItemUseCase,
+} from '../index';
+import {
   type EventSessionsLoadState,
   eventDateRangeFromSessions,
   saveEventSessionsUseCase,
   validateEventSessions,
 } from '../../events';
-import { createPartnerContentEventUseCase } from '../application/usecases/createPartnerContentEventUseCase';
-import { deletePartnerContentEventUseCase } from '../application/usecases/deletePartnerContentEventUseCase';
-import { deletePartnerContentItemUseCase } from '../application/usecases/deletePartnerContentItemUseCase';
-import { updatePartnerContentEventUseCase } from '../application/usecases/updatePartnerContentEventUseCase';
-import { updatePartnerContentItemUseCase } from '../application/usecases/updatePartnerContentItemUseCase';
 import { partnerEventFormSchema } from '../schemas/partnerEventFormSchema';
 import type { PartnerContentEditorState, PartnerContentEventInput } from '../types/partnerContent';
 
 function getErrorMessage(error: unknown, fallback: string): string {
-  if (error instanceof Error && error.message) return error.message;
-  return fallback;
+  return error instanceof Error && error.message ? error.message : fallback;
 }
 
 function toPlainRecord(value: object): Record<string, unknown> {
@@ -36,7 +37,7 @@ export interface UsePartnerContentActionsProps {
   isEditing: PartnerContentEditorState | null;
   setIsEditing: (item: PartnerContentEditorState | null) => void;
   setShowDeleteConfirm: (val: boolean) => void;
-  setIsLoading: (loading: boolean) => void;
+  setIsLoading: (val: boolean) => void;
 }
 
 export function usePartnerContentActions({
@@ -49,46 +50,49 @@ export function usePartnerContentActions({
 }: UsePartnerContentActionsProps) {
   const { showToast } = useUI();
 
-  const handleDelete = useCallback(
-    async (id: string) => {
-      setIsLoading(true);
-      try {
-        if (activeTab === 'items') {
-          await deletePartnerContentItemUseCase(id);
-        } else {
-          await deletePartnerContentEventUseCase(id);
-        }
-        setShowDeleteConfirm(false);
-        setIsEditing(null);
-        showToast('Registro excluído com sucesso.', 'success');
-      } catch (error: unknown) {
-        console.error('Erro ao excluir item:', error);
-        showToast(getErrorMessage(error, 'Erro ao excluir registro'), 'error');
-      } finally {
-        setIsLoading(false);
+  const handleDelete = useCallback(async () => {
+    if (!isEditing?.id) return;
+
+    setIsLoading(true);
+    const coll = activeTab === 'items' ? 'items' : 'events';
+    try {
+      if (coll === 'items') {
+        await deletePartnerContentItemUseCase(isEditing.id);
+      } else {
+        await deletePartnerContentEventUseCase(isEditing.id);
       }
-    },
-    [activeTab, setIsLoading, setShowDeleteConfirm, setIsEditing, showToast]
-  );
+
+      setIsEditing(null);
+      setShowDeleteConfirm(false);
+      showToast('Item excluído com sucesso!', 'success');
+    } catch (error: unknown) {
+      console.error('Erro ao excluir:', error);
+      showToast(getErrorMessage(error, 'Erro ao excluir item'), 'error');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [isEditing, activeTab, setIsLoading, setIsEditing, setShowDeleteConfirm, showToast]);
 
   const handleToggleActive = useCallback(
-    async (id: string, currentActive: boolean) => {
-      setIsLoading(true);
+    async (itemId: string, currentActiveState: boolean) => {
+      const coll = activeTab === 'items' ? 'items' : 'events';
       try {
-        if (activeTab === 'items') {
-          await updatePartnerContentItemUseCase(id, { isActive: !currentActive });
+        if (coll === 'items') {
+          await updatePartnerContentItemUseCase(itemId, {
+            isActive: !currentActiveState,
+          });
         } else {
-          await updatePartnerContentEventUseCase(id, { isActive: !currentActive });
+          await updatePartnerContentEventUseCase(itemId, {
+            isActive: !currentActiveState,
+          });
         }
-        showToast('Status atualizado.', 'success');
+        showToast(`Item ${!currentActiveState ? 'ativado' : 'desativado'} com sucesso!`, 'success');
       } catch (error: unknown) {
-        console.error('Erro ao alterar status:', error);
-        showToast(getErrorMessage(error, 'Erro ao alterar status'), 'error');
-      } finally {
-        setIsLoading(false);
+        console.error('Erro ao alternar status ativo:', error);
+        showToast(getErrorMessage(error, 'Erro ao atualizar status'), 'error');
       }
     },
-    [activeTab, setIsLoading, showToast]
+    [activeTab, showToast]
   );
 
   const handleSaveEvent = useCallback(

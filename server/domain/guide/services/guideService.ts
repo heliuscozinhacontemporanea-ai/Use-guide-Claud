@@ -1,16 +1,9 @@
 import { GuideDomainError } from '../errors/guideDomainError';
 import { GuidePort, GuideVerificationUpdate } from '../ports/guidePort';
 import { AuthenticatedUserContext } from '../../../application/security/authenticatedUserContext';
-import {
-  GuideCreateItemInput,
-  GuideUpdateItemInput,
-} from '../types/guideTypes';
+import { GuideCreateItemInput, GuideUpdateItemInput } from '../types/guideTypes';
 
-const ADMIN_CREATABLE_ITEM_CATEGORIES = [
-  'sight',
-  'tour',
-  'tips',
-] as const;
+const ADMIN_CREATABLE_ITEM_CATEGORIES = ['sight', 'tour', 'tips'] as const;
 
 const PARTNER_CREATABLE_ITEM_CATEGORIES = [
   'sight',
@@ -49,11 +42,7 @@ function ensureCreateItemCategory(
     return;
   }
   if (user.role === 'partner') {
-    if (
-      !PARTNER_CREATABLE_ITEM_CATEGORIES.includes(
-        category as never
-      )
-    ) {
+    if (!PARTNER_CREATABLE_ITEM_CATEGORIES.includes(category as never)) {
       throw new GuideDomainError(
         'FORBIDDEN',
         'Parceiros não podem criar esta categoria de conteúdo'
@@ -61,10 +50,7 @@ function ensureCreateItemCategory(
     }
     return;
   }
-  throw new GuideDomainError(
-    'FORBIDDEN',
-    'Usuário sem permissão para criar conteúdo'
-  );
+  throw new GuideDomainError('FORBIDDEN', 'Usuário sem permissão para criar conteúdo');
 }
 
 function ensureValidId(id: string): void {
@@ -124,14 +110,14 @@ export class GuideService {
     await this.guidePort.deleteItem(id);
   }
 
-  async updateOwnerVerification(
-    ownerId: string,
+  async updateItemVerification(
+    itemId: string,
     verification: GuideVerificationUpdate
   ): Promise<void> {
-    if (!ownerId.trim()) {
-      throw new GuideDomainError('INVALID_ID', 'ID do proprietário é obrigatório');
+    if (!itemId.trim()) {
+      throw new GuideDomainError('INVALID_ID', 'ID do item é obrigatório');
     }
-    await this.guidePort.updateVerificationByOwner(ownerId, verification);
+    await this.guidePort.updateItemVerification(itemId, verification);
   }
 
   async updateReviewAggregate(

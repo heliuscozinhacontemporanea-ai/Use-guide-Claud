@@ -1,143 +1,179 @@
 import { useState, useEffect } from 'react';
 import { subscribeToPartnerProfileUseCase } from '../application/usecases/subscribeToPartnerProfileUseCase';
-import { subscribeToAuthStateUseCase, UserRole, type UserSession } from '../../auth';
+import { subscribeToAuthStateUseCase, type UserSession } from '../../auth';
 import { getCurrentUserUseCase } from '../../user';
-import { PartnerProfile, PublicPartnerProfile } from '../types/partner';
+import { PartnerProfile } from '../types/partner';
 
-export type PartnerProfileStatus = 'loading' | 'ready' | 'missing' | 'unauthenticated';
+enum OperationType {
+  CREATE = 'create',
+  UPDATE = 'update',
+  DELETE = 'delete',
+  LIST = 'list',
+  GET = 'get',
+  WRITE = 'write',
+}
+
+interface FirestoreErrorInfo {
+  error: string;
+  operationType: OperationType;
+  path: string | null;
+  authInfo: {
+    userId?: string | null | undefined;
+    email?: string | null | undefined;
+    emailVerified?: boolean | null | undefined;
+    isAnonymous?: boolean | null | undefined;
+  };
+}
+
+function handleFirestoreError(
+  error: unknown,
+  operationType: OperationType,
+  path: string | null,
+  currentUser?: Pick<UserSession, 'uid'> | null
+): void {
+  const errInfo: FirestoreErrorInfo = {
+    error: error instanceof Error ? error.message : String(error),
+    authInfo: {
+      userId: currentUser?.uid,
+    },
+    operationType,
+    path,
+  };
+
+  console.error('Firestore Error [Domain Profile]:', JSON.stringify(errInfo));
+}
 
 export function usePartnerProfile(loadedProfile?: PartnerProfile) {
   const [user, setUser] = useState<UserSession | null>(null);
   const [userLoading, setUserLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = subscribeToAuthStateUseCase(async (currentUser) => {
-      if (!currentUser) {
-        setUser(null);
-        setUserLoading(false);
-        return;
-      }
-
-      try {
-        const userDoc = await getCurrentUserUseCase();
-        const role =
-          currentUser.role === UserRole.ADMIN
-            ? UserRole.ADMIN
-            : userDoc?.role === 'partner'
-              ? UserRole.PARTNER
-              : currentUser.role || UserRole.USER;
-        setUser({ ...currentUser, role });
-      } catch (err) {
-        console.error('Erro ao buscar role:', err);
-        setUser({ ...currentUser, role: currentUser.role || UserRole.USER });
-      } finally {
-        setUserLoading(false);
-      }
+    const unsubscribe = subscribeToAuthStateUseCase((session) => {
+      setUser(session);
+      setUserLoading(false);
     });
+
     return () => unsubscribe();
   }, []);
 
+  const [userProfileData, setUserProfileData] =
+    useState<Awaited<ReturnType<typeof getCurrentUserUseCase>>>(null);
+
+  const userId = user?.uid;
+  useEffect(() => {
+    if (userLoading || !userId) {
+      setUserProfileData(null);
+      return;
+    }
+
+    let active = true;
+
+    getCurrentUserUseCase()
+      .then((profile) => {
+        if (active) {
+          setUserProfileData(profile);
+        }
+      })
+      .catch((error) => {
+        if (active) {
+          console.error('[usePartnerProfile] Erro ao carregar perfil do usuário:', error);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [userId, userLoading]);
+
   const [partnerProfile, setPartnerProfile] = useState<PartnerProfile | null>(
-    loadedProfile ?? null
+    loadedProfile || null
   );
-  const [profileStatus, setProfileStatus] = useState<PartnerProfileStatus>(
-    loadedProfile ? 'ready' : 'loading'
-  );
-  const [profileError, setProfileError] = useState<string | null>(null);
 
   const [isLoading, setIsLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-
-  const userId = user?.uid ?? null;
-  const userRole = user?.role ?? null;
+  const [profileError, setProfileError] = useState<string | null>(null);
+  const [profileStatus, setProfileStatus] = useState<'loading' | 'ready' | 'empty'>('loading');
 
   useEffect(() => {
-    if (userLoading) {
+    if (userLoading || !user) {
       return;
     }
 
-    if (!userId) {
-      setPartnerProfile(null);
-      setProfileError(null);
-      setProfileStatus('unauthenticated');
-      return;
-    }
+    const targetPartnerId = user.uid;
+    setProfileStatus('loading');
+    setProfileError(null);
 
-    if (userRole === UserRole.ADMIN && !loadedProfile) {
-      setProfileError(null);
-      setPartnerProfile({
-        id: userId,
-        businessName: 'Admin',
-        businessId: 'admin-virtual',
-        businesses: [],
-        isVerified: true,
-        verifiedUntil: null,
-        verificationType: 'admin',
-        isVerificationSuspended: false,
-        hasUsedTrial: false,
-        status: 'active',
-      });
-      setProfileStatus('ready');
-      return;
-    }
+    const path = `publicPartners/${targetPartnerId}`;
 
-    if (loadedProfile) {
-      setPartnerProfile(loadedProfile);
-      setProfileStatus('ready');
-    } else {
-      setProfileStatus('loading');
-    }
+    const unsubscribe = subscribeToPartnerProfileUseCase(
+      targetPartnerId,
+      (publicPartner) => {
+        if (!publicPartner) {
+          if (loadedProfile) {
+            setPartnerProfile(loadedProfile);
+            setProfileStatus('ready');
+            return;
+          }
 
-    const unsub = subscribeToPartnerProfileUseCase(
-      userId,
-      (publicProfile: PublicPartnerProfile | null) => {
-        setProfileError(null);
-        if (publicProfile) {
-          const primaryBusiness = publicProfile.businesses?.[0];
-          setPartnerProfile((prev) => {
-            const base = prev ?? loadedProfile;
-            return {
-              id: publicProfile.id,
-              businessName: primaryBusiness?.businessName ?? base?.businessName ?? '',
-              businessId: primaryBusiness?.businessId ?? base?.businessId ?? '',
-              businesses: publicProfile.businesses,
-              region: base?.region,
-              verificationType: base?.verificationType ?? null,
-              hasUsedTrial: base?.hasUsedTrial ?? false,
-              isVerified: publicProfile.isVerified,
-              verifiedUntil: publicProfile.verifiedUntil,
-              isVerificationSuspended: publicProfile.isVerificationSuspended,
-              status: publicProfile.status,
-            };
-          });
-          setProfileStatus('ready');
-        } else if (loadedProfile) {
-          setPartnerProfile(loadedProfile);
-          setProfileStatus('ready');
-        } else {
           setPartnerProfile(null);
-          setProfileStatus('missing');
+          setProfileStatus('empty');
+          return;
         }
+
+        const businesses = publicPartner.businesses ?? loadedProfile?.businesses ?? [];
+        const firstBusiness = businesses[0];
+
+        const partnerProfileData: PartnerProfile = {
+          ...(loadedProfile ?? {}),
+          id: targetPartnerId,
+          businessId: firstBusiness?.businessId ?? loadedProfile?.businessId ?? null,
+          businessName: firstBusiness?.businessName ?? loadedProfile?.businessName ?? '',
+          businesses,
+          firstName: userProfileData?.firstName ?? loadedProfile?.firstName ?? '',
+          lastName: userProfileData?.lastName ?? loadedProfile?.lastName ?? '',
+          email: userProfileData?.email ?? loadedProfile?.email ?? '',
+          phone: userProfileData?.phone ?? loadedProfile?.phone,
+          phoneDdi: loadedProfile?.phoneDdi,
+          instagram: loadedProfile?.instagram,
+          website: loadedProfile?.website,
+          bookingLinks: loadedProfile?.bookingLinks,
+          googleMaps: loadedProfile?.googleMaps,
+          address: loadedProfile?.address,
+          region: loadedProfile?.region,
+          images: loadedProfile?.images,
+          isVerified: publicPartner.isVerified,
+          verifiedUntil: publicPartner.verifiedUntil,
+          verificationType: loadedProfile?.verificationType ?? null,
+          isVerificationSuspended: publicPartner.isVerificationSuspended,
+          hasUsedTrial: loadedProfile?.hasUsedTrial ?? false,
+          status: publicPartner.status,
+        };
+
+        setPartnerProfile(partnerProfileData);
+        setProfileStatus('ready');
       },
       (error) => {
-        console.error('Firestore Error (partnerProfile):', error);
+        handleFirestoreError(error, OperationType.GET, path, user);
         setProfileError('Não foi possível carregar os dados do parceiro agora.');
+
         if (loadedProfile) {
           setPartnerProfile(loadedProfile);
           setProfileStatus('ready');
-        } else {
-          setProfileStatus('missing');
+          return;
         }
+
+        setPartnerProfile(null);
+        setProfileStatus('empty');
       }
     );
 
-    return () => unsub();
-  }, [userLoading, userId, userRole, loadedProfile]);
+    return () => unsubscribe();
+  }, [user, userLoading, loadedProfile, userProfileData]);
 
-  const isVerified = Boolean(
+  const isVerified = !!(
     partnerProfile?.isVerified &&
-      !partnerProfile?.isVerificationSuspended &&
-      (!partnerProfile?.verifiedUntil || new Date(partnerProfile.verifiedUntil) > new Date())
+    !partnerProfile?.isVerificationSuspended &&
+    (!partnerProfile?.verifiedUntil || new Date(partnerProfile.verifiedUntil) > new Date())
   );
 
   return {
@@ -146,11 +182,11 @@ export function usePartnerProfile(loadedProfile?: PartnerProfile) {
     partnerProfile,
     setPartnerProfile,
     profileStatus,
-    profileError,
     isLoading,
     setIsLoading,
     isUploading,
     setIsUploading,
+    profileError,
     isVerified,
   };
 }

@@ -2,13 +2,17 @@ import type { Response } from 'express';
 import { startPartnerPlanSubscriptionApplicationUseCase } from '../../../application/usecases/startPartnerPlanSubscriptionApplicationUseCase';
 import {
   createBillingPortalSessionUseCase,
-  getPartnerPlanSubscriptionUseCase,
+  getListingPlanSubscriptionUseCase,
   PaymentDomainError,
   type PlanSubscriptionRecord,
   setPlanSubscriptionCancelAtPeriodEndUseCase,
 } from '../../../domain/payment';
 import type { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
-import { BillingPortalSchema, StartPlanSubscriptionSchema } from './schemas/billingSchemas';
+import {
+  BillingPortalSchema,
+  ListingSubscriptionSchema,
+  StartPlanSubscriptionSchema,
+} from './schemas/billingSchemas';
 
 function sendError(res: Response, status: number, code: string, message: string): Response {
   return res.status(status).json({ error: { code, message } });
@@ -28,6 +32,7 @@ function handleError(res: Response, operation: string, error: unknown): Response
 function toPublicSubscription(record: PlanSubscriptionRecord | null) {
   if (!record) return null;
   return {
+    itemId: record.itemId,
     planId: record.planId,
     status: record.status,
     currentPeriodEnd: record.currentPeriodEnd,
@@ -59,8 +64,12 @@ export class BillingController {
     if (!req.user?.uid) {
       return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
     }
+    const parsed = ListingSubscriptionSchema.safeParse(req.query);
+    if (!parsed.success) {
+      return sendError(res, 400, 'VALIDATION_ERROR', 'Estabelecimento inválido.');
+    }
     try {
-      const record = await getPartnerPlanSubscriptionUseCase(req.user.uid);
+      const record = await getListingPlanSubscriptionUseCase(parsed.data.itemId, req.user.uid);
       return res.status(200).json({ subscription: toPublicSubscription(record) });
     } catch (error: unknown) {
       return handleError(res, 'getSubscription', error);
@@ -107,8 +116,16 @@ export class BillingController {
     if (!req.user?.uid) {
       return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
     }
+    const parsed = ListingSubscriptionSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return sendError(res, 400, 'VALIDATION_ERROR', 'Estabelecimento inválido.');
+    }
     try {
-      const record = await setPlanSubscriptionCancelAtPeriodEndUseCase(req.user.uid, cancel);
+      const record = await setPlanSubscriptionCancelAtPeriodEndUseCase(
+        parsed.data.itemId,
+        req.user.uid,
+        cancel
+      );
       return res.status(200).json({ subscription: toPublicSubscription(record) });
     } catch (error: unknown) {
       return handleError(res, 'setCancelAtPeriodEnd', error);

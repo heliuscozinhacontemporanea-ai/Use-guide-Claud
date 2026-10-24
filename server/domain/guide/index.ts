@@ -1,4 +1,9 @@
 export type { GuideVerificationUpdate } from './ports/guidePort';
+export {
+  FEATURED_LISTS,
+  type FeaturedList,
+  type FeaturedListingsProjection,
+} from './types/featuredListing';
 export type {
   GuideCatalogFields,
   GuideCreateItemInput,
@@ -20,6 +25,8 @@ export {
 export { getPublicGuideItemUseCase } from './usecases/getPublicGuideItemUseCase';
 export { getResourceOwnerIdUseCase } from './usecases/getResourceOwnerIdUseCase';
 export { listPublicGuideItemsUseCase } from './usecases/listPublicGuideItemsUseCase';
+export { saveFeaturedListingsUseCase } from './usecases/saveFeaturedListingsUseCase';
 export { updateGuideItemUseCase } from './usecases/updateGuideItemUseCase';
-export { updateOwnerVerificationUseCase } from './usecases/updateOwnerVerificationUseCase';
+export { updateItemVerificationUseCase } from './usecases/updateItemVerificationUseCase';
 export { updateReviewAggregateUseCase } from './usecases/updateReviewAggregateUseCase';
+export { featuredRotationDay, pickFeaturedListingIds } from './utils/featuredRotation';

@@ -1,11 +1,7 @@
 import { FieldValue } from 'firebase-admin/firestore';
 import { adminDb } from '../../../infrastructure/firebase/adminClient';
 import { GuidePort, GuideVerificationUpdate } from '../ports/guidePort';
-import {
-  GuideCreateItemInput,
-  GuideItemRecord,
-  GuideUpdateItemInput,
-} from '../types/guideTypes';
+import { GuideCreateItemInput, GuideItemRecord, GuideUpdateItemInput } from '../types/guideTypes';
 
 export class FirestoreGuideAdapter implements GuidePort {
   async createItem(
@@ -57,19 +53,13 @@ export class FirestoreGuideAdapter implements GuidePort {
     await adminDb.collection('items').doc(id).delete();
   }
 
-  async updateVerificationByOwner(
-    ownerId: string,
+  async updateItemVerification(
+    itemId: string,
     verification: GuideVerificationUpdate
   ): Promise<void> {
-    const itemsSnapshot = await adminDb.collection('items').where('ownerId', '==', ownerId).get();
-    if (itemsSnapshot.empty) {
-      return;
-    }
-    const batch = adminDb.batch();
-    itemsSnapshot.forEach((document) => {
-      batch.update(document.ref, verification);
-    });
-    await batch.commit();
+    const ref = adminDb.collection('items').doc(itemId);
+    const snapshot = await ref.get();
+    if (snapshot.exists) await ref.update({ ...verification });
   }
 
   async updateReviewAggregate(
