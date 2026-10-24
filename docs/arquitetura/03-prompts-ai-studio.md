@@ -165,6 +165,14 @@
 
 > **Envie um prompt por mensagem**, nesta ordem. Até o 18.3.1 (telas), trial, compra de plano e selo do admin pelo painel ficam fora do ar, e as métricas de estabelecimento sem plano mostram erro.
 
+# Lote 16 (Prompt A5) — aplicar sobre o zip de 2026-10-24 (2º)
+
+| Ordem | Arquivo | Tema | Commit de referência |
+|---|---|---|---|
+| 1 | `prompts/prompt-A5.md` | AGENTS.md §11.1 e nova §11.11: tema claro sem branco puro e experiência de app nativo (S14) | `d09bbaf` |
+
+> O lote 15 voltou igual à referência (todo o código, byte a byte); nenhuma correção pendente.
+
 # Lote 15 (Prompts 18.3b.1, 18.3b.2, 18.3.1a, 18.3.1b e 18.3.1c) — aplicar sobre o zip de 2026-10-24
 
 | Ordem | Arquivo | Tema | Commit de referência |

@@ -37,7 +37,7 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 * **No AI Studio, os testes rodam com `npx vitest related --run <arquivos do prompt>`** (decisão de 2026-10-24), com a lista exata gerada pelo gerador de prompts, em vez da suíte inteira. Typecheck, lint e build continuam no projeto todo. A suíte completa roda aqui, na referência antes de gerar o prompt e no zip quando ele volta.
 * **Todo prompt termina pedindo a limpeza de `public/assets/aistudio/`** (regra de 2026-10-22). O AI Studio salva ali, como anexo, o texto longo colado no chat (`Paste_<data>_<hash>`), e `public/` vai para o site publicado. Ao conferir um zip, arquivo nessa pasta não conta como divergência; ele só é apagado.
 * **Arquivo tocado sai sem avisos do lint e formatado** (regra de 2026-10-19; proposta S10 para o AGENTS.md).
-* **Tela tocada sai nos dois temas e com cara de app nativo** (regra de 2026-10-24; S14 aprovada, entra no AGENTS.md com a correção do lote 15): cores pelos tokens `--ug-*`; o claro nunca é branco puro (fundo `#f3eee4`, superfícies `#faf6ee`); modal vira folha inferior no celular; botões com `press`; um só efeito de toque por elemento (sem somar `press` a `whileTap`, `whileHover` ou `active:scale`); animações respeitam `prefers-reduced-motion`. A conferência inclui prints no claro e no escuro.
+* **Tela tocada sai nos dois temas e com cara de app nativo** (regra de 2026-10-24; AGENTS.md §11.1 e §11.11, S14 aplicada pelo prompt A5): cores pelos tokens `--ug-*`; o claro nunca é branco puro (fundo `#f3eee4`, superfícies `#faf6ee`); modal vira folha inferior no celular; botões com `press`; um só efeito de toque por elemento (sem somar `press` a `whileTap`, `whileHover` ou `active:scale`); animações respeitam `prefers-reduced-motion`. A conferência inclui prints no claro e no escuro.
 
 ## Acompanhamento dos prompts
 
@@ -89,11 +89,12 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 | 18.3a | Plano e selo por estabelecimento, backend (D11) | `bd14c0f` | ✅ zip 2026-10-24 | ✅ igual à referência |
 | 18.3b | Cobrança do plano por estabelecimento (D11) | `cd31a44` | ⚠️ zip 2026-10-24 | ⚠️ funciona, mas 17 arquivos reescritos (nomes, comentários do porquê removidos, 5 arquivos fora do formato) → 18.3b.1 |
 | 18.3c | Métricas com plano e destaque em rodízio (D11) | `f5b42a0` | ✅ zip 2026-10-24 | ✅ igual à referência |
-| 18.3b.1 | Correção do 18.3b | `0fec4b9..faba4ec` | ⏳ enviado, aguardando zip (lote 15) | — |
-| 18.3b.2 | Troca de período na próxima renovação, backend (D13) | `e261e1d` | ⏳ enviar (lote 15) | — |
-| 18.3.1a | Plano e selo por estabelecimento no painel do parceiro (D11, D13) | `4f3fddb` + `cf21b31` | ⏳ enviar (lote 15) | — |
-| 18.3.1b | Selo do admin por estabelecimento, explicação do selo e "Destaque" (D11) | `37fe44f` + `55d0cc1` | ⏳ enviar (lote 15) | — |
-| 18.3.1c | Telas tocadas nos temas claro e escuro, com toque e transições de app nativo | `52392fe` | ⏳ enviar (lote 15) | — |
+| 18.3b.1 | Correção do 18.3b | `0fec4b9..faba4ec` | ✅ zip 2026-10-24 (2º) | ✅ igual à referência |
+| 18.3b.2 | Troca de período na próxima renovação, backend (D13) | `e261e1d` | ✅ zip 2026-10-24 (2º) | ✅ igual à referência |
+| 18.3.1a | Plano e selo por estabelecimento no painel do parceiro (D11, D13) | `4f3fddb` + `cf21b31` | ✅ zip 2026-10-24 (2º) | ✅ igual à referência |
+| 18.3.1b | Selo do admin por estabelecimento, explicação do selo e "Destaque" (D11) | `37fe44f` + `55d0cc1` | ✅ zip 2026-10-24 (2º) | ✅ igual à referência |
+| 18.3.1c | Telas tocadas nos temas claro e escuro, com toque e transições de app nativo | `52392fe` | ✅ zip 2026-10-24 (2º) | ✅ igual à referência |
+| A5 | AGENTS.md §11.1 e §11.11: tema claro sem branco puro e app nativo (S14) | `d09bbaf` | ⏳ enviar (lote 16) | — |
 
 ## Gates
 
