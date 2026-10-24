@@ -169,7 +169,7 @@
 
 | Ordem | Arquivo | Tema | Commit de referência |
 |---|---|---|---|
-| 1 | `prompts/prompt-A5.md` | AGENTS.md §11.1 e nova §11.11: tema claro sem branco puro e experiência de app nativo (S14) | `d09bbaf` |
+| 1 | `prompts/prompt-A5.md` | AGENTS.md §11.1 e nova §11.11 (S14) + §8.1, §8.2, §8.3 e §8.7 (S15: repasse por documento, retenção até o serviço, taxas e cancelamentos) | `52392fe..5573f13` |
 
 > O lote 15 voltou igual à referência (todo o código, byte a byte); nenhuma correção pendente.
 

@@ -94,7 +94,7 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 | 18.3.1a | Plano e selo por estabelecimento no painel do parceiro (D11, D13) | `4f3fddb` + `cf21b31` | ✅ zip 2026-10-24 (2º) | ✅ igual à referência |
 | 18.3.1b | Selo do admin por estabelecimento, explicação do selo e "Destaque" (D11) | `37fe44f` + `55d0cc1` | ✅ zip 2026-10-24 (2º) | ✅ igual à referência |
 | 18.3.1c | Telas tocadas nos temas claro e escuro, com toque e transições de app nativo | `52392fe` | ✅ zip 2026-10-24 (2º) | ✅ igual à referência |
-| A5 | AGENTS.md §11.1 e §11.11: tema claro sem branco puro e app nativo (S14) | `d09bbaf` | ⏳ enviar (lote 16) | — |
+| A5 | AGENTS.md §11.1 e §11.11 (S14: tema claro e app nativo) + §8.1, §8.2, §8.3 e §8.7 (S15: repasse por documento e retenção até o serviço) | `52392fe..5573f13` | ⏳ enviar (lote 16) | — |
 
 ## Gates
 
