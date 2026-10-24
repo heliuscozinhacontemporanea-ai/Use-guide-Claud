@@ -34,6 +34,7 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 * **AGENTS.md não é alterado** por nenhum prompt nem pelo Claude sem sua autorização (agora também escrito no §15). Propostas ficam em `docs/arquitetura/solicitacoes-agents.md`.
 * **Sem código legado ou de transição** enquanto o app não for liberado para usuários.
 * **Prompt para o AI Studio tem no máximo 150 KB** (regra de 2026-10-19). Acima disso, é dividido em partes que compilam sozinhas, e cada parte é enviada numa mensagem separada.
+* **No AI Studio, os testes rodam com `npx vitest related --run <arquivos do prompt>`** (decisão de 2026-10-24), com a lista exata gerada pelo gerador de prompts, em vez da suíte inteira. Typecheck, lint e build continuam no projeto todo. A suíte completa roda aqui, na referência antes de gerar o prompt e no zip quando ele volta.
 * **Todo prompt termina pedindo a limpeza de `public/assets/aistudio/`** (regra de 2026-10-22). O AI Studio salva ali, como anexo, o texto longo colado no chat (`Paste_<data>_<hash>`), e `public/` vai para o site publicado. Ao conferir um zip, arquivo nessa pasta não conta como divergência; ele só é apagado.
 * **Arquivo tocado sai sem avisos do lint e formatado** (regra de 2026-10-19; proposta S10 para o AGENTS.md).
 
@@ -87,7 +88,7 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 | 18.3a | Plano e selo por estabelecimento, backend (D11) | `bd14c0f` | ✅ zip 2026-10-24 | ✅ igual à referência |
 | 18.3b | Cobrança do plano por estabelecimento (D11) | `cd31a44` | ⚠️ zip 2026-10-24 | ⚠️ funciona, mas 17 arquivos reescritos (nomes, comentários do porquê removidos, 5 arquivos fora do formato) → 18.3b.1 |
 | 18.3c | Métricas com plano e destaque em rodízio (D11) | `f5b42a0` | ✅ zip 2026-10-24 | ✅ igual à referência |
-| 18.3b.1 | Correção do 18.3b | `0fec4b9..faba4ec` | ⏳ enviado (lote 15) | — |
+| 18.3b.1 | Correção do 18.3b | `0fec4b9..faba4ec` | ⏳ enviado, aguardando zip (lote 15) | — |
 | 18.3b.2 | Troca de período na próxima renovação, backend (D13) | `e261e1d` | ⏳ enviar (lote 15) | — |
 | 18.3.1a | Plano e selo por estabelecimento no painel do parceiro (D11, D13) | `4f3fddb` + `cf21b31` | ⏳ enviar (lote 15) | — |
 

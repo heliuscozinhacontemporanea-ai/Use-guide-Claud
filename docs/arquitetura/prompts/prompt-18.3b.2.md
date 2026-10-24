@@ -908,7 +908,8 @@ export async function schedulePlanSubscriptionChangeUseCase(
  export const ListingSubscriptionSchema = z.object({ itemId: ITEM_ID }).strict();
 
 VERIFICAÇÃO (obrigatória):
-- `npm run typecheck`, `npx biome lint .` (0 erros; arquivos tocados sem avisos), `npm test` → 178 arquivos, 947 testes, `npm run build`.
+- `npm run typecheck`, `npx biome lint .` (0 erros; arquivos tocados sem avisos), `npm run build`;
+- testes ligados aos arquivos deste prompt: `npx vitest related --run server/application/usecases/changePartnerPlanSubscriptionApplicationUseCase.test.ts server/application/usecases/changePartnerPlanSubscriptionApplicationUseCase.ts server/application/usecases/paidPlanForBilling.ts server/application/usecases/reconcilePlanSubscriptionWebhookApplicationUseCase.test.ts server/application/usecases/startPartnerPlanSubscriptionApplicationUseCase.ts server/domain/payment/adapters/firestorePlanSubscriptionAdapter.ts server/domain/payment/adapters/stripeBillingGatewayAdapter.ts server/domain/payment/index.ts server/domain/payment/ports/billingGatewayPort.ts server/domain/payment/ports/planSubscriptionRepositoryPort.ts server/domain/payment/services/billingService.test.ts server/domain/payment/services/billingService.ts server/domain/payment/usecases/billing/schedulePlanSubscriptionChangeUseCase.ts server/interfaces/http/billing/billingController.test.ts server/interfaces/http/billing/billingController.ts server/interfaces/http/billing/billingRoutes.ts server/interfaces/http/billing/schemas/billingSchemas.ts` (todos verdes). Não precisa rodar a suíte inteira.
 
 STRIPE: nada a configurar. O evento customer.subscription.updated já é assinado e registra a troca no início do novo período.
 
