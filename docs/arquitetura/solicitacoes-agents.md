@@ -4,7 +4,7 @@
 > Resposta de 2026-10-10: aprovadas S1, S2, S3, S4, S5, S7 e S8 (aplicadas pelo prompt A1). S6 não aprovada.
 > Resposta de 2026-10-12: aprovada S9 (aplicada pelo prompt A2).
 > Resposta de 2026-10-19: aprovadas S10, S11 e S12 (as três no prompt A3).
-> Resposta de 2026-10-24: aprovada S14; será aplicada junto com as correções que a conferência do zip do lote 15 apontar.
+> Resposta de 2026-10-24: aprovada S14 (aplicada pelo prompt A5).
 
 | # | Seção | Motivo | Status |
 |---|---|---|---|
@@ -21,7 +21,7 @@
 | S11 | §12.6 | Decisão D5 aprovada: Google Cloud Translation, sem tradução à mão, edição no idioma escolhido | ✅ Aprovada em 2026-10-19 (prompt A3) |
 | S12 | §12.1 e §12.7 | Decisão D10: idioma do navegador na primeira visita, persistência só por escolha explícita | ✅ Aprovada em 2026-10-19 (prompt A3) |
 | S13 | §7.7 | O débito de `partnerDocumentKeys` foi resolvido no Prompt 18.3.0b | ✅ Aprovada em 2026-10-19 (prompt A4) |
-| S14 | §11.1 e §11 (nova subseção) | Tema claro sem branco puro e regras de experiência de app nativo | ✅ Aprovada em 2026-10-24 (aplicar junto com a correção do lote 15, depois da conferência do zip) |
+| S14 | §11.1 e §11 (nova subseção) | Tema claro sem branco puro e regras de experiência de app nativo | ✅ Aprovada em 2026-10-24 (prompt A5) |
 
 ---
 
