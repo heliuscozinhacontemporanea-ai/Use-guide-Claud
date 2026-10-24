@@ -8,6 +8,7 @@ import { formatPlanAmount } from '../../utils/formatPlanAmount';
 import { CheckoutError, CheckoutLoading, CheckoutPending } from './CheckoutStatusNotice';
 
 interface SubscriptionPlanCheckoutProps {
+  itemId: string;
   planId: PaidPlanId;
   itemName: string;
   amountMinor: number;
@@ -16,6 +17,7 @@ interface SubscriptionPlanCheckoutProps {
 }
 
 export function SubscriptionPlanCheckout({
+  itemId,
   planId,
   itemName,
   amountMinor,
@@ -24,7 +26,7 @@ export function SubscriptionPlanCheckout({
 }: SubscriptionPlanCheckoutProps) {
   const { t, i18n } = useTranslation();
   const { status, error, checkout, start, waitForActivation, fail, reset } =
-    usePlanSubscriptionCheckout(planId);
+    usePlanSubscriptionCheckout(itemId, planId);
 
   useEffect(() => {
     if (status === 'idle') {

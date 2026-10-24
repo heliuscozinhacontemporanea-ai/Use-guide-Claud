@@ -9,7 +9,9 @@ export type PaymentStatus =
 
 export type PaidPlanId = 'monthly' | 'semi-annual' | 'annual';
 
+/** O plano é de um estabelecimento (D11): o backend confere dono e verificação pelo `itemId`. */
 export interface CreatePlanPaymentIntentPayload {
+  itemId: string;
   planId: PaidPlanId;
   idempotencyKey: string;
 }
@@ -49,6 +51,7 @@ export type PlanSubscriptionStatus =
   | 'paused';
 
 export interface PlanSubscription {
+  itemId: string;
   planId: PaidPlanId;
   status: PlanSubscriptionStatus;
   currentPeriodEnd: string | null;
@@ -56,6 +59,7 @@ export interface PlanSubscription {
 }
 
 export interface StartPlanSubscriptionPayload {
+  itemId: string;
   planId: PaidPlanId;
   locale: PaymentLocale;
   idempotencyKey: string;

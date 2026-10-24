@@ -1,4 +1,4 @@
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Lock } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -111,8 +111,23 @@ export function ReportsView({ items, events }: ReportsViewProps) {
           />
           <span className="sr-only">{t('insights.reports.loading')}</span>
         </div>
-      ) : report.error || !report.stats ? (
+      ) : report.error ? (
         <ErrorState message={t('insights.reports.loadError')} onRetry={report.reload} />
+      ) : report.statsLocked || !report.stats ? (
+        <div className="space-y-8">
+          <div className="p-6 rounded-[2rem] border border-amber-500/20 bg-amber-500/10 flex items-start gap-3">
+            <Lock size={18} className="text-amber-300 shrink-0 mt-0.5" aria-hidden="true" />
+            <div className="space-y-1">
+              <h4 className="text-sm font-bold text-white">
+                {t('insights.reports.planRequiredTitle')}
+              </h4>
+              <p className="text-xs text-amber-100 leading-relaxed">
+                {t('insights.reports.planRequired')}
+              </p>
+            </div>
+          </div>
+          <PendingReviewsPanel reviews={report.reviews} onReplied={report.markReplied} />
+        </div>
       ) : (
         <motion.div
           initial={{ opacity: 0, y: 20 }}

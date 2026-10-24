@@ -1,4 +1,3 @@
-export { activateTrialUseCase } from './application/usecases/activateTrialUseCase';
 export { createOrUpdatePartnerProfileUseCase } from './application/usecases/createOrUpdatePartnerProfileUseCase';
 export { createPartnerContentItemUseCase } from './application/usecases/createPartnerContentItemUseCase';
 export { updatePartnerContentItemUseCase } from './application/usecases/updatePartnerContentItemUseCase';

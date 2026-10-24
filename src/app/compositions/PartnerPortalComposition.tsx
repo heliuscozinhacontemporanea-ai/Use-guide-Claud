@@ -154,22 +154,24 @@ export function PartnerPortalComposition() {
         isOpen,
         onClose,
         itemId,
+        planId,
         itemName,
         amountMinor,
         onPaymentSuccess,
       }) =>
-        isPaidPlanId(itemId) ? (
+        isPaidPlanId(planId) ? (
           <CheckoutModal
             isOpen={isOpen}
             onClose={onClose}
-            planId={itemId}
+            itemId={itemId}
+            planId={planId}
             itemName={itemName}
             amountMinor={amountMinor}
             onPaymentSuccess={onPaymentSuccess}
           />
         ) : null
       }
-      planSubscriptionSlot={<PlanSubscriptionCard />}
+      renderPlanSubscription={(itemId) => <PlanSubscriptionCard itemId={itemId} />}
       renderBookableOffersManager={(items) => <PartnerBookingsComposition items={items} />}
       renderEventTicketingManager={(eventListingId) => (
         <PartnerEventTicketingManager eventListingId={eventListingId} />

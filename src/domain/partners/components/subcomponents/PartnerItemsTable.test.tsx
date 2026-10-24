@@ -10,6 +10,13 @@ vi.mock('../verification/VerificationStatusChip', () => ({
     </button>
   ),
 }));
+vi.mock('../plan/ListingPlanChip', () => ({
+  ListingPlanChip: ({ onOpen }: { onOpen: () => void }) => (
+    <button type="button" onClick={onOpen}>
+      plano
+    </button>
+  ),
+}));
 
 import { PartnerItemsTable } from './PartnerItemsTable';
 
@@ -28,6 +35,7 @@ function renderTable() {
     onEditItem: vi.fn(),
     onToggleActive: vi.fn().mockResolvedValue(undefined),
     onVerifyItem: vi.fn(),
+    onOpenPlan: vi.fn(),
   };
   render(
     <PartnerItemsTable
@@ -35,6 +43,7 @@ function renderTable() {
       loading={false}
       onCreateNew={vi.fn()}
       verificationVersion={0}
+      planVersion={0}
       {...props}
     />
   );
@@ -46,7 +55,7 @@ describe('PartnerItemsTable', () => {
     await i18n.changeLanguage('pt-BR');
   });
 
-  it('cartão sem botão dentro de botão: editar, selo e interruptor são irmãos', () => {
+  it('cartão sem botão dentro de botão: editar, selos e interruptor são irmãos', () => {
     const props = renderTable();
     const edit = screen.getByRole('button', { name: 'Editar Pousada Sol' });
     expect(edit.querySelector('button')).toBeNull();
@@ -54,6 +63,10 @@ describe('PartnerItemsTable', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'selo' }));
     expect(props.onVerifyItem).toHaveBeenCalledWith(item);
+    expect(props.onEditItem).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole('button', { name: 'plano' }));
+    expect(props.onOpenPlan).toHaveBeenCalledWith(item);
     expect(props.onEditItem).not.toHaveBeenCalled();
 
     fireEvent.click(edit);

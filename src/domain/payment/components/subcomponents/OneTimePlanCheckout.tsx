@@ -8,6 +8,7 @@ import { CheckoutError, CheckoutLoading, CheckoutPending } from './CheckoutStatu
 import { SuccessPaymentGlass } from './SuccessPaymentGlass';
 
 interface OneTimePlanCheckoutProps {
+  itemId: string;
   planId: PaidPlanId;
   itemName: string;
   amountMinor: number;
@@ -16,6 +17,7 @@ interface OneTimePlanCheckoutProps {
 }
 
 export function OneTimePlanCheckout({
+  itemId,
   planId,
   itemName,
   amountMinor,
@@ -33,7 +35,7 @@ export function OneTimePlanCheckout({
     initializePlanPayment,
     confirmPaymentOnBackend,
     resetAttempt,
-  } = usePayment({ planId, onSuccess: onPaymentSuccess });
+  } = usePayment({ itemId, planId, onSuccess: onPaymentSuccess });
 
   useEffect(() => {
     if (status === 'idle') {

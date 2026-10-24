@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import type { PartnerContentRecord } from '../../types/partnerContent';
 import { cn } from '../../../../shared/utils/cn';
 import { VerifiedBadge } from '../../../../ui/components/VerifiedBadge';
+import { ListingPlanChip } from '../plan/ListingPlanChip';
 import { VerificationStatusChip } from '../verification/VerificationStatusChip';
 
 interface PartnerItemsTableProps {
@@ -15,6 +16,9 @@ interface PartnerItemsTableProps {
   /** Muda depois de um envio de verificação, para os selos relerem o status. */
   verificationVersion: number;
   onVerifyItem: (item: PartnerContentRecord) => void;
+  /** Muda depois de ativar ou comprar um plano, para os selos de plano relerem o estado. */
+  planVersion: number;
+  onOpenPlan: (item: PartnerContentRecord) => void;
 }
 
 export function PartnerItemsTable({
@@ -25,6 +29,8 @@ export function PartnerItemsTable({
   onCreateNew,
   verificationVersion,
   onVerifyItem,
+  planVersion,
+  onOpenPlan,
 }: PartnerItemsTableProps) {
   const { t } = useTranslation();
   return (
@@ -109,12 +115,18 @@ export function PartnerItemsTable({
                   )}
                 </div>
                 {item.id && (
-                  <div className="mt-2 relative w-fit">
+                  <div className="mt-2 relative flex flex-wrap gap-2">
                     <VerificationStatusChip
                       key={`${item.id}-${verificationVersion}`}
                       itemId={item.id}
                       name={item.name}
                       onOpen={() => onVerifyItem(item)}
+                    />
+                    <ListingPlanChip
+                      key={`${item.id}-plan-${planVersion}-${verificationVersion}`}
+                      itemId={item.id}
+                      name={item.name}
+                      onOpen={() => onOpenPlan(item)}
                     />
                   </div>
                 )}

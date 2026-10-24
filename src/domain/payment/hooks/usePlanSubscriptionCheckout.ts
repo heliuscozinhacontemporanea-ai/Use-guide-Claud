@@ -18,7 +18,7 @@ export type PlanSubscriptionCheckoutStatus =
   | 'delayed'
   | 'failed';
 
-export function usePlanSubscriptionCheckout(planId: PaidPlanId) {
+export function usePlanSubscriptionCheckout(itemId: string, planId: PaidPlanId) {
   const { i18n } = useTranslation();
   const [status, setStatus] = useState<PlanSubscriptionCheckoutStatus>('idle');
   const [error, setError] = useState<string | null>(null);
@@ -40,6 +40,7 @@ export function usePlanSubscriptionCheckout(planId: PaidPlanId) {
     setError(null);
     try {
       const response = await startPlanSubscriptionUseCase({
+        itemId,
         planId,
         locale: normalizeLocale(i18n.language) ?? DEFAULT_LOCALE,
         idempotencyKey: idempotencyKeyRef.current,
@@ -50,7 +51,7 @@ export function usePlanSubscriptionCheckout(planId: PaidPlanId) {
       setError(getPaymentErrorMessage(err));
       setStatus('failed');
     }
-  }, [planId, i18n.language]);
+  }, [itemId, planId, i18n.language]);
 
   // O webhook é a fonte da verdade (AGENTS.md §8.4): consultamos o backend até ele confirmar.
   const waitForActivation = useCallback(() => {
@@ -59,7 +60,7 @@ export function usePlanSubscriptionCheckout(planId: PaidPlanId) {
     const deadline = Date.now() + POLL_TIMEOUT_MS;
     const poll = async () => {
       try {
-        const subscription = await getPlanSubscriptionUseCase();
+        const subscription = await getPlanSubscriptionUseCase(itemId);
         if (subscription?.status === 'active' || subscription?.status === 'trialing') {
           setStatus('active');
           return;
@@ -74,7 +75,7 @@ export function usePlanSubscriptionCheckout(planId: PaidPlanId) {
       pollTimerRef.current = setTimeout(poll, POLL_INTERVAL_MS);
     };
     void poll();
-  }, [stopPolling]);
+  }, [itemId, stopPolling]);
 
   const fail = useCallback((message: string) => {
     setError(message);

@@ -7,7 +7,7 @@ import { setPlanSubscriptionRenewalUseCase } from '../application/usecases/setPl
 import type { PlanSubscription } from '../types/payment';
 import { getPaymentErrorMessage } from '../utils/paymentErrorMessage';
 
-export function usePlanSubscriptionStatus() {
+export function usePlanSubscriptionStatus(itemId: string) {
   const { i18n } = useTranslation();
   const [data, setData] = useState<PlanSubscription | null>(null);
   const [loading, setLoading] = useState(true);
@@ -18,29 +18,32 @@ export function usePlanSubscriptionStatus() {
     setLoading(true);
     setError(null);
     try {
-      setData(await getPlanSubscriptionUseCase());
+      setData(await getPlanSubscriptionUseCase(itemId));
     } catch (err: unknown) {
       setError(getPaymentErrorMessage(err));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [itemId]);
 
   useEffect(() => {
     void reload();
   }, [reload]);
 
-  const setRenewal = useCallback(async (renew: boolean) => {
-    setActing(true);
-    setError(null);
-    try {
-      setData(await setPlanSubscriptionRenewalUseCase(renew));
-    } catch (err: unknown) {
-      setError(getPaymentErrorMessage(err));
-    } finally {
-      setActing(false);
-    }
-  }, []);
+  const setRenewal = useCallback(
+    async (renew: boolean) => {
+      setActing(true);
+      setError(null);
+      try {
+        setData(await setPlanSubscriptionRenewalUseCase(itemId, renew));
+      } catch (err: unknown) {
+        setError(getPaymentErrorMessage(err));
+      } finally {
+        setActing(false);
+      }
+    },
+    [itemId]
+  );
 
   const openPortal = useCallback(async () => {
     setActing(true);

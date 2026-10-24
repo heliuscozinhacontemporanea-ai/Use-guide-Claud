@@ -1,17 +1,12 @@
-import { Layers, Calendar, BarChart3, Clock } from 'lucide-react';
+import { Layers, Calendar, BarChart3 } from 'lucide-react';
 import { cn } from '../../../../shared/utils/cn';
 
 interface PartnerTabsNavigationProps {
   activeTab: 'items' | 'events' | 'reports';
   setActiveTab: (tab: 'items' | 'events' | 'reports') => void;
-  isVerified: boolean;
 }
 
-export function PartnerTabsNavigation({
-  activeTab,
-  setActiveTab,
-  isVerified,
-}: PartnerTabsNavigationProps) {
+export function PartnerTabsNavigation({ activeTab, setActiveTab }: PartnerTabsNavigationProps) {
   return (
     <div className="grid grid-cols-3 gap-3">
       <button
@@ -27,7 +22,6 @@ export function PartnerTabsNavigation({
         <Layers size={14} /> Meus Itens
       </button>
 
-      {/* Aba de Agenda de Eventos */}
       <button
         type="button"
         onClick={() => setActiveTab('events')}
@@ -41,7 +35,6 @@ export function PartnerTabsNavigation({
         <Calendar size={14} /> Meus Eventos
       </button>
 
-      {/* Aba de Relatórios de Acessos de Usuários com Cadeado Visual Reativo */}
       <button
         type="button"
         onClick={() => setActiveTab('reports')}
@@ -52,12 +45,6 @@ export function PartnerTabsNavigation({
             : 'glassmorphism text-white/50 hover:bg-white/5 bg-white/3'
         )}
       >
-        {/* Caso o parceiro não seja verificado, colocamos uma sobreposição visual protetora que permite cliques com pointer-events-none */}
-        {!isVerified && (
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-10 pointer-events-none">
-            <Clock size={12} className="text-white/60 animate-pulse" />
-          </div>
-        )}
         <BarChart3 size={14} /> Relatórios
       </button>
 

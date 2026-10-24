@@ -39,7 +39,9 @@ export class InsightsAdapter implements InsightsPort {
       { requireAuth: true }
     );
     if (!res.ok) {
-      throw new Error(`INSIGHTS_STATS_${res.status}`);
+      // Lança o `code` estável (AGENTS.md §10.2): LISTING_PLAN_REQUIRED vira o aviso de plano (D11).
+      const body = await res.json().catch(() => ({}));
+      throw new Error(typeof body?.error?.code === 'string' ? body.error.code : 'INTERNAL_ERROR');
     }
     const json = (await res.json()) as { data: ItemStats };
     return json.data;

@@ -13,6 +13,8 @@ import { SubscriptionPlanCheckout } from './subcomponents/SubscriptionPlanChecko
 interface CheckoutModalProps {
   isOpen: boolean;
   onClose: () => void;
+  /** Estabelecimento que recebe o plano (D11). */
+  itemId: string;
   planId: PaidPlanId;
   itemName: string;
   /** Valor do plano em centavos. */
@@ -23,6 +25,7 @@ interface CheckoutModalProps {
 export function CheckoutModal({
   isOpen,
   onClose,
+  itemId,
   planId,
   itemName,
   amountMinor,
@@ -97,6 +100,7 @@ export function CheckoutModal({
 
             {confirmedMethod === 'subscription' && (
               <SubscriptionPlanCheckout
+                itemId={itemId}
                 planId={planId}
                 itemName={itemName}
                 amountMinor={amountMinor}
@@ -107,6 +111,7 @@ export function CheckoutModal({
 
             {confirmedMethod === 'one_time' && (
               <OneTimePlanCheckout
+                itemId={itemId}
                 planId={planId}
                 itemName={itemName}
                 amountMinor={amountMinor}

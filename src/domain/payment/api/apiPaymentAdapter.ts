@@ -16,7 +16,9 @@ const API_OPTIONS = { requireAuth: true, requireAppCheck: true } as const;
 async function readJsonOrThrow<T>(response: Response): Promise<T> {
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
-    throw new Error(typeof data?.error?.code === 'string' ? data.error.code : 'BILLING_UNAVAILABLE');
+    throw new Error(
+      typeof data?.error?.code === 'string' ? data.error.code : 'BILLING_UNAVAILABLE'
+    );
   }
   return data as T;
 }
@@ -44,14 +46,13 @@ export class ApiPaymentAdapter implements PaymentApiPort {
     );
     const data = await response.json().catch(() => ({}));
     if (!response.ok) {
-      throw new Error(data.error?.message ?? data.error ?? 'Erro ao iniciar pagamento do plano.');
+      // A rota de Pix devolve o code no topo do corpo; sem code, cai no erro genérico traduzido.
+      throw new Error(typeof data?.code === 'string' ? data.code : 'BILLING_UNAVAILABLE');
     }
     return data;
   }
 
-  async confirmPlanPaymentReturn(params: {
-    paymentIntentId: string;
-  }): Promise<{ status: string }> {
+  async confirmPlanPaymentReturn(params: { paymentIntentId: string }): Promise<{ status: string }> {
     const response = await firebaseApiFetch(
       '/api/payment/plans/intents/confirm',
       {
@@ -63,7 +64,9 @@ export class ApiPaymentAdapter implements PaymentApiPort {
     );
     const data = await response.json().catch(() => ({}));
     if (!response.ok) {
-      throw new Error(data.error?.message ?? data.error ?? 'Não foi possível verificar o pagamento.');
+      throw new Error(
+        data.error?.message ?? data.error ?? 'Não foi possível verificar o pagamento.'
+      );
     }
     return data;
   }
@@ -76,7 +79,9 @@ export class ApiPaymentAdapter implements PaymentApiPort {
     );
     const data = await response.json().catch(() => ({}));
     if (!response.ok) {
-      throw new Error(data.error?.message ?? data.error ?? 'Não foi possível carregar o status financeiro.');
+      throw new Error(
+        data.error?.message ?? data.error ?? 'Não foi possível carregar o status financeiro.'
+      );
     }
     return data;
   }
@@ -93,7 +98,9 @@ export class ApiPaymentAdapter implements PaymentApiPort {
     );
     const data = await response.json().catch(() => ({}));
     if (!response.ok) {
-      throw new Error(data.error?.message ?? data.error ?? 'Não foi possível criar a conta conectada.');
+      throw new Error(
+        data.error?.message ?? data.error ?? 'Não foi possível criar a conta conectada.'
+      );
     }
     return data;
   }
@@ -110,7 +117,9 @@ export class ApiPaymentAdapter implements PaymentApiPort {
     );
     const data = await response.json().catch(() => ({}));
     if (!response.ok || !data.clientSecret) {
-      throw new Error(data.error?.message ?? data.error ?? 'Não foi possível iniciar a sessão financeira.');
+      throw new Error(
+        data.error?.message ?? data.error ?? 'Não foi possível iniciar a sessão financeira.'
+      );
     }
     return { clientSecret: data.clientSecret };
   }
@@ -121,9 +130,10 @@ export class ApiPaymentAdapter implements PaymentApiPort {
     return readJsonOrThrow(await postJson('/api/payment/plans/subscriptions', payload));
   }
 
-  async getPlanSubscription(): Promise<PlanSubscription | null> {
+  async getPlanSubscription(itemId: string): Promise<PlanSubscription | null> {
+    const query = new URLSearchParams({ itemId });
     const response = await firebaseApiFetch(
-      '/api/payment/plans/subscription',
+      `/api/payment/plans/subscription?${query.toString()}`,
       { method: 'GET' },
       API_OPTIONS
     );
@@ -131,12 +141,15 @@ export class ApiPaymentAdapter implements PaymentApiPort {
     return data.subscription;
   }
 
-  async setPlanSubscriptionRenewal(renew: boolean): Promise<PlanSubscription | null> {
+  async setPlanSubscriptionRenewal(
+    itemId: string,
+    renew: boolean
+  ): Promise<PlanSubscription | null> {
     const path = renew
       ? '/api/payment/plans/subscription/resume'
       : '/api/payment/plans/subscription/cancel';
     const data = await readJsonOrThrow<{ subscription: PlanSubscription | null }>(
-      await postJson(path, {})
+      await postJson(path, { itemId })
     );
     return data.subscription;
   }

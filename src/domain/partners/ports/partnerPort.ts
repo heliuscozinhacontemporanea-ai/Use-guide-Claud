@@ -2,7 +2,6 @@ import { PartnerAccountStatus, PartnerProfile, PartnerRegistrationPayload } from
 
 export interface PartnerPort {
   registerPartner(payload: PartnerRegistrationPayload): Promise<void>;
-  activateTrial(partnerId: string): Promise<void>;
   getPartnerProfile(partnerId: string): Promise<PartnerProfile | null>;
   getAllPartners(): Promise<PartnerProfile[]>;
   updatePartnerStatus(partnerId: string, status: PartnerAccountStatus): Promise<void>;

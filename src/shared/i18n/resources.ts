@@ -11,6 +11,12 @@ import {
   insightsPtBR,
 } from './insightsResources';
 import {
+  type ListingPlanTranslation,
+  listingPlanEn,
+  listingPlanFr,
+  listingPlanPtBR,
+} from './listingPlanResources';
+import {
   type PartnersTranslation,
   partnersEn,
   partnersFr,
@@ -26,6 +32,7 @@ import {
 export interface TranslationResource {
   bookings: BookingsTranslation;
   insights: InsightsTranslation;
+  listingPlan: ListingPlanTranslation;
   partners: PartnersTranslation;
   verification: VerificationTranslation;
   common: {
@@ -106,6 +113,10 @@ export interface TranslationResource {
       FORBIDDEN: string;
       BILLING_UNAVAILABLE: string;
       PAYMENT_FAILED: string;
+      NOT_FOUND: string;
+      LISTING_PENDING_VERIFICATION: string;
+      PLAN_ALREADY_ACTIVE: string;
+      PARTNER_SUSPENDED: string;
     };
   };
   payment: {
@@ -223,6 +234,7 @@ export interface TranslationResource {
 const ptBR: TranslationResource = {
   bookings: bookingsPtBR,
   insights: insightsPtBR,
+  listingPlan: listingPlanPtBR,
   partners: partnersPtBR,
   verification: verificationPtBR,
   common: {
@@ -304,6 +316,11 @@ const ptBR: TranslationResource = {
       FORBIDDEN: 'Conclua seu cadastro de parceiro antes de assinar.',
       BILLING_UNAVAILABLE: 'Pagamentos indisponíveis no momento. Tente novamente em instantes.',
       PAYMENT_FAILED: 'O pagamento não foi aprovado.',
+      NOT_FOUND: 'Estabelecimento não encontrado.',
+      LISTING_PENDING_VERIFICATION:
+        'O estabelecimento precisa ser verificado pela equipe antes do plano.',
+      PLAN_ALREADY_ACTIVE: 'Este estabelecimento já tem um plano em vigor.',
+      PARTNER_SUSPENDED: 'Sua conta está suspensa.',
     },
   },
   payment: {
@@ -469,6 +486,7 @@ const ptBR: TranslationResource = {
 const en: TranslationResource = {
   bookings: bookingsEn,
   insights: insightsEn,
+  listingPlan: listingPlanEn,
   partners: partnersEn,
   verification: verificationEn,
   common: {
@@ -549,6 +567,10 @@ const en: TranslationResource = {
       FORBIDDEN: 'Complete your partner registration before subscribing.',
       BILLING_UNAVAILABLE: 'Payments are unavailable right now. Please try again shortly.',
       PAYMENT_FAILED: 'The payment was not approved.',
+      NOT_FOUND: 'Business not found.',
+      LISTING_PENDING_VERIFICATION: 'The team must verify the business before a plan.',
+      PLAN_ALREADY_ACTIVE: 'This business already has an active plan.',
+      PARTNER_SUSPENDED: 'Your account is suspended.',
     },
   },
   payment: {
@@ -711,6 +733,7 @@ const en: TranslationResource = {
 const fr: TranslationResource = {
   bookings: bookingsFr,
   insights: insightsFr,
+  listingPlan: listingPlanFr,
   partners: partnersFr,
   verification: verificationFr,
   common: {
@@ -793,6 +816,10 @@ const fr: TranslationResource = {
       BILLING_UNAVAILABLE:
         'Les paiements sont indisponibles pour le moment. Réessayez dans un instant.',
       PAYMENT_FAILED: 'Le paiement n’a pas été approuvé.',
+      NOT_FOUND: 'Établissement introuvable.',
+      LISTING_PENDING_VERIFICATION: "L'équipe doit vérifier l'établissement avant l'offre.",
+      PLAN_ALREADY_ACTIVE: 'Cet établissement a déjà une offre active.',
+      PARTNER_SUSPENDED: 'Votre compte est suspendu.',
     },
   },
   payment: {

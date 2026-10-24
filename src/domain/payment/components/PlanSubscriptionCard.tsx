@@ -88,11 +88,11 @@ function SubscriptionDetails({
   );
 }
 
-/** Estado da assinatura do plano na área do parceiro. Não renderiza nada se ele nunca assinou. */
-export function PlanSubscriptionCard() {
+/** Assinatura do plano de um estabelecimento. Não renderiza nada se ele nunca assinou. */
+export function PlanSubscriptionCard({ itemId }: { itemId: string }) {
   const { t, i18n } = useTranslation();
   const { data, loading, error, acting, reload, setRenewal, openPortal } =
-    usePlanSubscriptionStatus();
+    usePlanSubscriptionStatus(itemId);
   const [confirm, setConfirm] = useState<ConfirmDialogData | null>(null);
 
   if (!loading && !error && !data) {

@@ -24,6 +24,7 @@ describe('ApiPaymentAdapter — assinatura do plano', () => {
       intentType: 'payment',
     });
     const payload = {
+      itemId: 'item-1',
       planId: 'monthly' as const,
       locale: 'pt-BR' as const,
       idempotencyKey: 'key-12345',
@@ -42,6 +43,7 @@ describe('ApiPaymentAdapter — assinatura do plano', () => {
     mockResponse(false, { error: { code: 'SUBSCRIPTION_ALREADY_ACTIVE', message: 'x' } });
     await expect(
       new ApiPaymentAdapter().startPlanSubscription({
+        itemId: 'item-1',
         planId: 'monthly',
         locale: 'pt-BR',
         idempotencyKey: 'key-12345',
@@ -51,20 +53,41 @@ describe('ApiPaymentAdapter — assinatura do plano', () => {
 
   it('resposta de erro sem código vira BILLING_UNAVAILABLE', async () => {
     mockResponse(false, {});
-    await expect(new ApiPaymentAdapter().getPlanSubscription()).rejects.toThrow(
+    await expect(new ApiPaymentAdapter().getPlanSubscription('item-1')).rejects.toThrow(
       'BILLING_UNAVAILABLE'
     );
   });
 
-  it('cancelar e retomar usam rotas distintas', async () => {
+  it('lê a assinatura do estabelecimento pelo itemId na query', async () => {
+    mockResponse(true, { subscription: null });
+    await expect(new ApiPaymentAdapter().getPlanSubscription('item-1')).resolves.toBeNull();
+    expect(vi.mocked(firebaseApiFetch).mock.calls[0]?.[0]).toBe(
+      '/api/payment/plans/subscription?itemId=item-1'
+    );
+  });
+
+  it('cancelar e retomar usam rotas distintas e levam o itemId', async () => {
     mockResponse(true, { subscription: null });
     mockResponse(true, { subscription: null });
     const adapter = new ApiPaymentAdapter();
-    await adapter.setPlanSubscriptionRenewal(false);
-    await adapter.setPlanSubscriptionRenewal(true);
-    expect(vi.mocked(firebaseApiFetch).mock.calls.map((call) => call[0])).toEqual([
+    await adapter.setPlanSubscriptionRenewal('item-1', false);
+    await adapter.setPlanSubscriptionRenewal('item-1', true);
+    const calls = vi.mocked(firebaseApiFetch).mock.calls;
+    expect(calls.map((call) => call[0])).toEqual([
       '/api/payment/plans/subscription/cancel',
       '/api/payment/plans/subscription/resume',
     ]);
+    expect(calls[0]?.[1]).toMatchObject({ body: JSON.stringify({ itemId: 'item-1' }) });
+  });
+
+  it('Pix avulso lança o code do topo do corpo', async () => {
+    mockResponse(false, { error: 'Verifique antes.', code: 'LISTING_PENDING_VERIFICATION' });
+    await expect(
+      new ApiPaymentAdapter().createPlanPaymentIntent({
+        itemId: 'item-1',
+        planId: 'annual',
+        idempotencyKey: 'key-12345',
+      })
+    ).rejects.toThrow('LISTING_PENDING_VERIFICATION');
   });
 });
