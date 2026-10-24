@@ -16,6 +16,8 @@ function toRecord(itemId: string, data: Partial<PlanSubscriptionRecord>): PlanSu
     status: data.status ?? 'incomplete',
     currentPeriodEnd: data.currentPeriodEnd ?? null,
     cancelAtPeriodEnd: data.cancelAtPeriodEnd === true,
+    pendingPlanId: data.pendingPlanId ?? null,
+    pendingChangeAt: data.pendingChangeAt ?? null,
     updatedAt: String(data.updatedAt ?? ''),
   };
 }

@@ -22,6 +22,7 @@ const PLAN_SNAPSHOT = {
   status: 'active' as const,
   currentPeriodEnd: '2026-11-10T12:00:00.000Z',
   cancelAtPeriodEnd: false,
+  scheduleId: null,
   metadata: {
     referenceType: 'plan_subscription',
     partnerId: 'p1',

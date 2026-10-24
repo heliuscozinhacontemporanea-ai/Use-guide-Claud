@@ -22,6 +22,7 @@
 | D10 | Idioma na primeira visita (navegador) | ✅ Aprovada | 2026-10-19 |
 | D11 | Plano "Use Guide Verificado", selo e destaque por estabelecimento | ✅ Aprovada | 2026-10-19 |
 | D12 | Verificação e documento por estabelecimento; venda só com verificação | ✅ Aprovada | 2026-10-19 |
+| D13 | Troca de período do plano na próxima renovação | ✅ Aprovada | 2026-10-24 |
 
 ---
 
@@ -167,3 +168,16 @@ Referências: Receita Federal (IN RFB nº 2.119/2022: cada estabelecimento tem C
   * Os arquivos ficam em pasta privada do Storage, com nome gerado pelo servidor, e são apagados quando o estabelecimento ou a conta é excluído.
 * **Repasse** (P8, opção A): uma conta Stripe por documento, no Prompt 18.4. Até lá, só vende o estabelecimento cujo documento é o da conta Stripe do parceiro.
 * **Ordem** (P9): 18.3.0 (documento, criptografia e verificação por estabelecimento) → 18.3 (plano e selo, backend) → 18.3.1 (telas) → 18.4 (Stripe por documento) → 19.x (tradução).
+
+## D13 — Troca de período do plano na próxima renovação (2026-10-24)
+
+Mensal, semestral e anual do "Use Guide Verificado" dão os mesmos benefícios (D11); muda só o ciclo de cobrança. Por isso a troca de período (upgrade ou downgrade) é uma troca de ciclo, sem benefício a liberar na hora.
+
+* **Opção A (aprovada):** o parceiro escolhe o novo período no diálogo do plano do estabelecimento. O período atual segue até o fim, e a próxima cobrança já sai no novo período e no novo valor.
+* **Sem proração, crédito ou reembolso.** O cartão salvo é o mesmo; não há novo checkout.
+* **Como:** *subscription schedule* do Stripe criado a partir da assinatura (`from_subscription`), com a fase atual e uma fase seguinte no novo preço e com a metadata do novo plano; `end_behavior: release`. O webhook `invoice.paid` da renovação ativa o plano novo pela metadata, como já faz (D11).
+* **Regras:** escolher o período atual desfaz a troca; cancelar a renovação também desfaz a troca; trocar com a renovação cancelada retoma a renovação; com pagamento atrasado (`past_due`) a troca é recusada até a forma de pagamento ser atualizada. O valor vem sempre do catálogo no backend (§8.5).
+* **Registro:** `planSubscriptions/{itemId}` guarda `pendingPlanId` e `pendingChangeAt` até o novo período entrar.
+* **Descartadas:** B (troca imediata com proração) e C (troca pelo portal do Stripe).
+* **Prompts:** 18.3b.2 (backend) e 18.3.1a (telas).
+

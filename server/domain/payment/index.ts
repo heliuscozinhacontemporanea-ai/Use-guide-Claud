@@ -20,12 +20,14 @@ export { createBillingPortalSessionUseCase } from './usecases/billing/createBill
 export { getListingPlanSubscriptionUseCase } from './usecases/billing/getListingPlanSubscriptionUseCase';
 export { cancelListingPlanSubscriptionUseCase } from './usecases/billing/cancelListingPlanSubscriptionUseCase';
 export { cancelPartnerPlanSubscriptionsUseCase } from './usecases/billing/cancelPartnerPlanSubscriptionsUseCase';
+export { schedulePlanSubscriptionChangeUseCase } from './usecases/billing/schedulePlanSubscriptionChangeUseCase';
 export { setPlanSubscriptionCancelAtPeriodEndUseCase } from './usecases/billing/setPlanSubscriptionCancelAtPeriodEndUseCase';
 export { startPlanSubscriptionUseCase } from './usecases/billing/startPlanSubscriptionUseCase';
 export { syncPlanSubscriptionUseCase } from './usecases/billing/syncPlanSubscriptionUseCase';
 
 export { PaymentDomainError } from './services/stripePaymentService';
 export type {
+  SchedulePlanChangeInput,
   StartPlanSubscriptionInput,
   StartPlanSubscriptionResult,
 } from './services/billingService';
