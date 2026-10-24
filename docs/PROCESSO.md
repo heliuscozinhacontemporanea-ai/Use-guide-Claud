@@ -87,8 +87,9 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 | 18.3a | Plano e selo por estabelecimento, backend (D11) | `bd14c0f` | ✅ zip 2026-10-24 | ✅ igual à referência |
 | 18.3b | Cobrança do plano por estabelecimento (D11) | `cd31a44` | ⚠️ zip 2026-10-24 | ⚠️ funciona, mas 17 arquivos reescritos (nomes, comentários do porquê removidos, 5 arquivos fora do formato) → 18.3b.1 |
 | 18.3c | Métricas com plano e destaque em rodízio (D11) | `f5b42a0` | ✅ zip 2026-10-24 | ✅ igual à referência |
-| 18.3b.1 | Correção do 18.3b | `0fec4b9..faba4ec` | ⏳ enviar (lote 15) | — |
-| 18.3.1a | Plano e selo por estabelecimento no painel do parceiro (D11) | `4f3fddb` | ⏳ enviar (lote 15) | — |
+| 18.3b.1 | Correção do 18.3b | `0fec4b9..faba4ec` | ⏳ enviado (lote 15) | — |
+| 18.3b.2 | Troca de período na próxima renovação, backend (D13) | `e261e1d` | ⏳ enviar (lote 15) | — |
+| 18.3.1a | Plano e selo por estabelecimento no painel do parceiro (D11, D13) | `4f3fddb` + `cf21b31` | ⏳ enviar (lote 15) | — |
 
 ## Gates
 

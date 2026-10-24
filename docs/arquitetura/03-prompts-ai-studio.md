@@ -165,11 +165,12 @@
 
 > **Envie um prompt por mensagem**, nesta ordem. Até o 18.3.1 (telas), trial, compra de plano e selo do admin pelo painel ficam fora do ar, e as métricas de estabelecimento sem plano mostram erro.
 
-# Lote 15 (Prompts 18.3b.1 e 18.3.1a) — aplicar sobre o zip de 2026-10-24
+# Lote 15 (Prompts 18.3b.1, 18.3b.2 e 18.3.1a) — aplicar sobre o zip de 2026-10-24
 
 | Ordem | Arquivo | Tema | Commit de referência |
 |---|---|---|---|
 | 1 | `prompts/prompt-18.3b.1.md` | Correção do 18.3b: 17 arquivos da cobrança por estabelecimento de volta à referência | `0fec4b9..faba4ec` |
-| 2 | `prompts/prompt-18.3.1a.md` | Painel do parceiro: plano e selo em cada cadastro, teste grátis e compra com `itemId`, conta sem selo, aviso de plano nos relatórios | `4f3fddb` |
+| 2 | `prompts/prompt-18.3b.2.md` | Troca de período do plano na próxima renovação (D13): subscription schedule do Stripe, sem proração | `e261e1d` |
+| 3 | `prompts/prompt-18.3.1a.md` | Painel do parceiro: plano e selo em cada cadastro, teste grátis e compra com `itemId`, troca de período no cartão da assinatura, conta sem selo, aviso de plano nos relatórios | `4f3fddb` + `cf21b31` |
 
 > Os lotes 13b e 14 voltaram iguais à referência, exceto o 18.3b.

@@ -1,6 +1,6 @@
 # Prompt 18.3.1a — Plano e selo por estabelecimento no painel do parceiro
 
-> Lote 15, gerado do commit de referência `4f3fddb` da branch `claude/agents-md-v2`. Aplique depois do 18.3b.1. Cole o bloco abaixo no agente do AI Studio, inteiro, de uma vez.
+> Lote 15, gerado do commit de referência `4f3fddb` + `cf21b31` da branch `claude/agents-md-v2`. Aplique depois do 18.3b.2. Cole o bloco abaixo no agente do AI Studio, inteiro, de uma vez.
 
 ---
 
@@ -22,10 +22,11 @@ O QUE MUDA:
    - PartnerItemsTable mostra o selo de plano ao lado do selo de verificação; PartnerPanel abre o diálogo do plano por cadastro e manda itemId e planId para o checkout;
    - a conta deixa de ter selo: PartnerHeader sem o botão do selo, PartnerTabsNavigation sem o cadeado em Relatórios, usePartnerProfile e os tipos sem isVerified, verifiedUntil, verificationType, isVerificationSuspended e hasUsedTrial;
    - saem PlansModal.tsx, activateTrialUseCase.ts e activateTrial do port e do adapter da conta.
-2) Domínio payment (frontend): Pix avulso, assinatura, leitura e renovação levam itemId (GET /api/payment/plans/subscription?itemId=, cancel e resume com { itemId }); CheckoutModal recebe itemId; PlanSubscriptionCard recebe itemId; erros novos traduzidos pelo code (LISTING_PENDING_VERIFICATION, PLAN_ALREADY_ACTIVE, PARTNER_SUSPENDED, NOT_FOUND).
-3) Composição (PartnerPortalComposition): monta o checkout com itemId e planId e a assinatura de cada cadastro (renderPlanSubscription).
-4) Relatórios (insights): o adapter lança o code do backend; sem plano (LISTING_PLAN_REQUIRED), a tela mostra o aviso do plano e as avaliações continuam visíveis.
-5) i18n: src/shared/i18n/listingPlanResources.ts nos 3 idiomas, registrado em resources.ts; textos novos em insightsResources.ts e em errors.payment.
+2) Troca de período (D13, backend no 18.3b.2): o cartão da assinatura (PlanSubscriptionCard, dividido em components/subscription/) mostra "Trocar período" e a troca agendada com "Manter o período atual"; com assinatura viva, o diálogo do plano esconde a compra nova.
+3) Domínio payment (frontend): Pix avulso, assinatura, leitura e renovação levam itemId (GET /api/payment/plans/subscription?itemId=, cancel e resume com { itemId }); CheckoutModal recebe itemId; PlanSubscriptionCard recebe itemId; erros novos traduzidos pelo code (LISTING_PENDING_VERIFICATION, PLAN_ALREADY_ACTIVE, PARTNER_SUSPENDED, NOT_FOUND).
+4) Composição (PartnerPortalComposition): monta o checkout com itemId e planId e a assinatura de cada cadastro (renderPlanSubscription), com os períodos do catálogo.
+5) Relatórios (insights): o adapter lança o code do backend; sem plano (LISTING_PLAN_REQUIRED), a tela mostra o aviso do plano e as avaliações continuam visíveis.
+6) i18n: src/shared/i18n/listingPlanResources.ts nos 3 idiomas, registrado em resources.ts; textos novos em insightsResources.ts e em errors.payment.
 
 ARQUIVOS (crie, altere ou apague exatamente estes):
 - src/app/compositions/PartnerPortalComposition.tsx (alterar)
@@ -66,16 +67,22 @@ ARQUIVOS (crie, altere ou apague exatamente estes):
 - src/domain/partners/utils/listingPlanStatus.ts (criar)
 - src/domain/payment/api/apiPaymentAdapter.test.ts (alterar)
 - src/domain/payment/api/apiPaymentAdapter.ts (alterar)
+- src/domain/payment/application/usecases/changePlanSubscriptionUseCase.ts (criar)
 - src/domain/payment/application/usecases/getPlanSubscriptionUseCase.ts (alterar)
 - src/domain/payment/application/usecases/setPlanSubscriptionRenewalUseCase.ts (alterar)
 - src/domain/payment/components/CheckoutModal.tsx (alterar)
+- src/domain/payment/components/PlanSubscriptionCard.test.tsx (criar)
 - src/domain/payment/components/PlanSubscriptionCard.tsx (alterar)
 - src/domain/payment/components/subcomponents/OneTimePlanCheckout.tsx (alterar)
 - src/domain/payment/components/subcomponents/SubscriptionPlanCheckout.tsx (alterar)
+- src/domain/payment/components/subscription/PlanPeriodChange.tsx (criar)
+- src/domain/payment/components/subscription/SubscriptionDetails.tsx (criar)
+- src/domain/payment/components/subscription/subscriptionStatus.ts (criar)
 - src/domain/payment/hooks/usePayment.ts (alterar)
 - src/domain/payment/hooks/usePlanSubscriptionCheckout.test.ts (alterar)
 - src/domain/payment/hooks/usePlanSubscriptionCheckout.ts (alterar)
 - src/domain/payment/hooks/usePlanSubscriptionStatus.ts (alterar)
+- src/domain/payment/index.ts (alterar)
 - src/domain/payment/ports/paymentApiPort.ts (alterar)
 - src/domain/payment/types/payment.ts (alterar)
 - src/domain/payment/utils/paymentErrorMessage.ts (alterar)
@@ -86,7 +93,43 @@ ARQUIVOS (crie, altere ou apague exatamente estes):
 Aplique as mudanças abaixo EXATAMENTE como estão (formato unified diff: linhas com "-" saem, linhas com "+" entram; as demais são contexto para localizar o trecho). Não reformate outros trechos dos arquivos.
 
 === src/app/compositions/PartnerPortalComposition.tsx — diff ===
-@@ -154,22 +154,24 @@ export function PartnerPortalComposition() {
+@@ -1,4 +1,4 @@
+-import { useEffect, useState } from 'react';
++import { useEffect, useMemo, useState } from 'react';
+ import { LogIn, RefreshCw, ShieldAlert } from 'lucide-react';
+ import { useTranslation } from 'react-i18next';
+ import { PartnerPanel, getPartnerProfileUseCase } from '../../domain/partners';
+@@ -8,7 +8,12 @@ import { UserRole } from '../../domain/auth/types/auth';
+ import { useAuthContext } from '../../domain/auth/context/AuthContext';
+ import { EventSessionsField } from '../../domain/events';
+ import { ReportsView } from '../../domain/insights';
+-import { CheckoutModal, isPaidPlanId, PlanSubscriptionCard } from '../../domain/payment';
++import {
++  CheckoutModal,
++  isPaidPlanId,
++  type PlanPeriodOption,
++  PlanSubscriptionCard,
++} from '../../domain/payment';
+ import { PartnerBookingsComposition } from './PartnerBookingsComposition';
+ import { NotificationBell } from '../../domain/notifications';
+ import { PartnerEventTicketingManager } from '../../domain/ticketing';
+@@ -27,6 +32,15 @@ export function PartnerPortalComposition() {
+   const [profileError, setProfileError] = useState<string | null>(null);
+   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
+   const [profileVersion, setProfileVersion] = useState(0);
++  const periodOptions = useMemo<PlanPeriodOption[]>(
++    () =>
++      plans.flatMap((plan) =>
++        isPaidPlanId(plan.id) && plan.isActive !== false
++          ? [{ id: plan.id, name: plan.name, priceMinor: plan.priceMinor }]
++          : []
++      ),
++    [plans]
++  );
+ 
+   useEffect(() => {
+     let active = true;
+@@ -154,22 +168,26 @@ export function PartnerPortalComposition() {
          isOpen,
          onClose,
          itemId,
@@ -110,7 +153,9 @@ Aplique as mudanças abaixo EXATAMENTE como estão (formato unified diff: linhas
          ) : null
        }
 -      planSubscriptionSlot={<PlanSubscriptionCard />}
-+      renderPlanSubscription={(itemId) => <PlanSubscriptionCard itemId={itemId} />}
++      renderPlanSubscription={(itemId, onLiveChange) => (
++        <PlanSubscriptionCard itemId={itemId} plans={periodOptions} onLiveChange={onLiveChange} />
++      )}
        renderBookableOffersManager={(items) => <PartnerBookingsComposition items={items} />}
        renderEventTicketingManager={(eventListingId) => (
          <PartnerEventTicketingManager eventListingId={eventListingId} />
@@ -419,17 +464,20 @@ export function getListingPlanUseCase(itemId: string): Promise<ListingPlanView> 
      itemName: string;
      amountMinor: number;
      onPaymentSuccess: () => void;
-@@ -44,7 +46,8 @@ export interface PartnerPanelProps {
+@@ -44,7 +46,11 @@ export interface PartnerPanelProps {
    renderEventTicketingManager?: (eventListingId: string) => React.ReactNode;
    /** Campo de sessões do evento (domínio events), montado pela composição do app. */
    renderEventSessionsField?: (props: EventSessionsFieldProps) => React.ReactNode;
 -  planSubscriptionSlot?: React.ReactNode;
 +  /** Assinatura no cartão do plano de um estabelecimento, montada pela composição. */
-+  renderPlanSubscription?: (itemId: string) => React.ReactNode;
++  renderPlanSubscription?: (
++    itemId: string,
++    onLiveChange: (live: boolean) => void
++  ) => React.ReactNode;
    renderBookableOffersManager?: (
      items: Array<{ id: string; name: string; category: string }>
    ) => React.ReactNode;
-@@ -60,7 +63,7 @@ export function PartnerPanel({
+@@ -60,7 +66,7 @@ export function PartnerPanel({
    renderCheckoutModal,
    renderEventTicketingManager,
    renderEventSessionsField,
@@ -438,7 +486,7 @@ export function getListingPlanUseCase(itemId: string): Promise<ListingPlanView> 
    renderBookableOffersManager,
    onPlanPurchased,
  }: PartnerPanelProps) {
-@@ -80,7 +83,6 @@ export function PartnerPanel({
+@@ -80,7 +86,6 @@ export function PartnerPanel({
      showDeleteConfirm,
      setShowDeleteConfirm,
      dataLoading,
@@ -446,7 +494,7 @@ export function getListingPlanUseCase(itemId: string): Promise<ListingPlanView> 
      itemsList,
      eventsList,
      handleDelete,
-@@ -105,10 +107,13 @@ export function PartnerPanel({
+@@ -105,10 +110,13 @@ export function PartnerPanel({
    // Troca a chave dos selos de verificação para relerem o status depois de um envio.
    const [verificationVersion, setVerificationVersion] = React.useState(0);
  
@@ -462,7 +510,7 @@ export function getListingPlanUseCase(itemId: string): Promise<ListingPlanView> 
      itemName: '',
      amountMinor: 0,
    });
-@@ -122,6 +127,7 @@ export function PartnerPanel({
+@@ -122,6 +130,7 @@ export function PartnerPanel({
      setShowCheckoutModal(false);
      if (planPurchasedRef.current) {
        planPurchasedRef.current = false;
@@ -470,7 +518,7 @@ export function getListingPlanUseCase(itemId: string): Promise<ListingPlanView> 
        onPlanPurchased?.();
      }
    };
-@@ -161,42 +167,13 @@ export function PartnerPanel({
+@@ -161,42 +170,13 @@ export function PartnerPanel({
          <PartnerHeader
            partnerProfile={partnerProfile}
            onNavigateBack={() => goTo('explore')}
@@ -515,7 +563,7 @@ export function getListingPlanUseCase(itemId: string): Promise<ListingPlanView> 
          ) : activeTab === 'items' ? (
            <>
              <PartnerItemsTable
-@@ -209,6 +186,8 @@ export function PartnerPanel({
+@@ -209,6 +189,8 @@ export function PartnerPanel({
                onVerifyItem={(item) =>
                  setVerifyingListing({ id: item.id, name: item.name, category: item.category })
                }
@@ -524,7 +572,7 @@ export function getListingPlanUseCase(itemId: string): Promise<ListingPlanView> 
              />
              {renderBookableOffersManager?.(
                itemsList.map((item) => ({ id: item.id, name: item.name, category: item.category }))
-@@ -302,22 +281,39 @@ export function PartnerPanel({
+@@ -302,22 +284,39 @@ export function PartnerPanel({
          />
        )}
  
@@ -748,6 +796,27 @@ describe('ListingPlanDialog (D11)', () => {
     await screen.findByText(/Plano Teste grátis em vigor/);
     expect(m.trial).toHaveBeenCalledWith('item-1');
   });
+
+  it('com assinatura viva no cartão, a compra nova some e a troca fica na assinatura (D13)', async () => {
+    m.getVerification.mockResolvedValue({ itemId: 'item-1', status: 'approved' });
+    render(
+      <ListingPlanDialog
+        listing={LISTING}
+        plans={PLANS}
+        onClose={vi.fn()}
+        onVerify={vi.fn()}
+        onSelectPaidPlan={vi.fn()}
+        renderSubscription={(_itemId, onLiveChange) => (
+          <button type="button" onClick={() => onLiveChange(true)}>
+            assinatura
+          </button>
+        )}
+      />
+    );
+    fireEvent.click(await screen.findByRole('button', { name: 'assinatura' }));
+    expect(screen.queryByRole('button', { name: 'Seguir para o pagamento' })).toBeNull();
+    expect(screen.queryByRole('button', { name: /Anual/ })).toBeNull();
+  });
 });
 
 === src/domain/partners/components/plan/ListingPlanDialog.tsx — ARQUIVO NOVO, conteúdo completo ===
@@ -778,8 +847,11 @@ interface ListingPlanDialogProps {
   onClose: () => void;
   onVerify: () => void;
   onSelectPaidPlan: (selection: PaidPlanSelection) => void;
-  /** Assinatura no cartão deste estabelecimento (domínio payment), montada pela composição. */
-  renderSubscription?: (itemId: string) => ReactNode;
+  /**
+   * Assinatura no cartão deste estabelecimento (domínio payment), montada pela composição. Com
+   * assinatura viva, a troca de período fica nela (D13) e o diálogo esconde a compra nova.
+   */
+  renderSubscription?: (itemId: string, onLiveChange: (live: boolean) => void) => ReactNode;
 }
 
 const buttonClass =
@@ -798,6 +870,7 @@ export function ListingPlanDialog({
   const plan = useListingPlan(listing.id);
   const verification = useListingVerification(listing.id);
   const [choice, setChoice] = useState<ListingPlanChoice | null>(null);
+  const [subscriptionLive, setSubscriptionLive] = useState(false);
   const loading = plan.loading || verification.loading;
   const error = plan.error ?? verification.error;
   const verified = verification.data?.status === 'approved';
@@ -863,9 +936,9 @@ export function ListingPlanDialog({
         ) : (
           <>
             <ListingPlanStatus view={plan.data} />
-            {renderSubscription?.(listing.id)}
+            {renderSubscription?.(listing.id, setSubscriptionLive)}
             <ListingPlanBenefits />
-            {verified ? (
+            {subscriptionLive ? null : verified ? (
               <>
                 <ListingPlanOptions
                   plans={plans}
@@ -1719,7 +1792,15 @@ export function formatPlanDate(iso: string, locale: string): string {
  });
 
 === src/domain/payment/api/apiPaymentAdapter.ts — diff ===
-@@ -16,7 +16,9 @@ const API_OPTIONS = { requireAuth: true, requireAppCheck: true } as const;
+@@ -3,6 +3,7 @@ import type { PaymentApiPort } from '../ports/paymentApiPort';
+ import type {
+   CreatePaymentIntentResponse,
+   CreatePlanPaymentIntentPayload,
++  PaidPlanId,
+   PartnerConnectStatusResponse,
+   PaymentLocale,
+   PlanSubscription,
+@@ -16,7 +17,9 @@ const API_OPTIONS = { requireAuth: true, requireAppCheck: true } as const;
  async function readJsonOrThrow<T>(response: Response): Promise<T> {
    const data = await response.json().catch(() => ({}));
    if (!response.ok) {
@@ -1730,7 +1811,7 @@ export function formatPlanDate(iso: string, locale: string): string {
    }
    return data as T;
  }
-@@ -44,14 +46,13 @@ export class ApiPaymentAdapter implements PaymentApiPort {
+@@ -44,14 +47,13 @@ export class ApiPaymentAdapter implements PaymentApiPort {
      );
      const data = await response.json().catch(() => ({}));
      if (!response.ok) {
@@ -1748,7 +1829,7 @@ export function formatPlanDate(iso: string, locale: string): string {
      const response = await firebaseApiFetch(
        '/api/payment/plans/intents/confirm',
        {
-@@ -63,7 +64,9 @@ export class ApiPaymentAdapter implements PaymentApiPort {
+@@ -63,7 +65,9 @@ export class ApiPaymentAdapter implements PaymentApiPort {
      );
      const data = await response.json().catch(() => ({}));
      if (!response.ok) {
@@ -1759,7 +1840,7 @@ export function formatPlanDate(iso: string, locale: string): string {
      }
      return data;
    }
-@@ -76,7 +79,9 @@ export class ApiPaymentAdapter implements PaymentApiPort {
+@@ -76,7 +80,9 @@ export class ApiPaymentAdapter implements PaymentApiPort {
      );
      const data = await response.json().catch(() => ({}));
      if (!response.ok) {
@@ -1770,7 +1851,7 @@ export function formatPlanDate(iso: string, locale: string): string {
      }
      return data;
    }
-@@ -93,7 +98,9 @@ export class ApiPaymentAdapter implements PaymentApiPort {
+@@ -93,7 +99,9 @@ export class ApiPaymentAdapter implements PaymentApiPort {
      );
      const data = await response.json().catch(() => ({}));
      if (!response.ok) {
@@ -1781,7 +1862,7 @@ export function formatPlanDate(iso: string, locale: string): string {
      }
      return data;
    }
-@@ -110,7 +117,9 @@ export class ApiPaymentAdapter implements PaymentApiPort {
+@@ -110,7 +118,9 @@ export class ApiPaymentAdapter implements PaymentApiPort {
      );
      const data = await response.json().catch(() => ({}));
      if (!response.ok || !data.clientSecret) {
@@ -1792,7 +1873,7 @@ export function formatPlanDate(iso: string, locale: string): string {
      }
      return { clientSecret: data.clientSecret };
    }
-@@ -121,9 +130,10 @@ export class ApiPaymentAdapter implements PaymentApiPort {
+@@ -121,9 +131,10 @@ export class ApiPaymentAdapter implements PaymentApiPort {
      return readJsonOrThrow(await postJson('/api/payment/plans/subscriptions', payload));
    }
  
@@ -1805,7 +1886,7 @@ export function formatPlanDate(iso: string, locale: string): string {
        { method: 'GET' },
        API_OPTIONS
      );
-@@ -131,12 +141,15 @@ export class ApiPaymentAdapter implements PaymentApiPort {
+@@ -131,12 +142,26 @@ export class ApiPaymentAdapter implements PaymentApiPort {
      return data.subscription;
    }
  
@@ -1820,9 +1901,33 @@ export function formatPlanDate(iso: string, locale: string): string {
      const data = await readJsonOrThrow<{ subscription: PlanSubscription | null }>(
 -      await postJson(path, {})
 +      await postJson(path, { itemId })
++    );
++    return data.subscription;
++  }
++
++  async changePlanSubscription(params: {
++    itemId: string;
++    planId: PaidPlanId;
++    idempotencyKey: string;
++  }): Promise<PlanSubscription | null> {
++    const data = await readJsonOrThrow<{ subscription: PlanSubscription | null }>(
++      await postJson('/api/payment/plans/subscription/change', params)
      );
      return data.subscription;
    }
+
+=== src/domain/payment/application/usecases/changePlanSubscriptionUseCase.ts — ARQUIVO NOVO, conteúdo completo ===
+import { paymentApiAdapter } from '../../factory';
+import type { PaidPlanId, PlanSubscription } from '../../types/payment';
+
+/** Troca o período na próxima renovação (D13); escolher o período atual desfaz a troca. */
+export async function changePlanSubscriptionUseCase(params: {
+  itemId: string;
+  planId: PaidPlanId;
+  idempotencyKey: string;
+}): Promise<PlanSubscription | null> {
+  return paymentApiAdapter.changePlanSubscription(params);
+}
 
 === src/domain/payment/application/usecases/getPlanSubscriptionUseCase.ts — diff ===
 @@ -1,6 +1,7 @@
@@ -1883,22 +1988,264 @@ export function formatPlanDate(iso: string, locale: string): string {
                  itemName={itemName}
                  amountMinor={amountMinor}
 
+=== src/domain/payment/components/PlanSubscriptionCard.test.tsx — ARQUIVO NOVO, conteúdo completo ===
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { i18n } from '../../../shared/i18n';
+
+const m = vi.hoisted(() => ({ get: vi.fn(), change: vi.fn() }));
+vi.mock('../application/usecases/getPlanSubscriptionUseCase', () => ({
+  getPlanSubscriptionUseCase: m.get,
+}));
+vi.mock('../application/usecases/changePlanSubscriptionUseCase', () => ({
+  changePlanSubscriptionUseCase: m.change,
+}));
+vi.mock('../application/usecases/setPlanSubscriptionRenewalUseCase', () => ({
+  setPlanSubscriptionRenewalUseCase: vi.fn(),
+}));
+vi.mock('../application/usecases/createBillingPortalSessionUseCase', () => ({
+  createBillingPortalSessionUseCase: vi.fn(),
+}));
+
+import { PlanSubscriptionCard } from './PlanSubscriptionCard';
+
+const PLANS = [
+  { id: 'monthly' as const, name: 'Mensal', priceMinor: 4990 },
+  { id: 'annual' as const, name: 'Anual', priceMinor: 49900 },
+];
+const ACTIVE = {
+  itemId: 'item-1',
+  planId: 'monthly' as const,
+  status: 'active' as const,
+  currentPeriodEnd: '2026-11-24T15:00:00.000Z',
+  cancelAtPeriodEnd: false,
+  pendingPlanId: null,
+  pendingChangeAt: null,
+};
+
+describe('PlanSubscriptionCard (D13)', () => {
+  beforeEach(async () => {
+    vi.clearAllMocks();
+    await i18n.changeLanguage('pt-BR');
+  });
+
+  it('avisa a assinatura viva e troca o período na próxima renovação', async () => {
+    m.get.mockResolvedValue(ACTIVE);
+    m.change.mockResolvedValue({
+      ...ACTIVE,
+      pendingPlanId: 'annual',
+      pendingChangeAt: '2026-11-24T15:00:00.000Z',
+    });
+    const onLiveChange = vi.fn();
+    render(<PlanSubscriptionCard itemId="item-1" plans={PLANS} onLiveChange={onLiveChange} />);
+    fireEvent.click(await screen.findByRole('button', { name: 'Trocar período' }));
+    await waitFor(() => expect(onLiveChange).toHaveBeenLastCalledWith(true));
+    fireEvent.click(screen.getByRole('button', { name: /Anual/ }));
+    fireEvent.click(screen.getByRole('button', { name: /Trocar na próxima renovação/ }));
+    expect(await screen.findByText(/o plano passa para Anual/)).toBeTruthy();
+    expect(m.change).toHaveBeenCalledWith(
+      expect.objectContaining({ itemId: 'item-1', planId: 'annual' })
+    );
+  });
+
+  it('troca agendada pode ser desfeita mantendo o período atual', async () => {
+    m.get.mockResolvedValue({
+      ...ACTIVE,
+      pendingPlanId: 'annual',
+      pendingChangeAt: '2026-11-24T15:00:00.000Z',
+    });
+    m.change.mockResolvedValue(ACTIVE);
+    render(<PlanSubscriptionCard itemId="item-1" plans={PLANS} />);
+    fireEvent.click(await screen.findByRole('button', { name: 'Manter o período atual' }));
+    await waitFor(() =>
+      expect(m.change).toHaveBeenCalledWith(
+        expect.objectContaining({ itemId: 'item-1', planId: 'monthly' })
+      )
+    );
+  });
+
+  it('sem assinatura não renderiza nada e avisa que não há assinatura viva', async () => {
+    m.get.mockResolvedValue(null);
+    const onLiveChange = vi.fn();
+    const { container } = render(
+      <PlanSubscriptionCard itemId="item-1" plans={PLANS} onLiveChange={onLiveChange} />
+    );
+    await waitFor(() => expect(onLiveChange).toHaveBeenCalledWith(false));
+    expect(container.textContent).toBe('');
+  });
+});
+
 === src/domain/payment/components/PlanSubscriptionCard.tsx — diff ===
-@@ -88,11 +88,11 @@ function SubscriptionDetails({
-   );
+@@ -1,99 +1,40 @@
+ import { CreditCard, RefreshCw } from 'lucide-react';
+-import { useState } from 'react';
++import { useEffect, useState } from 'react';
+ import { useTranslation } from 'react-i18next';
+ import { ConfirmDialog, type ConfirmDialogData } from '../../../ui/components/ConfirmDialog';
+ import { GlassCard } from '../../../ui/components/GlassCard';
+ import { Skeleton } from '../../../ui/components/Skeleton';
+ import { usePlanSubscriptionStatus } from '../hooks/usePlanSubscriptionStatus';
+-import type { PlanSubscription } from '../types/payment';
++import type { PlanPeriodOption } from '../types/payment';
+ import { formatBillingDate } from '../utils/formatPlanAmount';
++import { PlanPeriodChange } from './subscription/PlanPeriodChange';
++import { SubscriptionDetails } from './subscription/SubscriptionDetails';
++import { LIVE_SUBSCRIPTION_STATUSES } from './subscription/subscriptionStatus';
+ 
+-const LIVE_STATUSES: ReadonlySet<PlanSubscription['status']> = new Set([
+-  'active',
+-  'trialing',
+-  'past_due',
+-]);
+-
+-function useStatusMessage(subscription: PlanSubscription): string {
+-  const { t, i18n } = useTranslation();
+-  const date = subscription.currentPeriodEnd
+-    ? formatBillingDate(subscription.currentPeriodEnd, i18n.language)
+-    : '';
+-  if (subscription.status === 'past_due' || subscription.status === 'unpaid') {
+-    return t('payment.subscription.statusPastDue');
+-  }
+-  if (subscription.status === 'canceled' || subscription.status === 'incomplete_expired') {
+-    return t('payment.subscription.statusCanceled');
+-  }
+-  if (subscription.status === 'incomplete' || subscription.status === 'paused') {
+-    return t('payment.subscription.statusIncomplete');
+-  }
+-  if (subscription.cancelAtPeriodEnd) {
+-    return t('payment.subscription.statusCancelScheduled', { date });
+-  }
+-  return subscription.status === 'trialing'
+-    ? t('payment.subscription.statusTrialing', { date })
+-    : t('payment.subscription.statusActive', { date });
+-}
+-
+-function SubscriptionDetails({
+-  subscription,
+-  acting,
+-  onManage,
+-  onToggleRenewal,
+-}: {
+-  subscription: PlanSubscription;
+-  acting: boolean;
+-  onManage: () => void;
+-  onToggleRenewal: () => void;
+-}) {
+-  const { t } = useTranslation();
+-  const message = useStatusMessage(subscription);
+-  const isLive = LIVE_STATUSES.has(subscription.status);
+-  const buttonClass =
+-    'min-h-11 px-4 rounded-xl text-xs font-bold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-teal-400/50';
+-
+-  return (
+-    <>
+-      <p
+-        className={
+-          subscription.status === 'past_due' ? 'text-sm text-amber-200' : 'text-sm text-white/80'
+-        }
+-      >
+-        {message}
+-      </p>
+-      {isLive && (
+-        <div className="flex flex-wrap gap-2">
+-          <button
+-            type="button"
+-            onClick={onManage}
+-            disabled={acting}
+-            className={`${buttonClass} bg-teal-400 hover:bg-teal-300 text-slate-950`}
+-          >
+-            {t('payment.subscription.manageCard')}
+-          </button>
+-          <button
+-            type="button"
+-            onClick={onToggleRenewal}
+-            disabled={acting}
+-            className={`${buttonClass} bg-white/10 hover:bg-white/15 text-white`}
+-          >
+-            {subscription.cancelAtPeriodEnd
+-              ? t('payment.subscription.resumeRenewal')
+-              : t('payment.subscription.cancelRenewal')}
+-          </button>
+-        </div>
+-      )}
+-    </>
+-  );
++interface PlanSubscriptionCardProps {
++  itemId: string;
++  /** Períodos pagos do catálogo, para a troca na próxima renovação (D13). */
++  plans?: PlanPeriodOption[];
++  /** Avisa se o estabelecimento tem assinatura viva: quem monta o card esconde a compra nova. */
++  onLiveChange?: (live: boolean) => void;
  }
  
 -/** Estado da assinatura do plano na área do parceiro. Não renderiza nada se ele nunca assinou. */
 -export function PlanSubscriptionCard() {
 +/** Assinatura do plano de um estabelecimento. Não renderiza nada se ele nunca assinou. */
-+export function PlanSubscriptionCard({ itemId }: { itemId: string }) {
++export function PlanSubscriptionCard({
++  itemId,
++  plans = [],
++  onLiveChange,
++}: PlanSubscriptionCardProps) {
    const { t, i18n } = useTranslation();
-   const { data, loading, error, acting, reload, setRenewal, openPortal } =
+-  const { data, loading, error, acting, reload, setRenewal, openPortal } =
 -    usePlanSubscriptionStatus();
++  const { data, loading, error, acting, reload, setRenewal, changePlan, openPortal } =
 +    usePlanSubscriptionStatus(itemId);
    const [confirm, setConfirm] = useState<ConfirmDialogData | null>(null);
++  const [changing, setChanging] = useState(false);
++
++  const live = Boolean(data && LIVE_SUBSCRIPTION_STATUSES.has(data.status));
++  useEffect(() => {
++    if (!loading) onLiveChange?.(live);
++  }, [live, loading, onLiveChange]);
  
    if (!loading && !error && !data) {
+     return null;
+@@ -120,7 +61,7 @@ export function PlanSubscriptionCard() {
+   return (
+     <GlassCard className="p-5 space-y-3 border border-white/10">
+       <div className="flex items-center gap-2">
+-        <CreditCard size={18} className="text-teal-300" />
++        <CreditCard size={18} className="text-teal-300" aria-hidden="true" />
+         <h2 className="text-sm font-bold text-white">{t('payment.subscription.title')}</h2>
+       </div>
+       {loading && (
+@@ -137,17 +78,33 @@ export function PlanSubscriptionCard() {
+             onClick={() => void reload()}
+             className="min-h-11 px-3 rounded-lg bg-white/10 hover:bg-white/15 text-white text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-teal-400/50"
+           >
+-            <RefreshCw size={13} />
++            <RefreshCw size={13} aria-hidden="true" />
+             <span>{t('payment.subscription.retry')}</span>
+           </button>
+         </div>
+       )}
+-      {!loading && data && (
++      {!loading && data && changing && (
++        <PlanPeriodChange
++          subscription={data}
++          plans={plans}
++          acting={acting}
++          onBack={() => setChanging(false)}
++          onConfirm={(planId) => {
++            void changePlan(planId).then((done) => {
++              if (done) setChanging(false);
++            });
++          }}
++        />
++      )}
++      {!loading && data && !changing && (
+         <SubscriptionDetails
+           subscription={data}
++          plans={plans}
+           acting={acting}
+           onManage={() => void openPortal()}
+           onToggleRenewal={requestToggleRenewal}
++          onChangePeriod={() => setChanging(true)}
++          onKeepCurrent={() => void changePlan(data.planId)}
+         />
+       )}
+       <ConfirmDialog data={confirm} />
 
 === src/domain/payment/components/subcomponents/OneTimePlanCheckout.tsx — diff ===
 @@ -8,6 +8,7 @@ import { CheckoutError, CheckoutLoading, CheckoutPending } from './CheckoutStatu
@@ -1953,6 +2300,224 @@ export function formatPlanDate(iso: string, locale: string): string {
  
    useEffect(() => {
      if (status === 'idle') {
+
+=== src/domain/payment/components/subscription/PlanPeriodChange.tsx — ARQUIVO NOVO, conteúdo completo ===
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { cn } from '../../../../shared/utils/cn';
+import type { PaidPlanId, PlanPeriodOption, PlanSubscription } from '../../types/payment';
+import { formatBillingDate, formatPlanAmount } from '../../utils/formatPlanAmount';
+import { subscriptionButtonClass } from './SubscriptionDetails';
+
+interface PlanPeriodChangeProps {
+  subscription: PlanSubscription;
+  plans: PlanPeriodOption[];
+  acting: boolean;
+  onConfirm: (planId: PaidPlanId) => void;
+  onBack: () => void;
+}
+
+/** Troca de período na próxima renovação (D13): sem proração e sem pedir o cartão de novo. */
+export function PlanPeriodChange({
+  subscription,
+  plans,
+  acting,
+  onConfirm,
+  onBack,
+}: PlanPeriodChangeProps) {
+  const { t, i18n } = useTranslation();
+  const [selected, setSelected] = useState<PaidPlanId>(
+    subscription.pendingPlanId ?? subscription.planId
+  );
+  const date = subscription.currentPeriodEnd
+    ? formatBillingDate(subscription.currentPeriodEnd, i18n.language)
+    : '';
+  const unchanged = selected === (subscription.pendingPlanId ?? subscription.planId);
+
+  return (
+    <fieldset className="space-y-2.5">
+      <legend className="text-xs font-bold text-white/80">
+        {t('payment.subscription.changeTitle')}
+      </legend>
+      <p className="text-[11px] text-white/60 leading-relaxed">
+        {t('payment.subscription.changeHint', { date })}
+      </p>
+      {plans.map((plan) => (
+        <button
+          key={plan.id}
+          type="button"
+          aria-pressed={selected === plan.id}
+          onClick={() => setSelected(plan.id)}
+          className={cn(
+            'w-full min-h-[48px] px-4 py-3 rounded-xl border text-left flex items-center justify-between gap-3 cursor-pointer focus-visible:ring-2 focus-visible:ring-teal-400/50',
+            selected === plan.id
+              ? 'bg-teal-500/10 border-teal-500/40'
+              : 'bg-white/5 border-white/10 hover:bg-white/10'
+          )}
+        >
+          <span className="text-xs font-bold text-white">
+            {plan.name}
+            {plan.id === subscription.planId && (
+              <span className="ml-2 px-1.5 py-0.5 rounded-md bg-white/10 text-[10px] font-semibold text-white/70">
+                {t('payment.subscription.currentPeriod')}
+              </span>
+            )}
+          </span>
+          <span className="text-sm font-black text-teal-300">
+            {formatPlanAmount(plan.priceMinor, i18n.language)}
+          </span>
+        </button>
+      ))}
+      <div className="flex flex-wrap gap-2 pt-1">
+        <button
+          type="button"
+          onClick={() => onConfirm(selected)}
+          disabled={acting || unchanged}
+          className={`${subscriptionButtonClass} bg-teal-400 hover:bg-teal-300 text-slate-950`}
+        >
+          {t('payment.subscription.changeConfirm', { date })}
+        </button>
+        <button
+          type="button"
+          onClick={onBack}
+          disabled={acting}
+          className={`${subscriptionButtonClass} bg-white/10 hover:bg-white/15 text-white`}
+        >
+          {t('payment.subscription.changeBack')}
+        </button>
+      </div>
+    </fieldset>
+  );
+}
+
+=== src/domain/payment/components/subscription/SubscriptionDetails.tsx — ARQUIVO NOVO, conteúdo completo ===
+import { useTranslation } from 'react-i18next';
+import type { PlanPeriodOption, PlanSubscription } from '../../types/payment';
+import { formatBillingDate, formatPlanAmount } from '../../utils/formatPlanAmount';
+import { LIVE_SUBSCRIPTION_STATUSES } from './subscriptionStatus';
+
+export const subscriptionButtonClass =
+  'min-h-11 px-4 rounded-xl text-xs font-bold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-teal-400/50';
+
+function useStatusMessage(subscription: PlanSubscription): string {
+  const { t, i18n } = useTranslation();
+  const date = subscription.currentPeriodEnd
+    ? formatBillingDate(subscription.currentPeriodEnd, i18n.language)
+    : '';
+  if (subscription.status === 'past_due' || subscription.status === 'unpaid') {
+    return t('payment.subscription.statusPastDue');
+  }
+  if (subscription.status === 'canceled' || subscription.status === 'incomplete_expired') {
+    return t('payment.subscription.statusCanceled');
+  }
+  if (subscription.status === 'incomplete' || subscription.status === 'paused') {
+    return t('payment.subscription.statusIncomplete');
+  }
+  if (subscription.cancelAtPeriodEnd) {
+    return t('payment.subscription.statusCancelScheduled', { date });
+  }
+  return subscription.status === 'trialing'
+    ? t('payment.subscription.statusTrialing', { date })
+    : t('payment.subscription.statusActive', { date });
+}
+
+interface SubscriptionDetailsProps {
+  subscription: PlanSubscription;
+  plans: PlanPeriodOption[];
+  acting: boolean;
+  onManage: () => void;
+  onToggleRenewal: () => void;
+  onChangePeriod: () => void;
+  onKeepCurrent: () => void;
+}
+
+export function SubscriptionDetails({
+  subscription,
+  plans,
+  acting,
+  onManage,
+  onToggleRenewal,
+  onChangePeriod,
+  onKeepCurrent,
+}: SubscriptionDetailsProps) {
+  const { t, i18n } = useTranslation();
+  const message = useStatusMessage(subscription);
+  const isLive = LIVE_SUBSCRIPTION_STATUSES.has(subscription.status);
+  const pending = plans.find((plan) => plan.id === subscription.pendingPlanId);
+
+  return (
+    <>
+      <p
+        className={
+          subscription.status === 'past_due' ? 'text-sm text-amber-200' : 'text-sm text-white/80'
+        }
+      >
+        {message}
+      </p>
+      {pending && subscription.pendingChangeAt && (
+        <div className="flex flex-wrap items-center gap-3 p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/20">
+          <p className="text-xs text-cyan-100 flex-1 min-w-[12rem]">
+            {t('payment.subscription.pendingChange', {
+              date: formatBillingDate(subscription.pendingChangeAt, i18n.language),
+              plan: pending.name,
+              amount: formatPlanAmount(pending.priceMinor, i18n.language),
+            })}
+          </p>
+          <button
+            type="button"
+            onClick={onKeepCurrent}
+            disabled={acting}
+            className={`${subscriptionButtonClass} bg-white/10 hover:bg-white/15 text-white`}
+          >
+            {t('payment.subscription.keepCurrent')}
+          </button>
+        </div>
+      )}
+      {isLive && (
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={onManage}
+            disabled={acting}
+            className={`${subscriptionButtonClass} bg-teal-400 hover:bg-teal-300 text-slate-950`}
+          >
+            {t('payment.subscription.manageCard')}
+          </button>
+          {plans.length > 1 && subscription.status !== 'past_due' && (
+            <button
+              type="button"
+              onClick={onChangePeriod}
+              disabled={acting}
+              className={`${subscriptionButtonClass} bg-white/10 hover:bg-white/15 text-white`}
+            >
+              {t('payment.subscription.changePeriod')}
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={onToggleRenewal}
+            disabled={acting}
+            className={`${subscriptionButtonClass} bg-white/10 hover:bg-white/15 text-white`}
+          >
+            {subscription.cancelAtPeriodEnd
+              ? t('payment.subscription.resumeRenewal')
+              : t('payment.subscription.cancelRenewal')}
+          </button>
+        </div>
+      )}
+    </>
+  );
+}
+
+=== src/domain/payment/components/subscription/subscriptionStatus.ts — ARQUIVO NOVO, conteúdo completo ===
+import type { PlanSubscription } from '../../types/payment';
+
+/** Estados em que a assinatura ainda cobra: trocar período e cancelar a renovação fazem sentido. */
+export const LIVE_SUBSCRIPTION_STATUSES: ReadonlySet<PlanSubscription['status']> = new Set([
+  'active',
+  'trialing',
+  'past_due',
+]);
 
 === src/domain/payment/hooks/usePayment.ts — diff ===
 @@ -2,13 +2,15 @@ import { useCallback, useRef, useState } from 'react';
@@ -2018,7 +2583,7 @@ export function formatPlanDate(iso: string, locale: string): string {
      [paymentIntentId, onSuccess]
 
 === src/domain/payment/hooks/usePlanSubscriptionCheckout.test.ts — diff ===
-@@ -13,6 +13,7 @@ vi.mock('../application/usecases/getPlanSubscriptionUseCase', () => ({
+@@ -13,10 +13,13 @@ vi.mock('../application/usecases/getPlanSubscriptionUseCase', () => ({
  }));
  
  const ACTIVE = {
@@ -2026,7 +2591,13 @@ export function formatPlanDate(iso: string, locale: string): string {
    planId: 'monthly' as const,
    status: 'active' as const,
    currentPeriodEnd: '2026-11-10T12:00:00.000Z',
-@@ -33,12 +34,12 @@ describe('usePlanSubscriptionCheckout', () => {
+   cancelAtPeriodEnd: false,
++  pendingPlanId: null,
++  pendingChangeAt: null,
+ };
+ 
+ describe('usePlanSubscriptionCheckout', () => {
+@@ -33,12 +36,12 @@ describe('usePlanSubscriptionCheckout', () => {
        clientSecret: 'seti_secret',
        intentType: 'setup',
      });
@@ -2041,7 +2612,7 @@ export function formatPlanDate(iso: string, locale: string): string {
      );
      expect(result.current.status).toBe('ready');
      expect(result.current.checkout?.intentType).toBe('setup');
-@@ -49,7 +50,7 @@ describe('usePlanSubscriptionCheckout', () => {
+@@ -49,7 +52,7 @@ describe('usePlanSubscriptionCheckout', () => {
      vi.mocked(startPlanSubscriptionUseCase).mockRejectedValue(
        new Error('SUBSCRIPTION_ALREADY_ACTIVE')
      );
@@ -2050,7 +2621,7 @@ export function formatPlanDate(iso: string, locale: string): string {
      await act(async () => {
        await result.current.start();
      });
-@@ -62,7 +63,7 @@ describe('usePlanSubscriptionCheckout', () => {
+@@ -62,7 +65,7 @@ describe('usePlanSubscriptionCheckout', () => {
      vi.mocked(getPlanSubscriptionUseCase)
        .mockResolvedValueOnce({ ...ACTIVE, status: 'incomplete' })
        .mockResolvedValueOnce(ACTIVE);
@@ -2059,7 +2630,7 @@ export function formatPlanDate(iso: string, locale: string): string {
      await act(async () => {
        result.current.waitForActivation();
        await vi.advanceTimersByTimeAsync(0);
-@@ -73,11 +74,12 @@ describe('usePlanSubscriptionCheckout', () => {
+@@ -73,11 +76,12 @@ describe('usePlanSubscriptionCheckout', () => {
      });
      expect(result.current.status).toBe('active');
      expect(getPlanSubscriptionUseCase).toHaveBeenCalledTimes(2);
@@ -2121,8 +2692,16 @@ export function formatPlanDate(iso: string, locale: string): string {
      setError(message);
 
 === src/domain/payment/hooks/usePlanSubscriptionStatus.ts — diff ===
-@@ -7,7 +7,7 @@ import { setPlanSubscriptionRenewalUseCase } from '../application/usecases/setPl
- import type { PlanSubscription } from '../types/payment';
+@@ -1,13 +1,14 @@
+ import { useCallback, useEffect, useState } from 'react';
+ import { useTranslation } from 'react-i18next';
+ import { DEFAULT_LOCALE, normalizeLocale } from '../../../shared/i18n';
++import { changePlanSubscriptionUseCase } from '../application/usecases/changePlanSubscriptionUseCase';
+ import { createBillingPortalSessionUseCase } from '../application/usecases/createBillingPortalSessionUseCase';
+ import { getPlanSubscriptionUseCase } from '../application/usecases/getPlanSubscriptionUseCase';
+ import { setPlanSubscriptionRenewalUseCase } from '../application/usecases/setPlanSubscriptionRenewalUseCase';
+-import type { PlanSubscription } from '../types/payment';
++import type { PaidPlanId, PlanSubscription } from '../types/payment';
  import { getPaymentErrorMessage } from '../utils/paymentErrorMessage';
  
 -export function usePlanSubscriptionStatus() {
@@ -2130,7 +2709,7 @@ export function formatPlanDate(iso: string, locale: string): string {
    const { i18n } = useTranslation();
    const [data, setData] = useState<PlanSubscription | null>(null);
    const [loading, setLoading] = useState(true);
-@@ -18,29 +18,32 @@ export function usePlanSubscriptionStatus() {
+@@ -18,29 +19,56 @@ export function usePlanSubscriptionStatus() {
      setLoading(true);
      setError(null);
      try {
@@ -2173,12 +2752,58 @@ export function formatPlanDate(iso: string, locale: string): string {
 +    },
 +    [itemId]
 +  );
++
++  /** Uma chave por clique: o botão fica travado enquanto a troca anterior não volta. */
++  const changePlan = useCallback(
++    async (planId: PaidPlanId) => {
++      setActing(true);
++      setError(null);
++      try {
++        setData(
++          await changePlanSubscriptionUseCase({
++            itemId,
++            planId,
++            idempotencyKey: crypto.randomUUID(),
++          })
++        );
++        return true;
++      } catch (err: unknown) {
++        setError(getPaymentErrorMessage(err));
++        return false;
++      } finally {
++        setActing(false);
++      }
++    },
++    [itemId]
++  );
  
    const openPortal = useCallback(async () => {
      setActing(true);
+@@ -56,5 +84,5 @@ export function usePlanSubscriptionStatus() {
+     }
+   }, [i18n.language]);
+ 
+-  return { data, loading, error, acting, reload, setRenewal, openPortal };
++  return { data, loading, error, acting, reload, setRenewal, changePlan, openPortal };
+ }
+
+=== src/domain/payment/index.ts — diff ===
+@@ -15,4 +15,5 @@ export type {
+   PaidPlanId,
+   PartnerConnectStatusResponse,
+   PaymentStatus,
++  PlanPeriodOption,
+ } from './types/payment';
 
 === src/domain/payment/ports/paymentApiPort.ts — diff ===
-@@ -12,14 +12,14 @@ export interface PaymentApiPort {
+@@ -1,5 +1,6 @@
+ import type {
+   CreatePaymentIntentResponse,
++  PaidPlanId,
+   CreatePlanPaymentIntentPayload,
+   PartnerConnectStatusResponse,
+   PaymentLocale,
+@@ -12,14 +13,19 @@ export interface PaymentApiPort {
    createPlanPaymentIntent(
      payload: CreatePlanPaymentIntentPayload
    ): Promise<CreatePaymentIntentResponse>;
@@ -2197,6 +2822,11 @@ export function formatPlanDate(iso: string, locale: string): string {
 +  ): Promise<StartPlanSubscriptionResponse>;
 +  getPlanSubscription(itemId: string): Promise<PlanSubscription | null>;
 +  setPlanSubscriptionRenewal(itemId: string, renew: boolean): Promise<PlanSubscription | null>;
++  changePlanSubscription(params: {
++    itemId: string;
++    planId: PaidPlanId;
++    idempotencyKey: string;
++  }): Promise<PlanSubscription | null>;
    createBillingPortalSession(locale: PaymentLocale): Promise<{ url: string }>;
  }
 
@@ -2211,7 +2841,7 @@ export function formatPlanDate(iso: string, locale: string): string {
    planId: PaidPlanId;
    idempotencyKey: string;
  }
-@@ -49,6 +51,7 @@ export type PlanSubscriptionStatus =
+@@ -49,13 +51,25 @@ export type PlanSubscriptionStatus =
    | 'paused';
  
  export interface PlanSubscription {
@@ -2219,7 +2849,17 @@ export function formatPlanDate(iso: string, locale: string): string {
    planId: PaidPlanId;
    status: PlanSubscriptionStatus;
    currentPeriodEnd: string | null;
-@@ -56,6 +59,7 @@ export interface PlanSubscription {
+   cancelAtPeriodEnd: boolean;
++  /** Período escolhido para a próxima renovação (D13); `null` sem troca agendada. */
++  pendingPlanId: PaidPlanId | null;
++  pendingChangeAt: string | null;
++}
++
++/** Período do catálogo exibido na troca; o backend recalcula o valor ao cobrar (§8.5). */
++export interface PlanPeriodOption {
++  id: PaidPlanId;
++  name: string;
++  priceMinor: number;
  }
  
  export interface StartPlanSubscriptionPayload {
@@ -2229,7 +2869,7 @@ export function formatPlanDate(iso: string, locale: string): string {
    idempotencyKey: string;
 
 === src/domain/payment/utils/paymentErrorMessage.ts — diff ===
-@@ -8,6 +8,10 @@ const PAYMENT_ERROR_CODES = [
+@@ -8,6 +8,11 @@ const PAYMENT_ERROR_CODES = [
    'FORBIDDEN',
    'BILLING_UNAVAILABLE',
    'PAYMENT_FAILED',
@@ -2237,6 +2877,7 @@ export function formatPlanDate(iso: string, locale: string): string {
 +  'LISTING_PENDING_VERIFICATION',
 +  'PLAN_ALREADY_ACTIVE',
 +  'PARTNER_SUSPENDED',
++  'SUBSCRIPTION_PAST_DUE',
  ] as const;
  
  type PaymentErrorCode = (typeof PAYMENT_ERROR_CODES)[number];
@@ -2580,7 +3221,7 @@ export const listingPlanFr: ListingPlanTranslation = {
    partners: PartnersTranslation;
    verification: VerificationTranslation;
    common: {
-@@ -106,6 +113,10 @@ export interface TranslationResource {
+@@ -106,6 +113,11 @@ export interface TranslationResource {
        FORBIDDEN: string;
        BILLING_UNAVAILABLE: string;
        PAYMENT_FAILED: string;
@@ -2588,10 +3229,26 @@ export const listingPlanFr: ListingPlanTranslation = {
 +      LISTING_PENDING_VERIFICATION: string;
 +      PLAN_ALREADY_ACTIVE: string;
 +      PARTNER_SUSPENDED: string;
++      SUBSCRIPTION_PAST_DUE: string;
      };
    };
    payment: {
-@@ -223,6 +234,7 @@ export interface TranslationResource {
+@@ -162,6 +174,14 @@ export interface TranslationResource {
+       actionFailed: string;
+       loadFailed: string;
+       retry: string;
++      changePeriod: string;
++      changeTitle: string;
++      changeHint: string;
++      changeConfirm: string;
++      changeBack: string;
++      currentPeriod: string;
++      pendingChange: string;
++      keepCurrent: string;
+     };
+   };
+   seo: {
+@@ -223,6 +243,7 @@ export interface TranslationResource {
  const ptBR: TranslationResource = {
    bookings: bookingsPtBR,
    insights: insightsPtBR,
@@ -2599,7 +3256,7 @@ export const listingPlanFr: ListingPlanTranslation = {
    partners: partnersPtBR,
    verification: verificationPtBR,
    common: {
-@@ -304,6 +316,11 @@ const ptBR: TranslationResource = {
+@@ -304,6 +325,12 @@ const ptBR: TranslationResource = {
        FORBIDDEN: 'Conclua seu cadastro de parceiro antes de assinar.',
        BILLING_UNAVAILABLE: 'Pagamentos indisponíveis no momento. Tente novamente em instantes.',
        PAYMENT_FAILED: 'O pagamento não foi aprovado.',
@@ -2608,10 +3265,27 @@ export const listingPlanFr: ListingPlanTranslation = {
 +        'O estabelecimento precisa ser verificado pela equipe antes do plano.',
 +      PLAN_ALREADY_ACTIVE: 'Este estabelecimento já tem um plano em vigor.',
 +      PARTNER_SUSPENDED: 'Sua conta está suspensa.',
++      SUBSCRIPTION_PAST_DUE: 'Atualize a forma de pagamento antes de trocar o período.',
      },
    },
    payment: {
-@@ -469,6 +486,7 @@ const ptBR: TranslationResource = {
+@@ -366,6 +393,15 @@ const ptBR: TranslationResource = {
+       actionFailed: 'Não foi possível concluir a ação. Tente novamente.',
+       loadFailed: 'Não foi possível carregar a assinatura.',
+       retry: 'Tentar novamente',
++      changePeriod: 'Trocar período',
++      changeTitle: 'Novo período a partir da próxima renovação',
++      changeHint:
++        'O período atual segue até {{date}}. Os benefícios são os mesmos; muda só o ciclo e o valor da cobrança.',
++      changeConfirm: 'Trocar na próxima renovação ({{date}})',
++      changeBack: 'Voltar',
++      currentPeriod: 'Atual',
++      pendingChange: 'A partir de {{date}}, o plano passa para {{plan}} ({{amount}}).',
++      keepCurrent: 'Manter o período atual',
+     },
+   },
+   seo: {
+@@ -469,6 +505,7 @@ const ptBR: TranslationResource = {
  const en: TranslationResource = {
    bookings: bookingsEn,
    insights: insightsEn,
@@ -2619,7 +3293,7 @@ export const listingPlanFr: ListingPlanTranslation = {
    partners: partnersEn,
    verification: verificationEn,
    common: {
-@@ -549,6 +567,10 @@ const en: TranslationResource = {
+@@ -549,6 +586,11 @@ const en: TranslationResource = {
        FORBIDDEN: 'Complete your partner registration before subscribing.',
        BILLING_UNAVAILABLE: 'Payments are unavailable right now. Please try again shortly.',
        PAYMENT_FAILED: 'The payment was not approved.',
@@ -2627,10 +3301,27 @@ export const listingPlanFr: ListingPlanTranslation = {
 +      LISTING_PENDING_VERIFICATION: 'The team must verify the business before a plan.',
 +      PLAN_ALREADY_ACTIVE: 'This business already has an active plan.',
 +      PARTNER_SUSPENDED: 'Your account is suspended.',
++      SUBSCRIPTION_PAST_DUE: 'Update your payment method before changing the period.',
      },
    },
    payment: {
-@@ -711,6 +733,7 @@ const en: TranslationResource = {
+@@ -609,6 +651,15 @@ const en: TranslationResource = {
+       actionFailed: 'The action could not be completed. Please try again.',
+       loadFailed: 'The subscription could not be loaded.',
+       retry: 'Try again',
++      changePeriod: 'Change period',
++      changeTitle: 'New period from the next renewal',
++      changeHint:
++        'The current period runs until {{date}}. The benefits are the same; only the billing cycle and amount change.',
++      changeConfirm: 'Change at the next renewal ({{date}})',
++      changeBack: 'Back',
++      currentPeriod: 'Current',
++      pendingChange: 'From {{date}}, the plan switches to {{plan}} ({{amount}}).',
++      keepCurrent: 'Keep the current period',
+     },
+   },
+   seo: {
+@@ -711,6 +762,7 @@ const en: TranslationResource = {
  const fr: TranslationResource = {
    bookings: bookingsFr,
    insights: insightsFr,
@@ -2638,7 +3329,7 @@ export const listingPlanFr: ListingPlanTranslation = {
    partners: partnersFr,
    verification: verificationFr,
    common: {
-@@ -793,6 +816,10 @@ const fr: TranslationResource = {
+@@ -793,6 +845,11 @@ const fr: TranslationResource = {
        BILLING_UNAVAILABLE:
          'Les paiements sont indisponibles pour le moment. Réessayez dans un instant.',
        PAYMENT_FAILED: 'Le paiement n’a pas été approuvé.',
@@ -2646,16 +3337,34 @@ export const listingPlanFr: ListingPlanTranslation = {
 +      LISTING_PENDING_VERIFICATION: "L'équipe doit vérifier l'établissement avant l'offre.",
 +      PLAN_ALREADY_ACTIVE: 'Cet établissement a déjà une offre active.',
 +      PARTNER_SUSPENDED: 'Votre compte est suspendu.',
++      SUBSCRIPTION_PAST_DUE: 'Mettez à jour votre moyen de paiement avant de changer de période.',
      },
    },
    payment: {
+@@ -856,6 +913,15 @@ const fr: TranslationResource = {
+       actionFailed: 'L’action n’a pas pu aboutir. Veuillez réessayer.',
+       loadFailed: 'Impossible de charger l’abonnement.',
+       retry: 'Réessayer',
++      changePeriod: 'Changer de période',
++      changeTitle: 'Nouvelle période à partir du prochain renouvellement',
++      changeHint:
++        "La période actuelle court jusqu'au {{date}}. Les avantages sont les mêmes ; seuls le cycle et le montant de la facturation changent.",
++      changeConfirm: 'Changer au prochain renouvellement ({{date}})',
++      changeBack: 'Retour',
++      currentPeriod: 'Actuelle',
++      pendingChange: 'À partir du {{date}}, le forfait passe à {{plan}} ({{amount}}).',
++      keepCurrent: 'Garder la période actuelle',
+     },
+   },
+   seo: {
 
 VERIFICAÇÃO (obrigatória):
-- `npm run typecheck`, `npx biome lint .` (0 erros; arquivos tocados sem avisos), `npm test` → 177 arquivos, 936 testes, `npm run build`.
+- `npm run typecheck`, `npx biome lint .` (0 erros; arquivos tocados sem avisos), `npm test` → 179 arquivos, 951 testes, `npm run build`.
 - no app (painel do parceiro → Meus Itens):
   - cada cadastro tem dois selos: verificação e plano;
   - cadastro sem verificação aprovada: o diálogo do plano pede a verificação e não mostra os períodos;
   - cadastro verificado: ativar o teste grátis, ou escolher um período e pagar com cartão de teste (4242 4242 4242 4242);
+  - cadastro com assinatura no cartão: "Trocar período" → escolher outro período → "Trocar na próxima renovação"; o cartão mostra a troca agendada e "Manter o período atual";
   - Relatórios de um cadastro sem plano mostram o aviso e as avaliações.
   Repita em `fr` para ver se o texto não corta.
 
