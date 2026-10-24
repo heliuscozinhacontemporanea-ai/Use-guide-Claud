@@ -165,11 +165,15 @@
 
 > **Envie um prompt por mensagem**, nesta ordem. Até o 18.3.1 (telas), trial, compra de plano e selo do admin pelo painel ficam fora do ar, e as métricas de estabelecimento sem plano mostram erro.
 
-# Lote 16 (Prompt A5) — aplicar sobre o zip de 2026-10-24 (2º)
+# Lote 16 (Prompts A5, 18.4a.1 e 18.4a.2) — aplicar sobre o zip de 2026-10-24 (2º)
 
 | Ordem | Arquivo | Tema | Commit de referência |
 |---|---|---|---|
 | 1 | `prompts/prompt-A5.md` | AGENTS.md §11.1 e nova §11.11 (S14) + §8.1, §8.2, §8.3 e §8.7 (S15: repasse por documento, retenção até o serviço, taxas e cancelamentos) | `52392fe..5573f13` |
+| 2 | `prompts/prompt-18.4a.1.md` | Conta Stripe Express por CNPJ (D14), parte 1: backend, regras e testes; sai a trava B22 | `6946ecf` |
+| 3 | `prompts/prompt-18.4a.2.md` | Conta Stripe Express por CNPJ (D14), parte 2: portal de recebimentos com um cartão por CNPJ, ticketing e reservas | `6946ecf` |
+
+> O 18.4a passou de 150 KB e foi dividido. Envie a parte 2 logo depois da parte 1: entre as duas, o painel do parceiro ainda chama as rotas antigas de conta financeira.
 
 > O lote 15 voltou igual à referência (todo o código, byte a byte); nenhuma correção pendente.
 
