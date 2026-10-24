@@ -91,7 +91,7 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 | 18.3b.1 | Correção do 18.3b | `0fec4b9..faba4ec` | ⏳ enviado, aguardando zip (lote 15) | — |
 | 18.3b.2 | Troca de período na próxima renovação, backend (D13) | `e261e1d` | ⏳ enviar (lote 15) | — |
 | 18.3.1a | Plano e selo por estabelecimento no painel do parceiro (D11, D13) | `4f3fddb` + `cf21b31` | ⏳ enviar (lote 15) | — |
-| 18.3.1b | Selo do admin por estabelecimento, explicação do selo e "Destaque" (D11) | `37fe44f` | ⏳ enviar (lote 15) | — |
+| 18.3.1b | Selo do admin por estabelecimento, explicação do selo e "Destaque" (D11) | `37fe44f` + `55d0cc1` | ⏳ enviar (lote 15) | — |
 
 ## Gates
 

@@ -1,6 +1,6 @@
 # Prompt 18.3.1b — Selo do admin por estabelecimento, explicação do selo e "Destaque" nas listas
 
-> Lote 15, gerado do commit de referência `37fe44f` da branch `claude/agents-md-v2`. Aplique depois do 18.3.1a. Cole o bloco abaixo no agente do AI Studio, inteiro, de uma vez.
+> Lote 15, gerado do commit de referência `37fe44f` + `55d0cc1` da branch `claude/agents-md-v2`. Aplique depois do 18.3.1a. Cole o bloco abaixo no agente do AI Studio, inteiro, de uma vez.
 
 ---
 
@@ -2263,7 +2263,11 @@ export function AdminListingSealControl({ itemId, name }: AdminListingSealContro
     <div className="flex flex-wrap items-center gap-2">
       <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-white/70">
         <BadgeCheck size={12} aria-hidden="true" />
-        {loading ? t('listingPlan.dialog.loading') : t(`listingPlan.chip.${status}`, { date })}
+        {loading
+          ? t('listingPlan.dialog.loading')
+          : status === 'none'
+            ? t('listingPlan.admin.noPlan')
+            : t(`listingPlan.chip.${status}`, { date })}
       </span>
       <button
         type="button"
@@ -2372,7 +2376,7 @@ export function AdminListingSealControl({ itemId, name }: AdminListingSealContro
 -export type UpdatePartnerVerificationInput = z.infer<typeof updatePartnerVerificationSchema>;
 
 === src/shared/i18n/listingPlanResources.ts — diff ===
-@@ -54,6 +54,17 @@ export interface ListingPlanTranslation {
+@@ -54,6 +54,18 @@ export interface ListingPlanTranslation {
    };
    trialActivated: string;
    checkoutName: string;
@@ -2386,11 +2390,12 @@ export function AdminListingSealControl({ itemId, name }: AdminListingSealContro
 +    granted: string;
 +    grantedPendingVerification: string;
 +    revoked: string;
++    noPlan: string;
 +  };
    errors: {
      VALIDATION_ERROR: string;
      FORBIDDEN: string;
-@@ -123,6 +134,19 @@ export const listingPlanPtBR: ListingPlanTranslation = {
+@@ -123,6 +135,20 @@ export const listingPlanPtBR: ListingPlanTranslation = {
    },
    trialActivated: 'Teste grátis ativado até {{date}}.',
    checkoutName: 'Use Guide Verificado · {{plan}} · {{name}}',
@@ -2406,11 +2411,12 @@ export function AdminListingSealControl({ itemId, name }: AdminListingSealContro
 +    grantedPendingVerification:
 +      'Selo concedido. Ele aparece quando a verificação do estabelecimento for aprovada.',
 +    revoked: 'Selo retirado.',
++    noPlan: 'Sem plano',
 +  },
    errors: {
      VALIDATION_ERROR: 'Dados inválidos. Revise e tente novamente.',
      FORBIDDEN: 'Este estabelecimento não é da sua conta.',
-@@ -192,6 +216,19 @@ export const listingPlanEn: ListingPlanTranslation = {
+@@ -192,6 +218,20 @@ export const listingPlanEn: ListingPlanTranslation = {
    },
    trialActivated: 'Free trial active until {{date}}.',
    checkoutName: 'Use Guide Verified · {{plan}} · {{name}}',
@@ -2426,11 +2432,12 @@ export function AdminListingSealControl({ itemId, name }: AdminListingSealContro
 +    grantedPendingVerification:
 +      'Badge granted. It shows once the business verification is approved.',
 +    revoked: 'Badge removed.',
++    noPlan: 'No plan',
 +  },
    errors: {
      VALIDATION_ERROR: 'Invalid data. Please review and try again.',
      FORBIDDEN: 'This business does not belong to your account.',
-@@ -261,6 +298,19 @@ export const listingPlanFr: ListingPlanTranslation = {
+@@ -261,6 +301,20 @@ export const listingPlanFr: ListingPlanTranslation = {
    },
    trialActivated: "Essai gratuit actif jusqu'au {{date}}.",
    checkoutName: 'Use Guide Vérifié · {{plan}} · {{name}}',
@@ -2446,6 +2453,7 @@ export function AdminListingSealControl({ itemId, name }: AdminListingSealContro
 +    grantedPendingVerification:
 +      "Badge accordé. Il s'affiche une fois la vérification de l'établissement approuvée.",
 +    revoked: 'Badge retiré.',
++    noPlan: 'Sans offre',
 +  },
    errors: {
      VALIDATION_ERROR: 'Données invalides. Vérifiez et réessayez.',
