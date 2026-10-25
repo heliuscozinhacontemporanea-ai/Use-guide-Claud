@@ -97,6 +97,10 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 | A5 | AGENTS.md §11.1 e §11.11 (S14: tema claro e app nativo) + §8.1, §8.2, §8.3 e §8.7 (S15: repasse por documento e retenção até o serviço) | `52392fe..5573f13` | ⏳ enviar (lote 16) | — |
 | 18.4a.1 | Conta Stripe por CNPJ, backend (D14) | `6946ecf` | ⏳ enviar (lote 16) | — |
 | 18.4a.2 | Conta Stripe por CNPJ, frontend (D14) | `6946ecf` | ⏳ enviar (lote 16) | — |
+| 18.4b.0.1 | ticketingService dividido, sem mudar comportamento | `51f5188` | ⏳ enviar (lote 16) | — |
+| 18.4b.0.2 | Adapter Firestore do ticketing dividido, sem mudar comportamento | `0012702` | ⏳ enviar (lote 16) | — |
+| 18.4b.1 | Taxas, políticas de cancelamento e arrependimento, backend (D14) | `0012702..9e420df` | ⏳ enviar (lote 16) | — |
+| 18.4b.2 | Taxas, políticas de cancelamento e arrependimento, frontend (D14) | `0012702..9e420df` | ⏳ enviar (lote 16) | — |
 
 ## Gates
 

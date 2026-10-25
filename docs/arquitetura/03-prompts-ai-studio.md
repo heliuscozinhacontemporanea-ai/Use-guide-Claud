@@ -165,15 +165,21 @@
 
 > **Envie um prompt por mensagem**, nesta ordem. Até o 18.3.1 (telas), trial, compra de plano e selo do admin pelo painel ficam fora do ar, e as métricas de estabelecimento sem plano mostram erro.
 
-# Lote 16 (Prompts A5, 18.4a.1 e 18.4a.2) — aplicar sobre o zip de 2026-10-24 (2º)
+# Lote 16 (Prompts A5, 18.4a.1, 18.4a.2, 18.4b.0.1, 18.4b.0.2, 18.4b.1 e 18.4b.2) — aplicar sobre o zip de 2026-10-24 (2º)
 
 | Ordem | Arquivo | Tema | Commit de referência |
 |---|---|---|---|
 | 1 | `prompts/prompt-A5.md` | AGENTS.md §11.1 e nova §11.11 (S14) + §8.1, §8.2, §8.3 e §8.7 (S15: repasse por documento, retenção até o serviço, taxas e cancelamentos) | `52392fe..5573f13` |
 | 2 | `prompts/prompt-18.4a.1.md` | Conta Stripe Express por CNPJ (D14), parte 1: backend, regras e testes; sai a trava B22 | `6946ecf` |
 | 3 | `prompts/prompt-18.4a.2.md` | Conta Stripe Express por CNPJ (D14), parte 2: portal de recebimentos com um cartão por CNPJ, ticketing e reservas | `6946ecf` |
+| 4 | `prompts/prompt-18.4b.0.1.md` | ticketingService (1857 linhas) dividido por responsabilidade, sem mudar comportamento | `51f5188` |
+| 5 | `prompts/prompt-18.4b.0.2.md` | Adapter Firestore do ticketing (1559 linhas) dividido em stores, sem mudar comportamento | `0012702` |
+| 6 | `prompts/prompt-18.4b.1.md` | Taxas por produto, políticas de cancelamento e arrependimento (D14), parte 1: backend; débito B27 | `0012702..9e420df` |
+| 7 | `prompts/prompt-18.4b.2.md` | Taxas por produto, políticas de cancelamento e arrependimento (D14), parte 2: editores, compra de ingresso e carteira divididas e traduzidas | `0012702..9e420df` |
 
 > O 18.4a passou de 150 KB e foi dividido. Envie a parte 2 logo depois da parte 1: entre as duas, o painel do parceiro ainda chama as rotas antigas de conta financeira.
+
+> O 18.4b também foi dividido; cada parte compila sozinha. Antes do 18.4b.1, cadastre no painel Secrets do AI Studio `BOOKINGS_PLATFORM_FEE_BPS=1500`, `TICKETS_PLATFORM_FEE_BPS=1000`, `TICKETS_ABSORBED_FEE_BPS=1250` e `TICKET_SERVICE_FEE_MINOR=300`: sem elas, ingressos e reservas respondem "vendas indisponíveis".
 
 > O lote 15 voltou igual à referência (todo o código, byte a byte); nenhuma correção pendente.
 
