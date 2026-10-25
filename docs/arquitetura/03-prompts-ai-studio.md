@@ -165,6 +165,14 @@
 
 > **Envie um prompt por mensagem**, nesta ordem. Até o 18.3.1 (telas), trial, compra de plano e selo do admin pelo painel ficam fora do ar, e as métricas de estabelecimento sem plano mostram erro.
 
+# Lote 17 (Prompt C16) — aplicar sobre o zip de 2026-10-25
+
+| Ordem | Arquivo | Tema | Commit de referência |
+|---|---|---|---|
+| 1 | `prompts/prompt-C16.md` | Correção do lote 16: o texto da D14 entra no `docs/arquitetura/decisoes.md` (só documentação) | `48a75ac` |
+
+> O lote 16 voltou igual à referência em todo o código: as 42 diferenças são só ordem de imports e formatação, sem mudança de lógica. Gates no próprio zip: typecheck, lint (0 erros), 1.004 testes, 64 testes das regras, build e servidor de produção respondendo. Única lacuna: a D14 não estava no `decisoes.md`.
+
 # Lote 16 (Prompts A5, 18.4a.1, 18.4a.2, 18.4b.0.1, 18.4b.0.2, 18.4b.1, 18.4b.2 e 18.4b.3) — aplicar sobre o zip de 2026-10-24 (2º)
 
 | Ordem | Arquivo | Tema | Commit de referência |
