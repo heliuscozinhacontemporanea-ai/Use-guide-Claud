@@ -1,6 +1,6 @@
 # Prompt 18.4b.2 — Taxas por produto, políticas de cancelamento e arrependimento (D14) · Parte 2 de 2 — frontend
 
-> Lote 16, gerado do commit de referência `9e420df` da branch `claude/agents-md-v2`. Aplique depois do 18.4b.1. Cole o bloco abaixo no agente do AI Studio, inteiro, de uma vez.
+> Lote 16, gerado do commit de referência `31e0772` da branch `claude/agents-md-v2`. Aplique depois do 18.4b.1. Cole o bloco abaixo no agente do AI Studio, inteiro, de uma vez.
 
 ---
 
@@ -23,13 +23,15 @@ O QUE MUDA:
 5) Compra de ingresso: EventTicketingPurchasePanel (795 linhas) dividido em useTicketCheckout, useEventSalesPolicy e componentes em ticketing/components/checkout/; antes do pagamento mostra a política, o arrependimento e a taxa de serviço destacada no resumo.
 6) Carteira de ingressos: UserTicketsHistoryView (593 linhas) dividido em useTicketWalletActions, utils/ticketWalletRules.ts e componentes em ticketing/components/wallet/; o reembolso mostra o valor previsto num ConfirmDialog antes de pedir.
 7) Reservas: a prévia do reembolso e o resumo da política usam as regras novas, inclusive o arrependimento.
-8) i18n: namespaces salesPolicy, ticketCheckout e ticketWallet nos 3 idiomas; chaves antigas de política do bookings saem. docs/arquitetura/debitos.md: B16 deixa de citar a carteira de ingressos.
+8) Tema claro: textos de destaque com o token text-accent e campos com bg-surface; a aba de idioma do editor de oferta fica legível nos dois temas.
+9) i18n: namespaces salesPolicy, ticketCheckout e ticketWallet nos 3 idiomas; chaves antigas de política do bookings saem. docs/arquitetura/debitos.md: B16 deixa de citar a carteira de ingressos.
 
 ARQUIVOS (crie, altere ou apague exatamente estes):
 - server/shared/kernel/cancellationPolicy.parity.test.ts (criar)
 - src/domain/bookings/components/buyer/MyBookingsView.tsx (alterar)
 - src/domain/bookings/components/buyer/OfferPolicySummary.tsx (alterar)
 - src/domain/bookings/components/buyer/buyerComponents.test.tsx (alterar)
+- src/domain/bookings/components/partner/OfferTextFields.tsx (alterar)
 - src/domain/bookings/components/partner/PartnerOfferEditor.tsx (alterar)
 - src/domain/bookings/components/partner/PartnerOffersManager.tsx (alterar)
 - src/domain/bookings/schemas/offerFormSchema.ts (alterar)
@@ -175,7 +177,7 @@ describe('paridade das políticas de cancelamento frontend × backend', () => {
 +          {t(`salesPolicy.policies.${family}.${policy}.description`)} {t('salesPolicy.noShow')}
 +        </span>
        </li>
-+      <li className="text-ink/70">{t('salesPolicy.withdrawal')}</li>
++      <li className="text-ink/70">{t('salesPolicy.withdrawalNoFee')}</li>
      </ul>
    );
  }
@@ -198,7 +200,7 @@ describe('paridade das políticas de cancelamento frontend × backend', () => {
 +    expect(
 +      screen.getByText(/Full refund up to 5 days before the start; 50% up to 24 h before/)
 +    ).toBeTruthy();
-+    expect(screen.getByText(/Right of withdrawal/)).toBeTruthy();
++    expect(screen.getByText(/Right of withdrawal: full refund if/)).toBeTruthy();
      await i18n.changeLanguage('pt-BR');
    });
  });
@@ -271,6 +273,17 @@ describe('paridade das políticas de cancelamento frontend × backend', () => {
 -    ).toEqual({ refundPercent: 0, refundAmountMinor: 0 });
    });
  });
+
+=== src/domain/bookings/components/partner/OfferTextFields.tsx — diff ===
+@@ -32,7 +32,7 @@ export function OfferTextFields({ register, errors }: OfferTextFieldsProps) {
+             aria-selected={language === code}
+             onClick={() => setLanguage(code)}
+             className={`min-h-11 px-3 rounded-xl text-xs font-bold cursor-pointer focus-visible:ring-2 focus-visible:ring-teal-400/50 ${
+-              language === code ? 'bg-teal-500/20 text-teal-200' : 'bg-white/5 text-white/70'
++              language === code ? 'bg-accent-soft text-accent' : 'bg-surface text-ink/70'
+             }`}
+           >
+             {t(`common.locales.${code === 'pt-BR' ? 'ptBR' : code}`)}
 
 === src/domain/bookings/components/partner/PartnerOfferEditor.tsx — diff ===
 @@ -1,7 +1,9 @@
@@ -351,7 +364,7 @@ describe('paridade das políticas de cancelamento frontend × backend', () => {
 +          />
 +        )}
 +      />
-+      <p className="text-xs text-ink/70">{t('salesPolicy.withdrawal')}</p>
++      <p className="text-xs text-ink/70">{t('salesPolicy.withdrawalNoFee')}</p>
        <label className="flex items-center gap-3 min-h-11">
          <input
            type="checkbox"
@@ -663,7 +676,7 @@ export function EventSalesPolicySection({ item, onChange }: EventSectionProps) {
           <ShieldCheck size={18} aria-hidden="true" />
         </span>
         <h3 className="text-sm font-black text-ink uppercase tracking-widest">
-          {t('salesPolicy.policyLegend')}
+          {t('salesPolicy.sectionTitle')}
         </h3>
       </div>
       <RadioCardGroup<string>
@@ -956,7 +969,7 @@ export function EventTicketingPurchasePanel({
                   <span className="text-xs text-ink/70 block">
                     {t('ticketCheckout.ticketCount', { count: checkout.totalQuantity })}
                   </span>
-                  <span className="text-base font-black text-teal-300">
+                  <span className="text-base font-black text-accent">
                     {checkout.isAllFree
                       ? t('ticketCheckout.free')
                       : formatMoneyMinor(checkout.estimatedSubtotalMinor, i18n.language)}
@@ -1255,9 +1268,9 @@ export function IssuedTicketsCard({
 }: IssuedTicketsCardProps) {
   const { t } = useTranslation();
   return (
-    <GlassCard className="p-5 space-y-4 border-teal-500/30">
+    <GlassCard className="p-5 space-y-4 border-accent-line">
       <div className="flex items-center gap-3">
-        <div className="w-11 h-11 rounded-2xl bg-teal-500/20 border border-teal-400/30 flex items-center justify-center text-teal-300">
+        <div className="w-11 h-11 rounded-2xl bg-accent-soft border border-accent-line flex items-center justify-center text-accent">
           <CheckCircle2 size={22} aria-hidden="true" />
         </div>
         <div>
@@ -1277,7 +1290,7 @@ export function IssuedTicketsCard({
           {tickets.map(({ ticket, qrDataUrl }) => (
             <li
               key={ticket.id}
-              className="p-3.5 rounded-2xl bg-black/40 border border-line flex flex-col sm:flex-row items-center gap-4"
+              className="p-3.5 rounded-2xl bg-surface border border-line flex flex-col sm:flex-row items-center gap-4"
             >
               {qrDataUrl ? (
                 <img
@@ -1288,12 +1301,12 @@ export function IssuedTicketsCard({
                   className="w-28 h-28 rounded-xl bg-white p-1.5 shrink-0"
                 />
               ) : (
-                <div className="w-28 h-28 rounded-xl bg-white/10 flex items-center justify-center text-teal-300">
+                <div className="w-28 h-28 rounded-xl bg-white/10 flex items-center justify-center text-accent">
                   <QrCode size={36} aria-hidden="true" />
                 </div>
               )}
               <div className="flex-1 text-center sm:text-left space-y-1 min-w-0">
-                <p className="text-xs font-bold text-teal-300 uppercase tracking-wider">
+                <p className="text-xs font-bold text-accent uppercase tracking-wider">
                   {ticket.ticketTypeSnapshot?.name || t('ticketCheckout.issued.defaultType')}
                 </p>
                 <p className="text-sm font-bold text-ink break-words">{ticket.holderName}</p>
@@ -1413,7 +1426,7 @@ import { useTranslation } from 'react-i18next';
 import type { TicketCheckoutState } from '../../hooks/useTicketCheckout';
 
 const INPUT =
-  'w-full min-h-11 px-3.5 rounded-xl bg-black/40 border border-line text-xs text-ink placeholder:text-ink/60 focus-visible:ring-2 focus-visible:ring-teal-400/50 focus:border-teal-400';
+  'w-full min-h-11 px-3.5 rounded-xl bg-surface border border-line text-xs text-ink placeholder:text-ink/60 focus-visible:ring-2 focus-visible:ring-teal-400/50 focus:border-teal-400';
 
 interface TicketBuyerFormProps {
   checkout: TicketCheckoutState;
@@ -1465,9 +1478,9 @@ export function TicketBuyerForm({ checkout }: TicketBuyerFormProps) {
               return (
                 <fieldset
                   key={key}
-                  className="p-2.5 rounded-xl bg-black/30 border border-line space-y-2"
+                  className="p-2.5 pt-1 rounded-xl bg-surface border border-line space-y-2"
                 >
-                  <legend className="text-xs font-bold text-teal-300">
+                  <legend className="px-1 text-xs font-bold text-accent">
                     {t('ticketCheckout.holders.label', {
                       number: index + 1,
                       ticket: ticketType.name,
@@ -1593,10 +1606,10 @@ export function TicketOrderPaymentStep({ order, checkout }: TicketOrderPaymentSt
   const serviceFeeMinor = order.serviceFeeMinor ?? 0;
 
   return (
-    <GlassCard className="p-4 space-y-4 border-teal-500/30">
+    <GlassCard className="p-4 space-y-4 border-accent-line">
       <div className="flex items-center justify-between gap-2 flex-wrap">
         <div>
-          <p className="text-xs font-bold text-teal-300 uppercase tracking-wider">
+          <p className="text-xs font-bold text-accent uppercase tracking-wider">
             {t('ticketCheckout.payment.reservation', { id: order.id.slice(0, 8) })}
           </p>
           <p className="text-base font-black text-ink">
@@ -1611,7 +1624,7 @@ export function TicketOrderPaymentStep({ order, checkout }: TicketOrderPaymentSt
               ? 'bg-danger-soft border-danger-line text-danger'
               : countdown.isWarning
                 ? 'bg-warn-soft border-warn-line text-warn motion-safe:animate-pulse'
-                : 'bg-teal-500/15 border-teal-500/30 text-teal-300'
+                : 'bg-accent-soft border-accent-line text-accent'
           )}
         >
           <Clock size={14} aria-hidden="true" />
@@ -1621,7 +1634,7 @@ export function TicketOrderPaymentStep({ order, checkout }: TicketOrderPaymentSt
         </p>
       </div>
 
-      <dl className="p-3 rounded-xl bg-black/40 border border-line space-y-1.5 text-xs">
+      <dl className="p-3 rounded-xl bg-surface border border-line space-y-1.5 text-xs">
         <div className="flex justify-between text-ink/70">
           <dt>{t('ticketCheckout.payment.subtotal')}</dt>
           <dd>{money(order.subtotalMinor)}</dd>
@@ -1640,7 +1653,7 @@ export function TicketOrderPaymentStep({ order, checkout }: TicketOrderPaymentSt
         )}
         <div className="flex justify-between font-bold text-ink pt-1 border-t border-line">
           <dt>{t('ticketCheckout.payment.finalTotal')}</dt>
-          <dd className="text-teal-300">{money(order.totalMinor)}</dd>
+          <dd className="text-accent">{money(order.totalMinor)}</dd>
         </div>
       </dl>
 
@@ -1655,7 +1668,7 @@ export function TicketOrderPaymentStep({ order, checkout }: TicketOrderPaymentSt
       {paymentProcessing && (
         <p
           role="status"
-          className="p-3.5 rounded-xl bg-teal-500/10 border border-teal-500/30 text-xs text-teal-200 flex items-center gap-2.5"
+          className="p-3.5 rounded-xl bg-accent-soft border border-accent-line text-xs text-accent flex items-center gap-2.5"
         >
           <Loader2 size={16} className="animate-spin shrink-0" aria-hidden="true" />
           {t('ticketCheckout.payment.processing')}
@@ -1741,7 +1754,7 @@ export function TicketTypeList({
             <div className="space-y-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-sm font-bold text-ink break-words">{ticketType.name}</span>
-                <span className="text-xs font-black text-teal-300">
+                <span className="text-xs font-black text-accent">
                   {ticketType.kind === 'free' || ticketType.priceMinor <= 0
                     ? t('ticketCheckout.free')
                     : formatMoneyMinor(ticketType.priceMinor, i18n.language)}
@@ -1776,7 +1789,7 @@ export function TicketTypeList({
                     totalQuantity >= maxPerUser
                   }
                   aria-label={t('ticketCheckout.increase', { name: ticketType.name })}
-                  className={`${STEP_BUTTON} bg-teal-500/20 border-teal-500/30 text-teal-300`}
+                  className={`${STEP_BUTTON} bg-accent-soft border-accent-line text-accent`}
                 >
                   +
                 </button>
@@ -1812,7 +1825,7 @@ export function ResumePaymentCard({ resuming, onClose, onError, onPaid }: Resume
   const { t, i18n } = useTranslation();
   const amount = formatMoneyMinor(resuming.order.totalMinor, i18n.language);
   return (
-    <GlassCard className="p-4 space-y-4 border-teal-500/30">
+    <GlassCard className="p-4 space-y-4 border-accent-line">
       <div className="flex items-center justify-between gap-2">
         <div>
           <h4 className="text-sm font-bold text-ink">
@@ -1852,7 +1865,7 @@ import { GlassCard } from '../../../../ui/components/GlassCard';
 import type { Ticket } from '../../types/ticketing';
 
 const INPUT =
-  'w-full min-h-11 px-3.5 rounded-xl bg-black/40 border border-line text-xs text-ink placeholder:text-ink/60 focus-visible:ring-2 focus-visible:ring-teal-400/50';
+  'w-full min-h-11 px-3.5 rounded-xl bg-surface border border-line text-xs text-ink placeholder:text-ink/60 focus-visible:ring-2 focus-visible:ring-teal-400/50';
 
 interface TransferTicketFormProps {
   ticket: Ticket;
@@ -1871,7 +1884,7 @@ export function TransferTicketForm({ ticket, busy, onSubmit, onCancel }: Transfe
     onSubmit({ email: email.trim(), name: name.trim() || undefined });
   };
   return (
-    <GlassCard className="p-4 space-y-3 border-teal-500/30">
+    <GlassCard className="p-4 space-y-3 border-accent-line">
       <h4 className="text-sm font-bold text-ink">
         {t('ticketWallet.transfer.title', { id: ticket.id.slice(0, 8) })}
       </h4>
@@ -1952,7 +1965,7 @@ export function WalletOrderCard({
         </p>
         <p className="text-xs text-ink/70">
           {dateFormat({ dateStyle: 'medium' }).format(new Date(order.createdAt))} •{' '}
-          <span className="font-semibold text-teal-300">
+          <span className="font-semibold text-accent">
             {t(`ticketWallet.orderStatus.${order.status}`, { defaultValue: order.status })}
           </span>
         </p>
@@ -2031,7 +2044,7 @@ export function WalletTicketCard({
     <GlassCard className="p-4 space-y-3">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className="text-xs font-bold uppercase tracking-wider text-teal-300">
+          <p className="text-xs font-bold uppercase tracking-wider text-accent">
             {ticket.ticketTypeSnapshot?.name || t('ticketCheckout.issued.defaultType')}
           </p>
           <h4 className="text-sm font-bold text-ink break-words">
@@ -2056,7 +2069,7 @@ export function WalletTicketCard({
           className={cn(
             'px-2.5 py-1 rounded-full text-xs font-bold shrink-0',
             ticket.status === 'issued'
-              ? 'bg-teal-500/20 text-teal-300'
+              ? 'bg-accent-soft text-accent'
               : ticket.status === 'checked_in'
                 ? 'bg-success-soft text-success'
                 : 'bg-white/10 text-ink/70'
@@ -2109,10 +2122,7 @@ export function WalletTicketCard({
             <button
               type="button"
               onClick={onTransfer}
-              className={cn(
-                ACTION,
-                'flex-1 bg-teal-500/15 hover:bg-teal-500/25 border border-teal-500/30 text-teal-300'
-              )}
+              className={cn(ACTION, 'flex-1 bg-accent-soft border border-accent-line text-accent')}
             >
               <Send size={14} aria-hidden="true" />
               {t('ticketWallet.actions.transfer')}
@@ -2893,9 +2903,11 @@ export interface SalesPolicyTranslation {
     booking: Record<'flexible' | 'moderate' | 'strict' | 'none', PolicyText>;
     transfer: Record<'transfer_flexible' | 'transfer_standard', PolicyText>;
   };
+  sectionTitle: string;
   policyLegend: string;
   lockedHint: string;
   withdrawal: string;
+  withdrawalNoFee: string;
   noShow: string;
   serviceFee: {
     legend: string;
@@ -2943,10 +2955,13 @@ export const salesPolicyPtBR: SalesPolicyTranslation = {
       },
     },
   },
+  sectionTitle: 'Regras de venda',
   policyLegend: 'Política de cancelamento',
   lockedHint: 'Depois de publicar, só é possível trocar por uma política mais flexível.',
   withdrawal:
     'Direito de arrependimento: reembolso integral, inclusive a taxa de serviço, se cancelar em até 7 dias da compra e até 48 h antes do início.',
+  withdrawalNoFee:
+    'Direito de arrependimento: reembolso integral se cancelar em até 7 dias da compra e até 48 h antes do início.',
   noShow: 'Quem não comparece não tem reembolso.',
   serviceFee: {
     legend: 'Taxa de serviço',
@@ -2992,10 +3007,13 @@ export const salesPolicyEn: SalesPolicyTranslation = {
       },
     },
   },
+  sectionTitle: 'Sales rules',
   policyLegend: 'Cancellation policy',
   lockedHint: 'After publishing, you can only switch to a more flexible policy.',
   withdrawal:
     'Right of withdrawal: full refund, service fee included, if you cancel within 7 days of purchase and at least 48 h before the start.',
+  withdrawalNoFee:
+    'Right of withdrawal: full refund if you cancel within 7 days of purchase and at least 48 h before the start.',
   noShow: 'No-shows are not refunded.',
   serviceFee: {
     legend: 'Service fee',
@@ -3063,10 +3081,13 @@ export const salesPolicyFr: SalesPolicyTranslation = {
       },
     },
   },
+  sectionTitle: 'Règles de vente',
   policyLegend: 'Politique d’annulation',
   lockedHint: 'Après la publication, vous ne pouvez passer qu’à une politique plus flexible.',
   withdrawal:
     'Droit de rétractation : remboursement intégral, frais de service compris, si vous annulez dans les 7 jours suivant l’achat et au moins 48 h avant le début.',
+  withdrawalNoFee:
+    'Droit de rétractation : remboursement intégral si vous annulez dans les 7 jours suivant l’achat et au moins 48 h avant le début.',
   noShow: 'Aucun remboursement en cas d’absence.',
   serviceFee: {
     legend: 'Frais de service',
@@ -3694,7 +3715,7 @@ export function RadioCardGroup<T extends string>({
 
 VERIFICAÇÃO (obrigatória):
 - `npm run typecheck`, `npx biome lint .` (0 erros; arquivos tocados sem avisos), `npm run build`;
-- testes ligados aos arquivos deste prompt: `npx vitest related --run server/shared/kernel/cancellationPolicy.parity.test.ts src/domain/bookings/components/buyer/MyBookingsView.tsx src/domain/bookings/components/buyer/OfferPolicySummary.tsx src/domain/bookings/components/buyer/buyerComponents.test.tsx src/domain/bookings/components/partner/PartnerOfferEditor.tsx src/domain/bookings/components/partner/PartnerOffersManager.tsx src/domain/bookings/schemas/offerFormSchema.ts src/domain/bookings/types/bookings.ts src/domain/bookings/utils/bookingsFrontendUtils.test.ts src/domain/bookings/utils/offerFormMapping.ts src/domain/bookings/utils/refundPreview.ts src/domain/events/index.ts src/domain/events/types/event.ts src/domain/guide/components/EventDetailModal.tsx src/domain/partners/components/PartnerEventForm.tsx src/domain/partners/components/PartnerPanel.tsx src/domain/partners/components/event/EventSalesPolicySection.tsx src/domain/partners/hooks/usePartnerContentActions.ts src/domain/partners/hooks/usePartnerEventSessions.ts src/domain/partners/types/partnerContent.ts src/domain/ticketing/components/EventTicketingPurchasePanel.tsx src/domain/ticketing/components/UserTicketsHistoryView.tsx src/domain/ticketing/components/checkout/IssuedTicketsCard.tsx src/domain/ticketing/components/checkout/OccurrencePicker.tsx src/domain/ticketing/components/checkout/SalesPolicyNotice.tsx src/domain/ticketing/components/checkout/TicketBuyerForm.tsx src/domain/ticketing/components/checkout/TicketOrderPaymentStep.test.tsx src/domain/ticketing/components/checkout/TicketOrderPaymentStep.tsx src/domain/ticketing/components/checkout/TicketTypeList.tsx src/domain/ticketing/components/wallet/ResumePaymentCard.tsx src/domain/ticketing/components/wallet/TransferTicketForm.tsx src/domain/ticketing/components/wallet/WalletOrderCard.tsx src/domain/ticketing/components/wallet/WalletTicketCard.tsx src/domain/ticketing/hooks/useEventSalesPolicy.ts src/domain/ticketing/hooks/useTicketCheckout.ts src/domain/ticketing/hooks/useTicketWalletActions.ts src/domain/ticketing/types/ticketing.ts src/domain/ticketing/utils/ticketWalletRules.test.ts src/domain/ticketing/utils/ticketWalletRules.ts src/shared/hooks/useCancellationPolicyOptions.ts src/shared/i18n/bookingsResources.ts src/shared/i18n/resources.ts src/shared/i18n/salesPolicyResources.ts src/shared/i18n/ticketCheckoutResources.ts src/shared/i18n/ticketWalletResources.ts src/ui/components/RadioCardGroup.tsx` (todos verdes). Não precisa rodar a suíte inteira.
+- testes ligados aos arquivos deste prompt: `npx vitest related --run server/shared/kernel/cancellationPolicy.parity.test.ts src/domain/bookings/components/buyer/MyBookingsView.tsx src/domain/bookings/components/buyer/OfferPolicySummary.tsx src/domain/bookings/components/buyer/buyerComponents.test.tsx src/domain/bookings/components/partner/OfferTextFields.tsx src/domain/bookings/components/partner/PartnerOfferEditor.tsx src/domain/bookings/components/partner/PartnerOffersManager.tsx src/domain/bookings/schemas/offerFormSchema.ts src/domain/bookings/types/bookings.ts src/domain/bookings/utils/bookingsFrontendUtils.test.ts src/domain/bookings/utils/offerFormMapping.ts src/domain/bookings/utils/refundPreview.ts src/domain/events/index.ts src/domain/events/types/event.ts src/domain/guide/components/EventDetailModal.tsx src/domain/partners/components/PartnerEventForm.tsx src/domain/partners/components/PartnerPanel.tsx src/domain/partners/components/event/EventSalesPolicySection.tsx src/domain/partners/hooks/usePartnerContentActions.ts src/domain/partners/hooks/usePartnerEventSessions.ts src/domain/partners/types/partnerContent.ts src/domain/ticketing/components/EventTicketingPurchasePanel.tsx src/domain/ticketing/components/UserTicketsHistoryView.tsx src/domain/ticketing/components/checkout/IssuedTicketsCard.tsx src/domain/ticketing/components/checkout/OccurrencePicker.tsx src/domain/ticketing/components/checkout/SalesPolicyNotice.tsx src/domain/ticketing/components/checkout/TicketBuyerForm.tsx src/domain/ticketing/components/checkout/TicketOrderPaymentStep.test.tsx src/domain/ticketing/components/checkout/TicketOrderPaymentStep.tsx src/domain/ticketing/components/checkout/TicketTypeList.tsx src/domain/ticketing/components/wallet/ResumePaymentCard.tsx src/domain/ticketing/components/wallet/TransferTicketForm.tsx src/domain/ticketing/components/wallet/WalletOrderCard.tsx src/domain/ticketing/components/wallet/WalletTicketCard.tsx src/domain/ticketing/hooks/useEventSalesPolicy.ts src/domain/ticketing/hooks/useTicketCheckout.ts src/domain/ticketing/hooks/useTicketWalletActions.ts src/domain/ticketing/types/ticketing.ts src/domain/ticketing/utils/ticketWalletRules.test.ts src/domain/ticketing/utils/ticketWalletRules.ts src/shared/hooks/useCancellationPolicyOptions.ts src/shared/i18n/bookingsResources.ts src/shared/i18n/resources.ts src/shared/i18n/salesPolicyResources.ts src/shared/i18n/ticketCheckoutResources.ts src/shared/i18n/ticketWalletResources.ts src/ui/components/RadioCardGroup.tsx` (todos verdes). Não precisa rodar a suíte inteira.
 - confira no AI Studio, em pt-BR e fr, nos temas claro e escuro: editor de evento pago (seção de política e taxa de serviço), editor de oferta, compra de ingresso (resumo com taxa de serviço) e Meus ingressos (cancelar mostra o valor do reembolso).
 
 LIMPEZA (obrigatória, ao terminar de implementar): apague todos os arquivos de public/assets/aistudio/, inclusive o deste prompt. São cópias dos textos colados no chat, salvas automaticamente pelo AI Studio, e public/ vai para o site publicado. Se a pasta ficar vazia, apague a pasta também.
