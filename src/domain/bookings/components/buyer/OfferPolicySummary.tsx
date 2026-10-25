@@ -6,6 +6,7 @@ import type { PublicOffer } from '../../types/bookings';
 export function OfferPolicySummary({ offer }: { offer: PublicOffer }) {
   const { t } = useTranslation();
   const policy = offer.cancellationPolicy;
+  const family = (offer.kind as string) === 'transfer' ? 'transfer' : 'booking';
   return (
     <ul className="space-y-1.5 text-xs text-white/70">
       {offer.durationMinutes ? (
@@ -22,13 +23,14 @@ export function OfferPolicySummary({ offer }: { offer: PublicOffer }) {
       ) : null}
       <li className="flex items-start gap-2">
         <ShieldCheck size={14} className="text-teal-300 shrink-0 mt-0.5" aria-hidden="true" />
-        {policy.freeCancellationHoursBefore > 0
-          ? t('bookings.buyer.policyFree', {
-              hours: policy.freeCancellationHoursBefore,
-              percent: policy.refundPercentAfterDeadline,
-            })
-          : t('bookings.buyer.policyNoFree', { percent: policy.refundPercentAfterDeadline })}
+        <span>
+          <span className="font-semibold">
+            {t(`salesPolicy.policies.${family}.${policy}.title`)}:
+          </span>{' '}
+          {t(`salesPolicy.policies.${family}.${policy}.description`)} {t('salesPolicy.noShow')}
+        </span>
       </li>
+      <li className="text-ink/70">{t('salesPolicy.withdrawal')}</li>
     </ul>
   );
 }

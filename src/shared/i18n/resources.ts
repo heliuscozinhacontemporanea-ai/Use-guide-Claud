@@ -29,6 +29,24 @@ import {
   partnersPtBR,
 } from './partnersResources';
 import {
+  type SalesPolicyTranslation,
+  salesPolicyEn,
+  salesPolicyFr,
+  salesPolicyPtBR,
+} from './salesPolicyResources';
+import {
+  type TicketCheckoutTranslation,
+  ticketCheckoutEn,
+  ticketCheckoutFr,
+  ticketCheckoutPtBR,
+} from './ticketCheckoutResources';
+import {
+  type TicketWalletTranslation,
+  ticketWalletEn,
+  ticketWalletFr,
+  ticketWalletPtBR,
+} from './ticketWalletResources';
+import {
   type VerificationTranslation,
   verificationEn,
   verificationFr,
@@ -41,6 +59,9 @@ export interface TranslationResource {
   listingPlan: ListingPlanTranslation;
   partners: PartnersTranslation;
   paymentAccounts: PaymentAccountsTranslation;
+  salesPolicy: SalesPolicyTranslation;
+  ticketCheckout: TicketCheckoutTranslation;
+  ticketWallet: TicketWalletTranslation;
   verification: VerificationTranslation;
   common: {
     language: string;
@@ -261,6 +282,9 @@ const ptBR: TranslationResource = {
   listingPlan: listingPlanPtBR,
   partners: partnersPtBR,
   paymentAccounts: paymentAccountsPtBR,
+  salesPolicy: salesPolicyPtBR,
+  ticketCheckout: ticketCheckoutPtBR,
+  ticketWallet: ticketWalletPtBR,
   verification: verificationPtBR,
   common: {
     language: 'Idioma',
@@ -531,6 +555,9 @@ const en: TranslationResource = {
   listingPlan: listingPlanEn,
   partners: partnersEn,
   paymentAccounts: paymentAccountsEn,
+  salesPolicy: salesPolicyEn,
+  ticketCheckout: ticketCheckoutEn,
+  ticketWallet: ticketWalletEn,
   verification: verificationEn,
   common: {
     language: 'Language',
@@ -795,6 +822,9 @@ const fr: TranslationResource = {
   listingPlan: listingPlanFr,
   partners: partnersFr,
   paymentAccounts: paymentAccountsFr,
+  salesPolicy: salesPolicyFr,
+  ticketCheckout: ticketCheckoutFr,
+  ticketWallet: ticketWalletFr,
   verification: verificationFr,
   common: {
     language: 'Langue',

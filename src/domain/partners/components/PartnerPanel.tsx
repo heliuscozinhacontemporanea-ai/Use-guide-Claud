@@ -100,8 +100,8 @@ export function PartnerPanel({
   >(undefined);
   useEditorScrollLock(Boolean(isEditing));
   const editingEventId = isEditing?.category === 'event' ? isEditing.id || undefined : undefined;
-  const eventSessions = usePartnerEventSessions(editingEventId, (sessions) =>
-    setIsEditing((current) => (current ? { ...current, sessions } : current))
+  const eventSessions = usePartnerEventSessions(editingEventId, (details) =>
+    setIsEditing((current) => (current ? { ...current, ...details } : current))
   );
 
   const [verifyingListing, setVerifyingListing] = React.useState<VerificationListingOption | null>(

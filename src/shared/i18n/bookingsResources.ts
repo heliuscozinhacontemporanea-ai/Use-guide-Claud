@@ -7,8 +7,6 @@ export interface BookingsTranslation {
     retry: string;
     duration: string;
     meetingPoint: string;
-    policyFree: string;
-    policyNoFree: string;
     chooseSlot: string;
     noSlots: string;
     spotsLeft_one: string;
@@ -94,12 +92,6 @@ export interface BookingsTranslation {
     removePriceOption: string;
     durationLabel: string;
     meetingPointLabel: string;
-    policyLegend: string;
-    freeHoursLabel: string;
-    refundAfterLabel: string;
-    refundNone: string;
-    refundHalf: string;
-    refundFull: string;
     maxParticipantsLabel: string;
     requireNamesLabel: string;
     save: string;
@@ -192,10 +184,6 @@ export const bookingsPtBR: BookingsTranslation = {
     retry: 'Tentar novamente',
     duration: 'Duração: {{minutes}} min',
     meetingPoint: 'Ponto de encontro: {{address}}',
-    policyFree:
-      'Cancelamento grátis até {{hours}} h antes. Depois, reembolso de {{percent}}%. Após o início, sem reembolso.',
-    policyNoFree:
-      'Reembolso de {{percent}}% se cancelar antes do início. Após o início, sem reembolso.',
     chooseSlot: 'Escolha o horário',
     noSlots: 'Nenhum horário disponível nos próximos 30 dias.',
     spotsLeft_one: '{{count}} vaga',
@@ -284,12 +272,6 @@ export const bookingsPtBR: BookingsTranslation = {
     removePriceOption: 'Remover opção de preço',
     durationLabel: 'Duração (minutos)',
     meetingPointLabel: 'Ponto de encontro',
-    policyLegend: 'Política de cancelamento',
-    freeHoursLabel: 'Cancelamento grátis até quantas horas antes',
-    refundAfterLabel: 'Reembolso depois desse prazo',
-    refundNone: 'Sem reembolso',
-    refundHalf: '50%',
-    refundFull: '100%',
     maxParticipantsLabel: 'Máximo de participantes por reserva',
     requireNamesLabel: 'Pedir o nome de cada participante',
     save: 'Salvar',
@@ -383,9 +365,6 @@ export const bookingsEn: BookingsTranslation = {
     retry: 'Try again',
     duration: 'Duration: {{minutes}} min',
     meetingPoint: 'Meeting point: {{address}}',
-    policyFree:
-      'Free cancellation up to {{hours}} h before. After that, {{percent}}% refund. No refund after the start.',
-    policyNoFree: '{{percent}}% refund if you cancel before the start. No refund after the start.',
     chooseSlot: 'Choose a time',
     noSlots: 'No time slots available in the next 30 days.',
     spotsLeft_one: '{{count}} spot',
@@ -472,12 +451,6 @@ export const bookingsEn: BookingsTranslation = {
     removePriceOption: 'Remove price option',
     durationLabel: 'Duration (minutes)',
     meetingPointLabel: 'Meeting point',
-    policyLegend: 'Cancellation policy',
-    freeHoursLabel: 'Free cancellation up to how many hours before',
-    refundAfterLabel: 'Refund after that deadline',
-    refundNone: 'No refund',
-    refundHalf: '50%',
-    refundFull: '100%',
     maxParticipantsLabel: 'Maximum participants per booking',
     requireNamesLabel: 'Ask for each participant’s name',
     save: 'Save',
@@ -570,10 +543,6 @@ export const bookingsFr: BookingsTranslation = {
     retry: 'Réessayer',
     duration: 'Durée : {{minutes}} min',
     meetingPoint: 'Point de rendez-vous : {{address}}',
-    policyFree:
-      'Annulation gratuite jusqu’à {{hours}} h avant. Ensuite, remboursement de {{percent}} %. Aucun remboursement après le début.',
-    policyNoFree:
-      'Remboursement de {{percent}} % en cas d’annulation avant le début. Aucun remboursement après le début.',
     chooseSlot: 'Choisissez un créneau',
     noSlots: 'Aucun créneau disponible dans les 30 prochains jours.',
     spotsLeft_one: '{{count}} place',
@@ -664,12 +633,6 @@ export const bookingsFr: BookingsTranslation = {
     removePriceOption: 'Retirer l’option de tarif',
     durationLabel: 'Durée (minutes)',
     meetingPointLabel: 'Point de rendez-vous',
-    policyLegend: 'Politique d’annulation',
-    freeHoursLabel: 'Annulation gratuite jusqu’à combien d’heures avant',
-    refundAfterLabel: 'Remboursement après ce délai',
-    refundNone: 'Aucun remboursement',
-    refundHalf: '50 %',
-    refundFull: '100 %',
     maxParticipantsLabel: 'Nombre maximum de participants par réservation',
     requireNamesLabel: 'Demander le nom de chaque participant',
     save: 'Enregistrer',

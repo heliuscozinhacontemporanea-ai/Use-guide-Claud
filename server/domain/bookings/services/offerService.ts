@@ -1,3 +1,7 @@
+import {
+  canChangeCancellationPolicy,
+  isCancellationPolicyAllowed,
+} from '../../../shared/kernel/cancellationPolicy';
 import { BookingDomainError } from '../errors/bookingDomainError';
 import type { BookableItemLookupPort } from '../ports/bookableItemLookupPort';
 import type { BookingsPort } from '../ports/bookingsPort';
@@ -10,6 +14,7 @@ import {
   type Booking,
   type BookingActor,
   type PublicBookableOffer,
+  cancellationFamilyOf,
   type PublicSlot,
 } from '../types/bookingTypes';
 import { buildSlotId } from '../utils/buildBookingId';
@@ -45,6 +50,15 @@ export type OfferInput = Pick<
 export type CreateSlotsInput =
   | { mode: 'list'; slots: Array<{ startsAt: string; endsAt?: string }>; capacity: number }
   | ({ mode: 'recurrence'; capacity: number } & SlotRecurrence);
+
+function assertPolicyForKind(kind: BookableOfferKind, policy: string): void {
+  if (!isCancellationPolicyAllowed(cancellationFamilyOf(kind), policy)) {
+    throw new BookingDomainError(
+      'VALIDATION_ERROR',
+      'Política de cancelamento não disponível para este tipo de oferta.'
+    );
+  }
+}
 
 function assertValidPricing(pricing: BookableOffer['pricing']): void {
   if (pricing.priceOptions.length === 0) {
@@ -94,6 +108,7 @@ export class OfferService {
       throw new BookingDomainError('VALIDATION_ERROR', 'Tipo de oferta incompatível com o item.');
     }
     assertValidPricing(input.pricing);
+    assertPolicyForKind(input.kind, input.cancellationPolicy);
 
     const timestamp = this.now().toISOString();
     const offer: BookableOffer = {
@@ -119,6 +134,20 @@ export class OfferService {
       throw new BookingDomainError('INVALID_TRANSITION', 'Oferta arquivada não pode ser editada.');
     }
     if (input.pricing) assertValidPricing(input.pricing);
+    if (input.cancellationPolicy) {
+      assertPolicyForKind(offer.kind, input.cancellationPolicy);
+      // D14: depois de publicar, a política só fica igual ou mais flexível (protege quem já reservou).
+      const family = cancellationFamilyOf(offer.kind);
+      if (
+        offer.status !== 'draft' &&
+        !canChangeCancellationPolicy(family, offer.cancellationPolicy, input.cancellationPolicy)
+      ) {
+        throw new BookingDomainError(
+          'POLICY_CHANGE_NOT_ALLOWED',
+          'Depois de publicar, a política de cancelamento só pode ficar mais flexível.'
+        );
+      }
+    }
     const updated: BookableOffer = { ...offer, ...input, updatedAt: this.now().toISOString() };
     await this.port.saveOffer(updated);
     if (updated.status === 'published') {

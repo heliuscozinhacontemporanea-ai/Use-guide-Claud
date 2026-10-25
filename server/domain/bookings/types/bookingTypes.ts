@@ -1,3 +1,4 @@
+import type { BookingCancellationPolicy } from '../../../shared/kernel/cancellationPolicy';
 import type { Locale } from '../../../shared/kernel/locale';
 
 /** Texto cadastrado pelo parceiro; pt-BR é obrigatório (AGENTS.md §12.6). */
@@ -17,9 +18,9 @@ export interface PriceOption {
   maxQuantity?: number;
 }
 
-export interface CancellationPolicy {
-  freeCancellationHoursBefore: number;
-  refundPercentAfterDeadline: 0 | 50 | 100;
+/** Translado tem opções próprias (Código Civil art. 740); os outros tipos usam as de reserva (D14). */
+export function cancellationFamilyOf(kind: BookableOfferKind): 'booking' | 'transfer' {
+  return kind === 'transfer' ? 'transfer' : 'booking';
 }
 
 export interface MeetingPoint {
@@ -41,7 +42,7 @@ export interface BookableOffer {
   pricing: { currency: 'BRL'; priceOptions: PriceOption[] };
   durationMinutes?: number;
   meetingPoint?: MeetingPoint;
-  cancellationPolicy: CancellationPolicy;
+  cancellationPolicy: BookingCancellationPolicy;
   maxParticipantsPerBooking: number;
   requiresParticipantNames: boolean;
   createdAt: string;
@@ -91,7 +92,7 @@ export interface BookingLine {
 
 export interface BookingCancellation {
   by: 'buyer' | 'partner' | 'system';
-  refundPercent: 0 | 50 | 100;
+  refundPercent: number;
   refundAmountMinor: number;
   reason: string;
   at: string;
@@ -118,7 +119,7 @@ export interface Booking {
     startsAt: string;
     durationMinutes?: number;
     meetingPoint?: string;
-    cancellationPolicy: CancellationPolicy;
+    cancellationPolicy: BookingCancellationPolicy;
   };
   /** Gravado ao cancelar: torna o cancelamento repetível sem recalcular o reembolso. */
   cancellation?: BookingCancellation;

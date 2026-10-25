@@ -43,8 +43,8 @@ export class TicketHolderService {
     ]);
 
     const allowTransfer =
-      order?.refundPolicySnapshot?.allowTicketTransfer ??
-      listing?.refundPolicy?.allowTicketTransfer ??
+      order?.salesPolicySnapshot.allowTicketTransfer ??
+      listing?.salesPolicy.allowTicketTransfer ??
       true;
 
     if (!allowTransfer) {
@@ -65,8 +65,8 @@ export class TicketHolderService {
       const startsAtMs = new Date(occurrence.startsAt).getTime();
       const nowMs = Date.now();
       const cutoffHours =
-        order?.refundPolicySnapshot?.ticketTransferCutoffHours ??
-        listing?.refundPolicy?.ticketTransferCutoffHours ??
+        order?.salesPolicySnapshot.ticketTransferCutoffHours ??
+        listing?.salesPolicy.ticketTransferCutoffHours ??
         4;
       const hoursUntilStart = (startsAtMs - nowMs) / (1000 * 60 * 60);
       if (hoursUntilStart < cutoffHours) {

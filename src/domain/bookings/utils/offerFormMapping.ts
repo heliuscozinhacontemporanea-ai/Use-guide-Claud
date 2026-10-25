@@ -1,5 +1,5 @@
 import type { OfferFormValues } from '../schemas/offerFormSchema';
-import type { LocalizedText, OfferFields, PartnerOffer, RefundPercent } from '../types/bookings';
+import type { LocalizedText, OfferFields, PartnerOffer } from '../types/bookings';
 import { minorToReaisInput, parseReaisToMinor } from './money';
 
 function toLocalized(value: { 'pt-BR': string; en: string; fr: string }): LocalizedText {
@@ -28,10 +28,7 @@ export function offerFormToFields(values: OfferFormValues): OfferFields {
     ...(values.meetingPoint.trim()
       ? { meetingPoint: { address: values.meetingPoint.trim() } }
       : {}),
-    cancellationPolicy: {
-      freeCancellationHoursBefore: values.freeCancellationHoursBefore,
-      refundPercentAfterDeadline: Number(values.refundPercentAfterDeadline) as RefundPercent,
-    },
+    cancellationPolicy: values.cancellationPolicy,
     maxParticipantsPerBooking: values.maxParticipantsPerBooking,
     requiresParticipantNames: values.requiresParticipantNames,
   };
@@ -53,11 +50,7 @@ export function offerToFormValues(offer: PartnerOffer): OfferFormValues {
     })),
     durationMinutes: offer.durationMinutes ?? 60,
     meetingPoint: offer.meetingPoint?.address ?? '',
-    freeCancellationHoursBefore: offer.cancellationPolicy.freeCancellationHoursBefore,
-    refundPercentAfterDeadline: String(offer.cancellationPolicy.refundPercentAfterDeadline) as
-      | '0'
-      | '50'
-      | '100',
+    cancellationPolicy: offer.cancellationPolicy,
     maxParticipantsPerBooking: offer.maxParticipantsPerBooking,
     requiresParticipantNames: offer.requiresParticipantNames,
   };
@@ -71,8 +64,7 @@ export function emptyOfferFormValues(kind: 'tour' | 'private_entry'): OfferFormV
     priceOptions: [{ id: 'adult', label: '', amount: '' }],
     durationMinutes: 120,
     meetingPoint: '',
-    freeCancellationHoursBefore: 24,
-    refundPercentAfterDeadline: '50',
+    cancellationPolicy: 'flexible',
     maxParticipantsPerBooking: 8,
     requiresParticipantNames: false,
   };

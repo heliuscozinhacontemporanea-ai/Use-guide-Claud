@@ -105,7 +105,8 @@ export async function createTicketOrderPaymentIntentApplicationUseCase(
     occurrenceId: order.occurrenceId,
     eventTitle: order.eventSnapshot?.title || listing.title,
     totalMinor: order.totalMinor,
-    platformFeeMinor: order.platformFeeMinor,
+    // A taxa de serviço do comprador também fica com a plataforma (D14).
+    platformFeeMinor: order.platformFeeMinor + order.serviceFeeMinor,
     idempotencyKey: input.idempotencyKey,
   });
 

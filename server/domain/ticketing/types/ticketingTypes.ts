@@ -1,3 +1,5 @@
+import type { EventCancellationPolicy } from '../../../shared/kernel/cancellationPolicy';
+import type { ServiceFeeMode } from '../../../shared/kernel/platformFees';
 export type MoneyMinor = number;
 
 export const CHECKOUT_RESERVATION_MINUTES = 10;
@@ -80,13 +82,12 @@ export type TicketOrderStatus =
   | 'canceled'
   | 'chargeback';
 
-export interface TicketOrderRefundPolicySnapshot {
-  allowBuyerCancellation: boolean;
-  buyerCancellationWindowHours?: number;
+/** Regras de venda do evento gravadas na compra (D14): é o que vale para este pedido. */
+export interface TicketOrderSalesPolicySnapshot {
+  cancellationPolicy: EventCancellationPolicy;
+  serviceFeeMode: ServiceFeeMode;
   allowTicketTransfer: boolean;
-  ticketTransferCutoffHours?: number;
-  enabled?: boolean;
-  cancellationWindowHours?: number;
+  ticketTransferCutoffHours: number;
 }
 
 export interface TicketOrder {
@@ -100,6 +101,8 @@ export interface TicketOrder {
   discountMinor: MoneyMinor;
   platformFeeMinor: MoneyMinor;
   paymentFeeMinor: MoneyMinor;
+  /** Taxa de serviço paga pelo comprador (D14); soma no total e fica com a plataforma. */
+  serviceFeeMinor: MoneyMinor;
   totalMinor: MoneyMinor;
   paymentId?: string;
   paymentIntentId?: string;
@@ -115,7 +118,7 @@ export interface TicketOrder {
     endsAt: string;
     locationName?: string;
   };
-  refundPolicySnapshot: TicketOrderRefundPolicySnapshot;
+  salesPolicySnapshot: TicketOrderSalesPolicySnapshot;
   idempotencyKey: string;
   expiresAt?: string;
   createdAt: string;
@@ -134,6 +137,7 @@ export interface TicketOrderItem {
   discountMinor: MoneyMinor;
   allocatedPlatformFeeMinor: MoneyMinor;
   allocatedPaymentFeeMinor: MoneyMinor;
+  allocatedServiceFeeMinor: MoneyMinor;
   totalMinor: MoneyMinor;
   ticketTypeSnapshot: {
     name: string;

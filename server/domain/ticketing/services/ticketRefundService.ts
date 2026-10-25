@@ -8,9 +8,36 @@ import {
   RefundNotAllowedError,
   TicketingDomainError,
 } from '../errors/ticketingDomainError';
+import { calculateBuyerRefund } from '../../../shared/kernel/cancellationPolicy';
 import type { TicketingPort } from '../ports/ticketingPort';
 import { type Refund, type TicketOrder } from '../types/ticketingTypes';
 import { getAuditActorType, isActorAdmin, type TicketingActorContext } from './ticketingAccess';
+
+/**
+ * Cancelamento pelo próprio comprador (D14): arrependimento de 7 dias até 48 h antes do início, ou a política
+ * gravada no pedido. A taxa de serviço só volta no arrependimento.
+ */
+function buyerSelfServiceRefundMinor(order: TicketOrder, startsAt: string | undefined): number {
+  if (!startsAt) {
+    throw new RefundNotAllowedError('Sessão do evento não encontrada para calcular o reembolso.');
+  }
+  const refund = calculateBuyerRefund({
+    family: 'event',
+    policy: order.salesPolicySnapshot.cancellationPolicy,
+    purchasedAt: order.paidAt ?? order.createdAt,
+    startsAt,
+    now: new Date(),
+    paidMinor: order.totalMinor - order.serviceFeeMinor,
+    serviceFeeMinor: order.serviceFeeMinor,
+  });
+  const amountMinor = refund.refundMinor + refund.serviceFeeRefundMinor;
+  if (amountMinor <= 0) {
+    throw new RefundNotAllowedError(
+      'Pela política deste evento, o cancelamento agora não tem reembolso.'
+    );
+  }
+  return amountMinor;
+}
 
 /** Reembolso pedido pelo comprador e conclusão pelo webhook. */
 export class TicketRefundService {
@@ -60,54 +87,12 @@ export class TicketRefundService {
       occurrence?.status === 'postponed' ||
       params.isEventCanceledByOrganizer === true;
 
-    if (!isAdmin && !isPartnerOwner && !occurrenceCanceledOrPostponed) {
-      if (!order.refundPolicySnapshot.allowBuyerCancellation) {
-        throw new RefundNotAllowedError(
-          'A política deste evento não permite cancelamento voluntário.'
-        );
-      }
-
-      if (occurrence) {
-        const startsAtMs = new Date(occurrence.startsAt).getTime();
-        const nowMs = Date.now();
-        if (nowMs >= startsAtMs) {
-          throw new RefundNotAllowedError(
-            'Não é possível solicitar reembolso após o início do evento.'
-          );
-        }
-        const windowHours =
-          order.refundPolicySnapshot.buyerCancellationWindowHours ??
-          order.refundPolicySnapshot.cancellationWindowHours ??
-          24;
-        const hoursUntilStart = (startsAtMs - nowMs) / (1000 * 60 * 60);
-        if (hoursUntilStart < windowHours) {
-          throw new RefundNotAllowedError(
-            `O prazo para solicitação de reembolso encerrou (${windowHours}h antes do início do evento).`
-          );
-        }
-      }
-    }
-
-    let amountMinor = order.totalMinor;
-    if (params.ticketId) {
-      const ticket = await this.port.getTicketById(params.ticketId);
-      if (!ticket || ticket.orderId !== order.id) {
-        throw new TicketingDomainError('NOT_FOUND', 'Ingresso não pertence a este pedido.');
-      }
-      if (ticket.ticketTypeSnapshot?.effectivePaidMinor !== undefined) {
-        amountMinor = ticket.ticketTypeSnapshot.effectivePaidMinor;
-      } else {
-        const orderItems = await this.port.listOrderItemsByOrderId(order.id);
-        const matchingItem = orderItems.find((i) => i.ticketTypeId === ticket.ticketTypeId);
-        if (matchingItem && matchingItem.quantity > 0) {
-          amountMinor = Math.floor(matchingItem.totalMinor / matchingItem.quantity);
-        } else {
-          throw new RefundNotAllowedError(
-            'Não foi possível calcular a alocação financeira exata deste ingresso.'
-          );
-        }
-      }
-    }
+    const amountMinor = params.ticketId
+      ? await this.ticketRefundMinor(order, params.ticketId)
+      : !isAdmin && !isPartnerOwner && !occurrenceCanceledOrPostponed
+        ? buyerSelfServiceRefundMinor(order, occurrence?.startsAt)
+        : // Cancelamento pelo organizador (ou pelo admin): reembolso integral, com a taxa de serviço (D14).
+          order.totalMinor;
 
     const requestedBy: Refund['requestedBy'] = isAdmin
       ? 'admin'
@@ -141,6 +126,24 @@ export class TicketRefundService {
     }
 
     return { refund, isReplay, order };
+  }
+
+  /** Ingresso avulso (só organizador ou admin): o que foi pago por ele, com a parte da taxa de serviço. */
+  private async ticketRefundMinor(order: TicketOrder, ticketId: string): Promise<number> {
+    const ticket = await this.port.getTicketById(ticketId);
+    if (!ticket || ticket.orderId !== order.id) {
+      throw new TicketingDomainError('NOT_FOUND', 'Ingresso não pertence a este pedido.');
+    }
+    const orderItems = await this.port.listOrderItemsByOrderId(order.id);
+    const item = orderItems.find((candidate) => candidate.ticketTypeId === ticket.ticketTypeId);
+    if (!item || item.quantity <= 0) {
+      throw new RefundNotAllowedError(
+        'Não foi possível calcular a alocação financeira exata deste ingresso.'
+      );
+    }
+    const paidMinor =
+      ticket.ticketTypeSnapshot?.effectivePaidMinor ?? Math.floor(item.totalMinor / item.quantity);
+    return paidMinor + Math.floor(item.allocatedServiceFeeMinor / item.quantity);
   }
 
   async finalizeRefundStatus(

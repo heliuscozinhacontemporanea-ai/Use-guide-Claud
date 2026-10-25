@@ -46,4 +46,3 @@ export {
   type PublicSlot,
 } from './types/bookingTypes';
 export { priceBookingLines } from './utils/bookingPricing';
-export { calculateCancellationRefund } from './utils/cancellationRefund';

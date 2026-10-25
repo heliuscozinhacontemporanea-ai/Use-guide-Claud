@@ -1,16 +1,18 @@
 import type { Locale } from '../../../shared/kernel/locale';
 import { BookingDomainError } from '../errors/bookingDomainError';
 import type { BookingsPort, PageRequest } from '../ports/bookingsPort';
-import type {
-  Booking,
-  BookingActor,
-  BookingCancellation,
-  BookingParticipant,
-  Page,
+import {
+  type Booking,
+  type BookingActor,
+  type BookingCancellation,
+  type BookingParticipant,
+  cancellationFamilyOf,
+  type Page,
 } from '../types/bookingTypes';
 import { buildBookingId } from '../utils/buildBookingId';
 import { priceBookingLines } from '../utils/bookingPricing';
-import { calculateCancellationRefund } from '../utils/cancellationRefund';
+import { calculateBuyerRefund } from '../../../shared/kernel/cancellationPolicy';
+import type { PlatformFeeConfig } from '../../../shared/kernel/platformFees';
 
 // Tempo para pagar antes de a vaga voltar para a venda (inclui o Pix, que é assíncrono).
 const PAYMENT_WINDOW_MS = 15 * 60 * 1000;
@@ -27,7 +29,7 @@ export interface CreatePendingBookingInput {
 
 export interface BuyerCancellationResult {
   booking: Booking;
-  refundPercent: 0 | 50 | 100;
+  refundPercent: number;
   refundAmountMinor: number;
 }
 
@@ -45,7 +47,7 @@ export class BookingService {
   async createPendingBooking(
     actor: BookingActor,
     input: CreatePendingBookingInput,
-    platformFeePercent: number
+    feeConfig: PlatformFeeConfig
   ): Promise<Booking> {
     const offer = await this.port.getOffer(input.offerId);
     if (offer?.status !== 'published') {
@@ -55,7 +57,7 @@ export class BookingService {
     if (slot?.offerId !== offer.id) {
       throw new BookingDomainError('VALIDATION_ERROR', 'Horário não pertence a esta oferta.');
     }
-    const priced = priceBookingLines(offer, input.lines, platformFeePercent);
+    const priced = priceBookingLines(offer, input.lines, feeConfig);
 
     const names = input.participants.map((participant) => participant.name.trim());
     if (offer.requiresParticipantNames) {
@@ -175,12 +177,20 @@ export class BookingService {
       );
     }
     const nowDate = this.now();
-    const refund = calculateCancellationRefund({
+    // D14: arrependimento de 7 dias até 48 h antes do início, senão a política gravada na compra.
+    const calculated = calculateBuyerRefund({
+      family: cancellationFamilyOf(booking.kind),
       policy: booking.offerSnapshot.cancellationPolicy,
+      purchasedAt: booking.createdAt,
       startsAt: booking.offerSnapshot.startsAt,
-      totalMinor: booking.totalMinor,
       now: nowDate,
+      paidMinor: booking.totalMinor,
+      serviceFeeMinor: 0,
     });
+    const refund = {
+      refundPercent: calculated.percent,
+      refundAmountMinor: calculated.refundMinor,
+    };
     const cancellation: BookingCancellation = {
       by: 'buyer',
       ...refund,

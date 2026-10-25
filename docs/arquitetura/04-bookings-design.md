@@ -156,7 +156,7 @@ O backend ignora qualquer preço vindo do cliente; recalcula com `pricing` da of
 ## 5. Pagamento
 
 * Novo UseCase genérico em `payment`: `createMarketplacePaymentIntentUseCase({ referenceType: 'booking', referenceId, buyerId, sellerPartnerId, description, totalMinor, platformFeeMinor, idempotencyKey })` — destination charge (D1), `metadata: { referenceType: 'booking', referenceId, partnerId }`.
-* Taxa: `platformFeeMinor = Math.round(subtotalMinor * USE_GUIDE_PLATFORM_FEE_PERCENT / 100)`.
+* Taxa: `bookingPlatformFeeMinor` de `server/shared/kernel/platformFees.ts` (`BOOKINGS_PLATFORM_FEE_BPS`, arredondamento para baixo; D14).
 * Antes de criar: `assertPartnerReadyForPaidEventUseCase(sellerPartnerId)` (conta conectada habilitada).
 * Webhook: novo ramo em `reconcileStripeWebhookEventApplicationUseCase` para `metadata.referenceType === 'booking'` (`succeeded` → `confirmBookingPaymentUseCase`; `payment_failed` → `markBookingPaymentFailedUseCase`; disputa → `markBookingDisputedUseCase`; refund com `metadata.bookingId`).
 

@@ -13,7 +13,7 @@ const INPUT: OfferInput = {
     priceOptions: [{ id: 'adult', label: { 'pt-BR': 'Adulto' }, unitAmountMinor: 15000 }],
   },
   durationMinutes: 240,
-  cancellationPolicy: { freeCancellationHoursBefore: 24, refundPercentAfterDeadline: 50 },
+  cancellationPolicy: 'flexible',
   maxParticipantsPerBooking: 8,
   requiresParticipantNames: false,
 };

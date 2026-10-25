@@ -1,7 +1,10 @@
 import { createEventAuditLogUseCase, getEventListingByIdUseCase } from '../../events';
 import { OrderNotFoundError, TicketingDomainError } from '../errors/ticketingDomainError';
 import type { TicketingPort } from '../ports/ticketingPort';
-import { resolvePlatformFeePercent } from '../../../shared/kernel/platformFee';
+import {
+  PlatformFeeConfigError,
+  resolvePlatformFeeConfig,
+} from '../../../shared/kernel/platformFees';
 import {
   canTransitionOrderStatus,
   CHECKOUT_RESERVATION_MINUTES,
@@ -18,6 +21,19 @@ import {
 } from './orders/orderSaleGuards';
 import { prepareOrderItems } from './orders/prepareOrderItems';
 import { isActorAdmin, type TicketingActorContext } from './ticketingAccess';
+
+function loadFeeConfig() {
+  try {
+    return resolvePlatformFeeConfig();
+  } catch (error) {
+    if (error instanceof PlatformFeeConfigError) {
+      // Sem taxa configurada a venda para (AGENTS.md §2.2.5); o nome da variável fica só no log.
+      console.error('[ticketing] taxas da plataforma não configuradas', { message: error.message });
+      throw new TicketingDomainError('SERVICE_UNAVAILABLE', 'Vendas indisponíveis no momento.');
+    }
+    throw error;
+  }
+}
 
 /** Pedidos de ingresso: criação com reserva de estoque, pagamento e expiração. */
 export class TicketOrderService {
@@ -74,6 +90,7 @@ export class TicketOrderService {
       discountMinor,
       platformFeeMinor,
       paymentFeeMinor,
+      serviceFeeMinor,
       totalMinor,
       preparedItems,
     } = prepareOrderItems({
@@ -84,7 +101,8 @@ export class TicketOrderService {
       nowMs,
       promo,
       buyer: input.buyer,
-      feePercent: resolvePlatformFeePercent(),
+      feeConfig: loadFeeConfig(),
+      serviceFeeMode: listing.salesPolicy.serviceFeeMode,
     });
 
     const expiresAt = new Date(nowMs + CHECKOUT_RESERVATION_MINUTES * 60 * 1000).toISOString();
@@ -101,6 +119,7 @@ export class TicketOrderService {
       discountMinor,
       platformFeeMinor,
       paymentFeeMinor,
+      serviceFeeMinor,
       totalMinor,
       promoCodeId: promo?.id,
       promoterCode: input.promoterCode,
@@ -114,22 +133,7 @@ export class TicketOrderService {
         endsAt: occurrence.endsAt,
         locationName: occurrence.locationOverride?.name || listing.location.name,
       },
-      refundPolicySnapshot: {
-        enabled:
-          listing.refundPolicy.allowBuyerCancellation ?? listing.refundPolicy.enabled ?? true,
-        cancellationWindowHours:
-          listing.refundPolicy.buyerCancellationWindowHours ??
-          listing.refundPolicy.cancellationWindowHours ??
-          24,
-        allowBuyerCancellation:
-          listing.refundPolicy.allowBuyerCancellation ?? listing.refundPolicy.enabled ?? true,
-        buyerCancellationWindowHours:
-          listing.refundPolicy.buyerCancellationWindowHours ??
-          listing.refundPolicy.cancellationWindowHours ??
-          24,
-        allowTicketTransfer: listing.refundPolicy.allowTicketTransfer ?? true,
-        ticketTransferCutoffHours: listing.refundPolicy.ticketTransferCutoffHours ?? 4,
-      },
+      salesPolicySnapshot: { ...listing.salesPolicy },
       expiresAt,
       items: preparedItems,
       issueImmediately,

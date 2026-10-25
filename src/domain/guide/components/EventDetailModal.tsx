@@ -224,7 +224,6 @@ export function EventDetailModal({ item, onClose }: EventDetailModalProps) {
         <EventTicketingPurchasePanel
           eventId={item.id}
           eventTitle={item.name}
-          userId={user?.uid}
           userEmail={user?.email || undefined}
           userName={user?.displayName || undefined}
           onRequireLogin={openLoginModal}

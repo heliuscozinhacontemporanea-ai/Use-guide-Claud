@@ -1,3 +1,4 @@
+import { isCancellationPolicyAllowed } from '../../../shared/kernel/cancellationPolicy';
 import type {
   EventCheckIn,
   EventPromoCode,
@@ -8,7 +9,7 @@ import type {
   Ticket,
   TicketOrder,
   TicketOrderItem,
-  TicketOrderRefundPolicySnapshot,
+  TicketOrderSalesPolicySnapshot,
   TicketTransfer,
   TicketType,
 } from '../types/ticketingTypes';
@@ -26,35 +27,21 @@ function toIso(val: unknown, fallback: string): string {
   return fallback;
 }
 
-function normalizeRefundPolicySnapshot(
-  rawPolicy: Record<string, unknown>
-): TicketOrderRefundPolicySnapshot {
-  const allowBuyerCancellation =
-    typeof rawPolicy.allowBuyerCancellation === 'boolean'
-      ? rawPolicy.allowBuyerCancellation
-      : typeof rawPolicy.enabled === 'boolean'
-        ? rawPolicy.enabled
-        : true;
-  const buyerCancellationWindowHours =
-    typeof rawPolicy.buyerCancellationWindowHours === 'number'
-      ? rawPolicy.buyerCancellationWindowHours
-      : typeof rawPolicy.cancellationWindowHours === 'number'
-        ? rawPolicy.cancellationWindowHours
-        : 24;
-  const allowTicketTransfer =
-    typeof rawPolicy.allowTicketTransfer === 'boolean' ? rawPolicy.allowTicketTransfer : true;
-  const ticketTransferCutoffHours =
-    typeof rawPolicy.ticketTransferCutoffHours === 'number'
-      ? rawPolicy.ticketTransferCutoffHours
-      : 4;
-
+/** Pedido gravado antes de uma regra existir não tem compatibilidade (§2.2.8): campo inválido vira o padrão. */
+function normalizeSalesPolicySnapshot(
+  raw: Record<string, unknown>
+): TicketOrderSalesPolicySnapshot {
   return {
-    allowBuyerCancellation,
-    buyerCancellationWindowHours: allowBuyerCancellation ? buyerCancellationWindowHours : undefined,
-    allowTicketTransfer,
-    ticketTransferCutoffHours: allowTicketTransfer ? ticketTransferCutoffHours : undefined,
-    enabled: allowBuyerCancellation,
-    cancellationWindowHours: allowBuyerCancellation ? buyerCancellationWindowHours : undefined,
+    cancellationPolicy:
+      typeof raw.cancellationPolicy === 'string' &&
+      isCancellationPolicyAllowed('event', raw.cancellationPolicy)
+        ? (raw.cancellationPolicy as TicketOrderSalesPolicySnapshot['cancellationPolicy'])
+        : 'flexible',
+    serviceFeeMode: raw.serviceFeeMode === 'absorb' ? 'absorb' : 'pass_to_buyer',
+    allowTicketTransfer:
+      typeof raw.allowTicketTransfer === 'boolean' ? raw.allowTicketTransfer : true,
+    ticketTransferCutoffHours:
+      typeof raw.ticketTransferCutoffHours === 'number' ? raw.ticketTransferCutoffHours : 4,
   };
 }
 
@@ -105,7 +92,7 @@ export class TicketOrderPersistenceMapper {
   static toDomain(id: string, raw: Record<string, unknown>): TicketOrder {
     const now = new Date().toISOString();
     const rawBuyer = (raw.buyerSnapshot as Record<string, unknown> | undefined) || {};
-    const rawPolicy = (raw.refundPolicySnapshot as Record<string, unknown> | undefined) || {};
+    const rawPolicy = (raw.salesPolicySnapshot as Record<string, unknown> | undefined) || {};
     const rawEvent = raw.eventSnapshot as Record<string, unknown> | undefined;
 
     return {
@@ -131,6 +118,8 @@ export class TicketOrderPersistenceMapper {
         typeof raw.platformFeeMinor === 'number' ? Math.trunc(raw.platformFeeMinor) : 0,
       paymentFeeMinor:
         typeof raw.paymentFeeMinor === 'number' ? Math.trunc(raw.paymentFeeMinor) : 0,
+      serviceFeeMinor:
+        typeof raw.serviceFeeMinor === 'number' ? Math.trunc(raw.serviceFeeMinor) : 0,
       totalMinor: typeof raw.totalMinor === 'number' ? Math.trunc(raw.totalMinor) : 0,
       paymentId: typeof raw.paymentId === 'string' ? raw.paymentId : undefined,
       paymentIntentId: typeof raw.paymentIntentId === 'string' ? raw.paymentIntentId : undefined,
@@ -149,7 +138,7 @@ export class TicketOrderPersistenceMapper {
               typeof rawEvent.locationName === 'string' ? rawEvent.locationName : undefined,
           }
         : undefined,
-      refundPolicySnapshot: normalizeRefundPolicySnapshot(rawPolicy),
+      salesPolicySnapshot: normalizeSalesPolicySnapshot(rawPolicy),
       idempotencyKey: String(raw.idempotencyKey || ''),
       expiresAt: typeof raw.expiresAt === 'string' ? raw.expiresAt : undefined,
       createdAt: toIso(raw.createdAt, now),
@@ -178,6 +167,10 @@ export class TicketOrderItemPersistenceMapper {
       allocatedPaymentFeeMinor:
         typeof raw.allocatedPaymentFeeMinor === 'number'
           ? Math.trunc(raw.allocatedPaymentFeeMinor)
+          : 0,
+      allocatedServiceFeeMinor:
+        typeof raw.allocatedServiceFeeMinor === 'number'
+          ? Math.trunc(raw.allocatedServiceFeeMinor)
           : 0,
       totalMinor: typeof raw.totalMinor === 'number' ? Math.trunc(raw.totalMinor) : 0,
       ticketTypeSnapshot: {

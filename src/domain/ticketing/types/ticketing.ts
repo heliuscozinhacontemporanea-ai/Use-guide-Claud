@@ -1,3 +1,5 @@
+import type { EventCancellationPolicy } from '../../../shared/utils/cancellationPolicy';
+
 export type MoneyMinor = number;
 
 export type TicketTypeKind = 'paid' | 'free';
@@ -80,13 +82,12 @@ export interface PublicTicketTypeProjection {
   sortOrder?: number;
 }
 
-export interface TicketOrderRefundPolicySnapshot {
-  enabled: boolean;
-  cancellationWindowHours?: number;
-  allowBuyerCancellation: boolean;
-  buyerCancellationWindowHours?: number;
+/** Regras de venda gravadas na compra (D14): valem mesmo que o evento mude depois. */
+export interface TicketOrderSalesPolicySnapshot {
+  cancellationPolicy: EventCancellationPolicy;
+  serviceFeeMode: 'pass_to_buyer' | 'absorb';
   allowTicketTransfer: boolean;
-  ticketTransferCutoffHours?: number;
+  ticketTransferCutoffHours: number;
 }
 
 export interface TicketOrder {
@@ -100,6 +101,8 @@ export interface TicketOrder {
   discountMinor: MoneyMinor;
   platformFeeMinor: MoneyMinor;
   paymentFeeMinor: MoneyMinor;
+  /** Taxa de serviço paga pelo comprador; só volta no arrependimento (D14). */
+  serviceFeeMinor: MoneyMinor;
   totalMinor: MoneyMinor;
   paymentId?: string;
   paymentIntentId?: string;
@@ -117,7 +120,8 @@ export interface TicketOrder {
     endsAt: string;
     locationName?: string;
   };
-  refundPolicySnapshot: TicketOrderRefundPolicySnapshot;
+  salesPolicySnapshot: TicketOrderSalesPolicySnapshot;
+  paidAt?: string;
   expiresAt?: string;
   idempotencyKey: string;
   createdAt: string;
@@ -133,6 +137,7 @@ export interface TicketOrderItem {
   discountMinor: MoneyMinor;
   allocatedPlatformFeeMinor: MoneyMinor;
   allocatedPaymentFeeMinor: MoneyMinor;
+  allocatedServiceFeeMinor: MoneyMinor;
   totalMinor: MoneyMinor;
   ticketTypeSnapshot: {
     name: string;

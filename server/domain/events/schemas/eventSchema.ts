@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { EVENT_CANCELLATION_POLICIES } from '../../../shared/kernel/cancellationPolicy';
 import { E164_MESSAGE, E164_PATTERN } from '../../../shared/kernel/phone';
 
 const optionalUrl = z.string().url().or(z.literal('')).optional();
@@ -13,14 +14,12 @@ export const eventLocationSchema = z
   })
   .strict();
 
-export const eventRefundPolicySchema = z
+export const eventSalesPolicySchema = z
   .object({
-    enabled: z.boolean(),
-    cancellationWindowHours: z.number().int().min(0).max(720).optional(),
-    allowBuyerCancellation: z.boolean().optional(),
-    buyerCancellationWindowHours: z.number().int().min(0).max(720).optional(),
-    allowTicketTransfer: z.boolean().optional(),
-    ticketTransferCutoffHours: z.number().int().min(0).max(720).optional(),
+    cancellationPolicy: z.enum(EVENT_CANCELLATION_POLICIES),
+    serviceFeeMode: z.enum(['pass_to_buyer', 'absorb']),
+    allowTicketTransfer: z.boolean(),
+    ticketTransferCutoffHours: z.number().int().min(0).max(720),
   })
   .strict();
 
@@ -103,7 +102,7 @@ export const createEventListingSchema = z
     websiteLink: optionalUrl,
     instagramLink: optionalUrl,
     bookingLink: optionalUrl,
-    refundPolicy: eventRefundPolicySchema.optional(),
+    salesPolicy: eventSalesPolicySchema.optional(),
     ageRestriction: z
       .object({
         minAge: z.number().int().min(0).max(100).optional(),
@@ -149,7 +148,7 @@ export const updateEventListingSchema = z
     websiteLink: optionalUrl,
     instagramLink: optionalUrl,
     bookingLink: optionalUrl,
-    refundPolicy: eventRefundPolicySchema.optional(),
+    salesPolicy: eventSalesPolicySchema.optional(),
     ageRestriction: z
       .object({
         minAge: z.number().int().min(0).max(100).optional(),

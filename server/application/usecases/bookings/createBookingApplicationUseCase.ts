@@ -6,7 +6,10 @@ import {
 } from '../../../domain/bookings';
 import { assertListingCanSellUseCase } from '../../../domain/partners';
 import { createMarketplacePaymentIntentUseCase } from '../../../domain/payment';
-import { resolvePlatformFeePercent } from '../../../shared/kernel/platformFee';
+import {
+  PlatformFeeConfigError,
+  resolvePlatformFeeConfig,
+} from '../../../shared/kernel/platformFees';
 import { isPartnerSuspended } from '../isPartnerSuspended';
 
 export interface BookingBuyer {
@@ -23,6 +26,19 @@ export interface CreateBookingResult {
   expiresAt: string | null;
 }
 
+function loadFeeConfig() {
+  try {
+    return resolvePlatformFeeConfig();
+  } catch (error) {
+    if (error instanceof PlatformFeeConfigError) {
+      // Sem taxa configurada a venda para (AGENTS.md §2.2.5); o nome da variável fica só no log.
+      console.error('[bookings] taxas da plataforma não configuradas', { message: error.message });
+      throw new BookingDomainError('SERVICE_UNAVAILABLE', 'Reservas indisponíveis no momento.');
+    }
+    throw error;
+  }
+}
+
 /** Reserva as vagas e cria o pagamento (destination charge). Quem confirma é o webhook. */
 export async function createBookingApplicationUseCase(
   buyer: BookingBuyer,
@@ -32,11 +48,10 @@ export async function createBookingApplicationUseCase(
   if (!buyer.emailVerified) {
     throw new BookingDomainError('EMAIL_NOT_VERIFIED', 'Confirme seu e-mail antes de reservar.');
   }
-  const platformFeePercent = resolvePlatformFeePercent();
   const booking = await createPendingBookingUseCase(
     { uid: buyer.uid, admin: buyer.admin },
     input,
-    platformFeePercent
+    loadFeeConfig()
   );
 
   try {

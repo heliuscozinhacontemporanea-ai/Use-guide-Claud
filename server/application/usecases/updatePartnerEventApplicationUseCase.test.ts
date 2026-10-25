@@ -1,10 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { AuthenticatedUserContext } from '../security/authenticatedUserContext';
 import { updatePartnerEventApplicationUseCase } from './updatePartnerEventApplicationUseCase';
-import {
-  getEventListingByIdUseCase,
-  type EventListing,
-} from '../../domain/events';
+import { getEventListingByIdUseCase, type EventListing } from '../../domain/events';
 import { updateBusinessUseCase } from '../../domain/partners';
 import { updateEventListingSafelyApplicationUseCase } from './updateEventListingSafelyApplicationUseCase';
 
@@ -17,7 +14,9 @@ vi.mock('../../domain/partners', () => ({
   updateBusinessUseCase: vi.fn(),
 }));
 
-vi.mock('./updateEventListingSafelyApplicationUseCase', () => ({ updateEventListingSafelyApplicationUseCase: vi.fn() }));
+vi.mock('./updateEventListingSafelyApplicationUseCase', () => ({
+  updateEventListingSafelyApplicationUseCase: vi.fn(),
+}));
 
 describe('updatePartnerEventApplicationUseCase', () => {
   const regularUser: AuthenticatedUserContext = {
@@ -51,7 +50,12 @@ describe('updatePartnerEventApplicationUseCase', () => {
     isActive: true,
     organizerId: 'partner-B',
     location: { name: 'Centro Cultural' },
-    refundPolicy: { enabled: true },
+    salesPolicy: {
+      cancellationPolicy: 'flexible',
+      serviceFeeMode: 'pass_to_buyer',
+      allowTicketTransfer: true,
+      ticketTransferCutoffHours: 4,
+    },
     createdAt: '2026-06-01T12:00:00.000Z',
     updatedAt: '2026-06-01T12:00:00.000Z',
   };

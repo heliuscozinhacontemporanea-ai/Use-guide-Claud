@@ -1,7 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { useCancellationPolicyOptions } from '../../../../shared/hooks/useCancellationPolicyOptions';
+import { RadioCardGroup } from '../../../../ui/components/RadioCardGroup';
 import {
   type OfferFormInput,
   type OfferFormValues,
@@ -17,6 +19,8 @@ import { OfferTextFields } from './OfferTextFields';
 interface PartnerOfferEditorProps {
   mode: 'create' | 'edit';
   defaultValues: OfferFormValues;
+  /** Política da oferta já publicada: só pode trocar por uma igual ou mais flexível (D14). */
+  publishedPolicy?: string;
   onSubmit: (fields: OfferFields, kind: OfferFormValues['kind']) => Promise<void>;
   onCancel: () => void;
 }
@@ -24,10 +28,13 @@ interface PartnerOfferEditorProps {
 export function PartnerOfferEditor({
   mode,
   defaultValues,
+  publishedPolicy,
   onSubmit,
   onCancel,
 }: PartnerOfferEditorProps) {
   const { t } = useTranslation();
+  // Translado ainda não é vendável (AVAILABLE_OFFER_KINDS); quando for, a família vem do tipo da oferta.
+  const policyOptions = useCancellationPolicyOptions('booking', publishedPolicy);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const {
     register,
@@ -48,10 +55,7 @@ export function PartnerOfferEditor({
     }
   });
 
-  const numberField = (
-    name: 'durationMinutes' | 'freeCancellationHoursBefore' | 'maxParticipantsPerBooking',
-    label: string
-  ) => (
+  const numberField = (name: 'durationMinutes' | 'maxParticipantsPerBooking', label: string) => (
     <label className="block space-y-1">
       <span className="text-xs text-white/70">{label}</span>
       <input type="number" inputMode="numeric" {...register(name)} className={INPUT} />
@@ -78,20 +82,21 @@ export function PartnerOfferEditor({
         <span className="text-xs text-white/70">{t('bookings.editor.meetingPointLabel')}</span>
         <input {...register('meetingPoint')} className={INPUT} />
       </label>
-      <fieldset className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <legend className="text-xs font-semibold text-white/70 mb-2">
-          {t('bookings.editor.policyLegend')}
-        </legend>
-        {numberField('freeCancellationHoursBefore', t('bookings.editor.freeHoursLabel'))}
-        <label className="block space-y-1">
-          <span className="text-xs text-white/70">{t('bookings.editor.refundAfterLabel')}</span>
-          <select {...register('refundPercentAfterDeadline')} className={INPUT}>
-            <option value="0">{t('bookings.editor.refundNone')}</option>
-            <option value="50">{t('bookings.editor.refundHalf')}</option>
-            <option value="100">{t('bookings.editor.refundFull')}</option>
-          </select>
-        </label>
-      </fieldset>
+      <Controller
+        control={control}
+        name="cancellationPolicy"
+        render={({ field }) => (
+          <RadioCardGroup
+            name={field.name}
+            legend={t('salesPolicy.policyLegend')}
+            hint={publishedPolicy ? t('salesPolicy.lockedHint') : undefined}
+            options={policyOptions}
+            value={field.value}
+            onChange={field.onChange}
+          />
+        )}
+      />
+      <p className="text-xs text-ink/70">{t('salesPolicy.withdrawal')}</p>
       <label className="flex items-center gap-3 min-h-11">
         <input
           type="checkbox"

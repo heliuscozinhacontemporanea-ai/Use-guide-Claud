@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { eventRefundPolicySchema } from '../../events/schemas/eventSchema';
+import { eventSalesPolicySchema } from '../../events/schemas/eventSchema';
 import { E164_MESSAGE, E164_PATTERN } from '../../../shared/kernel/phone';
 
 const optionalUrl = z.string().url().or(z.literal('')).optional();
@@ -135,7 +135,7 @@ const eventFields = {
   eventCategory: z.string().trim().min(1).max(100),
   customCategory: z.string().trim().max(200).optional(),
   entryType: eventEntryTypeSchema.optional(),
-  refundPolicy: eventRefundPolicySchema.optional(),
+  salesPolicy: eventSalesPolicySchema.optional(),
   maxTicketsPerUserPerOccurrence: z.number().int().min(1).max(100).optional(),
 };
 

@@ -1,4 +1,8 @@
 import { z } from 'zod';
+import {
+  BOOKING_CANCELLATION_POLICIES,
+  TRANSFER_CANCELLATION_POLICIES,
+} from '../../../shared/utils/cancellationPolicy';
 import { parseReaisToMinor } from '../utils/money';
 
 // As mensagens são chaves de tradução; o formulário mostra t(mensagem) (AGENTS.md §12.5).
@@ -37,8 +41,7 @@ export const offerFormSchema = z.object({
     .max(10),
   durationMinutes: z.coerce.number().int(integer).min(15, integer).max(1440, integer),
   meetingPoint: optionalText(300),
-  freeCancellationHoursBefore: z.coerce.number().int(integer).min(0, integer).max(720, integer),
-  refundPercentAfterDeadline: z.enum(['0', '50', '100']),
+  cancellationPolicy: z.enum([...BOOKING_CANCELLATION_POLICIES, ...TRANSFER_CANCELLATION_POLICIES]),
   maxParticipantsPerBooking: z.coerce.number().int(integer).min(1, integer).max(50, integer),
   requiresParticipantNames: z.boolean(),
 });

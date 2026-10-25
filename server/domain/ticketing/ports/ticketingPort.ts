@@ -11,7 +11,7 @@ import type {
   Ticket,
   TicketOrder,
   TicketOrderItem,
-  TicketOrderRefundPolicySnapshot,
+  TicketOrderSalesPolicySnapshot,
   TicketOrderStatus,
   TicketStatus,
   TicketTransfer,
@@ -29,6 +29,7 @@ export interface ReserveOrderTransactionInput {
   discountMinor: number;
   platformFeeMinor: number;
   paymentFeeMinor: number;
+  serviceFeeMinor: number;
   totalMinor: number;
   promoCodeId?: string;
   promoterCode?: string;
@@ -42,7 +43,7 @@ export interface ReserveOrderTransactionInput {
     endsAt: string;
     locationName?: string;
   };
-  refundPolicySnapshot: TicketOrderRefundPolicySnapshot;
+  salesPolicySnapshot: TicketOrderSalesPolicySnapshot;
   expiresAt: string;
   items: Array<{
     ticketTypeId: string;
@@ -51,6 +52,7 @@ export interface ReserveOrderTransactionInput {
     discountMinor: number;
     allocatedPlatformFeeMinor: number;
     allocatedPaymentFeeMinor: number;
+    allocatedServiceFeeMinor: number;
     totalMinor: number;
     ticketTypeSnapshot: {
       name: string;

@@ -1,3 +1,7 @@
+import {
+  bookingPlatformFeeMinor,
+  type PlatformFeeConfig,
+} from '../../../shared/kernel/platformFees';
 import { BookingDomainError } from '../errors/bookingDomainError';
 import type { BookableOffer, BookingLine } from '../types/bookingTypes';
 
@@ -11,12 +15,12 @@ export interface PricedBooking {
 
 /**
  * Preço sempre recalculado no backend a partir da oferta (AGENTS.md §8.5). O turista paga o subtotal;
- * a taxa da plataforma sai do repasse ao parceiro (application_fee_amount).
+ * a taxa da plataforma (D14) sai do repasse ao parceiro.
  */
 export function priceBookingLines(
   offer: Pick<BookableOffer, 'pricing' | 'maxParticipantsPerBooking'>,
   requested: Array<{ priceOptionId: string; quantity: number }>,
-  platformFeePercent: number
+  feeConfig: PlatformFeeConfig
 ): PricedBooking {
   if (requested.length === 0) {
     throw new BookingDomainError('VALIDATION_ERROR', 'Selecione ao menos um item.');
@@ -49,6 +53,6 @@ export function priceBookingLines(
     throw new BookingDomainError('VALIDATION_ERROR', 'Número de participantes acima do limite.');
   }
   const subtotalMinor = lines.reduce((sum, line) => sum + line.quantity * line.unitAmountMinor, 0);
-  const platformFeeMinor = Math.round((subtotalMinor * platformFeePercent) / 100);
+  const platformFeeMinor = bookingPlatformFeeMinor(subtotalMinor, feeConfig);
   return { lines, participantsCount, subtotalMinor, platformFeeMinor, totalMinor: subtotalMinor };
 }

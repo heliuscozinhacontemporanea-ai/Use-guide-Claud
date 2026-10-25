@@ -1,17 +1,23 @@
 import { useEffect, useState } from 'react';
 import {
-  type EventSessionDraft,
   type EventSessionsLoadState,
+  getEventListingByIdUseCase,
   listEventOccurrencesUseCase,
 } from '../../events';
+import type { PartnerContentEditorState } from '../types/partnerContent';
+
+export type LoadedEventDetails = Pick<
+  PartnerContentEditorState,
+  'sessions' | 'salesPolicy' | 'publishedCancellationPolicy' | 'entryType'
+>;
 
 /**
- * Lê as sessões salvas do evento aberto no editor. Enquanto não estiverem prontas, o evento não pode
- * ser salvo: sem a lista real, a gravação trataria as sessões existentes como removidas.
+ * Lê as sessões salvas e as regras de venda do evento aberto no editor. Enquanto não estiverem prontas,
+ * o evento não pode ser salvo: sem a lista real, a gravação trataria as sessões existentes como removidas.
  */
 export function usePartnerEventSessions(
   eventId: string | undefined,
-  onLoaded: (sessions: EventSessionDraft[]) => void
+  onLoaded: (details: LoadedEventDetails) => void
 ) {
   const [loadState, setLoadState] = useState<EventSessionsLoadState>('idle');
   const [savedIds, setSavedIds] = useState<string[]>([]);
@@ -25,18 +31,27 @@ export function usePartnerEventSessions(
     }
     let active = true;
     setLoadState('loading');
-    listEventOccurrencesUseCase(eventId)
-      .then((occurrences) => {
+    Promise.all([listEventOccurrencesUseCase(eventId), getEventListingByIdUseCase(eventId)])
+      .then(([occurrences, listing]) => {
         if (!active) return;
         setSavedIds(occurrences.map((occurrence) => occurrence.id));
-        onLoaded(
-          occurrences.map((occurrence) => ({
+        onLoaded({
+          sessions: occurrences.map((occurrence) => ({
             id: occurrence.id,
             startsAt: occurrence.startsAt,
             endsAt: occurrence.endsAt,
             capacity: occurrence.capacity,
-          }))
-        );
+          })),
+          ...(listing
+            ? {
+                salesPolicy: listing.salesPolicy,
+                entryType: listing.entryType,
+                // Depois de publicar, a política só fica mais flexível (D14).
+                publishedCancellationPolicy:
+                  listing.status === 'draft' ? undefined : listing.salesPolicy.cancellationPolicy,
+              }
+            : {}),
+        });
         setLoadState('ready');
       })
       .catch((error: unknown) => {

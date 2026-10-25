@@ -1,4 +1,9 @@
 import {
+  type PlatformFeeConfig,
+  type ServiceFeeMode,
+  ticketOrderFees,
+} from '../../../../shared/kernel/platformFees';
+import {
   InventoryConflictError,
   TicketTypeUnavailableError,
   TicketingDomainError,
@@ -18,7 +23,7 @@ export interface OrderItemRequest {
 
 /**
  * Confere cada lote (quantidade, estoque, janela de venda), aplica o cupom, gera os QR opacos dos titulares
- * e reparte a taxa da plataforma entre os itens. Preço sempre do lote no servidor (AGENTS.md §8.5).
+ * e calcula as taxas do pedido (D14): a da plataforma, repartida entre os itens, e a de serviço por ingresso pago. Preço sempre do lote no servidor (AGENTS.md §8.5).
  */
 export function prepareOrderItems(params: {
   items: OrderItemRequest[];
@@ -28,7 +33,8 @@ export function prepareOrderItems(params: {
   nowMs: number;
   promo: EventPromoCode | null;
   buyer: { name: string; email: string };
-  feePercent: number;
+  feeConfig: PlatformFeeConfig;
+  serviceFeeMode: ServiceFeeMode;
 }) {
   let subtotalMinor = 0;
   let discountMinor = 0;
@@ -130,12 +136,17 @@ export function prepareOrderItems(params: {
   }
 
   const netSubtotalMinor = Math.max(0, subtotalMinor - discountMinor);
-  const platformFeeMinor =
-    netSubtotalMinor > 0 && params.feePercent > 0
-      ? Math.round((netSubtotalMinor * params.feePercent) / 100)
-      : 0;
+  const paidTicketCount = rawItemsPrepared
+    .filter((item) => item.lineNetAfterDiscount > 0)
+    .reduce((sum, item) => sum + item.quantity, 0);
+  const { platformFeeMinor, serviceFeeMinor } = ticketOrderFees(
+    { netSubtotalMinor, paidTicketCount, mode: params.serviceFeeMode },
+    params.feeConfig
+  );
+  const serviceFeePerTicketMinor = paidTicketCount > 0 ? serviceFeeMinor / paidTicketCount : 0;
   const paymentFeeMinor = 0;
-  const totalMinor = netSubtotalMinor;
+  // A taxa de serviço soma no que o comprador paga; o preço do ingresso não muda (D14).
+  const totalMinor = netSubtotalMinor + serviceFeeMinor;
 
   let remainingFeeToAllocate = platformFeeMinor;
   const preparedItems = rawItemsPrepared.map((item, idx) => {
@@ -155,6 +166,8 @@ export function prepareOrderItems(params: {
       discountMinor: item.lineDiscount,
       allocatedPlatformFeeMinor,
       allocatedPaymentFeeMinor: 0,
+      allocatedServiceFeeMinor:
+        item.lineNetAfterDiscount > 0 ? serviceFeePerTicketMinor * item.quantity : 0,
       totalMinor: item.lineNetAfterDiscount,
       ticketTypeSnapshot: {
         name: item.ticketType.name,
@@ -168,6 +181,7 @@ export function prepareOrderItems(params: {
     discountMinor,
     platformFeeMinor,
     paymentFeeMinor,
+    serviceFeeMinor,
     totalMinor,
     preparedItems,
   };

@@ -37,7 +37,9 @@ vi.mock('../../domain/ticketing', () => ({
   moveOrderToOccurrenceUseCase: vi.fn(),
 }));
 
-vi.mock('./processTicketRefundApplicationUseCase', () => ({ processTicketRefundApplicationUseCase: vi.fn() }));
+vi.mock('./processTicketRefundApplicationUseCase', () => ({
+  processTicketRefundApplicationUseCase: vi.fn(),
+}));
 
 describe('eventLifecycleOrchestrationUseCases', () => {
   const actor = { uid: 'partner-1', admin: false, role: 'partner' };
@@ -64,6 +66,7 @@ describe('eventLifecycleOrchestrationUseCases', () => {
     discountMinor: 0,
     platformFeeMinor: 1000,
     paymentFeeMinor: 0,
+    serviceFeeMinor: 0,
     totalMinor: 10000,
     buyerSnapshot: { name: 'João', email: 'joao@example.com' },
     eventSnapshot: {
@@ -71,11 +74,11 @@ describe('eventLifecycleOrchestrationUseCases', () => {
       startsAt: '2026-09-10T20:00:00.000Z',
       endsAt: '2026-09-10T23:59:00.000Z',
     },
-    refundPolicySnapshot: {
-      enabled: true,
-      cancellationWindowHours: 24,
-      allowBuyerCancellation: true,
+    salesPolicySnapshot: {
+      cancellationPolicy: 'flexible',
+      serviceFeeMode: 'pass_to_buyer',
       allowTicketTransfer: true,
+      ticketTransferCutoffHours: 4,
     },
     idempotencyKey: 'idem-1',
     createdAt: '2026-06-02T10:00:00.000Z',

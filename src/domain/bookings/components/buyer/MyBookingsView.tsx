@@ -55,12 +55,7 @@ export function MyBookingsView({ onBack }: { onBack: () => void }) {
 
   const requestCancel = (booking: BookingSummary) => {
     // Só para mostrar antes de confirmar; o valor devolvido é decidido pelo backend.
-    const preview = previewRefund({
-      policy: booking.offer.cancellationPolicy,
-      startsAt: booking.offer.startsAt,
-      totalMinor: booking.totalMinor,
-      now: new Date(),
-    });
+    const preview = previewRefund(booking, new Date());
     const amount = formatMinor(preview.refundAmountMinor, i18n.language);
     setConfirm({
       message:

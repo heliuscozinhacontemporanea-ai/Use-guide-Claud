@@ -55,6 +55,13 @@ const INPUT = {
 };
 const BUYER = { uid: 'buyer-1', admin: false, emailVerified: true };
 
+beforeEach(() => {
+  vi.stubEnv('BOOKINGS_PLATFORM_FEE_BPS', '1500');
+  vi.stubEnv('TICKETS_PLATFORM_FEE_BPS', '1000');
+  vi.stubEnv('TICKETS_ABSORBED_FEE_BPS', '1250');
+  vi.stubEnv('TICKET_SERVICE_FEE_MINOR', '300');
+});
+
 describe('createBookingApplicationUseCase', () => {
   beforeEach(() => {
     vi.clearAllMocks();

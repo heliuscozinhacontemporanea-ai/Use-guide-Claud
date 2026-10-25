@@ -9,7 +9,7 @@ const OFFER = {
     currency: 'BRL',
     priceOptions: [{ id: 'adult', label: { 'pt-BR': 'Adulto' }, unitAmountMinor: 15090 }],
   },
-  cancellationPolicy: { freeCancellationHoursBefore: 24, refundPercentAfterDeadline: 50 },
+  cancellationPolicy: 'flexible',
   maxParticipantsPerBooking: 8,
   requiresParticipantNames: false,
 };
@@ -33,11 +33,11 @@ describe('bookingSchemas', () => {
     expect(CreateOfferSchema.safeParse({ ...OFFER, pricing }).success).toBe(false);
   });
 
-  it('percentual de reembolso só 0, 50 ou 100', () => {
+  it('política de cancelamento só entre as opções da plataforma', () => {
     expect(
       CreateOfferSchema.safeParse({
         ...OFFER,
-        cancellationPolicy: { freeCancellationHoursBefore: 24, refundPercentAfterDeadline: 30 },
+        cancellationPolicy: 'custom_30',
       }).success
     ).toBe(false);
   });

@@ -2,8 +2,14 @@ import { describe, expect, it } from 'vitest';
 import { canTransitionBooking } from '../types/bookingTypes';
 import { buildBookingId, buildSlotId } from './buildBookingId';
 import { priceBookingLines } from './bookingPricing';
-import { calculateCancellationRefund } from './cancellationRefund';
 import { expandSlotRecurrence, fortalezaLocalToUtcIso } from './slotRecurrence';
+
+const FEES = {
+  bookingsBps: 1000,
+  ticketsBps: 1000,
+  ticketsAbsorbedBps: 1250,
+  ticketServiceFeeMinor: 300,
+};
 
 const OFFER = {
   maxParticipantsPerBooking: 6,
@@ -17,23 +23,24 @@ const OFFER = {
 };
 
 describe('priceBookingLines', () => {
-  it('soma em centavos e arredonda a taxa', () => {
+  it('soma em centavos e calcula a taxa pela configuração', () => {
     const priced = priceBookingLines(
       OFFER,
       [
         { priceOptionId: 'adult', quantity: 2 },
         { priceOptionId: 'child', quantity: 1 },
       ],
-      10
+      FEES
     );
     expect(priced.subtotalMinor).toBe(37725);
     expect(priced.totalMinor).toBe(37725);
-    expect(priced.platformFeeMinor).toBe(3773);
+    // Arredonda a favor do proprietário (D14).
+    expect(priced.platformFeeMinor).toBe(3772);
     expect(priced.participantsCount).toBe(3);
   });
 
   it('recusa opção inexistente, repetida, quantidade fora do limite e excesso de participantes', () => {
-    expect(() => priceBookingLines(OFFER, [{ priceOptionId: 'vip', quantity: 1 }], 10)).toThrow(
+    expect(() => priceBookingLines(OFFER, [{ priceOptionId: 'vip', quantity: 1 }], FEES)).toThrow(
       'Opção'
     );
     expect(() =>
@@ -43,60 +50,22 @@ describe('priceBookingLines', () => {
           { priceOptionId: 'adult', quantity: 1 },
           { priceOptionId: 'adult', quantity: 1 },
         ],
-        10
+        FEES
       )
     ).toThrow('repetida');
-    expect(() => priceBookingLines(OFFER, [{ priceOptionId: 'child', quantity: 3 }], 10)).toThrow(
+    expect(() => priceBookingLines(OFFER, [{ priceOptionId: 'child', quantity: 3 }], FEES)).toThrow(
       'acima'
     );
-    expect(() => priceBookingLines(OFFER, [{ priceOptionId: 'adult', quantity: 0 }], 10)).toThrow(
+    expect(() => priceBookingLines(OFFER, [{ priceOptionId: 'adult', quantity: 0 }], FEES)).toThrow(
       'inválida'
     );
-    expect(() => priceBookingLines(OFFER, [{ priceOptionId: 'adult', quantity: 1.5 }], 10)).toThrow(
-      'inválida'
-    );
-    expect(() => priceBookingLines(OFFER, [{ priceOptionId: 'adult', quantity: 7 }], 10)).toThrow(
+    expect(() =>
+      priceBookingLines(OFFER, [{ priceOptionId: 'adult', quantity: 1.5 }], FEES)
+    ).toThrow('inválida');
+    expect(() => priceBookingLines(OFFER, [{ priceOptionId: 'adult', quantity: 7 }], FEES)).toThrow(
       'limite'
     );
-    expect(() => priceBookingLines(OFFER, [], 10)).toThrow('ao menos');
-  });
-});
-
-describe('calculateCancellationRefund', () => {
-  const policy = { freeCancellationHoursBefore: 24, refundPercentAfterDeadline: 50 as const };
-  const startsAt = '2026-11-10T11:00:00.000Z';
-
-  it('100% até o prazo gratuito', () => {
-    expect(
-      calculateCancellationRefund({
-        policy,
-        startsAt,
-        totalMinor: 10001,
-        now: new Date('2026-11-09T10:00:00.000Z'),
-      })
-    ).toEqual({ refundPercent: 100, refundAmountMinor: 10001 });
-  });
-
-  it('percentual da política depois do prazo, arredondado para baixo', () => {
-    expect(
-      calculateCancellationRefund({
-        policy,
-        startsAt,
-        totalMinor: 10001,
-        now: new Date('2026-11-10T00:00:00.000Z'),
-      })
-    ).toEqual({ refundPercent: 50, refundAmountMinor: 5000 });
-  });
-
-  it('nada depois do início', () => {
-    expect(
-      calculateCancellationRefund({
-        policy,
-        startsAt,
-        totalMinor: 10001,
-        now: new Date('2026-11-10T11:00:00.000Z'),
-      })
-    ).toEqual({ refundPercent: 0, refundAmountMinor: 0 });
+    expect(() => priceBookingLines(OFFER, [], FEES)).toThrow('ao menos');
   });
 });
 

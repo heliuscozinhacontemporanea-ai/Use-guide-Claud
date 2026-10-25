@@ -1,3 +1,6 @@
+import type { EventCancellationPolicy } from '../../../shared/kernel/cancellationPolicy';
+import type { ServiceFeeMode } from '../../../shared/kernel/platformFees';
+
 export type EventListingStatus = 'draft' | 'published' | 'paused' | 'archived';
 
 export type EventVisibility = 'public' | 'unlisted' | 'private';
@@ -14,6 +17,21 @@ export interface EventLocation {
   latitude?: number;
   longitude?: number;
 }
+
+/** Regras de venda do evento (D14): política da plataforma, taxa de serviço e transferência de ingresso. */
+export interface EventSalesPolicy {
+  cancellationPolicy: EventCancellationPolicy;
+  serviceFeeMode: ServiceFeeMode;
+  allowTicketTransfer: boolean;
+  ticketTransferCutoffHours: number;
+}
+
+export const DEFAULT_EVENT_SALES_POLICY: EventSalesPolicy = {
+  cancellationPolicy: 'flexible',
+  serviceFeeMode: 'pass_to_buyer',
+  allowTicketTransfer: true,
+  ticketTransferCutoffHours: 4,
+};
 
 export interface EventListing {
   id: string;
@@ -40,14 +58,7 @@ export interface EventListing {
   websiteLink?: string;
   instagramLink?: string;
   bookingLink?: string;
-  refundPolicy: {
-    enabled: boolean;
-    cancellationWindowHours?: number;
-    allowBuyerCancellation?: boolean;
-    buyerCancellationWindowHours?: number;
-    allowTicketTransfer?: boolean;
-    ticketTransferCutoffHours?: number;
-  };
+  salesPolicy: EventSalesPolicy;
   maxTicketsPerUserPerOccurrence?: number;
   ageRestriction?: {
     minAge?: number;
@@ -123,14 +134,7 @@ export interface CreateEventListingInput {
   websiteLink?: string;
   instagramLink?: string;
   bookingLink?: string;
-  refundPolicy?: {
-    enabled: boolean;
-    cancellationWindowHours?: number;
-    allowBuyerCancellation?: boolean;
-    buyerCancellationWindowHours?: number;
-    allowTicketTransfer?: boolean;
-    ticketTransferCutoffHours?: number;
-  };
+  salesPolicy?: EventSalesPolicy;
   maxTicketsPerUserPerOccurrence?: number;
   ageRestriction?: {
     minAge?: number;
@@ -164,14 +168,7 @@ export interface UpdateEventListingInput {
   websiteLink?: string;
   instagramLink?: string;
   bookingLink?: string;
-  refundPolicy?: {
-    enabled: boolean;
-    cancellationWindowHours?: number;
-    allowBuyerCancellation?: boolean;
-    buyerCancellationWindowHours?: number;
-    allowTicketTransfer?: boolean;
-    ticketTransferCutoffHours?: number;
-  };
+  salesPolicy?: EventSalesPolicy;
   maxTicketsPerUserPerOccurrence?: number;
   ageRestriction?: {
     minAge?: number;

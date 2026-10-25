@@ -1,10 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { AuthenticatedUserContext } from '../security/authenticatedUserContext';
 import { deletePartnerEventApplicationUseCase } from './deletePartnerEventApplicationUseCase';
-import {
-  getEventListingByIdUseCase,
-  type EventListing,
-} from '../../domain/events';
+import { getEventListingByIdUseCase, type EventListing } from '../../domain/events';
 import { linkBusinessUseCase, unlinkBusinessUseCase } from '../../domain/partners';
 import { deleteEventListingSafelyApplicationUseCase } from './deleteEventListingSafelyApplicationUseCase';
 
@@ -17,7 +14,9 @@ vi.mock('../../domain/partners', () => ({
   unlinkBusinessUseCase: vi.fn(),
 }));
 
-vi.mock('./deleteEventListingSafelyApplicationUseCase', () => ({ deleteEventListingSafelyApplicationUseCase: vi.fn() }));
+vi.mock('./deleteEventListingSafelyApplicationUseCase', () => ({
+  deleteEventListingSafelyApplicationUseCase: vi.fn(),
+}));
 
 describe('deletePartnerEventApplicationUseCase', () => {
   const regularUser: AuthenticatedUserContext = {
@@ -43,7 +42,12 @@ describe('deletePartnerEventApplicationUseCase', () => {
     isActive: true,
     organizerId: 'partner-C',
     location: { name: 'Jeri' },
-    refundPolicy: { enabled: true },
+    salesPolicy: {
+      cancellationPolicy: 'flexible',
+      serviceFeeMode: 'pass_to_buyer',
+      allowTicketTransfer: true,
+      ticketTransferCutoffHours: 4,
+    },
     date: '2026-12-31T20:00:00Z',
     endDate: '2027-01-01T04:00:00Z',
     createdAt: '2026-06-01T12:00:00.000Z',
@@ -57,12 +61,17 @@ describe('deletePartnerEventApplicationUseCase', () => {
   it('unlink sucesso + delete sucesso', async () => {
     vi.mocked(getEventListingByIdUseCase).mockResolvedValueOnce(mockEvent);
     vi.mocked(unlinkBusinessUseCase).mockResolvedValueOnce(undefined);
-    vi.mocked(deleteEventListingSafelyApplicationUseCase).mockResolvedValueOnce({ mode: 'deleted' });
+    vi.mocked(deleteEventListingSafelyApplicationUseCase).mockResolvedValueOnce({
+      mode: 'deleted',
+    });
 
     await deletePartnerEventApplicationUseCase(regularUser, 'event-200');
 
     expect(unlinkBusinessUseCase).toHaveBeenCalledWith('partner-C', 'event-200');
-    expect(deleteEventListingSafelyApplicationUseCase).toHaveBeenCalledWith(regularUser, 'event-200');
+    expect(deleteEventListingSafelyApplicationUseCase).toHaveBeenCalledWith(
+      regularUser,
+      'event-200'
+    );
     expect(linkBusinessUseCase).not.toHaveBeenCalled();
   });
 
@@ -92,7 +101,10 @@ describe('deletePartnerEventApplicationUseCase', () => {
     );
 
     expect(unlinkBusinessUseCase).toHaveBeenCalledWith('partner-C', 'event-200');
-    expect(deleteEventListingSafelyApplicationUseCase).toHaveBeenCalledWith(regularUser, 'event-200');
+    expect(deleteEventListingSafelyApplicationUseCase).toHaveBeenCalledWith(
+      regularUser,
+      'event-200'
+    );
     expect(linkBusinessUseCase).toHaveBeenCalledWith('partner-C', {
       businessId: 'event-200',
       businessName: 'Luau Jeri',
@@ -153,7 +165,10 @@ describe('deletePartnerEventApplicationUseCase', () => {
     );
 
     expect(unlinkBusinessUseCase).toHaveBeenCalledWith('partner-C', 'event-200');
-    expect(deleteEventListingSafelyApplicationUseCase).toHaveBeenCalledWith(regularUser, 'event-200');
+    expect(deleteEventListingSafelyApplicationUseCase).toHaveBeenCalledWith(
+      regularUser,
+      'event-200'
+    );
     expect(linkBusinessUseCase).not.toHaveBeenCalled();
   });
 });

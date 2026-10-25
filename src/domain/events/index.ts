@@ -22,9 +22,12 @@ export type {
   CreateEventOccurrenceInput,
   EventListing,
   EventOccurrence,
+  EventSalesPolicy,
+  ServiceFeeMode,
   UpdateEventListingInput,
 } from './types/event';
 export { CUSTOM_EVENT_CATEGORY, EVENT_CATEGORIES } from './constants/eventCategories';
+export { DEFAULT_EVENT_SALES_POLICY } from './types/event';
 export { saveEventSessionsUseCase } from './application/usecases/saveEventSessionsUseCase';
 export type { SaveEventSessionsInput } from './application/usecases/saveEventSessionsUseCase';
 export type {

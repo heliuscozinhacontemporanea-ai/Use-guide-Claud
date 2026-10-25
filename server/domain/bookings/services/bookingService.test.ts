@@ -4,6 +4,13 @@ import type { BookableOffer } from '../types/bookingTypes';
 import { BookingService, type CreatePendingBookingInput } from './bookingService';
 
 const BUYER = { uid: 'buyer-1', admin: false };
+const FEES = {
+  bookingsBps: 1000,
+  ticketsBps: 1000,
+  ticketsAbsorbedBps: 1250,
+  ticketServiceFeeMinor: 300,
+};
+
 const STARTS_AT = '2026-11-10T11:00:00.000Z';
 
 function buildOffer(overrides: Partial<BookableOffer> = {}): BookableOffer {
@@ -20,7 +27,7 @@ function buildOffer(overrides: Partial<BookableOffer> = {}): BookableOffer {
       priceOptions: [{ id: 'adult', label: { 'pt-BR': 'Adulto' }, unitAmountMinor: 10000 }],
     },
     durationMinutes: 120,
-    cancellationPolicy: { freeCancellationHoursBefore: 24, refundPercentAfterDeadline: 50 },
+    cancellationPolicy: 'moderate',
     maxParticipantsPerBooking: 6,
     requiresParticipantNames: false,
     createdAt: '2026-10-01T00:00:00.000Z',
@@ -65,7 +72,7 @@ const INPUT: CreatePendingBookingInput = {
 describe('BookingService', () => {
   it('cria reserva pendente com preço do backend, vagas reservadas e prazo de 15 min', async () => {
     const { service, port } = setup();
-    const booking = await service.createPendingBooking(BUYER, INPUT, 10);
+    const booking = await service.createPendingBooking(BUYER, INPUT, FEES);
     expect(booking).toMatchObject({
       status: 'pending_payment',
       totalMinor: 20000,
@@ -78,8 +85,8 @@ describe('BookingService', () => {
 
   it('mesma chave de idempotência devolve a mesma reserva sem reservar de novo', async () => {
     const { service, port } = setup();
-    const first = await service.createPendingBooking(BUYER, INPUT, 10);
-    const second = await service.createPendingBooking(BUYER, INPUT, 10);
+    const first = await service.createPendingBooking(BUYER, INPUT, FEES);
+    const second = await service.createPendingBooking(BUYER, INPUT, FEES);
     expect(second.id).toBe(first.id);
     expect(port.slots.get('slot-1')?.capacityReserved).toBe(2);
   });
@@ -87,9 +94,9 @@ describe('BookingService', () => {
   it('horário de outra oferta → VALIDATION_ERROR; vagas insuficientes → 409', async () => {
     const { service } = setup({ capacity: 1 });
     await expect(
-      service.createPendingBooking(BUYER, { ...INPUT, slotId: 'slot-other' }, 10)
+      service.createPendingBooking(BUYER, { ...INPUT, slotId: 'slot-other' }, FEES)
     ).rejects.toMatchObject({ code: 'VALIDATION_ERROR' });
-    await expect(service.createPendingBooking(BUYER, INPUT, 10)).rejects.toMatchObject({
+    await expect(service.createPendingBooking(BUYER, INPUT, FEES)).rejects.toMatchObject({
       code: 'INSUFFICIENT_CAPACITY',
       statusCode: 409,
     });
@@ -98,19 +105,19 @@ describe('BookingService', () => {
   it('exige um nome por participante quando a oferta pede', async () => {
     const { service } = setup({ offer: { requiresParticipantNames: true } });
     await expect(
-      service.createPendingBooking(BUYER, { ...INPUT, participants: [{ name: 'Ana' }] }, 10)
+      service.createPendingBooking(BUYER, { ...INPUT, participants: [{ name: 'Ana' }] }, FEES)
     ).rejects.toMatchObject({ code: 'VALIDATION_ERROR' });
     const booking = await service.createPendingBooking(
       BUYER,
       { ...INPUT, participants: [{ name: 'Ana' }, { name: 'Bia' }] },
-      10
+      FEES
     );
     expect(booking.status).toBe('pending_payment');
   });
 
   it('terceiro não vê a reserva (404); comprador e parceiro vendedor veem', async () => {
     const { service } = setup();
-    const booking = await service.createPendingBooking(BUYER, INPUT, 10);
+    const booking = await service.createPendingBooking(BUYER, INPUT, FEES);
     await expect(
       service.getBookingForActor({ uid: 'intruso', admin: false }, booking.id)
     ).rejects.toMatchObject({ code: 'NOT_FOUND' });
@@ -122,7 +129,7 @@ describe('BookingService', () => {
 
   it('confirmação move vagas de reservadas para vendidas e é idempotente', async () => {
     const { service, port } = setup();
-    const booking = await service.createPendingBooking(BUYER, INPUT, 10);
+    const booking = await service.createPendingBooking(BUYER, INPUT, FEES);
     await service.confirmBookingPayment(booking.id, 'pi_1');
     await service.confirmBookingPayment(booking.id, 'pi_1');
     expect(port.slots.get('slot-1')).toMatchObject({ capacityReserved: 0, capacitySold: 2 });
@@ -131,20 +138,20 @@ describe('BookingService', () => {
 
   it('expiração devolve as vagas; pagamento tardio sem vaga é recusado', async () => {
     const { service, port, setNow } = setup({ capacity: 2 });
-    const booking = await service.createPendingBooking(BUYER, INPUT, 10);
+    const booking = await service.createPendingBooking(BUYER, INPUT, FEES);
     setNow('2026-11-01T12:16:00.000Z');
     await expect(service.expireOverdueBookings()).resolves.toBe(1);
     expect(port.slots.get('slot-1')?.capacityReserved).toBe(0);
-    const other = await service.createPendingBooking({ uid: 'buyer-2', admin: false }, INPUT, 10);
+    const other = await service.createPendingBooking({ uid: 'buyer-2', admin: false }, INPUT, FEES);
     await service.confirmBookingPayment(other.id, 'pi_2');
     await expect(service.confirmBookingPayment(booking.id, 'pi_1')).rejects.toMatchObject({
       code: 'LATE_PAYMENT_REJECTED',
     });
   });
 
-  it('cancelamento pelo comprador: 100% antes do prazo, repetível, devolve a vaga', async () => {
+  it('arrependimento (7 dias da compra, 48 h antes): 100%, repetível, devolve a vaga', async () => {
     const { service, port } = setup();
-    const booking = await service.createPendingBooking(BUYER, INPUT, 10);
+    const booking = await service.createPendingBooking(BUYER, INPUT, FEES);
     await service.confirmBookingPayment(booking.id, 'pi_1');
     const first = await service.requestCancellationByBuyer(BUYER, booking.id, 'mudança de planos');
     expect(first).toMatchObject({ refundPercent: 100, refundAmountMinor: 20000 });
@@ -153,14 +160,14 @@ describe('BookingService', () => {
     expect(again.refundAmountMinor).toBe(20000);
   });
 
-  it('cancelamento depois do prazo devolve 50%; outra pessoa não cancela', async () => {
+  it('fora do arrependimento vale a política (moderada: 50% até 24 h); outra pessoa não cancela', async () => {
     const { service, setNow } = setup();
-    const booking = await service.createPendingBooking(BUYER, INPUT, 10);
+    const booking = await service.createPendingBooking(BUYER, INPUT, FEES);
     await service.confirmBookingPayment(booking.id, 'pi_1');
     await expect(
       service.requestCancellationByBuyer({ uid: 'intruso', admin: false }, booking.id, '')
     ).rejects.toMatchObject({ code: 'NOT_FOUND' });
-    setNow('2026-11-10T00:00:00.000Z');
+    setNow('2026-11-09T00:00:00.000Z');
     await expect(service.requestCancellationByBuyer(BUYER, booking.id, '')).resolves.toMatchObject({
       refundPercent: 50,
       refundAmountMinor: 10000,
@@ -169,7 +176,7 @@ describe('BookingService', () => {
 
   it('reserva pendente não pode ser cancelada pelo comprador', async () => {
     const { service } = setup();
-    const booking = await service.createPendingBooking(BUYER, INPUT, 10);
+    const booking = await service.createPendingBooking(BUYER, INPUT, FEES);
     await expect(service.requestCancellationByBuyer(BUYER, booking.id, '')).rejects.toMatchObject({
       code: 'CANCELLATION_NOT_ALLOWED',
     });
@@ -177,7 +184,7 @@ describe('BookingService', () => {
 
   it('não comparecimento só pelo parceiro e só depois do início; conclusão após a duração', async () => {
     const { service, port, setNow } = setup();
-    const booking = await service.createPendingBooking(BUYER, INPUT, 10);
+    const booking = await service.createPendingBooking(BUYER, INPUT, FEES);
     await service.confirmBookingPayment(booking.id, 'pi_1');
     const partner = { uid: 'partner-1', admin: false };
     await expect(service.markBookingNoShow(partner, booking.id)).rejects.toMatchObject({

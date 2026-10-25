@@ -155,6 +155,7 @@ export function usePartnerContentActions({
           eventCategory: isEditing.eventCategory || 'geral',
           customCategory: isEditing.customCategory,
           entryType: parsedEvent.data.entryType,
+          ...(isEditing.salesPolicy ? { salesPolicy: isEditing.salesPolicy } : {}),
           establishmentId: isEditing.establishmentId,
           instagramLink: isEditing.instagramLink,
           websiteLink: isEditing.websiteLink,

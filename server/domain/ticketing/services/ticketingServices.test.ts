@@ -59,7 +59,10 @@ describe('serviços de ticketing', () => {
 
   beforeEach(() => {
     vi.stubEnv('TICKET_QR_SECRET', 'test-ticket-qr-secret-with-32-chars!');
-    vi.stubEnv('USE_GUIDE_PLATFORM_FEE_PERCENT', '10');
+    vi.stubEnv('TICKETS_PLATFORM_FEE_BPS', '1000');
+    vi.stubEnv('TICKETS_ABSORBED_FEE_BPS', '1250');
+    vi.stubEnv('BOOKINGS_PLATFORM_FEE_BPS', '1500');
+    vi.stubEnv('TICKET_SERVICE_FEE_MINOR', '300');
     vi.clearAllMocks();
 
     vi.mocked(getEventOccurrenceByIdUseCase).mockResolvedValue({
@@ -91,7 +94,12 @@ describe('serviços de ticketing', () => {
       status: 'published',
       isActive: true,
       location: { name: 'Praia do Preá' },
-      refundPolicy: { enabled: true, cancellationWindowHours: 48 },
+      salesPolicy: {
+        cancellationPolicy: 'flexible',
+        serviceFeeMode: 'pass_to_buyer',
+        allowTicketTransfer: true,
+        ticketTransferCutoffHours: 4,
+      },
       entryType: 'pago',
       pricingMode: 'paid',
       ratingSummary: { average: 0, count: 0 },
@@ -121,9 +129,10 @@ describe('serviços de ticketing', () => {
           discountMinor: input.discountMinor,
           platformFeeMinor: input.platformFeeMinor,
           paymentFeeMinor: input.paymentFeeMinor,
+          serviceFeeMinor: input.serviceFeeMinor,
           totalMinor: input.totalMinor,
           buyerSnapshot: input.buyerSnapshot,
-          refundPolicySnapshot: input.refundPolicySnapshot,
+          salesPolicySnapshot: input.salesPolicySnapshot,
           idempotencyKey: input.idempotencyKey,
           createdAt: '2026-10-05T00:00:00.000Z',
           updatedAt: '2026-10-05T00:00:00.000Z',
@@ -210,7 +219,8 @@ describe('serviços de ticketing', () => {
 
     expect(res.order.subtotalMinor).toBe(10000);
     expect(res.order.platformFeeMinor).toBe(1000);
-    expect(res.order.totalMinor).toBe(10000);
+    expect(res.order.serviceFeeMinor).toBe(600);
+    expect(res.order.totalMinor).toBe(10600);
     expect(res.order.status).toBe('pending_payment');
   });
 
@@ -344,12 +354,14 @@ describe('serviços de ticketing', () => {
       discountMinor: 0,
       platformFeeMinor: 500,
       paymentFeeMinor: 0,
+      serviceFeeMinor: 0,
       totalMinor: 5000,
       buyerSnapshot: { name: 'User B', email: 'b@example.com' },
-      refundPolicySnapshot: {
-        enabled: true,
-        allowBuyerCancellation: true,
+      salesPolicySnapshot: {
+        cancellationPolicy: 'flexible',
+        serviceFeeMode: 'pass_to_buyer',
         allowTicketTransfer: true,
+        ticketTransferCutoffHours: 4,
       },
       idempotencyKey: 'idem_b',
       createdAt: '2026-10-01T10:00:00.000Z',

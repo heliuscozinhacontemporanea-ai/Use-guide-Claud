@@ -1,3 +1,4 @@
+import { canChangeCancellationPolicy } from '../../../shared/kernel/cancellationPolicy';
 import {
   EventDomainError,
   EventNotFoundError,
@@ -121,6 +122,19 @@ export class EventsService {
     }
     assertCanManageListing(actor, existing);
 
+    // D14: publicado o evento, a política só muda para uma igual ou mais flexível (protege quem já comprou).
+    const nextPolicy = input.salesPolicy?.cancellationPolicy;
+    if (
+      nextPolicy &&
+      existing.status !== 'draft' &&
+      !canChangeCancellationPolicy('event', existing.salesPolicy.cancellationPolicy, nextPolicy)
+    ) {
+      throw new EventDomainError(
+        'UNPROCESSABLE_ENTITY',
+        'Depois de publicar, a política de cancelamento só pode ficar mais flexível.'
+      );
+    }
+
     const safeInput: UpdateEventListingInput = { ...input };
     delete (safeInput as Record<string, unknown>).ownerId;
     delete (safeInput as Record<string, unknown>).ratingSummary;
@@ -225,7 +239,7 @@ export class EventsService {
       websiteLink: existing.websiteLink,
       instagramLink: existing.instagramLink,
       bookingLink: existing.bookingLink,
-      refundPolicy: existing.refundPolicy,
+      salesPolicy: existing.salesPolicy,
       ageRestriction: existing.ageRestriction,
       entryType: existing.entryType,
       pricingMode: existing.pricingMode,
