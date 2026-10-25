@@ -66,3 +66,7 @@ VERIFICAÇÃO (obrigatória):
 
 LIMPEZA (obrigatória, ao terminar de implementar): apague todos os arquivos de public/assets/aistudio/, inclusive o deste prompt. São cópias dos textos colados no chat, salvas automaticamente pelo AI Studio, e public/ vai para o site publicado. Se a pasta ficar vazia, apague a pasta também.
 ~~~~
+
+### Configurações manuais (você faz, fora do AI Studio, depois de aplicar este prompt)
+
+Nenhuma.

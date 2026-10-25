@@ -2086,3 +2086,9 @@ VERIFICAÇÃO (obrigatória):
 
 LIMPEZA (obrigatória, ao terminar de implementar): apague todos os arquivos de public/assets/aistudio/, inclusive o deste prompt. São cópias dos textos colados no chat, salvas automaticamente pelo AI Studio, e public/ vai para o site publicado. Se a pasta ficar vazia, apague a pasta também.
 ~~~~
+
+### Configurações manuais (você faz, fora do AI Studio, depois de aplicar este prompt)
+
+1. Publique as regras e os índices do Firestore: `firebase deploy --only firestore:rules,firestore:indexes`. Espere os índices novos ficarem "Ativado" no Console do Firebase (Firestore → Índices) antes de testar. Índice novo: payoutEntries (status, releaseAt).
+2. Stripe Dashboard (modo teste e, depois, live) → Desenvolvedores → Webhooks → o endpoint do Use Guide: confirme que os eventos charge.dispute.created e charge.dispute.closed estão assinados, além de payment_intent.succeeded, charge.refunded e refund.updated. Sem eles, a contestação não segura o repasse.
+3. O agendamento de hora em hora do job de repasse vem no prompt 18.4c.1; a configuração dele está no fim daquele prompt.

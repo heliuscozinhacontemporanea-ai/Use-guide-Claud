@@ -36,6 +36,7 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 * **Prompt para o AI Studio tem no máximo 150 KB** (regra de 2026-10-19). Acima disso, é dividido em partes que compilam sozinhas, e cada parte é enviada numa mensagem separada.
 * **No AI Studio, os testes rodam com `npx vitest related --run <arquivos do prompt>`** (decisão de 2026-10-24), com a lista exata gerada pelo gerador de prompts, em vez da suíte inteira. Typecheck, lint e build continuam no projeto todo. A suíte completa roda aqui, na referência antes de gerar o prompt e no zip quando ele volta.
 * **Todo prompt termina pedindo a limpeza de `public/assets/aistudio/`** (regra de 2026-10-22). O AI Studio salva ali, como anexo, o texto longo colado no chat (`Paste_<data>_<hash>`), e `public/` vai para o site publicado. Ao conferir um zip, arquivo nessa pasta não conta como divergência; ele só é apagado.
+* **Todo prompt termina com a seção "Configurações manuais"** (regra de 2026-10-25), fora do bloco colado no AI Studio: deploy de regras, índices e Functions, parâmetros, segredos, configuração do Stripe e conferências no console, em passos numerados. Sem nada a fazer, a seção diz "Nenhuma.". O gerador recusa um prompt sem essa lista.
 * **Arquivo tocado sai sem avisos do lint e formatado** (regra de 2026-10-19; proposta S10 para o AGENTS.md).
 * **Tela tocada sai nos dois temas e com cara de app nativo** (regra de 2026-10-24; AGENTS.md §11.1 e §11.11, S14 aplicada pelo prompt A5): cores pelos tokens `--ug-*`; o claro nunca é branco puro (fundo `#f3eee4`, superfícies `#faf6ee`); modal vira folha inferior no celular; botões com `press`; um só efeito de toque por elemento (sem somar `press` a `whileTap`, `whileHover` ou `active:scale`); animações respeitam `prefers-reduced-motion`. A conferência inclui prints no claro e no escuro.
 
@@ -104,6 +105,7 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 | 18.4b.3 | Termos com aceite registrado (D15) | `d59bcbd..ed7c054` | ✅ zip 2026-10-25 | ✅ igual à referência (só ordem de imports e formatação); `public/assets/aistudio/` limpo |
 | C16 | Correção do lote 16: D14 no `decisoes.md` | `48a75ac` | ⏳ enviar (lote 17) | — |
 | 18.4c | Cobrança na plataforma e repasse depois do serviço (D14) | `dc082a9..e80e9b1` | ⏳ enviar (lote 17) | — |
+| 18.4c.1 | Agendamento do job de repasse (D14) | `598c7fe..6d8ff33` | ⏳ enviar (lote 17) | — |
 | 18.4d.1 | Dívidas do CNPJ, multa, desconto no repasse e bloqueio (D16) | `9e75059..df37496` | ⏳ enviar (lote 17) | — |
 
 ## Gates
