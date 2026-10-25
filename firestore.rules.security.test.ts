@@ -364,6 +364,15 @@ describe('Firestore Rules — Security Suite', () => {
       }
     });
 
+    it('repasse (D14): payoutEntries negado até para o dono e admin', async () => {
+      const adminDb = testEnv.authenticatedContext('admin-user', { admin: true }).firestore();
+      const ownerDb = testEnv.authenticatedContext('partner-1').firestore();
+      for (const db of [adminDb, ownerDb]) {
+        await assertFails(getDoc(doc(db, 'payoutEntries/po_booking_bk-1')));
+        await assertFails(setDoc(doc(db, 'payoutEntries/po_booking_bk-1'), { status: 'released' }));
+      }
+    });
+
     it('plano (D11): listingPlans negado até para o dono e admin', async () => {
       const adminDb = testEnv.authenticatedContext('admin-user', { admin: true }).firestore();
       const ownerDb = testEnv.authenticatedContext('partner-1').firestore();

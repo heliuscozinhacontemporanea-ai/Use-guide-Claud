@@ -265,6 +265,8 @@ export class RefundPersistenceMapper {
       orderId: String(raw.orderId || ''),
       ticketId: typeof raw.ticketId === 'string' ? raw.ticketId : undefined,
       amountMinor: typeof raw.amountMinor === 'number' ? Math.trunc(raw.amountMinor) : 0,
+      serviceFeeMinor:
+        typeof raw.serviceFeeMinor === 'number' ? Math.trunc(raw.serviceFeeMinor) : 0,
       requestedBy:
         raw.requestedBy === 'partner' || raw.requestedBy === 'admin' || raw.requestedBy === 'system'
           ? raw.requestedBy

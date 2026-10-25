@@ -1,0 +1,40 @@
+/**
+ * `payoutEntries/{id}`: repasse de uma venda à conta do CNPJ (D14). O dinheiro fica no saldo da plataforma
+ * até `releaseAt` (fim do serviço + 48 h) e só então vira transferência. Classe interna (financeiro).
+ */
+export type PayoutEntryStatus = 'pending' | 'on_hold' | 'released' | 'canceled';
+
+export type PayoutHoldReason = 'dispute';
+
+export interface PayoutRefundApplied {
+  amountMinor: number;
+  /** Parte do reembolso que era taxa de serviço (fica fora do valor do proprietário). */
+  serviceFeeMinor: number;
+  at: string;
+}
+
+export interface PayoutEntry {
+  id: string;
+  /** Quem vendeu o quê ('ticket_order', 'booking'); o payment não interpreta o valor. */
+  referenceType: string;
+  referenceId: string;
+  accountKey: string;
+  paymentIntentId: string;
+  chargeId: string;
+  grossMinor: number;
+  serviceFeeMinor: number;
+  /** Taxa da plataforma sobre o valor do serviço, sem a taxa de serviço, na compra. */
+  platformFeeMinor: number;
+  partnerAmountMinor: number;
+  serviceEndsAt: string;
+  releaseAt: string;
+  status: PayoutEntryStatus;
+  holdReason?: PayoutHoldReason;
+  /** Reembolsos já descontados, por chave do reembolso: repetir o mesmo não desconta de novo. */
+  refunds: Record<string, PayoutRefundApplied>;
+  transferId?: string;
+  releasedAt?: string;
+  canceledReason?: 'fully_refunded' | 'dispute_lost';
+  createdAt: string;
+  updatedAt: string;
+}

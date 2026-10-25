@@ -6,7 +6,12 @@ vi.mock('./activatePaidPlanApplicationUseCase', () => ({
   activatePaidPlanApplicationUseCase: vi.fn(),
 }));
 vi.mock('../../domain/payment', () => ({
+  applyPayoutRefundUseCase: vi.fn(),
+  closePayoutDisputeUseCase: vi.fn(),
+  holdPayoutForDisputeUseCase: vi.fn(),
+  recordSalePayoutUseCase: vi.fn(),
   createPaymentForTicketOrderUseCase: vi.fn(),
+  getPaymentReferenceUseCase: vi.fn().mockResolvedValue(null),
   PaymentDomainError: class extends Error {},
   processProviderRefundUseCase: vi.fn(),
   retrievePaymentIntentUseCase: vi.fn(),
@@ -24,10 +29,15 @@ vi.mock('../../domain/ticketing', () => ({
 }));
 
 import {
+  applyPayoutRefundUseCase,
+  closePayoutDisputeUseCase,
+  holdPayoutForDisputeUseCase,
   processProviderRefundUseCase,
+  recordSalePayoutUseCase,
   updatePaymentTransactionStatusUseCase,
 } from '../../domain/payment';
 import {
+  confirmTicketOrderPaymentUseCase,
   finalizeTicketRefundStatusUseCase,
   requestTicketRefundUseCase,
   type Refund,
@@ -85,7 +95,14 @@ describe('ticketingPaymentOrchestrationUseCases — refunds', () => {
     expect(finalizeTicketRefundStatusUseCase).not.toHaveBeenCalled();
   });
 
-  it('refund.updated com status succeeded aprova o reembolso', async () => {
+  it('refund.updated com status succeeded aprova o reembolso e desconta o repasse', async () => {
+    vi.mocked(finalizeTicketRefundStatusUseCase).mockResolvedValue({
+      id: 'ref_1',
+      orderId: 'ord_1',
+      amountMinor: 5300,
+      serviceFeeMinor: 300,
+      status: 'approved',
+    } as Refund);
     await reconcileStripeWebhookEventApplicationUseCase({
       id: 'evt_2',
       type: 'refund.updated',
@@ -93,6 +110,13 @@ describe('ticketingPaymentOrchestrationUseCases — refunds', () => {
       dataObject: { id: 're_1', status: 'succeeded', metadata: { refundId: 'ref_1' } },
     });
     expect(finalizeTicketRefundStatusUseCase).toHaveBeenCalledWith('ref_1', 'approved', 're_1');
+    expect(applyPayoutRefundUseCase).toHaveBeenCalledWith({
+      referenceType: 'ticket_order',
+      referenceId: 'ord_1',
+      refundKey: 'ref_1',
+      amountMinor: 5300,
+      serviceFeeMinor: 300,
+    });
   });
 
   it('refund.updated com status failed marca como failed', async () => {
@@ -117,5 +141,73 @@ describe('ticketingPaymentOrchestrationUseCases — refunds', () => {
       },
     });
     expect(updatePaymentTransactionStatusUseCase).toHaveBeenCalledWith('pi_1', 'refunded');
+  });
+});
+
+describe('ticketingPaymentOrchestrationUseCases — repasse (D14)', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('pagamento confirmado registra o repasse com a conta do CNPJ e a cobrança de origem', async () => {
+    vi.mocked(confirmTicketOrderPaymentUseCase).mockResolvedValue({
+      order: {
+        id: 'ord_1',
+        totalMinor: 10600,
+        serviceFeeMinor: 600,
+        platformFeeMinor: 1000,
+        eventSnapshot: {
+          title: 'Show',
+          startsAt: '2026-12-20T22:00:00.000Z',
+          endsAt: '2026-12-21T03:00:00.000Z',
+        },
+      } as TicketOrder,
+      tickets: [],
+      alreadyPaid: true,
+    });
+    await reconcileStripeWebhookEventApplicationUseCase({
+      id: 'evt_pi',
+      type: 'payment_intent.succeeded',
+      created: 1,
+      dataObject: {
+        id: 'pi_1',
+        latest_charge: 'ch_1',
+        metadata: { referenceType: 'ticket_order', referenceId: 'ord_1', accountKey: 'key-1' },
+      },
+    });
+    expect(recordSalePayoutUseCase).toHaveBeenCalledWith({
+      referenceType: 'ticket_order',
+      referenceId: 'ord_1',
+      accountKey: 'key-1',
+      paymentIntentId: 'pi_1',
+      chargeId: 'ch_1',
+      grossMinor: 10600,
+      serviceFeeMinor: 600,
+      platformFeeMinor: 1000,
+      serviceEndsAt: '2026-12-21T03:00:00.000Z',
+    });
+  });
+
+  it('contestação segura o repasse; encerrada ganha ou perdida avisa o repasse', async () => {
+    await reconcileStripeWebhookEventApplicationUseCase({
+      id: 'evt_d1',
+      type: 'charge.dispute.created',
+      created: 1,
+      dataObject: { payment_intent: 'pi_1', metadata: {} },
+    });
+    expect(holdPayoutForDisputeUseCase).toHaveBeenCalledWith('pi_1');
+    for (const [status, won] of [
+      ['won', true],
+      ['warning_closed', true],
+      ['lost', false],
+    ] as const) {
+      await reconcileStripeWebhookEventApplicationUseCase({
+        id: `evt_${status}`,
+        type: 'charge.dispute.closed',
+        created: 1,
+        dataObject: { payment_intent: 'pi_1', status },
+      });
+      expect(closePayoutDisputeUseCase).toHaveBeenLastCalledWith('pi_1', won);
+    }
   });
 });

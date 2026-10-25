@@ -15,9 +15,6 @@ export async function cancelBookingByBuyerApplicationUseCase(
     await processProviderRefundUseCase({
       paymentIntentId: result.booking.paymentIntentId,
       amountMinor: result.refundAmountMinor,
-      reverseTransfer: true,
-      // Taxa da plataforma só volta no reembolso integral (cancelamento dentro do prazo gratuito).
-      refundApplicationFee: result.refundPercent === 100,
       idempotencyKey: `refund_booking_${bookingId}`,
       metadata: { referenceType: 'booking_refund', bookingId },
     });

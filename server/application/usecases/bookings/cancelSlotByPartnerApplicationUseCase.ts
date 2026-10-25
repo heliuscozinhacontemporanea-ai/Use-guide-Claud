@@ -25,8 +25,6 @@ export async function cancelSlotByPartnerApplicationUseCase(
       await processProviderRefundUseCase({
         paymentIntentId: canceled.paymentIntentId,
         amountMinor: refundAmountMinor,
-        reverseTransfer: true,
-        refundApplicationFee: true,
         idempotencyKey: `refund_slot_${canceled.id}`,
         metadata: { referenceType: 'booking_refund', bookingId: canceled.id },
       });

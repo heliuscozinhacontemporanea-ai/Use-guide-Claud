@@ -1,3 +1,4 @@
+import { recordPaidSalePayoutApplicationUseCase } from '../payouts/recordPaidSalePayoutApplicationUseCase';
 import {
   BookingDomainError,
   confirmBookingPaymentUseCase,
@@ -8,6 +9,7 @@ import {
 } from '../../../domain/bookings';
 import { createNotificationUseCase } from '../../../domain/notifications';
 import {
+  applyPayoutRefundUseCase,
   getPaymentReferenceUseCase,
   processProviderRefundUseCase,
   updatePaymentTransactionStatusUseCase,
@@ -18,10 +20,29 @@ function readMetadata(obj: Record<string, unknown>): Record<string, string> {
   return (obj.metadata as Record<string, string> | undefined) ?? {};
 }
 
-async function handlePaymentSucceeded(paymentIntentId: string, bookingId: string): Promise<void> {
+function serviceEndsAt(startsAt: string, durationMinutes: number | undefined): string {
+  return new Date(new Date(startsAt).getTime() + (durationMinutes ?? 0) * 60_000).toISOString();
+}
+
+async function handlePaymentSucceeded(
+  paymentIntent: Record<string, unknown>,
+  bookingId: string
+): Promise<void> {
+  const paymentIntentId = String(paymentIntent.id || '');
   await updatePaymentTransactionStatusUseCase(paymentIntentId, 'succeeded');
   try {
     const booking = await confirmBookingPaymentUseCase(bookingId, paymentIntentId);
+    await recordPaidSalePayoutApplicationUseCase(paymentIntent, {
+      referenceType: 'booking',
+      referenceId: booking.id,
+      grossMinor: booking.totalMinor,
+      serviceFeeMinor: 0,
+      platformFeeMinor: booking.platformFeeMinor,
+      serviceEndsAt: serviceEndsAt(
+        booking.offerSnapshot.startsAt,
+        booking.offerSnapshot.durationMinutes
+      ),
+    });
     await createNotificationUseCase({
       recipientPartnerId: booking.sellerPartnerId,
       type: 'admin_message',
@@ -35,16 +56,26 @@ async function handlePaymentSucceeded(paymentIntentId: string, bookingId: string
     // Pagamento chegou para uma reserva expirada sem vaga ou já cancelada: devolve tudo.
     await processProviderRefundUseCase({
       paymentIntentId,
-      reverseTransfer: true,
-      refundApplicationFee: true,
       idempotencyKey: `refund_late_${bookingId}`,
       metadata: { referenceType: 'booking_refund', bookingId },
     });
   }
 }
 
-async function handleRefundUpdate(bookingId: string, providerStatus: string): Promise<void> {
+async function handleRefundUpdate(
+  bookingId: string,
+  refund: Record<string, unknown>
+): Promise<void> {
+  const providerStatus = String(refund.status || '');
   if (providerStatus === 'succeeded') {
+    // Reserva sem taxa de serviço: o reembolso todo sai do valor do proprietário (D14).
+    await applyPayoutRefundUseCase({
+      referenceType: 'booking',
+      referenceId: bookingId,
+      refundKey: String(refund.id || ''),
+      amountMinor: typeof refund.amount === 'number' ? refund.amount : 0,
+      serviceFeeMinor: 0,
+    });
     const booking = await getBookingUseCase(bookingId);
     // Só a reserva cancelada vira "reembolsada"; o reembolso de pagamento tardio não muda o status.
     if (booking?.status === 'canceled') {
@@ -70,7 +101,7 @@ export async function reconcileBookingWebhookApplicationUseCase(
     if (metadata.referenceType !== 'booking' || !metadata.referenceId) return false;
     const paymentIntentId = String(obj.id || '');
     if (event.type === 'payment_intent.succeeded') {
-      await handlePaymentSucceeded(paymentIntentId, metadata.referenceId);
+      await handlePaymentSucceeded(obj, metadata.referenceId);
     } else {
       await updatePaymentTransactionStatusUseCase(paymentIntentId, 'failed');
       await markBookingPaymentFailedUseCase(metadata.referenceId);
@@ -80,7 +111,7 @@ export async function reconcileBookingWebhookApplicationUseCase(
 
   if (event.type === 'refund.updated' || event.type === 'refund.created') {
     if (metadata.referenceType !== 'booking_refund' || !metadata.bookingId) return false;
-    await handleRefundUpdate(metadata.bookingId, String(obj.status || ''));
+    await handleRefundUpdate(metadata.bookingId, obj);
     return true;
   }
 

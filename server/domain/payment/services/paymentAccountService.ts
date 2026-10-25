@@ -47,6 +47,13 @@ export class PaymentAccountService {
     return record;
   }
 
+  /** Conta Stripe que recebe o repasse, ou `null` enquanto o CNPJ não pode receber (D14). */
+  async getPayoutDestination(accountKey: string): Promise<string | null> {
+    // Sem consultar o Stripe a cada entrada: `account.updated` mantém o registro atualizado.
+    const record = await this.repository.get(accountKey);
+    return record?.payoutsEnabled ? record.stripeAccountId : null;
+  }
+
   async syncFromWebhook(stripeAccountId: string): Promise<void> {
     const record = await this.repository.getByStripeAccountId(stripeAccountId);
     if (record) await this.sync(record);

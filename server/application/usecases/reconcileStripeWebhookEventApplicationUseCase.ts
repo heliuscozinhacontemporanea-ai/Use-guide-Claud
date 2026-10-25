@@ -1,5 +1,7 @@
 import { createNotificationUseCase } from '../../domain/notifications';
 import {
+  closePayoutDisputeUseCase,
+  holdPayoutForDisputeUseCase,
   syncPaymentAccountFromWebhookUseCase,
   updatePaymentTransactionStatusUseCase,
   type VerifiedWebhookEvent,
@@ -12,6 +14,8 @@ import {
 } from '../../domain/ticketing';
 import { activatePaidPlanApplicationUseCase } from './activatePaidPlanApplicationUseCase';
 import { reconcileBookingWebhookApplicationUseCase } from './bookings/reconcileBookingWebhookApplicationUseCase';
+import { applyTicketRefundToPayoutApplicationUseCase } from './payouts/applyTicketRefundToPayoutApplicationUseCase';
+import { recordPaidSalePayoutApplicationUseCase } from './payouts/recordPaidSalePayoutApplicationUseCase';
 import {
   PLAN_SUBSCRIPTION_WEBHOOK_EVENTS,
   reconcilePlanSubscriptionWebhookApplicationUseCase,
@@ -21,6 +25,19 @@ export async function reconcileStripeWebhookEventApplicationUseCase(
   event: VerifiedWebhookEvent
 ): Promise<{ processed: boolean; eventType: string }> {
   const obj = event.dataObject || {};
+
+  // Contestação segura o repasse de qualquer venda, antes do tratamento de cada produto (D14).
+  if (event.type === 'charge.dispute.created' && obj.payment_intent) {
+    await holdPayoutForDisputeUseCase(String(obj.payment_intent));
+  }
+  if (event.type === 'charge.dispute.closed') {
+    if (obj.payment_intent) {
+      // `warning_closed`: consulta encerrada sem estorno, o dinheiro fica com a plataforma.
+      const won = obj.status === 'won' || obj.status === 'warning_closed';
+      await closePayoutDisputeUseCase(String(obj.payment_intent), won);
+    }
+    return { processed: true, eventType: event.type };
+  }
 
   if (await reconcileBookingWebhookApplicationUseCase(event)) {
     return { processed: true, eventType: event.type };
@@ -48,6 +65,15 @@ export async function reconcileStripeWebhookEventApplicationUseCase(
         orderId,
         paymentId: paymentIntentId,
         paymentIntentId,
+      });
+      const { order } = confirmed;
+      await recordPaidSalePayoutApplicationUseCase(obj, {
+        referenceType: 'ticket_order',
+        referenceId: order.id,
+        grossMinor: order.totalMinor,
+        serviceFeeMinor: order.serviceFeeMinor,
+        platformFeeMinor: order.platformFeeMinor,
+        serviceEndsAt: order.eventSnapshot?.endsAt || order.eventSnapshot?.startsAt || '',
       });
 
       const targetPartnerId = metadata.partnerId || metadata.sellerPartnerId;
@@ -100,11 +126,12 @@ export async function reconcileStripeWebhookEventApplicationUseCase(
     const providerStatus = String(obj.status || '');
     if (refundMetadata.refundId) {
       if (providerStatus === 'succeeded') {
-        await finalizeTicketRefundStatusUseCase(
+        const refund = await finalizeTicketRefundStatusUseCase(
           refundMetadata.refundId,
           'approved',
           String(obj.id || '')
         );
+        await applyTicketRefundToPayoutApplicationUseCase(refund);
       } else if (providerStatus === 'failed' || providerStatus === 'canceled') {
         await finalizeTicketRefundStatusUseCase(
           refundMetadata.refundId,

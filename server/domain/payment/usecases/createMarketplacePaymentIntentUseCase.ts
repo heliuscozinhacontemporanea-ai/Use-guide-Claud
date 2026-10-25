@@ -1,7 +1,10 @@
 import { stripePaymentService } from '../factory';
 import type { CreatePaymentIntentResult } from '../ports/paymentGatewayPort';
 
-/** Destination charge para qualquer venda de parceiro; `referenceType`/`referenceId` vão na metadata. */
+/**
+ * Cobrança na plataforma para qualquer venda de parceiro (D14); `referenceType`/`referenceId` vão na metadata.
+ * `serviceStartsAt` decide se o Pix é oferecido.
+ */
 export async function createMarketplacePaymentIntentUseCase(params: {
   referenceType: string;
   referenceId: string;
@@ -9,6 +12,7 @@ export async function createMarketplacePaymentIntentUseCase(params: {
   sellerPartnerId: string;
   sellerAccountKey: string;
   description: string;
+  serviceStartsAt: string;
   totalMinor: number;
   platformFeeMinor: number;
   idempotencyKey: string;

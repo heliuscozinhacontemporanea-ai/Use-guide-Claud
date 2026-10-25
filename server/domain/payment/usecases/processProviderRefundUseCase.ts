@@ -4,8 +4,6 @@ import type { RefundPaymentResult } from '../ports/paymentGatewayPort';
 export async function processProviderRefundUseCase(params: {
   paymentIntentId: string;
   amountMinor?: number;
-  reverseTransfer?: boolean;
-  refundApplicationFee?: boolean;
   idempotencyKey: string;
   metadata?: Record<string, string>;
 }): Promise<RefundPaymentResult> {

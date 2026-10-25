@@ -66,6 +66,10 @@ service cloud.firestore {
     match /paymentAccounts/{accountKey} {
       allow read, write: if false;
     }
+    // Repasse de cada venda (D14): financeiro, só backend.
+    match /payoutEntries/{entryId} {
+      allow read, write: if false;
+    }
     match /planSubscriptions/{itemId} {
       allow read, write: if false;
     }

@@ -171,6 +171,7 @@ export interface TicketingPort {
     orderId: string;
     ticketId?: string;
     amountMinor: number;
+    serviceFeeMinor: number;
     requestedBy: Refund['requestedBy'];
     reason: string;
     idempotencyKey: string;

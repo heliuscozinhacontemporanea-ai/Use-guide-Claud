@@ -96,6 +96,7 @@ describe('eventLifecycleOrchestrationUseCases', () => {
       id: 'ref-1',
       orderId: 'ord-1',
       amountMinor: 10000,
+      serviceFeeMinor: 0,
       requestedBy: 'partner',
       reason: 'Chuva intensa',
       status: 'pending_provider',

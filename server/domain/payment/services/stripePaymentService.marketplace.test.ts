@@ -3,6 +3,8 @@ import type { PaymentGatewayPort } from '../ports/paymentGatewayPort';
 import type { TransactionRepositoryPort } from '../ports/transactionRepositoryPort';
 import { StripePaymentService } from './stripePaymentService';
 
+const NOW = new Date('2026-10-25T12:00:00.000Z');
+
 function setup(existingTx: unknown = null) {
   const gateway = {
     createPaymentIntent: vi.fn().mockResolvedValue({
@@ -22,7 +24,7 @@ function setup(existingTx: unknown = null) {
       .mockResolvedValue({ id: 'pi_1', referenceType: 'booking', referenceId: 'bk_1' }),
   } as unknown as TransactionRepositoryPort;
   return {
-    service: new StripePaymentService(gateway, repo, accounts),
+    service: new StripePaymentService(gateway, repo, accounts, () => NOW),
     gateway,
     repo,
     accounts,
@@ -36,25 +38,33 @@ const PARAMS = {
   sellerPartnerId: 'p1',
   sellerAccountKey: 'key-cnpj-1',
   description: 'Use Guide — Passeio',
+  serviceStartsAt: '2026-11-10T12:00:00.000Z',
   totalMinor: 20000,
   platformFeeMinor: 2000,
   idempotencyKey: 'pi_booking_bk_1',
 };
 
 describe('StripePaymentService — vendas de marketplace', () => {
-  it('cria destination charge para a conta do CNPJ, com taxa e metadata só com IDs', async () => {
+  it('cobra na plataforma, sem destino, com o grupo do repasse e metadata só com IDs (D14)', async () => {
     const { service, gateway, repo, accounts } = setup();
     const result = await service.createMarketplacePaymentIntent(PARAMS);
     expect(accounts.assertReady).toHaveBeenCalledWith('key-cnpj-1');
     expect(gateway.createPaymentIntent).toHaveBeenCalledWith(
       expect.objectContaining({
         amountMinor: 20000,
-        applicationFeeMinor: 2000,
-        connectedAccountId: 'acct_1',
+        transferGroup: 'bk_1',
+        paymentMethodTypes: ['card', 'pix'],
         idempotencyKey: 'pi_booking_bk_1',
-        metadata: { referenceType: 'booking', referenceId: 'bk_1', partnerId: 'p1' },
+        metadata: {
+          referenceType: 'booking',
+          referenceId: 'bk_1',
+          partnerId: 'p1',
+          accountKey: 'key-cnpj-1',
+        },
       })
     );
+    const call = vi.mocked(gateway.createPaymentIntent).mock.calls[0]?.[0];
+    expect(call).not.toHaveProperty('connectedAccountId');
     expect(repo.saveTransactionRecord).toHaveBeenCalledWith(
       expect.objectContaining({ referenceType: 'booking', referenceId: 'bk_1' })
     );
@@ -84,6 +94,7 @@ describe('StripePaymentService — vendas de marketplace', () => {
       eventListingId: 'event-1',
       occurrenceId: 'occ-1',
       eventTitle: 'Show',
+      serviceStartsAt: '2027-03-01T22:00:00.000Z',
       totalMinor: 5000,
       platformFeeMinor: 500,
       idempotencyKey: 'pi_order_order-1',
@@ -91,6 +102,8 @@ describe('StripePaymentService — vendas de marketplace', () => {
     expect(gateway.createPaymentIntent).toHaveBeenCalledWith(
       expect.objectContaining({
         description: 'Use Guide — Show',
+        // Mais de 80 dias até o evento: sem Pix (o reembolso de Pix só vale até 90 dias).
+        paymentMethodTypes: ['card'],
         metadata: {
           referenceType: 'ticket_order',
           referenceId: 'order-1',
@@ -99,6 +112,7 @@ describe('StripePaymentService — vendas de marketplace', () => {
           eventListingId: 'event-1',
           occurrenceId: 'occ-1',
           partnerId: 'p1',
+          accountKey: 'key-cnpj-1',
         },
       })
     );

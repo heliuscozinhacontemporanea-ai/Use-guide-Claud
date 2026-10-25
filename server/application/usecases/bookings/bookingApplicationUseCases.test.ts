@@ -135,7 +135,7 @@ describe('createBookingApplicationUseCase', () => {
 describe('cancelBookingByBuyerApplicationUseCase', () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it('100% devolve também a taxa da plataforma', async () => {
+  it('reembolsa do saldo da plataforma, sem reverter transferência (D14)', async () => {
     vi.mocked(requestCancellationByBuyerUseCase).mockResolvedValue({
       booking: { ...BOOKING, status: 'canceled' },
       refundPercent: 100,
@@ -145,14 +145,12 @@ describe('cancelBookingByBuyerApplicationUseCase', () => {
     expect(processProviderRefundUseCase).toHaveBeenCalledWith({
       paymentIntentId: 'pi_1',
       amountMinor: 20000,
-      reverseTransfer: true,
-      refundApplicationFee: true,
       idempotencyKey: 'refund_booking_bk_1',
       metadata: { referenceType: 'booking_refund', bookingId: 'bk_1' },
     });
   });
 
-  it('50% não devolve a taxa', async () => {
+  it('50% devolve só a metade', async () => {
     vi.mocked(requestCancellationByBuyerUseCase).mockResolvedValue({
       booking: { ...BOOKING, status: 'canceled' },
       refundPercent: 50,
@@ -160,7 +158,7 @@ describe('cancelBookingByBuyerApplicationUseCase', () => {
     } as never);
     await cancelBookingByBuyerApplicationUseCase({ uid: 'buyer-1', admin: false }, 'bk_1', '');
     expect(processProviderRefundUseCase).toHaveBeenCalledWith(
-      expect.objectContaining({ amountMinor: 10000, refundApplicationFee: false })
+      expect.objectContaining({ amountMinor: 10000 })
     );
   });
 
@@ -210,8 +208,6 @@ describe('cancelSlotByPartnerApplicationUseCase', () => {
     expect(processProviderRefundUseCase).toHaveBeenCalledWith(
       expect.objectContaining({
         paymentIntentId: 'pi_1',
-        refundApplicationFee: true,
-        reverseTransfer: true,
         idempotencyKey: 'refund_slot_bk_1',
       })
     );

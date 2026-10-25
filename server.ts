@@ -29,6 +29,7 @@ import {
   partnerOffersRouter,
 } from './server/interfaces/http/bookings/bookingsRoutes';
 import { InternalBookingsController } from './server/interfaces/http/bookings/internalBookingsController';
+import { InternalPayoutsController } from './server/interfaces/http/payouts/internalPayoutsController';
 import { InternalPartnersController } from './server/interfaces/http/partners/internalPartnersController';
 import { verifyInternalJobKey } from './server/infrastructure/auth/internalJobAuth';
 import { resolveTrustProxyHops } from './server/infrastructure/config/trustProxy';
@@ -143,6 +144,7 @@ async function startServer() {
     TicketingController.expireOrdersInternalJob
   );
   app.post('/internal/bookings/expire', verifyInternalJobKey, InternalBookingsController.expire);
+  app.post('/internal/payouts/release', verifyInternalJobKey, InternalPayoutsController.release);
   app.post(
     '/internal/bookings/complete',
     verifyInternalJobKey,

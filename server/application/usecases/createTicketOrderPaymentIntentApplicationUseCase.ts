@@ -104,6 +104,7 @@ export async function createTicketOrderPaymentIntentApplicationUseCase(
     eventListingId: order.eventListingId,
     occurrenceId: order.occurrenceId,
     eventTitle: order.eventSnapshot?.title || listing.title,
+    serviceStartsAt: order.eventSnapshot?.startsAt ?? new Date().toISOString(),
     totalMinor: order.totalMinor,
     // A taxa de serviço do comprador também fica com a plataforma (D14).
     platformFeeMinor: order.platformFeeMinor + order.serviceFeeMinor,

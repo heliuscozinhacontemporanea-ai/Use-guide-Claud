@@ -18,6 +18,7 @@ export class FirestoreRefundStore {
     orderId: string;
     ticketId?: string;
     amountMinor: number;
+    serviceFeeMinor: number;
     requestedBy: Refund['requestedBy'];
     reason: string;
     idempotencyKey: string;
@@ -90,6 +91,7 @@ export class FirestoreRefundStore {
         eventListingId: order.eventListingId,
         ...(params.ticketId ? { ticketId: params.ticketId } : {}),
         amountMinor: params.amountMinor,
+        serviceFeeMinor: params.serviceFeeMinor,
         requestedBy: params.requestedBy,
         reason: params.reason,
         status: initialStatus,

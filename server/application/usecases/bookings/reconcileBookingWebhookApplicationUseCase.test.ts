@@ -15,6 +15,8 @@ vi.mock('../../../domain/notifications', () => ({
   createNotificationUseCase: vi.fn().mockResolvedValue(undefined),
 }));
 vi.mock('../../../domain/payment', () => ({
+  applyPayoutRefundUseCase: vi.fn().mockResolvedValue(null),
+  recordSalePayoutUseCase: vi.fn().mockResolvedValue({}),
   getPaymentReferenceUseCase: vi.fn(),
   processProviderRefundUseCase: vi.fn().mockResolvedValue({}),
   updatePaymentTransactionStatusUseCase: vi.fn().mockResolvedValue(undefined),
@@ -28,7 +30,12 @@ import {
   markBookingRefundedUseCase,
 } from '../../../domain/bookings';
 import { createNotificationUseCase } from '../../../domain/notifications';
-import { getPaymentReferenceUseCase, processProviderRefundUseCase } from '../../../domain/payment';
+import {
+  applyPayoutRefundUseCase,
+  getPaymentReferenceUseCase,
+  processProviderRefundUseCase,
+  recordSalePayoutUseCase,
+} from '../../../domain/payment';
 import { reconcileBookingWebhookApplicationUseCase } from './reconcileBookingWebhookApplicationUseCase';
 
 function event(type: string, dataObject: Record<string, unknown>) {
@@ -37,20 +44,39 @@ function event(type: string, dataObject: Record<string, unknown>) {
 
 const SUCCEEDED = event('payment_intent.succeeded', {
   id: 'pi_1',
-  metadata: { referenceType: 'booking', referenceId: 'bk_1', partnerId: 'p1' },
+  latest_charge: 'ch_1',
+  metadata: { referenceType: 'booking', referenceId: 'bk_1', partnerId: 'p1', accountKey: 'key-1' },
 });
 
 describe('reconcileBookingWebhookApplicationUseCase', () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it('pagamento aprovado confirma a reserva e avisa o parceiro', async () => {
+  it('pagamento aprovado confirma a reserva, registra o repasse e avisa o parceiro', async () => {
     vi.mocked(confirmBookingPaymentUseCase).mockResolvedValue({
+      id: 'bk_1',
       sellerPartnerId: 'p1',
       participantsCount: 2,
-      offerSnapshot: { title: 'Passeio' },
+      totalMinor: 30000,
+      platformFeeMinor: 4500,
+      offerSnapshot: {
+        title: 'Passeio',
+        startsAt: '2026-11-10T12:00:00.000Z',
+        durationMinutes: 240,
+      },
     } as never);
     await expect(reconcileBookingWebhookApplicationUseCase(SUCCEEDED)).resolves.toBe(true);
     expect(confirmBookingPaymentUseCase).toHaveBeenCalledWith('bk_1', 'pi_1');
+    expect(recordSalePayoutUseCase).toHaveBeenCalledWith({
+      referenceType: 'booking',
+      referenceId: 'bk_1',
+      accountKey: 'key-1',
+      paymentIntentId: 'pi_1',
+      chargeId: 'ch_1',
+      grossMinor: 30000,
+      serviceFeeMinor: 0,
+      platformFeeMinor: 4500,
+      serviceEndsAt: '2026-11-10T16:00:00.000Z',
+    });
     expect(createNotificationUseCase).toHaveBeenCalledWith(
       expect.objectContaining({ recipientPartnerId: 'p1' })
     );
@@ -64,11 +90,10 @@ describe('reconcileBookingWebhookApplicationUseCase', () => {
     expect(processProviderRefundUseCase).toHaveBeenCalledWith(
       expect.objectContaining({
         paymentIntentId: 'pi_1',
-        refundApplicationFee: true,
-        reverseTransfer: true,
         idempotencyKey: 'refund_late_bk_1',
       })
     );
+    expect(recordSalePayoutUseCase).not.toHaveBeenCalled();
   });
 
   it('erro inesperado sobe para o webhook responder 5xx', async () => {
@@ -87,14 +112,23 @@ describe('reconcileBookingWebhookApplicationUseCase', () => {
     expect(markBookingRefundedUseCase).not.toHaveBeenCalled();
   });
 
-  it('reembolso aprovado marca só reserva cancelada', async () => {
+  it('reembolso aprovado desconta o repasse e marca só reserva cancelada', async () => {
     const succeeded = event('refund.updated', {
+      id: 're_1',
+      amount: 15000,
       status: 'succeeded',
       metadata: { referenceType: 'booking_refund', bookingId: 'bk_1' },
     });
     vi.mocked(getBookingUseCase).mockResolvedValueOnce({ status: 'canceled' } as never);
     await reconcileBookingWebhookApplicationUseCase(succeeded);
     expect(markBookingRefundedUseCase).toHaveBeenCalledWith('bk_1');
+    expect(applyPayoutRefundUseCase).toHaveBeenCalledWith({
+      referenceType: 'booking',
+      referenceId: 'bk_1',
+      refundKey: 're_1',
+      amountMinor: 15000,
+      serviceFeeMinor: 0,
+    });
     vi.mocked(getBookingUseCase).mockResolvedValueOnce({ status: 'expired' } as never);
     await reconcileBookingWebhookApplicationUseCase(succeeded);
     expect(markBookingRefundedUseCase).toHaveBeenCalledTimes(1);

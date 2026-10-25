@@ -14,8 +14,7 @@ function mapDocToTransactionRecord(id: string, data: Record<string, unknown>): T
       typeof data.referenceType === 'string' && data.referenceType ? data.referenceType : undefined,
     referenceId: typeof data.referenceId === 'string' ? data.referenceId : null,
     providerPaymentId: typeof data.providerPaymentId === 'string' ? data.providerPaymentId : null,
-    connectedAccountId:
-      typeof data.connectedAccountId === 'string' ? data.connectedAccountId : null,
+    accountKey: typeof data.accountKey === 'string' ? data.accountKey : null,
     amount: typeof data.amount === 'number' ? data.amount : null,
     amountMinor: typeof data.amountMinor === 'number' ? data.amountMinor : null,
     platformFeeMinor: typeof data.platformFeeMinor === 'number' ? data.platformFeeMinor : null,
@@ -101,7 +100,7 @@ export class FirebaseAdminTransactionAdapter implements TransactionRepositoryPor
     referenceType: string;
     referenceId: string;
     providerPaymentId: string;
-    connectedAccountId?: string;
+    accountKey?: string;
     amountMinor: number;
     platformFeeMinor: number;
     paymentMethod: string;
@@ -115,7 +114,7 @@ export class FirebaseAdminTransactionAdapter implements TransactionRepositoryPor
       referenceId: record.referenceId,
       provider: 'stripe',
       providerPaymentId: record.providerPaymentId,
-      ...(record.connectedAccountId ? { connectedAccountId: record.connectedAccountId } : {}),
+      ...(record.accountKey ? { accountKey: record.accountKey } : {}),
       amountMinor: record.amountMinor,
       platformFeeMinor: record.platformFeeMinor,
       currency: 'BRL',
@@ -140,7 +139,7 @@ export class FirebaseAdminTransactionAdapter implements TransactionRepositoryPor
           referenceId: record.referenceId,
           provider: 'stripe',
           providerPaymentId: record.providerPaymentId,
-          ...(record.connectedAccountId ? { connectedAccountId: record.connectedAccountId } : {}),
+          ...(record.accountKey ? { accountKey: record.accountKey } : {}),
           amount: record.amountMinor / 100,
           amountMinor: record.amountMinor,
           platformFeeMinor: record.platformFeeMinor,

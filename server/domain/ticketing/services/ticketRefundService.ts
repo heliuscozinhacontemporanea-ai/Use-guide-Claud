@@ -17,7 +17,12 @@ import { getAuditActorType, isActorAdmin, type TicketingActorContext } from './t
  * Cancelamento pelo próprio comprador (D14): arrependimento de 7 dias até 48 h antes do início, ou a política
  * gravada no pedido. A taxa de serviço só volta no arrependimento.
  */
-function buyerSelfServiceRefundMinor(order: TicketOrder, startsAt: string | undefined): number {
+interface RefundAmount {
+  amountMinor: number;
+  serviceFeeMinor: number;
+}
+
+function buyerSelfServiceRefund(order: TicketOrder, startsAt: string | undefined): RefundAmount {
   if (!startsAt) {
     throw new RefundNotAllowedError('Sessão do evento não encontrada para calcular o reembolso.');
   }
@@ -36,7 +41,7 @@ function buyerSelfServiceRefundMinor(order: TicketOrder, startsAt: string | unde
       'Pela política deste evento, o cancelamento agora não tem reembolso.'
     );
   }
-  return amountMinor;
+  return { amountMinor, serviceFeeMinor: refund.serviceFeeRefundMinor };
 }
 
 /** Reembolso pedido pelo comprador e conclusão pelo webhook. */
@@ -87,12 +92,12 @@ export class TicketRefundService {
       occurrence?.status === 'postponed' ||
       params.isEventCanceledByOrganizer === true;
 
-    const amountMinor = params.ticketId
-      ? await this.ticketRefundMinor(order, params.ticketId)
+    const { amountMinor, serviceFeeMinor } = params.ticketId
+      ? await this.ticketRefund(order, params.ticketId)
       : !isAdmin && !isPartnerOwner && !occurrenceCanceledOrPostponed
-        ? buyerSelfServiceRefundMinor(order, occurrence?.startsAt)
+        ? buyerSelfServiceRefund(order, occurrence?.startsAt)
         : // Cancelamento pelo organizador (ou pelo admin): reembolso integral, com a taxa de serviço (D14).
-          order.totalMinor;
+          { amountMinor: order.totalMinor, serviceFeeMinor: order.serviceFeeMinor };
 
     const requestedBy: Refund['requestedBy'] = isAdmin
       ? 'admin'
@@ -104,6 +109,7 @@ export class TicketRefundService {
       orderId: order.id,
       ticketId: params.ticketId,
       amountMinor,
+      serviceFeeMinor,
       requestedBy,
       reason: params.reason.trim(),
       idempotencyKey: params.idempotencyKey,
@@ -129,7 +135,7 @@ export class TicketRefundService {
   }
 
   /** Ingresso avulso (só organizador ou admin): o que foi pago por ele, com a parte da taxa de serviço. */
-  private async ticketRefundMinor(order: TicketOrder, ticketId: string): Promise<number> {
+  private async ticketRefund(order: TicketOrder, ticketId: string): Promise<RefundAmount> {
     const ticket = await this.port.getTicketById(ticketId);
     if (!ticket || ticket.orderId !== order.id) {
       throw new TicketingDomainError('NOT_FOUND', 'Ingresso não pertence a este pedido.');
@@ -143,7 +149,8 @@ export class TicketRefundService {
     }
     const paidMinor =
       ticket.ticketTypeSnapshot?.effectivePaidMinor ?? Math.floor(item.totalMinor / item.quantity);
-    return paidMinor + Math.floor(item.allocatedServiceFeeMinor / item.quantity);
+    const serviceFeeMinor = Math.floor(item.allocatedServiceFeeMinor / item.quantity);
+    return { amountMinor: paidMinor + serviceFeeMinor, serviceFeeMinor };
   }
 
   async finalizeRefundStatus(

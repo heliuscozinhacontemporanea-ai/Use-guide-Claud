@@ -9,6 +9,7 @@ export async function createPaymentForTicketOrderUseCase(params: {
   eventListingId: string;
   occurrenceId: string;
   eventTitle: string;
+  serviceStartsAt: string;
   totalMinor: number;
   platformFeeMinor: number;
   idempotencyKey: string;

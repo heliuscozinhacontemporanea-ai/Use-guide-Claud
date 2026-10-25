@@ -5,6 +5,7 @@ import {
   type Refund,
 } from '../../domain/ticketing';
 import { OrchestrationActor } from './orchestrationActor';
+import { applyTicketRefundToPayoutApplicationUseCase } from './payouts/applyTicketRefundToPayoutApplicationUseCase';
 
 export async function processTicketRefundApplicationUseCase(
   actor: OrchestrationActor,
@@ -39,8 +40,6 @@ export async function processTicketRefundApplicationUseCase(
     const providerRes = await processProviderRefundUseCase({
       paymentIntentId,
       amountMinor: refund.amountMinor,
-      reverseTransfer: true,
-      refundApplicationFee: Boolean(params.isEventCanceledByOrganizer),
       idempotencyKey: `stripe_ref_${refund.id}_${params.idempotencyKey}`,
       metadata: { refundId: refund.id, orderId: params.orderId, referenceType: 'ticket_refund' },
     });
@@ -57,6 +56,8 @@ export async function processTicketRefundApplicationUseCase(
       finalStatus,
       providerRes.providerRefundId || undefined
     );
+    // Concluído na hora (cartão, em geral): desconta já; senão o webhook desconta ao concluir.
+    await applyTicketRefundToPayoutApplicationUseCase(finalized);
 
     return { refund: finalized, isReplay };
   } catch (error) {

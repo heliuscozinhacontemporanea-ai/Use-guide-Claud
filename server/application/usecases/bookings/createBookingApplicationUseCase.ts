@@ -39,7 +39,7 @@ function loadFeeConfig() {
   }
 }
 
-/** Reserva as vagas e cria o pagamento (destination charge). Quem confirma é o webhook. */
+/** Reserva as vagas e cria o pagamento na plataforma (D14). Quem confirma é o webhook. */
 export async function createBookingApplicationUseCase(
   buyer: BookingBuyer,
   input: CreatePendingBookingInput
@@ -70,6 +70,7 @@ export async function createBookingApplicationUseCase(
       sellerPartnerId: booking.sellerPartnerId,
       sellerAccountKey: accountKey,
       description: `Use Guide — ${booking.offerSnapshot.title}`,
+      serviceStartsAt: booking.offerSnapshot.startsAt,
       totalMinor: booking.totalMinor,
       platformFeeMinor: booking.platformFeeMinor,
       idempotencyKey: `pi_booking_${booking.id}`,

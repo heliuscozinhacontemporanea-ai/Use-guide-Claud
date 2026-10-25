@@ -196,6 +196,8 @@ export interface Refund {
   orderId: string;
   ticketId?: string;
   amountMinor: MoneyMinor;
+  /** Parte do reembolso que é taxa de serviço; o resto sai do valor do proprietário (D14). */
+  serviceFeeMinor: MoneyMinor;
   requestedBy: 'buyer' | 'partner' | 'admin' | 'system';
   reason: string;
   status: RefundStatus;

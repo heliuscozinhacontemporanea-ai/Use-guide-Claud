@@ -6,7 +6,7 @@ export interface TransactionRecord {
   referenceType?: string;
   referenceId?: string | null;
   providerPaymentId?: string | null;
-  connectedAccountId?: string | null;
+  accountKey?: string | null;
   amount: number | null;
   amountMinor?: number | null;
   platformFeeMinor?: number | null;
@@ -34,7 +34,7 @@ export interface TransactionRepositoryPort {
     referenceType: string;
     referenceId: string;
     providerPaymentId: string;
-    connectedAccountId?: string;
+    accountKey?: string;
     amountMinor: number;
     platformFeeMinor: number;
     paymentMethod: string;
