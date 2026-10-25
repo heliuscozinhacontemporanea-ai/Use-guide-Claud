@@ -165,7 +165,7 @@
 
 > **Envie um prompt por mensagem**, nesta ordem. Até o 18.3.1 (telas), trial, compra de plano e selo do admin pelo painel ficam fora do ar, e as métricas de estabelecimento sem plano mostram erro.
 
-# Lote 16 (Prompts A5, 18.4a.1, 18.4a.2, 18.4b.0.1, 18.4b.0.2, 18.4b.1 e 18.4b.2) — aplicar sobre o zip de 2026-10-24 (2º)
+# Lote 16 (Prompts A5, 18.4a.1, 18.4a.2, 18.4b.0.1, 18.4b.0.2, 18.4b.1, 18.4b.2 e 18.4b.3) — aplicar sobre o zip de 2026-10-24 (2º)
 
 | Ordem | Arquivo | Tema | Commit de referência |
 |---|---|---|---|
@@ -176,6 +176,7 @@
 | 5 | `prompts/prompt-18.4b.0.2.md` | Adapter Firestore do ticketing (1559 linhas) dividido em stores, sem mudar comportamento | `0012702` |
 | 6 | `prompts/prompt-18.4b.1.md` | Taxas por produto, políticas de cancelamento e arrependimento (D14), parte 1: backend; débito B27 | `0012702..9e420df` |
 | 7 | `prompts/prompt-18.4b.2.md` | Taxas por produto, políticas de cancelamento e arrependimento (D14), parte 2: editores, compra de ingresso e carteira divididas e traduzidas | `0012702..31e0772` |
+| 8 | `prompts/prompt-18.4b.3.md` | Termos com aceite registrado (D15): termos em Sobre o app, link e caixa de aceite no checkout e em Recebimentos; débito B28 | `d59bcbd..642dc1b` |
 
 > O 18.4a passou de 150 KB e foi dividido. Envie a parte 2 logo depois da parte 1: entre as duas, o painel do parceiro ainda chama as rotas antigas de conta financeira.
 

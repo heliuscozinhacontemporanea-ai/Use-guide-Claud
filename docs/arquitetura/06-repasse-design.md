@@ -103,7 +103,7 @@ Sai `paymentConnectedAccounts/{partnerId}` (sem migração, §2.2.8). Nenhum ID 
 | Prompt | Conteúdo |
 |---|---|
 | 18.4a ✅ | Contas por documento: `paymentAccounts`, Account Session por documento (CNPJ pré-preenchido), `account.updated`, checagem antes de vender; sai a trava B22; portal de recebimentos com um cartão por CNPJ |
-| 18.4b ✅ | Taxas por produto, presets de cancelamento e arrependimento (regras puras, schemas, campos de evento/oferta, snapshot no pedido); escolha da política e da taxa de serviço nos editores, compra de ingresso e carteira com a taxa e o reembolso previsto (divididas em 18.4b.0.1, 18.4b.0.2, 18.4b.1 e 18.4b.2) |
+| 18.4b ✅ | Taxas por produto, presets de cancelamento e arrependimento (regras puras, schemas, campos de evento/oferta, snapshot no pedido); escolha da política e da taxa de serviço nos editores, compra de ingresso e carteira com a taxa e o reembolso previsto (divididas em 18.4b.0.1, 18.4b.0.2, 18.4b.1 e 18.4b.2); termos com aceite registrado no 18.4b.3 (D15) |
 | 18.4c | Cobrança na plataforma, `payoutEntries`, job de liberação, reembolso antes da liberação, disputas (a S15 já entra no AGENTS.md pelo A5) |
 | 18.4d | Reclamações, cancelamento de evento com multa, dívidas, compensação e bloqueio |
 | 18.4e | Telas do parceiro (recebimentos, extrato, dívidas) |
