@@ -7,8 +7,8 @@ import {
   TicketingDomainError,
   type TicketOrder,
 } from '../../domain/ticketing';
-import { OrchestrationActor } from './orchestrationActor';
 import { isPartnerSuspended } from './isPartnerSuspended';
+import { OrchestrationActor } from './orchestrationActor';
 
 export async function createTicketOrderPaymentIntentApplicationUseCase(
   actor: OrchestrationActor,
@@ -81,8 +81,11 @@ export async function createTicketOrderPaymentIntentApplicationUseCase(
   }
 
   // Ingresso pago só de evento cujo estabelecimento ou perfil de produtor foi verificado (D12).
+  let sellerAccountKey: string;
   try {
-    await assertListingCanSellUseCase(listing.establishmentId ?? '');
+    ({ accountKey: sellerAccountKey } = await assertListingCanSellUseCase(
+      listing.establishmentId ?? ''
+    ));
   } catch (error) {
     if (error instanceof ListingVerificationError) {
       throw new TicketingDomainError(
@@ -97,11 +100,13 @@ export async function createTicketOrderPaymentIntentApplicationUseCase(
     orderId: order.id,
     buyerId: order.buyerId,
     sellerPartnerId: partnerId,
+    sellerAccountKey,
     eventListingId: order.eventListingId,
     occurrenceId: order.occurrenceId,
     eventTitle: order.eventSnapshot?.title || listing.title,
     totalMinor: order.totalMinor,
-    platformFeeMinor: order.platformFeeMinor,
+    // A taxa de serviço do comprador também fica com a plataforma (D14).
+    platformFeeMinor: order.platformFeeMinor + order.serviceFeeMinor,
     idempotencyKey: input.idempotencyKey,
   });
 

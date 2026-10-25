@@ -1,12 +1,37 @@
-import type {
-  CreateEventListingInput,
-  CreateEventOccurrenceInput,
-  EventListing,
-  EventLocation,
-  EventOccurrence,
-  EventRatingSummary,
-  UpdateEventListingInput,
+import { isCancellationPolicyAllowed } from '../../../shared/kernel/cancellationPolicy';
+import {
+  type CreateEventListingInput,
+  type CreateEventOccurrenceInput,
+  DEFAULT_EVENT_SALES_POLICY,
+  type EventListing,
+  type EventLocation,
+  type EventOccurrence,
+  type EventRatingSummary,
+  type EventSalesPolicy,
+  type UpdateEventListingInput,
 } from '../types/eventTypes';
+
+/** Campo ausente ou fora das opções vira o padrão da plataforma, nunca uma regra que ninguém escolheu. */
+function toSalesPolicy(raw: unknown): EventSalesPolicy {
+  const policy = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
+  const cancellationPolicy =
+    typeof policy.cancellationPolicy === 'string' &&
+    isCancellationPolicyAllowed('event', policy.cancellationPolicy)
+      ? (policy.cancellationPolicy as EventSalesPolicy['cancellationPolicy'])
+      : DEFAULT_EVENT_SALES_POLICY.cancellationPolicy;
+  return {
+    cancellationPolicy,
+    serviceFeeMode: policy.serviceFeeMode === 'absorb' ? 'absorb' : 'pass_to_buyer',
+    allowTicketTransfer:
+      typeof policy.allowTicketTransfer === 'boolean'
+        ? policy.allowTicketTransfer
+        : DEFAULT_EVENT_SALES_POLICY.allowTicketTransfer,
+    ticketTransferCutoffHours:
+      typeof policy.ticketTransferCutoffHours === 'number'
+        ? policy.ticketTransferCutoffHours
+        : DEFAULT_EVENT_SALES_POLICY.ticketTransferCutoffHours,
+  };
+}
 
 function toIsoString(val: unknown, fallback: string): string {
   if (typeof val === 'string' && val.trim().length > 0) return val;
@@ -123,43 +148,7 @@ export class EventListingPersistenceMapper {
       websiteLink: typeof raw.websiteLink === 'string' ? raw.websiteLink : undefined,
       instagramLink: typeof raw.instagramLink === 'string' ? raw.instagramLink : undefined,
       bookingLink: typeof raw.bookingLink === 'string' ? raw.bookingLink : undefined,
-      refundPolicy: {
-        enabled:
-          typeof (raw.refundPolicy as Record<string, unknown> | undefined)?.enabled === 'boolean'
-            ? Boolean((raw.refundPolicy as Record<string, unknown>).enabled)
-            : true,
-        cancellationWindowHours:
-          typeof (raw.refundPolicy as Record<string, unknown> | undefined)
-            ?.cancellationWindowHours === 'number'
-            ? Number((raw.refundPolicy as Record<string, unknown>).cancellationWindowHours)
-            : 24,
-        allowBuyerCancellation:
-          typeof (raw.refundPolicy as Record<string, unknown> | undefined)
-            ?.allowBuyerCancellation === 'boolean'
-            ? Boolean((raw.refundPolicy as Record<string, unknown>).allowBuyerCancellation)
-            : typeof (raw.refundPolicy as Record<string, unknown> | undefined)?.enabled ===
-                'boolean'
-              ? Boolean((raw.refundPolicy as Record<string, unknown>).enabled)
-              : true,
-        buyerCancellationWindowHours:
-          typeof (raw.refundPolicy as Record<string, unknown> | undefined)
-            ?.buyerCancellationWindowHours === 'number'
-            ? Number((raw.refundPolicy as Record<string, unknown>).buyerCancellationWindowHours)
-            : typeof (raw.refundPolicy as Record<string, unknown> | undefined)
-                  ?.cancellationWindowHours === 'number'
-              ? Number((raw.refundPolicy as Record<string, unknown>).cancellationWindowHours)
-              : 24,
-        allowTicketTransfer:
-          typeof (raw.refundPolicy as Record<string, unknown> | undefined)?.allowTicketTransfer ===
-          'boolean'
-            ? Boolean((raw.refundPolicy as Record<string, unknown>).allowTicketTransfer)
-            : true,
-        ticketTransferCutoffHours:
-          typeof (raw.refundPolicy as Record<string, unknown> | undefined)
-            ?.ticketTransferCutoffHours === 'number'
-            ? Number((raw.refundPolicy as Record<string, unknown>).ticketTransferCutoffHours)
-            : 2,
-      },
+      salesPolicy: toSalesPolicy(raw.salesPolicy),
       maxTicketsPerUserPerOccurrence:
         typeof raw.maxTicketsPerUserPerOccurrence === 'number'
           ? raw.maxTicketsPerUserPerOccurrence
@@ -238,10 +227,7 @@ export class EventListingPersistenceMapper {
       ...(input.websiteLink ? { websiteLink: input.websiteLink } : {}),
       ...(input.instagramLink ? { instagramLink: input.instagramLink } : {}),
       ...(input.bookingLink ? { bookingLink: input.bookingLink } : {}),
-      refundPolicy: input.refundPolicy || {
-        enabled: true,
-        cancellationWindowHours: 24,
-      },
+      salesPolicy: input.salesPolicy ?? DEFAULT_EVENT_SALES_POLICY,
       ...(input.ageRestriction ? { ageRestriction: input.ageRestriction } : {}),
       entryType: input.entryType || 'gratuito',
       pricingMode: input.pricingMode || (input.entryType === 'pago' ? 'paid' : 'free'),
@@ -303,7 +289,7 @@ export class EventListingPersistenceMapper {
     if (input.websiteLink !== undefined) patch.websiteLink = input.websiteLink;
     if (input.instagramLink !== undefined) patch.instagramLink = input.instagramLink;
     if (input.bookingLink !== undefined) patch.bookingLink = input.bookingLink;
-    if (input.refundPolicy !== undefined) patch.refundPolicy = input.refundPolicy;
+    if (input.salesPolicy !== undefined) patch.salesPolicy = input.salesPolicy;
     if (input.ageRestriction !== undefined) patch.ageRestriction = input.ageRestriction;
     if (input.entryType !== undefined) {
       patch.entryType = input.entryType;

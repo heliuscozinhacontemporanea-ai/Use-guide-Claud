@@ -1,3 +1,6 @@
+import type { EventCancellationPolicy } from '../../../shared/kernel/cancellationPolicy';
+import type { TermsAcceptance } from '../../../shared/kernel/legalTerms';
+import type { ServiceFeeMode } from '../../../shared/kernel/platformFees';
 export type MoneyMinor = number;
 
 export const CHECKOUT_RESERVATION_MINUTES = 10;
@@ -10,13 +13,7 @@ export function assertMoneyMinor(value: number): void {
 
 export type TicketTypeKind = 'paid' | 'free' | 'courtesy' | 'half_entry';
 
-export type TicketTypeStatus =
-  | 'draft'
-  | 'on_sale'
-  | 'paused'
-  | 'sold_out'
-  | 'ended'
-  | 'archived';
+export type TicketTypeStatus = 'draft' | 'on_sale' | 'paused' | 'sold_out' | 'ended' | 'archived';
 
 export interface TicketType {
   id: string;
@@ -86,13 +83,12 @@ export type TicketOrderStatus =
   | 'canceled'
   | 'chargeback';
 
-export interface TicketOrderRefundPolicySnapshot {
-  allowBuyerCancellation: boolean;
-  buyerCancellationWindowHours?: number;
+/** Regras de venda do evento gravadas na compra (D14): é o que vale para este pedido. */
+export interface TicketOrderSalesPolicySnapshot {
+  cancellationPolicy: EventCancellationPolicy;
+  serviceFeeMode: ServiceFeeMode;
   allowTicketTransfer: boolean;
-  ticketTransferCutoffHours?: number;
-  enabled?: boolean;
-  cancellationWindowHours?: number;
+  ticketTransferCutoffHours: number;
 }
 
 export interface TicketOrder {
@@ -106,6 +102,8 @@ export interface TicketOrder {
   discountMinor: MoneyMinor;
   platformFeeMinor: MoneyMinor;
   paymentFeeMinor: MoneyMinor;
+  /** Taxa de serviço paga pelo comprador (D14); soma no total e fica com a plataforma. */
+  serviceFeeMinor: MoneyMinor;
   totalMinor: MoneyMinor;
   paymentId?: string;
   paymentIntentId?: string;
@@ -121,7 +119,9 @@ export interface TicketOrder {
     endsAt: string;
     locationName?: string;
   };
-  refundPolicySnapshot: TicketOrderRefundPolicySnapshot;
+  salesPolicySnapshot: TicketOrderSalesPolicySnapshot;
+  /** Versão dos termos aceita na compra (D15). */
+  termsAcceptance?: TermsAcceptance;
   idempotencyKey: string;
   expiresAt?: string;
   createdAt: string;
@@ -140,6 +140,7 @@ export interface TicketOrderItem {
   discountMinor: MoneyMinor;
   allocatedPlatformFeeMinor: MoneyMinor;
   allocatedPaymentFeeMinor: MoneyMinor;
+  allocatedServiceFeeMinor: MoneyMinor;
   totalMinor: MoneyMinor;
   ticketTypeSnapshot: {
     name: string;
@@ -188,12 +189,7 @@ export interface Ticket {
   };
 }
 
-export type RefundStatus =
-  | 'requested'
-  | 'pending_provider'
-  | 'approved'
-  | 'failed'
-  | 'rejected';
+export type RefundStatus = 'requested' | 'pending_provider' | 'approved' | 'failed' | 'rejected';
 
 export interface Refund {
   id: string;
@@ -288,12 +284,7 @@ export interface OfflineCheckInEvent {
 
 export interface OfflineCheckInSyncResultItem {
   clientEventId: string;
-  status:
-    | 'accepted'
-    | 'already_checked_in'
-    | 'invalid'
-    | 'expired'
-    | 'wrong_occurrence';
+  status: 'accepted' | 'already_checked_in' | 'invalid' | 'expired' | 'wrong_occurrence';
 }
 
 export interface EventPromoCode {
@@ -355,27 +346,12 @@ export interface VerifiedAttendanceForReview {
   eventTitle: string;
 }
 
-export function canTransitionOrderStatus(
-  from: TicketOrderStatus,
-  to: TicketOrderStatus
-): boolean {
+export function canTransitionOrderStatus(from: TicketOrderStatus, to: TicketOrderStatus): boolean {
   if (from === to) return true;
   const allowed: Record<TicketOrderStatus, TicketOrderStatus[]> = {
-    pending_payment: [
-      'payment_processing',
-      'paid',
-      'payment_failed',
-      'expired',
-      'canceled',
-    ],
+    pending_payment: ['payment_processing', 'paid', 'payment_failed', 'expired', 'canceled'],
     payment_processing: ['paid', 'payment_failed', 'expired', 'canceled'],
-    payment_failed: [
-      'pending_payment',
-      'payment_processing',
-      'paid',
-      'expired',
-      'canceled',
-    ],
+    payment_failed: ['pending_payment', 'payment_processing', 'paid', 'expired', 'canceled'],
     paid: ['partially_refunded', 'refunded', 'chargeback', 'canceled'],
     partially_refunded: ['refunded', 'chargeback'],
     refunded: [],
@@ -386,21 +362,11 @@ export function canTransitionOrderStatus(
   return allowed[from]?.includes(to) ?? false;
 }
 
-export function canTransitionTicketStatus(
-  from: TicketStatus,
-  to: TicketStatus
-): boolean {
+export function canTransitionTicketStatus(from: TicketStatus, to: TicketStatus): boolean {
   if (from === to) return true;
   const allowed: Record<TicketStatus, TicketStatus[]> = {
     reserved: ['issued', 'canceled', 'expired', 'void'],
-    issued: [
-      'checked_in',
-      'transferred',
-      'refund_pending',
-      'refunded',
-      'canceled',
-      'void',
-    ],
+    issued: ['checked_in', 'transferred', 'refund_pending', 'refunded', 'canceled', 'void'],
     refund_pending: ['refunded', 'issued', 'canceled'],
     checked_in: ['void'],
     transferred: ['void'],
@@ -429,10 +395,7 @@ export function deriveTicketTypeSaleStatus(params: {
     0,
     ticketType.quantity - (ticketType.soldCount + ticketType.reservedCount)
   );
-  const occurrenceRemaining = Math.max(
-    0,
-    occurrenceCapacity - occurrenceCommittedCount
-  );
+  const occurrenceRemaining = Math.max(0, occurrenceCapacity - occurrenceCommittedCount);
   const availableQuantity = Math.min(ticketTypeRemaining, occurrenceRemaining);
 
   if (

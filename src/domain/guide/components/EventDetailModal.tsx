@@ -1,23 +1,23 @@
-import { useState, useEffect } from 'react';
-import { isListingSealVisible } from '../utils/listingSeal';
+import { Calendar, MapPin, MessageCircle, Star, X } from 'lucide-react';
 import { motion } from 'motion/react';
-import { X, Star, MapPin, Calendar, MessageCircle } from 'lucide-react';
-import { GlassCard } from '../../../ui/components/GlassCard';
-import { ModalLayout } from '../../../ui/layouts/ModalLayout';
-import { LOCATIONS } from '../../../shared/constants/locations';
+import { useEffect, useState } from 'react';
 import { CATEGORIES } from '../../../shared/constants/categories';
-import { GuideItem } from '../types/guide';
-import { EventTicketingPurchasePanel } from '../../ticketing';
-import { useAuthContext } from '../../auth/context/AuthContext';
+import { LOCATIONS } from '../../../shared/constants/locations';
 import { useUI } from '../../../shared/stores/useUIStore';
-import { optimizeImage } from '../../../shared/utils/formatters';
 import { cn } from '../../../shared/utils/cn';
-import { VerifiedSealButton } from '../../../ui/components/VerifiedSealButton';
-import { trackInteractionUseCase as trackInteraction } from '../../insights';
-import { FavoriteButton } from '../../favorites/components/FavoriteButton';
-import { ShareButton } from '../../../ui/components/ShareButton';
-import { useScrollBorderRadius } from '../../../ui/hooks/useScrollBorderRadius';
+import { optimizeImage } from '../../../shared/utils/formatters';
 import { whatsAppUrl } from '../../../shared/utils/phone';
+import { GlassCard } from '../../../ui/components/GlassCard';
+import { ShareButton } from '../../../ui/components/ShareButton';
+import { VerifiedSealButton } from '../../../ui/components/VerifiedSealButton';
+import { useScrollBorderRadius } from '../../../ui/hooks/useScrollBorderRadius';
+import { ModalLayout } from '../../../ui/layouts/ModalLayout';
+import { useAuthContext } from '../../auth/context/AuthContext';
+import { FavoriteButton } from '../../favorites/components/FavoriteButton';
+import { trackInteractionUseCase as trackInteraction } from '../../insights';
+import { EventTicketingPurchasePanel } from '../../ticketing';
+import { GuideItem } from '../types/guide';
+import { isListingSealVisible } from '../utils/listingSeal';
 
 interface EventDetailModalProps {
   item: GuideItem | null;
@@ -224,7 +224,6 @@ export function EventDetailModal({ item, onClose }: EventDetailModalProps) {
         <EventTicketingPurchasePanel
           eventId={item.id}
           eventTitle={item.name}
-          userId={user?.uid}
           userEmail={user?.email || undefined}
           userName={user?.displayName || undefined}
           onRequireLogin={openLoginModal}

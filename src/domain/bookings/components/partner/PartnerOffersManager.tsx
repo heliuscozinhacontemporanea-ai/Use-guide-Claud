@@ -99,6 +99,9 @@ export function PartnerOffersManager({
       {view.type === 'editor' && (
         <PartnerOfferEditor
           mode={view.offer ? 'edit' : 'create'}
+          publishedPolicy={
+            view.offer && view.offer.status !== 'draft' ? view.offer.cancellationPolicy : undefined
+          }
           defaultValues={
             view.offer
               ? offerToFormValues(view.offer)

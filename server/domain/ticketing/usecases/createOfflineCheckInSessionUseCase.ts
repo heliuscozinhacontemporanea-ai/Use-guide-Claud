@@ -1,5 +1,5 @@
-import { ticketingService } from '../factory';
-import type { TicketingActorContext } from '../services/ticketingService';
+import { offlineCheckInService } from '../factory';
+import type { TicketingActorContext } from '../services/ticketingAccess';
 import type { OfflineCheckInManifest, OfflineCheckInSession } from '../types/ticketingTypes';
 
 export async function createOfflineCheckInSessionUseCase(
@@ -9,5 +9,5 @@ export async function createOfflineCheckInSessionUseCase(
   session: OfflineCheckInSession;
   manifest: OfflineCheckInManifest;
 }> {
-  return ticketingService.prepareOfflineCheckInSession(actor, params);
+  return offlineCheckInService.prepareOfflineCheckInSession(actor, params);
 }

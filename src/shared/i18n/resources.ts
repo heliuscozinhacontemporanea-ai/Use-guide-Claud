@@ -10,6 +10,7 @@ import {
   insightsFr,
   insightsPtBR,
 } from './insightsResources';
+import { type LegalTranslation, legalEn, legalFr, legalPtBR } from './legalResources';
 import {
   type ListingPlanTranslation,
   listingPlanEn,
@@ -23,6 +24,30 @@ import {
   partnersPtBR,
 } from './partnersResources';
 import {
+  type PaymentAccountsTranslation,
+  paymentAccountsEn,
+  paymentAccountsFr,
+  paymentAccountsPtBR,
+} from './paymentAccountsResources';
+import {
+  type SalesPolicyTranslation,
+  salesPolicyEn,
+  salesPolicyFr,
+  salesPolicyPtBR,
+} from './salesPolicyResources';
+import {
+  type TicketCheckoutTranslation,
+  ticketCheckoutEn,
+  ticketCheckoutFr,
+  ticketCheckoutPtBR,
+} from './ticketCheckoutResources';
+import {
+  type TicketWalletTranslation,
+  ticketWalletEn,
+  ticketWalletFr,
+  ticketWalletPtBR,
+} from './ticketWalletResources';
+import {
   type VerificationTranslation,
   verificationEn,
   verificationFr,
@@ -34,6 +59,11 @@ export interface TranslationResource {
   insights: InsightsTranslation;
   listingPlan: ListingPlanTranslation;
   partners: PartnersTranslation;
+  paymentAccounts: PaymentAccountsTranslation;
+  salesPolicy: SalesPolicyTranslation;
+  ticketCheckout: TicketCheckoutTranslation;
+  ticketWallet: TicketWalletTranslation;
+  legal: LegalTranslation;
   verification: VerificationTranslation;
   common: {
     language: string;
@@ -253,6 +283,11 @@ const ptBR: TranslationResource = {
   insights: insightsPtBR,
   listingPlan: listingPlanPtBR,
   partners: partnersPtBR,
+  paymentAccounts: paymentAccountsPtBR,
+  salesPolicy: salesPolicyPtBR,
+  ticketCheckout: ticketCheckoutPtBR,
+  ticketWallet: ticketWalletPtBR,
+  legal: legalPtBR,
   verification: verificationPtBR,
   common: {
     language: 'Idioma',
@@ -522,6 +557,11 @@ const en: TranslationResource = {
   insights: insightsEn,
   listingPlan: listingPlanEn,
   partners: partnersEn,
+  paymentAccounts: paymentAccountsEn,
+  salesPolicy: salesPolicyEn,
+  ticketCheckout: ticketCheckoutEn,
+  ticketWallet: ticketWalletEn,
+  legal: legalEn,
   verification: verificationEn,
   common: {
     language: 'Language',
@@ -785,6 +825,11 @@ const fr: TranslationResource = {
   insights: insightsFr,
   listingPlan: listingPlanFr,
   partners: partnersFr,
+  paymentAccounts: paymentAccountsFr,
+  salesPolicy: salesPolicyFr,
+  ticketCheckout: ticketCheckoutFr,
+  ticketWallet: ticketWalletFr,
+  legal: legalFr,
   verification: verificationFr,
   common: {
     language: 'Langue',

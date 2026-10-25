@@ -1,5 +1,5 @@
-import { ticketingService } from '../factory';
-import type { TicketingActorContext } from '../services/ticketingService';
+import { ticketHolderService } from '../factory';
+import type { TicketingActorContext } from '../services/ticketingAccess';
 
 export async function moveOrderToOccurrenceUseCase(
   actor: TicketingActorContext,
@@ -8,5 +8,5 @@ export async function moveOrderToOccurrenceUseCase(
     toOccurrenceId: string;
   }
 ) {
-  return ticketingService.moveOrdersAndTicketsToOccurrence(actor, params);
+  return ticketHolderService.moveOrdersAndTicketsToOccurrence(actor, params);
 }

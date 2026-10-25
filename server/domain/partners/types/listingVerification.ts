@@ -76,3 +76,14 @@ export interface ListingVerificationView {
 }
 
 export type VerificationDecision = 'approve' | 'reject';
+
+/** Conta de recebimento de quem vende: `accountKey` é o índice cego do CNPJ (D14). */
+export interface ListingSalesAccount {
+  accountKey: string;
+}
+
+export interface OwnerSalesDocument {
+  accountKey: string;
+  maskedDocument: string;
+  itemIds: string[];
+}

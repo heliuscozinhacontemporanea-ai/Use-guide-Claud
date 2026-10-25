@@ -4,6 +4,8 @@
 > Resposta de 2026-10-10: aprovadas S1, S2, S3, S4, S5, S7 e S8 (aplicadas pelo prompt A1). S6 não aprovada.
 > Resposta de 2026-10-12: aprovada S9 (aplicada pelo prompt A2).
 > Resposta de 2026-10-19: aprovadas S10, S11 e S12 (as três no prompt A3).
+> Resposta de 2026-10-24: aprovada S14 (aplicada pelo prompt A5).
+> Resposta de 2026-10-24: aprovada S15 (aplicada pelo prompt A5, junto com a S14).
 
 | # | Seção | Motivo | Status |
 |---|---|---|---|
@@ -20,6 +22,8 @@
 | S11 | §12.6 | Decisão D5 aprovada: Google Cloud Translation, sem tradução à mão, edição no idioma escolhido | ✅ Aprovada em 2026-10-19 (prompt A3) |
 | S12 | §12.1 e §12.7 | Decisão D10: idioma do navegador na primeira visita, persistência só por escolha explícita | ✅ Aprovada em 2026-10-19 (prompt A3) |
 | S13 | §7.7 | O débito de `partnerDocumentKeys` foi resolvido no Prompt 18.3.0b | ✅ Aprovada em 2026-10-19 (prompt A4) |
+| S14 | §11.1 e §11 (nova subseção) | Tema claro sem branco puro e regras de experiência de app nativo | ✅ Aprovada em 2026-10-24 (prompt A5) |
+| S15 | §8.1 e §8.7 | D14: conta por documento, cobrança na plataforma com transferência depois do serviço, taxas por tipo, multa e reagendamento | ✅ Aprovada em 2026-10-24 (prompt A5, junto com a S14) |
 
 ---
 
@@ -162,3 +166,32 @@
 
 **Texto proposto:**
 > * IDs de documento, caminhos do Storage, URLs e nomes de arquivos NUNCA contêm PII.
+
+## S14 — §11.1 e nova §11.11: tema claro sem branco puro e experiência de app nativo
+
+**Por quê:** pedido de 2026-10-24. O app é web, mas deve se comportar como app nativo, e o claro em branco puro cansa a vista. Hoje o §11.1 só diz que o componente funciona nos dois temas; não fixa a cor do claro nem como transições e toque devem se comportar, e efeitos somados (escala do toque + `whileTap` + transform de centralização) já causaram conflito.
+
+**Texto atual (§11.1, 1º item):**
+> * **Estilo:** Glassmorphism. Tema **dark é o padrão de design**. O código já possui tema `light`/`system` (`ThemeContext`, `AppearanceSettingsView`); todo componente novo DEVE funcionar nos dois temas usando tokens/variáveis CSS, nunca `text-white` fixo em superfície que muda de cor.
+
+**Texto proposto (§11.1, 1º item):**
+> * **Estilo:** Glassmorphism. Tema **dark é o padrão de design**; em Configurações a pessoa escolhe claro, escuro ou sistema (`ThemeContext`, `AppearanceSettingsView`). Todo componente novo ou tocado DEVE funcionar nos dois temas com os tokens `--ug-*` de `src/index.css` (`bg-app`, `text-ink`, `bg-surface`, `border-line`, `text-warn`, `text-danger`…), nunca `text-white` fixo em superfície que muda de cor. O tema claro NUNCA usa branco puro: fundo off-white bege (`#f3eee4`) e superfícies `#faf6ee`. O tema é aplicado antes da primeira pintura (sem piscar) e o `theme-color` acompanha o tema.
+
+**Texto proposto (nova §11.11):**
+> ### 11.11. Experiência de app nativo
+>
+> * Modais e diálogos: folha que sobe da borda inferior no celular (com alça e safe area) e cartão central do `sm:` em diante, pelo `Dialog` do design system.
+> * Entrada e saída animadas (fade, escala, folha), com saída pelo `data-state` do Radix; duração de 150–300 ms.
+> * Retorno ao toque em todo botão (`press`: escala 0,97, sem destaque azul de toque, `touch-action: manipulation`).
+> * **Um efeito por propriedade em cada elemento:** não somar `press` a `whileTap`/`whileHover` do `motion` nem a `active:scale-*`; animações usam as propriedades `scale`/`translate`, nunca `transform` quando o elemento já é centralizado por `transform`.
+> * Tudo respeita `prefers-reduced-motion` (`motion-reduce:animate-none` e `MotionConfig reducedMotion="user"`).
+> * Ao abrir um diálogo o foco vai para o próprio diálogo, sem anel de foco num botão que a pessoa não tocou.
+
+## S15 — §8.1, §8.2, §8.3 e §8.7: repasse por documento e retenção até o serviço (D14)
+
+**Por quê:** decisão D14. No Brasil o repasse da conta conectada ao banco é sempre automático e diário, então a *destination charge* entrega o dinheiro ao proprietário antes do serviço (no Pix, em 2 dias úteis). Para proteger o consumidor e o proprietário, a cobrança fica na plataforma e a transferência sai 48 h depois do fim do serviço, para a conta do documento do estabelecimento. O texto final é o do AGENTS.md aplicado pelo prompt A5 (junto com a S14):
+
+* **§8.1:** conta Express por documento (CNPJ); cobrança na plataforma com transferência separada 48 h depois do fim do serviço; reclamação suspende por até 5 dias; taxas por tipo de produto (15%; 10% + R$ 3,00 por ingresso ou 12,5% absorvida), sobre o valor que o proprietário fica num reembolso parcial; checagem da conta do documento e do bloqueio por dívida antes de vender.
+* **§8.2:** ingressos e reservas com PaymentIntent na plataforma e transferência depois do serviço.
+* **§8.3:** Pix só para serviço até 80 dias depois da compra (reembolso de Pix só em até 90 dias).
+* **§8.7:** políticas de cancelamento da plataforma, gravadas no pedido e só mais flexíveis depois de publicar; arrependimento em 7 dias até 48 h antes do início; no-show sem reembolso; translado com retenção máxima de 5%; cancelamento pelo proprietário com reembolso integral, multa de 20%, compensação em 24 h e bloqueio; reagendamento em força maior; disputa com suspensão do repasse.

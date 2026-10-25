@@ -1,8 +1,8 @@
-import { ticketingService } from '../factory';
+import { ticketOrderService } from '../factory';
 
 export async function expireAllOverdueOrdersUseCase(
   nowIso?: string
 ): Promise<{ expiredCount: number }> {
-  const expiredCount = await ticketingService.expireAllOverdueOrders(nowIso);
+  const expiredCount = await ticketOrderService.expireAllOverdueOrders(nowIso);
   return { expiredCount };
 }

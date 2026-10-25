@@ -1,4 +1,8 @@
 import { z } from 'zod';
+import {
+  BOOKING_CANCELLATION_POLICIES,
+  TRANSFER_CANCELLATION_POLICIES,
+} from '../../../../shared/kernel/cancellationPolicy';
 
 const isoDateTime = z.string().datetime({ offset: true });
 const documentId = z.string().regex(/^[A-Za-z0-9_-]{1,128}$/);
@@ -45,16 +49,8 @@ const offerFields = {
     })
     .strict()
     .optional(),
-  cancellationPolicy: z
-    .object({
-      freeCancellationHoursBefore: z
-        .number()
-        .int()
-        .min(0)
-        .max(24 * 30),
-      refundPercentAfterDeadline: z.union([z.literal(0), z.literal(50), z.literal(100)]),
-    })
-    .strict(),
+  // Opções da plataforma (D14); o serviço confere se a opção vale para o tipo da oferta.
+  cancellationPolicy: z.enum([...BOOKING_CANCELLATION_POLICIES, ...TRANSFER_CANCELLATION_POLICIES]),
   maxParticipantsPerBooking: z.number().int().min(1).max(50),
   requiresParticipantNames: z.boolean(),
 };
@@ -120,6 +116,7 @@ export const CreateBookingSchema = z
       .default([]),
     idempotencyKey: idempotencyKey.optional(),
     locale,
+    acceptedTermsVersion: z.string().trim().min(1).max(40),
   })
   .strict();
 

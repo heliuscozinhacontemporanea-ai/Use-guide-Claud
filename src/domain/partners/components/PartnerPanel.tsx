@@ -1,13 +1,13 @@
 import { RefreshCw } from 'lucide-react';
 import { AnimatePresence } from 'motion/react';
 import React, { useRef } from 'react';
-
+import { useLocalizedRouting } from '../../../shared/hooks/useLocalizedRouting';
 // Componentes estruturais e utilitários da UI
 import { BackgroundBlobs } from '../../../ui/components/BackgroundBlobs';
+import { type EventSessionsFieldProps, newEventSessionDraft } from '../../events';
 import { createPartnerContentItemUseCase } from '../application/usecases/createPartnerContentItemUseCase';
 import { deletePartnerContentItemUseCase } from '../application/usecases/deletePartnerContentItemUseCase';
 import { updatePartnerContentItemUseCase } from '../application/usecases/updatePartnerContentItemUseCase';
-import { type EventSessionsFieldProps, newEventSessionDraft } from '../../events';
 import { useEditorScrollLock } from '../hooks/useEditorScrollLock';
 import { usePartnerEventSessions } from '../hooks/usePartnerEventSessions';
 import { usePartnerPanelActions } from '../hooks/usePartnerPanelActions';
@@ -15,14 +15,13 @@ import { PartnerProfile, SubscriptionPlan } from '../types/partner';
 import type { PartnerContentRecord } from '../types/partnerContent';
 import { ListingEditor } from './ListingEditor';
 import { PartnerEventEditor } from './PartnerEventEditor';
+import { ListingPlanDialog, type PaidPlanSelection } from './plan/ListingPlanDialog';
 import { PartnerEventsTable } from './subcomponents/PartnerEventsTable';
 import { PartnerHeader } from './subcomponents/PartnerHeader';
 import { PartnerItemsTable } from './subcomponents/PartnerItemsTable';
 import { PartnerTabsNavigation } from './subcomponents/PartnerTabsNavigation';
 import { ListingVerificationDialog } from './verification/ListingVerificationDialog';
 import type { VerificationListingOption } from './verification/verificationListingOption';
-import { ListingPlanDialog, type PaidPlanSelection } from './plan/ListingPlanDialog';
-import { useLocalizedRouting } from '../../../shared/hooks/useLocalizedRouting';
 
 export interface PartnerPanelProps {
   profile?: PartnerProfile;
@@ -100,8 +99,8 @@ export function PartnerPanel({
   >(undefined);
   useEditorScrollLock(Boolean(isEditing));
   const editingEventId = isEditing?.category === 'event' ? isEditing.id || undefined : undefined;
-  const eventSessions = usePartnerEventSessions(editingEventId, (sessions) =>
-    setIsEditing((current) => (current ? { ...current, sessions } : current))
+  const eventSessions = usePartnerEventSessions(editingEventId, (details) =>
+    setIsEditing((current) => (current ? { ...current, ...details } : current))
   );
 
   const [verifyingListing, setVerifyingListing] = React.useState<VerificationListingOption | null>(

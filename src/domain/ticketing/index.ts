@@ -1,15 +1,12 @@
 export { checkInTicketUseCase } from './application/usecases/checkInTicketUseCase';
 export { confirmTicketOrderPaymentReturnUseCase } from './application/usecases/confirmTicketOrderPaymentReturnUseCase';
 export { createOfflineCheckInSessionUseCase } from './application/usecases/createOfflineCheckInSessionUseCase';
-export { createPartnerConnectAccountSessionUseCase } from './application/usecases/createPartnerConnectAccountSessionUseCase';
-export { createPartnerConnectAccountUseCase } from './application/usecases/createPartnerConnectAccountUseCase';
 export { createTicketOrderPaymentIntentUseCase } from './application/usecases/createTicketOrderPaymentIntentUseCase';
 export { createTicketOrderUseCase } from './application/usecases/createTicketOrderUseCase';
 export { createTicketTypeUseCase } from './application/usecases/createTicketTypeUseCase';
 export { deleteOrArchiveTicketTypeUseCase } from './application/usecases/deleteOrArchiveTicketTypeUseCase';
 export { expireTicketOrderUseCase } from './application/usecases/expireTicketOrderUseCase';
 export { getEventSalesAnalyticsUseCase } from './application/usecases/getEventSalesAnalyticsUseCase';
-export { getPartnerMerchantStatusUseCase } from './application/usecases/getPartnerMerchantStatusUseCase';
 export { getTicketOrderUseCase } from './application/usecases/getTicketOrderUseCase';
 export { getTicketQrTokenUseCase } from './application/usecases/getTicketQrTokenUseCase';
 export { listEventCheckInsUseCase } from './application/usecases/listEventCheckInsUseCase';

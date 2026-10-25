@@ -7,6 +7,7 @@ import { EventBasicsSection } from './event/EventBasicsSection';
 import { EventContactSection } from './event/EventContactSection';
 import { EventEntrySection } from './event/EventEntrySection';
 import { EventPhotosSection } from './event/EventPhotosSection';
+import { EventSalesPolicySection } from './event/EventSalesPolicySection';
 
 interface PartnerEventFormProps {
   item: PartnerContentEditorState;
@@ -55,6 +56,7 @@ export function PartnerEventForm({
         onChange={onChange}
         renderEventTicketingManager={renderEventTicketingManager}
       />
+      {item.entryType === 'pago' && <EventSalesPolicySection item={item} onChange={onChange} />}
       <EventContactSection item={item} onChange={onChange} />
       <EventPhotosSection
         item={item}

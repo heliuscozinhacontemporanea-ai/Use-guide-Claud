@@ -29,8 +29,8 @@ import {
 } from '../../domain/payment';
 import {
   finalizeTicketRefundStatusUseCase,
-  requestTicketRefundUseCase,
   type Refund,
+  requestTicketRefundUseCase,
   type TicketOrder,
 } from '../../domain/ticketing';
 import { processTicketRefundApplicationUseCase } from './processTicketRefundApplicationUseCase';
@@ -43,7 +43,12 @@ describe('ticketingPaymentOrchestrationUseCases — refunds', () => {
 
   it('repassa metadata.refundId e orderId ao provedor ao criar reembolso', async () => {
     vi.mocked(requestTicketRefundUseCase).mockResolvedValue({
-      refund: { id: 'ref_1', orderId: 'ord_1', amountMinor: 5000, status: 'pending_provider' } as Refund,
+      refund: {
+        id: 'ref_1',
+        orderId: 'ord_1',
+        amountMinor: 5000,
+        status: 'pending_provider',
+      } as Refund,
       isReplay: false,
       order: { id: 'ord_1', paymentIntentId: 'pi_1' } as TicketOrder,
     });
@@ -51,7 +56,10 @@ describe('ticketingPaymentOrchestrationUseCases — refunds', () => {
       providerRefundId: 're_stripe_1',
       status: 'pending',
     });
-    vi.mocked(finalizeTicketRefundStatusUseCase).mockResolvedValue({ id: 'ref_1', status: 'pending_provider' } as Refund);
+    vi.mocked(finalizeTicketRefundStatusUseCase).mockResolvedValue({
+      id: 'ref_1',
+      status: 'pending_provider',
+    } as Refund);
 
     await processTicketRefundApplicationUseCase(
       { uid: 'u1' },

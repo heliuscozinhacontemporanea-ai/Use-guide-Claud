@@ -1,3 +1,4 @@
+import type { PlatformFeeConfig } from '../../../shared/kernel/platformFees';
 import { getBookingService } from '../factory';
 import type { CreatePendingBookingInput } from '../services/bookingService';
 import type { Booking, BookingActor } from '../types/bookingTypes';
@@ -6,7 +7,7 @@ import type { Booking, BookingActor } from '../types/bookingTypes';
 export async function createPendingBookingUseCase(
   actor: BookingActor,
   input: CreatePendingBookingInput,
-  platformFeePercent: number
+  feeConfig: PlatformFeeConfig
 ): Promise<Booking> {
-  return getBookingService().createPendingBooking(actor, input, platformFeePercent);
+  return getBookingService().createPendingBooking(actor, input, feeConfig);
 }

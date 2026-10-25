@@ -1,4 +1,4 @@
-import { ticketingService } from '../factory';
+import { ticketOrderService } from '../factory';
 import type { TicketOrder } from '../types/ticketingTypes';
 
 export async function markTicketOrderDisputedUseCase(params: {
@@ -6,7 +6,7 @@ export async function markTicketOrderDisputedUseCase(params: {
   paymentId?: string;
   paymentIntentId?: string;
 }): Promise<TicketOrder> {
-  return ticketingService.updateOrderPaymentState({
+  return ticketOrderService.updateOrderPaymentState({
     orderId: params.orderId,
     status: 'chargeback',
     paymentId: params.paymentId,

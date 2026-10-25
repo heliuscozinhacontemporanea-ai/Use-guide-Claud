@@ -1,5 +1,5 @@
-import { ticketingService } from '../factory';
-import type { TicketingActorContext } from '../services/ticketingService';
+import { checkInService } from '../factory';
+import type { TicketingActorContext } from '../services/ticketingAccess';
 
 export async function getTicketQrTokenUseCase(
   actor: TicketingActorContext,
@@ -9,5 +9,5 @@ export async function getTicketQrTokenUseCase(
   token: string;
   expiresAt: string;
 }> {
-  return ticketingService.generateTicketPresentationQr(actor, ticketId);
+  return checkInService.generateTicketPresentationQr(actor, ticketId);
 }

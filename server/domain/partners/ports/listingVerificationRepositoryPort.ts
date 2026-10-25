@@ -17,14 +17,14 @@ export interface ListingVerificationRepositoryPort {
    * usado por outro estabelecimento; libera o CNPJ anterior quando o estabelecimento troca de documento.
    */
   saveSubmission(record: ListingVerificationRecord): Promise<void>;
-  /** Aprovação marca o documento como conferido e, no primeiro CNPJ aprovado, fixa o documento de vendas da conta. */
+  /** Aprovação marca o documento como conferido. */
   saveReview(record: ListingVerificationRecord): Promise<void>;
   listByStatus(
     status: ListingVerificationStatus,
     limit: number,
     cursor: string | null
   ): Promise<ListingVerificationPage>;
-  getSalesDocumentIndex(ownerId: string): Promise<string | null>;
+  listByOwner(ownerId: string): Promise<ListingVerificationRecord[]>;
   /** Perfis de produtor que usam o documento deste estabelecimento (modo `linked`). */
   listLinkedItemIds(sourceItemId: string): Promise<string[]>;
   /** Apaga o registro e libera o CNPJ; devolve o registro apagado (para remover os arquivos). */

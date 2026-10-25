@@ -1,10 +1,10 @@
-import { ticketingService } from '../factory';
-import type { TicketingActorContext } from '../services/ticketingService';
+import { ticketingReportService } from '../factory';
+import type { TicketingActorContext } from '../services/ticketingAccess';
 import type { Refund } from '../types/ticketingTypes';
 
 export async function listEventRefundsForPartnerOrAdminUseCase(
   actor: TicketingActorContext,
   eventListingId: string
 ): Promise<Refund[]> {
-  return ticketingService.listEventRefundsForPartnerOrAdmin(actor, eventListingId);
+  return ticketingReportService.listEventRefundsForPartnerOrAdmin(actor, eventListingId);
 }

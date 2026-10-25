@@ -10,23 +10,26 @@ export { deletePartnerEventListingUseCase } from './application/usecases/deleteP
 export { deletePartnerEventOccurrenceUseCase } from './application/usecases/deletePartnerEventOccurrenceUseCase';
 export { getEventListingByIdUseCase } from './application/usecases/getEventListingByIdUseCase';
 export { listEventOccurrencesUseCase } from './application/usecases/listEventOccurrencesUseCase';
+export type { SaveEventSessionsInput } from './application/usecases/saveEventSessionsUseCase';
+export { saveEventSessionsUseCase } from './application/usecases/saveEventSessionsUseCase';
 export { updateAdminEventListingUseCase } from './application/usecases/updateAdminEventListingUseCase';
 export { updateAdminEventOccurrenceUseCase } from './application/usecases/updateAdminEventOccurrenceUseCase';
 export { updatePartnerEventListingUseCase } from './application/usecases/updatePartnerEventListingUseCase';
 export { updatePartnerEventOccurrenceUseCase } from './application/usecases/updatePartnerEventOccurrenceUseCase';
-
+// Só para src/app/compositions (§5.2).
+export { EventSessionsField, type EventSessionsFieldProps } from './components/EventSessionsField';
+export { CUSTOM_EVENT_CATEGORY, EVENT_CATEGORIES } from './constants/eventCategories';
 export { useEventOccurrences } from './hooks/useEventOccurrences';
-
 export type {
   CreateEventListingInput,
   CreateEventOccurrenceInput,
   EventListing,
   EventOccurrence,
+  EventSalesPolicy,
+  ServiceFeeMode,
   UpdateEventListingInput,
 } from './types/event';
-export { CUSTOM_EVENT_CATEGORY, EVENT_CATEGORIES } from './constants/eventCategories';
-export { saveEventSessionsUseCase } from './application/usecases/saveEventSessionsUseCase';
-export type { SaveEventSessionsInput } from './application/usecases/saveEventSessionsUseCase';
+export { DEFAULT_EVENT_SALES_POLICY } from './types/event';
 export type {
   EventSessionDraft,
   EventSessionsLoadState,
@@ -38,5 +41,3 @@ export {
   planEventSessionChanges,
   validateEventSessions,
 } from './utils/eventSessions';
-// Só para src/app/compositions (§5.2).
-export { EventSessionsField, type EventSessionsFieldProps } from './components/EventSessionsField';

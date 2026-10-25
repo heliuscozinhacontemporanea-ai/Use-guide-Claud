@@ -4,26 +4,7 @@ import { PaymentController } from '../controllers/paymentController';
 
 const router = Router();
 
-router.post(
-  '/plans/intents',
-  verifyAuthToken,
-  PaymentController.createPlanPaymentIntent
-);
+router.post('/plans/intents', verifyAuthToken, PaymentController.createPlanPaymentIntent);
 router.post('/plans/intents/confirm', verifyAuthToken, PaymentController.confirmPlanPayment);
-router.post(
-  '/connect/account',
-  verifyAuthToken,
-  PaymentController.createConnectedAccount
-);
-router.post(
-  '/connect/account-session',
-  verifyAuthToken,
-  PaymentController.createConnectAccountSession
-);
-router.get(
-  '/connect/status',
-  verifyAuthToken,
-  PaymentController.getConnectStatus
-);
 
 export default router;

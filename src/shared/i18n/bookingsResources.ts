@@ -7,8 +7,6 @@ export interface BookingsTranslation {
     retry: string;
     duration: string;
     meetingPoint: string;
-    policyFree: string;
-    policyNoFree: string;
     chooseSlot: string;
     noSlots: string;
     spotsLeft_one: string;
@@ -94,12 +92,6 @@ export interface BookingsTranslation {
     removePriceOption: string;
     durationLabel: string;
     meetingPointLabel: string;
-    policyLegend: string;
-    freeHoursLabel: string;
-    refundAfterLabel: string;
-    refundNone: string;
-    refundHalf: string;
-    refundFull: string;
     maxParticipantsLabel: string;
     requireNamesLabel: string;
     save: string;
@@ -179,6 +171,7 @@ export interface BookingsTranslation {
     LATE_PAYMENT_REJECTED: string;
     KIND_NOT_AVAILABLE: string;
     CANCELLATION_NOT_ALLOWED: string;
+    TERMS_NOT_ACCEPTED: string;
     SELLER_ACCOUNT_NOT_ELIGIBLE: string;
     INTERNAL_ERROR: string;
   };
@@ -192,10 +185,6 @@ export const bookingsPtBR: BookingsTranslation = {
     retry: 'Tentar novamente',
     duration: 'Duração: {{minutes}} min',
     meetingPoint: 'Ponto de encontro: {{address}}',
-    policyFree:
-      'Cancelamento grátis até {{hours}} h antes. Depois, reembolso de {{percent}}%. Após o início, sem reembolso.',
-    policyNoFree:
-      'Reembolso de {{percent}}% se cancelar antes do início. Após o início, sem reembolso.',
     chooseSlot: 'Escolha o horário',
     noSlots: 'Nenhum horário disponível nos próximos 30 dias.',
     spotsLeft_one: '{{count}} vaga',
@@ -284,12 +273,6 @@ export const bookingsPtBR: BookingsTranslation = {
     removePriceOption: 'Remover opção de preço',
     durationLabel: 'Duração (minutos)',
     meetingPointLabel: 'Ponto de encontro',
-    policyLegend: 'Política de cancelamento',
-    freeHoursLabel: 'Cancelamento grátis até quantas horas antes',
-    refundAfterLabel: 'Reembolso depois desse prazo',
-    refundNone: 'Sem reembolso',
-    refundHalf: '50%',
-    refundFull: '100%',
     maxParticipantsLabel: 'Máximo de participantes por reserva',
     requireNamesLabel: 'Pedir o nome de cada participante',
     save: 'Salvar',
@@ -370,6 +353,7 @@ export const bookingsPtBR: BookingsTranslation = {
     LATE_PAYMENT_REJECTED: 'O pagamento chegou depois do prazo e será devolvido.',
     KIND_NOT_AVAILABLE: 'Este tipo de oferta ainda não está disponível.',
     CANCELLATION_NOT_ALLOWED: 'Esta reserva não pode ser cancelada.',
+    TERMS_NOT_ACCEPTED: 'Aceite os termos para continuar.',
     SELLER_ACCOUNT_NOT_ELIGIBLE: 'O parceiro ainda não pode receber pagamentos online.',
     INTERNAL_ERROR: 'Algo deu errado. Tente novamente em instantes.',
   },
@@ -383,9 +367,6 @@ export const bookingsEn: BookingsTranslation = {
     retry: 'Try again',
     duration: 'Duration: {{minutes}} min',
     meetingPoint: 'Meeting point: {{address}}',
-    policyFree:
-      'Free cancellation up to {{hours}} h before. After that, {{percent}}% refund. No refund after the start.',
-    policyNoFree: '{{percent}}% refund if you cancel before the start. No refund after the start.',
     chooseSlot: 'Choose a time',
     noSlots: 'No time slots available in the next 30 days.',
     spotsLeft_one: '{{count}} spot',
@@ -472,12 +453,6 @@ export const bookingsEn: BookingsTranslation = {
     removePriceOption: 'Remove price option',
     durationLabel: 'Duration (minutes)',
     meetingPointLabel: 'Meeting point',
-    policyLegend: 'Cancellation policy',
-    freeHoursLabel: 'Free cancellation up to how many hours before',
-    refundAfterLabel: 'Refund after that deadline',
-    refundNone: 'No refund',
-    refundHalf: '50%',
-    refundFull: '100%',
     maxParticipantsLabel: 'Maximum participants per booking',
     requireNamesLabel: 'Ask for each participant’s name',
     save: 'Save',
@@ -557,6 +532,7 @@ export const bookingsEn: BookingsTranslation = {
     LATE_PAYMENT_REJECTED: 'The payment arrived after the deadline and will be refunded.',
     KIND_NOT_AVAILABLE: 'This kind of offer is not available yet.',
     CANCELLATION_NOT_ALLOWED: 'This booking cannot be canceled.',
+    TERMS_NOT_ACCEPTED: 'Accept the terms to continue.',
     SELLER_ACCOUNT_NOT_ELIGIBLE: 'This partner cannot receive online payments yet.',
     INTERNAL_ERROR: 'Something went wrong. Please try again shortly.',
   },
@@ -570,10 +546,6 @@ export const bookingsFr: BookingsTranslation = {
     retry: 'Réessayer',
     duration: 'Durée : {{minutes}} min',
     meetingPoint: 'Point de rendez-vous : {{address}}',
-    policyFree:
-      'Annulation gratuite jusqu’à {{hours}} h avant. Ensuite, remboursement de {{percent}} %. Aucun remboursement après le début.',
-    policyNoFree:
-      'Remboursement de {{percent}} % en cas d’annulation avant le début. Aucun remboursement après le début.',
     chooseSlot: 'Choisissez un créneau',
     noSlots: 'Aucun créneau disponible dans les 30 prochains jours.',
     spotsLeft_one: '{{count}} place',
@@ -664,12 +636,6 @@ export const bookingsFr: BookingsTranslation = {
     removePriceOption: 'Retirer l’option de tarif',
     durationLabel: 'Durée (minutes)',
     meetingPointLabel: 'Point de rendez-vous',
-    policyLegend: 'Politique d’annulation',
-    freeHoursLabel: 'Annulation gratuite jusqu’à combien d’heures avant',
-    refundAfterLabel: 'Remboursement après ce délai',
-    refundNone: 'Aucun remboursement',
-    refundHalf: '50 %',
-    refundFull: '100 %',
     maxParticipantsLabel: 'Nombre maximum de participants par réservation',
     requireNamesLabel: 'Demander le nom de chaque participant',
     save: 'Enregistrer',
@@ -750,6 +716,7 @@ export const bookingsFr: BookingsTranslation = {
     LATE_PAYMENT_REJECTED: 'Le paiement est arrivé après le délai et sera remboursé.',
     KIND_NOT_AVAILABLE: 'Ce type d’offre n’est pas encore disponible.',
     CANCELLATION_NOT_ALLOWED: 'Cette réservation ne peut pas être annulée.',
+    TERMS_NOT_ACCEPTED: 'Acceptez les conditions pour continuer.',
     SELLER_ACCOUNT_NOT_ELIGIBLE: 'Ce partenaire ne peut pas encore recevoir de paiements en ligne.',
     INTERNAL_ERROR: 'Un problème est survenu. Réessayez dans un instant.',
   },

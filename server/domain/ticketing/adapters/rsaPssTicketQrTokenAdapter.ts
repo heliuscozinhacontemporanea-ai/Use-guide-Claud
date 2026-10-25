@@ -1,8 +1,5 @@
 import crypto from 'crypto';
-import type {
-  TicketQrPayload,
-  TicketQrTokenPort,
-} from '../ports/ticketQrTokenPort';
+import type { TicketQrPayload, TicketQrTokenPort } from '../ports/ticketQrTokenPort';
 
 interface CachedRsaKeys {
   keyId: string;
@@ -17,8 +14,7 @@ function ensureRsaKeyPair(): CachedRsaKeys {
     return cachedRsaKeys;
   }
 
-  const keyId =
-    process.env.OFFLINE_CHECKIN_KEY_ID?.trim() || 'use-guide-rsa-pss-v1';
+  const keyId = process.env.OFFLINE_CHECKIN_KEY_ID?.trim() || 'use-guide-rsa-pss-v1';
   const envPem = process.env.OFFLINE_CHECKIN_PRIVATE_KEY_PEM?.trim();
 
   if (envPem) {
@@ -37,9 +33,7 @@ function ensureRsaKeyPair(): CachedRsaKeys {
   const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', {
     modulusLength: 2048,
   });
-  const privateKeyPem = privateKey
-    .export({ type: 'pkcs8', format: 'pem' })
-    .toString();
+  const privateKeyPem = privateKey.export({ type: 'pkcs8', format: 'pem' }).toString();
   const publicKeyJwk = publicKey.export({ format: 'jwk' }) as JsonWebKey;
   cachedRsaKeys = {
     keyId,
@@ -52,9 +46,7 @@ function ensureRsaKeyPair(): CachedRsaKeys {
 export class RsaPssTicketQrTokenAdapter implements TicketQrTokenPort {
   issue(payload: TicketQrPayload): string {
     const { privateKeyPem } = ensureRsaKeyPair();
-    const payloadB64 = Buffer.from(JSON.stringify(payload), 'utf8').toString(
-      'base64url'
-    );
+    const payloadB64 = Buffer.from(JSON.stringify(payload), 'utf8').toString('base64url');
     const signature = crypto.sign('sha256', Buffer.from(payloadB64, 'utf8'), {
       key: privateKeyPem,
       padding: crypto.constants.RSA_PKCS1_PSS_PADDING,

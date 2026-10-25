@@ -1,5 +1,4 @@
 import { adminDb } from '../../../infrastructure/firebase/adminClient';
-import type { StripeConnectedAccountRecord } from '../ports/marketplaceAccountPort';
 import type { PaymentStatus, PaymentTransaction } from '../ports/paymentGatewayPort';
 import type {
   TransactionRecord,
@@ -7,26 +6,20 @@ import type {
   WebhookEventClaimResult,
 } from '../ports/transactionRepositoryPort';
 
-function mapDocToTransactionRecord(
-  id: string,
-  data: Record<string, unknown>
-): TransactionRecord {
+function mapDocToTransactionRecord(id: string, data: Record<string, unknown>): TransactionRecord {
   return {
     id,
     userId: typeof data.userId === 'string' ? data.userId : null,
     referenceType:
       typeof data.referenceType === 'string' && data.referenceType ? data.referenceType : undefined,
     referenceId: typeof data.referenceId === 'string' ? data.referenceId : null,
-    providerPaymentId:
-      typeof data.providerPaymentId === 'string' ? data.providerPaymentId : null,
+    providerPaymentId: typeof data.providerPaymentId === 'string' ? data.providerPaymentId : null,
     connectedAccountId:
       typeof data.connectedAccountId === 'string' ? data.connectedAccountId : null,
     amount: typeof data.amount === 'number' ? data.amount : null,
     amountMinor: typeof data.amountMinor === 'number' ? data.amountMinor : null,
-    platformFeeMinor:
-      typeof data.platformFeeMinor === 'number' ? data.platformFeeMinor : null,
-    paymentMethod:
-      typeof data.paymentMethod === 'string' ? data.paymentMethod : null,
+    platformFeeMinor: typeof data.platformFeeMinor === 'number' ? data.platformFeeMinor : null,
+    paymentMethod: typeof data.paymentMethod === 'string' ? data.paymentMethod : null,
     status: typeof data.status === 'string' ? data.status : null,
     createdAt: data.createdAt,
     updatedAt: data.updatedAt,
@@ -34,40 +27,6 @@ function mapDocToTransactionRecord(
       data.paymentDetail && typeof data.paymentDetail === 'object'
         ? (data.paymentDetail as Record<string, unknown>)
         : undefined,
-  };
-}
-
-function mapDocToConnectedAccountRecord(
-  partnerId: string,
-  data: Record<string, unknown>
-): StripeConnectedAccountRecord {
-  const rawStatus = String(data.status || 'pending');
-  const status: StripeConnectedAccountRecord['status'] =
-    rawStatus === 'restricted' ||
-    rawStatus === 'enabled' ||
-    rawStatus === 'disabled'
-      ? rawStatus
-      : 'pending';
-
-  return {
-    partnerId,
-    stripeAccountId: String(data.stripeAccountId || data.connectedAccountId || ''),
-    status,
-    chargesEnabled: Boolean(data.chargesEnabled),
-    payoutsEnabled: Boolean(data.payoutsEnabled),
-    detailsSubmitted: Boolean(data.detailsSubmitted),
-    requirementsCurrentlyDue: Array.isArray(data.requirementsCurrentlyDue)
-      ? data.requirementsCurrentlyDue.filter(
-          (item): item is string => typeof item === 'string'
-        )
-      : [],
-    requirementsPastDue: Array.isArray(data.requirementsPastDue)
-      ? data.requirementsPastDue.filter(
-          (item): item is string => typeof item === 'string'
-        )
-      : [],
-    createdAt: String(data.createdAt || new Date().toISOString()),
-    updatedAt: String(data.updatedAt || new Date().toISOString()),
   };
 }
 
@@ -81,9 +40,7 @@ export class FirebaseAdminTransactionAdapter implements TransactionRepositoryPor
     const docRef = adminDb.collection('transactions').doc(transactionId);
     const docSnap = await docRef.get();
 
-    const paymentTxRef = adminDb
-      .collection('paymentTransactions')
-      .doc(transactionId);
+    const paymentTxRef = adminDb.collection('paymentTransactions').doc(transactionId);
     const paymentTxSnap = await paymentTxRef.get();
 
     if (paymentTxSnap.exists) {
@@ -111,10 +68,7 @@ export class FirebaseAdminTransactionAdapter implements TransactionRepositoryPor
   }
 
   async getTransaction(transactionId: string): Promise<TransactionRecord | null> {
-    const snapshot = await adminDb
-      .collection('transactions')
-      .doc(transactionId)
-      .get();
+    const snapshot = await adminDb.collection('transactions').doc(transactionId).get();
     if (!snapshot.exists) {
       return null;
     }
@@ -124,9 +78,7 @@ export class FirebaseAdminTransactionAdapter implements TransactionRepositoryPor
     );
   }
 
-  async getTransactionByIdempotencyKey(
-    idempotencyKey: string
-  ): Promise<TransactionRecord | null> {
+  async getTransactionByIdempotencyKey(idempotencyKey: string): Promise<TransactionRecord | null> {
     const snapshot = await adminDb
       .collection('transactions')
       .where('idempotencyKey', '==', idempotencyKey)
@@ -139,10 +91,7 @@ export class FirebaseAdminTransactionAdapter implements TransactionRepositoryPor
     if (!doc) {
       return null;
     }
-    return mapDocToTransactionRecord(
-      doc.id,
-      (doc.data() ?? {}) as Record<string, unknown>
-    );
+    return mapDocToTransactionRecord(doc.id, (doc.data() ?? {}) as Record<string, unknown>);
   }
 
   async saveTransactionRecord(record: {
@@ -166,9 +115,7 @@ export class FirebaseAdminTransactionAdapter implements TransactionRepositoryPor
       referenceId: record.referenceId,
       provider: 'stripe',
       providerPaymentId: record.providerPaymentId,
-      ...(record.connectedAccountId
-        ? { connectedAccountId: record.connectedAccountId }
-        : {}),
+      ...(record.connectedAccountId ? { connectedAccountId: record.connectedAccountId } : {}),
       amountMinor: record.amountMinor,
       platformFeeMinor: record.platformFeeMinor,
       currency: 'BRL',
@@ -193,9 +140,7 @@ export class FirebaseAdminTransactionAdapter implements TransactionRepositoryPor
           referenceId: record.referenceId,
           provider: 'stripe',
           providerPaymentId: record.providerPaymentId,
-          ...(record.connectedAccountId
-            ? { connectedAccountId: record.connectedAccountId }
-            : {}),
+          ...(record.connectedAccountId ? { connectedAccountId: record.connectedAccountId } : {}),
           amount: record.amountMinor / 100,
           amountMinor: record.amountMinor,
           platformFeeMinor: record.platformFeeMinor,
@@ -210,46 +155,6 @@ export class FirebaseAdminTransactionAdapter implements TransactionRepositoryPor
       );
 
     return paymentTransaction;
-  }
-
-  async getConnectedAccountRecord(
-    partnerId: string
-  ): Promise<StripeConnectedAccountRecord | null> {
-    const snap = await adminDb
-      .collection('paymentConnectedAccounts')
-      .doc(partnerId)
-      .get();
-    if (!snap.exists) return null;
-    return mapDocToConnectedAccountRecord(
-      snap.id,
-      (snap.data() || {}) as Record<string, unknown>
-    );
-  }
-
-  async getConnectedAccountRecordByStripeAccountId(
-    stripeAccountId: string
-  ): Promise<StripeConnectedAccountRecord | null> {
-    const snap = await adminDb
-      .collection('paymentConnectedAccounts')
-      .where('stripeAccountId', '==', stripeAccountId)
-      .limit(1)
-      .get();
-    if (snap.empty) return null;
-    const doc = snap.docs[0];
-    if (!doc) return null;
-    return mapDocToConnectedAccountRecord(
-      doc.id,
-      (doc.data() || {}) as Record<string, unknown>
-    );
-  }
-
-  async saveConnectedAccountRecord(
-    record: StripeConnectedAccountRecord
-  ): Promise<void> {
-    await adminDb
-      .collection('paymentConnectedAccounts')
-      .doc(record.partnerId)
-      .set(record, { merge: true });
   }
 
   async claimWebhookEvent(params: {
@@ -290,21 +195,27 @@ export class FirebaseAdminTransactionAdapter implements TransactionRepositoryPor
 
   async completeWebhookEvent(eventId: string): Promise<void> {
     const now = new Date().toISOString();
-    await adminDb.collection('stripeWebhookEvents').doc(eventId).set(
-      { status: 'processed', processedAt: now, updatedAt: now, leaseExpiresAt: null },
-      { merge: true }
-    );
+    await adminDb
+      .collection('stripeWebhookEvents')
+      .doc(eventId)
+      .set(
+        { status: 'processed', processedAt: now, updatedAt: now, leaseExpiresAt: null },
+        { merge: true }
+      );
   }
 
   async releaseWebhookEvent(eventId: string, errorMessage: string): Promise<void> {
-    await adminDb.collection('stripeWebhookEvents').doc(eventId).set(
-      {
-        status: 'failed',
-        lastError: errorMessage.slice(0, 500),
-        updatedAt: new Date().toISOString(),
-        leaseExpiresAt: null,
-      },
-      { merge: true }
-    );
+    await adminDb
+      .collection('stripeWebhookEvents')
+      .doc(eventId)
+      .set(
+        {
+          status: 'failed',
+          lastError: errorMessage.slice(0, 500),
+          updatedAt: new Date().toISOString(),
+          leaseExpiresAt: null,
+        },
+        { merge: true }
+      );
   }
 }

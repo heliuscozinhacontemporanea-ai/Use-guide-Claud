@@ -1,4 +1,4 @@
-import { ticketingService } from '../factory';
+import { ticketingReportService } from '../factory';
 import type { VerifiedAttendanceForReview } from '../types/ticketingTypes';
 
 export async function getVerifiedAttendanceForReviewUseCase(params: {
@@ -6,5 +6,5 @@ export async function getVerifiedAttendanceForReviewUseCase(params: {
   occurrenceId: string;
   ticketId: string;
 }): Promise<VerifiedAttendanceForReview> {
-  return ticketingService.getVerifiedAttendanceForReview(params);
+  return ticketingReportService.getVerifiedAttendanceForReview(params);
 }

@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { EventOccurrencesService } from './eventOccurrencesService';
-import { EventsService } from './eventsService';
 import type { EventsPort } from '../ports/eventsPort';
 import type { EventListing, EventOccurrence } from '../types/eventTypes';
+import { EventOccurrencesService } from './eventOccurrencesService';
+import { EventsService } from './eventsService';
 
 function createMockPort(): EventsPort {
   return {
@@ -49,7 +49,12 @@ const sampleListing: EventListing = {
   isActive: true,
   organizerId: 'partner-1',
   location: { name: 'Jericoacoara' },
-  refundPolicy: { enabled: true, cancellationWindowHours: 24 },
+  salesPolicy: {
+    cancellationPolicy: 'flexible',
+    serviceFeeMode: 'pass_to_buyer',
+    allowTicketTransfer: true,
+    ticketTransferCutoffHours: 4,
+  },
   entryType: 'gratuito',
   pricingMode: 'free',
   date: '2026-08-10T18:00:00.000Z',
@@ -100,7 +105,12 @@ describe('EventsService', () => {
         isActive: true,
         organizerId: 'partner-1',
         location: { name: 'Jericoacoara' },
-        refundPolicy: { enabled: true },
+        salesPolicy: {
+          cancellationPolicy: 'flexible',
+          serviceFeeMode: 'pass_to_buyer',
+          allowTicketTransfer: true,
+          ticketTransferCutoffHours: 4,
+        },
         occurrences: [
           {
             startsAt: '2026-08-10T18:00:00.000Z',

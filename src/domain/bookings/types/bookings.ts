@@ -1,9 +1,10 @@
+import type { BookingCancellationPolicy } from '../../../shared/utils/cancellationPolicy';
+
 /** Espelho neutro dos DTOs de saída da API de reservas (server/interfaces/http/bookings). */
 export type LocalizedText = { 'pt-BR': string; en?: string; fr?: string };
 
 export type OfferKind = 'tour' | 'private_entry';
 export type OfferStatus = 'draft' | 'published' | 'paused' | 'archived';
-export type RefundPercent = 0 | 50 | 100;
 
 export interface PriceOption {
   id: string;
@@ -13,18 +14,13 @@ export interface PriceOption {
   maxQuantity?: number;
 }
 
-export interface CancellationPolicy {
-  freeCancellationHoursBefore: number;
-  refundPercentAfterDeadline: RefundPercent;
-}
-
 export interface OfferFields {
   title: LocalizedText;
   description?: LocalizedText;
   pricing: { currency: 'BRL'; priceOptions: PriceOption[] };
   durationMinutes?: number;
   meetingPoint?: { address: string; instructions?: LocalizedText };
-  cancellationPolicy: CancellationPolicy;
+  cancellationPolicy: BookingCancellationPolicy;
   maxParticipantsPerBooking: number;
   requiresParticipantNames: boolean;
 }
@@ -99,11 +95,11 @@ export interface BookingSummary {
     startsAt: string;
     durationMinutes: number | null;
     meetingPoint: string | null;
-    cancellationPolicy: CancellationPolicy;
+    cancellationPolicy: BookingCancellationPolicy;
   };
   cancellation: {
     by: 'buyer' | 'partner' | 'system';
-    refundPercent: RefundPercent;
+    refundPercent: number;
     refundAmountMinor: number;
     at: string;
   } | null;
@@ -141,6 +137,7 @@ export interface CreateBookingPayload {
   participants: Array<{ name: string }>;
   idempotencyKey: string;
   locale: 'pt-BR' | 'en' | 'fr';
+  acceptedTermsVersion: string;
 }
 
 export interface CreateBookingResponse {
@@ -157,6 +154,6 @@ export interface BookingDetails extends BookingSummary {
 
 export interface CancelBookingResponse {
   status: BookingStatus;
-  refundPercent: RefundPercent;
+  refundPercent: number;
   refundAmountMinor: number;
 }

@@ -46,6 +46,7 @@ const ORDER = {
 describe('createTicketOrderPaymentIntentApplicationUseCase (D12)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mocks.assertCanSell.mockResolvedValue({ accountKey: 'key-cnpj-1' });
     mocks.getOrder.mockResolvedValue({ order: ORDER });
     mocks.getListing.mockResolvedValue({
       id: 'ev-1',
@@ -66,7 +67,9 @@ describe('createTicketOrderPaymentIntentApplicationUseCase (D12)', () => {
       { orderId: 'ord-1', idempotencyKey: 'k-12345678' }
     );
     expect(mocks.assertCanSell).toHaveBeenCalledWith('item-1');
-    expect(mocks.createPayment).toHaveBeenCalled();
+    expect(mocks.createPayment).toHaveBeenCalledWith(
+      expect.objectContaining({ sellerAccountKey: 'key-cnpj-1' })
+    );
   });
 
   it('estabelecimento não verificado: não cria o pagamento', async () => {

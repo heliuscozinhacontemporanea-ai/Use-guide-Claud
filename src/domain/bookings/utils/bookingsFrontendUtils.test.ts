@@ -44,10 +44,7 @@ describe('formulário de oferta', () => {
     expect(fields.pricing.priceOptions[0]?.unitAmountMinor).toBe(15090);
     expect(fields.title).toEqual({ 'pt-BR': 'Passeio' });
     expect(fields).not.toHaveProperty('description');
-    expect(fields.cancellationPolicy).toEqual({
-      freeCancellationHoursBefore: 24,
-      refundPercentAfterDeadline: 50,
-    });
+    expect(fields.cancellationPolicy).toBe('flexible');
   });
 });
 

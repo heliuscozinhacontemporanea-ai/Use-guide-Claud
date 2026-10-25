@@ -4,7 +4,8 @@ import type {
   CreatePaymentIntentResponse,
   CreatePlanPaymentIntentPayload,
   PaidPlanId,
-  PartnerConnectStatusResponse,
+  PartnerPaymentAccount,
+  PartnerTermsView,
   PaymentLocale,
   PlanSubscription,
   StartPlanSubscriptionPayload,
@@ -72,57 +73,58 @@ export class ApiPaymentAdapter implements PaymentApiPort {
     return data;
   }
 
-  async getPartnerConnectStatus(): Promise<PartnerConnectStatusResponse> {
+  async listPaymentAccounts(): Promise<PartnerPaymentAccount[]> {
     const response = await firebaseApiFetch(
-      '/api/payment/connect/status',
+      '/api/payment-accounts',
       { method: 'GET' },
       { requireAuth: true, requireAppCheck: true }
     );
     const data = await response.json().catch(() => ({}));
     if (!response.ok) {
-      throw new Error(
-        data.error?.message ?? data.error ?? 'Não foi possível carregar o status financeiro.'
-      );
+      throw new Error(data.error?.code ?? 'PAYMENT_ACCOUNT_UNAVAILABLE');
     }
-    return data;
+    return Array.isArray(data.data) ? data.data : [];
   }
 
-  async createPartnerConnectAccount(): Promise<PartnerConnectStatusResponse> {
+  async createPaymentAccountSession(accountKey: string): Promise<{ clientSecret: string }> {
     const response = await firebaseApiFetch(
-      '/api/payment/connect/account',
+      '/api/payment-accounts/session',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({}),
+        body: JSON.stringify({ accountKey }),
       },
       { requireAuth: true, requireAppCheck: true }
     );
     const data = await response.json().catch(() => ({}));
-    if (!response.ok) {
-      throw new Error(
-        data.error?.message ?? data.error ?? 'Não foi possível criar a conta conectada.'
-      );
+    if (!response.ok || !data.data?.clientSecret) {
+      throw new Error(data.error?.code ?? 'PAYMENT_ACCOUNT_UNAVAILABLE');
     }
-    return data;
+    return { clientSecret: data.data.clientSecret };
   }
 
-  async createPartnerConnectAccountSession(): Promise<{ clientSecret: string }> {
-    const response = await firebaseApiFetch(
-      '/api/payment/connect/account-session',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({}),
-      },
-      { requireAuth: true, requireAppCheck: true }
-    );
+  async getPartnerTerms(): Promise<PartnerTermsView> {
+    return this.partnerTermsRequest({ method: 'GET' });
+  }
+
+  async acceptPartnerTerms(version: string): Promise<PartnerTermsView> {
+    return this.partnerTermsRequest({
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ version }),
+    });
+  }
+
+  private async partnerTermsRequest(init: RequestInit): Promise<PartnerTermsView> {
+    const response = await firebaseApiFetch('/api/payment-accounts/terms', init, {
+      requireAuth: true,
+      requireAppCheck: true,
+    });
     const data = await response.json().catch(() => ({}));
-    if (!response.ok || !data.clientSecret) {
-      throw new Error(
-        data.error?.message ?? data.error ?? 'Não foi possível iniciar a sessão financeira.'
-      );
+    if (!response.ok || !data.data) {
+      throw new Error(data.error?.code ?? 'PAYMENT_ACCOUNT_UNAVAILABLE');
     }
-    return { clientSecret: data.clientSecret };
+    return data.data as PartnerTermsView;
   }
 
   async startPlanSubscription(

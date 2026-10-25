@@ -1,4 +1,3 @@
-import type { StripeConnectedAccountRecord } from './marketplaceAccountPort';
 import type { PaymentStatus, PaymentTransaction } from './paymentGatewayPort';
 
 export interface TransactionRecord {
@@ -27,9 +26,7 @@ export interface TransactionRepositoryPort {
     statusDetail?: string
   ): Promise<boolean>;
   getTransaction(transactionId: string): Promise<TransactionRecord | null>;
-  getTransactionByIdempotencyKey(
-    idempotencyKey: string
-  ): Promise<TransactionRecord | null>;
+  getTransactionByIdempotencyKey(idempotencyKey: string): Promise<TransactionRecord | null>;
   saveTransactionRecord(record: {
     transactionId: string;
     idempotencyKey: string;
@@ -44,15 +41,6 @@ export interface TransactionRepositoryPort {
     status: PaymentStatus | string;
     paymentResult?: Record<string, unknown>;
   }): Promise<PaymentTransaction>;
-  getConnectedAccountRecord(
-    partnerId: string
-  ): Promise<StripeConnectedAccountRecord | null>;
-  getConnectedAccountRecordByStripeAccountId(
-    stripeAccountId: string
-  ): Promise<StripeConnectedAccountRecord | null>;
-  saveConnectedAccountRecord(
-    record: StripeConnectedAccountRecord
-  ): Promise<void>;
   claimWebhookEvent(params: {
     eventId: string;
     eventType: string;

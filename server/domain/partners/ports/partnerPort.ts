@@ -1,3 +1,4 @@
+import type { TermsAcceptance } from '../../../shared/kernel/legalTerms';
 import type {
   PartnerBusiness,
   PartnerProfileDocument,
@@ -16,4 +17,7 @@ export interface PartnerPort {
   getAllPartnerIds(): Promise<string[]>;
   getAllPartners(): Promise<PartnerProfileDocument[]>;
   deletePartnerProfile(partnerId: string): Promise<void>;
+  getTermsAcceptance(partnerId: string): Promise<TermsAcceptance | null>;
+  /** Lança `NOT_FOUND` quando o parceiro não tem perfil. */
+  recordTermsAcceptance(partnerId: string, acceptance: TermsAcceptance): Promise<void>;
 }

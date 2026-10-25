@@ -25,15 +25,15 @@ import {
   createPendingBookingUseCase,
   requestCancellationByBuyerUseCase,
 } from '../../../domain/bookings';
+import { assertListingCanSellUseCase } from '../../../domain/partners';
 import {
   createMarketplacePaymentIntentUseCase,
   processProviderRefundUseCase,
 } from '../../../domain/payment';
+import { isPartnerSuspended } from '../isPartnerSuspended';
 import { cancelBookingByBuyerApplicationUseCase } from './cancelBookingByBuyerApplicationUseCase';
 import { cancelSlotByPartnerApplicationUseCase } from './cancelSlotByPartnerApplicationUseCase';
 import { createBookingApplicationUseCase } from './createBookingApplicationUseCase';
-import { isPartnerSuspended } from '../isPartnerSuspended';
-import { assertListingCanSellUseCase } from '../../../domain/partners';
 
 const BOOKING = {
   id: 'bk_1',
@@ -52,11 +52,22 @@ const INPUT = {
   participants: [],
   idempotencyKey: 'key-12345',
   locale: 'pt-BR' as const,
+  acceptedTermsVersion: '2026-10-25',
 };
 const BUYER = { uid: 'buyer-1', admin: false, emailVerified: true };
 
+beforeEach(() => {
+  vi.stubEnv('BOOKINGS_PLATFORM_FEE_BPS', '1500');
+  vi.stubEnv('TICKETS_PLATFORM_FEE_BPS', '1000');
+  vi.stubEnv('TICKETS_ABSORBED_FEE_BPS', '1250');
+  vi.stubEnv('TICKET_SERVICE_FEE_MINOR', '300');
+});
+
 describe('createBookingApplicationUseCase', () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(assertListingCanSellUseCase).mockResolvedValue({ accountKey: 'key-cnpj-1' });
+  });
 
   it('e-mail não verificado → EMAIL_NOT_VERIFIED, sem reservar vaga', async () => {
     await expect(
@@ -76,6 +87,7 @@ describe('createBookingApplicationUseCase', () => {
         referenceType: 'booking',
         referenceId: 'bk_1',
         sellerPartnerId: 'p1',
+        sellerAccountKey: 'key-cnpj-1',
         totalMinor: 20000,
         platformFeeMinor: 2000,
         idempotencyKey: 'pi_booking_bk_1',

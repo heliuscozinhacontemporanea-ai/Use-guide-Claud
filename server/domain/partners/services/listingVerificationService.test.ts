@@ -15,7 +15,6 @@ const CPF = '529.982.247-25';
 class InMemoryRepository implements ListingVerificationRepositoryPort {
   records = new Map<string, ListingVerificationRecord>();
   entries = new Map<string, VerificationDocumentEntry>();
-  salesDocuments = new Map<string, string>();
 
   async get(itemId: string) {
     return this.records.get(itemId) ?? null;
@@ -45,9 +44,6 @@ class InMemoryRepository implements ListingVerificationRepositoryPort {
     if (record.status === 'approved' && record.documentIndex) {
       const entry = this.entries.get(record.documentIndex);
       if (entry) entry.verifiedAt = record.reviewedAt;
-      if (record.documentType === 'cnpj' && !this.salesDocuments.has(record.ownerId)) {
-        this.salesDocuments.set(record.ownerId, record.documentIndex);
-      }
     }
   }
   async listByStatus(status: string) {
@@ -61,8 +57,8 @@ class InMemoryRepository implements ListingVerificationRepositoryPort {
       .filter((r) => r.sourceItemId === sourceItemId)
       .map((r) => r.itemId);
   }
-  async getSalesDocumentIndex(ownerId: string) {
-    return this.salesDocuments.get(ownerId) ?? null;
+  async listByOwner(ownerId: string) {
+    return [...this.records.values()].filter((r) => r.ownerId === ownerId);
   }
   async delete(itemId: string) {
     const record = this.records.get(itemId) ?? null;
@@ -271,7 +267,8 @@ describe('ListingVerificationService (D12)', () => {
     it('libera CNPJ aprovado', async () => {
       await submitCnpj();
       await service.review(admin, 'item-1', 'approve', null);
-      await expect(service.assertCanSell('item-1')).resolves.toBeUndefined();
+      const sale = await service.assertCanSell('item-1');
+      expect(sale.accountKey).toEqual(expect.any(String));
     });
 
     it('CPF não vende', async () => {
@@ -293,13 +290,40 @@ describe('ListingVerificationService (D12)', () => {
       });
     });
 
-    it('até o 18.4, só o primeiro CNPJ aprovado da conta vende', async () => {
+    it('cada CNPJ aprovado vende pela própria conta (D14)', async () => {
       await submitCnpj(pousada, CNPJ);
       await service.review(admin, 'item-1', 'approve', null);
       await submitCnpj(restaurante, CNPJ_2);
       await service.review(admin, 'item-2', 'approve', null);
-      await expect(service.assertCanSell('item-2')).rejects.toMatchObject({
-        code: 'SALES_DOCUMENT_MISMATCH',
+      const first = await service.assertCanSell('item-1');
+      const second = await service.assertCanSell('item-2');
+      expect(first.accountKey).not.toBe(second.accountKey);
+    });
+  });
+
+  describe('documentos de vendas (D14)', () => {
+    it('lista só CNPJs aprovados, com o perfil de produtor junto do estabelecimento de origem', async () => {
+      await submitCnpj(pousada, CNPJ);
+      await service.review(admin, 'item-1', 'approve', null);
+      await submitCnpj(restaurante, CNPJ_2);
+      await service.submit(owner, produtor, { mode: 'linked', sourceItemId: 'item-1' }, pousada);
+      const documents = await service.listSalesDocuments('owner-1');
+      expect(documents).toHaveLength(1);
+      expect(documents[0]?.itemIds.sort()).toEqual(['item-1', 'item-3']);
+      expect(documents[0]?.maskedDocument).not.toContain(CNPJ.slice(0, 8));
+      expect(await service.listSalesDocuments('owner-2')).toEqual([]);
+    });
+
+    it('devolve o CNPJ só para o dono do documento aprovado', async () => {
+      await submitCnpj(pousada, CNPJ);
+      await service.review(admin, 'item-1', 'approve', null);
+      const [document] = await service.listSalesDocuments('owner-1');
+      const accountKey = document?.accountKey ?? '';
+      await expect(service.getSalesDocument('owner-1', accountKey)).resolves.toEqual(
+        expect.any(String)
+      );
+      await expect(service.getSalesDocument('owner-2', accountKey)).rejects.toMatchObject({
+        code: 'NOT_FOUND',
       });
     });
   });

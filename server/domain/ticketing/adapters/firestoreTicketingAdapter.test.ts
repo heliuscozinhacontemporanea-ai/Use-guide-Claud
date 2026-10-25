@@ -155,10 +155,7 @@ describe('FirestoreTicketingAdapter.updateRefundStatus', () => {
     const lastGetIndex = callOrder.lastIndexOf('get');
     expect(lastGetIndex).toBeLessThan(firstUpdateIndex);
 
-    expect(txUpdate).toHaveBeenCalledWith(
-      typeRef,
-      expect.objectContaining({ soldCount: 9 })
-    );
+    expect(txUpdate).toHaveBeenCalledWith(typeRef, expect.objectContaining({ soldCount: 9 }));
   });
 
   it('reverte ingressos de refund_pending para issued quando o reembolso falha', async () => {

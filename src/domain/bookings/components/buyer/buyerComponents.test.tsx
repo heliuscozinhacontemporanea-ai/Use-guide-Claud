@@ -103,7 +103,7 @@ describe('componentes de compra', () => {
       status: 'published',
       title: { 'pt-BR': 'Passeio de buggy', en: 'Buggy tour' },
       pricing: { currency: 'BRL', priceOptions: OPTIONS },
-      cancellationPolicy: { freeCancellationHoursBefore: 24, refundPercentAfterDeadline: 50 },
+      cancellationPolicy: 'moderate',
       maxParticipantsPerBooking: 6,
       requiresParticipantNames: false,
       updatedAt: '',
@@ -121,7 +121,9 @@ describe('componentes de compra', () => {
       />
     );
     expect(await screen.findByText('Buggy tour')).toBeTruthy();
-    expect(screen.getByText(/Free cancellation up to 24 h before/)).toBeTruthy();
+    expect(
+      screen.getByText(/Full refund up to 5 days before the start; 50% up to 24 h before/)
+    ).toBeTruthy();
     await i18n.changeLanguage('pt-BR');
   });
 });
@@ -137,6 +139,7 @@ describe('useBookingCheckout', () => {
       slotId: 's',
       lines: [{ priceOptionId: 'adult', quantity: 1 }],
       participants: [],
+      acceptedTermsVersion: '2026-10-25',
     };
     await act(async () => {
       await result.current.start(request);
@@ -158,32 +161,44 @@ describe('useBookingCheckout', () => {
 });
 
 describe('previewRefund', () => {
-  const policy = { freeCancellationHoursBefore: 24, refundPercentAfterDeadline: 50 as const };
   const startsAt = '2026-11-10T11:00:00.000Z';
-  it('mostra 100%, 50% e 0% conforme o momento', () => {
+  const booking = (
+    cancellationPolicy: 'moderate' | 'none',
+    createdAt = '2026-10-01T12:00:00.000Z'
+  ) => ({
+    kind: 'tour' as const,
+    totalMinor: 20000,
+    createdAt,
+    offer: {
+      title: 'Passeio',
+      startsAt,
+      durationMinutes: null,
+      meetingPoint: null,
+      cancellationPolicy,
+    },
+  });
+
+  it('segue a política gravada fora do arrependimento: 100%, 50% e 0%', () => {
+    expect(previewRefund(booking('moderate'), new Date('2026-11-04T11:00:00.000Z'))).toEqual({
+      refundPercent: 100,
+      refundAmountMinor: 20000,
+    });
+    expect(previewRefund(booking('moderate'), new Date('2026-11-08T11:00:00.000Z'))).toEqual({
+      refundPercent: 50,
+      refundAmountMinor: 10000,
+    });
+    expect(previewRefund(booking('moderate'), new Date('2026-11-10T00:00:00.000Z'))).toEqual({
+      refundPercent: 0,
+      refundAmountMinor: 0,
+    });
+  });
+
+  it('arrependimento devolve tudo mesmo sem reembolso na política', () => {
     expect(
-      previewRefund({
-        policy,
-        startsAt,
-        totalMinor: 20000,
-        now: new Date('2026-11-08T11:00:00.000Z'),
-      })
+      previewRefund(
+        booking('none', '2026-11-05T11:00:00.000Z'),
+        new Date('2026-11-06T11:00:00.000Z')
+      )
     ).toEqual({ refundPercent: 100, refundAmountMinor: 20000 });
-    expect(
-      previewRefund({
-        policy,
-        startsAt,
-        totalMinor: 20000,
-        now: new Date('2026-11-10T00:00:00.000Z'),
-      })
-    ).toEqual({ refundPercent: 50, refundAmountMinor: 10000 });
-    expect(
-      previewRefund({
-        policy,
-        startsAt,
-        totalMinor: 20000,
-        now: new Date('2026-11-10T12:00:00.000Z'),
-      })
-    ).toEqual({ refundPercent: 0, refundAmountMinor: 0 });
   });
 });

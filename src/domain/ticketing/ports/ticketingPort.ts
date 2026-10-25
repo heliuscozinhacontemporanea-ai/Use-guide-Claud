@@ -3,7 +3,6 @@ import type {
   EventSalesAnalytics,
   OfflineCheckInSessionResponse,
   OfflineCheckInSyncResult,
-  PartnerMerchantStatus,
   PublicTicketTypeProjection,
   Refund,
   Ticket,
@@ -77,6 +76,7 @@ export interface TicketingPort {
     buyer: { name: string; email: string };
     promoCode?: string;
     idempotencyKey: string;
+    acceptedTermsVersion: string;
   }): Promise<CreateOrderResult>;
   createOrderPaymentIntent(
     orderId: string,
@@ -144,7 +144,4 @@ export interface TicketingPort {
   listEventOrders(eventListingId: string, asAdmin?: boolean): Promise<TicketOrder[]>;
   listEventCheckIns(eventListingId: string, asAdmin?: boolean): Promise<EventCheckIn[]>;
   listEventRefunds(eventListingId: string, asAdmin?: boolean): Promise<Refund[]>;
-  getPartnerMerchantStatus(): Promise<PartnerMerchantStatus>;
-  createPartnerConnectAccount(): Promise<PartnerMerchantStatus>;
-  createPartnerConnectAccountSession(): Promise<{ clientSecret: string }>;
 }

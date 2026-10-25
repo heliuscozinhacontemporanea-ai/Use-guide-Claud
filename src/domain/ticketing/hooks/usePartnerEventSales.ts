@@ -1,18 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { checkInTicketUseCase } from '../application/usecases/checkInTicketUseCase';
-import { createPartnerConnectAccountUseCase } from '../application/usecases/createPartnerConnectAccountUseCase';
 import { getEventSalesAnalyticsUseCase } from '../application/usecases/getEventSalesAnalyticsUseCase';
-import { getPartnerMerchantStatusUseCase } from '../application/usecases/getPartnerMerchantStatusUseCase';
 import { listEventCheckInsUseCase } from '../application/usecases/listEventCheckInsUseCase';
 import { listEventOrdersUseCase } from '../application/usecases/listEventOrdersUseCase';
 import { listEventRefundsUseCase } from '../application/usecases/listEventRefundsUseCase';
-import type {
-  EventCheckIn,
-  EventSalesAnalytics,
-  PartnerMerchantStatus,
-  Refund,
-  TicketOrder,
-} from '../types/ticketing';
+import { listPaymentAccountsUseCase } from '../../payment';
+import type { EventCheckIn, EventSalesAnalytics, Refund, TicketOrder } from '../types/ticketing';
 
 export function usePartnerEventSales(
   eventListingId?: string,
@@ -90,8 +83,12 @@ export function usePartnerEventSales(
   };
 }
 
+/**
+ * Aviso de conta financeira do painel de ingressos. Por enquanto basta um CNPJ da conta pronto para
+ * receber; a venda confere a conta do estabelecimento do evento no backend (D14, débito B26).
+ */
 export function usePartnerMerchantAccount(enabled = true) {
-  const [status, setStatus] = useState<PartnerMerchantStatus | null>(null);
+  const [status, setStatus] = useState<{ readyForSales: boolean } | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -100,14 +97,12 @@ export function usePartnerMerchantAccount(enabled = true) {
     setLoading(true);
     setError(null);
     try {
-      const res = await getPartnerMerchantStatusUseCase();
-      setStatus(res);
+      const accounts = await listPaymentAccountsUseCase();
+      setStatus({ readyForSales: accounts.some((entry) => entry.account?.readyForSales) });
     } catch (err) {
       console.error('[usePartnerMerchantAccount]', err);
       setError(
-        err instanceof Error
-          ? err.message
-          : 'Não foi possível carregar o status da conta Stripe Connect.'
+        err instanceof Error ? err.message : 'Não foi possível carregar a conta financeira.'
       );
     } finally {
       setLoading(false);
@@ -118,18 +113,5 @@ export function usePartnerMerchantAccount(enabled = true) {
     void reload();
   }, [reload]);
 
-  const connectMarketplace = useCallback(async () => {
-    setError(null);
-    const created = await createPartnerConnectAccountUseCase();
-    setStatus(created);
-    return created;
-  }, []);
-
-  return {
-    status,
-    loading,
-    error,
-    reload,
-    connectMarketplace,
-  };
+  return { status, loading, error, reload };
 }

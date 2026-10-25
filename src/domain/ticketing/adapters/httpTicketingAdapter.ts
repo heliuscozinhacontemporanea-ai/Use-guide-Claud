@@ -9,7 +9,6 @@ import type {
   EventSalesAnalytics,
   OfflineCheckInSessionResponse,
   OfflineCheckInSyncResult,
-  PartnerMerchantStatus,
   PublicTicketTypeProjection,
   Refund,
   Ticket,
@@ -79,9 +78,7 @@ export class HttpTicketingAdapter implements TicketingPort {
     return parseJsonOrThrow<TicketType>(res, 'Não foi possível atualizar o lote de ingresso.');
   }
 
-  async deleteOrArchiveTicketType(
-    ticketTypeId: string
-  ): Promise<{ mode: 'deleted' | 'archived' }> {
+  async deleteOrArchiveTicketType(ticketTypeId: string): Promise<{ mode: 'deleted' | 'archived' }> {
     const res = await firebaseApiFetch(
       `/api/ticketing/ticket-types/${encodeURIComponent(ticketTypeId)}`,
       { method: 'DELETE' },
@@ -358,9 +355,7 @@ export class HttpTicketingAdapter implements TicketingPort {
     const base = asAdmin
       ? `/api/admin/events/${encodeURIComponent(eventListingId)}/analytics`
       : `/api/partners/events/${encodeURIComponent(eventListingId)}/analytics`;
-    const url = occurrenceId
-      ? `${base}?occurrenceId=${encodeURIComponent(occurrenceId)}`
-      : base;
+    const url = occurrenceId ? `${base}?occurrenceId=${encodeURIComponent(occurrenceId)}` : base;
     const res = await firebaseApiFetch(url, { method: 'GET' }, { requireAuth: true });
     return parseJsonOrThrow<EventSalesAnalytics>(
       res,
@@ -393,49 +388,5 @@ export class HttpTicketingAdapter implements TicketingPort {
       : `/api/partners/events/${encodeURIComponent(eventListingId)}/refunds`;
     const res = await firebaseApiFetch(url, { method: 'GET' }, { requireAuth: true });
     return parseJsonOrThrow<Refund[]>(res, 'Não foi possível carregar os reembolsos do evento.');
-  }
-
-  async getPartnerMerchantStatus(): Promise<PartnerMerchantStatus> {
-    const res = await firebaseApiFetch(
-      '/api/payment/connect/status',
-      { method: 'GET' },
-      { requireAuth: true }
-    );
-    return parseJsonOrThrow<PartnerMerchantStatus>(
-      res,
-      'Não foi possível verificar o status da conta Stripe Connect.'
-    );
-  }
-
-  async createPartnerConnectAccount(): Promise<PartnerMerchantStatus> {
-    const res = await firebaseApiFetch(
-      '/api/payment/connect/account',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({}),
-      },
-      { requireAuth: true }
-    );
-    return parseJsonOrThrow<PartnerMerchantStatus>(
-      res,
-      'Não foi possível criar a conta Stripe Connect.'
-    );
-  }
-
-  async createPartnerConnectAccountSession(): Promise<{ clientSecret: string }> {
-    const res = await firebaseApiFetch(
-      '/api/payment/connect/account-session',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({}),
-      },
-      { requireAuth: true }
-    );
-    return parseJsonOrThrow<{ clientSecret: string }>(
-      res,
-      'Não foi possível iniciar a sessão do Stripe Connect.'
-    );
   }
 }

@@ -67,4 +67,4 @@ export {
   type VerifiedAttendanceForReview,
 } from './types/ticketingTypes';
 
-export type { TicketingActorContext } from './services/ticketingService';
+export type { TicketingActorContext } from './services/ticketingAccess';

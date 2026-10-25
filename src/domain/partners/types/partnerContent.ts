@@ -1,4 +1,4 @@
-import type { EventSessionDraft } from '../../events';
+import type { EventSalesPolicy, EventSessionDraft } from '../../events';
 export interface PartnerOperationalInfo {
   /** Passeio, translado e aluguel (decisão D9). */
   durationMinutes?: number;
@@ -72,6 +72,9 @@ export type PartnerContentEditorState = Omit<PartnerContentRecord, 'category'> &
   category: PartnerContentCategory | '';
   /** Sessões do evento em edição; as já salvas são lidas ao abrir o editor. */
   sessions?: EventSessionDraft[];
+  salesPolicy?: EventSalesPolicy;
+  /** Política do evento já publicado: só pode trocar por uma igual ou mais flexível (D14). */
+  publishedCancellationPolicy?: string;
 };
 
 export interface PartnerContentRecord {
@@ -147,6 +150,7 @@ export interface PartnerContentEventInput {
   tags?: string[];
   operationalInfo?: Record<string, unknown>;
   isActive?: boolean;
+  salesPolicy?: EventSalesPolicy;
   /** Sessões iniciais do evento novo; depois, as sessões são gravadas pelo domínio events. */
   occurrences?: Array<{ startsAt: string; endsAt: string; capacity: number }>;
 }

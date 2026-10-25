@@ -25,17 +25,33 @@ export interface CreatePaymentIntentResponse {
   orderStatus?: string;
 }
 
-export interface PartnerConnectStatusResponse {
-  connected: boolean;
-  accountId?: string;
-  chargesEnabled: boolean;
-  payoutsEnabled: boolean;
-  detailsSubmitted: boolean;
-  requirementsCurrentlyDue?: string[];
-  requirementsPastDue?: string[];
-  status: 'pending' | 'restricted' | 'enabled' | 'disabled';
-  /** Calculado no servidor: mesmo critério usado para vender. */
-  readyForSales: boolean;
+/** Aceite dos termos do parceiro (D15) e taxas vigentes para o texto dos termos. */
+export interface PartnerTermsView {
+  currentVersion: string;
+  accepted: boolean;
+  acceptedAt: string | null;
+  fees: {
+    bookingsBps: number;
+    ticketsBps: number;
+    ticketsAbsorbedBps: number;
+    ticketServiceFeeMinor: number;
+  } | null;
+}
+
+/** Conta Stripe de um CNPJ verificado (D14); `account` é `null` antes de o parceiro iniciar o cadastro. */
+export interface PartnerPaymentAccount {
+  accountKey: string;
+  maskedDocument: string;
+  itemIds: string[];
+  account: {
+    status: 'pending' | 'restricted' | 'enabled' | 'disabled';
+    chargesEnabled: boolean;
+    payoutsEnabled: boolean;
+    detailsSubmitted: boolean;
+    requirementsDueCount: number;
+    /** Calculado no servidor: mesmo critério usado para vender. */
+    readyForSales: boolean;
+  } | null;
 }
 
 export type PaymentLocale = 'pt-BR' | 'en' | 'fr';

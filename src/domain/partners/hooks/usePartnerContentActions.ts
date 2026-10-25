@@ -2,18 +2,18 @@ import { useCallback } from 'react';
 import { useUI } from '../../../shared/stores/useUIStore';
 import type { UserSession } from '../../auth';
 import {
+  type EventSessionsLoadState,
+  eventDateRangeFromSessions,
+  saveEventSessionsUseCase,
+  validateEventSessions,
+} from '../../events';
+import {
   createPartnerContentEventUseCase,
   deletePartnerContentEventUseCase,
   deletePartnerContentItemUseCase,
   updatePartnerContentEventUseCase,
   updatePartnerContentItemUseCase,
 } from '../index';
-import {
-  type EventSessionsLoadState,
-  eventDateRangeFromSessions,
-  saveEventSessionsUseCase,
-  validateEventSessions,
-} from '../../events';
 import { partnerEventFormSchema } from '../schemas/partnerEventFormSchema';
 import type { PartnerContentEditorState, PartnerContentEventInput } from '../types/partnerContent';
 
@@ -155,6 +155,7 @@ export function usePartnerContentActions({
           eventCategory: isEditing.eventCategory || 'geral',
           customCategory: isEditing.customCategory,
           entryType: parsedEvent.data.entryType,
+          ...(isEditing.salesPolicy ? { salesPolicy: isEditing.salesPolicy } : {}),
           establishmentId: isEditing.establishmentId,
           instagramLink: isEditing.instagramLink,
           websiteLink: isEditing.websiteLink,

@@ -170,7 +170,9 @@ export class TicketingController {
       const orderId = String(req.params.id || '');
       const parsed = payTicketOrderSchema.safeParse(req.body || {});
       if (!parsed.success) {
-        return res.status(400).json({ error: 'Dados de pagamento inválidos.', details: parsed.error.flatten() });
+        return res
+          .status(400)
+          .json({ error: 'Dados de pagamento inválidos.', details: parsed.error.flatten() });
       }
       const result = await createTicketOrderPaymentIntentApplicationUseCase(getActor(req), {
         orderId,
@@ -374,13 +376,9 @@ export class TicketingController {
       }
       const normalizedEvents = rawEvents.map((ev) => {
         const scannedAt =
-          ('scannedAt' in ev && ev.scannedAt) ||
-          ev.checkedInAt ||
-          new Date().toISOString();
+          ('scannedAt' in ev && ev.scannedAt) || ev.checkedInAt || new Date().toISOString();
         const occurrenceId =
-          ('occurrenceId' in ev && ev.occurrenceId) ||
-          parsed.data.occurrenceId ||
-          '';
+          ('occurrenceId' in ev && ev.occurrenceId) || parsed.data.occurrenceId || '';
         return {
           clientEventId: ev.clientEventId,
           sessionId: parsed.data.sessionId,
@@ -424,10 +422,7 @@ export class TicketingController {
     try {
       if (!req.user) return res.status(401).json({ error: 'Não autenticado.' });
       const eventListingId = String(req.params.id || '');
-      const orders = await listEventOrdersForPartnerOrAdminUseCase(
-        getActor(req),
-        eventListingId
-      );
+      const orders = await listEventOrdersForPartnerOrAdminUseCase(getActor(req), eventListingId);
       return res.status(200).json({ status: 'success', data: orders });
     } catch (error) {
       return handleTicketingError(res, error);
@@ -452,10 +447,7 @@ export class TicketingController {
     try {
       if (!req.user) return res.status(401).json({ error: 'Não autenticado.' });
       const eventListingId = String(req.params.id || '');
-      const refunds = await listEventRefundsForPartnerOrAdminUseCase(
-        getActor(req),
-        eventListingId
-      );
+      const refunds = await listEventRefundsForPartnerOrAdminUseCase(getActor(req), eventListingId);
       return res.status(200).json({ status: 'success', data: refunds });
     } catch (error) {
       return handleTicketingError(res, error);

@@ -1,3 +1,5 @@
+import type { EventCancellationPolicy } from '../../../shared/utils/cancellationPolicy';
+
 export type EventListingStatus = 'draft' | 'published' | 'paused' | 'archived';
 
 export type EventVisibility = 'public' | 'unlisted' | 'private';
@@ -15,14 +17,23 @@ export interface EventLocation {
   longitude?: number;
 }
 
-export interface EventRefundPolicy {
-  allowBuyerCancellation: boolean;
-  buyerCancellationWindowHours?: number;
+export type ServiceFeeMode = 'pass_to_buyer' | 'absorb';
+
+/** Regras de venda do evento (D14): política da plataforma, taxa de serviço e transferência de ingresso. */
+export interface EventSalesPolicy {
+  cancellationPolicy: EventCancellationPolicy;
+  serviceFeeMode: ServiceFeeMode;
   allowTicketTransfer: boolean;
-  ticketTransferCutoffHours?: number;
-  enabled?: boolean;
-  cancellationWindowHours?: number;
+  ticketTransferCutoffHours: number;
 }
+
+/** Igual ao padrão do backend (server/domain/events/types/eventTypes.ts), com teste de paridade. */
+export const DEFAULT_EVENT_SALES_POLICY: EventSalesPolicy = {
+  cancellationPolicy: 'flexible',
+  serviceFeeMode: 'pass_to_buyer',
+  allowTicketTransfer: true,
+  ticketTransferCutoffHours: 4,
+};
 
 export interface EventListing {
   id: string;
@@ -48,7 +59,7 @@ export interface EventListing {
   websiteLink?: string;
   instagramLink?: string;
   bookingLink?: string;
-  refundPolicy: EventRefundPolicy;
+  salesPolicy: EventSalesPolicy;
   maxTicketsPerUserPerOccurrence?: number;
   ageRestriction?: {
     minAge?: number;
@@ -117,7 +128,7 @@ export interface CreateEventListingInput {
   websiteLink?: string;
   instagramLink?: string;
   bookingLink?: string;
-  refundPolicy?: Partial<EventRefundPolicy>;
+  salesPolicy?: EventSalesPolicy;
   maxTicketsPerUserPerOccurrence?: number;
   entryType?: 'pago' | 'gratuito';
   date?: string;

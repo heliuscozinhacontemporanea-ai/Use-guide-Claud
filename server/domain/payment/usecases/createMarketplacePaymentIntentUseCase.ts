@@ -7,6 +7,7 @@ export async function createMarketplacePaymentIntentUseCase(params: {
   referenceId: string;
   buyerId: string;
   sellerPartnerId: string;
+  sellerAccountKey: string;
   description: string;
   totalMinor: number;
   platformFeeMinor: number;

@@ -1,5 +1,5 @@
-import { ticketingService } from '../factory';
-import type { TicketingActorContext } from '../services/ticketingService';
+import { offlineCheckInService } from '../factory';
+import type { TicketingActorContext } from '../services/ticketingAccess';
 import type { OfflineCheckInEvent, OfflineCheckInSyncResultItem } from '../types/ticketingTypes';
 
 export async function syncOfflineCheckInsUseCase(
@@ -12,5 +12,5 @@ export async function syncOfflineCheckInsUseCase(
   sessionId: string;
   results: OfflineCheckInSyncResultItem[];
 }> {
-  return ticketingService.syncOfflineCheckInEvents(actor, params);
+  return offlineCheckInService.syncOfflineCheckInEvents(actor, params);
 }
