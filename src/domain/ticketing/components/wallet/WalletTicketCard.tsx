@@ -32,7 +32,7 @@ export function WalletTicketCard({
     <GlassCard className="p-4 space-y-3">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className="text-xs font-bold uppercase tracking-wider text-teal-300">
+          <p className="text-xs font-bold uppercase tracking-wider text-accent">
             {ticket.ticketTypeSnapshot?.name || t('ticketCheckout.issued.defaultType')}
           </p>
           <h4 className="text-sm font-bold text-ink break-words">
@@ -57,7 +57,7 @@ export function WalletTicketCard({
           className={cn(
             'px-2.5 py-1 rounded-full text-xs font-bold shrink-0',
             ticket.status === 'issued'
-              ? 'bg-teal-500/20 text-teal-300'
+              ? 'bg-accent-soft text-accent'
               : ticket.status === 'checked_in'
                 ? 'bg-success-soft text-success'
                 : 'bg-white/10 text-ink/70'
@@ -110,10 +110,7 @@ export function WalletTicketCard({
             <button
               type="button"
               onClick={onTransfer}
-              className={cn(
-                ACTION,
-                'flex-1 bg-teal-500/15 hover:bg-teal-500/25 border border-teal-500/30 text-teal-300'
-              )}
+              className={cn(ACTION, 'flex-1 bg-accent-soft border border-accent-line text-accent')}
             >
               <Send size={14} aria-hidden="true" />
               {t('ticketWallet.actions.transfer')}

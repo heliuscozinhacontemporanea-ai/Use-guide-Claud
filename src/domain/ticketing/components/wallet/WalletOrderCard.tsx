@@ -35,7 +35,7 @@ export function WalletOrderCard({
         </p>
         <p className="text-xs text-ink/70">
           {dateFormat({ dateStyle: 'medium' }).format(new Date(order.createdAt))} •{' '}
-          <span className="font-semibold text-teal-300">
+          <span className="font-semibold text-accent">
             {t(`ticketWallet.orderStatus.${order.status}`, { defaultValue: order.status })}
           </span>
         </p>

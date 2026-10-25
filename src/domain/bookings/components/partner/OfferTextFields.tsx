@@ -32,7 +32,7 @@ export function OfferTextFields({ register, errors }: OfferTextFieldsProps) {
             aria-selected={language === code}
             onClick={() => setLanguage(code)}
             className={`min-h-11 px-3 rounded-xl text-xs font-bold cursor-pointer focus-visible:ring-2 focus-visible:ring-teal-400/50 ${
-              language === code ? 'bg-teal-500/20 text-teal-200' : 'bg-white/5 text-white/70'
+              language === code ? 'bg-accent-soft text-accent' : 'bg-surface text-ink/70'
             }`}
           >
             {t(`common.locales.${code === 'pt-BR' ? 'ptBR' : code}`)}

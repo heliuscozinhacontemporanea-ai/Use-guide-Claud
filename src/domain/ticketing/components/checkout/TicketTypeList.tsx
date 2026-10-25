@@ -41,7 +41,7 @@ export function TicketTypeList({
             <div className="space-y-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-sm font-bold text-ink break-words">{ticketType.name}</span>
-                <span className="text-xs font-black text-teal-300">
+                <span className="text-xs font-black text-accent">
                   {ticketType.kind === 'free' || ticketType.priceMinor <= 0
                     ? t('ticketCheckout.free')
                     : formatMoneyMinor(ticketType.priceMinor, i18n.language)}
@@ -76,7 +76,7 @@ export function TicketTypeList({
                     totalQuantity >= maxPerUser
                   }
                   aria-label={t('ticketCheckout.increase', { name: ticketType.name })}
-                  className={`${STEP_BUTTON} bg-teal-500/20 border-teal-500/30 text-teal-300`}
+                  className={`${STEP_BUTTON} bg-accent-soft border-accent-line text-accent`}
                 >
                   +
                 </button>

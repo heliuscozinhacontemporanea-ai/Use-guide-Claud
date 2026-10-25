@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import type { TicketCheckoutState } from '../../hooks/useTicketCheckout';
 
 const INPUT =
-  'w-full min-h-11 px-3.5 rounded-xl bg-black/40 border border-line text-xs text-ink placeholder:text-ink/60 focus-visible:ring-2 focus-visible:ring-teal-400/50 focus:border-teal-400';
+  'w-full min-h-11 px-3.5 rounded-xl bg-surface border border-line text-xs text-ink placeholder:text-ink/60 focus-visible:ring-2 focus-visible:ring-teal-400/50 focus:border-teal-400';
 
 interface TicketBuyerFormProps {
   checkout: TicketCheckoutState;
@@ -55,9 +55,9 @@ export function TicketBuyerForm({ checkout }: TicketBuyerFormProps) {
               return (
                 <fieldset
                   key={key}
-                  className="p-2.5 rounded-xl bg-black/30 border border-line space-y-2"
+                  className="p-2.5 pt-1 rounded-xl bg-surface border border-line space-y-2"
                 >
-                  <legend className="text-xs font-bold text-teal-300">
+                  <legend className="px-1 text-xs font-bold text-accent">
                     {t('ticketCheckout.holders.label', {
                       number: index + 1,
                       ticket: ticketType.name,

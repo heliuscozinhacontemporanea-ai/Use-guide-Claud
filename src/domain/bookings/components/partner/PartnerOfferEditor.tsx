@@ -96,7 +96,7 @@ export function PartnerOfferEditor({
           />
         )}
       />
-      <p className="text-xs text-ink/70">{t('salesPolicy.withdrawal')}</p>
+      <p className="text-xs text-ink/70">{t('salesPolicy.withdrawalNoFee')}</p>
       <label className="flex items-center gap-3 min-h-11">
         <input
           type="checkbox"

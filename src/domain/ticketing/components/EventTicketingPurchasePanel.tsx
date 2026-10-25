@@ -151,7 +151,7 @@ export function EventTicketingPurchasePanel({
                   <span className="text-xs text-ink/70 block">
                     {t('ticketCheckout.ticketCount', { count: checkout.totalQuantity })}
                   </span>
-                  <span className="text-base font-black text-teal-300">
+                  <span className="text-base font-black text-accent">
                     {checkout.isAllFree
                       ? t('ticketCheckout.free')
                       : formatMoneyMinor(checkout.estimatedSubtotalMinor, i18n.language)}

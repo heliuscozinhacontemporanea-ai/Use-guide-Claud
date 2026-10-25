@@ -10,9 +10,11 @@ export interface SalesPolicyTranslation {
     booking: Record<'flexible' | 'moderate' | 'strict' | 'none', PolicyText>;
     transfer: Record<'transfer_flexible' | 'transfer_standard', PolicyText>;
   };
+  sectionTitle: string;
   policyLegend: string;
   lockedHint: string;
   withdrawal: string;
+  withdrawalNoFee: string;
   noShow: string;
   serviceFee: {
     legend: string;
@@ -60,10 +62,13 @@ export const salesPolicyPtBR: SalesPolicyTranslation = {
       },
     },
   },
+  sectionTitle: 'Regras de venda',
   policyLegend: 'Política de cancelamento',
   lockedHint: 'Depois de publicar, só é possível trocar por uma política mais flexível.',
   withdrawal:
     'Direito de arrependimento: reembolso integral, inclusive a taxa de serviço, se cancelar em até 7 dias da compra e até 48 h antes do início.',
+  withdrawalNoFee:
+    'Direito de arrependimento: reembolso integral se cancelar em até 7 dias da compra e até 48 h antes do início.',
   noShow: 'Quem não comparece não tem reembolso.',
   serviceFee: {
     legend: 'Taxa de serviço',
@@ -109,10 +114,13 @@ export const salesPolicyEn: SalesPolicyTranslation = {
       },
     },
   },
+  sectionTitle: 'Sales rules',
   policyLegend: 'Cancellation policy',
   lockedHint: 'After publishing, you can only switch to a more flexible policy.',
   withdrawal:
     'Right of withdrawal: full refund, service fee included, if you cancel within 7 days of purchase and at least 48 h before the start.',
+  withdrawalNoFee:
+    'Right of withdrawal: full refund if you cancel within 7 days of purchase and at least 48 h before the start.',
   noShow: 'No-shows are not refunded.',
   serviceFee: {
     legend: 'Service fee',
@@ -180,10 +188,13 @@ export const salesPolicyFr: SalesPolicyTranslation = {
       },
     },
   },
+  sectionTitle: 'Règles de vente',
   policyLegend: 'Politique d’annulation',
   lockedHint: 'Après la publication, vous ne pouvez passer qu’à une politique plus flexible.',
   withdrawal:
     'Droit de rétractation : remboursement intégral, frais de service compris, si vous annulez dans les 7 jours suivant l’achat et au moins 48 h avant le début.',
+  withdrawalNoFee:
+    'Droit de rétractation : remboursement intégral si vous annulez dans les 7 jours suivant l’achat et au moins 48 h avant le début.',
   noShow: 'Aucun remboursement en cas d’absence.',
   serviceFee: {
     legend: 'Frais de service',

@@ -21,7 +21,7 @@ export function EventSalesPolicySection({ item, onChange }: EventSectionProps) {
           <ShieldCheck size={18} aria-hidden="true" />
         </span>
         <h3 className="text-sm font-black text-ink uppercase tracking-widest">
-          {t('salesPolicy.policyLegend')}
+          {t('salesPolicy.sectionTitle')}
         </h3>
       </div>
       <RadioCardGroup<string>

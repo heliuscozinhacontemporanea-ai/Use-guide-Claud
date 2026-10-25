@@ -16,7 +16,7 @@ export function ResumePaymentCard({ resuming, onClose, onError, onPaid }: Resume
   const { t, i18n } = useTranslation();
   const amount = formatMoneyMinor(resuming.order.totalMinor, i18n.language);
   return (
-    <GlassCard className="p-4 space-y-4 border-teal-500/30">
+    <GlassCard className="p-4 space-y-4 border-accent-line">
       <div className="flex items-center justify-between gap-2">
         <div>
           <h4 className="text-sm font-bold text-ink">

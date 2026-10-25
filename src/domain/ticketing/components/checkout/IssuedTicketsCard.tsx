@@ -19,9 +19,9 @@ export function IssuedTicketsCard({
 }: IssuedTicketsCardProps) {
   const { t } = useTranslation();
   return (
-    <GlassCard className="p-5 space-y-4 border-teal-500/30">
+    <GlassCard className="p-5 space-y-4 border-accent-line">
       <div className="flex items-center gap-3">
-        <div className="w-11 h-11 rounded-2xl bg-teal-500/20 border border-teal-400/30 flex items-center justify-center text-teal-300">
+        <div className="w-11 h-11 rounded-2xl bg-accent-soft border border-accent-line flex items-center justify-center text-accent">
           <CheckCircle2 size={22} aria-hidden="true" />
         </div>
         <div>
@@ -41,7 +41,7 @@ export function IssuedTicketsCard({
           {tickets.map(({ ticket, qrDataUrl }) => (
             <li
               key={ticket.id}
-              className="p-3.5 rounded-2xl bg-black/40 border border-line flex flex-col sm:flex-row items-center gap-4"
+              className="p-3.5 rounded-2xl bg-surface border border-line flex flex-col sm:flex-row items-center gap-4"
             >
               {qrDataUrl ? (
                 <img
@@ -52,12 +52,12 @@ export function IssuedTicketsCard({
                   className="w-28 h-28 rounded-xl bg-white p-1.5 shrink-0"
                 />
               ) : (
-                <div className="w-28 h-28 rounded-xl bg-white/10 flex items-center justify-center text-teal-300">
+                <div className="w-28 h-28 rounded-xl bg-white/10 flex items-center justify-center text-accent">
                   <QrCode size={36} aria-hidden="true" />
                 </div>
               )}
               <div className="flex-1 text-center sm:text-left space-y-1 min-w-0">
-                <p className="text-xs font-bold text-teal-300 uppercase tracking-wider">
+                <p className="text-xs font-bold text-accent uppercase tracking-wider">
                   {ticket.ticketTypeSnapshot?.name || t('ticketCheckout.issued.defaultType')}
                 </p>
                 <p className="text-sm font-bold text-ink break-words">{ticket.holderName}</p>

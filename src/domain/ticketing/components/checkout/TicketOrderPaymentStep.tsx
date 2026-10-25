@@ -22,10 +22,10 @@ export function TicketOrderPaymentStep({ order, checkout }: TicketOrderPaymentSt
   const serviceFeeMinor = order.serviceFeeMinor ?? 0;
 
   return (
-    <GlassCard className="p-4 space-y-4 border-teal-500/30">
+    <GlassCard className="p-4 space-y-4 border-accent-line">
       <div className="flex items-center justify-between gap-2 flex-wrap">
         <div>
-          <p className="text-xs font-bold text-teal-300 uppercase tracking-wider">
+          <p className="text-xs font-bold text-accent uppercase tracking-wider">
             {t('ticketCheckout.payment.reservation', { id: order.id.slice(0, 8) })}
           </p>
           <p className="text-base font-black text-ink">
@@ -40,7 +40,7 @@ export function TicketOrderPaymentStep({ order, checkout }: TicketOrderPaymentSt
               ? 'bg-danger-soft border-danger-line text-danger'
               : countdown.isWarning
                 ? 'bg-warn-soft border-warn-line text-warn motion-safe:animate-pulse'
-                : 'bg-teal-500/15 border-teal-500/30 text-teal-300'
+                : 'bg-accent-soft border-accent-line text-accent'
           )}
         >
           <Clock size={14} aria-hidden="true" />
@@ -50,7 +50,7 @@ export function TicketOrderPaymentStep({ order, checkout }: TicketOrderPaymentSt
         </p>
       </div>
 
-      <dl className="p-3 rounded-xl bg-black/40 border border-line space-y-1.5 text-xs">
+      <dl className="p-3 rounded-xl bg-surface border border-line space-y-1.5 text-xs">
         <div className="flex justify-between text-ink/70">
           <dt>{t('ticketCheckout.payment.subtotal')}</dt>
           <dd>{money(order.subtotalMinor)}</dd>
@@ -69,7 +69,7 @@ export function TicketOrderPaymentStep({ order, checkout }: TicketOrderPaymentSt
         )}
         <div className="flex justify-between font-bold text-ink pt-1 border-t border-line">
           <dt>{t('ticketCheckout.payment.finalTotal')}</dt>
-          <dd className="text-teal-300">{money(order.totalMinor)}</dd>
+          <dd className="text-accent">{money(order.totalMinor)}</dd>
         </div>
       </dl>
 
@@ -84,7 +84,7 @@ export function TicketOrderPaymentStep({ order, checkout }: TicketOrderPaymentSt
       {paymentProcessing && (
         <p
           role="status"
-          className="p-3.5 rounded-xl bg-teal-500/10 border border-teal-500/30 text-xs text-teal-200 flex items-center gap-2.5"
+          className="p-3.5 rounded-xl bg-accent-soft border border-accent-line text-xs text-accent flex items-center gap-2.5"
         >
           <Loader2 size={16} className="animate-spin shrink-0" aria-hidden="true" />
           {t('ticketCheckout.payment.processing')}

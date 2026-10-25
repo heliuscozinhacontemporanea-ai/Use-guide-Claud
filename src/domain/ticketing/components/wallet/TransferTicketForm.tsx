@@ -4,7 +4,7 @@ import { GlassCard } from '../../../../ui/components/GlassCard';
 import type { Ticket } from '../../types/ticketing';
 
 const INPUT =
-  'w-full min-h-11 px-3.5 rounded-xl bg-black/40 border border-line text-xs text-ink placeholder:text-ink/60 focus-visible:ring-2 focus-visible:ring-teal-400/50';
+  'w-full min-h-11 px-3.5 rounded-xl bg-surface border border-line text-xs text-ink placeholder:text-ink/60 focus-visible:ring-2 focus-visible:ring-teal-400/50';
 
 interface TransferTicketFormProps {
   ticket: Ticket;
@@ -23,7 +23,7 @@ export function TransferTicketForm({ ticket, busy, onSubmit, onCancel }: Transfe
     onSubmit({ email: email.trim(), name: name.trim() || undefined });
   };
   return (
-    <GlassCard className="p-4 space-y-3 border-teal-500/30">
+    <GlassCard className="p-4 space-y-3 border-accent-line">
       <h4 className="text-sm font-bold text-ink">
         {t('ticketWallet.transfer.title', { id: ticket.id.slice(0, 8) })}
       </h4>
