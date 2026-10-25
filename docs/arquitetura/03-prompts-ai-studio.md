@@ -176,7 +176,7 @@
 | 5 | `prompts/prompt-18.4b.0.2.md` | Adapter Firestore do ticketing (1559 linhas) dividido em stores, sem mudar comportamento | `0012702` |
 | 6 | `prompts/prompt-18.4b.1.md` | Taxas por produto, políticas de cancelamento e arrependimento (D14), parte 1: backend; débito B27 | `0012702..9e420df` |
 | 7 | `prompts/prompt-18.4b.2.md` | Taxas por produto, políticas de cancelamento e arrependimento (D14), parte 2: editores, compra de ingresso e carteira divididas e traduzidas | `0012702..31e0772` |
-| 8 | `prompts/prompt-18.4b.3.md` | Termos com aceite registrado (D15): termos em Sobre o app, link e caixa de aceite no checkout e em Recebimentos; débito B28 | `d59bcbd..642dc1b` |
+| 8 | `prompts/prompt-18.4b.3.md` | Termos com aceite registrado (D15): termos em Sobre o app, link e caixa de aceite no checkout e em Recebimentos; débito B28 | `d59bcbd..ed7c054` |
 
 > O 18.4a passou de 150 KB e foi dividido. Envie a parte 2 logo depois da parte 1: entre as duas, o painel do parceiro ainda chama as rotas antigas de conta financeira.
 

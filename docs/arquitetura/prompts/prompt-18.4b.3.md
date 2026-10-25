@@ -1,6 +1,6 @@
 # Prompt 18.4b.3 — Termos com aceite registrado (D15)
 
-> Lote 16, gerado do commit de referência `642dc1b` da branch `claude/agents-md-v2`. Aplique depois do 18.4b.2. Cole o bloco abaixo no agente do AI Studio, inteiro, de uma vez.
+> Lote 16, gerado do commit de referência `ed7c054` da branch `claude/agents-md-v2`. Aplique depois do 18.4b.2. Cole o bloco abaixo no agente do AI Studio, inteiro, de uma vez.
 
 ---
 
@@ -25,7 +25,7 @@ Backend
 Frontend
 6) Texto dos termos em src/shared/i18n/legalResources.ts (namespace legal, 3 idiomas, vale a versão em português): termos de uso, compras e cancelamento (com todas as políticas), termos do parceiro (taxas vindas do backend) e privacidade.
 7) Design system: src/ui/legal/LegalTermsDocument.tsx (o documento) e TermsAcceptanceField.tsx (caixa 'Li e aceito' com o link que abre os termos num diálogo, sem sair da tela); Dialog ganha a prop nested para abrir por cima de outro modal.
-8) Compra de ingresso: a política vira uma linha ('Política Moderada: …'); a caixa de aceite é obrigatória para reservar; o pedido manda acceptedTermsVersion. O resumo do pagamento continua com a taxa de serviço destacada.
+8) Compra de ingresso: a política vira uma linha ('Política Moderada: …'); a caixa de aceite é obrigatória para reservar; o pedido manda acceptedTermsVersion. Antes da reserva não aparece aviso de taxa de serviço; ela fica destacada no resumo do pagamento.
 9) Reserva: a caixa de aceite antes de continuar; a reserva manda acceptedTermsVersion; erro TERMS_NOT_ACCEPTED traduzido.
 10) Recebimentos do parceiro: cartão 'Termos do parceiro' com a caixa de aceite e o botão Aceitar termos; sem o aceite, a conta de um CNPJ ainda não iniciada não abre o cadastro.
 11) Sobre o app: AboutView (461 linhas) dividido em about/AboutGeneralTab, AboutLicensesTab e AboutTermsTab; a aba Termos mostra o documento novo; título e abas traduzidos.
@@ -1684,7 +1684,15 @@ export function PartnerTermsCard({ terms, onAccepted }: PartnerTermsCardProps) {
                <div className="flex items-center justify-between gap-3 pt-2 border-t border-line">
                  <div>
                    <span className="text-xs text-ink/70 block">
-@@ -164,7 +165,7 @@ export function EventTicketingPurchasePanel({
+@@ -156,15 +157,10 @@ export function EventTicketingPurchasePanel({
+                       ? t('ticketCheckout.free')
+                       : formatMoneyMinor(checkout.estimatedSubtotalMinor, i18n.language)}
+                   </span>
+-                  {!checkout.isAllFree && salesPolicy?.serviceFeeMode === 'pass_to_buyer' && (
+-                    <span className="text-xs text-ink/70 block">
+-                      {t('ticketCheckout.plusServiceFee')}
+-                    </span>
+-                  )}
                  </div>
                  <button
                    type="button"
@@ -2185,7 +2193,7 @@ export const legalFr: LegalTranslation = {
      language: 'Langue',
 
 === src/shared/i18n/ticketCheckoutResources.ts — diff ===
-@@ -21,8 +21,6 @@ export interface TicketCheckoutTranslation {
+@@ -21,12 +21,9 @@ export interface TicketCheckoutTranslation {
    policy: {
      title: string;
      appliedTitle: string;
@@ -2194,7 +2202,11 @@ export const legalFr: LegalTranslation = {
    };
    ticketCount_one: string;
    ticketCount_other: string;
-@@ -92,10 +90,8 @@ export const ticketCheckoutPtBR: TicketCheckoutTranslation = {
+-  plusServiceFee: string;
+   registerFree: string;
+   reserve: string;
+   errors: {
+@@ -92,14 +89,11 @@ export const ticketCheckoutPtBR: TicketCheckoutTranslation = {
    },
    promoCode: 'Cupom promocional (opcional)',
    policy: {
@@ -2207,7 +2219,11 @@ export const legalFr: LegalTranslation = {
    },
    ticketCount_one: '{{count}} ingresso',
    ticketCount_other: '{{count}} ingressos',
-@@ -165,10 +161,8 @@ export const ticketCheckoutEn: TicketCheckoutTranslation = {
+-  plusServiceFee: '+ taxa de serviço, mostrada antes do pagamento',
+   registerFree: 'Inscrever-se gratuitamente',
+   reserve: 'Reservar e pagar',
+   errors: {
+@@ -165,14 +159,11 @@ export const ticketCheckoutEn: TicketCheckoutTranslation = {
    },
    promoCode: 'Promo code (optional)',
    policy: {
@@ -2220,7 +2236,11 @@ export const legalFr: LegalTranslation = {
    },
    ticketCount_one: '{{count}} ticket',
    ticketCount_other: '{{count}} tickets',
-@@ -238,10 +232,8 @@ export const ticketCheckoutFr: TicketCheckoutTranslation = {
+-  plusServiceFee: '+ service fee, shown before payment',
+   registerFree: 'Register for free',
+   reserve: 'Reserve and pay',
+   errors: {
+@@ -238,14 +229,11 @@ export const ticketCheckoutFr: TicketCheckoutTranslation = {
    },
    promoCode: 'Code promo (facultatif)',
    policy: {
@@ -2233,6 +2253,10 @@ export const legalFr: LegalTranslation = {
    },
    ticketCount_one: '{{count}} billet',
    ticketCount_other: '{{count}} billets',
+-  plusServiceFee: '+ frais de service, affichés avant le paiement',
+   registerFree: 'S’inscrire gratuitement',
+   reserve: 'Réserver et payer',
+   errors: {
 
 === src/ui/components/Dialog.tsx — diff ===
 @@ -11,6 +11,8 @@ interface DialogProps {

@@ -101,7 +101,7 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 | 18.4b.0.2 | Adapter Firestore do ticketing dividido, sem mudar comportamento | `0012702` | ⏳ enviar (lote 16) | — |
 | 18.4b.1 | Taxas, políticas de cancelamento e arrependimento, backend (D14) | `0012702..9e420df` | ⏳ enviar (lote 16) | — |
 | 18.4b.2 | Taxas, políticas de cancelamento e arrependimento, frontend (D14) | `0012702..31e0772` | ⏳ enviar (lote 16) | — |
-| 18.4b.3 | Termos com aceite registrado (D15) | `d59bcbd..642dc1b` | ⏳ enviar (lote 16) | — |
+| 18.4b.3 | Termos com aceite registrado (D15) | `d59bcbd..ed7c054` | ⏳ enviar (lote 16) | — |
 
 ## Gates
 
