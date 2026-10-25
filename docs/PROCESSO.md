@@ -103,6 +103,7 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 | 18.4b.2 | Taxas, políticas de cancelamento e arrependimento, frontend (D14) | `0012702..31e0772` | ✅ zip 2026-10-25 | ✅ igual à referência (só ordem de imports e formatação); `public/assets/aistudio/` limpo |
 | 18.4b.3 | Termos com aceite registrado (D15) | `d59bcbd..ed7c054` | ✅ zip 2026-10-25 | ✅ igual à referência (só ordem de imports e formatação); `public/assets/aistudio/` limpo |
 | C16 | Correção do lote 16: D14 no `decisoes.md` | `48a75ac` | ⏳ enviar (lote 17) | — |
+| 18.4c | Cobrança na plataforma e repasse depois do serviço (D14) | `dc082a9..e80e9b1` | ⏳ enviar (lote 17) | — |
 
 ## Gates
 
