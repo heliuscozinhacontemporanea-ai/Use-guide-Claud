@@ -9,6 +9,7 @@ vi.mock('../../domain/payment', () => ({
   applyPayoutRefundUseCase: vi.fn(),
   closePayoutDisputeUseCase: vi.fn(),
   holdPayoutForDisputeUseCase: vi.fn(),
+  markAccountDebtPaidUseCase: vi.fn(),
   recordSalePayoutUseCase: vi.fn(),
   createPaymentForTicketOrderUseCase: vi.fn(),
   getPaymentReferenceUseCase: vi.fn().mockResolvedValue(null),
@@ -22,6 +23,7 @@ vi.mock('../../domain/ticketing', () => ({
   confirmTicketOrderPaymentUseCase: vi.fn(),
   finalizeTicketRefundStatusUseCase: vi.fn(),
   getTicketOrderUseCase: vi.fn(),
+  hasCheckedInTicketForOrderUseCase: vi.fn(),
   markTicketOrderDisputedUseCase: vi.fn(),
   markTicketOrderPaymentFailedUseCase: vi.fn(),
   requestTicketRefundUseCase: vi.fn(),
@@ -31,7 +33,9 @@ vi.mock('../../domain/ticketing', () => ({
 import {
   applyPayoutRefundUseCase,
   closePayoutDisputeUseCase,
+  getPaymentReferenceUseCase,
   holdPayoutForDisputeUseCase,
+  markAccountDebtPaidUseCase,
   processProviderRefundUseCase,
   recordSalePayoutUseCase,
   updatePaymentTransactionStatusUseCase,
@@ -39,6 +43,7 @@ import {
 import {
   confirmTicketOrderPaymentUseCase,
   finalizeTicketRefundStatusUseCase,
+  hasCheckedInTicketForOrderUseCase,
   requestTicketRefundUseCase,
   type Refund,
   type TicketOrder,
@@ -188,6 +193,41 @@ describe('ticketingPaymentOrchestrationUseCases — repasse (D14)', () => {
     });
   });
 
+  it('pagamento de dívida do parceiro quita a dívida, sem tocar em pedido (D16)', async () => {
+    await reconcileStripeWebhookEventApplicationUseCase({
+      id: 'evt_debt',
+      type: 'payment_intent.succeeded',
+      created: 1,
+      dataObject: {
+        id: 'pi_debt',
+        metadata: { referenceType: 'account_debt', referenceId: 'debt_x' },
+      },
+    });
+    expect(markAccountDebtPaidUseCase).toHaveBeenCalledWith('debt_x', 'pi_debt');
+    expect(confirmTicketOrderPaymentUseCase).not.toHaveBeenCalled();
+  });
+
+  it('contestação perdida: com check-in a plataforma arca, sem check-in o CNPJ paga (D16)', async () => {
+    vi.mocked(getPaymentReferenceUseCase).mockResolvedValue({
+      referenceType: 'ticket_order',
+      referenceId: 'ord_1',
+    } as never);
+    for (const [checkedIn, outcome] of [
+      [true, 'lost_platform_absorbs'],
+      [false, 'lost_partner_pays'],
+    ] as const) {
+      vi.mocked(hasCheckedInTicketForOrderUseCase).mockResolvedValue(checkedIn);
+      await reconcileStripeWebhookEventApplicationUseCase({
+        id: `evt_lost_${checkedIn}`,
+        type: 'charge.dispute.closed',
+        created: 1,
+        dataObject: { payment_intent: 'pi_1', status: 'lost' },
+      });
+      expect(closePayoutDisputeUseCase).toHaveBeenLastCalledWith('pi_1', outcome);
+    }
+    vi.mocked(getPaymentReferenceUseCase).mockResolvedValue(null);
+  });
+
   it('contestação segura o repasse; encerrada ganha ou perdida avisa o repasse', async () => {
     await reconcileStripeWebhookEventApplicationUseCase({
       id: 'evt_d1',
@@ -197,9 +237,9 @@ describe('ticketingPaymentOrchestrationUseCases — repasse (D14)', () => {
     });
     expect(holdPayoutForDisputeUseCase).toHaveBeenCalledWith('pi_1');
     for (const [status, won] of [
-      ['won', true],
-      ['warning_closed', true],
-      ['lost', false],
+      ['won', 'won'],
+      ['warning_closed', 'won'],
+      ['lost', 'lost_partner_pays'],
     ] as const) {
       await reconcileStripeWebhookEventApplicationUseCase({
         id: `evt_${status}`,

@@ -33,6 +33,8 @@ export interface PayoutEntry {
   /** Reembolsos já descontados, por chave do reembolso: repetir o mesmo não desconta de novo. */
   refunds: Record<string, PayoutRefundApplied>;
   transferId?: string;
+  /** Parte do repasse usada para quitar dívidas vencidas do CNPJ (D14). */
+  offsetMinor?: number;
   releasedAt?: string;
   canceledReason?: 'fully_refunded' | 'dispute_lost';
   createdAt: string;

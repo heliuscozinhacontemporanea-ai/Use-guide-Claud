@@ -12,6 +12,9 @@ const router = Router();
 
 router.get('/', verifyAuthToken, PaymentAccountController.list);
 router.post('/session', verifyAuthTokenStrict, PaymentAccountController.createSession);
+router.get('/debts', verifyAuthToken, PaymentAccountController.listDebts);
+router.post('/debts/:debtId/payment', verifyAuthTokenStrict, PaymentAccountController.payDebt);
+router.post('/debts/:debtId/waive', verifyAuthTokenStrict, PaymentAccountController.waiveDebt);
 router.get('/terms', verifyAuthToken, PaymentAccountController.getTerms);
 router.post('/terms', verifyAuthTokenStrict, PaymentAccountController.acceptTerms);
 

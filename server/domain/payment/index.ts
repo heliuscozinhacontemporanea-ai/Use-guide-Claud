@@ -19,6 +19,13 @@ export { applyPayoutRefundUseCase } from './usecases/applyPayoutRefundUseCase';
 export { holdPayoutForDisputeUseCase } from './usecases/holdPayoutForDisputeUseCase';
 export { closePayoutDisputeUseCase } from './usecases/closePayoutDisputeUseCase';
 export { releaseDuePayoutsUseCase } from './usecases/releaseDuePayoutsUseCase';
+export { getPayoutEntryForReferenceUseCase } from './usecases/getPayoutEntryForReferenceUseCase';
+export { createAccountDebtUseCase } from './usecases/createAccountDebtUseCase';
+export { listAccountDebtsUseCase } from './usecases/listAccountDebtsUseCase';
+export { startAccountDebtPaymentUseCase } from './usecases/startAccountDebtPaymentUseCase';
+export { markAccountDebtPaidUseCase } from './usecases/markAccountDebtPaidUseCase';
+export { waiveAccountDebtUseCase } from './usecases/waiveAccountDebtUseCase';
+export { cancellationPenaltyMinor } from './utils/debtRules';
 export { getPaymentReferenceUseCase } from './usecases/getPaymentReferenceUseCase';
 export { createBillingPortalSessionUseCase } from './usecases/billing/createBillingPortalSessionUseCase';
 export { getListingPlanSubscriptionUseCase } from './usecases/billing/getListingPlanSubscriptionUseCase';
@@ -45,7 +52,9 @@ export type { PlanSubscriptionRecord } from './ports/planSubscriptionRepositoryP
 export type { ConnectedAccountStatus } from './ports/marketplaceAccountPort';
 export type { PaymentAccountView } from './types/paymentAccount';
 export type { PayoutEntry, PayoutEntryStatus } from './types/payoutEntry';
-export type { RecordSaleInput, ReleaseSummary } from './services/payoutService';
+export type { DisputeOutcome, RecordSaleInput, ReleaseSummary } from './services/payoutService';
+export type { AccountDebt, AccountDebtReason, AccountDebtView } from './types/accountDebt';
+export type { CreateDebtInput } from './services/debtService';
 export type { EnsurePaymentAccountInput } from './services/paymentAccountService';
 export type {
   CreatePaymentIntentResult,

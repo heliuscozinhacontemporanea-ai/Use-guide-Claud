@@ -40,7 +40,7 @@ const PENDING: Omit<ConnectedAccountStatus, 'accountId'> = {
   status: 'pending',
 };
 
-function setup(status = PENDING) {
+function setup(status = PENDING, overdue = false) {
   const repository = new InMemoryAccounts();
   let created = 0;
   const marketplace = {
@@ -48,9 +48,11 @@ function setup(status = PENDING) {
     createAccountSession: vi.fn(async (accountId: string) => ({ clientSecret: `cs_${accountId}` })),
     getAccountStatus: vi.fn(async (accountId: string) => ({ accountId, ...status })),
   } satisfies MarketplaceAccountPort;
+  const debts = { hasOverdueDebt: vi.fn(async () => overdue) };
   const service = new PaymentAccountService(
     repository,
     marketplace,
+    debts,
     () => new Date('2026-10-25T12:00:00.000Z')
   );
   return { repository, marketplace, service };
@@ -126,6 +128,15 @@ describe('PaymentAccountService (D14)', () => {
     await ready.service.createSession(INPUT);
     await expect(ready.service.assertReady('key-cnpj-1')).resolves.toMatchObject({
       stripeAccountId: 'acct_1',
+    });
+  });
+
+  it('dívida vencida bloqueia novas vendas do CNPJ (D16)', async () => {
+    const blocked = setup(ENABLED, true);
+    await blocked.service.createSession(INPUT);
+    await expect(blocked.service.assertReady('key-cnpj-1')).rejects.toMatchObject({
+      code: 'SELLER_ACCOUNT_BLOCKED',
+      statusCode: 422,
     });
   });
 

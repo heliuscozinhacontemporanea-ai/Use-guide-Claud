@@ -4,6 +4,7 @@ export { confirmTicketOrderPaymentUseCase } from './usecases/confirmTicketOrderP
 export { createEventPromoCodeUseCase } from './usecases/createEventPromoCodeUseCase';
 export { createOfflineCheckInSessionUseCase } from './usecases/createOfflineCheckInSessionUseCase';
 export { createTicketOrderUseCase } from './usecases/createTicketOrderUseCase';
+export { hasCheckedInTicketForOrderUseCase } from './usecases/hasCheckedInTicketForOrderUseCase';
 export { createTicketTypeUseCase } from './usecases/createTicketTypeUseCase';
 export { expireAllOverdueOrdersUseCase } from './usecases/expireAllOverdueOrdersUseCase';
 export { expireTicketOrderUseCase } from './usecases/expireTicketOrderUseCase';

@@ -15,6 +15,9 @@ vi.mock('../../../domain/payment', () => ({
   createMarketplacePaymentIntentUseCase: vi.fn(),
   processProviderRefundUseCase: vi.fn().mockResolvedValue({}),
 }));
+vi.mock('../payouts/chargeCancellationPenaltyApplicationUseCase', () => ({
+  chargeCancellationPenaltyApplicationUseCase: vi.fn().mockResolvedValue(0),
+}));
 vi.mock('../isPartnerSuspended', () => ({ isPartnerSuspended: vi.fn().mockResolvedValue(false) }));
 vi.mock('../../../domain/partners', () => ({ assertListingCanSellUseCase: vi.fn() }));
 
@@ -33,6 +36,7 @@ import { cancelBookingByBuyerApplicationUseCase } from './cancelBookingByBuyerAp
 import { cancelSlotByPartnerApplicationUseCase } from './cancelSlotByPartnerApplicationUseCase';
 import { createBookingApplicationUseCase } from './createBookingApplicationUseCase';
 import { isPartnerSuspended } from '../isPartnerSuspended';
+import { chargeCancellationPenaltyApplicationUseCase } from '../payouts/chargeCancellationPenaltyApplicationUseCase';
 import { assertListingCanSellUseCase } from '../../../domain/partners';
 
 const BOOKING = {
@@ -180,9 +184,9 @@ describe('cancelSlotByPartnerApplicationUseCase', () => {
 
   it('reembolsa por inteiro as reservas pagas e conta as falhas', async () => {
     vi.mocked(cancelSlotByPartnerUseCase).mockResolvedValue([
-      { id: 'bk_1' },
-      { id: 'bk_2' },
-      { id: 'bk_3' },
+      { id: 'bk_1', status: 'confirmed' },
+      { id: 'bk_2', status: 'pending_payment' },
+      { id: 'bk_3', status: 'confirmed' },
     ] as never);
     vi.mocked(cancelBookingForCanceledSlotUseCase)
       .mockResolvedValueOnce({
@@ -211,5 +215,25 @@ describe('cancelSlotByPartnerApplicationUseCase', () => {
         idempotencyKey: 'refund_slot_bk_1',
       })
     );
+    expect(chargeCancellationPenaltyApplicationUseCase).toHaveBeenCalledWith({
+      referenceType: 'booking_slot',
+      referenceId: 'slot-1',
+      sales: [
+        { referenceType: 'booking', referenceId: 'bk_1' },
+        { referenceType: 'booking', referenceId: 'bk_3' },
+      ],
+    });
+  });
+
+  it('admin cancelando não gera multa automática', async () => {
+    vi.mocked(cancelSlotByPartnerUseCase).mockResolvedValue([
+      { id: 'bk_1', status: 'confirmed' },
+    ] as never);
+    vi.mocked(cancelBookingForCanceledSlotUseCase).mockResolvedValueOnce({
+      id: 'bk_1',
+      cancellation: { refundAmountMinor: 0 },
+    } as never);
+    await cancelSlotByPartnerApplicationUseCase({ uid: 'a1', admin: true }, 'offer-1', 'slot-1');
+    expect(chargeCancellationPenaltyApplicationUseCase).not.toHaveBeenCalled();
   });
 });

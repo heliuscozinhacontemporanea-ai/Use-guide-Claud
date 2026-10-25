@@ -9,6 +9,17 @@ export const AcceptPartnerTermsSchema = z
   .object({ version: z.string().trim().min(1).max(40) })
   .strict();
 
+// IDs de dívida são determinísticos (`debt_<motivo>_<tipo>_<referência>`).
+export const AccountDebtParamsSchema = z
+  .object({
+    debtId: z
+      .string()
+      .min(1)
+      .max(200)
+      .regex(/^[\w-]+$/),
+  })
+  .strict();
+
 export const ListPaymentAccountsQuerySchema = z
   .object({
     ownerUid: z

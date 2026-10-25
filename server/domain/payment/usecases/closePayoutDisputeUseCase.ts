@@ -1,9 +1,10 @@
 import { payoutService } from '../factory';
+import type { DisputeOutcome } from '../services/payoutService';
 import type { PayoutEntry } from '../types/payoutEntry';
 
 export function closePayoutDisputeUseCase(
   paymentIntentId: string,
-  won: boolean
+  outcome: DisputeOutcome
 ): Promise<PayoutEntry | null> {
-  return payoutService.closeDispute(paymentIntentId, won);
+  return payoutService.closeDispute(paymentIntentId, outcome);
 }

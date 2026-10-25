@@ -70,6 +70,10 @@ service cloud.firestore {
     match /payoutEntries/{entryId} {
       allow read, write: if false;
     }
+    // Dívida do CNPJ com a plataforma (D16): financeiro, só backend.
+    match /accountDebts/{debtId} {
+      allow read, write: if false;
+    }
     match /planSubscriptions/{itemId} {
       allow read, write: if false;
     }

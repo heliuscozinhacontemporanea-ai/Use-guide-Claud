@@ -2,6 +2,7 @@ import { createNotificationUseCase } from '../../domain/notifications';
 import {
   closePayoutDisputeUseCase,
   holdPayoutForDisputeUseCase,
+  markAccountDebtPaidUseCase,
   syncPaymentAccountFromWebhookUseCase,
   updatePaymentTransactionStatusUseCase,
   type VerifiedWebhookEvent,
@@ -15,6 +16,7 @@ import {
 import { activatePaidPlanApplicationUseCase } from './activatePaidPlanApplicationUseCase';
 import { reconcileBookingWebhookApplicationUseCase } from './bookings/reconcileBookingWebhookApplicationUseCase';
 import { applyTicketRefundToPayoutApplicationUseCase } from './payouts/applyTicketRefundToPayoutApplicationUseCase';
+import { disputeOutcomeApplicationUseCase } from './payouts/disputeOutcomeApplicationUseCase';
 import { recordPaidSalePayoutApplicationUseCase } from './payouts/recordPaidSalePayoutApplicationUseCase';
 import {
   PLAN_SUBSCRIPTION_WEBHOOK_EVENTS,
@@ -32,9 +34,10 @@ export async function reconcileStripeWebhookEventApplicationUseCase(
   }
   if (event.type === 'charge.dispute.closed') {
     if (obj.payment_intent) {
-      // `warning_closed`: consulta encerrada sem estorno, o dinheiro fica com a plataforma.
-      const won = obj.status === 'won' || obj.status === 'warning_closed';
-      await closePayoutDisputeUseCase(String(obj.payment_intent), won);
+      await closePayoutDisputeUseCase(
+        String(obj.payment_intent),
+        await disputeOutcomeApplicationUseCase(String(obj.payment_intent), String(obj.status || ''))
+      );
     }
     return { processed: true, eventType: event.type };
   }
@@ -54,6 +57,10 @@ export async function reconcileStripeWebhookEventApplicationUseCase(
   if (event.type === 'payment_intent.succeeded') {
     const paymentIntentId = String(obj.id || '');
     const metadata = (obj.metadata as Record<string, string> | undefined) || {};
+    if (metadata.referenceType === 'account_debt' && metadata.referenceId) {
+      await markAccountDebtPaidUseCase(metadata.referenceId, paymentIntentId);
+      return { processed: true, eventType: event.type };
+    }
     await updatePaymentTransactionStatusUseCase(paymentIntentId, 'succeeded');
 
     if (

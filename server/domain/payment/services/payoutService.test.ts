@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
+import { InMemoryAccountDebtAdapter } from '../adapters/inMemoryAccountDebtAdapter';
 import type { PayoutEntryRepositoryPort } from '../ports/payoutEntryRepositoryPort';
 import type { PayoutEntry } from '../types/payoutEntry';
+import { DebtService } from './debtService';
 import { PayoutService, type RecordSaleInput } from './payoutService';
 
 function memoryRepository(): PayoutEntryRepositoryPort & { rows: Map<string, PayoutEntry> } {
@@ -51,8 +53,10 @@ function setup(now = '2026-12-23T04:00:00.000Z', destination: string | null = 'a
   const transfers = { createTransfer: vi.fn().mockResolvedValue({ transferId: 'tr_1' }) };
   const accounts = { getPayoutDestination: vi.fn().mockResolvedValue(destination) };
   const clock = { value: new Date(now) };
-  const service = new PayoutService(repo, transfers, accounts, () => clock.value);
-  return { repo, transfers, accounts, service, clock };
+  const debtRows = new InMemoryAccountDebtAdapter();
+  const debts = new DebtService(debtRows, { createPaymentIntent: vi.fn() }, () => clock.value);
+  const service = new PayoutService(repo, transfers, accounts, debts, () => clock.value);
+  return { repo, transfers, accounts, service, clock, debts, debtRows };
 }
 
 describe('PayoutService (D14)', () => {
@@ -107,18 +111,87 @@ describe('PayoutService (D14)', () => {
     });
   });
 
-  it('contestação segura o repasse; ganha volta à fila, perdida cancela', async () => {
+  it('contestação segura o repasse; ganha ou a plataforma arca volta à fila, sem prova cancela', async () => {
     const { service, repo } = setup();
     await service.recordSale(SALE);
     await service.holdForDispute('pi_1');
     expect((await service.releaseDue()).released).toBe(0);
-    await service.closeDispute('pi_1', true);
+    await service.closeDispute('pi_1', 'won');
     expect(repo.rows.get('po_ticket_order_ord_1')?.status).toBe('pending');
     await service.holdForDispute('pi_1');
-    await service.closeDispute('pi_1', false);
+    await service.closeDispute('pi_1', 'lost_platform_absorbs');
+    expect(repo.rows.get('po_ticket_order_ord_1')?.status).toBe('pending');
+    await service.holdForDispute('pi_1');
+    await service.closeDispute('pi_1', 'lost_partner_pays');
     expect(repo.rows.get('po_ticket_order_ord_1')).toMatchObject({
       status: 'canceled',
       canceledReason: 'dispute_lost',
+      partnerAmountMinor: 0,
     });
+  });
+
+  it('contestação perdida sem prova depois do repasse vira dívida do CNPJ (D16)', async () => {
+    const { service, debtRows } = setup();
+    await service.recordSale(SALE);
+    await service.releaseDue();
+    await service.closeDispute('pi_1', 'lost_platform_absorbs');
+    expect(debtRows.rows.size).toBe(0);
+    await service.closeDispute('pi_1', 'lost_partner_pays');
+    expect([...debtRows.rows.values()]).toEqual([
+      expect.objectContaining({ reason: 'dispute_lost', accountKey: 'key-1', amountMinor: 9000 }),
+    ]);
+  });
+
+  it('reembolso depois do repasse vira dívida pela diferença (B29)', async () => {
+    const { service, repo, debtRows } = setup();
+    await service.recordSale(SALE);
+    await service.releaseDue();
+    const refund = { ...SALE, refundKey: 'ref_1', amountMinor: 5300, serviceFeeMinor: 300 };
+    await service.applyRefund(refund);
+    await service.applyRefund(refund);
+    expect(repo.rows.get('po_ticket_order_ord_1')).toMatchObject({
+      status: 'released',
+      partnerAmountMinor: 4500,
+    });
+    expect([...debtRows.rows.values()]).toEqual([
+      expect.objectContaining({ reason: 'post_release_refund', amountMinor: 4500 }),
+    ]);
+  });
+
+  it('dívida vencida sai do repasse e a transferência leva o resto', async () => {
+    const { service, transfers, debts, repo, clock } = setup('2026-12-20T00:00:00.000Z');
+    await debts.createDebt({
+      accountKey: 'key-1',
+      reason: 'cancellation_penalty',
+      referenceType: 'booking_slot',
+      referenceId: 'slot-1',
+      amountMinor: 2500,
+    });
+    await service.recordSale(SALE);
+    clock.value = new Date('2026-12-23T04:00:00.000Z');
+    await service.releaseDue();
+    expect(transfers.createTransfer).toHaveBeenCalledWith(
+      expect.objectContaining({ amountMinor: 6500 })
+    );
+    expect(repo.rows.get('po_ticket_order_ord_1')).toMatchObject({
+      status: 'released',
+      offsetMinor: 2500,
+    });
+  });
+
+  it('dívida que consome todo o repasse: libera sem transferir', async () => {
+    const { service, transfers, debts, repo, clock } = setup('2026-12-20T00:00:00.000Z');
+    await debts.createDebt({
+      accountKey: 'key-1',
+      reason: 'dispute_lost',
+      referenceType: 'ticket_order',
+      referenceId: 'ord_0',
+      amountMinor: 20000,
+    });
+    await service.recordSale(SALE);
+    clock.value = new Date('2026-12-23T04:00:00.000Z');
+    expect((await service.releaseDue()).released).toBe(1);
+    expect(transfers.createTransfer).not.toHaveBeenCalled();
+    expect(repo.rows.get('po_ticket_order_ord_1')?.offsetMinor).toBe(9000);
   });
 });

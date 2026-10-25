@@ -1,6 +1,7 @@
 import type { PayoutEntryRepositoryPort } from '../ports/payoutEntryRepositoryPort';
 import type { PayoutTransferPort } from '../ports/payoutTransferPort';
 import type { PayoutEntry } from '../types/payoutEntry';
+import type { DebtService } from './debtService';
 import { computeReleaseAt, partnerAmountAfterRefunds } from '../utils/payoutRules';
 
 export interface RecordSaleInput {
@@ -22,6 +23,9 @@ export interface ReleaseSummary {
   failed: number;
 }
 
+/** Contestação encerrada, do ponto de vista do repasse (D14, D16). */
+export type DisputeOutcome = 'won' | 'lost_platform_absorbs' | 'lost_partner_pays';
+
 /** Consulta só o que o repasse precisa da conta do CNPJ (evita depender do serviço inteiro). */
 export interface PayoutDestinationLookup {
   getPayoutDestination(accountKey: string): Promise<string | null>;
@@ -37,8 +41,13 @@ export class PayoutService {
     private readonly entries: PayoutEntryRepositoryPort,
     private readonly transfers: PayoutTransferPort,
     private readonly accounts: PayoutDestinationLookup,
+    private readonly debts: Pick<DebtService, 'offsetFromPayout' | 'createDebt'>,
     private readonly now: () => Date = () => new Date()
   ) {}
+
+  async getForReference(referenceType: string, referenceId: string): Promise<PayoutEntry | null> {
+    return this.entries.get(entryIdFor(referenceType, referenceId));
+  }
 
   /** Chamado pelo webhook de pagamento confirmado; repetir não cria outra entrada. */
   async recordSale(input: RecordSaleInput): Promise<PayoutEntry> {
@@ -76,8 +85,9 @@ export class PayoutService {
     serviceFeeMinor: number;
   }): Promise<PayoutEntry | null> {
     const id = entryIdFor(params.referenceType, params.referenceId);
-    return this.entries.update(id, (entry) => {
-      if (entry.refunds[params.refundKey] || entry.status === 'released') return null;
+    let owedBack = 0;
+    const updated = await this.entries.update(id, (entry) => {
+      if (entry.refunds[params.refundKey]) return null;
       const refunds = {
         ...entry.refunds,
         [params.refundKey]: {
@@ -92,6 +102,11 @@ export class PayoutService {
         0
       );
       const { partnerAmountMinor } = partnerAmountAfterRefunds({ ...entry, refundedServiceMinor });
+      if (entry.status === 'released') {
+        // Já transferido: a diferença vira dívida do CNPJ (B29), e a entrada registra o reembolso.
+        owedBack = Math.max(0, entry.partnerAmountMinor - partnerAmountMinor);
+        return { ...entry, refunds, partnerAmountMinor, updatedAt: this.now().toISOString() };
+      }
       const fullyRefunded = refundedMinor >= entry.grossMinor;
       return {
         ...entry,
@@ -103,6 +118,16 @@ export class PayoutService {
         updatedAt: this.now().toISOString(),
       };
     });
+    if (updated && owedBack > 0) {
+      await this.debts.createDebt({
+        accountKey: updated.accountKey,
+        reason: 'post_release_refund',
+        referenceType: updated.referenceType,
+        referenceId: `${updated.referenceId}_${params.refundKey}`,
+        amountMinor: owedBack,
+      });
+    }
+    return updated;
   }
 
   /** Contestação aberta: o repasse espera a decisão (D14). */
@@ -121,22 +146,41 @@ export class PayoutService {
     );
   }
 
-  /** Contestação encerrada: ganha, o repasse volta à fila; perdida, o proprietário não recebe a venda. */
-  async closeDispute(paymentIntentId: string, won: boolean): Promise<PayoutEntry | null> {
+  /**
+   * Contestação encerrada. Ganha, ou perdida com prova de uso (a plataforma arca), o repasse volta à
+   * fila. Perdida sem prova: o proprietário não recebe a venda ou, se já recebeu, a parte dele vira
+   * dívida do CNPJ (D14, D16).
+   */
+  async closeDispute(
+    paymentIntentId: string,
+    outcome: DisputeOutcome
+  ): Promise<PayoutEntry | null> {
     const entry = await this.entries.getByPaymentIntentId(paymentIntentId);
     if (!entry) return null;
+    if (entry.status === 'released') {
+      if (outcome === 'lost_partner_pays') {
+        await this.debts.createDebt({
+          accountKey: entry.accountKey,
+          reason: 'dispute_lost',
+          referenceType: entry.referenceType,
+          referenceId: entry.referenceId,
+          amountMinor: entry.partnerAmountMinor,
+        });
+      }
+      return entry;
+    }
     return this.entries.update(entry.id, (current) => {
       if (current.status !== 'on_hold' || current.holdReason !== 'dispute') return null;
       const { holdReason: _released, ...rest } = current;
-      return won
-        ? { ...rest, status: 'pending', updatedAt: this.now().toISOString() }
-        : {
+      return outcome === 'lost_partner_pays'
+        ? {
             ...rest,
             status: 'canceled',
             canceledReason: 'dispute_lost',
             partnerAmountMinor: 0,
             updatedAt: this.now().toISOString(),
-          };
+          }
+        : { ...rest, status: 'pending', updatedAt: this.now().toISOString() };
     });
   }
 
@@ -151,10 +195,17 @@ export class PayoutService {
           summary.waitingAccount += 1;
           continue;
         }
+        // Dívida vencida do CNPJ sai do repasse antes da transferência (D14).
+        const offsetMinor = await this.debts.offsetFromPayout({
+          accountKey: entry.accountKey,
+          payoutEntryId: entry.id,
+          availableMinor: entry.partnerAmountMinor,
+        });
+        const transferMinor = entry.partnerAmountMinor - offsetMinor;
         const transfer =
-          entry.partnerAmountMinor > 0
+          transferMinor > 0
             ? await this.transfers.createTransfer({
-                amountMinor: entry.partnerAmountMinor,
+                amountMinor: transferMinor,
                 destinationAccountId: destination,
                 sourceChargeId: entry.chargeId,
                 transferGroup: entry.referenceId,
@@ -173,6 +224,7 @@ export class PayoutService {
                 ...current,
                 status: 'released',
                 ...(transfer ? { transferId: transfer.transferId } : {}),
+                ...(offsetMinor > 0 ? { offsetMinor } : {}),
                 releasedAt: this.now().toISOString(),
                 updatedAt: this.now().toISOString(),
               }

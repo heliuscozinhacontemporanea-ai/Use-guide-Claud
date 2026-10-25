@@ -8,6 +8,8 @@ vi.mock('../../../domain/partners', () => ({
 vi.mock('../../../domain/payment', () => ({
   listOwnerPaymentAccountsUseCase: vi.fn(),
   createPaymentAccountSessionUseCase: vi.fn(),
+  listAccountDebtsUseCase: vi.fn().mockResolvedValue([]),
+  startAccountDebtPaymentUseCase: vi.fn().mockResolvedValue({ clientSecret: 'cs' }),
 }));
 
 import {
@@ -17,8 +19,12 @@ import {
 } from '../../../domain/partners';
 import {
   createPaymentAccountSessionUseCase,
+  listAccountDebtsUseCase,
   listOwnerPaymentAccountsUseCase,
+  startAccountDebtPaymentUseCase,
 } from '../../../domain/payment';
+import { listPartnerDebtsApplicationUseCase } from './listPartnerDebtsApplicationUseCase';
+import { startPartnerDebtPaymentApplicationUseCase } from './startPartnerDebtPaymentApplicationUseCase';
 import { listPartnerPaymentAccountsApplicationUseCase } from './listPartnerPaymentAccountsApplicationUseCase';
 import { startPaymentAccountSessionApplicationUseCase } from './startPaymentAccountSessionApplicationUseCase';
 
@@ -90,5 +96,20 @@ describe('contas de recebimento por CNPJ (D14)', () => {
       startPaymentAccountSessionApplicationUseCase({ uid: 'owner-1', email: 'a@b.c' }, 'key-1')
     ).rejects.toThrow('terms');
     expect(createPaymentAccountSessionUseCase).not.toHaveBeenCalled();
+  });
+});
+
+describe('dívidas do parceiro (D16)', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('lista e paga só com os CNPJs do próprio parceiro', async () => {
+    vi.mocked(listOwnerSalesDocumentsUseCase).mockResolvedValue([
+      { accountKey: 'key-1', maskedDocument: '**.***.***/0001-81', itemIds: [] },
+    ]);
+    await listPartnerDebtsApplicationUseCase('owner-1');
+    expect(listOwnerSalesDocumentsUseCase).toHaveBeenCalledWith('owner-1');
+    expect(listAccountDebtsUseCase).toHaveBeenCalledWith(['key-1']);
+    await startPartnerDebtPaymentApplicationUseCase('owner-1', 'debt_x');
+    expect(startAccountDebtPaymentUseCase).toHaveBeenCalledWith('debt_x', ['key-1']);
   });
 });

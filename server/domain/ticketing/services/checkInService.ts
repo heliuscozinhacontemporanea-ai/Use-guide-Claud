@@ -18,6 +18,12 @@ export class CheckInService {
     private readonly qrTokenPort?: TicketQrTokenPort
   ) {}
 
+  /** Prova de uso numa contestação: algum ingresso do pedido passou pelo check-in (D14). */
+  async orderHasCheckIn(orderId: string): Promise<boolean> {
+    const tickets = await this.port.listTicketsByOrderId(orderId);
+    return tickets.some((ticket) => ticket.status === 'checked_in');
+  }
+
   async generateTicketPresentationQr(
     actor: TicketingActorContext,
     ticketId: string

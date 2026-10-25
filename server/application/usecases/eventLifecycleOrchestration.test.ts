@@ -15,6 +15,7 @@ import {
   type Refund,
   type TicketOrder,
 } from '../../domain/ticketing';
+import { chargeCancellationPenaltyApplicationUseCase } from './payouts/chargeCancellationPenaltyApplicationUseCase';
 import { processTicketRefundApplicationUseCase } from './processTicketRefundApplicationUseCase';
 
 vi.mock('../../domain/events', () => ({
@@ -35,6 +36,10 @@ vi.mock('../../domain/ticketing', () => ({
   listEventCheckInsForPartnerOrAdminUseCase: vi.fn().mockResolvedValue([]),
   listTicketTypesForManagementUseCase: vi.fn().mockResolvedValue([]),
   moveOrderToOccurrenceUseCase: vi.fn(),
+}));
+
+vi.mock('./payouts/chargeCancellationPenaltyApplicationUseCase', () => ({
+  chargeCancellationPenaltyApplicationUseCase: vi.fn().mockResolvedValue(0),
 }));
 
 vi.mock('./processTicketRefundApplicationUseCase', () => ({
@@ -117,6 +122,11 @@ describe('eventLifecycleOrchestrationUseCases', () => {
 
     expect(result.occurrence.status).toBe('canceled');
     expect(result.refundsInitiated).toHaveLength(1);
+    expect(chargeCancellationPenaltyApplicationUseCase).toHaveBeenCalledWith({
+      referenceType: 'event_occurrence',
+      referenceId: 'occ-1',
+      sales: [{ referenceType: 'ticket_order', referenceId: 'ord-1' }],
+    });
     expect(processTicketRefundApplicationUseCase).toHaveBeenCalledWith(
       actor,
       expect.objectContaining({
