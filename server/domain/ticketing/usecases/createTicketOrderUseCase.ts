@@ -1,10 +1,10 @@
-import { ticketingService } from '../factory';
-import type { TicketingActorContext } from '../services/ticketingService';
+import { ticketOrderService } from '../factory';
+import type { TicketingActorContext } from '../services/ticketingAccess';
 import type { Ticket, TicketOrder, TicketOrderItem } from '../types/ticketingTypes';
 
 export async function createTicketOrderUseCase(
   actor: TicketingActorContext,
-  input: Parameters<typeof ticketingService.createTicketOrder>[1]
+  input: Parameters<typeof ticketOrderService.createTicketOrder>[1]
 ): Promise<{
   order: TicketOrder;
   items: TicketOrderItem[];
@@ -12,5 +12,5 @@ export async function createTicketOrderUseCase(
   isIdempotentReplay: boolean;
   serverNow: string;
 }> {
-  return ticketingService.createTicketOrder(actor, input);
+  return ticketOrderService.createTicketOrder(actor, input);
 }

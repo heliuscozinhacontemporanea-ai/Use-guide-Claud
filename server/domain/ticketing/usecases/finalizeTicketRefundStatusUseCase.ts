@@ -1,4 +1,4 @@
-import { ticketingService } from '../factory';
+import { ticketRefundService } from '../factory';
 import type { Refund } from '../types/ticketingTypes';
 
 export async function finalizeTicketRefundStatusUseCase(
@@ -6,5 +6,5 @@ export async function finalizeTicketRefundStatusUseCase(
   status: Refund['status'],
   providerRefundId?: string | null
 ): Promise<Refund> {
-  return ticketingService.finalizeRefundStatus(refundId, status, providerRefundId);
+  return ticketRefundService.finalizeRefundStatus(refundId, status, providerRefundId);
 }

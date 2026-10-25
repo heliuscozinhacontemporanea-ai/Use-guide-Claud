@@ -1,4 +1,4 @@
-import { ticketingService } from '../factory';
+import { ticketOrderService } from '../factory';
 import type { Ticket, TicketOrder } from '../types/ticketingTypes';
 
 export async function confirmTicketOrderPaymentUseCase(params: {
@@ -6,5 +6,5 @@ export async function confirmTicketOrderPaymentUseCase(params: {
   paymentId?: string;
   paymentIntentId?: string;
 }): Promise<{ order: TicketOrder; tickets: Ticket[]; alreadyPaid: boolean }> {
-  return ticketingService.confirmTicketOrderPayment(params);
+  return ticketOrderService.confirmTicketOrderPayment(params);
 }

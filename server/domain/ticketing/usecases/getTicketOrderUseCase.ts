@@ -1,6 +1,6 @@
-import { ticketingService } from '../factory';
-import type { TicketingActorContext } from '../services/ticketingService';
+import { ticketOrderService } from '../factory';
+import type { TicketingActorContext } from '../services/ticketingAccess';
 
 export async function getTicketOrderUseCase(actor: TicketingActorContext, orderId: string) {
-  return ticketingService.getOrderForUser(actor, orderId);
+  return ticketOrderService.getOrderForUser(actor, orderId);
 }

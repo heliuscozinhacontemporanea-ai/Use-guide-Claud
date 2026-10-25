@@ -1,10 +1,10 @@
-import { ticketingService } from '../factory';
-import type { TicketingActorContext } from '../services/ticketingService';
+import { checkInService } from '../factory';
+import type { TicketingActorContext } from '../services/ticketingAccess';
 import type { EventCheckIn, Ticket } from '../types/ticketingTypes';
 
 export async function checkInTicketUseCase(
   actor: TicketingActorContext,
-  params: Parameters<typeof ticketingService.checkInTicket>[1]
+  params: Parameters<typeof checkInService.checkInTicket>[1]
 ): Promise<{ ticket: Ticket; checkIn: EventCheckIn }> {
-  return ticketingService.checkInTicket(actor, params);
+  return checkInService.checkInTicket(actor, params);
 }

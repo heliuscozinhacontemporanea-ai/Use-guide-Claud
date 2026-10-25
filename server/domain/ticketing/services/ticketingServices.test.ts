@@ -1,5 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { TicketingService } from './ticketingService';
+import { CheckInService } from './checkInService';
+import { TicketHolderService } from './ticketHolderService';
+import { TicketOrderService } from './ticketOrderService';
+import { TicketTypeService } from './ticketTypeService';
+import { TicketingReportService } from './ticketingReportService';
 import type { TicketingPort } from '../ports/ticketingPort';
 import type { TicketType } from '../types/ticketingTypes';
 
@@ -43,9 +47,15 @@ function createMockTicketType(overrides: Partial<TicketType> = {}): TicketType {
   };
 }
 
-describe('TicketingService', () => {
+describe('serviços de ticketing', () => {
   let mockPort: TicketingPort;
-  let service: TicketingService;
+  let services: {
+    types: TicketTypeService;
+    orders: TicketOrderService;
+    holders: TicketHolderService;
+    checkIn: CheckInService;
+    reports: TicketingReportService;
+  };
 
   beforeEach(() => {
     vi.stubEnv('TICKET_QR_SECRET', 'test-ticket-qr-secret-with-32-chars!');
@@ -168,7 +178,13 @@ describe('TicketingService', () => {
       }),
     };
 
-    service = new TicketingService(mockPort, mockQrTokenPort);
+    services = {
+      types: new TicketTypeService(mockPort),
+      orders: new TicketOrderService(mockPort),
+      holders: new TicketHolderService(mockPort),
+      checkIn: new CheckInService(mockPort, mockQrTokenPort),
+      reports: new TicketingReportService(mockPort),
+    };
   });
 
   it('prevents changing priceMinor on a ticketType with existing sales or reservations', async () => {
@@ -177,12 +193,12 @@ describe('TicketingService', () => {
     );
 
     await expect(
-      service.updateTicketType({ uid: 'partner_1' }, 'tt_1', { priceMinor: 8000 })
+      services.types.updateTicketType({ uid: 'partner_1' }, 'tt_1', { priceMinor: 8000 })
     ).rejects.toThrow(/Não é permitido alterar o preço/);
   });
 
   it('creates an order with minor units and calculates platform fee without floating point errors', async () => {
-    const res = await service.createTicketOrder(
+    const res = await services.orders.createTicketOrder(
       { uid: 'buyer_1' },
       {
         occurrenceId: 'occ_1',
@@ -226,7 +242,7 @@ describe('TicketingService', () => {
       updatedAt: '2025-01-02T02:00:00.000Z',
     });
 
-    const verified = await service.getVerifiedAttendanceForReview({
+    const verified = await services.reports.getVerifiedAttendanceForReview({
       userId: 'buyer_1',
       occurrenceId: 'occ_1',
       ticketId: 'tkt_1',
@@ -253,7 +269,7 @@ describe('TicketingService', () => {
     });
 
     await expect(
-      service.getVerifiedAttendanceForReview({
+      services.reports.getVerifiedAttendanceForReview({
         userId: 'buyer_1',
         occurrenceId: 'occ_1',
         ticketId: 'tkt_ref',
@@ -266,7 +282,7 @@ describe('TicketingService', () => {
       createMockTicketType({ id: 'tt_free', kind: 'free', priceMinor: 0 }),
     ]);
 
-    const res = await service.createTicketOrder(
+    const res = await services.orders.createTicketOrder(
       { uid: 'buyer_free' },
       {
         occurrenceId: 'occ_1',
@@ -304,7 +320,7 @@ describe('TicketingService', () => {
     ]);
 
     await expect(
-      service.createTicketOrder(
+      services.orders.createTicketOrder(
         { uid: 'buyer_1' },
         {
           occurrenceId: 'occ_1',
@@ -340,20 +356,22 @@ describe('TicketingService', () => {
       updatedAt: '2026-10-01T10:00:00.000Z',
     });
 
-    await expect(service.getOrderForUser({ uid: 'user_a' }, 'ord_secret')).rejects.toMatchObject({
+    await expect(
+      services.orders.getOrderForUser({ uid: 'user_a' }, 'ord_secret')
+    ).rejects.toMatchObject({
       code: 'FORBIDDEN',
     });
   });
 
   it('denies partner A from viewing sales analytics or checking in tickets of partner B event', async () => {
     await expect(
-      service.getEventSalesAnalytics({ uid: 'partner_other', admin: false }, 'evt_1')
+      services.reports.getEventSalesAnalytics({ uid: 'partner_other', admin: false }, 'evt_1')
     ).rejects.toMatchObject({
       code: 'FORBIDDEN',
     });
 
     await expect(
-      service.checkInTicket(
+      services.checkIn.checkInTicket(
         { uid: 'partner_other', admin: false },
         { occurrenceId: 'occ_1', ticketId: 'tkt_1' }
       )
@@ -363,7 +381,7 @@ describe('TicketingService', () => {
   });
 
   it('allows admin to view sales analytics without changing event ownerId', async () => {
-    const analytics = await service.getEventSalesAnalytics(
+    const analytics = await services.reports.getEventSalesAnalytics(
       { uid: 'admin_1', admin: true },
       'evt_1'
     );
@@ -428,7 +446,7 @@ describe('TicketingService', () => {
       },
     });
 
-    const res = await service.transferTicket(
+    const res = await services.holders.transferTicket(
       { uid: 'user_from' },
       {
         ticketId: 'tkt_orig',

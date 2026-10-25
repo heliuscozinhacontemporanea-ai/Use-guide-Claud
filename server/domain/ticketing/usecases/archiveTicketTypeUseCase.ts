@@ -1,9 +1,9 @@
-import { ticketingService } from '../factory';
-import type { TicketingActorContext } from '../services/ticketingService';
+import { ticketTypeService } from '../factory';
+import type { TicketingActorContext } from '../services/ticketingAccess';
 
 export async function archiveTicketTypeUseCase(
   actor: TicketingActorContext,
   ticketTypeId: string
 ): Promise<{ mode: 'deleted' | 'archived' }> {
-  return ticketingService.archiveOrDeleteTicketType(actor, ticketTypeId);
+  return ticketTypeService.archiveOrDeleteTicketType(actor, ticketTypeId);
 }

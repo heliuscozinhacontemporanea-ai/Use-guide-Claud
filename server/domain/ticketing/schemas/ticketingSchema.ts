@@ -216,5 +216,3 @@ export const syncOfflineCheckInsSchema = z
       .optional(),
   })
   .strict();
-
-

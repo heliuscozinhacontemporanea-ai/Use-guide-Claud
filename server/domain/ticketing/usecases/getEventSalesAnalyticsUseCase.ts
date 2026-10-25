@@ -1,5 +1,5 @@
-import { ticketingService } from '../factory';
-import type { TicketingActorContext } from '../services/ticketingService';
+import { ticketingReportService } from '../factory';
+import type { TicketingActorContext } from '../services/ticketingAccess';
 import type { EventSalesAnalytics } from '../types/ticketingTypes';
 
 export async function getEventSalesAnalyticsUseCase(
@@ -7,5 +7,5 @@ export async function getEventSalesAnalyticsUseCase(
   eventListingId: string,
   occurrenceId?: string
 ): Promise<EventSalesAnalytics> {
-  return ticketingService.getEventSalesAnalytics(actor, eventListingId, occurrenceId);
+  return ticketingReportService.getEventSalesAnalytics(actor, eventListingId, occurrenceId);
 }

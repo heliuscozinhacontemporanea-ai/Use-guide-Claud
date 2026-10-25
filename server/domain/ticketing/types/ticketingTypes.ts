@@ -10,13 +10,7 @@ export function assertMoneyMinor(value: number): void {
 
 export type TicketTypeKind = 'paid' | 'free' | 'courtesy' | 'half_entry';
 
-export type TicketTypeStatus =
-  | 'draft'
-  | 'on_sale'
-  | 'paused'
-  | 'sold_out'
-  | 'ended'
-  | 'archived';
+export type TicketTypeStatus = 'draft' | 'on_sale' | 'paused' | 'sold_out' | 'ended' | 'archived';
 
 export interface TicketType {
   id: string;
@@ -188,12 +182,7 @@ export interface Ticket {
   };
 }
 
-export type RefundStatus =
-  | 'requested'
-  | 'pending_provider'
-  | 'approved'
-  | 'failed'
-  | 'rejected';
+export type RefundStatus = 'requested' | 'pending_provider' | 'approved' | 'failed' | 'rejected';
 
 export interface Refund {
   id: string;
@@ -288,12 +277,7 @@ export interface OfflineCheckInEvent {
 
 export interface OfflineCheckInSyncResultItem {
   clientEventId: string;
-  status:
-    | 'accepted'
-    | 'already_checked_in'
-    | 'invalid'
-    | 'expired'
-    | 'wrong_occurrence';
+  status: 'accepted' | 'already_checked_in' | 'invalid' | 'expired' | 'wrong_occurrence';
 }
 
 export interface EventPromoCode {
@@ -355,27 +339,12 @@ export interface VerifiedAttendanceForReview {
   eventTitle: string;
 }
 
-export function canTransitionOrderStatus(
-  from: TicketOrderStatus,
-  to: TicketOrderStatus
-): boolean {
+export function canTransitionOrderStatus(from: TicketOrderStatus, to: TicketOrderStatus): boolean {
   if (from === to) return true;
   const allowed: Record<TicketOrderStatus, TicketOrderStatus[]> = {
-    pending_payment: [
-      'payment_processing',
-      'paid',
-      'payment_failed',
-      'expired',
-      'canceled',
-    ],
+    pending_payment: ['payment_processing', 'paid', 'payment_failed', 'expired', 'canceled'],
     payment_processing: ['paid', 'payment_failed', 'expired', 'canceled'],
-    payment_failed: [
-      'pending_payment',
-      'payment_processing',
-      'paid',
-      'expired',
-      'canceled',
-    ],
+    payment_failed: ['pending_payment', 'payment_processing', 'paid', 'expired', 'canceled'],
     paid: ['partially_refunded', 'refunded', 'chargeback', 'canceled'],
     partially_refunded: ['refunded', 'chargeback'],
     refunded: [],
@@ -386,21 +355,11 @@ export function canTransitionOrderStatus(
   return allowed[from]?.includes(to) ?? false;
 }
 
-export function canTransitionTicketStatus(
-  from: TicketStatus,
-  to: TicketStatus
-): boolean {
+export function canTransitionTicketStatus(from: TicketStatus, to: TicketStatus): boolean {
   if (from === to) return true;
   const allowed: Record<TicketStatus, TicketStatus[]> = {
     reserved: ['issued', 'canceled', 'expired', 'void'],
-    issued: [
-      'checked_in',
-      'transferred',
-      'refund_pending',
-      'refunded',
-      'canceled',
-      'void',
-    ],
+    issued: ['checked_in', 'transferred', 'refund_pending', 'refunded', 'canceled', 'void'],
     refund_pending: ['refunded', 'issued', 'canceled'],
     checked_in: ['void'],
     transferred: ['void'],
@@ -429,10 +388,7 @@ export function deriveTicketTypeSaleStatus(params: {
     0,
     ticketType.quantity - (ticketType.soldCount + ticketType.reservedCount)
   );
-  const occurrenceRemaining = Math.max(
-    0,
-    occurrenceCapacity - occurrenceCommittedCount
-  );
+  const occurrenceRemaining = Math.max(0, occurrenceCapacity - occurrenceCommittedCount);
   const availableQuantity = Math.min(ticketTypeRemaining, occurrenceRemaining);
 
   if (

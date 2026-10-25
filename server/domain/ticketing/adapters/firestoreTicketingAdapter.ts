@@ -46,10 +46,7 @@ import { hashTicketIdForOfflineManifest } from './rsaPssTicketQrTokenAdapter';
 
 export class FirestoreTicketingAdapter implements TicketingPort {
   async createTicketType(
-    input: Omit<
-      TicketType,
-      'id' | 'soldCount' | 'reservedCount' | 'createdAt' | 'updatedAt'
-    >
+    input: Omit<TicketType, 'id' | 'soldCount' | 'reservedCount' | 'createdAt' | 'updatedAt'>
   ): Promise<TicketType> {
     const nowIso = new Date().toISOString();
     const ref = adminDb.collection('ticketTypes').doc();
@@ -73,27 +70,19 @@ export class FirestoreTicketingAdapter implements TicketingPort {
     );
   }
 
-  async listTicketTypesByOccurrenceId(
-    occurrenceId: string
-  ): Promise<TicketType[]> {
+  async listTicketTypesByOccurrenceId(occurrenceId: string): Promise<TicketType[]> {
     const snap = await adminDb
       .collection('ticketTypes')
       .where('occurrenceId', '==', occurrenceId)
       .get();
     return snap.docs
       .map((doc) =>
-        TicketTypePersistenceMapper.toDomain(
-          doc.id,
-          (doc.data() || {}) as Record<string, unknown>
-        )
+        TicketTypePersistenceMapper.toDomain(doc.id, (doc.data() || {}) as Record<string, unknown>)
       )
       .sort((a, b) => a.sortOrder - b.sortOrder);
   }
 
-  async updateTicketType(
-    id: string,
-    patch: Partial<TicketType>
-  ): Promise<TicketType> {
+  async updateTicketType(id: string, patch: Partial<TicketType>): Promise<TicketType> {
     const ref = adminDb.collection('ticketTypes').doc(id);
     const updatePayload: Record<string, unknown> = {
       ...patch,
@@ -117,14 +106,9 @@ export class FirestoreTicketingAdapter implements TicketingPort {
   async reserveInventoryAndCreateOrderAtomic(
     input: ReserveOrderTransactionInput
   ): Promise<ReserveOrderTransactionResult> {
-    const existingOrder = await this.getOrderByIdempotencyKey(
-      input.buyerId,
-      input.idempotencyKey
-    );
+    const existingOrder = await this.getOrderByIdempotencyKey(input.buyerId, input.idempotencyKey);
     if (existingOrder) {
-      const existingItems = await this.listOrderItemsByOrderId(
-        existingOrder.id
-      );
+      const existingItems = await this.listOrderItemsByOrderId(existingOrder.id);
       const existingTickets = await this.listTicketsByOrderId(existingOrder.id);
       return {
         order: existingOrder,
@@ -137,9 +121,7 @@ export class FirestoreTicketingAdapter implements TicketingPort {
 
     return adminDb.runTransaction(async (tx) => {
       const allTypeSnap = await tx.get(
-        adminDb
-          .collection('ticketTypes')
-          .where('occurrenceId', '==', input.occurrenceId)
+        adminDb.collection('ticketTypes').where('occurrenceId', '==', input.occurrenceId)
       );
 
       const typeMap = new Map<string, TicketType>();
@@ -154,53 +136,33 @@ export class FirestoreTicketingAdapter implements TicketingPort {
         globalCommitted += domainType.soldCount + domainType.reservedCount;
       }
 
-      const requestedTotalQty = input.items.reduce(
-        (acc, item) => acc + item.quantity,
-        0
-      );
+      const requestedTotalQty = input.items.reduce((acc, item) => acc + item.quantity, 0);
       if (globalCommitted + requestedTotalQty > input.occurrenceCapacity) {
-        throw new InventoryConflictError(
-          'Capacidade máxima da sessão atingida.'
-        );
+        throw new InventoryConflictError('Capacidade máxima da sessão atingida.');
       }
 
       for (const item of input.items) {
         const ticketType = typeMap.get(item.ticketTypeId);
         if (!ticketType) {
-          throw new TicketingDomainError(
-            'NOT_FOUND',
-            'Tipo de ingresso não encontrado.'
-          );
+          throw new TicketingDomainError('NOT_FOUND', 'Tipo de ingresso não encontrado.');
         }
-        const remaining =
-          ticketType.quantity -
-          (ticketType.soldCount + ticketType.reservedCount);
+        const remaining = ticketType.quantity - (ticketType.soldCount + ticketType.reservedCount);
         if (remaining < item.quantity) {
-          throw new InventoryConflictError(
-            'Os últimos ingressos acabaram de esgotar.'
-          );
+          throw new InventoryConflictError('Os últimos ingressos acabaram de esgotar.');
         }
       }
 
       if (input.promoCodeId) {
-        const promoRef = adminDb
-          .collection('eventPromoCodes')
-          .doc(input.promoCodeId);
+        const promoRef = adminDb.collection('eventPromoCodes').doc(input.promoCodeId);
         const promoSnap = await tx.get(promoRef);
         if (!promoSnap.exists) {
-          throw new TicketingDomainError(
-            'INVALID_ARGUMENT',
-            'Cupom promocional inválido.'
-          );
+          throw new TicketingDomainError('INVALID_ARGUMENT', 'Cupom promocional inválido.');
         }
         const promo = EventPromoCodePersistenceMapper.toDomain(
           promoSnap.id,
           (promoSnap.data() || {}) as Record<string, unknown>
         );
-        if (
-          !promo.isActive ||
-          (promo.maxUses !== undefined && promo.usedCount >= promo.maxUses)
-        ) {
+        if (!promo.isActive || (promo.maxUses !== undefined && promo.usedCount >= promo.maxUses)) {
           throw new TicketingDomainError(
             'UNPROCESSABLE_ENTITY',
             'Cupom promocional esgotado ou inativo.'
@@ -214,9 +176,7 @@ export class FirestoreTicketingAdapter implements TicketingPort {
 
       const nowIso = new Date().toISOString();
       const orderRef = adminDb.collection('ticketOrders').doc();
-      const orderStatus: TicketOrderStatus = input.issueImmediately
-        ? 'paid'
-        : 'pending_payment';
+      const orderStatus: TicketOrderStatus = input.issueImmediately ? 'paid' : 'pending_payment';
 
       const orderDoc: Record<string, unknown> = {
         buyerId: input.buyerId,
@@ -248,9 +208,7 @@ export class FirestoreTicketingAdapter implements TicketingPort {
 
       for (const item of input.items) {
         const currentType = typeMap.get(item.ticketTypeId)!;
-        const typeRef = adminDb
-          .collection('ticketTypes')
-          .doc(item.ticketTypeId);
+        const typeRef = adminDb.collection('ticketTypes').doc(item.ticketTypeId);
 
         if (input.issueImmediately) {
           tx.update(typeRef, {
@@ -275,10 +233,7 @@ export class FirestoreTicketingAdapter implements TicketingPort {
           };
           tx.set(resRef, resPayload);
           createdReservations.push(
-            InventoryReservationPersistenceMapper.toDomain(
-              resRef.id,
-              resPayload
-            )
+            InventoryReservationPersistenceMapper.toDomain(resRef.id, resPayload)
           );
         }
 
@@ -300,15 +255,11 @@ export class FirestoreTicketingAdapter implements TicketingPort {
           })),
         };
         tx.set(itemRef, itemPayload);
-        createdItems.push(
-          TicketOrderItemPersistenceMapper.toDomain(itemRef.id, itemPayload)
-        );
+        createdItems.push(TicketOrderItemPersistenceMapper.toDomain(itemRef.id, itemPayload));
 
         if (input.issueImmediately) {
           const perTicketEffectiveMinor =
-            item.quantity > 0
-              ? Math.floor(item.totalMinor / item.quantity)
-              : 0;
+            item.quantity > 0 ? Math.floor(item.totalMinor / item.quantity) : 0;
           for (const holder of item.holders) {
             const ticketRef = adminDb.collection('tickets').doc();
             const ticketPayload: Record<string, unknown> = {
@@ -333,10 +284,7 @@ export class FirestoreTicketingAdapter implements TicketingPort {
             };
             tx.set(ticketRef, ticketPayload);
             issuedTickets.push({
-              ticket: TicketPersistenceMapper.toDomain(
-                ticketRef.id,
-                ticketPayload
-              ),
+              ticket: TicketPersistenceMapper.toDomain(ticketRef.id, ticketPayload),
               rawQrToken: holder.rawQrToken,
             });
           }
@@ -394,10 +342,7 @@ export class FirestoreTicketingAdapter implements TicketingPort {
         return {
           order,
           tickets: existingTicketsSnap.docs.map((doc) =>
-            TicketPersistenceMapper.toDomain(
-              doc.id,
-              (doc.data() || {}) as Record<string, unknown>
-            )
+            TicketPersistenceMapper.toDomain(doc.id, (doc.data() || {}) as Record<string, unknown>)
           ),
           alreadyPaid: true,
         };
@@ -417,9 +362,7 @@ export class FirestoreTicketingAdapter implements TicketingPort {
           resDoc.id,
           (resDoc.data() || {}) as Record<string, unknown>
         );
-        const typeRef = adminDb
-          .collection('ticketTypes')
-          .doc(res.ticketTypeId);
+        const typeRef = adminDb.collection('ticketTypes').doc(res.ticketTypeId);
         const typeSnap = await tx.get(typeRef);
         if (typeSnap.exists) {
           const tData = TicketTypePersistenceMapper.toDomain(
@@ -443,9 +386,7 @@ export class FirestoreTicketingAdapter implements TicketingPort {
         paidAt: nowIso,
         updatedAt: nowIso,
         ...(params.paymentId ? { paymentId: params.paymentId } : {}),
-        ...(params.paymentIntentId
-          ? { paymentIntentId: params.paymentIntentId }
-          : {}),
+        ...(params.paymentIntentId ? { paymentIntentId: params.paymentIntentId } : {}),
       };
       tx.update(orderRef, orderPatch);
 
@@ -465,14 +406,10 @@ export class FirestoreTicketingAdapter implements TicketingPort {
           status: 'issued',
           issuedAt: nowIso,
           ticketTypeSnapshot: tInput.ticketTypeSnapshot,
-          ...(order.eventSnapshot
-            ? { eventSnapshot: order.eventSnapshot }
-            : {}),
+          ...(order.eventSnapshot ? { eventSnapshot: order.eventSnapshot } : {}),
         };
         tx.set(ticketRef, ticketDoc);
-        issuedTickets.push(
-          TicketPersistenceMapper.toDomain(ticketRef.id, ticketDoc)
-        );
+        issuedTickets.push(TicketPersistenceMapper.toDomain(ticketRef.id, ticketDoc));
       }
 
       return {
@@ -528,9 +465,7 @@ export class FirestoreTicketingAdapter implements TicketingPort {
           resDoc.id,
           (resDoc.data() || {}) as Record<string, unknown>
         );
-        const typeRef = adminDb
-          .collection('ticketTypes')
-          .doc(res.ticketTypeId);
+        const typeRef = adminDb.collection('ticketTypes').doc(res.ticketTypeId);
         const typeSnap = await tx.get(typeRef);
         if (typeSnap.exists) {
           const tData = TicketTypePersistenceMapper.toDomain(
@@ -591,10 +526,7 @@ export class FirestoreTicketingAdapter implements TicketingPort {
   }
 
   async listOrderItemsByOrderId(orderId: string): Promise<TicketOrderItem[]> {
-    const snap = await adminDb
-      .collection('ticketOrderItems')
-      .where('orderId', '==', orderId)
-      .get();
+    const snap = await adminDb.collection('ticketOrderItems').where('orderId', '==', orderId).get();
     return snap.docs.map((doc) =>
       TicketOrderItemPersistenceMapper.toDomain(
         doc.id,
@@ -604,21 +536,12 @@ export class FirestoreTicketingAdapter implements TicketingPort {
   }
 
   async listOrdersByBuyerId(buyerId: string): Promise<TicketOrder[]> {
-    const snap = await adminDb
-      .collection('ticketOrders')
-      .where('buyerId', '==', buyerId)
-      .get();
+    const snap = await adminDb.collection('ticketOrders').where('buyerId', '==', buyerId).get();
     return snap.docs
       .map((doc) =>
-        TicketOrderPersistenceMapper.toDomain(
-          doc.id,
-          (doc.data() || {}) as Record<string, unknown>
-        )
+        TicketOrderPersistenceMapper.toDomain(doc.id, (doc.data() || {}) as Record<string, unknown>)
       )
-      .sort(
-        (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      );
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }
 
   async listOrdersByOccurrenceId(occurrenceId: string): Promise<TicketOrder[]> {
@@ -628,35 +551,21 @@ export class FirestoreTicketingAdapter implements TicketingPort {
       .get();
     return snap.docs
       .map((doc) =>
-        TicketOrderPersistenceMapper.toDomain(
-          doc.id,
-          (doc.data() || {}) as Record<string, unknown>
-        )
+        TicketOrderPersistenceMapper.toDomain(doc.id, (doc.data() || {}) as Record<string, unknown>)
       )
-      .sort(
-        (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      );
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }
 
-  async listOrdersByEventListingId(
-    eventListingId: string
-  ): Promise<TicketOrder[]> {
+  async listOrdersByEventListingId(eventListingId: string): Promise<TicketOrder[]> {
     const snap = await adminDb
       .collection('ticketOrders')
       .where('eventListingId', '==', eventListingId)
       .get();
     return snap.docs
       .map((doc) =>
-        TicketOrderPersistenceMapper.toDomain(
-          doc.id,
-          (doc.data() || {}) as Record<string, unknown>
-        )
+        TicketOrderPersistenceMapper.toDomain(doc.id, (doc.data() || {}) as Record<string, unknown>)
       )
-      .sort(
-        (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      );
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }
 
   async listExpiredPendingOrders(nowIso: string): Promise<TicketOrder[]> {
@@ -667,10 +576,7 @@ export class FirestoreTicketingAdapter implements TicketingPort {
     const nowMs = new Date(nowIso).getTime();
     return snap.docs
       .map((doc) =>
-        TicketOrderPersistenceMapper.toDomain(
-          doc.id,
-          (doc.data() || {}) as Record<string, unknown>
-        )
+        TicketOrderPersistenceMapper.toDomain(doc.id, (doc.data() || {}) as Record<string, unknown>)
       )
       .filter((o) => o.expiresAt && new Date(o.expiresAt).getTime() <= nowMs);
   }
@@ -712,41 +618,23 @@ export class FirestoreTicketingAdapter implements TicketingPort {
       .get();
     const doc = snap.docs[0];
     if (!doc) return null;
-    return TicketPersistenceMapper.toDomain(
-      doc.id,
-      (doc.data() || {}) as Record<string, unknown>
-    );
+    return TicketPersistenceMapper.toDomain(doc.id, (doc.data() || {}) as Record<string, unknown>);
   }
 
   async listTicketsByOrderId(orderId: string): Promise<Ticket[]> {
-    const snap = await adminDb
-      .collection('tickets')
-      .where('orderId', '==', orderId)
-      .get();
+    const snap = await adminDb.collection('tickets').where('orderId', '==', orderId).get();
     return snap.docs.map((doc) =>
-      TicketPersistenceMapper.toDomain(
-        doc.id,
-        (doc.data() || {}) as Record<string, unknown>
-      )
+      TicketPersistenceMapper.toDomain(doc.id, (doc.data() || {}) as Record<string, unknown>)
     );
   }
 
   async listTicketsByOwnerUserId(ownerUserId: string): Promise<Ticket[]> {
-    const snap = await adminDb
-      .collection('tickets')
-      .where('ownerUserId', '==', ownerUserId)
-      .get();
+    const snap = await adminDb.collection('tickets').where('ownerUserId', '==', ownerUserId).get();
     return snap.docs
       .map((doc) =>
-        TicketPersistenceMapper.toDomain(
-          doc.id,
-          (doc.data() || {}) as Record<string, unknown>
-        )
+        TicketPersistenceMapper.toDomain(doc.id, (doc.data() || {}) as Record<string, unknown>)
       )
-      .sort(
-        (a, b) =>
-          new Date(b.issuedAt).getTime() - new Date(a.issuedAt).getTime()
-      );
+      .sort((a, b) => new Date(b.issuedAt).getTime() - new Date(a.issuedAt).getTime());
   }
 
   async listTicketsByOccurrenceId(occurrenceId: string): Promise<Ticket[]> {
@@ -755,25 +643,17 @@ export class FirestoreTicketingAdapter implements TicketingPort {
       .where('occurrenceId', '==', occurrenceId)
       .get();
     return snap.docs.map((doc) =>
-      TicketPersistenceMapper.toDomain(
-        doc.id,
-        (doc.data() || {}) as Record<string, unknown>
-      )
+      TicketPersistenceMapper.toDomain(doc.id, (doc.data() || {}) as Record<string, unknown>)
     );
   }
 
-  async listTicketsByEventListingId(
-    eventListingId: string
-  ): Promise<Ticket[]> {
+  async listTicketsByEventListingId(eventListingId: string): Promise<Ticket[]> {
     const snap = await adminDb
       .collection('tickets')
       .where('eventListingId', '==', eventListingId)
       .get();
     return snap.docs.map((doc) =>
-      TicketPersistenceMapper.toDomain(
-        doc.id,
-        (doc.data() || {}) as Record<string, unknown>
-      )
+      TicketPersistenceMapper.toDomain(doc.id, (doc.data() || {}) as Record<string, unknown>)
     );
   }
 
@@ -809,10 +689,7 @@ export class FirestoreTicketingAdapter implements TicketingPort {
       const ticketRef = adminDb.collection('tickets').doc(params.ticketId);
       const ticketSnap = await tx.get(ticketRef);
       if (!ticketSnap.exists) {
-        throw new TicketingDomainError(
-          'NOT_FOUND',
-          'Ingresso não encontrado.'
-        );
+        throw new TicketingDomainError('NOT_FOUND', 'Ingresso não encontrado.');
       }
       const ticket = TicketPersistenceMapper.toDomain(
         ticketSnap.id,
@@ -852,13 +729,9 @@ export class FirestoreTicketingAdapter implements TicketingPort {
         eventListingId: ticket.eventListingId,
         checkedInBy: params.checkedInBy,
         source,
-        ...(params.offlineSessionId
-          ? { offlineSessionId: params.offlineSessionId }
-          : {}),
+        ...(params.offlineSessionId ? { offlineSessionId: params.offlineSessionId } : {}),
         ...(params.stationId ? { stationId: params.stationId } : {}),
-        ...(params.clientEventId
-          ? { clientEventId: params.clientEventId }
-          : {}),
+        ...(params.clientEventId ? { clientEventId: params.clientEventId } : {}),
         checkedInAt: nowIso,
         ...(source === 'offline' ? { syncedAt: nowIso } : {}),
       };
@@ -876,41 +749,28 @@ export class FirestoreTicketingAdapter implements TicketingPort {
           checkedInAt: nowIso,
           checkedInBy: params.checkedInBy,
         },
-        checkIn: EventCheckInPersistenceMapper.toDomain(
-          checkInRef.id,
-          checkInDoc
-        ),
+        checkIn: EventCheckInPersistenceMapper.toDomain(checkInRef.id, checkInDoc),
       };
     });
   }
 
-  async listCheckInsByOccurrenceId(
-    occurrenceId: string
-  ): Promise<EventCheckIn[]> {
+  async listCheckInsByOccurrenceId(occurrenceId: string): Promise<EventCheckIn[]> {
     const snap = await adminDb
       .collection('eventCheckIns')
       .where('occurrenceId', '==', occurrenceId)
       .get();
     return snap.docs.map((doc) =>
-      EventCheckInPersistenceMapper.toDomain(
-        doc.id,
-        (doc.data() || {}) as Record<string, unknown>
-      )
+      EventCheckInPersistenceMapper.toDomain(doc.id, (doc.data() || {}) as Record<string, unknown>)
     );
   }
 
-  async listCheckInsByEventListingId(
-    eventListingId: string
-  ): Promise<EventCheckIn[]> {
+  async listCheckInsByEventListingId(eventListingId: string): Promise<EventCheckIn[]> {
     const snap = await adminDb
       .collection('eventCheckIns')
       .where('eventListingId', '==', eventListingId)
       .get();
     return snap.docs.map((doc) =>
-      EventCheckInPersistenceMapper.toDomain(
-        doc.id,
-        (doc.data() || {}) as Record<string, unknown>
-      )
+      EventCheckInPersistenceMapper.toDomain(doc.id, (doc.data() || {}) as Record<string, unknown>)
     );
   }
 
@@ -925,13 +785,8 @@ export class FirestoreTicketingAdapter implements TicketingPort {
     return OfflineCheckInSessionPersistenceMapper.toDomain(ref.id, payload);
   }
 
-  async getOfflineCheckInSessionById(
-    sessionId: string
-  ): Promise<OfflineCheckInSession | null> {
-    const snap = await adminDb
-      .collection('offlineCheckInSessions')
-      .doc(sessionId)
-      .get();
+  async getOfflineCheckInSessionById(sessionId: string): Promise<OfflineCheckInSession | null> {
+    const snap = await adminDb.collection('offlineCheckInSessions').doc(sessionId).get();
     if (!snap.exists) return null;
     return OfflineCheckInSessionPersistenceMapper.toDomain(
       snap.id,
@@ -982,13 +837,8 @@ export class FirestoreTicketingAdapter implements TicketingPort {
           const existingCheckInSnap = await tx.get(checkInRef);
 
           if (existingCheckInSnap.exists || ticket.status === 'checked_in') {
-            const existingData = existingCheckInSnap.data() as
-              | Record<string, unknown>
-              | undefined;
-            if (
-              existingData &&
-              existingData.clientEventId === ev.clientEventId
-            ) {
+            const existingData = existingCheckInSnap.data() as Record<string, unknown> | undefined;
+            if (existingData && existingData.clientEventId === ev.clientEventId) {
               return 'accepted';
             }
             return 'already_checked_in';
@@ -1089,10 +939,7 @@ export class FirestoreTicketingAdapter implements TicketingPort {
             'Ingresso já utilizado no check-in não pode ser reembolsado.'
           );
         }
-        if (
-          domain.status === 'refunded' ||
-          domain.status === 'refund_pending'
-        ) {
+        if (domain.status === 'refunded' || domain.status === 'refund_pending') {
           throw new RefundNotAllowedError(
             'Reembolso já solicitado ou concluído para este ingresso.'
           );
@@ -1104,8 +951,7 @@ export class FirestoreTicketingAdapter implements TicketingPort {
 
       const nowIso = new Date().toISOString();
       const refundRef = adminDb.collection('ticketRefunds').doc();
-      const initialStatus: RefundStatus =
-        order.totalMinor === 0 ? 'approved' : 'pending_provider';
+      const initialStatus: RefundStatus = order.totalMinor === 0 ? 'approved' : 'pending_provider';
       const refundDoc: Record<string, unknown> = {
         orderId: params.orderId,
         eventListingId: order.eventListingId,
@@ -1145,10 +991,7 @@ export class FirestoreTicketingAdapter implements TicketingPort {
       const refundRef = adminDb.collection('ticketRefunds').doc(refundId);
       const refundSnap = await tx.get(refundRef);
       if (!refundSnap.exists) {
-        throw new TicketingDomainError(
-          'NOT_FOUND',
-          'Solicitação de reembolso não encontrada.'
-        );
+        throw new TicketingDomainError('NOT_FOUND', 'Solicitação de reembolso não encontrada.');
       }
       const refund = RefundPersistenceMapper.toDomain(
         refundSnap.id,
@@ -1160,8 +1003,7 @@ export class FirestoreTicketingAdapter implements TicketingPort {
       if (
         refund.status === 'approved' ||
         (refund.status === status &&
-          (providerRefundId === undefined ||
-            providerRefundId === refund.providerRefundId))
+          (providerRefundId === undefined || providerRefundId === refund.providerRefundId))
       ) {
         return refund;
       }
@@ -1174,9 +1016,7 @@ export class FirestoreTicketingAdapter implements TicketingPort {
       };
 
       if (status === 'approved') {
-        const orderRef = adminDb
-          .collection('ticketOrders')
-          .doc(refund.orderId);
+        const orderRef = adminDb.collection('ticketOrders').doc(refund.orderId);
         const ticketsSnap = await tx.get(
           adminDb.collection('tickets').where('orderId', '==', refund.orderId)
         );
@@ -1263,19 +1103,14 @@ export class FirestoreTicketingAdapter implements TicketingPort {
         ...refund,
         status,
         providerRefundId:
-          providerRefundId !== undefined
-            ? providerRefundId
-            : refund.providerRefundId,
+          providerRefundId !== undefined ? providerRefundId : refund.providerRefundId,
         completedAt: status === 'approved' ? nowIso : refund.completedAt,
       };
     });
   }
 
   async getRefundById(refundId: string): Promise<Refund | null> {
-    const snap = await adminDb
-      .collection('ticketRefunds')
-      .doc(refundId)
-      .get();
+    const snap = await adminDb.collection('ticketRefunds').doc(refundId).get();
     if (!snap.exists) return null;
     return RefundPersistenceMapper.toDomain(
       snap.id,
@@ -1284,30 +1119,19 @@ export class FirestoreTicketingAdapter implements TicketingPort {
   }
 
   async listRefundsByOrderId(orderId: string): Promise<Refund[]> {
-    const snap = await adminDb
-      .collection('ticketRefunds')
-      .where('orderId', '==', orderId)
-      .get();
+    const snap = await adminDb.collection('ticketRefunds').where('orderId', '==', orderId).get();
     return snap.docs.map((doc) =>
-      RefundPersistenceMapper.toDomain(
-        doc.id,
-        (doc.data() || {}) as Record<string, unknown>
-      )
+      RefundPersistenceMapper.toDomain(doc.id, (doc.data() || {}) as Record<string, unknown>)
     );
   }
 
-  async listRefundsByEventListingId(
-    eventListingId: string
-  ): Promise<Refund[]> {
+  async listRefundsByEventListingId(eventListingId: string): Promise<Refund[]> {
     const snap = await adminDb
       .collection('ticketRefunds')
       .where('eventListingId', '==', eventListingId)
       .get();
     return snap.docs.map((doc) =>
-      RefundPersistenceMapper.toDomain(
-        doc.id,
-        (doc.data() || {}) as Record<string, unknown>
-      )
+      RefundPersistenceMapper.toDomain(doc.id, (doc.data() || {}) as Record<string, unknown>)
     );
   }
 
@@ -1327,10 +1151,7 @@ export class FirestoreTicketingAdapter implements TicketingPort {
       const oldTicketRef = adminDb.collection('tickets').doc(params.ticketId);
       const oldSnap = await tx.get(oldTicketRef);
       if (!oldSnap.exists) {
-        throw new TicketingDomainError(
-          'NOT_FOUND',
-          'Ingresso não encontrado.'
-        );
+        throw new TicketingDomainError('NOT_FOUND', 'Ingresso não encontrado.');
       }
       const oldTicket = TicketPersistenceMapper.toDomain(
         oldSnap.id,
@@ -1352,9 +1173,7 @@ export class FirestoreTicketingAdapter implements TicketingPort {
       }
 
       const nowIso = new Date().toISOString();
-      const expiresAtIso = new Date(
-        Date.now() + 72 * 3600 * 1000
-      ).toISOString();
+      const expiresAtIso = new Date(Date.now() + 72 * 3600 * 1000).toISOString();
       const nextQrVersion = (oldTicket.qrVersion || 1) + 1;
 
       tx.update(oldTicketRef, {
@@ -1370,8 +1189,7 @@ export class FirestoreTicketingAdapter implements TicketingPort {
         occurrenceId: oldTicket.occurrenceId,
         ticketTypeId: oldTicket.ticketTypeId,
         ownerUserId: params.toUserId || params.fromUserId,
-        holderName:
-          params.recipientName || params.recipientEmail.split('@')[0],
+        holderName: params.recipientName || params.recipientEmail.split('@')[0],
         holderEmail: params.recipientEmail,
         qrTokenHash: params.newQrTokenHash,
         qrVersion: nextQrVersion,
@@ -1380,9 +1198,7 @@ export class FirestoreTicketingAdapter implements TicketingPort {
         ...(oldTicket.ticketTypeSnapshot
           ? { ticketTypeSnapshot: oldTicket.ticketTypeSnapshot }
           : {}),
-        ...(oldTicket.eventSnapshot
-          ? { eventSnapshot: oldTicket.eventSnapshot }
-          : {}),
+        ...(oldTicket.eventSnapshot ? { eventSnapshot: oldTicket.eventSnapshot } : {}),
       };
       tx.set(newTicketRef, newTicketDoc);
 
@@ -1393,9 +1209,7 @@ export class FirestoreTicketingAdapter implements TicketingPort {
         fromUserId: params.fromUserId,
         ...(params.toUserId ? { toUserId: params.toUserId } : {}),
         recipientEmail: params.recipientEmail,
-        ...(params.recipientName
-          ? { recipientName: params.recipientName }
-          : {}),
+        ...(params.recipientName ? { recipientName: params.recipientName } : {}),
         status: 'completed',
         expiresAt: expiresAtIso,
         createdAt: nowIso,
@@ -1410,14 +1224,8 @@ export class FirestoreTicketingAdapter implements TicketingPort {
           transferredAt: nowIso,
           qrVersion: nextQrVersion,
         },
-        newTicket: TicketPersistenceMapper.toDomain(
-          newTicketRef.id,
-          newTicketDoc
-        ),
-        transfer: TicketTransferPersistenceMapper.toDomain(
-          transferRef.id,
-          transferDoc
-        ),
+        newTicket: TicketPersistenceMapper.toDomain(newTicketRef.id, newTicketDoc),
+        transfer: TicketTransferPersistenceMapper.toDomain(transferRef.id, transferDoc),
       };
     });
   }
@@ -1430,14 +1238,10 @@ export class FirestoreTicketingAdapter implements TicketingPort {
   }): Promise<{ movedOrdersCount: number; movedTicketsCount: number }> {
     return adminDb.runTransaction(async (tx) => {
       const ordersSnap = await tx.get(
-        adminDb
-          .collection('ticketOrders')
-          .where('occurrenceId', '==', params.fromOccurrenceId)
+        adminDb.collection('ticketOrders').where('occurrenceId', '==', params.fromOccurrenceId)
       );
       const ticketsSnap = await tx.get(
-        adminDb
-          .collection('tickets')
-          .where('occurrenceId', '==', params.fromOccurrenceId)
+        adminDb.collection('tickets').where('occurrenceId', '==', params.fromOccurrenceId)
       );
 
       const nowIso = new Date().toISOString();
@@ -1509,10 +1313,7 @@ export class FirestoreTicketingAdapter implements TicketingPort {
     return EventPromoCodePersistenceMapper.toDomain(ref.id, doc);
   }
 
-  async getPromoCodeByCode(
-    eventListingId: string,
-    code: string
-  ): Promise<EventPromoCode | null> {
+  async getPromoCodeByCode(eventListingId: string, code: string): Promise<EventPromoCode | null> {
     const normalized = code.trim().toUpperCase();
     const snap = await adminDb
       .collection('eventPromoCodes')
@@ -1542,18 +1343,13 @@ export class FirestoreTicketingAdapter implements TicketingPort {
     return EventWaitlistPersistenceMapper.toDomain(ref.id, doc);
   }
 
-  async listWaitlistByOccurrenceId(
-    occurrenceId: string
-  ): Promise<EventWaitlistEntry[]> {
+  async listWaitlistByOccurrenceId(occurrenceId: string): Promise<EventWaitlistEntry[]> {
     const snap = await adminDb
       .collection('eventWaitlistEntries')
       .where('occurrenceId', '==', occurrenceId)
       .get();
     return snap.docs.map((doc) =>
-      EventWaitlistPersistenceMapper.toDomain(
-        doc.id,
-        (doc.data() || {}) as Record<string, unknown>
-      )
+      EventWaitlistPersistenceMapper.toDomain(doc.id, (doc.data() || {}) as Record<string, unknown>)
     );
   }
 }

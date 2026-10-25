@@ -76,10 +76,7 @@ export interface ReserveOrderTransactionResult {
 
 export interface TicketingPort {
   createTicketType(
-    input: Omit<
-      TicketType,
-      'id' | 'soldCount' | 'reservedCount' | 'createdAt' | 'updatedAt'
-    >
+    input: Omit<TicketType, 'id' | 'soldCount' | 'reservedCount' | 'createdAt' | 'updatedAt'>
   ): Promise<TicketType>;
   getTicketTypeById(id: string): Promise<TicketType | null>;
   listTicketTypesByOccurrenceId(occurrenceId: string): Promise<TicketType[]>;
@@ -120,10 +117,7 @@ export interface TicketingPort {
   }>;
 
   getOrderById(orderId: string): Promise<TicketOrder | null>;
-  getOrderByIdempotencyKey(
-    buyerId: string,
-    idempotencyKey: string
-  ): Promise<TicketOrder | null>;
+  getOrderByIdempotencyKey(buyerId: string, idempotencyKey: string): Promise<TicketOrder | null>;
   listOrderItemsByOrderId(orderId: string): Promise<TicketOrderItem[]>;
   listOrdersByBuyerId(buyerId: string): Promise<TicketOrder[]>;
   listOrdersByOccurrenceId(occurrenceId: string): Promise<TicketOrder[]>;
@@ -162,9 +156,7 @@ export interface TicketingPort {
   createOfflineCheckInSession(
     session: Omit<OfflineCheckInSession, 'id'>
   ): Promise<OfflineCheckInSession>;
-  getOfflineCheckInSessionById(
-    sessionId: string
-  ): Promise<OfflineCheckInSession | null>;
+  getOfflineCheckInSessionById(sessionId: string): Promise<OfflineCheckInSession | null>;
   syncOfflineCheckInsAtomic(params: {
     session: OfflineCheckInSession;
     checkedInBy: string;
@@ -211,15 +203,10 @@ export interface TicketingPort {
   createPromoCode(
     input: Omit<EventPromoCode, 'id' | 'usedCount' | 'createdAt' | 'updatedAt'>
   ): Promise<EventPromoCode>;
-  getPromoCodeByCode(
-    eventListingId: string,
-    code: string
-  ): Promise<EventPromoCode | null>;
+  getPromoCodeByCode(eventListingId: string, code: string): Promise<EventPromoCode | null>;
 
   createWaitlistEntry(
     input: Omit<EventWaitlistEntry, 'id' | 'status' | 'createdAt'>
   ): Promise<EventWaitlistEntry>;
-  listWaitlistByOccurrenceId(
-    occurrenceId: string
-  ): Promise<EventWaitlistEntry[]>;
+  listWaitlistByOccurrenceId(occurrenceId: string): Promise<EventWaitlistEntry[]>;
 }
