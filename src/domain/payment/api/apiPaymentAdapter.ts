@@ -5,6 +5,7 @@ import type {
   CreatePlanPaymentIntentPayload,
   PaidPlanId,
   PartnerPaymentAccount,
+  PartnerTermsView,
   PaymentLocale,
   PlanSubscription,
   StartPlanSubscriptionPayload,
@@ -100,6 +101,30 @@ export class ApiPaymentAdapter implements PaymentApiPort {
       throw new Error(data.error?.code ?? 'PAYMENT_ACCOUNT_UNAVAILABLE');
     }
     return { clientSecret: data.data.clientSecret };
+  }
+
+  async getPartnerTerms(): Promise<PartnerTermsView> {
+    return this.partnerTermsRequest({ method: 'GET' });
+  }
+
+  async acceptPartnerTerms(version: string): Promise<PartnerTermsView> {
+    return this.partnerTermsRequest({
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ version }),
+    });
+  }
+
+  private async partnerTermsRequest(init: RequestInit): Promise<PartnerTermsView> {
+    const response = await firebaseApiFetch('/api/payment-accounts/terms', init, {
+      requireAuth: true,
+      requireAppCheck: true,
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.data) {
+      throw new Error(data.error?.code ?? 'PAYMENT_ACCOUNT_UNAVAILABLE');
+    }
+    return data.data as PartnerTermsView;
   }
 
   async startPlanSubscription(

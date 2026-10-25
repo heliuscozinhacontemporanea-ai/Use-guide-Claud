@@ -36,12 +36,12 @@ describe('TicketOrderPaymentStep', () => {
     await i18n.changeLanguage('pt-BR');
   });
 
-  it('destaca a taxa de serviço e a política gravada antes do pagamento', async () => {
+  it('destaca a taxa de serviço e a política gravada, numa linha, antes do pagamento', async () => {
     await i18n.changeLanguage('fr');
     render(<TicketOrderPaymentStep order={ORDER} checkout={CHECKOUT} />);
     expect(screen.getByText('Frais de service')).toBeTruthy();
     expect(screen.getByText(/^6,00/)).toBeTruthy();
+    expect(screen.getByText(/Politique de cette commande \(Modérée\)/)).toBeTruthy();
     expect(screen.getByText(/jusqu’à 7 jours avant le début/)).toBeTruthy();
-    expect(screen.getByText(/ne sont remboursés qu’en cas de rétractation/)).toBeTruthy();
   });
 });

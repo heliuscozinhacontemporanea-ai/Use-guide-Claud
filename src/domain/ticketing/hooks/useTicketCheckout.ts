@@ -1,6 +1,7 @@
 import QRCode from 'qrcode';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { BUYER_TERMS_VERSION } from '../../../shared/constants/legalTerms';
 import { useAuthContext } from '../../auth';
 import { confirmTicketOrderPaymentReturnUseCase } from '../application/usecases/confirmTicketOrderPaymentReturnUseCase';
 import { createTicketOrderPaymentIntentUseCase } from '../application/usecases/createTicketOrderPaymentIntentUseCase';
@@ -66,6 +67,7 @@ export function useTicketCheckout({
   const [buyerEmail, setBuyerEmail] = useState(initialBuyer.email || user?.email || '');
   const [holders, setHolders] = useState<Record<string, HolderDraft>>({});
   const [promoCode, setPromoCode] = useState('');
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [order, setOrder] = useState<TicketOrder | null>(null);
@@ -154,6 +156,7 @@ export function useTicketCheckout({
     if (!buyerName.trim() || !buyerEmail.trim()) {
       return setError(t('ticketCheckout.errors.buyerRequired'));
     }
+    if (!termsAccepted) return setError(t('legal.accept.required'));
 
     setSubmitting(true);
     setError(null);
@@ -174,6 +177,7 @@ export function useTicketCheckout({
         buyer: { name: buyerName.trim(), email: buyerEmail.trim() },
         ...(promoCode.trim() ? { promoCode: promoCode.trim().toUpperCase() } : {}),
         idempotencyKey: `ord_${occurrenceId}_${user.uid}_${crypto.randomUUID()}`,
+        acceptedTermsVersion: BUYER_TERMS_VERSION,
       });
       setOrder(result.order);
       setServerNow(result.serverNow || new Date().toISOString());
@@ -252,6 +256,8 @@ export function useTicketCheckout({
       setHolders((prev) => ({ ...prev, [key]: holder })),
     promoCode,
     setPromoCode,
+    termsAccepted,
+    setTermsAccepted,
     submitting,
     error,
     setError,

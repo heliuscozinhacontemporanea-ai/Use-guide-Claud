@@ -116,6 +116,7 @@ export const CreateBookingSchema = z
       .default([]),
     idempotencyKey: idempotencyKey.optional(),
     locale,
+    acceptedTermsVersion: z.string().trim().min(1).max(40),
   })
   .strict();
 

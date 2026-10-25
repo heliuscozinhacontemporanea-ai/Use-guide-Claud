@@ -1,3 +1,4 @@
+import { BUYER_TERMS_VERSION } from '../../../shared/kernel/legalTerms';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CheckInService } from './checkInService';
 import { TicketHolderService } from './ticketHolderService';
@@ -206,6 +207,21 @@ describe('serviços de ticketing', () => {
     ).rejects.toThrow(/Não é permitido alterar o preço/);
   });
 
+  it('recusa a compra sem o aceite da versão atual dos termos (D15)', async () => {
+    await expect(
+      services.orders.createTicketOrder(
+        { uid: 'buyer_1' },
+        {
+          occurrenceId: 'occ_1',
+          items: [{ ticketTypeId: 'tt_1', quantity: 1 }],
+          buyer: { name: 'Maria', email: 'maria@example.com' },
+          idempotencyKey: 'idem_terms_old',
+          acceptedTermsVersion: '2020-01-01',
+        }
+      )
+    ).rejects.toThrow(/Aceite os termos/);
+  });
+
   it('creates an order with minor units and calculates platform fee without floating point errors', async () => {
     const res = await services.orders.createTicketOrder(
       { uid: 'buyer_1' },
@@ -214,12 +230,16 @@ describe('serviços de ticketing', () => {
         items: [{ ticketTypeId: 'tt_1', quantity: 2 }],
         buyer: { name: 'Maria', email: 'maria@example.com' },
         idempotencyKey: 'idem_12345678',
+        acceptedTermsVersion: BUYER_TERMS_VERSION,
       }
     );
 
     expect(res.order.subtotalMinor).toBe(10000);
     expect(res.order.platformFeeMinor).toBe(1000);
     expect(res.order.serviceFeeMinor).toBe(600);
+    expect(
+      vi.mocked(mockPort.reserveInventoryAndCreateOrderAtomic).mock.calls[0]?.[0].termsAcceptance
+    ).toMatchObject({ version: BUYER_TERMS_VERSION });
     expect(res.order.totalMinor).toBe(10600);
     expect(res.order.status).toBe('pending_payment');
   });
@@ -299,6 +319,7 @@ describe('serviços de ticketing', () => {
         items: [{ ticketTypeId: 'tt_free', quantity: 2 }],
         buyer: { name: 'João', email: 'joao@example.com' },
         idempotencyKey: 'idem_free_1',
+        acceptedTermsVersion: BUYER_TERMS_VERSION,
       }
     );
 
@@ -337,6 +358,7 @@ describe('serviços de ticketing', () => {
           items: [{ ticketTypeId: 'tt_b', quantity: 2 }],
           buyer: { name: 'Pedro', email: 'pedro@example.com' },
           idempotencyKey: 'idem_cap_exceed',
+          acceptedTermsVersion: BUYER_TERMS_VERSION,
         }
       )
     ).rejects.toThrow(/não está disponível para compra|esgotar|Restam apenas/);

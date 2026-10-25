@@ -1,3 +1,4 @@
+import type { TermsAcceptance } from '../../../shared/kernel/legalTerms';
 import type {
   EventCheckIn,
   EventPromoCode,
@@ -44,6 +45,7 @@ export interface ReserveOrderTransactionInput {
     locationName?: string;
   };
   salesPolicySnapshot: TicketOrderSalesPolicySnapshot;
+  termsAcceptance: TermsAcceptance;
   expiresAt: string;
   items: Array<{
     ticketTypeId: string;

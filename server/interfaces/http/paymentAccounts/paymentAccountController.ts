@@ -1,10 +1,13 @@
 import type { Response } from 'express';
 import { listPartnerPaymentAccountsApplicationUseCase } from '../../../application/usecases/paymentAccounts/listPartnerPaymentAccountsApplicationUseCase';
 import { startPaymentAccountSessionApplicationUseCase } from '../../../application/usecases/paymentAccounts/startPaymentAccountSessionApplicationUseCase';
-import { ListingVerificationError } from '../../../domain/partners';
+import { acceptPartnerTermsApplicationUseCase } from '../../../application/usecases/paymentAccounts/acceptPartnerTermsApplicationUseCase';
+import { getPartnerTermsApplicationUseCase } from '../../../application/usecases/paymentAccounts/getPartnerTermsApplicationUseCase';
+import { ListingVerificationError, PartnerDomainError } from '../../../domain/partners';
 import { PaymentDomainError } from '../../../domain/payment';
 import type { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
 import {
+  AcceptPartnerTermsSchema,
   ListPaymentAccountsQuerySchema,
   PaymentAccountSessionSchema,
 } from './schemas/paymentAccountSchemas';
@@ -16,6 +19,10 @@ function sendError(res: Response, status: number, code: string, message: string)
 function handleError(res: Response, error: unknown, operation: string): Response {
   if (error instanceof ListingVerificationError || error instanceof PaymentDomainError) {
     return sendError(res, error.statusCode, error.code, error.message);
+  }
+  if (error instanceof PartnerDomainError) {
+    const status = { NOT_FOUND: 404, PARTNER_TERMS_NOT_ACCEPTED: 422 }[error.code as string] ?? 400;
+    return sendError(res, status, error.code, error.message);
   }
   console.error(`[PaymentAccountController.${operation}]`, {
     name: error instanceof Error ? error.name : 'UnknownError',
@@ -42,6 +49,27 @@ export class PaymentAccountController {
         .json({ data: await listPartnerPaymentAccountsApplicationUseCase(ownerUid) });
     } catch (error) {
       return handleError(res, error, 'list');
+    }
+  }
+
+  static async getTerms(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    if (!req.user?.uid) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
+    try {
+      return res.status(200).json({ data: await getPartnerTermsApplicationUseCase(req.user.uid) });
+    } catch (error) {
+      return handleError(res, error, 'getTerms');
+    }
+  }
+
+  static async acceptTerms(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    if (!req.user?.uid) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
+    const body = AcceptPartnerTermsSchema.safeParse(req.body);
+    if (!body.success) return sendError(res, 400, 'VALIDATION_ERROR', 'Versão inválida.');
+    try {
+      const terms = await acceptPartnerTermsApplicationUseCase(req.user.uid, body.data.version);
+      return res.status(200).json({ data: terms });
+    } catch (error) {
+      return handleError(res, error, 'acceptTerms');
     }
   }
 

@@ -6,15 +6,17 @@ import { accountStatusKey, accountStatusTone } from './paymentAccountStatus';
 export function PaymentAccountCard({
   entry,
   onOpen,
+  startBlocked = false,
 }: {
   entry: PartnerPaymentAccount;
   onOpen: (entry: PartnerPaymentAccount) => void;
+  /** Sem o aceite dos termos do parceiro, a conta nova não começa (D15). */
+  startBlocked?: boolean;
 }) {
   const { t } = useTranslation();
   const status = accountStatusKey(entry);
   const dueCount = entry.account?.requirementsDueCount ?? 0;
-  const action =
-    status === 'notStarted' ? 'start' : status === 'ready' ? 'manage' : 'continue';
+  const action = status === 'notStarted' ? 'start' : status === 'ready' ? 'manage' : 'continue';
 
   return (
     <article className="p-4 rounded-2xl bg-surface border border-line space-y-3">
@@ -44,7 +46,8 @@ export function PaymentAccountCard({
       <button
         type="button"
         onClick={() => onOpen(entry)}
-        className="press w-full min-h-11 px-4 rounded-xl bg-teal-400 hover:bg-teal-300 text-slate-950 text-xs font-bold flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-teal-400/50"
+        disabled={startBlocked && status === 'notStarted'}
+        className="press w-full disabled:opacity-50 min-h-11 px-4 rounded-xl bg-teal-400 hover:bg-teal-300 text-slate-950 text-xs font-bold flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-teal-400/50"
       >
         {t(`paymentAccounts.actions.${action}`)}
         <ChevronRight size={15} aria-hidden="true" />

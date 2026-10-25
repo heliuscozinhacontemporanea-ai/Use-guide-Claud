@@ -2,6 +2,7 @@ import { AlertCircle, Loader2, Sparkles, Ticket as TicketIcon } from 'lucide-rea
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { GlassCard } from '../../../ui/components/GlassCard';
+import { TermsAcceptanceField } from '../../../ui/legal/TermsAcceptanceField';
 import { formatMoneyMinor } from '../../../shared/utils/money';
 import { useEventOccurrences } from '../../events';
 import { useEventSalesPolicy } from '../hooks/useEventSalesPolicy';
@@ -140,12 +141,12 @@ export function EventTicketingPurchasePanel({
           {checkout.totalQuantity > 0 && (
             <GlassCard className="p-4 space-y-3">
               <TicketBuyerForm checkout={checkout} />
-              {salesPolicy && !checkout.isAllFree && (
-                <SalesPolicyNotice
-                  policy={salesPolicy}
-                  showServiceFeeNote={salesPolicy.serviceFeeMode === 'pass_to_buyer'}
-                />
-              )}
+              {salesPolicy && !checkout.isAllFree && <SalesPolicyNotice policy={salesPolicy} />}
+              <TermsAcceptanceField
+                audience="buyer"
+                checked={checkout.termsAccepted}
+                onChange={checkout.setTermsAccepted}
+              />
               <div className="flex items-center justify-between gap-3 pt-2 border-t border-line">
                 <div>
                   <span className="text-xs text-ink/70 block">
@@ -164,7 +165,7 @@ export function EventTicketingPurchasePanel({
                 </div>
                 <button
                   type="button"
-                  disabled={checkout.submitting}
+                  disabled={checkout.submitting || !checkout.termsAccepted}
                   onClick={() => void checkout.reserve()}
                   className="px-5 min-h-11 rounded-xl bg-teal-400 hover:bg-teal-300 disabled:opacity-50 text-slate-950 font-black text-xs uppercase tracking-wider flex items-center gap-2 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-teal-400/50"
                 >

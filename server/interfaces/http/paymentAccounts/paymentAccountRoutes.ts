@@ -12,5 +12,7 @@ const router = Router();
 
 router.get('/', verifyAuthToken, PaymentAccountController.list);
 router.post('/session', verifyAuthTokenStrict, PaymentAccountController.createSession);
+router.get('/terms', verifyAuthToken, PaymentAccountController.getTerms);
+router.post('/terms', verifyAuthTokenStrict, PaymentAccountController.acceptTerms);
 
 export default router;

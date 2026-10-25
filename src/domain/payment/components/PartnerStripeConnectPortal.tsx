@@ -2,8 +2,10 @@ import { Loader2, RefreshCw } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { GlassCard } from '../../../ui/components/GlassCard';
+import { getPartnerTermsUseCase } from '../application/usecases/getPartnerTermsUseCase';
 import { listPaymentAccountsUseCase } from '../application/usecases/listPaymentAccountsUseCase';
-import type { PartnerPaymentAccount } from '../types/payment';
+import type { PartnerPaymentAccount, PartnerTermsView } from '../types/payment';
+import { PartnerTermsCard } from './accounts/PartnerTermsCard';
 import { PaymentAccountCard } from './accounts/PaymentAccountCard';
 import { PaymentAccountWorkspace } from './accounts/PaymentAccountWorkspace';
 import { accountErrorKey } from './accounts/paymentAccountStatus';
@@ -15,12 +17,18 @@ export function PartnerStripeConnectPortal() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [openKey, setOpenKey] = useState<string | null>(null);
+  const [terms, setTerms] = useState<PartnerTermsView | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      setAccounts(await listPaymentAccountsUseCase());
+      const [list, currentTerms] = await Promise.all([
+        listPaymentAccountsUseCase(),
+        getPartnerTermsUseCase(),
+      ]);
+      setAccounts(list);
+      setTerms(currentTerms);
     } catch (err) {
       setError(accountErrorKey(err));
     } finally {
@@ -50,6 +58,8 @@ export function PartnerStripeConnectPortal() {
           <RefreshCw size={16} aria-hidden="true" />
         </button>
       </div>
+
+      {terms && !open && <PartnerTermsCard terms={terms} onAccepted={setTerms} />}
 
       {loading && !accounts ? (
         <p className="flex items-center gap-2 text-xs text-ink/70" role="status">
@@ -83,6 +93,7 @@ export function PartnerStripeConnectPortal() {
               key={entry.accountKey}
               entry={entry}
               onOpen={(selected) => setOpenKey(selected.accountKey)}
+              startBlocked={!terms?.accepted}
             />
           ))}
         </div>

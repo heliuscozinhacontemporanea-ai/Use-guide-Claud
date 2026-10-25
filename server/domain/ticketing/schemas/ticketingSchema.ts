@@ -103,6 +103,7 @@ export const createTicketOrderSchema = z
     promoCode: z.string().trim().max(80).optional(),
     promoterCode: z.string().trim().max(80).optional(),
     idempotencyKey: z.string().trim().min(1).max(150),
+    acceptedTermsVersion: z.string().trim().min(1).max(40),
   })
   .strict();
 

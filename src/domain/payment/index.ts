@@ -5,6 +5,8 @@ export { PartnerStripeConnectPortal } from './components/PartnerStripeConnectPor
 export { confirmPlanPaymentReturnUseCase } from './application/usecases/confirmPlanPaymentReturnUseCase';
 export { createPlanPaymentIntentUseCase } from './application/usecases/createPlanPaymentIntentUseCase';
 export { listPaymentAccountsUseCase } from './application/usecases/listPaymentAccountsUseCase';
+export { getPartnerTermsUseCase } from './application/usecases/getPartnerTermsUseCase';
+export { acceptPartnerTermsUseCase } from './application/usecases/acceptPartnerTermsUseCase';
 export { isPaidPlanId } from './utils/planIds';
 export type {
   CreatePaymentIntentResponse,

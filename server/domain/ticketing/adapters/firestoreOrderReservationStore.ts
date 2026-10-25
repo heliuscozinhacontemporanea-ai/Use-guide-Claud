@@ -120,6 +120,7 @@ export class FirestoreOrderReservationStore {
         buyerSnapshot: input.buyerSnapshot,
         eventSnapshot: input.eventSnapshot,
         salesPolicySnapshot: input.salesPolicySnapshot,
+        termsAcceptance: input.termsAcceptance,
         idempotencyKey: input.idempotencyKey,
         expiresAt: input.expiresAt,
         createdAt: nowIso,

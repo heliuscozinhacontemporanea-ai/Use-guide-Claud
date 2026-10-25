@@ -21,8 +21,6 @@ export interface TicketCheckoutTranslation {
   policy: {
     title: string;
     appliedTitle: string;
-    transferAllowed: string;
-    transferDisabled: string;
   };
   ticketCount_one: string;
   ticketCount_other: string;
@@ -92,10 +90,8 @@ export const ticketCheckoutPtBR: TicketCheckoutTranslation = {
   },
   promoCode: 'Cupom promocional (opcional)',
   policy: {
-    title: 'Cancelamento e transferência',
-    appliedTitle: 'Política aplicada a este pedido',
-    transferAllowed: 'Transferência de titularidade permitida até {{hours}} h antes do início.',
-    transferDisabled: 'Transferência de titularidade não habilitada para este evento.',
+    title: 'Política {{name}}',
+    appliedTitle: 'Política deste pedido ({{name}})',
   },
   ticketCount_one: '{{count}} ingresso',
   ticketCount_other: '{{count}} ingressos',
@@ -165,10 +161,8 @@ export const ticketCheckoutEn: TicketCheckoutTranslation = {
   },
   promoCode: 'Promo code (optional)',
   policy: {
-    title: 'Cancellation and transfer',
-    appliedTitle: 'Policy applied to this order',
-    transferAllowed: 'Ticket transfer allowed up to {{hours}} h before the start.',
-    transferDisabled: 'Ticket transfer is not enabled for this event.',
+    title: '{{name}} policy',
+    appliedTitle: 'Policy for this order ({{name}})',
   },
   ticketCount_one: '{{count}} ticket',
   ticketCount_other: '{{count}} tickets',
@@ -238,10 +232,8 @@ export const ticketCheckoutFr: TicketCheckoutTranslation = {
   },
   promoCode: 'Code promo (facultatif)',
   policy: {
-    title: 'Annulation et transfert',
-    appliedTitle: 'Politique appliquée à cette commande',
-    transferAllowed: 'Transfert du billet autorisé jusqu’à {{hours}} h avant le début.',
-    transferDisabled: 'Le transfert de billet n’est pas activé pour cet événement.',
+    title: 'Politique {{name}}',
+    appliedTitle: 'Politique de cette commande ({{name}})',
   },
   ticketCount_one: '{{count}} billet',
   ticketCount_other: '{{count}} billets',

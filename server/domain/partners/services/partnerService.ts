@@ -1,3 +1,8 @@
+import {
+  isCurrentPartnerTerms,
+  PARTNER_TERMS_VERSION,
+  type TermsAcceptance,
+} from '../../../shared/kernel/legalTerms';
 import { PartnerDomainError } from '../errors/partnerDomainError';
 import { PartnerPort } from '../ports/partnerPort';
 import type {
@@ -7,6 +12,12 @@ import type {
   PartnerStatus,
   RegisterPartnerResult,
 } from '../types/partnerTypes';
+
+export interface PartnerTermsStatus {
+  currentVersion: string;
+  accepted: boolean;
+  acceptance: TermsAcceptance | null;
+}
 
 export class PartnerService {
   constructor(private readonly partnerPort: PartnerPort) {}
@@ -28,6 +39,39 @@ export class PartnerService {
       );
     }
     return this.partnerPort.registerPartner(uid, data);
+  }
+
+  async getTermsStatus(partnerId: string): Promise<PartnerTermsStatus> {
+    const acceptance = await this.partnerPort.getTermsAcceptance(partnerId);
+    return {
+      currentVersion: PARTNER_TERMS_VERSION,
+      accepted: isCurrentPartnerTerms(acceptance),
+      acceptance,
+    };
+  }
+
+  /** Grava o aceite dos termos do parceiro (D15); só a versão atual é aceita. */
+  async acceptTerms(
+    partnerId: string,
+    version: string,
+    now = new Date()
+  ): Promise<PartnerTermsStatus> {
+    if (version !== PARTNER_TERMS_VERSION) {
+      throw new PartnerDomainError('INVALID_ARGUMENT', 'Versão dos termos desatualizada.');
+    }
+    const acceptance = { version, acceptedAt: now.toISOString() };
+    await this.partnerPort.recordTermsAcceptance(partnerId, acceptance);
+    return { currentVersion: PARTNER_TERMS_VERSION, accepted: true, acceptance };
+  }
+
+  async assertTermsAccepted(partnerId: string): Promise<void> {
+    const status = await this.getTermsStatus(partnerId);
+    if (!status.accepted) {
+      throw new PartnerDomainError(
+        'PARTNER_TERMS_NOT_ACCEPTED',
+        'Aceite os termos do parceiro para cadastrar a conta de recebimento.'
+      );
+    }
   }
 
   async getProfile(partnerId: string): Promise<PartnerProfileDocument | null> {

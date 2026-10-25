@@ -1,3 +1,4 @@
+import { BUYER_TERMS_VERSION } from '../../../shared/kernel/legalTerms';
 import { describe, expect, it } from 'vitest';
 import { InMemoryBookingsAdapter } from '../adapters/inMemoryBookingsAdapter';
 import type { BookableOffer } from '../types/bookingTypes';
@@ -67,6 +68,7 @@ const INPUT: CreatePendingBookingInput = {
   participants: [],
   idempotencyKey: 'key-12345',
   locale: 'pt-BR',
+  acceptedTermsVersion: BUYER_TERMS_VERSION,
 };
 
 describe('BookingService', () => {
@@ -81,6 +83,18 @@ describe('BookingService', () => {
       expiresAt: '2026-11-01T12:15:00.000Z',
     });
     expect(port.slots.get('slot-1')?.capacityReserved).toBe(2);
+  });
+
+  it('recusa sem o aceite da versão atual dos termos e grava a versão aceita (D15)', async () => {
+    const { service } = setup();
+    await expect(
+      service.createPendingBooking(BUYER, { ...INPUT, acceptedTermsVersion: 'antiga' }, FEES)
+    ).rejects.toMatchObject({ code: 'TERMS_NOT_ACCEPTED' });
+    const booking = await service.createPendingBooking(BUYER, INPUT, FEES);
+    expect(booking.termsAcceptance).toEqual({
+      version: BUYER_TERMS_VERSION,
+      acceptedAt: '2026-11-01T12:00:00.000Z',
+    });
   });
 
   it('mesma chave de idempotência devolve a mesma reserva sem reservar de novo', async () => {

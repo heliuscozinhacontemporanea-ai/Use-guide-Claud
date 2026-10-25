@@ -1,3 +1,4 @@
+import type { TermsAcceptance } from '../../../shared/kernel/legalTerms';
 import { FieldValue } from 'firebase-admin/firestore';
 import { adminDb } from '../../../infrastructure/firebase/adminClient';
 import { PartnerDomainError } from '../errors/partnerDomainError';
@@ -51,6 +52,28 @@ export class FirestorePartnerAdapter implements PartnerPort {
     if (!docSnap.exists) return null;
     const raw = (docSnap.data() || {}) as Record<string, unknown>;
     return toPartnerProfileDTO(partnerId, raw);
+  }
+
+  async getTermsAcceptance(partnerId: string): Promise<TermsAcceptance | null> {
+    const docSnap = await adminDb.collection('partners').doc(partnerId).get();
+    const raw = docSnap.data()?.termsAcceptance as Record<string, unknown> | undefined;
+    if (typeof raw?.version !== 'string' || typeof raw.acceptedAt !== 'string') return null;
+    return { version: raw.version, acceptedAt: raw.acceptedAt };
+  }
+
+  async recordTermsAcceptance(partnerId: string, acceptance: TermsAcceptance): Promise<void> {
+    const partnerRef = adminDb.collection('partners').doc(partnerId);
+    // Só no documento interno: o aceite não vai para a projeção pública (AGENTS.md §6.3).
+    await adminDb.runTransaction(async (transaction) => {
+      const snapshot = await transaction.get(partnerRef);
+      if (!snapshot.exists) {
+        throw new PartnerDomainError('NOT_FOUND', 'Perfil de parceiro não encontrado');
+      }
+      transaction.update(partnerRef, {
+        termsAcceptance: acceptance,
+        updatedAt: FieldValue.serverTimestamp(),
+      });
+    });
   }
 
   async updatePartnerStatus(partnerId: string, status: PartnerStatus): Promise<void> {

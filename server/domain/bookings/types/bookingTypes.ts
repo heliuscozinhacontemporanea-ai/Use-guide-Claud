@@ -1,3 +1,4 @@
+import type { TermsAcceptance } from '../../../shared/kernel/legalTerms';
 import type { BookingCancellationPolicy } from '../../../shared/kernel/cancellationPolicy';
 import type { Locale } from '../../../shared/kernel/locale';
 
@@ -123,6 +124,8 @@ export interface Booking {
   };
   /** Gravado ao cancelar: torna o cancelamento repetível sem recalcular o reembolso. */
   cancellation?: BookingCancellation;
+  /** Versão dos termos aceita na compra (D15). */
+  termsAcceptance?: TermsAcceptance;
   locale: Locale;
   idempotencyKey: string;
   createdAt: string;

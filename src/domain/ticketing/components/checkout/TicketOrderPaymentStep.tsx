@@ -74,11 +74,7 @@ export function TicketOrderPaymentStep({ order, checkout }: TicketOrderPaymentSt
       </dl>
 
       {order.salesPolicySnapshot && (
-        <SalesPolicyNotice
-          policy={order.salesPolicySnapshot}
-          applied
-          showServiceFeeNote={serviceFeeMinor > 0}
-        />
+        <SalesPolicyNotice policy={order.salesPolicySnapshot} applied />
       )}
 
       {paymentProcessing && (

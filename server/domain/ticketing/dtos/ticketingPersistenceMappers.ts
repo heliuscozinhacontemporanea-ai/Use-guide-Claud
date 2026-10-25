@@ -1,3 +1,4 @@
+import type { TermsAcceptance } from '../../../shared/kernel/legalTerms';
 import { isCancellationPolicyAllowed } from '../../../shared/kernel/cancellationPolicy';
 import type {
   EventCheckIn,
@@ -43,6 +44,12 @@ function normalizeSalesPolicySnapshot(
     ticketTransferCutoffHours:
       typeof raw.ticketTransferCutoffHours === 'number' ? raw.ticketTransferCutoffHours : 4,
   };
+}
+
+function toTermsAcceptance(raw: unknown): { termsAcceptance?: TermsAcceptance } {
+  const value = raw as Record<string, unknown> | undefined;
+  if (typeof value?.version !== 'string' || typeof value.acceptedAt !== 'string') return {};
+  return { termsAcceptance: { version: value.version, acceptedAt: value.acceptedAt } };
 }
 
 export class TicketTypePersistenceMapper {
@@ -139,6 +146,7 @@ export class TicketOrderPersistenceMapper {
           }
         : undefined,
       salesPolicySnapshot: normalizeSalesPolicySnapshot(rawPolicy),
+      ...toTermsAcceptance(raw.termsAcceptance),
       idempotencyKey: String(raw.idempotencyKey || ''),
       expiresAt: typeof raw.expiresAt === 'string' ? raw.expiresAt : undefined,
       createdAt: toIso(raw.createdAt, now),

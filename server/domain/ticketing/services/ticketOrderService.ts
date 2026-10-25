@@ -1,6 +1,7 @@
 import { createEventAuditLogUseCase, getEventListingByIdUseCase } from '../../events';
 import { OrderNotFoundError, TicketingDomainError } from '../errors/ticketingDomainError';
 import type { TicketingPort } from '../ports/ticketingPort';
+import { isCurrentBuyerTermsVersion } from '../../../shared/kernel/legalTerms';
 import {
   PlatformFeeConfigError,
   resolvePlatformFeeConfig,
@@ -52,6 +53,7 @@ export class TicketOrderService {
       promoCode?: string;
       promoterCode?: string;
       idempotencyKey: string;
+      acceptedTermsVersion: string;
     }
   ): Promise<{
     order: TicketOrder;
@@ -60,6 +62,13 @@ export class TicketOrderService {
     isIdempotentReplay: boolean;
     serverNow: string;
   }> {
+    // D15: sem o aceite da versão atual dos termos não há compra.
+    if (!isCurrentBuyerTermsVersion(input.acceptedTermsVersion)) {
+      throw new TicketingDomainError(
+        'UNPROCESSABLE_ENTITY',
+        'Aceite os termos de compra para continuar.'
+      );
+    }
     const nowMs = Date.now();
     const { occurrence, listing } = await loadOccurrenceOnSale(input.occurrenceId, nowMs);
 
@@ -134,6 +143,10 @@ export class TicketOrderService {
         locationName: occurrence.locationOverride?.name || listing.location.name,
       },
       salesPolicySnapshot: { ...listing.salesPolicy },
+      termsAcceptance: {
+        version: input.acceptedTermsVersion,
+        acceptedAt: new Date(nowMs).toISOString(),
+      },
       expiresAt,
       items: preparedItems,
       issueImmediately,

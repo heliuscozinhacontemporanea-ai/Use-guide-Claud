@@ -137,6 +137,7 @@ export interface CreateBookingPayload {
   participants: Array<{ name: string }>;
   idempotencyKey: string;
   locale: 'pt-BR' | 'en' | 'fr';
+  acceptedTermsVersion: string;
 }
 
 export interface CreateBookingResponse {

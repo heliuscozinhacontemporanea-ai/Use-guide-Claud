@@ -5,6 +5,10 @@ export const PaymentAccountSessionSchema = z
   .object({ accountKey: z.string().regex(/^[\w-]{43}$/) })
   .strict();
 
+export const AcceptPartnerTermsSchema = z
+  .object({ version: z.string().trim().min(1).max(40) })
+  .strict();
+
 export const ListPaymentAccountsQuerySchema = z
   .object({
     ownerUid: z

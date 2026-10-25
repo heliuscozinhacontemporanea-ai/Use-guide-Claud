@@ -52,6 +52,7 @@ const INPUT = {
   participants: [],
   idempotencyKey: 'key-12345',
   locale: 'pt-BR' as const,
+  acceptedTermsVersion: '2026-10-25',
 };
 const BUYER = { uid: 'buyer-1', admin: false, emailVerified: true };
 

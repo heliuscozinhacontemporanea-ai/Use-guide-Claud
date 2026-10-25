@@ -3,6 +3,7 @@ import type {
   PaidPlanId,
   CreatePlanPaymentIntentPayload,
   PartnerPaymentAccount,
+  PartnerTermsView,
   PaymentLocale,
   PlanSubscription,
   StartPlanSubscriptionPayload,
@@ -16,6 +17,8 @@ export interface PaymentApiPort {
   confirmPlanPaymentReturn(params: { paymentIntentId: string }): Promise<{ status: string }>;
   listPaymentAccounts(): Promise<PartnerPaymentAccount[]>;
   createPaymentAccountSession(accountKey: string): Promise<{ clientSecret: string }>;
+  getPartnerTerms(): Promise<PartnerTermsView>;
+  acceptPartnerTerms(version: string): Promise<PartnerTermsView>;
   startPlanSubscription(
     payload: StartPlanSubscriptionPayload
   ): Promise<StartPlanSubscriptionResponse>;

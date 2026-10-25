@@ -30,7 +30,6 @@ export function OfferPolicySummary({ offer }: { offer: PublicOffer }) {
           {t(`salesPolicy.policies.${family}.${policy}.description`)} {t('salesPolicy.noShow')}
         </span>
       </li>
-      <li className="text-ink/70">{t('salesPolicy.withdrawalNoFee')}</li>
     </ul>
   );
 }

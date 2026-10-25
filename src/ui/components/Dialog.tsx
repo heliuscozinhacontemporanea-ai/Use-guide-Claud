@@ -11,6 +11,8 @@ interface DialogProps {
   description?: string;
   children: ReactNode;
   className?: string;
+  /** Aberto por cima de outro modal (ex.: termos dentro do checkout). */
+  nested?: boolean;
 }
 
 export function Dialog({
@@ -20,13 +22,14 @@ export function Dialog({
   description,
   children,
   className,
+  nested = false,
 }: DialogProps) {
   return (
     <RadixDialog.Root open={open} onOpenChange={onOpenChange}>
       <RadixDialog.Portal>
         <RadixDialog.Overlay
           className="fixed inset-0 bg-scrim backdrop-blur-md animate-fade-in data-[state=closed]:animate-fade-out motion-reduce:animate-none"
-          style={{ zIndex: Z_INDEX.overlay }}
+          style={{ zIndex: nested ? Z_INDEX.modalNested : Z_INDEX.overlay }}
         />
         {/* Celular: folha que sobe da borda (como num app nativo). Do sm em diante: cartão central. */}
         <RadixDialog.Content
@@ -35,7 +38,7 @@ export function Dialog({
             'sm:inset-x-auto sm:bottom-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-[calc(100%-2rem)] sm:pb-6 sm:rounded-3xl sm:animate-scale-in sm:data-[state=closed]:animate-scale-out',
             className
           )}
-          style={{ zIndex: Z_INDEX.modal }}
+          style={{ zIndex: nested ? Z_INDEX.modalNested : Z_INDEX.modal }}
           // O Radix foca o primeiro controle (o botão fechar) e o anel de foco aparece sem o usuário usar o teclado.
           // Focar a própria folha mantém o Tab e o leitor de tela começando dentro do diálogo.
           onOpenAutoFocus={(event) => {

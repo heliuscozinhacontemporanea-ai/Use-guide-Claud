@@ -76,6 +76,7 @@ export interface TicketingPort {
     buyer: { name: string; email: string };
     promoCode?: string;
     idempotencyKey: string;
+    acceptedTermsVersion: string;
   }): Promise<CreateOrderResult>;
   createOrderPaymentIntent(
     orderId: string,

@@ -64,7 +64,7 @@ const BOOKING = {
   offerSnapshot: {
     title: 'Passeio',
     startsAt: '2026-11-10T11:00:00.000Z',
-    cancellationPolicy: { freeCancellationHoursBefore: 24, refundPercentAfterDeadline: 50 },
+    cancellationPolicy: 'flexible',
   },
   locale: 'pt-BR',
   createdAt: '',
@@ -76,6 +76,7 @@ const VALID_BODY = {
   slotId: 'slot-1',
   lines: [{ priceOptionId: 'adult', quantity: 2 }],
   locale: 'pt-BR',
+  acceptedTermsVersion: '2026-10-25',
 };
 
 describe('BookingsController', () => {

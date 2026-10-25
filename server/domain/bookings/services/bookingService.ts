@@ -12,6 +12,7 @@ import {
 import { buildBookingId } from '../utils/buildBookingId';
 import { priceBookingLines } from '../utils/bookingPricing';
 import { calculateBuyerRefund } from '../../../shared/kernel/cancellationPolicy';
+import { isCurrentBuyerTermsVersion } from '../../../shared/kernel/legalTerms';
 import type { PlatformFeeConfig } from '../../../shared/kernel/platformFees';
 
 // Tempo para pagar antes de a vaga voltar para a venda (inclui o Pix, que é assíncrono).
@@ -25,6 +26,7 @@ export interface CreatePendingBookingInput {
   participants: Array<{ name: string }>;
   idempotencyKey: string;
   locale: Locale;
+  acceptedTermsVersion: string;
 }
 
 export interface BuyerCancellationResult {
@@ -49,6 +51,13 @@ export class BookingService {
     input: CreatePendingBookingInput,
     feeConfig: PlatformFeeConfig
   ): Promise<Booking> {
+    // D15: sem o aceite da versão atual dos termos não há compra.
+    if (!isCurrentBuyerTermsVersion(input.acceptedTermsVersion)) {
+      throw new BookingDomainError(
+        'TERMS_NOT_ACCEPTED',
+        'Aceite os termos de compra para continuar.'
+      );
+    }
     const offer = await this.port.getOffer(input.offerId);
     if (offer?.status !== 'published') {
       throw new BookingDomainError('NOT_FOUND', 'Oferta não encontrada.');
@@ -89,6 +98,7 @@ export class BookingService {
         ...(offer.meetingPoint ? { meetingPoint: offer.meetingPoint.address } : {}),
         cancellationPolicy: offer.cancellationPolicy,
       },
+      termsAcceptance: { version: input.acceptedTermsVersion, acceptedAt: timestamp },
       locale: input.locale,
       idempotencyKey: input.idempotencyKey,
       createdAt: timestamp,

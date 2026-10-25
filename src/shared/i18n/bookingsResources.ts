@@ -171,6 +171,7 @@ export interface BookingsTranslation {
     LATE_PAYMENT_REJECTED: string;
     KIND_NOT_AVAILABLE: string;
     CANCELLATION_NOT_ALLOWED: string;
+    TERMS_NOT_ACCEPTED: string;
     SELLER_ACCOUNT_NOT_ELIGIBLE: string;
     INTERNAL_ERROR: string;
   };
@@ -352,6 +353,7 @@ export const bookingsPtBR: BookingsTranslation = {
     LATE_PAYMENT_REJECTED: 'O pagamento chegou depois do prazo e será devolvido.',
     KIND_NOT_AVAILABLE: 'Este tipo de oferta ainda não está disponível.',
     CANCELLATION_NOT_ALLOWED: 'Esta reserva não pode ser cancelada.',
+    TERMS_NOT_ACCEPTED: 'Aceite os termos para continuar.',
     SELLER_ACCOUNT_NOT_ELIGIBLE: 'O parceiro ainda não pode receber pagamentos online.',
     INTERNAL_ERROR: 'Algo deu errado. Tente novamente em instantes.',
   },
@@ -530,6 +532,7 @@ export const bookingsEn: BookingsTranslation = {
     LATE_PAYMENT_REJECTED: 'The payment arrived after the deadline and will be refunded.',
     KIND_NOT_AVAILABLE: 'This kind of offer is not available yet.',
     CANCELLATION_NOT_ALLOWED: 'This booking cannot be canceled.',
+    TERMS_NOT_ACCEPTED: 'Accept the terms to continue.',
     SELLER_ACCOUNT_NOT_ELIGIBLE: 'This partner cannot receive online payments yet.',
     INTERNAL_ERROR: 'Something went wrong. Please try again shortly.',
   },
@@ -713,6 +716,7 @@ export const bookingsFr: BookingsTranslation = {
     LATE_PAYMENT_REJECTED: 'Le paiement est arrivé après le délai et sera remboursé.',
     KIND_NOT_AVAILABLE: 'Ce type d’offre n’est pas encore disponible.',
     CANCELLATION_NOT_ALLOWED: 'Cette réservation ne peut pas être annulée.',
+    TERMS_NOT_ACCEPTED: 'Acceptez les conditions pour continuer.',
     SELLER_ACCOUNT_NOT_ELIGIBLE: 'Ce partenaire ne peut pas encore recevoir de paiements en ligne.',
     INTERNAL_ERROR: 'Un problème est survenu. Réessayez dans un instant.',
   },

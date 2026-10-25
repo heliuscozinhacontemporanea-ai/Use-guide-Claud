@@ -2,7 +2,12 @@ import type { Response } from 'express';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
 
-const m = vi.hoisted(() => ({ list: vi.fn(), session: vi.fn() }));
+const m = vi.hoisted(() => ({
+  list: vi.fn(),
+  session: vi.fn(),
+  getTerms: vi.fn(),
+  acceptTerms: vi.fn(),
+}));
 
 vi.mock(
   '../../../application/usecases/paymentAccounts/listPartnerPaymentAccountsApplicationUseCase',
@@ -13,6 +18,17 @@ vi.mock(
   () => ({ startPaymentAccountSessionApplicationUseCase: m.session })
 );
 
+vi.mock('../../../application/usecases/paymentAccounts/getPartnerTermsApplicationUseCase', () => ({
+  getPartnerTermsApplicationUseCase: m.getTerms,
+}));
+vi.mock(
+  '../../../application/usecases/paymentAccounts/acceptPartnerTermsApplicationUseCase',
+  () => ({
+    acceptPartnerTermsApplicationUseCase: m.acceptTerms,
+  })
+);
+
+import { PartnerDomainError } from '../../../domain/partners/errors/partnerDomainError';
 import { ListingVerificationError } from '../../../domain/partners/errors/listingVerificationError';
 import { PaymentAccountController } from './paymentAccountController';
 
@@ -102,5 +118,35 @@ describe('PaymentAccountController (D14)', () => {
     await PaymentAccountController.list(request({}), res as unknown as Response);
     expect(res.status).toHaveBeenCalledWith(503);
     expect(JSON.stringify(res.json.mock.calls)).not.toContain('sk_test');
+  });
+
+  it('sessão sem os termos do parceiro aceitos: 422 com código estável (D15)', async () => {
+    m.session.mockRejectedValue(
+      new PartnerDomainError('PARTNER_TERMS_NOT_ACCEPTED', 'Aceite os termos do parceiro.')
+    );
+    const res = response();
+    await PaymentAccountController.createSession(
+      request({ body: { accountKey: KEY } }),
+      res as unknown as Response
+    );
+    expect(res.status).toHaveBeenCalledWith(422);
+    expect(res.json.mock.calls[0]?.[0]).toMatchObject({
+      error: { code: 'PARTNER_TERMS_NOT_ACCEPTED' },
+    });
+  });
+
+  it('aceite dos termos: só a versão, sempre em nome de quem está logado', async () => {
+    m.acceptTerms.mockResolvedValue({ accepted: true });
+    const res = response();
+    await PaymentAccountController.acceptTerms(
+      request({ body: { version: '2026-10-25', ownerUid: 'owner-2' } }),
+      res as unknown as Response
+    );
+    expect(res.status).toHaveBeenCalledWith(400);
+    await PaymentAccountController.acceptTerms(
+      request({ body: { version: '2026-10-25' } }),
+      res as unknown as Response
+    );
+    expect(m.acceptTerms).toHaveBeenCalledWith('owner-1', '2026-10-25');
   });
 });

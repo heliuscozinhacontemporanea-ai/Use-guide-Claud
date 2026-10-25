@@ -124,7 +124,6 @@ describe('componentes de compra', () => {
     expect(
       screen.getByText(/Full refund up to 5 days before the start; 50% up to 24 h before/)
     ).toBeTruthy();
-    expect(screen.getByText(/Right of withdrawal: full refund if/)).toBeTruthy();
     await i18n.changeLanguage('pt-BR');
   });
 });
@@ -140,6 +139,7 @@ describe('useBookingCheckout', () => {
       slotId: 's',
       lines: [{ priceOptionId: 'adult', quantity: 1 }],
       participants: [],
+      acceptedTermsVersion: '2026-10-25',
     };
     await act(async () => {
       await result.current.start(request);

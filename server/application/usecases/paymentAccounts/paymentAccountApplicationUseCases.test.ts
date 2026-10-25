@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('../../../domain/partners', () => ({
   listOwnerSalesDocumentsUseCase: vi.fn(),
   getOwnerSalesDocumentUseCase: vi.fn(),
+  assertPartnerTermsAcceptedUseCase: vi.fn(),
 }));
 vi.mock('../../../domain/payment', () => ({
   listOwnerPaymentAccountsUseCase: vi.fn(),
@@ -10,6 +11,7 @@ vi.mock('../../../domain/payment', () => ({
 }));
 
 import {
+  assertPartnerTermsAcceptedUseCase,
   getOwnerSalesDocumentUseCase,
   listOwnerSalesDocumentsUseCase,
 } from '../../../domain/partners';
@@ -79,6 +81,14 @@ describe('contas de recebimento por CNPJ (D14)', () => {
     await expect(
       startPaymentAccountSessionApplicationUseCase({ uid: 'intruso', email: '' }, 'key-1')
     ).rejects.toMatchObject({ code: 'NOT_FOUND' });
+    expect(createPaymentAccountSessionUseCase).not.toHaveBeenCalled();
+  });
+
+  it('sem os termos do parceiro aceitos, não abre o cadastro no Stripe (D15)', async () => {
+    vi.mocked(assertPartnerTermsAcceptedUseCase).mockRejectedValueOnce(new Error('terms'));
+    await expect(
+      startPaymentAccountSessionApplicationUseCase({ uid: 'owner-1', email: 'a@b.c' }, 'key-1')
+    ).rejects.toThrow('terms');
     expect(createPaymentAccountSessionUseCase).not.toHaveBeenCalled();
   });
 });

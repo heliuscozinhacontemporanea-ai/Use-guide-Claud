@@ -24,6 +24,7 @@
 | D12 | Verificação e documento por estabelecimento; venda só com verificação | ✅ Aprovada | 2026-10-19 |
 | D13 | Troca de período do plano na próxima renovação | ✅ Aprovada | 2026-10-24 |
 | D14 | Repasse por documento, retenção até o serviço, taxas e cancelamentos | ✅ Aprovada | 2026-10-24 |
+| D15 | Termos com aceite registrado e idioma do editor de conteúdo | ✅ Aprovada | 2026-10-25 |
 
 ---
 
@@ -219,4 +220,14 @@ Objetivo: proteger os dois lados, o consumidor (o dinheiro só sai depois do ser
 * **Desenho do 18.4 aprovado (2026-10-24, `06-repasse-design.md`):** a conta do CNPJ é do titular, e o cadastro de um representante com o mesmo CNPJ só recebe nela depois que o titular aprova o vínculo; taxas em pontos-base por variável de ambiente, sem valor padrão no código; job de liberação de hora em hora; 6 prompts (18.4a a 18.4f). A S15 entra no AGENTS.md pelo prompt A5, junto com a S14.
 * **Validação jurídica antes das chaves `sk_live_` (junto com a condição da D1):** termos do parceiro (multa de 20%, inclusive em força maior — Código Civil art. 393 —, compensação com repasses, bloqueio), limite de 48 h do arrependimento, políticas de cancelamento e a guarda do dinheiro no saldo do Stripe até o serviço (regulação do Banco Central).
 * **Prompts:** 18.4 (contas por documento, retenção e liberação) e seguintes; desenho apresentado para aprovação antes do código.
+
+## D15 — Termos com aceite registrado e idioma do editor de conteúdo (2026-10-25)
+
+* **Termos neutros da plataforma** em Sobre o app → Termos: termos de uso; compras, cancelamento e reembolso (todas as políticas, arrependimento, no-show, cancelamento pelo organizador, reagendamento por força maior, contestações); termos do parceiro; privacidade. Texto fixo da plataforma nos arquivos de tradução, com versão e data e o aviso de que vale a versão em português. Fonte: `src/shared/i18n/legalResources.ts`.
+* **Checkout (2A):** uma linha com a política deste evento ou desta oferta, o link para os termos (abre num diálogo, sem perder a reserva) e a caixa "Li e aceito", obrigatória para continuar. O total com a taxa de serviço destacada continua no resumo (AGENTS.md §8.7; CDC art. 6º, III, e art. 31; Decreto 7.962/2013).
+* **Prova do aceite (3A):** o pedido de ingresso e a reserva gravam `termsAcceptance { version, acceptedAt }`; o backend recusa a compra sem a versão atual (`BUYER_TERMS_VERSION` em `server/shared/kernel/legalTerms.ts`, espelhada no frontend com teste de paridade). Mudou o texto, muda a versão.
+* **Termos do parceiro (4A):** aceite com versão e data no perfil do parceiro (`partners/{uid}.termsAcceptance`), pedido em Recebimentos antes de cadastrar a conta Stripe de qualquer CNPJ — passo obrigatório antes de qualquer venda paga, de evento ou de oferta. O texto mostra as taxas vigentes vindas do backend. O aceite de "termos de parceria" no cadastro de parceiro continua como está.
+* **Idioma do editor (1A):** as abas de idioma do editor de oferta e o texto só em português do editor de evento contrariam a D5 e o AGENTS.md §12.6. Corrige no 19.1, junto com a tradução automática (débito B28).
+* **Validação jurídica** dos textos antes das chaves `sk_live_`, como na D14.
+* **Prompt:** 18.4b.3.
 

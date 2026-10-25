@@ -25,6 +25,19 @@ export interface CreatePaymentIntentResponse {
   orderStatus?: string;
 }
 
+/** Aceite dos termos do parceiro (D15) e taxas vigentes para o texto dos termos. */
+export interface PartnerTermsView {
+  currentVersion: string;
+  accepted: boolean;
+  acceptedAt: string | null;
+  fees: {
+    bookingsBps: number;
+    ticketsBps: number;
+    ticketsAbsorbedBps: number;
+    ticketServiceFeeMinor: number;
+  } | null;
+}
+
 /** Conta Stripe de um CNPJ verificado (D14); `account` é `null` antes de o parceiro iniciar o cadastro. */
 export interface PartnerPaymentAccount {
   accountKey: string;

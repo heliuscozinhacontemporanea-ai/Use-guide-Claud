@@ -1,3 +1,4 @@
+import type { TermsAcceptance } from '../../../shared/kernel/legalTerms';
 import type { EventCancellationPolicy } from '../../../shared/kernel/cancellationPolicy';
 import type { ServiceFeeMode } from '../../../shared/kernel/platformFees';
 export type MoneyMinor = number;
@@ -119,6 +120,8 @@ export interface TicketOrder {
     locationName?: string;
   };
   salesPolicySnapshot: TicketOrderSalesPolicySnapshot;
+  /** Versão dos termos aceita na compra (D15). */
+  termsAcceptance?: TermsAcceptance;
   idempotencyKey: string;
   expiresAt?: string;
   createdAt: string;
