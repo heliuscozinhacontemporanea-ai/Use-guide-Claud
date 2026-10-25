@@ -24,7 +24,6 @@ export interface TicketCheckoutTranslation {
   };
   ticketCount_one: string;
   ticketCount_other: string;
-  plusServiceFee: string;
   registerFree: string;
   reserve: string;
   errors: {
@@ -95,7 +94,6 @@ export const ticketCheckoutPtBR: TicketCheckoutTranslation = {
   },
   ticketCount_one: '{{count}} ingresso',
   ticketCount_other: '{{count}} ingressos',
-  plusServiceFee: '+ taxa de serviço, mostrada antes do pagamento',
   registerFree: 'Inscrever-se gratuitamente',
   reserve: 'Reservar e pagar',
   errors: {
@@ -166,7 +164,6 @@ export const ticketCheckoutEn: TicketCheckoutTranslation = {
   },
   ticketCount_one: '{{count}} ticket',
   ticketCount_other: '{{count}} tickets',
-  plusServiceFee: '+ service fee, shown before payment',
   registerFree: 'Register for free',
   reserve: 'Reserve and pay',
   errors: {
@@ -237,7 +234,6 @@ export const ticketCheckoutFr: TicketCheckoutTranslation = {
   },
   ticketCount_one: '{{count}} billet',
   ticketCount_other: '{{count}} billets',
-  plusServiceFee: '+ frais de service, affichés avant le paiement',
   registerFree: 'S’inscrire gratuitement',
   reserve: 'Réserver et payer',
   errors: {

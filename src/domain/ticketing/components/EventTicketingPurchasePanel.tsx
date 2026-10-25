@@ -157,11 +157,6 @@ export function EventTicketingPurchasePanel({
                       ? t('ticketCheckout.free')
                       : formatMoneyMinor(checkout.estimatedSubtotalMinor, i18n.language)}
                   </span>
-                  {!checkout.isAllFree && salesPolicy?.serviceFeeMode === 'pass_to_buyer' && (
-                    <span className="text-xs text-ink/70 block">
-                      {t('ticketCheckout.plusServiceFee')}
-                    </span>
-                  )}
                 </div>
                 <button
                   type="button"
