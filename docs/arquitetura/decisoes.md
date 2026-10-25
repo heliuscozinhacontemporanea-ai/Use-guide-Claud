@@ -25,6 +25,7 @@
 | D13 | Troca de período do plano na próxima renovação | ✅ Aprovada | 2026-10-24 |
 | D14 | Repasse por documento, retenção até o serviço, taxas e cancelamentos | ✅ Aprovada | 2026-10-24 |
 | D15 | Termos com aceite registrado e idioma do editor de conteúdo | ✅ Aprovada | 2026-10-25 |
+| D16 | Dívidas, reclamações, força maior e reagendamento | ✅ Aprovada | 2026-10-25 |
 
 ---
 
@@ -230,4 +231,17 @@ Objetivo: proteger os dois lados, o consumidor (o dinheiro só sai depois do ser
 * **Idioma do editor (1A):** as abas de idioma do editor de oferta e o texto só em português do editor de evento contrariam a D5 e o AGENTS.md §12.6. Corrige no 19.1, junto com a tradução automática (débito B28).
 * **Validação jurídica** dos textos antes das chaves `sk_live_`, como na D14.
 * **Prompt:** 18.4b.3.
+
+## D16 — Dívidas, reclamações, força maior e reagendamento (2026-10-25)
+
+Detalha o que a D14 deixou para o 18.4d.
+
+* **Divisão (1A):** 18.4d.1 dívidas e multa (`accountDebts`, multa do cancelamento pelo proprietário, pagamento, desconto nos repasses, bloqueio, contestação perdida sem prova, reembolso depois do repasse — B29); 18.4d.2 reclamações do comprador; 18.4d.3 força maior e reagendamento. As telas vêm no 18.4e (parceiro) e no 18.4f (comprador e admin), com prints para conferência.
+* **Motivos da reclamação (2A):** lista fechada — "Não aconteceu", "Muito diferente do anunciado", "Cancelado ou remarcado sem aviso", "Problema de segurança", "Outro" (texto curto, fora dos logs). Prazo: até 48 h depois do fim do serviço.
+* **Força maior (3A):** o proprietário declara o motivo e anexa prova (PDF ou foto, caminho privado); o admin aprova. Até a decisão, a multa fica suspensa; recusada, passa a valer com prazo de 24 h.
+* **Reagendamento (4A):** o ingresso ou a reserva vale na nova data; o comprador pode pedir reembolso integral, inclusive a taxa de serviço, em até 7 dias depois do aviso; sem resposta, vale a nova data.
+* **Contestação perdida em reserva (5A):** sem check-in no app, vira dívida do CNPJ; o admin pode perdoar quando o parceiro mostrar prova do serviço feita fora do app.
+* **Bloqueio por dívida (6A):** dívida vencida bloqueia só novas vendas de todos os estabelecimentos do CNPJ; o que já foi vendido continua valendo e os repasses pendentes quitam a dívida.
+* **Detalhes de implementação:** multa = 20% do valor vendido sem as taxas de serviço, para baixo; vence 24 h depois do cancelamento; desconto nos repasses começa no vencimento, dos repasses mais antigos primeiro. Contestação perdida com check-in fica com a plataforma (o repasse segue); sem check-in, o proprietário perde o repasse da venda ou, se já recebeu, a parte dele vira dívida. Reembolso depois do repasse vira dívida com prazo de 24 h.
+* **Prompts:** 18.4d.1, 18.4d.2, 18.4d.3.
 
