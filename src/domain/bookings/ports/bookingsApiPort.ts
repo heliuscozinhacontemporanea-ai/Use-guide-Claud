@@ -22,6 +22,11 @@ export interface BookingsApiPort {
   listPartnerSlots(offerId: string, fromIso: string, toIso: string): Promise<PartnerSlot[]>;
   createSlots(offerId: string, payload: CreateSlotsPayload): Promise<PartnerSlot[]>;
   cancelSlot(offerId: string, slotId: string): Promise<{ canceledBookings: number }>;
+  rescheduleSlot(
+    offerId: string,
+    slotId: string,
+    change: { startsAt: string; reason: string }
+  ): Promise<{ rescheduledBookings: number }>;
   listOfferBookings(offerId: string, cursor?: string | null): Promise<Page<BookingSummary>>;
   markNoShow(bookingId: string): Promise<BookingSummary>;
 

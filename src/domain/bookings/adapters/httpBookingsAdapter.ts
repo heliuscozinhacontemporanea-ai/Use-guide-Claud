@@ -76,6 +76,17 @@ export class HttpBookingsAdapter implements BookingsApiPort {
     );
   }
 
+  async rescheduleSlot(
+    offerId: string,
+    slotId: string,
+    change: { startsAt: string; reason: string }
+  ): Promise<{ rescheduledBookings: number }> {
+    return call(
+      `${offerPath(offerId)}/slots/${encodeURIComponent(slotId)}/reschedule`,
+      json('POST', change)
+    );
+  }
+
   async listOfferBookings(offerId: string, cursor?: string | null): Promise<Page<BookingSummary>> {
     const query = new URLSearchParams({ limit: '20', ...(cursor ? { cursor } : {}) });
     return call(`${offerPath(offerId)}/bookings?${query}`);

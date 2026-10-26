@@ -13,7 +13,7 @@ export function ListLoading({ label }: { label: string }) {
 }
 
 export function ListEmpty({ message }: { message: string }) {
-  return <p className="py-6 text-center text-sm text-white/60">{message}</p>;
+  return <p className="py-6 text-center text-sm text-ink/70">{message}</p>;
 }
 
 export function ListError({ message, onRetry }: { message: string; onRetry: () => void }) {
@@ -21,14 +21,14 @@ export function ListError({ message, onRetry }: { message: string; onRetry: () =
   return (
     <div
       role="alert"
-      className="flex flex-wrap items-center gap-3 p-3 rounded-xl bg-red-500/10 border border-red-500/25"
+      className="flex flex-wrap items-center gap-3 p-3 rounded-xl bg-danger-soft border border-danger-line"
     >
-      <AlertCircle size={16} className="text-red-400 shrink-0" aria-hidden="true" />
-      <p className="flex-1 text-xs text-red-200">{message}</p>
+      <AlertCircle size={16} className="text-danger shrink-0" aria-hidden="true" />
+      <p className="flex-1 text-xs text-danger">{message}</p>
       <button
         type="button"
         onClick={onRetry}
-        className="min-h-11 px-3 rounded-lg bg-white/10 hover:bg-white/15 text-white text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-teal-400/50"
+        className="press min-h-11 px-3 rounded-lg bg-surface border border-line hover:bg-accent-soft text-ink text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-teal-400/50"
       >
         <RefreshCw size={13} aria-hidden="true" />
         {t('bookings.partner.retry')}
@@ -38,8 +38,8 @@ export function ListError({ message, onRetry }: { message: string; onRetry: () =
 }
 
 export const BUTTON_PRIMARY =
-  'min-h-11 px-4 rounded-xl bg-teal-400 hover:bg-teal-300 text-slate-950 text-sm font-bold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none';
+  'press min-h-11 px-4 rounded-xl bg-teal-400 hover:bg-teal-300 text-slate-950 text-sm font-bold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none';
 export const BUTTON_SECONDARY =
-  'min-h-11 px-3 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none';
+  'press min-h-11 px-3 rounded-xl bg-surface border border-line hover:bg-accent-soft text-ink text-xs font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none';
 export const INPUT =
-  'w-full min-h-11 px-3 rounded-xl bg-white/5 border border-white/10 text-sm text-white focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none';
+  'w-full min-h-11 px-3 rounded-xl bg-surface border border-line text-sm text-ink focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none';

@@ -12,12 +12,7 @@ import { PartnerBookingsList } from './PartnerBookingsList';
 import { PartnerOfferEditor } from './PartnerOfferEditor';
 import { PartnerOfferRow } from './PartnerOfferRow';
 import { PartnerSlotsManager } from './PartnerSlotsManager';
-
-// Fase 1 (decisão D3): passeio vende horários; atração vende entradas.
-const KIND_BY_CATEGORY: Record<string, PartnerOffer['kind']> = {
-  tour: 'tour',
-  sight: 'private_entry',
-};
+import { isBookableCategory, offerKindForCategory } from '../../utils/offerKindByCategory';
 
 type View =
   | { type: 'list' }
@@ -28,8 +23,8 @@ interface PartnerOffersManagerProps {
   items: BookableGuideItem[];
   /** Aviso montado pela composição quando a conta financeira ainda não está habilitada. */
   accountNotice?: ReactNode;
-  /** Publicar só com a conta financeira pronta; o servidor confere de novo. */
-  canPublish: boolean;
+  /** Publicar só com a conta do CNPJ do estabelecimento pronta (D14); o servidor confere de novo. */
+  canPublish: (guideItemId: string) => boolean;
 }
 
 export function PartnerOffersManager({
@@ -43,7 +38,7 @@ export function PartnerOffersManager({
   const [busyId, setBusyId] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [confirm, setConfirm] = useState<ConfirmDialogData | null>(null);
-  const eligible = items.filter((item) => KIND_BY_CATEGORY[item.category]);
+  const eligible = items.filter((item) => isBookableCategory(item.category));
 
   const changeStatus = async (offer: PartnerOffer, status: Exclude<OfferStatus, 'draft'>) => {
     setBusyId(offer.id);
@@ -105,7 +100,7 @@ export function PartnerOffersManager({
           defaultValues={
             view.offer
               ? offerToFormValues(view.offer)
-              : emptyOfferFormValues(KIND_BY_CATEGORY[view.item.category] ?? 'tour')
+              : emptyOfferFormValues(offerKindForCategory(view.item.category) ?? 'tour')
           }
           onCancel={() => setView({ type: 'list' })}
           onSubmit={async (fields, kind) => {
@@ -165,7 +160,7 @@ export function PartnerOffersManager({
                           key={offer.id}
                           offer={offer}
                           busy={busyId === offer.id}
-                          canPublish={canPublish}
+                          canPublish={canPublish(item.id)}
                           onEdit={() => setView({ type: 'editor', item, offer })}
                           onSlots={() => setView({ type: 'slots', offer })}
                           onBookings={() => setView({ type: 'bookings', offer })}

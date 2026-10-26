@@ -4,4 +4,5 @@ export { BookingResultView } from './components/buyer/BookingResultView';
 export { MyBookingsView } from './components/buyer/MyBookingsView';
 export type { PaymentElementSlotProps, RenderPaymentElement } from './components/buyer/types';
 export { PartnerOffersManager } from './components/partner/PartnerOffersManager';
+export { isBookableCategory } from './utils/offerKindByCategory';
 export type { BookableGuideItem } from './types/bookings';

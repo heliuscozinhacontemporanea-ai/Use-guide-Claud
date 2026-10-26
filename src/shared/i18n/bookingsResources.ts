@@ -65,6 +65,7 @@ export interface BookingsTranslation {
     actionFailed: string;
     stripeRequired: string;
     publishNeedsStripe: string;
+    stripeRequiredSome: string;
     accountStatusError: string;
     fromPrice: string;
   };
@@ -125,12 +126,30 @@ export interface BookingsTranslation {
     created_other: string;
     createFailed: string;
     cancelSlot: string;
-    confirmCancelSlot: string;
     canceled_one: string;
     canceled_other: string;
     statusClosed: string;
     statusCanceled: string;
     timezoneNotice: string;
+    reschedule: string;
+    rescheduleTitle: string;
+    rescheduleDescription: string;
+    newDateTime: string;
+    rescheduleReason: string;
+    rescheduleReasonHint: string;
+    rescheduleSubmit: string;
+    rescheduled_one: string;
+    rescheduled_other: string;
+    rescheduleInvalid: string;
+    cancelTitle: string;
+    cancelNoSales: string;
+    cancelWithSales_one: string;
+    cancelWithSales_other: string;
+    cancelPenalty: string;
+    cancelForceMajeure: string;
+    rescheduleInstead: string;
+    cancelAnyway: string;
+    back: string;
   };
   weekdays: {
     '0': string;
@@ -245,7 +264,10 @@ export const bookingsPtBR: BookingsTranslation = {
     confirmArchive: 'Arquivar esta oferta? Ela sai do site e não pode ser reaberta.',
     actionFailed: 'Não foi possível concluir a ação.',
     stripeRequired: 'Para vender reservas, conclua a configuração financeira da sua conta.',
-    publishNeedsStripe: 'Conclua a configuração financeira para publicar.',
+    publishNeedsStripe:
+      'Conclua a configuração financeira do CNPJ deste estabelecimento para publicar.',
+    stripeRequiredSome:
+      'Alguns estabelecimentos ainda não podem vender: conclua a configuração financeira do CNPJ de cada um em Recebimentos.',
     accountStatusError: 'Não foi possível verificar sua conta financeira agora.',
     fromPrice: 'a partir de {{amount}}',
   },
@@ -306,13 +328,36 @@ export const bookingsPtBR: BookingsTranslation = {
     created_other: '{{count}} horários criados.',
     createFailed: 'Não foi possível criar os horários.',
     cancelSlot: 'Cancelar horário',
-    confirmCancelSlot:
-      'Cancelar este horário? Todas as reservas pagas serão reembolsadas integralmente.',
     canceled_one: 'Horário cancelado. {{count}} reserva reembolsada.',
     canceled_other: 'Horário cancelado. {{count}} reservas reembolsadas.',
     statusClosed: 'Fechado',
     statusCanceled: 'Cancelado',
     timezoneNotice: 'Horários no fuso de Fortaleza (UTC−3).',
+    reschedule: 'Remarcar',
+    rescheduleTitle: 'Remarcar horário',
+    rescheduleDescription:
+      'As reservas valem na nova data, sem multa para você. Cada comprador é avisado e tem 7 dias para cancelar com reembolso integral.',
+    newDateTime: 'Nova data e hora',
+    rescheduleReason: 'Motivo',
+    rescheduleReasonHint: 'Aparece para os compradores. De 3 a 300 caracteres.',
+    rescheduleSubmit: 'Remarcar horário',
+    rescheduled_one: 'Horário remarcado. {{count}} reserva vale na nova data.',
+    rescheduled_other: 'Horário remarcado. {{count}} reservas valem na nova data.',
+    rescheduleInvalid: 'Informe uma data futura e o motivo.',
+    cancelTitle: 'Cancelar horário',
+    cancelNoSales:
+      'Este horário não tem reservas pagas. Cancelar fecha o horário para novas reservas.',
+    cancelWithSales_one:
+      'Este horário tem {{count}} vaga vendida. A reserva paga será reembolsada por inteiro.',
+    cancelWithSales_other:
+      'Este horário tem {{count}} vagas vendidas. As reservas pagas serão reembolsadas por inteiro.',
+    cancelPenalty:
+      'Seu CNPJ paga multa de 20% do valor vendido, com 24 h para pagar em Recebimentos › Dívidas. Depois disso, a multa é descontada dos repasses e as vendas do CNPJ ficam pausadas.',
+    cancelForceMajeure:
+      'Foi por força maior (ex.: vento ou mar acima do limite)? Declare em Recebimentos › Dívidas antes do vencimento: a multa fica suspensa até a análise.',
+    rescheduleInstead: 'Remarcar em vez de cancelar',
+    cancelAnyway: 'Cancelar horário',
+    back: 'Voltar',
   },
   weekdays: {
     '0': 'Dom',
@@ -425,7 +470,9 @@ export const bookingsEn: BookingsTranslation = {
     confirmArchive: 'Archive this offer? It leaves the site and cannot be reopened.',
     actionFailed: 'The action could not be completed.',
     stripeRequired: 'To sell bookings, finish your account payment setup.',
-    publishNeedsStripe: 'Finish your payment setup to publish.',
+    publishNeedsStripe: 'Finish the payment setup for this place’s CNPJ to publish.',
+    stripeRequiredSome:
+      'Some places can’t sell yet: finish the payment setup for each one’s CNPJ under Payouts.',
     accountStatusError: 'We couldn’t check your payment account right now.',
     fromPrice: 'from {{amount}}',
   },
@@ -486,12 +533,35 @@ export const bookingsEn: BookingsTranslation = {
     created_other: '{{count}} time slots created.',
     createFailed: 'The time slots could not be created.',
     cancelSlot: 'Cancel time slot',
-    confirmCancelSlot: 'Cancel this time slot? Every paid booking will be fully refunded.',
     canceled_one: 'Time slot canceled. {{count}} booking refunded.',
     canceled_other: 'Time slot canceled. {{count}} bookings refunded.',
     statusClosed: 'Closed',
     statusCanceled: 'Canceled',
     timezoneNotice: 'Times in Fortaleza time (UTC−3).',
+    reschedule: 'Reschedule',
+    rescheduleTitle: 'Reschedule time slot',
+    rescheduleDescription:
+      'Bookings stay valid on the new date, with no penalty for you. Each buyer is notified and has 7 days to cancel for a full refund.',
+    newDateTime: 'New date and time',
+    rescheduleReason: 'Reason',
+    rescheduleReasonHint: 'Shown to buyers. 3 to 300 characters.',
+    rescheduleSubmit: 'Reschedule time slot',
+    rescheduled_one: 'Time slot rescheduled. {{count}} booking stays valid on the new date.',
+    rescheduled_other: 'Time slot rescheduled. {{count}} bookings stay valid on the new date.',
+    rescheduleInvalid: 'Enter a future date and the reason.',
+    cancelTitle: 'Cancel time slot',
+    cancelNoSales: 'This time slot has no paid bookings. Canceling closes it to new bookings.',
+    cancelWithSales_one:
+      'This time slot has {{count}} sold spot. The paid booking will be fully refunded.',
+    cancelWithSales_other:
+      'This time slot has {{count}} sold spots. Paid bookings will be fully refunded.',
+    cancelPenalty:
+      'Your CNPJ pays a penalty of 20% of the amount sold, with 24 h to pay under Payouts › Debts. After that, the penalty is deducted from payouts and the CNPJ’s sales are paused.',
+    cancelForceMajeure:
+      'Was it force majeure (e.g. wind or sea above the limit)? Declare it under Payouts › Debts before the due date: the penalty is suspended until the review.',
+    rescheduleInstead: 'Reschedule instead',
+    cancelAnyway: 'Cancel time slot',
+    back: 'Back',
   },
   weekdays: {
     '0': 'Sun',
@@ -608,7 +678,10 @@ export const bookingsFr: BookingsTranslation = {
     actionFailed: 'L’action n’a pas pu aboutir.',
     stripeRequired:
       'Pour vendre des réservations, terminez la configuration financière de votre compte.',
-    publishNeedsStripe: 'Terminez la configuration financière pour publier.',
+    publishNeedsStripe:
+      'Terminez la configuration financière du CNPJ de cet établissement pour publier.',
+    stripeRequiredSome:
+      'Certains établissements ne peuvent pas encore vendre : terminez la configuration financière du CNPJ de chacun dans Versements.',
     accountStatusError: 'Impossible de vérifier votre compte financier pour le moment.',
     fromPrice: 'à partir de {{amount}}',
   },
@@ -669,13 +742,37 @@ export const bookingsFr: BookingsTranslation = {
     created_other: '{{count}} créneaux créés.',
     createFailed: 'Impossible de créer les créneaux.',
     cancelSlot: 'Annuler le créneau',
-    confirmCancelSlot:
-      'Annuler ce créneau ? Toutes les réservations payées seront intégralement remboursées.',
     canceled_one: 'Créneau annulé. {{count}} réservation remboursée.',
     canceled_other: 'Créneau annulé. {{count}} réservations remboursées.',
     statusClosed: 'Fermé',
     statusCanceled: 'Annulé',
     timezoneNotice: 'Horaires à l’heure de Fortaleza (UTC−3).',
+    reschedule: 'Reprogrammer',
+    rescheduleTitle: 'Reprogrammer le créneau',
+    rescheduleDescription:
+      'Les réservations restent valables à la nouvelle date, sans pénalité pour vous. Chaque acheteur est prévenu et a 7 jours pour annuler avec un remboursement intégral.',
+    newDateTime: 'Nouvelle date et heure',
+    rescheduleReason: 'Motif',
+    rescheduleReasonHint: 'Visible par les acheteurs. De 3 à 300 caractères.',
+    rescheduleSubmit: 'Reprogrammer le créneau',
+    rescheduled_one: 'Créneau reprogrammé. {{count}} réservation reste valable à la nouvelle date.',
+    rescheduled_other:
+      'Créneau reprogrammé. {{count}} réservations restent valables à la nouvelle date.',
+    rescheduleInvalid: 'Indiquez une date future et le motif.',
+    cancelTitle: 'Annuler le créneau',
+    cancelNoSales:
+      'Ce créneau n’a aucune réservation payée. L’annuler le ferme aux nouvelles réservations.',
+    cancelWithSales_one:
+      'Ce créneau a {{count}} place vendue. La réservation payée sera remboursée intégralement.',
+    cancelWithSales_other:
+      'Ce créneau a {{count}} places vendues. Les réservations payées seront remboursées intégralement.',
+    cancelPenalty:
+      'Votre CNPJ paie une pénalité de 20 % du montant vendu, avec 24 h pour payer dans Versements › Dettes. Ensuite, la pénalité est déduite des versements et les ventes du CNPJ sont suspendues.',
+    cancelForceMajeure:
+      'C’était un cas de force majeure (ex. : vent ou mer au-dessus de la limite) ? Déclarez-le dans Versements › Dettes avant l’échéance : la pénalité est suspendue jusqu’à l’examen.',
+    rescheduleInstead: 'Reprogrammer plutôt',
+    cancelAnyway: 'Annuler le créneau',
+    back: 'Retour',
   },
   weekdays: {
     '0': 'Dim',

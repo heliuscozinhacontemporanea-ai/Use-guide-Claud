@@ -1,27 +1,36 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { type BookableGuideItem, PartnerOffersManager } from '../../domain/bookings';
+import {
+  type BookableGuideItem,
+  isBookableCategory,
+  PartnerOffersManager,
+} from '../../domain/bookings';
 import { listPaymentAccountsUseCase, PartnerStripeConnectPortal } from '../../domain/payment';
 
-type AccountState = 'loading' | 'ready' | 'not_ready' | 'error';
+type AccountState =
+  | { status: 'loading' }
+  | { status: 'error' }
+  | { status: 'loaded'; readyItemIds: Set<string> };
 
 /** Junta o gerenciador de reservas (bookings) e o onboarding financeiro (payment) na área do parceiro. */
 export function PartnerBookingsComposition({ items }: { items: BookableGuideItem[] }) {
   const { t } = useTranslation();
-  const [account, setAccount] = useState<AccountState>('loading');
+  const [account, setAccount] = useState<AccountState>({ status: 'loading' });
 
   const loadStatus = useCallback(() => {
     let active = true;
-    setAccount('loading');
-    // A publicação confere a conta do CNPJ da oferta no backend (D14); aqui basta um CNPJ pronto (B26).
+    setAccount({ status: 'loading' });
+    // Cada estabelecimento vende pela conta do CNPJ dele (D14): o aviso e o botão de publicar são por item.
     listPaymentAccountsUseCase()
       .then((accounts) => {
-        const ready = accounts.some((entry) => entry.account?.readyForSales);
-        if (active) setAccount(ready ? 'ready' : 'not_ready');
+        const readyItemIds = new Set(
+          accounts.filter((entry) => entry.account?.readyForSales).flatMap((entry) => entry.itemIds)
+        );
+        if (active) setAccount({ status: 'loaded', readyItemIds });
       })
       .catch(() => {
         // Falha de rede não significa conta incompleta: não mostra o onboarding por engano.
-        if (active) setAccount('error');
+        if (active) setAccount({ status: 'error' });
       });
     return () => {
       active = false;
@@ -30,17 +39,29 @@ export function PartnerBookingsComposition({ items }: { items: BookableGuideItem
 
   useEffect(() => loadStatus(), [loadStatus]);
 
+  const isReady = (itemId: string) =>
+    account.status === 'loaded' && account.readyItemIds.has(itemId);
+  const bookable = items.filter((item) => isBookableCategory(item.category));
+  const notReady = account.status === 'loaded' ? bookable.filter((item) => !isReady(item.id)) : [];
+  const noneReady = notReady.length === bookable.length;
+
   return (
     <PartnerOffersManager
       items={items}
-      canPublish={account === 'ready'}
+      canPublish={isReady}
       accountNotice={
-        account === 'not_ready' ? (
+        notReady.length > 0 ? (
           <div className="space-y-3 p-3 rounded-xl bg-warn-soft border border-warn-line">
-            <p className="text-xs text-warn">{t('bookings.partner.stripeRequired')}</p>
+            <p className="text-xs text-warn">
+              {t(
+                noneReady
+                  ? 'bookings.partner.stripeRequired'
+                  : 'bookings.partner.stripeRequiredSome'
+              )}
+            </p>
             <PartnerStripeConnectPortal />
           </div>
-        ) : account === 'error' ? (
+        ) : account.status === 'error' ? (
           <div
             role="alert"
             className="flex flex-wrap items-center gap-3 p-3 rounded-xl bg-surface border border-line"

@@ -5,10 +5,10 @@ import { formatMinor } from '../../utils/money';
 import { BUTTON_SECONDARY } from '../shared/ListState';
 
 const STATUS_STYLE: Record<OfferStatus, string> = {
-  draft: 'bg-white/10 text-white/80',
-  published: 'bg-emerald-500/15 text-emerald-300',
-  paused: 'bg-amber-500/15 text-amber-200',
-  archived: 'bg-white/5 text-white/60',
+  draft: 'bg-surface border border-line text-ink/80',
+  published: 'bg-success-soft border border-success-line text-success',
+  paused: 'bg-warn-soft border border-warn-line text-warn',
+  archived: 'bg-surface border border-line text-ink/70',
 };
 
 interface PartnerOfferRowProps {
@@ -35,11 +35,11 @@ export function PartnerOfferRow({
   const archived = offer.status === 'archived';
 
   return (
-    <li className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-3">
+    <li className="p-4 rounded-2xl bg-surface border border-line space-y-3">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className="text-sm font-bold text-white break-words">{offer.title['pt-BR']}</p>
-          <p className="text-xs text-white/60">
+          <p className="text-sm font-bold text-ink break-words">{offer.title['pt-BR']}</p>
+          <p className="text-xs text-ink/70">
             {t(`bookings.kind.${offer.kind}`)} ·{' '}
             {t('bookings.partner.fromPrice', { amount: formatMinor(fromMinor, i18n.language) })}
           </p>
@@ -96,7 +96,7 @@ export function PartnerOfferRow({
         </div>
       )}
       {!canPublish && offer.status !== 'published' && !archived && (
-        <p id={`publish-hint-${offer.id}`} className="text-[11px] text-amber-200">
+        <p id={`publish-hint-${offer.id}`} className="text-[11px] text-warn">
           {t('bookings.partner.publishNeedsStripe')}
         </p>
       )}

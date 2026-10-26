@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { i18n } from '../../../../shared/i18n';
 import { PartnerOffersManager } from './PartnerOffersManager';
@@ -37,7 +37,7 @@ describe('PartnerOffersManager', () => {
     await i18n.changeLanguage('fr');
     render(
       <PartnerOffersManager
-        canPublish
+        canPublish={() => true}
         items={[{ id: 'r1', name: 'Restaurante', category: 'restaurant' }]}
       />
     );
@@ -59,7 +59,7 @@ describe('PartnerOffersManager', () => {
     }));
     render(
       <PartnerOffersManager
-        canPublish
+        canPublish={() => true}
         items={[{ id: 'item-1', name: 'Lagoa do Paraíso', category: 'tour' }]}
       />
     );
@@ -84,7 +84,7 @@ describe('PartnerOffersManager', () => {
 describe('PartnerSlotsManager', () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it('cancelar horário só acontece depois da confirmação', async () => {
+  it('cancelar horário só acontece depois da confirmação, com o aviso da multa (D14)', async () => {
     vi.mocked(listPartnerSlotsUseCase).mockResolvedValue([
       {
         id: 'slot-1',
@@ -100,12 +100,9 @@ describe('PartnerSlotsManager', () => {
     render(<PartnerSlotsManager offerId="offer-1" />);
     fireEvent.click(await screen.findByRole('button', { name: 'Cancelar horário' }));
     expect(cancelSlotUseCase).not.toHaveBeenCalled();
-    expect(
-      screen.getByText(
-        'Cancelar este horário? Todas as reservas pagas serão reembolsadas integralmente.'
-      )
-    ).toBeTruthy();
-    fireEvent.click(screen.getByRole('button', { name: 'Confirmar' }));
+    expect(await screen.findByText(/multa de 20% do valor vendido/)).toBeTruthy();
+    const dialog = screen.getByRole('dialog');
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Cancelar horário' }));
     await waitFor(() => expect(cancelSlotUseCase).toHaveBeenCalledWith('offer-1', 'slot-1'));
     expect(await screen.findByText('Horário cancelado. 3 reservas reembolsadas.')).toBeTruthy();
   });

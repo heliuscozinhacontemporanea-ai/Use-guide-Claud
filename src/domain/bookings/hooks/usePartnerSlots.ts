@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { cancelSlotUseCase } from '../application/usecases/cancelSlotUseCase';
 import { createSlotsUseCase } from '../application/usecases/createSlotsUseCase';
 import { listPartnerSlotsUseCase } from '../application/usecases/listPartnerSlotsUseCase';
+import { rescheduleSlotUseCase } from '../application/usecases/rescheduleSlotUseCase';
 import type { CreateSlotsPayload, PartnerSlot } from '../types/bookings';
 import { addDays } from '../utils/dates';
 import { getBookingErrorMessage } from '../utils/bookingErrorMessage';
@@ -48,5 +49,14 @@ export function usePartnerSlots(offerId: string, weekStart: Date) {
     [offerId, reload]
   );
 
-  return { data, loading, error, reload, create, cancel };
+  const reschedule = useCallback(
+    async (slotId: string, change: { startsAt: string; reason: string }) => {
+      const result = await rescheduleSlotUseCase(offerId, slotId, change);
+      await reload();
+      return result;
+    },
+    [offerId, reload]
+  );
+
+  return { data, loading, error, reload, create, cancel, reschedule };
 }
