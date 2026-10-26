@@ -126,6 +126,8 @@ export interface TicketOrder {
   expiresAt?: string;
   createdAt: string;
   paidAt?: string;
+  /** Aviso da nova data: até 7 dias depois, o comprador cancela com reembolso integral (D16, 4A). */
+  rescheduledAt?: string;
   canceledAt?: string;
   expiredAt?: string;
   updatedAt?: string;

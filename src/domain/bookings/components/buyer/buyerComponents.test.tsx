@@ -164,11 +164,13 @@ describe('previewRefund', () => {
   const startsAt = '2026-11-10T11:00:00.000Z';
   const booking = (
     cancellationPolicy: 'moderate' | 'none',
-    createdAt = '2026-10-01T12:00:00.000Z'
+    createdAt = '2026-10-01T12:00:00.000Z',
+    rescheduledAt: string | null = null
   ) => ({
     kind: 'tour' as const,
     totalMinor: 20000,
     createdAt,
+    rescheduledAt,
     offer: {
       title: 'Passeio',
       startsAt,
@@ -191,6 +193,15 @@ describe('previewRefund', () => {
       refundPercent: 0,
       refundAmountMinor: 0,
     });
+  });
+
+  it('reagendada: até 7 dias depois do aviso devolve tudo (D16)', () => {
+    expect(
+      previewRefund(
+        booking('none', '2026-10-01T12:00:00.000Z', '2026-11-08T00:00:00.000Z'),
+        new Date('2026-11-09T00:00:00.000Z')
+      )
+    ).toEqual({ refundPercent: 100, refundAmountMinor: 20000 });
   });
 
   it('arrependimento devolve tudo mesmo sem reembolso na política', () => {

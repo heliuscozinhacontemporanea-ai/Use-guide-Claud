@@ -1,4 +1,4 @@
-import type { Query, Transaction } from 'firebase-admin/firestore';
+import type { Query } from 'firebase-admin/firestore';
 import { adminDb } from '../../../infrastructure/firebase/adminClient';
 import {
   BookingPersistenceMapper,
@@ -9,8 +9,6 @@ import {
 import { BookingDomainError } from '../errors/bookingDomainError';
 import type { BookingsPort, PageRequest } from '../ports/bookingsPort';
 import {
-  type AvailabilitySlot,
-  type AvailabilitySlotStatus,
   type BookableOffer,
   type Booking,
   type BookingCancellation,
@@ -20,50 +18,20 @@ import {
   type Page,
   type PublicBookableOffer,
 } from '../types/bookingTypes';
-
-const OFFERS = 'bookableOffers';
-const PUBLIC_OFFERS = 'publicBookableOffers';
-const SLOTS = 'availabilitySlots';
-const BOOKINGS = 'bookings';
-const PARTICIPANTS = 'bookingParticipants';
-const AUDIT = 'bookingAuditLogs';
-
-function nowIso(): string {
-  return new Date().toISOString();
-}
-
-function writeAudit(
-  tx: Transaction,
-  entry: {
-    bookingId: string;
-    from: BookingStatus | null;
-    to: BookingStatus | null;
-    actorUid: string;
-    reason: string;
-  }
-): void {
-  tx.set(adminDb.collection(AUDIT).doc(), { ...entry, at: nowIso() });
-}
-
-function available(slot: AvailabilitySlot): number {
-  return slot.capacityTotal - slot.capacityReserved - slot.capacitySold;
-}
-
-async function readBooking(tx: Transaction, bookingId: string): Promise<Booking> {
-  const snapshot = await tx.get(adminDb.collection(BOOKINGS).doc(bookingId));
-  if (!snapshot.exists) {
-    throw new BookingDomainError('NOT_FOUND', 'Reserva não encontrada.');
-  }
-  return BookingPersistenceMapper.toDomain(snapshot.id, snapshot.data() ?? {});
-}
-
-async function readSlot(tx: Transaction, slotId: string): Promise<AvailabilitySlot> {
-  const snapshot = await tx.get(adminDb.collection(SLOTS).doc(slotId));
-  if (!snapshot.exists) {
-    throw new BookingDomainError('NOT_FOUND', 'Horário não encontrado.');
-  }
-  return SlotPersistenceMapper.toDomain(snapshot.id, snapshot.data() ?? {});
-}
+import {
+  AUDIT,
+  available,
+  BOOKINGS,
+  nowIso,
+  OFFERS,
+  PARTICIPANTS,
+  PUBLIC_OFFERS,
+  readBooking,
+  readSlot,
+  SLOTS,
+  writeAudit,
+} from './firestoreBookingsShared';
+import { FirestoreSlotStore } from './firestoreSlotStore';
 
 async function paginate(query: Query, page: PageRequest): Promise<Page<Booking>> {
   let paged = query.limit(page.limit + 1);
@@ -80,6 +48,8 @@ async function paginate(query: Query, page: PageRequest): Promise<Page<Booking>>
 }
 
 export class FirestoreBookingsAdapter implements BookingsPort {
+  private readonly slots = new FirestoreSlotStore();
+
   async createOffer(offer: BookableOffer): Promise<void> {
     await adminDb
       .collection(OFFERS)
@@ -129,45 +99,11 @@ export class FirestoreBookingsAdapter implements BookingsPort {
     await adminDb.collection(PUBLIC_OFFERS).doc(offerId).delete();
   }
 
-  async createSlots(slots: AvailabilitySlot[]): Promise<AvailabilitySlot[]> {
-    if (slots.length === 0) return [];
-    const refs = slots.map((slot) => adminDb.collection(SLOTS).doc(slot.id));
-    return adminDb.runTransaction(async (tx) => {
-      const snapshots = await tx.getAll(...refs);
-      // set() sobre um horário existente zeraria as vagas vendidas; por isso só criamos os que faltam.
-      const created = slots.filter((_slot, index) => !snapshots[index]?.exists);
-      for (const slot of created) {
-        tx.create(
-          adminDb.collection(SLOTS).doc(slot.id),
-          SlotPersistenceMapper.toPersistence(slot)
-        );
-      }
-      return created;
-    });
-  }
-
-  async getSlot(slotId: string): Promise<AvailabilitySlot | null> {
-    const snapshot = await adminDb.collection(SLOTS).doc(slotId).get();
-    return snapshot.exists
-      ? SlotPersistenceMapper.toDomain(snapshot.id, snapshot.data() ?? {})
-      : null;
-  }
-
-  async listSlots(offerId: string, fromIso: string, toIso: string): Promise<AvailabilitySlot[]> {
-    const snapshot = await adminDb
-      .collection(SLOTS)
-      .where('offerId', '==', offerId)
-      .where('startsAt', '>=', fromIso)
-      .where('startsAt', '<=', toIso)
-      .orderBy('startsAt', 'asc')
-      .limit(500)
-      .get();
-    return snapshot.docs.map((doc) => SlotPersistenceMapper.toDomain(doc.id, doc.data()));
-  }
-
-  async setSlotStatus(slotId: string, status: AvailabilitySlotStatus): Promise<void> {
-    await adminDb.collection(SLOTS).doc(slotId).update({ status, updatedAt: nowIso() });
-  }
+  readonly createSlots = this.slots.createSlots.bind(this.slots);
+  readonly getSlot = this.slots.getSlot.bind(this.slots);
+  readonly listSlots = this.slots.listSlots.bind(this.slots);
+  readonly setSlotStatus = this.slots.setSlotStatus.bind(this.slots);
+  readonly rescheduleSlot = this.slots.rescheduleSlot.bind(this.slots);
 
   async reserveCapacityAndCreateBooking(
     booking: Booking,

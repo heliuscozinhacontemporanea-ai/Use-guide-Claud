@@ -9,6 +9,7 @@ import {
   type EventOccurrence,
 } from '../../domain/events';
 import { createNotificationUseCase } from '../../domain/notifications';
+import { reschedulePayoutUseCase } from '../../domain/payment';
 import {
   listEventOrdersForPartnerOrAdminUseCase,
   moveOrderToOccurrenceUseCase,
@@ -36,6 +37,10 @@ vi.mock('../../domain/ticketing', () => ({
   listEventCheckInsForPartnerOrAdminUseCase: vi.fn().mockResolvedValue([]),
   listTicketTypesForManagementUseCase: vi.fn().mockResolvedValue([]),
   moveOrderToOccurrenceUseCase: vi.fn(),
+}));
+
+vi.mock('../../domain/payment', () => ({
+  reschedulePayoutUseCase: vi.fn().mockResolvedValue(null),
 }));
 
 vi.mock('./payouts/chargeCancellationPenaltyApplicationUseCase', () => ({
@@ -142,7 +147,7 @@ describe('eventLifecycleOrchestrationUseCases', () => {
     );
   });
 
-  it('postpones an occurrence, moves orders when requested, and notifies buyers', async () => {
+  it('reagenda: leva os pedidos, move o repasse para a nova data e avisa o prazo de 7 dias (D16)', async () => {
     const newOccurrence: EventOccurrence = {
       ...sampleOccurrence,
       id: 'occ-2',
@@ -167,23 +172,34 @@ describe('eventLifecycleOrchestrationUseCases', () => {
       id: 'ev-1',
       title: 'Festival de Verão',
     } as EventListing);
-    vi.mocked(listEventOrdersForPartnerOrAdminUseCase).mockResolvedValue([samplePaidOrder]);
+    vi.mocked(listEventOrdersForPartnerOrAdminUseCase).mockResolvedValue([
+      { ...samplePaidOrder, occurrenceId: 'occ-2' },
+    ]);
 
     const res = await postponeEventOccurrenceAndNotifyApplicationUseCase(actor, 'occ-1', {
       startsAt: '2026-09-17T20:00:00.000Z',
       endsAt: '2026-09-17T23:59:00.000Z',
       reason: 'Mudança de palco',
-      moveExistingOrders: true,
     });
 
     expect(res.postponedOccurrence.status).toBe('postponed');
     expect(res.newOccurrence.id).toBe('occ-2');
     expect(res.movedOrdersCount).toBe(1);
     expect(res.movedTicketsCount).toBe(2);
+    expect(moveOrderToOccurrenceUseCase).toHaveBeenCalledWith(actor, {
+      fromOccurrenceId: 'occ-1',
+      toOccurrenceId: 'occ-2',
+    });
+    expect(reschedulePayoutUseCase).toHaveBeenCalledWith(
+      'ticket_order',
+      'ord-1',
+      '2026-09-17T23:59:00.000Z'
+    );
     expect(createNotificationUseCase).toHaveBeenCalledWith(
       expect.objectContaining({
         recipientPartnerId: 'buyer-1',
         title: 'Evento reagendado',
+        message: expect.stringContaining('7 dias'),
       })
     );
   });

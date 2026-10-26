@@ -187,7 +187,7 @@ export class BookingService {
       );
     }
     const nowDate = this.now();
-    // D14: arrependimento de 7 dias até 48 h antes do início, senão a política gravada na compra.
+    // D14: arrependimento de 7 dias até 48 h antes do início; D16: 7 dias depois do reagendamento; senão a política.
     const calculated = calculateBuyerRefund({
       family: cancellationFamilyOf(booking.kind),
       policy: booking.offerSnapshot.cancellationPolicy,
@@ -196,6 +196,7 @@ export class BookingService {
       now: nowDate,
       paidMinor: booking.totalMinor,
       serviceFeeMinor: 0,
+      rescheduledAt: booking.rescheduledAt,
     });
     const refund = {
       refundPercent: calculated.percent,

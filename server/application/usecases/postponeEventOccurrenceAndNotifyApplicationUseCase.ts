@@ -1,15 +1,20 @@
 import {
+  type EventOccurrence,
   getEventListingByIdUseCase,
   postponeEventOccurrenceUseCase,
-  type EventOccurrence,
 } from '../../domain/events';
 import { createNotificationUseCase } from '../../domain/notifications';
+import { reschedulePayoutUseCase } from '../../domain/payment';
 import {
   listEventOrdersForPartnerOrAdminUseCase,
   moveOrderToOccurrenceUseCase,
   type TicketingActorContext,
 } from '../../domain/ticketing';
 
+/**
+ * Reagendamento (D16, 4A): os ingressos valem na nova data, o repasse acompanha a nova data e o
+ * comprador tem 7 dias depois do aviso para pedir reembolso integral, inclusive a taxa de serviço.
+ */
 export async function postponeEventOccurrenceAndNotifyApplicationUseCase(
   actor: TicketingActorContext,
   occurrenceId: string,
@@ -19,7 +24,6 @@ export async function postponeEventOccurrenceAndNotifyApplicationUseCase(
     salesStartsAt?: string;
     salesEndsAt?: string;
     reason: string;
-    moveExistingOrders?: boolean;
   }
 ): Promise<{
   postponedOccurrence: EventOccurrence;
@@ -32,18 +36,10 @@ export async function postponeEventOccurrenceAndNotifyApplicationUseCase(
     occurrenceId,
     replacement
   );
-
-  let movedOrdersCount = 0;
-  let movedTicketsCount = 0;
-
-  if (replacement.moveExistingOrders) {
-    const moved = await moveOrderToOccurrenceUseCase(actor, {
-      fromOccurrenceId: postponedOccurrence.id,
-      toOccurrenceId: newOccurrence.id,
-    });
-    movedOrdersCount = moved.movedOrdersCount;
-    movedTicketsCount = moved.movedTicketsCount;
-  }
+  const { movedOrdersCount, movedTicketsCount } = await moveOrderToOccurrenceUseCase(actor, {
+    fromOccurrenceId: postponedOccurrence.id,
+    toOccurrenceId: newOccurrence.id,
+  });
 
   const listing = await getEventListingByIdUseCase(postponedOccurrence.eventListingId);
   const allOrders = await listEventOrdersForPartnerOrAdminUseCase(
@@ -51,26 +47,22 @@ export async function postponeEventOccurrenceAndNotifyApplicationUseCase(
     postponedOccurrence.eventListingId
   );
   const affectedOrders = allOrders.filter(
-    (o) =>
-      (o.occurrenceId === postponedOccurrence.id || o.occurrenceId === newOccurrence.id) &&
-      o.status === 'paid'
+    (order) =>
+      order.occurrenceId === newOccurrence.id &&
+      (order.status === 'paid' || order.status === 'partially_refunded')
   );
 
   for (const order of affectedOrders) {
+    await reschedulePayoutUseCase('ticket_order', order.id, newOccurrence.endsAt);
     await createNotificationUseCase({
       recipientPartnerId: order.buyerId,
       type: 'admin_message',
       title: 'Evento reagendado',
-      message: `A sessão do evento "${listing?.title || 'Evento'}" foi reagendada para ${new Date(newOccurrence.startsAt).toLocaleString('pt-BR')}. Motivo: ${replacement.reason}`,
+      message: `A sessão do evento "${listing?.title || 'Evento'}" foi reagendada para ${new Date(newOccurrence.startsAt).toLocaleString('pt-BR', { timeZone: 'America/Fortaleza' })}. Seu ingresso vale na nova data. Se não puder ir, peça o reembolso integral em até 7 dias.`,
       relatedItemId: postponedOccurrence.eventListingId,
       relatedItemCollection: 'events',
     }).catch(() => {});
   }
 
-  return {
-    postponedOccurrence,
-    newOccurrence,
-    movedOrdersCount,
-    movedTicketsCount,
-  };
+  return { postponedOccurrence, newOccurrence, movedOrdersCount, movedTicketsCount };
 }

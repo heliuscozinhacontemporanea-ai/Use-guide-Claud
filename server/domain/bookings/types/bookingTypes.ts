@@ -122,6 +122,8 @@ export interface Booking {
     meetingPoint?: string;
     cancellationPolicy: BookingCancellationPolicy;
   };
+  /** Aviso de nova data pelo parceiro: até 7 dias depois, o comprador cancela com reembolso integral (D16, 4A). */
+  rescheduledAt?: string;
   /** Gravado ao cancelar: torna o cancelamento repetível sem recalcular o reembolso. */
   cancellation?: BookingCancellation;
   /** Versão dos termos aceita na compra (D15). */

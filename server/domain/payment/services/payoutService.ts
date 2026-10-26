@@ -136,6 +136,24 @@ export class PayoutService {
     return updated;
   }
 
+  /** Venda reagendada (D16, 4A): o repasse passa a sair 48 h depois do fim na nova data. */
+  async reschedule(
+    referenceType: string,
+    referenceId: string,
+    serviceEndsAt: string
+  ): Promise<PayoutEntry | null> {
+    return this.entries.update(entryIdFor(referenceType, referenceId), (current) =>
+      current.status === 'pending' || current.status === 'on_hold'
+        ? {
+            ...current,
+            serviceEndsAt,
+            releaseAt: computeReleaseAt(serviceEndsAt),
+            updatedAt: this.now().toISOString(),
+          }
+        : null
+    );
+  }
+
   /** Contestação aberta: o repasse espera a decisão (D14). */
   async holdForDispute(paymentIntentId: string): Promise<PayoutEntry | null> {
     const entry = await this.entries.getByPaymentIntentId(paymentIntentId);

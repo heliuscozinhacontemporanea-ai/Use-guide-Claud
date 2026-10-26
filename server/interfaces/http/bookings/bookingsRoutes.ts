@@ -30,4 +30,9 @@ partnerOffersRouter.post(
   verifyAuthTokenStrict,
   PartnerOffersController.cancelSlot
 );
+partnerOffersRouter.post(
+  '/:offerId/slots/:slotId/reschedule',
+  verifyAuthTokenStrict,
+  PartnerOffersController.rescheduleSlot
+);
 partnerOffersRouter.get('/:offerId/bookings', PartnerOffersController.listBookings);

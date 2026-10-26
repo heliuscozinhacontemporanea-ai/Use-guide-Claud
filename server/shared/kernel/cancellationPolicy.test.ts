@@ -48,6 +48,31 @@ describe('políticas de cancelamento (D14)', () => {
     });
   });
 
+  it('reagendamento: até 7 dias depois do aviso e antes da nova data devolve tudo (D16 4A)', () => {
+    const base = {
+      family: 'event' as const,
+      policy: 'none' as const,
+      purchasedAt: OLD_PURCHASE,
+      startsAt: STARTS,
+      paidMinor: 10000,
+      serviceFeeMinor: 300,
+    };
+    const now = hoursBefore(24);
+    const daysAgo = (days: number) => new Date(now.getTime() - days * 86_400_000).toISOString();
+    expect(calculateBuyerRefund({ ...base, now, rescheduledAt: daysAgo(7) })).toEqual({
+      reason: 'reschedule',
+      percent: 100,
+      refundMinor: 10000,
+      serviceFeeRefundMinor: 300,
+    });
+    expect(calculateBuyerRefund({ ...base, now, rescheduledAt: daysAgo(7.1) })).toMatchObject({
+      reason: 'none',
+    });
+    expect(
+      calculateBuyerRefund({ ...base, now: hoursBefore(-1), rescheduledAt: daysAgo(1) })
+    ).toMatchObject({ reason: 'none', refundMinor: 0 });
+  });
+
   it('eventos: flexível 24 h, moderada 7 dias, rígida 30 dias', () => {
     expect(refund('event', 'flexible', 25).refundMinor).toBe(10000);
     expect(refund('event', 'flexible', 23).refundMinor).toBe(0);

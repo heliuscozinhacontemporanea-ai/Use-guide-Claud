@@ -194,4 +194,15 @@ describe('PayoutService (D14)', () => {
     expect(transfers.createTransfer).not.toHaveBeenCalled();
     expect(repo.rows.get('po_ticket_order_ord_1')?.offsetMinor).toBe(9000);
   });
+
+  it('reagendamento move o prazo do repasse para 48 h depois da nova data (D16)', async () => {
+    const { service, repo } = setup();
+    await service.recordSale(SALE);
+    await service.reschedule('ticket_order', 'ord_1', '2026-12-28T03:00:00.000Z');
+    expect(repo.rows.get('po_ticket_order_ord_1')).toMatchObject({
+      serviceEndsAt: '2026-12-28T03:00:00.000Z',
+      releaseAt: '2026-12-30T03:00:00.000Z',
+    });
+    expect((await service.releaseDue()).released).toBe(0);
+  });
 });

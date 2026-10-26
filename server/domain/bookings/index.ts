@@ -19,6 +19,7 @@ export { markBookingDisputedUseCase } from './usecases/markBookingDisputedUseCas
 export { markBookingNoShowUseCase } from './usecases/markBookingNoShowUseCase';
 export { markBookingPaymentFailedUseCase } from './usecases/markBookingPaymentFailedUseCase';
 export { markBookingRefundedUseCase } from './usecases/markBookingRefundedUseCase';
+export { rescheduleSlotByPartnerUseCase } from './usecases/rescheduleSlotByPartnerUseCase';
 export { requestCancellationByBuyerUseCase } from './usecases/requestCancellationByBuyerUseCase';
 export { setBookableOfferStatusUseCase } from './usecases/setBookableOfferStatusUseCase';
 export { updateBookableOfferUseCase } from './usecases/updateBookableOfferUseCase';

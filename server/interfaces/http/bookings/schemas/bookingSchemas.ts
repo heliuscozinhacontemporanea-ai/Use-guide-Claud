@@ -120,6 +120,14 @@ export const CreateBookingSchema = z
   })
   .strict();
 
+export const RescheduleSlotSchema = z
+  .object({
+    startsAt: z.string().datetime(),
+    endsAt: z.string().datetime().optional(),
+    reason: z.string().trim().min(3).max(300),
+  })
+  .strict();
+
 export const CancelBookingSchema = z.object({ reason: z.string().max(300).optional() }).strict();
 
 export const SlotWindowQuerySchema = z

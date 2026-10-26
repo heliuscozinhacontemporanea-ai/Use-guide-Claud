@@ -33,6 +33,14 @@ export interface BookingsPort {
   getSlot(slotId: string): Promise<AvailabilitySlot | null>;
   listSlots(offerId: string, fromIso: string, toIso: string): Promise<AvailabilitySlot[]>;
   setSlotStatus(slotId: string, status: AvailabilitySlotStatus): Promise<void>;
+  /** Muda o horário e leva as reservas ativas junto, na mesma transação; devolve as reservas movidas. */
+  rescheduleSlot(params: {
+    slotId: string;
+    startsAt: string;
+    endsAt?: string;
+    actorUid: string;
+    reason: string;
+  }): Promise<Booking[]>;
 
   /** Idempotente pelo ID da reserva; lança INSUFFICIENT_CAPACITY ou SLOT_UNAVAILABLE. */
   reserveCapacityAndCreateBooking(

@@ -255,14 +255,12 @@ export class PartnerContentController {
       const startsAt = String(req.body?.startsAt ?? '');
       const endsAt = String(req.body?.endsAt ?? '');
       const reason = String(req.body?.reason ?? 'Evento adiado pelo parceiro.');
-      const moveExistingOrders = req.body?.moveExistingOrders === true;
       const result = await postponeEventOccurrenceAndNotifyApplicationUseCase(user, occurrenceId, {
         startsAt,
         endsAt,
         salesStartsAt: req.body?.salesStartsAt,
         salesEndsAt: req.body?.salesEndsAt,
         reason,
-        moveExistingOrders,
       });
       return res.status(200).json({ status: 'success', data: result });
     } catch (error: unknown) {

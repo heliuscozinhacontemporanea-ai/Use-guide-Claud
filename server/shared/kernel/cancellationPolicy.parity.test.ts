@@ -15,6 +15,7 @@ describe('paridade das políticas de cancelamento frontend × backend', () => {
     expect(frontend.BOOKING_CANCELLATION_POLICIES).toEqual(backend.BOOKING_CANCELLATION_POLICIES);
     expect(frontend.TRANSFER_CANCELLATION_POLICIES).toEqual(backend.TRANSFER_CANCELLATION_POLICIES);
     expect(frontend.WITHDRAWAL_DAYS).toBe(backend.WITHDRAWAL_DAYS);
+    expect(frontend.RESCHEDULE_REFUND_DAYS).toBe(backend.RESCHEDULE_REFUND_DAYS);
     expect(frontend.WITHDRAWAL_MIN_HOURS_BEFORE_START).toBe(
       backend.WITHDRAWAL_MIN_HOURS_BEFORE_START
     );
@@ -48,6 +49,15 @@ describe('paridade das políticas de cancelamento frontend × backend', () => {
             expect(frontend.calculateBuyerRefund(params)).toEqual(
               backend.calculateBuyerRefund(params)
             );
+            for (const daysAgo of [3, 8]) {
+              const rescheduled = {
+                ...params,
+                rescheduledAt: new Date(params.now.getTime() - daysAgo * 86_400_000).toISOString(),
+              };
+              expect(frontend.calculateBuyerRefund(rescheduled)).toEqual(
+                backend.calculateBuyerRefund(rescheduled)
+              );
+            }
           }
         }
       }

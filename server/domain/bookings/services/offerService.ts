@@ -307,6 +307,42 @@ export class OfferService {
     );
   }
 
+  /**
+   * Reagendamento pelo parceiro (D16, 4A): o horário muda e as reservas ativas valem na nova data.
+   * Horário cancelado não volta; a nova data precisa ser futura.
+   */
+  async rescheduleSlot(
+    actor: BookingActor,
+    offerId: string,
+    slotId: string,
+    change: { startsAt: string; endsAt?: string; reason: string }
+  ): Promise<Booking[]> {
+    await this.getOwnedOffer(actor, offerId);
+    const slot = await this.port.getSlot(slotId);
+    if (slot?.offerId !== offerId) {
+      throw new BookingDomainError('NOT_FOUND', 'Horário não encontrado.');
+    }
+    if (slot.status === 'canceled') {
+      throw new BookingDomainError('SLOT_UNAVAILABLE', 'Horário cancelado não pode ser remarcado.');
+    }
+    const startsAt = new Date(change.startsAt);
+    const endsAt = change.endsAt ? new Date(change.endsAt) : null;
+    if (
+      Number.isNaN(startsAt.getTime()) ||
+      startsAt.getTime() <= this.now().getTime() ||
+      (endsAt && !(endsAt.getTime() > startsAt.getTime()))
+    ) {
+      throw new BookingDomainError('VALIDATION_ERROR', 'Informe uma nova data futura.');
+    }
+    return this.port.rescheduleSlot({
+      slotId,
+      startsAt: startsAt.toISOString(),
+      ...(endsAt ? { endsAt: endsAt.toISOString() } : {}),
+      actorUid: actor.uid,
+      reason: change.reason.slice(0, 300),
+    });
+  }
+
   /** Visão do parceiro: inclui vagas reservadas e vendidas e horários fechados ou cancelados. */
   async listOfferSlotsForOwner(
     actor: BookingActor,

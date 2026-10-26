@@ -34,6 +34,7 @@ function buyerSelfServiceRefund(order: TicketOrder, startsAt: string | undefined
     now: new Date(),
     paidMinor: order.totalMinor - order.serviceFeeMinor,
     serviceFeeMinor: order.serviceFeeMinor,
+    rescheduledAt: order.rescheduledAt,
   });
   const amountMinor = refund.refundMinor + refund.serviceFeeRefundMinor;
   if (amountMinor <= 0) {

@@ -65,6 +65,38 @@ export class InMemoryBookingsAdapter implements BookingsPort {
     if (slot) slot.status = status;
   }
 
+  async rescheduleSlot(params: {
+    slotId: string;
+    startsAt: string;
+    endsAt?: string;
+    actorUid: string;
+    reason: string;
+  }): Promise<Booking[]> {
+    const slot = this.slots.get(params.slotId);
+    if (!slot) throw new BookingDomainError('NOT_FOUND', 'Horário não encontrado.');
+    const at = new Date().toISOString();
+    this.slots.set(slot.id, {
+      ...slot,
+      startsAt: params.startsAt,
+      endsAt: params.endsAt,
+      updatedAt: at,
+    });
+    const moved: Booking[] = [];
+    for (const booking of this.bookings.values()) {
+      if (booking.slotId !== slot.id) continue;
+      if (booking.status !== 'confirmed' && booking.status !== 'pending_payment') continue;
+      const updated: Booking = {
+        ...booking,
+        offerSnapshot: { ...booking.offerSnapshot, startsAt: params.startsAt },
+        rescheduledAt: at,
+        updatedAt: at,
+      };
+      this.bookings.set(booking.id, updated);
+      moved.push(updated);
+    }
+    return moved;
+  }
+
   private available(slot: AvailabilitySlot) {
     return slot.capacityTotal - slot.capacityReserved - slot.capacitySold;
   }

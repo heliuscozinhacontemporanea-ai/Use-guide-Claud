@@ -151,6 +151,7 @@ export class TicketOrderPersistenceMapper {
       expiresAt: typeof raw.expiresAt === 'string' ? raw.expiresAt : undefined,
       createdAt: toIso(raw.createdAt, now),
       paidAt: typeof raw.paidAt === 'string' ? raw.paidAt : undefined,
+      rescheduledAt: typeof raw.rescheduledAt === 'string' ? raw.rescheduledAt : undefined,
       canceledAt: typeof raw.canceledAt === 'string' ? raw.canceledAt : undefined,
       expiredAt: typeof raw.expiredAt === 'string' ? raw.expiredAt : undefined,
       updatedAt: toIso(raw.updatedAt, now),

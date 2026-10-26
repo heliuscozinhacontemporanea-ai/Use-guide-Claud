@@ -1,5 +1,6 @@
 import type { Response } from 'express';
 import { cancelSlotByPartnerApplicationUseCase } from '../../../application/usecases/bookings/cancelSlotByPartnerApplicationUseCase';
+import { rescheduleSlotByPartnerApplicationUseCase } from '../../../application/usecases/bookings/rescheduleSlotByPartnerApplicationUseCase';
 import { setBookableOfferStatusApplicationUseCase } from '../../../application/usecases/bookings/setBookableOfferStatusApplicationUseCase';
 import {
   createAvailabilitySlotsUseCase,
@@ -18,6 +19,7 @@ import {
   DocumentIdSchema,
   OfferStatusSchema,
   PageQuerySchema,
+  RescheduleSlotSchema,
   SlotWindowQuerySchema,
   UpdateOfferSchema,
 } from './schemas/bookingSchemas';
@@ -77,7 +79,11 @@ export class PartnerOffersController {
       return sendError(res, 400, 'VALIDATION_ERROR', 'Status inválido.');
     }
     try {
-      const offer = await setBookableOfferStatusApplicationUseCase(actor, offerId.data, parsed.data.status);
+      const offer = await setBookableOfferStatusApplicationUseCase(
+        actor,
+        offerId.data,
+        parsed.data.status
+      );
       return res.status(200).json(toPartnerOffer(offer));
     } catch (error) {
       return handleBookingError(res, 'setOfferStatus', error);
@@ -134,6 +140,29 @@ export class PartnerOffersController {
       return res.status(200).json(result);
     } catch (error) {
       return handleBookingError(res, 'cancelSlot', error);
+    }
+  }
+
+  static async rescheduleSlot(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    const actor = actorOf(req);
+    if (!actor) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
+    const offerId = DocumentIdSchema.safeParse(req.params.offerId);
+    const slotId = DocumentIdSchema.safeParse(req.params.slotId);
+    if (!offerId.success || !slotId.success) {
+      return sendError(res, 404, 'NOT_FOUND', 'Horário não encontrado.');
+    }
+    const body = RescheduleSlotSchema.safeParse(req.body);
+    if (!body.success) return sendError(res, 400, 'VALIDATION_ERROR', 'Nova data inválida.');
+    try {
+      const result = await rescheduleSlotByPartnerApplicationUseCase(
+        actor,
+        offerId.data,
+        slotId.data,
+        body.data
+      );
+      return res.status(200).json(result);
+    } catch (error) {
+      return handleBookingError(res, 'rescheduleSlot', error);
     }
   }
 

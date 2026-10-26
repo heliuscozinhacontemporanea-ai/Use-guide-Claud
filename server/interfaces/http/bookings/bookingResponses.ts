@@ -34,6 +34,7 @@ export function toBuyerBooking(booking: Booking) {
           at: booking.cancellation.at,
         }
       : null,
+    rescheduledAt: booking.rescheduledAt ?? null,
     createdAt: booking.createdAt,
   };
 }

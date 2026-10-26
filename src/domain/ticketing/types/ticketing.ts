@@ -122,6 +122,7 @@ export interface TicketOrder {
   };
   salesPolicySnapshot: TicketOrderSalesPolicySnapshot;
   paidAt?: string;
+  rescheduledAt?: string;
   expiresAt?: string;
   idempotencyKey: string;
   createdAt: string;

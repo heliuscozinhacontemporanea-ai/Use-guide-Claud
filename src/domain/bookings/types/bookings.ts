@@ -103,6 +103,8 @@ export interface BookingSummary {
     refundAmountMinor: number;
     at: string;
   } | null;
+  /** Aviso de nova data (D16, 4A): até 7 dias depois, o cancelamento devolve tudo. */
+  rescheduledAt: string | null;
   createdAt: string;
   /** Só na visão do parceiro vendedor. */
   buyerId?: string;

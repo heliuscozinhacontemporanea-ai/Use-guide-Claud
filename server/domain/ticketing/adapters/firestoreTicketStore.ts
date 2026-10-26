@@ -202,9 +202,14 @@ export class FirestoreTicketStore {
           orderDoc.id,
           (orderDoc.data() || {}) as Record<string, unknown>
         );
-        if (order.status === 'paid' || order.status === 'pending_payment') {
+        if (
+          order.status === 'paid' ||
+          order.status === 'partially_refunded' ||
+          order.status === 'pending_payment'
+        ) {
           tx.update(orderDoc.ref, {
             occurrenceId: params.toOccurrenceId,
+            rescheduledAt: nowIso,
             ...(order.eventSnapshot
               ? {
                   eventSnapshot: {

@@ -15,7 +15,7 @@ export function canTransferTicket(ticket: Ticket, order: TicketOrder | undefined
 
 /**
  * Mesma conta do backend (arrependimento ou política do pedido), só para mostrar o valor antes de pedir.
- * A taxa de serviço só volta no arrependimento (D14).
+ * A taxa de serviço só volta no arrependimento (D14) e no reagendamento (D16).
  */
 export function previewOrderRefundMinor(order: TicketOrder, now: Date): number {
   if (order.status !== 'paid' || !order.eventSnapshot?.startsAt || !order.salesPolicySnapshot) {
@@ -30,6 +30,7 @@ export function previewOrderRefundMinor(order: TicketOrder, now: Date): number {
     now,
     paidMinor: order.totalMinor - serviceFeeMinor,
     serviceFeeMinor,
+    rescheduledAt: order.rescheduledAt,
   });
   return refund.refundMinor + refund.serviceFeeRefundMinor;
 }

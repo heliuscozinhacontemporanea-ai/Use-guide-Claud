@@ -18,6 +18,7 @@ export { recordSalePayoutUseCase } from './usecases/recordSalePayoutUseCase';
 export { applyPayoutRefundUseCase } from './usecases/applyPayoutRefundUseCase';
 export { holdPayoutForDisputeUseCase } from './usecases/holdPayoutForDisputeUseCase';
 export { closePayoutDisputeUseCase } from './usecases/closePayoutDisputeUseCase';
+export { reschedulePayoutUseCase } from './usecases/reschedulePayoutUseCase';
 export { releaseDuePayoutsUseCase } from './usecases/releaseDuePayoutsUseCase';
 export { getPayoutEntryForReferenceUseCase } from './usecases/getPayoutEntryForReferenceUseCase';
 export { createAccountDebtUseCase } from './usecases/createAccountDebtUseCase';

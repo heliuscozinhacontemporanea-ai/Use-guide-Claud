@@ -229,4 +229,69 @@ describe('OfferService', () => {
       hasAvailability: true,
     });
   });
+
+  describe('reagendamento de horário (D16 4A)', () => {
+    function seeded() {
+      const ctx = setup();
+      ctx.port.offers.set('offer-1', {
+        id: 'offer-1',
+        ownerId: 'partner-1',
+        partnerId: 'partner-1',
+      } as never);
+      ctx.port.slots.set('slot-1', {
+        id: 'slot-1',
+        offerId: 'offer-1',
+        startsAt: '2026-11-10T11:00:00.000Z',
+        capacityTotal: 4,
+        capacityReserved: 0,
+        capacitySold: 2,
+        status: 'open',
+        createdAt: '',
+        updatedAt: '',
+      });
+      for (const [id, status] of [
+        ['bk-1', 'confirmed'],
+        ['bk-2', 'canceled'],
+      ] as const) {
+        ctx.port.bookings.set(id, {
+          id,
+          slotId: 'slot-1',
+          status,
+          offerSnapshot: { title: 'Passeio', startsAt: '2026-11-10T11:00:00.000Z' },
+        } as never);
+      }
+      return ctx;
+    }
+    const CHANGE = { startsAt: '2026-11-12T11:00:00.000Z', reason: 'Mar agitado' };
+
+    it('as reservas ativas valem na nova data, com a data do aviso', async () => {
+      const { service, port } = seeded();
+      const moved = await service.rescheduleSlot(OWNER, 'offer-1', 'slot-1', CHANGE);
+      expect(moved.map((booking) => booking.id)).toEqual(['bk-1']);
+      expect(port.slots.get('slot-1')?.startsAt).toBe(CHANGE.startsAt);
+      expect(port.bookings.get('bk-1')).toMatchObject({
+        offerSnapshot: { startsAt: CHANGE.startsAt },
+        rescheduledAt: expect.any(String),
+      });
+      expect(port.bookings.get('bk-2')?.offerSnapshot.startsAt).toBe('2026-11-10T11:00:00.000Z');
+    });
+
+    it('data passada, horário cancelado ou oferta de outro parceiro são recusados', async () => {
+      const { service, port } = seeded();
+      await expect(
+        service.rescheduleSlot(OWNER, 'offer-1', 'slot-1', {
+          ...CHANGE,
+          startsAt: '2026-10-30T11:00:00.000Z',
+        })
+      ).rejects.toMatchObject({ code: 'VALIDATION_ERROR' });
+      await expect(
+        service.rescheduleSlot({ uid: 'outro', admin: false }, 'offer-1', 'slot-1', CHANGE)
+      ).rejects.toMatchObject({ code: 'NOT_FOUND' });
+      const slot = port.slots.get('slot-1');
+      if (slot) port.slots.set('slot-1', { ...slot, status: 'canceled' });
+      await expect(
+        service.rescheduleSlot(OWNER, 'offer-1', 'slot-1', CHANGE)
+      ).rejects.toMatchObject({ code: 'SLOT_UNAVAILABLE' });
+    });
+  });
 });

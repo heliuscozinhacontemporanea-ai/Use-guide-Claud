@@ -188,6 +188,21 @@ describe('BookingService', () => {
     });
   });
 
+  it('reagendada pelo parceiro: até 7 dias depois do aviso devolve tudo, mesmo fora da política (D16)', async () => {
+    const { service, port, setNow } = setup();
+    const booking = await service.createPendingBooking(BUYER, INPUT, FEES);
+    await service.confirmBookingPayment(booking.id, 'pi_1');
+    const confirmed = port.bookings.get(booking.id);
+    if (confirmed) {
+      port.bookings.set(booking.id, { ...confirmed, rescheduledAt: '2026-11-08T00:00:00.000Z' });
+    }
+    setNow('2026-11-09T12:00:00.000Z');
+    await expect(service.requestCancellationByBuyer(BUYER, booking.id, '')).resolves.toMatchObject({
+      refundPercent: 100,
+      refundAmountMinor: 20000,
+    });
+  });
+
   it('reserva pendente não pode ser cancelada pelo comprador', async () => {
     const { service } = setup();
     const booking = await service.createPendingBooking(BUYER, INPUT, FEES);

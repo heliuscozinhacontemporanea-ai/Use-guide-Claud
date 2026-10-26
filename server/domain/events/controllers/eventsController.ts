@@ -158,11 +158,7 @@ export class EventsController {
       if (!req.user) return res.status(401).json({ error: 'Não autenticado.' });
       const id = String(req.params.id ?? '');
       const reason = typeof req.body?.reason === 'string' ? req.body.reason : undefined;
-      const result = await cancelEventListingAndRefundApplicationUseCase(
-        getActor(req),
-        id,
-        reason
-      );
+      const result = await cancelEventListingAndRefundApplicationUseCase(getActor(req), id, reason);
       return res.status(200).json({ status: 'success', data: result });
     } catch (error) {
       return handleEventError(res, error);
@@ -246,7 +242,6 @@ export class EventsController {
       const startsAt = String(req.body?.startsAt ?? '');
       const endsAt = String(req.body?.endsAt ?? '');
       const reason = String(req.body?.reason ?? 'Evento adiado.');
-      const moveExistingOrders = req.body?.moveExistingOrders === true;
       const result = await postponeEventOccurrenceAndNotifyApplicationUseCase(
         getActor(req),
         occurrenceId,
@@ -256,7 +251,6 @@ export class EventsController {
           salesStartsAt: req.body?.salesStartsAt,
           salesEndsAt: req.body?.salesEndsAt,
           reason,
-          moveExistingOrders,
         }
       );
       return res.status(200).json({ status: 'success', data: result });
