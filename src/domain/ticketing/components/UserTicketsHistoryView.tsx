@@ -6,7 +6,7 @@ import {
   RefreshCw,
   Ticket as TicketIcon,
 } from 'lucide-react';
-import { useState } from 'react';
+import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ConfirmDialog, type ConfirmDialogData } from '../../../ui/components/ConfirmDialog';
 import { GlassCard } from '../../../ui/components/GlassCard';
@@ -25,8 +25,29 @@ import { TransferTicketForm } from './wallet/TransferTicketForm';
 import { WalletOrderCard } from './wallet/WalletOrderCard';
 import { WalletTicketCard } from './wallet/WalletTicketCard';
 
+/** Venda que o comprador pode reclamar; o formato é o de `ClaimableSale` do payment. */
+export interface TicketOrderClaimSale {
+  referenceType: 'ticket_order';
+  referenceId: string;
+  serviceStartsAt: string;
+  serviceEndsAt: string;
+}
+
 interface UserTicketsHistoryViewProps {
   onBack?: () => void;
+  /** Slot da composição para "Relatar problema" (D16, 2A). */
+  renderClaimAction?: (sale: TicketOrderClaimSale) => ReactNode;
+}
+
+function claimSaleOf(order: TicketOrder): TicketOrderClaimSale | null {
+  if (!order.eventSnapshot) return null;
+  if (order.status !== 'paid' && order.status !== 'partially_refunded') return null;
+  return {
+    referenceType: 'ticket_order',
+    referenceId: order.id,
+    serviceStartsAt: order.eventSnapshot.startsAt,
+    serviceEndsAt: order.eventSnapshot.endsAt || order.eventSnapshot.startsAt,
+  };
 }
 
 const SQUARE_BUTTON =
@@ -39,7 +60,10 @@ function tabClass(active: boolean) {
   );
 }
 
-export function UserTicketsHistoryView({ onBack }: UserTicketsHistoryViewProps = {}) {
+export function UserTicketsHistoryView({
+  onBack,
+  renderClaimAction,
+}: UserTicketsHistoryViewProps = {}) {
   const { t, i18n } = useTranslation();
   const wallet = useUserTicketsAndOrders(true);
   const { tickets, orders, loading, error, reload } = wallet;
@@ -188,17 +212,21 @@ export function UserTicketsHistoryView({ onBack }: UserTicketsHistoryViewProps =
         </GlassCard>
       ) : (
         <div className="space-y-3">
-          {orders.map((order) => (
-            <WalletOrderCard
-              key={order.id}
-              order={order}
-              canResume={isPendingAndActive(order)}
-              canRefund={canRequestRefund(order, tickets, now)}
-              busy={actions.busy}
-              onResume={() => void actions.resumePayment(order)}
-              onRefund={() => askRefund(order)}
-            />
-          ))}
+          {orders.map((order) => {
+            const claimSale = renderClaimAction ? claimSaleOf(order) : null;
+            return (
+              <WalletOrderCard
+                key={order.id}
+                order={order}
+                canResume={isPendingAndActive(order)}
+                canRefund={canRequestRefund(order, tickets, now)}
+                busy={actions.busy}
+                onResume={() => void actions.resumePayment(order)}
+                onRefund={() => askRefund(order)}
+                claimAction={claimSale && renderClaimAction?.(claimSale)}
+              />
+            );
+          })}
         </div>
       )}
 

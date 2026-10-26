@@ -3,10 +3,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import { hasPasswordSignInUseCase, logoutUseCase } from '../../domain/auth';
 import { useAuthContext } from '../../domain/auth/context/AuthContext';
 import { UserRole } from '../../domain/auth/types/auth';
-import { MyBookingsView } from '../../domain/bookings';
 import { AboutView, SupportView } from '../../domain/content';
 import { FavoritesList } from '../../domain/favorites';
-import { UserTicketsHistoryView } from '../../domain/ticketing';
 import {
   useUserProfile,
   useUserPhoto,
@@ -21,6 +19,8 @@ import {
 import { Z_INDEX } from '../../shared/constants/zIndex';
 import { cn } from '../../shared/utils/cn';
 import { SidebarLayout } from '../../ui/layouts/SidebarLayout';
+import { BuyerBookingsComposition } from '../compositions/BuyerBookingsComposition';
+import { BuyerTicketWalletComposition } from '../compositions/BuyerTicketWalletComposition';
 import { type MenuView, parentMenuView, visibleMenuView } from './menuViews';
 import { useSideMenu } from './useSideMenu';
 import { useLocalizedRouting } from '../../shared/hooks/useLocalizedRouting';
@@ -158,9 +158,9 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
       case 'support':
         return <SupportView onBack={goBack} userEmail={user?.email} />;
       case 'tickets':
-        return <UserTicketsHistoryView onBack={goBack} />;
+        return <BuyerTicketWalletComposition onBack={goBack} />;
       case 'bookings':
-        return <MyBookingsView onBack={goBack} />;
+        return <BuyerBookingsComposition onBack={goBack} />;
       case 'favorites':
         return <FavoritesList onBack={goBack} onSelectItem={closeMenuAndOpenItem} />;
       case 'account':

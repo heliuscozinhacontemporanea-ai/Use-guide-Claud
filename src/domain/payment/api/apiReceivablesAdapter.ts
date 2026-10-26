@@ -1,6 +1,7 @@
 import { firebaseApiFetch } from '../../../shared/infrastructure/firebase/firebaseApiFetch';
 import type { ReceivablesApiPort } from '../ports/receivablesApiPort';
 import type { AccountDebtView, PayoutPage } from '../types/receivables';
+import type { BuyerSaleClaim, SaleClaimReason } from '../types/saleClaims';
 
 const API_OPTIONS = { requireAuth: true, requireAppCheck: true } as const;
 
@@ -67,5 +68,24 @@ export class ApiReceivablesAdapter implements ReceivablesApiPort {
       declaration
     );
     return (await readJsonOrThrow<{ data: AccountDebtView }>(response)).data;
+  }
+
+  async listMySaleClaims(): Promise<BuyerSaleClaim[]> {
+    const response = await firebaseApiFetch(
+      '/api/sale-claims/mine',
+      { method: 'GET' },
+      API_OPTIONS
+    );
+    return (await readJsonOrThrow<{ data: BuyerSaleClaim[] }>(response)).data;
+  }
+
+  async openSaleClaim(input: {
+    referenceType: 'ticket_order' | 'booking';
+    referenceId: string;
+    reason: SaleClaimReason;
+    details?: string;
+  }): Promise<BuyerSaleClaim> {
+    const response = await postJson('/api/sale-claims', input);
+    return (await readJsonOrThrow<{ data: BuyerSaleClaim }>(response)).data;
   }
 }

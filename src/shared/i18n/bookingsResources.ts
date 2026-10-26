@@ -7,6 +7,7 @@ export interface BookingsTranslation {
     retry: string;
     duration: string;
     meetingPoint: string;
+    rescheduledNotice: string;
     chooseSlot: string;
     noSlots: string;
     spotsLeft_one: string;
@@ -204,6 +205,8 @@ export const bookingsPtBR: BookingsTranslation = {
     retry: 'Tentar novamente',
     duration: 'Duração: {{minutes}} min',
     meetingPoint: 'Ponto de encontro: {{address}}',
+    rescheduledNotice:
+      'Nova data marcada pelo parceiro. Até {{date}} você pode cancelar com reembolso integral.',
     chooseSlot: 'Escolha o horário',
     noSlots: 'Nenhum horário disponível nos próximos 30 dias.',
     spotsLeft_one: '{{count}} vaga',
@@ -412,6 +415,8 @@ export const bookingsEn: BookingsTranslation = {
     retry: 'Try again',
     duration: 'Duration: {{minutes}} min',
     meetingPoint: 'Meeting point: {{address}}',
+    rescheduledNotice:
+      'The partner set a new date. Until {{date}} you can cancel for a full refund.',
     chooseSlot: 'Choose a time',
     noSlots: 'No time slots available in the next 30 days.',
     spotsLeft_one: '{{count}} spot',
@@ -616,6 +621,8 @@ export const bookingsFr: BookingsTranslation = {
     retry: 'Réessayer',
     duration: 'Durée : {{minutes}} min',
     meetingPoint: 'Point de rendez-vous : {{address}}',
+    rescheduledNotice:
+      'Le partenaire a fixé une nouvelle date. Jusqu’au {{date}}, vous pouvez annuler avec un remboursement intégral.',
     chooseSlot: 'Choisissez un créneau',
     noSlots: 'Aucun créneau disponible dans les 30 prochains jours.',
     spotsLeft_one: '{{count}} place',

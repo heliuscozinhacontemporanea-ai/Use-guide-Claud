@@ -1,50 +1,49 @@
 import { ArrowLeft } from 'lucide-react';
-import { useState } from 'react';
+import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ConfirmDialog, type ConfirmDialogData } from '../../../../ui/components/ConfirmDialog';
 import { useMyBookings } from '../../hooks/useMyBookings';
 import type { BookingSummary } from '../../types/bookings';
 import { getBookingErrorMessage } from '../../utils/bookingErrorMessage';
-import { formatSlotDateTime } from '../../utils/dates';
 import { formatMinor } from '../../utils/money';
 import { previewRefund } from '../../utils/refundPreview';
 import { BUTTON_SECONDARY, ListEmpty, ListError, ListLoading } from '../shared/ListState';
+import { BuyerBookingCard } from './BuyerBookingCard';
 
-function BookingCard({ booking, onCancel }: { booking: BookingSummary; onCancel?: () => void }) {
-  const { t, i18n } = useTranslation();
-  return (
-    <li className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-2">
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <div className="min-w-0">
-          <p className="text-sm font-bold text-white break-words">{booking.offer.title}</p>
-          <p className="text-xs text-white/70">
-            {formatSlotDateTime(booking.offer.startsAt, i18n.language)}
-          </p>
-        </div>
-        <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-white/10 text-white/80">
-          {t(`bookings.bookingStatus.${booking.status}`)}
-        </span>
-      </div>
-      <p className="text-xs text-white/70">
-        {t('bookings.bookingsList.participants', { count: booking.participantsCount })} ·{' '}
-        {formatMinor(booking.totalMinor, i18n.language)}
-      </p>
-      {booking.offer.meetingPoint && (
-        <p className="text-xs text-white/70">
-          {t('bookings.buyer.meetingPoint', { address: booking.offer.meetingPoint })}
-        </p>
-      )}
-      {onCancel && (
-        <button type="button" onClick={onCancel} className={BUTTON_SECONDARY}>
-          {t('bookings.buyer.cancelBooking')}
-        </button>
-      )}
-    </li>
-  );
+/** Venda que o comprador pode reclamar; o formato é o de `ClaimableSale` do payment. */
+export interface BookingClaimSale {
+  referenceType: 'booking';
+  referenceId: string;
+  serviceStartsAt: string;
+  serviceEndsAt: string;
+}
+
+// Mesmos estados que o backend aceita para reclamar; `no_show` permite contestar a falta.
+const CLAIMABLE = new Set(['confirmed', 'completed', 'no_show']);
+
+function claimSaleOf(booking: BookingSummary): BookingClaimSale | null {
+  if (!CLAIMABLE.has(booking.status)) return null;
+  const startsAt = booking.offer.startsAt;
+  const endsAt = new Date(
+    new Date(startsAt).getTime() + (booking.offer.durationMinutes ?? 0) * 60_000
+  ).toISOString();
+  return {
+    referenceType: 'booking',
+    referenceId: booking.id,
+    serviceStartsAt: startsAt,
+    serviceEndsAt: endsAt,
+  };
 }
 
 /** Lista de reservas do comprador, aberta como sub-tela do menu lateral. */
-export function MyBookingsView({ onBack }: { onBack: () => void }) {
+export function MyBookingsView({
+  onBack,
+  renderClaimAction,
+}: {
+  onBack: () => void;
+  /** Slot da composição para "Relatar problema" (D16, 2A). */
+  renderClaimAction?: (sale: BookingClaimSale) => ReactNode;
+}) {
   const { t, i18n } = useTranslation();
   const { data, loading, error, hasMore, reload, loadMore, cancel } = useMyBookings();
   const [confirm, setConfirm] = useState<ConfirmDialogData | null>(null);
@@ -52,6 +51,11 @@ export function MyBookingsView({ onBack }: { onBack: () => void }) {
   const now = new Date();
   const upcoming = data.filter((booking) => new Date(booking.offer.startsAt) > now);
   const past = data.filter((booking) => new Date(booking.offer.startsAt) <= now);
+
+  const claimActionOf = (booking: BookingSummary) => {
+    const sale = renderClaimAction ? claimSaleOf(booking) : null;
+    return sale ? renderClaimAction?.(sale) : null;
+  };
 
   const requestCancel = (booking: BookingSummary) => {
     // Só para mostrar antes de confirmar; o valor devolvido é decidido pelo backend.
@@ -88,16 +92,16 @@ export function MyBookingsView({ onBack }: { onBack: () => void }) {
           type="button"
           onClick={onBack}
           aria-label={t('bookings.buyer.back')}
-          className="w-11 h-11 shrink-0 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center text-white/70 focus-visible:ring-2 focus-visible:ring-teal-400/50"
+          className="w-11 h-11 shrink-0 rounded-xl bg-surface hover:bg-accent-soft border border-line flex items-center justify-center text-ink/70 focus-visible:ring-2 focus-visible:ring-teal-400/50"
         >
           <ArrowLeft size={16} aria-hidden="true" />
         </button>
-        <h2 className="text-xl font-display font-black text-white">
+        <h2 className="text-xl font-display font-black text-ink">
           {t('bookings.buyer.myBookingsTitle')}
         </h2>
       </div>
       {notice && (
-        <p role="status" className="text-sm text-teal-200">
+        <p role="status" className="text-sm text-accent">
           {notice}
         </p>
       )}
@@ -107,12 +111,13 @@ export function MyBookingsView({ onBack }: { onBack: () => void }) {
       )}
       {upcoming.length > 0 && (
         <div className="space-y-2">
-          <h2 className="text-sm font-bold text-white/80">{t('bookings.buyer.upcoming')}</h2>
+          <h2 className="text-sm font-bold text-ink/80">{t('bookings.buyer.upcoming')}</h2>
           <ul className="space-y-2">
             {upcoming.map((booking) => (
-              <BookingCard
+              <BuyerBookingCard
                 key={booking.id}
                 booking={booking}
+                claimAction={claimActionOf(booking)}
                 onCancel={booking.status === 'confirmed' ? () => requestCancel(booking) : undefined}
               />
             ))}
@@ -121,10 +126,14 @@ export function MyBookingsView({ onBack }: { onBack: () => void }) {
       )}
       {past.length > 0 && (
         <div className="space-y-2">
-          <h2 className="text-sm font-bold text-white/80">{t('bookings.buyer.past')}</h2>
+          <h2 className="text-sm font-bold text-ink/80">{t('bookings.buyer.past')}</h2>
           <ul className="space-y-2">
             {past.map((booking) => (
-              <BookingCard key={booking.id} booking={booking} />
+              <BuyerBookingCard
+                key={booking.id}
+                booking={booking}
+                claimAction={claimActionOf(booking)}
+              />
             ))}
           </ul>
         </div>

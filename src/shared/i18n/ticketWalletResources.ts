@@ -34,6 +34,7 @@ export interface TicketWalletTranslation {
   qrSigned: string;
   order: string;
   reservedUntil: string;
+  rescheduledNotice: string;
   refundConfirm: string;
   actions: { showQr: string; reissueQr: string; transfer: string; resume: string; refund: string };
   ticketStatus: Record<TicketStatusKey, string>;
@@ -63,6 +64,8 @@ export const ticketWalletPtBR: TicketWalletTranslation = {
   qrSigned: 'QR assinado • v{{version}}',
   order: 'Pedido #{{id}} • {{amount}}',
   reservedUntil: 'Reserva válida até {{time}}',
+  rescheduledNotice:
+    'Nova data marcada pelo organizador. Até {{date}} você pode cancelar com reembolso integral, inclusive a taxa de serviço.',
   refundConfirm: 'Cancelar o pedido e receber {{amount}} de reembolso?',
   actions: {
     showQr: 'Ver QR',
@@ -130,6 +133,8 @@ export const ticketWalletEn: TicketWalletTranslation = {
   qrSigned: 'Signed QR • v{{version}}',
   order: 'Order #{{id}} • {{amount}}',
   reservedUntil: 'Reservation valid until {{time}}',
+  rescheduledNotice:
+    'The organizer set a new date. Until {{date}} you can cancel for a full refund, service fee included.',
   refundConfirm: 'Cancel the order and get a {{amount}} refund?',
   actions: {
     showQr: 'Show QR',
@@ -197,6 +202,8 @@ export const ticketWalletFr: TicketWalletTranslation = {
   qrSigned: 'QR signé • v{{version}}',
   order: 'Commande n° {{id}} • {{amount}}',
   reservedUntil: 'Réservation valable jusqu’à {{time}}',
+  rescheduledNotice:
+    'L’organisateur a fixé une nouvelle date. Jusqu’au {{date}}, vous pouvez annuler avec un remboursement intégral, frais de service compris.',
   refundConfirm: 'Annuler la commande et recevoir un remboursement de {{amount}} ?',
   actions: {
     showQr: 'Voir le QR',

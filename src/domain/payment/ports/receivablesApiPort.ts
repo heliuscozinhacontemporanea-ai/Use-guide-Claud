@@ -1,4 +1,5 @@
 import type { AccountDebtView, PayoutPage } from '../types/receivables';
+import type { BuyerSaleClaim, SaleClaimReason } from '../types/saleClaims';
 
 export interface ReceivablesApiPort {
   listPayouts(query: { accountKey?: string; cursor?: string; limit?: number }): Promise<PayoutPage>;
@@ -8,4 +9,11 @@ export interface ReceivablesApiPort {
     debtId: string,
     declaration: { reason: string; proofPath: string }
   ): Promise<AccountDebtView>;
+  listMySaleClaims(): Promise<BuyerSaleClaim[]>;
+  openSaleClaim(input: {
+    referenceType: 'ticket_order' | 'booking';
+    referenceId: string;
+    reason: SaleClaimReason;
+    details?: string;
+  }): Promise<BuyerSaleClaim>;
 }
