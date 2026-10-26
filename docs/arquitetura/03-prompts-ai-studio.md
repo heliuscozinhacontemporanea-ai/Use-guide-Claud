@@ -165,7 +165,7 @@
 
 > **Envie um prompt por mensagem**, nesta ordem. Até o 18.3.1 (telas), trial, compra de plano e selo do admin pelo painel ficam fora do ar, e as métricas de estabelecimento sem plano mostram erro.
 
-# Lote 17 (Prompts C16, 18.4c, 18.4c.1 e 18.4d.1 a 18.4d.3b) — aplicar sobre o zip de 2026-10-25
+# Lote 17 (Prompts C16, 18.4c, 18.4c.1, 18.4d.1 a 18.4d.3b e 18.4e.1) — aplicar sobre o zip de 2026-10-25
 
 | Ordem | Arquivo | Tema | Commit de referência |
 |---|---|---|---|
@@ -176,6 +176,7 @@
 | 5 | `prompts/prompt-18.4d.2.md` | Reclamações do comprador (D16), só backend: `saleClaims` até 48 h depois do fim do serviço, repasse retido até a decisão do admin (liberar, reembolso integral ou parcial, multa no cancelamento silencioso), expiração em 5 dias pelo job; repasse com lista de retenções; débito B30 | `3f43733..a2c644f` |
 | 6 | `prompts/prompt-18.4d.3a.md` | Força maior (D16), só backend: declaração com prova privada na multa de cancelamento, multa suspensa até a decisão do admin (aprovada perdoa; recusada vale com 24 h) | `7608424..cd796c0` |
 | 7 | `prompts/prompt-18.4d.3b.md` | Reagendamento (D16): ingresso e reserva valem na nova data, reembolso integral com a taxa até 7 dias depois do aviso, remarcação de horário de reserva, repasse acompanha a nova data; adiar a sessão passa a levar sempre os pedidos | `cd796c0..d2f73d8` |
+| 8 | `prompts/prompt-18.4e.1.md` | Telas do parceiro (D14, D16): Recebimentos com abas Contas, Extrato e Dívidas, extrato por venda com taxas, pagar dívida no cartão ou Pix, declarar força maior com prova, aviso de vendas pausadas; Payment Element no tema do app (prints aprovados) | `31cdebc..7c2dbc8` |
 
 > Cada prompt termina com **Configurações manuais**: o que você faz fora do AI Studio (deploy de regras e índices, Functions, Stripe Dashboard) depois de aplicá-lo.
 
