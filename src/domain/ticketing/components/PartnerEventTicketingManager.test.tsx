@@ -9,7 +9,6 @@ vi.mock('../../events', () => ({
     loading: false,
   }),
 }));
-vi.mock('../../payment', () => ({ PartnerStripeConnectPortal: () => <div>portal</div> }));
 vi.mock('../hooks/useTicketTypes', () => ({
   useManagementTicketTypes: () => ({ ticketTypes: [], loading: false, reload: vi.fn() }),
 }));
@@ -23,7 +22,6 @@ vi.mock('../hooks/usePartnerEventSales', () => ({
     reload: vi.fn(),
     performCheckIn: vi.fn(),
   }),
-  usePartnerMerchantAccount: () => ({ status: { readyForSales: true } }),
 }));
 vi.mock('../utils/offlineCheckInStorage', () => ({
   getOfflineManifestBundle: vi.fn().mockResolvedValue(null),
@@ -37,7 +35,7 @@ import { PartnerEventTicketingManager } from './PartnerEventTicketingManager';
 
 describe('PartnerEventTicketingManager (divisão em abas, sem mudar comportamento)', () => {
   it('cada aba mostra o próprio conteúdo', async () => {
-    render(<PartnerEventTicketingManager eventListingId="ev-1" />);
+    render(<PartnerEventTicketingManager eventListingId="ev-1" financePanel={<div>portal</div>} />);
     expect(await screen.findByText('Novo Lote / Tipo de Ingresso')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: /Vendas/ }));
     expect(screen.getByText('Ingressos Pagos')).toBeTruthy();
@@ -55,7 +53,7 @@ describe('PartnerEventTicketingManager (divisão em abas, sem mudar comportament
     expect(screen.getByText('portal')).toBeTruthy();
   });
 
-  it('admin não vê a aba Financeiro', () => {
+  it('sem painel financeiro (admin), sem a aba Financeiro', () => {
     render(<PartnerEventTicketingManager eventListingId="ev-1" asAdmin />);
     expect(screen.queryByRole('button', { name: /Financeiro/ })).toBeNull();
   });

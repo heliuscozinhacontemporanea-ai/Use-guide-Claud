@@ -1,4 +1,6 @@
 export { archiveAdminEventListingUseCase } from './application/usecases/archiveAdminEventListingUseCase';
+export { cancelPartnerEventOccurrenceUseCase } from './application/usecases/cancelPartnerEventOccurrenceUseCase';
+export { postponePartnerEventOccurrenceUseCase } from './application/usecases/postponePartnerEventOccurrenceUseCase';
 export { cancelAdminEventListingUseCase } from './application/usecases/cancelAdminEventListingUseCase';
 export { createAdminEventListingUseCase } from './application/usecases/createAdminEventListingUseCase';
 export { createAdminEventOccurrenceUseCase } from './application/usecases/createAdminEventOccurrenceUseCase';

@@ -25,6 +25,16 @@ export interface EventsPort {
     input: Partial<CreateEventOccurrenceInput>
   ): Promise<EventOccurrence>;
   deletePartnerEventOccurrence(eventListingId: string, occurrenceId: string): Promise<void>;
+  cancelPartnerEventOccurrence(
+    eventListingId: string,
+    occurrenceId: string,
+    reason: string
+  ): Promise<void>;
+  postponePartnerEventOccurrence(
+    eventListingId: string,
+    occurrenceId: string,
+    replacement: { startsAt: string; endsAt: string; reason: string }
+  ): Promise<void>;
 
   createAdminEventListing(
     input: CreateEventListingInput

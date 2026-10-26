@@ -4,21 +4,21 @@ import type { ManagerTab } from './managerTabs';
 export function ManagerTabBar({
   activeTab,
   setActiveTab,
-  asAdmin,
+  showFinance,
   counts,
 }: {
   activeTab: ManagerTab;
   setActiveTab: (tab: ManagerTab) => void;
-  asAdmin: boolean;
+  showFinance: boolean;
   counts: { lots: number; attendees: number; checkIns: number; refunds: number };
 }) {
   return (
-    <div className="flex items-center gap-2 border-b border-white/10 pb-2 overflow-x-auto">
+    <div className="flex items-center gap-2 border-b border-line pb-2 overflow-x-auto">
       <button
         type="button"
         onClick={() => setActiveTab('lots')}
         className={`min-h-11 px-3.5 rounded-xl text-xs font-bold flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
-          activeTab === 'lots' ? 'bg-white/15 text-teal-300' : 'text-white/60 hover:text-white'
+          activeTab === 'lots' ? 'bg-accent-soft text-accent' : 'text-ink/70 hover:text-ink'
         }`}
       >
         <TicketIcon size={14} />
@@ -28,7 +28,7 @@ export function ManagerTabBar({
         type="button"
         onClick={() => setActiveTab('sales')}
         className={`min-h-11 px-3.5 rounded-xl text-xs font-bold flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
-          activeTab === 'sales' ? 'bg-white/15 text-teal-300' : 'text-white/60 hover:text-white'
+          activeTab === 'sales' ? 'bg-accent-soft text-accent' : 'text-ink/70 hover:text-ink'
         }`}
       >
         <BarChart3 size={14} />
@@ -38,7 +38,7 @@ export function ManagerTabBar({
         type="button"
         onClick={() => setActiveTab('attendees')}
         className={`min-h-11 px-3.5 rounded-xl text-xs font-bold flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
-          activeTab === 'attendees' ? 'bg-white/15 text-teal-300' : 'text-white/60 hover:text-white'
+          activeTab === 'attendees' ? 'bg-accent-soft text-accent' : 'text-ink/70 hover:text-ink'
         }`}
       >
         <Users size={14} />
@@ -48,7 +48,7 @@ export function ManagerTabBar({
         type="button"
         onClick={() => setActiveTab('checkin')}
         className={`min-h-11 px-3.5 rounded-xl text-xs font-bold flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
-          activeTab === 'checkin' ? 'bg-white/15 text-teal-300' : 'text-white/60 hover:text-white'
+          activeTab === 'checkin' ? 'bg-accent-soft text-accent' : 'text-ink/70 hover:text-ink'
         }`}
       >
         <QrCode size={14} />
@@ -58,18 +58,18 @@ export function ManagerTabBar({
         type="button"
         onClick={() => setActiveTab('refunds')}
         className={`min-h-11 px-3.5 rounded-xl text-xs font-bold flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
-          activeTab === 'refunds' ? 'bg-white/15 text-teal-300' : 'text-white/60 hover:text-white'
+          activeTab === 'refunds' ? 'bg-accent-soft text-accent' : 'text-ink/70 hover:text-ink'
         }`}
       >
         <RefreshCw size={14} />
         <span>Reembolsos ({counts.refunds})</span>
       </button>
-      {!asAdmin && (
+      {showFinance && (
         <button
           type="button"
           onClick={() => setActiveTab('finance')}
           className={`min-h-11 px-3.5 rounded-xl text-xs font-bold flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
-            activeTab === 'finance' ? 'bg-white/15 text-teal-300' : 'text-white/60 hover:text-white'
+            activeTab === 'finance' ? 'bg-accent-soft text-accent' : 'text-ink/70 hover:text-ink'
           }`}
         >
           <Wallet size={14} />

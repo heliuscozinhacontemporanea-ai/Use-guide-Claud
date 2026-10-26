@@ -136,6 +136,40 @@ export class HttpEventsAdapter implements EventsPort {
     return result.data;
   }
 
+  async cancelPartnerEventOccurrence(
+    eventListingId: string,
+    occurrenceId: string,
+    reason: string
+  ): Promise<void> {
+    const response = await firebaseApiFetch(
+      `/api/partners/events/${encodeURIComponent(eventListingId)}/occurrences/${encodeURIComponent(occurrenceId)}/cancel`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason }),
+      },
+      { requireAuth: true, requireAppCheck: true }
+    );
+    await parseJsonOrThrow(response, 'Erro ao cancelar a sessão.');
+  }
+
+  async postponePartnerEventOccurrence(
+    eventListingId: string,
+    occurrenceId: string,
+    replacement: { startsAt: string; endsAt: string; reason: string }
+  ): Promise<void> {
+    const response = await firebaseApiFetch(
+      `/api/partners/events/${encodeURIComponent(eventListingId)}/occurrences/${encodeURIComponent(occurrenceId)}/postpone`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(replacement),
+      },
+      { requireAuth: true, requireAppCheck: true }
+    );
+    await parseJsonOrThrow(response, 'Erro ao adiar a sessão.');
+  }
+
   async deletePartnerEventOccurrence(eventListingId: string, occurrenceId: string): Promise<void> {
     const response = await firebaseApiFetch(
       `/api/partners/events/${encodeURIComponent(eventListingId)}/occurrences/${encodeURIComponent(occurrenceId)}`,

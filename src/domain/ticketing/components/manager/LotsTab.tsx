@@ -46,9 +46,9 @@ export function LotsTab({
     <div className="space-y-4">
       <form
         onSubmit={handleCreateLot}
-        className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 space-y-3"
+        className="p-4 rounded-2xl bg-surface border border-line space-y-3"
       >
-        <div className="text-xs font-bold text-white/80 uppercase tracking-wider">
+        <div className="text-xs font-bold text-ink/80 uppercase tracking-wider">
           Novo Lote / Tipo de Ingresso
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
@@ -58,12 +58,12 @@ export function LotsTab({
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             placeholder="Nome (ex: 1º Lote, VIP)"
-            className="min-h-11 px-3 rounded-xl bg-black/40 border border-white/10 text-xs text-white placeholder:text-white/50"
+            className="min-h-11 px-3 rounded-xl bg-surface border border-line text-xs text-ink placeholder:text-ink/60"
           />
           <select
             value={newKind}
             onChange={(e) => setNewKind(e.target.value as 'paid' | 'free')}
-            className="min-h-11 px-3 rounded-xl bg-black/40 border border-white/10 text-xs text-white"
+            className="min-h-11 px-3 rounded-xl bg-surface border border-line text-xs text-ink"
           >
             <option value="paid">Ingresso Pago</option>
             <option value="free">Inscrição Gratuita</option>
@@ -75,7 +75,7 @@ export function LotsTab({
             value={newKind === 'free' ? '0' : newPriceReais}
             onChange={(e) => setNewPriceReais(e.target.value)}
             placeholder="Preço (R$)"
-            className="min-h-11 px-3 rounded-xl bg-black/40 border border-white/10 text-xs text-white placeholder:text-white/50 disabled:opacity-40"
+            className="min-h-11 px-3 rounded-xl bg-surface border border-line text-xs text-ink placeholder:text-ink/60 disabled:opacity-40"
           />
           <input
             type="number"
@@ -84,7 +84,7 @@ export function LotsTab({
             value={newQuantity}
             onChange={(e) => setNewQuantity(e.target.value)}
             placeholder="Quantidade total"
-            className="min-h-11 px-3 rounded-xl bg-black/40 border border-white/10 text-xs text-white placeholder:text-white/50"
+            className="min-h-11 px-3 rounded-xl bg-surface border border-line text-xs text-ink placeholder:text-ink/60"
           />
         </div>
 
@@ -94,12 +94,12 @@ export function LotsTab({
             value={newDescription}
             onChange={(e) => setNewDescription(e.target.value)}
             placeholder="Descrição do lote (opcional)"
-            className="min-h-11 px-3 rounded-xl bg-black/40 border border-white/10 text-xs text-white placeholder:text-white/50"
+            className="min-h-11 px-3 rounded-xl bg-surface border border-line text-xs text-ink placeholder:text-ink/60"
           />
           <select
             value={newVisibility}
             onChange={(e) => setNewVisibility(e.target.value as 'public' | 'hidden' | 'restricted')}
-            className="min-h-11 px-3 rounded-xl bg-black/40 border border-white/10 text-xs text-white"
+            className="min-h-11 px-3 rounded-xl bg-surface border border-line text-xs text-ink"
           >
             <option value="public">Visibilidade: Público</option>
             <option value="hidden">Visibilidade: Oculto</option>
@@ -113,7 +113,7 @@ export function LotsTab({
               onChange={(e) => setNewMinPerOrder(e.target.value)}
               placeholder="Mín/pedido"
               title="Mínimo por pedido"
-              className="min-h-11 px-3 rounded-xl bg-black/40 border border-white/10 text-xs text-white placeholder:text-white/50"
+              className="min-h-11 px-3 rounded-xl bg-surface border border-line text-xs text-ink placeholder:text-ink/60"
             />
             <input
               type="number"
@@ -122,7 +122,7 @@ export function LotsTab({
               onChange={(e) => setNewMaxPerOrder(e.target.value)}
               placeholder="Máx/pedido"
               title="Máximo por pedido"
-              className="min-h-11 px-3 rounded-xl bg-black/40 border border-white/10 text-xs text-white placeholder:text-white/50"
+              className="min-h-11 px-3 rounded-xl bg-surface border border-line text-xs text-ink placeholder:text-ink/60"
             />
           </div>
           <input
@@ -131,30 +131,30 @@ export function LotsTab({
             onChange={(e) => setNewSortOrder(e.target.value)}
             placeholder="Ordem (0)"
             title="Ordem de exibição"
-            className="min-h-11 px-3 rounded-xl bg-black/40 border border-white/10 text-xs text-white placeholder:text-white/50"
+            className="min-h-11 px-3 rounded-xl bg-surface border border-line text-xs text-ink placeholder:text-ink/60"
           />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 items-center">
           <div>
-            <label className="text-[11px] text-white/60 block mb-1">Início das vendas</label>
+            <label className="text-[11px] text-ink/70 block mb-1">Início das vendas</label>
             <input
               type="datetime-local"
               value={newSalesStartsAt}
               onChange={(e) => setNewSalesStartsAt(e.target.value)}
-              className="w-full min-h-11 px-3 rounded-xl bg-black/40 border border-white/10 text-xs text-white"
+              className="w-full min-h-11 px-3 rounded-xl bg-surface border border-line text-xs text-ink"
             />
           </div>
           <div>
-            <label className="text-[11px] text-white/60 block mb-1">Fim das vendas</label>
+            <label className="text-[11px] text-ink/70 block mb-1">Fim das vendas</label>
             <input
               type="datetime-local"
               value={newSalesEndsAt}
               onChange={(e) => setNewSalesEndsAt(e.target.value)}
-              className="w-full min-h-11 px-3 rounded-xl bg-black/40 border border-white/10 text-xs text-white"
+              className="w-full min-h-11 px-3 rounded-xl bg-surface border border-line text-xs text-ink"
             />
           </div>
-          <label className="flex items-center gap-2 text-xs text-white/80 pt-4 cursor-pointer">
+          <label className="flex items-center gap-2 text-xs text-ink/80 pt-4 cursor-pointer">
             <input
               type="checkbox"
               checked={newRequiresEligibility}
@@ -168,7 +168,7 @@ export function LotsTab({
         <button
           type="submit"
           disabled={creatingLot || !selectedOccurrenceId}
-          className="min-h-11 px-4 rounded-xl bg-teal-400 hover:bg-teal-300 text-slate-950 font-black text-xs uppercase tracking-wider flex items-center gap-1.5 cursor-pointer"
+          className="press min-h-11 px-4 rounded-xl bg-teal-400 hover:bg-teal-300 text-slate-950 font-black text-xs uppercase tracking-wider flex items-center gap-1.5 cursor-pointer"
         >
           <Plus size={15} />
           <span>Adicionar Lote</span>
@@ -179,24 +179,24 @@ export function LotsTab({
         {ticketTypes.map((tt) => (
           <div
             key={tt.id}
-            className="p-3.5 rounded-2xl bg-white/[0.04] border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+            className="p-3.5 rounded-2xl bg-surface border border-line flex flex-col sm:flex-row sm:items-center justify-between gap-3"
           >
             <div className="space-y-1">
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-sm font-bold text-white">{tt.name}</span>
-                <span className="text-xs font-black text-teal-300">
+                <span className="text-sm font-bold text-ink">{tt.name}</span>
+                <span className="text-xs font-black text-accent">
                   {formatMoneyMinorBrl(tt.priceMinor)}
                 </span>
-                <span className="px-2 py-0.5 rounded-full bg-white/10 text-[10px] font-bold text-white/70 uppercase">
+                <span className="px-2 py-0.5 rounded-full bg-surface border border-line text-[10px] font-bold text-ink/80 uppercase">
                   {tt.status}
                 </span>
               </div>
-              <div className="text-xs text-white/60">
+              <div className="text-xs text-ink/70">
                 Vendidos: {tt.soldCount} / {tt.quantity} • Reservados: {tt.reservedCount} • Mín{' '}
                 {tt.minPerOrder} / Máx {tt.maxPerOrder}
               </div>
               {(tt.salesStartsAt || tt.salesEndsAt) && (
-                <div className="text-[11px] text-white/50">
+                <div className="text-[11px] text-ink/70">
                   Janela:{' '}
                   {tt.salesStartsAt
                     ? new Date(tt.salesStartsAt).toLocaleString('pt-BR', {
@@ -217,7 +217,7 @@ export function LotsTab({
               <button
                 type="button"
                 onClick={() => void handleToggleLotPause(tt.id, tt.status)}
-                className="min-h-11 px-3 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-bold text-white/80 cursor-pointer"
+                className="press min-h-11 px-3 rounded-xl bg-surface border border-line hover:bg-accent-soft text-xs font-bold text-ink cursor-pointer"
               >
                 {tt.status === 'paused' ? 'Reativar' : 'Pausar'}
               </button>
@@ -225,7 +225,7 @@ export function LotsTab({
                 type="button"
                 onClick={() => void handleDeleteLot(tt.id)}
                 aria-label={`Remover lote ${tt.name}`}
-                className="w-11 h-11 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-300 flex items-center justify-center focus-visible:ring-2 focus-visible:ring-teal-400/50 cursor-pointer"
+                className="press w-11 h-11 rounded-xl bg-danger-soft border border-danger-line text-danger flex items-center justify-center focus-visible:ring-2 focus-visible:ring-teal-400/50 cursor-pointer"
               >
                 <Trash2 size={15} />
               </button>

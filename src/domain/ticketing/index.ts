@@ -31,10 +31,7 @@ export { useCheckoutCountdown } from './hooks/useCheckoutCountdown';
 
 export { useUserTicketsAndOrders } from './hooks/useUserTickets';
 
-export {
-  usePartnerEventSales,
-  usePartnerMerchantAccount,
-} from './hooks/usePartnerEventSales';
+export { usePartnerEventSales } from './hooks/usePartnerEventSales';
 
 export { CheckoutResultView } from './components/CheckoutResultView';
 export { UserTicketsHistoryView } from './components/UserTicketsHistoryView';

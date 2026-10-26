@@ -15,8 +15,8 @@ import {
   PlanSubscriptionCard,
 } from '../../domain/payment';
 import { PartnerBookingsComposition } from './PartnerBookingsComposition';
+import { PartnerEventTicketingComposition } from './PartnerEventTicketingComposition';
 import { NotificationBell } from '../../domain/notifications';
-import { PartnerEventTicketingManager } from '../../domain/ticketing';
 import { useLocalizedRouting } from '../../shared/hooks/useLocalizedRouting';
 import { useUI } from '../../shared/stores/useUIStore';
 import { MessagePage } from '../../ui/components/MessagePage';
@@ -190,7 +190,7 @@ export function PartnerPortalComposition() {
       )}
       renderBookableOffersManager={(items) => <PartnerBookingsComposition items={items} />}
       renderEventTicketingManager={(eventListingId) => (
-        <PartnerEventTicketingManager eventListingId={eventListingId} />
+        <PartnerEventTicketingComposition eventListingId={eventListingId} />
       )}
       renderEventSessionsField={(props) => <EventSessionsField {...props} />}
     />
