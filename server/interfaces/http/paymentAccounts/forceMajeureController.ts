@@ -1,11 +1,8 @@
 import type { Response } from 'express';
 import { declarePartnerForceMajeureApplicationUseCase } from '../../../application/usecases/paymentAccounts/declarePartnerForceMajeureApplicationUseCase';
+import { listAdminForceMajeureReviewsApplicationUseCase } from '../../../application/usecases/paymentAccounts/listAdminForceMajeureReviewsApplicationUseCase';
 import { readForceMajeureProofApplicationUseCase } from '../../../application/usecases/paymentAccounts/readForceMajeureProofApplicationUseCase';
-import {
-  decideForceMajeureUseCase,
-  listForceMajeureReviewsUseCase,
-  PaymentDomainError,
-} from '../../../domain/payment';
+import { decideForceMajeureUseCase, PaymentDomainError } from '../../../domain/payment';
 import type { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
 import {
   AccountDebtParamsSchema,
@@ -57,7 +54,9 @@ export class ForceMajeureController {
     if (!req.user?.uid) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
     if (req.user.admin !== true) return sendError(res, 403, 'FORBIDDEN', 'Acesso restrito.');
     try {
-      return res.status(200).json({ data: await listForceMajeureReviewsUseCase(50) });
+      return res
+        .status(200)
+        .json({ data: await listAdminForceMajeureReviewsApplicationUseCase(50) });
     } catch (error) {
       return handleError(res, error, 'listReviews');
     }

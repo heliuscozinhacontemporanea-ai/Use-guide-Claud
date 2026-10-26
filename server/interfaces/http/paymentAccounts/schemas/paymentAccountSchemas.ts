@@ -58,3 +58,15 @@ export const ListPayoutsQuerySchema = z
       .optional(),
   })
   .strict();
+
+export const ListAdminAccountDebtsQuerySchema = z
+  .object({
+    limit: z.coerce.number().int().min(1).max(100).default(50),
+    cursor: z
+      .string()
+      .min(1)
+      .max(200)
+      .regex(/^[\w-]+$/)
+      .optional(),
+  })
+  .strict();

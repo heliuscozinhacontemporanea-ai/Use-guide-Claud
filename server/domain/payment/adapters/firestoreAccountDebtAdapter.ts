@@ -1,6 +1,6 @@
 import { adminDb } from '../../../infrastructure/firebase/adminClient';
 import type { AccountDebtRepositoryPort } from '../ports/accountDebtRepositoryPort';
-import type { AccountDebt } from '../types/accountDebt';
+import type { AccountDebt, AccountDebtStatus } from '../types/accountDebt';
 
 const DEBTS = 'accountDebts';
 
@@ -44,13 +44,21 @@ export class FirestoreAccountDebtAdapter implements AccountDebtRepositoryPort {
     return snapshot.docs.map((doc) => doc.data() as AccountDebt);
   }
 
-  async listSuspended(limit: number): Promise<AccountDebt[]> {
-    const snapshot = await adminDb
+  async listByStatus(
+    status: AccountDebtStatus,
+    limit: number,
+    cursor?: string
+  ): Promise<AccountDebt[]> {
+    let query = adminDb
       .collection(DEBTS)
-      .where('status', '==', 'suspended')
+      .where('status', '==', status)
       .orderBy('createdAt', 'asc')
-      .limit(limit)
-      .get();
+      .limit(limit);
+    if (cursor) {
+      const last = await adminDb.collection(DEBTS).doc(cursor).get();
+      if (last.exists) query = query.startAfter(last);
+    }
+    const snapshot = await query.get();
     return snapshot.docs.map((doc) => doc.data() as AccountDebt);
   }
 

@@ -2,7 +2,7 @@ import type { Response } from 'express';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
 
-const m = vi.hoisted(() => ({ list: vi.fn(), pay: vi.fn(), waive: vi.fn() }));
+const m = vi.hoisted(() => ({ list: vi.fn(), pay: vi.fn() }));
 
 vi.mock('../../../application/usecases/paymentAccounts/listPartnerDebtsApplicationUseCase', () => ({
   listPartnerDebtsApplicationUseCase: m.list,
@@ -15,7 +15,7 @@ vi.mock('../../../domain/payment', async () => {
   const { PaymentDomainError } = await import(
     '../../../domain/payment/services/stripePaymentService'
   );
-  return { PaymentDomainError, waiveAccountDebtUseCase: m.waive };
+  return { PaymentDomainError };
 });
 
 import { PaymentDomainError } from '../../../domain/payment/services/stripePaymentService';
@@ -29,7 +29,6 @@ function response() {
 }
 
 const OWNER = { uid: 'owner-1', admin: false };
-const ADMIN = { uid: 'admin-1', admin: true };
 
 function request(overrides: Partial<AuthenticatedRequest>): AuthenticatedRequest {
   return { query: {}, body: {}, params: {}, user: OWNER, ...overrides } as never;
@@ -61,23 +60,5 @@ describe('PaymentAccountController — dívidas (D16)', () => {
     );
     expect(m.pay).toHaveBeenCalledWith('owner-1', 'debt_x');
     expect(res.status).toHaveBeenCalledWith(404);
-  });
-
-  it('perdoar é só do admin', async () => {
-    const res = response();
-    await PaymentAccountController.waiveDebt(
-      request({ params: { debtId: 'debt_x' } as never }),
-      res as unknown as Response
-    );
-    expect(res.status).toHaveBeenCalledWith(403);
-    expect(m.waive).not.toHaveBeenCalled();
-    m.waive.mockResolvedValue({ id: 'debt_x', status: 'waived' });
-    const ok = response();
-    await PaymentAccountController.waiveDebt(
-      request({ user: ADMIN as never, params: { debtId: 'debt_x' } as never }),
-      ok as unknown as Response
-    );
-    expect(m.waive).toHaveBeenCalledWith('debt_x', 'admin-1');
-    expect(ok.json).toHaveBeenCalledWith({ data: { id: 'debt_x', status: 'waived' } });
   });
 });

@@ -172,4 +172,24 @@ describe('DebtService (D16)', () => {
       expect(debt.forceMajeure?.status).toBe('rejected');
     });
   });
+
+  it('admin vê as dívidas em aberto, das mais antigas, por página', async () => {
+    const { service, clock } = setup();
+    for (const id of ['occ-1', 'occ-2', 'occ-3']) {
+      await service.createDebt({ ...PENALTY, referenceId: id });
+      clock.value = new Date(clock.value.getTime() + 60_000);
+    }
+    const first = await service.listOpenForAdmin(2);
+    expect(first.data.map((debt) => debt.id)).toEqual([
+      'debt_cancellation_penalty_event_occurrence_occ-1',
+      'debt_cancellation_penalty_event_occurrence_occ-2',
+    ]);
+    const second = await service.listOpenForAdmin(2, first.nextCursor ?? undefined);
+    expect(second.data.map((debt) => debt.id)).toEqual([
+      'debt_cancellation_penalty_event_occurrence_occ-3',
+    ]);
+    expect(second.nextCursor).toBeNull();
+    await service.waive(first.data[0]?.id ?? '', 'admin-1');
+    expect((await service.listOpenForAdmin(10)).data).toHaveLength(2);
+  });
 });

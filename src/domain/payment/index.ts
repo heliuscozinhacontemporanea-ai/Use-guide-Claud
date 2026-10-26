@@ -5,6 +5,7 @@ export { PartnerStripeConnectPortal } from './components/PartnerStripeConnectPor
 export { PaymentAccountNotice } from './components/PaymentAccountNotice';
 export { MySaleClaimsProvider } from './components/claims/MySaleClaimsProvider';
 export { SaleClaimAction } from './components/claims/SaleClaimAction';
+export { AdminFinanceQueues } from './components/admin/AdminFinanceQueues';
 export { confirmPlanPaymentReturnUseCase } from './application/usecases/confirmPlanPaymentReturnUseCase';
 export { createPlanPaymentIntentUseCase } from './application/usecases/createPlanPaymentIntentUseCase';
 export { listPaymentAccountsUseCase } from './application/usecases/listPaymentAccountsUseCase';

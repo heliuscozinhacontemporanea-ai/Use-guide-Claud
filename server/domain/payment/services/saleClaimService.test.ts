@@ -70,7 +70,13 @@ describe('SaleClaimService (D16 2A)', () => {
     expect(mine).not.toHaveProperty('details');
     expect(await service.listForBuyer('buyer-2')).toEqual([]);
     const { data, nextCursor } = await service.listPendingForAdmin(10);
-    expect(data[0]).toMatchObject({ details: 'O local estava fechado.', refundableMinor: 10600 });
+    // O parcial não devolve a taxa de serviço; ela só volta no reembolso integral.
+    expect(data[0]).toMatchObject({
+      details: 'O local estava fechado.',
+      refundableMinor: 10600,
+      maxPartialRefundMinor: 10000,
+      accountKey: expect.any(String),
+    });
     expect(nextCursor).toBeNull();
   });
 

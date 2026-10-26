@@ -36,6 +36,16 @@ export class PaymentAccountService {
     return synced.map(toView);
   }
 
+  /** Dono de cada conta, para o admin identificar o vendedor; contas sem cadastro ficam de fora. */
+  async getOwners(accountKeys: string[]): Promise<Record<string, string>> {
+    const records = await Promise.all(
+      [...new Set(accountKeys)].map((key) => this.repository.get(key))
+    );
+    return Object.fromEntries(
+      records.flatMap((record) => (record ? [[record.accountKey, record.ownerUid]] : []))
+    );
+  }
+
   async assertReady(accountKey: string): Promise<PaymentAccountRecord> {
     const existing = await this.repository.get(accountKey);
     const record = existing ? await this.sync(existing) : null;

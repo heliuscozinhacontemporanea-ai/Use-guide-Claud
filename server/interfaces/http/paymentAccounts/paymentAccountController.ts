@@ -7,7 +7,7 @@ import { startPartnerDebtPaymentApplicationUseCase } from '../../../application/
 import { acceptPartnerTermsApplicationUseCase } from '../../../application/usecases/paymentAccounts/acceptPartnerTermsApplicationUseCase';
 import { getPartnerTermsApplicationUseCase } from '../../../application/usecases/paymentAccounts/getPartnerTermsApplicationUseCase';
 import { ListingVerificationError, PartnerDomainError } from '../../../domain/partners';
-import { PaymentDomainError, waiveAccountDebtUseCase } from '../../../domain/payment';
+import { PaymentDomainError } from '../../../domain/payment';
 import type { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
 import {
   AcceptPartnerTermsSchema,
@@ -112,20 +112,6 @@ export class PaymentAccountController {
       return res.status(200).json({ data: payment });
     } catch (error) {
       return handleError(res, error, 'payDebt');
-    }
-  }
-
-  static async waiveDebt(req: AuthenticatedRequest, res: Response): Promise<Response> {
-    if (!req.user?.uid) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
-    if (req.user.admin !== true) return sendError(res, 403, 'FORBIDDEN', 'Acesso restrito.');
-    const params = AccountDebtParamsSchema.safeParse(req.params);
-    if (!params.success) return sendError(res, 400, 'VALIDATION_ERROR', 'Dívida inválida.');
-    try {
-      const debt = await waiveAccountDebtUseCase(params.data.debtId, req.user.uid);
-      console.info('[audit] account_debt_waived', { debtId: debt.id, adminUid: req.user.uid });
-      return res.status(200).json({ data: { id: debt.id, status: debt.status } });
-    } catch (error) {
-      return handleError(res, error, 'waiveDebt');
     }
   }
 

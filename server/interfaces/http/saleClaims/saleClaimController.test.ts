@@ -10,6 +10,9 @@ vi.mock('../../../application/usecases/payouts/openSaleClaimApplicationUseCase',
 vi.mock('../../../application/usecases/payouts/decideSaleClaimApplicationUseCase', () => ({
   decideSaleClaimApplicationUseCase: m.decide,
 }));
+vi.mock('../../../application/usecases/payouts/listAdminSaleClaimsApplicationUseCase', () => ({
+  listAdminSaleClaimsApplicationUseCase: m.pending,
+}));
 vi.mock('../../../domain/payment', async () => {
   const { PaymentDomainError } = await import(
     '../../../domain/payment/services/stripePaymentService'
@@ -17,7 +20,6 @@ vi.mock('../../../domain/payment', async () => {
   return {
     PaymentDomainError,
     listMySaleClaimsUseCase: m.mine,
-    listPendingSaleClaimsUseCase: m.pending,
   };
 });
 

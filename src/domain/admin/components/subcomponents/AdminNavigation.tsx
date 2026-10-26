@@ -1,5 +1,14 @@
 import { motion } from 'motion/react';
-import { Award, Bell, Calendar, Database, Layers, ShieldCheck, Users } from 'lucide-react';
+import {
+  Award,
+  Bell,
+  Calendar,
+  Database,
+  Landmark,
+  Layers,
+  ShieldCheck,
+  Users,
+} from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '../../../../shared/utils/cn';
 
@@ -9,6 +18,7 @@ export type AdminTabId =
   | 'reports'
   | 'partners'
   | 'verifications'
+  | 'finance'
   | 'plans'
   | 'notifications';
 
@@ -17,6 +27,8 @@ interface AdminNavigationProps {
   onSelectTab: (tab: AdminTabId) => void;
   /** A fila de verificação vem de outro domínio; a aba só aparece quando a composição a monta. */
   showVerifications?: boolean;
+  /** As filas financeiras vêm do payment; a aba só aparece quando a composição as monta. */
+  showFinance?: boolean;
 }
 
 const ADMIN_TABS = [
@@ -40,6 +52,13 @@ const ADMIN_TABS = [
     icon: ShieldCheck,
     color: 'bg-emerald-500',
     shadow: 'shadow-emerald-500/40',
+  },
+  {
+    id: 'finance' as const,
+    label: '',
+    icon: Landmark,
+    color: 'bg-cyan-400',
+    shadow: 'shadow-cyan-400/40',
   },
   {
     id: 'items' as const,
@@ -75,10 +94,19 @@ export function AdminNavigation({
   activeTab,
   onSelectTab,
   showVerifications = false,
+  showFinance = false,
 }: AdminNavigationProps) {
   const { t } = useTranslation();
-  const tabs = ADMIN_TABS.filter((tab) => tab.id !== 'verifications' || showVerifications).map(
-    (tab) => (tab.id === 'verifications' ? { ...tab, label: t('verification.admin.tab') } : tab)
+  const shown = { verifications: showVerifications, finance: showFinance } as Partial<
+    Record<AdminTabId, boolean>
+  >;
+  // Abas de outros domínios têm rótulo traduzido; as demais ainda são texto fixo (débito B32).
+  const labels: Partial<Record<AdminTabId, string>> = {
+    verifications: t('verification.admin.tab'),
+    finance: t('adminFinance.title'),
+  };
+  const tabs = ADMIN_TABS.filter((tab) => shown[tab.id] ?? true).map((tab) =>
+    labels[tab.id] ? { ...tab, label: labels[tab.id] as string } : tab
   );
   return (
     <motion.div

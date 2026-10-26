@@ -225,7 +225,7 @@ export class DebtService {
   /** Fila do admin, das declarações mais antigas para as mais novas. */
   async listForceMajeureReviews(limit: number): Promise<ForceMajeureReviewView[]> {
     const nowDate = this.now();
-    const debts = await this.debts.listSuspended(limit);
+    const debts = await this.debts.listByStatus('suspended', limit);
     return debts.flatMap((debt) =>
       debt.forceMajeure
         ? [
@@ -237,6 +237,20 @@ export class DebtService {
           ]
         : []
     );
+  }
+
+  /** Dívidas em aberto para o admin, das mais antigas para as mais novas. */
+  async listOpenForAdmin(
+    limit: number,
+    cursor?: string
+  ): Promise<{ data: AccountDebtView[]; nextCursor: string | null }> {
+    const nowDate = this.now();
+    const debts = await this.debts.listByStatus('open', limit, cursor);
+    const last = debts[debts.length - 1];
+    return {
+      data: debts.map((debt) => toView(debt, nowDate)),
+      nextCursor: debts.length === limit && last ? last.id : null,
+    };
   }
 
   /** Caminho da prova, para o admin abrir pelo backend; `null` sem declaração. */

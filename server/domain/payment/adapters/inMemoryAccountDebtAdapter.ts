@@ -1,5 +1,5 @@
 import type { AccountDebtRepositoryPort } from '../ports/accountDebtRepositoryPort';
-import type { AccountDebt } from '../types/accountDebt';
+import type { AccountDebt, AccountDebtStatus } from '../types/accountDebt';
 
 /** Usado só por testes (AGENTS.md §2.2 item 7). */
 export class InMemoryAccountDebtAdapter implements AccountDebtRepositoryPort {
@@ -29,11 +29,16 @@ export class InMemoryAccountDebtAdapter implements AccountDebtRepositoryPort {
       .slice(0, limit);
   }
 
-  async listSuspended(limit: number): Promise<AccountDebt[]> {
-    return [...this.rows.values()]
-      .filter((debt) => debt.status === 'suspended')
-      .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
-      .slice(0, limit);
+  async listByStatus(
+    status: AccountDebtStatus,
+    limit: number,
+    cursor?: string
+  ): Promise<AccountDebt[]> {
+    const rows = [...this.rows.values()]
+      .filter((debt) => debt.status === status)
+      .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+    const start = cursor ? rows.findIndex((debt) => debt.id === cursor) + 1 : 0;
+    return rows.slice(start, start + limit);
   }
 
   async update(

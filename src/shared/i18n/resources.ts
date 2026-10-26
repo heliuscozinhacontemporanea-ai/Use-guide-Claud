@@ -29,6 +29,12 @@ import {
   receivablesPtBR,
 } from './receivablesResources';
 import {
+  type AdminFinanceTranslation,
+  adminFinanceEn,
+  adminFinanceFr,
+  adminFinancePtBR,
+} from './adminFinanceResources';
+import {
   saleClaimsEn,
   saleClaimsFr,
   saleClaimsPtBR,
@@ -80,6 +86,7 @@ export interface TranslationResource {
   paymentAccounts: PaymentAccountsTranslation;
   receivables: ReceivablesTranslation;
   saleClaims: SaleClaimsTranslation;
+  adminFinance: AdminFinanceTranslation;
   ticketSessions: TicketSessionsTranslation;
   salesPolicy: SalesPolicyTranslation;
   ticketCheckout: TicketCheckoutTranslation;
@@ -309,6 +316,7 @@ const ptBR: TranslationResource = {
   paymentAccounts: paymentAccountsPtBR,
   receivables: receivablesPtBR,
   saleClaims: saleClaimsPtBR,
+  adminFinance: adminFinancePtBR,
   ticketSessions: ticketSessionsPtBR,
   salesPolicy: salesPolicyPtBR,
   ticketCheckout: ticketCheckoutPtBR,
@@ -589,6 +597,7 @@ const en: TranslationResource = {
   paymentAccounts: paymentAccountsEn,
   receivables: receivablesEn,
   saleClaims: saleClaimsEn,
+  adminFinance: adminFinanceEn,
   ticketSessions: ticketSessionsEn,
   salesPolicy: salesPolicyEn,
   ticketCheckout: ticketCheckoutEn,
@@ -863,6 +872,7 @@ const fr: TranslationResource = {
   paymentAccounts: paymentAccountsFr,
   receivables: receivablesFr,
   saleClaims: saleClaimsFr,
+  adminFinance: adminFinanceFr,
   ticketSessions: ticketSessionsFr,
   salesPolicy: salesPolicyFr,
   ticketCheckout: ticketCheckoutFr,

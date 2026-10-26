@@ -44,6 +44,15 @@ function refundableMinor(entry: PayoutEntry): number {
   return Math.max(0, entry.grossMinor - refundedTotals(entry).amountMinor);
 }
 
+/** Teto do reembolso parcial: a taxa de serviço só volta no reembolso integral. */
+function maxPartialRefund(entry: PayoutEntry): number {
+  const remainingServiceFee = Math.max(
+    0,
+    entry.serviceFeeMinor - refundedTotals(entry).serviceFeeMinor
+  );
+  return Math.max(0, refundableMinor(entry) - remainingServiceFee);
+}
+
 function toBuyerView(claim: SaleClaim): BuyerSaleClaimView {
   return {
     id: claim.id,
@@ -141,8 +150,11 @@ export class SaleClaimService {
           ...toBuyerView(claim),
           buyerUid: claim.buyerUid,
           ...(claim.details ? { details: claim.details } : {}),
+          ...(entry?.title ? { title: entry.title } : {}),
+          ...(entry ? { accountKey: entry.accountKey, serviceEndsAt: entry.serviceEndsAt } : {}),
           grossMinor: entry?.grossMinor ?? 0,
           refundableMinor: entry ? refundableMinor(entry) : 0,
+          maxPartialRefundMinor: entry ? maxPartialRefund(entry) : 0,
         };
       })
     );
@@ -174,12 +186,11 @@ export class SaleClaimService {
 
     const entry = await this.payouts.getForReference(claim.referenceType, claim.referenceId);
     if (!entry) throw new PaymentDomainError('NOT_FOUND', 'Venda não encontrada.', 404);
-    const refunded = refundedTotals(entry);
-    const remainingServiceFee = Math.max(0, entry.serviceFeeMinor - refunded.serviceFeeMinor);
     const remaining = refundableMinor(entry);
+    const remainingServiceFee = remaining - maxPartialRefund(entry);
     const full = decision.outcome === 'refund_full';
     const amountMinor = full ? remaining : (decision.amountMinor ?? 0);
-    if (amountMinor <= 0 || amountMinor > (full ? remaining : remaining - remainingServiceFee)) {
+    if (amountMinor <= 0 || amountMinor > (full ? remaining : maxPartialRefund(entry))) {
       throw new PaymentDomainError(
         'INVALID_REFUND_AMOUNT',
         'Valor de reembolso fora do que ainda pode voltar ao comprador.',

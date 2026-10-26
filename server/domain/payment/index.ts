@@ -11,6 +11,7 @@ export { updatePaymentTransactionStatusUseCase } from './usecases/updatePaymentT
 export { assertPaymentAccountReadyUseCase } from './usecases/assertPaymentAccountReadyUseCase';
 export { createPaymentAccountSessionUseCase } from './usecases/createPaymentAccountSessionUseCase';
 export { listOwnerPaymentAccountsUseCase } from './usecases/listOwnerPaymentAccountsUseCase';
+export { getPaymentAccountOwnersUseCase } from './usecases/getPaymentAccountOwnersUseCase';
 export { syncPaymentAccountFromWebhookUseCase } from './usecases/syncPaymentAccountFromWebhookUseCase';
 
 export { createMarketplacePaymentIntentUseCase } from './usecases/createMarketplacePaymentIntentUseCase';
@@ -24,6 +25,7 @@ export { releaseDuePayoutsUseCase } from './usecases/releaseDuePayoutsUseCase';
 export { getPayoutEntryForReferenceUseCase } from './usecases/getPayoutEntryForReferenceUseCase';
 export { createAccountDebtUseCase } from './usecases/createAccountDebtUseCase';
 export { listAccountDebtsUseCase } from './usecases/listAccountDebtsUseCase';
+export { listOpenAccountDebtsForAdminUseCase } from './usecases/listOpenAccountDebtsForAdminUseCase';
 export { startAccountDebtPaymentUseCase } from './usecases/startAccountDebtPaymentUseCase';
 export { markAccountDebtPaidUseCase } from './usecases/markAccountDebtPaidUseCase';
 export { waiveAccountDebtUseCase } from './usecases/waiveAccountDebtUseCase';

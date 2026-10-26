@@ -1,11 +1,8 @@
 import type { Response } from 'express';
 import { decideSaleClaimApplicationUseCase } from '../../../application/usecases/payouts/decideSaleClaimApplicationUseCase';
+import { listAdminSaleClaimsApplicationUseCase } from '../../../application/usecases/payouts/listAdminSaleClaimsApplicationUseCase';
 import { openSaleClaimApplicationUseCase } from '../../../application/usecases/payouts/openSaleClaimApplicationUseCase';
-import {
-  listMySaleClaimsUseCase,
-  listPendingSaleClaimsUseCase,
-  PaymentDomainError,
-} from '../../../domain/payment';
+import { listMySaleClaimsUseCase, PaymentDomainError } from '../../../domain/payment';
 import type { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
 import {
   DecideSaleClaimSchema,
@@ -65,7 +62,7 @@ export class SaleClaimController {
     const query = ListSaleClaimsQuerySchema.safeParse(req.query);
     if (!query.success) return sendError(res, 400, 'VALIDATION_ERROR', 'Consulta inválida.');
     try {
-      const page = await listPendingSaleClaimsUseCase(query.data.limit, query.data.cursor);
+      const page = await listAdminSaleClaimsApplicationUseCase(query.data.limit, query.data.cursor);
       return res.status(200).json(page);
     } catch (error) {
       return handleError(res, error, 'listPending');

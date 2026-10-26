@@ -56,6 +56,13 @@ export interface BuyerSaleClaimView {
 export interface AdminSaleClaimView extends BuyerSaleClaimView {
   buyerUid: string;
   details?: string;
+  /** Nome do evento ou da oferta, da venda; ausente se a venda não foi encontrada. */
+  title?: string;
+  /** CNPJ que vendeu (índice cego), para a composição mostrar quem é. */
+  accountKey?: string;
+  serviceEndsAt?: string;
   grossMinor: number;
   refundableMinor: number;
+  /** Teto do reembolso parcial: o que resta sem a taxa de serviço, que só volta no integral. */
+  maxPartialRefundMinor: number;
 }
