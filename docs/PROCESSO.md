@@ -114,6 +114,11 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 | 18.4e.2 | Horários de reserva e conta por estabelecimento (D14, D16) | `58cb9e2..0c60e58` | ⏳ enviar (lote 17) | — |
 | 18.4e.3.0 | Painel de ingressos dividido em abas | `11d4e3e..a24f664` | ⏳ enviar (lote 17) | — |
 | 18.4e.3 | Adiar e cancelar sessão de evento, conta por evento (D14, D16) | `a24f664..eac047f` | ⏳ enviar (lote 17) | — |
+| 18.4f.1 | Relatar problema e aviso de remarcação nas compras (D16) | `42ac907..097336f` | ⏳ enviar (lote 17) | — |
+
+### Revisões futuras (aprovadas para depois)
+
+- **Histórico de compras do comprador** (decidido em 2026-10-26): a aba Pedidos da carteira lista só pedidos de ingresso, com código, valor, data e status. Rever o cartão (nome e data do evento, ingressos e quantidades, taxa de serviço, valor reembolsado, recibo) e se ingressos e reservas viram uma tela única "Minhas compras".
 
 ## Gates
 
