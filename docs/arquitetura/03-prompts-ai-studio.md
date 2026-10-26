@@ -165,7 +165,7 @@
 
 > **Envie um prompt por mensagem**, nesta ordem. Até o 18.3.1 (telas), trial, compra de plano e selo do admin pelo painel ficam fora do ar, e as métricas de estabelecimento sem plano mostram erro.
 
-# Lote 17 (Prompts C16, 18.4c, 18.4c.1, 18.4d.1 a 18.4d.3b, 18.4e.1 e 18.4e.2) — aplicar sobre o zip de 2026-10-25
+# Lote 17 (Prompts C16, 18.4c, 18.4c.1, 18.4d.1 a 18.4d.3b e 18.4e.1 a 18.4e.3) — aplicar sobre o zip de 2026-10-25
 
 | Ordem | Arquivo | Tema | Commit de referência |
 |---|---|---|---|
@@ -178,6 +178,8 @@
 | 7 | `prompts/prompt-18.4d.3b.md` | Reagendamento (D16): ingresso e reserva valem na nova data, reembolso integral com a taxa até 7 dias depois do aviso, remarcação de horário de reserva, repasse acompanha a nova data; adiar a sessão passa a levar sempre os pedidos | `cd796c0..d2f73d8` |
 | 8 | `prompts/prompt-18.4e.1.md` | Telas do parceiro (D14, D16): Recebimentos com abas Contas, Extrato e Dívidas, extrato por venda com taxas, pagar dívida no cartão ou Pix, declarar força maior com prova, aviso de vendas pausadas; Payment Element no tema do app (prints aprovados) | `31cdebc..7c2dbc8` |
 | 9 | `prompts/prompt-18.4e.2.md` | Horários de reserva: remarcar, cancelar com aviso da multa e sugestão de remarcar, publicar por conta do CNPJ do estabelecimento (B26 nas reservas), aviso de conta financeira em uma linha com Recebimentos numa folha (prints aprovados) | `58cb9e2..0c60e58` |
+| 10 | `prompts/prompt-18.4e.3.0.md` | Painel de ingressos do parceiro dividido em abas e hooks, sem mudar comportamento; débito B31 | `11d4e3e..a24f664` |
+| 11 | `prompts/prompt-18.4e.3.md` | Adiar e cancelar sessão de evento com aviso da multa e sugestão de adiar, conta pelo CNPJ do estabelecimento do evento (B26), Recebimentos montado na composição (prints aprovados) | `a24f664..eac047f` |
 
 > Cada prompt termina com **Configurações manuais**: o que você faz fora do AI Studio (deploy de regras e índices, Functions, Stripe Dashboard) depois de aplicá-lo.
 
