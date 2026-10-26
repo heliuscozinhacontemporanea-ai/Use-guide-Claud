@@ -1,16 +1,20 @@
-import { Loader2, RefreshCw } from 'lucide-react';
+import { AlertTriangle, Loader2, RefreshCw } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { GlassCard } from '../../../ui/components/GlassCard';
 import { getPartnerTermsUseCase } from '../application/usecases/getPartnerTermsUseCase';
 import { listPaymentAccountsUseCase } from '../application/usecases/listPaymentAccountsUseCase';
+import { usePartnerDebts } from '../hooks/usePartnerDebts';
 import type { PartnerPaymentAccount, PartnerTermsView } from '../types/payment';
 import { PartnerTermsCard } from './accounts/PartnerTermsCard';
 import { PaymentAccountCard } from './accounts/PaymentAccountCard';
 import { PaymentAccountWorkspace } from './accounts/PaymentAccountWorkspace';
 import { accountErrorKey } from './accounts/paymentAccountStatus';
+import { DebtList } from './receivables/DebtList';
+import { PayoutStatement } from './receivables/PayoutStatement';
+import { type ReceivablesTab, ReceivablesTabs } from './receivables/ReceivablesTabs';
 
-/** Recebimentos do parceiro: uma conta Stripe por CNPJ verificado (D14). */
+/** Recebimentos do parceiro: conta Stripe por CNPJ (D14), extrato por venda e dívidas (D16). */
 export function PartnerStripeConnectPortal() {
   const { t } = useTranslation();
   const [accounts, setAccounts] = useState<PartnerPaymentAccount[] | null>(null);
@@ -18,6 +22,10 @@ export function PartnerStripeConnectPortal() {
   const [loading, setLoading] = useState(true);
   const [openKey, setOpenKey] = useState<string | null>(null);
   const [terms, setTerms] = useState<PartnerTermsView | null>(null);
+  const [tab, setTab] = useState<ReceivablesTab>('accounts');
+  const debtsState = usePartnerDebts();
+  const pendingDebts = debtsState.debts.filter((debt) => debt.status === 'open').length;
+  const blocked = debtsState.debts.some((debt) => debt.overdue);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -51,7 +59,10 @@ export function PartnerStripeConnectPortal() {
         </div>
         <button
           type="button"
-          onClick={() => void load()}
+          onClick={() => {
+            void load();
+            void debtsState.reload();
+          }}
           aria-label={t('paymentAccounts.refresh')}
           className="press w-11 h-11 shrink-0 rounded-xl border border-line text-ink flex items-center justify-center hover:bg-accent-soft focus-visible:ring-2 focus-visible:ring-teal-400/50"
         >
@@ -59,7 +70,21 @@ export function PartnerStripeConnectPortal() {
         </button>
       </div>
 
-      {terms && !open && <PartnerTermsCard terms={terms} onAccepted={setTerms} />}
+      {blocked && (
+        <p
+          role="alert"
+          className="flex items-start gap-2 p-3 rounded-xl bg-danger-soft border border-danger-line text-xs text-danger"
+        >
+          <AlertTriangle size={16} className="shrink-0 mt-0.5" aria-hidden="true" />
+          {t('receivables.blockedBanner')}
+        </p>
+      )}
+
+      {!open && <ReceivablesTabs value={tab} onChange={setTab} pendingDebts={pendingDebts} />}
+
+      {terms && !open && tab === 'accounts' && (
+        <PartnerTermsCard terms={terms} onAccepted={setTerms} />
+      )}
 
       {loading && !accounts ? (
         <p className="flex items-center gap-2 text-xs text-ink/70" role="status">
@@ -80,6 +105,10 @@ export function PartnerStripeConnectPortal() {
             {t('paymentAccounts.retry')}
           </button>
         </div>
+      ) : tab === 'statement' && !open ? (
+        <PayoutStatement accounts={accounts ?? []} />
+      ) : tab === 'debts' && !open ? (
+        <DebtList accounts={accounts ?? []} debtsState={debtsState} />
       ) : open ? (
         <PaymentAccountWorkspace
           entry={open}

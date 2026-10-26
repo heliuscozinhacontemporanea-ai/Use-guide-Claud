@@ -1,38 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
+import { InMemoryPayoutEntryAdapter } from '../adapters/inMemoryPayoutEntryAdapter';
 import { InMemorySaleClaimAdapter } from '../adapters/inMemorySaleClaimAdapter';
-import type { PayoutEntryRepositoryPort } from '../ports/payoutEntryRepositoryPort';
-import type { PayoutEntry } from '../types/payoutEntry';
 import { PayoutService } from './payoutService';
 import { type OpenSaleClaimInput, SaleClaimService } from './saleClaimService';
-
-function memoryEntries(): PayoutEntryRepositoryPort & { rows: Map<string, PayoutEntry> } {
-  const rows = new Map<string, PayoutEntry>();
-  return {
-    rows,
-    async createIfAbsent(entry) {
-      if (!rows.has(entry.id)) rows.set(entry.id, entry);
-      return rows.get(entry.id) as PayoutEntry;
-    },
-    async get(id) {
-      return rows.get(id) ?? null;
-    },
-    async getByPaymentIntentId(id) {
-      return [...rows.values()].find((entry) => entry.paymentIntentId === id) ?? null;
-    },
-    async listDue(nowIso, limit) {
-      return [...rows.values()]
-        .filter((entry) => entry.status === 'pending' && entry.releaseAt <= nowIso)
-        .slice(0, limit);
-    },
-    async update(id, change) {
-      const current = rows.get(id);
-      if (!current) return null;
-      const next = change(current);
-      if (next) rows.set(id, next);
-      return next ?? current;
-    },
-  };
-}
 
 const ENTRY_ID = 'po_ticket_order_ord_1';
 
@@ -47,7 +17,7 @@ const CLAIM: OpenSaleClaimInput = {
 };
 
 async function setup(now = '2026-12-21T10:00:00.000Z', refundStatus = 'succeeded') {
-  const entries = memoryEntries();
+  const entries = new InMemoryPayoutEntryAdapter();
   const clock = { value: new Date(now) };
   const transfers = { createTransfer: vi.fn().mockResolvedValue({ transferId: 'tr_1' }) };
   const debts = { offsetFromPayout: vi.fn().mockResolvedValue(0), createDebt: vi.fn() };

@@ -19,6 +19,7 @@ export { applyPayoutRefundUseCase } from './usecases/applyPayoutRefundUseCase';
 export { holdPayoutForDisputeUseCase } from './usecases/holdPayoutForDisputeUseCase';
 export { closePayoutDisputeUseCase } from './usecases/closePayoutDisputeUseCase';
 export { reschedulePayoutUseCase } from './usecases/reschedulePayoutUseCase';
+export { listPayoutEntriesUseCase } from './usecases/listPayoutEntriesUseCase';
 export { releaseDuePayoutsUseCase } from './usecases/releaseDuePayoutsUseCase';
 export { getPayoutEntryForReferenceUseCase } from './usecases/getPayoutEntryForReferenceUseCase';
 export { createAccountDebtUseCase } from './usecases/createAccountDebtUseCase';
@@ -63,7 +64,7 @@ export type { PlanSubscriptionRecord } from './ports/planSubscriptionRepositoryP
 
 export type { ConnectedAccountStatus } from './ports/marketplaceAccountPort';
 export type { PaymentAccountView } from './types/paymentAccount';
-export type { PayoutEntry, PayoutEntryStatus } from './types/payoutEntry';
+export type { PayoutEntry, PayoutEntryStatus, PayoutEntryView } from './types/payoutEntry';
 export type { DisputeOutcome, RecordSaleInput, ReleaseSummary } from './services/payoutService';
 export type {
   AccountDebt,

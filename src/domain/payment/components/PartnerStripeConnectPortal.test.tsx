@@ -7,6 +7,8 @@ const m = vi.hoisted(() => ({
   embed: vi.fn(),
   terms: vi.fn(),
   accept: vi.fn(),
+  debts: vi.fn(),
+  payouts: vi.fn(),
 }));
 vi.mock('../application/usecases/getPartnerTermsUseCase', () => ({
   getPartnerTermsUseCase: m.terms,
@@ -16,6 +18,12 @@ vi.mock('../application/usecases/acceptPartnerTermsUseCase', () => ({
 }));
 vi.mock('../application/usecases/listPaymentAccountsUseCase', () => ({
   listPaymentAccountsUseCase: m.list,
+}));
+vi.mock('../application/usecases/listDebtsUseCase', () => ({
+  listDebtsUseCase: m.debts,
+}));
+vi.mock('../application/usecases/listPayoutsUseCase', () => ({
+  listPayoutsUseCase: m.payouts,
 }));
 vi.mock('../application/usecases/createPaymentAccountSessionUseCase', () => ({
   createPaymentAccountSessionUseCase: vi.fn(),
@@ -71,6 +79,8 @@ describe('PartnerStripeConnectPortal (D14)', () => {
     vi.stubEnv('VITE_STRIPE_PUBLISHABLE_KEY', 'pk_test_x');
     await i18n.changeLanguage('pt-BR');
     m.terms.mockResolvedValue(ACCEPTED_TERMS);
+    m.debts.mockResolvedValue([]);
+    m.payouts.mockResolvedValue({ data: [], nextCursor: null });
   });
 
   it('mostra um cartão por CNPJ com o status de cada conta', async () => {
@@ -124,5 +134,63 @@ describe('PartnerStripeConnectPortal (D14)', () => {
     await waitFor(() => expect(m.accept).toHaveBeenCalledWith('2026-10-25'));
     expect(await screen.findByText(/Termos do parceiro aceitos em/)).toBeTruthy();
     expect((start as HTMLButtonElement).disabled).toBe(false);
+  });
+
+  it('dívida vencida: aviso de vendas pausadas e contador na aba Dívidas (D16)', async () => {
+    m.list.mockResolvedValue([READY]);
+    m.debts.mockResolvedValue([
+      {
+        id: 'debt-1',
+        accountKey: 'key-1',
+        reason: 'cancellation_penalty',
+        referenceType: 'event_occurrence',
+        amountMinor: 2000,
+        remainingMinor: 2000,
+        status: 'open',
+        dueAt: '2026-10-20T12:00:00.000Z',
+        overdue: true,
+        createdAt: '2026-10-19T12:00:00.000Z',
+      },
+    ]);
+    render(<PartnerStripeConnectPortal />);
+    expect(await screen.findByText(/Vendas pausadas/)).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: /Dívidas/ }));
+    expect(await screen.findByText('Multa de cancelamento (20% do vendido)')).toBeTruthy();
+    expect(screen.getByText('Vencida: as vendas deste CNPJ estão pausadas.')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Pagar' })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Declarar força maior' })).toBeNull();
+  });
+
+  it('extrato: status e valores de cada venda', async () => {
+    m.list.mockResolvedValue([READY]);
+    m.payouts.mockResolvedValue({
+      data: [
+        {
+          id: 'po_1',
+          referenceType: 'ticket_order',
+          referenceId: 'ord_1',
+          title: 'Festival de Verão',
+          accountKey: 'key-1',
+          grossMinor: 10600,
+          refundedMinor: 0,
+          partnerAmountMinor: 9000,
+          offsetMinor: 0,
+          status: 'on_hold',
+          holdReasons: ['claim'],
+          serviceEndsAt: '2026-12-21T03:00:00.000Z',
+          releaseAt: '2026-12-23T03:00:00.000Z',
+          releasedAt: null,
+          canceledReason: null,
+          createdAt: '2026-12-01T00:00:00.000Z',
+        },
+      ],
+      nextCursor: null,
+    });
+    render(<PartnerStripeConnectPortal />);
+    await screen.findByText('**.***.***/0001-81');
+    fireEvent.click(screen.getByRole('button', { name: 'Extrato' }));
+    expect(await screen.findByText('Festival de Verão')).toBeTruthy();
+    expect(screen.getByText('Retido: reclamação em análise')).toBeTruthy();
+    expect(screen.getByText(/90,00/)).toBeTruthy();
   });
 });

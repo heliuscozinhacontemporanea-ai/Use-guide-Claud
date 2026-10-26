@@ -13,6 +13,7 @@ const router = Router();
 
 router.get('/', verifyAuthToken, PaymentAccountController.list);
 router.post('/session', verifyAuthTokenStrict, PaymentAccountController.createSession);
+router.get('/payouts', verifyAuthToken, PaymentAccountController.listPayouts);
 router.get('/debts', verifyAuthToken, PaymentAccountController.listDebts);
 router.post('/debts/:debtId/payment', verifyAuthTokenStrict, PaymentAccountController.payDebt);
 router.post('/debts/:debtId/waive', verifyAuthTokenStrict, PaymentAccountController.waiveDebt);

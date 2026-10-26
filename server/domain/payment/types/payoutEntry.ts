@@ -19,6 +19,8 @@ export interface PayoutEntry {
   /** Quem vendeu o quê ('ticket_order', 'booking'); o payment não interpreta o valor. */
   referenceType: string;
   referenceId: string;
+  /** Nome do evento ou da oferta na compra, para o extrato do parceiro (classe pública). */
+  title?: string;
   accountKey: string;
   paymentIntentId: string;
   chargeId: string;
@@ -41,4 +43,24 @@ export interface PayoutEntry {
   canceledReason?: 'fully_refunded' | 'dispute_lost';
   createdAt: string;
   updatedAt: string;
+}
+
+/** Linha do extrato do parceiro: por allowlist, sem IDs do Stripe (AGENTS.md §7.9 regra 4). */
+export interface PayoutEntryView {
+  id: string;
+  referenceType: string;
+  referenceId: string;
+  title: string | null;
+  accountKey: string;
+  grossMinor: number;
+  refundedMinor: number;
+  partnerAmountMinor: number;
+  offsetMinor: number;
+  status: PayoutEntryStatus;
+  holdReasons: PayoutHoldReason[];
+  serviceEndsAt: string;
+  releaseAt: string;
+  releasedAt: string | null;
+  canceledReason: PayoutEntry['canceledReason'] | null;
+  createdAt: string;
 }

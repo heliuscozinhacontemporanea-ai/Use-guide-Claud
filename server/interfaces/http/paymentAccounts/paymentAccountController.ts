@@ -1,6 +1,7 @@
 import type { Response } from 'express';
 import { listPartnerPaymentAccountsApplicationUseCase } from '../../../application/usecases/paymentAccounts/listPartnerPaymentAccountsApplicationUseCase';
 import { startPaymentAccountSessionApplicationUseCase } from '../../../application/usecases/paymentAccounts/startPaymentAccountSessionApplicationUseCase';
+import { listPartnerPayoutsApplicationUseCase } from '../../../application/usecases/paymentAccounts/listPartnerPayoutsApplicationUseCase';
 import { listPartnerDebtsApplicationUseCase } from '../../../application/usecases/paymentAccounts/listPartnerDebtsApplicationUseCase';
 import { startPartnerDebtPaymentApplicationUseCase } from '../../../application/usecases/paymentAccounts/startPartnerDebtPaymentApplicationUseCase';
 import { acceptPartnerTermsApplicationUseCase } from '../../../application/usecases/paymentAccounts/acceptPartnerTermsApplicationUseCase';
@@ -12,6 +13,7 @@ import {
   AcceptPartnerTermsSchema,
   AccountDebtParamsSchema,
   ListPaymentAccountsQuerySchema,
+  ListPayoutsQuerySchema,
   PaymentAccountSessionSchema,
 } from './schemas/paymentAccountSchemas';
 
@@ -73,6 +75,19 @@ export class PaymentAccountController {
       return res.status(200).json({ data: terms });
     } catch (error) {
       return handleError(res, error, 'acceptTerms');
+    }
+  }
+
+  static async listPayouts(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    if (!req.user?.uid) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
+    const query = ListPayoutsQuerySchema.safeParse(req.query);
+    if (!query.success) return sendError(res, 400, 'VALIDATION_ERROR', 'Consulta inválida.');
+    try {
+      return res
+        .status(200)
+        .json(await listPartnerPayoutsApplicationUseCase(req.user.uid, query.data));
+    } catch (error) {
+      return handleError(res, error, 'listPayouts');
     }
   }
 

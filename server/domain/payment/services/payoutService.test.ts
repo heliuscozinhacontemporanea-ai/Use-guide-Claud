@@ -1,40 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
+import { InMemoryPayoutEntryAdapter } from '../adapters/inMemoryPayoutEntryAdapter';
 import { InMemoryAccountDebtAdapter } from '../adapters/inMemoryAccountDebtAdapter';
-import type { PayoutEntryRepositoryPort } from '../ports/payoutEntryRepositoryPort';
-import type { PayoutEntry } from '../types/payoutEntry';
 import { DebtService } from './debtService';
 import { PayoutService, type RecordSaleInput } from './payoutService';
-
-function memoryRepository(): PayoutEntryRepositoryPort & { rows: Map<string, PayoutEntry> } {
-  const rows = new Map<string, PayoutEntry>();
-  return {
-    rows,
-    async createIfAbsent(entry) {
-      const existing = rows.get(entry.id);
-      if (existing) return existing;
-      rows.set(entry.id, entry);
-      return entry;
-    },
-    async get(id) {
-      return rows.get(id) ?? null;
-    },
-    async getByPaymentIntentId(id) {
-      return [...rows.values()].find((entry) => entry.paymentIntentId === id) ?? null;
-    },
-    async listDue(nowIso, limit) {
-      return [...rows.values()]
-        .filter((entry) => entry.status === 'pending' && entry.releaseAt <= nowIso)
-        .slice(0, limit);
-    },
-    async update(id, change) {
-      const current = rows.get(id);
-      if (!current) return null;
-      const next = change(current);
-      if (next) rows.set(id, next);
-      return next ?? current;
-    },
-  };
-}
 
 const SALE: RecordSaleInput = {
   referenceType: 'ticket_order',
@@ -49,7 +17,7 @@ const SALE: RecordSaleInput = {
 };
 
 function setup(now = '2026-12-23T04:00:00.000Z', destination: string | null = 'acct_1') {
-  const repo = memoryRepository();
+  const repo = new InMemoryPayoutEntryAdapter();
   const transfers = { createTransfer: vi.fn().mockResolvedValue({ transferId: 'tr_1' }) };
   const accounts = { getPayoutDestination: vi.fn().mockResolvedValue(destination) };
   const clock = { value: new Date(now) };
@@ -204,5 +172,24 @@ describe('PayoutService (D14)', () => {
       releaseAt: '2026-12-30T03:00:00.000Z',
     });
     expect((await service.releaseDue()).released).toBe(0);
+  });
+
+  it('extrato: só os CNPJs pedidos, mais recentes primeiro, sem IDs do Stripe', async () => {
+    const { service, clock } = setup('2026-12-01T00:00:00.000Z');
+    await service.recordSale({ ...SALE, title: 'Festival' });
+    clock.value = new Date('2026-12-02T00:00:00.000Z');
+    await service.recordSale({ ...SALE, referenceId: 'ord_2', paymentIntentId: 'pi_2' });
+    await service.recordSale({
+      ...SALE,
+      referenceId: 'ord_3',
+      paymentIntentId: 'pi_3',
+      accountKey: 'key-2',
+    });
+    const first = await service.listForAccounts(['key-1'], 1);
+    expect(first.data.map((entry) => entry.referenceId)).toEqual(['ord_2']);
+    expect(first.nextCursor).toBe('po_ticket_order_ord_2');
+    const second = await service.listForAccounts(['key-1'], 1, first.nextCursor ?? undefined);
+    expect(second.data[0]).toMatchObject({ referenceId: 'ord_1', title: 'Festival' });
+    expect(JSON.stringify(second.data)).not.toMatch(/pi_|ch_|chargeId|paymentIntentId/);
   });
 });

@@ -7,6 +7,7 @@ export interface PaidSale {
   serviceFeeMinor: number;
   platformFeeMinor: number;
   serviceEndsAt: string;
+  title?: string;
 }
 
 /**

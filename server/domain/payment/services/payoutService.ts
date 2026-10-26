@@ -2,7 +2,7 @@ import type { PayoutEntryRepositoryPort } from '../ports/payoutEntryRepositoryPo
 import type { PayoutTransferPort } from '../ports/payoutTransferPort';
 import type { PayoutEntry } from '../types/payoutEntry';
 import type { DebtService } from './debtService';
-import type { PayoutHoldReason } from '../types/payoutEntry';
+import type { PayoutEntryView, PayoutHoldReason } from '../types/payoutEntry';
 import {
   computeReleaseAt,
   partnerAmountAfterRefunds,
@@ -20,6 +20,7 @@ export interface RecordSaleInput {
   serviceFeeMinor: number;
   platformFeeMinor: number;
   serviceEndsAt: string;
+  title?: string;
 }
 
 export interface ReleaseSummary {
@@ -35,6 +36,30 @@ export type DisputeOutcome = 'won' | 'lost_platform_absorbs' | 'lost_partner_pay
 /** Consulta só o que o repasse precisa da conta do CNPJ (evita depender do serviço inteiro). */
 export interface PayoutDestinationLookup {
   getPayoutDestination(accountKey: string): Promise<string | null>;
+}
+
+function toEntryView(entry: PayoutEntry): PayoutEntryView {
+  return {
+    id: entry.id,
+    referenceType: entry.referenceType,
+    referenceId: entry.referenceId,
+    title: entry.title ?? null,
+    accountKey: entry.accountKey,
+    grossMinor: entry.grossMinor,
+    refundedMinor: Object.values(entry.refunds).reduce(
+      (sum, refund) => sum + refund.amountMinor,
+      0
+    ),
+    partnerAmountMinor: entry.partnerAmountMinor,
+    offsetMinor: entry.offsetMinor ?? 0,
+    status: entry.status,
+    holdReasons: entry.holdReasons ?? [],
+    serviceEndsAt: entry.serviceEndsAt,
+    releaseAt: entry.releaseAt,
+    releasedAt: entry.releasedAt ?? null,
+    canceledReason: entry.canceledReason ?? null,
+    createdAt: entry.createdAt,
+  };
 }
 
 function entryIdFor(referenceType: string, referenceId: string): string {
@@ -55,6 +80,20 @@ export class PayoutService {
     return this.entries.get(entryIdFor(referenceType, referenceId));
   }
 
+  /** Extrato do parceiro, paginado por cursor (AGENTS.md §6.4). */
+  async listForAccounts(
+    accountKeys: string[],
+    limit: number,
+    cursor?: string
+  ): Promise<{ data: PayoutEntryView[]; nextCursor: string | null }> {
+    const entries = await this.entries.listByAccountKeys(accountKeys, limit, cursor);
+    const last = entries[entries.length - 1];
+    return {
+      data: entries.map(toEntryView),
+      nextCursor: entries.length === limit && last ? last.id : null,
+    };
+  }
+
   /** Chamado pelo webhook de pagamento confirmado; repetir não cria outra entrada. */
   async recordSale(input: RecordSaleInput): Promise<PayoutEntry> {
     const nowIso = this.now().toISOString();
@@ -63,6 +102,7 @@ export class PayoutService {
       id: entryIdFor(input.referenceType, input.referenceId),
       referenceType: input.referenceType,
       referenceId: input.referenceId,
+      ...(input.title ? { title: input.title.slice(0, 160) } : {}),
       accountKey: input.accountKey,
       paymentIntentId: input.paymentIntentId,
       chargeId: input.chargeId,

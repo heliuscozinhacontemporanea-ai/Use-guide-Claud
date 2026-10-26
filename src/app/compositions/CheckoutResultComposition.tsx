@@ -17,6 +17,19 @@ export function CheckoutResultComposition() {
   const bookingId = searchParams.get('bookingId');
   const paymentIntentId = searchParams.get('payment_intent') ?? undefined;
 
+  if (kind === 'debt') {
+    // A dívida é quitada só pelo webhook (AGENTS.md §8.4); aqui apenas orientamos o parceiro.
+    return (
+      <MessagePage
+        icon={Clock}
+        title={t('pages.debtPaymentTitle')}
+        description={t('pages.debtPaymentDescription')}
+        actionLabel={t('pages.openPartnerArea')}
+        onAction={() => goTo('explore', '?partner=1')}
+      />
+    );
+  }
+
   if (kind === 'plan') {
     // Plano é confirmado só pelo webhook (AGENTS.md §8.4); aqui apenas orientamos o parceiro.
     return (

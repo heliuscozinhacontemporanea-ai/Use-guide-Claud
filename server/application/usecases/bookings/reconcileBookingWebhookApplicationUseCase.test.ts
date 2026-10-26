@@ -76,6 +76,7 @@ describe('reconcileBookingWebhookApplicationUseCase', () => {
       serviceFeeMinor: 0,
       platformFeeMinor: 4500,
       serviceEndsAt: '2026-11-10T16:00:00.000Z',
+      title: 'Passeio',
     });
     expect(createNotificationUseCase).toHaveBeenCalledWith(
       expect.objectContaining({ recipientPartnerId: 'p1' })

@@ -82,6 +82,7 @@ export async function reconcileStripeWebhookEventApplicationUseCase(
         serviceFeeMinor: order.serviceFeeMinor,
         platformFeeMinor: order.platformFeeMinor,
         serviceEndsAt: order.eventSnapshot?.endsAt || order.eventSnapshot?.startsAt || '',
+        title: order.eventSnapshot?.title,
       });
 
       const targetPartnerId = metadata.partnerId || metadata.sellerPartnerId;

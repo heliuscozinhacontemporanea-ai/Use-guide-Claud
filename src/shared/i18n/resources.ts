@@ -23,6 +23,12 @@ import {
   paymentAccountsPtBR,
 } from './paymentAccountsResources';
 import {
+  type ReceivablesTranslation,
+  receivablesEn,
+  receivablesFr,
+  receivablesPtBR,
+} from './receivablesResources';
+import {
   type PartnersTranslation,
   partnersEn,
   partnersFr,
@@ -60,6 +66,7 @@ export interface TranslationResource {
   listingPlan: ListingPlanTranslation;
   partners: PartnersTranslation;
   paymentAccounts: PaymentAccountsTranslation;
+  receivables: ReceivablesTranslation;
   salesPolicy: SalesPolicyTranslation;
   ticketCheckout: TicketCheckoutTranslation;
   ticketWallet: TicketWalletTranslation;
@@ -242,6 +249,8 @@ export interface TranslationResource {
     checkoutResultMissing: string;
     planPaymentTitle: string;
     planPaymentDescription: string;
+    debtPaymentTitle: string;
+    debtPaymentDescription: string;
     openPartnerArea: string;
     partnerAreaTitle: string;
     partnerLoginRequired: string;
@@ -284,6 +293,7 @@ const ptBR: TranslationResource = {
   listingPlan: listingPlanPtBR,
   partners: partnersPtBR,
   paymentAccounts: paymentAccountsPtBR,
+  receivables: receivablesPtBR,
   salesPolicy: salesPolicyPtBR,
   ticketCheckout: ticketCheckoutPtBR,
   ticketWallet: ticketWalletPtBR,
@@ -510,6 +520,9 @@ const ptBR: TranslationResource = {
     checkoutResultMissing: 'Não encontramos o pedido deste pagamento.',
     planPaymentTitle: 'Pagamento do plano em processamento',
     planPaymentDescription: 'Assim que o Stripe confirmar, o selo aparece na sua área de parceiro.',
+    debtPaymentTitle: 'Pagamento da dívida em processamento',
+    debtPaymentDescription:
+      'Assim que o Stripe confirmar, a dívida aparece como paga em Recebimentos e as vendas voltam.',
     openPartnerArea: 'Abrir área do parceiro',
     partnerAreaTitle: 'Área do parceiro',
     partnerLoginRequired: 'Entre na sua conta de parceiro para abrir o painel.',
@@ -558,6 +571,7 @@ const en: TranslationResource = {
   listingPlan: listingPlanEn,
   partners: partnersEn,
   paymentAccounts: paymentAccountsEn,
+  receivables: receivablesEn,
   salesPolicy: salesPolicyEn,
   ticketCheckout: ticketCheckoutEn,
   ticketWallet: ticketWalletEn,
@@ -778,6 +792,9 @@ const en: TranslationResource = {
     checkoutResultMissing: 'We could not find the order for this payment.',
     planPaymentTitle: 'Plan payment processing',
     planPaymentDescription: 'As soon as Stripe confirms, the badge appears in your partner area.',
+    debtPaymentTitle: 'Debt payment processing',
+    debtPaymentDescription:
+      'As soon as Stripe confirms, the debt shows as paid under Payouts and sales resume.',
     openPartnerArea: 'Open partner area',
     partnerAreaTitle: 'Partner area',
     partnerLoginRequired: 'Sign in to your partner account to open the dashboard.',
@@ -826,6 +843,7 @@ const fr: TranslationResource = {
   listingPlan: listingPlanFr,
   partners: partnersFr,
   paymentAccounts: paymentAccountsFr,
+  receivables: receivablesFr,
   salesPolicy: salesPolicyFr,
   ticketCheckout: ticketCheckoutFr,
   ticketWallet: ticketWalletFr,
@@ -1054,6 +1072,9 @@ const fr: TranslationResource = {
     planPaymentDescription:
       'Dès que Stripe confirme, le badge apparaît dans votre espace partenaire.',
     openPartnerArea: 'Ouvrir l’espace partenaire',
+    debtPaymentTitle: 'Paiement de la dette en cours',
+    debtPaymentDescription:
+      'Dès que Stripe confirme, la dette apparaît comme payée dans Versements et les ventes reprennent.',
     partnerAreaTitle: 'Espace partenaire',
     partnerLoginRequired:
       'Connectez-vous à votre compte partenaire pour ouvrir le tableau de bord.',

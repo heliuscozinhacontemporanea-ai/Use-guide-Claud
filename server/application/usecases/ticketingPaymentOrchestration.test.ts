@@ -192,6 +192,7 @@ describe('ticketingPaymentOrchestrationUseCases — repasse (D14)', () => {
       serviceFeeMinor: 600,
       platformFeeMinor: 1000,
       serviceEndsAt: '2026-12-21T03:00:00.000Z',
+      title: 'Show',
     });
   });
 

@@ -7,6 +7,8 @@ export interface PayoutEntryRepositoryPort {
   getByPaymentIntentId(paymentIntentId: string): Promise<PayoutEntry | null>;
   /** Entradas `pending` com `releaseAt` até `nowIso`, mais antigas primeiro. */
   listDue(nowIso: string, limit: number): Promise<PayoutEntry[]>;
+  /** Extrato dos CNPJs, mais recentes primeiro; `cursor` é o ID da última entrada da página. */
+  listByAccountKeys(accountKeys: string[], limit: number, cursor?: string): Promise<PayoutEntry[]>;
   /** Lê, aplica a mudança e grava na mesma transação; `null` deixa como está. */
   update(
     id: string,

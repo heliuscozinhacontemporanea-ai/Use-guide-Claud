@@ -11,8 +11,8 @@ interface StripePaymentElementProps {
   orderId: string;
   /** `setup` salva o cartão sem cobrar agora (assinatura em período já pago). */
   intentType?: 'payment' | 'setup';
-  /** Página de retorno do Stripe: pedido de ingresso (padrão), plano do parceiro ou reserva (`orderId` = ID da reserva). */
-  returnKind?: 'ticket_order' | 'plan' | 'booking';
+  /** Página de retorno do Stripe: pedido de ingresso (padrão), plano, reserva (`orderId` = ID da reserva) ou dívida do parceiro. */
+  returnKind?: 'ticket_order' | 'plan' | 'booking' | 'debt';
   submitLabel?: string;
   disabled?: boolean;
   onPending?: () => void;
@@ -42,8 +42,8 @@ function PaymentForm({
     }
     setSubmitting(true);
     const returnQuery =
-      returnKind === 'plan'
-        ? 'kind=plan'
+      returnKind === 'plan' || returnKind === 'debt'
+        ? `kind=${returnKind}`
         : returnKind === 'booking'
           ? `bookingId=${encodeURIComponent(orderId)}`
           : `orderId=${encodeURIComponent(orderId)}`;

@@ -43,3 +43,18 @@ export const DeclareForceMajeureSchema = z
   .strict();
 
 export const DecideForceMajeureSchema = z.object({ approve: z.boolean() }).strict();
+
+export const ListPayoutsQuerySchema = z
+  .object({
+    accountKey: z
+      .string()
+      .regex(/^[\w-]{43}$/)
+      .optional(),
+    limit: z.coerce.number().int().min(1).max(100).default(30),
+    cursor: z
+      .string()
+      .max(200)
+      .regex(/^[\w-]+$/)
+      .optional(),
+  })
+  .strict();

@@ -38,6 +38,7 @@ async function handlePaymentSucceeded(
       grossMinor: booking.totalMinor,
       serviceFeeMinor: 0,
       platformFeeMinor: booking.platformFeeMinor,
+      title: booking.offerSnapshot.title,
       serviceEndsAt: serviceEndsAt(
         booking.offerSnapshot.startsAt,
         booking.offerSnapshot.durationMinutes
