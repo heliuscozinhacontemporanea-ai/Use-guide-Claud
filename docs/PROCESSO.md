@@ -107,6 +107,7 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 | 18.4c | Cobrança na plataforma e repasse depois do serviço (D14) | `dc082a9..e80e9b1` | ⏳ enviar (lote 17) | — |
 | 18.4c.1 | Agendamento do job de repasse (D14) | `598c7fe..6d8ff33` | ⏳ enviar (lote 17) | — |
 | 18.4d.1 | Dívidas do CNPJ, multa, desconto no repasse e bloqueio (D16) | `9e75059..df37496` | ⏳ enviar (lote 17) | — |
+| 18.4d.2 | Reclamações do comprador (D16) | `3f43733..a2c644f` | ⏳ enviar (lote 17) | — |
 
 ## Gates
 

@@ -165,7 +165,7 @@
 
 > **Envie um prompt por mensagem**, nesta ordem. Até o 18.3.1 (telas), trial, compra de plano e selo do admin pelo painel ficam fora do ar, e as métricas de estabelecimento sem plano mostram erro.
 
-# Lote 17 (Prompts C16, 18.4c, 18.4c.1 e 18.4d.1) — aplicar sobre o zip de 2026-10-25
+# Lote 17 (Prompts C16, 18.4c, 18.4c.1, 18.4d.1 e 18.4d.2) — aplicar sobre o zip de 2026-10-25
 
 | Ordem | Arquivo | Tema | Commit de referência |
 |---|---|---|---|
@@ -173,6 +173,7 @@
 | 2 | `prompts/prompt-18.4c.md` | Cobrança na plataforma e repasse 48 h depois do serviço (D14): `payoutEntries`, job `/internal/payouts/release`, reembolso antes do repasse, contestação segura o repasse, Pix só até 80 dias; resolve B27 | `dc082a9..e80e9b1` |
 | 3 | `prompts/prompt-18.4c.1.md` | Agendamento de hora em hora do job de repasse (Cloud Function `releasePayouts`); sem ele nenhum repasse é liberado | `598c7fe..6d8ff33` |
 | 4 | `prompts/prompt-18.4d.1.md` | Dívidas do CNPJ (D16), só backend: multa de 20% no cancelamento pelo proprietário, dívida vencida descontada do repasse e bloqueando vendas, contestação perdida com ou sem check-in, reembolso depois do repasse; rotas de dívidas; grava a D16 no `decisoes.md`; resolve B29 | `9e75059..df37496` |
+| 5 | `prompts/prompt-18.4d.2.md` | Reclamações do comprador (D16), só backend: `saleClaims` até 48 h depois do fim do serviço, repasse retido até a decisão do admin (liberar, reembolso integral ou parcial, multa no cancelamento silencioso), expiração em 5 dias pelo job; repasse com lista de retenções; débito B30 | `3f43733..a2c644f` |
 
 > Cada prompt termina com **Configurações manuais**: o que você faz fora do AI Studio (deploy de regras e índices, Functions, Stripe Dashboard) depois de aplicá-lo.
 
