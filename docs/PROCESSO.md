@@ -111,6 +111,7 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 | 18.4d.3a | Força maior na multa de cancelamento (D16) | `7608424..cd796c0` | ⏳ enviar (lote 17) | — |
 | 18.4d.3b | Reagendamento (D16) | `cd796c0..d2f73d8` | ⏳ enviar (lote 17) | — |
 | 18.4e.1 | Extrato e dívidas em Recebimentos (D14, D16) | `31cdebc..7c2dbc8` | ⏳ enviar (lote 17) | — |
+| 18.4e.2 | Horários de reserva e conta por estabelecimento (D14, D16) | `58cb9e2..0c60e58` | ⏳ enviar (lote 17) | — |
 
 ## Gates
 
