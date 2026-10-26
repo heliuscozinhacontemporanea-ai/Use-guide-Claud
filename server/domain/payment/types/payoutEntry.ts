@@ -53,7 +53,11 @@ export interface PayoutEntryView {
   title: string | null;
   accountKey: string;
   grossMinor: number;
+  /** Taxa de serviço paga pelo comprador que ainda não voltou para ele; não sai do valor do proprietário. */
+  serviceFeeMinor: number;
   refundedMinor: number;
+  /** Taxa da plataforma sobre o que o proprietário fica (D14). */
+  platformFeeMinor: number;
   partnerAmountMinor: number;
   offsetMinor: number;
   status: PayoutEntryStatus;

@@ -191,5 +191,12 @@ describe('PayoutService (D14)', () => {
     const second = await service.listForAccounts(['key-1'], 1, first.nextCursor ?? undefined);
     expect(second.data[0]).toMatchObject({ referenceId: 'ord_1', title: 'Festival' });
     expect(JSON.stringify(second.data)).not.toMatch(/pi_|ch_|chargeId|paymentIntentId/);
+    // 106,00 = 6,00 de taxa de serviço + 10,00 de taxa da plataforma + 90,00 do proprietário.
+    expect(second.data[0]).toMatchObject({
+      grossMinor: 10600,
+      serviceFeeMinor: 600,
+      platformFeeMinor: 1000,
+      partnerAmountMinor: 9000,
+    });
   });
 });

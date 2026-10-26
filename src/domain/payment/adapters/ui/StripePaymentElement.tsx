@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Elements, PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js';
 import type { StripeElementsOptions } from '@stripe/stripe-js';
 import { Loader2, Lock } from 'lucide-react';
+import { useResolvedTheme } from '../../../../shared/context/ThemeContext';
 import { normalizeLocale, DEFAULT_LOCALE } from '../../../../shared/i18n';
 import { stripePromise } from '../stripePromise';
 
@@ -90,7 +91,7 @@ function PaymentForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="p-4 rounded-2xl bg-slate-950/60 border border-white/10">
+      <div className="p-4 rounded-2xl bg-surface border border-line">
         <PaymentElement />
       </div>
       <button
@@ -116,10 +117,11 @@ function PaymentForm({
 
 export function StripePaymentElement({ clientSecret, ...formProps }: StripePaymentElementProps) {
   const { t, i18n } = useTranslation();
+  const theme = useResolvedTheme();
 
   if (!stripePromise) {
     return (
-      <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-200">
+      <div className="p-4 rounded-2xl bg-warn-soft border border-warn-line text-xs text-warn">
         {t('payment.element.unavailable')}
       </div>
     );
@@ -128,16 +130,29 @@ export function StripePaymentElement({ clientSecret, ...formProps }: StripePayme
   const options: StripeElementsOptions = {
     clientSecret,
     locale: normalizeLocale(i18n.language) ?? DEFAULT_LOCALE,
-    appearance: {
-      theme: 'night',
-      variables: {
-        colorPrimary: '#2dd4bf',
-        colorBackground: '#090d16',
-        colorText: '#f8fafc',
-        colorDanger: '#f87171',
-        borderRadius: '12px',
-      },
-    },
+    // O Stripe não lê as variáveis CSS do app: as cores repetem os tokens `--ug-*` de cada tema.
+    appearance:
+      theme === 'light'
+        ? {
+            theme: 'stripe',
+            variables: {
+              colorPrimary: '#0f766e',
+              colorBackground: '#faf6ee',
+              colorText: '#231d16',
+              colorDanger: '#9f1239',
+              borderRadius: '12px',
+            },
+          }
+        : {
+            theme: 'night',
+            variables: {
+              colorPrimary: '#2dd4bf',
+              colorBackground: '#090d16',
+              colorText: '#f8fafc',
+              colorDanger: '#f87171',
+              borderRadius: '12px',
+            },
+          },
   };
 
   return (

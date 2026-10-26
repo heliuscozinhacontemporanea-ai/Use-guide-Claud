@@ -39,6 +39,15 @@ export interface PayoutDestinationLookup {
 }
 
 function toEntryView(entry: PayoutEntry): PayoutEntryView {
+  const refunds = Object.values(entry.refunds);
+  const refundedMinor = refunds.reduce((sum, refund) => sum + refund.amountMinor, 0);
+  const refundedServiceFee = refunds.reduce((sum, refund) => sum + refund.serviceFeeMinor, 0);
+  const serviceFeeMinor = Math.max(0, entry.serviceFeeMinor - refundedServiceFee);
+  // O que sobra depois da taxa de serviço, dos reembolsos e da parte do proprietário é a taxa da plataforma.
+  const platformFeeMinor = Math.max(
+    0,
+    entry.grossMinor - serviceFeeMinor - refundedMinor - entry.partnerAmountMinor
+  );
   return {
     id: entry.id,
     referenceType: entry.referenceType,
@@ -46,10 +55,9 @@ function toEntryView(entry: PayoutEntry): PayoutEntryView {
     title: entry.title ?? null,
     accountKey: entry.accountKey,
     grossMinor: entry.grossMinor,
-    refundedMinor: Object.values(entry.refunds).reduce(
-      (sum, refund) => sum + refund.amountMinor,
-      0
-    ),
+    serviceFeeMinor,
+    refundedMinor,
+    platformFeeMinor,
     partnerAmountMinor: entry.partnerAmountMinor,
     offsetMinor: entry.offsetMinor ?? 0,
     status: entry.status,

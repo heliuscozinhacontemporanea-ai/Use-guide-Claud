@@ -53,10 +53,22 @@ export function PayoutEntryRow({ entry }: { entry: PayoutEntryView }) {
       </div>
       <dl className="space-y-1">
         <AmountLine label={t('receivables.statement.gross')} value={money(entry.grossMinor)} />
+        {entry.serviceFeeMinor > 0 && (
+          <AmountLine
+            label={t('receivables.statement.serviceFee')}
+            value={`− ${money(entry.serviceFeeMinor)}`}
+          />
+        )}
         {entry.refundedMinor > 0 && (
           <AmountLine
             label={t('receivables.statement.refunded')}
             value={`− ${money(entry.refundedMinor)}`}
+          />
+        )}
+        {entry.platformFeeMinor > 0 && (
+          <AmountLine
+            label={t('receivables.statement.platformFee')}
+            value={`− ${money(entry.platformFeeMinor)}`}
           />
         )}
         {entry.offsetMinor > 0 && (

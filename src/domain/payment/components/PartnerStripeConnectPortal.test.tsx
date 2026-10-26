@@ -172,7 +172,9 @@ describe('PartnerStripeConnectPortal (D14)', () => {
           title: 'Festival de Verão',
           accountKey: 'key-1',
           grossMinor: 10600,
+          serviceFeeMinor: 600,
           refundedMinor: 0,
+          platformFeeMinor: 1000,
           partnerAmountMinor: 9000,
           offsetMinor: 0,
           status: 'on_hold',
@@ -192,5 +194,7 @@ describe('PartnerStripeConnectPortal (D14)', () => {
     expect(await screen.findByText('Festival de Verão')).toBeTruthy();
     expect(screen.getByText('Retido: reclamação em análise')).toBeTruthy();
     expect(screen.getByText(/90,00/)).toBeTruthy();
+    expect(screen.getByText('Taxa da plataforma')).toBeTruthy();
+    expect(screen.getByText(/10,00/)).toBeTruthy();
   });
 });

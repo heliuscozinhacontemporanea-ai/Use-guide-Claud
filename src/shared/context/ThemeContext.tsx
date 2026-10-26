@@ -66,6 +66,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
+/** Tema efetivo para componentes que também aparecem fora do provider (testes, prévias); padrão escuro. */
+export function useResolvedTheme(): 'light' | 'dark' {
+  return useContext(ThemeContext)?.resolvedTheme ?? 'dark';
+}
+
 export function useTheme() {
   const context = useContext(ThemeContext);
   if (!context) {

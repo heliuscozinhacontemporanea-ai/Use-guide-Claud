@@ -9,7 +9,10 @@ export interface PayoutEntryView {
   title: string | null;
   accountKey: string;
   grossMinor: number;
+  /** Taxa de serviço paga pelo comprador: não sai do valor do parceiro. */
+  serviceFeeMinor: number;
   refundedMinor: number;
+  platformFeeMinor: number;
   partnerAmountMinor: number;
   offsetMinor: number;
   status: PayoutEntryStatus;

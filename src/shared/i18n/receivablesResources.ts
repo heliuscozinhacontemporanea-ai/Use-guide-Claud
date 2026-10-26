@@ -14,7 +14,9 @@ export interface ReceivablesTranslation {
     fallbackBooking: string;
     serviceEnd: string;
     gross: string;
+    serviceFee: string;
     refunded: string;
+    platformFee: string;
     offset: string;
     toReceive: string;
     received: string;
@@ -111,7 +113,9 @@ export const receivablesPtBR: ReceivablesTranslation = {
     fallbackBooking: 'Reserva',
     serviceEnd: 'Fim do serviço: {{date}}',
     gross: 'Venda',
+    serviceFee: 'Taxa de serviço (paga pelo comprador)',
     refunded: 'Reembolsado',
+    platformFee: 'Taxa da plataforma',
     offset: 'Descontado de dívidas',
     toReceive: 'A receber',
     received: 'Repassado',
@@ -203,7 +207,9 @@ export const receivablesEn: ReceivablesTranslation = {
     fallbackBooking: 'Booking',
     serviceEnd: 'Service ends: {{date}}',
     gross: 'Sale',
+    serviceFee: 'Service fee (paid by the buyer)',
     refunded: 'Refunded',
+    platformFee: 'Platform fee',
     offset: 'Deducted for debts',
     toReceive: 'To receive',
     received: 'Paid out',
@@ -300,7 +306,9 @@ export const receivablesFr: ReceivablesTranslation = {
     fallbackBooking: 'Réservation',
     serviceEnd: 'Fin du service : {{date}}',
     gross: 'Vente',
+    serviceFee: 'Frais de service (payés par l’acheteur)',
     refunded: 'Remboursé',
+    platformFee: 'Commission de la plateforme',
     offset: 'Déduit pour dettes',
     toReceive: 'À recevoir',
     received: 'Versé',
