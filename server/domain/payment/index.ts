@@ -25,6 +25,10 @@ export { listAccountDebtsUseCase } from './usecases/listAccountDebtsUseCase';
 export { startAccountDebtPaymentUseCase } from './usecases/startAccountDebtPaymentUseCase';
 export { markAccountDebtPaidUseCase } from './usecases/markAccountDebtPaidUseCase';
 export { waiveAccountDebtUseCase } from './usecases/waiveAccountDebtUseCase';
+export { declareForceMajeureUseCase } from './usecases/declareForceMajeureUseCase';
+export { listForceMajeureReviewsUseCase } from './usecases/listForceMajeureReviewsUseCase';
+export { getForceMajeureProofPathUseCase } from './usecases/getForceMajeureProofPathUseCase';
+export { decideForceMajeureUseCase } from './usecases/decideForceMajeureUseCase';
 export { cancellationPenaltyMinor } from './utils/debtRules';
 export { openSaleClaimUseCase } from './usecases/openSaleClaimUseCase';
 export { getSaleClaimUseCase } from './usecases/getSaleClaimUseCase';
@@ -60,7 +64,13 @@ export type { ConnectedAccountStatus } from './ports/marketplaceAccountPort';
 export type { PaymentAccountView } from './types/paymentAccount';
 export type { PayoutEntry, PayoutEntryStatus } from './types/payoutEntry';
 export type { DisputeOutcome, RecordSaleInput, ReleaseSummary } from './services/payoutService';
-export type { AccountDebt, AccountDebtReason, AccountDebtView } from './types/accountDebt';
+export type {
+  AccountDebt,
+  AccountDebtReason,
+  AccountDebtView,
+  ForceMajeureReviewView,
+  ForceMajeureStatus,
+} from './types/accountDebt';
 export type { CreateDebtInput } from './services/debtService';
 export type { OpenSaleClaimInput, SaleClaimDecision } from './services/saleClaimService';
 export type {

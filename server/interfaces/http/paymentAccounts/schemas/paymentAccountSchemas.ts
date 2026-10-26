@@ -30,3 +30,16 @@ export const ListPaymentAccountsQuerySchema = z
       .optional(),
   })
   .strict();
+
+export const DeclareForceMajeureSchema = z
+  .object({
+    reason: z.string().trim().min(10).max(500),
+    proofPath: z
+      .string()
+      .min(1)
+      .max(300)
+      .regex(/^[\w/.-]+$/),
+  })
+  .strict();
+
+export const DecideForceMajeureSchema = z.object({ approve: z.boolean() }).strict();

@@ -44,6 +44,16 @@ export class FirestoreAccountDebtAdapter implements AccountDebtRepositoryPort {
     return snapshot.docs.map((doc) => doc.data() as AccountDebt);
   }
 
+  async listSuspended(limit: number): Promise<AccountDebt[]> {
+    const snapshot = await adminDb
+      .collection(DEBTS)
+      .where('status', '==', 'suspended')
+      .orderBy('createdAt', 'asc')
+      .limit(limit)
+      .get();
+    return snapshot.docs.map((doc) => doc.data() as AccountDebt);
+  }
+
   async update(
     id: string,
     change: (current: AccountDebt) => AccountDebt | null

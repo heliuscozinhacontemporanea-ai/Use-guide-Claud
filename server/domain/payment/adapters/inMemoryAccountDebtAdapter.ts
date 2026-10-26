@@ -29,6 +29,13 @@ export class InMemoryAccountDebtAdapter implements AccountDebtRepositoryPort {
       .slice(0, limit);
   }
 
+  async listSuspended(limit: number): Promise<AccountDebt[]> {
+    return [...this.rows.values()]
+      .filter((debt) => debt.status === 'suspended')
+      .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+      .slice(0, limit);
+  }
+
   async update(
     id: string,
     change: (current: AccountDebt) => AccountDebt | null

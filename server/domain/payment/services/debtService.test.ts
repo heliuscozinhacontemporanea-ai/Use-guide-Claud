@@ -102,4 +102,74 @@ describe('DebtService (D16)', () => {
       code: 'NOT_FOUND',
     });
   });
+
+  describe('força maior (3A)', () => {
+    const DECLARATION = {
+      reason: 'Vento acima de 40 nós, travessia proibida pela Capitania.',
+      proofPath: 'verification/owner-1/prova.pdf',
+      declaredBy: 'owner-1',
+    };
+
+    it('suspende a multa: não vence, não bloqueia, não é descontada nem cobrada', async () => {
+      const { service, clock } = setup();
+      const debt = await service.createDebt(PENALTY);
+      const id = debt?.id ?? '';
+      await expect(service.declareForceMajeure(id, ['key-2'], DECLARATION)).rejects.toMatchObject({
+        code: 'NOT_FOUND',
+      });
+      const view = await service.declareForceMajeure(id, ['key-1'], DECLARATION);
+      expect(view).toMatchObject({ status: 'suspended', forceMajeureStatus: 'pending' });
+      await expect(service.declareForceMajeure(id, ['key-1'], DECLARATION)).rejects.toMatchObject({
+        code: 'FORCE_MAJEURE_ALREADY_DECLARED',
+      });
+      clock.value = new Date('2026-10-28T00:00:00.000Z');
+      expect(await service.hasOverdueDebt('key-1')).toBe(false);
+      expect(
+        await service.offsetFromPayout({
+          accountKey: 'key-1',
+          payoutEntryId: 'po_1',
+          availableMinor: 9000,
+        })
+      ).toBe(0);
+      await expect(service.startPayment(id, ['key-1'])).rejects.toMatchObject({
+        code: 'DEBT_SUSPENDED',
+      });
+      const [review] = await service.listForceMajeureReviews(10);
+      expect(review).toMatchObject({ id, forceMajeureReason: DECLARATION.reason });
+      expect(await service.getForceMajeureProofPath(id)).toBe(DECLARATION.proofPath);
+    });
+
+    it('só na multa de cancelamento e antes do vencimento', async () => {
+      const { service, clock } = setup();
+      const dispute = await service.createDebt({ ...PENALTY, reason: 'dispute_lost' });
+      await expect(
+        service.declareForceMajeure(dispute?.id ?? '', ['key-1'], DECLARATION)
+      ).rejects.toMatchObject({ code: 'FORCE_MAJEURE_NOT_ALLOWED' });
+      const penalty = await service.createDebt(PENALTY);
+      clock.value = new Date('2026-10-26T12:00:00.000Z');
+      await expect(
+        service.declareForceMajeure(penalty?.id ?? '', ['key-1'], DECLARATION)
+      ).rejects.toMatchObject({ code: 'FORCE_MAJEURE_TOO_LATE' });
+    });
+
+    it('aprovada perdoa a multa; recusada volta a valer com 24 h', async () => {
+      const approved = setup();
+      const first = await approved.service.createDebt(PENALTY);
+      await approved.service.declareForceMajeure(first?.id ?? '', ['key-1'], DECLARATION);
+      await expect(
+        approved.service.decideForceMajeure(first?.id ?? '', 'admin-1', true)
+      ).resolves.toMatchObject({ status: 'waived', waivedBy: 'admin-1' });
+      await expect(
+        approved.service.decideForceMajeure(first?.id ?? '', 'admin-1', false)
+      ).rejects.toMatchObject({ code: 'FORCE_MAJEURE_NOT_PENDING' });
+
+      const rejected = setup();
+      const second = await rejected.service.createDebt(PENALTY);
+      await rejected.service.declareForceMajeure(second?.id ?? '', ['key-1'], DECLARATION);
+      rejected.clock.value = new Date('2026-10-27T08:00:00.000Z');
+      const debt = await rejected.service.decideForceMajeure(second?.id ?? '', 'admin-1', false);
+      expect(debt).toMatchObject({ status: 'open', dueAt: '2026-10-28T08:00:00.000Z' });
+      expect(debt.forceMajeure?.status).toBe('rejected');
+    });
+  });
 });

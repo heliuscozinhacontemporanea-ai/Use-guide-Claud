@@ -23,7 +23,9 @@ import billingRouter from './server/interfaces/http/billing/billingRoutes';
 import listingVerificationRouter from './server/interfaces/http/listingVerifications/listingVerificationRoutes';
 import listingStatsRouter from './server/interfaces/http/insights/listingStatsRoutes';
 import listingPlanRouter from './server/interfaces/http/listingPlans/listingPlanRoutes';
-import paymentAccountRouter from './server/interfaces/http/paymentAccounts/paymentAccountRoutes';
+import paymentAccountRouter, {
+  adminAccountDebtRouter,
+} from './server/interfaces/http/paymentAccounts/paymentAccountRoutes';
 import {
   adminSaleClaimRouter,
   saleClaimRouter,
@@ -202,6 +204,7 @@ async function startServer() {
   app.use('/api/payment-accounts', paymentAccountRouter);
   app.use('/api/sale-claims', saleClaimRouter);
   app.use('/api/admin/sale-claims', adminSaleClaimRouter);
+  app.use('/api/admin/account-debts', adminAccountDebtRouter);
   app.use('/api/payment', paymentRouter);
   app.use('/api/weather', climaWindRouter);
   app.use('/api/notifications', notificationRouter);

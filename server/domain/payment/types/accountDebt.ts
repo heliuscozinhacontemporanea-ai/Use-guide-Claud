@@ -4,7 +4,22 @@
  */
 export type AccountDebtReason = 'cancellation_penalty' | 'dispute_lost' | 'post_release_refund';
 
-export type AccountDebtStatus = 'open' | 'paid' | 'waived';
+/** `suspended`: multa com força maior em análise; não vence, não é descontada e não bloqueia (D16, 3A). */
+export type AccountDebtStatus = 'open' | 'suspended' | 'paid' | 'waived';
+
+export type ForceMajeureStatus = 'pending' | 'approved' | 'rejected';
+
+/** Declaração do proprietário (D16, 3A). `reason` é texto livre: confidencial, nunca vai para log. */
+export interface ForceMajeureDeclaration {
+  reason: string;
+  /** Arquivo na pasta privada do parceiro; só o admin abre, pelo backend. */
+  proofPath: string;
+  status: ForceMajeureStatus;
+  declaredBy: string;
+  declaredAt: string;
+  decidedBy?: string;
+  decidedAt?: string;
+}
 
 export interface AccountDebt {
   id: string;
@@ -21,6 +36,7 @@ export interface AccountDebt {
   paymentIntentId?: string;
   paidAt?: string;
   waivedBy?: string;
+  forceMajeure?: ForceMajeureDeclaration;
   createdAt: string;
   updatedAt: string;
 }
@@ -35,5 +51,12 @@ export interface AccountDebtView {
   status: AccountDebtStatus;
   dueAt: string;
   overdue: boolean;
+  forceMajeureStatus?: ForceMajeureStatus;
   createdAt: string;
+}
+
+/** Fila do admin: inclui o motivo declarado; a prova é aberta por rota própria. */
+export interface ForceMajeureReviewView extends AccountDebtView {
+  forceMajeureReason: string;
+  declaredAt: string;
 }
