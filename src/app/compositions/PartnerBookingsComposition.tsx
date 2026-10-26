@@ -5,7 +5,7 @@ import {
   isBookableCategory,
   PartnerOffersManager,
 } from '../../domain/bookings';
-import { listPaymentAccountsUseCase, PartnerStripeConnectPortal } from '../../domain/payment';
+import { listPaymentAccountsUseCase, PaymentAccountNotice } from '../../domain/payment';
 
 type AccountState =
   | { status: 'loading' }
@@ -51,16 +51,12 @@ export function PartnerBookingsComposition({ items }: { items: BookableGuideItem
       canPublish={isReady}
       accountNotice={
         notReady.length > 0 ? (
-          <div className="space-y-3 p-3 rounded-xl bg-warn-soft border border-warn-line">
-            <p className="text-xs text-warn">
-              {t(
-                noneReady
-                  ? 'bookings.partner.stripeRequired'
-                  : 'bookings.partner.stripeRequiredSome'
-              )}
-            </p>
-            <PartnerStripeConnectPortal />
-          </div>
+          <PaymentAccountNotice
+            message={t(
+              noneReady ? 'bookings.partner.stripeRequired' : 'bookings.partner.stripeRequiredSome'
+            )}
+            onClosed={loadStatus}
+          />
         ) : account.status === 'error' ? (
           <div
             role="alert"

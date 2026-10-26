@@ -2,6 +2,7 @@
 export interface ReceivablesTranslation {
   tabs: { label: string; accounts: string; statement: string; debts: string };
   blockedBanner: string;
+  notice: { open: string };
   statement: {
     title: string;
     hint: string;
@@ -99,6 +100,7 @@ export const receivablesPtBR: ReceivablesTranslation = {
     statement: 'Extrato',
     debts: 'Dívidas',
   },
+  notice: { open: 'Configurar recebimentos' },
   blockedBanner:
     'Vendas pausadas: um CNPJ seu tem dívida vencida. Pague em Dívidas para voltar a vender; enquanto isso, os repasses pendentes quitam a dívida.',
   statement: {
@@ -193,6 +195,7 @@ export const receivablesPtBR: ReceivablesTranslation = {
 
 export const receivablesEn: ReceivablesTranslation = {
   tabs: { label: 'Payout sections', accounts: 'Accounts', statement: 'Statement', debts: 'Debts' },
+  notice: { open: 'Set up payouts' },
   blockedBanner:
     'Sales paused: one of your CNPJs has an overdue debt. Pay it under Debts to sell again; meanwhile, pending payouts settle the debt.',
   statement: {
@@ -292,6 +295,7 @@ export const receivablesFr: ReceivablesTranslation = {
     statement: 'Relevé',
     debts: 'Dettes',
   },
+  notice: { open: 'Configurer les versements' },
   blockedBanner:
     'Ventes suspendues : l’un de vos CNPJ a une dette échue. Payez-la dans Dettes pour vendre à nouveau ; en attendant, les versements en attente règlent la dette.',
   statement: {

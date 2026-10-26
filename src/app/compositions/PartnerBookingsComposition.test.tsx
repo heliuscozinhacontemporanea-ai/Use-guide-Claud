@@ -5,7 +5,12 @@ import { i18n } from '../../shared/i18n';
 const m = vi.hoisted(() => ({ accounts: vi.fn(), manager: vi.fn() }));
 vi.mock('../../domain/payment', () => ({
   listPaymentAccountsUseCase: m.accounts,
-  PartnerStripeConnectPortal: () => <div>portal</div>,
+  PaymentAccountNotice: ({ message }: { message: string }) => (
+    <div>
+      {message}
+      <span>portal</span>
+    </div>
+  ),
 }));
 vi.mock('../../domain/bookings', () => ({
   isBookableCategory: (category: string) => category === 'tour' || category === 'sight',

@@ -1,5 +1,5 @@
 import { AlertTriangle, Loader2, RefreshCw } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { type ReactNode, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { GlassCard } from '../../../ui/components/GlassCard';
 import { getPartnerTermsUseCase } from '../application/usecases/getPartnerTermsUseCase';
@@ -15,7 +15,16 @@ import { PayoutStatement } from './receivables/PayoutStatement';
 import { type ReceivablesTab, ReceivablesTabs } from './receivables/ReceivablesTabs';
 
 /** Recebimentos do parceiro: conta Stripe por CNPJ (D14), extrato por venda e dívidas (D16). */
-export function PartnerStripeConnectPortal() {
+function Frame({ bare, children }: { bare: boolean; children: ReactNode }) {
+  return bare ? (
+    <div className="space-y-4">{children}</div>
+  ) : (
+    <GlassCard className="p-5 space-y-4">{children}</GlassCard>
+  );
+}
+
+/** `bare`: sem cartão nem título, para abrir dentro de uma folha que já tem os dois. */
+export function PartnerStripeConnectPortal({ bare = false }: { bare?: boolean } = {}) {
   const { t } = useTranslation();
   const [accounts, setAccounts] = useState<PartnerPaymentAccount[] | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -49,26 +58,31 @@ export function PartnerStripeConnectPortal() {
   }, [load]);
 
   const open = accounts?.find((entry) => entry.accountKey === openKey) ?? null;
+  const refreshButton = (
+    <button
+      type="button"
+      onClick={() => {
+        void load();
+        void debtsState.reload();
+      }}
+      aria-label={t('paymentAccounts.refresh')}
+      className="press w-11 h-11 shrink-0 rounded-xl border border-line text-ink flex items-center justify-center hover:bg-accent-soft focus-visible:ring-2 focus-visible:ring-teal-400/50"
+    >
+      <RefreshCw size={16} aria-hidden="true" />
+    </button>
+  );
 
   return (
-    <GlassCard className="p-5 space-y-4">
-      <div className="flex items-start justify-between gap-3">
-        <div className="space-y-1">
-          <h4 className="text-sm font-bold text-ink">{t('paymentAccounts.title')}</h4>
-          <p className="text-xs text-ink/70">{t('paymentAccounts.subtitle')}</p>
+    <Frame bare={bare}>
+      {!bare && (
+        <div className="flex items-start justify-between gap-3">
+          <div className="space-y-1">
+            <h4 className="text-sm font-bold text-ink">{t('paymentAccounts.title')}</h4>
+            <p className="text-xs text-ink/70">{t('paymentAccounts.subtitle')}</p>
+          </div>
+          {refreshButton}
         </div>
-        <button
-          type="button"
-          onClick={() => {
-            void load();
-            void debtsState.reload();
-          }}
-          aria-label={t('paymentAccounts.refresh')}
-          className="press w-11 h-11 shrink-0 rounded-xl border border-line text-ink flex items-center justify-center hover:bg-accent-soft focus-visible:ring-2 focus-visible:ring-teal-400/50"
-        >
-          <RefreshCw size={16} aria-hidden="true" />
-        </button>
-      </div>
+      )}
 
       {blocked && (
         <p
@@ -80,7 +94,13 @@ export function PartnerStripeConnectPortal() {
         </p>
       )}
 
-      {!open && <ReceivablesTabs value={tab} onChange={setTab} pendingDebts={pendingDebts} />}
+      {!open && (
+        <div className="flex items-start justify-between gap-2">
+          <ReceivablesTabs value={tab} onChange={setTab} pendingDebts={pendingDebts} />
+          {/* Na folha o título é dela: o botão de atualizar sobe para a linha das abas. */}
+          {bare && refreshButton}
+        </div>
+      )}
 
       {terms && !open && tab === 'accounts' && (
         <PartnerTermsCard terms={terms} onAccepted={setTerms} />
@@ -131,6 +151,6 @@ export function PartnerStripeConnectPortal() {
           {t('paymentAccounts.empty')}
         </p>
       )}
-    </GlassCard>
+    </Frame>
   );
 }
