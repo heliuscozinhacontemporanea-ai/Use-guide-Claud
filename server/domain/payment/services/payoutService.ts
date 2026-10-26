@@ -2,7 +2,13 @@ import type { PayoutEntryRepositoryPort } from '../ports/payoutEntryRepositoryPo
 import type { PayoutTransferPort } from '../ports/payoutTransferPort';
 import type { PayoutEntry } from '../types/payoutEntry';
 import type { DebtService } from './debtService';
-import { computeReleaseAt, partnerAmountAfterRefunds } from '../utils/payoutRules';
+import type { PayoutHoldReason } from '../types/payoutEntry';
+import {
+  computeReleaseAt,
+  partnerAmountAfterRefunds,
+  withHold,
+  withoutHold,
+} from '../utils/payoutRules';
 
 export interface RecordSaleInput {
   referenceType: string;
@@ -133,17 +139,19 @@ export class PayoutService {
   /** Contestação aberta: o repasse espera a decisão (D14). */
   async holdForDispute(paymentIntentId: string): Promise<PayoutEntry | null> {
     const entry = await this.entries.getByPaymentIntentId(paymentIntentId);
-    if (!entry) return null;
-    return this.entries.update(entry.id, (current) =>
-      current.status === 'pending'
-        ? {
-            ...current,
-            status: 'on_hold',
-            holdReason: 'dispute',
-            updatedAt: this.now().toISOString(),
-          }
-        : null
-    );
+    return entry ? this.setHold(entry.id, 'dispute', true) : null;
+  }
+
+  /** Retém ou solta a venda por um motivo; as outras retenções continuam valendo. */
+  async setHold(
+    entryId: string,
+    reason: PayoutHoldReason,
+    hold: boolean
+  ): Promise<PayoutEntry | null> {
+    return this.entries.update(entryId, (current) => {
+      const next = hold ? withHold(current, reason) : withoutHold(current, reason);
+      return next ? { ...next, updatedAt: this.now().toISOString() } : null;
+    });
   }
 
   /**
@@ -169,18 +177,17 @@ export class PayoutService {
       }
       return entry;
     }
+    if (outcome !== 'lost_partner_pays') return this.setHold(entry.id, 'dispute', false);
     return this.entries.update(entry.id, (current) => {
-      if (current.status !== 'on_hold' || current.holdReason !== 'dispute') return null;
-      const { holdReason: _released, ...rest } = current;
-      return outcome === 'lost_partner_pays'
-        ? {
-            ...rest,
-            status: 'canceled',
-            canceledReason: 'dispute_lost',
-            partnerAmountMinor: 0,
-            updatedAt: this.now().toISOString(),
-          }
-        : { ...rest, status: 'pending', updatedAt: this.now().toISOString() };
+      if (!current.holdReasons?.includes('dispute')) return null;
+      const { holdReasons: _released, ...rest } = current;
+      return {
+        ...rest,
+        status: 'canceled',
+        canceledReason: 'dispute_lost',
+        partnerAmountMinor: 0,
+        updatedAt: this.now().toISOString(),
+      };
     });
   }
 

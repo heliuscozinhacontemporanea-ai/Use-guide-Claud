@@ -15,7 +15,7 @@ export interface CanceledSale {
  * mesmo cancelamento não gera outra multa.
  */
 export async function chargeCancellationPenaltyApplicationUseCase(params: {
-  referenceType: 'event_occurrence' | 'booking_slot';
+  referenceType: 'event_occurrence' | 'booking_slot' | 'sale_claim';
   referenceId: string;
   sales: CanceledSale[];
 }): Promise<number> {

@@ -382,6 +382,15 @@ describe('Firestore Rules — Security Suite', () => {
       }
     });
 
+    it('reclamação (D16): saleClaims negado até para o comprador e admin', async () => {
+      const adminDb = testEnv.authenticatedContext('admin-user', { admin: true }).firestore();
+      const buyerDb = testEnv.authenticatedContext('buyer-1').firestore();
+      for (const db of [adminDb, buyerDb]) {
+        await assertFails(getDoc(doc(db, 'saleClaims/claim_booking_bk-1')));
+        await assertFails(setDoc(doc(db, 'saleClaims/claim_booking_bk-1'), { buyerUid: 'buyer-1' }));
+      }
+    });
+
     it('plano (D11): listingPlans negado até para o dono e admin', async () => {
       const adminDb = testEnv.authenticatedContext('admin-user', { admin: true }).firestore();
       const ownerDb = testEnv.authenticatedContext('partner-1').firestore();

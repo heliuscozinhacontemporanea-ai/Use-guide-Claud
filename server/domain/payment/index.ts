@@ -26,6 +26,13 @@ export { startAccountDebtPaymentUseCase } from './usecases/startAccountDebtPayme
 export { markAccountDebtPaidUseCase } from './usecases/markAccountDebtPaidUseCase';
 export { waiveAccountDebtUseCase } from './usecases/waiveAccountDebtUseCase';
 export { cancellationPenaltyMinor } from './utils/debtRules';
+export { openSaleClaimUseCase } from './usecases/openSaleClaimUseCase';
+export { getSaleClaimUseCase } from './usecases/getSaleClaimUseCase';
+export { listMySaleClaimsUseCase } from './usecases/listMySaleClaimsUseCase';
+export { listPendingSaleClaimsUseCase } from './usecases/listPendingSaleClaimsUseCase';
+export { decideSaleClaimUseCase } from './usecases/decideSaleClaimUseCase';
+export { settleSaleClaimRefundUseCase } from './usecases/settleSaleClaimRefundUseCase';
+export { SALE_CLAIM_REASONS } from './types/saleClaim';
 export { getPaymentReferenceUseCase } from './usecases/getPaymentReferenceUseCase';
 export { createBillingPortalSessionUseCase } from './usecases/billing/createBillingPortalSessionUseCase';
 export { getListingPlanSubscriptionUseCase } from './usecases/billing/getListingPlanSubscriptionUseCase';
@@ -55,6 +62,15 @@ export type { PayoutEntry, PayoutEntryStatus } from './types/payoutEntry';
 export type { DisputeOutcome, RecordSaleInput, ReleaseSummary } from './services/payoutService';
 export type { AccountDebt, AccountDebtReason, AccountDebtView } from './types/accountDebt';
 export type { CreateDebtInput } from './services/debtService';
+export type { OpenSaleClaimInput, SaleClaimDecision } from './services/saleClaimService';
+export type {
+  AdminSaleClaimView,
+  BuyerSaleClaimView,
+  SaleClaim,
+  SaleClaimOutcome,
+  SaleClaimReason,
+  SaleClaimStatus,
+} from './types/saleClaim';
 export type { EnsurePaymentAccountInput } from './services/paymentAccountService';
 export type {
   CreatePaymentIntentResult,

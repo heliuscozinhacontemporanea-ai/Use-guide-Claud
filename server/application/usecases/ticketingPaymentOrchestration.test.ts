@@ -10,6 +10,7 @@ vi.mock('../../domain/payment', () => ({
   closePayoutDisputeUseCase: vi.fn(),
   holdPayoutForDisputeUseCase: vi.fn(),
   markAccountDebtPaidUseCase: vi.fn(),
+  settleSaleClaimRefundUseCase: vi.fn(),
   recordSalePayoutUseCase: vi.fn(),
   createPaymentForTicketOrderUseCase: vi.fn(),
   getPaymentReferenceUseCase: vi.fn().mockResolvedValue(null),
@@ -38,6 +39,7 @@ import {
   markAccountDebtPaidUseCase,
   processProviderRefundUseCase,
   recordSalePayoutUseCase,
+  settleSaleClaimRefundUseCase,
   updatePaymentTransactionStatusUseCase,
 } from '../../domain/payment';
 import {
@@ -205,6 +207,21 @@ describe('ticketingPaymentOrchestrationUseCases — repasse (D14)', () => {
     });
     expect(markAccountDebtPaidUseCase).toHaveBeenCalledWith('debt_x', 'pi_debt');
     expect(confirmTicketOrderPaymentUseCase).not.toHaveBeenCalled();
+  });
+
+  it('reembolso de reclamação vai para a reclamação, não para o pedido (D16)', async () => {
+    await reconcileStripeWebhookEventApplicationUseCase({
+      id: 'evt_claim',
+      type: 'refund.updated',
+      created: 1,
+      dataObject: {
+        id: 're_1',
+        status: 'succeeded',
+        metadata: { referenceType: 'claim_refund', claimId: 'claim_x' },
+      },
+    });
+    expect(settleSaleClaimRefundUseCase).toHaveBeenCalledWith('claim_x', 're_1', 'succeeded');
+    expect(finalizeTicketRefundStatusUseCase).not.toHaveBeenCalled();
   });
 
   it('contestação perdida: com check-in a plataforma arca, sem check-in o CNPJ paga (D16)', async () => {

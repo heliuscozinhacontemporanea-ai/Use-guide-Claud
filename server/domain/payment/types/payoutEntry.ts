@@ -4,7 +4,8 @@
  */
 export type PayoutEntryStatus = 'pending' | 'on_hold' | 'released' | 'canceled';
 
-export type PayoutHoldReason = 'dispute';
+/** Contestação no Stripe e reclamação do comprador (D16) podem reter a mesma venda ao mesmo tempo. */
+export type PayoutHoldReason = 'dispute' | 'claim';
 
 export interface PayoutRefundApplied {
   amountMinor: number;
@@ -29,7 +30,8 @@ export interface PayoutEntry {
   serviceEndsAt: string;
   releaseAt: string;
   status: PayoutEntryStatus;
-  holdReason?: PayoutHoldReason;
+  /** Retenções ativas; `on_hold` enquanto houver alguma, `pending` quando a última sai. */
+  holdReasons?: PayoutHoldReason[];
   /** Reembolsos já descontados, por chave do reembolso: repetir o mesmo não desconta de novo. */
   refunds: Record<string, PayoutRefundApplied>;
   transferId?: string;

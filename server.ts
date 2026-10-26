@@ -25,6 +25,10 @@ import listingStatsRouter from './server/interfaces/http/insights/listingStatsRo
 import listingPlanRouter from './server/interfaces/http/listingPlans/listingPlanRoutes';
 import paymentAccountRouter from './server/interfaces/http/paymentAccounts/paymentAccountRoutes';
 import {
+  adminSaleClaimRouter,
+  saleClaimRouter,
+} from './server/interfaces/http/saleClaims/saleClaimRoutes';
+import {
   bookingsRouter,
   partnerOffersRouter,
 } from './server/interfaces/http/bookings/bookingsRoutes';
@@ -196,6 +200,8 @@ async function startServer() {
   app.use('/api/bookings', bookingsRouter);
   app.use('/api/payment/plans', billingRouter);
   app.use('/api/payment-accounts', paymentAccountRouter);
+  app.use('/api/sale-claims', saleClaimRouter);
+  app.use('/api/admin/sale-claims', adminSaleClaimRouter);
   app.use('/api/payment', paymentRouter);
   app.use('/api/weather', climaWindRouter);
   app.use('/api/notifications', notificationRouter);

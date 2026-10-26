@@ -74,6 +74,10 @@ service cloud.firestore {
     match /accountDebts/{debtId} {
       allow read, write: if false;
     }
+    // Reclamação do comprador (D16): confidencial, só backend.
+    match /saleClaims/{claimId} {
+      allow read, write: if false;
+    }
     match /planSubscriptions/{itemId} {
       allow read, write: if false;
     }

@@ -2,6 +2,7 @@ import { FirebaseAdminTransactionAdapter } from './adapters/firebaseAdminTransac
 import { FirestoreAccountDebtAdapter } from './adapters/firestoreAccountDebtAdapter';
 import { FirestorePaymentAccountAdapter } from './adapters/firestorePaymentAccountAdapter';
 import { FirestorePayoutEntryAdapter } from './adapters/firestorePayoutEntryAdapter';
+import { FirestoreSaleClaimAdapter } from './adapters/firestoreSaleClaimAdapter';
 import { FirestorePlanSubscriptionAdapter } from './adapters/firestorePlanSubscriptionAdapter';
 import { StripeBillingGatewayAdapter } from './adapters/stripeBillingGatewayAdapter';
 import { StripeConnectMarketplaceAdapter } from './adapters/stripeConnectMarketplaceAdapter';
@@ -15,6 +16,7 @@ import { CheckoutService } from './services/checkoutService';
 import { DebtService } from './services/debtService';
 import { PaymentAccountService } from './services/paymentAccountService';
 import { PayoutService } from './services/payoutService';
+import { SaleClaimService } from './services/saleClaimService';
 import { StripePaymentService } from './services/stripePaymentService';
 
 export const paymentGatewayAdapter: PaymentGatewayPort = new StripePaymentGatewayAdapter();
@@ -45,6 +47,12 @@ export const payoutService = new PayoutService(
   new StripePayoutTransferAdapter(),
   paymentAccountService,
   debtService
+);
+
+export const saleClaimService = new SaleClaimService(
+  new FirestoreSaleClaimAdapter(),
+  payoutService,
+  paymentGatewayAdapter
 );
 
 export const checkoutService = new CheckoutService(stripePaymentService, transactionRepository);

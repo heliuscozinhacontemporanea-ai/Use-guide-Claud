@@ -10,7 +10,7 @@ export interface AccountDebt {
   id: string;
   accountKey: string;
   reason: AccountDebtReason;
-  /** O que gerou a dívida ('event_occurrence', 'booking_slot', 'ticket_order', 'booking'). */
+  /** O que gerou a dívida ('event_occurrence', 'booking_slot', 'sale_claim', 'ticket_order', 'booking'). */
   referenceType: string;
   referenceId: string;
   amountMinor: number;

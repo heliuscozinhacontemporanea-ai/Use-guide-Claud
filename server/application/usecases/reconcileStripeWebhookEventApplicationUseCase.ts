@@ -3,6 +3,7 @@ import {
   closePayoutDisputeUseCase,
   holdPayoutForDisputeUseCase,
   markAccountDebtPaidUseCase,
+  settleSaleClaimRefundUseCase,
   syncPaymentAccountFromWebhookUseCase,
   updatePaymentTransactionStatusUseCase,
   type VerifiedWebhookEvent,
@@ -131,6 +132,14 @@ export async function reconcileStripeWebhookEventApplicationUseCase(
   if (event.type === 'refund.updated' || event.type === 'refund.created') {
     const refundMetadata = (obj.metadata as Record<string, string> | undefined) || {};
     const providerStatus = String(obj.status || '');
+    if (refundMetadata.referenceType === 'claim_refund' && refundMetadata.claimId) {
+      await settleSaleClaimRefundUseCase(
+        refundMetadata.claimId,
+        String(obj.id || ''),
+        providerStatus
+      );
+      return { processed: true, eventType: event.type };
+    }
     if (refundMetadata.refundId) {
       if (providerStatus === 'succeeded') {
         const refund = await finalizeTicketRefundStatusUseCase(
