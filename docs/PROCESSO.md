@@ -108,6 +108,8 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 | 18.4c.1 | Agendamento do job de repasse (D14) | `598c7fe..6d8ff33` | ⏳ enviar (lote 17) | — |
 | 18.4d.1 | Dívidas do CNPJ, multa, desconto no repasse e bloqueio (D16) | `9e75059..df37496` | ⏳ enviar (lote 17) | — |
 | 18.4d.2 | Reclamações do comprador (D16) | `3f43733..a2c644f` | ⏳ enviar (lote 17) | — |
+| 18.4d.3a | Força maior na multa de cancelamento (D16) | `7608424..cd796c0` | ⏳ enviar (lote 17) | — |
+| 18.4d.3b | Reagendamento (D16) | `cd796c0..d2f73d8` | ⏳ enviar (lote 17) | — |
 
 ## Gates
 
