@@ -6,6 +6,7 @@
 > Resposta de 2026-10-19: aprovadas S10, S11 e S12 (as três no prompt A3).
 > Resposta de 2026-10-24: aprovada S14 (aplicada pelo prompt A5).
 > Resposta de 2026-10-24: aprovada S15 (aplicada pelo prompt A5, junto com a S14).
+> Resposta de 2026-10-27: aprovada S16 (aplicada pelo prompt A6).
 
 | # | Seção | Motivo | Status |
 |---|---|---|---|
@@ -24,6 +25,7 @@
 | S13 | §7.7 | O débito de `partnerDocumentKeys` foi resolvido no Prompt 18.3.0b | ✅ Aprovada em 2026-10-19 (prompt A4) |
 | S14 | §11.1 e §11 (nova subseção) | Tema claro sem branco puro e regras de experiência de app nativo | ✅ Aprovada em 2026-10-24 (prompt A5) |
 | S15 | §8.1 e §8.7 | D14: conta por documento, cobrança na plataforma com transferência depois do serviço, taxas por tipo, multa e reagendamento | ✅ Aprovada em 2026-10-24 (prompt A5, junto com a S14) |
+| S16 | §11.1 | D17: fundo neutro e liso, superfícies sólidas, cor só com significado e uma ação principal por tela | ✅ Aprovada em 2026-10-27 (prompt A6) |
 
 ---
 
@@ -195,3 +197,17 @@
 * **§8.2:** ingressos e reservas com PaymentIntent na plataforma e transferência depois do serviço.
 * **§8.3:** Pix só para serviço até 80 dias depois da compra (reembolso de Pix só em até 90 dias).
 * **§8.7:** políticas de cancelamento da plataforma, gravadas no pedido e só mais flexíveis depois de publicar; arrependimento em 7 dias até 48 h antes do início; no-show sem reembolso; translado com retenção máxima de 5%; cancelamento pelo proprietário com reembolso integral, multa de 20%, compensação em 24 h e bloqueio; reagendamento em força maior; disputa com suspensão do repasse.
+
+## S16 — Fundo neutro e superfícies sólidas (D17)
+
+**Por quê:** o fundo azul com linhas de mapa e o vidro em todos os cartões disputam a atenção com a informação. As referências aprovadas (Airbnb, Google Travel, Apple Mapas) usam fundo liso, cartões sólidos e cor só no que tem significado. Propostas das telas aprovadas por prints em 2026-10-27.
+
+**Texto atual (§11.1):**
+
+> * **Estilo:** Glassmorphism. Tema **dark é o padrão de design**; (…)
+> * **Superfície elevada:** `GlassCard` (`src/ui/components/GlassCard.tsx`).
+
+**Texto aprovado:**
+
+> * **Estilo:** superfícies sólidas e discretas sobre fundo neutro e liso: grafite no escuro (fundo `#0d0e10`, cartão `#1e2024`) e bege no claro (fundo `#f3eee4`, cartão `#faf6ee`). Sem gradientes, padrões nem linhas decorativas no fundo. Vidro (desfoque) só em barras fixas e folhas sobre o conteúdo. Cor só com significado: verde-água para ação, amarelo para pendente, verde para concluído, vermelho para perigo. Uma ação principal por tela; as demais como texto. Tema **dark é o padrão de design**; (…o resto igual)
+> * **Superfície elevada:** cartão sólido do design system (`GlassCard` passa a ser sólido, sem desfoque).

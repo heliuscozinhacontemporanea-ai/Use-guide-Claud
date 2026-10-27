@@ -26,6 +26,7 @@
 | D14 | Repasse por documento, retenção até o serviço, taxas e cancelamentos | ✅ Aprovada | 2026-10-24 |
 | D15 | Termos com aceite registrado e idioma do editor de conteúdo | ✅ Aprovada | 2026-10-25 |
 | D16 | Dívidas, reclamações, força maior e reagendamento | ✅ Aprovada | 2026-10-25 |
+| D17 | Visual: fundo neutro, superfícies sólidas e menos informação por tela | ✅ Aprovada | 2026-10-27 |
 
 ---
 
@@ -244,4 +245,17 @@ Detalha o que a D14 deixou para o 18.4d.
 * **Bloqueio por dívida (6A):** dívida vencida bloqueia só novas vendas de todos os estabelecimentos do CNPJ; o que já foi vendido continua valendo e os repasses pendentes quitam a dívida.
 * **Detalhes de implementação:** multa = 20% do valor vendido sem as taxas de serviço, para baixo; vence 24 h depois do cancelamento; desconto nos repasses começa no vencimento, dos repasses mais antigos primeiro. Contestação perdida com check-in fica com a plataforma (o repasse segue); sem check-in, o proprietário perde o repasse da venda ou, se já recebeu, a parte dele vira dívida. Reembolso depois do repasse vira dívida com prazo de 24 h.
 * **Prompts:** 18.4d.1, 18.4d.2, 18.4d.3.
+
+## D17 — Visual: fundo neutro, superfícies sólidas e menos informação por tela (2026-10-27)
+
+Propostas montadas em preview (Minhas reservas, Pedidos e Financeiro do admin) e comparadas com Airbnb, Booking, Sympla, Google Travel, Apple Mapas, Uber, Headout, Fever e Dice. O estilo do Airbnb e o modo escuro de Google e Apple foram os aprovados.
+
+* **Fundo:** liso, sem gradiente, padrão ou linhas — grafite `#0d0e10` no escuro e bege `#f3eee4` no claro. Sai o `BackgroundBlobs` com o azul e as linhas de mapa.
+* **Superfícies:** cartões sólidos — `#1e2024` no escuro (um pouco mais claro que a primeira proposta, a pedido) e `#faf6ee` no claro; borda e sombra quase invisíveis. Vidro só em barras fixas e folhas sobre o conteúdo.
+* **Cor com significado:** verde-água para ação, amarelo para pendente, verde para concluído, vermelho para perigo. Status como texto com ponto colorido, sem caixa com borda.
+* **Menos informação por vez:** cartão com o que foi comprado e quando, e uma linha com o que a pessoa precisa saber ou fazer agora. Detalhes ao tocar (folha). Abas no lugar de listas longas (ex.: Próximas e Anteriores).
+* **Uma ação principal por tela** (botão cheio); as demais como texto ou ícone.
+* **Foto do item** nos cartões sempre que houver; sem foto, ícone do tipo de serviço.
+* **AGENTS.md §11.1** atualizado pela S16 (prompt A6).
+* **Prompts:** A6 (regra), 20.0 (base visual: tokens, fundo e `GlassCard` sólido) e 20.1 (as três telas das propostas), no fim do lote 17; as demais telas seguem tela a tela, junto com o 19.x.
 
