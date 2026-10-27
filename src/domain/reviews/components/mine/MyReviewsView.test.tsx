@@ -61,9 +61,27 @@ describe('Minhas avaliações', () => {
       />
     );
     expect(screen.getByText('Restaurante Tamarindo')).toBeTruthy();
-    expect(screen.getByText(/Experiência verificada/)).toBeTruthy();
+    expect(screen.getByText('Experiência verificada')).toBeTruthy();
+    expect(screen.getByRole('heading', { name: '12 de outubro' })).toBeTruthy();
     expect(screen.getByText('Resposta do estabelecimento')).toBeTruthy();
     expect(screen.getByRole('img', { name: '5 de 5 estrelas' })).toBeTruthy();
+  });
+
+  it('agrupa pelo dia da avaliação, com o ano só quando não é o atual', () => {
+    const older = { ...REVIEW, id: 'r2', createdAt: '2025-06-23T15:00:00.000Z' };
+    const sameDay = { ...REVIEW, id: 'r3', createdAt: '2026-10-12T20:00:00.000Z' };
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-10-27T12:00:00.000Z'));
+    render(
+      <MyReviewsView
+        source={source([sameDay, REVIEW, older])}
+        onBack={vi.fn()}
+        titleOf={() => 'Tamarindo'}
+      />
+    );
+    vi.useRealTimers();
+    const headings = screen.getAllByRole('heading', { level: 3 }).map((h) => h.textContent);
+    expect(headings).toEqual(['12 de outubro', '23 de junho de 2025']);
   });
 
   it('lugar fora do guia mostra o aviso no lugar do nome', () => {
@@ -76,6 +94,8 @@ describe('Minhas avaliações', () => {
     render(<MyReviewsView source={src} onBack={vi.fn()} titleOf={() => 'Tamarindo'} />);
     openMenu();
     fireEvent.click(await screen.findByRole('menuitem', { name: /Excluir/ }));
+    expect(screen.getByText('Excluir esta avaliação?')).toBeTruthy();
+    expect(screen.getByText('A ação é definitiva e não poderá ser recuperada.')).toBeTruthy();
     expect(src.remove).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole('button', { name: 'Excluir' }));
     await waitFor(() => expect(src.remove).toHaveBeenCalledWith(REVIEW.id));

@@ -35,7 +35,8 @@ export interface MyReviewsTranslation {
   moreOptions: string;
   edit: string;
   delete: string;
-  deleteConfirm: string;
+  deleteTitle: string;
+  deleteMessage: string;
   deleted: string;
   editTitle: string;
   ratingLabel: string;
@@ -123,7 +124,7 @@ export const myReviewsPtBR: MyReviewsTranslation = {
   loading: 'Carregando suas avaliações…',
   empty: 'Você ainda não avaliou nenhum lugar.',
   loadMore: 'Ver mais',
-  verified: 'Experiência verificada · {{date}}',
+  verified: 'Experiência verificada',
   stars: '{{value}} de 5 estrelas',
   rateWith_one: 'Dar {{count}} estrela',
   rateWith_other: 'Dar {{count}} estrelas',
@@ -132,7 +133,8 @@ export const myReviewsPtBR: MyReviewsTranslation = {
   moreOptions: 'Mais opções',
   edit: 'Editar',
   delete: 'Excluir',
-  deleteConfirm: 'Excluir esta avaliação? Ela sai da página do lugar e não pode ser recuperada.',
+  deleteTitle: 'Excluir esta avaliação?',
+  deleteMessage: 'A ação é definitiva e não poderá ser recuperada.',
   deleted: 'Avaliação excluída.',
   editTitle: 'Editar avaliação',
   ratingLabel: 'Sua nota',
@@ -156,7 +158,7 @@ export const myReviewsEn: MyReviewsTranslation = {
   loading: 'Loading your reviews…',
   empty: 'You have not reviewed any place yet.',
   loadMore: 'Show more',
-  verified: 'Verified experience · {{date}}',
+  verified: 'Verified experience',
   stars: '{{value}} out of 5 stars',
   rateWith_one: 'Give {{count}} star',
   rateWith_other: 'Give {{count}} stars',
@@ -165,7 +167,8 @@ export const myReviewsEn: MyReviewsTranslation = {
   moreOptions: 'More options',
   edit: 'Edit',
   delete: 'Delete',
-  deleteConfirm: 'Delete this review? It leaves the place page and cannot be recovered.',
+  deleteTitle: 'Delete this review?',
+  deleteMessage: 'This is permanent and cannot be undone.',
   deleted: 'Review deleted.',
   editTitle: 'Edit review',
   ratingLabel: 'Your rating',
@@ -189,7 +192,7 @@ export const myReviewsFr: MyReviewsTranslation = {
   loading: 'Chargement de vos avis…',
   empty: 'Vous n’avez encore évalué aucun lieu.',
   loadMore: 'Voir plus',
-  verified: 'Expérience vérifiée · {{date}}',
+  verified: 'Expérience vérifiée',
   stars: '{{value}} sur 5 étoiles',
   rateWith_one: 'Donner {{count}} étoile',
   rateWith_other: 'Donner {{count}} étoiles',
@@ -198,8 +201,8 @@ export const myReviewsFr: MyReviewsTranslation = {
   moreOptions: 'Plus d’options',
   edit: 'Modifier',
   delete: 'Supprimer',
-  deleteConfirm:
-    'Supprimer cet avis ? Il disparaît de la page du lieu et ne peut pas être récupéré.',
+  deleteTitle: 'Supprimer cet avis ?',
+  deleteMessage: 'L’action est définitive et ne pourra pas être annulée.',
   deleted: 'Avis supprimé.',
   editTitle: 'Modifier l’avis',
   ratingLabel: 'Votre note',

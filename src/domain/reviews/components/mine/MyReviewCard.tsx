@@ -1,10 +1,8 @@
 import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { formatBusinessDay } from '../../../../shared/utils/businessDateTime';
 import { DropdownMenu, type DropdownMenuItem } from '../../../../ui/components/DropdownMenu';
 import type { FirestoreReview } from '../../types/review';
-import { reviewDateToIso } from '../../utils/reviewDateToIso';
 import { StarRating } from '../StarRating';
 
 interface MyReviewCardProps {
@@ -18,7 +16,7 @@ interface MyReviewCardProps {
   footer?: ReactNode;
 }
 
-/** Uma avaliação da própria pessoa (D19): lugar, nota, texto, resposta e o menu "…". */
+/** Uma avaliação da própria pessoa (D19): lugar, nota, texto, resposta e o menu "…". A data fica no título do grupo. */
 export function MyReviewCard({
   review,
   title,
@@ -27,9 +25,7 @@ export function MyReviewCard({
   extraMenuItems = [],
   footer,
 }: MyReviewCardProps) {
-  const { t, i18n } = useTranslation();
-  const createdAt = reviewDateToIso(review.createdAt);
-  const date = createdAt ? formatBusinessDay(createdAt, i18n.language) : '';
+  const { t } = useTranslation();
   return (
     <li className="p-4 rounded-[20px] bg-surface border border-line">
       <div className="flex items-start gap-3">
@@ -37,9 +33,9 @@ export function MyReviewCard({
           <p className="text-[15px] font-semibold text-ink leading-snug break-words">{title}</p>
           <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
             <StarRating rating={review.rating} />
-            <span className="text-[13px] text-ink/70">
-              {review.verifiedAttendance ? t('myReviews.verified', { date }) : date}
-            </span>
+            {review.verifiedAttendance && (
+              <span className="text-[13px] text-ink/70">{t('myReviews.verified')}</span>
+            )}
           </div>
         </div>
         <DropdownMenu

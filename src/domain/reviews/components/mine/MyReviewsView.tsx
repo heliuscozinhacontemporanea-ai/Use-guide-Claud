@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { BackButton } from '../../../../ui/components/BackButton';
 import { ConfirmDialog, type ConfirmDialogData } from '../../../../ui/components/ConfirmDialog';
 import { StatusText } from '../../../../ui/components/StatusText';
-import { formatBusinessDay } from '../../../../shared/utils/businessDateTime';
+import { formatBusinessDate, formatBusinessDay } from '../../../../shared/utils/businessDateTime';
+import { reviewDateToIso } from '../../utils/reviewDateToIso';
 import { ListEmpty, ListError, ListLoading } from '../../../../ui/components/ListState';
 import { BUTTON_SECONDARY } from '../../../../ui/styles/controls';
 import { useMyReviewReports } from '../../hooks/useMyReviewReports';
@@ -48,9 +49,32 @@ export function MyReviewsView({ source, onBack, titleOf }: MyReviewsViewProps) {
       </StatusText>
     );
 
+  // Agrupa pelo dia da avaliação, como as outras listas (ex.: "26 de agosto"); o ano só aparece
+  // quando não é o atual.
+  const yearOf = (iso: string) => formatBusinessDate(iso, 'en', { year: 'numeric' });
+  const currentYear = yearOf(new Date().toISOString());
+  const dayLabel = (review: FirestoreReview) => {
+    const iso = reviewDateToIso(review.createdAt);
+    if (!iso) return '';
+    const sameYear = yearOf(iso) === currentYear;
+    return formatBusinessDate(iso, i18n.language, {
+      day: 'numeric',
+      month: 'long',
+      ...(sameYear ? {} : { year: 'numeric' }),
+    });
+  };
+  const groups: { label: string; reviews: FirestoreReview[] }[] = [];
+  for (const review of data) {
+    const label = dayLabel(review);
+    const last = groups.at(-1);
+    if (last && last.label === label) last.reviews.push(review);
+    else groups.push({ label, reviews: [review] });
+  }
+
   const askDelete = (review: FirestoreReview) =>
     setConfirm({
-      message: t('myReviews.deleteConfirm'),
+      title: t('myReviews.deleteTitle'),
+      message: t('myReviews.deleteMessage'),
       confirmLabel: t('myReviews.delete'),
       onCancel: () => setConfirm(null),
       onConfirm: async () => {
@@ -80,40 +104,45 @@ export function MyReviewsView({ source, onBack, titleOf }: MyReviewsViewProps) {
       )}
       {error && <ListError message={error} onRetry={() => void reload()} />}
       {!error && !loading && data.length === 0 && <ListEmpty message={t('myReviews.empty')} />}
-      {data.length > 0 && (
-        <ul className="space-y-3">
-          {data.map((review) => {
-            const latest = reports.latestFor(review.id);
-            return (
-              <MyReviewCard
-                key={review.id}
-                review={review}
-                title={title(review)}
-                onEdit={() => {
-                  setNotice(null);
-                  setEditing(review);
-                }}
-                onDelete={() => askDelete(review)}
-                extraMenuItems={
-                  canReport(review, latest)
-                    ? [
-                        {
-                          label: t('reviewReports.action'),
-                          icon: <Flag size={16} aria-hidden="true" />,
-                          onClick: () => {
-                            setNotice(null);
-                            setReporting(review);
+      {groups.map((group) => (
+        <section key={group.label || 'sem-data'} className="space-y-2">
+          {group.label && (
+            <h3 className="text-[13px] font-semibold text-ink/70 px-1">{group.label}</h3>
+          )}
+          <ul className="space-y-3">
+            {group.reviews.map((review) => {
+              const latest = reports.latestFor(review.id);
+              return (
+                <MyReviewCard
+                  key={review.id}
+                  review={review}
+                  title={title(review)}
+                  onEdit={() => {
+                    setNotice(null);
+                    setEditing(review);
+                  }}
+                  onDelete={() => askDelete(review)}
+                  extraMenuItems={
+                    canReport(review, latest)
+                      ? [
+                          {
+                            label: t('reviewReports.action'),
+                            icon: <Flag size={16} aria-hidden="true" />,
+                            onClick: () => {
+                              setNotice(null);
+                              setReporting(review);
+                            },
                           },
-                        },
-                      ]
-                    : []
-                }
-                footer={reportFooter(latest)}
-              />
-            );
-          })}
-        </ul>
-      )}
+                        ]
+                      : []
+                  }
+                  footer={reportFooter(latest)}
+                />
+              );
+            })}
+          </ul>
+        </section>
+      ))}
       {loading && <ListLoading label={t('myReviews.loading')} />}
       {!loading && hasMore && (
         <button type="button" onClick={() => void loadMore()} className={BUTTON_SECONDARY}>
