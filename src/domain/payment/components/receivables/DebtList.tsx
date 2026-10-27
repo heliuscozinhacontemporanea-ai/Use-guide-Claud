@@ -6,7 +6,7 @@ import type { AccountDebtView } from '../../types/receivables';
 import { DebtCard } from './DebtCard';
 import { DebtPaymentDialog } from './DebtPaymentDialog';
 import { ForceMajeureDialog } from './ForceMajeureDialog';
-import { ReceivablesEmpty, ReceivablesError, ReceivablesLoading } from './ReceivablesState';
+import { ListEmpty, ListError, ListLoading } from '../../../../ui/components/ListState';
 
 export function DebtList({
   accounts,
@@ -39,11 +39,11 @@ export function DebtList({
         </p>
       )}
       {error ? (
-        <ReceivablesError messageKey={error} onRetry={() => void reload()} />
+        <ListError message={t(error)} onRetry={() => void reload()} />
       ) : loading && debts.length === 0 ? (
-        <ReceivablesLoading label={t('receivables.debts.loading')} />
+        <ListLoading label={t('receivables.debts.loading')} />
       ) : debts.length === 0 ? (
-        <ReceivablesEmpty message={t('receivables.debts.empty')} />
+        <ListEmpty message={t('receivables.debts.empty')} />
       ) : (
         <ul className="grid grid-cols-1 lg:grid-cols-2 gap-3">
           {debts.map((debt) => (

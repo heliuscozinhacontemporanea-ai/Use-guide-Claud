@@ -1,12 +1,8 @@
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { adminFinanceErrorKey } from '../../utils/adminFinanceErrors';
-import {
-  ReceivablesEmpty,
-  ReceivablesError,
-  ReceivablesLoading,
-} from '../receivables/ReceivablesState';
-import { SECONDARY_BUTTON } from './adminFinanceStyles';
+import { ListEmpty, ListError, ListLoading } from '../../../../ui/components/ListState';
+import { BUTTON_SECONDARY } from '../../../../ui/styles/controls';
 
 /** Carregando, erro, vazio e "carregar mais" de uma fila do admin (AGENTS.md §11.8). */
 export function AdminQueueFrame({
@@ -35,11 +31,11 @@ export function AdminQueueFrame({
     <div className="space-y-3">
       <p className="text-[13px] text-ink/70">{hint}</p>
       {error ? (
-        <ReceivablesError messageKey={adminFinanceErrorKey(error)} onRetry={onRetry} />
+        <ListError message={t(adminFinanceErrorKey(error))} onRetry={onRetry} />
       ) : loading && empty ? (
-        <ReceivablesLoading label={t('adminFinance.loading')} />
+        <ListLoading label={t('adminFinance.loading')} />
       ) : empty ? (
-        <ReceivablesEmpty message={emptyMessage} />
+        <ListEmpty message={emptyMessage} />
       ) : (
         <ul className="rounded-[20px] bg-surface border border-line divide-y divide-line overflow-hidden">
           {children}
@@ -50,7 +46,7 @@ export function AdminQueueFrame({
           type="button"
           disabled={loading}
           onClick={onLoadMore}
-          className={`${SECONDARY_BUTTON} w-full`}
+          className={`${BUTTON_SECONDARY} w-full`}
         >
           {t('adminFinance.loadMore')}
         </button>

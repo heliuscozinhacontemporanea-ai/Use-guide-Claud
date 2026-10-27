@@ -9,10 +9,10 @@ import { StatusText } from '../../../../ui/components/StatusText';
 import { useAdminFinanceQueue } from '../../hooks/useAdminFinanceQueue';
 import type { AdminForceMajeureReview } from '../../types/adminFinance';
 import { adminFinanceErrorKey, errorCodeOf } from '../../utils/adminFinanceErrors';
-import { formatFortalezaDay } from '../../utils/receivablesFormat';
 import { AdminQueueFrame } from './AdminQueueFrame';
 import { ForceMajeureSheet } from './ForceMajeureSheet';
 import { QueueRow } from './QueueRow';
+import { formatBusinessDay } from '../../../../shared/utils/businessDateTime';
 
 const OBJECT_URL_TTL_MS = 60_000;
 
@@ -93,7 +93,7 @@ export function ForceMajeureQueue({
             status={
               <StatusText tone="info">
                 {t('adminFinance.forceMajeure.declaredAt', {
-                  date: formatFortalezaDay(review.declaredAt, i18n.language),
+                  date: formatBusinessDay(review.declaredAt, i18n.language),
                 })}
               </StatusText>
             }

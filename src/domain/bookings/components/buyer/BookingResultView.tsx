@@ -5,7 +5,8 @@ import { GlassCard } from '../../../../ui/components/GlassCard';
 import { getBookingUseCase } from '../../application/usecases/getBookingUseCase';
 import type { BookingStatus } from '../../types/bookings';
 import { getBookingErrorMessage } from '../../utils/bookingErrorMessage';
-import { BUTTON_PRIMARY, ListError, ListLoading } from '../shared/ListState';
+import { ListError, ListLoading } from '../../../../ui/components/ListState';
+import { BUTTON_PRIMARY } from '../../../../ui/styles/controls';
 
 /** Retorno do Stripe para reservas: só mostra o status; quem confirma é o webhook. */
 export function BookingResultView({

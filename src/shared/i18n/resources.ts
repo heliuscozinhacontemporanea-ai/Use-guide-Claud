@@ -97,6 +97,7 @@ export interface TranslationResource {
     language: string;
     cancel: string;
     confirm: string;
+    retry: string;
     /** Selo "Use Guide Verificado" explicado ao toque (D11). */
     seal: {
       label: string;
@@ -326,6 +327,7 @@ const ptBR: TranslationResource = {
   common: {
     language: 'Idioma',
     cancel: 'Cancelar',
+    retry: 'Tentar novamente',
     confirm: 'Confirmar',
     seal: {
       label: 'Ver o que significa o selo Use Guide Verificado',
@@ -607,6 +609,7 @@ const en: TranslationResource = {
   common: {
     language: 'Language',
     cancel: 'Cancel',
+    retry: 'Try again',
     confirm: 'Confirm',
     seal: {
       label: 'See what the Use Guide Verified badge means',
@@ -882,6 +885,7 @@ const fr: TranslationResource = {
   common: {
     language: 'Langue',
     cancel: 'Annuler',
+    retry: 'Réessayer',
     confirm: 'Confirmer',
     seal: {
       label: 'Voir ce que signifie le badge Use Guide Vérifié',

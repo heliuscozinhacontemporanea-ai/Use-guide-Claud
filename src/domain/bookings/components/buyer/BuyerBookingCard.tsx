@@ -5,8 +5,9 @@ import { rescheduleRefundDeadline } from '../../../../shared/utils/rescheduleRef
 import { StatusText, type StatusTone } from '../../../../ui/components/StatusText';
 import { TextButton } from '../../../../ui/components/TextButton';
 import type { BookingStatus, BookingSummary } from '../../types/bookings';
-import { formatDayShort, formatSlotDateTime } from '../../utils/dates';
+import { formatSlotDateTime } from '../../utils/dates';
 import { formatMinor } from '../../utils/money';
+import { formatBusinessWeekday } from '../../../../shared/utils/businessDateTime';
 
 const STATUS_TONE: Partial<Record<BookingStatus, StatusTone>> = {
   pending_payment: 'warn',
@@ -89,7 +90,7 @@ export function BuyerBookingCard({
                   'bookings.bookingsList.participants',
                   { count: booking.participantsCount }
                 )}`
-              : `${formatDayShort(booking.offer.startsAt, i18n.language)} · ${price}`}
+              : `${formatBusinessWeekday(booking.offer.startsAt, i18n.language)} · ${price}`}
           </p>
         </div>
       </div>
@@ -97,7 +98,7 @@ export function BuyerBookingCard({
         <p className="mt-3 flex items-start gap-2 text-[13px] text-info">
           <CalendarClock size={16} className="shrink-0 mt-px" aria-hidden="true" />
           {t('bookings.buyer.rescheduledNotice', {
-            date: formatDayShort(refundUntil, i18n.language),
+            date: formatBusinessWeekday(refundUntil, i18n.language),
           })}
         </p>
       )}

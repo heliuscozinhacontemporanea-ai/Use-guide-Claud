@@ -6,8 +6,8 @@ import { Dialog } from '../../../../ui/components/Dialog';
 import { decideSaleClaimUseCase } from '../../application/usecases/decideSaleClaimUseCase';
 import type { AdminSaleClaim, SaleClaimOutcome } from '../../types/adminFinance';
 import { adminFinanceErrorKey, errorCodeOf } from '../../utils/adminFinanceErrors';
-import { formatFortalezaDay } from '../../utils/receivablesFormat';
-import { PRIMARY_BUTTON } from './adminFinanceStyles';
+import { BUTTON_PRIMARY } from '../../../../ui/styles/controls';
+import { formatBusinessDay } from '../../../../shared/utils/businessDateTime';
 
 const OUTCOMES: SaleClaimOutcome[] = ['release', 'refund_full', 'refund_partial'];
 
@@ -90,12 +90,12 @@ export function SaleClaimDecisionDialog({
             )}
             <p className="text-[12px] text-ink/60">
               {t('adminFinance.claims.meta', {
-                opened: formatFortalezaDay(claim.openedAt, i18n.language),
+                opened: formatBusinessDay(claim.openedAt, i18n.language),
                 paid: money(claim.grossMinor),
               })}
               {claim.serviceEndsAt &&
                 ` · ${t('adminFinance.claims.metaEnd', {
-                  date: formatFortalezaDay(claim.serviceEndsAt, i18n.language),
+                  date: formatBusinessDay(claim.serviceEndsAt, i18n.language),
                 })}`}
             </p>
           </div>
@@ -183,7 +183,7 @@ export function SaleClaimDecisionDialog({
           <button
             type="submit"
             disabled={sending}
-            className={`${PRIMARY_BUTTON} w-full min-h-12 text-[15px] flex items-center justify-center gap-2`}
+            className={`${BUTTON_PRIMARY} w-full min-h-12 text-[15px] flex items-center justify-center gap-2`}
           >
             {sending && <Loader2 size={16} className="animate-spin" aria-hidden="true" />}
             {t(sending ? 'adminFinance.sending' : 'adminFinance.claims.submit')}

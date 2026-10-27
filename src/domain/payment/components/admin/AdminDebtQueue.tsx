@@ -9,9 +9,9 @@ import { waiveAccountDebtUseCase } from '../../application/usecases/waiveAccount
 import { useAdminFinanceQueue } from '../../hooks/useAdminFinanceQueue';
 import type { AdminAccountDebt } from '../../types/adminFinance';
 import { adminFinanceErrorKey, errorCodeOf } from '../../utils/adminFinanceErrors';
-import { formatFortalezaDay } from '../../utils/receivablesFormat';
 import { AdminQueueFrame } from './AdminQueueFrame';
 import { QueueRow } from './QueueRow';
+import { formatBusinessDay } from '../../../../shared/utils/businessDateTime';
 
 export function AdminDebtQueue({
   onNotice,
@@ -67,7 +67,7 @@ export function AdminDebtQueue({
             status={
               <StatusText tone={debt.overdue ? 'danger' : 'muted'}>
                 {t(debt.overdue ? 'adminFinance.debts.overdueSince' : 'adminFinance.debts.dueOn', {
-                  date: formatFortalezaDay(debt.dueAt, i18n.language),
+                  date: formatBusinessDay(debt.dueAt, i18n.language),
                 })}
               </StatusText>
             }

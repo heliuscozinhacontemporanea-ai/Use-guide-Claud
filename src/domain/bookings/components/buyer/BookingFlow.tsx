@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { BUYER_TERMS_VERSION } from '../../../../shared/constants/legalTerms';
 import { TermsAcceptanceField } from '../../../../ui/legal/TermsAcceptanceField';
 import type { PublicOffer, PublicSlot } from '../../types/bookings';
-import { BUTTON_PRIMARY, BUTTON_SECONDARY } from '../shared/ListState';
+import { BUTTON_PRIMARY, BUTTON_SECONDARY } from '../../../../ui/styles/controls';
 import { BookingCheckout } from './BookingCheckout';
 import { ParticipantsForm } from './ParticipantsForm';
 import { QuantitySelector } from './QuantitySelector';

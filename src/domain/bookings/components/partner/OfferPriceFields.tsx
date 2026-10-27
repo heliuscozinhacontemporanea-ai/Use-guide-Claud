@@ -7,7 +7,7 @@ import {
 } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import type { OfferFormInput } from '../../schemas/offerFormSchema';
-import { BUTTON_SECONDARY, INPUT } from '../shared/ListState';
+import { BUTTON_SECONDARY, INPUT } from '../../../../ui/styles/controls';
 
 interface OfferPriceFieldsProps {
   control: Control<OfferFormInput>;

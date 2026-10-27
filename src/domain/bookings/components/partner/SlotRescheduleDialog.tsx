@@ -5,7 +5,7 @@ import { Dialog } from '../../../../ui/components/Dialog';
 import type { PartnerSlot } from '../../types/bookings';
 import { getBookingErrorMessage } from '../../utils/bookingErrorMessage';
 import { formatSlotDateTime, fortalezaInputToIso } from '../../utils/dates';
-import { BUTTON_PRIMARY, INPUT } from '../shared/ListState';
+import { BUTTON_PRIMARY, INPUT } from '../../../../ui/styles/controls';
 
 const MIN_REASON = 3;
 const MAX_REASON = 300;

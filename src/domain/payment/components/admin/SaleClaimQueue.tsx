@@ -5,10 +5,10 @@ import { StatusText } from '../../../../ui/components/StatusText';
 import { listAdminSaleClaimsUseCase } from '../../application/usecases/listAdminSaleClaimsUseCase';
 import { useAdminFinanceQueue } from '../../hooks/useAdminFinanceQueue';
 import type { AdminSaleClaim } from '../../types/adminFinance';
-import { formatFortalezaDay } from '../../utils/receivablesFormat';
 import { AdminQueueFrame } from './AdminQueueFrame';
 import { QueueRow } from './QueueRow';
 import { SaleClaimDecisionDialog } from './SaleClaimDecisionDialog';
+import { formatBusinessDay } from '../../../../shared/utils/businessDateTime';
 
 export function SaleClaimQueue({
   onNotice,
@@ -45,7 +45,7 @@ export function SaleClaimQueue({
                 ) : (
                   <StatusText tone="warn">
                     {t('adminFinance.claims.decideBy', {
-                      date: formatFortalezaDay(claim.decideBy, i18n.language),
+                      date: formatBusinessDay(claim.decideBy, i18n.language),
                     })}
                   </StatusText>
                 )

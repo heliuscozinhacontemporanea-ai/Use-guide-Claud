@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { participantsFormSchema } from '../../schemas/participantsFormSchema';
-import { BUTTON_PRIMARY, INPUT } from '../shared/ListState';
+import { BUTTON_PRIMARY, INPUT } from '../../../../ui/styles/controls';
 
 interface ParticipantsFormProps {
   count: number;

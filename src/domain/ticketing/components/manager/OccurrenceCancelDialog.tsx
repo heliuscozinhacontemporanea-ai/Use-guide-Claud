@@ -3,7 +3,12 @@ import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Dialog } from '../../../../ui/components/Dialog';
 import { cancelPartnerEventOccurrenceUseCase, type EventOccurrence } from '../../../events';
-import { BUTTON_DANGER, BUTTON_PRIMARY, BUTTON_SECONDARY, FIELD } from './sessionButtons';
+import {
+  BUTTON_DANGER,
+  BUTTON_PRIMARY,
+  BUTTON_SECONDARY,
+  INPUT,
+} from '../../../../ui/styles/controls';
 
 const MIN_REASON = 3;
 const MAX_REASON = 300;
@@ -82,7 +87,7 @@ export function OccurrenceCancelDialog({
               rows={2}
               onChange={(event) => setReason(event.target.value)}
               aria-describedby={`${id}-reason-hint`}
-              className={`${FIELD} py-2`}
+              className={`${INPUT} py-2`}
             />
             <p id={`${id}-reason-hint`} className="text-[11px] text-ink/70">
               {t('ticketSessions.cancelDialog.reasonHint')}

@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import { formatMoneyMinor } from '../../../../shared/utils/money';
 import type { PayoutEntryView } from '../../types/receivables';
-import { formatFortalezaDateTime } from '../../utils/receivablesFormat';
 import { payoutStatusKey, payoutStatusTone } from './payoutStatus';
+import { formatBusinessDateTime } from '../../../../shared/utils/businessDateTime';
 
 function AmountLine({
   label,
@@ -24,7 +24,7 @@ function AmountLine({
 export function PayoutEntryRow({ entry }: { entry: PayoutEntryView }) {
   const { t, i18n } = useTranslation();
   const money = (value: number) => formatMoneyMinor(value, i18n.language);
-  const date = (iso: string) => formatFortalezaDateTime(iso, i18n.language);
+  const date = (iso: string) => formatBusinessDateTime(iso, i18n.language);
   const status = payoutStatusKey(entry);
   const net = Math.max(0, entry.partnerAmountMinor - entry.offsetMinor);
   const title =

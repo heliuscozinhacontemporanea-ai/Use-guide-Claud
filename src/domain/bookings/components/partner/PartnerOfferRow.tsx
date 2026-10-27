@@ -2,7 +2,7 @@ import { CalendarClock, Pencil, Users } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { OfferStatus, PartnerOffer } from '../../types/bookings';
 import { formatMinor } from '../../utils/money';
-import { BUTTON_SECONDARY } from '../shared/ListState';
+import { BUTTON_SECONDARY } from '../../../../ui/styles/controls';
 
 const STATUS_STYLE: Record<OfferStatus, string> = {
   draft: 'bg-surface border border-line text-ink/80',

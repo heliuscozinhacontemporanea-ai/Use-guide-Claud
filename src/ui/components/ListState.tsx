@@ -1,7 +1,8 @@
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { Skeleton } from '../../../../ui/components/Skeleton';
+import { Skeleton } from './Skeleton';
 
+/** Estados de uma lista assíncrona (AGENTS.md §11.8): carregando, vazio e erro com nova tentativa. */
 export function ListLoading({ label }: { label: string }) {
   return (
     <div role="status" className="space-y-2">
@@ -28,18 +29,11 @@ export function ListError({ message, onRetry }: { message: string; onRetry: () =
       <button
         type="button"
         onClick={onRetry}
-        className="press min-h-11 px-3 rounded-lg bg-surface border border-line hover:bg-accent-soft text-ink text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-teal-400/50"
+        className="press min-h-11 px-3 rounded-lg bg-surface border border-line hover:bg-accent-soft text-ink text-xs font-semibold inline-flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-teal-400/50"
       >
         <RefreshCw size={13} aria-hidden="true" />
-        {t('bookings.partner.retry')}
+        {t('common.retry')}
       </button>
     </div>
   );
 }
-
-export const BUTTON_PRIMARY =
-  'press min-h-11 px-4 rounded-xl bg-teal-400 hover:bg-teal-300 text-slate-950 text-sm font-bold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none';
-export const BUTTON_SECONDARY =
-  'press min-h-11 px-3 rounded-xl bg-surface border border-line hover:bg-accent-soft text-ink text-xs font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none';
-export const INPUT =
-  'w-full min-h-11 px-3 rounded-xl bg-surface border border-line text-sm text-ink focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none';

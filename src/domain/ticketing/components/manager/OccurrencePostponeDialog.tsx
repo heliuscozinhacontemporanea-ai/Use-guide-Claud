@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { businessDateTimeToIso } from '../../../../shared/utils/businessDateTime';
 import { Dialog } from '../../../../ui/components/Dialog';
 import { type EventOccurrence, postponePartnerEventOccurrenceUseCase } from '../../../events';
-import { BUTTON_PRIMARY, FIELD } from './sessionButtons';
+import { BUTTON_PRIMARY, INPUT } from '../../../../ui/styles/controls';
 
 const MIN_REASON = 3;
 const MAX_REASON = 300;
@@ -78,7 +78,7 @@ export function OccurrencePostponeDialog({
             value={when}
             onChange={(event) => setWhen(event.target.value)}
             aria-describedby={`${id}-duration`}
-            className={FIELD}
+            className={INPUT}
           />
           <p id={`${id}-duration`} className="text-[11px] text-ink/70">
             {t('ticketSessions.postponeDialog.durationKept')}
@@ -95,7 +95,7 @@ export function OccurrencePostponeDialog({
             rows={3}
             onChange={(event) => setReason(event.target.value)}
             aria-describedby={`${id}-reason-hint`}
-            className={`${FIELD} py-2`}
+            className={`${INPUT} py-2`}
           />
           <p id={`${id}-reason-hint`} className="text-[11px] text-ink/70">
             {t('ticketSessions.postponeDialog.reasonHint')}

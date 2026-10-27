@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { useBookingCheckout } from '../../hooks/useBookingCheckout';
 import type { CreateBookingPayload } from '../../types/bookings';
 import { formatMinor } from '../../utils/money';
-import { BUTTON_PRIMARY, BUTTON_SECONDARY, ListError, ListLoading } from '../shared/ListState';
+import { ListError, ListLoading } from '../../../../ui/components/ListState';
+import { BUTTON_PRIMARY, BUTTON_SECONDARY } from '../../../../ui/styles/controls';
 import type { RenderPaymentElement } from './types';
 
 interface BookingCheckoutProps {

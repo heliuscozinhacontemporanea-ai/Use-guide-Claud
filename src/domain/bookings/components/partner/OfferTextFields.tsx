@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { FieldErrors, UseFormRegister } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import type { OfferFormInput } from '../../schemas/offerFormSchema';
-import { INPUT } from '../shared/ListState';
+import { INPUT } from '../../../../ui/styles/controls';
 
 const LANGUAGES = ['pt-BR', 'en', 'fr'] as const;
 type Language = (typeof LANGUAGES)[number];

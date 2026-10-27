@@ -8,7 +8,8 @@ import type { BookingSummary } from '../../types/bookings';
 import { getBookingErrorMessage } from '../../utils/bookingErrorMessage';
 import { formatMinor } from '../../utils/money';
 import { previewRefund } from '../../utils/refundPreview';
-import { BUTTON_SECONDARY, ListEmpty, ListError, ListLoading } from '../shared/ListState';
+import { ListEmpty, ListError, ListLoading } from '../../../../ui/components/ListState';
+import { BUTTON_SECONDARY } from '../../../../ui/styles/controls';
 import { BuyerBookingCard } from './BuyerBookingCard';
 
 /** Venda que o comprador pode reclamar; o formato é o de `ClaimableSale` do payment. */

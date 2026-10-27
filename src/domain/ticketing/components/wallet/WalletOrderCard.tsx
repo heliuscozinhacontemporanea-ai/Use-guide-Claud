@@ -1,6 +1,7 @@
 import { CalendarClock, Ticket } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+import { formatBusinessDate } from '../../../../shared/utils/businessDateTime';
 import { formatMoneyMinor } from '../../../../shared/utils/money';
 import { rescheduleRefundDeadline } from '../../../../shared/utils/rescheduleRefundDeadline';
 import { StatusText, type StatusTone } from '../../../../ui/components/StatusText';
@@ -48,9 +49,7 @@ export function WalletOrderCard({
 }: WalletOrderCardProps) {
   const { t, i18n } = useTranslation();
   const format = (iso: string, options: Intl.DateTimeFormatOptions) =>
-    new Intl.DateTimeFormat(i18n.language, { timeZone: 'America/Fortaleza', ...options }).format(
-      new Date(iso)
-    );
+    formatBusinessDate(iso, i18n.language, options);
   const event = order.eventSnapshot;
   const upcoming = event ? new Date(event.startsAt).getTime() > Date.now() : false;
   const refundUntil =

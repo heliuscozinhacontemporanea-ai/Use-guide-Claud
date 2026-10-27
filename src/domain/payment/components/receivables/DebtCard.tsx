@@ -1,13 +1,9 @@
 import { useTranslation } from 'react-i18next';
+import { BUTTON_PRIMARY, BUTTON_SECONDARY } from '../../../../ui/styles/controls';
 import { formatMoneyMinor } from '../../../../shared/utils/money';
 import type { AccountDebtView } from '../../types/receivables';
-import { formatFortalezaDateTime } from '../../utils/receivablesFormat';
 import { canDeclareForceMajeure, canPayDebt, debtStatusKey, debtStatusTone } from './debtStatus';
-
-const PRIMARY =
-  'press min-h-11 px-4 rounded-xl bg-teal-400 hover:bg-teal-300 text-slate-950 text-xs font-bold focus-visible:ring-2 focus-visible:ring-teal-400/50';
-const SECONDARY =
-  'press min-h-11 px-4 rounded-xl border border-line text-xs font-bold text-ink hover:bg-accent-soft focus-visible:ring-2 focus-visible:ring-teal-400/50';
+import { formatBusinessDateTime } from '../../../../shared/utils/businessDateTime';
 
 export function DebtCard({
   debt,
@@ -62,19 +58,19 @@ export function DebtCard({
           {status === 'overdue'
             ? t('receivables.debts.overdueExplain')
             : t('receivables.debts.dueOn', {
-                date: formatFortalezaDateTime(debt.dueAt, i18n.language),
+                date: formatBusinessDateTime(debt.dueAt, i18n.language),
               })}
         </p>
       )}
       {(showPay || showDeclare) && (
         <div className="flex flex-wrap gap-2">
           {showPay && (
-            <button type="button" onClick={() => onPay(debt)} className={PRIMARY}>
+            <button type="button" onClick={() => onPay(debt)} className={BUTTON_PRIMARY}>
               {t('receivables.debts.pay')}
             </button>
           )}
           {showDeclare && (
-            <button type="button" onClick={() => onDeclare(debt)} className={SECONDARY}>
+            <button type="button" onClick={() => onDeclare(debt)} className={BUTTON_SECONDARY}>
               {t('receivables.debts.declare')}
             </button>
           )}

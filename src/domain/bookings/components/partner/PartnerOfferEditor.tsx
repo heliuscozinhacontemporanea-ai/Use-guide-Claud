@@ -12,7 +12,7 @@ import {
 import type { OfferFields } from '../../types/bookings';
 import { getBookingErrorMessage } from '../../utils/bookingErrorMessage';
 import { offerFormToFields } from '../../utils/offerFormMapping';
-import { BUTTON_PRIMARY, BUTTON_SECONDARY, INPUT } from '../shared/ListState';
+import { BUTTON_PRIMARY, BUTTON_SECONDARY, INPUT } from '../../../../ui/styles/controls';
 import { OfferPriceFields } from './OfferPriceFields';
 import { OfferTextFields } from './OfferTextFields';
 

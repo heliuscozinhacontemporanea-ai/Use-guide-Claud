@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { usePublicSlots } from '../../hooks/usePublicSlots';
 import type { PublicSlot } from '../../types/bookings';
 import { formatDayLabel, formatSlotTime, fortalezaDateKey } from '../../utils/dates';
-import { ListEmpty, ListError, ListLoading } from '../shared/ListState';
+import { ListEmpty, ListError, ListLoading } from '../../../../ui/components/ListState';
 
 interface SlotPickerProps {
   offerId: string;

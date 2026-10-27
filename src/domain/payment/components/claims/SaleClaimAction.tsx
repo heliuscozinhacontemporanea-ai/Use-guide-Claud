@@ -7,8 +7,8 @@ import { TextButton } from '../../../../ui/components/TextButton';
 import { useSaleClaimFor } from '../../hooks/mySaleClaimsContext';
 import type { ClaimableSale, SaleClaimStatus } from '../../types/saleClaims';
 import { CLAIM_WINDOW_HOURS, isWithinClaimWindow } from '../../utils/claimWindow';
-import { formatFortalezaDay } from '../../utils/receivablesFormat';
 import { SaleClaimDialog } from './SaleClaimDialog';
+import { formatBusinessDay } from '../../../../shared/utils/businessDateTime';
 
 const TONE: Record<SaleClaimStatus, StatusTone> = {
   open: 'warn',
@@ -28,7 +28,7 @@ export function SaleClaimAction({ sale }: { sale: ClaimableSale }) {
     return (
       <StatusText tone={TONE[claim.status]}>
         {t(`saleClaims.line.${claim.status}`, {
-          date: formatFortalezaDay(claim.decideBy, i18n.language),
+          date: formatBusinessDay(claim.decideBy, i18n.language),
           amount: formatMoneyMinor(claim.refundAmountMinor ?? 0, i18n.language),
         })}
       </StatusText>
@@ -42,7 +42,7 @@ export function SaleClaimAction({ sale }: { sale: ClaimableSale }) {
   return (
     <div className="flex items-center justify-between gap-3">
       <span className="text-[13px] text-ink/70">
-        {t('saleClaims.prompt', { date: formatFortalezaDay(until, i18n.language) })}
+        {t('saleClaims.prompt', { date: formatBusinessDay(until, i18n.language) })}
       </span>
       <TextButton tone="warn" onClick={() => setOpen(true)} aria-label={t('saleClaims.action')}>
         <MessageSquareWarning size={16} aria-hidden="true" />

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { usePartnerPayouts } from '../../hooks/usePartnerPayouts';
 import type { PartnerPaymentAccount } from '../../types/payment';
 import { PayoutEntryRow } from './PayoutEntryRow';
-import { ReceivablesEmpty, ReceivablesError, ReceivablesLoading } from './ReceivablesState';
+import { ListEmpty, ListError, ListLoading } from '../../../../ui/components/ListState';
 
 export function PayoutStatement({ accounts }: { accounts: PartnerPaymentAccount[] }) {
   const { t } = useTranslation();
@@ -42,11 +42,11 @@ export function PayoutStatement({ accounts }: { accounts: PartnerPaymentAccount[
         </div>
       )}
       {error ? (
-        <ReceivablesError messageKey={error} onRetry={() => void reload()} />
+        <ListError message={t(error)} onRetry={() => void reload()} />
       ) : loading && entries.length === 0 ? (
-        <ReceivablesLoading label={t('receivables.statement.loading')} />
+        <ListLoading label={t('receivables.statement.loading')} />
       ) : entries.length === 0 ? (
-        <ReceivablesEmpty message={t('receivables.statement.empty')} />
+        <ListEmpty message={t('receivables.statement.empty')} />
       ) : (
         <>
           <ul className="grid grid-cols-1 lg:grid-cols-2 gap-3">

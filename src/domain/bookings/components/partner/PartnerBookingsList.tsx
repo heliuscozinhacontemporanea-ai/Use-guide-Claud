@@ -2,7 +2,8 @@ import { useTranslation } from 'react-i18next';
 import { useOfferBookings } from '../../hooks/useOfferBookings';
 import { formatSlotDateTime } from '../../utils/dates';
 import { formatMinor } from '../../utils/money';
-import { BUTTON_SECONDARY, ListEmpty, ListError, ListLoading } from '../shared/ListState';
+import { ListEmpty, ListError, ListLoading } from '../../../../ui/components/ListState';
+import { BUTTON_SECONDARY } from '../../../../ui/styles/controls';
 
 export function PartnerBookingsList({ offerId }: { offerId: string }) {
   const { t, i18n } = useTranslation();

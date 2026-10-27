@@ -6,7 +6,7 @@ import { StripePaymentElement } from '../../adapters/ui/StripePaymentElement';
 import { startDebtPaymentUseCase } from '../../application/usecases/startDebtPaymentUseCase';
 import type { AccountDebtView } from '../../types/receivables';
 import { receivablesErrorKey } from '../../utils/receivablesFormat';
-import { ReceivablesLoading } from './ReceivablesState';
+import { ListLoading } from '../../../../ui/components/ListState';
 
 export function DebtPaymentDialog({
   debt,
@@ -60,7 +60,7 @@ export function DebtPaymentDialog({
           onError={setError}
         />
       ) : (
-        <ReceivablesLoading label={t('receivables.payDialog.loading')} />
+        <ListLoading label={t('receivables.payDialog.loading')} />
       )}
     </Dialog>
   );

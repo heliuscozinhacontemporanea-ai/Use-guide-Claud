@@ -11,7 +11,8 @@ import {
   fortalezaDateKey,
   startOfFortalezaWeek,
 } from '../../utils/dates';
-import { BUTTON_SECONDARY, ListEmpty, ListError, ListLoading } from '../shared/ListState';
+import { ListEmpty, ListError, ListLoading } from '../../../../ui/components/ListState';
+import { BUTTON_SECONDARY } from '../../../../ui/styles/controls';
 import { SlotCancelDialog } from './SlotCancelDialog';
 import { SlotCreationForm } from './SlotCreationForm';
 import { SlotRescheduleDialog } from './SlotRescheduleDialog';

@@ -4,8 +4,8 @@ import { formatMoneyMinor } from '../../../../shared/utils/money';
 import { Dialog } from '../../../../ui/components/Dialog';
 import { TextButton } from '../../../../ui/components/TextButton';
 import type { AdminForceMajeureReview } from '../../types/adminFinance';
-import { formatFortalezaDay } from '../../utils/receivablesFormat';
-import { PRIMARY_BUTTON } from './adminFinanceStyles';
+import { BUTTON_PRIMARY } from '../../../../ui/styles/controls';
+import { formatBusinessDay } from '../../../../shared/utils/businessDateTime';
 
 /** Detalhes da força maior declarada e a decisão do admin (D16, 3A). */
 export function ForceMajeureSheet({
@@ -43,7 +43,7 @@ export function ForceMajeureSheet({
             </p>
             <p className="text-[12px] text-ink/60">
               {t('adminFinance.forceMajeure.meta', {
-                date: formatFortalezaDay(review.declaredAt, i18n.language),
+                date: formatBusinessDay(review.declaredAt, i18n.language),
                 amount: formatMoneyMinor(review.remainingMinor, i18n.language),
               })}
             </p>
@@ -56,7 +56,7 @@ export function ForceMajeureSheet({
             type="button"
             disabled={busy}
             onClick={() => onDecide(review, true)}
-            className={`${PRIMARY_BUTTON} w-full min-h-12 text-[15px]`}
+            className={`${BUTTON_PRIMARY} w-full min-h-12 text-[15px]`}
           >
             {t('adminFinance.forceMajeure.approve')}
           </button>
