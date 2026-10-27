@@ -25,3 +25,12 @@ Prints aprovados em 2026-10-27, tirados do app depois dos prompts 20.0 e 20.1 (r
 - Voltar só com o chevron `<` (`BackButton`), sem caixa e sem seta.
 - Identificador (código do pedido) logo abaixo do nome, sem destaque: texto a 50% no escuro e 65% no claro (contraste AA).
 - Filas e listas longas em lista compacta (título, contexto, status e valor); detalhes e decisão na folha inferior (`Dialog`).
+
+## Onde ficam os reutilizáveis
+
+| O quê | Onde |
+|---|---|
+| Componentes visuais genéricos (`SegmentedControl`, `StatusText`, `TextButton`, `BackButton`, `ListState`, `Dialog`, `ConfirmDialog`…) | `src/ui/components/` |
+| Classes de botão e campo (`BUTTON_PRIMARY`, `BUTTON_SECONDARY`, `BUTTON_DANGER`, `INPUT`) | `src/ui/styles/controls.ts` |
+| Funções puras genéricas (datas no fuso do negócio, dinheiro) | `src/shared/utils/` |
+| Peças com regra de negócio (ex.: `SaleClaimAction`) | no próprio domínio, exportadas pelo `index.ts` para as composições |
