@@ -115,6 +115,7 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 | 18.4e.3.0 | Painel de ingressos dividido em abas | `11d4e3e..a24f664` | ⏳ enviar (lote 17) | — |
 | 18.4e.3 | Adiar e cancelar sessão de evento, conta por evento (D14, D16) | `a24f664..eac047f` | ⏳ enviar (lote 17) | — |
 | 18.4f.1 | Relatar problema e aviso de remarcação nas compras (D16) | `42ac907..097336f` | ⏳ enviar (lote 17) | — |
+| 18.4f.2 | Filas financeiras do admin (D16) | `231c1ec..5e415b2` | ⏳ enviar (lote 17) | — |
 
 ### Revisões futuras (aprovadas para depois)
 

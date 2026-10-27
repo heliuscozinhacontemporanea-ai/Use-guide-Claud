@@ -165,7 +165,7 @@
 
 > **Envie um prompt por mensagem**, nesta ordem. Até o 18.3.1 (telas), trial, compra de plano e selo do admin pelo painel ficam fora do ar, e as métricas de estabelecimento sem plano mostram erro.
 
-# Lote 17 (Prompts C16, 18.4c, 18.4c.1, 18.4d.1 a 18.4d.3b 18.4e.1 a 18.4e.3 e 18.4f.1) — aplicar sobre o zip de 2026-10-25
+# Lote 17 (Prompts C16, 18.4c, 18.4c.1, 18.4d.1 a 18.4d.3b 18.4e.1 a 18.4e.3, 18.4f.1 e 18.4f.2) — aplicar sobre o zip de 2026-10-25
 
 | Ordem | Arquivo | Tema | Commit de referência |
 |---|---|---|---|
@@ -181,6 +181,7 @@
 | 10 | `prompts/prompt-18.4e.3.0.md` | Painel de ingressos do parceiro dividido em abas e hooks, sem mudar comportamento; débito B31 | `11d4e3e..a24f664` |
 | 11 | `prompts/prompt-18.4e.3.md` | Adiar e cancelar sessão de evento com aviso da multa e sugestão de adiar, conta pelo CNPJ do estabelecimento do evento (B26), Recebimentos montado na composição (prints aprovados) | `a24f664..eac047f` |
 | 12 | `prompts/prompt-18.4f.1.md` | Relatar problema nas compras pagas (até 48 h depois do fim) com status da reclamação, e aviso de reembolso integral por 7 dias depois da remarcação, em ingressos e reservas (prints aprovados) | `42ac907..097336f` |
+| 13 | `prompts/prompt-18.4f.2.md` | Aba Financeiro do admin: reclamações (liberar, integral, parcial com teto e multa no serviço que não aconteceu), força maior com comprovante e dívidas em aberto com perdão; vendedor de cada CNPJ nas filas; perdão de dívida em rota do admin; débito B32 (prints aprovados) | `231c1ec..5e415b2` |
 
 > Cada prompt termina com **Configurações manuais**: o que você faz fora do AI Studio (deploy de regras e índices, Functions, Stripe Dashboard) depois de aplicá-lo.
 
