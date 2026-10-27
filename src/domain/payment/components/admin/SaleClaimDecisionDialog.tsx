@@ -1,4 +1,4 @@
-import { Loader2 } from 'lucide-react';
+import { AlertCircle, Loader2 } from 'lucide-react';
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatMoneyMinor } from '../../../../shared/utils/money';
@@ -6,12 +6,13 @@ import { Dialog } from '../../../../ui/components/Dialog';
 import { decideSaleClaimUseCase } from '../../application/usecases/decideSaleClaimUseCase';
 import type { AdminSaleClaim, SaleClaimOutcome } from '../../types/adminFinance';
 import { adminFinanceErrorKey, errorCodeOf } from '../../utils/adminFinanceErrors';
+import { formatFortalezaDay } from '../../utils/receivablesFormat';
 import { PRIMARY_BUTTON } from './adminFinanceStyles';
 
 const OUTCOMES: SaleClaimOutcome[] = ['release', 'refund_full', 'refund_partial'];
 
 const OPTION =
-  'press min-h-11 px-3 py-2.5 rounded-xl border border-line bg-surface flex items-start gap-3 text-sm text-ink cursor-pointer has-[:checked]:border-accent-line has-[:checked]:bg-accent-soft focus-within:ring-2 focus-within:ring-teal-400/50';
+  'press min-h-14 px-4 py-2.5 rounded-2xl bg-ink/[0.04] flex items-center gap-3 text-sm text-ink cursor-pointer has-[:checked]:bg-accent-soft has-[:checked]:ring-1 has-[:checked]:ring-accent-line focus-within:ring-2 focus-within:ring-teal-400/50';
 
 /** Decisão do admin (D16, 2A); o backend recalcula os valores e confere a multa. */
 export function SaleClaimDecisionDialog({
@@ -66,11 +67,39 @@ export function SaleClaimDecisionDialog({
     <Dialog
       open={claim !== null}
       onOpenChange={(open) => !open && onClose()}
-      title={t('adminFinance.claims.decideTitle')}
-      description={t('adminFinance.claims.decideDescription')}
+      title={claim?.title ?? t('adminFinance.claims.decideTitle')}
+      description={
+        claim
+          ? [claim.sellerName ?? t('adminFinance.unknownSeller'), claim.maskedDocument]
+              .filter(Boolean)
+              .join(' · ')
+          : undefined
+      }
     >
       {claim && (
         <form onSubmit={submit} className="space-y-4" noValidate>
+          <div className="p-4 rounded-2xl bg-ink/[0.04] space-y-1.5">
+            <p className="text-[13px] font-semibold text-warn flex items-center gap-1.5">
+              <AlertCircle size={15} aria-hidden="true" />
+              {t(`saleClaims.reason.${claim.reason}`)}
+            </p>
+            {claim.details && (
+              <p className="text-sm text-ink/80 whitespace-pre-line break-words">
+                “{claim.details}”
+              </p>
+            )}
+            <p className="text-[12px] text-ink/60">
+              {t('adminFinance.claims.meta', {
+                opened: formatFortalezaDay(claim.openedAt, i18n.language),
+                paid: money(claim.grossMinor),
+              })}
+              {claim.serviceEndsAt &&
+                ` · ${t('adminFinance.claims.metaEnd', {
+                  date: formatFortalezaDay(claim.serviceEndsAt, i18n.language),
+                })}`}
+            </p>
+          </div>
+          <p className="text-[12px] text-ink/60">{t('adminFinance.claims.decideDescription')}</p>
           <fieldset className="space-y-2">
             <legend className="text-xs font-bold text-ink mb-1.5">
               {t('adminFinance.claims.outcomeLabel')}
@@ -86,15 +115,15 @@ export function SaleClaimDecisionDialog({
                     setOutcome(value);
                     setError(null);
                   }}
-                  className="w-4 h-4 mt-0.5 accent-teal-500"
+                  className="w-4 h-4 shrink-0 accent-teal-500"
                 />
                 <span className="space-y-0.5">
-                  <span className="block font-bold">
+                  <span className="block font-semibold">
                     {t(`adminFinance.claims.outcome.${value}`, {
                       amount: money(claim.refundableMinor),
                     })}
                   </span>
-                  <span className="block text-xs text-ink/70">
+                  <span className="block text-[13px] text-ink/70">
                     {t(`adminFinance.claims.outcomeHint.${value}`, {
                       max: money(claim.maxPartialRefundMinor),
                     })}
@@ -121,19 +150,26 @@ export function SaleClaimDecisionDialog({
             </div>
           )}
           {penaltyAllowed && (
-            <label className={OPTION}>
-              <input
-                type="checkbox"
-                checked={chargePenalty}
-                onChange={(event) => setChargePenalty(event.target.checked)}
-                className="w-4 h-4 mt-0.5 accent-teal-500"
-              />
+            <label className="press min-h-14 px-4 py-2.5 rounded-2xl bg-ink/[0.04] flex items-center justify-between gap-3 cursor-pointer focus-within:ring-2 focus-within:ring-teal-400/50">
               <span className="space-y-0.5">
-                <span className="block font-bold">{t('adminFinance.claims.penaltyLabel')}</span>
-                <span className="block text-xs text-ink/70">
+                <span className="block text-sm font-semibold text-ink">
+                  {t('adminFinance.claims.penaltyLabel')}
+                </span>
+                <span className="block text-[13px] text-ink/70">
                   {t('adminFinance.claims.penaltyHint')}
                 </span>
               </span>
+              <input
+                type="checkbox"
+                role="switch"
+                checked={chargePenalty}
+                onChange={(event) => setChargePenalty(event.target.checked)}
+                className="peer sr-only"
+              />
+              <span
+                aria-hidden="true"
+                className="relative w-11 h-6 shrink-0 rounded-full bg-ink/20 transition-colors peer-checked:bg-teal-500 after:absolute after:top-0.5 after:left-0.5 after:w-5 after:h-5 after:rounded-full after:bg-surface-solid after:shadow after:transition-[translate] peer-checked:after:translate-x-5"
+              />
             </label>
           )}
           {error && (
@@ -147,7 +183,7 @@ export function SaleClaimDecisionDialog({
           <button
             type="submit"
             disabled={sending}
-            className={`${PRIMARY_BUTTON} w-full min-h-12 text-sm flex items-center justify-center gap-2`}
+            className={`${PRIMARY_BUTTON} w-full min-h-12 text-[15px] flex items-center justify-center gap-2`}
           >
             {sending && <Loader2 size={16} className="animate-spin" aria-hidden="true" />}
             {t(sending ? 'adminFinance.sending' : 'adminFinance.claims.submit')}

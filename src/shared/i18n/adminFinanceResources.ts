@@ -14,18 +14,14 @@ export interface AdminFinanceTranslation {
   claims: {
     hint: string;
     empty: string;
-    open: string;
     refundPending: string;
-    refundPendingHint: string;
     fallbackTitle: {
       ticket_order: string;
       booking: string;
     };
-    paid: string;
-    refundable: string;
-    serviceEnd: string;
-    openedAt: string;
     decideBy: string;
+    meta: string;
+    metaEnd: string;
     decide: string;
     decideTitle: string;
     decideDescription: string;
@@ -56,6 +52,7 @@ export interface AdminFinanceTranslation {
     hint: string;
     empty: string;
     declaredAt: string;
+    meta: string;
     openProof: string;
     approve: string;
     reject: string;
@@ -70,6 +67,12 @@ export interface AdminFinanceTranslation {
     dueOn: string;
     overdueSince: string;
     waive: string;
+    waiveShort: string;
+    reason: {
+      cancellation_penalty: string;
+      dispute_lost: string;
+      post_release_refund: string;
+    };
     waiveConfirm: string;
     waived: string;
   };
@@ -101,18 +104,14 @@ export const adminFinancePtBR: AdminFinanceTranslation = {
   claims: {
     hint: 'Compras com problema relatado pelo comprador. O repasse fica retido até a decisão; sem decisão no prazo, é liberado.',
     empty: 'Nenhuma reclamação para decidir.',
-    open: 'Para decidir',
     refundPending: 'Reembolso em andamento',
-    refundPendingHint: 'O meio de pagamento ainda está processando o reembolso.',
     fallbackTitle: {
       ticket_order: 'Pedido de ingresso',
       booking: 'Reserva',
     },
-    paid: 'Pago pelo comprador',
-    refundable: 'Ainda pode voltar',
-    serviceEnd: 'Fim do serviço',
-    openedAt: 'Relatado em',
     decideBy: 'Decidir até {{date}}',
+    meta: 'Relatado {{opened}} · pago {{paid}}',
+    metaEnd: 'serviço terminou {{date}}',
     decide: 'Decidir',
     decideTitle: 'Decidir reclamação',
     decideDescription:
@@ -121,19 +120,18 @@ export const adminFinancePtBR: AdminFinanceTranslation = {
     outcomeRequired: 'Escolha a decisão.',
     outcome: {
       release: 'Liberar o repasse',
-      refund_full: 'Reembolso integral ({{amount}})',
+      refund_full: 'Reembolso total · {{amount}}',
       refund_partial: 'Reembolso parcial',
     },
     outcomeHint: {
-      release: 'O problema não procede. O parceiro recebe normalmente.',
-      refund_full: 'Devolve tudo o que resta, inclusive a taxa de serviço.',
-      refund_partial: 'Até {{max}}, sem a taxa de serviço. Sai do valor do parceiro.',
+      release: 'O parceiro recebe normalmente.',
+      refund_full: 'Inclui a taxa de serviço.',
+      refund_partial: 'Até {{max}}, sem a taxa de serviço.',
     },
     partialLabel: 'Valor do reembolso',
     partialInvalid: 'Informe um valor de até {{max}}.',
-    penaltyLabel: 'Cobrar multa de 20% do parceiro',
-    penaltyHint:
-      'O serviço não aconteceu: vale como cancelamento pelo proprietário, com 24 h para pagar.',
+    penaltyLabel: 'Multa de 20% ao parceiro',
+    penaltyHint: 'Serviço que não aconteceu; 24 h para pagar.',
     submit: 'Confirmar decisão',
     decided: {
       release: 'Repasse liberado.',
@@ -145,6 +143,7 @@ export const adminFinancePtBR: AdminFinanceTranslation = {
     hint: 'Multas de cancelamento com força maior declarada. Enquanto em análise, a multa fica suspensa.',
     empty: 'Nenhuma declaração para analisar.',
     declaredAt: 'Declarada em {{date}}',
+    meta: 'Declarada {{date}} · multa de {{amount}}',
     openProof: 'Abrir comprovante',
     approve: 'Aprovar',
     reject: 'Recusar',
@@ -157,8 +156,14 @@ export const adminFinancePtBR: AdminFinanceTranslation = {
     hint: 'Dívidas em aberto dos CNPJs. Vencida, a dívida pausa as vendas do CNPJ e é descontada dos repasses.',
     empty: 'Nenhuma dívida em aberto.',
     dueOn: 'Vence em {{date}}',
-    overdueSince: 'Vencida desde {{date}}. Vendas do CNPJ pausadas.',
+    overdueSince: 'Vencida desde {{date}} · vendas pausadas',
     waive: 'Perdoar dívida',
+    waiveShort: 'Perdoar',
+    reason: {
+      cancellation_penalty: 'Multa de cancelamento',
+      dispute_lost: 'Contestação perdida',
+      post_release_refund: 'Reembolso após o repasse',
+    },
     waiveConfirm:
       'Perdoar {{amount}}? A dívida deixa de ser cobrada e as vendas do CNPJ voltam se não houver outra vencida.',
     waived: 'Dívida perdoada.',
@@ -191,18 +196,14 @@ export const adminFinanceEn: AdminFinanceTranslation = {
   claims: {
     hint: 'Purchases with a problem reported by the buyer. The payout is held until the decision; with no decision in time, it is released.',
     empty: 'No claims to decide.',
-    open: 'To decide',
     refundPending: 'Refund in progress',
-    refundPendingHint: 'The payment method is still processing the refund.',
     fallbackTitle: {
       ticket_order: 'Ticket order',
       booking: 'Booking',
     },
-    paid: 'Paid by the buyer',
-    refundable: 'Still refundable',
-    serviceEnd: 'Service end',
-    openedAt: 'Reported on',
     decideBy: 'Decide by {{date}}',
+    meta: 'Reported {{opened}} · paid {{paid}}',
+    metaEnd: 'service ended {{date}}',
     decide: 'Decide',
     decideTitle: 'Decide claim',
     decideDescription:
@@ -211,19 +212,18 @@ export const adminFinanceEn: AdminFinanceTranslation = {
     outcomeRequired: 'Choose the decision.',
     outcome: {
       release: 'Release the payout',
-      refund_full: 'Full refund ({{amount}})',
+      refund_full: 'Full refund · {{amount}}',
       refund_partial: 'Partial refund',
     },
     outcomeHint: {
-      release: 'The problem is not upheld. The partner is paid as usual.',
-      refund_full: 'Returns everything left, service fee included.',
-      refund_partial: 'Up to {{max}}, without the service fee. Comes from the partner’s amount.',
+      release: 'The partner is paid as usual.',
+      refund_full: 'Service fee included.',
+      refund_partial: 'Up to {{max}}, without the service fee.',
     },
     partialLabel: 'Refund amount',
     partialInvalid: 'Enter an amount up to {{max}}.',
-    penaltyLabel: 'Charge the partner a 20% penalty',
-    penaltyHint:
-      'The service didn’t happen: it counts as a cancellation by the owner, with 24 h to pay.',
+    penaltyLabel: '20% penalty for the partner',
+    penaltyHint: 'Service that didn’t happen; 24 h to pay.',
     submit: 'Confirm decision',
     decided: {
       release: 'Payout released.',
@@ -235,6 +235,7 @@ export const adminFinanceEn: AdminFinanceTranslation = {
     hint: 'Cancellation penalties with declared force majeure. While under review, the penalty is suspended.',
     empty: 'No declarations to review.',
     declaredAt: 'Declared on {{date}}',
+    meta: 'Declared {{date}} · penalty of {{amount}}',
     openProof: 'Open proof',
     approve: 'Approve',
     reject: 'Reject',
@@ -247,8 +248,14 @@ export const adminFinanceEn: AdminFinanceTranslation = {
     hint: 'Open debts of each CNPJ. Once overdue, the debt pauses the CNPJ’s sales and is deducted from payouts.',
     empty: 'No open debts.',
     dueOn: 'Due on {{date}}',
-    overdueSince: 'Overdue since {{date}}. The CNPJ’s sales are paused.',
+    overdueSince: 'Overdue since {{date}} · sales paused',
     waive: 'Waive debt',
+    waiveShort: 'Waive',
+    reason: {
+      cancellation_penalty: 'Cancellation penalty',
+      dispute_lost: 'Lost dispute',
+      post_release_refund: 'Refund after payout',
+    },
     waiveConfirm:
       'Waive {{amount}}? The debt is no longer charged and the CNPJ’s sales resume if no other is overdue.',
     waived: 'Debt waived.',
@@ -282,18 +289,14 @@ export const adminFinanceFr: AdminFinanceTranslation = {
   claims: {
     hint: 'Achats avec un problème signalé par l’acheteur. Le versement est retenu jusqu’à la décision ; sans décision dans le délai, il est libéré.',
     empty: 'Aucune réclamation à traiter.',
-    open: 'À traiter',
     refundPending: 'Remboursement en cours',
-    refundPendingHint: 'Le moyen de paiement traite encore le remboursement.',
     fallbackTitle: {
       ticket_order: 'Commande de billets',
       booking: 'Réservation',
     },
-    paid: 'Payé par l’acheteur',
-    refundable: 'Encore remboursable',
-    serviceEnd: 'Fin du service',
-    openedAt: 'Signalé le',
     decideBy: 'Décider avant le {{date}}',
+    meta: 'Signalé le {{opened}} · payé {{paid}}',
+    metaEnd: 'service terminé le {{date}}',
     decide: 'Décider',
     decideTitle: 'Traiter la réclamation',
     decideDescription:
@@ -302,20 +305,18 @@ export const adminFinanceFr: AdminFinanceTranslation = {
     outcomeRequired: 'Choisissez la décision.',
     outcome: {
       release: 'Libérer le versement',
-      refund_full: 'Remboursement intégral ({{amount}})',
+      refund_full: 'Remboursement intégral · {{amount}}',
       refund_partial: 'Remboursement partiel',
     },
     outcomeHint: {
-      release: 'Le problème n’est pas retenu. Le partenaire est payé normalement.',
-      refund_full: 'Rembourse tout ce qui reste, frais de service compris.',
-      refund_partial:
-        'Jusqu’à {{max}}, sans les frais de service. Prélevé sur le montant du partenaire.',
+      release: 'Le partenaire est payé normalement.',
+      refund_full: 'Frais de service compris.',
+      refund_partial: 'Jusqu’à {{max}}, sans les frais de service.',
     },
     partialLabel: 'Montant du remboursement',
     partialInvalid: 'Indiquez un montant jusqu’à {{max}}.',
-    penaltyLabel: 'Facturer une pénalité de 20 % au partenaire',
-    penaltyHint:
-      'Le service n’a pas eu lieu : cela compte comme une annulation par le propriétaire, avec 24 h pour payer.',
+    penaltyLabel: 'Pénalité de 20 % au partenaire',
+    penaltyHint: 'Service qui n’a pas eu lieu ; 24 h pour payer.',
     submit: 'Confirmer la décision',
     decided: {
       release: 'Versement libéré.',
@@ -327,6 +328,7 @@ export const adminFinanceFr: AdminFinanceTranslation = {
     hint: 'Pénalités d’annulation avec force majeure déclarée. Pendant l’examen, la pénalité est suspendue.',
     empty: 'Aucune déclaration à examiner.',
     declaredAt: 'Déclarée le {{date}}',
+    meta: 'Déclarée le {{date}} · pénalité de {{amount}}',
     openProof: 'Ouvrir le justificatif',
     approve: 'Approuver',
     reject: 'Refuser',
@@ -340,8 +342,14 @@ export const adminFinanceFr: AdminFinanceTranslation = {
     hint: 'Dettes ouvertes des CNPJ. Échue, la dette suspend les ventes du CNPJ et est déduite des versements.',
     empty: 'Aucune dette ouverte.',
     dueOn: 'Échéance le {{date}}',
-    overdueSince: 'Échue depuis le {{date}}. Ventes du CNPJ suspendues.',
+    overdueSince: 'Échue depuis le {{date}} · ventes suspendues',
     waive: 'Annuler la dette',
+    waiveShort: 'Annuler',
+    reason: {
+      cancellation_penalty: 'Pénalité d’annulation',
+      dispute_lost: 'Litige perdu',
+      post_release_refund: 'Remboursement après versement',
+    },
     waiveConfirm:
       'Annuler {{amount}} ? La dette n’est plus réclamée et les ventes du CNPJ reprennent s’il n’y en a pas d’autre échue.',
     waived: 'Dette annulée.',

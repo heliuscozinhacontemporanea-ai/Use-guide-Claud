@@ -16,7 +16,8 @@ type ClaimStatuses = {
 
 export interface SaleClaimsTranslation {
   action: string;
-  until: string;
+  actionShort: string;
+  prompt: string;
   dialog: {
     title: string;
     description: string;
@@ -28,8 +29,7 @@ export interface SaleClaimsTranslation {
     sending: string;
   };
   reason: ClaimReasons;
-  status: ClaimStatuses;
-  statusDetail: ClaimStatuses;
+  line: ClaimStatuses;
   errors: {
     NOT_FOUND: string;
     CLAIM_NOT_ALLOWED: string;
@@ -42,7 +42,8 @@ export interface SaleClaimsTranslation {
 
 export const saleClaimsPtBR: SaleClaimsTranslation = {
   action: 'Relatar problema',
-  until: 'Até {{date}}',
+  actionShort: 'Relatar',
+  prompt: 'Algo deu errado? Até {{date}}',
   dialog: {
     title: 'Relatar problema',
     description:
@@ -61,19 +62,12 @@ export const saleClaimsPtBR: SaleClaimsTranslation = {
     safety_issue: 'Problema de segurança',
     other: 'Outro motivo',
   },
-  status: {
-    open: 'Problema relatado.',
-    refund_pending: 'Reembolso em andamento.',
-    refunded: 'Reembolsado.',
-    released: 'Análise concluída.',
-    expired: 'Análise encerrada.',
-  },
-  statusDetail: {
-    open: 'Vamos responder até {{date}}.',
-    refund_pending: 'O valor volta pelo mesmo meio de pagamento.',
-    refunded: '{{amount}} devolvidos pelo mesmo meio de pagamento.',
-    released: 'Não houve reembolso nesta compra.',
-    expired: 'O prazo de análise terminou sem reembolso.',
+  line: {
+    open: 'Problema em análise · resposta até {{date}}',
+    refund_pending: 'Reembolso em andamento',
+    refunded: 'Reembolsado {{amount}}',
+    released: 'Análise concluída, sem reembolso',
+    expired: 'Análise encerrada, sem reembolso',
   },
   errors: {
     NOT_FOUND: 'Compra não encontrada.',
@@ -87,7 +81,8 @@ export const saleClaimsPtBR: SaleClaimsTranslation = {
 
 export const saleClaimsEn: SaleClaimsTranslation = {
   action: 'Report a problem',
-  until: 'Until {{date}}',
+  actionShort: 'Report',
+  prompt: 'Something went wrong? Until {{date}}',
   dialog: {
     title: 'Report a problem',
     description:
@@ -106,19 +101,12 @@ export const saleClaimsEn: SaleClaimsTranslation = {
     safety_issue: 'Safety issue',
     other: 'Other reason',
   },
-  status: {
-    open: 'Problem reported.',
-    refund_pending: 'Refund in progress.',
-    refunded: 'Refunded.',
-    released: 'Review completed.',
-    expired: 'Review closed.',
-  },
-  statusDetail: {
-    open: 'We’ll reply by {{date}}.',
-    refund_pending: 'The amount goes back to the same payment method.',
-    refunded: '{{amount}} returned to the same payment method.',
-    released: 'There was no refund for this purchase.',
-    expired: 'The review period ended with no refund.',
+  line: {
+    open: 'Problem under review · reply by {{date}}',
+    refund_pending: 'Refund in progress',
+    refunded: 'Refunded {{amount}}',
+    released: 'Review completed, no refund',
+    expired: 'Review closed, no refund',
   },
   errors: {
     NOT_FOUND: 'Purchase not found.',
@@ -132,7 +120,8 @@ export const saleClaimsEn: SaleClaimsTranslation = {
 
 export const saleClaimsFr: SaleClaimsTranslation = {
   action: 'Signaler un problème',
-  until: 'Jusqu’au {{date}}',
+  actionShort: 'Signaler',
+  prompt: 'Un souci ? Jusqu’au {{date}}',
   dialog: {
     title: 'Signaler un problème',
     description:
@@ -151,19 +140,12 @@ export const saleClaimsFr: SaleClaimsTranslation = {
     safety_issue: 'Problème de sécurité',
     other: 'Autre motif',
   },
-  status: {
-    open: 'Problème signalé.',
-    refund_pending: 'Remboursement en cours.',
-    refunded: 'Remboursé.',
-    released: 'Examen terminé.',
-    expired: 'Examen clos.',
-  },
-  statusDetail: {
-    open: 'Nous répondrons avant le {{date}}.',
-    refund_pending: 'Le montant revient sur le même moyen de paiement.',
-    refunded: '{{amount}} remboursés sur le même moyen de paiement.',
-    released: 'Aucun remboursement pour cet achat.',
-    expired: 'Le délai d’examen s’est terminé sans remboursement.',
+  line: {
+    open: 'Problème en cours d’examen · réponse avant le {{date}}',
+    refund_pending: 'Remboursement en cours',
+    refunded: 'Remboursé {{amount}}',
+    released: 'Examen terminé, sans remboursement',
+    expired: 'Examen clos, sans remboursement',
   },
   errors: {
     NOT_FOUND: 'Achat introuvable.',

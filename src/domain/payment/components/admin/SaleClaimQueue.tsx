@@ -1,18 +1,21 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { formatMoneyMinor } from '../../../../shared/utils/money';
+import { StatusText } from '../../../../ui/components/StatusText';
 import { listAdminSaleClaimsUseCase } from '../../application/usecases/listAdminSaleClaimsUseCase';
 import { useAdminFinanceQueue } from '../../hooks/useAdminFinanceQueue';
 import type { AdminSaleClaim } from '../../types/adminFinance';
+import { formatFortalezaDay } from '../../utils/receivablesFormat';
 import { AdminQueueFrame } from './AdminQueueFrame';
+import { QueueRow } from './QueueRow';
 import { SaleClaimDecisionDialog } from './SaleClaimDecisionDialog';
-import { SaleClaimQueueCard } from './SaleClaimQueueCard';
 
 export function SaleClaimQueue({
   onNotice,
 }: {
   onNotice: (message: string, error?: boolean) => void;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const queue = useAdminFinanceQueue(listAdminSaleClaimsUseCase);
   const [deciding, setDeciding] = useState<AdminSaleClaim | null>(null);
   return (
@@ -27,9 +30,31 @@ export function SaleClaimQueue({
         onRetry={() => void queue.reload()}
         onLoadMore={() => void queue.loadMore()}
       >
-        {queue.data.map((claim) => (
-          <SaleClaimQueueCard key={claim.id} claim={claim} onDecide={setDeciding} />
-        ))}
+        {queue.data.map((claim) => {
+          const pending = claim.status === 'refund_pending';
+          return (
+            <QueueRow
+              key={claim.id}
+              title={claim.title ?? t(`adminFinance.claims.fallbackTitle.${claim.referenceType}`)}
+              subtitle={`${claim.sellerName ?? t('adminFinance.unknownSeller')} · ${t(
+                `saleClaims.reason.${claim.reason}`
+              )}`}
+              status={
+                pending ? (
+                  <StatusText tone="info">{t('adminFinance.claims.refundPending')}</StatusText>
+                ) : (
+                  <StatusText tone="warn">
+                    {t('adminFinance.claims.decideBy', {
+                      date: formatFortalezaDay(claim.decideBy, i18n.language),
+                    })}
+                  </StatusText>
+                )
+              }
+              amount={formatMoneyMinor(claim.refundableMinor, i18n.language)}
+              onOpen={pending ? undefined : () => setDeciding(claim)}
+            />
+          );
+        })}
       </AdminQueueFrame>
       <SaleClaimDecisionDialog
         key={deciding?.id ?? 'none'}

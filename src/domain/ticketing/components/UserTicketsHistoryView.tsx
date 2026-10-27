@@ -10,6 +10,7 @@ import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ConfirmDialog, type ConfirmDialogData } from '../../../ui/components/ConfirmDialog';
 import { GlassCard } from '../../../ui/components/GlassCard';
+import { SegmentedControl } from '../../../ui/components/SegmentedControl';
 import { formatMoneyMinor } from '../../../shared/utils/money';
 import { cn } from '../../../shared/utils/cn';
 import { useTicketWalletActions } from '../hooks/useTicketWalletActions';
@@ -50,15 +51,8 @@ function claimSaleOf(order: TicketOrder): TicketOrderClaimSale | null {
   };
 }
 
-const SQUARE_BUTTON =
-  'w-11 h-11 rounded-xl bg-surface hover:bg-white/10 border border-line flex items-center justify-center text-ink/70 focus-visible:ring-2 focus-visible:ring-teal-400/50 cursor-pointer';
-
-function tabClass(active: boolean) {
-  return cn(
-    'min-h-11 px-4 rounded-xl text-xs font-bold transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-teal-400/50',
-    active ? 'bg-teal-400 text-slate-950' : 'bg-surface text-ink/70 hover:bg-white/10'
-  );
-}
+const ROUND_BUTTON =
+  'press w-11 h-11 shrink-0 rounded-full flex items-center justify-center text-ink/80 hover:bg-ink/[0.06] focus-visible:ring-2 focus-visible:ring-teal-400/50';
 
 export function UserTicketsHistoryView({
   onBack,
@@ -101,47 +95,42 @@ export function UserTicketsHistoryView({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-2 min-w-0">
           {onBack && (
             <button
               type="button"
               onClick={onBack}
               aria-label={t('ticketWallet.back')}
-              className={SQUARE_BUTTON}
+              className={ROUND_BUTTON}
             >
-              <ArrowLeft size={16} aria-hidden="true" />
+              <ArrowLeft size={20} aria-hidden="true" />
             </button>
           )}
-          <button
-            type="button"
-            aria-pressed={activeTab === 'tickets'}
-            onClick={() => setActiveTab('tickets')}
-            className={tabClass(activeTab === 'tickets')}
-          >
-            {t('ticketWallet.tabs.tickets', { count: tickets.length })}
-          </button>
-          <button
-            type="button"
-            aria-pressed={activeTab === 'orders'}
-            onClick={() => setActiveTab('orders')}
-            className={tabClass(activeTab === 'orders')}
-          >
-            {t('ticketWallet.tabs.orders', { count: orders.length })}
-          </button>
+          <h2 className="text-[22px] font-display font-bold text-ink">{t('ticketWallet.title')}</h2>
         </div>
         <button
           type="button"
           onClick={() => void reload()}
           aria-label={t('ticketWallet.refresh')}
-          className={SQUARE_BUTTON}
+          className={ROUND_BUTTON}
         >
           <RefreshCw
-            size={16}
-            className={loading ? 'animate-spin text-teal-400' : ''}
+            size={18}
+            className={loading ? 'animate-spin text-accent' : ''}
             aria-hidden="true"
           />
         </button>
       </div>
+
+      <SegmentedControl
+        label={t('ticketWallet.tabsLabel')}
+        value={activeTab}
+        onChange={setActiveTab}
+        options={[
+          { value: 'tickets', label: t('ticketWallet.tabs.tickets', { count: tickets.length }) },
+          { value: 'orders', label: t('ticketWallet.tabs.orders', { count: orders.length }) },
+        ]}
+      />
 
       {actions.feedback && (
         <p
@@ -211,13 +200,14 @@ export function UserTicketsHistoryView({
           <p className="text-xs text-ink/70">{t('ticketWallet.emptyOrdersHint')}</p>
         </GlassCard>
       ) : (
-        <div className="space-y-3">
+        <ul className="space-y-3">
           {orders.map((order) => {
             const claimSale = renderClaimAction ? claimSaleOf(order) : null;
             return (
               <WalletOrderCard
                 key={order.id}
                 order={order}
+                ticketCount={tickets.filter((ticket) => ticket.orderId === order.id).length}
                 canResume={isPendingAndActive(order)}
                 canRefund={canRequestRefund(order, tickets, now)}
                 busy={actions.busy}
@@ -227,7 +217,7 @@ export function UserTicketsHistoryView({
               />
             );
           })}
-        </div>
+        </ul>
       )}
 
       {actions.resumingOrder && (

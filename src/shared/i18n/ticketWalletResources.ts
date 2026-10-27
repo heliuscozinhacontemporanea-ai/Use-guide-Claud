@@ -22,6 +22,8 @@ type OrderStatusKey =
   | 'disputed';
 
 export interface TicketWalletTranslation {
+  title: string;
+  tabsLabel: string;
   back: string;
   refresh: string;
   loading: string;
@@ -33,6 +35,10 @@ export interface TicketWalletTranslation {
   session: string;
   qrSigned: string;
   order: string;
+  ticketCount_one: string;
+  ticketCount_other: string;
+  payShort: string;
+  cancelShort: string;
   reservedUntil: string;
   rescheduledNotice: string;
   refundConfirm: string;
@@ -52,6 +58,8 @@ export interface TicketWalletTranslation {
 }
 
 export const ticketWalletPtBR: TicketWalletTranslation = {
+  title: 'Ingressos',
+  tabsLabel: 'Ingressos e pedidos',
   back: 'Voltar',
   refresh: 'Atualizar ingressos e pedidos',
   loading: 'Carregando seus ingressos…',
@@ -62,10 +70,13 @@ export const ticketWalletPtBR: TicketWalletTranslation = {
   emptyOrdersHint: 'Você ainda não fez pedidos de ingressos.',
   session: 'Sessão: {{date}}',
   qrSigned: 'QR assinado • v{{version}}',
-  order: 'Pedido #{{id}} • {{amount}}',
+  order: 'Pedido #{{id}}',
+  ticketCount_one: '{{count}} ingresso',
+  ticketCount_other: '{{count}} ingressos',
+  payShort: 'Pagar',
+  cancelShort: 'Cancelar',
   reservedUntil: 'Reserva válida até {{time}}',
-  rescheduledNotice:
-    'Nova data marcada pelo organizador. Até {{date}} você pode cancelar com reembolso integral, inclusive a taxa de serviço.',
+  rescheduledNotice: 'Nova data. Cancelamento com reembolso total, inclusive a taxa, até {{date}}',
   refundConfirm: 'Cancelar o pedido e receber {{amount}} de reembolso?',
   actions: {
     showQr: 'Ver QR',
@@ -121,6 +132,8 @@ export const ticketWalletPtBR: TicketWalletTranslation = {
 };
 
 export const ticketWalletEn: TicketWalletTranslation = {
+  title: 'Tickets',
+  tabsLabel: 'Tickets and orders',
   back: 'Back',
   refresh: 'Refresh tickets and orders',
   loading: 'Loading your tickets…',
@@ -131,10 +144,13 @@ export const ticketWalletEn: TicketWalletTranslation = {
   emptyOrdersHint: 'You have not ordered tickets yet.',
   session: 'Session: {{date}}',
   qrSigned: 'Signed QR • v{{version}}',
-  order: 'Order #{{id}} • {{amount}}',
+  order: 'Order #{{id}}',
+  ticketCount_one: '{{count}} ticket',
+  ticketCount_other: '{{count}} tickets',
+  payShort: 'Pay',
+  cancelShort: 'Cancel',
   reservedUntil: 'Reservation valid until {{time}}',
-  rescheduledNotice:
-    'The organizer set a new date. Until {{date}} you can cancel for a full refund, service fee included.',
+  rescheduledNotice: 'New date. Full refund, fee included, if you cancel by {{date}}',
   refundConfirm: 'Cancel the order and get a {{amount}} refund?',
   actions: {
     showQr: 'Show QR',
@@ -190,6 +206,8 @@ export const ticketWalletEn: TicketWalletTranslation = {
 };
 
 export const ticketWalletFr: TicketWalletTranslation = {
+  title: 'Billets',
+  tabsLabel: 'Billets et commandes',
   back: 'Retour',
   refresh: 'Actualiser les billets et commandes',
   loading: 'Chargement de vos billets…',
@@ -200,10 +218,14 @@ export const ticketWalletFr: TicketWalletTranslation = {
   emptyOrdersHint: 'Vous n’avez pas encore commandé de billets.',
   session: 'Séance : {{date}}',
   qrSigned: 'QR signé • v{{version}}',
-  order: 'Commande n° {{id}} • {{amount}}',
+  order: 'Commande n° {{id}}',
+  ticketCount_one: '{{count}} billet',
+  ticketCount_other: '{{count}} billets',
+  payShort: 'Payer',
+  cancelShort: 'Annuler',
   reservedUntil: 'Réservation valable jusqu’à {{time}}',
   rescheduledNotice:
-    'L’organisateur a fixé une nouvelle date. Jusqu’au {{date}}, vous pouvez annuler avec un remboursement intégral, frais de service compris.',
+    'Nouvelle date. Remboursement intégral, frais compris, en cas d’annulation avant le {{date}}',
   refundConfirm: 'Annuler la commande et recevoir un remboursement de {{amount}} ?',
   actions: {
     showQr: 'Voir le QR',

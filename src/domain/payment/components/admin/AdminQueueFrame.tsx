@@ -33,7 +33,7 @@ export function AdminQueueFrame({
   const { t } = useTranslation();
   return (
     <div className="space-y-3">
-      <p className="text-xs text-ink/70">{hint}</p>
+      <p className="text-[13px] text-ink/70">{hint}</p>
       {error ? (
         <ReceivablesError messageKey={adminFinanceErrorKey(error)} onRetry={onRetry} />
       ) : loading && empty ? (
@@ -41,7 +41,9 @@ export function AdminQueueFrame({
       ) : empty ? (
         <ReceivablesEmpty message={emptyMessage} />
       ) : (
-        <ul className="grid grid-cols-1 lg:grid-cols-2 gap-3">{children}</ul>
+        <ul className="rounded-[20px] bg-surface border border-line divide-y divide-line overflow-hidden">
+          {children}
+        </ul>
       )}
       {hasMore && !error && (
         <button

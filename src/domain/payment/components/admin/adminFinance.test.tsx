@@ -64,9 +64,9 @@ describe('filas financeiras do admin (D16)', () => {
   it('multa só no serviço que não aconteceu com reembolso integral', async () => {
     m.decide.mockResolvedValue(undefined);
     const onDecided = renderDialog();
-    expect(screen.queryByText('Cobrar multa de 20% do parceiro')).toBeNull();
-    fireEvent.click(screen.getByLabelText(/Reembolso integral/));
-    fireEvent.click(screen.getByLabelText(/Cobrar multa de 20% do parceiro/));
+    expect(screen.queryByText('Multa de 20% ao parceiro')).toBeNull();
+    fireEvent.click(screen.getByLabelText(/Reembolso total/));
+    fireEvent.click(screen.getByLabelText(/Multa de 20% ao parceiro/));
     fireEvent.click(screen.getByRole('button', { name: 'Confirmar decisão' }));
     await waitFor(() =>
       expect(m.decide).toHaveBeenCalledWith('booking_b1', {
@@ -79,8 +79,8 @@ describe('filas financeiras do admin (D16)', () => {
 
   it('outro motivo: sem a opção de multa', () => {
     renderDialog({ ...CLAIM, reason: 'not_as_described' });
-    fireEvent.click(screen.getByLabelText(/Reembolso integral/));
-    expect(screen.queryByText('Cobrar multa de 20% do parceiro')).toBeNull();
+    fireEvent.click(screen.getByLabelText(/Reembolso total/));
+    expect(screen.queryByText('Multa de 20% ao parceiro')).toBeNull();
   });
 
   it('parcial acima do teto é recusado antes de enviar', async () => {
@@ -117,8 +117,8 @@ describe('filas financeiras do admin (D16)', () => {
     const onNotice = vi.fn();
     render(<AdminDebtQueue onNotice={onNotice} />);
     expect(await screen.findByText(/Buggy do Preá/)).toBeInTheDocument();
-    expect(screen.getByText(/Vendas do CNPJ pausadas/)).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Perdoar dívida' }));
+    expect(screen.getByText(/Vencida desde/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Perdoar' }));
     const dialog = await screen.findByRole('dialog');
     fireEvent.click(within(dialog).getByRole('button', { name: 'Perdoar dívida' }));
     await waitFor(() => expect(m.waive).toHaveBeenCalledWith('debt-1'));

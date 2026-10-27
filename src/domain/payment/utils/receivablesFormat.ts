@@ -26,3 +26,12 @@ export function receivablesErrorKey(error: unknown): string {
   const code = error instanceof Error ? error.message : '';
   return `receivables.errors.${KNOWN_ERRORS.includes(code) ? code : 'UNAVAILABLE'}`;
 }
+
+/** Só dia e mês, no fuso do negócio, para linhas curtas de status. */
+export function formatFortalezaDay(iso: string, locale: string): string {
+  return new Intl.DateTimeFormat(locale, {
+    timeZone: 'America/Fortaleza',
+    day: 'numeric',
+    month: 'short',
+  }).format(new Date(iso));
+}

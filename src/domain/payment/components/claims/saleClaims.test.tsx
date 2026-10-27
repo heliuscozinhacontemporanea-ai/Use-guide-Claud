@@ -73,7 +73,7 @@ describe('relatar problema (D16, 2A)', () => {
         reason: 'did_not_happen',
       })
     );
-    expect(await screen.findByText('Problema relatado.')).toBeInTheDocument();
+    expect(await screen.findByText(/Problema em análise/)).toBeInTheDocument();
   });
 
   it('erro da API pelo code', async () => {
@@ -91,8 +91,7 @@ describe('relatar problema (D16, 2A)', () => {
   it('com reclamação: só o status, com o valor reembolsado', async () => {
     m.list.mockResolvedValue([{ ...CLAIM, status: 'refunded', refundAmountMinor: 12000 }]);
     renderAction();
-    expect(await screen.findByText('Reembolsado.')).toBeInTheDocument();
-    expect(screen.getByRole('status')).toHaveTextContent('R$');
+    expect(await screen.findByText(/Reembolsado R\$\s?120,00/)).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Relatar problema' })).toBeNull();
   });
 

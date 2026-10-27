@@ -8,6 +8,13 @@ export interface BookingsTranslation {
     duration: string;
     meetingPoint: string;
     rescheduledNotice: string;
+    tabsLabel: string;
+    upcomingTab: string;
+    pastTab: string;
+    emptyUpcoming: string;
+    emptyPast: string;
+    cancelShort: string;
+    refundedAmount: string;
     chooseSlot: string;
     noSlots: string;
     spotsLeft_one: string;
@@ -35,10 +42,6 @@ export interface BookingsTranslation {
     viewMyBookings: string;
     menuItem: string;
     myBookingsTitle: string;
-    upcoming: string;
-    past: string;
-    emptyBookings: string;
-    cancelBooking: string;
     confirmCancelRefund: string;
     confirmCancelNoRefund: string;
     canceledWithRefund: string;
@@ -205,8 +208,14 @@ export const bookingsPtBR: BookingsTranslation = {
     retry: 'Tentar novamente',
     duration: 'Duração: {{minutes}} min',
     meetingPoint: 'Ponto de encontro: {{address}}',
-    rescheduledNotice:
-      'Nova data marcada pelo parceiro. Até {{date}} você pode cancelar com reembolso integral.',
+    rescheduledNotice: 'Nova data. Cancelamento com reembolso total até {{date}}',
+    tabsLabel: 'Reservas',
+    upcomingTab: 'Próximas ({{count}})',
+    pastTab: 'Anteriores ({{count}})',
+    emptyUpcoming: 'Nenhuma reserva por vir.',
+    emptyPast: 'Nenhuma reserva anterior.',
+    cancelShort: 'Cancelar',
+    refundedAmount: 'Reembolsado {{amount}}',
     chooseSlot: 'Escolha o horário',
     noSlots: 'Nenhum horário disponível nos próximos 30 dias.',
     spotsLeft_one: '{{count}} vaga',
@@ -236,10 +245,6 @@ export const bookingsPtBR: BookingsTranslation = {
     viewMyBookings: 'Ver minhas reservas',
     menuItem: 'Minhas reservas',
     myBookingsTitle: 'Minhas reservas',
-    upcoming: 'Próximas',
-    past: 'Anteriores',
-    emptyBookings: 'Você ainda não tem reservas.',
-    cancelBooking: 'Cancelar reserva',
     confirmCancelRefund: 'Cancelar esta reserva? Você receberá {{amount}} de volta.',
     confirmCancelNoRefund:
       'Cancelar esta reserva? Pela política de cancelamento, não há reembolso.',
@@ -415,8 +420,14 @@ export const bookingsEn: BookingsTranslation = {
     retry: 'Try again',
     duration: 'Duration: {{minutes}} min',
     meetingPoint: 'Meeting point: {{address}}',
-    rescheduledNotice:
-      'The partner set a new date. Until {{date}} you can cancel for a full refund.',
+    rescheduledNotice: 'New date. Full refund if you cancel by {{date}}',
+    tabsLabel: 'Bookings',
+    upcomingTab: 'Upcoming ({{count}})',
+    pastTab: 'Past ({{count}})',
+    emptyUpcoming: 'No upcoming bookings.',
+    emptyPast: 'No past bookings.',
+    cancelShort: 'Cancel',
+    refundedAmount: 'Refunded {{amount}}',
     chooseSlot: 'Choose a time',
     noSlots: 'No time slots available in the next 30 days.',
     spotsLeft_one: '{{count}} spot',
@@ -445,10 +456,6 @@ export const bookingsEn: BookingsTranslation = {
     viewMyBookings: 'View my bookings',
     menuItem: 'My bookings',
     myBookingsTitle: 'My bookings',
-    upcoming: 'Upcoming',
-    past: 'Past',
-    emptyBookings: 'You have no bookings yet.',
-    cancelBooking: 'Cancel booking',
     confirmCancelRefund: 'Cancel this booking? You will get {{amount}} back.',
     confirmCancelNoRefund: 'Cancel this booking? Under the cancellation policy there is no refund.',
     canceledWithRefund: 'Booking canceled. A refund of {{amount}} was requested.',
@@ -622,7 +629,14 @@ export const bookingsFr: BookingsTranslation = {
     duration: 'Durée : {{minutes}} min',
     meetingPoint: 'Point de rendez-vous : {{address}}',
     rescheduledNotice:
-      'Le partenaire a fixé une nouvelle date. Jusqu’au {{date}}, vous pouvez annuler avec un remboursement intégral.',
+      'Nouvelle date. Remboursement intégral en cas d’annulation avant le {{date}}',
+    tabsLabel: 'Réservations',
+    upcomingTab: 'À venir ({{count}})',
+    pastTab: 'Passées ({{count}})',
+    emptyUpcoming: 'Aucune réservation à venir.',
+    emptyPast: 'Aucune réservation passée.',
+    cancelShort: 'Annuler',
+    refundedAmount: 'Remboursé {{amount}}',
     chooseSlot: 'Choisissez un créneau',
     noSlots: 'Aucun créneau disponible dans les 30 prochains jours.',
     spotsLeft_one: '{{count}} place',
@@ -652,10 +666,6 @@ export const bookingsFr: BookingsTranslation = {
     viewMyBookings: 'Voir mes réservations',
     menuItem: 'Mes réservations',
     myBookingsTitle: 'Mes réservations',
-    upcoming: 'À venir',
-    past: 'Passées',
-    emptyBookings: 'Vous n’avez pas encore de réservation.',
-    cancelBooking: 'Annuler la réservation',
     confirmCancelRefund: 'Annuler cette réservation ? Vous serez remboursé de {{amount}}.',
     confirmCancelNoRefund:
       'Annuler cette réservation ? Selon la politique d’annulation, aucun remboursement n’est prévu.',

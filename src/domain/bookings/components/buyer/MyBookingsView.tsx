@@ -2,6 +2,7 @@ import { ArrowLeft } from 'lucide-react';
 import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ConfirmDialog, type ConfirmDialogData } from '../../../../ui/components/ConfirmDialog';
+import { SegmentedControl } from '../../../../ui/components/SegmentedControl';
 import { useMyBookings } from '../../hooks/useMyBookings';
 import type { BookingSummary } from '../../types/bookings';
 import { getBookingErrorMessage } from '../../utils/bookingErrorMessage';
@@ -48,6 +49,7 @@ export function MyBookingsView({
   const { data, loading, error, hasMore, reload, loadMore, cancel } = useMyBookings();
   const [confirm, setConfirm] = useState<ConfirmDialogData | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [tab, setTab] = useState<'upcoming' | 'past'>('upcoming');
   const now = new Date();
   const upcoming = data.filter((booking) => new Date(booking.offer.startsAt) > now);
   const past = data.filter((booking) => new Date(booking.offer.startsAt) <= now);
@@ -85,58 +87,61 @@ export function MyBookingsView({
     });
   };
 
+  const shown = tab === 'upcoming' ? upcoming : past;
+
   return (
     <section className="w-full space-y-5">
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2">
         <button
           type="button"
           onClick={onBack}
           aria-label={t('bookings.buyer.back')}
-          className="w-11 h-11 shrink-0 rounded-xl bg-surface hover:bg-accent-soft border border-line flex items-center justify-center text-ink/70 focus-visible:ring-2 focus-visible:ring-teal-400/50"
+          className="press w-11 h-11 -ml-2 shrink-0 rounded-full flex items-center justify-center text-ink/80 hover:bg-ink/[0.06] focus-visible:ring-2 focus-visible:ring-teal-400/50"
         >
-          <ArrowLeft size={16} aria-hidden="true" />
+          <ArrowLeft size={20} aria-hidden="true" />
         </button>
-        <h2 className="text-xl font-display font-black text-ink">
+        <h2 className="text-[22px] font-display font-bold text-ink">
           {t('bookings.buyer.myBookingsTitle')}
         </h2>
       </div>
+      <SegmentedControl
+        label={t('bookings.buyer.tabsLabel')}
+        value={tab}
+        onChange={setTab}
+        options={[
+          { value: 'upcoming', label: t('bookings.buyer.upcomingTab', { count: upcoming.length }) },
+          { value: 'past', label: t('bookings.buyer.pastTab', { count: past.length }) },
+        ]}
+      />
       {notice && (
         <p role="status" className="text-sm text-accent">
           {notice}
         </p>
       )}
       {error && <ListError message={error} onRetry={() => void reload()} />}
-      {!error && !loading && data.length === 0 && (
-        <ListEmpty message={t('bookings.buyer.emptyBookings')} />
+      {!error && !loading && shown.length === 0 && (
+        <ListEmpty
+          message={t(
+            tab === 'upcoming' ? 'bookings.buyer.emptyUpcoming' : 'bookings.buyer.emptyPast'
+          )}
+        />
       )}
-      {upcoming.length > 0 && (
-        <div className="space-y-2">
-          <h2 className="text-sm font-bold text-ink/80">{t('bookings.buyer.upcoming')}</h2>
-          <ul className="space-y-2">
-            {upcoming.map((booking) => (
-              <BuyerBookingCard
-                key={booking.id}
-                booking={booking}
-                claimAction={claimActionOf(booking)}
-                onCancel={booking.status === 'confirmed' ? () => requestCancel(booking) : undefined}
-              />
-            ))}
-          </ul>
-        </div>
-      )}
-      {past.length > 0 && (
-        <div className="space-y-2">
-          <h2 className="text-sm font-bold text-ink/80">{t('bookings.buyer.past')}</h2>
-          <ul className="space-y-2">
-            {past.map((booking) => (
-              <BuyerBookingCard
-                key={booking.id}
-                booking={booking}
-                claimAction={claimActionOf(booking)}
-              />
-            ))}
-          </ul>
-        </div>
+      {shown.length > 0 && (
+        <ul className="space-y-3">
+          {shown.map((booking) => (
+            <BuyerBookingCard
+              key={booking.id}
+              booking={booking}
+              upcoming={tab === 'upcoming'}
+              claimAction={claimActionOf(booking)}
+              onCancel={
+                tab === 'upcoming' && booking.status === 'confirmed'
+                  ? () => requestCancel(booking)
+                  : undefined
+              }
+            />
+          ))}
+        </ul>
       )}
       {loading && <ListLoading label={t('bookings.buyer.loading')} />}
       {!loading && hasMore && (

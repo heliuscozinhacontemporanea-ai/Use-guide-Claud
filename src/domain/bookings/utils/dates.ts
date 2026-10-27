@@ -54,3 +54,13 @@ export function fortalezaInputToIso(value: string): string | null {
   const [, y, m, d, h, min] = match.map(Number) as [number, number, number, number, number, number];
   return new Date(Date.UTC(y, m - 1, d, h, min) + FORTALEZA_OFFSET_MS).toISOString();
 }
+
+/** Dia da semana, dia e mês, no fuso do negócio, para linhas curtas. */
+export function formatDayShort(iso: string, locale: string): string {
+  return new Intl.DateTimeFormat(locale, {
+    timeZone: BUSINESS_TIME_ZONE,
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+  }).format(new Date(iso));
+}

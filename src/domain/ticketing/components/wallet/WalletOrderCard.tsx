@@ -1,24 +1,41 @@
-import { CalendarClock, Clock, RotateCcw } from 'lucide-react';
+import { CalendarClock, Ticket } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { GlassCard } from '../../../../ui/components/GlassCard';
 import { formatMoneyMinor } from '../../../../shared/utils/money';
 import { rescheduleRefundDeadline } from '../../../../shared/utils/rescheduleRefundDeadline';
+import { StatusText, type StatusTone } from '../../../../ui/components/StatusText';
+import { TextButton } from '../../../../ui/components/TextButton';
 import type { TicketOrder } from '../../types/ticketing';
 
 interface WalletOrderCardProps {
   order: TicketOrder;
+  ticketCount: number;
   canResume: boolean;
   canRefund: boolean;
   busy: boolean;
   onResume: () => void;
   onRefund: () => void;
-  /** "Relatar problema", montado pela composição (D16, 2A). */
+  /** "Relatar", montado pela composição (D16, 2A). */
   claimAction?: ReactNode;
 }
 
+const STATUS_TONE: Partial<Record<TicketOrder['status'], StatusTone>> = {
+  payment_processing: 'info',
+  payment_failed: 'danger',
+  expired: 'muted',
+  refund_pending: 'info',
+  refunded: 'muted',
+  canceled: 'muted',
+  disputed: 'warn',
+};
+
+/**
+ * Pedido de ingresso (D17): o evento e quando, e uma linha só com o que a pessoa precisa saber ou
+ * fazer agora.
+ */
 export function WalletOrderCard({
   order,
+  ticketCount,
   canResume,
   canRefund,
   busy,
@@ -27,76 +44,93 @@ export function WalletOrderCard({
   claimAction,
 }: WalletOrderCardProps) {
   const { t, i18n } = useTranslation();
-  const dateFormat = (options: Intl.DateTimeFormatOptions) =>
-    new Intl.DateTimeFormat(i18n.language, { timeZone: 'America/Fortaleza', ...options });
+  const format = (iso: string, options: Intl.DateTimeFormatOptions) =>
+    new Intl.DateTimeFormat(i18n.language, { timeZone: 'America/Fortaleza', ...options }).format(
+      new Date(iso)
+    );
+  const event = order.eventSnapshot;
+  const upcoming = event ? new Date(event.startsAt).getTime() > Date.now() : false;
   const refundUntil =
-    order.eventSnapshot && order.status !== 'refunded' && order.status !== 'canceled'
-      ? rescheduleRefundDeadline(order.rescheduledAt, order.eventSnapshot.startsAt, new Date())
+    event && (order.status === 'paid' || order.status === 'partially_refunded')
+      ? rescheduleRefundDeadline(order.rescheduledAt, event.startsAt, new Date())
       : null;
-  return (
-    <GlassCard className="p-4 space-y-3">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="space-y-1 min-w-0">
-          <p className="text-xs font-bold text-ink">
-            {t('ticketWallet.order', {
-              id: order.id.slice(0, 8),
-              amount: formatMoneyMinor(order.totalMinor, i18n.language),
+  const statusTone = STATUS_TONE[order.status];
+  const status = t(`ticketWallet.orderStatus.${order.status}`, { defaultValue: order.status });
+
+  let footer: ReactNode = null;
+  if (canResume) {
+    footer = (
+      <div className="flex items-center justify-between gap-3">
+        <StatusText tone="warn">
+          {order.expiresAt
+            ? t('ticketWallet.reservedUntil', {
+                time: format(order.expiresAt, { timeStyle: 'short' }),
+              })
+            : status}
+        </StatusText>
+        <TextButton tone="accent" disabled={busy} onClick={onResume}>
+          {t('ticketWallet.payShort')}
+        </TextButton>
+      </div>
+    );
+  } else if (statusTone) {
+    footer = <StatusText tone={statusTone}>{status}</StatusText>;
+  } else if (upcoming) {
+    footer = (refundUntil || canRefund) && (
+      <div className="flex items-start justify-between gap-3">
+        {refundUntil ? (
+          <span className="flex items-start gap-2 text-[13px] text-info">
+            <CalendarClock size={16} className="shrink-0 mt-px" aria-hidden="true" />
+            {t('ticketWallet.rescheduledNotice', {
+              date: format(refundUntil, { day: 'numeric', month: 'short' }),
             })}
+          </span>
+        ) : (
+          <span />
+        )}
+        {canRefund && (
+          <TextButton tone="danger" disabled={busy} onClick={onRefund} className="-my-2.5">
+            {t('ticketWallet.cancelShort')}
+          </TextButton>
+        )}
+      </div>
+    );
+  } else {
+    footer = claimAction || <StatusText tone="muted">{status}</StatusText>;
+  }
+
+  const details = [
+    ticketCount > 0 ? t('ticketWallet.ticketCount', { count: ticketCount }) : null,
+    formatMoneyMinor(order.totalMinor, i18n.language),
+  ]
+    .filter(Boolean)
+    .join(' · ');
+
+  return (
+    <li className="p-4 rounded-[20px] bg-surface border border-line">
+      <div className="flex gap-3">
+        <div className="w-12 h-12 shrink-0 rounded-2xl bg-accent-soft text-accent flex items-center justify-center">
+          <Ticket size={22} aria-hidden="true" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-[15px] font-semibold text-ink leading-snug break-words">
+            {event?.title ?? t('ticketWallet.order', { id: order.id.slice(0, 8) })}
           </p>
-          <p className="text-xs text-ink/70">
-            {dateFormat({ dateStyle: 'medium' }).format(new Date(order.createdAt))} •{' '}
-            <span className="font-semibold text-accent">
-              {t(`ticketWallet.orderStatus.${order.status}`, { defaultValue: order.status })}
-            </span>
-          </p>
-          {order.expiresAt && order.status === 'pending_payment' && (
-            <p className="text-xs text-warn flex items-center gap-1">
-              <Clock size={12} aria-hidden="true" />
-              {t('ticketWallet.reservedUntil', {
-                time: dateFormat({ timeStyle: 'short' }).format(new Date(order.expiresAt)),
+          {event && (
+            <p className="text-sm text-ink/70 mt-0.5">
+              {format(event.startsAt, {
+                weekday: 'short',
+                day: 'numeric',
+                month: 'short',
+                hour: '2-digit',
+                minute: '2-digit',
               })}
             </p>
           )}
+          <p className="text-sm text-ink/70">{details}</p>
         </div>
-
-        {(canResume || canRefund) && (
-          <div className="flex items-center gap-2 flex-wrap">
-            {canResume && (
-              <button
-                type="button"
-                disabled={busy}
-                onClick={onResume}
-                className="min-h-11 px-4 rounded-xl bg-teal-400 hover:bg-teal-300 text-slate-950 text-xs font-black uppercase tracking-wider flex items-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-teal-400/50"
-              >
-                <Clock size={14} aria-hidden="true" />
-                {t('ticketWallet.actions.resume')}
-              </button>
-            )}
-            {canRefund && (
-              <button
-                type="button"
-                disabled={busy}
-                onClick={onRefund}
-                className="min-h-11 px-3.5 rounded-xl bg-danger-soft border border-danger-line text-xs font-bold text-danger flex items-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-teal-400/50"
-              >
-                <RotateCcw size={14} aria-hidden="true" />
-                {t('ticketWallet.actions.refund')}
-              </button>
-            )}
-          </div>
-        )}
       </div>
-      {refundUntil && (
-        <p className="px-3 py-2 rounded-xl border border-info-line bg-info-soft text-xs text-info flex items-start gap-2">
-          <CalendarClock size={14} className="shrink-0 mt-0.5" aria-hidden="true" />
-          {t('ticketWallet.rescheduledNotice', {
-            date: dateFormat({ dateStyle: 'medium', timeStyle: 'short' }).format(
-              new Date(refundUntil)
-            ),
-          })}
-        </p>
-      )}
-      {claimAction}
-    </GlassCard>
+      {footer && <div className="mt-3 pt-3 border-t border-line">{footer}</div>}
+    </li>
   );
 }
