@@ -120,10 +120,11 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 | 20.0 | Base visual D17 | `d1359f3..99b8e30` | ⏳ enviar (lote 17) | — |
 | 20.1 | Reservas, pedidos e Financeiro no visual D17 | `99b8e30..f5d23ad` | ⏳ enviar (lote 17) | — |
 | 20.2 | Reutilizáveis num lugar só | `f5d23ad..748611c` | ⏳ enviar (lote 17) | — |
+| 20.3 | Compras em Configurações (D18) | `8aecac8..b99f6e3` | ⏳ enviar (lote 17) | — |
 
 ### Revisões futuras (aprovadas para depois)
 
-- **Histórico de compras do comprador** (decidido em 2026-10-26): a aba Pedidos da carteira lista só pedidos de ingresso, com código, valor, data e status. Rever o cartão (nome e data do evento, ingressos e quantidades, taxa de serviço, valor reembolsado, recibo) e se ingressos e reservas viram uma tela única "Minhas compras".
+- ~~**Histórico de compras do comprador**~~ (decidido em 2026-10-26): feito no 20.3 (D18), com a aba Compras em Configurações.
 
 ## Gates
 
