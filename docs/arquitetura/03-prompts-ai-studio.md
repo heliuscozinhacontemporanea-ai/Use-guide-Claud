@@ -165,7 +165,7 @@
 
 > **Envie um prompt por mensagem**, nesta ordem. Até o 18.3.1 (telas), trial, compra de plano e selo do admin pelo painel ficam fora do ar, e as métricas de estabelecimento sem plano mostram erro.
 
-# Lote 17 (Prompts C16, 18.4c, 18.4c.1, 18.4d.1 a 18.4d.3b 18.4e.1 a 18.4e.3, 18.4f.1, 18.4f.2, A6, 20.0 e 20.1) — aplicar sobre o zip de 2026-10-25
+# Lote 17 (Prompts C16, 18.4c, 18.4c.1, 18.4d.1 a 18.4d.3b 18.4e.1 a 18.4e.3, 18.4f.1, 18.4f.2, A6 e 20.0 a 20.2) — aplicar sobre o zip de 2026-10-25
 
 | Ordem | Arquivo | Tema | Commit de referência |
 |---|---|---|---|
@@ -185,6 +185,7 @@
 | 14 | `prompts/prompt-A6.md` | AGENTS.md §11.1: fundo neutro e superfícies sólidas (S16, D17) e §13: limite de tamanho só para código (S17) | `b257fb7..e9a1771` (só AGENTS.md e docs) |
 | 15 | `prompts/prompt-20.0.md` | Base visual: fundo grafite liso, cartões sólidos, sem BackgroundBlobs, theme-color pelo tema (prints aprovados) | `d1359f3..99b8e30` |
 | 16 | `prompts/prompt-20.1.md` | Reservas, pedidos e Financeiro do admin no visual novo; SegmentedControl, StatusText, TextButton e BackButton (prints aprovados, referência em `docs/design/base-d17`) | `99b8e30..f5d23ad` |
+| 17 | `prompts/prompt-20.2.md` | Reutilizáveis num lugar só: `controls.ts`, `ListState` no design system e `formatBusiness*` em `businessDateTime.ts`; sem mudar as telas; débito B33 | `f5d23ad..748611c` + docs |
 
 > Cada prompt termina com **Configurações manuais**: o que você faz fora do AI Studio (deploy de regras e índices, Functions, Stripe Dashboard) depois de aplicá-lo.
 
