@@ -121,6 +121,8 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 | 20.1 | Reservas, pedidos e Financeiro no visual D17 | `99b8e30..f5d23ad` | ⏳ enviar (lote 17) | — |
 | 20.2 | Reutilizáveis num lugar só | `f5d23ad..748611c` | ⏳ enviar (lote 17) | — |
 | 20.3 | Compras em Configurações (D18) | `8aecac8..b99f6e3` | ⏳ enviar (lote 17) | — |
+| 20.4 | Menu lateral como perfil e Minhas avaliações (D19) | `1c69ebf..b15f337` | ⏳ enviar (lote 17) | — |
+| 20.5 | Denúncia de resposta e aba Moderação (D19) | `b15f337..2dabeed` | ⏳ enviar (lote 17) | — |
 
 ### Revisões futuras (aprovadas para depois)
 

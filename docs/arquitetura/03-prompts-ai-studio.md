@@ -165,7 +165,7 @@
 
 > **Envie um prompt por mensagem**, nesta ordem. Até o 18.3.1 (telas), trial, compra de plano e selo do admin pelo painel ficam fora do ar, e as métricas de estabelecimento sem plano mostram erro.
 
-# Lote 17 (Prompts C16, 18.4c, 18.4c.1, 18.4d.1 a 18.4d.3b 18.4e.1 a 18.4e.3, 18.4f.1, 18.4f.2, A6 e 20.0 a 20.3) — aplicar sobre o zip de 2026-10-25
+# Lote 17 (Prompts C16, 18.4c, 18.4c.1, 18.4d.1 a 18.4d.3b 18.4e.1 a 18.4e.3, 18.4f.1, 18.4f.2, A6 e 20.0 a 20.5) — aplicar sobre o zip de 2026-10-25
 
 | Ordem | Arquivo | Tema | Commit de referência |
 |---|---|---|---|
@@ -187,6 +187,8 @@
 | 16 | `prompts/prompt-20.1.md` | Reservas, pedidos e Financeiro do admin no visual novo; SegmentedControl, StatusText, TextButton e BackButton (prints aprovados, referência em `docs/design/base-d17`) | `99b8e30..f5d23ad` |
 | 17 | `prompts/prompt-20.2.md` | Reutilizáveis num lugar só: `controls.ts`, `ListState` no design system e `formatBusiness*` em `businessDateTime.ts`; sem mudar as telas; débito B33 | `f5d23ad..748611c` + docs |
 | 18 | `prompts/prompt-20.3.md` | Configurações › Compras (D18): Finalizadas, Pendentes e Canceladas; folha com recibo e ações, valor do reembolso só na confirmação; cancelar sem reembolso recusado também nas reservas; Ingressos e Reservas só por tempo (prints aprovados) | `8aecac8..b99f6e3` |
+| 19 | `prompts/prompt-20.4.md` | Menu lateral como perfil (D19): Próximo, atalhos com números, Minha conta; Suporte e Sobre em Configurações; Minhas avaliações com editar e excluir; menu no tema claro corrigido (prints aprovados) | `1c69ebf..b15f337` |
+| 20 | `prompts/prompt-20.5.md` | Denúncia de resposta (coleção `reviewReports` só de backend, limite por dia, 3 dias de prazo) e aba Moderação do admin; avaliações agrupadas pelo dia; débito B34 (prints aprovados) | `b15f337..2dabeed` |
 
 > Cada prompt termina com **Configurações manuais**: o que você faz fora do AI Studio (deploy de regras e índices, Functions, Stripe Dashboard) depois de aplicá-lo.
 
