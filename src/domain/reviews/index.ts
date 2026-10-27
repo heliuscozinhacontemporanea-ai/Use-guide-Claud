@@ -11,6 +11,11 @@ export { subscribeToReviewsUseCase } from './application/usecases/subscribeToRev
 export { submitReviewUseCase } from './application/usecases/submitReviewUseCase';
 export { respondToReviewUseCase } from './application/usecases/respondToReviewUseCase';
 export { useReviews } from './hooks/useReviews';
+export { useMyReviews } from './hooks/useMyReviews';
+export { listMyReviewsUseCase } from './application/usecases/listMyReviewsUseCase';
+export { deleteReviewUseCase } from './application/usecases/deleteReviewUseCase';
+// Componente público apenas para src/app/compositions (AGENTS.md §5.2 item 5).
+export { MyReviewsView } from './components/mine/MyReviewsView';
 export { ReviewSection } from './components/ReviewSection';
 export { ReviewCard } from './components/ReviewCard';
 export { ReviewForm } from './components/ReviewForm';

@@ -25,6 +25,9 @@ describe('sub-telas do menu', () => {
     expect(parentMenuView('language')).toBe('settings');
     expect(parentMenuView('appearance')).toBe('settings');
     expect(parentMenuView('purchases')).toBe('settings');
+    expect(parentMenuView('support')).toBe('settings');
+    expect(parentMenuView('about')).toBe('settings');
+    expect(parentMenuView('reviews')).toBe('main');
     expect(parentMenuView('password')).toBe('account');
     expect(parentMenuView('favorites')).toBe('main');
     expect(parentMenuView('bookings')).toBe('main');
@@ -38,6 +41,7 @@ describe('sub-telas do menu', () => {
       'tickets',
       'bookings',
       'favorites',
+      'reviews',
       'purchases',
     ] as const) {
       expect(visibleMenuView(view, false)).toBe('main');

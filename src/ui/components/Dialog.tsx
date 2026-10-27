@@ -31,7 +31,8 @@ export function Dialog({
       <RadixDialog.Portal>
         <RadixDialog.Overlay
           className="fixed inset-0 bg-scrim backdrop-blur-md animate-fade-in data-[state=closed]:animate-fade-out motion-reduce:animate-none"
-          style={{ zIndex: nested ? Z_INDEX.modalNested : Z_INDEX.overlay }}
+          // Mesma camada do conteúdo (que vem depois no DOM): o fundo escurece também sobre o menu lateral.
+          style={{ zIndex: nested ? Z_INDEX.modalNested : Z_INDEX.modal }}
         />
         {/* Celular: folha que sobe da borda (como num app nativo). Do sm em diante: cartão central. */}
         <RadixDialog.Content

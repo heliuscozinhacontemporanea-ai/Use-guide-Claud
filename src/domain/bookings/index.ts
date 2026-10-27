@@ -7,6 +7,7 @@ export {
   type BookingClaimSale,
 } from './components/buyer/BookingPurchaseDetails';
 export { useBookingPurchases } from './hooks/useBookingPurchases';
+export { useMyBookings } from './hooks/useMyBookings';
 export type { PaymentElementSlotProps, RenderPaymentElement } from './components/buyer/types';
 export { PartnerOffersManager } from './components/partner/PartnerOffersManager';
 export { isBookableCategory } from './utils/offerKindByCategory';

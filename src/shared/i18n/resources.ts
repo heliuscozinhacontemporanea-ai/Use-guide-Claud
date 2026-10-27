@@ -47,6 +47,16 @@ import {
   purchasesPtBR,
 } from './purchasesResources';
 import {
+  type MyReviewsTranslation,
+  myReviewsEn,
+  myReviewsFr,
+  myReviewsPtBR,
+  type ProfileTranslation,
+  profileEn,
+  profileFr,
+  profilePtBR,
+} from './profileResources';
+import {
   type TicketSessionsTranslation,
   ticketSessionsEn,
   ticketSessionsFr,
@@ -93,6 +103,8 @@ export interface TranslationResource {
   receivables: ReceivablesTranslation;
   saleClaims: SaleClaimsTranslation;
   purchases: PurchasesTranslation;
+  profile: ProfileTranslation;
+  myReviews: MyReviewsTranslation;
   adminFinance: AdminFinanceTranslation;
   ticketSessions: TicketSessionsTranslation;
   salesPolicy: SalesPolicyTranslation;
@@ -141,26 +153,16 @@ export interface TranslationResource {
     };
   };
   menu: {
-    mainTitle: string;
-    subtitle: string;
     closeMenu: string;
     changeProfilePhoto: string;
     userFallback: string;
     signInOrRegister: string;
-    yourArea: string;
-    account: string;
-    favorites: string;
-    tickets: string;
     emailPassword: string;
     orUse: string;
     continueGoogle: string;
     managementPanel: string;
     myPanel: string;
-    servicesInfo: string;
-    partnerProgram: string;
-    support: string;
-    aboutApp: string;
-    logout: string;
+    authErrors: { popupBlocked: string; unauthorizedDomain: string; generic: string };
   };
   navigation: {
     explore: string;
@@ -305,6 +307,8 @@ export interface TranslationResource {
     appearanceSubtitle: string;
     language: string;
     languageSubtitle: string;
+    support: string;
+    about: string;
     theme: { light: string; dark: string; system: string };
     themeDescription: { light: string; dark: string; system: string };
   };
@@ -326,6 +330,8 @@ const ptBR: TranslationResource = {
   receivables: receivablesPtBR,
   saleClaims: saleClaimsPtBR,
   purchases: purchasesPtBR,
+  profile: profilePtBR,
+  myReviews: myReviewsPtBR,
   adminFinance: adminFinancePtBR,
   ticketSessions: ticketSessionsPtBR,
   salesPolicy: salesPolicyPtBR,
@@ -373,26 +379,21 @@ const ptBR: TranslationResource = {
     },
   },
   menu: {
-    mainTitle: 'Menu Principal',
-    subtitle: 'Gerencie sua experiência',
     closeMenu: 'Fechar menu',
     changeProfilePhoto: 'Alterar foto de perfil',
     userFallback: 'Usuário',
-    signInOrRegister: 'Entrar ou cadastre-se',
-    yourArea: 'Sua área',
-    account: 'Conta',
-    favorites: 'Meus Favoritos',
-    tickets: 'Meus Ingressos',
-    emailPassword: 'E-mail e Senha',
-    orUse: 'Ou use',
+    signInOrRegister: 'Entrar ou cadastrar',
+    emailPassword: 'E-mail e senha',
+    orUse: 'ou',
     continueGoogle: 'Continuar com Google',
-    managementPanel: 'Painel de Gestão',
-    myPanel: 'Meu Painel',
-    servicesInfo: 'Serviços & Info',
-    partnerProgram: 'Programa de Parceiros',
-    support: 'Suporte / Ajuda',
-    aboutApp: 'Sobre o App',
-    logout: 'Sair',
+    managementPanel: 'Painel de gestão',
+    myPanel: 'Meu painel',
+    authErrors: {
+      popupBlocked: 'O navegador bloqueou a janela de login. Libere pop-ups e tente de novo.',
+      unauthorizedDomain:
+        'Este endereço não está autorizado para login. Recarregue a página e tente de novo.',
+      generic: 'Não foi possível entrar com o Google.',
+    },
   },
   navigation: {
     explore: 'Explorar',
@@ -584,6 +585,8 @@ const ptBR: TranslationResource = {
     appearanceSubtitle: 'Selecione o modo',
     language: 'Idioma do Guide',
     languageSubtitle: 'Selecione o idioma',
+    support: 'Suporte',
+    about: 'Sobre o app',
     theme: { light: 'Claro', dark: 'Escuro', system: 'Sistema' },
     themeDescription: {
       light: 'Tema com tonalidade clara',
@@ -610,6 +613,8 @@ const en: TranslationResource = {
   receivables: receivablesEn,
   saleClaims: saleClaimsEn,
   purchases: purchasesEn,
+  profile: profileEn,
+  myReviews: myReviewsEn,
   adminFinance: adminFinanceEn,
   ticketSessions: ticketSessionsEn,
   salesPolicy: salesPolicyEn,
@@ -656,26 +661,21 @@ const en: TranslationResource = {
     },
   },
   menu: {
-    mainTitle: 'Main Menu',
-    subtitle: 'Manage your experience',
     closeMenu: 'Close menu',
     changeProfilePhoto: 'Change profile photo',
     userFallback: 'User',
-    signInOrRegister: 'Sign in or register',
-    yourArea: 'Your area',
-    account: 'Account',
-    favorites: 'My Favorites',
-    tickets: 'My Tickets',
-    emailPassword: 'Email & Password',
-    orUse: 'Or use',
+    signInOrRegister: 'Sign in or sign up',
+    emailPassword: 'Email and password',
+    orUse: 'or',
     continueGoogle: 'Continue with Google',
-    managementPanel: 'Management Panel',
-    myPanel: 'My Panel',
-    servicesInfo: 'Services & Info',
-    partnerProgram: 'Partner Program',
-    support: 'Support / Help',
-    aboutApp: 'About the App',
-    logout: 'Sign out',
+    managementPanel: 'Management panel',
+    myPanel: 'My panel',
+    authErrors: {
+      popupBlocked: 'The browser blocked the sign-in window. Allow pop-ups and try again.',
+      unauthorizedDomain:
+        'This address is not authorized for sign-in. Reload the page and try again.',
+      generic: 'Could not sign in with Google.',
+    },
   },
   navigation: {
     explore: 'Explore',
@@ -862,6 +862,8 @@ const en: TranslationResource = {
     appearanceSubtitle: 'Choose a mode',
     language: 'Guide language',
     languageSubtitle: 'Choose a language',
+    support: 'Support',
+    about: 'About the app',
     theme: { light: 'Light', dark: 'Dark', system: 'System' },
     themeDescription: {
       light: 'Light-toned theme',
@@ -888,6 +890,8 @@ const fr: TranslationResource = {
   receivables: receivablesFr,
   saleClaims: saleClaimsFr,
   purchases: purchasesFr,
+  profile: profileFr,
+  myReviews: myReviewsFr,
   adminFinance: adminFinanceFr,
   ticketSessions: ticketSessionsFr,
   salesPolicy: salesPolicyFr,
@@ -934,26 +938,22 @@ const fr: TranslationResource = {
     },
   },
   menu: {
-    mainTitle: 'Menu principal',
-    subtitle: 'Gérez votre expérience',
     closeMenu: 'Fermer le menu',
     changeProfilePhoto: 'Changer la photo de profil',
     userFallback: 'Utilisateur',
-    signInOrRegister: 'Connexion ou inscription',
-    yourArea: 'Votre espace',
-    account: 'Compte',
-    favorites: 'Mes favoris',
-    tickets: 'Mes billets',
+    signInOrRegister: 'Se connecter ou s’inscrire',
     emailPassword: 'E-mail et mot de passe',
-    orUse: 'Ou utiliser',
+    orUse: 'ou',
     continueGoogle: 'Continuer avec Google',
     managementPanel: 'Panneau de gestion',
-    myPanel: 'Mon espace',
-    servicesInfo: 'Services et infos',
-    partnerProgram: 'Programme partenaires',
-    support: 'Support / Aide',
-    aboutApp: 'À propos de l’app',
-    logout: 'Se déconnecter',
+    myPanel: 'Mon panneau',
+    authErrors: {
+      popupBlocked:
+        'Le navigateur a bloqué la fenêtre de connexion. Autorisez les pop-ups et réessayez.',
+      unauthorizedDomain:
+        'Cette adresse n’est pas autorisée pour la connexion. Rechargez la page et réessayez.',
+      generic: 'Impossible de se connecter avec Google.',
+    },
   },
   navigation: {
     explore: 'Explorer',
@@ -1148,6 +1148,8 @@ const fr: TranslationResource = {
     appearanceSubtitle: 'Choisissez un mode',
     language: 'Langue du guide',
     languageSubtitle: 'Choisissez une langue',
+    support: 'Assistance',
+    about: 'À propos de l’app',
     theme: { light: 'Clair', dark: 'Sombre', system: 'Système' },
     themeDescription: {
       light: 'Thème aux tons clairs',

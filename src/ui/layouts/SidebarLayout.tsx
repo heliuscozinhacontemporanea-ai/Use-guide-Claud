@@ -2,6 +2,7 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { Settings } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '../../shared/utils/cn';
 import { Z_INDEX } from '../../shared/constants/zIndex';
 import { useSwipeToClose } from './useSwipeToClose';
@@ -65,6 +66,7 @@ export function SidebarLayout({
   isCropping = false,
   onSettingsClick,
 }: SidebarLayoutProps) {
+  const { t } = useTranslation();
   const isLoginModalOpen = useUIStore((state) => state.isLoginModalOpen);
   const isLoginClosingBySwipe = useUIStore((state) => state.isLoginClosingBySwipe);
   const { containerRef, x, isSwipeClosingRef } = useSwipeToClose({
@@ -99,7 +101,7 @@ export function SidebarLayout({
           }}
           className={cn(
             'fixed inset-0 w-full h-[100dvh] overflow-y-auto overflow-x-hidden no-scrollbar flex flex-col',
-            isCropping ? 'bg-black' : 'bg-black text-white'
+            isCropping ? 'bg-black' : 'bg-app text-ink'
           )}
         >
           <div
@@ -112,8 +114,8 @@ export function SidebarLayout({
               <button
                 type="button"
                 onClick={onSettingsClick}
-                aria-label="Configurações"
-                className="absolute top-[30px] right-6 sm:top-[38px] sm:right-8 w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-white/70 hover:text-white active:scale-90 transition-all z-20 rounded-xl focus-visible:ring-2 focus-visible:ring-teal-400/50"
+                aria-label={t('settings.title')}
+                className="absolute top-[30px] right-6 sm:top-[38px] sm:right-8 w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center press text-ink/80 hover:bg-ink/[0.06] z-20 rounded-full focus-visible:ring-2 focus-visible:ring-teal-400/50"
               >
                 <Settings size={25} />
               </button>

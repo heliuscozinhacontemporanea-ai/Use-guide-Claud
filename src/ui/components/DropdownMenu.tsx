@@ -3,7 +3,7 @@ import * as RadixDropdownMenu from '@radix-ui/react-dropdown-menu';
 import { cn } from '../../shared/utils/cn';
 import { Z_INDEX } from '../../shared/constants/zIndex';
 
-interface DropdownMenuItem {
+export interface DropdownMenuItem {
   label: string;
   icon?: ReactNode;
   onClick: () => void;
@@ -26,19 +26,19 @@ export function DropdownMenu({ trigger, items, align = 'end' }: DropdownMenuProp
         <RadixDropdownMenu.Content
           align={align}
           sideOffset={8}
-          className="min-w-[180px] p-1.5 rounded-2xl bg-neutral-900/95 border border-white/10 shadow-xl backdrop-blur-xl animate-scale-in outline-none"
-          style={{ zIndex: Z_INDEX.dropdown }}
+          className="min-w-[200px] p-1.5 rounded-2xl bg-surface-solid border border-line shadow-xl animate-scale-in motion-reduce:animate-none outline-none"
+          style={{ zIndex: Z_INDEX.popover }}
         >
           {items.map((item, index) => (
             <RadixDropdownMenu.Item
               key={index}
               disabled={item.disabled ?? false}
-              onClick={item.onClick}
+              onSelect={item.onClick}
               className={cn(
-                'flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-medium cursor-pointer transition-colors outline-none focus-visible:ring-2 focus-visible:ring-teal-400/50',
+                'flex items-center gap-2.5 min-h-11 px-3 rounded-xl text-sm font-semibold cursor-pointer transition-colors outline-none focus-visible:ring-2 focus-visible:ring-teal-400/50',
                 item.destructive
-                  ? 'text-rose-400 hover:bg-rose-500/10 focus:bg-rose-500/10'
-                  : 'text-white/80 hover:text-white hover:bg-white/10 focus:bg-white/10',
+                  ? 'text-danger hover:bg-danger-soft focus:bg-danger-soft'
+                  : 'text-ink hover:bg-ink/[0.06] focus:bg-ink/[0.06]',
                 item.disabled && 'opacity-40 cursor-not-allowed'
               )}
             >

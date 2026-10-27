@@ -12,6 +12,8 @@ export const Z_INDEX = {
   overlay: 1000,
   modal: 1100,
   modalNested: 1200,
+  /** Menus e popovers abertos de dentro de uma tela cheia ou de um modal ficam por cima deles. */
+  popover: 1300,
   toast: 2000,
   criticalAlert: 9999,
 } as const;

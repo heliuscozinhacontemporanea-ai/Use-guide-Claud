@@ -1,5 +1,7 @@
 import {
   ChevronRight,
+  HelpCircle,
+  Info,
   Languages,
   Monitor,
   Moon,
@@ -16,6 +18,8 @@ interface SettingsViewProps {
   onBack: () => void;
   onOpenLanguage: () => void;
   onOpenAppearance: () => void;
+  onOpenSupport: () => void;
+  onOpenAbout: () => void;
   /** Só com login: o histórico de compras é da conta. */
   onOpenPurchases?: () => void;
 }
@@ -51,6 +55,8 @@ export function SettingsView({
   onBack,
   onOpenLanguage,
   onOpenAppearance,
+  onOpenSupport,
+  onOpenAbout,
   onOpenPurchases,
 }: SettingsViewProps) {
   const { t } = useTranslation();
@@ -86,6 +92,11 @@ export function SettingsView({
           value={getLocaleDisplayLabel(currentLocale, currentLocale)}
           onClick={onOpenLanguage}
         />
+      </ul>
+
+      <ul className="mt-4 rounded-[20px] bg-surface border border-line divide-y divide-line overflow-hidden">
+        <SettingsRow icon={HelpCircle} label={t('settings.support')} onClick={onOpenSupport} />
+        <SettingsRow icon={Info} label={t('settings.about')} onClick={onOpenAbout} />
       </ul>
     </div>
   );

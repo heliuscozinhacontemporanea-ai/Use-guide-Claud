@@ -44,13 +44,19 @@ export function ConfirmDialog({ data }: ConfirmDialogProps) {
       <RadixDialog.Portal>
         <RadixDialog.Overlay
           className="fixed inset-0 bg-scrim backdrop-blur-sm animate-fade-in data-[state=closed]:animate-fade-out motion-reduce:animate-none"
-          style={{ zIndex: Z_INDEX.overlay }}
+          // Mesma camada do conteúdo: a confirmação abre por cima de folhas e do menu lateral.
+          style={{ zIndex: Z_INDEX.modalNested }}
         />
         <RadixDialog.Content
           // Sem título a mensagem já é o título; `undefined` diz ao Radix que não há descrição.
           {...(data?.title ? {} : { 'aria-describedby': undefined })}
           className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)] max-w-xs p-6 rounded-3xl bg-surface-solid border border-line text-ink flex flex-col items-center text-center gap-3 outline-none animate-scale-in data-[state=closed]:animate-scale-out motion-reduce:animate-none"
           style={{ zIndex: Z_INDEX.modalNested }}
+          // Foco na própria caixa, sem anel num botão que a pessoa não tocou (AGENTS.md §11.11).
+          onOpenAutoFocus={(event) => {
+            event.preventDefault();
+            (event.currentTarget as HTMLElement).focus();
+          }}
         >
           <Icon size={28} className={positive ? 'text-success' : 'text-warn'} aria-hidden="true" />
           {data?.title ? (

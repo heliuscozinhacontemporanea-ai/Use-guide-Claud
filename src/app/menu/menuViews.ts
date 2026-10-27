@@ -9,6 +9,7 @@ export const MENU_VIEWS = [
   'tickets',
   'bookings',
   'favorites',
+  'reviews',
   'settings',
   'purchases',
   'language',
@@ -27,12 +28,13 @@ const PARENT_VIEW: Record<Exclude<MenuView, 'main'>, MenuView> = {
   tickets: 'main',
   bookings: 'main',
   favorites: 'main',
+  reviews: 'main',
   settings: 'main',
   purchases: 'settings',
   language: 'settings',
   appearance: 'settings',
-  support: 'main',
-  about: 'main',
+  support: 'settings',
+  about: 'settings',
 };
 
 /** Sub-telas com dados do próprio usuário: sem login, o menu mostra a tela principal (com o login). */
@@ -42,6 +44,7 @@ const PRIVATE_VIEWS: readonly MenuView[] = [
   'tickets',
   'bookings',
   'favorites',
+  'reviews',
   'purchases',
 ];
 

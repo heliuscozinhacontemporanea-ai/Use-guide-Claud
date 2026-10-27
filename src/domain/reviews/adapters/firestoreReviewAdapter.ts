@@ -24,7 +24,6 @@ function getOrderClauses(sortBy: ReviewSortOption): DatabaseOrderClause[] {
         { field: 'rating', direction: 'asc' },
         { field: 'createdAt', direction: 'desc' },
       ];
-    case 'recent':
     default:
       return [{ field: 'createdAt', direction: 'desc' }];
   }
@@ -156,37 +155,17 @@ export class FirestoreReviewAdapter implements ReviewPort {
     }
   }
 
-  async getUserAllReviews(userId: string): Promise<FirestoreReview[]> {
-    return queryDocumentsUseCase<FirestoreReview>(
-      'reviews',
-      [
-        {
-          field: 'userId',
-          op: '==',
-          value: userId,
-        },
-      ],
-      [{ field: 'createdAt', direction: 'desc' }]
-    );
-  }
-
-  subscribeToUserReviews(
+  async listUserReviews(
     userId: string,
-    onUpdate: (reviews: FirestoreReview[]) => void,
-    onError?: (error: Error) => void
-  ): () => void {
-    return subscribeToCollectionUseCase<FirestoreReview>(
+    limitCount: number,
+    cursor?: DatabaseCursor | null
+  ): Promise<DatabasePage<FirestoreReview>> {
+    return queryDocumentsPageUseCase<FirestoreReview>(
       'reviews',
-      onUpdate,
-      onError,
-      [
-        {
-          field: 'userId',
-          op: '==',
-          value: userId,
-        },
-      ],
-      [{ field: 'createdAt', direction: 'desc' }]
+      [{ field: 'userId', op: '==', value: userId }],
+      [{ field: 'createdAt', direction: 'desc' }],
+      limitCount,
+      cursor
     );
   }
 

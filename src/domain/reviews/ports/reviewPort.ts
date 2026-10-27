@@ -38,13 +38,11 @@ export interface ReviewPort {
 
   respondToReview(reviewId: string, partnerResponse: string): Promise<void>;
 
-  getUserAllReviews(userId: string): Promise<FirestoreReview[]>;
-
-  subscribeToUserReviews(
+  listUserReviews(
     userId: string,
-    onUpdate: (reviews: FirestoreReview[]) => void,
-    onError?: (error: Error) => void
-  ): () => void;
+    limitCount: number,
+    cursor?: DatabaseCursor | null
+  ): Promise<DatabasePage<FirestoreReview>>;
 
   deleteReview(reviewId: string): Promise<void>;
 }

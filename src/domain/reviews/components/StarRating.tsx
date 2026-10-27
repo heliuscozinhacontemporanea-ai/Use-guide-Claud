@@ -1,4 +1,5 @@
 import { Star } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '../../../shared/utils/cn';
 
 interface StarRatingProps {
@@ -14,14 +15,15 @@ export function StarRating({
   size = 14,
   interactive = false,
   onRatingChange,
-  inactiveColorClass = 'text-white/50',
+  inactiveColorClass = 'text-ink/30',
 }: StarRatingProps) {
+  const { t } = useTranslation();
   if (interactive) {
     return (
       <div
         className="flex items-center gap-1"
         role="radiogroup"
-        aria-label="Avaliação por estrelas"
+        aria-label={t('myReviews.ratingLabel')}
       >
         {[1, 2, 3, 4, 5].map((s) => {
           const isSelected = s <= rating;
@@ -30,18 +32,15 @@ export function StarRating({
               key={s}
               type="button"
               onClick={() => onRatingChange?.(s)}
-              className="w-11 h-11 flex items-center justify-center rounded-xl hover:bg-white/5 active:scale-95 focus-visible:ring-2 focus-visible:ring-teal-400/50 transition-all"
-              aria-label={`Avaliar com ${s} ${s === 1 ? 'estrela' : 'estrelas'}`}
+              className="w-11 h-11 flex items-center justify-center rounded-xl hover:bg-ink/[0.06] focus-visible:ring-2 focus-visible:ring-teal-400/50 transition-all"
+              aria-label={t('myReviews.rateWith', { count: s })}
               aria-checked={isSelected}
               role="radio"
             >
               <Star
                 size={size}
                 fill={isSelected ? 'currentColor' : 'none'}
-                className={cn(
-                  'transition-colors',
-                  isSelected ? 'text-yellow-400' : 'text-white/50'
-                )}
+                className={cn('transition-colors', isSelected ? 'text-warn' : inactiveColorClass)}
               />
             </button>
           );
@@ -51,14 +50,16 @@ export function StarRating({
   }
 
   return (
-    <div className="inline-flex items-center gap-0.5" aria-label={`Nota ${rating} de 5`} role="img">
+    <div
+      className="inline-flex items-center gap-0.5"
+      aria-label={t('myReviews.stars', { value: rating })}
+      role="img"
+    >
       {[1, 2, 3, 4, 5].map((s) => {
         const fillPercent = Math.max(0, Math.min(100, (rating - (s - 1)) * 100));
 
         if (fillPercent >= 100) {
-          return (
-            <Star key={s} size={size} fill="currentColor" className="text-yellow-400 shrink-0" />
-          );
+          return <Star key={s} size={size} fill="currentColor" className="text-warn shrink-0" />;
         }
 
         if (fillPercent <= 0) {
@@ -78,7 +79,7 @@ export function StarRating({
               className="absolute top-0 left-0 overflow-hidden"
               style={{ width: `${fillPercent}%`, height: size }}
             >
-              <Star size={size} fill="currentColor" className="text-yellow-400" />
+              <Star size={size} fill="currentColor" className="text-warn" />
             </div>
           </div>
         );

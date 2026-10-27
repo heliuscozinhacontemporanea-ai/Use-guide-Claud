@@ -28,6 +28,7 @@
 | D16 | Dívidas, reclamações, força maior e reagendamento | ✅ Aprovada | 2026-10-25 |
 | D17 | Visual: fundo neutro, superfícies sólidas e menos informação por tela | ✅ Aprovada | 2026-10-27 |
 | D18 | Compras em Configurações; cancelar só com reembolso; valor só na confirmação | ✅ Aprovada | 2026-10-27 |
+| D19 | Menu lateral como perfil; Minhas avaliações; denúncia de resposta e aba Moderação | ✅ Aprovada | 2026-10-27 |
 
 ---
 
@@ -272,4 +273,15 @@ Propostas montadas em preview (Minhas reservas, Pedidos e Financeiro do admin) e
 * **Prazo terminado não invalida a compra:** sem reembolso, não há o que cancelar. A folha não oferece cancelar e avisa que os ingressos ou a reserva continuam valendo; o backend recusa o cancelamento sem reembolso em ingressos e reservas (`CANCELLATION_NOT_ALLOWED`), e a vaga não volta para venda.
 * **Fora por enquanto:** o meio de pagamento na folha ("Pago no cartão"), que exige o backend guardar esse dado.
 * **Prompt:** 20.3.
+
+## D19 — Menu lateral como perfil, Minhas avaliações e denúncia de resposta (2026-10-27)
+
+* **Perfil (com login):** foto e nome como antes, "No Use Guide desde <mês de ano>", o cartão **Próximo** (evento ou serviço mais próximo, abre ingressos ou reservas), quatro atalhos com números (Ingressos, Reservas, Favoritos, Avaliações), a lista Minha conta e Seja parceiro (Meu painel para parceiro e admin) e Sair da conta em texto.
+* **Configurações:** Compras, Aparência e Idioma num cartão; Suporte e Sobre o app em outro. Compras fica só em Configurações.
+* **Sem login:** entrar por e-mail ou Google e Seja parceiro. Configurações (com Suporte e Sobre) abre sem login.
+* **Menu nos dois temas:** o fundo do menu passa a ser o do tema (antes era preto fixo também no claro).
+* **Estrelas amarelas:** exceção à regra de cor da D17 (amarelo = pendente), por ser o padrão em todo app de avaliação.
+* **Minhas avaliações:** um cartão por avaliação com o nome do lugar, estrelas, "Experiência verificada", o texto e a resposta do estabelecimento; menu "…" com Editar, Denunciar resposta (só quando há resposta) e Excluir (com confirmação). Lista paginada por cursor.
+* **Denúncia de resposta:** motivos fechados (ofensiva ou desrespeitosa, fraude ou golpe, expõe dados pessoais, outro) e texto opcional; o estabelecimento não sabe quem denunciou; prazo de análise exibido: 3 dias. Aceita pelo admin, a resposta é removida e o caso fica registrado; se indicar fraude, serve de base para o admin suspender o estabelecimento. A fila fica numa aba nova **Moderação** no painel do admin.
+* **Prompts:** 20.4 (perfil, Configurações e Minhas avaliações) e 20.5 (denúncia e Moderação).
 
