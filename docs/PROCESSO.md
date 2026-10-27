@@ -116,6 +116,9 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 | 18.4e.3 | Adiar e cancelar sessão de evento, conta por evento (D14, D16) | `a24f664..eac047f` | ⏳ enviar (lote 17) | — |
 | 18.4f.1 | Relatar problema e aviso de remarcação nas compras (D16) | `42ac907..097336f` | ⏳ enviar (lote 17) | — |
 | 18.4f.2 | Filas financeiras do admin (D16) | `231c1ec..5e415b2` | ⏳ enviar (lote 17) | — |
+| A6 | AGENTS.md §11.1 (S16) e §13 (S17) | `b257fb7..e9a1771` | ⏳ enviar (lote 17) | — |
+| 20.0 | Base visual D17 | `d1359f3..99b8e30` | ⏳ enviar (lote 17) | — |
+| 20.1 | Reservas, pedidos e Financeiro no visual D17 | `99b8e30..f5d23ad` | ⏳ enviar (lote 17) | — |
 
 ### Revisões futuras (aprovadas para depois)
 
