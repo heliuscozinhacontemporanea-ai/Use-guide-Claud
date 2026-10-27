@@ -7,6 +7,7 @@
 > Resposta de 2026-10-24: aprovada S14 (aplicada pelo prompt A5).
 > Resposta de 2026-10-24: aprovada S15 (aplicada pelo prompt A5, junto com a S14).
 > Resposta de 2026-10-27: aprovada S16 (aplicada pelo prompt A6).
+> Resposta de 2026-10-27: aprovada S17 (aplicada pelo prompt A6, junto com a S16).
 
 | # | Seção | Motivo | Status |
 |---|---|---|---|
@@ -26,6 +27,7 @@
 | S14 | §11.1 e §11 (nova subseção) | Tema claro sem branco puro e regras de experiência de app nativo | ✅ Aprovada em 2026-10-24 (prompt A5) |
 | S15 | §8.1 e §8.7 | D14: conta por documento, cobrança na plataforma com transferência depois do serviço, taxas por tipo, multa e reagendamento | ✅ Aprovada em 2026-10-24 (prompt A5, junto com a S14) |
 | S16 | §11.1 | D17: fundo neutro e liso, superfícies sólidas, cor só com significado e uma ação principal por tela | ✅ Aprovada em 2026-10-27 (prompt A6) |
+| S17 | §13 | Limite de 400 linhas só para código com mais de uma responsabilidade; conteúdo (traduções, textos legais) sem limite | ✅ Aprovada em 2026-10-27 (prompt A6, junto com a S16) |
 
 ---
 
@@ -211,3 +213,17 @@
 
 > * **Estilo:** superfícies sólidas e discretas sobre fundo neutro e liso: grafite no escuro (fundo `#0d0e10`, cartão `#1e2024`) e bege no claro (fundo `#f3eee4`, cartão `#faf6ee`). Sem gradientes, padrões nem linhas decorativas no fundo. Vidro (desfoque) só em barras fixas e folhas sobre o conteúdo. Cor só com significado: verde-água para ação, amarelo para pendente, verde para concluído, vermelho para perigo. Uma ação principal por tela; as demais como texto. Tema **dark é o padrão de design**; (…o resto igual)
 > * **Superfície elevada:** cartão sólido do design system (`GlassCard` passa a ser sólido, sem desfoque).
+
+## S17 — Limite de tamanho só para código (§13)
+
+**Por quê:** quem decide a divisão é a responsabilidade do arquivo, não o número de linhas. Textos longos (termos, políticas, Sobre, traduções) têm um motivo só para mudar e não ficam melhores divididos. O número continua como alarme para código, e quem mantém um arquivo grande registra o motivo.
+
+**Texto atual (§13):**
+
+> * Referência de tamanho: arquivo acima de **~200 linhas** DEVE ser avaliado para divisão; acima de **400** linhas, dividir ao tocar (exceto testes, schemas e mappers declarativos).
+
+**Texto aprovado:**
+
+> * Referência de tamanho (vale só para código: componentes, hooks, services, controllers, adapters): arquivo acima de **~200 linhas** DEVE ser avaliado para divisão. Acima de **400 linhas**, DEVE ser dividido ao tocar quando tiver mais de uma responsabilidade; se tiver uma só, PODE ficar, e a entrega registra em uma linha qual é a responsabilidade e por que não divide.
+> * Conteúdo não tem limite de linhas: traduções (`src/shared/i18n/`), textos legais e institucionais (termos, políticas, Sobre), testes, schemas e mappers declarativos. Textos legais e institucionais DEVEM ficar como conteúdo nos arquivos de tradução, por idioma, e não escritos dentro de componentes.
+

@@ -783,7 +783,8 @@ Regras:
 
 * Cada arquivo tem uma razão para mudar. Componentes que misturam formulário + lista + filtros + métricas DEVEM ser divididos; o container só orquestra.
 * **Um UseCase por arquivo** (`createBookingUseCase.ts`), com o nome do arquivo igual ao da função exportada. É proibido criar arquivo agregador de UseCases; tipos compartilhados entre UseCases ficam em arquivo próprio (ex: `orchestrationActor.ts`).
-* Referência de tamanho: arquivo acima de **~200 linhas** DEVE ser avaliado para divisão; acima de **400** linhas, dividir ao tocar (exceto testes, schemas e mappers declarativos).
+* Referência de tamanho (vale só para código: componentes, hooks, services, controllers, adapters): arquivo acima de **~200 linhas** DEVE ser avaliado para divisão. Acima de **400 linhas**, DEVE ser dividido ao tocar quando tiver mais de uma responsabilidade; se tiver uma só, PODE ficar, e a entrega registra em uma linha qual é a responsabilidade e por que não divide.
+* Conteúdo não tem limite de linhas: traduções (`src/shared/i18n/`), textos legais e institucionais (termos, políticas, Sobre), testes, schemas e mappers declarativos. Textos legais e institucionais DEVEM ficar como conteúdo nos arquivos de tradução, por idioma, e não escritos dentro de componentes.
 * Arquivo tocado DEVE sair sem avisos do lint (`npx biome lint <arquivo>`) e formatado (`npx biome format --write <arquivo>`). Aviso que não puder ser corrigido sem mudar comportamento recebe `biome-ignore` com justificativa ou vai para `docs/arquitetura/debitos.md`.
 * Hooks com estados não relacionados DEVEM ser divididos em hooks compostos.
 
