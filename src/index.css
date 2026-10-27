@@ -112,9 +112,9 @@
   }
 }
 
-/* Leaflet Overrides for Glassmorphism */
+/* Leaflet */
 .leaflet-container {
-  background: #060b1e !important;
+  background: var(--ug-app) !important;
   font-family: inherit;
 }
 
@@ -172,11 +172,12 @@
   --liquid-accent: #0d9488; /* Teal 600 */
   --liquid-gradient: linear-gradient(135deg, #0d9488 0%, #0891b2 100%);
 
-  --ug-app: #060b1e;
+  /* Grafite liso e cartões sólidos um tom acima (D17, AGENTS.md §11.1). */
+  --ug-app: #0d0e10;
   --ug-ink: #ffffff;
-  --ug-surface: rgba(20, 22, 28, 0.94);
-  --ug-surface-solid: #14161c;
-  --ug-line: rgba(255, 255, 255, 0.1);
+  --ug-surface: #1e2024;
+  --ug-surface-solid: #1e2024;
+  --ug-line: rgba(255, 255, 255, 0.08);
   --ug-scrim: rgba(0, 0, 0, 0.7);
   --ug-accent: #5eead4;
   --ug-accent-soft: rgba(20, 184, 166, 0.12);
@@ -236,8 +237,6 @@
 :root.light .bg-\[\#020508\] {
   background-color: var(--ug-app) !important;
 }
-
-/* Remove fixed background overlay to let BackgroundBlobs handle it dynamically */
 
 :root.light .text-white {
   color: #231d16 !important;
@@ -313,7 +312,7 @@
 
 @layer base {
   body {
-    @apply bg-[#060b1e] text-white overflow-hidden font-sans;
+    @apply bg-app text-white overflow-hidden font-sans;
     min-height: 100vh;
   }
 
@@ -324,15 +323,14 @@
   }
 }
 
+/* Cartão sólido (D17): o vidro fica só em barras fixas e folhas (`glassmorphism-vibrant`). */
 .glassmorphism {
-  @apply backdrop-blur-2xl bg-white/5 border border-white/10;
-  box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.5);
+  background-color: var(--ug-surface);
+  border: 1px solid var(--ug-line);
 }
 
 :root.light .glassmorphism {
-  background-color: rgba(250, 246, 238, 0.55);
-  border-color: rgba(35, 29, 22, 0.08);
-  box-shadow: 0 4px 24px 0 rgba(35, 29, 22, 0.04);
+  box-shadow: 0 1px 3px rgba(35, 29, 22, 0.06);
 }
 
 .glassmorphism-vibrant {

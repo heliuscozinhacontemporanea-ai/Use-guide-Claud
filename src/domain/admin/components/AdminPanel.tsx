@@ -6,7 +6,6 @@ import { ChevronLeft, RefreshCw } from 'lucide-react';
 import { useUI } from '../../../shared/stores/useUIStore';
 import { useLocalizedRouting } from '../../../shared/hooks/useLocalizedRouting';
 
-import { BackgroundBlobs } from '../../../ui/components/BackgroundBlobs';
 import { ErrorState } from '../../../ui/components/ErrorState';
 import { CATEGORIES } from '../../../shared/constants/categories';
 import {
@@ -222,11 +221,9 @@ export function AdminPanel({
 
   return (
     <div
-      className="min-h-screen pt-12 pb-40 px-4 bg-[#020508] font-sans selection:bg-teal-500/30 relative overflow-hidden"
+      className="min-h-screen pt-12 pb-40 px-4 bg-app font-sans selection:bg-teal-500/30 relative overflow-hidden"
       id="admin-panel-viewport"
     >
-      <BackgroundBlobs />
-
       <div className="max-w-4xl mx-auto space-y-8 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: -20 }}

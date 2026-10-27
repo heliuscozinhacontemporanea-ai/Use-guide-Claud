@@ -11,7 +11,7 @@ export interface SEOMetadata {
   robots?: string | undefined;
   canonicalUrl?: string | undefined;
   author?: string | undefined;
-  structuredData?: Record<string, any> | undefined;
+  structuredData?: Record<string, unknown> | undefined;
   locale?: Locale | undefined;
 }
 
@@ -117,7 +117,7 @@ function getOrCreateLinkTag(rel: string): HTMLLinkElement {
   return element;
 }
 
-function updateStructuredData(schema: Record<string, any>): void {
+function updateStructuredData(schema: Record<string, unknown>): void {
   let script = document.getElementById('schema-structured-data') as HTMLScriptElement | null;
   if (!script) {
     script = document.createElement('script');
@@ -158,7 +158,6 @@ export function updateDocumentSEO(metadata: SEOMetadata = {}): void {
   getOrCreateMetaTag('name', 'keywords').setAttribute('content', keywords);
   getOrCreateMetaTag('name', 'author').setAttribute('content', author);
   getOrCreateMetaTag('name', 'robots').setAttribute('content', robots);
-  getOrCreateMetaTag('name', 'theme-color').setAttribute('content', '#0d1b2a');
 
   getOrCreateMetaTag('property', 'og:title').setAttribute('content', resolvedTitle);
   getOrCreateMetaTag('property', 'og:description').setAttribute('content', description);

@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'motion/react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { AdminPanelComposition } from './compositions/AdminPanelComposition';
 import { LoginModal } from '../domain/auth/components/LoginModal';
@@ -20,7 +20,6 @@ import { useLocalizedRouting, useSyncLocaleWithUrl } from '../shared/hooks/useLo
 import { useSEO } from '../shared/hooks/useSEO';
 import { useUI, useUIStore } from '../shared/stores/useUIStore';
 import { cn } from '../shared/utils/cn';
-import { BackgroundBlobs } from '../ui/components/BackgroundBlobs';
 import { BottomNav } from '../ui/components/BottomNav';
 import { Header } from '../ui/layouts/Header';
 
@@ -28,6 +27,7 @@ import { PartnerPortalComposition } from './compositions/PartnerPortalCompositio
 import { ItemBookingComposition } from './compositions/ItemBookingComposition';
 import { SideMenu } from './menu/SideMenu';
 import { useSideMenu } from './menu/useSideMenu';
+import { useScrollContainer } from './useScrollContainer';
 import { AppRoutes } from './routes/AppRoutes';
 
 export function AppRouter() {
@@ -210,69 +210,13 @@ export function AppRouter() {
   useScrollLock(!!selectedItem);
   useScrollLock(isLoginModalOpen && !isMenuOpen);
 
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const scrollPositions = useRef<Record<string, number>>({});
-  const lastPathname = useRef(location.pathname);
-
-  useEffect(() => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
-
-    if (lastPathname.current !== location.pathname) {
-      scrollPositions.current[lastPathname.current] = container.scrollTop;
-    }
-
-    const savedPosition = scrollPositions.current[location.pathname] || 0;
-
-    let attempts = 0;
-    const maxAttempts = 15;
-    const scrollInterval = setInterval(() => {
-      if (!container) {
-        clearInterval(scrollInterval);
-        return;
-      }
-
-      const currentMaxScroll = container.scrollHeight - container.clientHeight;
-      const canReachSaved = currentMaxScroll >= savedPosition;
-
-      if (canReachSaved || attempts >= maxAttempts) {
-        container.scrollTo({
-          top: Math.min(savedPosition, currentMaxScroll),
-          behavior: 'auto',
-        });
-        clearInterval(scrollInterval);
-      }
-      attempts++;
-    }, 100);
-
-    lastPathname.current = location.pathname;
-
-    return () => clearInterval(scrollInterval);
-  }, [location.pathname]);
-
-  const [isScrolled, setIsScrolled] = useState(false);
+  const { scrollContainerRef, isScrolled } = useScrollContainer(location.pathname);
   const [isSearchSticky, setIsSearchSticky] = useState(false);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: a busca fixa volta ao normal a cada troca de rota.
   useEffect(() => {
     setIsSearchSticky(false);
   }, [location.pathname]);
-
-  useEffect(() => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
-
-    const handleScroll = () => {
-      setIsScrolled(container.scrollTop > 10);
-    };
-
-    container.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
-
-    return () => {
-      container.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
 
   const isResetPasswordPage = location.pathname === '/reset-password';
   const isAdminOpen = searchParams.get('admin') === '1';
@@ -282,8 +226,7 @@ export function AppRouter() {
   const isRetracted = isLoginModalOpen && !isMenuOpen && !isLoginClosingBySwipe;
 
   return (
-    <div className="relative h-screen bg-transparent text-white selection:bg-teal-500/30">
-      <BackgroundBlobs />
+    <div className="relative h-screen bg-app text-ink selection:bg-teal-500/30">
       <motion.div
         ref={scrollContainerRef}
         animate={{

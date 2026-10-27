@@ -38,7 +38,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       // Barra de status do celular na cor do fundo, como num app nativo.
       document
         .querySelector('meta[name="theme-color"]')
-        ?.setAttribute('content', isDark ? '#060b1e' : '#f3eee4');
+        ?.setAttribute('content', isDark ? '#0d0e10' : '#f3eee4');
       if (isDark) {
         root.classList.remove('light');
         root.classList.add('dark');
