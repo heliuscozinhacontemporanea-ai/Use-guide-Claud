@@ -1,82 +1,92 @@
-import React from 'react';
-import { ChevronLeft, ChevronRight, Languages, Sun, Moon, Monitor } from 'lucide-react';
+import {
+  ChevronRight,
+  Languages,
+  Monitor,
+  Moon,
+  ShoppingBag,
+  Sun,
+  type LucideIcon,
+} from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { DEFAULT_LOCALE, getLocaleDisplayLabel, i18n, normalizeLocale } from '../../../shared/i18n';
 import { useTheme } from '../../../shared/context/ThemeContext';
+import { BackButton } from '../../../ui/components/BackButton';
 
 interface SettingsViewProps {
   onBack: () => void;
   onOpenLanguage: () => void;
   onOpenAppearance: () => void;
+  /** Só com login: o histórico de compras é da conta. */
+  onOpenPurchases?: () => void;
 }
 
-export function SettingsView({ onBack, onOpenLanguage, onOpenAppearance }: SettingsViewProps) {
+function SettingsRow({
+  icon: Icon,
+  label,
+  value,
+  onClick,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value?: string;
+  onClick: () => void;
+}) {
+  return (
+    <li>
+      <button
+        type="button"
+        onClick={onClick}
+        className="w-full min-h-14 px-4 flex items-center gap-3 text-left hover:bg-ink/[0.03] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-400/50 focus-visible:outline-none"
+      >
+        <Icon size={20} className="text-ink/80 shrink-0" aria-hidden="true" />
+        <span className="flex-1 text-[15px] font-semibold text-ink">{label}</span>
+        {value && <span className="text-[13px] text-ink/70">{value}</span>}
+        <ChevronRight size={18} className="text-ink/40 shrink-0" aria-hidden="true" />
+      </button>
+    </li>
+  );
+}
+
+export function SettingsView({
+  onBack,
+  onOpenLanguage,
+  onOpenAppearance,
+  onOpenPurchases,
+}: SettingsViewProps) {
   const { t } = useTranslation();
   const { theme } = useTheme();
-  const currentLocale =
-    normalizeLocale(i18n.resolvedLanguage ?? i18n.language) ?? DEFAULT_LOCALE;
+  const currentLocale = normalizeLocale(i18n.resolvedLanguage ?? i18n.language) ?? DEFAULT_LOCALE;
 
   const ThemeIcon = theme === 'light' ? Sun : theme === 'dark' ? Moon : Monitor;
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center justify-center relative mb-8 pt-2 pr-2">
-        <button
-          onClick={onBack}
-          aria-label={t('settings.back')}
-          className="absolute left-0 p-2 text-white/70 hover:text-white active:scale-90 transition-all z-10 focus-visible:ring-2 focus-visible:ring-teal-400/50 rounded-xl"
-        >
-          <ChevronLeft size={28} />
-        </button>
-        <div className="text-center">
-          <h2 className="text-2xl font-display font-black mb-1 text-white leading-tight">
-            {t('settings.title')}
-          </h2>
-          <p className="text-[10px] text-white/50 font-black uppercase tracking-widest">
-            {t('settings.subtitle')}
-          </p>
-        </div>
+      <div className="flex items-center gap-2 mb-5">
+        <BackButton label={t('settings.back')} onClick={onBack} />
+        <h2 className="text-[22px] font-display font-bold text-ink">{t('settings.title')}</h2>
       </div>
 
-      <div className="space-y-3">
-        <button
-          type="button"
+      <ul className="rounded-[20px] bg-surface border border-line divide-y divide-line overflow-hidden">
+        {onOpenPurchases && (
+          <SettingsRow
+            icon={ShoppingBag}
+            label={t('purchases.settingsItem')}
+            onClick={onOpenPurchases}
+          />
+        )}
+        <SettingsRow
+          icon={ThemeIcon}
+          label={t('settings.appearance')}
+          value={t(`settings.theme.${theme}`)}
           onClick={onOpenAppearance}
-          className="w-full flex items-center justify-between py-4 px-2 min-h-[44px] text-left text-white/90 hover:text-white transition-all bg-transparent border-b border-white/10 active:opacity-70 focus-visible:ring-2 focus-visible:ring-teal-400/50 rounded-lg group"
-        >
-          <div className="flex items-center gap-3">
-            <ThemeIcon size={18} className="text-white shrink-0" />
-            <span className="text-sm font-semibold tracking-wide text-white/90 group-hover:text-white transition-colors">
-              {t('settings.appearance')}
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-white/50 font-medium">
-              {t(`settings.theme.${theme}`)}
-            </span>
-            <ChevronRight size={16} className="text-white/40 group-hover:text-white/80 transition-colors" />
-          </div>
-        </button>
-
-        <button
-          type="button"
+        />
+        <SettingsRow
+          icon={Languages}
+          label={t('settings.language')}
+          value={getLocaleDisplayLabel(currentLocale, currentLocale)}
           onClick={onOpenLanguage}
-          className="w-full flex items-center justify-between py-4 px-2 min-h-[44px] text-left text-white/90 hover:text-white transition-all bg-transparent border-b border-white/10 active:opacity-70 focus-visible:ring-2 focus-visible:ring-teal-400/50 rounded-lg group"
-        >
-          <div className="flex items-center gap-3">
-            <Languages size={18} className="text-white shrink-0" />
-            <span className="text-sm font-semibold tracking-wide text-white/90 group-hover:text-white transition-colors">
-              {t('settings.language')}
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-white/50 font-medium">
-              {getLocaleDisplayLabel(currentLocale, currentLocale)}
-            </span>
-            <ChevronRight size={16} className="text-white/40 group-hover:text-white/80 transition-colors" />
-          </div>
-        </button>
-      </div>
+        />
+      </ul>
     </div>
   );
 }

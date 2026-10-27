@@ -30,11 +30,16 @@ export {
 export { useCheckoutCountdown } from './hooks/useCheckoutCountdown';
 
 export { useUserTicketsAndOrders } from './hooks/useUserTickets';
+export { useTicketPurchases } from './hooks/useTicketPurchases';
 
 export { usePartnerEventSales } from './hooks/usePartnerEventSales';
 
 export { CheckoutResultView } from './components/CheckoutResultView';
 export { UserTicketsHistoryView } from './components/UserTicketsHistoryView';
+export {
+  TicketPurchaseDetails,
+  type TicketOrderClaimSale,
+} from './components/purchases/TicketPurchaseDetails';
 export { EventTicketingPurchasePanel } from './components/EventTicketingPurchasePanel';
 export { PartnerEventTicketingManager } from './components/PartnerEventTicketingManager';
 

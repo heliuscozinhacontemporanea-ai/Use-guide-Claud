@@ -3,7 +3,6 @@ import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { rescheduleRefundDeadline } from '../../../../shared/utils/rescheduleRefundDeadline';
 import { StatusText, type StatusTone } from '../../../../ui/components/StatusText';
-import { TextButton } from '../../../../ui/components/TextButton';
 import type { BookingStatus, BookingSummary } from '../../types/bookings';
 import { formatSlotDateTime } from '../../utils/dates';
 import { formatMinor } from '../../utils/money';
@@ -20,19 +19,14 @@ const STATUS_TONE: Partial<Record<BookingStatus, StatusTone>> = {
 
 /**
  * Cartão de reserva do comprador (D17): o que foi comprado e quando, e uma linha só com o que a
- * pessoa precisa saber ou fazer agora.
+ * pessoa precisa saber agora.
  */
 export function BuyerBookingCard({
   booking,
   upcoming,
-  onCancel,
-  claimAction,
 }: {
   booking: BookingSummary;
   upcoming: boolean;
-  onCancel?: () => void;
-  /** "Relatar", montado pela composição (D16, 2A). */
-  claimAction?: ReactNode;
 }) {
   const { t, i18n } = useTranslation();
   const Icon = booking.kind === 'private_entry' ? Ticket : Compass;
@@ -51,27 +45,14 @@ export function BuyerBookingCard({
         : t(`bookings.bookingStatus.${booking.status}`)}
     </StatusText>
   ) : upcoming ? (
-    (booking.offer.meetingPoint || onCancel) && (
-      <div className="flex items-center justify-between gap-3">
-        <span className="min-w-0 inline-flex items-center gap-1.5 text-[13px] text-ink/70">
-          {booking.offer.meetingPoint && (
-            <>
-              <MapPin size={15} className="shrink-0" aria-hidden="true" />
-              <span className="truncate">{booking.offer.meetingPoint}</span>
-            </>
-          )}
-        </span>
-        {onCancel && (
-          <TextButton tone="danger" onClick={onCancel}>
-            {t('bookings.buyer.cancelShort')}
-          </TextButton>
-        )}
-      </div>
+    booking.offer.meetingPoint && (
+      <span className="min-w-0 inline-flex items-center gap-1.5 text-[13px] text-ink/70">
+        <MapPin size={15} className="shrink-0" aria-hidden="true" />
+        <span className="truncate">{booking.offer.meetingPoint}</span>
+      </span>
     )
   ) : (
-    claimAction || (
-      <StatusText tone="muted">{t(`bookings.bookingStatus.${booking.status}`)}</StatusText>
-    )
+    <StatusText tone="muted">{t(`bookings.bookingStatus.${booking.status}`)}</StatusText>
   );
 
   return (

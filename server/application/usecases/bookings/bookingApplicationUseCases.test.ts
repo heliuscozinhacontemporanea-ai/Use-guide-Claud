@@ -170,18 +170,6 @@ describe('cancelBookingByBuyerApplicationUseCase', () => {
       expect.objectContaining({ amountMinor: 10000 })
     );
   });
-
-  it('0% não chama o Stripe', async () => {
-    vi.mocked(requestCancellationByBuyerUseCase).mockResolvedValue({
-      booking: { ...BOOKING, status: 'canceled' },
-      refundPercent: 0,
-      refundAmountMinor: 0,
-    } as never);
-    await expect(
-      cancelBookingByBuyerApplicationUseCase({ uid: 'buyer-1', admin: false }, 'bk_1', '')
-    ).resolves.toEqual({ status: 'canceled', refundPercent: 0, refundAmountMinor: 0 });
-    expect(processProviderRefundUseCase).not.toHaveBeenCalled();
-  });
 });
 
 describe('cancelSlotByPartnerApplicationUseCase', () => {

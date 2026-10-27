@@ -1,4 +1,4 @@
-import { calculateBuyerRefund } from '../../../shared/utils/cancellationPolicy';
+import { type BuyerRefund, calculateBuyerRefund } from '../../../shared/utils/cancellationPolicy';
 import type { BookingSummary } from '../types/bookings';
 
 /**
@@ -8,7 +8,12 @@ import type { BookingSummary } from '../types/bookings';
 export function previewRefund(
   booking: Pick<BookingSummary, 'kind' | 'offer' | 'totalMinor' | 'createdAt' | 'rescheduledAt'>,
   now: Date
-): { refundPercent: number; refundAmountMinor: number } {
+): {
+  refundPercent: number;
+  refundAmountMinor: number;
+  reason: BuyerRefund['reason'];
+  until: string | null;
+} {
   const refund = calculateBuyerRefund({
     family: (booking.kind as string) === 'transfer' ? 'transfer' : 'booking',
     policy: booking.offer.cancellationPolicy,
@@ -19,5 +24,10 @@ export function previewRefund(
     serviceFeeMinor: 0,
     rescheduledAt: booking.rescheduledAt ?? undefined,
   });
-  return { refundPercent: refund.percent, refundAmountMinor: refund.refundMinor };
+  return {
+    refundPercent: refund.percent,
+    refundAmountMinor: refund.refundMinor,
+    reason: refund.reason,
+    until: refund.until,
+  };
 }

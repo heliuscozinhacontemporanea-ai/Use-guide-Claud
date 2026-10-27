@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import * as RadixDialog from '@radix-ui/react-dialog';
 import { X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '../../shared/utils/cn';
 import { Z_INDEX } from '../../shared/constants/zIndex';
 
@@ -24,6 +25,7 @@ export function Dialog({
   className,
   nested = false,
 }: DialogProps) {
+  const { t } = useTranslation();
   return (
     <RadixDialog.Root open={open} onOpenChange={onOpenChange}>
       <RadixDialog.Portal>
@@ -56,7 +58,7 @@ export function Dialog({
             </RadixDialog.Title>
           )}
           {description && (
-            <RadixDialog.Description className="text-xs text-white/60 mb-4 leading-relaxed">
+            <RadixDialog.Description className="text-xs text-ink/70 mb-4 leading-relaxed">
               {description}
             </RadixDialog.Description>
           )}
@@ -64,8 +66,8 @@ export function Dialog({
           {children}
 
           <RadixDialog.Close
-            aria-label="Fechar modal"
-            className="press absolute top-4 right-4 w-11 h-11 flex items-center justify-center rounded-full text-white/60 hover:text-white hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none"
+            aria-label={t('common.close')}
+            className="press absolute top-4 right-4 w-11 h-11 flex items-center justify-center rounded-full text-ink/60 hover:text-ink hover:bg-ink/[0.06] focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none"
           >
             <X size={20} />
           </RadixDialog.Close>

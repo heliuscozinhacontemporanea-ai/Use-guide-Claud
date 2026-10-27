@@ -181,17 +181,22 @@ describe('previewRefund', () => {
   });
 
   it('segue a política gravada fora do arrependimento: 100%, 50% e 0%', () => {
-    expect(previewRefund(booking('moderate'), new Date('2026-11-04T11:00:00.000Z'))).toEqual({
+    expect(previewRefund(booking('moderate'), new Date('2026-11-04T11:00:00.000Z'))).toMatchObject({
       refundPercent: 100,
       refundAmountMinor: 20000,
     });
-    expect(previewRefund(booking('moderate'), new Date('2026-11-08T11:00:00.000Z'))).toEqual({
+    // 50% vale até 24 h antes do início.
+    expect(previewRefund(booking('moderate'), new Date('2026-11-08T11:00:00.000Z'))).toMatchObject({
       refundPercent: 50,
       refundAmountMinor: 10000,
+      reason: 'policy',
+      until: '2026-11-09T11:00:00.000Z',
     });
-    expect(previewRefund(booking('moderate'), new Date('2026-11-10T00:00:00.000Z'))).toEqual({
+    expect(previewRefund(booking('moderate'), new Date('2026-11-10T00:00:00.000Z'))).toMatchObject({
       refundPercent: 0,
       refundAmountMinor: 0,
+      reason: 'none',
+      until: null,
     });
   });
 
@@ -201,7 +206,7 @@ describe('previewRefund', () => {
         booking('none', '2026-10-01T12:00:00.000Z', '2026-11-08T00:00:00.000Z'),
         new Date('2026-11-09T00:00:00.000Z')
       )
-    ).toEqual({ refundPercent: 100, refundAmountMinor: 20000 });
+    ).toMatchObject({ refundPercent: 100, refundAmountMinor: 20000 });
   });
 
   it('arrependimento devolve tudo mesmo sem reembolso na política', () => {
@@ -210,6 +215,6 @@ describe('previewRefund', () => {
         booking('none', '2026-11-05T11:00:00.000Z'),
         new Date('2026-11-06T11:00:00.000Z')
       )
-    ).toEqual({ refundPercent: 100, refundAmountMinor: 20000 });
+    ).toMatchObject({ refundPercent: 100, refundAmountMinor: 20000 });
   });
 });

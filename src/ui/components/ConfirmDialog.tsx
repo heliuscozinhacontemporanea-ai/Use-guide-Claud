@@ -2,8 +2,9 @@ import * as RadixDialog from '@radix-ui/react-dialog';
 import { AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '../../shared/utils/cn';
-import { GlassCard } from './GlassCard';
 import { Z_INDEX } from '../../shared/constants/zIndex';
+import { BUTTON_DANGER, BUTTON_POSITIVE } from '../styles/controls';
+import { TextButton } from './TextButton';
 
 /** `danger` (padrão) para excluir ou cancelar; `positive` para aprovar ou liberar algo. */
 export type ConfirmDialogTone = 'danger' | 'positive';
@@ -13,8 +14,16 @@ export interface ConfirmDialogData {
   onConfirm: () => void;
   onCancel: () => void;
   tone?: ConfirmDialogTone;
+  /** Pergunta curta acima da mensagem; sem ela, a mensagem vira o título. */
+  title?: string;
+  /** Valor que a pessoa precisa ver antes de decidir (ex.: o reembolso). */
+  highlight?: { label: string; value: string };
+  /** Linha de apoio, menor, abaixo da mensagem. */
+  note?: string;
   /** Rótulo do botão de confirmar; o padrão é "Confirmar". */
   confirmLabel?: string;
+  /** Rótulo de desistir; o padrão é "Cancelar", que confunde quando a ação também é cancelar. */
+  cancelLabel?: string;
 }
 
 interface ConfirmDialogProps {
@@ -38,40 +47,45 @@ export function ConfirmDialog({ data }: ConfirmDialogProps) {
           style={{ zIndex: Z_INDEX.overlay }}
         />
         <RadixDialog.Content
-          className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)] max-w-xs outline-none animate-scale-in data-[state=closed]:animate-scale-out motion-reduce:animate-none"
+          // Sem título a mensagem já é o título; `undefined` diz ao Radix que não há descrição.
+          {...(data?.title ? {} : { 'aria-describedby': undefined })}
+          className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)] max-w-xs p-6 rounded-3xl bg-surface-solid border border-line text-ink flex flex-col items-center text-center gap-3 outline-none animate-scale-in data-[state=closed]:animate-scale-out motion-reduce:animate-none"
           style={{ zIndex: Z_INDEX.modalNested }}
         >
-          <GlassCard className="p-6 flex flex-col items-center text-center gap-4">
-            <Icon
-              size={28}
-              className={positive ? 'text-success' : 'text-warn'}
-              aria-hidden="true"
-            />
-            <RadixDialog.Title className="text-sm font-medium text-white/90 leading-relaxed">
+          <Icon size={28} className={positive ? 'text-success' : 'text-warn'} aria-hidden="true" />
+          {data?.title ? (
+            <>
+              <RadixDialog.Title className="text-base font-bold text-ink">
+                {data.title}
+              </RadixDialog.Title>
+              {data.highlight && (
+                <div>
+                  <p className="text-[13px] text-ink/70">{data.highlight.label}</p>
+                  <p className="text-2xl font-bold text-ink tabular-nums">{data.highlight.value}</p>
+                </div>
+              )}
+              <RadixDialog.Description className="text-[13px] text-ink/70 leading-relaxed">
+                {data.message}
+              </RadixDialog.Description>
+            </>
+          ) : (
+            <RadixDialog.Title className="text-sm font-medium text-ink leading-relaxed">
               {data?.message}
             </RadixDialog.Title>
-            <div className="flex gap-3 w-full">
-              <button
-                type="button"
-                onClick={data?.onCancel}
-                className="press flex-1 min-h-[44px] py-2.5 rounded-xl bg-white/10 text-white/70 text-xs font-bold uppercase tracking-wide hover:bg-white/15 focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none"
-              >
-                {t('common.cancel')}
-              </button>
-              <button
-                type="button"
-                onClick={data?.onConfirm}
-                className={cn(
-                  'press flex-1 min-h-[44px] py-2.5 rounded-xl text-xs font-bold uppercase tracking-wide focus-visible:ring-2 focus-visible:outline-none',
-                  positive
-                    ? 'bg-emerald-500 text-black hover:bg-emerald-400 focus-visible:ring-emerald-400/50'
-                    : 'bg-rose-600 !text-[#fff8f0] hover:bg-rose-500 focus-visible:ring-rose-400/50'
-                )}
-              >
-                {data?.confirmLabel ?? t('common.confirm')}
-              </button>
-            </div>
-          </GlassCard>
+          )}
+          {data?.note && <p className="text-[12px] text-ink/60">{data.note}</p>}
+          <div className="flex flex-col gap-1 w-full pt-1">
+            <button
+              type="button"
+              onClick={data?.onConfirm}
+              className={cn(positive ? BUTTON_POSITIVE : BUTTON_DANGER, 'w-full')}
+            >
+              {data?.confirmLabel ?? t('common.confirm')}
+            </button>
+            <TextButton onClick={data?.onCancel} className="justify-center mx-0">
+              {data?.cancelLabel ?? t('common.cancel')}
+            </TextButton>
+          </div>
         </RadixDialog.Content>
       </RadixDialog.Portal>
     </RadixDialog.Root>

@@ -24,6 +24,7 @@ describe('sub-telas do menu', () => {
   it('voltar leva à tela-mãe: idioma e aparência voltam para configurações, senha para a conta', () => {
     expect(parentMenuView('language')).toBe('settings');
     expect(parentMenuView('appearance')).toBe('settings');
+    expect(parentMenuView('purchases')).toBe('settings');
     expect(parentMenuView('password')).toBe('account');
     expect(parentMenuView('favorites')).toBe('main');
     expect(parentMenuView('bookings')).toBe('main');
@@ -31,7 +32,14 @@ describe('sub-telas do menu', () => {
   });
 
   it('sem login, telas com dados do usuário mostram a tela principal (com o login)', () => {
-    for (const view of ['account', 'password', 'tickets', 'bookings', 'favorites'] as const) {
+    for (const view of [
+      'account',
+      'password',
+      'tickets',
+      'bookings',
+      'favorites',
+      'purchases',
+    ] as const) {
       expect(visibleMenuView(view, false)).toBe('main');
       expect(visibleMenuView(view, true)).toBe(view);
     }

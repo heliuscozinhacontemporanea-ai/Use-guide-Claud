@@ -19,8 +19,9 @@ import {
 import { Z_INDEX } from '../../shared/constants/zIndex';
 import { cn } from '../../shared/utils/cn';
 import { SidebarLayout } from '../../ui/layouts/SidebarLayout';
-import { BuyerBookingsComposition } from '../compositions/BuyerBookingsComposition';
-import { BuyerTicketWalletComposition } from '../compositions/BuyerTicketWalletComposition';
+import { MyBookingsView } from '../../domain/bookings';
+import { UserTicketsHistoryView } from '../../domain/ticketing';
+import { BuyerPurchasesComposition } from '../compositions/BuyerPurchasesComposition';
 import { type MenuView, parentMenuView, visibleMenuView } from './menuViews';
 import { useSideMenu } from './useSideMenu';
 import { useLocalizedRouting } from '../../shared/hooks/useLocalizedRouting';
@@ -39,9 +40,9 @@ const FULL_HEIGHT_VIEWS: readonly MenuView[] = [
   'about',
 ];
 
-const SETTINGS_VIEWS: readonly MenuView[] = ['settings', 'language', 'appearance'];
+const SETTINGS_VIEWS: readonly MenuView[] = ['settings', 'purchases', 'language', 'appearance'];
 
-/** Compõe as telas de vários domínios (usuário, ingressos, reservas, favoritos, conteúdo) no menu. */
+/** Compõe as telas de vários domínios (usuário, ingressos, reservas, compras, favoritos, conteúdo) no menu. */
 export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
   const { user } = useAuthContext();
   const { goTo } = useLocalizedRouting();
@@ -138,6 +139,15 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
             onBack={goBack}
             onOpenLanguage={() => showView('language')}
             onOpenAppearance={() => showView('appearance')}
+            onOpenPurchases={user ? () => showView('purchases') : undefined}
+          />
+        );
+      case 'purchases':
+        return (
+          <BuyerPurchasesComposition
+            onBack={goBack}
+            onOpenTickets={() => showView('tickets')}
+            onOpenBookings={() => showView('bookings')}
           />
         );
       case 'password':
@@ -158,9 +168,9 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
       case 'support':
         return <SupportView onBack={goBack} userEmail={user?.email} />;
       case 'tickets':
-        return <BuyerTicketWalletComposition onBack={goBack} />;
+        return <UserTicketsHistoryView onBack={goBack} />;
       case 'bookings':
-        return <BuyerBookingsComposition onBack={goBack} />;
+        return <MyBookingsView onBack={goBack} />;
       case 'favorites':
         return <FavoritesList onBack={goBack} onSelectItem={closeMenuAndOpenItem} />;
       case 'account':

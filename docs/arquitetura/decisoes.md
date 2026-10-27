@@ -27,6 +27,7 @@
 | D15 | Termos com aceite registrado e idioma do editor de conteúdo | ✅ Aprovada | 2026-10-25 |
 | D16 | Dívidas, reclamações, força maior e reagendamento | ✅ Aprovada | 2026-10-25 |
 | D17 | Visual: fundo neutro, superfícies sólidas e menos informação por tela | ✅ Aprovada | 2026-10-27 |
+| D18 | Compras em Configurações; cancelar só com reembolso; valor só na confirmação | ✅ Aprovada | 2026-10-27 |
 
 ---
 
@@ -261,4 +262,14 @@ Propostas montadas em preview (Minhas reservas, Pedidos e Financeiro do admin) e
 * **Foto do item** nos cartões sempre que houver; sem foto, ícone do tipo de serviço.
 * **AGENTS.md §11.1** atualizado pela S16 (prompt A6).
 * **Prompts:** A6 (regra), 20.0 (base visual: tokens, fundo e `GlassCard` sólido) e 20.1 (as três telas das propostas), no fim do lote 17; as demais telas seguem tela a tela, junto com o 19.x.
+
+## D18 — Compras em Configurações, cancelamento e reembolso (2026-10-27)
+
+* **Compras:** histórico de tudo que a pessoa comprou (ingressos e reservas), em Configurações, organizado pelo estado do dinheiro: **Finalizadas · Pendentes · Canceladas**, agrupadas pelo mês da compra. Os planos do parceiro ficam fora.
+* **Ingressos e Reservas:** abas próprias organizadas por tempo (Próximos e Anteriores), só com QR Code e detalhes. A aba Pedidos sai de Meus ingressos.
+* **Ações da compra na folha de detalhes:** Pagar, Cancelar compra e Relatar problema ficam em Compras. Na folha, o nome do evento ou serviço fica em cima, com o código do pedido e a data da compra logo abaixo.
+* **Valor do reembolso só na confirmação:** a folha não mostra quanto volta, para não induzir o cancelamento. Depois de tocar em Cancelar compra, a confirmação mostra o valor, o motivo (arrependimento, nova data ou política) e até quando ele vale, antes de qualquer ação.
+* **Prazo terminado não invalida a compra:** sem reembolso, não há o que cancelar. A folha não oferece cancelar e avisa que os ingressos ou a reserva continuam valendo; o backend recusa o cancelamento sem reembolso em ingressos e reservas (`CANCELLATION_NOT_ALLOWED`), e a vaga não volta para venda.
+* **Fora por enquanto:** o meio de pagamento na folha ("Pago no cartão"), que exige o backend guardar esse dado.
+* **Prompt:** 20.3.
 

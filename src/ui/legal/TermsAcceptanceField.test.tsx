@@ -16,7 +16,7 @@ describe('TermsAcceptanceField (D15)', () => {
     expect(screen.getByRole('dialog')).toBeTruthy();
     expect(screen.getByText('Compras, cancelamento e reembolso')).toBeTruthy();
     expect(screen.getAllByText(/Direito de arrependimento/).length).toBeGreaterThan(0);
-    fireEvent.click(screen.getByRole('button', { name: 'Fechar' }));
+    fireEvent.click(screen.getByText('Fechar'));
     fireEvent.click(screen.getByRole('checkbox'));
     expect(onChange).toHaveBeenCalledWith(true);
   });

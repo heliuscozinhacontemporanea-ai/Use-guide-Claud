@@ -1,90 +1,43 @@
-import { AlertCircle, CheckCircle2, Loader2, RefreshCw, Ticket as TicketIcon } from 'lucide-react';
-import { type ReactNode, useState } from 'react';
+import { AlertCircle, CheckCircle2, RefreshCw } from 'lucide-react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BackButton } from '../../../ui/components/BackButton';
-import { ConfirmDialog, type ConfirmDialogData } from '../../../ui/components/ConfirmDialog';
-import { GlassCard } from '../../../ui/components/GlassCard';
+import { ListEmpty, ListError, ListLoading } from '../../../ui/components/ListState';
 import { SegmentedControl } from '../../../ui/components/SegmentedControl';
-import { formatMoneyMinor } from '../../../shared/utils/money';
 import { cn } from '../../../shared/utils/cn';
 import { useTicketWalletActions } from '../hooks/useTicketWalletActions';
 import { useUserTicketsAndOrders } from '../hooks/useUserTickets';
-import type { TicketOrder } from '../types/ticketing';
-import {
-  canRequestRefund,
-  canTransferTicket,
-  previewOrderRefundMinor,
-} from '../utils/ticketWalletRules';
-import { ResumePaymentCard } from './wallet/ResumePaymentCard';
+import type { Ticket } from '../types/ticketing';
+import { canTransferTicket } from '../utils/ticketWalletRules';
 import { TransferTicketForm } from './wallet/TransferTicketForm';
-import { WalletOrderCard } from './wallet/WalletOrderCard';
 import { WalletTicketCard } from './wallet/WalletTicketCard';
-
-/** Venda que o comprador pode reclamar; o formato é o de `ClaimableSale` do payment. */
-export interface TicketOrderClaimSale {
-  referenceType: 'ticket_order';
-  referenceId: string;
-  serviceStartsAt: string;
-  serviceEndsAt: string;
-}
 
 interface UserTicketsHistoryViewProps {
   onBack?: () => void;
-  /** Slot da composição para "Relatar problema" (D16, 2A). */
-  renderClaimAction?: (sale: TicketOrderClaimSale) => ReactNode;
-}
-
-function claimSaleOf(order: TicketOrder): TicketOrderClaimSale | null {
-  if (!order.eventSnapshot) return null;
-  if (order.status !== 'paid' && order.status !== 'partially_refunded') return null;
-  return {
-    referenceType: 'ticket_order',
-    referenceId: order.id,
-    serviceStartsAt: order.eventSnapshot.startsAt,
-    serviceEndsAt: order.eventSnapshot.endsAt || order.eventSnapshot.startsAt,
-  };
 }
 
 const ROUND_BUTTON =
   'press w-11 h-11 shrink-0 rounded-full flex items-center justify-center text-ink/80 hover:bg-ink/[0.06] focus-visible:ring-2 focus-visible:ring-teal-400/50';
 
-export function UserTicketsHistoryView({
-  onBack,
-  renderClaimAction,
-}: UserTicketsHistoryViewProps = {}) {
-  const { t, i18n } = useTranslation();
+function endsAtOf(ticket: Ticket): number {
+  const event = ticket.eventSnapshot;
+  return event ? new Date(event.endsAt || event.startsAt).getTime() : Number.POSITIVE_INFINITY;
+}
+
+/**
+ * Ingressos do comprador por tempo (Próximos e Anteriores), com QR Code e transferência. Pagar,
+ * cancelar e relatar ficam em Configurações › Compras.
+ */
+export function UserTicketsHistoryView({ onBack }: UserTicketsHistoryViewProps = {}) {
+  const { t } = useTranslation();
   const wallet = useUserTicketsAndOrders(true);
   const { tickets, orders, loading, error, reload } = wallet;
   const actions = useTicketWalletActions(wallet);
-  const [activeTab, setActiveTab] = useState<'tickets' | 'orders'>('tickets');
-  const [confirm, setConfirm] = useState<ConfirmDialogData | null>(null);
+  const [tab, setTab] = useState<'upcoming' | 'past'>('upcoming');
   const now = new Date();
-
-  const askRefund = (order: TicketOrder) => {
-    // Só para mostrar antes de confirmar; o valor devolvido é decidido pelo backend.
-    const amountMinor = previewOrderRefundMinor(order, now);
-    const keepsServiceFee = (order.serviceFeeMinor ?? 0) > 0 && amountMinor < order.totalMinor;
-    setConfirm({
-      message: [
-        t('ticketWallet.refundConfirm', {
-          amount: formatMoneyMinor(amountMinor, i18n.language),
-        }),
-        keepsServiceFee ? t('salesPolicy.serviceFee.notRefundable') : '',
-      ]
-        .filter(Boolean)
-        .join(' '),
-      confirmLabel: t('ticketWallet.actions.refund'),
-      onCancel: () => setConfirm(null),
-      onConfirm: () => {
-        setConfirm(null);
-        void actions.requestRefund(order);
-      },
-    });
-  };
-
-  const isPendingAndActive = (order: TicketOrder) =>
-    (order.status === 'pending_payment' || order.status === 'payment_failed') &&
-    (!order.expiresAt || new Date(order.expiresAt).getTime() > now.getTime());
+  const upcoming = tickets.filter((ticket) => endsAtOf(ticket) > now.getTime());
+  const past = tickets.filter((ticket) => endsAtOf(ticket) <= now.getTime());
+  const shown = tab === 'upcoming' ? upcoming : past;
 
   return (
     <div className="space-y-4">
@@ -109,11 +62,11 @@ export function UserTicketsHistoryView({
 
       <SegmentedControl
         label={t('ticketWallet.tabsLabel')}
-        value={activeTab}
-        onChange={setActiveTab}
+        value={tab}
+        onChange={setTab}
         options={[
-          { value: 'tickets', label: t('ticketWallet.tabs.tickets', { count: tickets.length }) },
-          { value: 'orders', label: t('ticketWallet.tabs.orders', { count: orders.length }) },
+          { value: 'upcoming', label: t('ticketWallet.tabs.upcoming', { count: upcoming.length }) },
+          { value: 'past', label: t('ticketWallet.tabs.past', { count: past.length }) },
         ]}
       />
 
@@ -136,86 +89,42 @@ export function UserTicketsHistoryView({
         </p>
       )}
 
-      {error && (
-        <p
-          role="alert"
-          className="p-3 rounded-xl bg-danger-soft border border-danger-line text-xs text-danger"
-        >
-          {error}
-        </p>
-      )}
+      {error && <ListError message={error} onRetry={() => void reload()} />}
 
-      {loading && tickets.length === 0 && orders.length === 0 ? (
-        <p role="status" className="p-8 flex items-center justify-center gap-2 text-ink/70 text-xs">
-          <Loader2 size={18} className="animate-spin text-teal-400" aria-hidden="true" />
-          {t('ticketWallet.loading')}
-        </p>
-      ) : activeTab === 'tickets' ? (
-        tickets.length === 0 ? (
-          <GlassCard className="p-6 text-center space-y-2">
-            <TicketIcon size={28} className="mx-auto text-ink/60" aria-hidden="true" />
-            <p className="text-sm font-bold text-ink/80">{t('ticketWallet.emptyTickets')}</p>
-            <p className="text-xs text-ink/70">{t('ticketWallet.emptyTicketsHint')}</p>
-          </GlassCard>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {tickets.map((ticket) => (
-              <WalletTicketCard
-                key={ticket.id}
-                ticket={ticket}
-                qrDataUrl={
-                  actions.qrPreview?.ticketId === ticket.id ? actions.qrPreview.dataUrl : undefined
-                }
-                canTransfer={canTransferTicket(
-                  ticket,
-                  orders.find((order) => order.id === ticket.orderId),
-                  now
-                )}
-                busy={actions.busy}
-                onShowQr={() => void actions.showQr(ticket)}
-                onReissueQr={() => void actions.reissueQr(ticket)}
-                onTransfer={() => actions.setTransferTicket(ticket)}
-              />
-            ))}
-          </div>
-        )
-      ) : orders.length === 0 ? (
-        <GlassCard className="p-6 text-center space-y-2">
-          <p className="text-sm font-bold text-ink/80">{t('ticketWallet.emptyOrders')}</p>
-          <p className="text-xs text-ink/70">{t('ticketWallet.emptyOrdersHint')}</p>
-        </GlassCard>
+      {loading && tickets.length === 0 ? (
+        <ListLoading label={t('ticketWallet.loading')} />
       ) : (
-        <ul className="space-y-3">
-          {orders.map((order) => {
-            const claimSale = renderClaimAction ? claimSaleOf(order) : null;
-            return (
-              <WalletOrderCard
-                key={order.id}
-                order={order}
-                ticketCount={tickets.filter((ticket) => ticket.orderId === order.id).length}
-                canResume={isPendingAndActive(order)}
-                canRefund={canRequestRefund(order, tickets, now)}
-                busy={actions.busy}
-                onResume={() => void actions.resumePayment(order)}
-                onRefund={() => askRefund(order)}
-                claimAction={claimSale && renderClaimAction?.(claimSale)}
-              />
-            );
-          })}
-        </ul>
+        !error &&
+        shown.length === 0 && (
+          <ListEmpty
+            message={t(
+              tab === 'upcoming' ? 'ticketWallet.emptyUpcoming' : 'ticketWallet.emptyPast'
+            )}
+          />
+        )
       )}
 
-      {actions.resumingOrder && (
-        <ResumePaymentCard
-          resuming={actions.resumingOrder}
-          onClose={() => actions.setResumingOrder(null)}
-          onError={(message) => actions.setFeedback({ type: 'error', message })}
-          onPaid={async () => {
-            actions.setResumingOrder(null);
-            await reload();
-            actions.setFeedback({ type: 'success', message: t('ticketWallet.feedback.paid') });
-          }}
-        />
+      {shown.length > 0 && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {shown.map((ticket) => (
+            <WalletTicketCard
+              key={ticket.id}
+              ticket={ticket}
+              qrDataUrl={
+                actions.qrPreview?.ticketId === ticket.id ? actions.qrPreview.dataUrl : undefined
+              }
+              canTransfer={canTransferTicket(
+                ticket,
+                orders.find((order) => order.id === ticket.orderId),
+                now
+              )}
+              busy={actions.busy}
+              onShowQr={() => void actions.showQr(ticket)}
+              onReissueQr={() => void actions.reissueQr(ticket)}
+              onTransfer={() => actions.setTransferTicket(ticket)}
+            />
+          ))}
+        </div>
       )}
 
       {actions.transferTicket && (
@@ -226,8 +135,6 @@ export function UserTicketsHistoryView({
           onCancel={() => actions.setTransferTicket(null)}
         />
       )}
-
-      <ConfirmDialog data={confirm} />
     </div>
   );
 }

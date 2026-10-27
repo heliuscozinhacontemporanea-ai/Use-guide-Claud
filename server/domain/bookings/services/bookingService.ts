@@ -198,6 +198,13 @@ export class BookingService {
       serviceFeeMinor: 0,
       rescheduledAt: booking.rescheduledAt,
     });
+    // Sem reembolso não há o que cancelar: a reserva paga continua valendo até a data do serviço.
+    if (calculated.refundMinor <= 0) {
+      throw new BookingDomainError(
+        'CANCELLATION_NOT_ALLOWED',
+        'O prazo de cancelamento terminou. Sua reserva continua valendo.'
+      );
+    }
     const refund = {
       refundPercent: calculated.percent,
       refundAmountMinor: calculated.refundMinor,

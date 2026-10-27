@@ -10,6 +10,7 @@ export const MENU_VIEWS = [
   'bookings',
   'favorites',
   'settings',
+  'purchases',
   'language',
   'appearance',
   'support',
@@ -27,6 +28,7 @@ const PARENT_VIEW: Record<Exclude<MenuView, 'main'>, MenuView> = {
   bookings: 'main',
   favorites: 'main',
   settings: 'main',
+  purchases: 'settings',
   language: 'settings',
   appearance: 'settings',
   support: 'main',
@@ -40,6 +42,7 @@ const PRIVATE_VIEWS: readonly MenuView[] = [
   'tickets',
   'bookings',
   'favorites',
+  'purchases',
 ];
 
 function isMenuView(value: string): value is MenuView {

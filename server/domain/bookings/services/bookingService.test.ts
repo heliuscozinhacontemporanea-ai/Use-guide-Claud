@@ -188,6 +188,18 @@ describe('BookingService', () => {
     });
   });
 
+  it('sem reembolso o cancelamento é recusado e a reserva continua valendo', async () => {
+    const { service, port, setNow } = setup();
+    const booking = await service.createPendingBooking(BUYER, INPUT, FEES);
+    await service.confirmBookingPayment(booking.id, 'pi_1');
+    setNow(new Date(new Date(STARTS_AT).getTime() - 12 * 3_600_000).toISOString());
+    await expect(service.requestCancellationByBuyer(BUYER, booking.id, '')).rejects.toMatchObject({
+      code: 'CANCELLATION_NOT_ALLOWED',
+    });
+    expect(port.bookings.get(booking.id)?.status).toBe('confirmed');
+    expect(port.slots.get('slot-1')?.capacitySold).toBe(2);
+  });
+
   it('reagendada pelo parceiro: até 7 dias depois do aviso devolve tudo, mesmo fora da política (D16)', async () => {
     const { service, port, setNow } = setup();
     const booking = await service.createPendingBooking(BUYER, INPUT, FEES);

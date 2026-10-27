@@ -1,4 +1,4 @@
-import { calculateBuyerRefund } from '../../../shared/utils/cancellationPolicy';
+import { type BuyerRefund, calculateBuyerRefund } from '../../../shared/utils/cancellationPolicy';
 import type { Ticket, TicketOrder } from '../types/ticketing';
 
 const HOUR_MS = 60 * 60 * 1000;
@@ -14,15 +14,15 @@ export function canTransferTicket(ticket: Ticket, order: TicketOrder | undefined
 }
 
 /**
- * Mesma conta do backend (arrependimento ou política do pedido), só para mostrar o valor antes de pedir.
- * A taxa de serviço só volta no arrependimento (D14) e no reagendamento (D16).
+ * Mesma conta do backend (arrependimento, reagendamento ou política do pedido), só para mostrar antes de
+ * pedir. A taxa de serviço só volta no arrependimento (D14) e no reagendamento (D16).
  */
-export function previewOrderRefundMinor(order: TicketOrder, now: Date): number {
+export function previewOrderRefund(order: TicketOrder, now: Date): BuyerRefund | null {
   if (order.status !== 'paid' || !order.eventSnapshot?.startsAt || !order.salesPolicySnapshot) {
-    return 0;
+    return null;
   }
   const serviceFeeMinor = order.serviceFeeMinor ?? 0;
-  const refund = calculateBuyerRefund({
+  return calculateBuyerRefund({
     family: 'event',
     policy: order.salesPolicySnapshot.cancellationPolicy,
     purchasedAt: order.paidAt ?? order.createdAt,
@@ -32,7 +32,11 @@ export function previewOrderRefundMinor(order: TicketOrder, now: Date): number {
     serviceFeeMinor,
     rescheduledAt: order.rescheduledAt,
   });
-  return refund.refundMinor + refund.serviceFeeRefundMinor;
+}
+
+export function previewOrderRefundMinor(order: TicketOrder, now: Date): number {
+  const refund = previewOrderRefund(order, now);
+  return refund ? refund.refundMinor + refund.serviceFeeRefundMinor : 0;
 }
 
 export function canRequestRefund(order: TicketOrder, tickets: Ticket[], now: Date) {

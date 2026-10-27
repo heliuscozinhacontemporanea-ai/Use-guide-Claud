@@ -13,7 +13,6 @@ export interface BookingsTranslation {
     pastTab: string;
     emptyUpcoming: string;
     emptyPast: string;
-    cancelShort: string;
     refundedAmount: string;
     chooseSlot: string;
     noSlots: string;
@@ -42,10 +41,6 @@ export interface BookingsTranslation {
     viewMyBookings: string;
     menuItem: string;
     myBookingsTitle: string;
-    confirmCancelRefund: string;
-    confirmCancelNoRefund: string;
-    canceledWithRefund: string;
-    canceledNoRefund: string;
     loadMore: string;
     resultTitle: string;
     resultLoading: string;
@@ -214,7 +209,6 @@ export const bookingsPtBR: BookingsTranslation = {
     pastTab: 'Anteriores ({{count}})',
     emptyUpcoming: 'Nenhuma reserva por vir.',
     emptyPast: 'Nenhuma reserva anterior.',
-    cancelShort: 'Cancelar',
     refundedAmount: 'Reembolsado {{amount}}',
     chooseSlot: 'Escolha o horário',
     noSlots: 'Nenhum horário disponível nos próximos 30 dias.',
@@ -245,11 +239,6 @@ export const bookingsPtBR: BookingsTranslation = {
     viewMyBookings: 'Ver minhas reservas',
     menuItem: 'Minhas reservas',
     myBookingsTitle: 'Minhas reservas',
-    confirmCancelRefund: 'Cancelar esta reserva? Você receberá {{amount}} de volta.',
-    confirmCancelNoRefund:
-      'Cancelar esta reserva? Pela política de cancelamento, não há reembolso.',
-    canceledWithRefund: 'Reserva cancelada. O reembolso de {{amount}} foi solicitado.',
-    canceledNoRefund: 'Reserva cancelada.',
     loadMore: 'Carregar mais',
     resultTitle: 'Pagamento da reserva',
     resultLoading: 'Verificando o pagamento…',
@@ -426,7 +415,6 @@ export const bookingsEn: BookingsTranslation = {
     pastTab: 'Past ({{count}})',
     emptyUpcoming: 'No upcoming bookings.',
     emptyPast: 'No past bookings.',
-    cancelShort: 'Cancel',
     refundedAmount: 'Refunded {{amount}}',
     chooseSlot: 'Choose a time',
     noSlots: 'No time slots available in the next 30 days.',
@@ -456,10 +444,6 @@ export const bookingsEn: BookingsTranslation = {
     viewMyBookings: 'View my bookings',
     menuItem: 'My bookings',
     myBookingsTitle: 'My bookings',
-    confirmCancelRefund: 'Cancel this booking? You will get {{amount}} back.',
-    confirmCancelNoRefund: 'Cancel this booking? Under the cancellation policy there is no refund.',
-    canceledWithRefund: 'Booking canceled. A refund of {{amount}} was requested.',
-    canceledNoRefund: 'Booking canceled.',
     loadMore: 'Load more',
     resultTitle: 'Booking payment',
     resultLoading: 'Checking the payment…',
@@ -635,7 +619,6 @@ export const bookingsFr: BookingsTranslation = {
     pastTab: 'Passées ({{count}})',
     emptyUpcoming: 'Aucune réservation à venir.',
     emptyPast: 'Aucune réservation passée.',
-    cancelShort: 'Annuler',
     refundedAmount: 'Remboursé {{amount}}',
     chooseSlot: 'Choisissez un créneau',
     noSlots: 'Aucun créneau disponible dans les 30 prochains jours.',
@@ -666,11 +649,6 @@ export const bookingsFr: BookingsTranslation = {
     viewMyBookings: 'Voir mes réservations',
     menuItem: 'Mes réservations',
     myBookingsTitle: 'Mes réservations',
-    confirmCancelRefund: 'Annuler cette réservation ? Vous serez remboursé de {{amount}}.',
-    confirmCancelNoRefund:
-      'Annuler cette réservation ? Selon la politique d’annulation, aucun remboursement n’est prévu.',
-    canceledWithRefund: 'Réservation annulée. Le remboursement de {{amount}} a été demandé.',
-    canceledNoRefund: 'Réservation annulée.',
     loadMore: 'Charger plus',
     resultTitle: 'Paiement de la réservation',
     resultLoading: 'Vérification du paiement…',

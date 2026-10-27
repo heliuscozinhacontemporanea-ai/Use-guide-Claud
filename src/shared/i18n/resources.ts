@@ -41,6 +41,12 @@ import {
   type SaleClaimsTranslation,
 } from './saleClaimsResources';
 import {
+  type PurchasesTranslation,
+  purchasesEn,
+  purchasesFr,
+  purchasesPtBR,
+} from './purchasesResources';
+import {
   type TicketSessionsTranslation,
   ticketSessionsEn,
   ticketSessionsFr,
@@ -86,6 +92,7 @@ export interface TranslationResource {
   paymentAccounts: PaymentAccountsTranslation;
   receivables: ReceivablesTranslation;
   saleClaims: SaleClaimsTranslation;
+  purchases: PurchasesTranslation;
   adminFinance: AdminFinanceTranslation;
   ticketSessions: TicketSessionsTranslation;
   salesPolicy: SalesPolicyTranslation;
@@ -97,6 +104,7 @@ export interface TranslationResource {
     language: string;
     cancel: string;
     confirm: string;
+    close: string;
     retry: string;
     /** Selo "Use Guide Verificado" explicado ao toque (D11). */
     seal: {
@@ -317,6 +325,7 @@ const ptBR: TranslationResource = {
   paymentAccounts: paymentAccountsPtBR,
   receivables: receivablesPtBR,
   saleClaims: saleClaimsPtBR,
+  purchases: purchasesPtBR,
   adminFinance: adminFinancePtBR,
   ticketSessions: ticketSessionsPtBR,
   salesPolicy: salesPolicyPtBR,
@@ -329,6 +338,7 @@ const ptBR: TranslationResource = {
     cancel: 'Cancelar',
     retry: 'Tentar novamente',
     confirm: 'Confirmar',
+    close: 'Fechar',
     seal: {
       label: 'Ver o que significa o selo Use Guide Verificado',
       title: 'Use Guide Verificado',
@@ -599,6 +609,7 @@ const en: TranslationResource = {
   paymentAccounts: paymentAccountsEn,
   receivables: receivablesEn,
   saleClaims: saleClaimsEn,
+  purchases: purchasesEn,
   adminFinance: adminFinanceEn,
   ticketSessions: ticketSessionsEn,
   salesPolicy: salesPolicyEn,
@@ -611,6 +622,7 @@ const en: TranslationResource = {
     cancel: 'Cancel',
     retry: 'Try again',
     confirm: 'Confirm',
+    close: 'Close',
     seal: {
       label: 'See what the Use Guide Verified badge means',
       title: 'Use Guide Verified',
@@ -875,6 +887,7 @@ const fr: TranslationResource = {
   paymentAccounts: paymentAccountsFr,
   receivables: receivablesFr,
   saleClaims: saleClaimsFr,
+  purchases: purchasesFr,
   adminFinance: adminFinanceFr,
   ticketSessions: ticketSessionsFr,
   salesPolicy: salesPolicyFr,
@@ -887,6 +900,7 @@ const fr: TranslationResource = {
     cancel: 'Annuler',
     retry: 'Réessayer',
     confirm: 'Confirmer',
+    close: 'Fermer',
     seal: {
       label: 'Voir ce que signifie le badge Use Guide Vérifié',
       title: 'Use Guide Vérifié',

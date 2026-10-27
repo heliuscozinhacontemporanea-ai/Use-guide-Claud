@@ -82,6 +82,8 @@ export interface BuyerRefund {
   percent: number;
   refundMinor: number;
   serviceFeeRefundMinor: number;
+  /** Até quando vale este reembolso (ISO); depois o valor muda ou acaba. `null` quando não há reembolso. */
+  until: string | null;
 }
 
 /**
@@ -102,21 +104,25 @@ export function calculateBuyerRefund(params: {
   const nowMs = params.now.getTime();
   const startsAtMs = new Date(params.startsAt).getTime();
   const hoursUntilStart = (startsAtMs - nowMs) / HOUR_MS;
+  const iso = (ms: number) => new Date(ms).toISOString();
   if (hoursUntilStart <= 0) {
-    return { reason: 'none', percent: 0, refundMinor: 0, serviceFeeRefundMinor: 0 };
+    return { reason: 'none', percent: 0, refundMinor: 0, serviceFeeRefundMinor: 0, until: null };
   }
   const daysSinceReschedule = params.rescheduledAt
     ? (nowMs - new Date(params.rescheduledAt).getTime()) / (24 * HOUR_MS)
     : Number.POSITIVE_INFINITY;
   if (daysSinceReschedule >= 0 && daysSinceReschedule <= RESCHEDULE_REFUND_DAYS) {
+    const rescheduledAtMs = new Date(params.rescheduledAt as string).getTime();
     return {
       reason: 'reschedule',
       percent: 100,
       refundMinor: params.paidMinor,
       serviceFeeRefundMinor: params.serviceFeeMinor,
+      until: iso(Math.min(rescheduledAtMs + RESCHEDULE_REFUND_DAYS * 24 * HOUR_MS, startsAtMs)),
     };
   }
-  const daysSincePurchase = (nowMs - new Date(params.purchasedAt).getTime()) / (24 * HOUR_MS);
+  const purchasedAtMs = new Date(params.purchasedAt).getTime();
+  const daysSincePurchase = (nowMs - purchasedAtMs) / (24 * HOUR_MS);
   if (
     daysSincePurchase <= WITHDRAWAL_DAYS &&
     hoursUntilStart >= WITHDRAWAL_MIN_HOURS_BEFORE_START
@@ -126,15 +132,23 @@ export function calculateBuyerRefund(params: {
       percent: 100,
       refundMinor: params.paidMinor,
       serviceFeeRefundMinor: params.serviceFeeMinor,
+      until: iso(
+        Math.min(
+          purchasedAtMs + WITHDRAWAL_DAYS * 24 * HOUR_MS,
+          startsAtMs - WITHDRAWAL_MIN_HOURS_BEFORE_START * HOUR_MS
+        )
+      ),
     };
   }
   const tiers = POLICY_TIERS[params.family][params.policy] ?? [];
-  const percent = tiers.find((tier) => hoursUntilStart >= tier.hoursBefore)?.percent ?? 0;
+  const tier = tiers.find((candidate) => hoursUntilStart >= candidate.hoursBefore);
+  const percent = tier?.percent ?? 0;
   return {
     reason: percent > 0 ? 'policy' : 'none',
     percent,
     // Arredonda para baixo: nunca devolve mais do que o percentual da política.
     refundMinor: Math.floor((params.paidMinor * percent) / 100),
     serviceFeeRefundMinor: 0,
+    until: tier && percent > 0 ? iso(startsAtMs - tier.hoursBefore * HOUR_MS) : null,
   };
 }
