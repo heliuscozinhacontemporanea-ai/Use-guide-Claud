@@ -120,7 +120,7 @@ export function WalletOrderCard({
             {event?.title ?? t('ticketWallet.order', { id: order.id.slice(0, ORDER_CODE_LENGTH) })}
           </p>
           {event && (
-            <p className="text-[13px] text-ink/60 font-mono tracking-wide">
+            <p className="text-[13px] text-ink/50 [:root.light_&]:text-ink/65">
               #{order.id.slice(0, ORDER_CODE_LENGTH)}
             </p>
           )}

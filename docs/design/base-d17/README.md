@@ -23,5 +23,5 @@ Prints aprovados em 2026-10-27, tirados do app depois dos prompts 20.0 e 20.1 (r
 - Abas em pílula com a ativa invertida (`SegmentedControl`).
 - Ação secundária em texto (`TextButton`); botão cheio só na ação principal da tela.
 - Voltar só com o chevron `<` (`BackButton`), sem caixa e sem seta.
-- Identificador (código do pedido) logo abaixo do nome, em fonte mono e tom apagado.
+- Identificador (código do pedido) logo abaixo do nome, sem destaque: texto a 50% no escuro e 65% no claro (contraste AA).
 - Filas e listas longas em lista compacta (título, contexto, status e valor); detalhes e decisão na folha inferior (`Dialog`).
