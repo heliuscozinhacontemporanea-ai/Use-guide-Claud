@@ -5,6 +5,14 @@ import type { MyReviewsSource } from '../../hooks/useMyReviews';
 import type { FirestoreReview } from '../../types/review';
 import { MyReviewsView } from './MyReviewsView';
 
+const r = vi.hoisted(() => ({ mine: vi.fn(), report: vi.fn() }));
+vi.mock('../../application/usecases/listMyReviewReportsUseCase', () => ({
+  listMyReviewReportsUseCase: r.mine,
+}));
+vi.mock('../../application/usecases/reportReviewResponseUseCase', () => ({
+  reportReviewResponseUseCase: r.report,
+}));
+
 const REVIEW: FirestoreReview = {
   id: 'items_tamarindo_u1',
   itemId: 'tamarindo',
@@ -39,6 +47,8 @@ function openMenu() {
 
 describe('Minhas avaliações', () => {
   beforeEach(async () => {
+    vi.clearAllMocks();
+    r.mine.mockResolvedValue([]);
     await i18n.changeLanguage('pt-BR');
   });
 
@@ -94,5 +104,58 @@ describe('Minhas avaliações', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Salvar' }));
     expect(await screen.findByText('Escreva um comentário sobre sua experiência.')).toBeTruthy();
     expect(src.save).not.toHaveBeenCalled();
+  });
+
+  it('denunciar a resposta: motivo obrigatório, envia e mostra o status no cartão', async () => {
+    r.report.mockResolvedValue({
+      id: 'rep1',
+      reviewId: REVIEW.id,
+      status: 'open',
+      createdAt: '2026-10-27T12:00:00.000Z',
+      decideBy: '2026-10-30T12:00:00.000Z',
+    });
+    render(
+      <MyReviewsView source={source([REVIEW])} onBack={vi.fn()} titleOf={() => 'Tamarindo'} />
+    );
+    openMenu();
+    fireEvent.click(await screen.findByRole('menuitem', { name: /Denunciar resposta/ }));
+    const submit = screen.getByRole('button', { name: 'Enviar denúncia' });
+    expect((submit as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.click(screen.getByRole('radio', { name: 'Fraude ou golpe' }));
+    fireEvent.click(submit);
+    await waitFor(() =>
+      expect(r.report).toHaveBeenCalledWith({
+        reviewId: REVIEW.id,
+        reason: 'fraud',
+        details: undefined,
+      })
+    );
+    expect(await screen.findByText(/Denúncia em análise/)).toBeTruthy();
+  });
+
+  it('sem resposta do estabelecimento ou com denúncia aberta, não oferece denunciar', async () => {
+    r.mine.mockResolvedValue([
+      {
+        id: 'rep1',
+        reviewId: REVIEW.id,
+        status: 'open',
+        createdAt: '2026-10-27T12:00:00.000Z',
+        decideBy: '2026-10-30T12:00:00.000Z',
+      },
+    ]);
+    render(
+      <MyReviewsView
+        source={source([REVIEW, { ...REVIEW, id: 'r2', partnerResponse: null }])}
+        onBack={vi.fn()}
+        titleOf={() => 'Tamarindo'}
+      />
+    );
+    expect(await screen.findByText(/Denúncia em análise/)).toBeTruthy();
+    for (const trigger of screen.getAllByRole('button', { name: 'Mais opções' })) {
+      fireEvent.pointerDown(trigger, { button: 0, ctrlKey: false, pointerType: 'mouse' });
+      expect(await screen.findByRole('menuitem', { name: /Editar/ })).toBeTruthy();
+      expect(screen.queryByRole('menuitem', { name: /Denunciar resposta/ })).toBeNull();
+      fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Escape' });
+    }
   });
 });

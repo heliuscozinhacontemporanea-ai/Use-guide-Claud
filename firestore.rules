@@ -115,6 +115,10 @@ service cloud.firestore {
       allow read: if true;
       allow write: if false;
     }
+    // Denúncias de resposta (D19): só o backend lê e grava; quem denunciou não é exposto.
+    match /reviewReports/{reportId} {
+      allow read, write: if false;
+    }
     match /partners/{partnerId} {
       allow read:
         if isAuthenticated() &&

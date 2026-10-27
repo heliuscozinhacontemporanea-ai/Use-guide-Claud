@@ -391,6 +391,15 @@ describe('Firestore Rules — Security Suite', () => {
       }
     });
 
+    it('denúncia de resposta (D19): reviewReports negado até para o autor e admin', async () => {
+      const adminDb = testEnv.authenticatedContext('admin-user', { admin: true }).firestore();
+      const authorDb = testEnv.authenticatedContext('user-1').firestore();
+      for (const db of [adminDb, authorDb]) {
+        await assertFails(getDoc(doc(db, 'reviewReports/items_x_user-1__abc')));
+        await assertFails(setDoc(doc(db, 'reviewReports/items_x_user-1__abc'), { reporterUid: 'user-1' }));
+      }
+    });
+
     it('plano (D11): listingPlans negado até para o dono e admin', async () => {
       const adminDb = testEnv.authenticatedContext('admin-user', { admin: true }).firestore();
       const ownerDb = testEnv.authenticatedContext('partner-1').firestore();

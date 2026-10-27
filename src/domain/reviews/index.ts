@@ -16,6 +16,7 @@ export { listMyReviewsUseCase } from './application/usecases/listMyReviewsUseCas
 export { deleteReviewUseCase } from './application/usecases/deleteReviewUseCase';
 // Componente público apenas para src/app/compositions (AGENTS.md §5.2 item 5).
 export { MyReviewsView } from './components/mine/MyReviewsView';
+export { ReviewModerationQueue } from './components/moderation/ReviewModerationQueue';
 export { ReviewSection } from './components/ReviewSection';
 export { ReviewCard } from './components/ReviewCard';
 export { ReviewForm } from './components/ReviewForm';

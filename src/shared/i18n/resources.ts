@@ -57,6 +57,12 @@ import {
   profilePtBR,
 } from './profileResources';
 import {
+  type ReviewReportsTranslation,
+  reviewReportsEn,
+  reviewReportsFr,
+  reviewReportsPtBR,
+} from './reviewReportsResources';
+import {
   type TicketSessionsTranslation,
   ticketSessionsEn,
   ticketSessionsFr,
@@ -105,6 +111,7 @@ export interface TranslationResource {
   purchases: PurchasesTranslation;
   profile: ProfileTranslation;
   myReviews: MyReviewsTranslation;
+  reviewReports: ReviewReportsTranslation;
   adminFinance: AdminFinanceTranslation;
   ticketSessions: TicketSessionsTranslation;
   salesPolicy: SalesPolicyTranslation;
@@ -332,6 +339,7 @@ const ptBR: TranslationResource = {
   purchases: purchasesPtBR,
   profile: profilePtBR,
   myReviews: myReviewsPtBR,
+  reviewReports: reviewReportsPtBR,
   adminFinance: adminFinancePtBR,
   ticketSessions: ticketSessionsPtBR,
   salesPolicy: salesPolicyPtBR,
@@ -615,6 +623,7 @@ const en: TranslationResource = {
   purchases: purchasesEn,
   profile: profileEn,
   myReviews: myReviewsEn,
+  reviewReports: reviewReportsEn,
   adminFinance: adminFinanceEn,
   ticketSessions: ticketSessionsEn,
   salesPolicy: salesPolicyEn,
@@ -892,6 +901,7 @@ const fr: TranslationResource = {
   purchases: purchasesFr,
   profile: profileFr,
   myReviews: myReviewsFr,
+  reviewReports: reviewReportsFr,
   adminFinance: adminFinanceFr,
   ticketSessions: ticketSessionsFr,
   salesPolicy: salesPolicyFr,

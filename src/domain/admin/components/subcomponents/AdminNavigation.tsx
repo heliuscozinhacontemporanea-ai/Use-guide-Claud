@@ -4,6 +4,7 @@ import {
   Bell,
   Calendar,
   Database,
+  Flag,
   Landmark,
   Layers,
   ShieldCheck,
@@ -19,6 +20,7 @@ export type AdminTabId =
   | 'partners'
   | 'verifications'
   | 'finance'
+  | 'moderation'
   | 'plans'
   | 'notifications';
 
@@ -29,6 +31,8 @@ interface AdminNavigationProps {
   showVerifications?: boolean;
   /** As filas financeiras vêm do payment; a aba só aparece quando a composição as monta. */
   showFinance?: boolean;
+  /** A fila de denúncias vem do reviews (D19); a aba só aparece quando a composição a monta. */
+  showModeration?: boolean;
 }
 
 const ADMIN_TABS = [
@@ -59,6 +63,13 @@ const ADMIN_TABS = [
     icon: Landmark,
     color: 'bg-cyan-400',
     shadow: 'shadow-cyan-400/40',
+  },
+  {
+    id: 'moderation' as const,
+    label: '',
+    icon: Flag,
+    color: 'bg-rose-400',
+    shadow: 'shadow-rose-400/40',
   },
   {
     id: 'items' as const,
@@ -95,15 +106,19 @@ export function AdminNavigation({
   onSelectTab,
   showVerifications = false,
   showFinance = false,
+  showModeration = false,
 }: AdminNavigationProps) {
   const { t } = useTranslation();
-  const shown = { verifications: showVerifications, finance: showFinance } as Partial<
-    Record<AdminTabId, boolean>
-  >;
+  const shown = {
+    verifications: showVerifications,
+    finance: showFinance,
+    moderation: showModeration,
+  } as Partial<Record<AdminTabId, boolean>>;
   // Abas de outros domínios têm rótulo traduzido; as demais ainda são texto fixo (débito B32).
   const labels: Partial<Record<AdminTabId, string>> = {
     verifications: t('verification.admin.tab'),
     finance: t('adminFinance.title'),
+    moderation: t('reviewReports.admin.tab'),
   };
   const tabs = ADMIN_TABS.filter((tab) => shown[tab.id] ?? true).map((tab) =>
     labels[tab.id] ? { ...tab, label: labels[tab.id] as string } : tab

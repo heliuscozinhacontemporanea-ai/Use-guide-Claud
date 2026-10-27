@@ -15,6 +15,10 @@ import ticketingRouter, {
 } from './server/domain/ticketing/routes/ticketingRoutes';
 import { TicketingController } from './server/domain/ticketing/controllers/ticketingController';
 import reviewRouter from './server/domain/reviews/routes/reviewRoutes';
+import {
+  adminReviewReportRouter,
+  reviewReportRouter,
+} from './server/domain/reviews/routes/reviewReportRoutes';
 import insightsRouter from './server/domain/insights/routes/insightsRoutes';
 import adminRouter from './server/domain/admin/routes/adminRoutes';
 import favoriteRouter from './server/domain/favorites/routes/favoriteRoutes';
@@ -219,6 +223,8 @@ async function startServer() {
   app.use('/api/admin/events', adminTicketingEventsRouter);
   app.use('/api/ticketing', ticketingRouter);
   app.use('/api/reviews', reviewRouter);
+  app.use('/api/review-reports', reviewReportRouter);
+  app.use('/api/admin/review-reports', adminReviewReportRouter);
   app.use('/api/insights/stats', listingStatsRouter);
   app.use('/api/insights', insightsRouter);
   app.use('/api/admin', adminRouter);

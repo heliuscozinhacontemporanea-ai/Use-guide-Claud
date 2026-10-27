@@ -17,6 +17,7 @@ import {
   type PartnerContentRecord,
 } from '../../domain/partners';
 import { AdminFinanceQueues } from '../../domain/payment';
+import { ReviewModerationQueue } from '../../domain/reviews';
 import { PartnerEventTicketingManager } from '../../domain/ticketing';
 
 // Cadastros novos que o admin pode criar pelo editor do parceiro (o servidor permite só estes ao admin).
@@ -84,7 +85,7 @@ function AdminListingEditor({ item, onClose }: AdminListingEditorProps) {
 
 /**
  * Painel admin com os editores compartilhados: cadastro (o mesmo do parceiro, decisão D9), fila de
- * verificação dos estabelecimentos (D12), selo por estabelecimento (D11), filas financeiras (D16), sessões do evento e
+ * verificação dos estabelecimentos (D12), selo por estabelecimento (D11), filas financeiras (D16), denúncias de respostas (D19), sessões do evento e
  * gerenciador de ingressos.
  */
 export function AdminPanelComposition() {
@@ -94,6 +95,7 @@ export function AdminPanelComposition() {
       renderVerificationQueue={() => <ListingVerificationQueue />}
       renderListingSeal={(item) => <AdminListingSealControl itemId={item.id} name={item.name} />}
       renderFinanceQueues={() => <AdminFinanceQueues />}
+      renderModerationQueue={() => <ReviewModerationQueue />}
       renderSessionsField={(props) => <EventSessionsField {...props} />}
       renderTicketingManager={(eventListingId) => (
         <PartnerEventTicketingManager eventListingId={eventListingId} asAdmin />

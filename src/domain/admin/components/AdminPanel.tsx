@@ -71,6 +71,8 @@ export interface AdminPanelProps extends AdminEventSlots {
   renderListingSeal?: (item: GuideItem) => ReactNode;
   /** Filas financeiras (D16, domínio payment), montadas pela composição. */
   renderFinanceQueues?: () => ReactNode;
+  /** Fila de denúncias de respostas (D19, domínio reviews), montada pela composição. */
+  renderModerationQueue?: () => ReactNode;
 }
 
 export function AdminPanel({
@@ -78,6 +80,7 @@ export function AdminPanel({
   renderVerificationQueue,
   renderListingSeal,
   renderFinanceQueues,
+  renderModerationQueue,
   renderSessionsField,
   renderTicketingManager,
 }: AdminPanelProps = {}) {
@@ -256,6 +259,7 @@ export function AdminPanel({
           onSelectTab={setActiveTab}
           showVerifications={Boolean(renderVerificationQueue)}
           showFinance={Boolean(renderFinanceQueues)}
+          showModeration={Boolean(renderModerationQueue)}
         />
 
         <AnimatePresence mode="wait">
@@ -292,6 +296,8 @@ export function AdminPanel({
               renderVerificationQueue?.()
             ) : activeTab === 'finance' ? (
               renderFinanceQueues?.()
+            ) : activeTab === 'moderation' ? (
+              renderModerationQueue?.()
             ) : activeTab === 'plans' ? (
               <AdminPlansView />
             ) : activeTab === 'notifications' ? (
