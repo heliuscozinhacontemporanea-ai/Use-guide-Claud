@@ -1,13 +1,7 @@
-import {
-  AlertCircle,
-  ArrowLeft,
-  CheckCircle2,
-  Loader2,
-  RefreshCw,
-  Ticket as TicketIcon,
-} from 'lucide-react';
+import { AlertCircle, CheckCircle2, Loader2, RefreshCw, Ticket as TicketIcon } from 'lucide-react';
 import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { BackButton } from '../../../ui/components/BackButton';
 import { ConfirmDialog, type ConfirmDialogData } from '../../../ui/components/ConfirmDialog';
 import { GlassCard } from '../../../ui/components/GlassCard';
 import { SegmentedControl } from '../../../ui/components/SegmentedControl';
@@ -96,16 +90,7 @@ export function UserTicketsHistoryView({
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 min-w-0">
-          {onBack && (
-            <button
-              type="button"
-              onClick={onBack}
-              aria-label={t('ticketWallet.back')}
-              className={ROUND_BUTTON}
-            >
-              <ArrowLeft size={20} aria-hidden="true" />
-            </button>
-          )}
+          {onBack && <BackButton label={t('ticketWallet.back')} onClick={onBack} />}
           <h2 className="text-[22px] font-display font-bold text-ink">{t('ticketWallet.title')}</h2>
         </div>
         <button

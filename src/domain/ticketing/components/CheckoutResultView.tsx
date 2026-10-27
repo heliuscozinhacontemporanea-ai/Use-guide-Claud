@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   AlertTriangle,
-  ArrowLeft,
   CheckCircle2,
+  ChevronLeft,
   Clock,
   Loader2,
   Ticket as TicketIcon,
@@ -48,9 +48,7 @@ export function CheckoutResultView({
       } catch (err: unknown) {
         if (active) {
           setError(
-            err instanceof Error
-              ? err.message
-              : 'Não foi possível verificar o status do pedido.'
+            err instanceof Error ? err.message : 'Não foi possível verificar o status do pedido.'
           );
         }
       } finally {
@@ -91,9 +89,7 @@ export function CheckoutResultView({
               <div className="w-14 h-14 rounded-2xl bg-red-500/15 border border-red-500/30 flex items-center justify-center text-red-300 mx-auto">
                 <AlertTriangle size={26} />
               </div>
-              <h2 className="text-lg font-bold text-white">
-                Não foi possível confirmar o pedido
-              </h2>
+              <h2 className="text-lg font-bold text-white">Não foi possível confirmar o pedido</h2>
               <p className="text-xs text-white/60">{error}</p>
               {onBackHome && (
                 <button
@@ -101,7 +97,7 @@ export function CheckoutResultView({
                   onClick={onBackHome}
                   className="w-full min-h-11 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-bold text-white flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <ArrowLeft size={15} />
+                  <ChevronLeft size={15} />
                   <span>Voltar ao Guia</span>
                 </button>
               )}
@@ -148,9 +144,7 @@ export function CheckoutResultView({
                 <AlertTriangle size={30} />
               </div>
               <h2 className="text-lg font-bold text-white">
-                {order.status === 'expired'
-                  ? 'Reserva Expirada'
-                  : 'Pagamento Não Aprovado'}
+                {order.status === 'expired' ? 'Reserva Expirada' : 'Pagamento Não Aprovado'}
               </h2>
               <p className="text-xs text-white/60">
                 {order.status === 'expired'

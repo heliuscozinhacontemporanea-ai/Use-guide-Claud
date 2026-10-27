@@ -19,6 +19,9 @@ interface WalletOrderCardProps {
   claimAction?: ReactNode;
 }
 
+// Código curto do pedido para o atendimento; o ID completo continua no backend.
+const ORDER_CODE_LENGTH = 10;
+
 const STATUS_TONE: Partial<Record<TicketOrder['status'], StatusTone>> = {
   payment_processing: 'info',
   payment_failed: 'danger',
@@ -114,8 +117,13 @@ export function WalletOrderCard({
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-[15px] font-semibold text-ink leading-snug break-words">
-            {event?.title ?? t('ticketWallet.order', { id: order.id.slice(0, 8) })}
+            {event?.title ?? t('ticketWallet.order', { id: order.id.slice(0, ORDER_CODE_LENGTH) })}
           </p>
+          {event && (
+            <p className="text-[13px] text-ink/60 font-mono tracking-wide">
+              #{order.id.slice(0, ORDER_CODE_LENGTH)}
+            </p>
+          )}
           {event && (
             <p className="text-sm text-ink/70 mt-0.5">
               {format(event.startsAt, {

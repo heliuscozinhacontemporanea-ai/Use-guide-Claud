@@ -255,6 +255,9 @@ Propostas montadas em preview (Minhas reservas, Pedidos e Financeiro do admin) e
 * **Cor com significado:** verde-água para ação, amarelo para pendente, verde para concluído, vermelho para perigo. Status como texto com ponto colorido, sem caixa com borda.
 * **Menos informação por vez:** cartão com o que foi comprado e quando, e uma linha com o que a pessoa precisa saber ou fazer agora. Detalhes ao tocar (folha). Abas no lugar de listas longas (ex.: Próximas e Anteriores).
 * **Uma ação principal por tela** (botão cheio); as demais como texto ou ícone.
+* **Voltar** só com o chevron `<` (`BackButton` do design system), sem caixa e sem seta.
+* **Identificadores** (ex.: código do pedido `#vdV5jh456n`) logo abaixo do nome do serviço, discretos.
+* **Referência visual:** `docs/design/base-d17/`.
 * **Foto do item** nos cartões sempre que houver; sem foto, ícone do tipo de serviço.
 * **AGENTS.md §11.1** atualizado pela S16 (prompt A6).
 * **Prompts:** A6 (regra), 20.0 (base visual: tokens, fundo e `GlassCard` sólido) e 20.1 (as três telas das propostas), no fim do lote 17; as demais telas seguem tela a tela, junto com o 19.x.

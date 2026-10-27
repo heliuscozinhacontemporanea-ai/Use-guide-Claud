@@ -1,4 +1,4 @@
-import { ArrowLeft, Plus } from 'lucide-react';
+import { ChevronLeft, Plus } from 'lucide-react';
 import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ConfirmDialog, type ConfirmDialogData } from '../../../../ui/components/ConfirmDialog';
@@ -74,7 +74,7 @@ export function PartnerOffersManager({
       aria-label={t('bookings.editor.cancel')}
       className={`${BUTTON_SECONDARY} w-11`}
     >
-      <ArrowLeft size={16} aria-hidden="true" />
+      <ChevronLeft size={16} aria-hidden="true" />
     </button>
   );
 

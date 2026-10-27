@@ -1,6 +1,6 @@
 # Base visual D17 — telas de referência
 
-Prints aprovados em 2026-10-27, tirados do app depois dos prompts 20.0 e 20.1 (commit `1bcb82b`). São a referência para levar as demais telas ao visual novo (AGENTS.md §11.1, decisão D17 em `docs/arquitetura/decisoes.md`).
+Prints aprovados em 2026-10-27, tirados do app depois dos prompts 20.0 e 20.1 (reservas e pedidos atualizados com o voltar `<` e o código do pedido). São a referência para levar as demais telas ao visual novo (AGENTS.md §11.1, decisão D17 em `docs/arquitetura/decisoes.md`).
 
 | Arquivo | Tela | Tema |
 |---|---|---|
@@ -22,4 +22,6 @@ Prints aprovados em 2026-10-27, tirados do app depois dos prompts 20.0 e 20.1 (c
 - Status como texto com ponto colorido (`StatusText`), sem caixa com borda.
 - Abas em pílula com a ativa invertida (`SegmentedControl`).
 - Ação secundária em texto (`TextButton`); botão cheio só na ação principal da tela.
+- Voltar só com o chevron `<` (`BackButton`), sem caixa e sem seta.
+- Identificador (código do pedido) logo abaixo do nome, em fonte mono e tom apagado.
 - Filas e listas longas em lista compacta (título, contexto, status e valor); detalhes e decisão na folha inferior (`Dialog`).

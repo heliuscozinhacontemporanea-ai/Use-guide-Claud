@@ -1,6 +1,6 @@
-import { ArrowLeft } from 'lucide-react';
 import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { BackButton } from '../../../../ui/components/BackButton';
 import { ConfirmDialog, type ConfirmDialogData } from '../../../../ui/components/ConfirmDialog';
 import { SegmentedControl } from '../../../../ui/components/SegmentedControl';
 import { useMyBookings } from '../../hooks/useMyBookings';
@@ -92,14 +92,7 @@ export function MyBookingsView({
   return (
     <section className="w-full space-y-5">
       <div className="flex items-center gap-2">
-        <button
-          type="button"
-          onClick={onBack}
-          aria-label={t('bookings.buyer.back')}
-          className="press w-11 h-11 -ml-2 shrink-0 rounded-full flex items-center justify-center text-ink/80 hover:bg-ink/[0.06] focus-visible:ring-2 focus-visible:ring-teal-400/50"
-        >
-          <ArrowLeft size={20} aria-hidden="true" />
-        </button>
+        <BackButton label={t('bookings.buyer.back')} onClick={onBack} />
         <h2 className="text-[22px] font-display font-bold text-ink">
           {t('bookings.buyer.myBookingsTitle')}
         </h2>

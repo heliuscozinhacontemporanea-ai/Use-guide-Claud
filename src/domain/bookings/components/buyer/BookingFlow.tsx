@@ -1,4 +1,4 @@
-import { ArrowLeft } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BUYER_TERMS_VERSION } from '../../../../shared/constants/legalTerms';
@@ -80,7 +80,7 @@ export function BookingFlow({
     return (
       <div className="space-y-3">
         <button type="button" onClick={() => setStep('select')} className={BUTTON_SECONDARY}>
-          <ArrowLeft size={13} className="inline mr-1" aria-hidden="true" />
+          <ChevronLeft size={13} className="inline mr-1" aria-hidden="true" />
           {t('bookings.buyer.back')}
         </button>
         <ParticipantsForm
