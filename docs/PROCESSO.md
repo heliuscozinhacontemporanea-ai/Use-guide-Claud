@@ -62,7 +62,7 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 | 12 | D3 bookings — pagamento, rotas, jobs | `0424bb9` | ✅ zip 2026-10-12 | ✅ idêntico; faltava declarar o segredo nas Functions (erro da referência) → prompt 14.1 |
 | 13 | D3 bookings — painel do parceiro | `53b8064` | ✅ zip 2026-10-12 | ✅ idêntico à referência |
 | 14 | D3 bookings — compra pelo turista | `d70d0d0` | ✅ zip 2026-10-12 | ✅ idêntico + 3 correções do AI Studio fora do escopo, corretas e adotadas; `.env.example` com valores reais → prompt 14.1 |
-| 14.1 | Functions: segredo e parâmetros; `.env.example` | `9368be2` | ⏳ enviar (lote 7) | — |
+| 14.1 | Functions: segredo e parâmetros; `.env.example` | `9368be2` | ✅ aplicado (conferido no zip 2026-10-29) | ✅ os 7 arquivos iguais à referência |
 | 15 | Um UseCase por arquivo | `f565f7b` | ✅ zip 2026-10-14 | ✅ igual à referência |
 | 16 | UX do menu e dos fluxos do usuário | `2ab647c` | ✅ zip 2026-10-14 | ⚠️ código igual + mudanças fora do escopo (B15 resolvido com `any`, taxa da plataforma, `solicitacoes-agents.md` reescrito) → prompt 16.1 |
 | A2 | AGENTS.md §13 sem agregadores (S9 aprovada) | `ec5533f` | ✅ zip 2026-10-14 | ✅ igual à referência |
