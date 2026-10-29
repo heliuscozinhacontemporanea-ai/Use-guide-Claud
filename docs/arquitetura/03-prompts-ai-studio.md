@@ -165,6 +165,14 @@
 
 > **Envie um prompt por mensagem**, nesta ordem. Até o 18.3.1 (telas), trial, compra de plano e selo do admin pelo painel ficam fora do ar, e as métricas de estabelecimento sem plano mostram erro.
 
+# Lote 18 (Prompt C17) — aplicar sobre o zip de 2026-10-29
+
+| Ordem | Arquivo | Tema | Commit de referência |
+|---|---|---|---|
+| 1 | `prompts/prompt-C17.md` | Correção do lote 17: cartão `.glassmorphism` do tema claro como na D17 (sombra leve, fundo e borda dos tokens) e texto atualizado do débito B30 | `ca3ecaa` |
+
+> O lote 17 voltou igual à referência: as diferenças são ordem de imports e exports e comentários reescritos, sem mudança de lógica. Gates no próprio zip: typecheck, lint (0 erros), 1.140 testes, 68 testes das regras, build, typecheck das Functions e servidor de produção respondendo (`/api/health` 200; rotas de denúncia 401 sem login). Única mudança fora dos prompts: o `.glassmorphism` do tema claro, que o C17 desfaz; e o texto do B30, que veio de um commit de documentação que nenhum prompt levou.
+
 # Lote 17 (Prompts C16, 18.4c, 18.4c.1, 18.4d.1 a 18.4d.3b 18.4e.1 a 18.4e.3, 18.4f.1, 18.4f.2, A6 e 20.0 a 20.5) — aplicar sobre o zip de 2026-10-25
 
 | Ordem | Arquivo | Tema | Commit de referência |

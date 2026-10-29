@@ -103,26 +103,27 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 | 18.4b.1 | Taxas, políticas de cancelamento e arrependimento, backend (D14) | `0012702..9e420df` | ✅ zip 2026-10-25 | ✅ igual à referência (só ordem de imports e formatação); `public/assets/aistudio/` limpo |
 | 18.4b.2 | Taxas, políticas de cancelamento e arrependimento, frontend (D14) | `0012702..31e0772` | ✅ zip 2026-10-25 | ✅ igual à referência (só ordem de imports e formatação); `public/assets/aistudio/` limpo |
 | 18.4b.3 | Termos com aceite registrado (D15) | `d59bcbd..ed7c054` | ✅ zip 2026-10-25 | ✅ igual à referência (só ordem de imports e formatação); `public/assets/aistudio/` limpo |
-| C16 | Correção do lote 16: D14 no `decisoes.md` | `48a75ac` | ⏳ enviar (lote 17) | — |
-| 18.4c | Cobrança na plataforma e repasse depois do serviço (D14) | `dc082a9..e80e9b1` | ⏳ enviar (lote 17) | — |
-| 18.4c.1 | Agendamento do job de repasse (D14) | `598c7fe..6d8ff33` | ⏳ enviar (lote 17) | — |
-| 18.4d.1 | Dívidas do CNPJ, multa, desconto no repasse e bloqueio (D16) | `9e75059..df37496` | ⏳ enviar (lote 17) | — |
-| 18.4d.2 | Reclamações do comprador (D16) | `3f43733..a2c644f` | ⏳ enviar (lote 17) | — |
-| 18.4d.3a | Força maior na multa de cancelamento (D16) | `7608424..cd796c0` | ⏳ enviar (lote 17) | — |
-| 18.4d.3b | Reagendamento (D16) | `cd796c0..d2f73d8` | ⏳ enviar (lote 17) | — |
-| 18.4e.1 | Extrato e dívidas em Recebimentos (D14, D16) | `31cdebc..7c2dbc8` | ⏳ enviar (lote 17) | — |
-| 18.4e.2 | Horários de reserva e conta por estabelecimento (D14, D16) | `58cb9e2..0c60e58` | ⏳ enviar (lote 17) | — |
-| 18.4e.3.0 | Painel de ingressos dividido em abas | `11d4e3e..a24f664` | ⏳ enviar (lote 17) | — |
-| 18.4e.3 | Adiar e cancelar sessão de evento, conta por evento (D14, D16) | `a24f664..eac047f` | ⏳ enviar (lote 17) | — |
-| 18.4f.1 | Relatar problema e aviso de remarcação nas compras (D16) | `42ac907..097336f` | ⏳ enviar (lote 17) | — |
-| 18.4f.2 | Filas financeiras do admin (D16) | `231c1ec..5e415b2` | ⏳ enviar (lote 17) | — |
-| A6 | AGENTS.md §11.1 (S16) e §13 (S17) | `b257fb7..e9a1771` | ⏳ enviar (lote 17) | — |
-| 20.0 | Base visual D17 | `d1359f3..99b8e30` | ⏳ enviar (lote 17) | — |
-| 20.1 | Reservas, pedidos e Financeiro no visual D17 | `99b8e30..f5d23ad` | ⏳ enviar (lote 17) | — |
-| 20.2 | Reutilizáveis num lugar só | `f5d23ad..748611c` | ⏳ enviar (lote 17) | — |
-| 20.3 | Compras em Configurações (D18) | `8aecac8..b99f6e3` | ⏳ enviar (lote 17) | — |
-| 20.4 | Menu lateral como perfil e Minhas avaliações (D19) | `1c69ebf..b15f337` | ⏳ enviar (lote 17) | — |
-| 20.5 | Denúncia de resposta e aba Moderação (D19) | `b15f337..2dabeed` | ⏳ enviar (lote 17) | — |
+| C16 | Correção do lote 16: D14 no `decisoes.md` | `48a75ac` | ✅ zip 2026-10-29 | ✅ igual à referência |
+| 18.4c | Cobrança na plataforma e repasse depois do serviço (D14) | `dc082a9..e80e9b1` | ✅ zip 2026-10-29 | ✅ igual à referência |
+| 18.4c.1 | Agendamento do job de repasse (D14) | `598c7fe..6d8ff33` | ✅ zip 2026-10-29 | ✅ igual à referência |
+| 18.4d.1 | Dívidas do CNPJ, multa, desconto no repasse e bloqueio (D16) | `9e75059..df37496` | ✅ zip 2026-10-29 | ✅ igual à referência |
+| 18.4d.2 | Reclamações do comprador (D16) | `3f43733..a2c644f` | ✅ zip 2026-10-29 | ✅ igual à referência |
+| 18.4d.3a | Força maior na multa de cancelamento (D16) | `7608424..cd796c0` | ✅ zip 2026-10-29 | ✅ igual à referência |
+| 18.4d.3b | Reagendamento (D16) | `cd796c0..d2f73d8` | ✅ zip 2026-10-29 | ✅ igual à referência |
+| 18.4e.1 | Extrato e dívidas em Recebimentos (D14, D16) | `31cdebc..7c2dbc8` | ✅ zip 2026-10-29 | ✅ igual à referência |
+| 18.4e.2 | Horários de reserva e conta por estabelecimento (D14, D16) | `58cb9e2..0c60e58` | ✅ zip 2026-10-29 | ✅ igual à referência |
+| 18.4e.3.0 | Painel de ingressos dividido em abas | `11d4e3e..a24f664` | ✅ zip 2026-10-29 | ✅ igual à referência |
+| 18.4e.3 | Adiar e cancelar sessão de evento, conta por evento (D14, D16) | `a24f664..eac047f` | ✅ zip 2026-10-29 | ✅ igual à referência |
+| 18.4f.1 | Relatar problema e aviso de remarcação nas compras (D16) | `42ac907..097336f` | ✅ zip 2026-10-29 | ✅ igual à referência |
+| 18.4f.2 | Filas financeiras do admin (D16) | `231c1ec..5e415b2` | ✅ zip 2026-10-29 | ✅ igual à referência |
+| A6 | AGENTS.md §11.1 (S16) e §13 (S17) | `b257fb7..e9a1771` | ✅ zip 2026-10-29 | ✅ igual à referência |
+| 20.0 | Base visual D17 | `d1359f3..99b8e30` | ✅ zip 2026-10-29 | ⚠️ igual, exceto o cartão do tema claro (`.glassmorphism` sem a sombra e com outra borda) → prompt C17 |
+| 20.1 | Reservas, pedidos e Financeiro no visual D17 | `99b8e30..f5d23ad` | ✅ zip 2026-10-29 | ✅ igual à referência |
+| 20.2 | Reutilizáveis num lugar só | `f5d23ad..748611c` | ✅ zip 2026-10-29 | ✅ igual à referência |
+| 20.3 | Compras em Configurações (D18) | `8aecac8..b99f6e3` | ✅ zip 2026-10-29 | ✅ igual à referência |
+| 20.4 | Menu lateral como perfil e Minhas avaliações (D19) | `1c69ebf..b15f337` | ✅ zip 2026-10-29 | ✅ igual à referência |
+| 20.5 | Denúncia de resposta e aba Moderação (D19) | `b15f337..2dabeed` | ✅ zip 2026-10-29 | ✅ igual à referência |
+| C17 | Correção do lote 17: cartão do tema claro e texto do B30 | — | ⏳ enviar (lote 18) | — |
 
 ### Revisões futuras (aprovadas para depois)
 
