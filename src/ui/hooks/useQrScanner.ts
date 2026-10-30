@@ -1,15 +1,48 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-type Detector = { detect(source: HTMLVideoElement): Promise<Array<{ rawValue: string }>> };
-type DetectorCtor = new (options: { formats: string[] }) => Detector;
+export type QrScannerState = 'idle' | 'loading' | 'scanning' | 'unsupported' | 'denied';
 
-export type QrScannerState = 'idle' | 'scanning' | 'unsupported' | 'denied';
+type ReadQr = (frame: ImageData) => Promise<string | null>;
+
+// Lado maior do quadro enviado ao leitor: QR de portaria fica grande na câmera, e quadro menor
+// decodifica mais rápido em celular simples (teste de velocidade da D20).
+const MAX_FRAME_SIDE = 720;
+
+let readerPromise: Promise<ReadQr> | null = null;
 
 /**
- * Leitura de QR pela câmera com o BarcodeDetector do navegador, sem biblioteca nova. Safari e
- * Firefox ainda não têm o leitor: aí o estado vira `unsupported` e a tela pede o código curto.
- * Referência: https://developer.mozilla.org/docs/Web/API/BarcodeDetector
+ * Carrega o `zxing-wasm` só quando a portaria abre o leitor (D20). O `.wasm` sai do próprio
+ * domínio: o padrão da biblioteca buscaria no jsDelivr, que a CSP não libera.
  */
+function loadReader(): Promise<ReadQr> {
+  readerPromise ??= Promise.all([
+    import('zxing-wasm/reader'),
+    import('zxing-wasm/reader/zxing_reader.wasm?url'),
+  ])
+    .then(([zxing, wasm]) => {
+      zxing.prepareZXingModule({
+        overrides: {
+          locateFile: (path: string, prefix: string) =>
+            path.endsWith('.wasm') ? wasm.default : prefix + path,
+        },
+      });
+      return async (frame: ImageData) => {
+        const [result] = await zxing.readBarcodes(frame, {
+          formats: ['QRCode'],
+          tryHarder: true,
+          maxNumberOfSymbols: 1,
+        });
+        return result?.isValid ? result.text : null;
+      };
+    })
+    .catch((error: unknown) => {
+      readerPromise = null;
+      throw error;
+    });
+  return readerPromise;
+}
+
+/** Leitura de QR pela câmera em qualquer navegador, com o leitor `zxing-wasm` (D20). */
 export function useQrScanner(onDetected: (value: string) => void) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -21,12 +54,19 @@ export function useQrScanner(onDetected: (value: string) => void) {
     frameRef.current = null;
     for (const track of streamRef.current?.getTracks() ?? []) track.stop();
     streamRef.current = null;
-    setState((current) => (current === 'scanning' ? 'idle' : current));
+    setState((current) => (current === 'scanning' || current === 'loading' ? 'idle' : current));
   }, []);
 
   const start = useCallback(async () => {
-    const Ctor = (globalThis as { BarcodeDetector?: DetectorCtor }).BarcodeDetector;
-    if (!Ctor || !navigator.mediaDevices?.getUserMedia) {
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setState('unsupported');
+      return;
+    }
+    setState('loading');
+    let read: ReadQr;
+    try {
+      read = await loadReader();
+    } catch {
       setState('unsupported');
       return;
     }
@@ -40,12 +80,26 @@ export function useQrScanner(onDetected: (value: string) => void) {
       if (!video) return;
       video.srcObject = stream;
       await video.play();
-      const detector = new Ctor({ formats: ['qr_code'] });
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d', { willReadFrequently: true });
+      if (!context) {
+        stop();
+        setState('unsupported');
+        return;
+      }
       const tick = async () => {
         if (!streamRef.current) return;
-        const found = await detector.detect(video).catch(() => []);
-        const value = found[0]?.rawValue;
-        if (value) {
+        const scale = Math.min(1, MAX_FRAME_SIDE / Math.max(video.videoWidth, video.videoHeight));
+        canvas.width = Math.round(video.videoWidth * scale);
+        canvas.height = Math.round(video.videoHeight * scale);
+        let value: string | null = null;
+        if (canvas.width > 0 && canvas.height > 0) {
+          context.drawImage(video, 0, 0, canvas.width, canvas.height);
+          value = await read(context.getImageData(0, 0, canvas.width, canvas.height)).catch(
+            () => null
+          );
+        }
+        if (value && streamRef.current) {
           stop();
           onDetected(value);
           return;
@@ -54,6 +108,7 @@ export function useQrScanner(onDetected: (value: string) => void) {
       };
       void tick();
     } catch {
+      stop();
       setState('denied');
     }
   }, [onDetected, stop]);

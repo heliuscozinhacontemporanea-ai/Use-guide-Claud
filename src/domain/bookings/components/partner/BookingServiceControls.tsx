@@ -16,7 +16,7 @@ import { NoCodeCheckInDialog } from './NoCodeCheckInDialog';
 export interface ServiceControlActions {
   recordArrival: (bookingId: string) => Promise<boolean>;
   markNoShow: (bookingId: string) => Promise<void>;
-  checkInWithoutCode: (bookingId: string, present: number, reason: NoCodeReason) => Promise<void>;
+  checkInWithoutCode: (bookingId: string, reason: NoCodeReason) => Promise<void>;
   answerAbsence: (bookingId: string, answer: 'was_there' | 'admitted') => Promise<void>;
 }
 
@@ -47,15 +47,20 @@ export function BookingServiceControls({
     }
   };
 
-  if (booking.checkIn) {
+  const [first] = booking.checkIns;
+  if (first) {
+    const total = booking.participantsCount;
     return (
-      <StatusText tone={booking.checkIn.method === 'no_code' ? 'warn' : 'success'}>
-        {booking.checkIn.method === 'no_code'
-          ? t('serviceProof.partner.checkedInNoCode', { time: time(booking.checkIn.at) })
-          : t('serviceProof.partner.checkedIn', {
-              time: time(booking.checkIn.at),
-              count: booking.checkIn.participantsPresent,
-            })}
+      <StatusText tone={first.method === 'no_code' ? 'warn' : 'success'}>
+        {first.method === 'no_code'
+          ? t('serviceProof.partner.checkedInNoCode', { time: time(first.at) })
+          : total > 1
+            ? t('serviceProof.partner.checkedInUnits', {
+                time: time(first.at),
+                used: booking.checkIns.length,
+                total,
+              })
+            : t('serviceProof.partner.checkedIn', { time: time(first.at) })}
       </StatusText>
     );
   }
@@ -151,10 +156,9 @@ export function BookingServiceControls({
       </div>
       {noCode && (
         <NoCodeCheckInDialog
-          booking={booking}
           onClose={() => setNoCode(false)}
-          onConfirm={async (present, reason) => {
-            await run(() => actions.checkInWithoutCode(booking.id, present, reason));
+          onConfirm={async (reason) => {
+            await run(() => actions.checkInWithoutCode(booking.id, reason));
             setNoCode(false);
           }}
         />

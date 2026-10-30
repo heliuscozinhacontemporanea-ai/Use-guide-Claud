@@ -65,6 +65,8 @@ async function startServer() {
             scriptSrc: [
               "'self'",
               "'unsafe-inline'",
+              // Leitor de QR da portaria (zxing-wasm, D20): compila o .wasm servido do próprio domínio.
+              "'wasm-unsafe-eval'",
               'https://apis.google.com',
               'https://*.firebaseapp.com',
               'https://js.stripe.com',

@@ -14,6 +14,23 @@ export interface ServiceProofTranslation {
     retry: string;
     qrAlt: string;
     copyLabel: string;
+    unitsLabel: string;
+    unitOf: string;
+    addName: string;
+    changeName: string;
+    nameTitle: string;
+    nameLabel: string;
+    nameHint: string;
+    nameSave: string;
+    nameSaved: string;
+    nameLocked: string;
+  };
+  units: {
+    person: string;
+    group: string;
+    groupTag: string;
+    groups_one: string;
+    groups_other: string;
   };
   buyer: {
     providerAbsent: string;
@@ -30,17 +47,21 @@ export interface ServiceProofTranslation {
     yes: string;
     no: string;
     noTitle: string;
-    noMessageRefund: string;
-    noMessageReview: string;
+    noMessage: string;
     noConfirm: string;
     confirmed: string;
     denied: string;
     refunded: string;
+    businessFallback: string;
   };
   checkout: {
     pickupLabel: string;
     pickupHint: string;
     pickupPlaceholder: string;
+    namesLater: string;
+    namesHint: string;
+    groupNote: string;
+    groupLegend: string;
   };
   partner: {
     checkIn: string;
@@ -50,15 +71,16 @@ export interface ServiceProofTranslation {
     codeLabel: string;
     entryCodeLabel: string;
     character: string;
-    participantsLabel: string;
     submit: string;
     scan: string;
     scanning: string;
+    scanLoading: string;
     stopScan: string;
     scanUnsupported: string;
     cameraDenied: string;
-    success_one: string;
-    success_other: string;
+    success: string;
+    successNamed: string;
+    alreadyUsed: string;
     savedOffline: string;
     offlineValid: string;
     offlineInvalid: string;
@@ -82,8 +104,8 @@ export interface ServiceProofTranslation {
     admittedMessage: string;
     admittedConfirm: string;
     pickupAt: string;
-    checkedIn_one: string;
-    checkedIn_other: string;
+    checkedIn: string;
+    checkedInUnits: string;
     checkedInNoCode: string;
   };
   evidence: {
@@ -106,6 +128,13 @@ export interface ServiceProofTranslation {
     pickupLegend: string;
     meetingPoint: string;
     buyerAddress: string;
+    sellingUnitLegend: string;
+    perPerson: string;
+    perPersonHint: string;
+    perGroup: string;
+    perGroupHint: string;
+    groupMaxLabel: string;
+    requireNamesHint: string;
   };
 }
 
@@ -113,7 +142,7 @@ export const serviceProofPtBR: ServiceProofTranslation = {
   pass: {
     codeTitle: 'Código de check-in',
     entryTitle: 'Sua entrada',
-    codeHint: 'Informe este código ao prestador, pessoalmente, na hora do serviço.',
+    codeHint: 'Informe este código pessoalmente, na hora do serviço.',
     entryHint: 'Mostre o QR Code na portaria. Se a leitura falhar, informe o código.',
     warning:
       'Nunca informe o código por telefone ou mensagem. Ninguém do Use Guide pede este código.',
@@ -123,54 +152,74 @@ export const serviceProofPtBR: ServiceProofTranslation = {
     retry: 'Tentar de novo',
     qrAlt: 'QR Code da entrada',
     copyLabel: 'Código {{code}}',
+    unitsLabel: 'Escolha a entrada',
+    unitOf: '{{n}} de {{total}}',
+    addName: 'Adicionar nome',
+    changeName: 'Trocar nome',
+    nameTitle: 'Nome nesta entrada',
+    nameLabel: 'Nome completo',
+    nameHint:
+      'Na entrada, a pessoa mostra um documento com foto. O nome pode ser trocado uma vez, até 24 h antes.',
+    nameSave: 'Salvar nome',
+    nameSaved: 'Nome salvo.',
+    nameLocked: 'Nome já trocado',
+  },
+  units: {
+    person: 'Pessoa {{n}}',
+    group: 'Grupo de até {{max}} pessoas',
+    groupTag: 'Grupo',
+    groups_one: '{{count}} grupo',
+    groups_other: '{{count}} grupos',
   },
   buyer: {
-    providerAbsent: 'O prestador não veio',
-    providerAbsentTitle: 'O prestador não veio?',
-    providerAbsentMessage:
-      'O prestador tem 2 h para responder. Sem resposta, você recebe o valor pago de volta, com a taxa de serviço.',
+    providerAbsent: '{{business}} não apareceu',
+    providerAbsentTitle: '{{business}} não apareceu?',
+    providerAbsentMessage: 'Avisamos agora. {{business}} tem 2 h para responder ao seu relato.',
     providerAbsentConfirm: 'Enviar relato',
     keep: 'Voltar',
-    absenceSent: 'Relato enviado. O prestador tem até {{date}} para responder.',
-    absenceAdmin: 'O prestador diz que esteve no local. Nossa equipe decide em até 5 dias.',
-    absenceRefunded: 'O prestador não compareceu. Você recebe o valor pago de volta.',
-    absenceWithdrawn: 'O prestador chegou e o check-in foi feito.',
+    absenceSent: 'Relato enviado. {{business}} tem até {{date}} para responder.',
+    absenceAdmin: '{{business}} diz que esteve no local. Nossa equipe decide em até 5 dias.',
+    absenceRefunded: 'O relato foi aceito. Você recebe o valor pago de volta.',
+    absenceWithdrawn: '{{business}} chegou e o check-in foi feito.',
     questionTitle: 'O serviço aconteceu?',
-    questionMessage: 'Responda até {{date}}. Sem resposta, você recebe o valor pago de volta.',
+    questionMessage: 'Responda até {{date}}.',
     yes: 'Sim, aconteceu',
     no: 'Não aconteceu',
     noTitle: 'O serviço não aconteceu?',
-    noMessageRefund: 'Você recebe o valor pago de volta.',
-    noMessageReview:
-      'Nossa equipe vai analisar o caso em até 5 dias. O valor pago pode voltar para você.',
+    noMessage: 'Sua resposta é registrada e não pode ser mudada depois.',
     noConfirm: 'Confirmar',
     confirmed: 'Obrigado. O serviço foi confirmado.',
-    denied: 'Resposta enviada.',
-    refunded: 'Você recebe o valor pago de volta.',
+    denied: 'Resposta enviada. Nossa equipe analisa o caso em até 5 dias.',
+    refunded: 'Resposta registrada. Você recebe o valor pago de volta.',
+    businessFallback: 'A equipe',
   },
   checkout: {
     pickupLabel: 'Onde você está hospedado?',
-    pickupHint:
-      'O prestador busca você neste endereço. Só ele vê, e o endereço é apagado depois do serviço.',
+    pickupHint: 'Só quem vai buscar você vê este endereço, e ele é apagado depois do serviço.',
     pickupPlaceholder: 'Nome da pousada ou endereço',
+    namesLater: 'Informar depois',
+    namesHint: 'Você pode informar os nomes depois, em Compras, até o dia.',
+    groupNote: 'Cada grupo leva até {{max}} pessoas e recebe um código.',
+    groupLegend: 'Grupos',
   },
   partner: {
     checkIn: 'Fazer check-in',
     entry: 'Portaria',
     sheetTitle: 'Check-in',
     entrySheetTitle: 'Portaria',
-    codeLabel: 'Código do comprador',
+    codeLabel: 'Código do cliente',
     entryCodeLabel: 'Código da entrada',
     character: 'Caractere {{n}} de {{total}}',
-    participantsLabel: 'Pessoas presentes',
     submit: 'Confirmar check-in',
     scan: 'Ler QR Code',
     scanning: 'Aponte a câmera para o QR Code',
+    scanLoading: 'Abrindo a câmera…',
     stopScan: 'Parar câmera',
-    scanUnsupported: 'Este navegador não lê QR Code. Digite o código que aparece abaixo do QR.',
+    scanUnsupported: 'Não foi possível abrir o leitor. Digite o código que aparece abaixo do QR.',
     cameraDenied: 'Sem acesso à câmera. Digite o código que aparece abaixo do QR.',
-    success_one: 'Check-in feito: {{count}} pessoa.',
-    success_other: 'Check-in feito: {{count}} pessoas.',
+    success: 'Check-in feito · {{unit}}.',
+    successNamed: 'Check-in feito: {{name}}. Confira o documento com foto.',
+    alreadyUsed: 'Este código já foi usado às {{time}}.',
     savedOffline: 'Sem internet: o check-in foi guardado e será enviado quando a conexão voltar.',
     offlineValid:
       'QR válido, conferido sem internet. A entrada será enviada quando a conexão voltar.',
@@ -184,7 +233,7 @@ export const serviceProofPtBR: ServiceProofTranslation = {
     noShowAt: 'Ausência disponível às {{time}}',
     noCode: 'Cliente sem código',
     noCodeMessage:
-      'O serviço segue por sua conta e risco. O comprador vai confirmar se o serviço aconteceu.',
+      'O serviço segue por sua conta e risco. O cliente vai confirmar se o serviço aconteceu.',
     noCodeReason: 'Motivo',
     reasons: {
       no_phone: 'Sem celular ou sem bateria',
@@ -192,22 +241,22 @@ export const serviceProofPtBR: ServiceProofTranslation = {
       other: 'Outro',
     },
     noCodeConfirm: 'Registrar',
-    absenceTitle: 'O comprador diz que você não veio',
+    absenceTitle: 'O cliente diz que você não compareceu',
     absenceMessage:
-      'Responda até {{date}}. Sem resposta, o comprador recebe o reembolso integral e vale a multa de 20%.',
+      'Responda até {{date}}. Sem resposta, o cliente recebe o reembolso integral e vale a multa de 20%.',
     wasThere: 'Eu estava lá',
     admitted: 'Não compareci',
     admittedTitle: 'Confirmar que não compareceu?',
-    admittedMessage: 'O comprador recebe o reembolso integral e a multa de 20% é cobrada.',
+    admittedMessage: 'O cliente recebe o reembolso integral e a multa de 20% é cobrada.',
     admittedConfirm: 'Confirmar',
     pickupAt: 'Buscar em: {{address}}',
-    checkedIn_one: 'Check-in às {{time}} · {{count}} pessoa',
-    checkedIn_other: 'Check-in às {{time}} · {{count}} pessoas',
-    checkedInNoCode: 'Sem código às {{time}} · aguardando o comprador',
+    checkedIn: 'Check-in às {{time}}',
+    checkedInUnits: 'Check-in às {{time}} · {{used}} de {{total}}',
+    checkedInNoCode: 'Sem código às {{time}} · aguardando o cliente',
   },
   evidence: {
     title: 'Provas do serviço',
-    checkIn: 'Check-in: {{date}} · {{method}} · {{present}} de {{total}} pessoas',
+    checkIn: 'Check-in: {{date}} · {{method}} · {{used}} de {{total}}',
     methods: { code: 'com código', qr: 'pelo QR Code', no_code: 'sem código' },
     noCheckIn: 'Sem check-in',
     arrival: '"Cheguei": {{date}}',
@@ -215,24 +264,31 @@ export const serviceProofPtBR: ServiceProofTranslation = {
     map: 'Ver local no mapa',
     absence: 'Relato de ausência: {{date}} · {{answer}}',
     answers: {
-      was_there: 'o prestador diz que esteve lá',
-      admitted: 'o prestador admitiu a falta',
+      was_there: 'o parceiro diz que esteve lá',
+      admitted: 'o parceiro admitiu a falta',
       none: 'sem resposta',
     },
-    confirmation: 'Comprador: {{answer}}',
+    confirmation: 'Cliente: {{answer}}',
     confirmationAnswers: {
       yes: 'o serviço aconteceu',
       no: 'o serviço não aconteceu',
       none: 'sem resposta',
     },
-    noShow: 'Ausência marcada pelo prestador',
+    noShow: 'Ausência marcada pelo parceiro',
     pickup: 'Endereço de busca: {{address}}',
     noCodeReason: 'Motivo do check-in sem código: {{reason}}',
   },
   offerEditor: {
     pickupLegend: 'Onde o serviço começa',
     meetingPoint: 'No ponto de encontro',
-    buyerAddress: 'Buscar o comprador onde ele está',
+    buyerAddress: 'Buscar o cliente onde ele está',
+    sellingUnitLegend: 'Como você vende',
+    perPerson: 'Por pessoa',
+    perPersonHint: 'Cada pessoa recebe um código.',
+    perGroup: 'Por grupo',
+    perGroupHint: 'Um código para o grupo inteiro, como um buggy ou um barco.',
+    groupMaxLabel: 'Máximo de pessoas por grupo',
+    requireNamesHint: 'O nome aparece em cada entrada e a portaria confere com documento com foto.',
   },
 };
 
@@ -240,7 +296,7 @@ export const serviceProofEn: ServiceProofTranslation = {
   pass: {
     codeTitle: 'Check-in code',
     entryTitle: 'Your entry',
-    codeHint: 'Tell this code to the provider, in person, when the service starts.',
+    codeHint: 'Tell this code in person, when the service starts.',
     entryHint: 'Show the QR code at the entrance. If it cannot be read, tell them the code.',
     warning: 'Never share the code by phone or message. No one at Use Guide asks for this code.',
     notYet: 'Your code appears on the day of the service, from {{date}}.',
@@ -249,54 +305,75 @@ export const serviceProofEn: ServiceProofTranslation = {
     retry: 'Try again',
     qrAlt: 'Entry QR code',
     copyLabel: 'Code {{code}}',
+    unitsLabel: 'Choose the entry',
+    unitOf: '{{n}} of {{total}}',
+    addName: 'Add name',
+    changeName: 'Change name',
+    nameTitle: 'Name on this entry',
+    nameLabel: 'Full name',
+    nameHint:
+      'At the entrance, the person shows a photo ID. The name can be changed once, up to 24 h before.',
+    nameSave: 'Save name',
+    nameSaved: 'Name saved.',
+    nameLocked: 'Name already changed',
+  },
+  units: {
+    person: 'Person {{n}}',
+    group: 'Group of up to {{max}} people',
+    groupTag: 'Group',
+    groups_one: '{{count}} group',
+    groups_other: '{{count}} groups',
   },
   buyer: {
-    providerAbsent: 'The provider did not show up',
-    providerAbsentTitle: 'The provider did not show up?',
+    providerAbsent: '{{business}} did not show up',
+    providerAbsentTitle: '{{business}} did not show up?',
     providerAbsentMessage:
-      'The provider has 2 h to respond. Without a response, you get the amount paid back, including the service fee.',
+      'We will let them know now. {{business}} has 2 h to respond to your report.',
     providerAbsentConfirm: 'Send report',
     keep: 'Back',
-    absenceSent: 'Report sent. The provider has until {{date}} to respond.',
-    absenceAdmin: 'The provider says they were there. Our team decides within 5 days.',
-    absenceRefunded: 'The provider did not show up. You get the amount paid back.',
-    absenceWithdrawn: 'The provider arrived and the check-in was done.',
+    absenceSent: 'Report sent. {{business}} has until {{date}} to respond.',
+    absenceAdmin: '{{business}} says they were there. Our team decides within 5 days.',
+    absenceRefunded: 'Your report was accepted. You get the amount paid back.',
+    absenceWithdrawn: '{{business}} arrived and the check-in was done.',
     questionTitle: 'Did the service happen?',
-    questionMessage: 'Answer by {{date}}. Without an answer, you get the amount paid back.',
+    questionMessage: 'Answer by {{date}}.',
     yes: 'Yes, it happened',
     no: 'It did not happen',
     noTitle: 'The service did not happen?',
-    noMessageRefund: 'You get the amount paid back.',
-    noMessageReview:
-      'Our team will review the case within 5 days. You may get the amount paid back.',
+    noMessage: 'Your answer is saved and cannot be changed later.',
     noConfirm: 'Confirm',
-    confirmed: 'Thank you. The service is confirmed.',
-    denied: 'Answer sent.',
-    refunded: 'You get the amount paid back.',
+    confirmed: 'Thank you. The service was confirmed.',
+    denied: 'Answer sent. Our team reviews the case within 5 days.',
+    refunded: 'Answer saved. You get the amount paid back.',
+    businessFallback: 'The team',
   },
   checkout: {
     pickupLabel: 'Where are you staying?',
-    pickupHint:
-      'The provider picks you up at this address. Only they can see it, and it is deleted after the service.',
+    pickupHint: 'Only whoever picks you up sees this address, and it is deleted after the service.',
     pickupPlaceholder: 'Name of the guesthouse or address',
+    namesLater: 'Add later',
+    namesHint: 'You can add the names later, in Purchases, until the day.',
+    groupNote: 'Each group takes up to {{max}} people and gets one code.',
+    groupLegend: 'Groups',
   },
   partner: {
     checkIn: 'Check in',
     entry: 'Entrance',
     sheetTitle: 'Check-in',
     entrySheetTitle: 'Entrance',
-    codeLabel: "Buyer's code",
+    codeLabel: "Customer's code",
     entryCodeLabel: 'Entry code',
     character: 'Character {{n}} of {{total}}',
-    participantsLabel: 'People present',
     submit: 'Confirm check-in',
     scan: 'Scan QR code',
     scanning: 'Point the camera at the QR code',
+    scanLoading: 'Opening the camera…',
     stopScan: 'Stop camera',
-    scanUnsupported: 'This browser cannot read QR codes. Type the code shown below the QR.',
+    scanUnsupported: 'The reader could not open. Type the code shown below the QR.',
     cameraDenied: 'No camera access. Type the code shown below the QR.',
-    success_one: 'Checked in: {{count}} person.',
-    success_other: 'Checked in: {{count}} people.',
+    success: 'Checked in · {{unit}}.',
+    successNamed: 'Checked in: {{name}}. Check the photo ID.',
+    alreadyUsed: 'This code was already used at {{time}}.',
     savedOffline:
       'No internet: the check-in was saved and will be sent when the connection is back.',
     offlineValid: 'Valid QR, checked offline. The entry will be sent when the connection is back.',
@@ -310,7 +387,7 @@ export const serviceProofEn: ServiceProofTranslation = {
     noShowAt: 'No-show available at {{time}}',
     noCode: 'Customer without code',
     noCodeMessage:
-      'The service goes ahead at your own risk. The buyer will confirm whether the service happened.',
+      'The service goes ahead at your own risk. The customer will confirm whether the service happened.',
     noCodeReason: 'Reason',
     reasons: {
       no_phone: 'No phone or no battery',
@@ -318,22 +395,22 @@ export const serviceProofEn: ServiceProofTranslation = {
       other: 'Other',
     },
     noCodeConfirm: 'Save',
-    absenceTitle: 'The buyer says you did not show up',
+    absenceTitle: 'The customer says you did not show up',
     absenceMessage:
-      'Respond by {{date}}. Without a response, the buyer gets a full refund and the 20% penalty applies.',
+      'Respond by {{date}}. Without a response, the customer gets a full refund and the 20% penalty applies.',
     wasThere: 'I was there',
     admitted: 'I did not show up',
     admittedTitle: 'Confirm that you did not show up?',
-    admittedMessage: 'The buyer gets a full refund and the 20% penalty is charged.',
+    admittedMessage: 'The customer gets a full refund and the 20% penalty is charged.',
     admittedConfirm: 'Confirm',
     pickupAt: 'Pick up at: {{address}}',
-    checkedIn_one: 'Checked in at {{time}} · {{count}} person',
-    checkedIn_other: 'Checked in at {{time}} · {{count}} people',
-    checkedInNoCode: 'Without code at {{time}} · waiting for the buyer',
+    checkedIn: 'Checked in at {{time}}',
+    checkedInUnits: 'Checked in at {{time}} · {{used}} of {{total}}',
+    checkedInNoCode: 'Without code at {{time}} · waiting for the customer',
   },
   evidence: {
     title: 'Proof of service',
-    checkIn: 'Check-in: {{date}} · {{method}} · {{present}} of {{total}} people',
+    checkIn: 'Check-in: {{date}} · {{method}} · {{used}} of {{total}}',
     methods: { code: 'with code', qr: 'by QR code', no_code: 'without code' },
     noCheckIn: 'No check-in',
     arrival: '"I\'m here": {{date}}',
@@ -341,24 +418,31 @@ export const serviceProofEn: ServiceProofTranslation = {
     map: 'See place on the map',
     absence: 'No-show report: {{date}} · {{answer}}',
     answers: {
-      was_there: 'the provider says they were there',
-      admitted: 'the provider admitted not showing up',
+      was_there: 'the partner says they were there',
+      admitted: 'the partner admitted not showing up',
       none: 'no response',
     },
-    confirmation: 'Buyer: {{answer}}',
+    confirmation: 'Customer: {{answer}}',
     confirmationAnswers: {
       yes: 'the service happened',
       no: 'the service did not happen',
       none: 'no answer',
     },
-    noShow: 'No-show marked by the provider',
+    noShow: 'No-show marked by the partner',
     pickup: 'Pick-up address: {{address}}',
     noCodeReason: 'Reason for check-in without code: {{reason}}',
   },
   offerEditor: {
     pickupLegend: 'Where the service starts',
     meetingPoint: 'At the meeting point',
-    buyerAddress: 'Pick up the buyer where they are',
+    buyerAddress: 'Pick up the customer where they are',
+    sellingUnitLegend: 'How you sell',
+    perPerson: 'Per person',
+    perPersonHint: 'Each person gets a code.',
+    perGroup: 'Per group',
+    perGroupHint: 'One code for the whole group, like a buggy or a boat.',
+    groupMaxLabel: 'Maximum people per group',
+    requireNamesHint: 'The name shows on each entry and the staff checks it against a photo ID.',
   },
 };
 
@@ -366,7 +450,7 @@ export const serviceProofFr: ServiceProofTranslation = {
   pass: {
     codeTitle: 'Code d’enregistrement',
     entryTitle: 'Votre entrée',
-    codeHint: 'Donnez ce code au prestataire, en personne, au moment du service.',
+    codeHint: 'Donnez ce code en personne, au moment du service.',
     entryHint: 'Montrez le QR code à l’entrée. Si la lecture échoue, donnez le code.',
     warning:
       'Ne communiquez jamais le code par téléphone ou par message. Personne chez Use Guide ne vous le demande.',
@@ -376,55 +460,76 @@ export const serviceProofFr: ServiceProofTranslation = {
     retry: 'Réessayer',
     qrAlt: 'QR code de l’entrée',
     copyLabel: 'Code {{code}}',
+    unitsLabel: 'Choisissez l’entrée',
+    unitOf: '{{n}} sur {{total}}',
+    addName: 'Ajouter un nom',
+    changeName: 'Changer le nom',
+    nameTitle: 'Nom sur cette entrée',
+    nameLabel: 'Nom complet',
+    nameHint:
+      'À l’entrée, la personne présente une pièce d’identité avec photo. Le nom peut être changé une fois, jusqu’à 24 h avant.',
+    nameSave: 'Enregistrer le nom',
+    nameSaved: 'Nom enregistré.',
+    nameLocked: 'Nom déjà changé',
+  },
+  units: {
+    person: 'Personne {{n}}',
+    group: 'Groupe de {{max}} personnes maximum',
+    groupTag: 'Groupe',
+    groups_one: '{{count}} groupe',
+    groups_other: '{{count}} groupes',
   },
   buyer: {
-    providerAbsent: 'Le prestataire n’est pas venu',
-    providerAbsentTitle: 'Le prestataire n’est pas venu ?',
+    providerAbsent: '{{business}} n’est pas venu',
+    providerAbsentTitle: '{{business}} n’est pas venu ?',
     providerAbsentMessage:
-      'Le prestataire a 2 h pour répondre. Sans réponse, vous êtes remboursé du montant payé, frais de service compris.',
+      'Nous prévenons tout de suite. {{business}} a 2 h pour répondre à votre signalement.',
     providerAbsentConfirm: 'Envoyer le signalement',
     keep: 'Retour',
-    absenceSent: 'Signalement envoyé. Le prestataire a jusqu’au {{date}} pour répondre.',
-    absenceAdmin: 'Le prestataire dit qu’il était sur place. Notre équipe décide sous 5 jours.',
-    absenceRefunded: 'Le prestataire n’est pas venu. Vous êtes remboursé du montant payé.',
-    absenceWithdrawn: 'Le prestataire est arrivé et l’enregistrement a été fait.',
+    absenceSent: 'Signalement envoyé. {{business}} a jusqu’au {{date}} pour répondre.',
+    absenceAdmin: '{{business}} dit avoir été sur place. Notre équipe décide sous 5 jours.',
+    absenceRefunded: 'Votre signalement a été accepté. Vous êtes remboursé du montant payé.',
+    absenceWithdrawn: '{{business}} est arrivé et l’enregistrement a été fait.',
     questionTitle: 'Le service a-t-il eu lieu ?',
-    questionMessage:
-      'Répondez avant le {{date}}. Sans réponse, vous êtes remboursé du montant payé.',
+    questionMessage: 'Répondez avant le {{date}}.',
     yes: 'Oui, il a eu lieu',
     no: 'Il n’a pas eu lieu',
     noTitle: 'Le service n’a pas eu lieu ?',
-    noMessageRefund: 'Vous êtes remboursé du montant payé.',
-    noMessageReview:
-      'Notre équipe examinera le cas sous 5 jours. Le montant payé pourra vous être remboursé.',
+    noMessage: 'Votre réponse est enregistrée et ne pourra pas être modifiée.',
     noConfirm: 'Confirmer',
     confirmed: 'Merci. Le service est confirmé.',
-    denied: 'Réponse envoyée.',
-    refunded: 'Vous êtes remboursé du montant payé.',
+    denied: 'Réponse envoyée. Notre équipe examine le cas sous 5 jours.',
+    refunded: 'Réponse enregistrée. Vous êtes remboursé du montant payé.',
+    businessFallback: 'L’équipe',
   },
   checkout: {
     pickupLabel: 'Où logez-vous ?',
     pickupHint:
-      'Le prestataire vient vous chercher à cette adresse. Lui seul la voit, et elle est supprimée après le service.',
+      'Seule la personne qui vient vous chercher voit cette adresse, supprimée après le service.',
     pickupPlaceholder: 'Nom de la pousada ou adresse',
+    namesLater: 'Plus tard',
+    namesHint: 'Vous pouvez indiquer les noms plus tard, dans Achats, jusqu’au jour même.',
+    groupNote: 'Chaque groupe compte jusqu’à {{max}} personnes et reçoit un code.',
+    groupLegend: 'Groupes',
   },
   partner: {
     checkIn: 'Enregistrer',
     entry: 'Entrée',
     sheetTitle: 'Enregistrement',
     entrySheetTitle: 'Entrée',
-    codeLabel: 'Code de l’acheteur',
+    codeLabel: 'Code du client',
     entryCodeLabel: 'Code de l’entrée',
     character: 'Caractère {{n}} sur {{total}}',
-    participantsLabel: 'Personnes présentes',
     submit: 'Confirmer l’enregistrement',
     scan: 'Lire le QR code',
     scanning: 'Pointez la caméra vers le QR code',
+    scanLoading: 'Ouverture de la caméra…',
     stopScan: 'Arrêter la caméra',
-    scanUnsupported: 'Ce navigateur ne lit pas les QR codes. Saisissez le code affiché sous le QR.',
+    scanUnsupported: 'Le lecteur n’a pas pu s’ouvrir. Saisissez le code affiché sous le QR.',
     cameraDenied: 'Pas d’accès à la caméra. Saisissez le code affiché sous le QR.',
-    success_one: 'Enregistrement fait : {{count}} personne.',
-    success_other: 'Enregistrement fait : {{count}} personnes.',
+    success: 'Enregistrement fait · {{unit}}.',
+    successNamed: 'Enregistrement fait : {{name}}. Vérifiez la pièce d’identité.',
+    alreadyUsed: 'Ce code a déjà été utilisé à {{time}}.',
     savedOffline:
       'Pas d’internet : l’enregistrement a été gardé et sera envoyé au retour de la connexion.',
     offlineValid: 'QR valide, vérifié hors ligne. L’entrée sera envoyée au retour de la connexion.',
@@ -439,7 +544,7 @@ export const serviceProofFr: ServiceProofTranslation = {
     noShowAt: 'Absence possible à {{time}}',
     noCode: 'Client sans code',
     noCodeMessage:
-      'Le service continue à vos risques. L’acheteur confirmera si le service a eu lieu.',
+      'Le service continue à vos risques. Le client confirmera si le service a eu lieu.',
     noCodeReason: 'Motif',
     reasons: {
       no_phone: 'Sans téléphone ou sans batterie',
@@ -447,22 +552,22 @@ export const serviceProofFr: ServiceProofTranslation = {
       other: 'Autre',
     },
     noCodeConfirm: 'Enregistrer',
-    absenceTitle: 'L’acheteur dit que vous n’êtes pas venu',
+    absenceTitle: 'Le client dit que vous n’êtes pas venu',
     absenceMessage:
-      'Répondez avant le {{date}}. Sans réponse, l’acheteur est remboursé intégralement et la pénalité de 20 % s’applique.',
+      'Répondez avant le {{date}}. Sans réponse, le client est remboursé intégralement et la pénalité de 20 % s’applique.',
     wasThere: 'J’étais sur place',
     admitted: 'Je ne suis pas venu',
     admittedTitle: 'Confirmer que vous n’êtes pas venu ?',
-    admittedMessage: 'L’acheteur est remboursé intégralement et la pénalité de 20 % est facturée.',
+    admittedMessage: 'Le client est remboursé intégralement et la pénalité de 20 % est facturée.',
     admittedConfirm: 'Confirmer',
     pickupAt: 'Prise en charge : {{address}}',
-    checkedIn_one: 'Enregistré à {{time}} · {{count}} personne',
-    checkedIn_other: 'Enregistré à {{time}} · {{count}} personnes',
-    checkedInNoCode: 'Sans code à {{time}} · en attente de l’acheteur',
+    checkedIn: 'Enregistré à {{time}}',
+    checkedInUnits: 'Enregistré à {{time}} · {{used}} sur {{total}}',
+    checkedInNoCode: 'Sans code à {{time}} · en attente du client',
   },
   evidence: {
     title: 'Preuves du service',
-    checkIn: 'Enregistrement : {{date}} · {{method}} · {{present}} sur {{total}} personnes',
+    checkIn: 'Enregistrement : {{date}} · {{method}} · {{used}} sur {{total}}',
     methods: { code: 'avec code', qr: 'par QR code', no_code: 'sans code' },
     noCheckIn: 'Pas d’enregistrement',
     arrival: '« Je suis arrivé » : {{date}}',
@@ -470,23 +575,31 @@ export const serviceProofFr: ServiceProofTranslation = {
     map: 'Voir le lieu sur la carte',
     absence: 'Signalement d’absence : {{date}} · {{answer}}',
     answers: {
-      was_there: 'le prestataire dit qu’il était sur place',
-      admitted: 'le prestataire a reconnu son absence',
+      was_there: 'le partenaire dit qu’il était sur place',
+      admitted: 'le partenaire a reconnu son absence',
       none: 'sans réponse',
     },
-    confirmation: 'Acheteur : {{answer}}',
+    confirmation: 'Client : {{answer}}',
     confirmationAnswers: {
       yes: 'le service a eu lieu',
       no: 'le service n’a pas eu lieu',
       none: 'sans réponse',
     },
-    noShow: 'Absence marquée par le prestataire',
+    noShow: 'Absence marquée par le partenaire',
     pickup: 'Adresse de prise en charge : {{address}}',
     noCodeReason: 'Motif de l’enregistrement sans code : {{reason}}',
   },
   offerEditor: {
     pickupLegend: 'Où le service commence',
     meetingPoint: 'Au point de rendez-vous',
-    buyerAddress: 'Aller chercher l’acheteur là où il est',
+    buyerAddress: 'Aller chercher le client là où il est',
+    sellingUnitLegend: 'Comment vous vendez',
+    perPerson: 'Par personne',
+    perPersonHint: 'Chaque personne reçoit un code.',
+    perGroup: 'Par groupe',
+    perGroupHint: 'Un code pour tout le groupe, comme un buggy ou un bateau.',
+    groupMaxLabel: 'Nombre maximum de personnes par groupe',
+    requireNamesHint:
+      'Le nom apparaît sur chaque entrée et l’accueil le vérifie avec une pièce d’identité.',
   },
 };

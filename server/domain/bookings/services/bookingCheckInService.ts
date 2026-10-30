@@ -27,6 +27,8 @@ export interface UnitCode {
   code: string | null;
   /** Nome da pessoa, quando a oferta pede nomes (D20). */
   name: string | null;
+  /** O nome só pode ser trocado uma vez (D20). */
+  nameChanged: boolean;
   checkedInAt: string | null;
 }
 
@@ -88,6 +90,7 @@ export class BookingCheckInService {
         unit,
         code: open && !used.has(unit) ? deriveCheckInCode(booking.id, undefined, unit) : null,
         name: participants[unit]?.name || null,
+        nameChanged: Boolean(participants[unit]?.nameChangedAt),
         checkedInAt: used.get(unit) ?? null,
       })),
       visibleFrom: new Date(visibleFromMs).toISOString(),

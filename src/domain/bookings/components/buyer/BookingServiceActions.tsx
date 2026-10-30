@@ -35,6 +35,7 @@ export function BookingServiceActions({
   const [sending, setSending] = useState(false);
   const now = new Date();
   const date = (iso: string) => formatBusinessDateTime(iso, i18n.language);
+  const business = booking.businessName || t('serviceProof.buyer.businessFallback');
 
   const run = async (action: () => Promise<unknown>, success: string) => {
     setSending(true);
@@ -51,8 +52,8 @@ export function BookingServiceActions({
 
   const askAbsent = () =>
     setConfirm({
-      title: t('serviceProof.buyer.providerAbsentTitle'),
-      message: t('serviceProof.buyer.providerAbsentMessage'),
+      title: t('serviceProof.buyer.providerAbsentTitle', { business }),
+      message: t('serviceProof.buyer.providerAbsentMessage', { business }),
       confirmLabel: t('serviceProof.buyer.providerAbsentConfirm'),
       cancelLabel: t('serviceProof.buyer.keep'),
       tone: 'danger',
@@ -62,6 +63,7 @@ export function BookingServiceActions({
         void run(
           () => reportProviderAbsentUseCase(booking.id),
           t('serviceProof.buyer.absenceSent', {
+            business,
             date: date(new Date(Date.now() + 2 * 3_600_000).toISOString()),
           })
         );
@@ -70,12 +72,11 @@ export function BookingServiceActions({
 
   const askNo = () => {
     // Sem registro do serviço o reembolso é na hora; depois do "Cliente sem código", vai ao admin.
-    const refundNow = !booking.checkIn;
+    // A pergunta não fala de dinheiro (D20, textos neutros): só o resultado, depois da resposta.
+    const refundNow = booking.checkIns.length === 0;
     setConfirm({
       title: t('serviceProof.buyer.noTitle'),
-      message: t(
-        refundNow ? 'serviceProof.buyer.noMessageRefund' : 'serviceProof.buyer.noMessageReview'
-      ),
+      message: t('serviceProof.buyer.noMessage'),
       confirmLabel: t('serviceProof.buyer.noConfirm'),
       cancelLabel: t('serviceProof.buyer.keep'),
       tone: 'danger',
@@ -136,14 +137,14 @@ export function BookingServiceActions({
             : 'absenceSent';
     content = (
       <StatusText tone={absence.resolution === 'refunded' ? 'success' : 'warn'}>
-        {t(`serviceProof.buyer.${key}`, { date: date(absence.respondBy) })}
+        {t(`serviceProof.buyer.${key}`, { business, date: date(absence.respondBy) })}
       </StatusText>
     );
   } else if (canReportProviderAbsent(booking, now)) {
     content = (
       <div className="flex justify-center">
         <TextButton tone="danger" disabled={sending} onClick={askAbsent}>
-          {t('serviceProof.buyer.providerAbsent')}
+          {t('serviceProof.buyer.providerAbsent', { business })}
         </TextButton>
       </div>
     );

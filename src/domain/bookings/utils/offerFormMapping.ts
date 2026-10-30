@@ -13,6 +13,7 @@ function toLocalized(value: { 'pt-BR': string; en: string; fr: string }): Locali
 /** Converte o formulário (valores em reais digitados) no corpo da API (centavos inteiros). */
 export function offerFormToFields(values: OfferFormValues): OfferFields {
   const description = toLocalized(values.description);
+  const group = values.kind === 'tour' && values.sellingUnit === 'group';
   return {
     title: toLocalized(values.title),
     ...(description['pt-BR'] ? { description } : {}),
@@ -28,11 +29,15 @@ export function offerFormToFields(values: OfferFormValues): OfferFields {
     ...(values.meetingPoint.trim()
       ? { meetingPoint: { address: values.meetingPoint.trim() } }
       : {}),
-    // Entrada de atração é sempre no local; buscar o comprador só vale para passeio (D20).
+    // Entrada de atração é sempre no local e por pessoa; buscar o cliente e vender por grupo só no passeio (D20).
     pickupMode: values.kind === 'tour' ? values.pickupMode : 'meeting_point',
     cancellationPolicy: values.cancellationPolicy,
     maxParticipantsPerBooking: values.maxParticipantsPerBooking,
-    requiresParticipantNames: values.requiresParticipantNames,
+    ...(group
+      ? { sellingUnit: 'group', groupMaxPeople: values.groupMaxPeople }
+      : { sellingUnit: 'person' }),
+    // Grupo não tem nome por pessoa: o cliente decide quem leva.
+    requiresParticipantNames: !group && values.requiresParticipantNames,
   };
 }
 
@@ -56,6 +61,8 @@ export function offerToFormValues(offer: PartnerOffer): OfferFormValues {
     cancellationPolicy: offer.cancellationPolicy,
     maxParticipantsPerBooking: offer.maxParticipantsPerBooking,
     requiresParticipantNames: offer.requiresParticipantNames,
+    sellingUnit: offer.sellingUnit ?? 'person',
+    groupMaxPeople: offer.groupMaxPeople ?? 4,
   };
 }
 
@@ -71,5 +78,7 @@ export function emptyOfferFormValues(kind: 'tour' | 'private_entry'): OfferFormV
     cancellationPolicy: 'flexible',
     maxParticipantsPerBooking: 8,
     requiresParticipantNames: false,
+    sellingUnit: 'person',
+    groupMaxPeople: 4,
   };
 }

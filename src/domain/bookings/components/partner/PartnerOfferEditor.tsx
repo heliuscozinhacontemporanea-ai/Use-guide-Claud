@@ -14,6 +14,7 @@ import { getBookingErrorMessage } from '../../utils/bookingErrorMessage';
 import { offerFormToFields } from '../../utils/offerFormMapping';
 import { BUTTON_PRIMARY, BUTTON_SECONDARY, INPUT } from '../../../../ui/styles/controls';
 import { OfferPriceFields } from './OfferPriceFields';
+import { OfferSellingUnitFields } from './OfferSellingUnitFields';
 import { OfferTextFields } from './OfferTextFields';
 
 interface PartnerOfferEditorProps {
@@ -57,10 +58,10 @@ export function PartnerOfferEditor({
 
   const numberField = (name: 'durationMinutes' | 'maxParticipantsPerBooking', label: string) => (
     <label className="block space-y-1">
-      <span className="text-xs text-white/70">{label}</span>
+      <span className="text-xs text-ink/70">{label}</span>
       <input type="number" inputMode="numeric" {...register(name)} className={INPUT} />
       {errors[name]?.message && (
-        <span role="alert" className="text-xs text-red-300">
+        <span role="alert" className="text-xs text-danger">
           {t(errors[name]?.message ?? '')}
         </span>
       )}
@@ -69,7 +70,7 @@ export function PartnerOfferEditor({
 
   return (
     <form onSubmit={submit} className="space-y-5" noValidate>
-      <h3 className="text-base font-bold text-white">
+      <h3 className="text-base font-bold text-ink">
         {mode === 'create' ? t('bookings.editor.titleNew') : t('bookings.editor.titleEdit')}
       </h3>
       <OfferTextFields register={register} errors={errors} />
@@ -79,7 +80,7 @@ export function PartnerOfferEditor({
         {numberField('maxParticipantsPerBooking', t('bookings.editor.maxParticipantsLabel'))}
       </div>
       <label className="block space-y-1">
-        <span className="text-xs text-white/70">{t('bookings.editor.meetingPointLabel')}</span>
+        <span className="text-xs text-ink/70">{t('bookings.editor.meetingPointLabel')}</span>
         <input {...register('meetingPoint')} className={INPUT} />
       </label>
       {defaultValues.kind === 'tour' && (
@@ -115,16 +116,14 @@ export function PartnerOfferEditor({
         )}
       />
       <p className="text-xs text-ink/70">{t('salesPolicy.withdrawalNoFee')}</p>
-      <label className="flex items-center gap-3 min-h-11">
-        <input
-          type="checkbox"
-          {...register('requiresParticipantNames')}
-          className="w-5 h-5 accent-teal-400"
-        />
-        <span className="text-sm text-white/80">{t('bookings.editor.requireNamesLabel')}</span>
-      </label>
+      <OfferSellingUnitFields
+        kind={defaultValues.kind}
+        control={control}
+        register={register}
+        errors={errors}
+      />
       {submitError && (
-        <p role="alert" className="text-xs text-red-300">
+        <p role="alert" className="text-xs text-danger">
           {submitError}
         </p>
       )}

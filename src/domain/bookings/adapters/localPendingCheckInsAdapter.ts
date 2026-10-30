@@ -5,7 +5,7 @@ export interface PendingCheckIn {
   slotId: string;
   kind: 'code' | 'entry';
   /** O QR lido ou o código digitado, com a hora do aparelho. */
-  payload: { code?: string; qrToken?: string; participantsPresent: number; capturedAt: string };
+  payload: { code?: string; qrToken?: string; capturedAt: string };
 }
 
 const KEY = 'useguide.pendingCheckIns';

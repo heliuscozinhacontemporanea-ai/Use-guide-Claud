@@ -3,19 +3,17 @@ import { useTranslation } from 'react-i18next';
 import { Dialog } from '../../../../ui/components/Dialog';
 import { RadioCardGroup } from '../../../../ui/components/RadioCardGroup';
 import { BUTTON_PRIMARY } from '../../../../ui/styles/controls';
-import type { BookingSummary, NoCodeReason } from '../../types/bookings';
+import type { NoCodeReason } from '../../types/bookings';
 
 const REASONS: NoCodeReason[] = ['no_phone', 'refused', 'other'];
 
-/** "Cliente sem código": por conta e risco do prestador, até o comprador confirmar (D20). */
+/** "Cliente sem código": vale para toda a reserva, por conta e risco do parceiro, até o cliente confirmar (D20). */
 export function NoCodeCheckInDialog({
-  booking,
   onClose,
   onConfirm,
 }: {
-  booking: BookingSummary;
   onClose: () => void;
-  onConfirm: (participantsPresent: number, reason: NoCodeReason) => Promise<void>;
+  onConfirm: (reason: NoCodeReason) => Promise<void>;
 }) {
   const { t } = useTranslation();
   const [reason, setReason] = useState<NoCodeReason>('no_phone');
@@ -24,7 +22,7 @@ export function NoCodeCheckInDialog({
   const confirm = async () => {
     setSending(true);
     try {
-      await onConfirm(booking.participantsCount, reason);
+      await onConfirm(reason);
     } finally {
       setSending(false);
     }

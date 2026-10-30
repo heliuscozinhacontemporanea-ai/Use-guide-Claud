@@ -46,6 +46,7 @@ export function toBuyerBooking(booking: Booking) {
     businessName: booking.offerSnapshot.businessName ?? null,
     sellingUnit: booking.offerSnapshot.sellingUnit ?? 'person',
     groupMaxPeople: booking.offerSnapshot.groupMaxPeople ?? null,
+    requiresParticipantNames: booking.offerSnapshot.requiresParticipantNames ?? false,
     arrivedAt: booking.arrival?.at ?? null,
     providerAbsence: booking.providerAbsence
       ? {

@@ -1,10 +1,10 @@
 import { bookingsApi } from '../../factory';
-import type { BookingSummary, EntryCheckInPayload } from '../../types/bookings';
+import type { UnitCheckInResult, EntryCheckInPayload } from '../../types/bookings';
 
 export async function checkInEntryUseCase(
   offerId: string,
   slotId: string,
   payload: EntryCheckInPayload
-): Promise<BookingSummary> {
+): Promise<UnitCheckInResult> {
   return bookingsApi.checkInEntry(offerId, slotId, payload);
 }

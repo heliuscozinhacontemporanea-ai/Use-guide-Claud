@@ -5,8 +5,10 @@ import { saveEntryKeys, verifyEntryPassOffline } from '../adapters/webCryptoEntr
 import { checkInByCodeUseCase } from '../application/usecases/checkInByCodeUseCase';
 import { checkInEntryUseCase } from '../application/usecases/checkInEntryUseCase';
 import { getEntryVerificationKeysUseCase } from '../application/usecases/getEntryVerificationKeysUseCase';
-import type { BookingSummary, OfferKind } from '../types/bookings';
+import type { BookingSummary, OfferKind, UnitCheckInResult } from '../types/bookings';
 import { getBookingErrorMessage } from '../utils/bookingErrorMessage';
+import { formatSlotTime } from '../utils/dates';
+import { unitLabel } from '../utils/unitLabel';
 
 export interface CheckInResult {
   tone: 'success' | 'warn' | 'danger';
@@ -25,40 +27,62 @@ export function useSlotCheckIn(
   kind: OfferKind,
   onCheckedIn?: (booking: BookingSummary) => void
 ) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const entry = kind === 'private_entry';
   const [sending, setSending] = useState(false);
   const [result, setResult] = useState<CheckInResult | null>(null);
   const [pending, setPending] = useState(() => pendingCheckIns.list(offerId).length);
 
   const send = useCallback(
-    (payload: {
-      code?: string;
-      qrToken?: string;
-      participantsPresent: number;
-      capturedAt?: string;
-    }) =>
+    (payload: { code?: string; qrToken?: string; capturedAt?: string }) =>
       entry
         ? checkInEntryUseCase(offerId, slotId, payload)
         : checkInByCodeUseCase(offerId, slotId, {
             code: payload.code ?? '',
-            participantsPresent: payload.participantsPresent,
             ...(payload.capturedAt ? { capturedAt: payload.capturedAt } : {}),
           }),
     [entry, offerId, slotId]
   );
 
+  // Cada código vale uma pessoa ou um grupo (D20): a tela diz qual entrou, com o nome na entrada nominal.
+  const describe = useCallback(
+    (checkIn: UnitCheckInResult): CheckInResult => {
+      if (checkIn.alreadyCheckedIn) {
+        return {
+          tone: 'warn',
+          message: t('serviceProof.partner.alreadyUsed', {
+            time: formatSlotTime(checkIn.checkedInAt, i18n.language),
+          }),
+        };
+      }
+      const label = unitLabel(t, checkIn.booking, checkIn.unit);
+      const total = checkIn.booking.participantsCount;
+      return {
+        tone: 'success',
+        message: checkIn.name
+          ? t('serviceProof.partner.successNamed', { name: checkIn.name })
+          : t('serviceProof.partner.success', {
+              unit:
+                total > 1
+                  ? `${label} · ${t('serviceProof.pass.unitOf', { n: checkIn.unit + 1, total })}`
+                  : label,
+            }),
+      };
+    },
+    [i18n.language, t]
+  );
+
   const sync = useCallback(async () => {
     for (const item of pendingCheckIns.list(offerId)) {
       try {
-        const booking = await (item.kind === 'entry'
+        const checkIn = await (item.kind === 'entry'
           ? checkInEntryUseCase(item.offerId, item.slotId, item.payload)
           : checkInByCodeUseCase(item.offerId, item.slotId, {
               ...item.payload,
               code: item.payload.code ?? '',
             }));
         pendingCheckIns.remove(item.id);
-        onCheckedIn?.(booking);
+        onCheckedIn?.(checkIn.booking);
       } catch (error: unknown) {
         if (isNetworkFailure(error)) break;
         // Recusado pelo servidor (código errado, fora do prazo): sai da fila e o prestador vê o motivo.
@@ -82,14 +106,13 @@ export function useSlotCheckIn(
   }, [entry, offerId, sync]);
 
   const submit = useCallback(
-    async (input: { code?: string; qrToken?: string; participantsPresent: number }) => {
+    async (input: { code?: string; qrToken?: string }) => {
       setSending(true);
       setResult(null);
       try {
-        const booking = await send(input);
-        const count = booking.checkIn?.participantsPresent ?? input.participantsPresent;
-        setResult({ tone: 'success', message: t('serviceProof.partner.success', { count }) });
-        onCheckedIn?.(booking);
+        const checkIn = await send(input);
+        setResult(describe(checkIn));
+        onCheckedIn?.(checkIn.booking);
         return true;
       } catch (error: unknown) {
         if (!isNetworkFailure(error)) {
@@ -123,7 +146,7 @@ export function useSlotCheckIn(
         setSending(false);
       }
     },
-    [entry, offerId, onCheckedIn, send, slotId, t]
+    [describe, entry, offerId, onCheckedIn, send, slotId, t]
   );
 
   return { submit, sending, result, pending, clearResult: () => setResult(null) };

@@ -19,7 +19,7 @@ export function canReportProviderAbsent(booking: BookingSummary, now: Date): boo
   return (
     usesCheckInCode(booking.kind) &&
     booking.status === 'confirmed' &&
-    !booking.checkIn &&
+    booking.checkIns.length === 0 &&
     !booking.providerAbsence &&
     nowMs >= new Date(booking.offer.startsAt).getTime() + PROVIDER_ABSENT_AFTER_MS &&
     nowMs <= serviceEndMs(booking) + CHECK_IN_CLOSES_AFTER_MS

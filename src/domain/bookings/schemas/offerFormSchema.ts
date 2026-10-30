@@ -45,6 +45,9 @@ export const offerFormSchema = z.object({
   cancellationPolicy: z.enum([...BOOKING_CANCELLATION_POLICIES, ...TRANSFER_CANCELLATION_POLICIES]),
   maxParticipantsPerBooking: z.coerce.number().int(integer).min(1, integer).max(50, integer),
   requiresParticipantNames: z.boolean(),
+  sellingUnit: z.enum(['person', 'group']),
+  // Sempre validado (o campo tem valor padrão); só vai para a API na venda por grupo.
+  groupMaxPeople: z.coerce.number().int(integer).min(2, integer).max(50, integer),
 });
 
 export type OfferFormInput = z.input<typeof offerFormSchema>;

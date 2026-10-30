@@ -203,7 +203,7 @@ describe('BookingsController', () => {
 
   it('código de check-in sai sem cache e só com os campos da visão (D20)', async () => {
     vi.mocked(getBookingCheckInCodeUseCase).mockResolvedValue({
-      codes: [{ unit: 0, code: 'K7M4QX', name: null, checkedInAt: null }],
+      codes: [{ unit: 0, code: 'K7M4QX', name: null, nameChanged: false, checkedInAt: null }],
       visibleFrom: '2026-11-10T03:00:00.000Z',
       validUntil: '2026-11-11T01:00:00.000Z',
     });

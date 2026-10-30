@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import { getCheckInCodeUseCase } from '../application/usecases/getCheckInCodeUseCase';
 import { getEntryPassUseCase } from '../application/usecases/getEntryPassUseCase';
+import { setParticipantNameUseCase } from '../application/usecases/setParticipantNameUseCase';
 import type { BookingSummary, EntryPassView } from '../types/bookings';
 
-/** Código de check-in (6) ou QR e código da entrada (8) da reserva confirmada (D20). */
+/** Códigos (6) ou QR e código da entrada (8) de cada unidade da reserva confirmada (D20). */
 export function useBookingCheckInPass(booking: BookingSummary, enabled: boolean) {
   const [data, setData] = useState<EntryPassView | null>(null);
   const [loading, setLoading] = useState(false);
@@ -13,11 +14,12 @@ export function useBookingCheckInPass(booking: BookingSummary, enabled: boolean)
     setLoading(true);
     setError(false);
     try {
-      setData(
-        booking.kind === 'private_entry'
-          ? await getEntryPassUseCase(booking.id)
-          : { ...(await getCheckInCodeUseCase(booking.id)), qrToken: null }
-      );
+      if (booking.kind === 'private_entry') {
+        setData(await getEntryPassUseCase(booking.id));
+      } else {
+        const { codes, ...window } = await getCheckInCodeUseCase(booking.id);
+        setData({ ...window, passes: codes.map((code) => ({ ...code, qrToken: null })) });
+      }
     } catch {
       setError(true);
     } finally {
@@ -29,5 +31,14 @@ export function useBookingCheckInPass(booking: BookingSummary, enabled: boolean)
     if (enabled) void load();
   }, [enabled, load]);
 
-  return { data, loading, error, reload: load };
+  // O QR leva o nome assinado: depois de salvar, a entrada é recarregada do servidor.
+  const saveName = useCallback(
+    async (unit: number, name: string) => {
+      await setParticipantNameUseCase(booking.id, unit, name);
+      await load();
+    },
+    [booking.id, load]
+  );
+
+  return { data, loading, error, reload: load, saveName };
 }

@@ -37,6 +37,7 @@ export function BookingFlow({
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [pickupAddress, setPickupAddress] = useState('');
   const needsPickup = offer.pickupMode === 'buyer_address';
+  const group = offer.sellingUnit === 'group';
   const pickupReady = !needsPickup || pickupAddress.trim().length >= 3;
   const participants = Object.values(quantities).reduce((sum, quantity) => sum + quantity, 0);
   const maxParticipants = Math.min(offer.maxParticipantsPerBooking, slot?.available ?? 0);
@@ -60,7 +61,8 @@ export function BookingFlow({
       onRequireLogin();
       return;
     }
-    setStep(offer.requiresParticipantNames ? 'participants' : 'checkout');
+    // Grupo não tem nome por pessoa: o cliente decide quem leva (D20).
+    setStep(offer.requiresParticipantNames && !group ? 'participants' : 'checkout');
   };
 
   const restart = () => {
@@ -115,6 +117,7 @@ export function BookingFlow({
           maxParticipants={maxParticipants}
           value={quantities}
           onChange={setQuantities}
+          groupMaxPeople={group ? offer.groupMaxPeople : undefined}
         />
       )}
       {slot && participants > 0 && needsPickup && (
@@ -132,13 +135,13 @@ export function BookingFlow({
             aria-describedby={`${pickupId}-hint`}
             className={INPUT}
           />
-          <p id={`${pickupId}-hint`} className="text-[12px] text-ink/60">
+          <p id={`${pickupId}-hint`} className="text-[12px] text-ink/70">
             {t('serviceProof.checkout.pickupHint')}
           </p>
         </div>
       )}
       {slot && participants > 0 && !isAuthenticated && (
-        <p className="text-xs text-white/70">{t('bookings.buyer.loginRequired')}</p>
+        <p className="text-xs text-ink/70">{t('bookings.buyer.loginRequired')}</p>
       )}
       {slot && participants > 0 && (
         <TermsAcceptanceField

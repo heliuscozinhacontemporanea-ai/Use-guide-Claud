@@ -199,6 +199,7 @@ export interface BookingsTranslation {
     ABSENCE_REPORT_NOT_ALLOWED: string;
     NOTHING_TO_ANSWER: string;
     INVALID_ENTRY_PASS: string;
+    NAME_CHANGE_NOT_ALLOWED: string;
     CLAIM_ALREADY_EXISTS: string;
     INTERNAL_ERROR: string;
   };
@@ -302,7 +303,7 @@ export const bookingsPtBR: BookingsTranslation = {
     durationLabel: 'Duração (minutos)',
     meetingPointLabel: 'Ponto de encontro',
     maxParticipantsLabel: 'Máximo de participantes por reserva',
-    requireNamesLabel: 'Pedir o nome de cada participante',
+    requireNamesLabel: 'Pedir o nome de cada pessoa',
     save: 'Salvar',
     cancel: 'Cancelar',
     saveFailed: 'Não foi possível salvar a oferta.',
@@ -415,6 +416,8 @@ export const bookingsPtBR: BookingsTranslation = {
       'Só é possível relatar 30 min depois do horário, se o check-in não foi feito.',
     NOTHING_TO_ANSWER: 'Não há nada para responder nesta reserva.',
     INVALID_ENTRY_PASS: 'QR Code inválido para este horário.',
+    NAME_CHANGE_NOT_ALLOWED:
+      'O nome desta entrada já foi trocado ou a troca fechou (até 24 h antes).',
     CLAIM_ALREADY_EXISTS: 'Já existe uma reclamação para esta compra.',
     INTERNAL_ERROR: 'Algo deu errado. Tente novamente em instantes.',
   },
@@ -516,7 +519,7 @@ export const bookingsEn: BookingsTranslation = {
     durationLabel: 'Duration (minutes)',
     meetingPointLabel: 'Meeting point',
     maxParticipantsLabel: 'Maximum participants per booking',
-    requireNamesLabel: 'Ask for each participant’s name',
+    requireNamesLabel: 'Ask for each person’s name',
     save: 'Save',
     cancel: 'Cancel',
     saveFailed: 'The offer could not be saved.',
@@ -628,6 +631,8 @@ export const bookingsEn: BookingsTranslation = {
       'You can report it 30 min after the start time, if no check-in was done.',
     NOTHING_TO_ANSWER: 'There is nothing to answer in this booking.',
     INVALID_ENTRY_PASS: 'This QR code is not valid for this time slot.',
+    NAME_CHANGE_NOT_ALLOWED:
+      'The name on this entry was already changed or changes are closed (up to 24 h before).',
     CLAIM_ALREADY_EXISTS: 'There is already a claim for this purchase.',
     INTERNAL_ERROR: 'Something went wrong. Please try again shortly.',
   },
@@ -734,7 +739,7 @@ export const bookingsFr: BookingsTranslation = {
     durationLabel: 'Durée (minutes)',
     meetingPointLabel: 'Point de rendez-vous',
     maxParticipantsLabel: 'Nombre maximum de participants par réservation',
-    requireNamesLabel: 'Demander le nom de chaque participant',
+    requireNamesLabel: 'Demander le nom de chaque personne',
     save: 'Enregistrer',
     cancel: 'Annuler',
     saveFailed: 'Impossible d’enregistrer l’offre.',
@@ -848,6 +853,8 @@ export const bookingsFr: BookingsTranslation = {
       'Le signalement est possible 30 min après l’horaire, sans enregistrement fait.',
     NOTHING_TO_ANSWER: 'Il n’y a rien à répondre pour cette réservation.',
     INVALID_ENTRY_PASS: 'Ce QR code n’est pas valable pour ce créneau.',
+    NAME_CHANGE_NOT_ALLOWED:
+      'Le nom de cette entrée a déjà été changé ou le délai est passé (jusqu’à 24 h avant).',
     CLAIM_ALREADY_EXISTS: 'Une réclamation existe déjà pour cet achat.',
     INTERNAL_ERROR: 'Un problème est survenu. Réessayez dans un instant.',
   },

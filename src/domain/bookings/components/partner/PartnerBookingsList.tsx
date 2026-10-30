@@ -51,7 +51,7 @@ export function PartnerBookingsList({ offerId }: { offerId: string }) {
                   {t('serviceProof.partner.pickupAt', { address: booking.pickupAddress })}
                 </p>
               )}
-              {(serviceDay || booking.checkIn) && (
+              {(serviceDay || booking.checkIns.length > 0) && (
                 <BookingServiceControls booking={booking} actions={bookings} onNotice={setNotice} />
               )}
             </li>

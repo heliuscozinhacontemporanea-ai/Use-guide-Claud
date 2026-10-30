@@ -73,8 +73,8 @@ export function useOfferBookings(offerId: string) {
   );
 
   const checkInWithoutCode = useCallback(
-    async (bookingId: string, participantsPresent: number, reason: NoCodeReason) =>
-      replace(await checkInWithoutCodeUseCase(offerId, bookingId, { participantsPresent, reason })),
+    async (bookingId: string, reason: NoCodeReason) =>
+      replace(await checkInWithoutCodeUseCase(offerId, bookingId, { reason })),
     [offerId, replace]
   );
 

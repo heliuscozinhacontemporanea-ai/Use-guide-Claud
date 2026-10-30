@@ -66,10 +66,15 @@ export function BuyerBookingCard({
           <p className="text-[15px] font-semibold text-ink leading-snug break-words">
             {booking.offer.title}
           </p>
+          {booking.businessName && (
+            <p className="text-[13px] text-ink/70 truncate">{booking.businessName}</p>
+          )}
           <p className="text-sm text-ink/70 mt-0.5">
             {upcoming
               ? `${formatSlotDateTime(booking.offer.startsAt, i18n.language)} · ${t(
-                  'bookings.bookingsList.participants',
+                  booking.sellingUnit === 'group'
+                    ? 'serviceProof.units.groups'
+                    : 'bookings.bookingsList.participants',
                   { count: booking.participantsCount }
                 )}`
               : `${formatBusinessWeekday(booking.offer.startsAt, i18n.language)} · ${price}`}
@@ -84,9 +89,9 @@ export function BuyerBookingCard({
           })}
         </p>
       )}
-      {/* Código ou entrada da reserva paga, até o check-in, também durante o serviço (D20). */}
+      {/* Códigos ou entradas da reserva paga, até o check-in de todas, também durante o serviço (D20). */}
       {booking.status === 'confirmed' &&
-        !booking.checkIn &&
+        booking.checkIns.length < booking.participantsCount &&
         (upcoming ||
           fortalezaDateKey(booking.offer.startsAt) ===
             fortalezaDateKey(new Date().toISOString())) && (

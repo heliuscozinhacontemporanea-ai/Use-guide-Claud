@@ -9,6 +9,7 @@ import type {
   CodeCheckInPayload,
   EntryCheckInPayload,
   EntryPassView,
+  UnitCheckInResult,
   NoCodeReason,
   CreateBookingPayload,
   CreateBookingResponse,
@@ -38,7 +39,7 @@ async function call<T>(
   return data as T;
 }
 
-function json(method: 'POST' | 'PATCH', body: unknown): RequestInit {
+function json(method: 'POST' | 'PUT' | 'PATCH', body: unknown): RequestInit {
   return { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) };
 }
 
@@ -160,7 +161,7 @@ export class HttpBookingsAdapter implements BookingsApiPort {
     offerId: string,
     slotId: string,
     payload: CodeCheckInPayload
-  ): Promise<BookingSummary> {
+  ): Promise<UnitCheckInResult> {
     return call(`${slotPath(offerId, slotId)}/check-ins`, json('POST', payload));
   }
 
@@ -168,7 +169,7 @@ export class HttpBookingsAdapter implements BookingsApiPort {
     offerId: string,
     slotId: string,
     payload: EntryCheckInPayload
-  ): Promise<BookingSummary> {
+  ): Promise<UnitCheckInResult> {
     return call(`${slotPath(offerId, slotId)}/entry-check-ins`, json('POST', payload));
   }
 
@@ -196,12 +197,20 @@ export class HttpBookingsAdapter implements BookingsApiPort {
   async checkInWithoutCode(
     offerId: string,
     bookingId: string,
-    payload: { participantsPresent: number; reason: NoCodeReason }
+    payload: { reason: NoCodeReason }
   ): Promise<BookingSummary> {
     return call(
       `${offerBookingPath(offerId, bookingId)}/check-in-without-code`,
       json('POST', payload)
     );
+  }
+
+  async setParticipantName(
+    bookingId: string,
+    unit: number,
+    name: string
+  ): Promise<{ unit: number; name: string; changed: boolean }> {
+    return call(`${bookingPath(bookingId)}/participants/${unit}`, json('PUT', { name }));
   }
 
   async answerProviderAbsence(

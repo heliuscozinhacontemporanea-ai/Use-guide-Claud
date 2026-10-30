@@ -36,6 +36,8 @@ export interface EntryPass {
   code: string | null;
   /** Nome da pessoa na entrada nominal (D20). */
   name: string | null;
+  /** O nome só pode ser trocado uma vez (D20). */
+  nameChanged: boolean;
   checkedInAt: string | null;
 }
 
@@ -88,6 +90,7 @@ export class BookingEntryService {
           qrToken: visible ? this.sign(booking, slot, unit, name, closesAtMs) : null,
           code: visible ? deriveCheckInCode(booking.id, ENTRY_CODE_LENGTH, unit) : null,
           name,
+          nameChanged: Boolean(participants[unit]?.nameChangedAt),
           checkedInAt: used.get(unit) ?? null,
         };
       }),

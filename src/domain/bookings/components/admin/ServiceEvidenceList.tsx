@@ -8,8 +8,9 @@ export interface BookingServiceEvidence {
   checkIn: {
     at: string;
     method: 'code' | 'qr' | 'no_code';
-    participantsPresent: number;
-    participantsCount: number;
+    /** Unidades (pessoas ou grupos) com check-in, de quantas foram vendidas (D20). */
+    used: number;
+    total: number;
     noCodeReason: 'no_phone' | 'refused' | 'other' | null;
   } | null;
   arrival: { at: string; location: { lat: number; lng: number; accuracyM?: number } | null } | null;
@@ -41,8 +42,8 @@ export function ServiceEvidenceList({ evidence }: { evidence: BookingServiceEvid
       ? t('serviceProof.evidence.checkIn', {
           date: date(checkIn.at),
           method: t(`serviceProof.evidence.methods.${checkIn.method}`),
-          present: checkIn.participantsPresent,
-          total: checkIn.participantsCount,
+          used: checkIn.used,
+          total: checkIn.total,
         })
       : t('serviceProof.evidence.noCheckIn')
   );

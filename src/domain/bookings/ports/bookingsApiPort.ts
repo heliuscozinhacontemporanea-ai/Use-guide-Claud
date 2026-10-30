@@ -7,6 +7,7 @@ import type {
   CodeCheckInPayload,
   EntryCheckInPayload,
   EntryPassView,
+  UnitCheckInResult,
   NoCodeReason,
   CreateBookingPayload,
   CreateBookingResponse,
@@ -51,12 +52,12 @@ export interface BookingsApiPort {
     offerId: string,
     slotId: string,
     payload: CodeCheckInPayload
-  ): Promise<BookingSummary>;
+  ): Promise<UnitCheckInResult>;
   checkInEntry(
     offerId: string,
     slotId: string,
     payload: EntryCheckInPayload
-  ): Promise<BookingSummary>;
+  ): Promise<UnitCheckInResult>;
   getEntryVerificationKeys(
     offerId: string
   ): Promise<Array<{ kid: string; publicKeyJwk: JsonWebKey }>>;
@@ -68,8 +69,13 @@ export interface BookingsApiPort {
   checkInWithoutCode(
     offerId: string,
     bookingId: string,
-    payload: { participantsPresent: number; reason: NoCodeReason }
+    payload: { reason: NoCodeReason }
   ): Promise<BookingSummary>;
+  setParticipantName(
+    bookingId: string,
+    unit: number,
+    name: string
+  ): Promise<{ unit: number; name: string; changed: boolean }>;
   answerProviderAbsence(
     offerId: string,
     bookingId: string,

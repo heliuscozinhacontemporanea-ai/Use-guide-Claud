@@ -1,8 +1,10 @@
+import type { TFunction } from 'i18next';
 import { describe, expect, it } from 'vitest';
 import { buildSlotsPayload } from '../components/partner/SlotCreationForm';
 import { fortalezaDateKey, fortalezaInputToIso, startOfFortalezaWeek } from './dates';
 import { formatMinor, minorToReaisInput, parseReaisToMinor } from './money';
 import { emptyOfferFormValues, offerFormToFields } from './offerFormMapping';
+import { canEditUnitName, unitLabel } from './unitLabel';
 
 describe('dinheiro', () => {
   it('converte reais digitados em centavos inteiros', () => {
@@ -86,5 +88,62 @@ describe('criação de horários', () => {
       capacity: 8,
       slots: [{ startsAt: '2026-11-05T12:00:00.000Z' }],
     });
+  });
+});
+
+describe('venda por pessoa ou grupo (D20)', () => {
+  const tour = { ...emptyOfferFormValues('tour'), title: { 'pt-BR': 'Buggy', en: '', fr: '' } };
+
+  it('grupo envia o tamanho e desliga os nomes; entrada de atração é sempre por pessoa', () => {
+    const group = offerFormToFields({
+      ...tour,
+      sellingUnit: 'group',
+      groupMaxPeople: 4,
+      requiresParticipantNames: true,
+    });
+    expect(group).toMatchObject({
+      sellingUnit: 'group',
+      groupMaxPeople: 4,
+      requiresParticipantNames: false,
+    });
+    const entry = offerFormToFields({
+      ...emptyOfferFormValues('private_entry'),
+      sellingUnit: 'group',
+      requiresParticipantNames: true,
+    });
+    expect(entry).toMatchObject({ sellingUnit: 'person', requiresParticipantNames: true });
+    expect(entry).not.toHaveProperty('groupMaxPeople');
+  });
+});
+
+describe('unidade da reserva (D20)', () => {
+  const t = ((key: string, options?: { n?: number }) =>
+    key === 'serviceProof.units.person' ? `Pessoa ${options?.n}` : 'Grupo') as unknown as TFunction;
+  const booking = {
+    requiresParticipantNames: true,
+    offer: { startsAt: '2026-11-10T12:00:00.000Z' },
+  } as Parameters<typeof canEditUnitName>[0];
+  const pass = { name: null, nameChanged: false, checkedInAt: null };
+
+  it('rótulo usa o nome, "Pessoa n" ou o grupo', () => {
+    expect(unitLabel(t, { sellingUnit: 'person', participantsCount: 3 }, 1)).toBe('Pessoa 2');
+    expect(unitLabel(t, { sellingUnit: 'person', participantsCount: 3 }, 1, 'Ana')).toBe('Ana');
+    expect(unitLabel(t, { sellingUnit: 'group', participantsCount: 1 }, 0)).toBe('Grupo');
+    expect(unitLabel(t, { sellingUnit: 'group', participantsCount: 2 }, 1)).toBe('Grupo 2');
+  });
+
+  it('primeiro nome é livre; troca só uma vez e até 24 h antes; nada depois do check-in', () => {
+    const early = new Date('2026-11-08T12:00:00.000Z');
+    const late = new Date('2026-11-09T13:00:00.000Z');
+    expect(canEditUnitName(booking, pass, late)).toBe(true);
+    expect(canEditUnitName(booking, { ...pass, name: 'Ana' }, early)).toBe(true);
+    expect(canEditUnitName(booking, { ...pass, name: 'Ana' }, late)).toBe(false);
+    expect(canEditUnitName(booking, { ...pass, name: 'Ana', nameChanged: true }, early)).toBe(
+      false
+    );
+    expect(canEditUnitName(booking, { ...pass, checkedInAt: 'x' }, early)).toBe(false);
+    expect(canEditUnitName({ ...booking, requiresParticipantNames: false }, pass, early)).toBe(
+      false
+    );
   });
 });
