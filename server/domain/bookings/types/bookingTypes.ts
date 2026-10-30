@@ -17,6 +17,12 @@ export const CHECK_IN_CODE_KINDS: readonly BookableOfferKind[] = ['tour', 'renta
 /** Onde o serviço começa: no ponto de encontro da oferta ou no endereço que o comprador informa (D20). */
 export type PickupMode = 'meeting_point' | 'buyer_address';
 
+/**
+ * Unidade de venda (D20): por pessoa, cada pessoa tem o próprio código ou QR; por grupo, um código vale
+ * para o grupo inteiro, até `groupMaxPeople`. Entrada de atração é sempre por pessoa.
+ */
+export type SellingUnit = 'person' | 'group';
+
 export interface PriceOption {
   id: string;
   label: LocalizedText;
@@ -50,6 +56,11 @@ export interface BookableOffer {
   durationMinutes?: number;
   meetingPoint?: MeetingPoint;
   pickupMode?: PickupMode;
+  sellingUnit?: SellingUnit;
+  /** Só na venda por grupo: quantas pessoas cabem em cada unidade (ex.: buggy até 4). */
+  groupMaxPeople?: number;
+  /** Nome do estabelecimento, copiado do item do guia: é como o cliente reconhece quem presta (D20). */
+  businessName?: string;
   cancellationPolicy: BookingCancellationPolicy;
   maxParticipantsPerBooking: number;
   requiresParticipantNames: boolean;
@@ -106,8 +117,10 @@ export interface BookingCancellation {
   at: string;
 }
 
-/** Check-in do serviço pelo prestador (D20): prova de que o serviço começou. */
+/** Check-in de uma unidade da reserva (D20): prova de que o serviço começou para ela. */
 export interface BookingCheckIn {
+  /** Unidade usada: a pessoa (venda por pessoa) ou o grupo, de 0 até `participantsCount - 1`. */
+  unit: number;
   /** Hora em que o prestador fez o check-in (a do aparelho, quando foi feito sem internet). */
   at: string;
   byUid: string;
@@ -116,7 +129,6 @@ export interface BookingCheckIn {
    * até o comprador confirmar.
    */
   method: 'code' | 'qr' | 'no_code';
-  participantsPresent: number;
   /** Só no check-in feito sem internet: quando o servidor recebeu e validou o código. */
   syncedAt?: string;
   noCodeReason?: NoCodeReason;
@@ -186,6 +198,11 @@ export interface Booking {
     durationMinutes?: number;
     meetingPoint?: string;
     cancellationPolicy: BookingCancellationPolicy;
+    businessName?: string;
+    sellingUnit?: SellingUnit;
+    groupMaxPeople?: number;
+    /** Entrada nominal: o cliente informa o nome de cada pessoa (D20). */
+    requiresParticipantNames?: boolean;
   };
   /** Aviso de nova data pelo parceiro: até 7 dias depois, o comprador cancela com reembolso integral (D16, 4A). */
   rescheduledAt?: string;
@@ -197,7 +214,8 @@ export interface Booking {
   pickupAddress?: string;
   /** Quando o endereço de busca é apagado: 7 dias depois do fim do serviço (D20, §7.5). */
   pickupAddressEraseAt?: string;
-  checkIn?: BookingCheckIn;
+  /** Uma entrada por unidade usada; repetir o check-in da mesma unidade não cria outra. */
+  checkIns?: BookingCheckIn[];
   arrival?: BookingArrival;
   providerAbsence?: BookingProviderAbsence;
   serviceConfirmation?: BookingServiceConfirmation;
@@ -208,9 +226,15 @@ export interface Booking {
   updatedAt: string;
 }
 
+/**
+ * Pessoa de uma unidade, só quando a oferta pede nomes (entrada nominal, D20). O nome pode ser dado na
+ * compra ou depois, e trocado uma vez até 24 h antes.
+ */
 export interface BookingParticipant {
   name: string;
   isLeadContact: boolean;
+  /** Quando o nome já informado foi trocado: depois disso não muda mais. */
+  nameChangedAt?: string;
 }
 
 /** Quem age na operação. Neutro de propósito: o domínio não conhece a camada application. */

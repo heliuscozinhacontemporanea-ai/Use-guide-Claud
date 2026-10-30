@@ -1,7 +1,11 @@
 import { adminDb } from '../../../infrastructure/firebase/adminClient';
-import { BookingPersistenceMapper } from '../dtos/bookingPersistenceMappers';
+import {
+  BookingPersistenceMapper,
+  ParticipantPersistenceMapper,
+} from '../dtos/bookingPersistenceMappers';
 import { BookingDomainError } from '../errors/bookingDomainError';
-import type { Booking, BookingCheckIn } from '../types/bookingTypes';
+import type { Booking, BookingCheckIn, BookingParticipant } from '../types/bookingTypes';
+import { newCheckIns } from '../utils/serviceProof';
 import {
   BOOKINGS,
   CHECK_IN_FAILURES,
@@ -13,14 +17,19 @@ import {
 
 /** Check-in, prazos e demais registros da prova do serviço nas reservas (D20). */
 export class FirestoreCheckInStore {
-  async recordCheckIn(bookingId: string, checkIn: BookingCheckIn): Promise<Booking> {
+  async recordCheckIns(bookingId: string, checkIns: BookingCheckIn[]): Promise<Booking> {
     return adminDb.runTransaction(async (tx) => {
       const booking = await readBooking(tx, bookingId);
-      if (booking.checkIn) return booking;
+      const added = newCheckIns(booking, checkIns);
+      if (added.length === 0) return booking;
       if (booking.status !== 'confirmed' && booking.status !== 'completed') {
         throw new BookingDomainError('INVALID_TRANSITION', 'Esta reserva não aceita check-in.');
       }
-      const updated: Booking = { ...booking, checkIn, updatedAt: nowIso() };
+      const updated: Booking = {
+        ...booking,
+        checkIns: [...(booking.checkIns ?? []), ...added],
+        updatedAt: nowIso(),
+      };
       tx.set(
         adminDb.collection(BOOKINGS).doc(bookingId),
         BookingPersistenceMapper.toPersistence(updated)
@@ -29,10 +38,32 @@ export class FirestoreCheckInStore {
         bookingId,
         from: booking.status,
         to: booking.status,
-        actorUid: checkIn.byUid,
-        reason: 'checked_in',
+        actorUid: added[0]?.byUid ?? 'system',
+        reason: `checked_in:${added.map((item) => item.unit).join(',')}`,
       });
       return updated;
+    });
+  }
+
+  async setParticipant(
+    bookingId: string,
+    unit: number,
+    change: (current: BookingParticipant | null) => BookingParticipant
+  ): Promise<BookingParticipant> {
+    const ref = adminDb.collection(PARTICIPANTS).doc(`${bookingId}_${unit}`);
+    return adminDb.runTransaction(async (tx) => {
+      const snapshot = await tx.get(ref);
+      const current = snapshot.exists
+        ? ParticipantPersistenceMapper.toDomain(snapshot.data() ?? {})
+        : null;
+      const next = change(current);
+      tx.set(ref, {
+        bookingId,
+        name: next.name,
+        isLeadContact: next.isLeadContact,
+        ...(next.nameChangedAt ? { nameChangedAt: next.nameChangedAt } : {}),
+      });
+      return next;
     });
   }
 

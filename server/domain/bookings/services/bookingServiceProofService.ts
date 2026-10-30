@@ -15,7 +15,7 @@ import {
   SERVICE_CONFIRMATION_MS,
   checkInWindow,
 } from '../utils/checkInWindow';
-import { hasServiceProof } from '../utils/serviceProof';
+import { hasAnyCheckIn, hasServiceProof } from '../utils/serviceProof';
 
 const NOT_FOUND = () => new BookingDomainError('NOT_FOUND', 'Reserva não encontrada.');
 const NOTHING_TO_ANSWER = () =>
@@ -24,7 +24,6 @@ const NOTHING_TO_ANSWER = () =>
 export interface CheckInWithoutCodeInput {
   offerId: string;
   bookingId: string;
-  participantsPresent: number;
   reason: NoCodeReason;
 }
 
@@ -66,27 +65,22 @@ export class BookingServiceProofService {
         'O comprador relatou sua ausência: responda pelo aviso da reserva.'
       );
     }
-    if (input.participantsPresent > booking.participantsCount) {
-      throw new BookingDomainError(
-        'VALIDATION_ERROR',
-        'Presentes acima do número de pessoas da reserva.'
-      );
-    }
     const nowDate = this.now();
     const confirmation = this.question(nowDate, 'no_code');
     return this.port.updateBooking(
       booking.id,
       (current) => {
-        if (current.checkIn) return null;
+        if (hasAnyCheckIn(current)) return null;
+        // Sem código, o registro vale para todas as unidades da reserva, por conta do parceiro.
         return {
           ...current,
-          checkIn: {
+          checkIns: Array.from({ length: current.participantsCount }, (_, unit) => ({
+            unit,
             at: nowDate.toISOString(),
             byUid: actor.uid,
-            method: 'no_code',
-            participantsPresent: input.participantsPresent,
+            method: 'no_code' as const,
             noCodeReason: input.reason,
-          },
+          })),
           serviceConfirmation: confirmation,
           deadline: { kind: 'service_confirmation', at: confirmation.answerBy },
         };
@@ -104,7 +98,7 @@ export class BookingServiceProofService {
     const allowed =
       CHECK_IN_CODE_KINDS.includes(booking.kind) &&
       booking.status === 'confirmed' &&
-      !booking.checkIn &&
+      !hasAnyCheckIn(booking) &&
       !booking.providerAbsence &&
       nowMs >= new Date(startsAt).getTime() + PROVIDER_ABSENT_AFTER_MS &&
       nowMs <= checkInWindow(startsAt, durationMinutes).closesAtMs;
@@ -286,7 +280,7 @@ export class BookingServiceProofService {
         'Esta reserva usa o QR Code da entrada.'
       );
     }
-    if (booking.status !== 'confirmed' || booking.checkIn) {
+    if (booking.status !== 'confirmed' || hasAnyCheckIn(booking)) {
       throw new BookingDomainError('INVALID_TRANSITION', 'Esta reserva não aceita esta ação.');
     }
     const { opensAtMs, closesAtMs } = checkInWindow(

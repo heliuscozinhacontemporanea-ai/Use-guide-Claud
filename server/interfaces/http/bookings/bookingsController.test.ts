@@ -203,10 +203,9 @@ describe('BookingsController', () => {
 
   it('código de check-in sai sem cache e só com os campos da visão (D20)', async () => {
     vi.mocked(getBookingCheckInCodeUseCase).mockResolvedValue({
-      code: 'K7M4QX',
+      codes: [{ unit: 0, code: 'K7M4QX', name: null, checkedInAt: null }],
       visibleFrom: '2026-11-10T03:00:00.000Z',
       validUntil: '2026-11-11T01:00:00.000Z',
-      checkedInAt: null,
     });
     const { res, status, json, setHeader } = response();
     await BookingsController.getCheckInCode(request({ params: { bookingId: 'bk_1' } }), res);
@@ -216,7 +215,7 @@ describe('BookingsController', () => {
     );
     expect(setHeader).toHaveBeenCalledWith('Cache-Control', 'no-store');
     expect(status).toHaveBeenCalledWith(200);
-    expect(json.mock.calls[0]?.[0]).toMatchObject({ code: 'K7M4QX' });
+    expect(json.mock.calls[0]?.[0]).toMatchObject({ codes: [{ code: 'K7M4QX' }] });
   });
 
   it('código de check-in de outra pessoa responde 404 (IDOR)', async () => {
@@ -236,12 +235,8 @@ describe('BookingsController', () => {
       booking: {
         ...BOOKING,
         pickupAddress: 'Pousada Vila Jeri',
-        checkIn: {
-          at: '2026-11-10T11:02:00.000Z',
-          byUid: 'p1',
-          method: 'code',
-          participantsPresent: 2,
-        },
+        checkIns: [{ unit: 1, at: '2026-11-10T11:02:00.000Z', byUid: 'p1', method: 'code' }],
+        offerSnapshot: { ...BOOKING.offerSnapshot, businessName: 'Buggy do Zé' },
       } as never,
       participants: [],
     });
@@ -249,7 +244,8 @@ describe('BookingsController', () => {
     await BookingsController.get(request({ params: { bookingId: 'bk_1' } }), res);
     expect(json.mock.calls[0]?.[0]).toMatchObject({
       pickupAddress: 'Pousada Vila Jeri',
-      checkIn: { at: '2026-11-10T11:02:00.000Z', participantsPresent: 2 },
+      checkIns: [{ unit: 1, at: '2026-11-10T11:02:00.000Z', method: 'code' }],
+      businessName: 'Buggy do Zé',
     });
     expect(JSON.stringify(json.mock.calls[0]?.[0])).not.toContain('byUid');
   });

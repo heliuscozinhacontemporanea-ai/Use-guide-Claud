@@ -4,11 +4,12 @@ import type { Booking } from '../../../domain/bookings';
 export interface BookingServiceEvidence {
   startsAt: string;
   pickupAddress: string | null;
+  /** Unidades usadas (pessoas ou grupos) de quantas foram compradas, e como. */
   checkIn: {
     at: string;
     method: 'code' | 'qr' | 'no_code';
-    participantsPresent: number;
-    participantsCount: number;
+    used: number;
+    total: number;
     noCodeReason: string | null;
   } | null;
   arrival: { at: string; location: { lat: number; lng: number; accuracyM?: number } | null } | null;
@@ -22,16 +23,18 @@ export interface BookingServiceEvidence {
 }
 
 export function toBookingServiceEvidence(booking: Booking): BookingServiceEvidence {
+  const checkIns = [...(booking.checkIns ?? [])].sort((a, b) => a.at.localeCompare(b.at));
+  const first = checkIns[0];
   return {
     startsAt: booking.offerSnapshot.startsAt,
     pickupAddress: booking.pickupAddress ?? null,
-    checkIn: booking.checkIn
+    checkIn: first
       ? {
-          at: booking.checkIn.at,
-          method: booking.checkIn.method,
-          participantsPresent: booking.checkIn.participantsPresent,
-          participantsCount: booking.participantsCount,
-          noCodeReason: booking.checkIn.noCodeReason ?? null,
+          at: first.at,
+          method: first.method,
+          used: checkIns.length,
+          total: booking.participantsCount,
+          noCodeReason: first.noCodeReason ?? null,
         }
       : null,
     arrival: booking.arrival

@@ -112,13 +112,14 @@ describe('BookingServiceProofService (D20)', () => {
     const updated = await service.checkInWithoutCode(PARTNER, {
       offerId: 'offer-1',
       bookingId: 'booking-1',
-      participantsPresent: 3,
       reason: 'no_phone',
     });
-    expect(updated.checkIn).toMatchObject({
+    // Sem código, o registro vale para todas as unidades da reserva.
+    expect(updated.checkIns).toHaveLength(4);
+    expect(updated.checkIns?.[3]).toMatchObject({
+      unit: 3,
       method: 'no_code',
       noCodeReason: 'no_phone',
-      participantsPresent: 3,
     });
     expect(updated.serviceConfirmation).toMatchObject({
       reason: 'no_code',
@@ -136,7 +137,7 @@ describe('BookingServiceProofService (D20)', () => {
       early.service.getBookingForAbsenceReport(BUYER, 'booking-1')
     ).rejects.toMatchObject({ code: 'ABSENCE_REPORT_NOT_ALLOWED' });
     const checkedIn = setup('2026-11-10T11:31:00.000Z', {
-      checkIn: { at: STARTS_AT, byUid: 'partner-1', method: 'code', participantsPresent: 4 },
+      checkIns: [{ unit: 0, at: STARTS_AT, byUid: 'partner-1', method: 'code' }],
     });
     await expect(
       checkedIn.service.getBookingForAbsenceReport(BUYER, 'booking-1')
@@ -182,7 +183,6 @@ describe('BookingServiceProofService (D20)', () => {
       service.checkInWithoutCode(PARTNER, {
         offerId: 'offer-1',
         bookingId: 'booking-1',
-        participantsPresent: 1,
         reason: 'other',
       })
     ).rejects.toMatchObject({ code: 'INVALID_TRANSITION' });

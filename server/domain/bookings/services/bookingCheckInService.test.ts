@@ -39,7 +39,7 @@ function booking(id: string, overrides: Partial<Booking> = {}): Booking {
     kind: 'tour',
     status: 'confirmed',
     lines: [],
-    participantsCount: 4,
+    participantsCount: 2,
     subtotalMinor: 40000,
     platformFeeMinor: 6000,
     totalMinor: 40000,
@@ -96,7 +96,6 @@ const checkIn = (code: string, extra: Record<string, unknown> = {}) => ({
   offerId: 'offer-1',
   slotId: 'slot-1',
   code,
-  participantsPresent: 3,
   ...extra,
 });
 
@@ -108,24 +107,29 @@ describe('BookingCheckInService (D20)', () => {
     delete process.env.BOOKING_CHECKIN_CODE_SECRET;
   });
 
-  it('o comprador só vê o código a partir das 00:00 de Fortaleza do dia do serviço', async () => {
+  it('o cliente vê um código por unidade, só a partir das 00:00 de Fortaleza do dia', async () => {
     const { service, setNow } = setup('2026-11-10T02:59:00.000Z');
     const before = await service.getCheckInCode(BUYER, 'booking-1');
-    expect(before).toMatchObject({ code: null, visibleFrom: '2026-11-10T03:00:00.000Z' });
+    expect(before.visibleFrom).toBe('2026-11-10T03:00:00.000Z');
+    expect(before.codes.map((item) => item.code)).toEqual([null, null]);
     setNow('2026-11-10T03:00:00.000Z');
     const view = await service.getCheckInCode(BUYER, 'booking-1');
-    expect(view.code).toBe(deriveCheckInCode('booking-1'));
+    expect(view.codes.map((item) => item.code)).toEqual([
+      deriveCheckInCode('booking-1', undefined, 0),
+      deriveCheckInCode('booking-1', undefined, 1),
+    ]);
+    expect(view.codes[0]?.code).not.toBe(view.codes[1]?.code);
     expect(view.validUntil).toBe('2026-11-11T01:00:00.000Z');
   });
 
-  it('outra pessoa não vê o código: responde como inexistente (IDOR)', async () => {
+  it('outra pessoa não vê os códigos: responde como inexistente (IDOR)', async () => {
     const { service } = setup();
     await expect(service.getCheckInCode(PARTNER, 'booking-1')).rejects.toMatchObject({
       code: 'NOT_FOUND',
     });
   });
 
-  it('entrada de atração privada não usa código', async () => {
+  it('entrada de atração privada não usa este código', async () => {
     const { service, port } = setup();
     port.bookings.set('booking-3', booking('booking-3', { kind: 'private_entry' }));
     await expect(service.getCheckInCode(BUYER, 'booking-3')).rejects.toMatchObject({
@@ -133,31 +137,46 @@ describe('BookingCheckInService (D20)', () => {
     });
   });
 
-  it('o dono da oferta faz check-in com o código e informa os presentes', async () => {
-    const { service, port } = setup();
-    const code = deriveCheckInCode('booking-1');
-    const updated = await service.checkInByCode(
+  it('o dono da oferta faz check-in da unidade do código; repetir avisa que já entrou', async () => {
+    const { service, port, setNow } = setup();
+    const code = deriveCheckInCode('booking-1', undefined, 1);
+    const first = await service.checkInByCode(
       PARTNER,
-      checkIn(`${code.slice(0, 3).toLowerCase()}-${code.slice(3)}`)
+      checkIn(`pass:${code.slice(0, 3).toLowerCase()}-${code.slice(3)}`)
     );
-    expect(updated.id).toBe('booking-1');
-    expect(updated.checkIn).toMatchObject({
-      at: '2026-11-10T11:05:00.000Z',
-      byUid: 'partner-1',
-      method: 'code',
-      participantsPresent: 3,
-    });
+    expect(first).toMatchObject({ unit: 1, alreadyCheckedIn: false, name: null });
+    expect(first.booking.checkIns).toEqual([
+      { unit: 1, at: '2026-11-10T11:05:00.000Z', byUid: 'partner-1', method: 'code' },
+    ]);
     expect(port.audit.at(-1)).toEqual({ bookingId: 'booking-1', reason: 'checked_in' });
-    // Repetir não muda o check-in já gravado.
-    const again = await service.checkInByCode(PARTNER, checkIn(code, { participantsPresent: 1 }));
-    expect(again.checkIn?.participantsPresent).toBe(3);
+    setNow('2026-11-10T11:09:00.000Z');
+    const again = await service.checkInByCode(PARTNER, checkIn(code));
+    expect(again).toMatchObject({
+      alreadyCheckedIn: true,
+      checkedInAt: '2026-11-10T11:05:00.000Z',
+    });
+    expect(again.booking.checkIns).toHaveLength(1);
   });
 
-  it('depois do check-in o comprador não vê mais o código', async () => {
+  it('depois do check-in de uma unidade, o cliente só vê o código das outras', async () => {
     const { service } = setup();
-    await service.checkInByCode(PARTNER, checkIn(deriveCheckInCode('booking-1')));
+    await service.checkInByCode(PARTNER, checkIn(deriveCheckInCode('booking-1', undefined, 0)));
     const view = await service.getCheckInCode(BUYER, 'booking-1');
-    expect(view).toMatchObject({ code: null, checkedInAt: '2026-11-10T11:05:00.000Z' });
+    expect(view.codes[0]).toMatchObject({ code: null, checkedInAt: '2026-11-10T11:05:00.000Z' });
+    expect(view.codes[1]?.code).toBe(deriveCheckInCode('booking-1', undefined, 1));
+  });
+
+  it('na entrada nominal o check-in devolve o nome da pessoa para conferir', async () => {
+    const { service, port } = setup();
+    port.participants.set('booking-1', [
+      { name: 'Ana Souza', isLeadContact: true },
+      { name: 'Bruno Lima', isLeadContact: false },
+    ]);
+    const result = await service.checkInByCode(
+      PARTNER,
+      checkIn(deriveCheckInCode('booking-1', undefined, 1))
+    );
+    expect(result.name).toBe('Bruno Lima');
   });
 
   it('outro parceiro e o admin não fazem check-in na oferta (IDOR)', async () => {
@@ -188,7 +207,7 @@ describe('BookingCheckInService (D20)', () => {
     });
     setNow('2026-11-10T11:21:00.000Z');
     await expect(service.checkInByCode(PARTNER, checkIn(code))).resolves.toMatchObject({
-      id: 'booking-1',
+      unit: 0,
     });
   });
 
@@ -214,11 +233,11 @@ describe('BookingCheckInService (D20)', () => {
 
   it('check-in feito sem internet vale pela hora do aparelho e registra quando sincronizou', async () => {
     const { service } = setup('2026-11-10T15:00:00.000Z');
-    const updated = await service.checkInByCode(
+    const result = await service.checkInByCode(
       PARTNER,
       checkIn(deriveCheckInCode('booking-1'), { capturedAt: '2026-11-10T11:02:00.000Z' })
     );
-    expect(updated.checkIn).toMatchObject({
+    expect(result.booking.checkIns?.[0]).toMatchObject({
       at: '2026-11-10T11:02:00.000Z',
       syncedAt: '2026-11-10T15:00:00.000Z',
     });
@@ -235,14 +254,12 @@ describe('BookingCheckInService (D20)', () => {
     ).rejects.toMatchObject({ code: 'VALIDATION_ERROR' });
   });
 
-  it('presentes acima do número de pessoas da reserva é recusado', async () => {
+  it('código de unidade que não existe na reserva não vale', async () => {
     const { service } = setup();
+    // booking-2 tem 1 unidade: o código da unidade 1 não existe.
     await expect(
-      service.checkInByCode(
-        PARTNER,
-        checkIn(deriveCheckInCode('booking-2'), { participantsPresent: 2 })
-      )
-    ).rejects.toMatchObject({ code: 'VALIDATION_ERROR' });
+      service.checkInByCode(PARTNER, checkIn(deriveCheckInCode('booking-2', undefined, 1)))
+    ).rejects.toMatchObject({ code: 'INVALID_CHECK_IN_CODE' });
   });
 
   it('reserva cancelada não aceita check-in: o código não é encontrado', async () => {
@@ -253,14 +270,7 @@ describe('BookingCheckInService (D20)', () => {
     ).rejects.toMatchObject({ code: 'INVALID_CHECK_IN_CODE' });
   });
 
-  it('hasCheckIn indica a prova do serviço', async () => {
-    const { service } = setup();
-    expect(await service.hasCheckIn('booking-1')).toBe(false);
-    await service.checkInByCode(PARTNER, checkIn(deriveCheckInCode('booking-1')));
-    expect(await service.hasCheckIn('booking-1')).toBe(true);
-  });
-
-  it('reserva reembolsada porque o prestador não veio não aceita mais o código', async () => {
+  it('reserva reembolsada porque o parceiro não veio não aceita mais o código', async () => {
     const { service, port } = setup();
     port.bookings.set(
       'booking-1',
@@ -276,5 +286,12 @@ describe('BookingCheckInService (D20)', () => {
     await expect(
       service.checkInByCode(PARTNER, checkIn(deriveCheckInCode('booking-1')))
     ).rejects.toMatchObject({ code: 'INVALID_CHECK_IN_CODE' });
+  });
+
+  it('hasCheckIn indica a prova do serviço', async () => {
+    const { service } = setup();
+    expect(await service.hasCheckIn('booking-1')).toBe(false);
+    await service.checkInByCode(PARTNER, checkIn(deriveCheckInCode('booking-1')));
+    expect(await service.hasCheckIn('booking-1')).toBe(true);
   });
 });

@@ -68,10 +68,19 @@ export interface BookingsPort {
   recordBookingAudit(bookingId: string, actorUid: string, reason: string): Promise<void>;
 
   /**
-   * Grava o check-in numa transação: só reserva confirmada ou concluída e sem check-in; repetir
-   * devolve a reserva com o check-in que já existe.
+   * Grava check-ins de unidades numa transação: só reserva confirmada ou concluída; unidade que já tem
+   * check-in fica como está (repetir não cria outro).
    */
-  recordCheckIn(bookingId: string, checkIn: BookingCheckIn): Promise<Booking>;
+  recordCheckIns(bookingId: string, checkIns: BookingCheckIn[]): Promise<Booking>;
+  /**
+   * Grava o nome da pessoa de uma unidade numa transação; `change` recebe o atual (ou null) e devolve o
+   * novo, ou lança para recusar.
+   */
+  setParticipant(
+    bookingId: string,
+    unit: number,
+    change: (current: BookingParticipant | null) => BookingParticipant
+  ): Promise<BookingParticipant>;
   /** Códigos errados no horário desde `sinceIso`, contados no Firestore (o Cloud Run não guarda estado). */
   countCheckInFailures(slotId: string, sinceIso: string, actorUid?: string): Promise<number>;
   addCheckInFailure(slotId: string, actorUid: string, atIso: string): Promise<void>;

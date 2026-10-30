@@ -50,6 +50,8 @@ const offerFields = {
     .strict()
     .optional(),
   pickupMode: z.enum(['meeting_point', 'buyer_address']).optional(),
+  sellingUnit: z.enum(['person', 'group']).optional(),
+  groupMaxPeople: z.number().int().min(2).max(50).optional(),
   // Opções da plataforma (D14); o serviço confere se a opção vale para o tipo da oferta.
   cancellationPolicy: z.enum([...BOOKING_CANCELLATION_POLICIES, ...TRANSFER_CANCELLATION_POLICIES]),
   maxParticipantsPerBooking: z.number().int().min(1).max(50),
@@ -134,7 +136,6 @@ export const CheckInByCodeSchema = z
   .object({
     // Aceita minúsculas, espaço e hífen; o serviço normaliza e confere o alfabeto.
     code: z.string().trim().min(6).max(12),
-    participantsPresent: z.number().int().min(1).max(50),
     capturedAt: isoDateTime.optional(),
   })
   .strict();
@@ -155,7 +156,6 @@ export const ProviderArrivalSchema = z
 
 export const CheckInWithoutCodeSchema = z
   .object({
-    participantsPresent: z.number().int().min(1).max(50),
     // Mesma lista de NO_CODE_REASONS no domínio de reservas.
     reason: z.enum(['no_phone', 'refused', 'other']),
   })
@@ -172,13 +172,14 @@ export const EntryCheckInSchema = z
     qrToken: z.string().trim().min(20).max(1000).optional(),
     // Aceita o prefixo `ENTR:`, minúsculas, espaço e hífen; o serviço normaliza.
     code: z.string().trim().min(8).max(16).optional(),
-    participantsPresent: z.number().int().min(1).max(50),
     capturedAt: isoDateTime.optional(),
   })
   .strict()
   .refine((body) => Boolean(body.qrToken) !== Boolean(body.code), {
     message: 'Envie o QR Code ou o código, não os dois.',
   });
+
+export const ParticipantNameSchema = z.object({ name: z.string().trim().min(2).max(80) }).strict();
 
 export const CancelBookingSchema = z.object({ reason: z.string().max(300).optional() }).strict();
 

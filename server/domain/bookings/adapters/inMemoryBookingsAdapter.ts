@@ -1,5 +1,6 @@
 import { BookingDomainError } from '../errors/bookingDomainError';
 import type { BookingsPort, PageRequest } from '../ports/bookingsPort';
+import { newCheckIns } from '../utils/serviceProof';
 import {
   type AvailabilitySlot,
   type AvailabilitySlotStatus,
@@ -198,17 +199,29 @@ export class InMemoryBookingsAdapter implements BookingsPort {
   }
   readonly checkInFailures: Array<{ slotId: string; actorUid: string; at: string }> = [];
 
-  async recordCheckIn(bookingId: string, checkIn: BookingCheckIn) {
+  async recordCheckIns(bookingId: string, checkIns: BookingCheckIn[]) {
     const booking = this.bookings.get(bookingId);
     if (!booking) throw new BookingDomainError('NOT_FOUND', 'Reserva não encontrada.');
-    if (booking.checkIn) return booking;
+    const added = newCheckIns(booking, checkIns);
+    if (added.length === 0) return booking;
     if (booking.status !== 'confirmed' && booking.status !== 'completed') {
       throw new BookingDomainError('INVALID_TRANSITION', 'Esta reserva não aceita check-in.');
     }
-    const updated: Booking = { ...booking, checkIn };
+    const updated: Booking = { ...booking, checkIns: [...(booking.checkIns ?? []), ...added] };
     this.bookings.set(bookingId, updated);
     this.audit.push({ bookingId, reason: 'checked_in' });
     return updated;
+  }
+  async setParticipant(
+    bookingId: string,
+    unit: number,
+    change: (current: BookingParticipant | null) => BookingParticipant
+  ) {
+    const list = [...(this.participants.get(bookingId) ?? [])];
+    const next = change(list[unit] ?? null);
+    list[unit] = next;
+    this.participants.set(bookingId, list);
+    return next;
   }
   async updateBooking(
     bookingId: string,

@@ -18,7 +18,7 @@ import {
 } from '../../../domain/bookings';
 import type { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
 import { handleBookingError, sendError } from './bookingHttpErrors';
-import { toPartnerOffer, toPartnerSlot, toSellerBooking } from './bookingResponses';
+import { toPartnerOffer, toPartnerSlot, toSellerBooking, toUnitCheckIn } from './bookingResponses';
 import {
   CheckInByCodeSchema,
   CheckInWithoutCodeSchema,
@@ -205,12 +205,12 @@ export class PartnerOffersController {
       return sendError(res, 400, 'VALIDATION_ERROR', 'Dados do check-in inválidos.');
     }
     try {
-      const booking = await checkInBookingApplicationUseCase(actor, {
+      const result = await checkInBookingApplicationUseCase(actor, {
         offerId: offerId.data,
         slotId: slotId.data,
         ...body.data,
       });
-      return res.status(200).json(toSellerBooking(booking));
+      return res.status(200).json(toUnitCheckIn(result));
     } catch (error) {
       return handleBookingError(res, 'checkIn', error);
     }
@@ -273,12 +273,12 @@ export class PartnerOffersController {
       return sendError(res, 400, 'VALIDATION_ERROR', 'Dados da entrada inválidos.');
     }
     try {
-      const booking = await checkInEntryUseCase(actor, {
+      const result = await checkInEntryUseCase(actor, {
         offerId: offerId.data,
         slotId: slotId.data,
         ...body.data,
       });
-      return res.status(200).json(toSellerBooking(booking));
+      return res.status(200).json(toUnitCheckIn(result));
     } catch (error) {
       return handleBookingError(res, 'checkInEntry', error);
     }

@@ -11,6 +11,7 @@ import {
   type Page,
 } from '../types/bookingTypes';
 import { entryWindow, NO_SHOW_WAIT_MS, SERVICE_CONFIRMATION_MS } from '../utils/checkInWindow';
+import { hasAnyCheckIn } from '../utils/serviceProof';
 import { serviceEndsAtMs } from '../utils/serviceTime';
 import { buildBookingId } from '../utils/buildBookingId';
 import { priceBookingLines } from '../utils/bookingPricing';
@@ -75,10 +76,13 @@ export class BookingService {
     }
     const priced = priceBookingLines(offer, input.lines, feeConfig);
 
-    const names = input.participants.map((participant) => participant.name.trim());
-    if (offer.requiresParticipantNames) {
+    // Entrada nominal (D20): os nomes podem vir agora ou depois da compra, até o dia; venda por grupo
+    // não tem nomes, porque o cliente decide quem leva.
+    const named = offer.requiresParticipantNames && offer.sellingUnit !== 'group';
+    const names = named ? input.participants.map((participant) => participant.name.trim()) : [];
+    if (names.length > 0) {
       if (names.length !== priced.participantsCount) {
-        throw new BookingDomainError('VALIDATION_ERROR', 'Informe o nome de cada participante.');
+        throw new BookingDomainError('VALIDATION_ERROR', 'Informe o nome de cada pessoa.');
       }
       if (names.some((name) => name.length < 2 || name.length > 80)) {
         throw new BookingDomainError('VALIDATION_ERROR', 'Nome de participante inválido.');
@@ -112,6 +116,12 @@ export class BookingService {
         ...(offer.durationMinutes ? { durationMinutes: offer.durationMinutes } : {}),
         ...(offer.meetingPoint ? { meetingPoint: offer.meetingPoint.address } : {}),
         cancellationPolicy: offer.cancellationPolicy,
+        ...(offer.businessName ? { businessName: offer.businessName } : {}),
+        sellingUnit: offer.sellingUnit ?? 'person',
+        ...(offer.sellingUnit === 'group' && offer.groupMaxPeople
+          ? { groupMaxPeople: offer.groupMaxPeople }
+          : {}),
+        ...(named ? { requiresParticipantNames: true } : {}),
       },
       termsAcceptance: { version: input.acceptedTermsVersion, acceptedAt: timestamp },
       ...(offer.pickupMode === 'buyer_address'
@@ -127,9 +137,7 @@ export class BookingService {
       createdAt: timestamp,
       updatedAt: timestamp,
     };
-    const participants = offer.requiresParticipantNames
-      ? names.map((name, index) => ({ name, isLeadContact: index === 0 }))
-      : [];
+    const participants = names.map((name, index) => ({ name, isLeadContact: index === 0 }));
     return this.port.reserveCapacityAndCreateBooking(booking, participants);
   }
 
@@ -309,7 +317,7 @@ export class BookingService {
       throw new BookingDomainError('INVALID_TRANSITION', 'Só é possível marcar após o início.');
     }
     // Check-in prova que o comprador apareceu (D20).
-    if (booking.checkIn) {
+    if (hasAnyCheckIn(booking)) {
       throw new BookingDomainError('INVALID_TRANSITION', 'Reserva com check-in não é ausência.');
     }
     if (CHECK_IN_CODE_KINDS.includes(booking.kind)) {
@@ -356,10 +364,10 @@ export class BookingService {
     for (const booking of started) {
       if ((await this.serviceEndMs(booking)) > nowDate.getTime()) continue;
       // Entrada de atração não usada até o fechamento é ausência, como ingresso não usado (D20, A).
-      const unusedEntry = booking.kind === 'private_entry' && !booking.checkIn;
+      const unusedEntry = booking.kind === 'private_entry' && !hasAnyCheckIn(booking);
       const ask =
         CHECK_IN_CODE_KINDS.includes(booking.kind) &&
-        !booking.checkIn &&
+        !hasAnyCheckIn(booking) &&
         !booking.providerAbsence &&
         !booking.serviceConfirmation;
       const updated = await this.port.updateBooking(

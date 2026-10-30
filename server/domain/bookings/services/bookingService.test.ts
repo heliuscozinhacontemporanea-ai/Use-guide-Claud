@@ -249,12 +249,9 @@ describe('BookingService', () => {
     const { service, port, setNow } = setup();
     const booking = await service.createPendingBooking(BUYER, INPUT, FEES);
     await service.confirmBookingPayment(booking.id, 'pi_1');
-    await port.recordCheckIn(booking.id, {
-      at: '2026-11-10T11:02:00.000Z',
-      byUid: 'partner-1',
-      method: 'code',
-      participantsPresent: 2,
-    });
+    await port.recordCheckIns(booking.id, [
+      { unit: 0, at: '2026-11-10T11:02:00.000Z', byUid: 'partner-1', method: 'code' },
+    ]);
     setNow('2026-11-10T12:00:00.000Z');
     await expect(
       service.markBookingNoShow({ uid: 'partner-1', admin: false }, booking.id)
@@ -315,12 +312,9 @@ describe('BookingService', () => {
     const { service, port, setNow } = setup();
     const booking = await service.createPendingBooking(BUYER, INPUT, FEES);
     await service.confirmBookingPayment(booking.id, 'pi_1');
-    await port.recordCheckIn(booking.id, {
-      at: '2026-11-10T11:02:00.000Z',
-      byUid: 'partner-1',
-      method: 'code',
-      participantsPresent: 2,
-    });
+    await port.recordCheckIns(booking.id, [
+      { unit: 0, at: '2026-11-10T11:02:00.000Z', byUid: 'partner-1', method: 'code' },
+    ]);
     setNow('2026-11-10T13:00:00.000Z');
     const result = await service.completeFinishedBookings();
     expect(result).toMatchObject({ completed: 1, askedToConfirm: [] });
@@ -339,5 +333,36 @@ describe('BookingService', () => {
     const result = await service.completeFinishedBookings();
     expect(result).toMatchObject({ completed: 1, askedToConfirm: [] });
     expect(port.bookings.get(booking.id)?.status).toBe('no_show');
+  });
+
+  it('a reserva guarda o nome do estabelecimento e a unidade de venda (D20)', async () => {
+    const { service } = setup({
+      offer: { businessName: 'Buggy do Zé', sellingUnit: 'group', groupMaxPeople: 4 },
+    });
+    const booking = await service.createPendingBooking(BUYER, INPUT, FEES);
+    expect(booking.offerSnapshot).toMatchObject({
+      businessName: 'Buggy do Zé',
+      sellingUnit: 'group',
+      groupMaxPeople: 4,
+    });
+  });
+
+  it('venda por grupo não grava nomes, mesmo com a opção ligada', async () => {
+    const { service, port } = setup({
+      offer: { sellingUnit: 'group', groupMaxPeople: 4, requiresParticipantNames: true },
+    });
+    const booking = await service.createPendingBooking(
+      BUYER,
+      { ...INPUT, participants: [{ name: 'Ana' }, { name: 'Bia' }] },
+      FEES
+    );
+    expect(port.participants.get(booking.id) ?? []).toEqual([]);
+    expect(booking.offerSnapshot.requiresParticipantNames).toBeUndefined();
+  });
+
+  it('entrada nominal aceita comprar sem os nomes, para informar depois', async () => {
+    const { service } = setup({ offer: { requiresParticipantNames: true } });
+    const booking = await service.createPendingBooking(BUYER, INPUT, FEES);
+    expect(booking.offerSnapshot.requiresParticipantNames).toBe(true);
   });
 });

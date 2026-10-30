@@ -15,7 +15,8 @@ const PAYLOAD = {
   bid: 'bk_1',
   sid: 'slot-1',
   oid: 'offer-1',
-  n: 2,
+  u: 1,
+  nm: 'Ana Souza',
   exp: 1_800_000_000,
 };
 
@@ -47,7 +48,7 @@ describe('Ed25519EntryPassAdapter (§7.7)', () => {
     expect(adapter.sign(PAYLOAD)).toBe(token);
     expect(adapter.verify(token)).toEqual({ ...PAYLOAD, kid: 'k1' });
     const [prefix, body, signature] = token.split('.');
-    const forged = Buffer.from(JSON.stringify({ ...PAYLOAD, kid: 'k1', n: 9 }), 'utf8').toString(
+    const forged = Buffer.from(JSON.stringify({ ...PAYLOAD, kid: 'k1', u: 0 }), 'utf8').toString(
       'base64url'
     );
     expect(adapter.verify(`${prefix}.${forged}.${signature}`)).toBeNull();

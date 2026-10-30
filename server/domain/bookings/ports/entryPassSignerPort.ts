@@ -6,8 +6,10 @@ export interface EntryPassPayload {
   bid: string;
   sid: string;
   oid: string;
-  /** Pessoas da reserva, para a portaria conferir sem internet. */
-  n: number;
+  /** Unidade (pessoa) da reserva: cada QR vale uma entrada. */
+  u: number;
+  /** Nome da pessoa na entrada nominal, para a portaria conferir com o documento sem internet. */
+  nm?: string;
   /** Validade em segundos (fim do dia do horário). */
   exp: number;
 }

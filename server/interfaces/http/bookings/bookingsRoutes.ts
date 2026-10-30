@@ -16,6 +16,11 @@ bookingsRouter.get('/me', verifyAuthToken, BookingsController.listMine);
 bookingsRouter.get('/:bookingId', verifyAuthToken, BookingsController.get);
 bookingsRouter.get('/:bookingId/check-in-code', verifyAuthToken, BookingsController.getCheckInCode);
 bookingsRouter.get('/:bookingId/entry-pass', verifyAuthToken, BookingsController.getEntryPass);
+bookingsRouter.put(
+  '/:bookingId/participants/:unit',
+  verifyAuthToken,
+  BookingsController.setParticipantName
+);
 bookingsRouter.post('/:bookingId/cancel', verifyAuthTokenStrict, BookingsController.cancel);
 bookingsRouter.post('/:bookingId/no-show', verifyAuthToken, BookingsController.markNoShow);
 // Relato e resposta mexem no reembolso (D20): token revogado não serve.

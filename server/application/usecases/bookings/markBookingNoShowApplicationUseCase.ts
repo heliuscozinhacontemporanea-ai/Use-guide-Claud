@@ -14,6 +14,10 @@ export async function markBookingNoShowApplicationUseCase(
   const booking = await markBookingNoShowUseCase(actor, bookingId);
   // A ausência é a prova (D20); se o comprador contestar, a reclamação retém o repasse.
   await releaseServiceProofHold(booking.id);
-  await sendBookingServiceNotice(booking.buyerId, 'noShowMarked');
+  await sendBookingServiceNotice(
+    booking.buyerId,
+    'noShowMarked',
+    booking.offerSnapshot.businessName
+  );
   return booking;
 }

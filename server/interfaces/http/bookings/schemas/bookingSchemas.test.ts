@@ -75,38 +75,32 @@ describe('bookingSchemas', () => {
     expect(CreateOfferSchema.safeParse({ ...OFFER, pickupMode: 'hotel' }).success).toBe(false);
   });
 
-  it('check-in: código, presentes e hora do aparelho; nada de reserva ou dono vindo do cliente', () => {
-    expect(CheckInByCodeSchema.safeParse({ code: 'k7m-4qx', participantsPresent: 2 }).success).toBe(
-      true
-    );
+  it('check-in: código e hora do aparelho; nada de reserva, dono ou pessoas vindo do cliente', () => {
+    expect(CheckInByCodeSchema.safeParse({ code: 'k7m-4qx' }).success).toBe(true);
     expect(
-      CheckInByCodeSchema.safeParse({
-        code: 'K7M4QX',
-        participantsPresent: 2,
-        capturedAt: '2026-11-10T11:02:00.000Z',
-      }).success
+      CheckInByCodeSchema.safeParse({ code: 'K7M4QX', capturedAt: '2026-11-10T11:02:00.000Z' })
+        .success
     ).toBe(true);
-    expect(CheckInByCodeSchema.safeParse({ code: 'K7M4QX', participantsPresent: 0 }).success).toBe(
+    expect(CheckInByCodeSchema.safeParse({ code: 'K7M4QX', participantsPresent: 2 }).success).toBe(
       false
     );
+    expect(CheckInByCodeSchema.safeParse({ code: 'K7M4QX', bookingId: 'x' }).success).toBe(false);
+  });
+
+  it('venda por grupo: tamanho do grupo de 2 a 50', () => {
     expect(
-      CheckInByCodeSchema.safeParse({ code: 'K7M4QX', participantsPresent: 2, bookingId: 'x' })
-        .success
+      CreateOfferSchema.safeParse({ ...OFFER, sellingUnit: 'group', groupMaxPeople: 4 }).success
+    ).toBe(true);
+    expect(
+      CreateOfferSchema.safeParse({ ...OFFER, sellingUnit: 'group', groupMaxPeople: 1 }).success
     ).toBe(false);
   });
 
   it('entrada: QR ou código, nunca os dois nem nenhum (D20)', () => {
     const qr = `UGE1.${'a'.repeat(40)}.sig`;
-    expect(EntryCheckInSchema.safeParse({ qrToken: qr, participantsPresent: 2 }).success).toBe(
-      true
-    );
-    expect(
-      EntryCheckInSchema.safeParse({ code: 'ENTR:K7M4QXAB', participantsPresent: 2 }).success
-    ).toBe(true);
-    expect(
-      EntryCheckInSchema.safeParse({ qrToken: qr, code: 'K7M4QXAB', participantsPresent: 2 })
-        .success
-    ).toBe(false);
-    expect(EntryCheckInSchema.safeParse({ participantsPresent: 2 }).success).toBe(false);
+    expect(EntryCheckInSchema.safeParse({ qrToken: qr }).success).toBe(true);
+    expect(EntryCheckInSchema.safeParse({ code: 'ENTR:K7M4QXAB' }).success).toBe(true);
+    expect(EntryCheckInSchema.safeParse({ qrToken: qr, code: 'K7M4QXAB' }).success).toBe(false);
+    expect(EntryCheckInSchema.safeParse({}).success).toBe(false);
   });
 });

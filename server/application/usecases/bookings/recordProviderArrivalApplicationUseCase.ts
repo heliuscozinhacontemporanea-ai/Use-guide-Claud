@@ -17,6 +17,10 @@ export async function recordProviderArrivalApplicationUseCase(
   location?: BookingArrival['location']
 ): Promise<Booking> {
   const booking = await recordProviderArrivalUseCase(actor, offerId, bookingId, location);
-  await sendBookingServiceNotice(booking.buyerId, 'providerArrived');
+  await sendBookingServiceNotice(
+    booking.buyerId,
+    'providerArrived',
+    booking.offerSnapshot.businessName
+  );
   return booking;
 }

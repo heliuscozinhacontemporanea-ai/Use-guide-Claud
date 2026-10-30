@@ -26,9 +26,12 @@ function currentSecret(): string {
   return secret;
 }
 
-/** `entry:` separa o código da entrada do código de 6 caracteres, mesmo com o mesmo segredo. */
-function derive(secret: string, bookingId: string, length: number): string {
-  const label = length === ENTRY_CODE_LENGTH ? `entry:${bookingId}` : bookingId;
+/**
+ * Um código por unidade da reserva (D20). `entry:` separa o código da entrada do de 6 caracteres,
+ * mesmo com o mesmo segredo.
+ */
+function derive(secret: string, bookingId: string, length: number, unit: number): string {
+  const label = `${length === ENTRY_CODE_LENGTH ? 'entry:' : ''}${bookingId}#${unit}`;
   let code = '';
   for (let counter = 0; code.length < length; counter += 1) {
     const digest = crypto.createHmac('sha256', secret).update(`${label}:${counter}`).digest();
@@ -45,19 +48,43 @@ function derive(secret: string, bookingId: string, length: number): string {
  * Código da reserva, derivado do ID com o segredo do Secret Manager e nunca gravado (exceção do
  * AGENTS.md §7.7, D20): quem lê o banco não descobre códigos.
  */
-export function deriveCheckInCode(bookingId: string, length = CHECK_IN_CODE_LENGTH): string {
-  return derive(currentSecret(), bookingId, length);
+export function deriveCheckInCode(
+  bookingId: string,
+  length = CHECK_IN_CODE_LENGTH,
+  unit = 0
+): string {
+  return derive(currentSecret(), bookingId, length, unit);
 }
 
 /** Códigos aceitos no check-in: o do segredo atual e, durante a rotação, o do anterior (§7.8). */
 export function listAcceptedCheckInCodes(
   bookingId: string,
-  length = CHECK_IN_CODE_LENGTH
+  length = CHECK_IN_CODE_LENGTH,
+  unit = 0
 ): string[] {
-  const codes = [deriveCheckInCode(bookingId, length)];
+  const codes = [deriveCheckInCode(bookingId, length, unit)];
   const previous = readSecret('BOOKING_CHECKIN_CODE_SECRET_PREVIOUS', MIN_PREVIOUS_SECRET_LENGTH);
-  if (previous) codes.push(derive(previous, bookingId, length));
+  if (previous) codes.push(derive(previous, bookingId, length, unit));
   return codes;
+}
+
+/** Unidade da reserva cujo código bate com o digitado, ou null. */
+export function matchCheckInCodeUnit(
+  bookingId: string,
+  units: number,
+  code: string,
+  length = CHECK_IN_CODE_LENGTH
+): number | null {
+  for (let unit = 0; unit < units; unit += 1) {
+    if (
+      listAcceptedCheckInCodes(bookingId, length, unit).some((accepted) =>
+        checkInCodesMatch(accepted, code)
+      )
+    ) {
+      return unit;
+    }
+  }
+  return null;
 }
 
 /**

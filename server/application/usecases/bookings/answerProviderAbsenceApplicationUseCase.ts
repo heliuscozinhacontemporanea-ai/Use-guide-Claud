@@ -50,6 +50,10 @@ export async function answerProviderAbsenceApplicationUseCase(
     { answer, resolution: 'admin' },
     actor.uid
   );
-  await sendBookingServiceNotice(booking.buyerId, 'absenceToAdmin');
+  await sendBookingServiceNotice(
+    booking.buyerId,
+    'absenceToAdmin',
+    booking.offerSnapshot.businessName
+  );
   return resolved;
 }

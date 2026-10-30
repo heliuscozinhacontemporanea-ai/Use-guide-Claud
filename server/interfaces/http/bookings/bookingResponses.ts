@@ -4,6 +4,7 @@ import type {
   Booking,
   BookingDetails,
   BookingStatus,
+  UnitCheckInResult,
 } from '../../../domain/bookings';
 
 /** Saída por allowlist (AGENTS.md §7.9 regra 4): nunca o documento inteiro. */
@@ -36,13 +37,15 @@ export function toBuyerBooking(booking: Booking) {
       : null,
     rescheduledAt: booking.rescheduledAt ?? null,
     pickupAddress: booking.pickupAddress ?? null,
-    checkIn: booking.checkIn
-      ? {
-          at: booking.checkIn.at,
-          method: booking.checkIn.method,
-          participantsPresent: booking.checkIn.participantsPresent,
-        }
-      : null,
+    // Por unidade, sem quem fez o check-in (allowlist, §7.9 regra 4).
+    checkIns: (booking.checkIns ?? []).map((checkIn) => ({
+      unit: checkIn.unit,
+      at: checkIn.at,
+      method: checkIn.method,
+    })),
+    businessName: booking.offerSnapshot.businessName ?? null,
+    sellingUnit: booking.offerSnapshot.sellingUnit ?? 'person',
+    groupMaxPeople: booking.offerSnapshot.groupMaxPeople ?? null,
     arrivedAt: booking.arrival?.at ?? null,
     providerAbsence: booking.providerAbsence
       ? {
@@ -104,5 +107,16 @@ export function toPartnerSlot(slot: AvailabilitySlot) {
     capacityReserved: slot.capacityReserved,
     capacitySold: slot.capacitySold,
     status: slot.status,
+  };
+}
+
+/** Check-in de uma unidade: a reserva, qual unidade, o nome (entrada nominal) e se já tinha entrado. */
+export function toUnitCheckIn(result: UnitCheckInResult) {
+  return {
+    booking: toSellerBooking(result.booking),
+    unit: result.unit,
+    name: result.name,
+    alreadyCheckedIn: result.alreadyCheckedIn,
+    checkedInAt: result.checkedInAt,
   };
 }

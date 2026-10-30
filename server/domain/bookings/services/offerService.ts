@@ -43,6 +43,8 @@ export type OfferInput = Pick<
   | 'durationMinutes'
   | 'meetingPoint'
   | 'pickupMode'
+  | 'sellingUnit'
+  | 'groupMaxPeople'
   | 'cancellationPolicy'
   | 'maxParticipantsPerBooking'
   | 'requiresParticipantNames'
@@ -57,6 +59,24 @@ function assertPolicyForKind(kind: BookableOfferKind, policy: string): void {
     throw new BookingDomainError(
       'VALIDATION_ERROR',
       'Política de cancelamento não disponível para este tipo de oferta.'
+    );
+  }
+}
+
+/** Entrada de atração é sempre por pessoa; venda por grupo precisa do tamanho do grupo (D20). */
+function assertSellingUnit(
+  kind: BookableOfferKind,
+  unit: BookableOffer['sellingUnit'],
+  groupMaxPeople: number | undefined
+): void {
+  if (unit !== 'group') return;
+  if (kind === 'private_entry') {
+    throw new BookingDomainError('VALIDATION_ERROR', 'Entrada de atração é vendida por pessoa.');
+  }
+  if (!groupMaxPeople) {
+    throw new BookingDomainError(
+      'VALIDATION_ERROR',
+      'Informe quantas pessoas cabem em cada grupo.'
     );
   }
 }
@@ -110,10 +130,12 @@ export class OfferService {
     }
     assertValidPricing(input.pricing);
     assertPolicyForKind(input.kind, input.cancellationPolicy);
+    assertSellingUnit(input.kind, input.sellingUnit, input.groupMaxPeople);
 
     const timestamp = this.now().toISOString();
     const offer: BookableOffer = {
       ...input,
+      ...(item.name ? { businessName: item.name } : {}),
       id: `offer_${this.newId()}`,
       ownerId: item.ownerId,
       partnerId: item.partnerId,
@@ -135,6 +157,11 @@ export class OfferService {
       throw new BookingDomainError('INVALID_TRANSITION', 'Oferta arquivada não pode ser editada.');
     }
     if (input.pricing) assertValidPricing(input.pricing);
+    assertSellingUnit(
+      offer.kind,
+      input.sellingUnit ?? offer.sellingUnit,
+      input.groupMaxPeople ?? offer.groupMaxPeople
+    );
     if (input.cancellationPolicy) {
       assertPolicyForKind(offer.kind, input.cancellationPolicy);
       // D14: depois de publicar, a política só fica igual ou mais flexível (protege quem já reservou).

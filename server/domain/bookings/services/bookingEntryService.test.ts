@@ -94,7 +94,6 @@ function setup(now = '2026-11-10T14:00:00.000Z') {
 const entry = (extra: Record<string, unknown>) => ({
   offerId: 'offer-1',
   slotId: 'slot-1',
-  participantsPresent: 2,
   ...extra,
 });
 
@@ -106,20 +105,27 @@ describe('BookingEntryService (D20)', () => {
     delete process.env.BOOKING_CHECKIN_CODE_SECRET;
   });
 
-  it('o comprador vê QR e código de 8 caracteres só no dia, até o fechamento', async () => {
+  it('o cliente vê um QR e um código de 8 por pessoa, só no dia, até o fechamento', async () => {
     const early = setup('2026-11-10T02:59:00.000Z');
-    expect(await early.service.getEntryPass(BUYER, 'bk_1')).toMatchObject({
-      qrToken: null,
-      code: null,
-      visibleFrom: '2026-11-10T03:00:00.000Z',
-      validUntil: ENDS_AT,
-    });
+    const before = await early.service.getEntryPass(BUYER, 'bk_1');
+    expect(before).toMatchObject({ visibleFrom: '2026-11-10T03:00:00.000Z', validUntil: ENDS_AT });
+    expect(before.passes.every((pass) => pass.qrToken === null && pass.code === null)).toBe(true);
     const { service } = setup();
-    const pass = await service.getEntryPass(BUYER, 'bk_1');
-    expect(pass.code).toBe(deriveCheckInCode('bk_1', ENTRY_CODE_LENGTH));
-    expect(pass.code).toHaveLength(8);
-    expect(pass.qrToken).toContain('"bid":"bk_1"');
+    const view = await service.getEntryPass(BUYER, 'bk_1');
+    expect(view.passes).toHaveLength(3);
+    expect(view.passes[2]?.code).toBe(deriveCheckInCode('bk_1', ENTRY_CODE_LENGTH, 2));
+    expect(view.passes[2]?.qrToken).toContain('"u":2');
+    expect(new Set(view.passes.map((pass) => pass.code)).size).toBe(3);
     await expect(service.getEntryPass(OWNER, 'bk_1')).rejects.toMatchObject({ code: 'NOT_FOUND' });
+  });
+
+  it('entrada nominal: o QR leva o nome da pessoa para a portaria conferir', async () => {
+    const { service, port } = setup();
+    port.participants.set('bk_1', [{ name: 'Ana Souza', isLeadContact: true }]);
+    const view = await service.getEntryPass(BUYER, 'bk_1');
+    expect(view.passes[0]).toMatchObject({ name: 'Ana Souza' });
+    expect(view.passes[0]?.qrToken).toContain('"nm":"Ana Souza"');
+    expect(view.passes[1]?.name).toBeNull();
   });
 
   it('o código da entrada não repete os 6 caracteres do passeio', () => {
@@ -128,33 +134,35 @@ describe('BookingEntryService (D20)', () => {
     );
   });
 
-  it('portaria lê o QR, grava a entrada e não deixa entrar de novo', async () => {
+  it('portaria lê o QR de uma pessoa; o mesmo QR de novo avisa que já entrou', async () => {
     const { service, port } = setup();
-    const pass = await service.getEntryPass(BUYER, 'bk_1');
-    const updated = await service.checkIn(OWNER, entry({ qrToken: pass.qrToken }));
-    expect(updated.checkIn).toMatchObject({ method: 'qr', participantsPresent: 2 });
-    const again = await service.checkIn(
-      OWNER,
-      entry({ qrToken: pass.qrToken, participantsPresent: 1 })
-    );
-    expect(again.checkIn?.participantsPresent).toBe(2);
+    const pass = (await service.getEntryPass(BUYER, 'bk_1')).passes[1];
+    const first = await service.checkIn(OWNER, entry({ qrToken: pass?.qrToken }));
+    expect(first).toMatchObject({ unit: 1, alreadyCheckedIn: false });
+    expect(first.booking.checkIns).toEqual([expect.objectContaining({ unit: 1, method: 'qr' })]);
+    const again = await service.checkIn(OWNER, entry({ qrToken: pass?.qrToken }));
+    expect(again).toMatchObject({ unit: 1, alreadyCheckedIn: true });
     expect(port.audit.filter((a) => a.reason === 'checked_in')).toHaveLength(1);
+    const view = await service.getEntryPass(BUYER, 'bk_1');
+    expect(view.passes[1]).toMatchObject({ qrToken: null, code: null });
+    expect(view.passes[0]?.qrToken).not.toBeNull();
   });
 
   it('código de 8 caracteres com prefixo da tela também vale', async () => {
     const { service } = setup();
-    const code = deriveCheckInCode('bk_2', ENTRY_CODE_LENGTH);
-    const updated = await service.checkIn(
-      OWNER,
-      entry({ code: `entr:${code}`, participantsPresent: 1 })
-    );
-    expect(updated).toMatchObject({ id: 'bk_2', checkIn: { method: 'code' } });
+    const code = deriveCheckInCode('bk_2', ENTRY_CODE_LENGTH, 0);
+    const result = await service.checkIn(OWNER, entry({ code: `entr:${code}` }));
+    expect(result).toMatchObject({ unit: 0, booking: { id: 'bk_2' } });
   });
 
-  it('QR de outro horário ou adulterado é recusado', async () => {
+  it('QR de outro horário, adulterado ou de pessoa que não existe é recusado', async () => {
     const { service } = setup();
-    const forged = `UGE1.${JSON.stringify({ v: 1, kid: 'k1', bid: 'bk_1', sid: 'slot-9', oid: 'offer-1', n: 3, exp: 1 })}.ok`;
+    const forged = `UGE1.${JSON.stringify({ v: 1, kid: 'k1', bid: 'bk_1', sid: 'slot-9', oid: 'offer-1', u: 0, exp: 1 })}.ok`;
     await expect(service.checkIn(OWNER, entry({ qrToken: forged }))).rejects.toMatchObject({
+      code: 'INVALID_ENTRY_PASS',
+    });
+    const ghost = `UGE1.${JSON.stringify({ v: 1, kid: 'k1', bid: 'bk_2', sid: 'slot-1', oid: 'offer-1', u: 5, exp: 1 })}.ok`;
+    await expect(service.checkIn(OWNER, entry({ qrToken: ghost }))).rejects.toMatchObject({
       code: 'INVALID_ENTRY_PASS',
     });
     await expect(service.checkIn(OWNER, entry({ qrToken: 'UGE1.{}.bad' }))).rejects.toMatchObject({
@@ -189,7 +197,7 @@ describe('BookingEntryService (D20)', () => {
     ).rejects.toMatchObject({ code: 'CHECK_IN_LOCKED' });
   });
 
-  it('depois do fechamento a entrada não vale; outro parceiro ou oferta que não é entrada recebem 404/422', async () => {
+  it('depois do fechamento não vale; outro parceiro ou oferta que não é entrada recebem 404/422', async () => {
     const late = setup('2026-11-10T20:01:00.000Z');
     await expect(
       late.service.checkIn(OWNER, entry({ code: deriveCheckInCode('bk_1', ENTRY_CODE_LENGTH) }))
@@ -206,14 +214,14 @@ describe('BookingEntryService (D20)', () => {
 
   it('entrada validada sem internet vale pela hora do aparelho, se foi antes do fechamento', async () => {
     const { service } = setup('2026-11-10T21:00:00.000Z');
-    const updated = await service.checkIn(
+    const result = await service.checkIn(
       OWNER,
       entry({
         code: deriveCheckInCode('bk_1', ENTRY_CODE_LENGTH),
         capturedAt: '2026-11-10T19:30:00.000Z',
       })
     );
-    expect(updated.checkIn).toMatchObject({
+    expect(result.booking.checkIns?.[0]).toMatchObject({
       at: '2026-11-10T19:30:00.000Z',
       syncedAt: '2026-11-10T21:00:00.000Z',
     });

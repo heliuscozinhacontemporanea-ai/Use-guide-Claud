@@ -24,7 +24,14 @@ function setup(item: Partial<BookableItem> | null = {}) {
     getItem: async () =>
       item === null
         ? null
-        : { id: 'item-1', ownerId: 'partner-1', partnerId: 'partner-1', category: 'tour', ...item },
+        : {
+            id: 'item-1',
+            ownerId: 'partner-1',
+            partnerId: 'partner-1',
+            category: 'tour',
+            name: 'Buggy do Zé',
+            ...item,
+          },
   };
   let counter = 0;
   const service = new OfferService(
@@ -52,7 +59,40 @@ describe('OfferService', () => {
       status: 'draft',
       ownerId: 'partner-1',
       partnerId: 'partner-1',
+      // O cliente reconhece quem presta pelo nome do estabelecimento (D20).
+      businessName: 'Buggy do Zé',
     });
+  });
+
+  it('venda por grupo exige o tamanho do grupo e não vale para entrada de atração (D20)', async () => {
+    const { service } = setup();
+    await expect(
+      service.createOffer(OWNER, {
+        ...INPUT,
+        guideItemId: 'item-1',
+        kind: 'tour',
+        sellingUnit: 'group',
+      })
+    ).rejects.toMatchObject({ code: 'VALIDATION_ERROR' });
+    await expect(
+      service.createOffer(OWNER, {
+        ...INPUT,
+        guideItemId: 'item-1',
+        kind: 'tour',
+        sellingUnit: 'group',
+        groupMaxPeople: 4,
+      })
+    ).resolves.toMatchObject({ sellingUnit: 'group', groupMaxPeople: 4 });
+    const attraction = setup({ category: 'attraction' });
+    await expect(
+      attraction.service.createOffer(OWNER, {
+        ...INPUT,
+        guideItemId: 'item-1',
+        kind: 'private_entry',
+        sellingUnit: 'group',
+        groupMaxPeople: 4,
+      })
+    ).rejects.toMatchObject({ code: 'VALIDATION_ERROR' });
   });
 
   it('item de outro dono → FORBIDDEN', async () => {

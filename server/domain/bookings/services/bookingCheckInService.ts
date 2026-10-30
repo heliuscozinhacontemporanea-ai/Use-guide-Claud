@@ -7,9 +7,8 @@ import {
   CHECK_IN_CODE_KINDS,
 } from '../types/bookingTypes';
 import {
-  checkInCodesMatch,
   deriveCheckInCode,
-  listAcceptedCheckInCodes,
+  matchCheckInCodeUnit,
   normalizeCheckInCode,
 } from '../utils/checkInCode';
 import {
@@ -19,26 +18,43 @@ import {
   checkInWindow,
   resolveCheckInTime,
 } from '../utils/checkInWindow';
-import { hasServiceProof } from '../utils/serviceProof';
+import { checkInsOf, hasServiceProof } from '../utils/serviceProof';
+
+/** Código de uma unidade: a pessoa (venda por pessoa) ou o grupo. */
+export interface UnitCode {
+  unit: number;
+  /** null fora do dia do serviço ou depois do check-in desta unidade. */
+  code: string | null;
+  /** Nome da pessoa, quando a oferta pede nomes (D20). */
+  name: string | null;
+  checkedInAt: string | null;
+}
 
 export interface CheckInCodeView {
-  /** null antes das 00:00 do dia do serviço e depois que a janela de check-in fecha. */
-  code: string | null;
+  codes: UnitCode[];
   visibleFrom: string;
   validUntil: string;
-  checkedInAt: string | null;
 }
 
 export interface CheckInByCodeInput {
   offerId: string;
   slotId: string;
   code: string;
-  participantsPresent: number;
   /** Hora do aparelho quando o código foi digitado sem internet. */
   capturedAt?: string;
 }
 
-/** Código de check-in do comprador e check-in pelo prestador (D20). */
+/** Resultado do check-in de uma unidade, com o nome para o parceiro conferir na entrada nominal. */
+export interface UnitCheckInResult {
+  booking: Booking;
+  unit: number;
+  name: string | null;
+  /** A unidade já tinha check-in: a portaria avisa em vez de deixar entrar de novo. */
+  alreadyCheckedIn: boolean;
+  checkedInAt: string;
+}
+
+/** Códigos de check-in do cliente, um por unidade, e check-in pelo parceiro (D20). */
 export class BookingCheckInService {
   constructor(
     private readonly port: BookingsPort,
@@ -47,7 +63,7 @@ export class BookingCheckInService {
 
   async getCheckInCode(actor: BookingActor, bookingId: string): Promise<CheckInCodeView> {
     const booking = await this.port.getBooking(bookingId);
-    // Só o comprador vê o código; para os demais a reserva responde como inexistente (§7.10).
+    // Só o cliente vê os códigos; para os demais a reserva responde como inexistente (§7.10).
     if (!booking || booking.buyerId !== actor.uid) {
       throw new BookingDomainError('NOT_FOUND', 'Reserva não encontrada.');
     }
@@ -64,16 +80,22 @@ export class BookingCheckInService {
     const visibleFromMs = checkInCodeVisibleFromMs(startsAt);
     const { closesAtMs } = checkInWindow(startsAt, durationMinutes);
     const nowMs = this.now().getTime();
-    const visible = nowMs >= visibleFromMs && nowMs <= closesAtMs && !booking.checkIn;
+    const open = nowMs >= visibleFromMs && nowMs <= closesAtMs;
+    const participants = await this.port.getParticipants(booking.id);
+    const used = new Map(checkInsOf(booking).map((checkIn) => [checkIn.unit, checkIn.at]));
     return {
-      code: visible ? deriveCheckInCode(booking.id) : null,
+      codes: Array.from({ length: booking.participantsCount }, (_, unit) => ({
+        unit,
+        code: open && !used.has(unit) ? deriveCheckInCode(booking.id, undefined, unit) : null,
+        name: participants[unit]?.name || null,
+        checkedInAt: used.get(unit) ?? null,
+      })),
       visibleFrom: new Date(visibleFromMs).toISOString(),
       validUntil: new Date(closesAtMs).toISOString(),
-      checkedInAt: booking.checkIn?.at ?? null,
     };
   }
 
-  async checkInByCode(actor: BookingActor, input: CheckInByCodeInput): Promise<Booking> {
+  async checkInByCode(actor: BookingActor, input: CheckInByCodeInput): Promise<UnitCheckInResult> {
     const offer = await this.port.getOffer(input.offerId);
     // Só o dono da oferta faz check-in, nem o admin (D20): oferta de outro responde como inexistente.
     if (!offer || offer.ownerId !== actor.uid) {
@@ -112,38 +134,46 @@ export class BookingCheckInService {
     }
 
     const code = normalizeCheckInCode(input.code);
-    const bookings = code
-      ? (await this.port.listBookingsBySlot(slot.id)).filter(
-          (booking) =>
-            (booking.status === 'confirmed' || booking.status === 'completed') &&
-            // Já reembolsada porque o prestador não veio (D20): o código não vale mais.
-            booking.providerAbsence?.resolution !== 'refunded'
-        )
-      : [];
-    const match = code
-      ? bookings.find((booking) =>
-          listAcceptedCheckInCodes(booking.id).some((accepted) => checkInCodesMatch(accepted, code))
-        )
-      : undefined;
+    let match: { booking: Booking; unit: number } | null = null;
+    if (code) {
+      for (const booking of await this.port.listBookingsBySlot(slot.id)) {
+        const active =
+          (booking.status === 'confirmed' || booking.status === 'completed') &&
+          // Já reembolsada porque o parceiro não veio (D20): os códigos não valem mais.
+          booking.providerAbsence?.resolution !== 'refunded';
+        const unit = active
+          ? matchCheckInCodeUnit(booking.id, booking.participantsCount, code)
+          : null;
+        if (unit !== null) {
+          match = { booking, unit };
+          break;
+        }
+      }
+    }
     if (!match) {
       await this.port.addCheckInFailure(slot.id, actor.uid, nowDate.toISOString());
       throw new BookingDomainError('INVALID_CHECK_IN_CODE', 'Código incorreto.');
     }
-    if (input.participantsPresent > match.participantsCount) {
-      throw new BookingDomainError(
-        'VALIDATION_ERROR',
-        'Presentes acima do número de pessoas da reserva.'
-      );
-    }
 
     const checkIn: BookingCheckIn = {
+      unit: match.unit,
       at: new Date(atMs).toISOString(),
       byUid: actor.uid,
       method: 'code',
-      participantsPresent: input.participantsPresent,
       ...(input.capturedAt ? { syncedAt: nowDate.toISOString() } : {}),
     };
-    return this.port.recordCheckIn(match.id, checkIn);
+    const before = checkInsOf(match.booking).find((item) => item.unit === match.unit);
+    const booking = before
+      ? match.booking
+      : await this.port.recordCheckIns(match.booking.id, [checkIn]);
+    const participants = await this.port.getParticipants(booking.id);
+    return {
+      booking,
+      unit: match.unit,
+      name: participants[match.unit]?.name || null,
+      alreadyCheckedIn: Boolean(before),
+      checkedInAt: before?.at ?? checkIn.at,
+    };
   }
 
   /** Prova do serviço para a contestação no cartão (D16, D20): o "Cliente sem código" não conta. */

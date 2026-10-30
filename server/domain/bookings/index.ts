@@ -1,12 +1,17 @@
 export { BookingDomainError, type BookingErrorCode } from './errors/bookingDomainError';
 export type { PageRequest } from './ports/bookingsPort';
-export type { CheckInByCodeInput, CheckInCodeView } from './services/bookingCheckInService';
+export type {
+  CheckInByCodeInput,
+  CheckInCodeView,
+  UnitCheckInResult,
+  UnitCode,
+} from './services/bookingCheckInService';
 export type {
   BookingDetails,
   BuyerCancellationResult,
   CreatePendingBookingInput,
 } from './services/bookingService';
-export type { EntryCheckInInput, EntryPassView } from './services/bookingEntryService';
+export type { EntryCheckInInput, EntryPass, EntryPassView } from './services/bookingEntryService';
 export type { CheckInWithoutCodeInput } from './services/bookingServiceProofService';
 export type { CreateSlotsInput, OfferInput } from './services/offerService';
 export {
@@ -71,6 +76,7 @@ export { requestCancellationByBuyerUseCase } from './usecases/requestCancellatio
 export { rescheduleSlotByPartnerUseCase } from './usecases/rescheduleSlotByPartnerUseCase';
 export { resolveProviderAbsenceUseCase } from './usecases/resolveProviderAbsenceUseCase';
 export { resolveServiceConfirmationUseCase } from './usecases/resolveServiceConfirmationUseCase';
+export { setParticipantNameUseCase } from './usecases/setParticipantNameUseCase';
 export { setBookableOfferStatusUseCase } from './usecases/setBookableOfferStatusUseCase';
 export { updateBookableOfferUseCase } from './usecases/updateBookableOfferUseCase';
 export { priceBookingLines } from './utils/bookingPricing';

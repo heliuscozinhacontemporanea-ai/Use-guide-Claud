@@ -94,7 +94,7 @@ describe('prova do serviço na camada application (D20)', () => {
     });
     expect(recordProviderAbsenceUseCase).toHaveBeenCalledWith(BUYER, 'bk_1', 'claim_booking_bk_1');
     expect(createNotificationUseCase).toHaveBeenCalledWith(
-      notified('partner-1', 'Comprador diz que você não compareceu')
+      notified('partner-1', 'O cliente diz que você não compareceu')
     );
   });
 
@@ -114,7 +114,7 @@ describe('prova do serviço na camada application (D20)', () => {
       'partner-1'
     );
     expect(createNotificationUseCase).toHaveBeenCalledWith(
-      notified('buyer-1', 'Reembolso integral a caminho')
+      notified('buyer-1', 'Reembolso a caminho')
     );
   });
 
@@ -146,14 +146,16 @@ describe('prova do serviço na camada application (D20)', () => {
 
   it('check-in depois do relato encerra a reclamação sem reembolso', async () => {
     vi.mocked(checkInBookingByCodeUseCase).mockResolvedValue({
-      ...BOOKING,
-      providerAbsence: ABSENCE,
+      booking: { ...BOOKING, providerAbsence: ABSENCE },
+      unit: 0,
+      name: null,
+      alreadyCheckedIn: false,
+      checkedInAt: 't',
     } as never);
     await checkInBookingApplicationUseCase(PARTNER, {
       offerId: 'offer-1',
       slotId: 'slot-1',
       code: 'K7M4QX',
-      participantsPresent: 2,
     });
     expect(decideSaleClaimUseCase).toHaveBeenCalledWith('claim_booking_bk_1', 'system', {
       outcome: 'release',

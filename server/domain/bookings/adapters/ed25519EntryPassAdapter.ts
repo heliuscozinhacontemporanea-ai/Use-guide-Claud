@@ -49,7 +49,8 @@ function isPayload(value: unknown): value is EntryPassPayload {
     typeof p.bid === 'string' &&
     typeof p.sid === 'string' &&
     typeof p.oid === 'string' &&
-    typeof p.n === 'number' &&
+    typeof p.u === 'number' &&
+    (p.nm === undefined || typeof p.nm === 'string') &&
     typeof p.exp === 'number'
   );
 }

@@ -7,6 +7,7 @@ import { reportProviderAbsentApplicationUseCase } from '../../../application/use
 import {
   getBookingCheckInCodeUseCase,
   getEntryPassUseCase,
+  setParticipantNameUseCase,
   getBookingForActorUseCase,
   listAvailableSlotsUseCase,
   listMyBookingsUseCase,
@@ -20,6 +21,7 @@ import {
   DocumentIdSchema,
   IdempotencyKeyHeaderSchema,
   PageQuerySchema,
+  ParticipantNameSchema,
   ServiceConfirmationAnswerSchema,
   SlotWindowQuerySchema,
 } from './schemas/bookingSchemas';
@@ -124,6 +126,30 @@ export class BookingsController {
       return res.status(200).json(view);
     } catch (error) {
       return handleBookingError(res, 'getEntryPass', error);
+    }
+  }
+
+  static async setParticipantName(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    const actor = actorOf(req);
+    if (!actor) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
+    const bookingId = DocumentIdSchema.safeParse(req.params.bookingId);
+    const unit = Number(req.params.unit);
+    const body = ParticipantNameSchema.safeParse(req.body);
+    if (!bookingId.success || !Number.isInteger(unit) || unit < 0 || unit > 49 || !body.success) {
+      return sendError(res, 400, 'VALIDATION_ERROR', 'Nome inválido.');
+    }
+    try {
+      const participant = await setParticipantNameUseCase(
+        actor,
+        bookingId.data,
+        unit,
+        body.data.name
+      );
+      return res
+        .status(200)
+        .json({ unit, name: participant.name, changed: Boolean(participant.nameChangedAt) });
+    } catch (error) {
+      return handleBookingError(res, 'setParticipantName', error);
     }
   }
 
