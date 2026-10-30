@@ -10,7 +10,7 @@ import {
   cancellationFamilyOf,
   type Page,
 } from '../types/bookingTypes';
-import { NO_SHOW_WAIT_MS, SERVICE_CONFIRMATION_MS } from '../utils/checkInWindow';
+import { entryWindow, NO_SHOW_WAIT_MS, SERVICE_CONFIRMATION_MS } from '../utils/checkInWindow';
 import { serviceEndsAtMs } from '../utils/serviceTime';
 import { buildBookingId } from '../utils/buildBookingId';
 import { priceBookingLines } from '../utils/bookingPricing';
@@ -340,7 +340,8 @@ export class BookingService {
 
   /**
    * Conclui as reservas cujo horário terminou. Sem check-in nem outro registro, o comprador recebe a
-   * pergunta "O serviço aconteceu?" (D20); essas reservas voltam em `askedToConfirm`.
+   * pergunta "O serviço aconteceu?" (D20); essas reservas voltam em `askedToConfirm`. A entrada de
+   * atração não usada vira ausência e conta em `completed`.
    */
   async completeFinishedBookings(
     limit = 200
@@ -353,8 +354,9 @@ export class BookingService {
     let completed = 0;
     const askedToConfirm: Booking[] = [];
     for (const booking of started) {
-      const { startsAt, durationMinutes } = booking.offerSnapshot;
-      if (serviceEndsAtMs(startsAt, durationMinutes) > nowDate.getTime()) continue;
+      if ((await this.serviceEndMs(booking)) > nowDate.getTime()) continue;
+      // Entrada de atração não usada até o fechamento é ausência, como ingresso não usado (D20, A).
+      const unusedEntry = booking.kind === 'private_entry' && !booking.checkIn;
       const ask =
         CHECK_IN_CODE_KINDS.includes(booking.kind) &&
         !booking.checkIn &&
@@ -364,6 +366,7 @@ export class BookingService {
         booking.id,
         (current) => {
           if (current.status !== 'confirmed') return null;
+          if (unusedEntry) return { ...current, status: 'no_show' };
           if (!ask) return { ...current, status: 'completed' };
           const answerBy = new Date(nowDate.getTime() + SERVICE_CONFIRMATION_MS).toISOString();
           return {
@@ -373,12 +376,20 @@ export class BookingService {
             deadline: { kind: 'service_confirmation', at: answerBy },
           };
         },
-        { actorUid: SYSTEM_ACTOR, reason: 'finished' }
+        { actorUid: SYSTEM_ACTOR, reason: unusedEntry ? 'entry_unused' : 'finished' }
       );
-      if (updated.status !== 'completed') continue;
+      if (updated.status === 'confirmed') continue;
       completed += 1;
-      if (ask) askedToConfirm.push(updated);
+      if (ask && updated.status === 'completed') askedToConfirm.push(updated);
     }
     return { completed, askedToConfirm };
+  }
+
+  /** Fim do serviço; a entrada de atração vale até o fechamento do horário (D20). */
+  private async serviceEndMs(booking: Booking): Promise<number> {
+    const { startsAt, durationMinutes } = booking.offerSnapshot;
+    if (booking.kind !== 'private_entry') return serviceEndsAtMs(startsAt, durationMinutes);
+    const slot = await this.port.getSlot(booking.slotId);
+    return entryWindow(slot ?? { startsAt }, durationMinutes).closesAtMs;
   }
 }

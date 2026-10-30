@@ -15,6 +15,7 @@ bookingsRouter.post('/', verifyAuthTokenStrict, BookingsController.create);
 bookingsRouter.get('/me', verifyAuthToken, BookingsController.listMine);
 bookingsRouter.get('/:bookingId', verifyAuthToken, BookingsController.get);
 bookingsRouter.get('/:bookingId/check-in-code', verifyAuthToken, BookingsController.getCheckInCode);
+bookingsRouter.get('/:bookingId/entry-pass', verifyAuthToken, BookingsController.getEntryPass);
 bookingsRouter.post('/:bookingId/cancel', verifyAuthTokenStrict, BookingsController.cancel);
 bookingsRouter.post('/:bookingId/no-show', verifyAuthToken, BookingsController.markNoShow);
 // Relato e resposta mexem no reembolso (D20): token revogado não serve.
@@ -68,4 +69,13 @@ partnerOffersRouter.post(
   '/:offerId/bookings/:bookingId/absence-response',
   verifyAuthTokenStrict,
   PartnerOffersController.answerProviderAbsence
+);
+partnerOffersRouter.get(
+  '/:offerId/entry-verification-keys',
+  PartnerOffersController.entryVerificationKeys
+);
+partnerOffersRouter.post(
+  '/:offerId/slots/:slotId/entry-check-ins',
+  verifyAuthTokenStrict,
+  PartnerOffersController.checkInEntry
 );

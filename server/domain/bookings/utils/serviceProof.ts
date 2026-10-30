@@ -6,13 +6,14 @@ export function requiresServiceProof(kind: BookableOfferKind): boolean {
 }
 
 /**
- * Prova de que o serviço aconteceu (D20): check-in com o código ou "sim" do comprador na pergunta
- * "O serviço aconteceu?". O "Cliente sem código" sozinho não prova nada.
+ * Prova de que o serviço aconteceu (D20): check-in com o código ou o QR, ou "sim" do comprador na
+ * pergunta "O serviço aconteceu?". O "Cliente sem código" sozinho não prova nada.
  */
 export function hasServiceProof(
   booking: Pick<Booking, 'checkIn' | 'serviceConfirmation'>
 ): boolean {
   return (
-    booking.checkIn?.method === 'code' || booking.serviceConfirmation?.resolution === 'confirmed'
+    (booking.checkIn !== undefined && booking.checkIn.method !== 'no_code') ||
+    booking.serviceConfirmation?.resolution === 'confirmed'
   );
 }

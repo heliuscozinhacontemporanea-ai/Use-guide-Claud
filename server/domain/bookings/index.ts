@@ -6,6 +6,7 @@ export type {
   BuyerCancellationResult,
   CreatePendingBookingInput,
 } from './services/bookingService';
+export type { EntryCheckInInput, EntryPassView } from './services/bookingEntryService';
 export type { CheckInWithoutCodeInput } from './services/bookingServiceProofService';
 export type { CreateSlotsInput, OfferInput } from './services/offerService';
 export {
@@ -33,6 +34,7 @@ export { cancelBookingForCanceledSlotUseCase } from './usecases/cancelBookingFor
 export { cancelPendingBookingUseCase } from './usecases/cancelPendingBookingUseCase';
 export { cancelSlotByPartnerUseCase } from './usecases/cancelSlotByPartnerUseCase';
 export { checkInBookingByCodeUseCase } from './usecases/checkInBookingByCodeUseCase';
+export { checkInEntryUseCase } from './usecases/checkInEntryUseCase';
 export { checkInWithoutCodeUseCase } from './usecases/checkInWithoutCodeUseCase';
 export { clearBookingDeadlineUseCase } from './usecases/clearBookingDeadlineUseCase';
 export { completeFinishedBookingsUseCase } from './usecases/completeFinishedBookingsUseCase';
@@ -46,6 +48,8 @@ export { getBookingCheckInCodeUseCase } from './usecases/getBookingCheckInCodeUs
 export { getBookingForAbsenceReportUseCase } from './usecases/getBookingForAbsenceReportUseCase';
 export { getBookingForActorUseCase } from './usecases/getBookingForActorUseCase';
 export { getBookingUseCase } from './usecases/getBookingUseCase';
+export { getEntryPassUseCase } from './usecases/getEntryPassUseCase';
+export { getEntryVerificationKeysUseCase } from './usecases/getEntryVerificationKeysUseCase';
 export { getVerifiedServiceForReviewUseCase } from './usecases/getVerifiedServiceForReviewUseCase';
 export { getOpenProviderAbsenceUseCase } from './usecases/getOpenProviderAbsenceUseCase';
 export { getPendingServiceConfirmationUseCase } from './usecases/getPendingServiceConfirmationUseCase';

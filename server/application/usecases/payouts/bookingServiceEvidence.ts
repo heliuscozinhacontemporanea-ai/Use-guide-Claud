@@ -6,7 +6,7 @@ export interface BookingServiceEvidence {
   pickupAddress: string | null;
   checkIn: {
     at: string;
-    method: 'code' | 'no_code';
+    method: 'code' | 'qr' | 'no_code';
     participantsPresent: number;
     participantsCount: number;
     noCodeReason: string | null;

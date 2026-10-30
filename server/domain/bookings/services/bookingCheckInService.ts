@@ -17,12 +17,9 @@ import {
   CHECK_IN_MAX_FAILURES,
   checkInCodeVisibleFromMs,
   checkInWindow,
+  resolveCheckInTime,
 } from '../utils/checkInWindow';
 import { hasServiceProof } from '../utils/serviceProof';
-
-// Check-in sem internet chega depois: aceita até 24 h de atraso e 1 min de relógio adiantado.
-const OFFLINE_MAX_DELAY_MS = 24 * 60 * 60 * 1000;
-const CLOCK_SKEW_MS = 60 * 1000;
 
 export interface CheckInCodeView {
   /** null antes das 00:00 do dia do serviço e depois que a janela de check-in fecha. */
@@ -94,7 +91,10 @@ export class BookingCheckInService {
     }
 
     const nowDate = this.now();
-    const atMs = this.checkInTime(input.capturedAt, nowDate.getTime());
+    const atMs = resolveCheckInTime(input.capturedAt, nowDate.getTime());
+    if (atMs === null) {
+      throw new BookingDomainError('VALIDATION_ERROR', 'Hora do check-in inválida.');
+    }
     const { opensAtMs, closesAtMs } = checkInWindow(slot.startsAt, offer.durationMinutes);
     if (atMs < opensAtMs || atMs > closesAtMs) {
       throw new BookingDomainError(
@@ -150,18 +150,5 @@ export class BookingCheckInService {
   async hasCheckIn(bookingId: string): Promise<boolean> {
     const booking = await this.port.getBooking(bookingId);
     return booking ? hasServiceProof(booking) : false;
-  }
-
-  private checkInTime(capturedAt: string | undefined, nowMs: number): number {
-    if (!capturedAt) return nowMs;
-    const capturedMs = new Date(capturedAt).getTime();
-    if (
-      Number.isNaN(capturedMs) ||
-      capturedMs > nowMs + CLOCK_SKEW_MS ||
-      capturedMs < nowMs - OFFLINE_MAX_DELAY_MS
-    ) {
-      throw new BookingDomainError('VALIDATION_ERROR', 'Hora do check-in inválida.');
-    }
-    return Math.min(capturedMs, nowMs);
   }
 }

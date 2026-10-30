@@ -6,6 +6,7 @@ import { markBookingNoShowApplicationUseCase } from '../../../application/usecas
 import { reportProviderAbsentApplicationUseCase } from '../../../application/usecases/bookings/reportProviderAbsentApplicationUseCase';
 import {
   getBookingCheckInCodeUseCase,
+  getEntryPassUseCase,
   getBookingForActorUseCase,
   listAvailableSlotsUseCase,
   listMyBookingsUseCase,
@@ -108,6 +109,21 @@ export class BookingsController {
       return res.status(200).json(view);
     } catch (error) {
       return handleBookingError(res, 'getCheckInCode', error);
+    }
+  }
+
+  static async getEntryPass(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    const actor = actorOf(req);
+    if (!actor) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
+    const bookingId = DocumentIdSchema.safeParse(req.params.bookingId);
+    if (!bookingId.success) return sendError(res, 404, 'NOT_FOUND', 'Reserva não encontrada.');
+    try {
+      const view = await getEntryPassUseCase(actor, bookingId.data);
+      // QR e código não podem ficar em cache de proxy nem do navegador.
+      res.setHeader('Cache-Control', 'no-store');
+      return res.status(200).json(view);
+    } catch (error) {
+      return handleBookingError(res, 'getEntryPass', error);
     }
   }
 

@@ -167,6 +167,19 @@ export const ProviderAbsenceAnswerSchema = z
 
 export const ServiceConfirmationAnswerSchema = z.object({ answer: z.enum(['yes', 'no']) }).strict();
 
+export const EntryCheckInSchema = z
+  .object({
+    qrToken: z.string().trim().min(20).max(1000).optional(),
+    // Aceita o prefixo `ENTR:`, minúsculas, espaço e hífen; o serviço normaliza.
+    code: z.string().trim().min(8).max(16).optional(),
+    participantsPresent: z.number().int().min(1).max(50),
+    capturedAt: isoDateTime.optional(),
+  })
+  .strict()
+  .refine((body) => Boolean(body.qrToken) !== Boolean(body.code), {
+    message: 'Envie o QR Code ou o código, não os dois.',
+  });
+
 export const CancelBookingSchema = z.object({ reason: z.string().max(300).optional() }).strict();
 
 export const SlotWindowQuerySchema = z

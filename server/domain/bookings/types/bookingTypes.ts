@@ -111,8 +111,11 @@ export interface BookingCheckIn {
   /** Hora em que o prestador fez o check-in (a do aparelho, quando foi feito sem internet). */
   at: string;
   byUid: string;
-  /** `no_code`: "Cliente sem código", por conta e risco do prestador até o comprador confirmar. */
-  method: 'code' | 'no_code';
+  /**
+   * `qr`: QR da entrada de atração. `no_code`: "Cliente sem código", por conta e risco do prestador
+   * até o comprador confirmar.
+   */
+  method: 'code' | 'qr' | 'no_code';
   participantsPresent: number;
   /** Só no check-in feito sem internet: quando o servidor recebeu e validou o código. */
   syncedAt?: string;

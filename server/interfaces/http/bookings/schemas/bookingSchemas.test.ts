@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   CheckInByCodeSchema,
+  EntryCheckInSchema,
   CreateOfferSchema,
   CreateSlotsSchema,
   UpdateOfferSchema,
@@ -92,5 +93,20 @@ describe('bookingSchemas', () => {
       CheckInByCodeSchema.safeParse({ code: 'K7M4QX', participantsPresent: 2, bookingId: 'x' })
         .success
     ).toBe(false);
+  });
+
+  it('entrada: QR ou código, nunca os dois nem nenhum (D20)', () => {
+    const qr = `UGE1.${'a'.repeat(40)}.sig`;
+    expect(EntryCheckInSchema.safeParse({ qrToken: qr, participantsPresent: 2 }).success).toBe(
+      true
+    );
+    expect(
+      EntryCheckInSchema.safeParse({ code: 'ENTR:K7M4QXAB', participantsPresent: 2 }).success
+    ).toBe(true);
+    expect(
+      EntryCheckInSchema.safeParse({ qrToken: qr, code: 'K7M4QXAB', participantsPresent: 2 })
+        .success
+    ).toBe(false);
+    expect(EntryCheckInSchema.safeParse({ participantsPresent: 2 }).success).toBe(false);
   });
 });

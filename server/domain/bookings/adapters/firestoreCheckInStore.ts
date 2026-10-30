@@ -36,13 +36,10 @@ export class FirestoreCheckInStore {
     });
   }
 
-  async countCheckInFailures(slotId: string, sinceIso: string): Promise<number> {
-    const snapshot = await adminDb
-      .collection(CHECK_IN_FAILURES)
-      .where('slotId', '==', slotId)
-      .where('at', '>=', sinceIso)
-      .count()
-      .get();
+  async countCheckInFailures(slotId: string, sinceIso: string, actorUid?: string): Promise<number> {
+    let query = adminDb.collection(CHECK_IN_FAILURES).where('slotId', '==', slotId);
+    if (actorUid) query = query.where('actorUid', '==', actorUid);
+    const snapshot = await query.where('at', '>=', sinceIso).count().get();
     return snapshot.data().count;
   }
 

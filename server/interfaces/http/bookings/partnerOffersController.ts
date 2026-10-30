@@ -7,7 +7,9 @@ import { cancelSlotByPartnerApplicationUseCase } from '../../../application/usec
 import { rescheduleSlotByPartnerApplicationUseCase } from '../../../application/usecases/bookings/rescheduleSlotByPartnerApplicationUseCase';
 import { setBookableOfferStatusApplicationUseCase } from '../../../application/usecases/bookings/setBookableOfferStatusApplicationUseCase';
 import {
+  checkInEntryUseCase,
   createAvailabilitySlotsUseCase,
+  getEntryVerificationKeysUseCase,
   createBookableOfferUseCase,
   listOfferBookingsForPartnerUseCase,
   listOfferSlotsForPartnerUseCase,
@@ -23,6 +25,7 @@ import {
   CreateOfferSchema,
   CreateSlotsSchema,
   DocumentIdSchema,
+  EntryCheckInSchema,
   OfferStatusSchema,
   PageQuerySchema,
   ProviderAbsenceAnswerSchema,
@@ -257,6 +260,40 @@ export class PartnerOffersController {
       return res.status(200).json(toSellerBooking(booking));
     } catch (error) {
       return handleBookingError(res, 'answerProviderAbsence', error);
+    }
+  }
+
+  static async checkInEntry(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    const actor = actorOf(req);
+    if (!actor) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
+    const offerId = DocumentIdSchema.safeParse(req.params.offerId);
+    const slotId = DocumentIdSchema.safeParse(req.params.slotId);
+    const body = EntryCheckInSchema.safeParse(req.body);
+    if (!offerId.success || !slotId.success || !body.success) {
+      return sendError(res, 400, 'VALIDATION_ERROR', 'Dados da entrada inválidos.');
+    }
+    try {
+      const booking = await checkInEntryUseCase(actor, {
+        offerId: offerId.data,
+        slotId: slotId.data,
+        ...body.data,
+      });
+      return res.status(200).json(toSellerBooking(booking));
+    } catch (error) {
+      return handleBookingError(res, 'checkInEntry', error);
+    }
+  }
+
+  static async entryVerificationKeys(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    const actor = actorOf(req);
+    if (!actor) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
+    const offerId = DocumentIdSchema.safeParse(req.params.offerId);
+    if (!offerId.success) return sendError(res, 404, 'NOT_FOUND', 'Oferta não encontrada.');
+    try {
+      const keys = await getEntryVerificationKeysUseCase(actor, offerId.data);
+      return res.status(200).json({ data: keys });
+    } catch (error) {
+      return handleBookingError(res, 'entryVerificationKeys', error);
     }
   }
 }

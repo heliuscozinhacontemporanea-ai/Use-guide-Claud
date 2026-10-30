@@ -326,4 +326,18 @@ describe('BookingService', () => {
     expect(result).toMatchObject({ completed: 1, askedToConfirm: [] });
     expect(port.bookings.get(booking.id)?.serviceConfirmation).toBeUndefined();
   });
+
+  it('entrada de atração não usada até o fechamento vira ausência, sem pergunta (D20, A)', async () => {
+    const { service, port, setNow } = setup({ offer: { kind: 'private_entry' } });
+    const slot = port.slots.get('slot-1');
+    if (slot) port.slots.set('slot-1', { ...slot, endsAt: '2026-11-10T20:00:00.000Z' });
+    const booking = await service.createPendingBooking(BUYER, INPUT, FEES);
+    await service.confirmBookingPayment(booking.id, 'pi_1');
+    setNow('2026-11-10T19:00:00.000Z');
+    expect((await service.completeFinishedBookings()).completed).toBe(0);
+    setNow('2026-11-10T20:01:00.000Z');
+    const result = await service.completeFinishedBookings();
+    expect(result).toMatchObject({ completed: 1, askedToConfirm: [] });
+    expect(port.bookings.get(booking.id)?.status).toBe('no_show');
+  });
 });

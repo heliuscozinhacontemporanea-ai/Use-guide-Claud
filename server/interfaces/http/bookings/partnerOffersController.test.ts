@@ -3,7 +3,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('../../../domain/bookings', async () => {
   const { BookingDomainError } = await import('../../../domain/bookings/errors/bookingDomainError');
-  return { BookingDomainError };
+  return {
+    BookingDomainError,
+    checkInEntryUseCase: vi.fn(),
+    getEntryVerificationKeysUseCase: vi.fn(),
+  };
 });
 vi.mock('../../../application/usecases/bookings/checkInBookingApplicationUseCase', () => ({
   checkInBookingApplicationUseCase: vi.fn(),
@@ -21,7 +25,11 @@ vi.mock('../../../application/usecases/bookings/answerProviderAbsenceApplication
 import { checkInBookingApplicationUseCase as checkInBookingByCodeUseCase } from '../../../application/usecases/bookings/checkInBookingApplicationUseCase';
 import { checkInWithoutCodeApplicationUseCase } from '../../../application/usecases/bookings/checkInWithoutCodeApplicationUseCase';
 import { recordProviderArrivalApplicationUseCase } from '../../../application/usecases/bookings/recordProviderArrivalApplicationUseCase';
-import { BookingDomainError } from '../../../domain/bookings';
+import {
+  BookingDomainError,
+  checkInEntryUseCase,
+  getEntryVerificationKeysUseCase,
+} from '../../../domain/bookings';
 import type { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
 import { PartnerOffersController } from './partnerOffersController';
 
@@ -131,5 +139,41 @@ describe('PartnerOffersController — ações na reserva (D20)', () => {
     );
     expect(bad.status).toHaveBeenCalledWith(400);
     expect(checkInWithoutCodeApplicationUseCase).not.toHaveBeenCalled();
+  });
+});
+
+describe('PartnerOffersController — entrada de atração (D20)', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('repassa o QR lido e devolve a reserva com o check-in', async () => {
+    vi.mocked(checkInEntryUseCase).mockResolvedValue({
+      id: 'bk_1',
+      lines: [],
+      offerSnapshot: { title: 'Lagoa', startsAt: '', cancellationPolicy: 'flexible' },
+      checkIn: { at: 't', byUid: 'partner-1', method: 'qr', participantsPresent: 2 },
+    } as never);
+    const qrToken = `UGE1.${'a'.repeat(40)}.sig`;
+    const { res, status } = response();
+    await PartnerOffersController.checkInEntry(request({ qrToken, participantsPresent: 2 }), res);
+    expect(checkInEntryUseCase).toHaveBeenCalledWith(
+      { uid: 'partner-1', admin: false },
+      { offerId: 'offer-1', slotId: 'slot-1', qrToken, participantsPresent: 2 }
+    );
+    expect(status).toHaveBeenCalledWith(200);
+  });
+
+  it('QR e código juntos é 400; chaves públicas saem em { data }', async () => {
+    const bad = response();
+    await PartnerOffersController.checkInEntry(
+      request({ qrToken: `UGE1.${'a'.repeat(40)}`, code: 'K7M4QXAB', participantsPresent: 1 }),
+      bad.res
+    );
+    expect(bad.status).toHaveBeenCalledWith(400);
+    vi.mocked(getEntryVerificationKeysUseCase).mockResolvedValue([
+      { kid: 'k1', publicKeyJwk: { kty: 'OKP' } },
+    ]);
+    const ok = response();
+    await PartnerOffersController.entryVerificationKeys(request({}), ok.res);
+    expect(ok.json).toHaveBeenCalledWith({ data: [{ kid: 'k1', publicKeyJwk: { kty: 'OKP' } }] });
   });
 });

@@ -73,7 +73,7 @@ export interface BookingsPort {
    */
   recordCheckIn(bookingId: string, checkIn: BookingCheckIn): Promise<Booking>;
   /** Códigos errados no horário desde `sinceIso`, contados no Firestore (o Cloud Run não guarda estado). */
-  countCheckInFailures(slotId: string, sinceIso: string): Promise<number>;
+  countCheckInFailures(slotId: string, sinceIso: string, actorUid?: string): Promise<number>;
   addCheckInFailure(slotId: string, actorUid: string, atIso: string): Promise<void>;
 
   /**

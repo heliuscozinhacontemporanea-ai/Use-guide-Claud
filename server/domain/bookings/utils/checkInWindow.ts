@@ -37,3 +37,42 @@ export const PROVIDER_ABSENT_AFTER_MS = 30 * MINUTE_MS;
 export const ABSENCE_RESPONSE_MS = 2 * HOUR_MS;
 /** Prazo do comprador para responder "O serviço aconteceu?" (D20). */
 export const SERVICE_CONFIRMATION_MS = 72 * HOUR_MS;
+
+/** Entrada de atração privada: 5 erros por pessoa e 50 por horário a cada 15 min (D20, §7.7). */
+export const ENTRY_MAX_FAILURES_PER_ACTOR = 5;
+export const ENTRY_MAX_FAILURES_PER_SLOT = 50;
+
+/**
+ * Entrada vale o dia do horário até o fechamento (D20): até o fim do horário, ou o fim da duração,
+ * ou, sem nenhum dos dois, o fim do dia em Fortaleza.
+ */
+export function entryWindow(
+  slot: { startsAt: string; endsAt?: string },
+  durationMinutes?: number
+): { opensAtMs: number; closesAtMs: number } {
+  const startMs = new Date(slot.startsAt).getTime();
+  const closesAtMs = slot.endsAt
+    ? new Date(slot.endsAt).getTime()
+    : durationMinutes
+      ? serviceEndsAtMs(slot.startsAt, durationMinutes)
+      : checkInCodeVisibleFromMs(slot.startsAt) + DAY_MS - 1;
+  return { opensAtMs: startMs - CHECK_IN_OPENS_BEFORE_MS, closesAtMs };
+}
+
+// Check-in sem internet chega depois: aceita até 24 h de atraso e 1 min de relógio adiantado.
+const OFFLINE_MAX_DELAY_MS = 24 * HOUR_MS;
+const CLOCK_SKEW_MS = MINUTE_MS;
+
+/** Hora que vale para o check-in: a do aparelho quando foi feito sem internet; null se for inválida. */
+export function resolveCheckInTime(capturedAt: string | undefined, nowMs: number): number | null {
+  if (!capturedAt) return nowMs;
+  const capturedMs = new Date(capturedAt).getTime();
+  if (
+    Number.isNaN(capturedMs) ||
+    capturedMs > nowMs + CLOCK_SKEW_MS ||
+    capturedMs < nowMs - OFFLINE_MAX_DELAY_MS
+  ) {
+    return null;
+  }
+  return Math.min(capturedMs, nowMs);
+}

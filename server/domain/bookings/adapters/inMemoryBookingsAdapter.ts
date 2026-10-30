@@ -237,8 +237,10 @@ export class InMemoryBookingsAdapter implements BookingsPort {
   async deleteParticipants(bookingId: string) {
     this.participants.delete(bookingId);
   }
-  async countCheckInFailures(slotId: string, sinceIso: string) {
-    return this.checkInFailures.filter((f) => f.slotId === slotId && f.at >= sinceIso).length;
+  async countCheckInFailures(slotId: string, sinceIso: string, actorUid?: string) {
+    return this.checkInFailures.filter(
+      (f) => f.slotId === slotId && f.at >= sinceIso && (!actorUid || f.actorUid === actorUid)
+    ).length;
   }
   async addCheckInFailure(slotId: string, actorUid: string, at: string) {
     this.checkInFailures.push({ slotId, actorUid, at });
