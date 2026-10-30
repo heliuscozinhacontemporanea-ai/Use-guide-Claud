@@ -63,6 +63,12 @@ import {
   reviewReportsPtBR,
 } from './reviewReportsResources';
 import {
+  type AdminPanelTranslation,
+  adminPanelEn,
+  adminPanelFr,
+  adminPanelPtBR,
+} from './adminPanelResources';
+import {
   type TicketSessionsTranslation,
   ticketSessionsEn,
   ticketSessionsFr,
@@ -112,6 +118,7 @@ export interface TranslationResource {
   profile: ProfileTranslation;
   myReviews: MyReviewsTranslation;
   reviewReports: ReviewReportsTranslation;
+  adminPanel: AdminPanelTranslation;
   adminFinance: AdminFinanceTranslation;
   ticketSessions: TicketSessionsTranslation;
   salesPolicy: SalesPolicyTranslation;
@@ -183,6 +190,7 @@ export interface TranslationResource {
     tips: string;
   };
   errors: {
+    appCheck: { APP_CHECK_REQUIRED: string; APP_CHECK_INVALID: string };
     media: {
       IMAGE_TOO_LARGE: string;
       INVALID_IMAGE: string;
@@ -340,6 +348,7 @@ const ptBR: TranslationResource = {
   profile: profilePtBR,
   myReviews: myReviewsPtBR,
   reviewReports: reviewReportsPtBR,
+  adminPanel: adminPanelPtBR,
   adminFinance: adminFinancePtBR,
   ticketSessions: ticketSessionsPtBR,
   salesPolicy: salesPolicyPtBR,
@@ -415,6 +424,11 @@ const ptBR: TranslationResource = {
     tips: 'Dicas',
   },
   errors: {
+    appCheck: {
+      APP_CHECK_REQUIRED:
+        'O servidor recusou o acesso porque este aparelho não foi validado pelo App Check. Recarregue a página; se continuar, o App Check precisa ser configurado.',
+      APP_CHECK_INVALID: 'A validação do App Check falhou. Recarregue a página e tente de novo.',
+    },
     media: {
       IMAGE_TOO_LARGE: 'A imagem passa de 6 MB. Escolha uma imagem menor.',
       INVALID_IMAGE: 'Formato não suportado. Envie uma imagem JPEG, PNG ou WebP.',
@@ -624,6 +638,7 @@ const en: TranslationResource = {
   profile: profileEn,
   myReviews: myReviewsEn,
   reviewReports: reviewReportsEn,
+  adminPanel: adminPanelEn,
   adminFinance: adminFinanceEn,
   ticketSessions: ticketSessionsEn,
   salesPolicy: salesPolicyEn,
@@ -698,6 +713,11 @@ const en: TranslationResource = {
     tips: 'Tips',
   },
   errors: {
+    appCheck: {
+      APP_CHECK_REQUIRED:
+        'The server refused access because this device was not validated by App Check. Reload the page; if it continues, App Check needs to be configured.',
+      APP_CHECK_INVALID: 'App Check validation failed. Reload the page and try again.',
+    },
     media: {
       IMAGE_TOO_LARGE: 'The image is larger than 6 MB. Choose a smaller image.',
       INVALID_IMAGE: 'Unsupported format. Upload a JPEG, PNG or WebP image.',
@@ -902,6 +922,7 @@ const fr: TranslationResource = {
   profile: profileFr,
   myReviews: myReviewsFr,
   reviewReports: reviewReportsFr,
+  adminPanel: adminPanelFr,
   adminFinance: adminFinanceFr,
   ticketSessions: ticketSessionsFr,
   salesPolicy: salesPolicyFr,
@@ -977,6 +998,11 @@ const fr: TranslationResource = {
     tips: 'Conseils',
   },
   errors: {
+    appCheck: {
+      APP_CHECK_REQUIRED:
+        'Le serveur a refusé l’accès car cet appareil n’a pas été validé par App Check. Rechargez la page ; si cela continue, App Check doit être configuré.',
+      APP_CHECK_INVALID: 'La validation App Check a échoué. Rechargez la page et réessayez.',
+    },
     media: {
       IMAGE_TOO_LARGE: "L'image dépasse 6 Mo. Choisissez une image plus légère.",
       INVALID_IMAGE: 'Format non pris en charge. Envoyez une image JPEG, PNG ou WebP.',

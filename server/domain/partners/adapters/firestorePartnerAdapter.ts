@@ -89,9 +89,17 @@ export class FirestorePartnerAdapter implements PartnerPort {
 
   async getAllPartners(): Promise<PartnerProfileDocument[]> {
     const snapshot = await adminDb.collection('partners').get();
-    return snapshot.docs.map((doc) =>
-      toPartnerProfileDTO(doc.id, doc.data() as Record<string, unknown>)
-    );
+    const partners: PartnerProfileDocument[] = [];
+    for (const doc of snapshot.docs) {
+      try {
+        partners.push(toPartnerProfileDTO(doc.id, doc.data() as Record<string, unknown>));
+      } catch (error) {
+        // Um documento fora do formato não pode derrubar a lista inteira do admin; fica só no log.
+        if (!(error instanceof PartnerDomainError)) throw error;
+        console.warn('[FirestorePartnerAdapter.getAllPartners] parceiro ignorado', { id: doc.id });
+      }
+    }
+    return partners;
   }
 
   async deletePartnerProfile(partnerId: string): Promise<void> {

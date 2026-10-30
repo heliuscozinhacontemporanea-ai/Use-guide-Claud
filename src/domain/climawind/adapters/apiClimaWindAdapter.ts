@@ -16,8 +16,7 @@ export class ApiClimaWindAdapter implements ClimaWindPort {
     try {
       const res = await firebaseApiFetch(
         `/api/weather?latitude=${lat}&longitude=${lon}&current=temperature_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m,weather_code,uv_index&hourly=wind_speed_10m,wind_direction_10m&wind_speed_unit=kn&timezone=auto&forecast_days=2&past_days=1`,
-        { signal: controller.signal },
-        { requireAppCheck: false }
+        { signal: controller.signal }
       );
 
       clearTimeout(timeoutId);
@@ -37,7 +36,7 @@ export class ApiClimaWindAdapter implements ClimaWindPort {
 
       const json = (await res.json()) as ApiWeatherResponse;
 
-      if (!json || !json.current || !json.hourly) {
+      if (!json?.current || !json.hourly) {
         console.error('Dados climáticos incompletos retornados:', json);
         throw new Error('Dados climáticos incompletos do servidor');
       }
@@ -49,7 +48,7 @@ export class ApiClimaWindAdapter implements ClimaWindPort {
       const allHours: HourlyWindItem[] = hourlyTime
         .map((time: string, i: number): HourlyWindItem | null => {
           const d = new Date(time);
-          if (isNaN(d.getTime())) return null;
+          if (Number.isNaN(d.getTime())) return null;
           return {
             time: `${String(d.getHours()).padStart(2, '0')}h`,
             hourNum: d.getHours(),
@@ -60,7 +59,7 @@ export class ApiClimaWindAdapter implements ClimaWindPort {
         })
         .filter((item: HourlyWindItem | null): item is HourlyWindItem => item !== null);
 
-      const now = new Date().getTime();
+      const now = Date.now();
       // Filtro temporal: de 1h atrás até as próximas 24h — janela relevante para condições de vento em Jeri
       const hourlyData = allHours.filter(
         (h: HourlyWindItem) =>

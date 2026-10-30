@@ -2,9 +2,11 @@ import { type ReactNode, useMemo, useState } from 'react';
 import { UserRole } from '../../auth/types/auth';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuthContext } from '../../auth/context/AuthContext';
-import { ChevronLeft, RefreshCw } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
 import { useUI } from '../../../shared/stores/useUIStore';
+import { useTranslation } from 'react-i18next';
 import { useLocalizedRouting } from '../../../shared/hooks/useLocalizedRouting';
+import { BackButton } from '../../../ui/components/BackButton';
 
 import { ErrorState } from '../../../ui/components/ErrorState';
 import { CATEGORIES } from '../../../shared/constants/categories';
@@ -84,6 +86,7 @@ export function AdminPanel({
   renderSessionsField,
   renderTicketingManager,
 }: AdminPanelProps = {}) {
+  const { t } = useTranslation();
   const { goTo } = useLocalizedRouting();
   const { user, loading: userLoading } = useAuthContext();
   const { showToast, confirmAction } = useUI();
@@ -224,35 +227,14 @@ export function AdminPanel({
 
   return (
     <div
-      className="min-h-screen pt-12 pb-40 px-4 bg-app font-sans selection:bg-teal-500/30 relative overflow-hidden"
+      className="min-h-screen pt-[max(1rem,env(safe-area-inset-top))] pb-40 px-4 bg-app font-sans selection:bg-teal-500/30 relative"
       id="admin-panel-viewport"
     >
-      <div className="max-w-4xl mx-auto space-y-8 relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-center gap-5"
-        >
-          <button
-            type="button"
-            aria-label="Voltar para Home"
-            onClick={() => goTo('explore')}
-            className="w-11 h-11 flex items-center justify-center rounded-2xl bg-white/5 border border-white/10 text-white/50 hover:text-white hover:bg-white/10 transition-all active:scale-90 focus-visible:ring-2 focus-visible:ring-teal-400/50"
-          >
-            <ChevronLeft size={22} />
-          </button>
-          <div>
-            <h1 className="text-3xl font-display font-extrabold tracking-tight bg-gradient-to-r from-white to-white/50 bg-clip-text text-transparent">
-              CMS Dashboard
-            </h1>
-            <div className="flex items-center gap-2 mt-1">
-              <div className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse" />
-              <p className="text-[10px] text-white/50 uppercase font-black tracking-[0.2em]">
-                Gestão de Conteúdo
-              </p>
-            </div>
-          </div>
-        </motion.div>
+      <div className="max-w-4xl mx-auto space-y-6 relative">
+        <div className="flex items-center gap-2">
+          <BackButton label={t('adminPanel.back')} onClick={() => goTo('explore')} />
+          <h1 className="text-[22px] font-display font-bold text-ink">{t('adminPanel.title')}</h1>
+        </div>
 
         <AdminNavigation
           activeTab={activeTab}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { X, Navigation } from 'lucide-react';
 import { getWeatherDesc } from '../../../shared/lib/weatherUtils';
 import { useScrollLock } from '../../../shared/hooks/useScrollLock';
@@ -39,7 +39,7 @@ export function ConditionsDetailModal({ isOpen, onClose, location }: ConditionsD
         const res = await firebaseApiFetch(
           `/api/weather?latitude=${location.lat}&longitude=${location.lon}&daily=temperature_2m_max,temperature_2m_min,wind_speed_10m_max,wind_gusts_10m_max,wind_direction_10m_dominant,weather_code&wind_speed_unit=kn&timezone=auto&forecast_days=10`,
           { signal: controller.signal },
-          { requireAuth: false, requireAppCheck: false }
+          { requireAuth: false }
         );
 
         clearTimeout(timeoutId);
@@ -59,7 +59,7 @@ export function ConditionsDetailModal({ isOpen, onClose, location }: ConditionsD
 
         const json = await res.json();
 
-        if (!json || !json.daily) {
+        if (!json?.daily) {
           throw new Error('Invalid forecast API response');
         }
 
@@ -74,7 +74,7 @@ export function ConditionsDetailModal({ isOpen, onClose, location }: ConditionsD
         const days = dailyTime
           .map((time: string, i: number) => {
             const d = new Date(time);
-            if (isNaN(d.getTime())) return null;
+            if (Number.isNaN(d.getTime())) return null;
             return {
               date: d.toLocaleDateString('pt-BR', {
                 weekday: 'short',

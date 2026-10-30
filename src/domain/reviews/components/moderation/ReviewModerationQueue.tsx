@@ -95,10 +95,10 @@ export function ReviewModerationQueue() {
                 </StatusText>
               </div>
               <div>
-                <p className="flex items-center gap-2 text-[13px] text-ink/70">
+                <div className="flex items-center gap-2 text-[13px] text-ink/70">
                   {t('reviewReports.admin.review', { rating: report.reviewRating })}
                   <StarRating rating={report.reviewRating} size={12} />
-                </p>
+                </div>
                 <p className="text-sm text-ink/80 break-words">{report.reviewComment}</p>
               </div>
               <div className="p-3 rounded-2xl bg-danger-soft border border-danger-line">
