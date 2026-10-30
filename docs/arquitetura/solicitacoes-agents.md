@@ -28,7 +28,7 @@
 | S15 | §8.1 e §8.7 | D14: conta por documento, cobrança na plataforma com transferência depois do serviço, taxas por tipo, multa e reagendamento | ✅ Aprovada em 2026-10-24 (prompt A5, junto com a S14) |
 | S16 | §11.1 | D17: fundo neutro e liso, superfícies sólidas, cor só com significado e uma ação principal por tela | ✅ Aprovada em 2026-10-27 (prompt A6) |
 | S17 | §13 | Limite de 400 linhas só para código com mais de uma responsabilidade; conteúdo (traduções, textos legais) sem limite | ✅ Aprovada em 2026-10-27 (prompt A6, junto com a S16) |
-| S18 | §7.7 | D20: exceção ao mínimo de 128 bits para o código de check-in de reserva (6 caracteres, HMAC, só o dono da oferta na janela do serviço, 5 erros a cada 15 min) | ✅ Aprovada em 2026-10-30 (prompt A7, a gerar com o 21.x) |
+| S18 | §7.7 | D20: exceção ao mínimo de 128 bits para o código curto de check-in (6 caracteres nas reservas; 8 no ingresso e na entrada de atração, junto do QR), por HMAC, só para quem gerencia, na janela do serviço e com limite de erros | ✅ Aprovada em 2026-10-30 (extensão aos ingressos aprovada no mesmo dia; prompt A7, lote 18) |
 
 ---
 
