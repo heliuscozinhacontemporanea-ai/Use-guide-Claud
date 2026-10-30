@@ -124,6 +124,7 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 | 20.4 | Menu lateral como perfil e Minhas avaliações (D19) | `1c69ebf..b15f337` | ✅ zip 2026-10-29 | ✅ igual à referência |
 | 20.5 | Denúncia de resposta e aba Moderação (D19) | `b15f337..2dabeed` | ✅ zip 2026-10-29 | ✅ igual à referência |
 | C17 | Correção do lote 17: cartão do tema claro e texto do B30 | — | ⏳ enviar (lote 18) | — |
+| 20.6 | Painel admin: App Check, abas e build de produção | `ce40518..a5266cd` | ⏳ enviar (lote 18) | — |
 
 ### Revisões futuras (aprovadas para depois)
 

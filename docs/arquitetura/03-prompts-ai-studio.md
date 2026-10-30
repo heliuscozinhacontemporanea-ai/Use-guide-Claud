@@ -165,11 +165,12 @@
 
 > **Envie um prompt por mensagem**, nesta ordem. Até o 18.3.1 (telas), trial, compra de plano e selo do admin pelo painel ficam fora do ar, e as métricas de estabelecimento sem plano mostram erro.
 
-# Lote 18 (Prompt C17) — aplicar sobre o zip de 2026-10-29
+# Lote 18 (Prompts C17 e 20.6) — aplicar sobre o zip de 2026-10-29
 
 | Ordem | Arquivo | Tema | Commit de referência |
 |---|---|---|---|
 | 1 | `prompts/prompt-C17.md` | Correção do lote 17: cartão `.glassmorphism` do tema claro como na D17 (sombra leve, fundo e borda dos tokens) e texto atualizado do débito B30 | `ca3ecaa` |
+| 2 | `prompts/prompt-20.6.md` | Painel admin: build de produção sempre com `NODE_ENV=production`, erro de App Check no formato padrão com aviso traduzido, barra de abas com rolagem e cabeçalho D17, lista de parceiros que ignora documento inválido | `a5266cd` |
 
 > O lote 17 voltou igual à referência: as diferenças são ordem de imports e exports e comentários reescritos, sem mudança de lógica. Gates no próprio zip: typecheck, lint (0 erros), 1.140 testes, 68 testes das regras, build, typecheck das Functions e servidor de produção respondendo (`/api/health` 200; rotas de denúncia 401 sem login). Única mudança fora dos prompts: o `.glassmorphism` do tema claro, que o C17 desfaz; e o texto do B30, que veio de um commit de documentação que nenhum prompt levou.
 
