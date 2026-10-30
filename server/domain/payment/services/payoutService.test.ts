@@ -28,6 +28,27 @@ function setup(now = '2026-12-23T04:00:00.000Z', destination: string | null = 'a
 }
 
 describe('PayoutService (D14)', () => {
+  it('venda que espera a prova do serviço nasce retida e só sai depois de soltar (D20)', async () => {
+    const { service, repo, transfers } = setup();
+    const entry = await service.recordSale({ ...SALE, holdReasons: ['service_proof'] });
+    expect(entry).toMatchObject({ status: 'on_hold', holdReasons: ['service_proof'] });
+    await service.releaseDue();
+    expect(transfers.createTransfer).not.toHaveBeenCalled();
+    await service.releaseHold('ticket_order', 'ord_1', 'service_proof');
+    expect(repo.rows.get(entry.id)?.status).toBe('pending');
+    await service.releaseDue();
+    expect(transfers.createTransfer).toHaveBeenCalledTimes(1);
+  });
+
+  it('soltar a prova mantém a reclamação que também retém a venda', async () => {
+    const { service, repo } = setup();
+    const entry = await service.recordSale({ ...SALE, holdReasons: ['service_proof'] });
+    await service.setHold(entry.id, 'claim', true);
+    await service.releaseHold('ticket_order', 'ord_1', 'service_proof');
+    expect(repo.rows.get(entry.id)).toMatchObject({ status: 'on_hold', holdReasons: ['claim'] });
+    await expect(service.releaseHold('booking', 'nao_existe', 'service_proof')).resolves.toBeNull();
+  });
+
   it('registra a venda uma vez, com liberação 48 h depois do fim', async () => {
     const { service, repo } = setup();
     const entry = await service.recordSale(SALE);

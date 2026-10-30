@@ -28,6 +28,7 @@ export {
   type Page,
   type PublicSlot,
 } from './types/bookingTypes';
+export { anonymizeBuyerBookingsUseCase } from './usecases/anonymizeBuyerBookingsUseCase';
 export { cancelBookingForCanceledSlotUseCase } from './usecases/cancelBookingForCanceledSlotUseCase';
 export { cancelPendingBookingUseCase } from './usecases/cancelPendingBookingUseCase';
 export { cancelSlotByPartnerUseCase } from './usecases/cancelSlotByPartnerUseCase';
@@ -39,11 +40,13 @@ export { confirmBookingPaymentUseCase } from './usecases/confirmBookingPaymentUs
 export { createAvailabilitySlotsUseCase } from './usecases/createAvailabilitySlotsUseCase';
 export { createBookableOfferUseCase } from './usecases/createBookableOfferUseCase';
 export { createPendingBookingUseCase } from './usecases/createPendingBookingUseCase';
+export { eraseExpiredPickupAddressesUseCase } from './usecases/eraseExpiredPickupAddressesUseCase';
 export { expireOverdueBookingsUseCase } from './usecases/expireOverdueBookingsUseCase';
 export { getBookingCheckInCodeUseCase } from './usecases/getBookingCheckInCodeUseCase';
 export { getBookingForAbsenceReportUseCase } from './usecases/getBookingForAbsenceReportUseCase';
 export { getBookingForActorUseCase } from './usecases/getBookingForActorUseCase';
 export { getBookingUseCase } from './usecases/getBookingUseCase';
+export { getVerifiedServiceForReviewUseCase } from './usecases/getVerifiedServiceForReviewUseCase';
 export { getOpenProviderAbsenceUseCase } from './usecases/getOpenProviderAbsenceUseCase';
 export { getPendingServiceConfirmationUseCase } from './usecases/getPendingServiceConfirmationUseCase';
 export { getPublicOfferSummaryUseCase } from './usecases/getPublicOfferSummaryUseCase';
@@ -67,4 +70,5 @@ export { resolveServiceConfirmationUseCase } from './usecases/resolveServiceConf
 export { setBookableOfferStatusUseCase } from './usecases/setBookableOfferStatusUseCase';
 export { updateBookableOfferUseCase } from './usecases/updateBookableOfferUseCase';
 export { priceBookingLines } from './utils/bookingPricing';
+export { hasServiceProof, requiresServiceProof } from './utils/serviceProof';
 export { bookingServiceEndsAt } from './utils/serviceTime';

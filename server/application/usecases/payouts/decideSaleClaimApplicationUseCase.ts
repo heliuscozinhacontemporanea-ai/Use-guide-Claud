@@ -5,6 +5,7 @@ import {
   type SaleClaim,
   type SaleClaimDecision,
 } from '../../../domain/payment';
+import { releaseServiceProofHold } from '../bookings/releaseServiceProofHold';
 import { chargeCancellationPenaltyApplicationUseCase } from './chargeCancellationPenaltyApplicationUseCase';
 
 /**
@@ -45,8 +46,13 @@ export async function decideSaleClaimApplicationUseCase(
       ],
     });
   }
-  return decideSaleClaimUseCase(claimId, adminUid, {
+  const decided = await decideSaleClaimUseCase(claimId, adminUid, {
     outcome: decision.outcome,
     ...(decision.amountMinor !== undefined ? { amountMinor: decision.amountMinor } : {}),
   });
+  // D20: a decisão do admin encerra a espera pela prova do serviço; o que sobrou do repasse segue.
+  if (decided.referenceType === 'booking' && decision.outcome !== 'refund_full') {
+    await releaseServiceProofHold(decided.referenceId);
+  }
+  return decided;
 }

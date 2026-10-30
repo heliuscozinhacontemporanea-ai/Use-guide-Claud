@@ -2,6 +2,7 @@ import { recordPaidSalePayoutApplicationUseCase } from '../payouts/recordPaidSal
 import {
   BookingDomainError,
   bookingServiceEndsAt,
+  requiresServiceProof,
   confirmBookingPaymentUseCase,
   getBookingUseCase,
   markBookingDisputedUseCase,
@@ -37,6 +38,8 @@ async function handlePaymentSucceeded(
       platformFeeMinor: booking.platformFeeMinor,
       title: booking.offerSnapshot.title,
       serviceEndsAt: bookingServiceEndsAt(booking),
+      // D20: o repasse espera a prova de que o serviço aconteceu (check-in ou "sim" do comprador).
+      ...(requiresServiceProof(booking.kind) ? { holdReasons: ['service_proof' as const] } : {}),
     });
     await createNotificationUseCase({
       recipientPartnerId: booking.sellerPartnerId,

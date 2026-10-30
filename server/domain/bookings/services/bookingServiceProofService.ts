@@ -15,6 +15,7 @@ import {
   SERVICE_CONFIRMATION_MS,
   checkInWindow,
 } from '../utils/checkInWindow';
+import { hasServiceProof } from '../utils/serviceProof';
 
 const NOT_FOUND = () => new BookingDomainError('NOT_FOUND', 'Reserva não encontrada.');
 const NOTHING_TO_ANSWER = () =>
@@ -215,6 +216,22 @@ export class BookingServiceProofService {
       },
       { actorUid, reason: `service_confirmation_${outcome.resolution}` }
     );
+  }
+
+  /** Serviço comprovado do comprador, para o selo "Experiência verificada" da avaliação (§9.4, D20). */
+  async getVerifiedServiceForReview(
+    userId: string,
+    bookingId: string
+  ): Promise<{ guideItemId: string }> {
+    const booking = await this.port.getBooking(bookingId);
+    if (!booking || booking.buyerId !== userId) throw NOT_FOUND();
+    if (!hasServiceProof(booking)) {
+      throw new BookingDomainError(
+        'SERVICE_NOT_VERIFIED',
+        'Esta reserva ainda não tem o serviço comprovado.'
+      );
+    }
+    return { guideItemId: booking.guideItemId };
   }
 
   /** Reservas cujo prazo venceu; o job decide o que fazer com cada uma. */

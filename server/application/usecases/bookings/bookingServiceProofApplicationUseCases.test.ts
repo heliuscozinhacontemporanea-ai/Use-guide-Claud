@@ -6,6 +6,7 @@ vi.mock('../../../domain/bookings', async () => ({
   checkInBookingByCodeUseCase: vi.fn(),
   clearBookingDeadlineUseCase: vi.fn(),
   completeFinishedBookingsUseCase: vi.fn(),
+  eraseExpiredPickupAddressesUseCase: vi.fn().mockResolvedValue(0),
   getBookingForAbsenceReportUseCase: vi.fn(),
   getOpenProviderAbsenceUseCase: vi.fn(),
   getPendingServiceConfirmationUseCase: vi.fn(),
@@ -18,7 +19,12 @@ vi.mock('../../../domain/payment', async () => {
   const { PaymentDomainError } = await import(
     '../../../domain/payment/services/stripePaymentService'
   );
-  return { PaymentDomainError, decideSaleClaimUseCase: vi.fn(), openSaleClaimUseCase: vi.fn() };
+  return {
+    PaymentDomainError,
+    decideSaleClaimUseCase: vi.fn(),
+    openSaleClaimUseCase: vi.fn(),
+    releasePayoutHoldUseCase: vi.fn(),
+  };
 });
 vi.mock('../../../domain/notifications', () => ({
   createNotificationUseCase: vi.fn().mockResolvedValue(true),
@@ -43,6 +49,7 @@ import {
   decideSaleClaimUseCase,
   openSaleClaimUseCase,
   PaymentDomainError,
+  releasePayoutHoldUseCase,
 } from '../../../domain/payment';
 import { decideSaleClaimApplicationUseCase } from '../payouts/decideSaleClaimApplicationUseCase';
 import { answerProviderAbsenceApplicationUseCase } from './answerProviderAbsenceApplicationUseCase';
@@ -151,6 +158,8 @@ describe('prova do serviço na camada application (D20)', () => {
     expect(decideSaleClaimUseCase).toHaveBeenCalledWith('claim_booking_bk_1', 'system', {
       outcome: 'release',
     });
+    // O check-in é a prova do serviço: o repasse deixa de esperar (D20).
+    expect(releasePayoutHoldUseCase).toHaveBeenCalledWith('booking', 'bk_1', 'service_proof');
     expect(resolveProviderAbsenceUseCase).toHaveBeenCalledWith(
       'bk_1',
       { resolution: 'withdrawn' },
@@ -167,6 +176,7 @@ describe('prova do serviço na camada application (D20)', () => {
       { answer: 'yes', resolution: 'confirmed' },
       'buyer-1'
     );
+    expect(releasePayoutHoldUseCase).toHaveBeenCalledWith('booking', 'bk_1', 'service_proof');
   });
 
   it('comprador responde não depois de "Cliente sem código": reclamação vai ao admin', async () => {
@@ -225,7 +235,12 @@ describe('prova do serviço na camada application (D20)', () => {
     ] as never);
     vi.mocked(openSaleClaimUseCase).mockResolvedValue({ id: 'claim_unconfirmed' } as never);
     const result = await runBookingCompletionJobApplicationUseCase(200);
-    expect(result).toEqual({ completed: 2, askedToConfirm: 1, deadlinesProcessed: 2 });
+    expect(result).toEqual({
+      completed: 2,
+      askedToConfirm: 1,
+      deadlinesProcessed: 2,
+      pickupAddressesErased: 0,
+    });
     expect(createNotificationUseCase).toHaveBeenCalledWith(
       notified('buyer-1', 'O serviço aconteceu?')
     );

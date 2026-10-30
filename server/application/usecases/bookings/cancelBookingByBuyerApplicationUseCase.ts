@@ -1,5 +1,6 @@
 import { type BookingActor, requestCancellationByBuyerUseCase } from '../../../domain/bookings';
 import { processProviderRefundUseCase } from '../../../domain/payment';
+import { releaseServiceProofHold } from './releaseServiceProofHold';
 
 /**
  * Cancela pela política exibida antes da compra. O reembolso usa chave idempotente, então repetir a
@@ -19,6 +20,8 @@ export async function cancelBookingByBuyerApplicationUseCase(
       metadata: { referenceType: 'booking_refund', bookingId },
     });
   }
+  // Cancelada, não há serviço a provar: a parte que fica com o proprietário pela política segue (D20).
+  await releaseServiceProofHold(bookingId);
   return {
     status: result.booking.status,
     refundPercent: result.refundPercent,

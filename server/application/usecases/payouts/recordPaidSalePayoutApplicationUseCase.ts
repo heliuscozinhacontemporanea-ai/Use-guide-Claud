@@ -1,4 +1,4 @@
-import { recordSalePayoutUseCase } from '../../../domain/payment';
+import { type PayoutHoldReason, recordSalePayoutUseCase } from '../../../domain/payment';
 
 export interface PaidSale {
   referenceType: 'ticket_order' | 'booking';
@@ -8,6 +8,7 @@ export interface PaidSale {
   platformFeeMinor: number;
   serviceEndsAt: string;
   title?: string;
+  holdReasons?: PayoutHoldReason[];
 }
 
 /**

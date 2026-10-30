@@ -9,10 +9,7 @@ import {
   getItemByIdUseCase,
   updateReviewAggregateUseCase,
 } from '../../guide';
-import {
-  getEventListingByIdUseCase,
-  updateEventRatingSummaryUseCase,
-} from '../../events';
+import { getEventListingByIdUseCase, updateEventRatingSummaryUseCase } from '../../events';
 
 export class FirestoreReviewAdapter implements ReviewPort {
   async submitReviewAndRecalculateRating(dto: CreateReviewDTO): Promise<SubmitReviewResult> {
@@ -64,7 +61,11 @@ export class FirestoreReviewAdapter implements ReviewPort {
         userPhoto,
         partnerId: resourceOwnerId ?? null,
         ...(dto.occurrenceId ? { occurrenceId: dto.occurrenceId } : {}),
-        ...(dto.ticketId ? { ticketId: dto.ticketId, verifiedAttendance: isVerifiedAttendance } : {}),
+        ...(dto.ticketId
+          ? { ticketId: dto.ticketId, verifiedAttendance: isVerifiedAttendance }
+          : {}),
+        // Reserva já conferida no serviço; o ID dela não vai para a avaliação, que é pública (§7.5).
+        ...(dto.bookingId ? { verifiedAttendance: true } : {}),
         updatedAt: FieldValue.serverTimestamp(),
       });
     } else {
@@ -78,7 +79,11 @@ export class FirestoreReviewAdapter implements ReviewPort {
         comment: dto.comment,
         partnerId: resourceOwnerId ?? null,
         ...(dto.occurrenceId ? { occurrenceId: dto.occurrenceId } : {}),
-        ...(dto.ticketId ? { ticketId: dto.ticketId, verifiedAttendance: isVerifiedAttendance } : {}),
+        ...(dto.ticketId
+          ? { ticketId: dto.ticketId, verifiedAttendance: isVerifiedAttendance }
+          : {}),
+        // Reserva já conferida no serviço; o ID dela não vai para a avaliação, que é pública (§7.5).
+        ...(dto.bookingId ? { verifiedAttendance: true } : {}),
         createdAt: FieldValue.serverTimestamp(),
         updatedAt: FieldValue.serverTimestamp(),
       });
@@ -303,12 +308,7 @@ export class FirestoreReviewAdapter implements ReviewPort {
             count: remainingCount,
           });
         } else {
-          await updateReviewAggregateUseCase(
-            'items',
-            target.itemId,
-            newRating,
-            remainingCount
-          );
+          await updateReviewAggregateUseCase('items', target.itemId, newRating, remainingCount);
         }
       } catch (error) {
         console.error(

@@ -19,7 +19,8 @@ export type BookingErrorCode =
   | 'CHECK_IN_LOCKED'
   | 'NO_SHOW_TOO_EARLY'
   | 'ABSENCE_REPORT_NOT_ALLOWED'
-  | 'NOTHING_TO_ANSWER';
+  | 'NOTHING_TO_ANSWER'
+  | 'SERVICE_NOT_VERIFIED';
 
 const STATUS_BY_CODE: Record<BookingErrorCode, number> = {
   VALIDATION_ERROR: 400,
@@ -43,6 +44,7 @@ const STATUS_BY_CODE: Record<BookingErrorCode, number> = {
   NO_SHOW_TOO_EARLY: 422,
   ABSENCE_REPORT_NOT_ALLOWED: 422,
   NOTHING_TO_ANSWER: 409,
+  SERVICE_NOT_VERIFIED: 422,
 };
 
 export class BookingDomainError extends Error {

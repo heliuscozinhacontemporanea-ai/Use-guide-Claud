@@ -6,6 +6,7 @@ import {
   BOOKINGS,
   CHECK_IN_FAILURES,
   nowIso,
+  PARTICIPANTS,
   readBooking,
   writeAudit,
 } from './firestoreBookingsShared';
@@ -83,5 +84,30 @@ export class FirestoreCheckInStore {
       .limit(limit)
       .get();
     return snapshot.docs.map((doc) => BookingPersistenceMapper.toDomain(doc.id, doc.data()));
+  }
+
+  async listBookingsWithPickupAddressEraseBefore(
+    nowIsoValue: string,
+    limit: number
+  ): Promise<Booking[]> {
+    const snapshot = await adminDb
+      .collection(BOOKINGS)
+      .where('pickupAddressEraseAt', '<=', nowIsoValue)
+      .orderBy('pickupAddressEraseAt', 'asc')
+      .limit(limit)
+      .get();
+    return snapshot.docs.map((doc) => BookingPersistenceMapper.toDomain(doc.id, doc.data()));
+  }
+
+  async deleteParticipants(bookingId: string): Promise<void> {
+    const snapshot = await adminDb
+      .collection(PARTICIPANTS)
+      .where('bookingId', '==', bookingId)
+      .limit(60)
+      .get();
+    if (snapshot.empty) return;
+    const batch = adminDb.batch();
+    for (const doc of snapshot.docs) batch.delete(doc.ref);
+    await batch.commit();
   }
 }

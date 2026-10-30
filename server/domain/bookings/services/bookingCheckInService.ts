@@ -18,6 +18,7 @@ import {
   checkInCodeVisibleFromMs,
   checkInWindow,
 } from '../utils/checkInWindow';
+import { hasServiceProof } from '../utils/serviceProof';
 
 // Check-in sem internet chega depois: aceita até 24 h de atraso e 1 min de relógio adiantado.
 const OFFLINE_MAX_DELAY_MS = 24 * 60 * 60 * 1000;
@@ -145,8 +146,10 @@ export class BookingCheckInService {
     return this.port.recordCheckIn(match.id, checkIn);
   }
 
+  /** Prova do serviço para a contestação no cartão (D16, D20): o "Cliente sem código" não conta. */
   async hasCheckIn(bookingId: string): Promise<boolean> {
-    return Boolean((await this.port.getBooking(bookingId))?.checkIn);
+    const booking = await this.port.getBooking(bookingId);
+    return booking ? hasServiceProof(booking) : false;
   }
 
   private checkInTime(capturedAt: string | undefined, nowMs: number): number {

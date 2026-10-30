@@ -21,6 +21,8 @@ import type { PlatformFeeConfig } from '../../../shared/kernel/platformFees';
 // Tempo para pagar antes de a vaga voltar para a venda (inclui o Pix, que é assíncrono).
 const PAYMENT_WINDOW_MS = 15 * 60 * 1000;
 const SYSTEM_ACTOR = 'system';
+// O endereço serve de prova até a reclamação ser decidida: 48 h para abrir mais 5 dias para decidir (D16).
+const PICKUP_ADDRESS_RETENTION_MS = 7 * 24 * 60 * 60 * 1000;
 
 export interface CreatePendingBookingInput {
   offerId: string;
@@ -112,7 +114,14 @@ export class BookingService {
         cancellationPolicy: offer.cancellationPolicy,
       },
       termsAcceptance: { version: input.acceptedTermsVersion, acceptedAt: timestamp },
-      ...(offer.pickupMode === 'buyer_address' ? { pickupAddress } : {}),
+      ...(offer.pickupMode === 'buyer_address'
+        ? {
+            pickupAddress,
+            pickupAddressEraseAt: new Date(
+              serviceEndsAtMs(slot.startsAt, offer.durationMinutes) + PICKUP_ADDRESS_RETENTION_MS
+            ).toISOString(),
+          }
+        : {}),
       locale: input.locale,
       idempotencyKey: input.idempotencyKey,
       createdAt: timestamp,

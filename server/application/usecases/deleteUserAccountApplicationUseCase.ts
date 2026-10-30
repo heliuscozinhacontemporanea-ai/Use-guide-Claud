@@ -1,3 +1,4 @@
+import { anonymizeBuyerBookingsUseCase } from '../../domain/bookings';
 import { deleteResourcesByOwnerUseCase } from '../../domain/guide';
 import { deleteEventsByOwnerUseCase } from '../../domain/events';
 import {
@@ -19,6 +20,8 @@ export interface UserDeletionCoordinatorDependencies {
   deleteListingVerifications?: (uid: string) => Promise<void>;
   /** Planos dos estabelecimentos (D11): cancela as assinaturas no Stripe e apaga os planos. */
   deleteListingPlans?: (uid: string) => Promise<void>;
+  /** Reservas do comprador: tira endereço e nomes e mantém o registro financeiro (§7.5, D20). */
+  anonymizeBuyerBookings?: (uid: string) => Promise<void>;
   deleteUserAccount: (uid: string) => Promise<void>;
 }
 
@@ -34,6 +37,9 @@ export async function deleteUserAccountApplicationUseCase(
     deleteListingPlans: async (id) => {
       await cancelPartnerPlanSubscriptionsUseCase(id);
       await deleteOwnerListingPlansUseCase(id);
+    },
+    anonymizeBuyerBookings: async (id) => {
+      await anonymizeBuyerBookingsUseCase(id);
     },
     deleteUserAccount: (id) => deleteUserAccountUseCase(id),
   }
@@ -52,6 +58,9 @@ export async function deleteUserAccountApplicationUseCase(
   }
   if (deps.deleteListingPlans) {
     await deps.deleteListingPlans(uid);
+  }
+  if (deps.anonymizeBuyerBookings) {
+    await deps.anonymizeBuyerBookings(uid);
   }
   await deps.deletePartnerProfile(uid);
   await deps.deleteUserAccount(uid);

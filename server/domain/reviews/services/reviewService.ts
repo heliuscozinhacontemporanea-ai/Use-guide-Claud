@@ -1,3 +1,4 @@
+import { getVerifiedServiceForReviewUseCase } from '../../bookings';
 import { getVerifiedAttendanceForReviewUseCase } from '../../ticketing';
 import { CreateReviewDTO } from '../dtos/CreateReviewDTO';
 import { ReviewNotificationPort } from '../ports/reviewNotificationPort';
@@ -33,6 +34,19 @@ export class ReviewService {
       });
       if (attendance.eventListingId !== dto.itemId) {
         throw new Error('O ingresso informado não pertence a este evento.');
+      }
+    }
+
+    if (dto.bookingId) {
+      if (dto.itemCollection !== 'items') {
+        throw new Error('Reserva só comprova avaliação de passeio, aluguel ou translado.');
+      }
+      const service = await getVerifiedServiceForReviewUseCase({
+        userId: dto.userId,
+        bookingId: dto.bookingId,
+      });
+      if (service.guideItemId !== dto.itemId) {
+        throw new Error('A reserva informada não pertence a este item.');
       }
     }
 

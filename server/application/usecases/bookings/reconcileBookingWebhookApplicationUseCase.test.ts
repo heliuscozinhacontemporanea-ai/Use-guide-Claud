@@ -3,6 +3,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('../../../domain/bookings', async () => {
   const { BookingDomainError } = await import('../../../domain/bookings/errors/bookingDomainError');
   return {
+    requiresServiceProof: (await import('../../../domain/bookings/utils/serviceProof'))
+      .requiresServiceProof,
     bookingServiceEndsAt: (await import('../../../domain/bookings/utils/serviceTime'))
       .bookingServiceEndsAt,
     BookingDomainError,
@@ -57,6 +59,7 @@ describe('reconcileBookingWebhookApplicationUseCase', () => {
     vi.mocked(confirmBookingPaymentUseCase).mockResolvedValue({
       id: 'bk_1',
       sellerPartnerId: 'p1',
+      kind: 'tour',
       participantsCount: 2,
       totalMinor: 30000,
       platformFeeMinor: 4500,
@@ -79,6 +82,8 @@ describe('reconcileBookingWebhookApplicationUseCase', () => {
       platformFeeMinor: 4500,
       serviceEndsAt: '2026-11-10T16:00:00.000Z',
       title: 'Passeio',
+      // D20: o repasse do passeio nasce retido até a prova do serviço.
+      holdReasons: ['service_proof'],
     });
     expect(createNotificationUseCase).toHaveBeenCalledWith(
       expect.objectContaining({ recipientPartnerId: 'p1' })

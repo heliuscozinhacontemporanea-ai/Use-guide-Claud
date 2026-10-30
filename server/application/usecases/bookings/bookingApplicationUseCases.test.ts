@@ -17,6 +17,7 @@ vi.mock('../../../domain/bookings', async () => {
 vi.mock('../../../domain/payment', () => ({
   createMarketplacePaymentIntentUseCase: vi.fn(),
   processProviderRefundUseCase: vi.fn().mockResolvedValue({}),
+  releasePayoutHoldUseCase: vi.fn().mockResolvedValue(null),
   reschedulePayoutUseCase: vi.fn().mockResolvedValue(null),
 }));
 vi.mock('../payouts/chargeCancellationPenaltyApplicationUseCase', () => ({

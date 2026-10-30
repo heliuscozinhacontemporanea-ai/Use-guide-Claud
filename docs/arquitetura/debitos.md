@@ -50,3 +50,5 @@
 | — | Planos sem renovação automática (pagamento avulso por PaymentIntent): resolvido no prompt 9 (D2) com Stripe Billing no cartão; o pagamento único continua como alternativa |
 | B9 | Metadados das rotas duplicados entre app e servidor: resolvido no prompt 10 (D6) com os textos em `seo.routes` do i18n e teste de paridade com `seo/utils/routeSeo.ts` |
 | — | Arquivos agregadores de UseCases (`eventUseCases.ts`, `ticketingUseCases.ts`, `paymentUseCases.ts`, `marketplaceConnectUseCases.ts`, `ticketingPaymentOrchestrationUseCases.ts`, `eventLifecycleOrchestrationUseCases.ts`, no backend e no frontend): resolvido no prompt 15, um UseCase por arquivo (AGENTS.md §13) |
+| B35 | Exclusão de conta não tratava as reservas, que passaram a guardar o endereço de busca (D20): resolvido no 21.3 com `anonymizeBuyerBookingsUseCase` (tira endereço e nomes dos participantes e mantém o registro financeiro, §7.5) e o apagamento do endereço 7 dias depois do serviço |
+

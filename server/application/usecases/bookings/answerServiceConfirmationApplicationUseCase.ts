@@ -8,6 +8,7 @@ import {
 import { decideSaleClaimUseCase, openSaleClaimUseCase } from '../../../domain/payment';
 import { SYSTEM_ACTOR } from './answerProviderAbsenceApplicationUseCase';
 import { sendBookingServiceNotice } from './bookingServiceNotices';
+import { releaseServiceProofHold } from './releaseServiceProofHold';
 
 /**
  * Resposta do comprador a "O serviço aconteceu?" (D20). Sim vale como check-in confirmado. Não abre a
@@ -21,11 +22,13 @@ export async function answerServiceConfirmationApplicationUseCase(
 ): Promise<Booking> {
   const booking = await getPendingServiceConfirmationUseCase(actor, bookingId);
   if (answer === 'yes') {
-    return resolveServiceConfirmationUseCase(
+    const confirmed = await resolveServiceConfirmationUseCase(
       booking.id,
       { answer, resolution: 'confirmed' },
       actor.uid
     );
+    await releaseServiceProofHold(booking.id);
+    return confirmed;
   }
   const claim = await openSaleClaimUseCase({
     referenceType: 'booking',

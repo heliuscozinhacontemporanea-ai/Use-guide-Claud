@@ -192,6 +192,8 @@ export interface Booking {
   termsAcceptance?: TermsAcceptance;
   /** Onde o comprador está (hospedagem ou endereço), quando a oferta busca no endereço. PII (§7.6). */
   pickupAddress?: string;
+  /** Quando o endereço de busca é apagado: 7 dias depois do fim do serviço (D20, §7.5). */
+  pickupAddressEraseAt?: string;
   checkIn?: BookingCheckIn;
   arrival?: BookingArrival;
   providerAbsence?: BookingProviderAbsence;

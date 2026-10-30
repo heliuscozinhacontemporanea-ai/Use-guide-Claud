@@ -21,6 +21,8 @@ export interface RecordSaleInput {
   platformFeeMinor: number;
   serviceEndsAt: string;
   title?: string;
+  /** Retenções desde a criação (ex.: `service_proof`), para não haver momento em que o repasse saia. */
+  holdReasons?: PayoutHoldReason[];
 }
 
 export interface ReleaseSummary {
@@ -120,7 +122,9 @@ export class PayoutService {
       partnerAmountMinor: amounts.partnerAmountMinor,
       serviceEndsAt: input.serviceEndsAt,
       releaseAt: computeReleaseAt(input.serviceEndsAt),
-      status: 'pending',
+      ...(input.holdReasons?.length
+        ? { status: 'on_hold' as const, holdReasons: [...new Set(input.holdReasons)] }
+        : { status: 'pending' as const }),
       refunds: {},
       createdAt: nowIso,
       updatedAt: nowIso,
@@ -206,6 +210,15 @@ export class PayoutService {
   async holdForDispute(paymentIntentId: string): Promise<PayoutEntry | null> {
     const entry = await this.entries.getByPaymentIntentId(paymentIntentId);
     return entry ? this.setHold(entry.id, 'dispute', true) : null;
+  }
+
+  /** Solta uma retenção da venda pela referência; sem entrada ou sem essa retenção, não faz nada. */
+  async releaseHold(
+    referenceType: string,
+    referenceId: string,
+    reason: PayoutHoldReason
+  ): Promise<PayoutEntry | null> {
+    return this.setHold(entryIdFor(referenceType, referenceId), reason, false);
   }
 
   /** Retém ou solta a venda por um motivo; as outras retenções continuam valendo. */

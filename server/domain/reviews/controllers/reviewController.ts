@@ -1,3 +1,4 @@
+import { BookingDomainError } from '../../bookings';
 import { Response } from 'express';
 import { AuthenticatedRequest } from '../../../infrastructure/auth/authMiddleware';
 import { CreateReviewDTO } from '../dtos/CreateReviewDTO';
@@ -29,6 +30,7 @@ export class ReviewController {
         comment: parseResult.data.comment,
         occurrenceId: parseResult.data.occurrenceId,
         ticketId: parseResult.data.ticketId,
+        bookingId: parseResult.data.bookingId,
       });
 
       const reviewId = await reviewService.submitReview(dto);
@@ -37,24 +39,28 @@ export class ReviewController {
         status: 'success',
         id: reviewId,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : '';
       console.error('[ReviewController.submitReview Error]:', error);
 
-      if (
-        typeof error.message === 'string' &&
-        error.message.includes('Parceiros não podem avaliar')
-      ) {
-        res.status(403).json({ error: error.message });
+      if (message.includes('Parceiros não podem avaliar')) {
+        res.status(403).json({ error: message });
         return;
       }
 
-      if (typeof error.message === 'string' && error.message.includes('não encontrado')) {
-        res.status(404).json({ error: error.message });
+      if (message.includes('não encontrado')) {
+        res.status(404).json({ error: message });
+        return;
+      }
+
+      // Reserva sem serviço comprovado ou de outra pessoa (D20): erro no formato padrão (§10.2).
+      if (error instanceof BookingDomainError) {
+        res.status(error.statusCode).json({ error: { code: error.code, message: error.message } });
         return;
       }
 
       res.status(500).json({
-        error: error.message || 'Erro interno ao salvar avaliação.',
+        error: message || 'Erro interno ao salvar avaliação.',
       });
     }
   }
@@ -69,7 +75,7 @@ export class ReviewController {
       const rawReviewId = req.params.id;
       const reviewId = Array.isArray(rawReviewId) ? rawReviewId[0] : rawReviewId;
 
-      if (!reviewId || !reviewId.trim()) {
+      if (!reviewId?.trim()) {
         res.status(400).json({ error: 'ID da avaliação é obrigatório' });
         return;
       }
@@ -94,21 +100,22 @@ export class ReviewController {
         status: 'success',
         message: 'Resposta registrada com sucesso',
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : '';
       console.error('[ReviewController.respondToReview Error]:', error);
 
-      if (typeof error.message === 'string' && error.message.includes('Não autorizado')) {
-        res.status(403).json({ error: error.message });
+      if (message.includes('Não autorizado')) {
+        res.status(403).json({ error: message });
         return;
       }
 
-      if (typeof error.message === 'string' && error.message.includes('não encontrada')) {
-        res.status(404).json({ error: error.message });
+      if (message.includes('não encontrada')) {
+        res.status(404).json({ error: message });
         return;
       }
 
       res.status(500).json({
-        error: error.message || 'Erro interno ao responder avaliação.',
+        error: message || 'Erro interno ao responder avaliação.',
       });
     }
   }
@@ -123,7 +130,7 @@ export class ReviewController {
       const rawReviewId = req.params.id;
       const reviewId = Array.isArray(rawReviewId) ? rawReviewId[0] : rawReviewId;
 
-      if (!reviewId || !reviewId.trim()) {
+      if (!reviewId?.trim()) {
         res.status(400).json({ error: 'ID da avaliação é obrigatório' });
         return;
       }
@@ -134,21 +141,22 @@ export class ReviewController {
         status: 'success',
         message: 'Avaliação excluída com sucesso',
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : '';
       console.error('[ReviewController.deleteReview Error]:', error);
 
-      if (typeof error.message === 'string' && error.message.includes('Não autorizado')) {
-        res.status(403).json({ error: error.message });
+      if (message.includes('Não autorizado')) {
+        res.status(403).json({ error: message });
         return;
       }
 
-      if (typeof error.message === 'string' && error.message.includes('não encontrada')) {
-        res.status(404).json({ error: error.message });
+      if (message.includes('não encontrada')) {
+        res.status(404).json({ error: message });
         return;
       }
 
       res.status(500).json({
-        error: error.message || 'Erro interno ao excluir avaliação.',
+        error: message || 'Erro interno ao excluir avaliação.',
       });
     }
   }

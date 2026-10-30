@@ -4,8 +4,12 @@
  */
 export type PayoutEntryStatus = 'pending' | 'on_hold' | 'released' | 'canceled';
 
-/** Contestação no Stripe e reclamação do comprador (D16) podem reter a mesma venda ao mesmo tempo. */
-export type PayoutHoldReason = 'dispute' | 'claim';
+/**
+ * Contestação no Stripe e reclamação do comprador (D16) podem reter a mesma venda ao mesmo tempo.
+ * `service_proof`: a venda espera a prova de que o serviço aconteceu (D20); quem a define é a camada
+ * application, o payment só a respeita.
+ */
+export type PayoutHoldReason = 'dispute' | 'claim' | 'service_proof';
 
 export interface PayoutRefundApplied {
   amountMinor: number;

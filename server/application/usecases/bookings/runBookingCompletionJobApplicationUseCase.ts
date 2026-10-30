@@ -2,6 +2,7 @@ import {
   type Booking,
   clearBookingDeadlineUseCase,
   completeFinishedBookingsUseCase,
+  eraseExpiredPickupAddressesUseCase,
   listBookingsWithDueDeadlineUseCase,
   resolveServiceConfirmationUseCase,
   bookingServiceEndsAt,
@@ -18,6 +19,7 @@ export interface BookingCompletionJobResult {
   completed: number;
   askedToConfirm: number;
   deadlinesProcessed: number;
+  pickupAddressesErased: number;
 }
 
 /** 72 h sem resposta a "O serviço aconteceu?": reembolso integral ao comprador (D20). */
@@ -72,7 +74,8 @@ async function processDeadline(booking: Booking): Promise<void> {
 
 /**
  * Job de conclusão das reservas (D20): conclui as que terminaram, pergunta ao comprador quando falta a
- * prova do serviço e aplica os prazos vencidos. Uma reserva com erro não trava as demais.
+ * prova do serviço, aplica os prazos vencidos e apaga os endereços de busca vencidos. Uma reserva
+ * com erro não trava as demais.
  */
 export async function runBookingCompletionJobApplicationUseCase(
   limit = 200
@@ -93,5 +96,11 @@ export async function runBookingCompletionJobApplicationUseCase(
       });
     }
   }
-  return { completed, askedToConfirm: askedToConfirm.length, deadlinesProcessed };
+  const pickupAddressesErased = await eraseExpiredPickupAddressesUseCase(limit);
+  return {
+    completed,
+    askedToConfirm: askedToConfirm.length,
+    deadlinesProcessed,
+    pickupAddressesErased,
+  };
 }

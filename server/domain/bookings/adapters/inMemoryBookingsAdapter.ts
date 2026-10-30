@@ -229,6 +229,14 @@ export class InMemoryBookingsAdapter implements BookingsPort {
       .sort((a, b) => (a.deadline?.at ?? '').localeCompare(b.deadline?.at ?? ''))
       .slice(0, limit);
   }
+  async listBookingsWithPickupAddressEraseBefore(nowIso: string, limit: number) {
+    return [...this.bookings.values()]
+      .filter((b) => b.pickupAddressEraseAt && b.pickupAddressEraseAt <= nowIso)
+      .slice(0, limit);
+  }
+  async deleteParticipants(bookingId: string) {
+    this.participants.delete(bookingId);
+  }
   async countCheckInFailures(slotId: string, sinceIso: string) {
     return this.checkInFailures.filter((f) => f.slotId === slotId && f.at >= sinceIso).length;
   }

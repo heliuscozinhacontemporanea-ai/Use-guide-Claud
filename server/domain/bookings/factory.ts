@@ -1,6 +1,7 @@
 import { FirestoreBookingsAdapter } from './adapters/firestoreBookingsAdapter';
 import { GuideBookableItemLookupAdapter } from './adapters/guideBookableItemLookupAdapter';
 import { BookingCheckInService } from './services/bookingCheckInService';
+import { BookingPrivacyService } from './services/bookingPrivacyService';
 import { BookingService } from './services/bookingService';
 import { BookingServiceProofService } from './services/bookingServiceProofService';
 import { OfferService } from './services/offerService';
@@ -9,6 +10,7 @@ let offerService: OfferService | null = null;
 let bookingService: BookingService | null = null;
 let checkInService: BookingCheckInService | null = null;
 let serviceProofService: BookingServiceProofService | null = null;
+let privacyService: BookingPrivacyService | null = null;
 let port: FirestoreBookingsAdapter | null = null;
 
 function getPort(): FirestoreBookingsAdapter {
@@ -34,4 +36,9 @@ export function getBookingCheckInService(): BookingCheckInService {
 export function getBookingServiceProofService(): BookingServiceProofService {
   serviceProofService ??= new BookingServiceProofService(getPort());
   return serviceProofService;
+}
+
+export function getBookingPrivacyService(): BookingPrivacyService {
+  privacyService ??= new BookingPrivacyService(getPort());
+  return privacyService;
 }
