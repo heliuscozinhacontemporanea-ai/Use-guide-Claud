@@ -3,10 +3,10 @@ import {
   type BookingActor,
   getPendingServiceConfirmationUseCase,
   resolveServiceConfirmationUseCase,
+  bookingServiceEndsAt,
 } from '../../../domain/bookings';
 import { decideSaleClaimUseCase, openSaleClaimUseCase } from '../../../domain/payment';
 import { SYSTEM_ACTOR } from './answerProviderAbsenceApplicationUseCase';
-import { bookingServiceWindow } from './bookingServiceWindow';
 import { sendBookingServiceNotice } from './bookingServiceNotices';
 
 /**
@@ -32,7 +32,8 @@ export async function answerServiceConfirmationApplicationUseCase(
     referenceId: booking.id,
     buyerUid: actor.uid,
     reason: 'did_not_happen',
-    ...bookingServiceWindow(booking),
+    serviceStartsAt: booking.offerSnapshot.startsAt,
+    serviceEndsAt: bookingServiceEndsAt(booking),
     // A pergunta dura 72 h e passa das 48 h da reclamação comum.
     allowAfterWindow: true,
   });

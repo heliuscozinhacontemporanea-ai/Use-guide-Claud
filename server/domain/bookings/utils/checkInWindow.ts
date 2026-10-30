@@ -1,3 +1,5 @@
+import { serviceEndsAtMs } from './serviceTime';
+
 const MINUTE_MS = 60_000;
 const HOUR_MS = 60 * MINUTE_MS;
 const DAY_MS = 24 * HOUR_MS;
@@ -10,10 +12,6 @@ export const CHECK_IN_CLOSES_AFTER_MS = 12 * HOUR_MS;
 /** No máximo 5 códigos errados por horário a cada 15 min (D20, exceção do §7.7). */
 export const CHECK_IN_MAX_FAILURES = 5;
 export const CHECK_IN_FAILURE_WINDOW_MS = 15 * MINUTE_MS;
-
-export function serviceEndsAtMs(startsAt: string, durationMinutes?: number): number {
-  return new Date(startsAt).getTime() + (durationMinutes ?? 0) * MINUTE_MS;
-}
 
 /** 00:00 do dia do serviço em Fortaleza: a partir daí o comprador vê o código. */
 export function checkInCodeVisibleFromMs(startsAt: string): number {

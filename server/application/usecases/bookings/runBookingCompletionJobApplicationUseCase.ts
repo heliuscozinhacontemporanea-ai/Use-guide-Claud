@@ -4,6 +4,7 @@ import {
   completeFinishedBookingsUseCase,
   listBookingsWithDueDeadlineUseCase,
   resolveServiceConfirmationUseCase,
+  bookingServiceEndsAt,
 } from '../../../domain/bookings';
 import {
   decideSaleClaimUseCase,
@@ -11,7 +12,6 @@ import {
   PaymentDomainError,
 } from '../../../domain/payment';
 import { refundProviderAbsence, SYSTEM_ACTOR } from './answerProviderAbsenceApplicationUseCase';
-import { bookingServiceWindow } from './bookingServiceWindow';
 import { sendBookingServiceNotice } from './bookingServiceNotices';
 
 export interface BookingCompletionJobResult {
@@ -29,7 +29,8 @@ async function refundUnconfirmedService(booking: Booking): Promise<void> {
       referenceId: booking.id,
       buyerUid: booking.buyerId,
       reason: 'did_not_happen',
-      ...bookingServiceWindow(booking),
+      serviceStartsAt: booking.offerSnapshot.startsAt,
+      serviceEndsAt: bookingServiceEndsAt(booking),
       allowAfterWindow: true,
     });
     claimId = claim.id;

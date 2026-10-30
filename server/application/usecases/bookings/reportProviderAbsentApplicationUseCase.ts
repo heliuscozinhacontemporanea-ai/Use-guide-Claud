@@ -3,9 +3,9 @@ import {
   type BookingActor,
   getBookingForAbsenceReportUseCase,
   recordProviderAbsenceUseCase,
+  bookingServiceEndsAt,
 } from '../../../domain/bookings';
 import { openSaleClaimUseCase } from '../../../domain/payment';
-import { bookingServiceWindow } from './bookingServiceWindow';
 import { sendBookingServiceNotice } from './bookingServiceNotices';
 
 /**
@@ -22,7 +22,8 @@ export async function reportProviderAbsentApplicationUseCase(
     referenceId: booking.id,
     buyerUid: actor.uid,
     reason: 'did_not_happen',
-    ...bookingServiceWindow(booking),
+    serviceStartsAt: booking.offerSnapshot.startsAt,
+    serviceEndsAt: bookingServiceEndsAt(booking),
   });
   const recorded = await recordProviderAbsenceUseCase(actor, booking.id, claim.id);
   await sendBookingServiceNotice(recorded.sellerPartnerId, 'absenceReported');

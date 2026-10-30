@@ -11,6 +11,7 @@ import {
   type Page,
 } from '../types/bookingTypes';
 import { NO_SHOW_WAIT_MS, SERVICE_CONFIRMATION_MS } from '../utils/checkInWindow';
+import { serviceEndsAtMs } from '../utils/serviceTime';
 import { buildBookingId } from '../utils/buildBookingId';
 import { priceBookingLines } from '../utils/bookingPricing';
 import { calculateBuyerRefund } from '../../../shared/kernel/cancellationPolicy';
@@ -343,10 +344,8 @@ export class BookingService {
     let completed = 0;
     const askedToConfirm: Booking[] = [];
     for (const booking of started) {
-      const endsAtMs =
-        new Date(booking.offerSnapshot.startsAt).getTime() +
-        (booking.offerSnapshot.durationMinutes ?? 0) * 60_000;
-      if (endsAtMs > nowDate.getTime()) continue;
+      const { startsAt, durationMinutes } = booking.offerSnapshot;
+      if (serviceEndsAtMs(startsAt, durationMinutes) > nowDate.getTime()) continue;
       const ask =
         CHECK_IN_CODE_KINDS.includes(booking.kind) &&
         !booking.checkIn &&

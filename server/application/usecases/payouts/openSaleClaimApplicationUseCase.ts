@@ -1,4 +1,4 @@
-import { getBookingUseCase } from '../../../domain/bookings';
+import { bookingServiceEndsAt, getBookingUseCase } from '../../../domain/bookings';
 import { getEventListingByIdUseCase } from '../../../domain/events';
 import { createNotificationUseCase } from '../../../domain/notifications';
 import {
@@ -48,10 +48,9 @@ async function bookingSale(actor: OrchestrationActor, bookingId: string): Promis
   if (!['confirmed', 'completed', 'no_show'].includes(booking.status)) {
     throw new PaymentDomainError('CLAIM_NOT_ALLOWED', 'Esta compra não tem valor a reclamar.', 422);
   }
-  const { startsAt, durationMinutes } = booking.offerSnapshot;
   return {
-    startsAt,
-    endsAt: new Date(new Date(startsAt).getTime() + (durationMinutes ?? 0) * 60_000).toISOString(),
+    startsAt: booking.offerSnapshot.startsAt,
+    endsAt: bookingServiceEndsAt(booking),
     sellerPartnerId: booking.sellerPartnerId,
   };
 }

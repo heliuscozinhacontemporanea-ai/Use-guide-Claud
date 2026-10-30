@@ -1,4 +1,8 @@
-import { type BookingActor, rescheduleSlotByPartnerUseCase } from '../../../domain/bookings';
+import {
+  type BookingActor,
+  bookingServiceEndsAt,
+  rescheduleSlotByPartnerUseCase,
+} from '../../../domain/bookings';
 import { reschedulePayoutUseCase } from '../../../domain/payment';
 
 /**
@@ -14,11 +18,7 @@ export async function rescheduleSlotByPartnerApplicationUseCase(
   const moved = await rescheduleSlotByPartnerUseCase(actor, offerId, slotId, change);
   for (const booking of moved) {
     if (booking.status !== 'confirmed') continue;
-    const endsAt = new Date(
-      new Date(booking.offerSnapshot.startsAt).getTime() +
-        (booking.offerSnapshot.durationMinutes ?? 0) * 60_000
-    ).toISOString();
-    await reschedulePayoutUseCase('booking', booking.id, endsAt);
+    await reschedulePayoutUseCase('booking', booking.id, bookingServiceEndsAt(booking));
   }
   // TODO: avisar os compradores quando notifications aceitar destinatário usuário (débito B13).
   return { rescheduledBookings: moved.length };

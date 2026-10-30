@@ -1,6 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('../../../domain/bookings', () => ({ getBookingUseCase: vi.fn() }));
+vi.mock('../../../domain/bookings', async () => ({
+  bookingServiceEndsAt: (await import('../../../domain/bookings/utils/serviceTime'))
+    .bookingServiceEndsAt,
+  getBookingUseCase: vi.fn(),
+}));
 vi.mock('../../../domain/events', () => ({
   getEventListingByIdUseCase: vi.fn().mockResolvedValue({ ownerId: 'partner-1' }),
 }));

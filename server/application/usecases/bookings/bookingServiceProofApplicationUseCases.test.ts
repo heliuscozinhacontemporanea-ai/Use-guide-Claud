@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('../../../domain/bookings', () => ({
+vi.mock('../../../domain/bookings', async () => ({
+  bookingServiceEndsAt: (await import('../../../domain/bookings/utils/serviceTime'))
+    .bookingServiceEndsAt,
   checkInBookingByCodeUseCase: vi.fn(),
   clearBookingDeadlineUseCase: vi.fn(),
   completeFinishedBookingsUseCase: vi.fn(),

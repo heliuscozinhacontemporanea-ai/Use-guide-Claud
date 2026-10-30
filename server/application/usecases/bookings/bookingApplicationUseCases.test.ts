@@ -3,6 +3,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('../../../domain/bookings', async () => {
   const { BookingDomainError } = await import('../../../domain/bookings/errors/bookingDomainError');
   return {
+    bookingServiceEndsAt: (await import('../../../domain/bookings/utils/serviceTime'))
+      .bookingServiceEndsAt,
     BookingDomainError,
     createPendingBookingUseCase: vi.fn(),
     cancelPendingBookingUseCase: vi.fn().mockResolvedValue({}),

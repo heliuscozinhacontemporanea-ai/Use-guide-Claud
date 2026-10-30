@@ -1,6 +1,7 @@
 import { recordPaidSalePayoutApplicationUseCase } from '../payouts/recordPaidSalePayoutApplicationUseCase';
 import {
   BookingDomainError,
+  bookingServiceEndsAt,
   confirmBookingPaymentUseCase,
   getBookingUseCase,
   markBookingDisputedUseCase,
@@ -20,10 +21,6 @@ function readMetadata(obj: Record<string, unknown>): Record<string, string> {
   return (obj.metadata as Record<string, string> | undefined) ?? {};
 }
 
-function serviceEndsAt(startsAt: string, durationMinutes: number | undefined): string {
-  return new Date(new Date(startsAt).getTime() + (durationMinutes ?? 0) * 60_000).toISOString();
-}
-
 async function handlePaymentSucceeded(
   paymentIntent: Record<string, unknown>,
   bookingId: string
@@ -39,10 +36,7 @@ async function handlePaymentSucceeded(
       serviceFeeMinor: 0,
       platformFeeMinor: booking.platformFeeMinor,
       title: booking.offerSnapshot.title,
-      serviceEndsAt: serviceEndsAt(
-        booking.offerSnapshot.startsAt,
-        booking.offerSnapshot.durationMinutes
-      ),
+      serviceEndsAt: bookingServiceEndsAt(booking),
     });
     await createNotificationUseCase({
       recipientPartnerId: booking.sellerPartnerId,
