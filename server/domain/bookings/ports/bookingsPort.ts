@@ -4,6 +4,7 @@ import type {
   BookableOffer,
   Booking,
   BookingCancellation,
+  BookingCheckIn,
   BookingParticipant,
   BookingStatus,
   Page,
@@ -65,6 +66,15 @@ export interface BookingsPort {
   }): Promise<Booking>;
   /** Só auditoria, sem mudar status (ex: pagamento recusado que ainda pode ser tentado de novo). */
   recordBookingAudit(bookingId: string, actorUid: string, reason: string): Promise<void>;
+
+  /**
+   * Grava o check-in numa transação: só reserva confirmada ou concluída e sem check-in; repetir
+   * devolve a reserva com o check-in que já existe.
+   */
+  recordCheckIn(bookingId: string, checkIn: BookingCheckIn): Promise<Booking>;
+  /** Códigos errados no horário desde `sinceIso`, contados no Firestore (o Cloud Run não guarda estado). */
+  countCheckInFailures(slotId: string, sinceIso: string): Promise<number>;
+  addCheckInFailure(slotId: string, actorUid: string, atIso: string): Promise<void>;
 
   getBooking(bookingId: string): Promise<Booking | null>;
   getParticipants(bookingId: string): Promise<BookingParticipant[]>;

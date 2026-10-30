@@ -10,6 +10,7 @@ export const SLOTS = 'availabilitySlots';
 export const BOOKINGS = 'bookings';
 export const PARTICIPANTS = 'bookingParticipants';
 export const AUDIT = 'bookingAuditLogs';
+export const CHECK_IN_FAILURES = 'bookingCheckInFailures';
 
 export function nowIso(): string {
   return new Date().toISOString();

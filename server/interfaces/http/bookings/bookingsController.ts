@@ -2,6 +2,7 @@ import type { Response } from 'express';
 import { cancelBookingByBuyerApplicationUseCase } from '../../../application/usecases/bookings/cancelBookingByBuyerApplicationUseCase';
 import { createBookingApplicationUseCase } from '../../../application/usecases/bookings/createBookingApplicationUseCase';
 import {
+  getBookingCheckInCodeUseCase,
   getBookingForActorUseCase,
   listAvailableSlotsUseCase,
   listMyBookingsUseCase,
@@ -89,6 +90,21 @@ export class BookingsController {
       return res.status(200).json(toBookingDetails(details, actor.uid, actor.admin));
     } catch (error) {
       return handleBookingError(res, 'get', error);
+    }
+  }
+
+  static async getCheckInCode(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    const actor = actorOf(req);
+    if (!actor) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
+    const bookingId = DocumentIdSchema.safeParse(req.params.bookingId);
+    if (!bookingId.success) return sendError(res, 404, 'NOT_FOUND', 'Reserva não encontrada.');
+    try {
+      const view = await getBookingCheckInCodeUseCase(actor, bookingId.data);
+      // O código não pode ficar em cache de proxy nem do navegador.
+      res.setHeader('Cache-Control', 'no-store');
+      return res.status(200).json(view);
+    } catch (error) {
+      return handleBookingError(res, 'getCheckInCode', error);
     }
   }
 

@@ -27,6 +27,8 @@ export interface CreatePendingBookingInput {
   idempotencyKey: string;
   locale: Locale;
   acceptedTermsVersion: string;
+  /** Obrigatório quando a oferta busca o comprador no endereço (D20). */
+  pickupAddress?: string;
 }
 
 export interface BuyerCancellationResult {
@@ -78,6 +80,14 @@ export class BookingService {
       }
     }
 
+    const pickupAddress = input.pickupAddress?.trim() ?? '';
+    if (
+      offer.pickupMode === 'buyer_address' &&
+      (pickupAddress.length < 3 || pickupAddress.length > 300)
+    ) {
+      throw new BookingDomainError('VALIDATION_ERROR', 'Informe onde você está hospedado.');
+    }
+
     const nowDate = this.now();
     const timestamp = nowDate.toISOString();
     const booking: Booking = {
@@ -99,6 +109,7 @@ export class BookingService {
         cancellationPolicy: offer.cancellationPolicy,
       },
       termsAcceptance: { version: input.acceptedTermsVersion, acceptedAt: timestamp },
+      ...(offer.pickupMode === 'buyer_address' ? { pickupAddress } : {}),
       locale: input.locale,
       idempotencyKey: input.idempotencyKey,
       createdAt: timestamp,
@@ -284,6 +295,10 @@ export class BookingService {
     }
     if (this.now().getTime() < new Date(booking.offerSnapshot.startsAt).getTime()) {
       throw new BookingDomainError('INVALID_TRANSITION', 'Só é possível marcar após o início.');
+    }
+    // Check-in prova que o comprador apareceu (D20).
+    if (booking.checkIn) {
+      throw new BookingDomainError('INVALID_TRANSITION', 'Reserva com check-in não é ausência.');
     }
     return this.port.setBookingStatus({
       bookingId,

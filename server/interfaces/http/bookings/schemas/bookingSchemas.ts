@@ -49,6 +49,7 @@ const offerFields = {
     })
     .strict()
     .optional(),
+  pickupMode: z.enum(['meeting_point', 'buyer_address']).optional(),
   // Opções da plataforma (D14); o serviço confere se a opção vale para o tipo da oferta.
   cancellationPolicy: z.enum([...BOOKING_CANCELLATION_POLICIES, ...TRANSFER_CANCELLATION_POLICIES]),
   maxParticipantsPerBooking: z.number().int().min(1).max(50),
@@ -117,6 +118,7 @@ export const CreateBookingSchema = z
     idempotencyKey: idempotencyKey.optional(),
     locale,
     acceptedTermsVersion: z.string().trim().min(1).max(40),
+    pickupAddress: z.string().trim().min(3).max(300).optional(),
   })
   .strict();
 
@@ -125,6 +127,15 @@ export const RescheduleSlotSchema = z
     startsAt: z.string().datetime(),
     endsAt: z.string().datetime().optional(),
     reason: z.string().trim().min(3).max(300),
+  })
+  .strict();
+
+export const CheckInByCodeSchema = z
+  .object({
+    // Aceita minúsculas, espaço e hífen; o serviço normaliza e confere o alfabeto.
+    code: z.string().trim().min(6).max(12),
+    participantsPresent: z.number().int().min(1).max(50),
+    capturedAt: isoDateTime.optional(),
   })
   .strict();
 

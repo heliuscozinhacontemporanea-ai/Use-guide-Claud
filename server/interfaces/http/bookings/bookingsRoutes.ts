@@ -14,6 +14,7 @@ bookingsRouter.get('/offers/:offerId/slots', BookingsController.listSlots);
 bookingsRouter.post('/', verifyAuthTokenStrict, BookingsController.create);
 bookingsRouter.get('/me', verifyAuthToken, BookingsController.listMine);
 bookingsRouter.get('/:bookingId', verifyAuthToken, BookingsController.get);
+bookingsRouter.get('/:bookingId/check-in-code', verifyAuthToken, BookingsController.getCheckInCode);
 bookingsRouter.post('/:bookingId/cancel', verifyAuthTokenStrict, BookingsController.cancel);
 bookingsRouter.post('/:bookingId/no-show', verifyAuthToken, BookingsController.markNoShow);
 
@@ -36,3 +37,9 @@ partnerOffersRouter.post(
   PartnerOffersController.rescheduleSlot
 );
 partnerOffersRouter.get('/:offerId/bookings', PartnerOffersController.listBookings);
+// Check-in libera o repasse (D20): token revogado não serve.
+partnerOffersRouter.post(
+  '/:offerId/slots/:slotId/check-ins',
+  verifyAuthTokenStrict,
+  PartnerOffersController.checkIn
+);

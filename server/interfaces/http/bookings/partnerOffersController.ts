@@ -3,6 +3,7 @@ import { cancelSlotByPartnerApplicationUseCase } from '../../../application/usec
 import { rescheduleSlotByPartnerApplicationUseCase } from '../../../application/usecases/bookings/rescheduleSlotByPartnerApplicationUseCase';
 import { setBookableOfferStatusApplicationUseCase } from '../../../application/usecases/bookings/setBookableOfferStatusApplicationUseCase';
 import {
+  checkInBookingByCodeUseCase,
   createAvailabilitySlotsUseCase,
   createBookableOfferUseCase,
   listOfferBookingsForPartnerUseCase,
@@ -14,6 +15,7 @@ import type { AuthenticatedRequest } from '../../../infrastructure/auth/authenti
 import { handleBookingError, sendError } from './bookingHttpErrors';
 import { toPartnerOffer, toPartnerSlot, toSellerBooking } from './bookingResponses';
 import {
+  CheckInByCodeSchema,
   CreateOfferSchema,
   CreateSlotsSchema,
   DocumentIdSchema,
@@ -181,6 +183,27 @@ export class PartnerOffersController {
         .json({ data: result.data.map(toSellerBooking), nextCursor: result.nextCursor });
     } catch (error) {
       return handleBookingError(res, 'listOfferBookings', error);
+    }
+  }
+
+  static async checkIn(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    const actor = actorOf(req);
+    if (!actor) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
+    const offerId = DocumentIdSchema.safeParse(req.params.offerId);
+    const slotId = DocumentIdSchema.safeParse(req.params.slotId);
+    const body = CheckInByCodeSchema.safeParse(req.body);
+    if (!offerId.success || !slotId.success || !body.success) {
+      return sendError(res, 400, 'VALIDATION_ERROR', 'Dados do check-in inválidos.');
+    }
+    try {
+      const booking = await checkInBookingByCodeUseCase(actor, {
+        offerId: offerId.data,
+        slotId: slotId.data,
+        ...body.data,
+      });
+      return res.status(200).json(toSellerBooking(booking));
+    } catch (error) {
+      return handleBookingError(res, 'checkIn', error);
     }
   }
 }

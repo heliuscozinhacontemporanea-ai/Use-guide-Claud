@@ -237,4 +237,43 @@ describe('BookingService', () => {
     await expect(service.completeFinishedBookings()).resolves.toBe(1);
     expect(port.bookings.get(booking.id)?.status).toBe('completed');
   });
+
+  it('reserva com check-in não pode ser marcada como ausência (D20)', async () => {
+    const { service, port, setNow } = setup();
+    const booking = await service.createPendingBooking(BUYER, INPUT, FEES);
+    await service.confirmBookingPayment(booking.id, 'pi_1');
+    await port.recordCheckIn(booking.id, {
+      at: '2026-11-10T11:02:00.000Z',
+      byUid: 'partner-1',
+      method: 'code',
+      participantsPresent: 2,
+    });
+    setNow('2026-11-10T12:00:00.000Z');
+    await expect(
+      service.markBookingNoShow({ uid: 'partner-1', admin: false }, booking.id)
+    ).rejects.toMatchObject({ code: 'INVALID_TRANSITION' });
+  });
+
+  it('oferta que busca no endereço exige onde o comprador está e grava na reserva (D20)', async () => {
+    const { service } = setup({ offer: { pickupMode: 'buyer_address' } });
+    await expect(service.createPendingBooking(BUYER, INPUT, FEES)).rejects.toMatchObject({
+      code: 'VALIDATION_ERROR',
+    });
+    const booking = await service.createPendingBooking(
+      BUYER,
+      { ...INPUT, pickupAddress: '  Pousada Vila Jeri, Rua do Forró  ' },
+      FEES
+    );
+    expect(booking.pickupAddress).toBe('Pousada Vila Jeri, Rua do Forró');
+  });
+
+  it('oferta com ponto de encontro ignora o endereço enviado', async () => {
+    const { service } = setup();
+    const booking = await service.createPendingBooking(
+      BUYER,
+      { ...INPUT, pickupAddress: 'Pousada' },
+      FEES
+    );
+    expect(booking.pickupAddress).toBeUndefined();
+  });
 });

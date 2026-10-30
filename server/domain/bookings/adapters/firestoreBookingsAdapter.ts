@@ -31,6 +31,7 @@ import {
   SLOTS,
   writeAudit,
 } from './firestoreBookingsShared';
+import { FirestoreCheckInStore } from './firestoreCheckInStore';
 import { FirestoreSlotStore } from './firestoreSlotStore';
 
 async function paginate(query: Query, page: PageRequest): Promise<Page<Booking>> {
@@ -49,6 +50,7 @@ async function paginate(query: Query, page: PageRequest): Promise<Page<Booking>>
 
 export class FirestoreBookingsAdapter implements BookingsPort {
   private readonly slots = new FirestoreSlotStore();
+  private readonly checkIns = new FirestoreCheckInStore();
 
   async createOffer(offer: BookableOffer): Promise<void> {
     await adminDb
@@ -104,6 +106,10 @@ export class FirestoreBookingsAdapter implements BookingsPort {
   readonly listSlots = this.slots.listSlots.bind(this.slots);
   readonly setSlotStatus = this.slots.setSlotStatus.bind(this.slots);
   readonly rescheduleSlot = this.slots.rescheduleSlot.bind(this.slots);
+
+  readonly recordCheckIn = this.checkIns.recordCheckIn.bind(this.checkIns);
+  readonly countCheckInFailures = this.checkIns.countCheckInFailures.bind(this.checkIns);
+  readonly addCheckInFailure = this.checkIns.addCheckInFailure.bind(this.checkIns);
 
   async reserveCapacityAndCreateBooking(
     booking: Booking,

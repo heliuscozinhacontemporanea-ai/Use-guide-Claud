@@ -1,15 +1,18 @@
 export { cancelBookingForCanceledSlotUseCase } from './usecases/cancelBookingForCanceledSlotUseCase';
 export { cancelPendingBookingUseCase } from './usecases/cancelPendingBookingUseCase';
 export { cancelSlotByPartnerUseCase } from './usecases/cancelSlotByPartnerUseCase';
+export { checkInBookingByCodeUseCase } from './usecases/checkInBookingByCodeUseCase';
 export { completeFinishedBookingsUseCase } from './usecases/completeFinishedBookingsUseCase';
 export { confirmBookingPaymentUseCase } from './usecases/confirmBookingPaymentUseCase';
 export { createAvailabilitySlotsUseCase } from './usecases/createAvailabilitySlotsUseCase';
 export { createBookableOfferUseCase } from './usecases/createBookableOfferUseCase';
 export { createPendingBookingUseCase } from './usecases/createPendingBookingUseCase';
 export { expireOverdueBookingsUseCase } from './usecases/expireOverdueBookingsUseCase';
+export { getBookingCheckInCodeUseCase } from './usecases/getBookingCheckInCodeUseCase';
 export { getBookingForActorUseCase } from './usecases/getBookingForActorUseCase';
 export { getBookingUseCase } from './usecases/getBookingUseCase';
 export { getPublicOfferSummaryUseCase } from './usecases/getPublicOfferSummaryUseCase';
+export { hasCheckedInBookingUseCase } from './usecases/hasCheckedInBookingUseCase';
 export { listAvailableSlotsUseCase } from './usecases/listAvailableSlotsUseCase';
 export { listMyBookingsUseCase } from './usecases/listMyBookingsUseCase';
 export { listOfferBookingsForPartnerUseCase } from './usecases/listOfferBookingsForPartnerUseCase';
@@ -26,6 +29,7 @@ export { updateBookableOfferUseCase } from './usecases/updateBookableOfferUseCas
 
 export { BookingDomainError, type BookingErrorCode } from './errors/bookingDomainError';
 export type { PageRequest } from './ports/bookingsPort';
+export type { CheckInByCodeInput, CheckInCodeView } from './services/bookingCheckInService';
 export type {
   BookingDetails,
   BuyerCancellationResult,
@@ -39,6 +43,7 @@ export {
   type BookableOfferStatus,
   type Booking,
   type BookingActor,
+  type BookingCheckIn,
   type BookingParticipant,
   type BookingStatus,
   canTransitionBooking,

@@ -11,6 +11,12 @@ export const AVAILABLE_OFFER_KINDS: readonly BookableOfferKind[] = ['tour', 'pri
 
 export type BookableOfferStatus = 'draft' | 'published' | 'paused' | 'archived';
 
+/** Tipos com check-in por código de 6 caracteres (D20); a entrada de atração privada usa QR Code. */
+export const CHECK_IN_CODE_KINDS: readonly BookableOfferKind[] = ['tour', 'rental', 'transfer'];
+
+/** Onde o serviço começa: no ponto de encontro da oferta ou no endereço que o comprador informa (D20). */
+export type PickupMode = 'meeting_point' | 'buyer_address';
+
 export interface PriceOption {
   id: string;
   label: LocalizedText;
@@ -43,6 +49,7 @@ export interface BookableOffer {
   pricing: { currency: 'BRL'; priceOptions: PriceOption[] };
   durationMinutes?: number;
   meetingPoint?: MeetingPoint;
+  pickupMode?: PickupMode;
   cancellationPolicy: BookingCancellationPolicy;
   maxParticipantsPerBooking: number;
   requiresParticipantNames: boolean;
@@ -99,6 +106,17 @@ export interface BookingCancellation {
   at: string;
 }
 
+/** Check-in do serviço pelo prestador com o código do comprador (D20): prova de que o serviço começou. */
+export interface BookingCheckIn {
+  /** Hora em que o prestador digitou o código (a do aparelho, quando o check-in foi feito sem internet). */
+  at: string;
+  byUid: string;
+  method: 'code';
+  participantsPresent: number;
+  /** Só no check-in feito sem internet: quando o servidor recebeu e validou o código. */
+  syncedAt?: string;
+}
+
 export interface Booking {
   id: string;
   offerId: string;
@@ -128,6 +146,9 @@ export interface Booking {
   cancellation?: BookingCancellation;
   /** Versão dos termos aceita na compra (D15). */
   termsAcceptance?: TermsAcceptance;
+  /** Onde o comprador está (hospedagem ou endereço), quando a oferta busca no endereço. PII (§7.6). */
+  pickupAddress?: string;
+  checkIn?: BookingCheckIn;
   locale: Locale;
   idempotencyKey: string;
   createdAt: string;

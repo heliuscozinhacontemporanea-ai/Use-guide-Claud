@@ -35,6 +35,10 @@ export function toBuyerBooking(booking: Booking) {
         }
       : null,
     rescheduledAt: booking.rescheduledAt ?? null,
+    pickupAddress: booking.pickupAddress ?? null,
+    checkIn: booking.checkIn
+      ? { at: booking.checkIn.at, participantsPresent: booking.checkIn.participantsPresent }
+      : null,
     createdAt: booking.createdAt,
   };
 }

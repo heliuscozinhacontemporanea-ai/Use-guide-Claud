@@ -97,6 +97,9 @@ service cloud.firestore {
     match /bookingParticipants/{participantId} {
       allow read, write: if false;
     }
+    match /bookingCheckInFailures/{failureId} {
+      allow read, write: if false;
+    }
     match /bookingAuditLogs/{logId} {
       allow read: if isAdmin();
       allow write: if false;

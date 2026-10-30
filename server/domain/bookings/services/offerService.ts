@@ -42,6 +42,7 @@ export type OfferInput = Pick<
   | 'pricing'
   | 'durationMinutes'
   | 'meetingPoint'
+  | 'pickupMode'
   | 'cancellationPolicy'
   | 'maxParticipantsPerBooking'
   | 'requiresParticipantNames'

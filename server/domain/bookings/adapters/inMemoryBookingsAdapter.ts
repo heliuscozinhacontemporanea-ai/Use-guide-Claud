@@ -6,6 +6,7 @@ import {
   type BookableOffer,
   type Booking,
   type BookingCancellation,
+  type BookingCheckIn,
   type BookingParticipant,
   type BookingStatus,
   canTransitionBooking,
@@ -195,6 +196,27 @@ export class InMemoryBookingsAdapter implements BookingsPort {
   async recordBookingAudit(bookingId: string, _actorUid: string, reason: string) {
     this.audit.push({ bookingId, reason });
   }
+  readonly checkInFailures: Array<{ slotId: string; actorUid: string; at: string }> = [];
+
+  async recordCheckIn(bookingId: string, checkIn: BookingCheckIn) {
+    const booking = this.bookings.get(bookingId);
+    if (!booking) throw new BookingDomainError('NOT_FOUND', 'Reserva não encontrada.');
+    if (booking.checkIn) return booking;
+    if (booking.status !== 'confirmed' && booking.status !== 'completed') {
+      throw new BookingDomainError('INVALID_TRANSITION', 'Esta reserva não aceita check-in.');
+    }
+    const updated: Booking = { ...booking, checkIn };
+    this.bookings.set(bookingId, updated);
+    this.audit.push({ bookingId, reason: 'checked_in' });
+    return updated;
+  }
+  async countCheckInFailures(slotId: string, sinceIso: string) {
+    return this.checkInFailures.filter((f) => f.slotId === slotId && f.at >= sinceIso).length;
+  }
+  async addCheckInFailure(slotId: string, actorUid: string, at: string) {
+    this.checkInFailures.push({ slotId, actorUid, at });
+  }
+
   async getBooking(bookingId: string) {
     return this.bookings.get(bookingId) ?? null;
   }
