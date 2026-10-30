@@ -106,15 +106,59 @@ export interface BookingCancellation {
   at: string;
 }
 
-/** Check-in do serviço pelo prestador com o código do comprador (D20): prova de que o serviço começou. */
+/** Check-in do serviço pelo prestador (D20): prova de que o serviço começou. */
 export interface BookingCheckIn {
-  /** Hora em que o prestador digitou o código (a do aparelho, quando o check-in foi feito sem internet). */
+  /** Hora em que o prestador fez o check-in (a do aparelho, quando foi feito sem internet). */
   at: string;
   byUid: string;
-  method: 'code';
+  /** `no_code`: "Cliente sem código", por conta e risco do prestador até o comprador confirmar. */
+  method: 'code' | 'no_code';
   participantsPresent: number;
   /** Só no check-in feito sem internet: quando o servidor recebeu e validou o código. */
   syncedAt?: string;
+  noCodeReason?: NoCodeReason;
+}
+
+export const NO_CODE_REASONS = ['no_phone', 'refused', 'other'] as const;
+export type NoCodeReason = (typeof NO_CODE_REASONS)[number];
+
+/** "Cheguei": hora e localização do prestador no ponto de encontro ou no endereço (D20). */
+export interface BookingArrival {
+  at: string;
+  byUid: string;
+  /** Prova para o admin; nunca vai para log (AGENTS.md §10.3). */
+  location?: { lat: number; lng: number; accuracyM?: number };
+}
+
+/** "O prestador não veio": o comprador relata e o prestador tem 2 h para responder (D20). */
+export interface BookingProviderAbsence {
+  reportedAt: string;
+  respondBy: string;
+  /** Reclamação aberta junto, que retém o repasse e leva o caso ao admin. */
+  claimId: string;
+  answer?: 'was_there' | 'admitted';
+  answeredAt?: string;
+  /** refunded: sem resposta ou admitida; withdrawn: o prestador fez o check-in; admin: disse que foi. */
+  resolution?: 'refunded' | 'withdrawn' | 'admin';
+  resolvedAt?: string;
+}
+
+/** "O serviço aconteceu?": pergunta ao comprador quando falta a prova do código (D20). */
+export interface BookingServiceConfirmation {
+  askedAt: string;
+  answerBy: string;
+  reason: 'no_code' | 'no_record';
+  answer?: 'yes' | 'no';
+  answeredAt?: string;
+  claimId?: string;
+  /** confirmed: respondeu sim; admin: respondeu não; refunded: não respondeu em 72 h. */
+  resolution?: 'confirmed' | 'admin' | 'refunded';
+}
+
+/** Próximo prazo da reserva, num campo só para o job buscar por data (D20). */
+export interface BookingDeadline {
+  kind: 'provider_absence_response' | 'service_confirmation';
+  at: string;
 }
 
 export interface Booking {
@@ -149,6 +193,10 @@ export interface Booking {
   /** Onde o comprador está (hospedagem ou endereço), quando a oferta busca no endereço. PII (§7.6). */
   pickupAddress?: string;
   checkIn?: BookingCheckIn;
+  arrival?: BookingArrival;
+  providerAbsence?: BookingProviderAbsence;
+  serviceConfirmation?: BookingServiceConfirmation;
+  deadline?: BookingDeadline;
   locale: Locale;
   idempotencyKey: string;
   createdAt: string;

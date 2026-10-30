@@ -2,11 +2,13 @@ import { FirestoreBookingsAdapter } from './adapters/firestoreBookingsAdapter';
 import { GuideBookableItemLookupAdapter } from './adapters/guideBookableItemLookupAdapter';
 import { BookingCheckInService } from './services/bookingCheckInService';
 import { BookingService } from './services/bookingService';
+import { BookingServiceProofService } from './services/bookingServiceProofService';
 import { OfferService } from './services/offerService';
 
 let offerService: OfferService | null = null;
 let bookingService: BookingService | null = null;
 let checkInService: BookingCheckInService | null = null;
+let serviceProofService: BookingServiceProofService | null = null;
 let port: FirestoreBookingsAdapter | null = null;
 
 function getPort(): FirestoreBookingsAdapter {
@@ -27,4 +29,9 @@ export function getBookingService(): BookingService {
 export function getBookingCheckInService(): BookingCheckInService {
   checkInService ??= new BookingCheckInService(getPort());
   return checkInService;
+}
+
+export function getBookingServiceProofService(): BookingServiceProofService {
+  serviceProofService ??= new BookingServiceProofService(getPort());
+  return serviceProofService;
 }

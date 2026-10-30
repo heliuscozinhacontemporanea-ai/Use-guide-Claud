@@ -37,7 +37,28 @@ export function toBuyerBooking(booking: Booking) {
     rescheduledAt: booking.rescheduledAt ?? null,
     pickupAddress: booking.pickupAddress ?? null,
     checkIn: booking.checkIn
-      ? { at: booking.checkIn.at, participantsPresent: booking.checkIn.participantsPresent }
+      ? {
+          at: booking.checkIn.at,
+          method: booking.checkIn.method,
+          participantsPresent: booking.checkIn.participantsPresent,
+        }
+      : null,
+    arrivedAt: booking.arrival?.at ?? null,
+    providerAbsence: booking.providerAbsence
+      ? {
+          reportedAt: booking.providerAbsence.reportedAt,
+          respondBy: booking.providerAbsence.respondBy,
+          answer: booking.providerAbsence.answer ?? null,
+          resolution: booking.providerAbsence.resolution ?? null,
+        }
+      : null,
+    serviceConfirmation: booking.serviceConfirmation
+      ? {
+          askedAt: booking.serviceConfirmation.askedAt,
+          answerBy: booking.serviceConfirmation.answerBy,
+          answer: booking.serviceConfirmation.answer ?? null,
+          resolution: booking.serviceConfirmation.resolution ?? null,
+        }
       : null,
     createdAt: booking.createdAt,
   };

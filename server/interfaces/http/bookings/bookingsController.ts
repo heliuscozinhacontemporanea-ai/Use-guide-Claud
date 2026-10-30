@@ -1,12 +1,14 @@
 import type { Response } from 'express';
 import { cancelBookingByBuyerApplicationUseCase } from '../../../application/usecases/bookings/cancelBookingByBuyerApplicationUseCase';
+import { answerServiceConfirmationApplicationUseCase } from '../../../application/usecases/bookings/answerServiceConfirmationApplicationUseCase';
 import { createBookingApplicationUseCase } from '../../../application/usecases/bookings/createBookingApplicationUseCase';
+import { markBookingNoShowApplicationUseCase } from '../../../application/usecases/bookings/markBookingNoShowApplicationUseCase';
+import { reportProviderAbsentApplicationUseCase } from '../../../application/usecases/bookings/reportProviderAbsentApplicationUseCase';
 import {
   getBookingCheckInCodeUseCase,
   getBookingForActorUseCase,
   listAvailableSlotsUseCase,
   listMyBookingsUseCase,
-  markBookingNoShowUseCase,
 } from '../../../domain/bookings';
 import type { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
 import { handleBookingError, sendError } from './bookingHttpErrors';
@@ -17,6 +19,7 @@ import {
   DocumentIdSchema,
   IdempotencyKeyHeaderSchema,
   PageQuerySchema,
+  ServiceConfirmationAnswerSchema,
   SlotWindowQuerySchema,
 } from './schemas/bookingSchemas';
 
@@ -134,10 +137,46 @@ export class BookingsController {
     const bookingId = DocumentIdSchema.safeParse(req.params.bookingId);
     if (!bookingId.success) return sendError(res, 404, 'NOT_FOUND', 'Reserva não encontrada.');
     try {
-      const booking = await markBookingNoShowUseCase(actor, bookingId.data);
+      const booking = await markBookingNoShowApplicationUseCase(actor, bookingId.data);
       return res.status(200).json(toSellerBooking(booking));
     } catch (error) {
       return handleBookingError(res, 'markNoShow', error);
+    }
+  }
+
+  static async reportProviderAbsent(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    const actor = actorOf(req);
+    if (!actor) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
+    const bookingId = DocumentIdSchema.safeParse(req.params.bookingId);
+    if (!bookingId.success) return sendError(res, 404, 'NOT_FOUND', 'Reserva não encontrada.');
+    try {
+      const booking = await reportProviderAbsentApplicationUseCase(actor, bookingId.data);
+      return res.status(200).json(toBuyerBooking(booking));
+    } catch (error) {
+      return handleBookingError(res, 'reportProviderAbsent', error);
+    }
+  }
+
+  static async answerServiceConfirmation(
+    req: AuthenticatedRequest,
+    res: Response
+  ): Promise<Response> {
+    const actor = actorOf(req);
+    if (!actor) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
+    const bookingId = DocumentIdSchema.safeParse(req.params.bookingId);
+    const body = ServiceConfirmationAnswerSchema.safeParse(req.body);
+    if (!bookingId.success || !body.success) {
+      return sendError(res, 400, 'VALIDATION_ERROR', 'Resposta inválida.');
+    }
+    try {
+      const booking = await answerServiceConfirmationApplicationUseCase(
+        actor,
+        bookingId.data,
+        body.data.answer
+      );
+      return res.status(200).json(toBuyerBooking(booking));
+    } catch (error) {
+      return handleBookingError(res, 'answerServiceConfirmation', error);
     }
   }
 }

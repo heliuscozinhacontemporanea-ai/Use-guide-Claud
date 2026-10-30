@@ -17,6 +17,17 @@ bookingsRouter.get('/:bookingId', verifyAuthToken, BookingsController.get);
 bookingsRouter.get('/:bookingId/check-in-code', verifyAuthToken, BookingsController.getCheckInCode);
 bookingsRouter.post('/:bookingId/cancel', verifyAuthTokenStrict, BookingsController.cancel);
 bookingsRouter.post('/:bookingId/no-show', verifyAuthToken, BookingsController.markNoShow);
+// Relato e resposta mexem no reembolso (D20): token revogado não serve.
+bookingsRouter.post(
+  '/:bookingId/provider-absent',
+  verifyAuthTokenStrict,
+  BookingsController.reportProviderAbsent
+);
+bookingsRouter.post(
+  '/:bookingId/service-confirmation',
+  verifyAuthTokenStrict,
+  BookingsController.answerServiceConfirmation
+);
 
 export const partnerOffersRouter = Router();
 partnerOffersRouter.use(verifyAuthToken);
@@ -42,4 +53,19 @@ partnerOffersRouter.post(
   '/:offerId/slots/:slotId/check-ins',
   verifyAuthTokenStrict,
   PartnerOffersController.checkIn
+);
+partnerOffersRouter.post(
+  '/:offerId/bookings/:bookingId/arrival',
+  verifyAuthToken,
+  PartnerOffersController.recordArrival
+);
+partnerOffersRouter.post(
+  '/:offerId/bookings/:bookingId/check-in-without-code',
+  verifyAuthTokenStrict,
+  PartnerOffersController.checkInWithoutCode
+);
+partnerOffersRouter.post(
+  '/:offerId/bookings/:bookingId/absence-response',
+  verifyAuthTokenStrict,
+  PartnerOffersController.answerProviderAbsence
 );

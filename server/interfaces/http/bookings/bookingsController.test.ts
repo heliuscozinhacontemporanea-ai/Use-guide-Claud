@@ -7,6 +7,18 @@ vi.mock('../../../application/usecases/bookings/createBookingApplicationUseCase'
 vi.mock('../../../application/usecases/bookings/cancelBookingByBuyerApplicationUseCase', () => ({
   cancelBookingByBuyerApplicationUseCase: vi.fn(),
 }));
+vi.mock('../../../application/usecases/bookings/markBookingNoShowApplicationUseCase', () => ({
+  markBookingNoShowApplicationUseCase: vi.fn(),
+}));
+vi.mock('../../../application/usecases/bookings/reportProviderAbsentApplicationUseCase', () => ({
+  reportProviderAbsentApplicationUseCase: vi.fn(),
+}));
+vi.mock(
+  '../../../application/usecases/bookings/answerServiceConfirmationApplicationUseCase',
+  () => ({
+    answerServiceConfirmationApplicationUseCase: vi.fn(),
+  })
+);
 vi.mock('../../../domain/bookings', async () => {
   const { BookingDomainError } = await import('../../../domain/bookings/errors/bookingDomainError');
   return {
@@ -19,7 +31,9 @@ vi.mock('../../../domain/bookings', async () => {
   };
 });
 
+import { answerServiceConfirmationApplicationUseCase } from '../../../application/usecases/bookings/answerServiceConfirmationApplicationUseCase';
 import { createBookingApplicationUseCase } from '../../../application/usecases/bookings/createBookingApplicationUseCase';
+import { reportProviderAbsentApplicationUseCase } from '../../../application/usecases/bookings/reportProviderAbsentApplicationUseCase';
 import {
   BookingDomainError,
   getBookingCheckInCodeUseCase,
@@ -238,5 +252,37 @@ describe('BookingsController', () => {
       checkIn: { at: '2026-11-10T11:02:00.000Z', participantsPresent: 2 },
     });
     expect(JSON.stringify(json.mock.calls[0]?.[0])).not.toContain('byUid');
+  });
+
+  it('"O prestador não veio" repassa só o comprador e a reserva (D20)', async () => {
+    vi.mocked(reportProviderAbsentApplicationUseCase).mockResolvedValue(BOOKING as never);
+    const { res, status } = response();
+    await BookingsController.reportProviderAbsent(request({ params: { bookingId: 'bk_1' } }), res);
+    expect(reportProviderAbsentApplicationUseCase).toHaveBeenCalledWith(
+      { uid: 'buyer-1', admin: false },
+      'bk_1'
+    );
+    expect(status).toHaveBeenCalledWith(200);
+  });
+
+  it('resposta a "O serviço aconteceu?" só aceita sim ou não', async () => {
+    const { res, status } = response();
+    await BookingsController.answerServiceConfirmation(
+      request({ params: { bookingId: 'bk_1' }, body: { answer: 'talvez' } }),
+      res
+    );
+    expect(status).toHaveBeenCalledWith(400);
+    expect(answerServiceConfirmationApplicationUseCase).not.toHaveBeenCalled();
+    vi.mocked(answerServiceConfirmationApplicationUseCase).mockResolvedValue(BOOKING as never);
+    const ok = response();
+    await BookingsController.answerServiceConfirmation(
+      request({ params: { bookingId: 'bk_1' }, body: { answer: 'no' } }),
+      ok.res
+    );
+    expect(answerServiceConfirmationApplicationUseCase).toHaveBeenCalledWith(
+      { uid: 'buyer-1', admin: false },
+      'bk_1',
+      'no'
+    );
   });
 });

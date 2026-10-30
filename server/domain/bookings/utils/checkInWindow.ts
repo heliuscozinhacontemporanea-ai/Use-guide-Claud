@@ -30,3 +30,12 @@ export function checkInWindow(
     closesAtMs: serviceEndsAtMs(startsAt, durationMinutes) + CHECK_IN_CLOSES_AFTER_MS,
   };
 }
+
+/** "Cliente não apareceu" só 30 min depois do "Cheguei" (D20). */
+export const NO_SHOW_WAIT_MS = 30 * MINUTE_MS;
+/** "O prestador não veio" a partir de 30 min depois do horário (D20). */
+export const PROVIDER_ABSENT_AFTER_MS = 30 * MINUTE_MS;
+/** Prazo do prestador para responder ao "O prestador não veio" (D20). */
+export const ABSENCE_RESPONSE_MS = 2 * HOUR_MS;
+/** Prazo do comprador para responder "O serviço aconteceu?" (D20). */
+export const SERVICE_CONFIRMATION_MS = 72 * HOUR_MS;

@@ -55,6 +55,13 @@ describe('SaleClaimService (D16 2A)', () => {
     await expect(late.service.open(CLAIM)).rejects.toMatchObject({ code: 'CLAIM_WINDOW_CLOSED' });
   });
 
+  it('aberta pelo sistema depois das 48 h, enquanto o repasse não saiu (D20)', async () => {
+    const late = await setup('2026-12-23T03:00:01.000Z');
+    await expect(late.service.open({ ...CLAIM, allowAfterWindow: true })).resolves.toMatchObject({
+      status: 'open',
+    });
+  });
+
   it('abre uma por venda, retém o repasse e decide em até 5 dias', async () => {
     const { service, entries } = await setup();
     const claim = await service.open(CLAIM);

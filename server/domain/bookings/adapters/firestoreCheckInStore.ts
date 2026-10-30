@@ -10,7 +10,7 @@ import {
   writeAudit,
 } from './firestoreBookingsShared';
 
-/** Check-in das reservas e contagem de códigos errados por horário (D20). */
+/** Check-in, prazos e demais registros da prova do serviço nas reservas (D20). */
 export class FirestoreCheckInStore {
   async recordCheckIn(bookingId: string, checkIn: BookingCheckIn): Promise<Booking> {
     return adminDb.runTransaction(async (tx) => {
@@ -48,5 +48,40 @@ export class FirestoreCheckInStore {
   async addCheckInFailure(slotId: string, actorUid: string, atIso: string): Promise<void> {
     // Só o horário, quem digitou e quando: nunca o código digitado (AGENTS.md §10.3).
     await adminDb.collection(CHECK_IN_FAILURES).add({ slotId, actorUid, at: atIso });
+  }
+
+  async updateBooking(
+    bookingId: string,
+    change: (current: Booking) => Booking | null,
+    audit: { actorUid: string; reason: string }
+  ): Promise<Booking> {
+    return adminDb.runTransaction(async (tx) => {
+      const booking = await readBooking(tx, bookingId);
+      const updated = change(booking);
+      if (!updated) return booking;
+      const saved: Booking = { ...updated, updatedAt: nowIso() };
+      tx.set(
+        adminDb.collection(BOOKINGS).doc(bookingId),
+        BookingPersistenceMapper.toPersistence(saved)
+      );
+      writeAudit(tx, {
+        bookingId,
+        from: booking.status,
+        to: saved.status,
+        actorUid: audit.actorUid,
+        reason: audit.reason,
+      });
+      return saved;
+    });
+  }
+
+  async listBookingsWithDeadlineBefore(nowIsoValue: string, limit: number): Promise<Booking[]> {
+    const snapshot = await adminDb
+      .collection(BOOKINGS)
+      .where('deadline.at', '<=', nowIsoValue)
+      .orderBy('deadline.at', 'asc')
+      .limit(limit)
+      .get();
+    return snapshot.docs.map((doc) => BookingPersistenceMapper.toDomain(doc.id, doc.data()));
   }
 }

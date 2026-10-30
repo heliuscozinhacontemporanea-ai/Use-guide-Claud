@@ -139,6 +139,34 @@ export const CheckInByCodeSchema = z
   })
   .strict();
 
+export const ProviderArrivalSchema = z
+  .object({
+    // Opcional: o navegador pode negar a localização, e o "Cheguei" vale mesmo assim (D20).
+    location: z
+      .object({
+        lat: z.number().min(-90).max(90),
+        lng: z.number().min(-180).max(180),
+        accuracyM: z.number().min(0).max(100_000).optional(),
+      })
+      .strict()
+      .optional(),
+  })
+  .strict();
+
+export const CheckInWithoutCodeSchema = z
+  .object({
+    participantsPresent: z.number().int().min(1).max(50),
+    // Mesma lista de NO_CODE_REASONS no domínio de reservas.
+    reason: z.enum(['no_phone', 'refused', 'other']),
+  })
+  .strict();
+
+export const ProviderAbsenceAnswerSchema = z
+  .object({ answer: z.enum(['was_there', 'admitted']) })
+  .strict();
+
+export const ServiceConfirmationAnswerSchema = z.object({ answer: z.enum(['yes', 'no']) }).strict();
+
 export const CancelBookingSchema = z.object({ reason: z.string().max(300).optional() }).strict();
 
 export const SlotWindowQuerySchema = z

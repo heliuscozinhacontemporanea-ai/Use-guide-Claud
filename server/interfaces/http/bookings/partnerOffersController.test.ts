@@ -3,10 +3,25 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('../../../domain/bookings', async () => {
   const { BookingDomainError } = await import('../../../domain/bookings/errors/bookingDomainError');
-  return { BookingDomainError, checkInBookingByCodeUseCase: vi.fn() };
+  return { BookingDomainError };
 });
+vi.mock('../../../application/usecases/bookings/checkInBookingApplicationUseCase', () => ({
+  checkInBookingApplicationUseCase: vi.fn(),
+}));
+vi.mock('../../../application/usecases/bookings/recordProviderArrivalApplicationUseCase', () => ({
+  recordProviderArrivalApplicationUseCase: vi.fn(),
+}));
+vi.mock('../../../application/usecases/bookings/checkInWithoutCodeApplicationUseCase', () => ({
+  checkInWithoutCodeApplicationUseCase: vi.fn(),
+}));
+vi.mock('../../../application/usecases/bookings/answerProviderAbsenceApplicationUseCase', () => ({
+  answerProviderAbsenceApplicationUseCase: vi.fn(),
+}));
 
-import { BookingDomainError, checkInBookingByCodeUseCase } from '../../../domain/bookings';
+import { checkInBookingApplicationUseCase as checkInBookingByCodeUseCase } from '../../../application/usecases/bookings/checkInBookingApplicationUseCase';
+import { checkInWithoutCodeApplicationUseCase } from '../../../application/usecases/bookings/checkInWithoutCodeApplicationUseCase';
+import { recordProviderArrivalApplicationUseCase } from '../../../application/usecases/bookings/recordProviderArrivalApplicationUseCase';
+import { BookingDomainError } from '../../../domain/bookings';
 import type { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
 import { PartnerOffersController } from './partnerOffersController';
 
@@ -18,7 +33,7 @@ function response() {
 
 function request(body: unknown, uid: string | null = 'partner-1') {
   return {
-    params: { offerId: 'offer-1', slotId: 'slot-1' },
+    params: { offerId: 'offer-1', slotId: 'slot-1', bookingId: 'bk_1' },
     query: {},
     headers: {},
     body,
@@ -80,5 +95,41 @@ describe('PartnerOffersController.checkIn (D20)', () => {
     await PartnerOffersController.checkIn(request({ code: 'K7M4QX', participantsPresent: 1 }), res);
     expect(status).toHaveBeenCalledWith(429);
     expect(json.mock.calls[0]?.[0]).toMatchObject({ error: { code: 'CHECK_IN_LOCKED' } });
+  });
+});
+
+describe('PartnerOffersController — ações na reserva (D20)', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('"Cheguei" aceita sem localização e recusa localização fora do intervalo', async () => {
+    vi.mocked(recordProviderArrivalApplicationUseCase).mockResolvedValue({
+      id: 'bk_1',
+      lines: [],
+      offerSnapshot: { title: 'Buggy', startsAt: '', cancellationPolicy: 'flexible' },
+    } as never);
+    const ok = response();
+    await PartnerOffersController.recordArrival(request({}), ok.res);
+    expect(recordProviderArrivalApplicationUseCase).toHaveBeenCalledWith(
+      { uid: 'partner-1', admin: false },
+      'offer-1',
+      'bk_1',
+      undefined
+    );
+    const bad = response();
+    await PartnerOffersController.recordArrival(
+      request({ location: { lat: 200, lng: 0 } }),
+      bad.res
+    );
+    expect(bad.status).toHaveBeenCalledWith(400);
+  });
+
+  it('"Cliente sem código" só com motivo da lista', async () => {
+    const bad = response();
+    await PartnerOffersController.checkInWithoutCode(
+      request({ participantsPresent: 2, reason: 'esqueceu' }),
+      bad.res
+    );
+    expect(bad.status).toHaveBeenCalledWith(400);
+    expect(checkInWithoutCodeApplicationUseCase).not.toHaveBeenCalled();
   });
 });

@@ -232,10 +232,17 @@ describe('BookingService', () => {
       code: 'INVALID_TRANSITION',
     });
     setNow('2026-11-10T12:00:00.000Z');
-    await expect(service.completeFinishedBookings()).resolves.toBe(0);
+    await expect(service.completeFinishedBookings()).resolves.toMatchObject({ completed: 0 });
     setNow('2026-11-10T13:00:00.000Z');
-    await expect(service.completeFinishedBookings()).resolves.toBe(1);
+    const result = await service.completeFinishedBookings();
+    expect(result.completed).toBe(1);
     expect(port.bookings.get(booking.id)?.status).toBe('completed');
+    // Sem check-in nem outro registro: pergunta "O serviço aconteceu?" por 72 h (D20).
+    expect(result.askedToConfirm.map((b) => b.id)).toEqual([booking.id]);
+    expect(port.bookings.get(booking.id)).toMatchObject({
+      serviceConfirmation: { reason: 'no_record', answerBy: '2026-11-13T13:00:00.000Z' },
+      deadline: { kind: 'service_confirmation', at: '2026-11-13T13:00:00.000Z' },
+    });
   });
 
   it('reserva com check-in não pode ser marcada como ausência (D20)', async () => {
@@ -275,5 +282,48 @@ describe('BookingService', () => {
       FEES
     );
     expect(booking.pickupAddress).toBeUndefined();
+  });
+
+  it('ausência só 30 min depois do "Cheguei" (D20)', async () => {
+    const { service, port, setNow } = setup();
+    const booking = await service.createPendingBooking(BUYER, INPUT, FEES);
+    await service.confirmBookingPayment(booking.id, 'pi_1');
+    const partner = { uid: 'partner-1', admin: false };
+    setNow('2026-11-10T11:10:00.000Z');
+    await expect(service.markBookingNoShow(partner, booking.id)).rejects.toMatchObject({
+      code: 'NO_SHOW_TOO_EARLY',
+    });
+    await port.updateBooking(
+      booking.id,
+      (current) => ({
+        ...current,
+        arrival: { at: '2026-11-10T11:05:00.000Z', byUid: 'partner-1' },
+      }),
+      { actorUid: 'partner-1', reason: 'provider_arrived' }
+    );
+    setNow('2026-11-10T11:34:00.000Z');
+    await expect(service.markBookingNoShow(partner, booking.id)).rejects.toMatchObject({
+      code: 'NO_SHOW_TOO_EARLY',
+    });
+    setNow('2026-11-10T11:35:00.000Z');
+    await expect(service.markBookingNoShow(partner, booking.id)).resolves.toMatchObject({
+      status: 'no_show',
+    });
+  });
+
+  it('conclusão com check-in por código não pergunta ao comprador', async () => {
+    const { service, port, setNow } = setup();
+    const booking = await service.createPendingBooking(BUYER, INPUT, FEES);
+    await service.confirmBookingPayment(booking.id, 'pi_1');
+    await port.recordCheckIn(booking.id, {
+      at: '2026-11-10T11:02:00.000Z',
+      byUid: 'partner-1',
+      method: 'code',
+      participantsPresent: 2,
+    });
+    setNow('2026-11-10T13:00:00.000Z');
+    const result = await service.completeFinishedBookings();
+    expect(result).toMatchObject({ completed: 1, askedToConfirm: [] });
+    expect(port.bookings.get(booking.id)?.serviceConfirmation).toBeUndefined();
   });
 });

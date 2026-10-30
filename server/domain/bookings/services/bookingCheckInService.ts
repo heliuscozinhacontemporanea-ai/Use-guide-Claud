@@ -113,7 +113,10 @@ export class BookingCheckInService {
     const code = normalizeCheckInCode(input.code);
     const bookings = code
       ? (await this.port.listBookingsBySlot(slot.id)).filter(
-          (booking) => booking.status === 'confirmed' || booking.status === 'completed'
+          (booking) =>
+            (booking.status === 'confirmed' || booking.status === 'completed') &&
+            // Já reembolsada porque o prestador não veio (D20): o código não vale mais.
+            booking.providerAbsence?.resolution !== 'refunded'
         )
       : [];
     const match = code

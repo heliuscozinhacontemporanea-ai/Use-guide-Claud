@@ -16,7 +16,10 @@ export type BookingErrorCode =
   | 'CHECK_IN_NOT_APPLICABLE'
   | 'CHECK_IN_WINDOW_CLOSED'
   | 'INVALID_CHECK_IN_CODE'
-  | 'CHECK_IN_LOCKED';
+  | 'CHECK_IN_LOCKED'
+  | 'NO_SHOW_TOO_EARLY'
+  | 'ABSENCE_REPORT_NOT_ALLOWED'
+  | 'NOTHING_TO_ANSWER';
 
 const STATUS_BY_CODE: Record<BookingErrorCode, number> = {
   VALIDATION_ERROR: 400,
@@ -37,6 +40,9 @@ const STATUS_BY_CODE: Record<BookingErrorCode, number> = {
   CHECK_IN_WINDOW_CLOSED: 422,
   INVALID_CHECK_IN_CODE: 422,
   CHECK_IN_LOCKED: 429,
+  NO_SHOW_TOO_EARLY: 422,
+  ABSENCE_REPORT_NOT_ALLOWED: 422,
+  NOTHING_TO_ANSWER: 409,
 };
 
 export class BookingDomainError extends Error {

@@ -6,9 +6,11 @@ import {
   type BookingActor,
   type BookingCancellation,
   type BookingParticipant,
+  CHECK_IN_CODE_KINDS,
   cancellationFamilyOf,
   type Page,
 } from '../types/bookingTypes';
+import { NO_SHOW_WAIT_MS, SERVICE_CONFIRMATION_MS } from '../utils/checkInWindow';
 import { buildBookingId } from '../utils/buildBookingId';
 import { priceBookingLines } from '../utils/bookingPricing';
 import { calculateBuyerRefund } from '../../../shared/kernel/cancellationPolicy';
@@ -300,6 +302,24 @@ export class BookingService {
     if (booking.checkIn) {
       throw new BookingDomainError('INVALID_TRANSITION', 'Reserva com check-in não é ausência.');
     }
+    if (CHECK_IN_CODE_KINDS.includes(booking.kind)) {
+      // D20: ausência só depois do "Cheguei" e de 30 min de espera, e sem relato de que o prestador faltou.
+      const waitedUntil = booking.arrival
+        ? new Date(booking.arrival.at).getTime() + NO_SHOW_WAIT_MS
+        : Number.POSITIVE_INFINITY;
+      if (this.now().getTime() < waitedUntil) {
+        throw new BookingDomainError(
+          'NO_SHOW_TOO_EARLY',
+          'Toque em "Cheguei" e espere 30 min antes de marcar a ausência.'
+        );
+      }
+      if (booking.providerAbsence) {
+        throw new BookingDomainError(
+          'INVALID_TRANSITION',
+          'O comprador relatou sua ausência: responda pelo aviso da reserva.'
+        );
+      }
+    }
     return this.port.setBookingStatus({
       bookingId,
       to: 'no_show',
@@ -308,26 +328,49 @@ export class BookingService {
     });
   }
 
-  async completeFinishedBookings(limit = 200): Promise<number> {
+  /**
+   * Conclui as reservas cujo horário terminou. Sem check-in nem outro registro, o comprador recebe a
+   * pergunta "O serviço aconteceu?" (D20); essas reservas voltam em `askedToConfirm`.
+   */
+  async completeFinishedBookings(
+    limit = 200
+  ): Promise<{ completed: number; askedToConfirm: Booking[] }> {
     const nowDate = this.now();
     const started = await this.port.listConfirmedBookingsStartedBefore(
       nowDate.toISOString(),
       limit
     );
     let completed = 0;
+    const askedToConfirm: Booking[] = [];
     for (const booking of started) {
       const endsAtMs =
         new Date(booking.offerSnapshot.startsAt).getTime() +
         (booking.offerSnapshot.durationMinutes ?? 0) * 60_000;
       if (endsAtMs > nowDate.getTime()) continue;
-      await this.port.setBookingStatus({
-        bookingId: booking.id,
-        to: 'completed',
-        actorUid: SYSTEM_ACTOR,
-        reason: 'finished',
-      });
+      const ask =
+        CHECK_IN_CODE_KINDS.includes(booking.kind) &&
+        !booking.checkIn &&
+        !booking.providerAbsence &&
+        !booking.serviceConfirmation;
+      const updated = await this.port.updateBooking(
+        booking.id,
+        (current) => {
+          if (current.status !== 'confirmed') return null;
+          if (!ask) return { ...current, status: 'completed' };
+          const answerBy = new Date(nowDate.getTime() + SERVICE_CONFIRMATION_MS).toISOString();
+          return {
+            ...current,
+            status: 'completed',
+            serviceConfirmation: { askedAt: nowDate.toISOString(), answerBy, reason: 'no_record' },
+            deadline: { kind: 'service_confirmation', at: answerBy },
+          };
+        },
+        { actorUid: SYSTEM_ACTOR, reason: 'finished' }
+      );
+      if (updated.status !== 'completed') continue;
       completed += 1;
+      if (ask) askedToConfirm.push(updated);
     }
-    return completed;
+    return { completed, askedToConfirm };
   }
 }

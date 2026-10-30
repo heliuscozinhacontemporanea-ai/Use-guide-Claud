@@ -1,9 +1,12 @@
 import type { Response } from 'express';
+import { answerProviderAbsenceApplicationUseCase } from '../../../application/usecases/bookings/answerProviderAbsenceApplicationUseCase';
+import { checkInBookingApplicationUseCase } from '../../../application/usecases/bookings/checkInBookingApplicationUseCase';
+import { checkInWithoutCodeApplicationUseCase } from '../../../application/usecases/bookings/checkInWithoutCodeApplicationUseCase';
+import { recordProviderArrivalApplicationUseCase } from '../../../application/usecases/bookings/recordProviderArrivalApplicationUseCase';
 import { cancelSlotByPartnerApplicationUseCase } from '../../../application/usecases/bookings/cancelSlotByPartnerApplicationUseCase';
 import { rescheduleSlotByPartnerApplicationUseCase } from '../../../application/usecases/bookings/rescheduleSlotByPartnerApplicationUseCase';
 import { setBookableOfferStatusApplicationUseCase } from '../../../application/usecases/bookings/setBookableOfferStatusApplicationUseCase';
 import {
-  checkInBookingByCodeUseCase,
   createAvailabilitySlotsUseCase,
   createBookableOfferUseCase,
   listOfferBookingsForPartnerUseCase,
@@ -16,11 +19,14 @@ import { handleBookingError, sendError } from './bookingHttpErrors';
 import { toPartnerOffer, toPartnerSlot, toSellerBooking } from './bookingResponses';
 import {
   CheckInByCodeSchema,
+  CheckInWithoutCodeSchema,
   CreateOfferSchema,
   CreateSlotsSchema,
   DocumentIdSchema,
   OfferStatusSchema,
   PageQuerySchema,
+  ProviderAbsenceAnswerSchema,
+  ProviderArrivalSchema,
   RescheduleSlotSchema,
   SlotWindowQuerySchema,
   UpdateOfferSchema,
@@ -196,7 +202,7 @@ export class PartnerOffersController {
       return sendError(res, 400, 'VALIDATION_ERROR', 'Dados do check-in inválidos.');
     }
     try {
-      const booking = await checkInBookingByCodeUseCase(actor, {
+      const booking = await checkInBookingApplicationUseCase(actor, {
         offerId: offerId.data,
         slotId: slotId.data,
         ...body.data,
@@ -206,4 +212,78 @@ export class PartnerOffersController {
       return handleBookingError(res, 'checkIn', error);
     }
   }
+
+  static async recordArrival(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    const parsed = parseBookingAction(req, ProviderArrivalSchema);
+    if (!parsed.ok) return sendError(res, parsed.status, parsed.code, parsed.message);
+    try {
+      const booking = await recordProviderArrivalApplicationUseCase(
+        parsed.actor,
+        parsed.offerId,
+        parsed.bookingId,
+        parsed.body.location
+      );
+      return res.status(200).json(toSellerBooking(booking));
+    } catch (error) {
+      return handleBookingError(res, 'recordArrival', error);
+    }
+  }
+
+  static async checkInWithoutCode(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    const parsed = parseBookingAction(req, CheckInWithoutCodeSchema);
+    if (!parsed.ok) return sendError(res, parsed.status, parsed.code, parsed.message);
+    try {
+      const booking = await checkInWithoutCodeApplicationUseCase(parsed.actor, {
+        offerId: parsed.offerId,
+        bookingId: parsed.bookingId,
+        ...parsed.body,
+      });
+      return res.status(200).json(toSellerBooking(booking));
+    } catch (error) {
+      return handleBookingError(res, 'checkInWithoutCode', error);
+    }
+  }
+
+  static async answerProviderAbsence(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    const parsed = parseBookingAction(req, ProviderAbsenceAnswerSchema);
+    if (!parsed.ok) return sendError(res, parsed.status, parsed.code, parsed.message);
+    try {
+      const booking = await answerProviderAbsenceApplicationUseCase(
+        parsed.actor,
+        parsed.offerId,
+        parsed.bookingId,
+        parsed.body.answer
+      );
+      return res.status(200).json(toSellerBooking(booking));
+    } catch (error) {
+      return handleBookingError(res, 'answerProviderAbsence', error);
+    }
+  }
+}
+
+type BookingAction<T> =
+  | {
+      ok: true;
+      actor: { uid: string; admin: boolean };
+      offerId: string;
+      bookingId: string;
+      body: T;
+    }
+  | { ok: false; status: number; code: string; message: string };
+
+/** Autenticação, IDs da rota e corpo das ações do prestador numa reserva. */
+function parseBookingAction<T>(
+  req: AuthenticatedRequest,
+  schema: { safeParse(value: unknown): { success: true; data: T } | { success: false } }
+): BookingAction<T> {
+  const actor = actorOf(req);
+  if (!actor)
+    return { ok: false, status: 401, code: 'UNAUTHENTICATED', message: 'Não autenticado.' };
+  const offerId = DocumentIdSchema.safeParse(req.params.offerId);
+  const bookingId = DocumentIdSchema.safeParse(req.params.bookingId);
+  const body = schema.safeParse(req.body ?? {});
+  if (!offerId.success || !bookingId.success || !body.success) {
+    return { ok: false, status: 400, code: 'VALIDATION_ERROR', message: 'Dados inválidos.' };
+  }
+  return { ok: true, actor, offerId: offerId.data, bookingId: bookingId.data, body: body.data };
 }

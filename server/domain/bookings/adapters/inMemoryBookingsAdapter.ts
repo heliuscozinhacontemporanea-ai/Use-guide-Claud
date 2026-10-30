@@ -210,6 +210,25 @@ export class InMemoryBookingsAdapter implements BookingsPort {
     this.audit.push({ bookingId, reason: 'checked_in' });
     return updated;
   }
+  async updateBooking(
+    bookingId: string,
+    change: (current: Booking) => Booking | null,
+    audit: { actorUid: string; reason: string }
+  ) {
+    const booking = this.bookings.get(bookingId);
+    if (!booking) throw new BookingDomainError('NOT_FOUND', 'Reserva não encontrada.');
+    const updated = change(booking);
+    if (!updated) return booking;
+    this.bookings.set(bookingId, updated);
+    this.audit.push({ bookingId, reason: audit.reason });
+    return updated;
+  }
+  async listBookingsWithDeadlineBefore(nowIso: string, limit: number) {
+    return [...this.bookings.values()]
+      .filter((b) => b.deadline && b.deadline.at <= nowIso)
+      .sort((a, b) => (a.deadline?.at ?? '').localeCompare(b.deadline?.at ?? ''))
+      .slice(0, limit);
+  }
   async countCheckInFailures(slotId: string, sinceIso: string) {
     return this.checkInFailures.filter((f) => f.slotId === slotId && f.at >= sinceIso).length;
   }

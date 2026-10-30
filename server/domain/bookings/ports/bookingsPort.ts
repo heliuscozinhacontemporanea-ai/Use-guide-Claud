@@ -76,6 +76,18 @@ export interface BookingsPort {
   countCheckInFailures(slotId: string, sinceIso: string): Promise<number>;
   addCheckInFailure(slotId: string, actorUid: string, atIso: string): Promise<void>;
 
+  /**
+   * Muda a reserva numa transação: `change` recebe o estado atual e devolve o novo, ou null para não
+   * gravar nada (idempotência); pode lançar para recusar. Grava auditoria com `reason`.
+   */
+  updateBooking(
+    bookingId: string,
+    change: (current: Booking) => Booking | null,
+    audit: { actorUid: string; reason: string }
+  ): Promise<Booking>;
+  /** Reservas com prazo (`deadline.at`) vencido até `nowIso`, do mais antigo para o mais novo. */
+  listBookingsWithDeadlineBefore(nowIso: string, limit: number): Promise<Booking[]>;
+
   getBooking(bookingId: string): Promise<Booking | null>;
   getParticipants(bookingId: string): Promise<BookingParticipant[]>;
   listBookingsByBuyer(buyerId: string, page: PageRequest): Promise<Page<Booking>>;

@@ -20,6 +20,11 @@ export interface OpenSaleClaimInput {
   details?: string;
   serviceStartsAt: string;
   serviceEndsAt: string;
+  /**
+   * Aberta pelo sistema depois das 48 h (pergunta "O serviço aconteceu?" de 72 h, D20); o repasse ainda
+   * não pode ter sido liberado.
+   */
+  allowAfterWindow?: boolean;
 }
 
 export interface SaleClaimDecision {
@@ -89,7 +94,8 @@ export class SaleClaimService {
       );
     }
     const entry = await this.payouts.getForReference(input.referenceType, input.referenceId);
-    if (nowIso > computeReleaseAt(input.serviceEndsAt) || entry?.status === 'released') {
+    const windowClosed = !input.allowAfterWindow && nowIso > computeReleaseAt(input.serviceEndsAt);
+    if (windowClosed || entry?.status === 'released') {
       throw new PaymentDomainError(
         'CLAIM_WINDOW_CLOSED',
         'O prazo para relatar um problema era de 48 h depois do fim do serviço.',

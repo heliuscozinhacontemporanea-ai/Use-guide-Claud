@@ -259,4 +259,22 @@ describe('BookingCheckInService (D20)', () => {
     await service.checkInByCode(PARTNER, checkIn(deriveCheckInCode('booking-1')));
     expect(await service.hasCheckIn('booking-1')).toBe(true);
   });
+
+  it('reserva reembolsada porque o prestador não veio não aceita mais o código', async () => {
+    const { service, port } = setup();
+    port.bookings.set(
+      'booking-1',
+      booking('booking-1', {
+        providerAbsence: {
+          reportedAt: '2026-11-10T11:31:00.000Z',
+          respondBy: '2026-11-10T13:31:00.000Z',
+          claimId: 'claim_1',
+          resolution: 'refunded',
+        },
+      })
+    );
+    await expect(
+      service.checkInByCode(PARTNER, checkIn(deriveCheckInCode('booking-1')))
+    ).rejects.toMatchObject({ code: 'INVALID_CHECK_IN_CODE' });
+  });
 });
