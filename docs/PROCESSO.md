@@ -125,6 +125,7 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 | 20.5 | Denúncia de resposta e aba Moderação (D19) | `b15f337..2dabeed` | ✅ zip 2026-10-29 | ✅ igual à referência |
 | C17 | Correção do lote 17: cartão do tema claro e texto do B30 | — | ⏳ enviar (lote 18) | — |
 | 20.6 | Painel admin: App Check, abas e build de produção | `ce40518..a5266cd` | ⏳ enviar (lote 18) | — |
+| A7 | AGENTS.md §7.7 (S18) e D20 | `a94137d..024bf5f` | ⏳ enviar (lote 18) | — |
 
 ### Revisões futuras (aprovadas para depois)
 
