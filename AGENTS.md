@@ -400,6 +400,7 @@ Todo campo novo DEVE ser classificado antes de ser persistido. A classe define o
 |---|---|---|
 | Senhas de usuário | Firebase Auth (o backend nunca recebe nem guarda senha) | qualquer armazenamento próprio de senha |
 | Tokens opacos (QR de ingresso, convite, link de transferência, reset) | gerar com `crypto.randomBytes(≥ 16)` (≥ 128 bits); guardar só `HMAC-SHA-256` com chave do Secret Manager | guardar o token em texto puro; `Math.random()`; UUID como segredo |
+| Código de check-in de reserva (exceção ao mínimo de 128 bits, D20) | 6 caracteres derivados por `HMAC-SHA-256` do ID da reserva com chave do Secret Manager (com `kid`), nunca gravados; válido só para o dono autenticado da oferta, na janela do serviço, com no máximo 5 erros por horário a cada 15 min | usar o código fora dessa janela ou sem login; aceitá-lo por canal que não seja o painel do prestador |
 | Assinatura offline (check-in) | RSA-PSS SHA-256 com chave ≥ 3072 bits **ou** Ed25519; `kid` no token para rotação | RSA PKCS#1 v1.5 em código novo; chave privada no frontend |
 | Comparar segredos | `crypto.timingSafeEqual` sobre buffers de mesmo tamanho | `===` em segredos |
 | Integridade de webhook | verificação do SDK do provedor (`stripe.webhooks.constructEvent`) | verificação manual sem tolerância de tempo |

@@ -285,3 +285,24 @@ Propostas montadas em preview (Minhas reservas, Pedidos e Financeiro do admin) e
 * **Denúncia de resposta:** motivos fechados (ofensiva ou desrespeitosa, fraude ou golpe, expõe dados pessoais, outro) e texto opcional; o estabelecimento não sabe quem denunciou; prazo de análise exibido: 3 dias. Aceita pelo admin, a resposta é removida e o caso fica registrado; se indicar fraude, serve de base para o admin suspender o estabelecimento. A fila fica numa aba nova **Moderação** no painel do admin.
 * **Prompts:** 20.4 (perfil, Configurações e Minhas avaliações) e 20.5 (denúncia e Moderação).
 
+
+## D20 — Check-in de reservas por código e repasse com prova do serviço (2026-10-30)
+
+Passeio, aluguel e translado ganham código de check-in; entrada de atração privada ganha QR Code como o ingresso. O repasse passa a depender de prova do serviço (check-in ou no-show comprovado). Desenho feito por simulação do passeio de buggy.
+
+* **Código (passeio, aluguel, translado):** 6 caracteres de alfabeto sem ambíguos (sem 0/O, 1/I/L), um por reserva (vale para o grupo), derivado no servidor por HMAC do ID da reserva com `BOOKING_CHECKIN_CODE_SECRET` (com `kid`), nunca gravado. Aparece ao comprador às 00:00 do dia do serviço (`America/Fortaleza`), com o aviso "nunca informe por telefone ou mensagem". Só o dono autenticado da oferta valida, na janela de 2 h antes do início até 12 h depois do fim, com no máximo 5 erros por horário a cada 15 min (contados no Firestore). Exceção ao §7.7 registrada no AGENTS.md (S18).
+* **Entrada de atração privada:** QR Code assinado, verificável offline, como o ingresso de evento. Vale o dia inteiro, até o fechamento.
+* **O serviço começa com o código:** o painel só mostra "Iniciar serviço" depois do check-in; começar sem check-in é por conta e risco do prestador (termos do parceiro). O prestador informa quantas pessoas estão presentes; quem faltou conta como no-show, sem reembolso.
+* **Endereço de busca:** o comprador informa onde está (hospedagem ou endereço) na compra. Dado pessoal (Confidencial, §7.6): só o prestador daquela reserva vê, e é apagado depois do serviço.
+* **Aviso ao prestador:** só pelos avisos do app por enquanto; e-mail fica para quando houver provedor (decisão futura, §15).
+* **"Cheguei":** o prestador registra a chegada com hora e localização (permissão do navegador pedida só nesse toque; localização fora dos logs). O comprador recebe "Seu prestador está te esperando".
+* **Comprador não apareceu (no-show):** depois de 30 min de espera desde o "Cheguei" (passeio, aluguel e translado; translado no aeroporto: 60 min depois do pouso, voo informado pelo comprador), o prestador marca "Cliente não apareceu". O comprador tem 24 h para contestar (vai ao admin); sem contestação, o prestador recebe e o comprador não tem reembolso.
+* **Prestador não veio:** 30 min depois do horário, com o código sem uso, o comprador toca "O prestador não veio". O prestador tem 2 h para responder; sem resposta ou admitindo a falta, reembolso integral ao comprador (inclusive a taxa de serviço), sem repasse e multa de 20% da D14; repetição suspende a oferta. Se o prestador disser que foi, o admin decide com o "Cheguei" e a conversa.
+* **Prestador atrasado:** check-in feito depois do pedido de "O prestador não veio" cancela o pedido e o serviço segue normal.
+* **Comprador sem código** (sem celular, sem bateria ou recusa): o prestador toca "Cliente sem código" e segue por conta e risco; o comprador recebe "O serviço aconteceu?". Sim = check-in confirmado; Não = admin. Fraude confirmada: o prestador recebe e a conta do comprador é bloqueada.
+* **Nada registrado** (sem check-in, sem "Cheguei"): o comprador recebe "O serviço aconteceu?". Sim = repasse; Não ou sem resposta em 72 h = reembolso integral ao comprador e o caso vai ao admin.
+* **Sem internet:** o painel guarda o código digitado e valida quando o sinal volta; código errado = caso "Comprador sem código".
+* **Repasse:** só com check-in, check-in confirmado pelo comprador ou no-show sem contestação, sempre 48 h depois do fim (D14). Reclamação (D16) continua retendo o repasse até o admin decidir. Contestação no cartão com check-in: a plataforma arca (igual ao ingresso); sem check-in: dívida do documento (D16).
+* **Avaliação verificada:** o check-in libera o selo "Experiência verificada" nas avaliações de reservas (§9.4).
+* **Em aberto:** QR de atração privada não usado até o fechamento — tratado como ingresso não usado (no-show, prestador recebe) ou como "nada registrado" (pergunta ao comprador)?
+* **Prompts:** 21.x (a definir).
