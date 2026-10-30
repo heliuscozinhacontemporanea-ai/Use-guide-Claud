@@ -29,6 +29,11 @@ function booking(overrides: Partial<BookingSummary> = {}): BookingSummary {
     },
     cancellation: null,
     rescheduledAt: null,
+    pickupAddress: null,
+    checkIn: null,
+    arrivedAt: null,
+    providerAbsence: null,
+    serviceConfirmation: null,
     createdAt: '2026-10-01T12:00:00.000Z',
     ...overrides,
   };

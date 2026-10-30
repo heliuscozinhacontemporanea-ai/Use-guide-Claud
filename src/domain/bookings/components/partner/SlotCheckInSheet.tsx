@@ -1,0 +1,165 @@
+import { Camera, Minus, Plus } from 'lucide-react';
+import { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { CodeBoxesInput } from '../../../../ui/components/CodeBoxesInput';
+import { Dialog } from '../../../../ui/components/Dialog';
+import { StatusText } from '../../../../ui/components/StatusText';
+import { useQrScanner } from '../../../../ui/hooks/useQrScanner';
+import { BUTTON_PRIMARY, BUTTON_SECONDARY } from '../../../../ui/styles/controls';
+import { useSlotCheckIn } from '../../hooks/useSlotCheckIn';
+import type { BookingSummary, OfferKind, PartnerSlot } from '../../types/bookings';
+import { CHECK_IN_ALPHABET, checkInPrefix, codeLengthFor } from '../../utils/checkInPrefix';
+import { formatSlotTime } from '../../utils/dates';
+
+const STEP =
+  'press w-11 h-11 rounded-xl bg-surface border border-line flex items-center justify-center text-ink disabled:opacity-40 focus-visible:ring-2 focus-visible:ring-teal-400/50';
+
+/** Check-in do horário pelo código do comprador, ou portaria da entrada pelo QR e código (D20). */
+export function SlotCheckInSheet({
+  offerId,
+  kind,
+  slot,
+  onClose,
+  onCheckedIn,
+}: {
+  offerId: string;
+  kind: OfferKind;
+  slot: PartnerSlot;
+  onClose: () => void;
+  onCheckedIn?: (booking: BookingSummary) => void;
+}) {
+  const { t, i18n } = useTranslation();
+  const entry = kind === 'private_entry';
+  const length = codeLengthFor(kind);
+  const prefix = checkInPrefix(kind);
+  const [code, setCode] = useState('');
+  const [present, setPresent] = useState(1);
+  const { submit, sending, result, pending } = useSlotCheckIn(offerId, slot.id, kind, onCheckedIn);
+
+  const onQr = useCallback(
+    (qrToken: string) => {
+      void submit({ qrToken, participantsPresent: present });
+    },
+    [present, submit]
+  );
+  const scanner = useQrScanner(onQr);
+
+  const confirm = async () => {
+    if (await submit({ code, participantsPresent: present })) setCode('');
+  };
+
+  return (
+    <Dialog
+      open
+      onOpenChange={(open) => !open && onClose()}
+      title={`${t(entry ? 'serviceProof.partner.entrySheetTitle' : 'serviceProof.partner.sheetTitle')} · ${formatSlotTime(slot.startsAt, i18n.language)}`}
+    >
+      <div className="space-y-5">
+        {entry && (
+          <div className="space-y-2">
+            {scanner.state === 'scanning' ? (
+              <>
+                <video
+                  ref={scanner.videoRef}
+                  muted
+                  playsInline
+                  className="w-full aspect-square rounded-2xl bg-ink/10 object-cover"
+                />
+                <p className="text-[13px] text-ink/70 text-center">
+                  {t('serviceProof.partner.scanning')}
+                </p>
+                <button
+                  type="button"
+                  onClick={scanner.stop}
+                  className={`${BUTTON_SECONDARY} w-full`}
+                >
+                  {t('serviceProof.partner.stopScan')}
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                onClick={() => void scanner.start()}
+                disabled={sending}
+                className={`${BUTTON_SECONDARY} w-full inline-flex items-center justify-center gap-2`}
+              >
+                <Camera size={16} aria-hidden="true" />
+                {t('serviceProof.partner.scan')}
+              </button>
+            )}
+            {(scanner.state === 'unsupported' || scanner.state === 'denied') && (
+              <p className="text-[13px] text-warn">
+                {t(
+                  scanner.state === 'denied'
+                    ? 'serviceProof.partner.cameraDenied'
+                    : 'serviceProof.partner.scanUnsupported'
+                )}
+              </p>
+            )}
+          </div>
+        )}
+
+        <CodeBoxesInput
+          prefix={prefix}
+          length={length}
+          alphabet={CHECK_IN_ALPHABET}
+          value={code}
+          onChange={setCode}
+          label={t(
+            entry ? 'serviceProof.partner.entryCodeLabel' : 'serviceProof.partner.codeLabel'
+          )}
+          boxLabel={(index) => t('serviceProof.partner.character', { n: index + 1, total: length })}
+          disabled={sending}
+        />
+
+        <div className="space-y-2">
+          <p className="text-[13px] font-semibold text-ink/80">
+            {t('serviceProof.partner.participantsLabel')}
+          </p>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              className={STEP}
+              onClick={() => setPresent((value) => Math.max(1, value - 1))}
+              disabled={present <= 1}
+              aria-label={t('bookings.buyer.decrease')}
+            >
+              <Minus size={16} aria-hidden="true" />
+            </button>
+            <span className="min-w-8 text-center text-lg font-bold text-ink" aria-live="polite">
+              {present}
+            </span>
+            <button
+              type="button"
+              className={STEP}
+              onClick={() => setPresent((value) => Math.min(50, value + 1))}
+              aria-label={t('bookings.buyer.increase')}
+            >
+              <Plus size={16} aria-hidden="true" />
+            </button>
+          </div>
+        </div>
+
+        {result && (
+          <p role="status">
+            <StatusText tone={result.tone}>{result.message}</StatusText>
+          </p>
+        )}
+        {pending > 0 && (
+          <p className="text-[13px] text-warn">
+            {t('serviceProof.partner.pending', { count: pending })}
+          </p>
+        )}
+
+        <button
+          type="button"
+          onClick={() => void confirm()}
+          disabled={sending || code.length !== length}
+          className={`${BUTTON_PRIMARY} w-full`}
+        >
+          {t('serviceProof.partner.submit')}
+        </button>
+      </div>
+    </Dialog>
+  );
+}

@@ -2,7 +2,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { usePartnerSlots } from '../../hooks/usePartnerSlots';
-import type { CreateSlotsPayload, PartnerSlot } from '../../types/bookings';
+import type { CreateSlotsPayload, OfferKind, PartnerSlot } from '../../types/bookings';
 import { getBookingErrorMessage } from '../../utils/bookingErrorMessage';
 import {
   addDays,
@@ -14,6 +14,7 @@ import {
 import { ListEmpty, ListError, ListLoading } from '../../../../ui/components/ListState';
 import { BUTTON_SECONDARY } from '../../../../ui/styles/controls';
 import { SlotCancelDialog } from './SlotCancelDialog';
+import { SlotCheckInSheet } from './SlotCheckInSheet';
 import { SlotCreationForm } from './SlotCreationForm';
 import { SlotRescheduleDialog } from './SlotRescheduleDialog';
 
@@ -26,7 +27,13 @@ function groupByDay(slots: PartnerSlot[]): Array<[string, PartnerSlot[]]> {
   return [...groups.entries()];
 }
 
-export function PartnerSlotsManager({ offerId }: { offerId: string }) {
+export function PartnerSlotsManager({
+  offerId,
+  kind = 'tour',
+}: {
+  offerId: string;
+  kind?: OfferKind;
+}) {
   const { t, i18n } = useTranslation();
   const [weekStart, setWeekStart] = useState(() => startOfFortalezaWeek(new Date()));
   const { data, loading, error, reload, create, cancel, reschedule } = usePartnerSlots(
@@ -35,6 +42,8 @@ export function PartnerSlotsManager({ offerId }: { offerId: string }) {
   );
   const [canceling, setCanceling] = useState<PartnerSlot | null>(null);
   const [rescheduling, setRescheduling] = useState<PartnerSlot | null>(null);
+  const [checkingIn, setCheckingIn] = useState<PartnerSlot | null>(null);
+  const today = fortalezaDateKey(new Date().toISOString());
   const [notice, setNotice] = useState<string | null>(null);
   const days = useMemo(() => groupByDay(data), [data]);
 
@@ -138,6 +147,20 @@ export function PartnerSlotsManager({ offerId }: { offerId: string }) {
                     </div>
                     {slot.status === 'open' && (
                       <div className="flex flex-wrap gap-2">
+                        {/* Check-in só no dia do horário (D20). */}
+                        {fortalezaDateKey(slot.startsAt) === today && slot.capacitySold > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => setCheckingIn(slot)}
+                            className={BUTTON_SECONDARY}
+                          >
+                            {t(
+                              kind === 'private_entry'
+                                ? 'serviceProof.partner.entry'
+                                : 'serviceProof.partner.checkIn'
+                            )}
+                          </button>
+                        )}
                         <button
                           type="button"
                           onClick={() => setRescheduling(slot)}
@@ -160,6 +183,14 @@ export function PartnerSlotsManager({ offerId }: { offerId: string }) {
             </ul>
           </div>
         ))}
+      {checkingIn && (
+        <SlotCheckInSheet
+          offerId={offerId}
+          kind={kind}
+          slot={checkingIn}
+          onClose={() => setCheckingIn(null)}
+        />
+      )}
       <SlotCreationForm onCreate={handleCreate} />
       <SlotCancelDialog
         slot={canceling}

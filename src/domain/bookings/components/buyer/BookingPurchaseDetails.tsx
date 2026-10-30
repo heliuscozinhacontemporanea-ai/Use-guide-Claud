@@ -13,6 +13,7 @@ import { getBookingErrorMessage } from '../../utils/bookingErrorMessage';
 import { formatSlotDateTime } from '../../utils/dates';
 import { formatMinor } from '../../utils/money';
 import { previewRefund } from '../../utils/refundPreview';
+import { BookingServiceActions, hasServiceActions } from './BookingServiceActions';
 
 /** Venda que o comprador pode reclamar; o formato é o de `ClaimableSale` do payment. */
 export interface BookingClaimSale {
@@ -147,6 +148,11 @@ export function BookingPurchaseDetails({
             {t('purchases.receipt.cancelEndedBooking')}
           </p>
         );
+    } else if (!upcoming && hasServiceActions(booking, now)) {
+      // O relato de ausência e a pergunta já abrem a reclamação: não oferecer as duas coisas (D20).
+      footer = (
+        <BookingServiceActions booking={booking} onNotice={onNotice} onChanged={source.reload} />
+      );
     } else if (!upcoming) {
       const sale = renderClaimAction ? claimSaleOf(booking) : null;
       footer = sale ? renderClaimAction?.(sale) : null;

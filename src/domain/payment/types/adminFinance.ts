@@ -16,6 +16,8 @@ export interface AdminSaleClaim extends BuyerSaleClaim, SellerSummary {
   refundableMinor: number;
   /** Teto do reembolso parcial; a taxa de serviço só volta no integral. */
   maxPartialRefundMinor: number;
+  /** Provas do serviço da venda (D20); quem sabe ler é a composição, não o payment. */
+  serviceEvidence?: unknown;
 }
 
 export type SaleClaimOutcome = 'release' | 'refund_full' | 'refund_partial';

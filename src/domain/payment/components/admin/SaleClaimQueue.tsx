@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatMoneyMinor } from '../../../../shared/utils/money';
 import { StatusText } from '../../../../ui/components/StatusText';
@@ -12,8 +12,10 @@ import { formatBusinessDay } from '../../../../shared/utils/businessDateTime';
 
 export function SaleClaimQueue({
   onNotice,
+  renderEvidence,
 }: {
   onNotice: (message: string, error?: boolean) => void;
+  renderEvidence?: (claim: AdminSaleClaim) => ReactNode;
 }) {
   const { t, i18n } = useTranslation();
   const queue = useAdminFinanceQueue(listAdminSaleClaimsUseCase);
@@ -59,6 +61,7 @@ export function SaleClaimQueue({
       <SaleClaimDecisionDialog
         key={deciding?.id ?? 'none'}
         claim={deciding}
+        renderEvidence={renderEvidence}
         onClose={() => setDeciding(null)}
         onDecided={(message) => {
           setDeciding(null);

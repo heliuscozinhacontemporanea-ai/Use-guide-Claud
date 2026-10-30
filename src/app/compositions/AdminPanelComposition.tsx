@@ -1,5 +1,6 @@
 import { AdminDispatcher, type AdminListingEditorProps } from '../../domain/admin';
 import { useAuthContext } from '../../domain/auth/context/AuthContext';
+import { isBookingServiceEvidence, ServiceEvidenceList } from '../../domain/bookings';
 import { EventSessionsField } from '../../domain/events';
 import {
   createGuideItemUseCase,
@@ -94,7 +95,15 @@ export function AdminPanelComposition() {
       renderListingEditor={(props) => <AdminListingEditor {...props} />}
       renderVerificationQueue={() => <ListingVerificationQueue />}
       renderListingSeal={(item) => <AdminListingSealControl itemId={item.id} name={item.name} />}
-      renderFinanceQueues={() => <AdminFinanceQueues />}
+      renderFinanceQueues={() => (
+        <AdminFinanceQueues
+          renderClaimEvidence={(claim) =>
+            isBookingServiceEvidence(claim.serviceEvidence) ? (
+              <ServiceEvidenceList evidence={claim.serviceEvidence} />
+            ) : null
+          }
+        />
+      )}
       renderModerationQueue={() => <ReviewModerationQueue />}
       renderSessionsField={(props) => <EventSessionsField {...props} />}
       renderTicketingManager={(eventListingId) => (

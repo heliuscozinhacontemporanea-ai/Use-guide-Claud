@@ -27,6 +27,7 @@ export interface ReceivablesTranslation {
       pending: string;
       claim: string;
       dispute: string;
+      service_proof: string;
       released: string;
       fully_refunded: string;
       dispute_lost: string;
@@ -127,6 +128,7 @@ export const receivablesPtBR: ReceivablesTranslation = {
       pending: 'Aguardando liberação',
       claim: 'Retido: reclamação em análise',
       dispute: 'Retido: contestação no cartão',
+      service_proof: 'Retido: aguardando o check-in ou a confirmação do comprador',
       released: 'Repassado',
       fully_refunded: 'Reembolsado ao comprador',
       dispute_lost: 'Contestação perdida',
@@ -222,6 +224,7 @@ export const receivablesEn: ReceivablesTranslation = {
       pending: 'Awaiting release',
       claim: 'On hold: complaint under review',
       dispute: 'On hold: card dispute',
+      service_proof: 'On hold: waiting for the check-in or the buyer’s confirmation',
       released: 'Paid out',
       fully_refunded: 'Refunded to the buyer',
       dispute_lost: 'Dispute lost',
@@ -322,6 +325,7 @@ export const receivablesFr: ReceivablesTranslation = {
       pending: 'En attente de déblocage',
       claim: 'Retenu : réclamation en cours',
       dispute: 'Retenu : contestation de carte',
+      service_proof: 'Retenu : en attente de l’enregistrement ou de la confirmation de l’acheteur',
       released: 'Versé',
       fully_refunded: 'Remboursé à l’acheteur',
       dispute_lost: 'Contestation perdue',

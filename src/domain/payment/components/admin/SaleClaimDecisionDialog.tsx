@@ -1,5 +1,5 @@
 import { AlertCircle, Loader2 } from 'lucide-react';
-import { useId, useState } from 'react';
+import { type ReactNode, useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatMoneyMinor } from '../../../../shared/utils/money';
 import { Dialog } from '../../../../ui/components/Dialog';
@@ -19,10 +19,13 @@ export function SaleClaimDecisionDialog({
   claim,
   onClose,
   onDecided,
+  renderEvidence,
 }: {
   claim: AdminSaleClaim | null;
   onClose: () => void;
   onDecided: (message: string) => void;
+  /** Slot da composição para as provas do serviço (D20). */
+  renderEvidence?: (claim: AdminSaleClaim) => ReactNode;
 }) {
   const { t, i18n } = useTranslation();
   const id = useId();
@@ -99,6 +102,7 @@ export function SaleClaimDecisionDialog({
                 })}`}
             </p>
           </div>
+          {renderEvidence?.(claim)}
           <p className="text-[12px] text-ink/60">{t('adminFinance.claims.decideDescription')}</p>
           <fieldset className="space-y-2">
             <legend className="text-xs font-bold text-ink mb-1.5">

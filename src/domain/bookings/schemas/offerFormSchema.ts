@@ -41,6 +41,7 @@ export const offerFormSchema = z.object({
     .max(10),
   durationMinutes: z.coerce.number().int(integer).min(15, integer).max(1440, integer),
   meetingPoint: optionalText(300),
+  pickupMode: z.enum(['meeting_point', 'buyer_address']),
   cancellationPolicy: z.enum([...BOOKING_CANCELLATION_POLICIES, ...TRANSFER_CANCELLATION_POLICIES]),
   maxParticipantsPerBooking: z.coerce.number().int(integer).min(1, integer).max(50, integer),
   requiresParticipantNames: z.boolean(),

@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { rescheduleRefundDeadline } from '../../../../shared/utils/rescheduleRefundDeadline';
 import { StatusText, type StatusTone } from '../../../../ui/components/StatusText';
 import type { BookingStatus, BookingSummary } from '../../types/bookings';
-import { formatSlotDateTime } from '../../utils/dates';
+import { BookingCheckInPass } from './BookingCheckInPass';
+import { formatSlotDateTime, fortalezaDateKey } from '../../utils/dates';
 import { formatMinor } from '../../utils/money';
 import { formatBusinessWeekday } from '../../../../shared/utils/businessDateTime';
 
@@ -83,6 +84,16 @@ export function BuyerBookingCard({
           })}
         </p>
       )}
+      {/* Código ou entrada da reserva paga, até o check-in, também durante o serviço (D20). */}
+      {booking.status === 'confirmed' &&
+        !booking.checkIn &&
+        (upcoming ||
+          fortalezaDateKey(booking.offer.startsAt) ===
+            fortalezaDateKey(new Date().toISOString())) && (
+          <div className="mt-3 pt-3 border-t border-line">
+            <BookingCheckInPass booking={booking} />
+          </div>
+        )}
       {footer && <div className="mt-3 pt-3 border-t border-line">{footer}</div>}
     </li>
   );

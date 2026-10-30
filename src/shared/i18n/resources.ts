@@ -69,6 +69,12 @@ import {
   adminPanelPtBR,
 } from './adminPanelResources';
 import {
+  type ServiceProofTranslation,
+  serviceProofEn,
+  serviceProofFr,
+  serviceProofPtBR,
+} from './serviceProofResources';
+import {
   type TicketSessionsTranslation,
   ticketSessionsEn,
   ticketSessionsFr,
@@ -119,6 +125,7 @@ export interface TranslationResource {
   myReviews: MyReviewsTranslation;
   reviewReports: ReviewReportsTranslation;
   adminPanel: AdminPanelTranslation;
+  serviceProof: ServiceProofTranslation;
   adminFinance: AdminFinanceTranslation;
   ticketSessions: TicketSessionsTranslation;
   salesPolicy: SalesPolicyTranslation;
@@ -349,6 +356,7 @@ const ptBR: TranslationResource = {
   myReviews: myReviewsPtBR,
   reviewReports: reviewReportsPtBR,
   adminPanel: adminPanelPtBR,
+  serviceProof: serviceProofPtBR,
   adminFinance: adminFinancePtBR,
   ticketSessions: ticketSessionsPtBR,
   salesPolicy: salesPolicyPtBR,
@@ -639,6 +647,7 @@ const en: TranslationResource = {
   myReviews: myReviewsEn,
   reviewReports: reviewReportsEn,
   adminPanel: adminPanelEn,
+  serviceProof: serviceProofEn,
   adminFinance: adminFinanceEn,
   ticketSessions: ticketSessionsEn,
   salesPolicy: salesPolicyEn,
@@ -923,6 +932,7 @@ const fr: TranslationResource = {
   myReviews: myReviewsFr,
   reviewReports: reviewReportsFr,
   adminPanel: adminPanelFr,
+  serviceProof: serviceProofFr,
   adminFinance: adminFinanceFr,
   ticketSessions: ticketSessionsFr,
   salesPolicy: salesPolicyFr,

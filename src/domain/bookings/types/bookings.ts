@@ -20,6 +20,8 @@ export interface OfferFields {
   pricing: { currency: 'BRL'; priceOptions: PriceOption[] };
   durationMinutes?: number;
   meetingPoint?: { address: string; instructions?: LocalizedText };
+  /** Onde o serviço começa: no ponto de encontro ou onde o comprador está (D20). */
+  pickupMode?: 'meeting_point' | 'buyer_address';
   cancellationPolicy: BookingCancellationPolicy;
   maxParticipantsPerBooking: number;
   requiresParticipantNames: boolean;
@@ -105,6 +107,23 @@ export interface BookingSummary {
   } | null;
   /** Aviso de nova data (D16, 4A): até 7 dias depois, o cancelamento devolve tudo. */
   rescheduledAt: string | null;
+  /** Onde o comprador está, quando a oferta busca no endereço (D20). */
+  pickupAddress: string | null;
+  checkIn: { at: string; method: CheckInMethod; participantsPresent: number } | null;
+  /** "Cheguei" do prestador (D20). */
+  arrivedAt: string | null;
+  providerAbsence: {
+    reportedAt: string;
+    respondBy: string;
+    answer: 'was_there' | 'admitted' | null;
+    resolution: 'refunded' | 'withdrawn' | 'admin' | null;
+  } | null;
+  serviceConfirmation: {
+    askedAt: string;
+    answerBy: string;
+    answer: 'yes' | 'no' | null;
+    resolution: 'confirmed' | 'admin' | 'refunded' | null;
+  } | null;
   createdAt: string;
   /** Só na visão do parceiro vendedor. */
   buyerId?: string;
@@ -137,6 +156,7 @@ export interface CreateBookingPayload {
   slotId: string;
   lines: Array<{ priceOptionId: string; quantity: number }>;
   participants: Array<{ name: string }>;
+  pickupAddress?: string;
   idempotencyKey: string;
   locale: 'pt-BR' | 'en' | 'fr';
   acceptedTermsVersion: string;
@@ -158,4 +178,44 @@ export interface CancelBookingResponse {
   status: BookingStatus;
   refundPercent: number;
   refundAmountMinor: number;
+}
+
+export type CheckInMethod = 'code' | 'qr' | 'no_code';
+export type NoCodeReason = 'no_phone' | 'refused' | 'other';
+
+/** Código de check-in do comprador; `code` só no dia do serviço (D20). */
+export interface CheckInCodeView {
+  code: string | null;
+  visibleFrom: string;
+  validUntil: string;
+  checkedInAt: string | null;
+}
+
+/** QR e código de 8 caracteres da entrada de atração (D20). */
+export interface EntryPassView {
+  qrToken: string | null;
+  code: string | null;
+  visibleFrom: string;
+  validUntil: string;
+  checkedInAt: string | null;
+}
+
+export interface CodeCheckInPayload {
+  code: string;
+  participantsPresent: number;
+  /** Hora do aparelho quando o código foi digitado sem internet. */
+  capturedAt?: string;
+}
+
+export interface EntryCheckInPayload {
+  qrToken?: string;
+  code?: string;
+  participantsPresent: number;
+  capturedAt?: string;
+}
+
+export interface ArrivalLocation {
+  lat: number;
+  lng: number;
+  accuracyM?: number;
 }

@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { type ReactNode, useState } from 'react';
+import type { AdminSaleClaim } from '../../types/adminFinance';
 import { useTranslation } from 'react-i18next';
 import { SegmentedControl } from '../../../../ui/components/SegmentedControl';
 import { AdminDebtQueue } from './AdminDebtQueue';
@@ -9,7 +10,12 @@ type FinanceTab = 'claims' | 'forceMajeure' | 'debts';
 const TABS: FinanceTab[] = ['claims', 'forceMajeure', 'debts'];
 
 /** Filas financeiras do admin (D16): reclamações, força maior e dívidas dos CNPJs. */
-export function AdminFinanceQueues() {
+export function AdminFinanceQueues({
+  renderClaimEvidence,
+}: {
+  /** Slot da composição para as provas do serviço na reclamação (D20). */
+  renderClaimEvidence?: (claim: AdminSaleClaim) => ReactNode;
+} = {}) {
   const { t } = useTranslation();
   const [tab, setTab] = useState<FinanceTab>('claims');
   const [notice, setNotice] = useState<{ message: string; error: boolean } | null>(null);
@@ -41,7 +47,7 @@ export function AdminFinanceQueues() {
         </p>
       )}
       {tab === 'claims' ? (
-        <SaleClaimQueue onNotice={show} />
+        <SaleClaimQueue onNotice={show} renderEvidence={renderClaimEvidence} />
       ) : tab === 'forceMajeure' ? (
         <ForceMajeureQueue onNotice={show} />
       ) : (

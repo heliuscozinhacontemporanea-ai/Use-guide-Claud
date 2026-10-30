@@ -119,7 +119,7 @@ export function PartnerOffersManager({
             <p className="text-sm font-bold text-white">{view.offer.title['pt-BR']}</p>
           </div>
           {view.type === 'slots' ? (
-            <PartnerSlotsManager offerId={view.offer.id} />
+            <PartnerSlotsManager offerId={view.offer.id} kind={view.offer.kind} />
           ) : (
             <PartnerBookingsList offerId={view.offer.id} />
           )}

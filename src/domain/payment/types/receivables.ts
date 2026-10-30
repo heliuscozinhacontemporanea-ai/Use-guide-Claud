@@ -1,6 +1,7 @@
 /** Extrato e dívidas do parceiro (D14, D16), como a API devolve. */
 export type PayoutEntryStatus = 'pending' | 'on_hold' | 'released' | 'canceled';
-export type PayoutHoldReason = 'dispute' | 'claim';
+/** `service_proof`: o passeio espera o check-in ou a confirmação do comprador (D20). */
+export type PayoutHoldReason = 'dispute' | 'claim' | 'service_proof';
 
 export interface PayoutEntryView {
   id: string;

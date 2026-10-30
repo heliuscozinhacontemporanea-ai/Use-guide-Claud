@@ -2,6 +2,12 @@ import type {
   BookingDetails,
   BookingSummary,
   CancelBookingResponse,
+  ArrivalLocation,
+  CheckInCodeView,
+  CodeCheckInPayload,
+  EntryCheckInPayload,
+  EntryPassView,
+  NoCodeReason,
   CreateBookingPayload,
   CreateBookingResponse,
   CreateOfferPayload,
@@ -35,4 +41,38 @@ export interface BookingsApiPort {
   getBooking(bookingId: string): Promise<BookingDetails>;
   listMyBookings(cursor?: string | null): Promise<Page<BookingSummary>>;
   cancelBooking(bookingId: string): Promise<CancelBookingResponse>;
+
+  // Prova do serviço (D20).
+  getCheckInCode(bookingId: string): Promise<CheckInCodeView>;
+  getEntryPass(bookingId: string): Promise<EntryPassView>;
+  reportProviderAbsent(bookingId: string): Promise<BookingSummary>;
+  answerServiceConfirmation(bookingId: string, answer: 'yes' | 'no'): Promise<BookingSummary>;
+  checkInByCode(
+    offerId: string,
+    slotId: string,
+    payload: CodeCheckInPayload
+  ): Promise<BookingSummary>;
+  checkInEntry(
+    offerId: string,
+    slotId: string,
+    payload: EntryCheckInPayload
+  ): Promise<BookingSummary>;
+  getEntryVerificationKeys(
+    offerId: string
+  ): Promise<Array<{ kid: string; publicKeyJwk: JsonWebKey }>>;
+  recordArrival(
+    offerId: string,
+    bookingId: string,
+    location?: ArrivalLocation
+  ): Promise<BookingSummary>;
+  checkInWithoutCode(
+    offerId: string,
+    bookingId: string,
+    payload: { participantsPresent: number; reason: NoCodeReason }
+  ): Promise<BookingSummary>;
+  answerProviderAbsence(
+    offerId: string,
+    bookingId: string,
+    answer: 'was_there' | 'admitted'
+  ): Promise<BookingSummary>;
 }

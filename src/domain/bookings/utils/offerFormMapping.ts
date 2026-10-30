@@ -28,6 +28,8 @@ export function offerFormToFields(values: OfferFormValues): OfferFields {
     ...(values.meetingPoint.trim()
       ? { meetingPoint: { address: values.meetingPoint.trim() } }
       : {}),
+    // Entrada de atração é sempre no local; buscar o comprador só vale para passeio (D20).
+    pickupMode: values.kind === 'tour' ? values.pickupMode : 'meeting_point',
     cancellationPolicy: values.cancellationPolicy,
     maxParticipantsPerBooking: values.maxParticipantsPerBooking,
     requiresParticipantNames: values.requiresParticipantNames,
@@ -50,6 +52,7 @@ export function offerToFormValues(offer: PartnerOffer): OfferFormValues {
     })),
     durationMinutes: offer.durationMinutes ?? 60,
     meetingPoint: offer.meetingPoint?.address ?? '',
+    pickupMode: offer.pickupMode ?? 'meeting_point',
     cancellationPolicy: offer.cancellationPolicy,
     maxParticipantsPerBooking: offer.maxParticipantsPerBooking,
     requiresParticipantNames: offer.requiresParticipantNames,
@@ -64,6 +67,7 @@ export function emptyOfferFormValues(kind: 'tour' | 'private_entry'): OfferFormV
     priceOptions: [{ id: 'adult', label: '', amount: '' }],
     durationMinutes: 120,
     meetingPoint: '',
+    pickupMode: 'meeting_point',
     cancellationPolicy: 'flexible',
     maxParticipantsPerBooking: 8,
     requiresParticipantNames: false,

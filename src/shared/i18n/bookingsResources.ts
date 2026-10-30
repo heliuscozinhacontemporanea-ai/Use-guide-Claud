@@ -191,6 +191,15 @@ export interface BookingsTranslation {
     CANCELLATION_NOT_ALLOWED: string;
     TERMS_NOT_ACCEPTED: string;
     SELLER_ACCOUNT_NOT_ELIGIBLE: string;
+    CHECK_IN_NOT_APPLICABLE: string;
+    CHECK_IN_WINDOW_CLOSED: string;
+    INVALID_CHECK_IN_CODE: string;
+    CHECK_IN_LOCKED: string;
+    NO_SHOW_TOO_EARLY: string;
+    ABSENCE_REPORT_NOT_ALLOWED: string;
+    NOTHING_TO_ANSWER: string;
+    INVALID_ENTRY_PASS: string;
+    CLAIM_ALREADY_EXISTS: string;
     INTERNAL_ERROR: string;
   };
 }
@@ -397,6 +406,16 @@ export const bookingsPtBR: BookingsTranslation = {
     CANCELLATION_NOT_ALLOWED: 'Esta reserva não pode ser cancelada.',
     TERMS_NOT_ACCEPTED: 'Aceite os termos para continuar.',
     SELLER_ACCOUNT_NOT_ELIGIBLE: 'O parceiro ainda não pode receber pagamentos online.',
+    CHECK_IN_NOT_APPLICABLE: 'Esta reserva não usa este tipo de check-in.',
+    CHECK_IN_WINDOW_CLOSED: 'O check-in deste horário não está aberto agora.',
+    INVALID_CHECK_IN_CODE: 'Código incorreto. Confira com o comprador.',
+    CHECK_IN_LOCKED: 'Muitos códigos errados. Tente de novo em 15 minutos.',
+    NO_SHOW_TOO_EARLY: 'Toque em "Cheguei" e espere 30 min antes de marcar a ausência.',
+    ABSENCE_REPORT_NOT_ALLOWED:
+      'Só é possível relatar 30 min depois do horário, se o check-in não foi feito.',
+    NOTHING_TO_ANSWER: 'Não há nada para responder nesta reserva.',
+    INVALID_ENTRY_PASS: 'QR Code inválido para este horário.',
+    CLAIM_ALREADY_EXISTS: 'Já existe uma reclamação para esta compra.',
     INTERNAL_ERROR: 'Algo deu errado. Tente novamente em instantes.',
   },
 };
@@ -600,6 +619,16 @@ export const bookingsEn: BookingsTranslation = {
     CANCELLATION_NOT_ALLOWED: 'This booking cannot be canceled.',
     TERMS_NOT_ACCEPTED: 'Accept the terms to continue.',
     SELLER_ACCOUNT_NOT_ELIGIBLE: 'This partner cannot receive online payments yet.',
+    CHECK_IN_NOT_APPLICABLE: 'This booking does not use this kind of check-in.',
+    CHECK_IN_WINDOW_CLOSED: 'Check-in for this time slot is not open now.',
+    INVALID_CHECK_IN_CODE: 'Wrong code. Check it with the buyer.',
+    CHECK_IN_LOCKED: 'Too many wrong codes. Try again in 15 minutes.',
+    NO_SHOW_TOO_EARLY: 'Tap "I’m here" and wait 30 min before marking a no-show.',
+    ABSENCE_REPORT_NOT_ALLOWED:
+      'You can report it 30 min after the start time, if no check-in was done.',
+    NOTHING_TO_ANSWER: 'There is nothing to answer in this booking.',
+    INVALID_ENTRY_PASS: 'This QR code is not valid for this time slot.',
+    CLAIM_ALREADY_EXISTS: 'There is already a claim for this purchase.',
     INTERNAL_ERROR: 'Something went wrong. Please try again shortly.',
   },
 };
@@ -810,6 +839,16 @@ export const bookingsFr: BookingsTranslation = {
     CANCELLATION_NOT_ALLOWED: 'Cette réservation ne peut pas être annulée.',
     TERMS_NOT_ACCEPTED: 'Acceptez les conditions pour continuer.',
     SELLER_ACCOUNT_NOT_ELIGIBLE: 'Ce partenaire ne peut pas encore recevoir de paiements en ligne.',
+    CHECK_IN_NOT_APPLICABLE: 'Cette réservation n’utilise pas ce type d’enregistrement.',
+    CHECK_IN_WINDOW_CLOSED: 'L’enregistrement de ce créneau n’est pas ouvert maintenant.',
+    INVALID_CHECK_IN_CODE: 'Code incorrect. Vérifiez avec l’acheteur.',
+    CHECK_IN_LOCKED: 'Trop de codes erronés. Réessayez dans 15 minutes.',
+    NO_SHOW_TOO_EARLY: 'Touchez « Je suis arrivé » et attendez 30 min avant de marquer l’absence.',
+    ABSENCE_REPORT_NOT_ALLOWED:
+      'Le signalement est possible 30 min après l’horaire, sans enregistrement fait.',
+    NOTHING_TO_ANSWER: 'Il n’y a rien à répondre pour cette réservation.',
+    INVALID_ENTRY_PASS: 'Ce QR code n’est pas valable pour ce créneau.',
+    CLAIM_ALREADY_EXISTS: 'Une réclamation existe déjà pour cet achat.',
     INTERNAL_ERROR: 'Un problème est survenu. Réessayez dans un instant.',
   },
 };

@@ -82,6 +82,24 @@ export function PartnerOfferEditor({
         <span className="text-xs text-white/70">{t('bookings.editor.meetingPointLabel')}</span>
         <input {...register('meetingPoint')} className={INPUT} />
       </label>
+      {defaultValues.kind === 'tour' && (
+        <Controller
+          control={control}
+          name="pickupMode"
+          render={({ field }) => (
+            <RadioCardGroup
+              name={field.name}
+              legend={t('serviceProof.offerEditor.pickupLegend')}
+              options={[
+                { value: 'meeting_point', title: t('serviceProof.offerEditor.meetingPoint') },
+                { value: 'buyer_address', title: t('serviceProof.offerEditor.buyerAddress') },
+              ]}
+              value={field.value}
+              onChange={field.onChange}
+            />
+          )}
+        />
+      )}
       <Controller
         control={control}
         name="cancellationPolicy"
