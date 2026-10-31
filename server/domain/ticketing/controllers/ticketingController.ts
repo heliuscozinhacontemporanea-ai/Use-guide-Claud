@@ -37,7 +37,8 @@ import { listPublicTicketTypesByOccurrenceUseCase } from '../usecases/listPublic
 import { listTicketTypesForManagementUseCase } from '../usecases/listTicketTypesForManagementUseCase';
 import { listUserTicketOrdersUseCase } from '../usecases/listUserTicketOrdersUseCase';
 import { listUserTicketsUseCase } from '../usecases/listUserTicketsUseCase';
-import { reissueTicketQrTokenUseCase } from '../usecases/reissueTicketQrTokenUseCase';
+import { listOfflineCheckInChangesUseCase } from '../usecases/listOfflineCheckInChangesUseCase';
+import { swapTicketQrUseCase } from '../usecases/swapTicketQrUseCase';
 import { syncOfflineCheckInsUseCase } from '../usecases/syncOfflineCheckInsUseCase';
 import { updateTicketTypeUseCase } from '../usecases/updateTicketTypeUseCase';
 
@@ -279,18 +280,30 @@ export class TicketingController {
     }
   }
 
-  static async reissueTicketQrToken(req: AuthenticatedRequest, res: Response) {
+  static async swapTicketQr(req: AuthenticatedRequest, res: Response) {
     try {
       if (!req.user) return res.status(401).json({ error: 'Não autenticado.' });
-      const ticketId = String(req.params.id || '');
-      const result = await reissueTicketQrTokenUseCase(getActor(req), ticketId);
-      return res.status(200).json({
-        status: 'success',
-        ticketId: result.ticketId,
-        token: result.token,
-        expiresAt: result.expiresAt,
-        data: result,
+      const result = await swapTicketQrUseCase(getActor(req), String(req.params.id || ''));
+      return res.status(200).json({ status: 'success', data: result });
+    } catch (error) {
+      return handleTicketingError(res, error);
+    }
+  }
+
+  static async listOfflineCheckInChanges(req: AuthenticatedRequest, res: Response) {
+    try {
+      if (!req.user) return res.status(401).json({ error: 'Não autenticado.' });
+      const since = typeof req.query.since === 'string' ? req.query.since : '';
+      if (Number.isNaN(new Date(since).getTime())) {
+        return res.status(400).json({ error: 'Parâmetro since inválido.' });
+      }
+      const result = await listOfflineCheckInChangesUseCase(getActor(req), {
+        sessionId: String(req.params.sessionId || ''),
+        since: new Date(since).toISOString(),
       });
+      // A lista muda a cada entrada: sem cache de proxy nem do navegador.
+      res.setHeader('Cache-Control', 'no-store');
+      return res.status(200).json({ status: 'success', data: result });
     } catch (error) {
       return handleTicketingError(res, error);
     }

@@ -57,6 +57,7 @@ describe('eventSessions', () => {
       startsAt: '2026-11-01T20:00:00.000Z',
       endsAt: '2026-11-01T23:00:00.000Z',
       capacity: 100,
+      salesEndsAt: '2026-11-01T18:00:00.000Z',
     });
   });
 });

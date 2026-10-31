@@ -210,6 +210,8 @@ export class TicketPersistenceMapper {
       qrTokenHash: String(raw.qrTokenHash || ''),
       qrVersion:
         typeof raw.qrVersion === 'number' && raw.qrVersion >= 1 ? Math.trunc(raw.qrVersion) : 1,
+      ...(typeof raw.qrSwappedAt === 'string' ? { qrSwappedAt: raw.qrSwappedAt } : {}),
+      ...(typeof raw.updatedAt === 'string' ? { updatedAt: raw.updatedAt } : {}),
       status:
         raw.status === 'reserved' ||
         raw.status === 'checked_in' ||

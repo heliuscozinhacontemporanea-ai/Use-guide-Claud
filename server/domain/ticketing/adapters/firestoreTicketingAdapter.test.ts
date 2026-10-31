@@ -221,6 +221,6 @@ describe('FirestoreTicketingAdapter.updateRefundStatus', () => {
     const result = await adapter.updateRefundStatus('ref_1', 'failed', 're_stripe_1');
 
     expect(result.status).toBe('failed');
-    expect(txUpdate).toHaveBeenCalledWith(ticketRef, { status: 'issued' });
+    expect(txUpdate).toHaveBeenCalledWith(ticketRef, expect.objectContaining({ status: 'issued' }));
   });
 });

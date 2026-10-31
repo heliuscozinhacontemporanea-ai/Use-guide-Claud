@@ -176,6 +176,10 @@ export interface Ticket {
   issuedAt: string;
   checkedInAt?: string;
   checkedInBy?: string;
+  /** "Problema com o QR Code?": o titular trocou o QR, que só pode ser trocado uma vez (D21). */
+  qrSwappedAt?: string;
+  /** Última mudança: a lista sem internet da portaria baixa só o que mudou (D21). */
+  updatedAt?: string;
   transferredAt?: string;
   ticketTypeSnapshot?: {
     name: string;

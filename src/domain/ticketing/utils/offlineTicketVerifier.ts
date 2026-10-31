@@ -1,7 +1,8 @@
 import {
   getOfflineManifestBundle,
-  isTicketMarkedUsedOffline,
+  getOfflineUsedRecord,
   recordOfflineCheckInEvent,
+  saveOfflineManifestBundle,
   sha256HexBrowser,
   type StoredOfflineCheckInEvent,
 } from './offlineCheckInStorage';
@@ -17,6 +18,7 @@ export type OfflineRejection =
   | 'notInManifest'
   | 'revoked'
   | 'used'
+  | 'swappedConflict'
   | 'unsupported';
 
 interface TicketQrContent {
@@ -86,9 +88,20 @@ export async function verifyAndConsumeOfflineQrToken(params: {
   const ticketIdHash = await sha256HexBrowser(content.tid);
   const entry = bundle.tickets.find((ticket) => ticket.ticketIdHash === ticketIdHash);
   if (!entry) return { valid: false, reason: 'notInManifest' };
-  if (entry.qrVersion !== content.qv) return { valid: false, reason: 'revoked' };
-  if (await isTicketMarkedUsedOffline(params.occurrenceId, ticketIdHash)) {
-    return { valid: false, reason: 'used' };
+  // Versão mais nova que a da lista vence (D21): a assinatura prova que o servidor gerou, e o titular
+  // trocou o QR depois que a lista foi baixada. A partir daí este aparelho recusa a versão antiga.
+  if (content.qv < entry.qrVersion) return { valid: false, reason: 'revoked' };
+  const used = await getOfflineUsedRecord(params.occurrenceId, ticketIdHash);
+  if (used) {
+    return { valid: false, reason: content.qv > used.qrVersion ? 'swappedConflict' : 'used' };
+  }
+  if (content.qv > entry.qrVersion) {
+    await saveOfflineManifestBundle({
+      ...bundle,
+      tickets: bundle.tickets.map((ticket) =>
+        ticket.ticketIdHash === ticketIdHash ? { ...ticket, qrVersion: content.qv } : ticket
+      ),
+    });
   }
   const event: StoredOfflineCheckInEvent = {
     clientEventId: crypto.randomUUID(),

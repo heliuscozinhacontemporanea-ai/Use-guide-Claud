@@ -8,6 +8,8 @@ export interface StoredOfflineManifestBundle {
   /** Chaves públicas Ed25519 aceitas (atual e, na rotação, a anterior). */
   keys: Array<{ kid: string; publicKeyJwk: JsonWebKey }>;
   tickets: Array<{ ticketIdHash: string; qrVersion: number }>;
+  /** Até quando o aparelho já baixou as mudanças do servidor (D21). */
+  changesSince: string;
 }
 
 export interface StoredOfflineCheckInEvent {
@@ -84,17 +86,19 @@ export async function getOfflineManifestBundle(
   });
 }
 
-export async function isTicketMarkedUsedOffline(
+/** Entrada já feita neste aparelho, com a versão do QR que entrou; null se ainda não entrou. */
+export async function getOfflineUsedRecord(
   occurrenceId: string,
   ticketIdHash: string
-): Promise<boolean> {
+): Promise<{ qrVersion: number } | null> {
   const db = await openDb();
   return new Promise((resolve, reject) => {
     const tx = db.transaction(STORE_USED, 'readonly');
     const req = tx.objectStore(STORE_USED).get(`${occurrenceId}:${ticketIdHash}`);
     req.onsuccess = () => {
       db.close();
-      resolve(Boolean(req.result));
+      const record = req.result as { qrVersion?: number } | undefined;
+      resolve(record ? { qrVersion: record.qrVersion ?? 1 } : null);
     };
     req.onerror = () => {
       db.close();
@@ -112,6 +116,7 @@ export async function recordOfflineCheckInEvent(event: StoredOfflineCheckInEvent
       key: `${event.occurrenceId}:${event.ticketIdHash}`,
       occurrenceId: event.occurrenceId,
       ticketIdHash: event.ticketIdHash,
+      qrVersion: event.qrVersion,
       usedAt: event.scannedAt,
     });
     tx.oncomplete = () => {
@@ -170,4 +175,27 @@ export async function sha256HexBrowser(input: string): Promise<string> {
   return Array.from(new Uint8Array(hashBuffer))
     .map((b) => b.toString(16).padStart(2, '0'))
     .join('');
+}
+
+/**
+ * Aplica as mudanças baixadas do servidor (D21): versão nova de QR, ingresso novo de transferência e
+ * ingresso que deixou de valer (usado, cancelado, transferido) saindo da lista.
+ */
+export function applyOfflineChanges(
+  bundle: StoredOfflineManifestBundle,
+  changes: Array<{ ticketIdHash: string; qrVersion: number; usable: boolean }>,
+  changesSince: string
+): StoredOfflineManifestBundle {
+  const tickets = new Map(bundle.tickets.map((ticket) => [ticket.ticketIdHash, ticket]));
+  for (const change of changes) {
+    if (change.usable) {
+      tickets.set(change.ticketIdHash, {
+        ticketIdHash: change.ticketIdHash,
+        qrVersion: change.qrVersion,
+      });
+    } else {
+      tickets.delete(change.ticketIdHash);
+    }
+  }
+  return { ...bundle, tickets: [...tickets.values()], changesSince };
 }

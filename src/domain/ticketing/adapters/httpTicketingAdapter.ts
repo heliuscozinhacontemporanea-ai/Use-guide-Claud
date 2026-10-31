@@ -13,6 +13,7 @@ import type {
   Refund,
   Ticket,
   TicketQrPass,
+  OfflineCheckInChanges,
   TicketOrder,
   TicketOrderItem,
   TicketType,
@@ -220,9 +221,21 @@ export class HttpTicketingAdapter implements TicketingPort {
     );
   }
 
-  async reissueTicketQrToken(ticketId: string): Promise<TicketQrPass> {
+  async listOfflineCheckInChanges(
+    sessionId: string,
+    since: string
+  ): Promise<OfflineCheckInChanges> {
     const res = await firebaseApiFetch(
-      `/api/ticketing/tickets/${encodeURIComponent(ticketId)}/qr/reissue`,
+      `/api/ticketing/check-in/offline-sessions/${encodeURIComponent(sessionId)}/changes?since=${encodeURIComponent(since)}`,
+      { method: 'GET' },
+      { requireAuth: true }
+    );
+    return parseJsonOrThrow<OfflineCheckInChanges>(res, 'Não foi possível atualizar a lista.');
+  }
+
+  async swapTicketQr(ticketId: string): Promise<TicketQrPass> {
+    const res = await firebaseApiFetch(
+      `/api/ticketing/tickets/${encodeURIComponent(ticketId)}/qr/swap`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -230,7 +243,7 @@ export class HttpTicketingAdapter implements TicketingPort {
       },
       { requireAuth: true }
     );
-    return parseJsonOrThrow<TicketQrPass>(res, 'Não foi possível reemitir o QR Code do ingresso.');
+    return parseJsonOrThrow<TicketQrPass>(res, 'Não foi possível trocar o QR Code do ingresso.');
   }
 
   async requestRefund(

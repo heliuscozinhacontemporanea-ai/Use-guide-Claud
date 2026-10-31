@@ -80,6 +80,7 @@ export class FirestoreRefundStore {
         }
         tx.update(ref, {
           status: order.totalMinor === 0 ? 'refunded' : 'refund_pending',
+          updatedAt: new Date().toISOString(),
         });
       }
 
@@ -204,7 +205,7 @@ export class FirestoreRefundStore {
         });
 
         for (const doc of targetTicketDocs) {
-          tx.update(doc.ref, { status: 'refunded' });
+          tx.update(doc.ref, { status: 'refunded', updatedAt: nowIso });
         }
 
         for (const typeUpdate of typeUpdates) {
@@ -228,7 +229,7 @@ export class FirestoreRefundStore {
 
         tx.update(refundRef, patch);
         for (const doc of pendingTicketDocs) {
-          tx.update(doc.ref, { status: 'issued' });
+          tx.update(doc.ref, { status: 'issued', updatedAt: new Date().toISOString() });
         }
       } else {
         tx.update(refundRef, patch);

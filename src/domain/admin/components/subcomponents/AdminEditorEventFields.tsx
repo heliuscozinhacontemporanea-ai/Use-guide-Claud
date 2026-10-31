@@ -76,6 +76,7 @@ export function AdminEditorEventFields({
           startsAt: occ.startsAt,
           endsAt: occ.endsAt,
           capacity: occ.capacity,
+          ...(occ.salesEndsAt ? { salesEndsAt: occ.salesEndsAt } : {}),
         })),
         onChange: (sessions) =>
           setValue('occurrences', sessions, { shouldDirty: true, shouldValidate: true }),

@@ -1,4 +1,5 @@
 import { createEventAuditLogUseCase, getEventOccurrenceByIdUseCase } from '../../events';
+import { createNotificationUseCase } from '../../notifications';
 import { TicketingDomainError } from '../errors/ticketingDomainError';
 import type { TicketQrTokenPort } from '../ports/ticketQrTokenPort';
 import type { TicketingPort } from '../ports/ticketingPort';
@@ -101,6 +102,22 @@ export class CheckInService {
       codeVisibleFrom:
         codeVisibleFromMs === null ? null : new Date(codeVisibleFromMs).toISOString(),
     };
+  }
+
+  /**
+   * "Problema com o QR Code?" (D21): o titular troca o QR e o código uma vez, até a entrada; os
+   * antigos deixam de valer. O aviso no app conta ao titular se não foi ele.
+   */
+  async swapPresentationQr(actor: TicketingActorContext, ticketId: string) {
+    await this.port.swapTicketQr(ticketId, actor.uid, new Date(this.now()).toISOString());
+    await createNotificationUseCase({
+      recipientPartnerId: actor.uid,
+      type: 'admin_message',
+      title: 'QR Code do ingresso trocado',
+      message:
+        'O QR Code e o código anteriores não valem mais. Se não foi você, fale com o suporte.',
+    }).catch(() => undefined);
+    return this.generateTicketPresentationQr(actor, ticketId);
   }
 
   async checkInTicket(

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { getTicketQrTokenUseCase } from '../application/usecases/getTicketQrTokenUseCase';
 import { listUserOrdersUseCase } from '../application/usecases/listUserOrdersUseCase';
 import { listUserTicketsUseCase } from '../application/usecases/listUserTicketsUseCase';
-import { reissueTicketQrTokenUseCase } from '../application/usecases/reissueTicketQrTokenUseCase';
+import { swapTicketQrUseCase } from '../application/usecases/swapTicketQrUseCase';
 import { requestTicketRefundUseCase } from '../application/usecases/requestTicketRefundUseCase';
 import { transferTicketUseCase } from '../application/usecases/transferTicketUseCase';
 import type { Ticket, TicketOrder } from '../types/ticketing';
@@ -69,9 +69,9 @@ export function useUserTicketsAndOrders(enabled = true) {
     return getTicketQrTokenUseCase(ticketId);
   }, []);
 
-  const reissueSignedQrToken = useCallback(
+  const swapSignedQrToken = useCallback(
     async (ticketId: string) => {
-      const res = await reissueTicketQrTokenUseCase(ticketId);
+      const res = await swapTicketQrUseCase(ticketId);
       await reload();
       return res;
     },
@@ -87,6 +87,6 @@ export function useUserTicketsAndOrders(enabled = true) {
     transferTicket,
     requestRefund,
     getSignedQrToken,
-    reissueSignedQrToken,
+    swapSignedQrToken,
   };
 }

@@ -202,6 +202,7 @@ export class FirestoreOrderReservationStore {
               qrVersion: 1,
               status: 'issued',
               issuedAt: nowIso,
+              updatedAt: nowIso,
               ticketTypeSnapshot: {
                 name: item.ticketTypeSnapshot.name,
                 kind: item.ticketTypeSnapshot.kind,

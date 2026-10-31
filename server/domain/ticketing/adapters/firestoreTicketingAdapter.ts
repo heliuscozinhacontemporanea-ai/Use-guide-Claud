@@ -60,6 +60,8 @@ export class FirestoreTicketingAdapter implements TicketingPort {
   readonly checkInTicketAtomic = this.checkIn.checkInTicketAtomic.bind(this.checkIn);
   readonly listCheckInsByOccurrenceId = this.checkIn.listCheckInsByOccurrenceId.bind(this.checkIn);
   readonly anonymizeUser = this.privacy.anonymizeUser.bind(this.privacy);
+  readonly listTicketsChangedSince = this.ticket.listTicketsChangedSince.bind(this.ticket);
+  readonly swapTicketQr = this.ticket.swapTicketQr.bind(this.ticket);
   readonly countCheckInCodeFailures = this.checkIn.countCheckInCodeFailures.bind(this.checkIn);
   readonly addCheckInCodeFailure = this.checkIn.addCheckInCodeFailure.bind(this.checkIn);
   readonly listCheckInsByEventListingId = this.checkIn.listCheckInsByEventListingId.bind(

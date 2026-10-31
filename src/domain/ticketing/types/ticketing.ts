@@ -160,6 +160,8 @@ export interface Ticket {
   holderEmail: string;
   qrTokenHash: string;
   qrVersion: number;
+  /** O titular já usou "Problema com o QR Code?" (só uma vez por ingresso, D21). */
+  qrSwappedAt?: string;
   status: TicketStatus;
   ticketTypeSnapshot?: {
     name: string;
@@ -257,6 +259,13 @@ export interface OfflineCheckInSessionResponse {
     keys: Array<{ kid: string; publicKeyJwk: JsonWebKey }>;
     tickets: Array<{ ticketIdHash: string; qrVersion: number }>;
   };
+}
+
+/** Mudanças da lista sem internet desde a última atualização (D21). */
+export interface OfflineCheckInChanges {
+  serverTime: string;
+  hasMore: boolean;
+  tickets: Array<{ ticketIdHash: string; qrVersion: number; usable: boolean }>;
 }
 
 export interface OfflineCheckInSyncResult {

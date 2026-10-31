@@ -16,7 +16,7 @@ export { listManagementTicketTypesUseCase } from './application/usecases/listMan
 export { listPublicTicketTypesUseCase } from './application/usecases/listPublicTicketTypesUseCase';
 export { listUserOrdersUseCase } from './application/usecases/listUserOrdersUseCase';
 export { listUserTicketsUseCase } from './application/usecases/listUserTicketsUseCase';
-export { reissueTicketQrTokenUseCase } from './application/usecases/reissueTicketQrTokenUseCase';
+export { swapTicketQrUseCase } from './application/usecases/swapTicketQrUseCase';
 export { requestTicketRefundUseCase } from './application/usecases/requestTicketRefundUseCase';
 export { syncOfflineCheckInsUseCase } from './application/usecases/syncOfflineCheckInsUseCase';
 export { transferTicketUseCase } from './application/usecases/transferTicketUseCase';

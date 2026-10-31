@@ -55,7 +55,7 @@ router.post('/orders/:id/refund', verifyAuthToken, TicketingController.requestRe
 
 router.get('/tickets', verifyAuthToken, TicketingController.listUserTickets);
 router.get('/tickets/:id/qr', verifyAuthToken, TicketingController.getTicketQrToken);
-router.post('/tickets/:id/qr/reissue', verifyAuthToken, TicketingController.reissueTicketQrToken);
+router.post('/tickets/:id/qr/swap', verifyAuthToken, TicketingController.swapTicketQr);
 
 router.post('/check-in', verifyAuthToken, TicketingController.checkInTicket);
 router.post(
@@ -64,6 +64,11 @@ router.post(
   TicketingController.createOfflineCheckInSession
 );
 router.post('/check-in/offline-sync', verifyAuthToken, TicketingController.syncOfflineCheckIns);
+router.get(
+  '/check-in/offline-sessions/:sessionId/changes',
+  verifyAuthToken,
+  TicketingController.listOfflineCheckInChanges
+);
 
 router.get('/events/:id/orders', verifyAuthToken, TicketingController.listEventOrders);
 router.get('/events/:id/refunds', verifyAuthToken, TicketingController.listEventRefunds);

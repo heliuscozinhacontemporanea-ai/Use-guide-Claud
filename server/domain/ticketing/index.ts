@@ -25,7 +25,7 @@ export { listUserTicketsUseCase } from './usecases/listUserTicketsUseCase';
 export { markTicketOrderDisputedUseCase } from './usecases/markTicketOrderDisputedUseCase';
 export { markTicketOrderPaymentFailedUseCase } from './usecases/markTicketOrderPaymentFailedUseCase';
 export { moveOrderToOccurrenceUseCase } from './usecases/moveOrderToOccurrenceUseCase';
-export { reissueTicketQrTokenUseCase } from './usecases/reissueTicketQrTokenUseCase';
+export { swapTicketQrUseCase } from './usecases/swapTicketQrUseCase';
 export { requestTicketRefundUseCase } from './usecases/requestTicketRefundUseCase';
 export { syncOfflineCheckInsUseCase } from './usecases/syncOfflineCheckInsUseCase';
 export { transferTicketUseCase } from './usecases/transferTicketUseCase';

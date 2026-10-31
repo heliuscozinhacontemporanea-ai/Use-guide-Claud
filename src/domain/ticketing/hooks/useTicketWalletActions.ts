@@ -67,11 +67,11 @@ export function useTicketWalletActions(wallet: WalletData) {
       await previewQr(await wallet.getSignedQrToken(ticket.id));
     }, 'ticketWallet.errors.qr');
 
-  const reissueQr = (ticket: Ticket) =>
+  const swapQr = (ticket: Ticket) =>
     run(async () => {
-      await previewQr(await wallet.reissueSignedQrToken(ticket.id));
-      setFeedback({ type: 'success', message: t('ticketWallet.feedback.qrReissued') });
-    }, 'ticketWallet.errors.qrReissue');
+      await previewQr(await wallet.swapSignedQrToken(ticket.id));
+      setFeedback({ type: 'success', message: t('ticketWallet.feedback.qrSwapped') });
+    }, 'ticketWallet.errors.qrSwap');
 
   // Erros com código ficam no formulário, que mostra o motivo traduzido junto do @.
   const submitTransfer = async (username: string) => {
@@ -110,7 +110,7 @@ export function useTicketWalletActions(wallet: WalletData) {
     setFeedback,
     qrPreview,
     showQr,
-    reissueQr,
+    swapQr,
     transferTicket,
     setTransferTicket,
     submitTransfer,

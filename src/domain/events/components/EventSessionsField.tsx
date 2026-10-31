@@ -1,10 +1,12 @@
 import { Plus, Trash2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import {
   businessDateTimeToIso,
   isoToBusinessDateTime,
 } from '../../../shared/utils/businessDateTime';
+import { INPUT } from '../../../ui/styles/controls';
 import type { EventSessionDraft, EventSessionsLoadState } from '../types/eventSession';
-import { newEventSessionDraft } from '../utils/eventSessions';
+import { defaultSalesEndsAt, newEventSessionDraft, withStartsAt } from '../utils/eventSessions';
 
 export interface EventSessionsFieldProps {
   sessions: EventSessionDraft[];
@@ -13,113 +15,121 @@ export interface EventSessionsFieldProps {
   loadState: EventSessionsLoadState;
 }
 
-const INPUT_CLASS =
-  'w-full min-h-[44px] bg-white/[0.03] border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-teal-500/50 focus-visible:ring-2 focus-visible:ring-teal-400/50';
+const LABEL = 'text-[12px] font-semibold text-ink/70';
 
-/** Sessões do evento (data, horário e capacidade), no fuso de Fortaleza. Usado pelo parceiro e pelo admin. */
+/** Sessões do evento (data, horário, capacidade e fim das vendas), no fuso de Fortaleza. Usado pelo parceiro e pelo admin. */
 export function EventSessionsField({ sessions, onChange, loadState }: EventSessionsFieldProps) {
+  const { t } = useTranslation();
   if (loadState === 'loading') {
     return (
-      <p role="status" className="px-2 text-xs text-white/60">
-        Carregando as sessões do evento...
+      <p role="status" className="px-2 text-[13px] text-ink/70">
+        {t('eventSessions.loading')}
       </p>
     );
   }
   if (loadState === 'error') {
     return (
-      <p role="alert" className="px-2 text-xs text-rose-300">
-        Não foi possível carregar as sessões deste evento. Feche e abra o editor de novo antes de
-        salvar.
+      <p role="alert" className="px-2 text-[13px] text-danger">
+        {t('eventSessions.loadError')}
       </p>
     );
   }
 
-  const updateSession = (index: number, patch: Partial<EventSessionDraft>) => {
-    onChange(
-      sessions.map((session, current) => (current === index ? { ...session, ...patch } : session))
-    );
+  const replace = (index: number, next: EventSessionDraft) => {
+    onChange(sessions.map((session, current) => (current === index ? next : session)));
   };
 
   return (
     <div className="space-y-4" id="event-sessions-field">
-      <p className="px-2 text-[11px] text-white/60">Horários no fuso de Fortaleza (UTC−3).</p>
-      <div className="flex items-center justify-between px-2">
-        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-teal-400/50">
-          Sessões do evento
-        </span>
+      <div className="flex items-center justify-between gap-2 px-2">
+        <div>
+          <p className="text-sm font-semibold text-ink">{t('eventSessions.title')}</p>
+          <p className="text-[12px] text-ink/70">{t('eventSessions.timezone')}</p>
+        </div>
         <button
           type="button"
           onClick={() => onChange([...sessions, newEventSessionDraft()])}
-          className="min-h-[44px] px-4 py-2 rounded-xl bg-teal-500/10 text-teal-400 text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 hover:bg-teal-500/20 transition-all focus-visible:ring-2 focus-visible:ring-teal-400/50"
+          className="press min-h-11 px-4 rounded-xl bg-accent-soft text-accent text-[13px] font-semibold inline-flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-teal-400/50"
         >
-          <Plus size={14} aria-hidden="true" /> Adicionar data
+          <Plus size={16} aria-hidden="true" /> {t('eventSessions.add')}
         </button>
       </div>
 
       {sessions.map((session, index) => {
-        const label = `Sessão ${index + 1}`;
+        const label = t('eventSessions.session', { n: index + 1 });
         return (
           <fieldset
             key={session.id ?? `new-${index}`}
-            className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 space-y-4"
+            className="p-4 rounded-2xl bg-surface border border-line space-y-4 min-w-0"
           >
             <div className="flex items-center justify-between">
-              <legend className="text-[10px] font-black uppercase tracking-widest text-white/60">
-                {label}
-              </legend>
+              <legend className="text-[13px] font-semibold text-ink/80">{label}</legend>
               {sessions.length > 1 && (
                 <button
                   type="button"
-                  aria-label={`Remover ${label.toLowerCase()}`}
+                  aria-label={t('eventSessions.remove', { session: label })}
                   onClick={() => onChange(sessions.filter((_, current) => current !== index))}
-                  className="w-11 h-11 flex items-center justify-center rounded-xl bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 transition-all focus-visible:ring-2 focus-visible:ring-teal-400/50"
+                  className="press w-11 h-11 flex items-center justify-center rounded-xl bg-danger-soft text-danger focus-visible:ring-2 focus-visible:ring-teal-400/50"
                 >
-                  <Trash2 size={14} aria-hidden="true" />
+                  <Trash2 size={16} aria-hidden="true" />
                 </button>
               )}
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <label className="space-y-1.5 block">
-                <span className="text-[9px] font-bold uppercase tracking-widest text-white/50">
-                  Início
-                </span>
+                <span className={LABEL}>{t('eventSessions.startsAt')}</span>
                 <input
                   type="datetime-local"
                   value={isoToBusinessDateTime(session.startsAt)}
                   onChange={(e) =>
-                    updateSession(index, { startsAt: businessDateTimeToIso(e.target.value) })
+                    replace(index, withStartsAt(session, businessDateTimeToIso(e.target.value)))
                   }
-                  className={INPUT_CLASS}
+                  className={INPUT}
                 />
               </label>
               <label className="space-y-1.5 block">
-                <span className="text-[9px] font-bold uppercase tracking-widest text-white/50">
-                  Término
-                </span>
+                <span className={LABEL}>{t('eventSessions.endsAt')}</span>
                 <input
                   type="datetime-local"
                   value={isoToBusinessDateTime(session.endsAt)}
                   onChange={(e) =>
-                    updateSession(index, { endsAt: businessDateTimeToIso(e.target.value) })
+                    replace(index, { ...session, endsAt: businessDateTimeToIso(e.target.value) })
                   }
-                  className={INPUT_CLASS}
+                  className={INPUT}
                 />
               </label>
             </div>
 
-            <label className="space-y-1.5 block">
-              <span className="text-[9px] font-bold uppercase tracking-widest text-white/50">
-                Capacidade máxima
-              </span>
-              <input
-                type="number"
-                min={1}
-                value={Number.isFinite(session.capacity) ? session.capacity : ''}
-                onChange={(e) => updateSession(index, { capacity: e.target.valueAsNumber })}
-                className={INPUT_CLASS}
-              />
-            </label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <label className="space-y-1.5 block">
+                <span className={LABEL}>{t('eventSessions.capacity')}</span>
+                <input
+                  type="number"
+                  min={1}
+                  value={Number.isFinite(session.capacity) ? session.capacity : ''}
+                  onChange={(e) => replace(index, { ...session, capacity: e.target.valueAsNumber })}
+                  className={INPUT}
+                />
+              </label>
+              <label className="space-y-1.5 block">
+                <span className={LABEL}>{t('eventSessions.salesEndsAt')}</span>
+                <input
+                  type="datetime-local"
+                  value={isoToBusinessDateTime(
+                    session.salesEndsAt ?? defaultSalesEndsAt(session.startsAt)
+                  )}
+                  onChange={(e) =>
+                    replace(index, {
+                      ...session,
+                      salesEndsAt: businessDateTimeToIso(e.target.value),
+                    })
+                  }
+                  className={INPUT}
+                />
+              </label>
+            </div>
+            <p className="text-[12px] text-ink/70">{t('eventSessions.salesEndsHint')}</p>
           </fieldset>
         );
       })}

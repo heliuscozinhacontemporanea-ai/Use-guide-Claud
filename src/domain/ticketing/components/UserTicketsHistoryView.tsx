@@ -118,7 +118,7 @@ export function UserTicketsHistoryView({ onBack }: UserTicketsHistoryViewProps =
               )}
               busy={actions.busy}
               onShowQr={() => void actions.showQr(ticket)}
-              onReissueQr={() => void actions.reissueQr(ticket)}
+              onSwapQr={() => void actions.swapQr(ticket)}
               onTransfer={() => actions.setTransferTicket(ticket)}
             />
           ))}

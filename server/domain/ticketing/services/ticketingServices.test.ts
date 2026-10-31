@@ -178,6 +178,8 @@ describe('serviços de ticketing', () => {
       getOfflineCheckInSessionById: vi.fn(),
       syncOfflineCheckInsAtomic: vi.fn(),
       anonymizeUser: vi.fn(),
+      listTicketsChangedSince: vi.fn().mockResolvedValue([]),
+      swapTicketQr: vi.fn(),
       countCheckInCodeFailures: vi.fn().mockResolvedValue(0),
       addCheckInCodeFailure: vi.fn().mockResolvedValue(undefined),
     };

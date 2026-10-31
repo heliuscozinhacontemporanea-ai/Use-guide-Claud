@@ -23,16 +23,17 @@ export interface TicketWalletTranslation {
   order: string;
   ticketCount_one: string;
   ticketCount_other: string;
-  actions: { showQr: string; reissueQr: string; transfer: string };
+  actions: { showQr: string; transfer: string };
+  swap: { action: string; title: string; message: string; confirm: string };
   ticketStatus: Record<TicketStatusKey, string>;
   resume: { title: string; close: string };
   feedback: {
-    qrReissued: string;
+    qrSwapped: string;
     refundRequested: string;
     alreadyPaid: string;
     paid: string;
   };
-  errors: { qr: string; qrReissue: string; refund: string; resume: string };
+  errors: { qr: string; qrSwap: string; refund: string; resume: string };
 }
 
 export const ticketWalletPtBR: TicketWalletTranslation = {
@@ -57,8 +58,14 @@ export const ticketWalletPtBR: TicketWalletTranslation = {
   ticketCount_other: '{{count}} ingressos',
   actions: {
     showQr: 'Ver QR',
-    reissueQr: 'Novo QR',
     transfer: 'Transferir',
+  },
+  swap: {
+    action: 'Problema com o QR Code?',
+    title: 'Trocar o QR Code?',
+    message:
+      'Use se alguém viu ou copiou seu QR Code. O QR e o código atuais param de funcionar, e você só pode fazer isso uma vez. Se a portaria estiver sem internet, o QR antigo ainda pode passar até ela atualizar: chegue cedo e, se precisar, mostre seu documento.',
+    confirm: 'Trocar QR Code',
   },
   ticketStatus: {
     reserved: 'Reservado',
@@ -73,14 +80,14 @@ export const ticketWalletPtBR: TicketWalletTranslation = {
   },
   resume: { title: 'Concluir pagamento do pedido #{{id}}', close: 'Fechar' },
   feedback: {
-    qrReissued: 'Novo QR Code emitido. O anterior deixou de valer.',
+    qrSwapped: 'QR Code trocado. O anterior e o código antigo não valem mais.',
     refundRequested: 'Reembolso solicitado. Você recebe pelo mesmo meio de pagamento.',
     alreadyPaid: 'Seu pagamento já estava confirmado. Ingressos atualizados.',
     paid: 'Pagamento confirmado e ingressos emitidos!',
   },
   errors: {
     qr: 'Não foi possível gerar o QR Code.',
-    qrReissue: 'Não foi possível emitir um novo QR Code.',
+    qrSwap: 'Não foi possível trocar o QR Code.',
     refund: 'Não foi possível pedir o reembolso.',
     resume: 'Não foi possível retomar o pagamento deste pedido.',
   },
@@ -107,8 +114,14 @@ export const ticketWalletEn: TicketWalletTranslation = {
   ticketCount_other: '{{count}} tickets',
   actions: {
     showQr: 'Show QR',
-    reissueQr: 'New QR',
     transfer: 'Transfer',
+  },
+  swap: {
+    action: 'Problem with the QR code?',
+    title: 'Replace the QR code?',
+    message:
+      'Use this if someone saw or copied your QR code. The current QR and code stop working, and you can only do this once. If the entrance is offline, the old QR may still pass until it updates: arrive early and show your ID if needed.',
+    confirm: 'Replace QR code',
   },
   ticketStatus: {
     reserved: 'Reserved',
@@ -123,14 +136,14 @@ export const ticketWalletEn: TicketWalletTranslation = {
   },
   resume: { title: 'Complete payment for order #{{id}}', close: 'Close' },
   feedback: {
-    qrReissued: 'New QR code issued. The previous one is no longer valid.',
+    qrSwapped: 'QR code replaced. The previous one and the old code no longer work.',
     refundRequested: 'Refund requested. You will receive it through the same payment method.',
     alreadyPaid: 'Your payment was already confirmed. Tickets updated.',
     paid: 'Payment confirmed and tickets issued!',
   },
   errors: {
     qr: 'Could not generate the QR code.',
-    qrReissue: 'Could not issue a new QR code.',
+    qrSwap: 'Could not replace the QR code.',
     refund: 'Could not request the refund.',
     resume: 'Could not resume payment for this order.',
   },
@@ -158,8 +171,14 @@ export const ticketWalletFr: TicketWalletTranslation = {
   ticketCount_other: '{{count}} billets',
   actions: {
     showQr: 'Voir le QR',
-    reissueQr: 'Nouveau QR',
     transfer: 'Transférer',
+  },
+  swap: {
+    action: 'Un problème avec le QR code ?',
+    title: 'Remplacer le QR code ?',
+    message:
+      'À utiliser si quelqu’un a vu ou copié votre QR code. Le QR et le code actuels ne fonctionnent plus, et vous ne pouvez le faire qu’une fois. Si l’entrée est hors ligne, l’ancien QR peut encore passer jusqu’à sa mise à jour : arrivez tôt et montrez votre pièce d’identité si besoin.',
+    confirm: 'Remplacer le QR code',
   },
   ticketStatus: {
     reserved: 'Réservé',
@@ -174,14 +193,14 @@ export const ticketWalletFr: TicketWalletTranslation = {
   },
   resume: { title: 'Finaliser le paiement de la commande n° {{id}}', close: 'Fermer' },
   feedback: {
-    qrReissued: 'Nouveau QR code émis. L’ancien n’est plus valable.',
+    qrSwapped: 'QR code remplacé. L’ancien et l’ancien code ne sont plus valables.',
     refundRequested: 'Remboursement demandé. Vous le recevrez par le même moyen de paiement.',
     alreadyPaid: 'Votre paiement était déjà confirmé. Billets mis à jour.',
     paid: 'Paiement confirmé et billets émis !',
   },
   errors: {
     qr: 'Impossible de générer le QR code.',
-    qrReissue: 'Impossible d’émettre un nouveau QR code.',
+    qrSwap: 'Impossible de remplacer le QR code.',
     refund: 'Impossible de demander le remboursement.',
     resume: 'Impossible de reprendre le paiement de cette commande.',
   },

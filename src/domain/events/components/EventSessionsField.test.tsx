@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
+import { i18n } from '../../../shared/i18n';
 import { EventSessionsField } from './EventSessionsField';
 
 const one = [
@@ -7,6 +8,10 @@ const one = [
 ];
 
 describe('EventSessionsField', () => {
+  beforeAll(async () => {
+    await i18n.changeLanguage('pt-BR');
+  });
+
   it('mostra os horários no fuso de Fortaleza e adiciona uma sessão', () => {
     const onChange = vi.fn();
     render(<EventSessionsField sessions={one} onChange={onChange} loadState="ready" />);
@@ -20,11 +25,11 @@ describe('EventSessionsField', () => {
     const { rerender } = render(
       <EventSessionsField sessions={one} onChange={onChange} loadState="ready" />
     );
-    expect(screen.queryByRole('button', { name: /Remover sessão/ })).toBeNull();
+    expect(screen.queryByRole('button', { name: /Remover Sessão/ })).toBeNull();
     rerender(
       <EventSessionsField sessions={[...one, ...one]} onChange={onChange} loadState="ready" />
     );
-    const [firstRemove] = screen.getAllByRole('button', { name: /Remover sessão/ });
+    const [firstRemove] = screen.getAllByRole('button', { name: /Remover Sessão/ });
     if (firstRemove) fireEvent.click(firstRemove);
     expect(onChange.mock.calls[0]?.[0]).toHaveLength(1);
   });

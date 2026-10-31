@@ -16,6 +16,8 @@ import {
   type TicketingActorContext,
 } from './ticketingAccess';
 
+const CHANGES_PAGE = 500;
+
 /** Check-in offline: manifesto assinado e sincronização. */
 export class OfflineCheckInService {
   constructor(
@@ -41,6 +43,14 @@ export class OfflineCheckInService {
     const minPrepMs = startsAtMs - 24 * 3600 * 1000;
     const maxExpireMs = endsAtMs + 6 * 3600 * 1000;
 
+    // Lista só depois do fim das vendas pelo app: assim ela já é a final (D21).
+    const salesEndMs = new Date(occurrence.salesEndsAt || occurrence.startsAt).getTime();
+    if (nowMs < salesEndMs) {
+      throw new TicketingDomainError(
+        'UNPROCESSABLE_ENTITY',
+        'O check-in sem internet fica disponível depois do fim das vendas pelo app.'
+      );
+    }
     if (nowMs < minPrepMs) {
       throw new TicketingDomainError(
         'UNPROCESSABLE_ENTITY',
@@ -183,6 +193,43 @@ export class OfflineCheckInService {
     return {
       sessionId: session.id,
       results,
+    };
+  }
+
+  /**
+   * O que mudou na sessão desde a última atualização do aparelho (D21): trocas de QR, transferências,
+   * cancelamentos e entradas. Só hash do ID, versão e situação, como no manifesto.
+   */
+  async listOfflineChanges(
+    actor: TicketingActorContext,
+    params: { sessionId: string; since: string }
+  ): Promise<{
+    serverTime: string;
+    hasMore: boolean;
+    tickets: Array<{ ticketIdHash: string; qrVersion: number; usable: boolean }>;
+  }> {
+    const session = await this.port.getOfflineCheckInSessionById(params.sessionId);
+    if (!session) {
+      throw new TicketingDomainError('NOT_FOUND', 'Sessão de check-in offline não encontrada.');
+    }
+    await assertCanManageOccurrence(actor, session.occurrenceId);
+    const serverTime = new Date().toISOString();
+    const changed = await this.port.listTicketsChangedSince(
+      session.occurrenceId,
+      params.since,
+      CHANGES_PAGE + 1
+    );
+    return {
+      serverTime:
+        changed.length > CHANGES_PAGE
+          ? (changed[CHANGES_PAGE - 1]?.updatedAt ?? serverTime)
+          : serverTime,
+      hasMore: changed.length > CHANGES_PAGE,
+      tickets: changed.slice(0, CHANGES_PAGE).map((ticket) => ({
+        ticketIdHash: hashTicketIdForOfflineManifest(ticket.id),
+        qrVersion: ticket.qrVersion || 1,
+        usable: ticket.status === 'issued',
+      })),
     };
   }
 }

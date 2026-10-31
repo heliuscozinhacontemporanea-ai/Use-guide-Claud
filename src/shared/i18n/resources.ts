@@ -116,6 +116,12 @@ import {
   usernameFr,
   usernamePtBR,
 } from './usernameResources';
+import {
+  type EventSessionsTranslation,
+  eventSessionsEn,
+  eventSessionsFr,
+  eventSessionsPtBR,
+} from './eventSessionsResources';
 import { type LegalTranslation, legalEn, legalFr, legalPtBR } from './legalResources';
 import {
   type VerificationTranslation,
@@ -145,6 +151,7 @@ export interface TranslationResource {
   ticketWallet: TicketWalletTranslation;
   ticketGate: TicketGateTranslation;
   username: UsernameTranslation;
+  eventSessions: EventSessionsTranslation;
   legal: LegalTranslation;
   verification: VerificationTranslation;
   common: {
@@ -378,6 +385,7 @@ const ptBR: TranslationResource = {
   ticketWallet: ticketWalletPtBR,
   ticketGate: ticketGatePtBR,
   username: usernamePtBR,
+  eventSessions: eventSessionsPtBR,
   legal: legalPtBR,
   verification: verificationPtBR,
   common: {
@@ -671,6 +679,7 @@ const en: TranslationResource = {
   ticketWallet: ticketWalletEn,
   ticketGate: ticketGateEn,
   username: usernameEn,
+  eventSessions: eventSessionsEn,
   legal: legalEn,
   verification: verificationEn,
   common: {
@@ -958,6 +967,7 @@ const fr: TranslationResource = {
   ticketWallet: ticketWalletFr,
   ticketGate: ticketGateFr,
   username: usernameFr,
+  eventSessions: eventSessionsFr,
   legal: legalFr,
   verification: verificationFr,
   common: {

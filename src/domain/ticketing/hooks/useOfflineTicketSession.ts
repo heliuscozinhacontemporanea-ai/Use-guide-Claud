@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import { createOfflineCheckInSessionUseCase } from '../application/usecases/createOfflineCheckInSessionUseCase';
+import { listOfflineCheckInChangesUseCase } from '../application/usecases/listOfflineCheckInChangesUseCase';
 import { syncOfflineCheckInsUseCase } from '../application/usecases/syncOfflineCheckInsUseCase';
 import {
+  applyOfflineChanges,
   getOfflineManifestBundle,
   listPendingOfflineCheckInEvents,
   removeSyncedOfflineCheckInEvents,
@@ -13,6 +15,9 @@ export type OfflineSessionNotice =
   | { kind: 'prepared'; count: number }
   | { kind: 'synced'; count: number; conflicts: number }
   | { kind: 'error'; message: string };
+
+const CHANGES_INTERVAL_MS = 2 * 60_000;
+const MAX_CHANGE_PAGES = 10;
 
 /** Sessão sem internet da portaria: manifesto no aparelho e envio dos check-ins quando o sinal volta. */
 export function useOfflineTicketSession(
@@ -93,6 +98,7 @@ export function useOfflineTicketSession(
         expiresAt: session.expiresAt,
         keys: manifest.keys,
         tickets: manifest.tickets,
+        changesSince: session.issuedAt,
       });
       await refresh();
       setNotice({ kind: 'prepared', count: manifest.tickets.length });
@@ -107,10 +113,37 @@ export function useOfflineTicketSession(
     void refresh();
   }, [refresh]);
 
+  // Com sinal, baixa a cada 2 min só o que mudou (D21): QR trocado, transferência, entrada em outro aparelho.
+  const pullChanges = useCallback(async () => {
+    if (!occurrenceId || !navigator.onLine) return;
+    let current = await getOfflineManifestBundle(occurrenceId).catch(() => null);
+    for (let page = 0; current && page < MAX_CHANGE_PAGES; page += 1) {
+      const changes = await listOfflineCheckInChangesUseCase(
+        current.sessionId,
+        current.changesSince
+      );
+      current = applyOfflineChanges(current, changes.tickets, changes.serverTime);
+      await saveOfflineManifestBundle(current);
+      if (!changes.hasMore) break;
+    }
+    if (current) setBundle(current);
+  }, [occurrenceId]);
+
+  const sessionId = bundle?.sessionId;
+  useEffect(() => {
+    if (!sessionId) return;
+    const timer = window.setInterval(
+      () => void pullChanges().catch(() => undefined),
+      CHANGES_INTERVAL_MS
+    );
+    return () => window.clearInterval(timer);
+  }, [sessionId, pullChanges]);
+
   useEffect(() => {
     const onOnline = () => {
       setIsOnline(true);
       void sync();
+      void pullChanges().catch(() => undefined);
     };
     const onOffline = () => setIsOnline(false);
     window.addEventListener('online', onOnline);
@@ -119,7 +152,7 @@ export function useOfflineTicketSession(
       window.removeEventListener('online', onOnline);
       window.removeEventListener('offline', onOffline);
     };
-  }, [sync]);
+  }, [pullChanges, sync]);
 
   return { isOnline, bundle, pending, preparing, syncing, notice, prepare, sync, refresh };
 }

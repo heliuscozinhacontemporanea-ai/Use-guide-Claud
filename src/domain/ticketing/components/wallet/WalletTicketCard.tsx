@@ -1,6 +1,9 @@
-import { QrCode, RefreshCw, Send, ShieldAlert } from 'lucide-react';
+import { QrCode, Send, ShieldAlert } from 'lucide-react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ConfirmDialog, type ConfirmDialogData } from '../../../../ui/components/ConfirmDialog';
 import { GlassCard } from '../../../../ui/components/GlassCard';
+import { TextButton } from '../../../../ui/components/TextButton';
 import { cn } from '../../../../shared/utils/cn';
 import type { TicketQrPreview } from '../../hooks/useTicketWalletActions';
 import type { Ticket } from '../../types/ticketing';
@@ -12,7 +15,7 @@ interface WalletTicketCardProps {
   canTransfer: boolean;
   busy: boolean;
   onShowQr: () => void;
-  onReissueQr: () => void;
+  onSwapQr: () => void;
   onTransfer: () => void;
 }
 
@@ -25,10 +28,11 @@ export function WalletTicketCard({
   canTransfer,
   busy,
   onShowQr,
-  onReissueQr,
+  onSwapQr,
   onTransfer,
 }: WalletTicketCardProps) {
   const { t, i18n } = useTranslation();
+  const [confirm, setConfirm] = useState<ConfirmDialogData | null>(null);
   const startsAt = ticket.eventSnapshot?.startsAt;
   const formatDate = (iso: string) =>
     new Intl.DateTimeFormat(i18n.language, {
@@ -120,20 +124,6 @@ export function WalletTicketCard({
               {t('ticketWallet.actions.showQr')}
             </button>
           )}
-          {ticket.status === 'issued' && qr && (
-            <button
-              type="button"
-              disabled={busy}
-              onClick={onReissueQr}
-              className={cn(
-                ACTION,
-                'bg-surface border border-line hover:bg-accent-soft text-ink/80'
-              )}
-            >
-              <RefreshCw size={13} aria-hidden="true" />
-              {t('ticketWallet.actions.reissueQr')}
-            </button>
-          )}
           {canTransfer && (
             <button
               type="button"
@@ -146,6 +136,31 @@ export function WalletTicketCard({
           )}
         </div>
       )}
+      {ticket.status === 'issued' && !ticket.qrSwappedAt && (
+        <div className="flex justify-center">
+          <TextButton
+            tone="ink"
+            disabled={busy}
+            onClick={() =>
+              setConfirm({
+                title: t('ticketWallet.swap.title'),
+                message: t('ticketWallet.swap.message'),
+                confirmLabel: t('ticketWallet.swap.confirm'),
+                cancelLabel: t('common.cancel'),
+                tone: 'danger',
+                onCancel: () => setConfirm(null),
+                onConfirm: () => {
+                  setConfirm(null);
+                  onSwapQr();
+                },
+              })
+            }
+          >
+            {t('ticketWallet.swap.action')}
+          </TextButton>
+        </div>
+      )}
+      <ConfirmDialog data={confirm} />
     </GlassCard>
   );
 }

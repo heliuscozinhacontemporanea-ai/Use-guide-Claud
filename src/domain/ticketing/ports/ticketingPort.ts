@@ -7,6 +7,7 @@ import type {
   Refund,
   Ticket,
   TicketQrPass,
+  OfflineCheckInChanges,
   TicketOrder,
   TicketOrderItem,
   TicketType,
@@ -97,7 +98,9 @@ export interface TicketingPort {
   }>;
   listUserTickets(): Promise<Ticket[]>;
   getTicketQrToken(ticketId: string): Promise<TicketQrPass>;
-  reissueTicketQrToken(ticketId: string): Promise<TicketQrPass>;
+  /** Troca única do QR pelo titular (D21). */
+  swapTicketQr(ticketId: string): Promise<TicketQrPass>;
+  listOfflineCheckInChanges(sessionId: string, since: string): Promise<OfflineCheckInChanges>;
   requestRefund(
     orderId: string,
     input: { ticketId?: string; reason: string; idempotencyKey: string }

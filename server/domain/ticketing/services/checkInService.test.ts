@@ -9,6 +9,10 @@ import type { Ticket } from '../types/ticketingTypes';
 import { deriveTicketCheckInCode } from '../utils/ticketCheckInCode';
 import { CheckInService } from './checkInService';
 
+vi.mock('../../notifications', () => ({
+  createNotificationUseCase: vi.fn().mockResolvedValue(true),
+}));
+
 vi.mock('../../events', () => ({
   getEventListingByIdUseCase: vi.fn().mockResolvedValue({ id: 'evt_1', ownerId: 'partner_1' }),
   getEventOccurrenceByIdUseCase: vi.fn().mockResolvedValue({
@@ -50,6 +54,11 @@ function setup(nowIso: string) {
     ),
     addCheckInCodeFailure: vi.fn(async (occurrenceId: string, actorUid: string, at: string) => {
       failures.push({ occurrenceId, actorUid, at });
+    }),
+    swapTicketQr: vi.fn(async (id: string) => {
+      const found = tickets.find((item) => item.id === id);
+      if (found) found.qrVersion += 1;
+      return found;
     }),
     checkInTicketAtomic: vi.fn(async (params: { ticketId: string }) => ({
       ticket: tickets.find((item) => item.id === params.ticketId),
@@ -159,5 +168,16 @@ describe('check-in do ingresso: QR Ed25519 e código INGR (D20, B36)', () => {
         { occurrenceId: 'occ_1', code: deriveTicketCheckInCode('tkt_1', 1) }
       )
     ).rejects.toMatchObject({ code: 'FORBIDDEN' });
+  });
+
+  it('"Problema com o QR Code?": troca a versão, o código antigo para de valer e o titular é avisado', async () => {
+    const { service, port } = setup('2026-12-20T22:00:00.000Z');
+    const oldCode = deriveTicketCheckInCode('tkt_1', 1);
+    const pass = await service.swapPresentationQr({ uid: 'buyer_1', admin: false }, 'tkt_1');
+    expect(port.swapTicketQr).toHaveBeenCalledWith('tkt_1', 'buyer_1', expect.any(String));
+    expect(pass.code).toBe(deriveTicketCheckInCode('tkt_1', 2));
+    await expect(
+      service.checkInTicket(PARTNER, { occurrenceId: 'occ_1', code: oldCode })
+    ).rejects.toMatchObject({ code: 'UNPROCESSABLE_ENTITY' });
   });
 });

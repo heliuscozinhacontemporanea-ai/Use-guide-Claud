@@ -9,6 +9,7 @@ type OfflineReason =
   | 'notInManifest'
   | 'revoked'
   | 'used'
+  | 'swappedConflict'
   | 'unsupported';
 
 export interface TicketGateTranslation {
@@ -74,6 +75,8 @@ export const ticketGatePtBR: TicketGateTranslation = {
     notInManifest: 'Ingresso já usado ou cancelado.',
     revoked: 'Este QR foi substituído (ingresso transferido).',
     used: 'Este ingresso já entrou por este aparelho.',
+    swappedConflict:
+      'QR trocado pelo titular depois de uma entrada com o QR antigo: confira o documento.',
     unsupported: 'Este aparelho não confere QR sem internet. Use outro ou aguarde o sinal.',
   },
   online: 'Com internet',
@@ -123,6 +126,7 @@ export const ticketGateEn: TicketGateTranslation = {
     notInManifest: 'Ticket already used or canceled.',
     revoked: 'This QR was replaced (ticket transferred).',
     used: 'This ticket already entered on this device.',
+    swappedConflict: 'QR replaced by the holder after an entry with the old QR: check the ID.',
     unsupported: 'This device cannot check QR codes offline. Use another one or wait for signal.',
   },
   online: 'Online',
@@ -172,6 +176,8 @@ export const ticketGateFr: TicketGateTranslation = {
     notInManifest: 'Billet déjà utilisé ou annulé.',
     revoked: 'Ce QR a été remplacé (billet transféré).',
     used: 'Ce billet est déjà entré avec cet appareil.',
+    swappedConflict:
+      'QR remplacé par le titulaire après une entrée avec l’ancien QR : vérifiez la pièce d’identité.',
     unsupported:
       'Cet appareil ne vérifie pas les QR hors ligne. Utilisez-en un autre ou attendez le réseau.',
   },

@@ -82,6 +82,7 @@ export class FirestoreCheckInStore {
         status: 'checked_in',
         checkedInAt: nowIso,
         checkedInBy: params.checkedInBy,
+        updatedAt: nowIso,
       });
 
       return {
@@ -228,6 +229,7 @@ export class FirestoreCheckInStore {
             status: 'checked_in',
             checkedInAt: ev.scannedAt || nowIso,
             checkedInBy: params.checkedInBy,
+            updatedAt: nowIso,
           });
 
           return 'accepted';

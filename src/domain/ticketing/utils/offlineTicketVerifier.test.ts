@@ -3,7 +3,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const storage = vi.hoisted(() => ({
   bundle: null as unknown,
-  used: false,
+  used: null as { qrVersion: number } | null,
+  saved: [] as unknown[],
   recorded: [] as unknown[],
 }));
 
@@ -13,7 +14,10 @@ vi.mock('./offlineCheckInStorage', async () => {
   return {
     sha256HexBrowser: actual.sha256HexBrowser,
     getOfflineManifestBundle: vi.fn(async () => storage.bundle),
-    isTicketMarkedUsedOffline: vi.fn(async () => storage.used),
+    getOfflineUsedRecord: vi.fn(async () => storage.used),
+    saveOfflineManifestBundle: vi.fn(async (bundle: unknown) => {
+      storage.saved.push(bundle);
+    }),
     recordOfflineCheckInEvent: vi.fn(async (event: unknown) => {
       storage.recorded.push(event);
     }),
@@ -34,7 +38,8 @@ const VALID = { tid: 'tkt_1', occ: 'occ_1', qv: 2, exp: Math.floor(Date.now() / 
 
 describe('conferência do QR do ingresso sem internet (D20, B36)', () => {
   beforeEach(async () => {
-    storage.used = false;
+    storage.used = null;
+    storage.saved = [];
     storage.recorded = [];
     storage.bundle = {
       occurrenceId: 'occ_1',
@@ -70,10 +75,26 @@ describe('conferência do QR do ingresso sem internet (D20, B36)', () => {
         verifyAndConsumeOfflineQrToken({ rawToken, occurrenceId: 'occ_1' })
       ).resolves.toEqual({ valid: false, reason });
     }
-    storage.used = true;
+    storage.used = { qrVersion: 2 };
     await expect(
       verifyAndConsumeOfflineQrToken({ rawToken: token(VALID), occurrenceId: 'occ_1' })
     ).resolves.toEqual({ valid: false, reason: 'used' });
+    await expect(
+      verifyAndConsumeOfflineQrToken({
+        rawToken: token({ ...VALID, qv: 3 }),
+        occurrenceId: 'occ_1',
+      })
+    ).resolves.toEqual({ valid: false, reason: 'swappedConflict' });
     expect(storage.recorded).toHaveLength(0);
+  });
+
+  it('QR trocado depois da lista: a versão nova vence e passa a ser a da lista (D21)', async () => {
+    const result = await verifyAndConsumeOfflineQrToken({
+      rawToken: token({ ...VALID, qv: 3 }),
+      occurrenceId: 'occ_1',
+    });
+    expect(result.valid).toBe(true);
+    expect(storage.saved).toHaveLength(1);
+    expect(JSON.stringify(storage.saved[0])).toContain('"qrVersion":3');
   });
 });
