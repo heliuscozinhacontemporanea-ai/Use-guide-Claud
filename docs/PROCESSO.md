@@ -125,7 +125,20 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 | 20.5 | Denúncia de resposta e aba Moderação (D19) | `b15f337..2dabeed` | ✅ zip 2026-10-29 | ✅ igual à referência |
 | C17 | Correção do lote 17: cartão do tema claro e texto do B30 | — | ⏳ enviar (lote 18) | — |
 | 20.6 | Painel admin: App Check, abas e build de produção | `ce40518..a5266cd` | ⏳ enviar (lote 18) | — |
-| A7 | AGENTS.md §7.7 (S18) e D20 | `a94137d..024bf5f` | ⏳ enviar (lote 18) | — |
+| A7 | AGENTS.md §7.7 (S18) e §7.8, D20 e D21 | `a94137d..fef8a57` | ⏳ enviar (lote 18) | — |
+| 21.1 | Código de check-in de reservas: 6 caracteres por HMAC, janela, limite de erros (backend) | `2809f57..c24a606` | ⏳ enviar (lote 18) | — |
+| 21.2 | Cheguei, ausência, prestador não veio, cliente sem código e "O serviço aconteceu?" (backend) | `c24a606..ff24a4f` | ⏳ enviar (lote 18) | — |
+| 21.3 | Repasse com prova do serviço, avaliação verificada, provas na fila do admin e B35 (backend) | `ff24a4f..fbd67ff` | ⏳ enviar (lote 18) | — |
+| 21.4 | QR Ed25519 e código de 8 caracteres na entrada de atração privada (backend) | `fbd67ff..ef9f5a8` | ⏳ enviar (lote 18) | — |
+| 21.5a | Telas do check-in de reservas: comprador, prestador e admin | `ef9f5a8..540bdb0` | ⏳ enviar (lote 18) | — |
+| 21.5b | Um código por pessoa ou grupo, entrada nominal e textos neutros (backend) | `540bdb0..a9a5dd2` | ⏳ enviar (lote 18) | — |
+| 21.5c | Telas por pessoa ou grupo, nomes opcionais e leitor zxing-wasm (dependência nova) | `a9a5dd2..bf8cd48` | ⏳ enviar (lote 18) | — |
+| 21.6a | QR do ingresso Ed25519, código INGR e anonimização (backend, B36) | `bf8cd48..7b032b9` | ⏳ enviar (lote 18) | — |
+| 21.6b | Carteira e portaria do evento com código INGR e conferência sem internet | `7b032b9..86c0985` | ⏳ enviar (lote 18) | — |
+| 21.7a | @usuário e transferência de ingresso pelo @ (D21) | `86c0985..e9d5a13` | ⏳ enviar (lote 18) | — |
+| 21.7b | "Problema com o QR Code?", fim das vendas e lista sem internet atualizada | `e9d5a13..ec9e4e2` | ⏳ enviar (lote 18) | — |
+| 21.7c | Modo portaria com economia de bateria e devolução de ingresso | `ec9e4e2..f29204b` | ⏳ enviar (lote 18) | — |
+| 21.7d | @ obrigatório depois do cadastro e link de transferência (30 min, uso único) | `f29204b..fef8a57` | ⏳ enviar (lote 18) | — |
 
 ### Revisões futuras (aprovadas para depois)
 

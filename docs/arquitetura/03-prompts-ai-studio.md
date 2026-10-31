@@ -165,13 +165,28 @@
 
 > **Envie um prompt por mensagem**, nesta ordem. Até o 18.3.1 (telas), trial, compra de plano e selo do admin pelo painel ficam fora do ar, e as métricas de estabelecimento sem plano mostram erro.
 
-# Lote 18 (Prompts C17, 20.6 e A7) — aplicar sobre o zip de 2026-10-29
+# Lote 18 (Prompts C17, 20.6, A7 e 21.1 a 21.7d) — aplicar sobre o zip de 2026-10-29
 
 | Ordem | Arquivo | Tema | Commit de referência |
 |---|---|---|---|
 | 1 | `prompts/prompt-C17.md` | Correção do lote 17: cartão `.glassmorphism` do tema claro como na D17 (sombra leve, fundo e borda dos tokens) e texto atualizado do débito B30 | `ca3ecaa` |
 | 2 | `prompts/prompt-20.6.md` | Painel admin: build de produção sempre com `NODE_ENV=production`, erro de App Check no formato padrão com aviso traduzido, barra de abas com rolagem e cabeçalho D17, lista de parceiros que ignora documento inválido | `a5266cd` |
-| 3 | `prompts/prompt-A7.md` | AGENTS.md §7.7: exceção do código curto de check-in (S18) e decisão D20 (só AGENTS.md e docs) | `a94137d..024bf5f` (só AGENTS.md e docs) |
+| 3 | `prompts/prompt-A7.md` | AGENTS.md §7.7 (S18) e §7.8, decisões D20 e D21, débitos B35 e B36 (só AGENTS.md e docs) | `a94137d..fef8a57` (só AGENTS.md e docs) |
+| 4 | `prompts/prompt-21.1.md` | Código de check-in de reservas: 6 caracteres por HMAC, janela, limite de erros (backend) | `2809f57..c24a606` (sem docs e lockfile) |
+| 5 | `prompts/prompt-21.2.md` | Cheguei, ausência, prestador não veio, cliente sem código e "O serviço aconteceu?" (backend) | `c24a606..ff24a4f` (sem docs e lockfile) |
+| 6 | `prompts/prompt-21.3.md` | Repasse com prova do serviço, avaliação verificada, provas na fila do admin e B35 (backend) | `ff24a4f..fbd67ff` (sem docs e lockfile) |
+| 7 | `prompts/prompt-21.4.md` | QR Ed25519 e código de 8 caracteres na entrada de atração privada (backend) | `fbd67ff..ef9f5a8` (sem docs e lockfile) |
+| 8 | `prompts/prompt-21.5a.md` | Telas do check-in de reservas: comprador, prestador e admin | `ef9f5a8..540bdb0` (sem docs e lockfile) |
+| 9 | `prompts/prompt-21.5b.md` | Um código por pessoa ou grupo, entrada nominal e textos neutros (backend) | `540bdb0..a9a5dd2` (sem docs e lockfile) |
+| 10 | `prompts/prompt-21.5c.md` | Telas por pessoa ou grupo, nomes opcionais e leitor zxing-wasm (dependência nova) | `a9a5dd2..bf8cd48` (sem docs e lockfile) |
+| 11 | `prompts/prompt-21.6a.md` | QR do ingresso Ed25519, código INGR e anonimização (backend, B36) | `bf8cd48..7b032b9` (sem docs e lockfile) |
+| 12 | `prompts/prompt-21.6b.md` | Carteira e portaria do evento com código INGR e conferência sem internet | `7b032b9..86c0985` (sem docs e lockfile) |
+| 13 | `prompts/prompt-21.7a.md` | @usuário e transferência de ingresso pelo @ (D21) | `86c0985..e9d5a13` (sem docs e lockfile) |
+| 14 | `prompts/prompt-21.7b.md` | "Problema com o QR Code?", fim das vendas e lista sem internet atualizada | `e9d5a13..ec9e4e2` (sem docs e lockfile) |
+| 15 | `prompts/prompt-21.7c.md` | Modo portaria com economia de bateria e devolução de ingresso | `ec9e4e2..f29204b` (sem docs e lockfile) |
+| 16 | `prompts/prompt-21.7d.md` | @ obrigatório depois do cadastro e link de transferência (30 min, uso único) | `f29204b..fef8a57` (sem docs e lockfile) |
+
+> Os prompts 21.x trazem configurações manuais no fim de cada um: segredos novos (`BOOKING_CHECKIN_CODE_SECRET`, `BOOKING_ENTRY_QR_*`, `TICKET_QR_*`, `TICKET_CHECKIN_CODE_SECRET`), remoção de `OFFLINE_CHECKIN_*`, publicação de regras e índices do Firestore e nova revisão do Cloud Run (CSP do leitor de QR). O 21.5c instala `zxing-wasm@2.2.4`.
 
 > O lote 17 voltou igual à referência: as diferenças são ordem de imports e exports e comentários reescritos, sem mudança de lógica. Gates no próprio zip: typecheck, lint (0 erros), 1.140 testes, 68 testes das regras, build, typecheck das Functions e servidor de produção respondendo (`/api/health` 200; rotas de denúncia 401 sem login). Única mudança fora dos prompts: o `.glassmorphism` do tema claro, que o C17 desfaz; e o texto do B30, que veio de um commit de documentação que nenhum prompt levou.
 
