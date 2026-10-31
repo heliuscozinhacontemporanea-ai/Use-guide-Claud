@@ -1,12 +1,14 @@
-import { QrCode, RefreshCw, Send } from 'lucide-react';
+import { QrCode, RefreshCw, Send, ShieldAlert } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { GlassCard } from '../../../../ui/components/GlassCard';
 import { cn } from '../../../../shared/utils/cn';
+import type { TicketQrPreview } from '../../hooks/useTicketWalletActions';
 import type { Ticket } from '../../types/ticketing';
+import { TICKET_CODE_PREFIX } from '../../utils/ticketCode';
 
 interface WalletTicketCardProps {
   ticket: Ticket;
-  qrDataUrl?: string;
+  qr?: TicketQrPreview;
   canTransfer: boolean;
   busy: boolean;
   onShowQr: () => void;
@@ -19,7 +21,7 @@ const ACTION =
 
 export function WalletTicketCard({
   ticket,
-  qrDataUrl,
+  qr,
   canTransfer,
   busy,
   onShowQr,
@@ -28,6 +30,12 @@ export function WalletTicketCard({
 }: WalletTicketCardProps) {
   const { t, i18n } = useTranslation();
   const startsAt = ticket.eventSnapshot?.startsAt;
+  const formatDate = (iso: string) =>
+    new Intl.DateTimeFormat(i18n.language, {
+      timeZone: 'America/Fortaleza',
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    }).format(new Date(iso));
   return (
     <GlassCard className="p-4 space-y-3">
       <div className="flex items-start justify-between gap-2">
@@ -43,13 +51,7 @@ export function WalletTicketCard({
           </p>
           {startsAt && (
             <p className="text-xs text-ink/70 mt-0.5">
-              {t('ticketWallet.session', {
-                date: new Intl.DateTimeFormat(i18n.language, {
-                  timeZone: 'America/Fortaleza',
-                  dateStyle: 'medium',
-                  timeStyle: 'short',
-                }).format(new Date(startsAt)),
-              })}
+              {t('ticketWallet.session', { date: formatDate(startsAt) })}
             </p>
           )}
         </div>
@@ -60,25 +62,45 @@ export function WalletTicketCard({
               ? 'bg-accent-soft text-accent'
               : ticket.status === 'checked_in'
                 ? 'bg-success-soft text-success'
-                : 'bg-white/10 text-ink/70'
+                : 'bg-ink/[0.06] text-ink/70'
           )}
         >
           {t(`ticketWallet.ticketStatus.${ticket.status}`, { defaultValue: ticket.status })}
         </span>
       </div>
 
-      {qrDataUrl && (
-        <div className="p-3 rounded-xl bg-white flex flex-col items-center gap-2">
-          <img
-            src={qrDataUrl}
-            width={160}
-            height={160}
-            alt={t('ticketCheckout.issued.qrAlt', { id: ticket.id.slice(0, 8) })}
-            className="w-40 h-40"
-          />
-          <span className="text-xs font-mono text-slate-700">
-            {t('ticketWallet.qrSigned', { version: ticket.qrVersion })}
-          </span>
+      {qr && (
+        <div className="space-y-3">
+          <div className="mx-auto w-full max-w-[240px] aspect-square rounded-2xl bg-white p-3">
+            <img
+              src={qr.dataUrl}
+              width={240}
+              height={240}
+              alt={t('ticketCheckout.issued.qrAlt', { id: ticket.id.slice(0, 8) })}
+              className="w-full h-full"
+            />
+          </div>
+          {qr.code ? (
+            <>
+              <p
+                className="text-center font-display text-[26px] font-bold tracking-[0.12em] tabular-nums text-ink select-all break-all"
+                aria-label={t('ticketWallet.code.label', { code: qr.code.split('').join(' ') })}
+              >
+                {TICKET_CODE_PREFIX}:{qr.code}
+              </p>
+              <p className="text-[13px] text-ink/70 text-center">{t('ticketWallet.code.hint')}</p>
+              <p className="flex items-start gap-2 text-[13px] text-warn">
+                <ShieldAlert size={16} className="shrink-0 mt-px" aria-hidden="true" />
+                {t('ticketWallet.code.warning')}
+              </p>
+            </>
+          ) : (
+            qr.codeVisibleFrom && (
+              <p className="text-[13px] text-ink/70 text-center">
+                {t('ticketWallet.code.notYet', { date: formatDate(qr.codeVisibleFrom) })}
+              </p>
+            )
+          )}
         </div>
       )}
 
@@ -89,18 +111,24 @@ export function WalletTicketCard({
               type="button"
               disabled={busy}
               onClick={onShowQr}
-              className={cn(ACTION, 'flex-1 bg-surface hover:bg-white/10 text-ink')}
+              className={cn(
+                ACTION,
+                'flex-1 bg-surface border border-line hover:bg-accent-soft text-ink'
+              )}
             >
               <QrCode size={14} className="text-teal-400" aria-hidden="true" />
               {t('ticketWallet.actions.showQr')}
             </button>
           )}
-          {ticket.status === 'issued' && qrDataUrl && (
+          {ticket.status === 'issued' && qr && (
             <button
               type="button"
               disabled={busy}
               onClick={onReissueQr}
-              className={cn(ACTION, 'bg-surface hover:bg-white/10 text-ink/80')}
+              className={cn(
+                ACTION,
+                'bg-surface border border-line hover:bg-accent-soft text-ink/80'
+              )}
             >
               <RefreshCw size={13} aria-hidden="true" />
               {t('ticketWallet.actions.reissueQr')}

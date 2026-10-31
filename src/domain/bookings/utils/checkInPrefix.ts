@@ -1,7 +1,6 @@
 import type { OfferKind } from '../types/bookings';
 
-/** Alfabeto do código: sem 0/O e 1/I/L, como no backend (D20). */
-export const CHECK_IN_ALPHABET = '23456789ABCDEFGHJKMNPQRSTUVWXYZ';
+export { CHECK_IN_ALPHABET } from '../../../shared/constants/checkInCode';
 export const CHECK_IN_CODE_LENGTH = 6;
 export const ENTRY_CODE_LENGTH = 8;
 

@@ -6,6 +6,7 @@ import type {
   PublicTicketTypeProjection,
   Refund,
   Ticket,
+  TicketQrPass,
   TicketOrder,
   TicketOrderItem,
   TicketType,
@@ -95,14 +96,8 @@ export interface TicketingPort {
     serverNow?: string;
   }>;
   listUserTickets(): Promise<Ticket[]>;
-  getTicketQrToken(ticketId: string): Promise<{
-    ticket: Ticket;
-    rawQrToken: string;
-  }>;
-  reissueTicketQrToken(ticketId: string): Promise<{
-    ticket: Ticket;
-    rawQrToken: string;
-  }>;
+  getTicketQrToken(ticketId: string): Promise<TicketQrPass>;
+  reissueTicketQrToken(ticketId: string): Promise<TicketQrPass>;
   requestRefund(
     orderId: string,
     input: { ticketId?: string; reason: string; idempotencyKey: string }
@@ -119,6 +114,8 @@ export interface TicketingPort {
     occurrenceId: string;
     ticketId?: string;
     qrToken?: string;
+    /** Código de 8 caracteres do ingresso, quando o QR não lê (D20). */
+    code?: string;
   }): Promise<{ ticket: Ticket; checkIn: EventCheckIn }>;
   createOfflineCheckInSession(input: {
     occurrenceId: string;
@@ -133,6 +130,7 @@ export interface TicketingPort {
       clientEventId: string;
       ticketId: string;
       qrToken: string;
+      qrVersion: number;
       checkedInAt: string;
     }>;
   }): Promise<{ results: OfflineCheckInSyncResult[] }>;

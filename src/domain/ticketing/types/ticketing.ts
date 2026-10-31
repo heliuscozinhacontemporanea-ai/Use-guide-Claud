@@ -227,6 +227,15 @@ export interface EventSalesAnalytics {
   ordersPending: number;
 }
 
+/** QR assinado do ingresso e código de 8 caracteres, que só aparece no dia da sessão (D20). */
+export interface TicketQrPass {
+  ticketId: string;
+  token: string;
+  expiresAt: string;
+  code: string | null;
+  codeVisibleFrom: string | null;
+}
+
 export interface OfflineCheckInSessionResponse {
   session: {
     id: string;
@@ -240,12 +249,14 @@ export interface OfflineCheckInSessionResponse {
     status: 'active' | 'expired' | 'revoked';
     keyId: string;
   };
-  publicKeyPem: string;
-  manifest: Array<{
-    ticketIdHash: string;
-    qrVersion: number;
-    status: 'issued' | 'checked_in';
-  }>;
+  manifest: {
+    sessionId: string;
+    occurrenceId: string;
+    expiresAt: string;
+    /** Chave atual e, na rotação, a anterior: o aparelho confere o QR sem internet. */
+    keys: Array<{ kid: string; publicKeyJwk: JsonWebKey }>;
+    tickets: Array<{ ticketIdHash: string; qrVersion: number }>;
+  };
 }
 
 export interface OfflineCheckInSyncResult {

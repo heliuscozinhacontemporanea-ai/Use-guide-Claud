@@ -19,7 +19,7 @@ export interface TicketWalletTranslation {
   emptyUpcoming: string;
   emptyPast: string;
   session: string;
-  qrSigned: string;
+  code: { label: string; hint: string; warning: string; notYet: string };
   order: string;
   ticketCount_one: string;
   ticketCount_other: string;
@@ -47,7 +47,13 @@ export const ticketWalletPtBR: TicketWalletTranslation = {
   emptyUpcoming: 'Nenhum ingresso para os próximos eventos.',
   emptyPast: 'Nenhum ingresso de eventos passados.',
   session: 'Sessão: {{date}}',
-  qrSigned: 'QR assinado • v{{version}}',
+  code: {
+    label: 'Código {{code}}',
+    hint: 'Mostre o QR Code na entrada. Se a leitura falhar, informe o código.',
+    warning:
+      'Nunca informe o código por telefone ou mensagem. Ninguém do Use Guide pede este código.',
+    notYet: 'O código aparece no dia do evento, a partir de {{date}}.',
+  },
   order: 'Pedido #{{id}}',
   ticketCount_one: '{{count}} ingresso',
   ticketCount_other: '{{count}} ingressos',
@@ -100,7 +106,12 @@ export const ticketWalletEn: TicketWalletTranslation = {
   emptyUpcoming: 'No tickets for upcoming events.',
   emptyPast: 'No tickets for past events.',
   session: 'Session: {{date}}',
-  qrSigned: 'Signed QR • v{{version}}',
+  code: {
+    label: 'Code {{code}}',
+    hint: 'Show the QR code at the entrance. If it cannot be read, tell them the code.',
+    warning: 'Never share the code by phone or message. No one at Use Guide asks for this code.',
+    notYet: 'The code appears on the day of the event, from {{date}}.',
+  },
   order: 'Order #{{id}}',
   ticketCount_one: '{{count}} ticket',
   ticketCount_other: '{{count}} tickets',
@@ -153,7 +164,13 @@ export const ticketWalletFr: TicketWalletTranslation = {
   emptyUpcoming: 'Aucun billet pour les prochains événements.',
   emptyPast: 'Aucun billet pour les événements passés.',
   session: 'Séance : {{date}}',
-  qrSigned: 'QR signé • v{{version}}',
+  code: {
+    label: 'Code {{code}}',
+    hint: 'Montrez le QR code à l’entrée. Si la lecture échoue, donnez le code.',
+    warning:
+      'Ne communiquez jamais le code par téléphone ou par message. Personne chez Use Guide ne vous le demande.',
+    notYet: 'Le code apparaît le jour de l’événement, à partir de {{date}}.',
+  },
   order: 'Commande n° {{id}}',
   ticketCount_one: '{{count}} billet',
   ticketCount_other: '{{count}} billets',

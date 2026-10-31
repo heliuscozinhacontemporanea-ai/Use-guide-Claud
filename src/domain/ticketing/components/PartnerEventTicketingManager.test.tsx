@@ -44,7 +44,9 @@ describe('PartnerEventTicketingManager (divisão em abas, sem mudar comportament
       screen.getByText('Nenhum pedido ou participante registrado para este evento.')
     ).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: /Check-in/ }));
-    expect(screen.getByText('Preparar Check-in Offline')).toBeTruthy();
+    expect(
+      screen.getByRole('button', { name: /Preparar sem internet|Prepare offline/ })
+    ).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: /Reembolsos/ }));
     expect(
       screen.getByText('Nenhuma solicitação de reembolso registrada para este evento.')

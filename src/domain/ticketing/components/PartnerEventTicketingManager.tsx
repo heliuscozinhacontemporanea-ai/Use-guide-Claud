@@ -1,7 +1,6 @@
 import { AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
 import { type ReactNode, useEffect, useState } from 'react';
 import { type EventOccurrence, useEventOccurrences } from '../../events';
-import { useOfflineCheckIn } from '../hooks/useOfflineCheckIn';
 import { usePartnerEventSales } from '../hooks/usePartnerEventSales';
 import { useTicketLotForm } from '../hooks/useTicketLotForm';
 import { useManagementTicketTypes } from '../hooks/useTicketTypes';
@@ -63,13 +62,6 @@ export function PartnerEventTicketingManager({
   const [feedback, setFeedback] = useState<ManagerFeedback | null>(null);
 
   const lotForm = useTicketLotForm({ selectedOccurrenceId, reloadLots, setFeedback });
-  const checkIn = useOfflineCheckIn({
-    eventListingId,
-    selectedOccurrenceId,
-    performCheckIn,
-    reloadSales,
-    setFeedback,
-  });
 
   const selectedOccurrence = occurrences.find((occ) => occ.id === selectedOccurrenceId);
   const paidOrders = orders.filter(
@@ -166,9 +158,10 @@ export function PartnerEventTicketingManager({
         <AttendeesTab orders={orders} />
       ) : activeTab === 'checkin' ? (
         <CheckInTab
-          checkIn={checkIn}
+          occurrenceId={selectedOccurrenceId}
           checkIns={checkIns}
-          selectedOccurrenceId={selectedOccurrenceId}
+          performCheckIn={performCheckIn}
+          reloadSales={reloadSales}
         />
       ) : activeTab === 'refunds' ? (
         <RefundsTab refunds={refunds} />

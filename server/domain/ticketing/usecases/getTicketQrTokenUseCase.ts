@@ -8,6 +8,8 @@ export async function getTicketQrTokenUseCase(
   ticketId: string;
   token: string;
   expiresAt: string;
+  code: string | null;
+  codeVisibleFrom: string | null;
 }> {
   return checkInService.generateTicketPresentationQr(actor, ticketId);
 }

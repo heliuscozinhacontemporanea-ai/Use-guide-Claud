@@ -110,9 +110,7 @@ export function UserTicketsHistoryView({ onBack }: UserTicketsHistoryViewProps =
             <WalletTicketCard
               key={ticket.id}
               ticket={ticket}
-              qrDataUrl={
-                actions.qrPreview?.ticketId === ticket.id ? actions.qrPreview.dataUrl : undefined
-              }
+              qr={actions.qrPreview?.ticketId === ticket.id ? actions.qrPreview : undefined}
               canTransfer={canTransferTicket(
                 ticket,
                 orders.find((order) => order.id === ticket.orderId),

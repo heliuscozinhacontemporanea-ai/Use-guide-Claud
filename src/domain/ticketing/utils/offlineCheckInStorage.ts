@@ -5,12 +5,9 @@ export interface StoredOfflineManifestBundle {
   stationId: string;
   issuedAt: string;
   expiresAt: string;
-  publicKeyPem: string;
-  tickets: Array<{
-    ticketIdHash: string;
-    qrVersion: number;
-    status: 'issued' | 'checked_in';
-  }>;
+  /** Chaves públicas Ed25519 aceitas (atual e, na rotação, a anterior). */
+  keys: Array<{ kid: string; publicKeyJwk: JsonWebKey }>;
+  tickets: Array<{ ticketIdHash: string; qrVersion: number }>;
 }
 
 export interface StoredOfflineCheckInEvent {
@@ -55,19 +52,9 @@ export async function saveOfflineManifestBundle(
 ): Promise<void> {
   const db = await openDb();
   return new Promise((resolve, reject) => {
-    const tx = db.transaction([STORE_MANIFEST, STORE_USED], 'readwrite');
+    // O manifesto só traz ingressos ainda não usados: quem já entrou fica de fora (servidor).
+    const tx = db.transaction(STORE_MANIFEST, 'readwrite');
     tx.objectStore(STORE_MANIFEST).put(bundle);
-    const usedStore = tx.objectStore(STORE_USED);
-    for (const item of bundle.tickets) {
-      if (item.status === 'checked_in') {
-        usedStore.put({
-          key: `${bundle.occurrenceId}:${item.ticketIdHash}`,
-          occurrenceId: bundle.occurrenceId,
-          ticketIdHash: item.ticketIdHash,
-          usedAt: bundle.issuedAt,
-        });
-      }
-    }
     tx.oncomplete = () => {
       db.close();
       resolve();
@@ -116,9 +103,7 @@ export async function isTicketMarkedUsedOffline(
   });
 }
 
-export async function recordOfflineCheckInEvent(
-  event: StoredOfflineCheckInEvent
-): Promise<void> {
+export async function recordOfflineCheckInEvent(event: StoredOfflineCheckInEvent): Promise<void> {
   const db = await openDb();
   return new Promise((resolve, reject) => {
     const tx = db.transaction([STORE_EVENTS, STORE_USED], 'readwrite');
@@ -150,9 +135,7 @@ export async function listPendingOfflineCheckInEvents(
     req.onsuccess = () => {
       db.close();
       const all = (req.result as StoredOfflineCheckInEvent[]) || [];
-      resolve(
-        occurrenceId ? all.filter((e) => e.occurrenceId === occurrenceId) : all
-      );
+      resolve(occurrenceId ? all.filter((e) => e.occurrenceId === occurrenceId) : all);
     };
     req.onerror = () => {
       db.close();
@@ -161,9 +144,7 @@ export async function listPendingOfflineCheckInEvents(
   });
 }
 
-export async function removeSyncedOfflineCheckInEvents(
-  clientEventIds: string[]
-): Promise<void> {
+export async function removeSyncedOfflineCheckInEvents(clientEventIds: string[]): Promise<void> {
   if (clientEventIds.length === 0) return;
   const db = await openDb();
   return new Promise((resolve, reject) => {
@@ -183,184 +164,10 @@ export async function removeSyncedOfflineCheckInEvents(
   });
 }
 
-function base64UrlToUint8Array(base64Url: string): Uint8Array<ArrayBuffer> {
-  const padded = base64Url
-    .replace(/-/g, '+')
-    .replace(/_/g, '/')
-    .padEnd(Math.ceil(base64Url.length / 4) * 4, '=');
-  const binary = atob(padded);
-  const buffer = new ArrayBuffer(binary.length);
-  const bytes = new Uint8Array(buffer);
-  for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i);
-  }
-  return bytes;
-}
-
-function pemToArrayBuffer(pem: string): ArrayBuffer {
-  const b64 = pem
-    .replace(/-----BEGIN PUBLIC KEY-----/g, '')
-    .replace(/-----END PUBLIC KEY-----/g, '')
-    .replace(/\s+/g, '');
-  const binary = atob(b64);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i);
-  }
-  return bytes.buffer;
-}
-
 export async function sha256HexBrowser(input: string): Promise<string> {
   const data = new TextEncoder().encode(input);
   const hashBuffer = await crypto.subtle.digest('SHA-256', data);
   return Array.from(new Uint8Array(hashBuffer))
     .map((b) => b.toString(16).padStart(2, '0'))
     .join('');
-}
-
-export async function verifyAndConsumeOfflineQrToken(params: {
-  rawToken: string;
-  occurrenceId: string;
-}): Promise<{
-  valid: boolean;
-  reason?: string;
-  event?: StoredOfflineCheckInEvent;
-}> {
-  const bundle = await getOfflineManifestBundle(params.occurrenceId);
-  if (!bundle) {
-    return {
-      valid: false,
-      reason: 'Sessão offline não preparada para esta ocorrência.',
-    };
-  }
-
-  const nowMs = Date.now();
-  if (nowMs > new Date(bundle.expiresAt).getTime()) {
-    return {
-      valid: false,
-      reason: 'A sessão offline expirou. Conecte-se para renovar o manifesto.',
-    };
-  }
-
-  const trimmed = params.rawToken.trim();
-  const parts = trimmed.split('.');
-  if (parts.length !== 3 || parts[0] !== 'ugt2') {
-    return {
-      valid: false,
-      reason: 'Formato de QR Code incompatível com verificação criptográfica offline.',
-    };
-  }
-
-  const payloadB64 = parts[1];
-  const signatureB64 = parts[2];
-  if (!payloadB64 || !signatureB64) {
-    return {
-      valid: false,
-      reason: 'Formato de QR Code incompatível com verificação criptográfica offline.',
-    };
-  }
-
-  try {
-    const publicKey = await crypto.subtle.importKey(
-      'spki',
-      pemToArrayBuffer(bundle.publicKeyPem),
-      {
-        name: 'RSA-PSS',
-        hash: 'SHA-256',
-      },
-      false,
-      ['verify']
-    );
-
-    const isSignatureValid = await crypto.subtle.verify(
-      {
-        name: 'RSA-PSS',
-        saltLength: 32,
-      },
-      publicKey,
-      base64UrlToUint8Array(signatureB64),
-      new TextEncoder().encode(payloadB64)
-    );
-
-    if (!isSignatureValid) {
-      return {
-        valid: false,
-        reason: 'Assinatura criptográfica do QR Code inválida ou adulterada.',
-      };
-    }
-
-    const decodedJson = new TextDecoder().decode(base64UrlToUint8Array(payloadB64));
-    const payload = JSON.parse(decodedJson) as {
-      v: number;
-      tid: string;
-      occ: string;
-      qrv: number;
-      iat: number;
-      exp: number;
-    };
-
-    const nowSec = Math.floor(nowMs / 1000);
-    if (payload.exp < nowSec) {
-      return {
-        valid: false,
-        reason: 'Este QR Code expirou.',
-      };
-    }
-
-    if (payload.occ !== params.occurrenceId) {
-      return {
-        valid: false,
-        reason: 'Este ingresso pertence a outra sessão/ocorrência do evento.',
-      };
-    }
-
-    const ticketIdHash = await sha256HexBrowser(payload.tid);
-    const manifestEntry = bundle.tickets.find((t) => t.ticketIdHash === ticketIdHash);
-    if (!manifestEntry) {
-      return {
-        valid: false,
-        reason: 'Ingresso não consta no manifesto de emitidos desta sessão.',
-      };
-    }
-
-    if (manifestEntry.qrVersion !== payload.qrv) {
-      return {
-        valid: false,
-        reason: 'Versão do QR Code revogada (ingresso transferido ou reemitido).',
-      };
-    }
-
-    const alreadyUsed = await isTicketMarkedUsedOffline(
-      params.occurrenceId,
-      ticketIdHash
-    );
-    if (alreadyUsed) {
-      return {
-        valid: false,
-        reason: 'Ingresso já utilizado nesta estação.',
-      };
-    }
-
-    const offlineEvent: StoredOfflineCheckInEvent = {
-      clientEventId: crypto.randomUUID(),
-      sessionId: bundle.sessionId,
-      occurrenceId: params.occurrenceId,
-      ticketId: payload.tid,
-      ticketIdHash,
-      qrVersion: payload.qrv,
-      scannedAt: new Date().toISOString(),
-      rawToken: trimmed,
-    };
-
-    await recordOfflineCheckInEvent(offlineEvent);
-    return {
-      valid: true,
-      event: offlineEvent,
-    };
-  } catch {
-    return {
-      valid: false,
-      reason: 'Não foi possível verificar a assinatura offline do QR Code.',
-    };
-  }
 }

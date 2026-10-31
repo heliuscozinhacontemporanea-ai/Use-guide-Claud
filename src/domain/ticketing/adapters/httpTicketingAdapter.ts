@@ -12,6 +12,7 @@ import type {
   PublicTicketTypeProjection,
   Refund,
   Ticket,
+  TicketQrPass,
   TicketOrder,
   TicketOrderItem,
   TicketType,
@@ -207,25 +208,19 @@ export class HttpTicketingAdapter implements TicketingPort {
     return parseJsonOrThrow<Ticket[]>(res, 'Não foi possível carregar seus ingressos.');
   }
 
-  async getTicketQrToken(ticketId: string): Promise<{
-    ticket: Ticket;
-    rawQrToken: string;
-  }> {
+  async getTicketQrToken(ticketId: string): Promise<TicketQrPass> {
     const res = await firebaseApiFetch(
       `/api/ticketing/tickets/${encodeURIComponent(ticketId)}/qr`,
       { method: 'GET' },
       { requireAuth: true }
     );
-    return parseJsonOrThrow<{ ticket: Ticket; rawQrToken: string }>(
+    return parseJsonOrThrow<TicketQrPass>(
       res,
       'Não foi possível gerar o QR Code assinado do ingresso.'
     );
   }
 
-  async reissueTicketQrToken(ticketId: string): Promise<{
-    ticket: Ticket;
-    rawQrToken: string;
-  }> {
+  async reissueTicketQrToken(ticketId: string): Promise<TicketQrPass> {
     const res = await firebaseApiFetch(
       `/api/ticketing/tickets/${encodeURIComponent(ticketId)}/qr/reissue`,
       {
@@ -235,10 +230,7 @@ export class HttpTicketingAdapter implements TicketingPort {
       },
       { requireAuth: true }
     );
-    return parseJsonOrThrow<{ ticket: Ticket; rawQrToken: string }>(
-      res,
-      'Não foi possível reemitir o QR Code do ingresso.'
-    );
+    return parseJsonOrThrow<TicketQrPass>(res, 'Não foi possível reemitir o QR Code do ingresso.');
   }
 
   async requestRefund(
@@ -285,6 +277,8 @@ export class HttpTicketingAdapter implements TicketingPort {
     occurrenceId: string;
     ticketId?: string;
     qrToken?: string;
+    /** Código de 8 caracteres do ingresso, quando o QR não lê (D20). */
+    code?: string;
   }): Promise<{ ticket: Ticket; checkIn: EventCheckIn }> {
     const res = await firebaseApiFetch(
       '/api/ticketing/check-in',
@@ -329,6 +323,7 @@ export class HttpTicketingAdapter implements TicketingPort {
       clientEventId: string;
       ticketId: string;
       qrToken: string;
+      qrVersion: number;
       checkedInAt: string;
     }>;
   }): Promise<{ results: OfflineCheckInSyncResult[] }> {

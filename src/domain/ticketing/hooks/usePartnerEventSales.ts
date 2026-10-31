@@ -56,14 +56,9 @@ export function usePartnerEventSales(
   }, [reload]);
 
   const performCheckIn = useCallback(
-    async (targetOccurrenceId: string, codeOrTicketId: string) => {
+    async (targetOccurrenceId: string, input: { qrToken: string } | { code: string }) => {
       setError(null);
-      const trimmed = codeOrTicketId.trim();
-      const isQrToken = trimmed.startsWith('ug_tkt_') || trimmed.startsWith('ugt2.');
-      const res = await checkInTicketUseCase({
-        occurrenceId: targetOccurrenceId,
-        ...(isQrToken ? { qrToken: trimmed } : { ticketId: trimmed }),
-      });
+      const res = await checkInTicketUseCase({ occurrenceId: targetOccurrenceId, ...input });
       await reload();
       return res;
     },
