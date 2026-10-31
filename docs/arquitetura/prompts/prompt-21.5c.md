@@ -1,6 +1,6 @@
 # Prompt 21.5c — Telas por pessoa ou grupo, nomes opcionais e leitor zxing-wasm
 
-> Lote 18, gerado dos commits de referência `a9a5dd2..bf8cd48` da branch `claude/agents-md-v2`. Aplique na ordem do lote (A7, 21.1 a 21.7d), um por vez. Cole o bloco abaixo no agente do AI Studio, inteiro, de uma vez.
+> Lote 18, gerado dos commits de referência `a9a5dd2..bf8cd48` da branch `claude/agents-md-v2`. Aplique na ordem do lote (A7, 21.1 a 21.8), um por vez. Cole o bloco abaixo no agente do AI Studio, inteiro, de uma vez.
 
 ---
 

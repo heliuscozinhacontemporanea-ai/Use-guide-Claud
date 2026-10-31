@@ -125,7 +125,7 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 | 20.5 | Denúncia de resposta e aba Moderação (D19) | `b15f337..2dabeed` | ✅ zip 2026-10-29 | ✅ igual à referência |
 | C17 | Correção do lote 17: cartão do tema claro e texto do B30 | — | ⏳ enviar (lote 18) | — |
 | 20.6 | Painel admin: App Check, abas e build de produção | `ce40518..a5266cd` | ⏳ enviar (lote 18) | — |
-| A7 | AGENTS.md §7.7 (S18) e §7.8, D20 e D21 | `a94137d..fef8a57` | ⏳ enviar (lote 18) | — |
+| A7 | AGENTS.md §7.7 (S18) e §7.8, D20, D21 e D22 | `a94137d..734ae3e` | ⏳ enviar (lote 18) | — |
 | 21.1 | Código de check-in de reservas: 6 caracteres por HMAC, janela, limite de erros (backend) | `2809f57..c24a606` | ⏳ enviar (lote 18) | — |
 | 21.2 | Cheguei, ausência, prestador não veio, cliente sem código e "O serviço aconteceu?" (backend) | `c24a606..ff24a4f` | ⏳ enviar (lote 18) | — |
 | 21.3 | Repasse com prova do serviço, avaliação verificada, provas na fila do admin e B35 (backend) | `ff24a4f..fbd67ff` | ⏳ enviar (lote 18) | — |
@@ -139,6 +139,7 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 | 21.7b | "Problema com o QR Code?", fim das vendas e lista sem internet atualizada | `e9d5a13..ec9e4e2` | ⏳ enviar (lote 18) | — |
 | 21.7c | Modo portaria com economia de bateria e devolução de ingresso | `ec9e4e2..f29204b` | ⏳ enviar (lote 18) | — |
 | 21.7d | @ obrigatório depois do cadastro e link de transferência (30 min, uso único) | `f29204b..fef8a57` | ⏳ enviar (lote 18) | — |
+| 21.8 | Confirmação de e-mail com link nativo (D22) | `fd42053..734ae3e` | ⏳ enviar (lote 18) | — |
 
 ### Revisões futuras (aprovadas para depois)
 

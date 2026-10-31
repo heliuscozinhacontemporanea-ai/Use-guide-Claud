@@ -1,6 +1,6 @@
 # Prompt 21.2 — Cheguei, ausência, prestador não veio, sem código e confirmação (backend)
 
-> Lote 18, gerado dos commits de referência `c24a606..ff24a4f` da branch `claude/agents-md-v2`. Aplique na ordem do lote (A7, 21.1 a 21.7d), um por vez. Cole o bloco abaixo no agente do AI Studio, inteiro, de uma vez.
+> Lote 18, gerado dos commits de referência `c24a606..ff24a4f` da branch `claude/agents-md-v2`. Aplique na ordem do lote (A7, 21.1 a 21.8), um por vez. Cole o bloco abaixo no agente do AI Studio, inteiro, de uma vez.
 
 ---
 

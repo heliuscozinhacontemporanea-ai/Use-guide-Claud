@@ -1,6 +1,6 @@
 # Prompt 21.6b — Carteira e portaria do evento com código INGR, leitor zxing e conferência sem internet
 
-> Lote 18, gerado dos commits de referência `7b032b9..86c0985` da branch `claude/agents-md-v2`. Aplique na ordem do lote (A7, 21.1 a 21.7d), um por vez. Cole o bloco abaixo no agente do AI Studio, inteiro, de uma vez.
+> Lote 18, gerado dos commits de referência `7b032b9..86c0985` da branch `claude/agents-md-v2`. Aplique na ordem do lote (A7, 21.1 a 21.8), um por vez. Cole o bloco abaixo no agente do AI Studio, inteiro, de uma vez.
 
 ---
 

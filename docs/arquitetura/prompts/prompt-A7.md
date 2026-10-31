@@ -1,20 +1,20 @@
-# Prompt A7 — AGENTS.md (S18 e §7.8) e decisões D20 e D21
+# Prompt A7 — AGENTS.md (S18 e §7.8) e decisões D20, D21 e D22
 
-> Lote 18, gerado dos commits de referência `a94137d..fef8a57` da branch `claude/agents-md-v2`. Aplique na ordem do lote (A7, 21.1 a 21.7d), um por vez. Cole o bloco abaixo no agente do AI Studio, inteiro, de uma vez.
+> Lote 18, gerado dos commits de referência `a94137d..734ae3e` da branch `claude/agents-md-v2`. Aplique na ordem do lote (A7, 21.1 a 21.8), um por vez. Cole o bloco abaixo no agente do AI Studio, inteiro, de uma vez.
 
 ---
 
-## Prompt A7 — AGENTS.md (S18 e §7.8) e decisões D20 e D21
+## Prompt A7 — AGENTS.md (S18 e §7.8) e decisões D20, D21 e D22
 
-S18 aprovada em 2026-10-30; mudança do §7.8 autorizada no mesmo período; D20 e D21 aprovadas até 2026-10-31. Substitui a versão anterior do A7, que ainda não tinha sido enviada. Aplique antes dos prompts 21.x.
+S18 aprovada em 2026-10-30; mudança do §7.8 autorizada no mesmo período; D20, D21 e D22 aprovadas até 2026-10-31. Substitui a versão anterior do A7, que ainda não tinha sido enviada. Aplique antes dos prompts 21.x.
 
 ~~~~text
-Este prompt altera o AGENTS.md COM autorização explícita do responsável do produto (S18 e §7.8). Aplique EXATAMENTE o diff abaixo e nada mais. NÃO altere código: as regras são implementadas pelos prompts 21.1 a 21.7d.
+Este prompt altera o AGENTS.md COM autorização explícita do responsável do produto (S18 e §7.8). Aplique EXATAMENTE o diff abaixo e nada mais. NÃO altere código: as regras são implementadas pelos prompts 21.1 a 21.8.
 
 O QUE MUDA:
 1) AGENTS.md §7.7 (S18): exceção ao mínimo de 128 bits para o código curto de check-in (6 caracteres nas reservas; 8 no ingresso e na entrada de atração, junto do QR).
 2) AGENTS.md §7.8: a chave do QR do ingresso passa a ser TICKET_QR_PRIVATE_KEY_PEM (Ed25519), sem OFFLINE_CHECKIN_*.
-3) docs/arquitetura/decisoes.md: D20 (check-in de reservas e ingressos por código e QR, repasse com prova do serviço) e D21 (@usuário, transferência pelo @ e por link, "Problema com o QR Code?", fim das vendas, lista sem internet, modo portaria).
+3) docs/arquitetura/decisoes.md: D20 (check-in de reservas e ingressos por código e QR, repasse com prova do serviço) e D21 (@usuário, transferência pelo @ e por link, "Problema com o QR Code?", fim das vendas, lista sem internet, modo portaria) e D22 (confirmação de e-mail com link nativo no endereço oficial).
 4) docs/arquitetura/solicitacoes-agents.md: S18.
 5) docs/arquitetura/debitos.md: B35 e B36 (registrados e resolvidos).
 
@@ -62,7 +62,7 @@ Aplique as mudanças abaixo EXATAMENTE como estão (formato unified diff: linhas
 +
 
 === docs/arquitetura/decisoes.md — diff ===
-@@ -285,3 +285,43 @@ Propostas montadas em preview (Minhas reservas, Pedidos e Financeiro do admin) e
+@@ -285,3 +285,52 @@ Propostas montadas em preview (Minhas reservas, Pedidos e Financeiro do admin) e
  * **Denúncia de resposta:** motivos fechados (ofensiva ou desrespeitosa, fraude ou golpe, expõe dados pessoais, outro) e texto opcional; o estabelecimento não sabe quem denunciou; prazo de análise exibido: 3 dias. Aceita pelo admin, a resposta é removida e o caso fica registrado; se indicar fraude, serve de base para o admin suspender o estabelecimento. A fila fica numa aba nova **Moderação** no painel do admin.
  * **Prompts:** 20.4 (perfil, Configurações e Minhas avaliações) e 20.5 (denúncia e Moderação).
  
@@ -106,6 +106,15 @@ Aplique as mudanças abaixo EXATAMENTE como estão (formato unified diff: linhas
 +* **Lista sem internet:** com sinal, o aparelho baixa a cada 2 min só o que mudou (trocas, transferências, cancelamentos, entradas). Sem sinal, o QR de versão mais nova que a da lista é aceito (a assinatura prova a origem) e, a partir daí, a versão antiga é recusada naquele aparelho; QR trocado depois da lista aparece como "QR trocado pelo titular — confira o documento" quando houver conflito. Na troca, o titular é avisado de que o QR antigo pode passar numa portaria totalmente sem sinal até ela atualizar.
 +* **Modo portaria (eventos e entradas de atração):** câmera aberta o tempo todo; cada QR lido faz o check-in e mostra tela verde ou vermelha até a equipe tocar em "Próximo"; "Inserir código" sempre visível (destacado depois de 8 s sem leitura) abre a folha do código; o mesmo QR relido em até 5 s é ignorado. Tela sempre acesa, vibração (Android), tela escura fixa, lanterna sob demanda e aviso de bateria baixa onde o navegador informa.
 +* **Bateria sem perder velocidade:** câmera em 720p e decodificação a cada quadro enquanto há uso; só depois de 10 s sem QR cai para 4 tentativas por segundo, e com 60 s parada a câmera entra em espera ("Toque para continuar"). Só o centro da imagem é decodificado e a câmera desliga quando o app sai da tela.
++
++## D22 — Confirmação de e-mail com link nativo do Firebase no endereço oficial (2026-10-31)
++
++Aprovada pelo responsável do produto em 2026-10-31.
++
++* **Formato:** link nativo do Firebase Auth (sem código de 6 dígitos nem provedor de e-mail próprio). Conta criada por e-mail e senha recebe o link logo no cadastro, no idioma ativo; o aviso "Confirme seu e-mail" abre depois da escolha do @, com "Já confirmei", "Enviar outro link" (espera de 60 s) e "Agora não". Conta Google já vem confirmada pelo Google e não recebe e-mail.
++* **Endereço oficial:** o link do e-mail é `https://useguide.com.br/conta/acao?mode=...&oobCode=...` (URL de ação dos modelos no console), o remetente é `noreply@useguide.com.br` (domínio personalizado no console) e o retorno (`continueUrl`) é sempre `https://useguide.com.br`, inclusive no AI Studio; só o teste local (`localhost`) volta para o próprio endereço. A mesma página trata a nova senha (`mode=resetPassword`); `/reset-password` deixa de existir.
++* **Onde exige e-mail confirmado:** comprar ingresso, reservar passeio, aluguel, translado ou entrada, cadastrar-se como parceiro, receber ingresso pelo @ e aceitar link de transferência (AGENTS.md §7.10, A07). O backend recusa com `EMAIL_NOT_VERIFIED` (403); o app abre o aviso. No cadastro de parceiro com conta nova, o cadastro para até a confirmação e continua ao enviar de novo, já logado.
++* **Token:** depois da confirmação o app relê a conta e renova o ID token, porque o backend lê `email_verified` do token. O app também relê ao voltar para a tela (link aberto em outra aba ou no celular).
 
 === docs/arquitetura/solicitacoes-agents.md — diff ===
 @@ -28,6 +28,7 @@

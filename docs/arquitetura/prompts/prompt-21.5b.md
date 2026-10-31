@@ -1,6 +1,6 @@
 # Prompt 21.5b — Um código por pessoa ou grupo, entrada nominal e textos neutros (backend)
 
-> Lote 18, gerado dos commits de referência `540bdb0..a9a5dd2` da branch `claude/agents-md-v2`. Aplique na ordem do lote (A7, 21.1 a 21.7d), um por vez. Cole o bloco abaixo no agente do AI Studio, inteiro, de uma vez.
+> Lote 18, gerado dos commits de referência `540bdb0..a9a5dd2` da branch `claude/agents-md-v2`. Aplique na ordem do lote (A7, 21.1 a 21.8), um por vez. Cole o bloco abaixo no agente do AI Studio, inteiro, de uma vez.
 
 ---
 

@@ -1,6 +1,6 @@
 # Prompt 21.7b — "Problema com o QR Code?", fim das vendas e lista sem internet atualizada
 
-> Lote 18, gerado dos commits de referência `e9d5a13..ec9e4e2` da branch `claude/agents-md-v2`. Aplique na ordem do lote (A7, 21.1 a 21.7d), um por vez. Cole o bloco abaixo no agente do AI Studio, inteiro, de uma vez.
+> Lote 18, gerado dos commits de referência `e9d5a13..ec9e4e2` da branch `claude/agents-md-v2`. Aplique na ordem do lote (A7, 21.1 a 21.8), um por vez. Cole o bloco abaixo no agente do AI Studio, inteiro, de uma vez.
 
 ---
 

@@ -1,6 +1,6 @@
 # Prompt 21.7d — @ obrigatório depois de criar a conta e link de transferência (30 min)
 
-> Lote 18, gerado dos commits de referência `f29204b..fef8a57` da branch `claude/agents-md-v2`. Aplique na ordem do lote (A7, 21.1 a 21.7d), um por vez. Cole o bloco abaixo no agente do AI Studio, inteiro, de uma vez.
+> Lote 18, gerado dos commits de referência `f29204b..fef8a57` da branch `claude/agents-md-v2`. Aplique na ordem do lote (A7, 21.1 a 21.8), um por vez. Cole o bloco abaixo no agente do AI Studio, inteiro, de uma vez.
 
 ---
 
