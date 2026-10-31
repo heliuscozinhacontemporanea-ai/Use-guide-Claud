@@ -211,6 +211,20 @@ export class TicketPersistenceMapper {
       qrVersion:
         typeof raw.qrVersion === 'number' && raw.qrVersion >= 1 ? Math.trunc(raw.qrVersion) : 1,
       ...(typeof raw.qrSwappedAt === 'string' ? { qrSwappedAt: raw.qrSwappedAt } : {}),
+      ...(raw.receivedFrom && typeof raw.receivedFrom === 'object'
+        ? {
+            receivedFrom: {
+              username:
+                typeof (raw.receivedFrom as { username?: unknown }).username === 'string'
+                  ? String((raw.receivedFrom as { username: string }).username)
+                  : null,
+              displayName:
+                typeof (raw.receivedFrom as { displayName?: unknown }).displayName === 'string'
+                  ? String((raw.receivedFrom as { displayName: string }).displayName)
+                  : null,
+            },
+          }
+        : {}),
       ...(typeof raw.updatedAt === 'string' ? { updatedAt: raw.updatedAt } : {}),
       status:
         raw.status === 'reserved' ||

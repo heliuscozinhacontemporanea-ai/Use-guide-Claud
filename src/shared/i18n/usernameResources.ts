@@ -26,7 +26,12 @@ export interface UsernameTranslation {
     other: string;
     hint: string;
     done: string;
+    returnTitle: string;
+    returnHint: string;
+    returnConfirm: string;
+    returned: string;
     errors: {
+      TRANSFER_ONLY_TO_BUYER: string;
       USERNAME_NOT_FOUND: string;
       TRANSFER_TO_SELF: string;
       RECIPIENT_NOT_VERIFIED: string;
@@ -38,7 +43,8 @@ export interface UsernameTranslation {
 
 export const usernamePtBR: UsernameTranslation = {
   title: 'Nome de usuário',
-  intro: 'É assim que outras pessoas encontram você para transferir ingressos.',
+  intro:
+    'Seu nome de usuário identifica você no Use Guide. Outras pessoas podem usá-lo para encontrar sua conta, por exemplo ao enviar um ingresso.',
   label: 'Seu @',
   rules: 'De 3 a 30 letras, números, ponto ou sublinhado. Sem espaços nem acentos.',
   save: 'Salvar',
@@ -64,7 +70,13 @@ export const usernamePtBR: UsernameTranslation = {
     other: 'Procurar outra pessoa',
     hint: 'O ingresso sai da sua carteira, e o QR Code atual deixa de valer.',
     done: 'Ingresso transferido para @{{username}}.',
+    returnTitle: 'Devolver ingresso',
+    returnHint:
+      'Você recebeu este ingresso de {{name}}. Ingresso recebido só pode voltar para quem comprou.',
+    returnConfirm: 'Devolver para {{name}}',
+    returned: 'Ingresso devolvido para {{name}}.',
     errors: {
+      TRANSFER_ONLY_TO_BUYER: 'Ingresso recebido só pode ser devolvido para quem comprou.',
       USERNAME_NOT_FOUND: 'Nenhuma conta com este @. Peça para a pessoa conferir em Configurações.',
       TRANSFER_TO_SELF: 'Este ingresso já é seu.',
       RECIPIENT_NOT_VERIFIED:
@@ -77,7 +89,8 @@ export const usernamePtBR: UsernameTranslation = {
 
 export const usernameEn: UsernameTranslation = {
   title: 'Username',
-  intro: 'This is how other people find you to transfer tickets.',
+  intro:
+    'Your username identifies you on Use Guide. Other people can use it to find your account, for example when sending you a ticket.',
   label: 'Your @',
   rules: '3 to 30 letters, numbers, dot or underscore. No spaces or accents.',
   save: 'Save',
@@ -102,7 +115,13 @@ export const usernameEn: UsernameTranslation = {
     other: 'Search someone else',
     hint: 'The ticket leaves your wallet and the current QR code stops working.',
     done: 'Ticket transferred to @{{username}}.',
+    returnTitle: 'Give the ticket back',
+    returnHint:
+      'You received this ticket from {{name}}. A received ticket can only go back to the buyer.',
+    returnConfirm: 'Give back to {{name}}',
+    returned: 'Ticket given back to {{name}}.',
     errors: {
+      TRANSFER_ONLY_TO_BUYER: 'A received ticket can only be given back to the buyer.',
       USERNAME_NOT_FOUND: 'No account with this @. Ask the person to check it in Settings.',
       TRANSFER_TO_SELF: 'This ticket is already yours.',
       RECIPIENT_NOT_VERIFIED:
@@ -115,7 +134,8 @@ export const usernameEn: UsernameTranslation = {
 
 export const usernameFr: UsernameTranslation = {
   title: 'Nom d’utilisateur',
-  intro: 'C’est ainsi que les autres vous trouvent pour vous transférer des billets.',
+  intro:
+    'Votre nom d’utilisateur vous identifie sur Use Guide. D’autres personnes peuvent l’utiliser pour trouver votre compte, par exemple pour vous envoyer un billet.',
   label: 'Votre @',
   rules: 'De 3 à 30 lettres, chiffres, point ou tiret bas. Sans espaces ni accents.',
   save: 'Enregistrer',
@@ -141,7 +161,13 @@ export const usernameFr: UsernameTranslation = {
     other: 'Chercher une autre personne',
     hint: 'Le billet quitte votre portefeuille et le QR code actuel ne fonctionne plus.',
     done: 'Billet transféré à @{{username}}.',
+    returnTitle: 'Rendre le billet',
+    returnHint:
+      'Vous avez reçu ce billet de {{name}}. Un billet reçu ne peut revenir qu’à la personne qui l’a acheté.',
+    returnConfirm: 'Rendre à {{name}}',
+    returned: 'Billet rendu à {{name}}.',
     errors: {
+      TRANSFER_ONLY_TO_BUYER: 'Un billet reçu ne peut être rendu qu’à la personne qui l’a acheté.',
       USERNAME_NOT_FOUND:
         'Aucun compte avec ce @. Demandez à la personne de le vérifier dans Réglages.',
       TRANSFER_TO_SELF: 'Ce billet est déjà à vous.',

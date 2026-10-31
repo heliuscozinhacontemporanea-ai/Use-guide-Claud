@@ -213,6 +213,7 @@ export interface TicketingPort {
     recipientEmail: string;
     recipientName?: string;
     newQrTokenHash: string;
+    receivedFrom?: Ticket['receivedFrom'];
   }): Promise<{
     oldTicket: Ticket;
     newTicket: Ticket;

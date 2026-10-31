@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { getTicketQrTokenUseCase } from '../application/usecases/getTicketQrTokenUseCase';
 import { listUserOrdersUseCase } from '../application/usecases/listUserOrdersUseCase';
 import { listUserTicketsUseCase } from '../application/usecases/listUserTicketsUseCase';
+import { returnTicketToBuyerUseCase } from '../application/usecases/returnTicketToBuyerUseCase';
 import { swapTicketQrUseCase } from '../application/usecases/swapTicketQrUseCase';
 import { requestTicketRefundUseCase } from '../application/usecases/requestTicketRefundUseCase';
 import { transferTicketUseCase } from '../application/usecases/transferTicketUseCase';
@@ -50,6 +51,16 @@ export function useUserTicketsAndOrders(enabled = true) {
     [reload]
   );
 
+  const returnToBuyer = useCallback(
+    async (ticketId: string) => {
+      setError(null);
+      const res = await returnTicketToBuyerUseCase(ticketId);
+      await reload();
+      return res;
+    },
+    [reload]
+  );
+
   const requestRefund = useCallback(
     async (orderId: string, reason: string, ticketId?: string) => {
       setError(null);
@@ -85,6 +96,7 @@ export function useUserTicketsAndOrders(enabled = true) {
     error,
     reload,
     transferTicket,
+    returnToBuyer,
     requestRefund,
     getSignedQrToken,
     swapSignedQrToken,

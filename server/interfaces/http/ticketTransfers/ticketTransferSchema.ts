@@ -6,3 +6,7 @@ export const ticketTransferSchema = z
     username: z.string().trim().min(3).max(31),
   })
   .strict();
+
+export const ticketReturnSchema = z
+  .object({ ticketId: z.string().trim().min(1).max(128) })
+  .strict();

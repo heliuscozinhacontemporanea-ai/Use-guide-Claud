@@ -233,6 +233,21 @@ export class HttpTicketingAdapter implements TicketingPort {
     return parseJsonOrThrow<OfflineCheckInChanges>(res, 'Não foi possível atualizar a lista.');
   }
 
+  async returnTicketToBuyer(ticketId: string): Promise<{ ticketId: string }> {
+    const res = await firebaseApiFetch(
+      '/api/ticket-transfers/return',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ticketId }),
+      },
+      { requireAuth: true }
+    );
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(body?.error?.code || 'INTERNAL_ERROR');
+    return body;
+  }
+
   async swapTicketQr(ticketId: string): Promise<TicketQrPass> {
     const res = await firebaseApiFetch(
       `/api/ticketing/tickets/${encodeURIComponent(ticketId)}/qr/swap`,

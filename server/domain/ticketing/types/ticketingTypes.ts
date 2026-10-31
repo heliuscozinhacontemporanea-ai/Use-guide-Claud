@@ -178,6 +178,8 @@ export interface Ticket {
   checkedInBy?: string;
   /** "Problema com o QR Code?": o titular trocou o QR, que só pode ser trocado uma vez (D21). */
   qrSwappedAt?: string;
+  /** Ingresso recebido por transferência: de quem veio (@ e nome públicos). Só volta para quem comprou (D21). */
+  receivedFrom?: { username: string | null; displayName: string | null };
   /** Última mudança: a lista sem internet da portaria baixa só o que mudou (D21). */
   updatedAt?: string;
   transferredAt?: string;

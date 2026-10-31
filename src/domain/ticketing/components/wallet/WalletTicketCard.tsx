@@ -131,7 +131,11 @@ export function WalletTicketCard({
               className={cn(ACTION, 'flex-1 bg-accent-soft border border-accent-line text-accent')}
             >
               <Send size={14} aria-hidden="true" />
-              {t('ticketWallet.actions.transfer')}
+              {t(
+                ticket.receivedFrom
+                  ? 'ticketWallet.actions.return'
+                  : 'ticketWallet.actions.transfer'
+              )}
             </button>
           )}
         </div>

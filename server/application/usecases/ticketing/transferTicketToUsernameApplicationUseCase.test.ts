@@ -1,6 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('../../../domain/users', () => ({ resolveUsernameOwnerUseCase: vi.fn() }));
+vi.mock('../../../domain/users', () => ({
+  resolveUsernameOwnerUseCase: vi.fn(),
+  getUserProfileUseCase: vi.fn().mockResolvedValue({
+    username: 'ana',
+    firstName: 'Ana',
+    lastName: 'Souza',
+  }),
+}));
 vi.mock('../../../domain/ticketing', () => ({ transferTicketUseCase: vi.fn() }));
 vi.mock('../../../domain/notifications', () => ({
   createNotificationUseCase: vi.fn().mockResolvedValue(true),
@@ -36,7 +43,13 @@ describe('transferência pelo @ (D21)', () => {
     );
     expect(transferTicketUseCase).toHaveBeenCalledWith(
       { uid: 'u1', admin: false },
-      { ticketId: 'tkt_1', toUserId: 'u2', recipientEmail: 'bruno@exemplo.com', recipientName: 'Bruno Lima' }
+      {
+        ticketId: 'tkt_1',
+        toUserId: 'u2',
+        recipientEmail: 'bruno@exemplo.com',
+        recipientName: 'Bruno Lima',
+        receivedFrom: { username: 'ana', displayName: 'Ana Souza' },
+      }
     );
     expect(result).toEqual({
       ticketId: 'tkt_new',

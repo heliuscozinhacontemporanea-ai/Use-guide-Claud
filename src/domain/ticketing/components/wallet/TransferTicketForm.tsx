@@ -11,16 +11,24 @@ const KNOWN_ERRORS = [
   'TRANSFER_TO_SELF',
   'RECIPIENT_NOT_VERIFIED',
   'RATE_LIMITED',
+  'TRANSFER_ONLY_TO_BUYER',
 ];
 
 interface TransferTicketFormProps {
   ticket: Ticket;
   onSubmit: (username: string) => Promise<void>;
+  /** Ingresso recebido: só volta para quem comprou (D21). */
+  onReturn: () => Promise<void>;
   onCancel: () => void;
 }
 
 /** Transferência pelo @ (D21): procura a conta, mostra foto, nome e @ e só então transfere. */
-export function TransferTicketForm({ ticket, onSubmit, onCancel }: TransferTicketFormProps) {
+export function TransferTicketForm({
+  ticket,
+  onSubmit,
+  onReturn,
+  onCancel,
+}: TransferTicketFormProps) {
   const { t } = useTranslation();
   const inputId = useId();
   const [value, setValue] = useState('');
@@ -58,6 +66,49 @@ export function TransferTicketForm({ ticket, onSubmit, onCancel }: TransferTicke
       setBusy(false);
     }
   };
+
+  const giveBack = async () => {
+    setBusy(true);
+    setError(null);
+    try {
+      await onReturn();
+    } catch (err: unknown) {
+      fail(err);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const sender = ticket.receivedFrom;
+  if (sender) {
+    const senderLabel = sender.username ? `@${sender.username}` : (sender.displayName ?? '');
+    return (
+      <section className="p-4 rounded-[20px] bg-surface border border-accent-line space-y-4">
+        <h4 className="text-sm font-semibold text-ink">{t('username.transfer.returnTitle')}</h4>
+        <p className="text-[13px] text-ink/70">
+          {t('username.transfer.returnHint', { name: senderLabel })}
+        </p>
+        {error && (
+          <p role="alert">
+            <StatusText tone="danger">{error}</StatusText>
+          </p>
+        )}
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => void giveBack()}
+          className={`${BUTTON_PRIMARY} w-full`}
+        >
+          {t('username.transfer.returnConfirm', { name: senderLabel })}
+        </button>
+        <div className="flex justify-center">
+          <TextButton tone="ink" onClick={onCancel}>
+            {t('common.cancel')}
+          </TextButton>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="p-4 rounded-[20px] bg-surface border border-accent-line space-y-4">

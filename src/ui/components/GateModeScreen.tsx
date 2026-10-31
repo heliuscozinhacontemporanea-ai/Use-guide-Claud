@@ -30,6 +30,9 @@ export interface GateModeScreenProps {
   onClose: () => void;
 }
 
+// Mesmo recorte do leitor (useQrScanner): 80% do lado menor da área da câmera.
+const FRAME_SIZE = 'min(80cqw, 80cqh)';
+
 // Sem leitura por 8 s, o botão do código ganha destaque (D21).
 const CODE_HINT_AFTER_MS = 8_000;
 
@@ -158,7 +161,10 @@ export function GateModeScreen({
         </p>
       )}
 
-      <div className="relative flex-1 min-h-0 mx-4 rounded-3xl overflow-hidden bg-surface">
+      <div
+        className="relative flex-1 min-h-0 mx-4 rounded-3xl overflow-hidden bg-surface"
+        style={{ containerType: 'size' }}
+      >
         <video
           ref={scanner.videoRef}
           muted
@@ -169,13 +175,29 @@ export function GateModeScreen({
           )}
         />
         {scanner.state === 'scanning' && (
+          // Moldura quadrada do tamanho que o leitor recorta (80% do lado menor); fora dela, desfoque.
           <div
-            className="absolute inset-[10%] rounded-3xl border-2 border-accent/80 pointer-events-none"
+            className="absolute inset-0 grid pointer-events-none"
+            style={{
+              gridTemplateColumns: `1fr ${FRAME_SIZE} 1fr`,
+              gridTemplateRows: `1fr ${FRAME_SIZE} 1fr`,
+            }}
             aria-hidden="true"
-          />
+          >
+            {[0, 1, 2, 3, 5, 6, 7, 8].map((cell) => (
+              <div
+                key={cell}
+                className="backdrop-blur-md bg-[#000000]/40"
+                style={{ gridRow: Math.floor(cell / 3) + 1, gridColumn: (cell % 3) + 1 }}
+              />
+            ))}
+            <div className="relative row-start-2 col-start-2 rounded-2xl border-2 border-accent overflow-hidden">
+              <span className="absolute inset-x-3 h-0.5 rounded-full bg-accent shadow-[0_0_12px_2px] shadow-accent/70 animate-scan-line motion-reduce:animate-none motion-reduce:top-1/2" />
+            </div>
+          </div>
         )}
         {scanner.state === 'scanning' && (
-          <p className="absolute bottom-3 inset-x-3 text-center text-[13px] text-ink/80">
+          <p className="absolute bottom-3 inset-x-3 text-center text-[13px] text-ink">
             {t('gateMode.aim')}
           </p>
         )}

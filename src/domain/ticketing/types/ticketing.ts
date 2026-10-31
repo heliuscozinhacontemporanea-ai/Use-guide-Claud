@@ -162,6 +162,8 @@ export interface Ticket {
   qrVersion: number;
   /** O titular já usou "Problema com o QR Code?" (só uma vez por ingresso, D21). */
   qrSwappedAt?: string;
+  /** Recebido por transferência: de quem veio. Só pode voltar para essa pessoa (D21). */
+  receivedFrom?: { username: string | null; displayName: string | null };
   status: TicketStatus;
   ticketTypeSnapshot?: {
     name: string;

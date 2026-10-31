@@ -23,7 +23,7 @@ export interface TicketWalletTranslation {
   order: string;
   ticketCount_one: string;
   ticketCount_other: string;
-  actions: { showQr: string; transfer: string };
+  actions: { showQr: string; transfer: string; return: string };
   swap: { action: string; title: string; message: string; confirm: string };
   ticketStatus: Record<TicketStatusKey, string>;
   resume: { title: string; close: string };
@@ -59,6 +59,7 @@ export const ticketWalletPtBR: TicketWalletTranslation = {
   actions: {
     showQr: 'Ver QR',
     transfer: 'Transferir',
+    return: 'Devolver',
   },
   swap: {
     action: 'Problema com o QR Code?',
@@ -115,6 +116,7 @@ export const ticketWalletEn: TicketWalletTranslation = {
   actions: {
     showQr: 'Show QR',
     transfer: 'Transfer',
+    return: 'Give back',
   },
   swap: {
     action: 'Problem with the QR code?',
@@ -172,6 +174,7 @@ export const ticketWalletFr: TicketWalletTranslation = {
   actions: {
     showQr: 'Voir le QR',
     transfer: 'Transférer',
+    return: 'Rendre',
   },
   swap: {
     action: 'Un problème avec le QR code ?',

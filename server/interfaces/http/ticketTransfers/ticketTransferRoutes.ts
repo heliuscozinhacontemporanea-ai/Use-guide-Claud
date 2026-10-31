@@ -16,3 +16,9 @@ ticketTransferRouter.post(
   rateLimitByUser('ticket-transfer', 20, 60 * 60_000),
   TicketTransferController.transfer
 );
+ticketTransferRouter.post(
+  '/return',
+  verifyAuthTokenStrict,
+  rateLimitByUser('ticket-transfer', 20, 60 * 60_000),
+  TicketTransferController.returnToBuyer
+);

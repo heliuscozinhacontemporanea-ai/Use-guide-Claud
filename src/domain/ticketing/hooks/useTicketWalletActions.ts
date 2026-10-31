@@ -81,6 +81,19 @@ export function useTicketWalletActions(wallet: WalletData) {
     setFeedback({ type: 'success', message: t('username.transfer.done', { username }) });
   };
 
+  const submitReturn = async () => {
+    if (!transferTicket) return;
+    const sender = transferTicket.receivedFrom;
+    await wallet.returnToBuyer(transferTicket.id);
+    setTransferTicket(null);
+    setFeedback({
+      type: 'success',
+      message: t('username.transfer.returned', {
+        name: sender?.username ? `@${sender.username}` : (sender?.displayName ?? ''),
+      }),
+    });
+  };
+
   const requestRefund = (order: TicketOrder) =>
     run(async () => {
       await wallet.requestRefund(order.id, 'buyer_wallet');
@@ -114,6 +127,7 @@ export function useTicketWalletActions(wallet: WalletData) {
     transferTicket,
     setTransferTicket,
     submitTransfer,
+    submitReturn,
     requestRefund,
     resumingOrder,
     setResumingOrder,

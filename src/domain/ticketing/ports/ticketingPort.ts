@@ -110,6 +110,8 @@ export interface TicketingPort {
     ticketId: string,
     username: string
   ): Promise<{ ticketId: string; recipient: { username: string; displayName: string | null } }>;
+  /** Devolve o ingresso recebido para quem comprou (D21). */
+  returnTicketToBuyer(ticketId: string): Promise<{ ticketId: string }>;
   checkInTicket(input: {
     occurrenceId: string;
     ticketId?: string;

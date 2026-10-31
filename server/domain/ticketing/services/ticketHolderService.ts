@@ -5,7 +5,12 @@ import {
 } from '../../events';
 import { TicketingDomainError } from '../errors/ticketingDomainError';
 import type { TicketingPort } from '../ports/ticketingPort';
-import { type EventWaitlistEntry, type Ticket, type TicketTransfer } from '../types/ticketingTypes';
+import type {
+  EventWaitlistEntry,
+  Ticket,
+  TicketOrder,
+  TicketTransfer,
+} from '../types/ticketingTypes';
 import { generateOpaqueTicketQrToken } from '../utils/qrToken';
 import {
   assertCanManageOccurrence,
@@ -27,9 +32,13 @@ export class TicketHolderService {
     actor: TicketingActorContext,
     params: {
       ticketId: string;
-      recipientEmail: string;
+      recipientEmail?: string;
       recipientName?: string;
       toUserId?: string;
+      /** De quem o destinatário recebeu, para ele saber a quem devolver (D21). */
+      receivedFrom?: Ticket['receivedFrom'];
+      /** Devolução: o ingresso recebido volta para quem comprou (D21). */
+      returnToBuyer?: boolean;
     }
   ): Promise<{
     oldTicket: Ticket;
@@ -83,14 +92,16 @@ export class TicketHolderService {
       }
     }
 
+    const recipient = this.resolveRecipient(ticket, order, params);
     const { rawQrToken, qrTokenHash } = generateOpaqueTicketQrToken();
     const res = await this.port.transferTicketAtomic({
       ticketId: params.ticketId,
       fromUserId: actor.uid,
-      toUserId: params.toUserId,
-      recipientEmail: params.recipientEmail.trim(),
-      recipientName: params.recipientName?.trim(),
+      toUserId: recipient.toUserId,
+      recipientEmail: recipient.email,
+      recipientName: recipient.name,
       newQrTokenHash: qrTokenHash,
+      ...(recipient.receivedFrom ? { receivedFrom: recipient.receivedFrom } : {}),
     });
 
     await createEventAuditLogUseCase({
@@ -102,7 +113,7 @@ export class TicketHolderService {
       before: { oldTicketId: res.oldTicket.id, fromUserId: actor.uid },
       after: {
         newTicketId: res.newTicket.id,
-        recipientEmail: params.recipientEmail,
+        toUserId: recipient.toUserId,
       },
     });
 
@@ -168,5 +179,51 @@ export class TicketHolderService {
       ticketTypeId: input.ticketTypeId,
       quantity: input.quantity,
     });
+  }
+
+  /**
+   * Ingresso comprado vai para quem o comprador escolher; ingresso recebido só volta para quem
+   * comprou (D21), com o e-mail e o nome do pedido, sem o "recebido de".
+   */
+  private resolveRecipient(
+    ticket: Ticket,
+    order: TicketOrder | null,
+    params: {
+      toUserId?: string;
+      recipientEmail?: string;
+      recipientName?: string;
+      receivedFrom?: Ticket['receivedFrom'];
+      returnToBuyer?: boolean;
+    }
+  ): { toUserId: string; email: string; name?: string; receivedFrom?: Ticket['receivedFrom'] } {
+    const received = !!order && ticket.ownerUserId !== order.buyerId;
+    if (params.returnToBuyer) {
+      if (!received || !order?.buyerSnapshot.email) {
+        throw new TicketingDomainError(
+          'UNPROCESSABLE_ENTITY',
+          'Este ingresso não foi recebido por transferência.'
+        );
+      }
+      return {
+        toUserId: order.buyerId,
+        email: order.buyerSnapshot.email,
+        name: order.buyerSnapshot.name || undefined,
+      };
+    }
+    if (received) {
+      throw new TicketingDomainError(
+        'TRANSFER_ONLY_TO_BUYER',
+        'Ingresso recebido só pode ser devolvido para quem comprou.'
+      );
+    }
+    if (!params.toUserId || !params.recipientEmail?.trim()) {
+      throw new TicketingDomainError('INVALID_ARGUMENT', 'Destinatário obrigatório.');
+    }
+    return {
+      toUserId: params.toUserId,
+      email: params.recipientEmail.trim(),
+      name: params.recipientName?.trim(),
+      receivedFrom: params.receivedFrom,
+    };
   }
 }

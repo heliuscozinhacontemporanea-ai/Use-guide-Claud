@@ -22,6 +22,18 @@
   --animate-pulse-slow: pulse-slow 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 
   /* Transições de app nativo: entrada e saída curtas, curva de desaceleração (iOS/Material). */
+  /* Barra fina que sobe e desce dentro da moldura do leitor (modo portaria, D21). */
+  @keyframes scan-line {
+    0%,
+    100% {
+      top: 4%;
+    }
+    50% {
+      top: 96%;
+    }
+  }
+  --animate-scan-line: scan-line 2.4s ease-in-out infinite;
+
   @keyframes fade-in {
     from {
       opacity: 0;

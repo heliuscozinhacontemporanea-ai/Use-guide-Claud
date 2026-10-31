@@ -93,6 +93,7 @@ export class FirestoreTicketStore {
     recipientEmail: string;
     recipientName?: string;
     newQrTokenHash: string;
+    receivedFrom?: Ticket['receivedFrom'];
   }): Promise<{
     oldTicket: Ticket;
     newTicket: Ticket;
@@ -152,6 +153,7 @@ export class FirestoreTicketStore {
           ? { ticketTypeSnapshot: oldTicket.ticketTypeSnapshot }
           : {}),
         ...(oldTicket.eventSnapshot ? { eventSnapshot: oldTicket.eventSnapshot } : {}),
+        ...(params.receivedFrom ? { receivedFrom: params.receivedFrom } : {}),
       };
       tx.set(newTicketRef, newTicketDoc);
 

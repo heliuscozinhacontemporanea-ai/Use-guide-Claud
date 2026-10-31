@@ -1,6 +1,6 @@
 import { createNotificationUseCase } from '../../../domain/notifications';
 import { type TicketingActorContext, transferTicketUseCase } from '../../../domain/ticketing';
-import { resolveUsernameOwnerUseCase } from '../../../domain/users';
+import { getUserProfileUseCase, resolveUsernameOwnerUseCase } from '../../../domain/users';
 
 export type TicketTransferErrorCode = 'TRANSFER_TO_SELF' | 'RECIPIENT_NOT_VERIFIED';
 
@@ -33,11 +33,15 @@ export async function transferTicketToUsernameApplicationUseCase(
       'Esta conta ainda não confirmou o e-mail e não pode receber ingressos.'
     );
   }
+  // O destinatário vê de quem recebeu e só pode devolver para essa pessoa (D21).
+  const sender = await getUserProfileUseCase(actor.uid);
+  const senderName = `${sender?.firstName ?? ''} ${sender?.lastName ?? ''}`.trim();
   const { newTicket } = await transferTicketUseCase(actor, {
     ticketId,
     toUserId: recipient.uid,
     recipientEmail: recipient.email,
     recipientName: recipient.displayName ?? recipient.username,
+    receivedFrom: { username: sender?.username ?? null, displayName: senderName || null },
   });
   // Aviso não pode desfazer a transferência já gravada.
   await createNotificationUseCase({

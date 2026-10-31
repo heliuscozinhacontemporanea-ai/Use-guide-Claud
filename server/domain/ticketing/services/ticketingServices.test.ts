@@ -496,4 +496,80 @@ describe('serviços de ticketing', () => {
     expect(res.newTicket.status).toBe('issued');
     expect(res.newTicket.qrTokenHash).not.toBe(res.oldTicket.qrTokenHash);
   });
+
+  it('ingresso recebido só volta para quem comprou (D21)', async () => {
+    const received = {
+      id: 'tkt_recv',
+      orderId: 'ord_1',
+      eventListingId: 'evt_1',
+      occurrenceId: 'occ_1',
+      ticketTypeId: 'tt_1',
+      ownerUserId: 'user_to',
+      holderName: 'User To',
+      holderEmail: 'to@example.com',
+      qrTokenHash: 'h',
+      qrVersion: 2,
+      status: 'issued' as const,
+      issuedAt: '2026-10-05T00:00:00.000Z',
+    };
+    const order = {
+      id: 'ord_1',
+      buyerId: 'user_buyer',
+      buyerSnapshot: { name: 'Buyer', email: 'buyer@example.com' },
+      salesPolicySnapshot: { allowTicketTransfer: true, ticketTransferCutoffHours: 4 },
+    };
+    vi.mocked(mockPort.getTicketById).mockResolvedValue(received);
+    vi.mocked(mockPort.getOrderById).mockResolvedValue(order as never);
+    vi.mocked(mockPort.transferTicketAtomic).mockResolvedValue({
+      oldTicket: { ...received, status: 'transferred' },
+      newTicket: { ...received, id: 'tkt_back', ownerUserId: 'user_buyer' },
+    } as never);
+
+    await expect(
+      services.holders.transferTicket(
+        { uid: 'user_to' },
+        { ticketId: 'tkt_recv', toUserId: 'user_x', recipientEmail: 'x@example.com' }
+      )
+    ).rejects.toMatchObject({ code: 'TRANSFER_ONLY_TO_BUYER' });
+
+    await services.holders.transferTicket(
+      { uid: 'user_to' },
+      { ticketId: 'tkt_recv', returnToBuyer: true }
+    );
+    expect(mockPort.transferTicketAtomic).toHaveBeenLastCalledWith(
+      expect.objectContaining({ toUserId: 'user_buyer', recipientEmail: 'buyer@example.com' })
+    );
+    expect(vi.mocked(mockPort.transferTicketAtomic).mock.lastCall?.[0]).not.toHaveProperty(
+      'receivedFrom'
+    );
+  });
+
+  it('quem comprou não usa "devolver": transfere para quem quiser', async () => {
+    vi.mocked(mockPort.getTicketById).mockResolvedValue({
+      id: 'tkt_own',
+      orderId: 'ord_1',
+      eventListingId: 'evt_1',
+      occurrenceId: 'occ_1',
+      ticketTypeId: 'tt_1',
+      ownerUserId: 'user_buyer',
+      holderName: 'Buyer',
+      holderEmail: 'buyer@example.com',
+      qrTokenHash: 'h',
+      qrVersion: 1,
+      status: 'issued',
+      issuedAt: '2026-10-05T00:00:00.000Z',
+    });
+    vi.mocked(mockPort.getOrderById).mockResolvedValue({
+      id: 'ord_1',
+      buyerId: 'user_buyer',
+      buyerSnapshot: { name: 'Buyer', email: 'buyer@example.com' },
+      salesPolicySnapshot: { allowTicketTransfer: true, ticketTransferCutoffHours: 4 },
+    } as never);
+    await expect(
+      services.holders.transferTicket(
+        { uid: 'user_buyer' },
+        { ticketId: 'tkt_own', returnToBuyer: true }
+      )
+    ).rejects.toMatchObject({ code: 'UNPROCESSABLE_ENTITY' });
+  });
 });

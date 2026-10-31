@@ -5,6 +5,7 @@ export type TicketingErrorCode =
   | 'CONFLICT'
   | 'UNPROCESSABLE_ENTITY'
   | 'TOO_MANY_REQUESTS'
+  | 'TRANSFER_ONLY_TO_BUYER'
   | 'SERVICE_UNAVAILABLE';
 
 export class TicketingDomainError extends Error {

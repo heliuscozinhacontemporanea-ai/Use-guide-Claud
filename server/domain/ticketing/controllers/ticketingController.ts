@@ -65,6 +65,8 @@ function handleTicketingError(res: Response, error: unknown): Response {
         return res.status(422).json({ error: error.message });
       case 'TOO_MANY_REQUESTS':
         return res.status(429).json({ error: error.message });
+      case 'TRANSFER_ONLY_TO_BUYER':
+        return res.status(422).json({ error: error.message });
       case 'SERVICE_UNAVAILABLE':
         return res.status(503).json({ error: error.message });
     }
