@@ -417,7 +417,7 @@ Todo campo novo DEVE ser classificado antes de ser persistido. A classe define o
 | `STRIPE_SECRET_KEY` | Secret Manager | ao suspeitar de vazamento e na troca de responsável | preferir **restricted key** com permissões mínimas |
 | `STRIPE_WEBHOOK_SECRET` | Secret Manager | a cada 12 meses (o Stripe permite período de sobreposição de até 24 h) | um segredo por endpoint |
 | `TICKET_QR_SECRET` (HMAC) | Secret Manager | a cada 12 meses, com `kid` | manter a versão anterior ativa até expirarem os ingressos emitidos com ela |
-| `OFFLINE_CHECKIN_PRIVATE_KEY_PEM` / `TICKET_QR_PRIVATE_KEY_PEM` | Secret Manager | a cada 12 meses, com `OFFLINE_CHECKIN_KEY_ID` novo | a chave pública anterior continua aceita até o fim dos eventos |
+| `TICKET_QR_PRIVATE_KEY_PEM` (Ed25519) | Secret Manager | a cada 12 meses, com `TICKET_QR_KEY_ID` novo | a chave pública anterior continua aceita até o fim dos eventos |
 | `PII_BLIND_INDEX_KEY` (HMAC) | Secret Manager | só com reindexação planejada | trocar exige recalcular todos os índices |
 | KEK de campo | Cloud KMS | automática a cada 90 dias | versões antigas ficam ativas para descriptografia |
 | Chave de job interno (legado) | Secret Manager | a cada 90 dias até migrar para OIDC (§7.9) | ≥ 32 bytes aleatórios |
