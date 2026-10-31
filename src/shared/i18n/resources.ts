@@ -117,6 +117,12 @@ import {
   usernamePtBR,
 } from './usernameResources';
 import {
+  type EmailVerificationTranslation,
+  emailVerificationEn,
+  emailVerificationFr,
+  emailVerificationPtBR,
+} from './emailVerificationResources';
+import {
   type EventSessionsTranslation,
   eventSessionsEn,
   eventSessionsFr,
@@ -157,6 +163,7 @@ export interface TranslationResource {
   ticketWallet: TicketWalletTranslation;
   ticketGate: TicketGateTranslation;
   username: UsernameTranslation;
+  emailVerification: EmailVerificationTranslation;
   eventSessions: EventSessionsTranslation;
   gateMode: GateModeTranslation;
   legal: LegalTranslation;
@@ -392,6 +399,7 @@ const ptBR: TranslationResource = {
   ticketWallet: ticketWalletPtBR,
   ticketGate: ticketGatePtBR,
   username: usernamePtBR,
+  emailVerification: emailVerificationPtBR,
   eventSessions: eventSessionsPtBR,
   gateMode: gateModePtBR,
   legal: legalPtBR,
@@ -687,6 +695,7 @@ const en: TranslationResource = {
   ticketWallet: ticketWalletEn,
   ticketGate: ticketGateEn,
   username: usernameEn,
+  emailVerification: emailVerificationEn,
   eventSessions: eventSessionsEn,
   gateMode: gateModeEn,
   legal: legalEn,
@@ -976,6 +985,7 @@ const fr: TranslationResource = {
   ticketWallet: ticketWalletFr,
   ticketGate: ticketGateFr,
   username: usernameFr,
+  emailVerification: emailVerificationFr,
   eventSessions: eventSessionsFr,
   gateMode: gateModeFr,
   legal: legalFr,

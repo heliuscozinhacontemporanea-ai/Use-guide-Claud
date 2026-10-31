@@ -1,4 +1,5 @@
 import { ticketOrderService } from '../factory';
+import { TicketingDomainError } from '../errors/ticketingDomainError';
 import type { TicketingActorContext } from '../services/ticketingAccess';
 import type { Ticket, TicketOrder, TicketOrderItem } from '../types/ticketingTypes';
 
@@ -12,5 +13,11 @@ export async function createTicketOrderUseCase(
   isIdempotentReplay: boolean;
   serverNow: string;
 }> {
+  if (actor.emailVerified !== true) {
+    throw new TicketingDomainError(
+      'EMAIL_NOT_VERIFIED',
+      'Confirme seu e-mail antes de comprar ingressos.'
+    );
+  }
   return ticketOrderService.createTicketOrder(actor, input);
 }

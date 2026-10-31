@@ -1,3 +1,5 @@
+import { ACCOUNT_ACTION_PATH } from '../constants/accountActionPath';
+import { SITE_URL } from '../constants/siteUrl';
 import { DEFAULT_LOCALE, i18n, type Locale, localizedPath, parseLocalizedPath } from '../i18n';
 
 export interface SEOMetadata {
@@ -27,7 +29,7 @@ interface DefaultSEOMetadata {
   author: string;
 }
 
-const BASE_URL = 'https://useguide.com.br';
+const BASE_URL = SITE_URL;
 const DEFAULT_IMAGE =
   'https://firebasestorage.googleapis.com/v0/b/gen-lang-client-0788355965.firebasestorage.app/o/Marca%2F412E6CA0-01A8-48B1-B07B-BA4233C81769.png?alt=media&token=ff7e5442-a701-4854-aefc-1e36bb5fbd34';
 
@@ -62,9 +64,9 @@ const NON_LOCALIZED_ROUTE_SEO: Record<string, SEOMetadata> = {
     description: 'Área de gestão e moderação de conteúdo do Use Guide.',
     robots: 'noindex, nofollow',
   },
-  '/reset-password': {
-    title: 'Recuperar Senha',
-    description: 'Redefinição de senha de acesso ao Use Guide.',
+  [ACCOUNT_ACTION_PATH]: {
+    title: 'Conta Use Guide',
+    description: 'Confirmação de e-mail e nova senha da conta Use Guide.',
     robots: 'noindex, nofollow',
   },
 };

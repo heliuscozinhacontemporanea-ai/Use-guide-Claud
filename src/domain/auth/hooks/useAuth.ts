@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuthContext } from '../context/AuthContext';
 import {
   loginWithEmailUseCase,
@@ -7,11 +8,13 @@ import {
   resetPasswordUseCase,
   logoutUseCase,
 } from '../factory';
+import { startEmailVerificationUseCase } from '../application/usecases/startEmailVerificationUseCase';
 import { getCurrentUserUseCase } from '../../user/application/usecases/getCurrentUserUseCase';
 import { updateCurrentUserUseCase } from '../../user/application/usecases/updateCurrentUserUseCase';
 
 export function useAuth() {
   const { user, profile, loading: contextLoading, refreshProfile } = useAuthContext();
+  const { i18n } = useTranslation();
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -48,6 +51,7 @@ export function useAuth() {
         lastName,
         phone: phone || '',
       });
+      await startEmailVerificationUseCase(i18n.language);
       await refreshProfile();
       return session;
     } catch (err: unknown) {
@@ -65,7 +69,7 @@ export function useAuth() {
     try {
       const session = await loginWithGoogleUseCase();
       const existingProfile = await getCurrentUserUseCase();
-      if (!existingProfile || !existingProfile.firstName) {
+      if (!existingProfile?.firstName) {
         const rawName = (session.displayName || 'Novo Usuário').trim();
         const nameParts = rawName.split(/\s+/).filter(Boolean);
         const firstName = (nameParts[0] || 'Novo').slice(0, 50);

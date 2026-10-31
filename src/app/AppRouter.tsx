@@ -29,6 +29,7 @@ import { SideMenu } from './menu/SideMenu';
 import { useSideMenu } from './menu/useSideMenu';
 import { useScrollContainer } from './useScrollContainer';
 import { AppRoutes } from './routes/AppRoutes';
+import { ACCOUNT_ACTION_PATH } from '../shared/constants/accountActionPath';
 
 export function AppRouter() {
   const { user, refreshProfile } = useAuthContext();
@@ -218,10 +219,10 @@ export function AppRouter() {
     setIsSearchSticky(false);
   }, [location.pathname]);
 
-  const isResetPasswordPage = location.pathname === '/reset-password';
+  const isAccountActionPage = location.pathname === ACCOUNT_ACTION_PATH;
   const isAdminOpen = searchParams.get('admin') === '1';
   const isHideGlobalUI =
-    isResetPasswordPage || isAdminOpen || isPartnerPortalOpen || location.pathname === '/admin';
+    isAccountActionPage || isAdminOpen || isPartnerPortalOpen || location.pathname === '/admin';
 
   const isRetracted = isLoginModalOpen && !isMenuOpen && !isLoginClosingBySwipe;
 
@@ -270,7 +271,7 @@ export function AppRouter() {
               key={location.pathname}
               className={cn(
                 'min-h-full max-w-2xl mx-auto w-full',
-                isExplorePage ? 'pt-[70px]' : isResetPasswordPage ? 'pt-0' : 'pt-28'
+                isExplorePage ? 'pt-[70px]' : isAccountActionPage ? 'pt-0' : 'pt-28'
               )}
             >
               <AppRoutes

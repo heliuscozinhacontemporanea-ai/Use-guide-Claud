@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { FirebaseAuthAdapter } from './firebaseAuthAdapter';
+import { authActionContinueUrl, FirebaseAuthAdapter } from './firebaseAuthAdapter';
 import * as firebaseAuth from 'firebase/auth';
 
 vi.mock('firebase/auth', () => ({
@@ -20,6 +20,8 @@ vi.mock('firebase/auth', () => ({
     PROVIDER_ID: 'password',
   },
   updatePassword: vi.fn(),
+  sendEmailVerification: vi.fn(),
+  applyActionCode: vi.fn(),
 }));
 
 vi.mock('../../../shared/infrastructure/firebase/firebaseAuth', () => ({
@@ -53,7 +55,7 @@ describe('FirebaseAuthAdapter', () => {
       },
     };
     vi.mocked(firebaseAuth.signInWithEmailAndPassword).mockResolvedValueOnce(
-      mockUserCredential as any
+      mockUserCredential as never
     );
 
     const session = await adapter.loginWithEmail('test@example.com', 'password123');
@@ -88,7 +90,7 @@ describe('FirebaseAuthAdapter', () => {
   });
 
   it('loginWithSocialGoogle propaga erro quando popup é cancelado pelo usuário', async () => {
-    const cancelError = new Error('Popup closed') as any;
+    const cancelError = Object.assign(new Error('Popup closed'), { code: '' });
     cancelError.code = 'auth/popup-closed-by-user';
     vi.mocked(firebaseAuth.signInWithPopup).mockRejectedValueOnce(cancelError);
 
@@ -96,7 +98,7 @@ describe('FirebaseAuthAdapter', () => {
   });
 
   it('loginWithSocialGoogle propaga erro de popup bloqueado sem tentar redirecionamento', async () => {
-    const blockedError = new Error('Popup blocked') as any;
+    const blockedError = Object.assign(new Error('Popup blocked'), { code: '' });
     blockedError.code = 'auth/popup-blocked';
     vi.mocked(firebaseAuth.signInWithPopup).mockRejectedValueOnce(blockedError);
 
@@ -104,7 +106,7 @@ describe('FirebaseAuthAdapter', () => {
   });
 
   it('loginWithSocialGoogle propaga auth/unauthorized-domain sem tentar alterar config', async () => {
-    const domainError = new Error('Domain not authorized') as any;
+    const domainError = Object.assign(new Error('Domain not authorized'), { code: '' });
     domainError.code = 'auth/unauthorized-domain';
     vi.mocked(firebaseAuth.signInWithPopup).mockRejectedValueOnce(domainError);
 
@@ -120,7 +122,7 @@ describe('FirebaseAuthAdapter', () => {
   });
 
   it('verifyResetCode propaga erro se código for inválido ou expirado', async () => {
-    const invalidError = new Error('Invalid code') as any;
+    const invalidError = Object.assign(new Error('Invalid code'), { code: '' });
     invalidError.code = 'auth/invalid-action-code';
     vi.mocked(firebaseAuth.verifyPasswordResetCode).mockRejectedValueOnce(invalidError);
 
@@ -128,14 +130,14 @@ describe('FirebaseAuthAdapter', () => {
   });
 
   it('reauthenticate executa reautenticação com senha', async () => {
-    vi.mocked(firebaseAuth.EmailAuthProvider.credential).mockReturnValueOnce({} as any);
-    vi.mocked(firebaseAuth.reauthenticateWithCredential).mockResolvedValueOnce({} as any);
+    vi.mocked(firebaseAuth.EmailAuthProvider.credential).mockReturnValueOnce({} as never);
+    vi.mocked(firebaseAuth.reauthenticateWithCredential).mockResolvedValueOnce({} as never);
     await adapter.reauthenticate('user@example.com', 'password123');
     expect(firebaseAuth.reauthenticateWithCredential).toHaveBeenCalled();
   });
 
   it('reauthenticateWithGoogle dispara popup com googleProvider', async () => {
-    vi.mocked(firebaseAuth.reauthenticateWithPopup).mockResolvedValueOnce({} as any);
+    vi.mocked(firebaseAuth.reauthenticateWithPopup).mockResolvedValueOnce({} as never);
     await adapter.reauthenticateWithGoogle();
     expect(firebaseAuth.reauthenticateWithPopup).toHaveBeenCalled();
   });
@@ -148,5 +150,32 @@ describe('FirebaseAuthAdapter', () => {
     vi.mocked(firebaseAuth.updatePassword).mockResolvedValueOnce();
     await adapter.changePassword('newPass123!');
     expect(firebaseAuth.updatePassword).toHaveBeenCalledWith(expect.anything(), 'newPass123!');
+  });
+
+  it('envia o link de confirmação no idioma ativo', async () => {
+    vi.mocked(firebaseAuth.sendEmailVerification).mockResolvedValueOnce();
+    await adapter.sendEmailVerification('fr');
+    expect(firebaseAuth.sendEmailVerification).toHaveBeenCalledWith(expect.anything(), {
+      url: authActionContinueUrl(window.location.hostname, window.location.origin),
+    });
+  });
+
+  it('volta sempre para o site oficial, exceto no teste local (D22)', () => {
+    expect(authActionContinueUrl('ais-dev-123.run.app', 'https://ais-dev-123.run.app')).toBe(
+      'https://useguide.com.br'
+    );
+    expect(authActionContinueUrl('useguide.com.br', 'https://useguide.com.br')).toBe(
+      'https://useguide.com.br'
+    );
+    expect(authActionContinueUrl('localhost', 'http://localhost:3000')).toBe(
+      'http://localhost:3000'
+    );
+  });
+
+  it('traduz o limite de envios do Firebase para TOO_MANY_REQUESTS', async () => {
+    vi.mocked(firebaseAuth.sendEmailVerification).mockRejectedValueOnce({
+      code: 'auth/too-many-requests',
+    });
+    await expect(adapter.sendEmailVerification('pt-BR')).rejects.toThrow('TOO_MANY_REQUESTS');
   });
 });

@@ -47,6 +47,7 @@ function getActor(req: AuthenticatedRequest) {
     uid: req.user?.uid || '',
     admin: req.user?.admin === true,
     role: req.user?.admin === true ? 'admin' : 'user',
+    emailVerified: req.user?.emailVerified === true,
   };
 }
 
@@ -72,6 +73,8 @@ function handleTicketingError(res: Response, error: unknown): Response {
         return res.status(404).json({ error: error.message });
       case 'TRANSFER_LINK_EXPIRED':
         return res.status(410).json({ error: error.message });
+      case 'EMAIL_NOT_VERIFIED':
+        return res.status(403).json({ error: { code: error.code, message: error.message } });
       case 'SERVICE_UNAVAILABLE':
         return res.status(503).json({ error: error.message });
     }

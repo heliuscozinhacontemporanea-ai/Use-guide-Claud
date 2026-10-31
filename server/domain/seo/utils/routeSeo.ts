@@ -190,9 +190,10 @@ export const NON_LOCALIZED_ROUTE_SEO: Record<string, SeoMetadata> = {
     robots: 'noindex, nofollow',
     type: 'website',
   },
-  '/reset-password': {
-    title: 'Recuperar Senha | Use Guide',
-    description: 'Redefinição de senha de acesso ao Use Guide.',
+  // Página dos links dos e-mails da conta (D22), igual a ACCOUNT_ACTION_PATH do frontend.
+  '/conta/acao': {
+    title: 'Conta Use Guide | Use Guide',
+    description: 'Confirmação de e-mail e nova senha da conta Use Guide.',
     robots: 'noindex, nofollow',
     type: 'website',
   },

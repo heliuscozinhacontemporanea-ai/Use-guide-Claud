@@ -6,6 +6,7 @@ import { Dialog } from '../../../../ui/components/Dialog';
 import { StatusText } from '../../../../ui/components/StatusText';
 import { TextButton } from '../../../../ui/components/TextButton';
 import { BUTTON_PRIMARY } from '../../../../ui/styles/controls';
+import { openEmailVerificationPromptUseCase } from '../../../auth';
 import { acceptTransferLinkUseCase } from '../../application/usecases/acceptTransferLinkUseCase';
 import { previewTransferLinkUseCase } from '../../application/usecases/previewTransferLinkUseCase';
 import type { TicketTransferLinkPreview } from '../../types/ticketing';
@@ -62,7 +63,9 @@ export function TransferLinkReceiverDialog({
       await acceptTransferLinkUseCase(link.linkId, link.token);
       setAccepted(true);
     } catch (err: unknown) {
-      setErrorKey(errorCode(err));
+      const code = errorCode(err);
+      if (code === 'RECIPIENT_NOT_VERIFIED') openEmailVerificationPromptUseCase();
+      setErrorKey(code);
     } finally {
       setBusy(false);
     }

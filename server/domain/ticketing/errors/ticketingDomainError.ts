@@ -9,6 +9,7 @@ export type TicketingErrorCode =
   | 'TRANSFER_LINK_INVALID'
   | 'TRANSFER_LINK_EXPIRED'
   | 'TRANSFER_LINK_OWN'
+  | 'EMAIL_NOT_VERIFIED'
   | 'SERVICE_UNAVAILABLE';
 
 export class TicketingDomainError extends Error {

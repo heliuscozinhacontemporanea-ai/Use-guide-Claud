@@ -1,6 +1,12 @@
 import { useCallback, useState } from 'react';
 import type { Path, UseFormReturn } from 'react-hook-form';
-import { registerWithEmailUseCase, type UserSession } from '../../auth';
+import { i18n } from '../../../shared/i18n';
+import {
+  openEmailVerificationPromptUseCase,
+  registerWithEmailUseCase,
+  startEmailVerificationUseCase,
+  type UserSession,
+} from '../../auth';
 import { mapPartnerSubmissionToGuideItem } from '../application/mappers/partnerSubmissionToGuide';
 import { createOrUpdatePartnerProfileUseCase } from '../application/usecases/createOrUpdatePartnerProfileUseCase';
 import { createPartnerContentItemUseCase } from '../application/usecases/createPartnerContentItemUseCase';
@@ -73,6 +79,10 @@ export function usePartnerRegistrationSubmission({
           throw new Error('E-mail e senha são obrigatórios para cadastro.');
         }
         await registerWithEmailUseCase(values.email, values.password);
+        // Parceiro precisa de e-mail confirmado (AGENTS.md §7.10): o cadastro para aqui e continua
+        // quando a pessoa confirmar e enviar de novo, já logada (D22).
+        await startEmailVerificationUseCase(i18n.language);
+        throw new Error('EMAIL_NOT_VERIFIED');
       }
 
       const registrationPayload = mapPartnerRegistrationPayload(values);
@@ -90,6 +100,12 @@ export function usePartnerRegistrationSubmission({
       if (setCurrentStep) setCurrentStep(5);
 
       let errorMessage = 'Erro ao realizar cadastro. Tente novamente.';
+      if (error instanceof Error && error.message === 'EMAIL_NOT_VERIFIED') {
+        if (currentUser) openEmailVerificationPromptUseCase();
+        setSubmitError(i18n.t('emailVerification.partnerRequired'));
+        setIsSubmitting(false);
+        return;
+      }
       if (
         isFirebaseAuthError(error, 'auth/email-already-in-use') ||
         (error instanceof Error && error.message.includes('auth/email-already-in-use'))

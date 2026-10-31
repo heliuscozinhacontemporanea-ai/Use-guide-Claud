@@ -17,6 +17,8 @@ function handleControllerError(res: Response, error: unknown, defaultMessage: st
         return res.status(404).json({ error: error.message });
       case 'CONFLICT':
         return res.status(409).json({ error: error.message });
+      case 'EMAIL_NOT_VERIFIED':
+        return res.status(403).json({ error: { code: error.code, message: error.message } });
       default:
         return res.status(400).json({ error: error.message });
     }
@@ -68,7 +70,10 @@ export class PartnerController {
       }
 
       const dto = RegisterPartnerDTO.fromValidatedInput(parsed.data);
-      await registerPartnerApplicationUseCase(uid, dto.formData);
+      await registerPartnerApplicationUseCase(
+        { uid, emailVerified: req.user?.emailVerified === true },
+        dto.formData
+      );
       return res
         .status(200)
         .json({ status: 'success', message: 'Parceiro cadastrado com sucesso' });

@@ -12,3 +12,6 @@ export * from './reauthenticateUseCase';
 export * from './reauthenticateWithGoogleUseCase';
 export * from './hasPasswordSignInUseCase';
 export * from './changePasswordUseCase';
+export * from './sendEmailVerificationUseCase';
+export * from './refreshEmailVerifiedUseCase';
+export * from './applyEmailVerificationCodeUseCase';

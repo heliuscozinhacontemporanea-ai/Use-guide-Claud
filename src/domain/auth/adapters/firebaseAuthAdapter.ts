@@ -4,6 +4,8 @@ import {
   signInWithPopup as fbSignInWithPopup,
   signOut as fbSignOut,
   sendPasswordResetEmail as fbSendPasswordResetEmail,
+  sendEmailVerification as fbSendEmailVerification,
+  applyActionCode,
   verifyPasswordResetCode,
   confirmPasswordReset,
   onAuthStateChanged,
@@ -12,9 +14,29 @@ import {
   EmailAuthProvider,
   updatePassword,
 } from 'firebase/auth';
+import { SITE_URL } from '../../../shared/constants/siteUrl';
 import { auth, googleProvider } from '../../../shared/infrastructure/firebase/firebaseAuth';
 import { UserRole, UserSession, AuthIdentity } from '../types/auth';
 import { AuthPort } from '../types/authPort';
+
+/**
+ * Para onde o botão "continuar" do Firebase leva depois da ação. Fora do teste local é sempre o site
+ * oficial (D22): os e-mails nunca mostram o endereço do AI Studio. O link do e-mail em si é o URL de
+ * ação configurado no console (Authentication › Modelos).
+ */
+export function authActionContinueUrl(hostname: string, origin: string): string {
+  return hostname === 'localhost' || hostname === '127.0.0.1' ? origin : SITE_URL;
+}
+
+function continueUrl(): string {
+  if (typeof window === 'undefined') return SITE_URL;
+  return authActionContinueUrl(window.location.hostname, window.location.origin);
+}
+
+function authErrorCode(error: unknown): string | undefined {
+  const code = (error as { code?: unknown } | null)?.code;
+  return typeof code === 'string' ? code : undefined;
+}
 
 export class FirebaseAuthAdapter implements AuthPort {
   async registerWithEmail(email: string, password: string): Promise<UserSession> {
@@ -67,13 +89,14 @@ export class FirebaseAuthAdapter implements AuthPort {
         role,
         isAnonymous: user.isAnonymous,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const code = authErrorCode(error);
       if (
-        error?.code === 'auth/invalid-credential' ||
-        error?.code === 'auth/user-not-found' ||
-        error?.code === 'auth/wrong-password'
+        code === 'auth/invalid-credential' ||
+        code === 'auth/user-not-found' ||
+        code === 'auth/wrong-password'
       ) {
-        console.warn('[FirebaseAuthAdapter] loginWithEmail invalid credentials:', error.message);
+        console.warn('[FirebaseAuthAdapter] loginWithEmail invalid credentials:', code);
       } else {
         console.error('[FirebaseAuthAdapter] loginWithEmail error:', error);
       }
@@ -105,8 +128,8 @@ export class FirebaseAuthAdapter implements AuthPort {
         role,
         isAnonymous: user.isAnonymous,
       };
-    } catch (error: any) {
-      if (error?.code !== 'auth/popup-closed-by-user') {
+    } catch (error: unknown) {
+      if (authErrorCode(error) !== 'auth/popup-closed-by-user') {
         console.error('[FirebaseAuthAdapter] loginWithSocialGoogle error:', error);
       }
 
@@ -125,20 +148,38 @@ export class FirebaseAuthAdapter implements AuthPort {
 
   async resetPassword(email: string): Promise<void> {
     try {
-      const isLocalhost =
-        typeof window !== 'undefined' &&
-        (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
-      const baseUrl = isLocalhost ? window.location.origin : 'https://useguide.com.br';
-
-      const actionCodeSettings = {
-        url: `${baseUrl}/reset-password`,
-        handleCodeInApp: true,
-      };
-      await fbSendPasswordResetEmail(auth, email, actionCodeSettings);
+      await fbSendPasswordResetEmail(auth, email, { url: continueUrl() });
     } catch (error) {
       console.error('[FirebaseAuthAdapter] resetPassword error:', error);
       throw error;
     }
+  }
+
+  async sendEmailVerification(locale: string): Promise<void> {
+    const user = auth.currentUser;
+    if (!user) throw new Error('NOT_AUTHENTICATED');
+    auth.languageCode = locale;
+    try {
+      await fbSendEmailVerification(user, { url: continueUrl() });
+    } catch (error: unknown) {
+      throw new Error(
+        authErrorCode(error) === 'auth/too-many-requests' ? 'TOO_MANY_REQUESTS' : 'SEND_FAILED'
+      );
+    }
+  }
+
+  async refreshEmailVerified(): Promise<boolean> {
+    const user = auth.currentUser;
+    if (!user) return false;
+    await user.reload();
+    // O backend lê `email_verified` do ID token: sem renovar, ele continuaria vendo false.
+    if (user.emailVerified) await user.getIdToken(true);
+    return user.emailVerified;
+  }
+
+  async applyEmailVerificationCode(code: string): Promise<void> {
+    await applyActionCode(auth, code);
+    if (auth.currentUser) await this.refreshEmailVerified();
   }
 
   async verifyResetCode(code: string): Promise<string> {
