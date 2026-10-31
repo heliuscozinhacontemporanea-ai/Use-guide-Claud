@@ -130,6 +130,7 @@ export function UserTicketsHistoryView({ onBack }: UserTicketsHistoryViewProps =
           ticket={actions.transferTicket}
           onSubmit={actions.submitTransfer}
           onReturn={actions.submitReturn}
+          onLinkChanged={actions.reloadWallet}
           onCancel={() => actions.setTransferTicket(null)}
         />
       )}

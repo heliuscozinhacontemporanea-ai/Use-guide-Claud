@@ -52,3 +52,5 @@ export type {
   EventSalesAnalytics,
   PublicTicketTypeProjection,
 } from './types/ticketing';
+export { TransferLinkReceiverDialog } from './components/wallet/TransferLinkReceiverDialog';
+export { parseTransferLinkHash } from './utils/transferLinkUrl';

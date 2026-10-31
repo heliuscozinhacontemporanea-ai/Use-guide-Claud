@@ -164,6 +164,8 @@ export interface Ticket {
   qrSwappedAt?: string;
   /** Recebido por transferência: de quem veio. Só pode voltar para essa pessoa (D21). */
   receivedFrom?: { username: string | null; displayName: string | null };
+  /** Link de transferência pendente: até quando vale (D21). */
+  transferLinkExpiresAt?: string;
   status: TicketStatus;
   ticketTypeSnapshot?: {
     name: string;
@@ -232,6 +234,22 @@ export interface EventSalesAnalytics {
 }
 
 /** QR assinado do ingresso e código de 8 caracteres, que só aparece no dia da sessão (D20). */
+/** Link de transferência criado agora; o código só existe nesta resposta (D21). */
+export interface TicketTransferLinkCreated {
+  linkId: string;
+  token: string;
+  expiresAt: string;
+}
+
+/** O que o link entrega, mostrado a quem recebeu antes de aceitar. */
+export interface TicketTransferLinkPreview {
+  eventTitle: string | null;
+  startsAt: string | null;
+  ticketType: string | null;
+  from: { username: string | null; displayName: string | null };
+  expiresAt: string;
+}
+
 export interface TicketQrPass {
   ticketId: string;
   token: string;

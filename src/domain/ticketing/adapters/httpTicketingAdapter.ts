@@ -13,6 +13,8 @@ import type {
   Refund,
   Ticket,
   TicketQrPass,
+  TicketTransferLinkCreated,
+  TicketTransferLinkPreview,
   OfflineCheckInChanges,
   TicketOrder,
   TicketOrderItem,
@@ -25,6 +27,28 @@ async function parseJsonOrThrow<T>(response: Response, fallbackError: string): P
     throw new Error(body?.error || body?.message || fallbackError);
   }
   return (body?.data ?? body) as T;
+}
+
+/** Rotas de transferência: erro vira `Error(code)` para a tela traduzir (§12.5). */
+async function transferCall<T>(
+  path: string,
+  method: 'POST' | 'DELETE',
+  body?: unknown
+): Promise<T> {
+  const res = await firebaseApiFetch(
+    path,
+    {
+      method,
+      ...(body
+        ? { headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
+        : {}),
+    },
+    { requireAuth: true }
+  );
+  if (res.status === 204) return undefined as T;
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(json?.error?.code || 'INTERNAL_ERROR');
+  return json as T;
 }
 
 export class HttpTicketingAdapter implements TicketingPort {
@@ -231,6 +255,33 @@ export class HttpTicketingAdapter implements TicketingPort {
       { requireAuth: true }
     );
     return parseJsonOrThrow<OfflineCheckInChanges>(res, 'Não foi possível atualizar a lista.');
+  }
+
+  async createTransferLink(ticketId: string): Promise<TicketTransferLinkCreated> {
+    return transferCall('/api/ticket-transfers/links', 'POST', { ticketId });
+  }
+
+  async cancelTransferLink(ticketId: string): Promise<void> {
+    await transferCall(
+      `/api/ticket-transfers/links/by-ticket/${encodeURIComponent(ticketId)}`,
+      'DELETE'
+    );
+  }
+
+  async previewTransferLink(linkId: string, token: string): Promise<TicketTransferLinkPreview> {
+    return transferCall(
+      `/api/ticket-transfers/links/${encodeURIComponent(linkId)}/preview`,
+      'POST',
+      { token }
+    );
+  }
+
+  async acceptTransferLink(linkId: string, token: string): Promise<{ ticketId: string }> {
+    return transferCall(
+      `/api/ticket-transfers/links/${encodeURIComponent(linkId)}/accept`,
+      'POST',
+      { token }
+    );
   }
 
   async returnTicketToBuyer(ticketId: string): Promise<{ ticketId: string }> {

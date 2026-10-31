@@ -1,5 +1,6 @@
 import type { TermsAcceptance } from '../../../shared/kernel/legalTerms';
 import type {
+  TicketTransferLink,
   EventCheckIn,
   EventPromoCode,
   EventWaitlistEntry,
@@ -145,6 +146,18 @@ export interface TicketingPort {
    * o titular e UNPROCESSABLE_ENTITY se o ingresso não está emitido ou já teve o QR trocado.
    */
   swapTicketQr(ticketId: string, ownerUid: string, nowIso: string): Promise<Ticket>;
+  /** Grava o link e cancela outro pendente do mesmo ingresso, em transação (D21). */
+  createTransferLink(link: Omit<TicketTransferLink, 'id'>): Promise<TicketTransferLink>;
+  getTransferLink(linkId: string): Promise<TicketTransferLink | null>;
+  /** Marca como aceito se ainda pendente e dentro da validade; senão lança TRANSFER_LINK_*. */
+  claimTransferLink(
+    linkId: string,
+    acceptorUid: string,
+    nowIso: string
+  ): Promise<TicketTransferLink>;
+  /** A transferência falhou depois do aceite: o link volta a valer até expirar. */
+  releaseTransferLink(linkId: string): Promise<void>;
+  cancelTransferLinksForTicket(ticketId: string, ownerUid: string): Promise<void>;
   listTicketsByEventListingId(eventListingId: string): Promise<Ticket[]>;
   updateTicketStatus(
     ticketId: string,

@@ -8,6 +8,7 @@ import { FirestoreCheckInStore } from './firestoreCheckInStore';
 import { FirestoreRefundStore } from './firestoreRefundStore';
 import { FirestoreEngagementStore } from './firestoreEngagementStore';
 import { FirestoreTicketPrivacyStore } from './firestoreTicketPrivacyStore';
+import { FirestoreTransferLinkStore } from './firestoreTransferLinkStore';
 
 /** Implementação do `TicketingPort` no Firestore, composta pelos stores de cada parte do ticketing. */
 export class FirestoreTicketingAdapter implements TicketingPort {
@@ -20,6 +21,7 @@ export class FirestoreTicketingAdapter implements TicketingPort {
   private readonly refund = new FirestoreRefundStore();
   private readonly engagement = new FirestoreEngagementStore();
   private readonly privacy = new FirestoreTicketPrivacyStore();
+  private readonly transferLinks = new FirestoreTransferLinkStore();
 
   readonly createTicketType = this.ticketType.createTicketType.bind(this.ticketType);
   readonly getTicketTypeById = this.ticketType.getTicketTypeById.bind(this.ticketType);
@@ -62,6 +64,13 @@ export class FirestoreTicketingAdapter implements TicketingPort {
   readonly anonymizeUser = this.privacy.anonymizeUser.bind(this.privacy);
   readonly listTicketsChangedSince = this.ticket.listTicketsChangedSince.bind(this.ticket);
   readonly swapTicketQr = this.ticket.swapTicketQr.bind(this.ticket);
+  readonly createTransferLink = this.transferLinks.createTransferLink.bind(this.transferLinks);
+  readonly getTransferLink = this.transferLinks.getTransferLink.bind(this.transferLinks);
+  readonly claimTransferLink = this.transferLinks.claimTransferLink.bind(this.transferLinks);
+  readonly releaseTransferLink = this.transferLinks.releaseTransferLink.bind(this.transferLinks);
+  readonly cancelTransferLinksForTicket = this.transferLinks.cancelTransferLinksForTicket.bind(
+    this.transferLinks
+  );
   readonly countCheckInCodeFailures = this.checkIn.countCheckInCodeFailures.bind(this.checkIn);
   readonly addCheckInCodeFailure = this.checkIn.addCheckInCodeFailure.bind(this.checkIn);
   readonly listCheckInsByEventListingId = this.checkIn.listCheckInsByEventListingId.bind(

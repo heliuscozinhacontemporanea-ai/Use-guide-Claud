@@ -26,6 +26,12 @@ export { markTicketOrderDisputedUseCase } from './usecases/markTicketOrderDisput
 export { markTicketOrderPaymentFailedUseCase } from './usecases/markTicketOrderPaymentFailedUseCase';
 export { moveOrderToOccurrenceUseCase } from './usecases/moveOrderToOccurrenceUseCase';
 export { swapTicketQrUseCase } from './usecases/swapTicketQrUseCase';
+export { cancelTicketTransferLinkUseCase } from './usecases/cancelTicketTransferLinkUseCase';
+export { claimTicketTransferLinkUseCase } from './usecases/claimTicketTransferLinkUseCase';
+export { createTicketTransferLinkUseCase } from './usecases/createTicketTransferLinkUseCase';
+export { previewTicketTransferLinkUseCase } from './usecases/previewTicketTransferLinkUseCase';
+export { releaseTicketTransferLinkUseCase } from './usecases/releaseTicketTransferLinkUseCase';
+export type { TransferLinkPreview } from './services/ticketTransferLinkService';
 export { requestTicketRefundUseCase } from './usecases/requestTicketRefundUseCase';
 export { syncOfflineCheckInsUseCase } from './usecases/syncOfflineCheckInsUseCase';
 export { transferTicketUseCase } from './usecases/transferTicketUseCase';

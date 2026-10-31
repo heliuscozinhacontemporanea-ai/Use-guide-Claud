@@ -66,7 +66,12 @@ function handleTicketingError(res: Response, error: unknown): Response {
       case 'TOO_MANY_REQUESTS':
         return res.status(429).json({ error: error.message });
       case 'TRANSFER_ONLY_TO_BUYER':
+      case 'TRANSFER_LINK_OWN':
         return res.status(422).json({ error: error.message });
+      case 'TRANSFER_LINK_INVALID':
+        return res.status(404).json({ error: error.message });
+      case 'TRANSFER_LINK_EXPIRED':
+        return res.status(410).json({ error: error.message });
       case 'SERVICE_UNAVAILABLE':
         return res.status(503).json({ error: error.message });
     }

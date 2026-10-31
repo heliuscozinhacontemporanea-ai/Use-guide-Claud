@@ -103,6 +103,9 @@ service cloud.firestore {
     match /ticketCheckInCodeFailures/{failureId} {
       allow read, write: if false;
     }
+    match /ticketTransferLinks/{linkId} {
+      allow read, write: if false;
+    }
     match /bookingAuditLogs/{logId} {
       allow read: if isAdmin();
       allow write: if false;

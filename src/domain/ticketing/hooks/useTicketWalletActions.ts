@@ -128,6 +128,7 @@ export function useTicketWalletActions(wallet: WalletData) {
     setTransferTicket,
     submitTransfer,
     submitReturn,
+    reloadWallet: wallet.reload,
     requestRefund,
     resumingOrder,
     setResumingOrder,

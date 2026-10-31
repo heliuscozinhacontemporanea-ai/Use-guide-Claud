@@ -180,6 +180,8 @@ export interface Ticket {
   qrSwappedAt?: string;
   /** Ingresso recebido por transferência: de quem veio (@ e nome públicos). Só volta para quem comprou (D21). */
   receivedFrom?: { username: string | null; displayName: string | null };
+  /** Link de transferência pendente (D21): até quando vale. */
+  transferLinkExpiresAt?: string;
   /** Última mudança: a lista sem internet da portaria baixa só o que mudou (D21). */
   updatedAt?: string;
   transferredAt?: string;
@@ -214,6 +216,21 @@ export interface Refund {
   idempotencyKey: string;
   createdAt: string;
   completedAt?: string;
+}
+
+/** Link de transferência para quem ainda não tem conta (D21): 30 min, uso único. */
+export interface TicketTransferLink {
+  id: string;
+  ticketId: string;
+  fromUserId: string;
+  /** HMAC do código do link; o código em si nunca é gravado (§7.7). */
+  tokenHash: string;
+  status: 'pending' | 'accepted' | 'canceled';
+  expiresAt: string;
+  createdAt: string;
+  receivedFrom: { username: string | null; displayName: string | null };
+  acceptedBy?: string;
+  acceptedAt?: string;
 }
 
 export interface TicketTransfer {

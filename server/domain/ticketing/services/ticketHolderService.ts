@@ -1,8 +1,4 @@
-import {
-  createEventAuditLogUseCase,
-  getEventListingByIdUseCase,
-  getEventOccurrenceByIdUseCase,
-} from '../../events';
+import { createEventAuditLogUseCase, getEventOccurrenceByIdUseCase } from '../../events';
 import { TicketingDomainError } from '../errors/ticketingDomainError';
 import type { TicketingPort } from '../ports/ticketingPort';
 import type {
@@ -17,6 +13,7 @@ import {
   getAuditActorType,
   type TicketingActorContext,
 } from './ticketingAccess';
+import { loadTransferContext } from './transferEligibility';
 
 /** Titularidade do ingresso: transferência, troca de sessão e lista de espera. */
 export class TicketHolderService {
@@ -51,47 +48,7 @@ export class TicketHolderService {
       throw new TicketingDomainError('NOT_FOUND', 'Ingresso não encontrado.');
     }
 
-    const [order, listing, occurrence] = await Promise.all([
-      this.port.getOrderById(ticket.orderId),
-      getEventListingByIdUseCase(ticket.eventListingId),
-      getEventOccurrenceByIdUseCase(ticket.occurrenceId),
-    ]);
-
-    const allowTransfer =
-      order?.salesPolicySnapshot.allowTicketTransfer ??
-      listing?.salesPolicy.allowTicketTransfer ??
-      true;
-
-    if (!allowTransfer) {
-      throw new TicketingDomainError(
-        'UNPROCESSABLE_ENTITY',
-        'A política deste evento não permite transferência de titularidade.'
-      );
-    }
-
-    if (occurrence) {
-      if (occurrence.status !== 'scheduled') {
-        throw new TicketingDomainError(
-          'UNPROCESSABLE_ENTITY',
-          'Não é possível transferir ingressos de uma sessão encerrada ou cancelada.'
-        );
-      }
-
-      const startsAtMs = new Date(occurrence.startsAt).getTime();
-      const nowMs = Date.now();
-      const cutoffHours =
-        order?.salesPolicySnapshot.ticketTransferCutoffHours ??
-        listing?.salesPolicy.ticketTransferCutoffHours ??
-        4;
-      const hoursUntilStart = (startsAtMs - nowMs) / (1000 * 60 * 60);
-      if (hoursUntilStart < cutoffHours) {
-        throw new TicketingDomainError(
-          'UNPROCESSABLE_ENTITY',
-          `O prazo limite para transferência de titularidade encerrou (${cutoffHours}h antes do início do evento).`
-        );
-      }
-    }
-
+    const { order } = await loadTransferContext(this.port, ticket);
     const recipient = this.resolveRecipient(ticket, order, params);
     const { rawQrToken, qrTokenHash } = generateOpaqueTicketQrToken();
     const res = await this.port.transferTicketAtomic({

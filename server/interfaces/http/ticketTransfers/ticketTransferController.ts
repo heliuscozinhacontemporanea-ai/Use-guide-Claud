@@ -3,11 +3,21 @@ import {
   TicketTransferError,
   transferTicketToUsernameApplicationUseCase,
 } from '../../../application/usecases/ticketing/transferTicketToUsernameApplicationUseCase';
+import { acceptTicketTransferLinkApplicationUseCase } from '../../../application/usecases/ticketing/acceptTicketTransferLinkApplicationUseCase';
+import { createTicketTransferLinkApplicationUseCase } from '../../../application/usecases/ticketing/createTicketTransferLinkApplicationUseCase';
 import { returnTicketToBuyerApplicationUseCase } from '../../../application/usecases/ticketing/returnTicketToBuyerApplicationUseCase';
-import { TicketingDomainError } from '../../../domain/ticketing';
+import {
+  TicketingDomainError,
+  cancelTicketTransferLinkUseCase,
+  previewTicketTransferLinkUseCase,
+} from '../../../domain/ticketing';
 import { UsernameError } from '../../../domain/users';
 import type { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
-import { ticketReturnSchema, ticketTransferSchema } from './ticketTransferSchema';
+import {
+  ticketReturnSchema,
+  ticketTransferSchema,
+  transferLinkTokenSchema,
+} from './ticketTransferSchema';
 
 const TICKETING_STATUS: Record<TicketingDomainError['code'], number> = {
   INVALID_ARGUMENT: 400,
@@ -17,6 +27,9 @@ const TICKETING_STATUS: Record<TicketingDomainError['code'], number> = {
   UNPROCESSABLE_ENTITY: 422,
   TOO_MANY_REQUESTS: 429,
   TRANSFER_ONLY_TO_BUYER: 422,
+  TRANSFER_LINK_INVALID: 404,
+  TRANSFER_LINK_EXPIRED: 410,
+  TRANSFER_LINK_OWN: 422,
   SERVICE_UNAVAILABLE: 503,
 };
 
@@ -74,6 +87,69 @@ export class TicketTransferController {
       return res.status(200).json(result);
     } catch (error) {
       return sendTransferError(res, error, 'returnToBuyer');
+    }
+  }
+
+  static async createLink(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    const uid = req.user?.uid;
+    if (!uid) return sendError(res, 401, 'UNAUTHENTICATED', 'Faça login.');
+    const parsed = ticketReturnSchema.safeParse(req.body);
+    if (!parsed.success) return sendError(res, 400, 'VALIDATION_ERROR', 'Dados inválidos.');
+    try {
+      const link = await createTicketTransferLinkApplicationUseCase(
+        { uid, admin: req.user?.admin === true },
+        parsed.data.ticketId
+      );
+      // O código do link só sai nesta resposta; não pode ficar em cache.
+      res.setHeader('Cache-Control', 'no-store');
+      return res.status(201).json(link);
+    } catch (error) {
+      return sendTransferError(res, error, 'createLink');
+    }
+  }
+
+  static async cancelLink(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    const uid = req.user?.uid;
+    if (!uid) return sendError(res, 401, 'UNAUTHENTICATED', 'Faça login.');
+    const parsed = ticketReturnSchema.safeParse({ ticketId: req.params.ticketId });
+    if (!parsed.success) return sendError(res, 400, 'VALIDATION_ERROR', 'Dados inválidos.');
+    try {
+      await cancelTicketTransferLinkUseCase({ uid, admin: false }, parsed.data.ticketId);
+      return res.status(204).send();
+    } catch (error) {
+      return sendTransferError(res, error, 'cancelLink');
+    }
+  }
+
+  static async previewLink(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    if (!req.user?.uid) return sendError(res, 401, 'UNAUTHENTICATED', 'Faça login.');
+    const parsed = transferLinkTokenSchema.safeParse(req.body);
+    if (!parsed.success) return sendError(res, 404, 'TRANSFER_LINK_INVALID', 'Link inválido.');
+    try {
+      return res
+        .status(200)
+        .json(
+          await previewTicketTransferLinkUseCase(String(req.params.linkId ?? ''), parsed.data.token)
+        );
+    } catch (error) {
+      return sendTransferError(res, error, 'previewLink');
+    }
+  }
+
+  static async acceptLink(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    const uid = req.user?.uid;
+    if (!uid) return sendError(res, 401, 'UNAUTHENTICATED', 'Faça login.');
+    const parsed = transferLinkTokenSchema.safeParse(req.body);
+    if (!parsed.success) return sendError(res, 404, 'TRANSFER_LINK_INVALID', 'Link inválido.');
+    try {
+      const result = await acceptTicketTransferLinkApplicationUseCase(
+        { uid, emailVerified: req.user?.emailVerified === true },
+        String(req.params.linkId ?? ''),
+        parsed.data.token
+      );
+      return res.status(200).json(result);
+    } catch (error) {
+      return sendTransferError(res, error, 'acceptLink');
     }
   }
 }

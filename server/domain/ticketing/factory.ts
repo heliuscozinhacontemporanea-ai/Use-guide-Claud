@@ -3,6 +3,7 @@ import { Ed25519TicketQrTokenAdapter } from './adapters/ed25519TicketQrTokenAdap
 import { CheckInService } from './services/checkInService';
 import { OfflineCheckInService } from './services/offlineCheckInService';
 import { TicketHolderService } from './services/ticketHolderService';
+import { TicketTransferLinkService } from './services/ticketTransferLinkService';
 import { TicketOrderService } from './services/ticketOrderService';
 import { TicketRefundService } from './services/ticketRefundService';
 import { TicketTypeService } from './services/ticketTypeService';
@@ -15,6 +16,7 @@ export const ticketTypeService = new TicketTypeService(ticketingAdapter);
 export const ticketOrderService = new TicketOrderService(ticketingAdapter);
 export const ticketRefundService = new TicketRefundService(ticketingAdapter);
 export const ticketHolderService = new TicketHolderService(ticketingAdapter);
+export const ticketTransferLinkService = new TicketTransferLinkService(ticketingAdapter);
 export const checkInService = new CheckInService(ticketingAdapter, ticketQrTokenAdapter);
 export const offlineCheckInService = new OfflineCheckInService(
   ticketingAdapter,

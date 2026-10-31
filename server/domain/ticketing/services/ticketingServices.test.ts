@@ -180,6 +180,11 @@ describe('serviços de ticketing', () => {
       anonymizeUser: vi.fn(),
       listTicketsChangedSince: vi.fn().mockResolvedValue([]),
       swapTicketQr: vi.fn(),
+      createTransferLink: vi.fn(),
+      getTransferLink: vi.fn(),
+      claimTransferLink: vi.fn(),
+      releaseTransferLink: vi.fn(),
+      cancelTransferLinksForTicket: vi.fn(),
       countCheckInCodeFailures: vi.fn().mockResolvedValue(0),
       addCheckInCodeFailure: vi.fn().mockResolvedValue(undefined),
     };

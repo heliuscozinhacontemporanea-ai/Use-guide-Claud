@@ -7,6 +7,8 @@ import type {
   Refund,
   Ticket,
   TicketQrPass,
+  TicketTransferLinkCreated,
+  TicketTransferLinkPreview,
   OfflineCheckInChanges,
   TicketOrder,
   TicketOrderItem,
@@ -112,6 +114,11 @@ export interface TicketingPort {
   ): Promise<{ ticketId: string; recipient: { username: string; displayName: string | null } }>;
   /** Devolve o ingresso recebido para quem comprou (D21). */
   returnTicketToBuyer(ticketId: string): Promise<{ ticketId: string }>;
+  /** Link para quem ainda não tem conta (D21): 30 min, uso único. */
+  createTransferLink(ticketId: string): Promise<TicketTransferLinkCreated>;
+  cancelTransferLink(ticketId: string): Promise<void>;
+  previewTransferLink(linkId: string, token: string): Promise<TicketTransferLinkPreview>;
+  acceptTransferLink(linkId: string, token: string): Promise<{ ticketId: string }>;
   checkInTicket(input: {
     occurrenceId: string;
     ticketId?: string;

@@ -10,3 +10,7 @@ export const ticketTransferSchema = z
 export const ticketReturnSchema = z
   .object({ ticketId: z.string().trim().min(1).max(128) })
   .strict();
+
+export const transferLinkTokenSchema = z
+  .object({ token: z.string().trim().min(20).max(100) })
+  .strict();

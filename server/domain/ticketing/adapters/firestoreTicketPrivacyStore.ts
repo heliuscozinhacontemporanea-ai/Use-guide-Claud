@@ -30,11 +30,12 @@ export class FirestoreTicketPrivacyStore {
     waitlist: number;
   }> {
     const at = new Date().toISOString();
-    const [orders, tickets, transfers, waitlist] = await Promise.all([
+    const [orders, tickets, transfers, waitlist, links] = await Promise.all([
       refsWhere('ticketOrders', 'buyerId', uid),
       refsWhere('tickets', 'ownerUserId', uid),
       refsWhere('ticketTransfers', 'toUserId', uid),
       refsWhere('eventWaitlistEntries', 'userId', uid),
+      refsWhere('ticketTransferLinks', 'fromUserId', uid),
     ]);
     await writeInBatches(orders, (batch, ref) =>
       batch.update(ref, { buyerSnapshot: { name: '', email: '' }, anonymizedAt: at })
@@ -50,6 +51,8 @@ export class FirestoreTicketPrivacyStore {
       })
     );
     await writeInBatches(waitlist, (batch, ref) => batch.delete(ref));
+    // Links guardam o @ e o nome de quem enviou: sem uso depois da exclusão (D21).
+    await writeInBatches(links, (batch, ref) => batch.delete(ref));
     return {
       orders: orders.length,
       tickets: tickets.length,

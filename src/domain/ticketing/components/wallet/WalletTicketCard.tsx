@@ -73,6 +73,11 @@ export function WalletTicketCard({
         </span>
       </div>
 
+      {ticket.transferLinkExpiresAt && new Date(ticket.transferLinkExpiresAt) > new Date() && (
+        <p className="text-[13px] text-warn">
+          {t('username.transfer.link.pending', { time: formatDate(ticket.transferLinkExpiresAt) })}
+        </p>
+      )}
       {qr && (
         <div className="space-y-3">
           <div className="mx-auto w-full max-w-[240px] aspect-square rounded-2xl bg-white p-3">

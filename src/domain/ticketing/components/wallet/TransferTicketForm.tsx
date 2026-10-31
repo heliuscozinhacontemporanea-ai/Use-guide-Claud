@@ -5,6 +5,7 @@ import { TextButton } from '../../../../ui/components/TextButton';
 import { BUTTON_PRIMARY, BUTTON_SECONDARY } from '../../../../ui/styles/controls';
 import { findUserByUsernameUseCase, type UsernameProfile } from '../../../user';
 import type { Ticket } from '../../types/ticketing';
+import { TransferLinkPanel } from './TransferLinkPanel';
 
 const KNOWN_ERRORS = [
   'USERNAME_NOT_FOUND',
@@ -20,6 +21,8 @@ interface TransferTicketFormProps {
   /** Ingresso recebido: só volta para quem comprou (D21). */
   onReturn: () => Promise<void>;
   onCancel: () => void;
+  /** Recarrega a carteira depois de criar ou cancelar o link. */
+  onLinkChanged: () => Promise<void> | void;
 }
 
 /** Transferência pelo @ (D21): procura a conta, mostra foto, nome e @ e só então transfere. */
@@ -28,6 +31,7 @@ export function TransferTicketForm({
   onSubmit,
   onReturn,
   onCancel,
+  onLinkChanged,
 }: TransferTicketFormProps) {
   const { t } = useTranslation();
   const inputId = useId();
@@ -35,10 +39,15 @@ export function TransferTicketForm({
   const [recipient, setRecipient] = useState<UsernameProfile | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // @ não encontrado ou link já pendente: oferece o link para quem ainda não tem conta (D21).
+  const [showLink, setShowLink] = useState(
+    Boolean(ticket.transferLinkExpiresAt && new Date(ticket.transferLinkExpiresAt) > new Date())
+  );
 
   const fail = (err: unknown) => {
     const code =
       err instanceof Error && KNOWN_ERRORS.includes(err.message) ? err.message : 'failed';
+    if (code === 'USERNAME_NOT_FOUND') setShowLink(true);
     setError(t(`username.transfer.errors.${code}`));
   };
 
@@ -218,6 +227,7 @@ export function TransferTicketForm({
           </div>
         </form>
       )}
+      {showLink && <TransferLinkPanel ticket={ticket} onChanged={onLinkChanged} />}
     </section>
   );
 }

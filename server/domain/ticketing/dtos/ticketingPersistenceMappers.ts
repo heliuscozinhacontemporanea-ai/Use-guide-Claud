@@ -211,6 +211,9 @@ export class TicketPersistenceMapper {
       qrVersion:
         typeof raw.qrVersion === 'number' && raw.qrVersion >= 1 ? Math.trunc(raw.qrVersion) : 1,
       ...(typeof raw.qrSwappedAt === 'string' ? { qrSwappedAt: raw.qrSwappedAt } : {}),
+      ...(typeof raw.transferLinkExpiresAt === 'string'
+        ? { transferLinkExpiresAt: raw.transferLinkExpiresAt }
+        : {}),
       ...(raw.receivedFrom && typeof raw.receivedFrom === 'object'
         ? {
             receivedFrom: {
