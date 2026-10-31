@@ -1,5 +1,7 @@
 import { AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
 import { type ReactNode, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { formatBusinessDateTime } from '../../../shared/utils/businessDateTime';
 import { type EventOccurrence, useEventOccurrences } from '../../events';
 import { usePartnerEventSales } from '../hooks/usePartnerEventSales';
 import { useTicketLotForm } from '../hooks/useTicketLotForm';
@@ -63,6 +65,7 @@ export function PartnerEventTicketingManager({
 
   const lotForm = useTicketLotForm({ selectedOccurrenceId, reloadLots, setFeedback });
 
+  const { i18n } = useTranslation();
   const selectedOccurrence = occurrences.find((occ) => occ.id === selectedOccurrenceId);
   const paidOrders = orders.filter(
     (order) =>
@@ -159,6 +162,11 @@ export function PartnerEventTicketingManager({
       ) : activeTab === 'checkin' ? (
         <CheckInTab
           occurrenceId={selectedOccurrenceId}
+          sessionLabel={
+            selectedOccurrence
+              ? formatBusinessDateTime(selectedOccurrence.startsAt, i18n.language)
+              : ''
+          }
           checkIns={checkIns}
           performCheckIn={performCheckIn}
           reloadSales={reloadSales}

@@ -6,7 +6,7 @@ import { cn } from '../../../../shared/utils/cn';
 import { CodeBoxesInput } from '../../../../ui/components/CodeBoxesInput';
 import { StatusText } from '../../../../ui/components/StatusText';
 import { useQrScanner } from '../../../../ui/hooks/useQrScanner';
-import { BUTTON_PRIMARY, BUTTON_SECONDARY } from '../../../../ui/styles/controls';
+import { BUTTON_SECONDARY } from '../../../../ui/styles/controls';
 import type { useTicketGate } from '../../hooks/useTicketGate';
 import { TICKET_CODE_LENGTH, TICKET_CODE_PREFIX } from '../../utils/ticketCode';
 
@@ -83,7 +83,7 @@ export function TicketGateCard({ gate }: { gate: ReturnType<typeof useTicketGate
         type="button"
         onClick={() => void confirm()}
         disabled={sending || code.length !== TICKET_CODE_LENGTH}
-        className={`${BUTTON_PRIMARY} w-full`}
+        className={`${BUTTON_SECONDARY} w-full`}
       >
         {t('ticketGate.submit')}
       </button>

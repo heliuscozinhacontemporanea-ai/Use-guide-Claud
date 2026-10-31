@@ -1,12 +1,26 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-export type QrScannerState = 'idle' | 'loading' | 'scanning' | 'unsupported' | 'denied';
+export type QrScannerState = 'idle' | 'loading' | 'scanning' | 'standby' | 'unsupported' | 'denied';
 
 type ReadQr = (frame: ImageData) => Promise<string | null>;
 
-// Lado maior do quadro enviado ao leitor: QR de portaria fica grande na câmera, e quadro menor
-// decodifica mais rápido em celular simples (teste de velocidade da D20).
+export interface QrScannerOptions {
+  /** Continua lendo depois de cada QR (modo portaria); sem isso, desliga ao ler o primeiro. */
+  continuous?: boolean;
+  /** Enquanto true, a câmera fica ligada mas nada é decodificado (tela de resultado aberta). */
+  paused?: boolean;
+}
+
+// Lado maior do quadro enviado ao leitor, igual ao teste de velocidade da D20.
 const MAX_FRAME_SIDE = 720;
+// Só o centro (onde fica a mira): menos pixels por quadro e leitura mais rápida.
+const CENTER_FRACTION = 0.8;
+// Bateria sem perder velocidade (D21): cada quadro com uso; parado, 4 por segundo; depois, espera.
+const SLOW_AFTER_MS = 10_000;
+const SLOW_INTERVAL_MS = 250;
+const STANDBY_AFTER_MS = 60_000;
+// A câmera relê o mesmo QR enquanto ele continua na frente dela.
+const SAME_VALUE_IGNORE_MS = 5_000;
 
 let readerPromise: Promise<ReadQr> | null = null;
 
@@ -42,20 +56,58 @@ function loadReader(): Promise<ReadQr> {
   return readerPromise;
 }
 
-/** Leitura de QR pela câmera em qualquer navegador, com o leitor `zxing-wasm` (D20). */
-export function useQrScanner(onDetected: (value: string) => void) {
+type TorchCapabilities = { torch?: boolean };
+
+// O mesmo id pode ser de requestAnimationFrame ou de setTimeout, conforme o ritmo da leitura.
+function clearTimer(timer: { current: number | null }) {
+  if (timer.current !== null) {
+    cancelAnimationFrame(timer.current);
+    clearTimeout(timer.current);
+  }
+  timer.current = null;
+}
+
+/** Leitura de QR pela câmera em qualquer navegador, com o leitor `zxing-wasm` (D20, D21). */
+export function useQrScanner(
+  onDetected: (value: string) => void,
+  { continuous = false, paused = false }: QrScannerOptions = {}
+) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
-  const frameRef = useRef<number | null>(null);
+  const timerRef = useRef<number | null>(null);
+  const activityRef = useRef(0);
+  const lastValueRef = useRef<{ value: string; at: number } | null>(null);
+  const pausedRef = useRef(paused);
+  const onDetectedRef = useRef(onDetected);
   const [state, setState] = useState<QrScannerState>('idle');
+  const [torchAvailable, setTorchAvailable] = useState(false);
+  const [torchOn, setTorchOn] = useState(false);
 
-  const stop = useCallback(() => {
-    if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
-    frameRef.current = null;
+  onDetectedRef.current = onDetected;
+  useEffect(() => {
+    pausedRef.current = paused;
+    // Voltar da tela de resultado conta como uso: a leitura volta à velocidade máxima.
+    if (!paused) activityRef.current = Date.now();
+  }, [paused]);
+
+  const releaseCamera = useCallback(() => {
+    clearTimer(timerRef);
     for (const track of streamRef.current?.getTracks() ?? []) track.stop();
     streamRef.current = null;
-    setState((current) => (current === 'scanning' || current === 'loading' ? 'idle' : current));
+    setTorchOn(false);
   }, []);
+
+  const stop = useCallback(() => {
+    releaseCamera();
+    setState((current) =>
+      current === 'scanning' || current === 'loading' || current === 'standby' ? 'idle' : current
+    );
+  }, [releaseCamera]);
+
+  const standby = useCallback(() => {
+    releaseCamera();
+    setState('standby');
+  }, [releaseCamera]);
 
   const start = useCallback(async () => {
     if (!navigator.mediaDevices?.getUserMedia) {
@@ -72,9 +124,13 @@ export function useQrScanner(onDetected: (value: string) => void) {
     }
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment' },
+        video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
       });
       streamRef.current = stream;
+      const track = stream.getVideoTracks()[0];
+      // `torch` não está nos tipos do DOM; Chrome Android informa quando a lanterna existe.
+      const capabilities = track?.getCapabilities?.() as TorchCapabilities | undefined;
+      setTorchAvailable(Boolean(capabilities?.torch));
       setState('scanning');
       const video = videoRef.current;
       if (!video) return;
@@ -87,33 +143,93 @@ export function useQrScanner(onDetected: (value: string) => void) {
         setState('unsupported');
         return;
       }
+      activityRef.current = Date.now();
+
+      const schedule = () => {
+        const idleFor = Date.now() - activityRef.current;
+        if (continuous && idleFor >= STANDBY_AFTER_MS) {
+          standby();
+          return;
+        }
+        timerRef.current =
+          idleFor >= SLOW_AFTER_MS || pausedRef.current
+            ? window.setTimeout(() => void tick(), SLOW_INTERVAL_MS)
+            : requestAnimationFrame(() => void tick());
+      };
+
       const tick = async () => {
         if (!streamRef.current) return;
-        const scale = Math.min(1, MAX_FRAME_SIDE / Math.max(video.videoWidth, video.videoHeight));
-        canvas.width = Math.round(video.videoWidth * scale);
-        canvas.height = Math.round(video.videoHeight * scale);
+        if (pausedRef.current) {
+          activityRef.current = Date.now();
+          schedule();
+          return;
+        }
+        const side = Math.min(video.videoWidth, video.videoHeight) * CENTER_FRACTION;
+        const scale = Math.min(1, MAX_FRAME_SIDE / Math.max(side, 1));
+        canvas.width = Math.round(side * scale);
+        canvas.height = canvas.width;
         let value: string | null = null;
-        if (canvas.width > 0 && canvas.height > 0) {
-          context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        if (canvas.width > 0) {
+          context.drawImage(
+            video,
+            (video.videoWidth - side) / 2,
+            (video.videoHeight - side) / 2,
+            side,
+            side,
+            0,
+            0,
+            canvas.width,
+            canvas.height
+          );
           value = await read(context.getImageData(0, 0, canvas.width, canvas.height)).catch(
             () => null
           );
         }
         if (value && streamRef.current) {
-          stop();
-          onDetected(value);
-          return;
+          const now = Date.now();
+          const repeated =
+            lastValueRef.current?.value === value &&
+            now - lastValueRef.current.at < SAME_VALUE_IGNORE_MS;
+          lastValueRef.current = { value, at: now };
+          if (!repeated) {
+            activityRef.current = now;
+            if (!continuous) {
+              stop();
+              onDetectedRef.current(value);
+              return;
+            }
+            onDetectedRef.current(value);
+          }
         }
-        frameRef.current = requestAnimationFrame(() => void tick());
+        schedule();
       };
       void tick();
     } catch {
       stop();
       setState('denied');
     }
-  }, [onDetected, stop]);
+  }, [continuous, standby, stop]);
+
+  const toggleTorch = useCallback(async () => {
+    const track = streamRef.current?.getVideoTracks()[0];
+    if (!track) return;
+    const next = !torchOn;
+    await track
+      .applyConstraints({ advanced: [{ torch: next } as MediaTrackConstraintSet] })
+      .then(() => setTorchOn(next))
+      .catch(() => setTorchAvailable(false));
+  }, [torchOn]);
+
+  // Fora da tela (outro app, tela bloqueada), a câmera desliga e espera o toque para voltar.
+  useEffect(() => {
+    const onVisibility = () => {
+      if (document.hidden && streamRef.current) standby();
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => document.removeEventListener('visibilitychange', onVisibility);
+  }, [standby]);
 
   useEffect(() => stop, [stop]);
 
-  return { videoRef, state, start, stop };
+  return { videoRef, state, start, stop, torchAvailable, torchOn, toggleTorch };
 }

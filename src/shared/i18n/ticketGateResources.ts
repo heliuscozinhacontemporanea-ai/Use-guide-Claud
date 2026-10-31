@@ -45,6 +45,8 @@ export interface TicketGateTranslation {
   syncedConflicts_one: string;
   syncedConflicts_other: string;
   recent: string;
+  entries_one: string;
+  entries_other: string;
   ticketRef: string;
   method: { online: string; offline: string };
 }
@@ -97,6 +99,8 @@ export const ticketGatePtBR: TicketGateTranslation = {
   syncedConflicts_one: '{{count}} entrada já tinha sido feita em outro aparelho.',
   syncedConflicts_other: '{{count}} entradas já tinham sido feitas em outro aparelho.',
   recent: 'Entradas feitas',
+  entries_one: '{{count}} entrada',
+  entries_other: '{{count}} entradas',
   ticketRef: 'Ingresso #{{id}}',
   method: { online: 'com internet', offline: 'enviada depois' },
 };
@@ -147,6 +151,8 @@ export const ticketGateEn: TicketGateTranslation = {
   syncedConflicts_one: '{{count}} entry had already been made on another device.',
   syncedConflicts_other: '{{count}} entries had already been made on another device.',
   recent: 'Entries made',
+  entries_one: '{{count}} entry',
+  entries_other: '{{count}} entries',
   ticketRef: 'Ticket #{{id}}',
   method: { online: 'online', offline: 'sent later' },
 };
@@ -199,6 +205,8 @@ export const ticketGateFr: TicketGateTranslation = {
   syncedConflicts_one: '{{count}} entrée avait déjà été faite sur un autre appareil.',
   syncedConflicts_other: '{{count}} entrées avaient déjà été faites sur un autre appareil.',
   recent: 'Entrées faites',
+  entries_one: '{{count}} entrée',
+  entries_other: '{{count}} entrées',
   ticketRef: 'Billet #{{id}}',
   method: { online: 'en ligne', offline: 'envoyée ensuite' },
 };

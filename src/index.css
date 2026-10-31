@@ -198,6 +198,23 @@
   --ug-seal-soft: rgba(59, 130, 246, 0.12);
 }
 
+/* Modo portaria (D21): sempre escuro, mesmo no tema claro, para gastar menos bateria em telas OLED. */
+.ug-force-dark {
+  --ug-app: #0d0e10;
+  --ug-ink: #ffffff;
+  --ug-surface: #1e2024;
+  --ug-surface-solid: #1e2024;
+  --ug-line: rgba(255, 255, 255, 0.08);
+  --ug-accent: #5eead4;
+  --ug-accent-soft: rgba(20, 184, 166, 0.12);
+  --ug-accent-line: rgba(20, 184, 166, 0.35);
+  --ug-warn: #fcd34d;
+  --ug-warn-soft: rgba(245, 158, 11, 0.1);
+  --ug-success: #6ee7b7;
+  --ug-danger: #fda4af;
+  color-scheme: dark;
+}
+
 /* Tema claro em tons de linho: fundo, superfícies e tinta quentes, sem branco puro. */
 :root.light {
   --glass-bg: rgba(35, 29, 22, 0.04);

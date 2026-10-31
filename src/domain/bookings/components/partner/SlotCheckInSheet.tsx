@@ -1,8 +1,9 @@
-import { Camera } from 'lucide-react';
+import { Camera, ScanLine } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CodeBoxesInput } from '../../../../ui/components/CodeBoxesInput';
 import { Dialog } from '../../../../ui/components/Dialog';
+import { GateModeScreen, type GateOutcome } from '../../../../ui/components/GateModeScreen';
 import { StatusText } from '../../../../ui/components/StatusText';
 import { cn } from '../../../../shared/utils/cn';
 import { useQrScanner } from '../../../../ui/hooks/useQrScanner';
@@ -31,7 +32,24 @@ export function SlotCheckInSheet({
   const length = codeLengthFor(kind);
   const prefix = checkInPrefix(kind);
   const [code, setCode] = useState('');
-  const { submit, sending, result, pending } = useSlotCheckIn(offerId, slot.id, kind, onCheckedIn);
+  const { submit, evaluate, sending, result, pending } = useSlotCheckIn(
+    offerId,
+    slot.id,
+    kind,
+    onCheckedIn
+  );
+  const [gateMode, setGateMode] = useState(false);
+  const toOutcome = (outcome: Awaited<ReturnType<typeof evaluate>>): GateOutcome => ({
+    tone: outcome.tone,
+    headline: t(
+      outcome.tone === 'success'
+        ? 'gateMode.allowed'
+        : outcome.tone === 'warn'
+          ? 'gateMode.attention'
+          : 'gateMode.denied'
+    ),
+    detail: outcome.message,
+  });
 
   const onQr = useCallback(
     (qrToken: string) => {
@@ -52,6 +70,31 @@ export function SlotCheckInSheet({
       title={`${t(entry ? 'serviceProof.partner.entrySheetTitle' : 'serviceProof.partner.sheetTitle')} · ${formatSlotTime(slot.startsAt, i18n.language)}`}
     >
       <div className="space-y-5">
+        {entry && (
+          <button
+            type="button"
+            onClick={() => {
+              scanner.stop();
+              setGateMode(true);
+            }}
+            className={`${BUTTON_PRIMARY} w-full inline-flex items-center justify-center gap-2`}
+          >
+            <ScanLine size={18} aria-hidden="true" />
+            {t('gateMode.open')}
+          </button>
+        )}
+        {entry && gateMode && (
+          <GateModeScreen
+            title={`${t('serviceProof.partner.entrySheetTitle')} · ${formatSlotTime(slot.startsAt, i18n.language)}`}
+            online={typeof navigator === 'undefined' || navigator.onLine}
+            codePrefix={prefix}
+            codeLength={length}
+            codeAlphabet={CHECK_IN_ALPHABET}
+            onQr={async (qrToken) => toOutcome(await evaluate({ qrToken }))}
+            onCode={async (code) => toOutcome(await evaluate({ code }))}
+            onClose={() => setGateMode(false)}
+          />
+        )}
         {entry && (
           <div className="space-y-2">
             {/* O vídeo fica montado: a câmera liga nele assim que a permissão sai. */}
@@ -132,7 +175,7 @@ export function SlotCheckInSheet({
           type="button"
           onClick={() => void confirm()}
           disabled={sending || code.length !== length}
-          className={`${BUTTON_PRIMARY} w-full`}
+          className={`${entry ? BUTTON_SECONDARY : BUTTON_PRIMARY} w-full`}
         >
           {t('serviceProof.partner.submit')}
         </button>

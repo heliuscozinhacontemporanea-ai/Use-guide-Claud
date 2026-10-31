@@ -105,26 +105,22 @@ export function useSlotCheckIn(
     return () => window.removeEventListener('online', onOnline);
   }, [entry, offerId, sync]);
 
-  const submit = useCallback(
-    async (input: { code?: string; qrToken?: string }) => {
-      setSending(true);
-      setResult(null);
+  // Resultado de uma leitura sem tocar no estado da folha: o modo portaria mostra em tela cheia (D21).
+  const evaluate = useCallback(
+    async (input: { code?: string; qrToken?: string }): Promise<CheckInResult> => {
       try {
         const checkIn = await send(input);
-        setResult(describe(checkIn));
         onCheckedIn?.(checkIn.booking);
-        return true;
+        return describe(checkIn);
       } catch (error: unknown) {
         if (!isNetworkFailure(error)) {
-          setResult({ tone: 'danger', message: getBookingErrorMessage(error) });
-          return false;
+          return { tone: 'danger', message: getBookingErrorMessage(error) };
         }
         const offline = input.qrToken
           ? await verifyEntryPassOffline(offerId, slotId, input.qrToken)
           : 'unsupported';
         if (offline === 'invalid') {
-          setResult({ tone: 'danger', message: t('serviceProof.partner.offlineInvalid') });
-          return false;
+          return { tone: 'danger', message: t('serviceProof.partner.offlineInvalid') };
         }
         pendingCheckIns.add({
           offerId,
@@ -133,21 +129,40 @@ export function useSlotCheckIn(
           payload: { ...input, capturedAt: new Date().toISOString() },
         });
         setPending(pendingCheckIns.list(offerId).length);
-        setResult({
+        return {
           tone: offline === 'valid' ? 'success' : 'warn',
           message: t(
             offline === 'valid'
               ? 'serviceProof.partner.offlineValid'
               : 'serviceProof.partner.savedOffline'
           ),
-        });
-        return true;
-      } finally {
-        setSending(false);
+        };
       }
     },
     [describe, entry, offerId, onCheckedIn, send, slotId, t]
   );
 
-  return { submit, sending, result, pending, clearResult: () => setResult(null) };
+  const submit = useCallback(
+    async (input: { code?: string; qrToken?: string }) => {
+      setSending(true);
+      setResult(null);
+      try {
+        const outcome = await evaluate(input);
+        setResult(outcome);
+        return outcome.tone !== 'danger';
+      } finally {
+        setSending(false);
+      }
+    },
+    [evaluate]
+  );
+
+  return {
+    submit,
+    evaluate,
+    sending,
+    result,
+    pending,
+    clearResult: () => setResult(null),
+  };
 }

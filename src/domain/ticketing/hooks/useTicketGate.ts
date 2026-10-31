@@ -6,6 +6,8 @@ import { verifyAndConsumeOfflineQrToken } from '../utils/offlineTicketVerifier';
 export interface GateResult {
   tone: 'success' | 'warn' | 'danger';
   message: string;
+  /** Nome e tipo do ingresso, em destaque na tela verde do modo portaria. */
+  detail?: string;
 }
 
 type GateInput = { qrToken: string } | { code: string };
@@ -53,38 +55,44 @@ export function useTicketGate({
     [occurrenceId, onOfflineRecorded, t]
   );
 
+  // Resultado de uma leitura, sem tocar no estado: o modo portaria mostra em tela cheia (D21).
+  const evaluate = useCallback(
+    async (input: GateInput): Promise<GateResult> => {
+      try {
+        const { ticket } = await performCheckIn(occurrenceId, input);
+        const name = ticket.holderName || t('ticketGate.holderFallback');
+        const type = ticket.ticketTypeSnapshot?.name || t('ticketCheckout.issued.defaultType');
+        return {
+          tone: 'success',
+          message: t('ticketGate.success', { name, type }),
+          detail: `${name} · ${type}`,
+        };
+      } catch (error: unknown) {
+        if (isNetworkFailure(error)) return offline(input);
+        return {
+          tone: 'danger',
+          message: error instanceof Error && error.message ? error.message : t('ticketGate.failed'),
+        };
+      }
+    },
+    [occurrenceId, offline, performCheckIn, t]
+  );
+
   const submit = useCallback(
     async (input: GateInput): Promise<boolean> => {
       if (!occurrenceId) return false;
       setSending(true);
       setResult(null);
       try {
-        const { ticket } = await performCheckIn(occurrenceId, input);
-        setResult({
-          tone: 'success',
-          message: t('ticketGate.success', {
-            name: ticket.holderName || t('ticketGate.holderFallback'),
-            type: ticket.ticketTypeSnapshot?.name || t('ticketCheckout.issued.defaultType'),
-          }),
-        });
-        return true;
-      } catch (error: unknown) {
-        if (isNetworkFailure(error)) {
-          const outcome = await offline(input);
-          setResult(outcome);
-          return outcome.tone === 'success';
-        }
-        setResult({
-          tone: 'danger',
-          message: error instanceof Error && error.message ? error.message : t('ticketGate.failed'),
-        });
-        return false;
+        const outcome = await evaluate(input);
+        setResult(outcome);
+        return outcome.tone === 'success';
       } finally {
         setSending(false);
       }
     },
-    [occurrenceId, offline, performCheckIn, t]
+    [evaluate, occurrenceId]
   );
 
-  return { submit, sending, result };
+  return { submit, evaluate, sending, result };
 }

@@ -49,7 +49,7 @@ export function EventSessionsField({ sessions, onChange, loadState }: EventSessi
         <button
           type="button"
           onClick={() => onChange([...sessions, newEventSessionDraft()])}
-          className="press min-h-11 px-4 rounded-xl bg-accent-soft text-accent text-[13px] font-semibold inline-flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-teal-400/50"
+          className="press shrink-0 whitespace-nowrap min-h-11 px-4 rounded-xl bg-accent-soft text-accent text-[13px] font-semibold inline-flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-teal-400/50"
         >
           <Plus size={16} aria-hidden="true" /> {t('eventSessions.add')}
         </button>
