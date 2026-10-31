@@ -1,5 +1,5 @@
 import { FirestoreTicketingAdapter } from './adapters/firestoreTicketingAdapter';
-import { RsaPssTicketQrTokenAdapter } from './adapters/rsaPssTicketQrTokenAdapter';
+import { Ed25519TicketQrTokenAdapter } from './adapters/ed25519TicketQrTokenAdapter';
 import { CheckInService } from './services/checkInService';
 import { OfflineCheckInService } from './services/offlineCheckInService';
 import { TicketHolderService } from './services/ticketHolderService';
@@ -9,7 +9,7 @@ import { TicketTypeService } from './services/ticketTypeService';
 import { TicketingReportService } from './services/ticketingReportService';
 
 const ticketingAdapter = new FirestoreTicketingAdapter();
-const ticketQrTokenAdapter = new RsaPssTicketQrTokenAdapter();
+const ticketQrTokenAdapter = new Ed25519TicketQrTokenAdapter();
 
 export const ticketTypeService = new TicketTypeService(ticketingAdapter);
 export const ticketOrderService = new TicketOrderService(ticketingAdapter);

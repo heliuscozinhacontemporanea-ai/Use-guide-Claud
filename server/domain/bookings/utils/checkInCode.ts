@@ -1,47 +1,23 @@
-import crypto from 'crypto';
+import {
+  SHORT_CODE_ALPHABET,
+  ShortCodeDeriver,
+  normalizeShortCode,
+  shortCodesMatch,
+} from '../../../infrastructure/crypto/shortCode';
 
-/** Sem 0/O e 1/I/L, que se confundem ditos em voz alta ou digitados (D20). */
-export const CHECK_IN_CODE_ALPHABET = '23456789ABCDEFGHJKMNPQRSTUVWXYZ';
+export const CHECK_IN_CODE_ALPHABET = SHORT_CODE_ALPHABET;
 export const CHECK_IN_CODE_LENGTH = 6;
 /** Entrada de atração privada: código junto do QR, com 8 caracteres (D20). */
 export const ENTRY_CODE_LENGTH = 8;
 
-const MIN_CURRENT_SECRET_LENGTH = 32;
-const MIN_PREVIOUS_SECRET_LENGTH = 16;
-// Maior múltiplo de 31 que cabe num byte: bytes acima são descartados para não favorecer letras.
-const UNBIASED_BYTE_LIMIT = 248;
-
-function readSecret(name: string, minLength: number): string | null {
-  const value = process.env[name]?.trim();
-  return value && value.length >= minLength ? value : null;
-}
-
-function currentSecret(): string {
-  const secret = readSecret('BOOKING_CHECKIN_CODE_SECRET', MIN_CURRENT_SECRET_LENGTH);
-  if (!secret) {
-    throw new Error(
-      `BOOKING_CHECKIN_CODE_SECRET ausente ou com menos de ${MIN_CURRENT_SECRET_LENGTH} caracteres.`
-    );
-  }
-  return secret;
-}
+const codes = new ShortCodeDeriver('BOOKING_CHECKIN_CODE_SECRET');
 
 /**
  * Um código por unidade da reserva (D20). `entry:` separa o código da entrada do de 6 caracteres,
  * mesmo com o mesmo segredo.
  */
-function derive(secret: string, bookingId: string, length: number, unit: number): string {
-  const label = `${length === ENTRY_CODE_LENGTH ? 'entry:' : ''}${bookingId}#${unit}`;
-  let code = '';
-  for (let counter = 0; code.length < length; counter += 1) {
-    const digest = crypto.createHmac('sha256', secret).update(`${label}:${counter}`).digest();
-    for (const byte of digest) {
-      if (byte >= UNBIASED_BYTE_LIMIT) continue;
-      code += CHECK_IN_CODE_ALPHABET[byte % CHECK_IN_CODE_ALPHABET.length];
-      if (code.length === length) break;
-    }
-  }
-  return code;
+function label(bookingId: string, length: number, unit: number): string {
+  return `${length === ENTRY_CODE_LENGTH ? 'entry:' : ''}${bookingId}#${unit}`;
 }
 
 /**
@@ -53,7 +29,7 @@ export function deriveCheckInCode(
   length = CHECK_IN_CODE_LENGTH,
   unit = 0
 ): string {
-  return derive(currentSecret(), bookingId, length, unit);
+  return codes.current(label(bookingId, length, unit), length);
 }
 
 /** Códigos aceitos no check-in: o do segredo atual e, durante a rotação, o do anterior (§7.8). */
@@ -62,10 +38,7 @@ export function listAcceptedCheckInCodes(
   length = CHECK_IN_CODE_LENGTH,
   unit = 0
 ): string[] {
-  const codes = [deriveCheckInCode(bookingId, length, unit)];
-  const previous = readSecret('BOOKING_CHECKIN_CODE_SECRET_PREVIOUS', MIN_PREVIOUS_SECRET_LENGTH);
-  if (previous) codes.push(derive(previous, bookingId, length, unit));
-  return codes;
+  return codes.accepted(label(bookingId, length, unit), length);
 }
 
 /** Unidade da reserva cujo código bate com o digitado, ou null. */
@@ -76,32 +49,13 @@ export function matchCheckInCodeUnit(
   length = CHECK_IN_CODE_LENGTH
 ): number | null {
   for (let unit = 0; unit < units; unit += 1) {
-    if (
-      listAcceptedCheckInCodes(bookingId, length, unit).some((accepted) =>
-        checkInCodesMatch(accepted, code)
-      )
-    ) {
-      return unit;
-    }
+    if (codes.matches(label(bookingId, length, unit), length, code)) return unit;
   }
   return null;
 }
 
-/**
- * Aceita minúsculas, espaços, hífen e o prefixo da tela (`PASS:`, `ENTR:`), que não é gravado nem
- * conferido (D20); devolve null se não for um código do tamanho pedido.
- */
 export function normalizeCheckInCode(input: string, length = CHECK_IN_CODE_LENGTH): string | null {
-  const normalized = input
-    .toUpperCase()
-    .replace(/^[A-Z]{4}:/, '')
-    .replace(/[\s-]/g, '');
-  const pattern = new RegExp(`^[${CHECK_IN_CODE_ALPHABET}]{${length}}$`);
-  return pattern.test(normalized) ? normalized : null;
+  return normalizeShortCode(input, length);
 }
 
-export function checkInCodesMatch(expected: string, received: string): boolean {
-  const a = Buffer.from(expected);
-  const b = Buffer.from(received);
-  return a.length === b.length && crypto.timingSafeEqual(a, b);
-}
+export const checkInCodesMatch = shortCodesMatch;

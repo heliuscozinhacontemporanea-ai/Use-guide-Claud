@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 import { createEventAuditLogUseCase } from '../../events';
-import { hashTicketIdForOfflineManifest } from '../adapters/rsaPssTicketQrTokenAdapter';
+import { hashTicketIdForOfflineManifest } from '../utils/offlineManifest';
 import { TicketingDomainError } from '../errors/ticketingDomainError';
 import type { TicketQrTokenPort } from '../ports/ticketQrTokenPort';
 import type { TicketingPort } from '../ports/ticketingPort';
@@ -61,7 +61,8 @@ export class OfflineCheckInService {
       );
     }
 
-    const { keyId, publicKeyJwk } = this.qrTokenPort.getPublicKeyMetadata();
+    const keys = this.qrTokenPort.publicKeys();
+    const keyId = keys[0]?.kid ?? '';
     const allTickets = await this.port.listTicketsByOccurrenceId(occurrence.id);
     const eligibleTickets = allTickets
       .filter((t) => t.status === 'issued')
@@ -106,7 +107,7 @@ export class OfflineCheckInService {
       issuedAt,
       expiresAt,
       keyId,
-      publicKeyJwk,
+      keys,
       tickets: eligibleTickets,
     };
 

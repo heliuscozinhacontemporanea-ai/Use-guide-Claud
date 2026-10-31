@@ -134,6 +134,7 @@ export interface ServiceProofTranslation {
     perGroup: string;
     perGroupHint: string;
     groupMaxLabel: string;
+    maxGroupsLabel: string;
     requireNamesHint: string;
   };
 }
@@ -288,6 +289,7 @@ export const serviceProofPtBR: ServiceProofTranslation = {
     perGroup: 'Por grupo',
     perGroupHint: 'Um código para o grupo inteiro, como um buggy ou um barco.',
     groupMaxLabel: 'Máximo de pessoas por grupo',
+    maxGroupsLabel: 'Máximo de grupos por reserva',
     requireNamesHint: 'O nome aparece em cada entrada e a portaria confere com documento com foto.',
   },
 };
@@ -442,6 +444,7 @@ export const serviceProofEn: ServiceProofTranslation = {
     perGroup: 'Per group',
     perGroupHint: 'One code for the whole group, like a buggy or a boat.',
     groupMaxLabel: 'Maximum people per group',
+    maxGroupsLabel: 'Maximum groups per booking',
     requireNamesHint: 'The name shows on each entry and the staff checks it against a photo ID.',
   },
 };
@@ -599,6 +602,7 @@ export const serviceProofFr: ServiceProofTranslation = {
     perGroup: 'Par groupe',
     perGroupHint: 'Un code pour tout le groupe, comme un buggy ou un bateau.',
     groupMaxLabel: 'Nombre maximum de personnes par groupe',
+    maxGroupsLabel: 'Nombre maximum de groupes par réservation',
     requireNamesHint:
       'Le nom apparaît sur chaque entrée et l’accueil le vérifie avec une pièce d’identité.',
   },

@@ -8,6 +8,7 @@ import {
 } from '../../domain/partners';
 import { cancelPartnerPlanSubscriptionsUseCase } from '../../domain/payment';
 import { deleteReviewsByUserUseCase } from '../../domain/reviews';
+import { anonymizeTicketingUserUseCase } from '../../domain/ticketing';
 import { deleteUserAccountUseCase } from '../../domain/users';
 import { deleteVerificationFiles } from './listingVerification/deleteVerificationFiles';
 
@@ -22,6 +23,8 @@ export interface UserDeletionCoordinatorDependencies {
   deleteListingPlans?: (uid: string) => Promise<void>;
   /** Reservas do comprador: tira endereço e nomes e mantém o registro financeiro (§7.5, D20). */
   anonymizeBuyerBookings?: (uid: string) => Promise<void>;
+  /** Pedidos, ingressos, transferências e lista de espera: sai nome e e-mail, fica o registro (§7.5). */
+  anonymizeTicketing?: (uid: string) => Promise<void>;
   deleteUserAccount: (uid: string) => Promise<void>;
 }
 
@@ -40,6 +43,9 @@ export async function deleteUserAccountApplicationUseCase(
     },
     anonymizeBuyerBookings: async (id) => {
       await anonymizeBuyerBookingsUseCase(id);
+    },
+    anonymizeTicketing: async (id) => {
+      await anonymizeTicketingUserUseCase(id);
     },
     deleteUserAccount: (id) => deleteUserAccountUseCase(id),
   }
@@ -61,6 +67,9 @@ export async function deleteUserAccountApplicationUseCase(
   }
   if (deps.anonymizeBuyerBookings) {
     await deps.anonymizeBuyerBookings(uid);
+  }
+  if (deps.anonymizeTicketing) {
+    await deps.anonymizeTicketing(uid);
   }
   await deps.deletePartnerProfile(uid);
   await deps.deleteUserAccount(uid);

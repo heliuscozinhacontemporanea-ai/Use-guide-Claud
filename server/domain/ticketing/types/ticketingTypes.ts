@@ -269,7 +269,8 @@ export interface OfflineCheckInManifest {
   issuedAt: string;
   expiresAt: string;
   keyId: string;
-  publicKeyJwk: JsonWebKey;
+  /** Chave atual e, na rotação, a anterior: o aparelho confere o QR sem internet. */
+  keys: Array<{ kid: string; publicKeyJwk: JsonWebKey }>;
   tickets: Array<{
     ticketIdHash: string;
     qrVersion: number;

@@ -4,7 +4,7 @@ import { confirmTicketOrderPaymentClientReturnApplicationUseCase } from '../../.
 import { createTicketOrderPaymentIntentApplicationUseCase } from '../../../application/usecases/createTicketOrderPaymentIntentApplicationUseCase';
 import { processTicketRefundApplicationUseCase } from '../../../application/usecases/processTicketRefundApplicationUseCase';
 import { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
-import { hashTicketIdForOfflineManifest } from '../adapters/rsaPssTicketQrTokenAdapter';
+import { hashTicketIdForOfflineManifest } from '../utils/offlineManifest';
 import { TicketingDomainError } from '../errors/ticketingDomainError';
 import {
   checkInTicketSchema,
@@ -64,6 +64,8 @@ function handleTicketingError(res: Response, error: unknown): Response {
         return res.status(409).json({ error: error.message });
       case 'UNPROCESSABLE_ENTITY':
         return res.status(422).json({ error: error.message });
+      case 'TOO_MANY_REQUESTS':
+        return res.status(429).json({ error: error.message });
       case 'SERVICE_UNAVAILABLE':
         return res.status(503).json({ error: error.message });
     }

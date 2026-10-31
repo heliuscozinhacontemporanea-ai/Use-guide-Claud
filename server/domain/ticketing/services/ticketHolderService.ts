@@ -17,6 +17,12 @@ import {
 export class TicketHolderService {
   constructor(private readonly port: TicketingPort) {}
 
+  /** Exclusão de conta (§7.5): quantos registros perderam o dado pessoal. */
+  async anonymizeUser(uid: string): Promise<number> {
+    const result = await this.port.anonymizeUser(uid);
+    return result.orders + result.tickets + result.transfers + result.waitlist;
+  }
+
   async transferTicket(
     actor: TicketingActorContext,
     params: {

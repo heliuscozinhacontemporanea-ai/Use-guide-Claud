@@ -4,6 +4,7 @@ export type TicketingErrorCode =
   | 'NOT_FOUND'
   | 'CONFLICT'
   | 'UNPROCESSABLE_ENTITY'
+  | 'TOO_MANY_REQUESTS'
   | 'SERVICE_UNAVAILABLE';
 
 export class TicketingDomainError extends Error {

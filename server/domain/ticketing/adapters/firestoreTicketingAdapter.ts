@@ -7,6 +7,7 @@ import { FirestoreTicketStore } from './firestoreTicketStore';
 import { FirestoreCheckInStore } from './firestoreCheckInStore';
 import { FirestoreRefundStore } from './firestoreRefundStore';
 import { FirestoreEngagementStore } from './firestoreEngagementStore';
+import { FirestoreTicketPrivacyStore } from './firestoreTicketPrivacyStore';
 
 /** Implementação do `TicketingPort` no Firestore, composta pelos stores de cada parte do ticketing. */
 export class FirestoreTicketingAdapter implements TicketingPort {
@@ -18,6 +19,7 @@ export class FirestoreTicketingAdapter implements TicketingPort {
   private readonly checkIn = new FirestoreCheckInStore();
   private readonly refund = new FirestoreRefundStore();
   private readonly engagement = new FirestoreEngagementStore();
+  private readonly privacy = new FirestoreTicketPrivacyStore();
 
   readonly createTicketType = this.ticketType.createTicketType.bind(this.ticketType);
   readonly getTicketTypeById = this.ticketType.getTicketTypeById.bind(this.ticketType);
@@ -57,6 +59,9 @@ export class FirestoreTicketingAdapter implements TicketingPort {
   readonly updateTicketStatus = this.ticket.updateTicketStatus.bind(this.ticket);
   readonly checkInTicketAtomic = this.checkIn.checkInTicketAtomic.bind(this.checkIn);
   readonly listCheckInsByOccurrenceId = this.checkIn.listCheckInsByOccurrenceId.bind(this.checkIn);
+  readonly anonymizeUser = this.privacy.anonymizeUser.bind(this.privacy);
+  readonly countCheckInCodeFailures = this.checkIn.countCheckInCodeFailures.bind(this.checkIn);
+  readonly addCheckInCodeFailure = this.checkIn.addCheckInCodeFailure.bind(this.checkIn);
   readonly listCheckInsByEventListingId = this.checkIn.listCheckInsByEventListingId.bind(
     this.checkIn
   );

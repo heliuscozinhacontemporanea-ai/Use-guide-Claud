@@ -177,15 +177,15 @@ describe('serviços de ticketing', () => {
       createOfflineCheckInSession: vi.fn(),
       getOfflineCheckInSessionById: vi.fn(),
       syncOfflineCheckInsAtomic: vi.fn(),
+      anonymizeUser: vi.fn(),
+      countCheckInCodeFailures: vi.fn().mockResolvedValue(0),
+      addCheckInCodeFailure: vi.fn().mockResolvedValue(undefined),
     };
 
     const mockQrTokenPort = {
-      issue: vi.fn().mockReturnValue('ugt2.mock.sig'),
+      issue: vi.fn().mockReturnValue('UGT1.mock.sig'),
       verify: vi.fn(),
-      getPublicKeyMetadata: vi.fn().mockReturnValue({
-        keyId: 'key_mock',
-        publicKeyJwk: { kty: 'RSA' },
-      }),
+      publicKeys: vi.fn().mockReturnValue([{ kid: 'key_mock', publicKeyJwk: { kty: 'OKP' } }]),
     };
 
     services = {

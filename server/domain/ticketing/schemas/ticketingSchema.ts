@@ -128,10 +128,11 @@ export const checkInTicketSchema = z
     occurrenceId: z.string().trim().min(1),
     ticketId: z.string().trim().min(1).optional(),
     qrToken: z.string().trim().min(8).max(512).optional(),
+    code: z.string().trim().min(8).max(16).optional(),
   })
   .strict()
   .superRefine((data, ctx) => {
-    if (!data.ticketId && !data.qrToken) {
+    if (!data.ticketId && !data.qrToken && !data.code) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['qrToken'],

@@ -5,6 +5,18 @@ import type { TicketingPort } from '../ports/ticketingPort';
 import { type EventCheckIn, type Ticket } from '../types/ticketingTypes';
 import { listTicketQrTokenLookupHashes } from '../utils/qrToken';
 import {
+  deriveTicketCheckInCode,
+  normalizeTicketCheckInCode,
+  ticketCheckInCodeMatches,
+} from '../utils/ticketCheckInCode';
+import {
+  TICKET_CODE_FAILURE_WINDOW_MS,
+  TICKET_CODE_MAX_FAILURES_PER_ACTOR,
+  TICKET_CODE_MAX_FAILURES_PER_OCCURRENCE,
+  ticketCheckInWindow,
+  ticketCodeVisibleFromMs,
+} from '../utils/ticketCheckInWindow';
+import {
   assertCanManageOccurrence,
   getAuditActorType,
   isActorAdmin,
@@ -15,7 +27,8 @@ import {
 export class CheckInService {
   constructor(
     private readonly port: TicketingPort,
-    private readonly qrTokenPort?: TicketQrTokenPort
+    private readonly qrTokenPort?: TicketQrTokenPort,
+    private readonly now: () => number = () => Date.now()
   ) {}
 
   /** Prova de uso numa contestação: algum ingresso do pedido passou pelo check-in (D14). */
@@ -31,6 +44,9 @@ export class CheckInService {
     ticketId: string;
     token: string;
     expiresAt: string;
+    /** Código de 8 caracteres junto do QR; null antes do dia da sessão (D20). */
+    code: string | null;
+    codeVisibleFrom: string | null;
   }> {
     const ticket = await this.port.getTicketById(ticketId);
     if (!ticket) {
@@ -50,7 +66,8 @@ export class CheckInService {
     }
 
     const occurrence = await getEventOccurrenceByIdUseCase(ticket.occurrenceId);
-    const nowSec = Math.floor(Date.now() / 1000);
+    const nowMs = this.now();
+    const nowSec = Math.floor(nowMs / 1000);
     const occEndSec = occurrence
       ? Math.floor(new Date(occurrence.endsAt).getTime() / 1000) + 6 * 3600
       : nowSec + 24 * 3600;
@@ -63,19 +80,26 @@ export class CheckInService {
       );
     }
 
+    const qrVersion = ticket.qrVersion || 1;
     const token = this.qrTokenPort.issue({
       v: 1,
-      ticketId: ticket.id,
-      occurrenceId: ticket.occurrenceId,
-      qrVersion: ticket.qrVersion || 1,
-      iat: nowSec,
+      tid: ticket.id,
+      occ: ticket.occurrenceId,
+      qv: qrVersion,
       exp: expSec,
     });
+    const codeVisibleFromMs = occurrence ? ticketCodeVisibleFromMs(occurrence.startsAt) : null;
 
     return {
       ticketId: ticket.id,
       token,
       expiresAt: new Date(expSec * 1000).toISOString(),
+      code:
+        codeVisibleFromMs !== null && nowMs >= codeVisibleFromMs
+          ? deriveTicketCheckInCode(ticket.id, qrVersion)
+          : null,
+      codeVisibleFrom:
+        codeVisibleFromMs === null ? null : new Date(codeVisibleFromMs).toISOString(),
     };
   }
 
@@ -85,11 +109,16 @@ export class CheckInService {
       occurrenceId: string;
       ticketId?: string;
       qrToken?: string;
+      /** Código de 8 caracteres digitado na portaria quando o QR não lê (D20). */
+      code?: string;
     }
   ): Promise<{ ticket: Ticket; checkIn: EventCheckIn }> {
-    const { listing } = await assertCanManageOccurrence(actor, params.occurrenceId);
+    const { listing, occurrence } = await assertCanManageOccurrence(actor, params.occurrenceId);
 
     let targetTicketId = params.ticketId;
+    if (!targetTicketId && params.code) {
+      targetTicketId = await this.ticketIdFromCode(actor, occurrence, params.code);
+    }
     if (!targetTicketId && params.qrToken) {
       const rawToken = params.qrToken.trim();
       if (this.qrTokenPort && rawToken.includes('.')) {
@@ -100,20 +129,20 @@ export class CheckInService {
             'Assinatura ou validade do QR Code inválida.'
           );
         }
-        if (verified.occurrenceId !== params.occurrenceId) {
+        if (verified.occ !== params.occurrenceId) {
           throw new TicketingDomainError(
             'UNPROCESSABLE_ENTITY',
             'Este ingresso pertence a outra sessão/ocorrência do evento.'
           );
         }
-        const ticket = await this.port.getTicketById(verified.ticketId);
+        const ticket = await this.port.getTicketById(verified.tid);
         if (!ticket) {
           throw new TicketingDomainError(
             'NOT_FOUND',
             'Ingresso não localizado para o QR Code informado.'
           );
         }
-        if ((ticket.qrVersion || 1) !== verified.qrVersion) {
+        if ((ticket.qrVersion || 1) !== verified.qv) {
           throw new TicketingDomainError(
             'UNPROCESSABLE_ENTITY',
             'Este QR Code foi substituído ou invalidado por transferência.'
@@ -161,5 +190,55 @@ export class CheckInService {
     });
 
     return result;
+  }
+
+  /**
+   * Ingresso cujo código bate com o digitado, só para quem gerencia a sessão e na janela dela.
+   * Errar demais trava o código, nunca o QR (D20, exceção do §7.7).
+   */
+  private async ticketIdFromCode(
+    actor: TicketingActorContext,
+    occurrence: { id: string; startsAt: string; endsAt: string },
+    rawCode: string
+  ): Promise<string> {
+    const nowMs = this.now();
+    const { opensAtMs, closesAtMs } = ticketCheckInWindow(occurrence.startsAt, occurrence.endsAt);
+    if (nowMs < opensAtMs || nowMs > closesAtMs) {
+      throw new TicketingDomainError(
+        'UNPROCESSABLE_ENTITY',
+        'O check-in por código desta sessão não está aberto agora.'
+      );
+    }
+    const since = new Date(nowMs - TICKET_CODE_FAILURE_WINDOW_MS).toISOString();
+    const [byActor, bySession] = await Promise.all([
+      this.port.countCheckInCodeFailures(occurrence.id, since, actor.uid),
+      this.port.countCheckInCodeFailures(occurrence.id, since),
+    ]);
+    if (
+      byActor >= TICKET_CODE_MAX_FAILURES_PER_ACTOR ||
+      bySession >= TICKET_CODE_MAX_FAILURES_PER_OCCURRENCE
+    ) {
+      throw new TicketingDomainError(
+        'TOO_MANY_REQUESTS',
+        'Muitos códigos errados. Leia o QR Code ou tente de novo em 15 minutos.'
+      );
+    }
+    const code = normalizeTicketCheckInCode(rawCode);
+    const tickets = code ? await this.port.listTicketsByOccurrenceId(occurrence.id) : [];
+    const match = tickets.find(
+      (ticket) =>
+        (ticket.status === 'issued' || ticket.status === 'checked_in') &&
+        code !== null &&
+        ticketCheckInCodeMatches(ticket.id, ticket.qrVersion || 1, code)
+    );
+    if (!match) {
+      await this.port.addCheckInCodeFailure(
+        occurrence.id,
+        actor.uid,
+        new Date(nowMs).toISOString()
+      );
+      throw new TicketingDomainError('UNPROCESSABLE_ENTITY', 'Código incorreto.');
+    }
+    return match.id;
   }
 }

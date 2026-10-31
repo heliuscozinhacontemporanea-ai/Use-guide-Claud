@@ -155,6 +155,20 @@ export interface TicketingPort {
     clientEventId?: string;
   }): Promise<{ ticket: Ticket; checkIn: EventCheckIn }>;
   listCheckInsByOccurrenceId(occurrenceId: string): Promise<EventCheckIn[]>;
+  /** Exclusão de conta (§7.5): tira nome e e-mail de pedidos, ingressos e transferências e apaga a lista de espera. */
+  anonymizeUser(uid: string): Promise<{
+    orders: number;
+    tickets: number;
+    transfers: number;
+    waitlist: number;
+  }>;
+  /** Códigos errados na sessão desde `sinceIso`; com `actorUid`, só os dessa pessoa da equipe. */
+  countCheckInCodeFailures(
+    occurrenceId: string,
+    sinceIso: string,
+    actorUid?: string
+  ): Promise<number>;
+  addCheckInCodeFailure(occurrenceId: string, actorUid: string, atIso: string): Promise<void>;
   listCheckInsByEventListingId(eventListingId: string): Promise<EventCheckIn[]>;
 
   createOfflineCheckInSession(

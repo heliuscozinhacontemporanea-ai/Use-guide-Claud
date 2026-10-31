@@ -12,9 +12,11 @@ import type {
   OfflineCheckInSyncResultItem,
   Ticket,
 } from '../types/ticketingTypes';
-import { hashTicketIdForOfflineManifest } from './rsaPssTicketQrTokenAdapter';
+import { hashTicketIdForOfflineManifest } from '../utils/offlineManifest';
 
 /** Check-in online e offline. Coleções só de backend; o cliente lê pela API (§6.2). */
+const CODE_FAILURES = 'ticketCheckInCodeFailures';
+
 export class FirestoreCheckInStore {
   async checkInTicketAtomic(params: {
     ticketId: string;
@@ -92,6 +94,26 @@ export class FirestoreCheckInStore {
         checkIn: EventCheckInPersistenceMapper.toDomain(checkInRef.id, checkInDoc),
       };
     });
+  }
+
+  async countCheckInCodeFailures(
+    occurrenceId: string,
+    sinceIso: string,
+    actorUid?: string
+  ): Promise<number> {
+    let query = adminDb.collection(CODE_FAILURES).where('occurrenceId', '==', occurrenceId);
+    if (actorUid) query = query.where('actorUid', '==', actorUid);
+    const snapshot = await query.where('at', '>=', sinceIso).count().get();
+    return snapshot.data().count;
+  }
+
+  async addCheckInCodeFailure(
+    occurrenceId: string,
+    actorUid: string,
+    atIso: string
+  ): Promise<void> {
+    // Só a sessão, quem digitou e quando: nunca o código digitado (AGENTS.md §10.3).
+    await adminDb.collection(CODE_FAILURES).add({ occurrenceId, actorUid, at: atIso });
   }
 
   async listCheckInsByOccurrenceId(occurrenceId: string): Promise<EventCheckIn[]> {

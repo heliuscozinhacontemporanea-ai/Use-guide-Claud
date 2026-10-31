@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('../../domain/bookings', () => ({ anonymizeBuyerBookingsUseCase: vi.fn() }));
+vi.mock('../../domain/ticketing', () => ({ anonymizeTicketingUserUseCase: vi.fn() }));
 vi.mock('../../domain/guide', () => ({ deleteResourcesByOwnerUseCase: vi.fn() }));
 vi.mock('../../domain/events', () => ({ deleteEventsByOwnerUseCase: vi.fn() }));
 vi.mock('../../domain/partners', () => ({
@@ -27,10 +28,11 @@ describe('deleteUserAccountApplicationUseCase', () => {
       deleteReviewsByUser: step('reviews'),
       deleteResourcesByOwner: step('resources'),
       anonymizeBuyerBookings: step('bookings'),
+      anonymizeTicketing: step('ticketing'),
       deletePartnerProfile: step('partner'),
       deleteUserAccount: step('account'),
     });
-    expect(calls).toEqual(['reviews', 'resources', 'bookings', 'partner', 'account']);
+    expect(calls).toEqual(['reviews', 'resources', 'bookings', 'ticketing', 'partner', 'account']);
   });
 
   it('exige o UID', async () => {

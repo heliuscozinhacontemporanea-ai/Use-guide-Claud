@@ -1,3 +1,4 @@
+export { anonymizeTicketingUserUseCase } from './usecases/anonymizeTicketingUserUseCase';
 export { archiveTicketTypeUseCase } from './usecases/archiveTicketTypeUseCase';
 export { checkInTicketUseCase } from './usecases/checkInTicketUseCase';
 export { confirmTicketOrderPaymentUseCase } from './usecases/confirmTicketOrderPaymentUseCase';

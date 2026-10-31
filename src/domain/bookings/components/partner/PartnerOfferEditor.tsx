@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useCancellationPolicyOptions } from '../../../../shared/hooks/useCancellationPolicyOptions';
 import { RadioCardGroup } from '../../../../ui/components/RadioCardGroup';
@@ -47,6 +47,10 @@ export function PartnerOfferEditor({
     defaultValues,
   });
 
+  // Na venda por grupo, o limite da reserva conta grupos, não pessoas (D20).
+  const sellingUnit = useWatch({ control, name: 'sellingUnit' });
+  const group = defaultValues.kind === 'tour' && sellingUnit === 'group';
+
   const submit = handleSubmit(async (values) => {
     setSubmitError(null);
     try {
@@ -77,7 +81,14 @@ export function PartnerOfferEditor({
       <OfferPriceFields control={control} register={register} errors={errors} />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {numberField('durationMinutes', t('bookings.editor.durationLabel'))}
-        {numberField('maxParticipantsPerBooking', t('bookings.editor.maxParticipantsLabel'))}
+        {numberField(
+          'maxParticipantsPerBooking',
+          t(
+            group
+              ? 'serviceProof.offerEditor.maxGroupsLabel'
+              : 'bookings.editor.maxParticipantsLabel'
+          )
+        )}
       </div>
       <label className="block space-y-1">
         <span className="text-xs text-ink/70">{t('bookings.editor.meetingPointLabel')}</span>
