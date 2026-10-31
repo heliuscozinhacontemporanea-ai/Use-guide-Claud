@@ -11,6 +11,8 @@ export interface UsernameTranslation {
   saved: string;
   loadError: string;
   retry: string;
+  onboardingTitle: string;
+  signOut: string;
   errors: {
     USERNAME_INVALID: string;
     USERNAME_TAKEN: string;
@@ -44,7 +46,7 @@ export interface UsernameTranslation {
 export const usernamePtBR: UsernameTranslation = {
   title: 'Nome de usuário',
   intro:
-    'Seu nome de usuário identifica você no Use Guide. Outras pessoas podem usá-lo para encontrar sua conta, por exemplo ao enviar um ingresso.',
+    'Seu nome de usuário identifica você no Use Guide. Outras pessoas podem usá-lo para encontrar sua conta.',
   label: 'Seu @',
   rules: 'De 3 a 30 letras, números, ponto ou sublinhado. Sem espaços nem acentos.',
   save: 'Salvar',
@@ -55,6 +57,8 @@ export const usernamePtBR: UsernameTranslation = {
   saved: 'Pronto: agora você é @{{username}}.',
   loadError: 'Não foi possível carregar seu nome de usuário.',
   retry: 'Tentar de novo',
+  onboardingTitle: 'Escolha seu nome de usuário',
+  signOut: 'Sair da conta',
   errors: {
     USERNAME_INVALID: 'Este @ não é permitido. Use letras, números, ponto ou sublinhado.',
     USERNAME_TAKEN: 'Este @ já está em uso. Escolha outro.',
@@ -89,8 +93,7 @@ export const usernamePtBR: UsernameTranslation = {
 
 export const usernameEn: UsernameTranslation = {
   title: 'Username',
-  intro:
-    'Your username identifies you on Use Guide. Other people can use it to find your account, for example when sending you a ticket.',
+  intro: 'Your username identifies you on Use Guide. Other people can use it to find your account.',
   label: 'Your @',
   rules: '3 to 30 letters, numbers, dot or underscore. No spaces or accents.',
   save: 'Save',
@@ -100,6 +103,8 @@ export const usernameEn: UsernameTranslation = {
   saved: 'Done: you are now @{{username}}.',
   loadError: 'Could not load your username.',
   retry: 'Try again',
+  onboardingTitle: 'Choose your username',
+  signOut: 'Sign out',
   errors: {
     USERNAME_INVALID: 'This @ is not allowed. Use letters, numbers, dot or underscore.',
     USERNAME_TAKEN: 'This @ is already taken. Choose another one.',
@@ -135,7 +140,7 @@ export const usernameEn: UsernameTranslation = {
 export const usernameFr: UsernameTranslation = {
   title: 'Nom d’utilisateur',
   intro:
-    'Votre nom d’utilisateur vous identifie sur Use Guide. D’autres personnes peuvent l’utiliser pour trouver votre compte, par exemple pour vous envoyer un billet.',
+    'Votre nom d’utilisateur vous identifie sur Use Guide. D’autres personnes peuvent l’utiliser pour trouver votre compte.',
   label: 'Votre @',
   rules: 'De 3 à 30 lettres, chiffres, point ou tiret bas. Sans espaces ni accents.',
   save: 'Enregistrer',
@@ -146,6 +151,8 @@ export const usernameFr: UsernameTranslation = {
   saved: 'C’est fait : vous êtes maintenant @{{username}}.',
   loadError: 'Impossible de charger votre nom d’utilisateur.',
   retry: 'Réessayer',
+  onboardingTitle: 'Choisissez votre nom d’utilisateur',
+  signOut: 'Se déconnecter',
   errors: {
     USERNAME_INVALID: 'Ce @ n’est pas autorisé. Utilisez lettres, chiffres, point ou tiret bas.',
     USERNAME_TAKEN: 'Ce @ est déjà pris. Choisissez-en un autre.',

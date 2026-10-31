@@ -14,6 +14,8 @@ interface DialogProps {
   className?: string;
   /** Aberto por cima de outro modal (ex.: termos dentro do checkout). */
   nested?: boolean;
+  /** false: passo obrigatório, sem botão fechar, Esc nem toque fora. */
+  dismissible?: boolean;
 }
 
 export function Dialog({
@@ -24,6 +26,7 @@ export function Dialog({
   children,
   className,
   nested = false,
+  dismissible = true,
 }: DialogProps) {
   const { t } = useTranslation();
   return (
@@ -44,6 +47,8 @@ export function Dialog({
           style={{ zIndex: nested ? Z_INDEX.modalNested : Z_INDEX.modal }}
           // O Radix foca o primeiro controle (o botão fechar) e o anel de foco aparece sem o usuário usar o teclado.
           // Focar a própria folha mantém o Tab e o leitor de tela começando dentro do diálogo.
+          onEscapeKeyDown={(event) => !dismissible && event.preventDefault()}
+          onPointerDownOutside={(event) => !dismissible && event.preventDefault()}
           onOpenAutoFocus={(event) => {
             event.preventDefault();
             (event.currentTarget as HTMLElement).focus();
@@ -66,12 +71,14 @@ export function Dialog({
 
           {children}
 
-          <RadixDialog.Close
-            aria-label={t('common.close')}
-            className="press absolute top-4 right-4 w-11 h-11 flex items-center justify-center rounded-full text-ink/60 hover:text-ink hover:bg-ink/[0.06] focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none"
-          >
-            <X size={20} />
-          </RadixDialog.Close>
+          {dismissible && (
+            <RadixDialog.Close
+              aria-label={t('common.close')}
+              className="press absolute top-4 right-4 w-11 h-11 flex items-center justify-center rounded-full text-ink/60 hover:text-ink hover:bg-ink/[0.06] focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none"
+            >
+              <X size={20} />
+            </RadixDialog.Close>
+          )}
         </RadixDialog.Content>
       </RadixDialog.Portal>
     </RadixDialog.Root>
