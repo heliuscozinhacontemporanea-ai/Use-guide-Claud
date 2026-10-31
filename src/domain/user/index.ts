@@ -26,6 +26,9 @@ export { useUserProfile } from './hooks/useUserProfile';
 export { useUserPhoto } from './hooks/useUserPhoto';
 
 export { AccountView } from './components/AccountView';
+export { UsernameSettingsView } from './components/UsernameSettingsView';
+export { findUserByUsernameUseCase } from './application/usecases/findUserByUsernameUseCase';
+export type { UsernameProfile } from './types/user';
 export { ChangePasswordView } from './components/ChangePasswordView';
 export { ImageCropperView } from './components/ImageCropperView';
 export { MainMenuView } from './components/MainMenuView';

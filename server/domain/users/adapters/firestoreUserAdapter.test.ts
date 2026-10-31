@@ -98,6 +98,8 @@ describe('FirestoreUserAdapter', () => {
         photoURL: '',
         role: 'user',
         preferredLocale: null,
+        username: null,
+        usernameChangedAt: null,
         createdAt: '',
         updatedAt: '',
       });

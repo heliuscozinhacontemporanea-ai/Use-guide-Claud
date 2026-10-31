@@ -25,16 +25,14 @@ export interface TicketWalletTranslation {
   ticketCount_other: string;
   actions: { showQr: string; reissueQr: string; transfer: string };
   ticketStatus: Record<TicketStatusKey, string>;
-  transfer: { title: string; name: string; email: string; confirm: string };
   resume: { title: string; close: string };
   feedback: {
     qrReissued: string;
-    transferred: string;
     refundRequested: string;
     alreadyPaid: string;
     paid: string;
   };
-  errors: { qr: string; qrReissue: string; transfer: string; refund: string; resume: string };
+  errors: { qr: string; qrReissue: string; refund: string; resume: string };
 }
 
 export const ticketWalletPtBR: TicketWalletTranslation = {
@@ -73,16 +71,9 @@ export const ticketWalletPtBR: TicketWalletTranslation = {
     invalidated: 'Inválido',
     expired: 'Expirado',
   },
-  transfer: {
-    title: 'Transferir ingresso #{{id}}',
-    name: 'Nome do novo titular',
-    email: 'E-mail do novo titular',
-    confirm: 'Confirmar transferência',
-  },
   resume: { title: 'Concluir pagamento do pedido #{{id}}', close: 'Fechar' },
   feedback: {
     qrReissued: 'Novo QR Code emitido. O anterior deixou de valer.',
-    transferred: 'Ingresso transferido. O novo titular recebeu um QR Code novo.',
     refundRequested: 'Reembolso solicitado. Você recebe pelo mesmo meio de pagamento.',
     alreadyPaid: 'Seu pagamento já estava confirmado. Ingressos atualizados.',
     paid: 'Pagamento confirmado e ingressos emitidos!',
@@ -90,7 +81,6 @@ export const ticketWalletPtBR: TicketWalletTranslation = {
   errors: {
     qr: 'Não foi possível gerar o QR Code.',
     qrReissue: 'Não foi possível emitir um novo QR Code.',
-    transfer: 'Não foi possível transferir o ingresso.',
     refund: 'Não foi possível pedir o reembolso.',
     resume: 'Não foi possível retomar o pagamento deste pedido.',
   },
@@ -131,16 +121,9 @@ export const ticketWalletEn: TicketWalletTranslation = {
     invalidated: 'Invalid',
     expired: 'Expired',
   },
-  transfer: {
-    title: 'Transfer ticket #{{id}}',
-    name: 'New holder name',
-    email: 'New holder email',
-    confirm: 'Confirm transfer',
-  },
   resume: { title: 'Complete payment for order #{{id}}', close: 'Close' },
   feedback: {
     qrReissued: 'New QR code issued. The previous one is no longer valid.',
-    transferred: 'Ticket transferred. The new holder received a new QR code.',
     refundRequested: 'Refund requested. You will receive it through the same payment method.',
     alreadyPaid: 'Your payment was already confirmed. Tickets updated.',
     paid: 'Payment confirmed and tickets issued!',
@@ -148,7 +131,6 @@ export const ticketWalletEn: TicketWalletTranslation = {
   errors: {
     qr: 'Could not generate the QR code.',
     qrReissue: 'Could not issue a new QR code.',
-    transfer: 'Could not transfer the ticket.',
     refund: 'Could not request the refund.',
     resume: 'Could not resume payment for this order.',
   },
@@ -190,16 +172,9 @@ export const ticketWalletFr: TicketWalletTranslation = {
     invalidated: 'Invalide',
     expired: 'Expiré',
   },
-  transfer: {
-    title: 'Transférer le billet n° {{id}}',
-    name: 'Nom du nouveau titulaire',
-    email: 'E-mail du nouveau titulaire',
-    confirm: 'Confirmer le transfert',
-  },
   resume: { title: 'Finaliser le paiement de la commande n° {{id}}', close: 'Fermer' },
   feedback: {
     qrReissued: 'Nouveau QR code émis. L’ancien n’est plus valable.',
-    transferred: 'Billet transféré. Le nouveau titulaire a reçu un nouveau QR code.',
     refundRequested: 'Remboursement demandé. Vous le recevrez par le même moyen de paiement.',
     alreadyPaid: 'Votre paiement était déjà confirmé. Billets mis à jour.',
     paid: 'Paiement confirmé et billets émis !',
@@ -207,7 +182,6 @@ export const ticketWalletFr: TicketWalletTranslation = {
   errors: {
     qr: 'Impossible de générer le QR code.',
     qrReissue: 'Impossible d’émettre un nouveau QR code.',
-    transfer: 'Impossible de transférer le billet.',
     refund: 'Impossible de demander le remboursement.',
     resume: 'Impossible de reprendre le paiement de cette commande.',
   },

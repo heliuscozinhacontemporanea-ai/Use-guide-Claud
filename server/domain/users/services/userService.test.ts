@@ -35,6 +35,8 @@ describe('UserService', () => {
         phone: '11999999999',
         role: 'user' as UserRole,
         preferredLocale: null,
+        username: null,
+        usernameChangedAt: null,
       };
       vi.mocked(userPortMock.getUserProfile).mockResolvedValueOnce(mockProfile);
 
@@ -59,6 +61,8 @@ describe('UserService', () => {
         phone: '11988888888',
         role: 'user' as UserRole,
         preferredLocale: null,
+        username: null,
+        usernameChangedAt: null,
       };
       vi.mocked(userPortMock.updateUserProfile).mockResolvedValueOnce(updatedProfile);
 

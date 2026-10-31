@@ -30,9 +30,7 @@ export function useUserTicketsAndOrders(enabled = true) {
       setOrders(loadedOrders);
     } catch (err) {
       console.error('[useUserTicketsAndOrders]', err);
-      setError(
-        err instanceof Error ? err.message : 'Não foi possível carregar seus ingressos.'
-      );
+      setError(err instanceof Error ? err.message : 'Não foi possível carregar seus ingressos.');
     } finally {
       setLoading(false);
     }
@@ -43,9 +41,9 @@ export function useUserTicketsAndOrders(enabled = true) {
   }, [reload]);
 
   const transferTicket = useCallback(
-    async (ticketId: string, recipientEmail: string, recipientName?: string) => {
+    async (ticketId: string, username: string) => {
       setError(null);
-      const res = await transferTicketUseCase(ticketId, { recipientEmail, recipientName });
+      const res = await transferTicketUseCase(ticketId, username);
       await reload();
       return res;
     },

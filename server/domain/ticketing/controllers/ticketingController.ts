@@ -16,7 +16,6 @@ import {
   payTicketOrderSchema,
   requestTicketRefundSchema,
   syncOfflineCheckInsSchema,
-  transferTicketSchema,
   updateTicketTypeSchema,
 } from '../schemas/ticketingSchema';
 import { archiveTicketTypeUseCase } from '../usecases/archiveTicketTypeUseCase';
@@ -40,7 +39,6 @@ import { listUserTicketOrdersUseCase } from '../usecases/listUserTicketOrdersUse
 import { listUserTicketsUseCase } from '../usecases/listUserTicketsUseCase';
 import { reissueTicketQrTokenUseCase } from '../usecases/reissueTicketQrTokenUseCase';
 import { syncOfflineCheckInsUseCase } from '../usecases/syncOfflineCheckInsUseCase';
-import { transferTicketUseCase } from '../usecases/transferTicketUseCase';
 import { updateTicketTypeUseCase } from '../usecases/updateTicketTypeUseCase';
 
 function getActor(req: AuthenticatedRequest) {
@@ -314,24 +312,6 @@ export class TicketingController {
         status: 'success',
         data: result.refund,
       });
-    } catch (error) {
-      return handleTicketingError(res, error);
-    }
-  }
-
-  static async transferTicket(req: AuthenticatedRequest, res: Response) {
-    try {
-      if (!req.user) return res.status(401).json({ error: 'Não autenticado.' });
-      const parsed = transferTicketSchema.safeParse(req.body);
-      if (!parsed.success) {
-        return res.status(400).json({ error: 'Dados inválidos.', details: parsed.error.flatten() });
-      }
-      const ticketId = String(req.params.id || '');
-      const result = await transferTicketUseCase(getActor(req), {
-        ticketId,
-        ...parsed.data,
-      });
-      return res.status(200).json({ status: 'success', data: result });
     } catch (error) {
       return handleTicketingError(res, error);
     }

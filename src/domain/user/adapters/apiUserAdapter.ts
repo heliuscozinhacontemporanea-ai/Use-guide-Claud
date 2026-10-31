@@ -1,6 +1,6 @@
 import { UserPort } from '../ports/userPort';
 import type { Locale } from '../../../shared/i18n';
-import { UserProfile, UserData } from '../types/user';
+import { UserProfile, UserData, UsernameProfile } from '../types/user';
 import { firebaseApiFetch } from '../../../shared/infrastructure/firebase/firebaseApiFetch';
 
 export class ApiUserAdapter implements UserPort {
@@ -74,4 +74,42 @@ export class ApiUserAdapter implements UserPort {
       throw new Error(errorData.error || 'Falha ao excluir conta via API');
     }
   }
+
+  async suggestUsername(name: string): Promise<string> {
+    const response = await firebaseApiFetch(
+      `/api/users/me/username-suggestion?name=${encodeURIComponent(name)}`,
+      {},
+      { requireAuth: true }
+    );
+    return (await readJson<{ username: string }>(response)).username;
+  }
+
+  async claimUsername(username: string): Promise<string> {
+    const response = await firebaseApiFetch(
+      '/api/users/me/username',
+      {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username }),
+      },
+      { requireAuth: true }
+    );
+    return (await readJson<{ username: string }>(response)).username;
+  }
+
+  async findByUsername(username: string): Promise<UsernameProfile> {
+    const response = await firebaseApiFetch(
+      `/api/users/by-username/${encodeURIComponent(username.replace(/^@/, '').toLowerCase())}`,
+      {},
+      { requireAuth: true }
+    );
+    return readJson<UsernameProfile>(response);
+  }
+}
+
+/** Erro vira `Error(code)` para a tela traduzir (§12.5). */
+async function readJson<T>(response: Response): Promise<T> {
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(body?.error?.code || 'INTERNAL_ERROR');
+  return body as T;
 }

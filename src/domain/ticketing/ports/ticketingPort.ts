@@ -102,14 +102,11 @@ export interface TicketingPort {
     orderId: string,
     input: { ticketId?: string; reason: string; idempotencyKey: string }
   ): Promise<Refund>;
+  /** Transfere para a conta dona do @ (D21); erro vira `Error(code)`. */
   transferTicket(
     ticketId: string,
-    input: { recipientEmail: string; recipientName?: string }
-  ): Promise<{
-    oldTicket: Ticket;
-    newTicket: Ticket;
-    newRawQrToken: string;
-  }>;
+    username: string
+  ): Promise<{ ticketId: string; recipient: { username: string; displayName: string | null } }>;
   checkInTicket(input: {
     occurrenceId: string;
     ticketId?: string;

@@ -10,6 +10,9 @@ export interface PrivateUserProfileDto {
   photoURL?: string;
   role: UserRole;
   preferredLocale: Locale | null;
+  /** @usuário (D21); null até a conta escolher. */
+  username: string | null;
+  usernameChangedAt: string | null;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -36,6 +39,8 @@ export function toPrivateUserProfileDto(raw: unknown, uid: string): PrivateUserP
     photoURL: typeof data.photoURL === 'string' ? data.photoURL : '',
     role,
     preferredLocale: SUPPORTED_LOCALES.find((locale) => locale === data.preferredLocale) ?? null,
+    username: typeof data.username === 'string' ? data.username : null,
+    usernameChangedAt: typeof data.usernameChangedAt === 'string' ? data.usernameChangedAt : null,
     createdAt: typeof data.createdAt === 'string' ? data.createdAt : '',
     updatedAt: typeof data.updatedAt === 'string' ? data.updatedAt : '',
   };

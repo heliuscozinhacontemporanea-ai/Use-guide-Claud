@@ -73,13 +73,13 @@ export function useTicketWalletActions(wallet: WalletData) {
       setFeedback({ type: 'success', message: t('ticketWallet.feedback.qrReissued') });
     }, 'ticketWallet.errors.qrReissue');
 
-  const submitTransfer = (recipient: { email: string; name?: string }) =>
-    run(async () => {
-      if (!transferTicket) return;
-      await wallet.transferTicket(transferTicket.id, recipient.email, recipient.name);
-      setTransferTicket(null);
-      setFeedback({ type: 'success', message: t('ticketWallet.feedback.transferred') });
-    }, 'ticketWallet.errors.transfer');
+  // Erros com código ficam no formulário, que mostra o motivo traduzido junto do @.
+  const submitTransfer = async (username: string) => {
+    if (!transferTicket) return;
+    await wallet.transferTicket(transferTicket.id, username);
+    setTransferTicket(null);
+    setFeedback({ type: 'success', message: t('username.transfer.done', { username }) });
+  };
 
   const requestRefund = (order: TicketOrder) =>
     run(async () => {

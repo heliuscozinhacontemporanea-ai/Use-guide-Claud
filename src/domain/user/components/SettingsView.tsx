@@ -1,4 +1,5 @@
 import {
+  AtSign,
   ChevronRight,
   HelpCircle,
   Info,
@@ -22,6 +23,8 @@ interface SettingsViewProps {
   onOpenAbout: () => void;
   /** Só com login: o histórico de compras é da conta. */
   onOpenPurchases?: () => void;
+  /** Só com login: o @ que outras pessoas usam para transferir ingressos (D21). */
+  onOpenUsername?: () => void;
 }
 
 function SettingsRow({
@@ -58,6 +61,7 @@ export function SettingsView({
   onOpenSupport,
   onOpenAbout,
   onOpenPurchases,
+  onOpenUsername,
 }: SettingsViewProps) {
   const { t } = useTranslation();
   const { theme } = useTheme();
@@ -73,6 +77,9 @@ export function SettingsView({
       </div>
 
       <ul className="rounded-[20px] bg-surface border border-line divide-y divide-line overflow-hidden">
+        {onOpenUsername && (
+          <SettingsRow icon={AtSign} label={t('username.title')} onClick={onOpenUsername} />
+        )}
         {onOpenPurchases && (
           <SettingsRow
             icon={ShoppingBag}

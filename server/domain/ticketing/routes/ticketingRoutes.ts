@@ -56,7 +56,6 @@ router.post('/orders/:id/refund', verifyAuthToken, TicketingController.requestRe
 router.get('/tickets', verifyAuthToken, TicketingController.listUserTickets);
 router.get('/tickets/:id/qr', verifyAuthToken, TicketingController.getTicketQrToken);
 router.post('/tickets/:id/qr/reissue', verifyAuthToken, TicketingController.reissueTicketQrToken);
-router.post('/tickets/:id/transfer', verifyAuthToken, TicketingController.transferTicket);
 
 router.post('/check-in', verifyAuthToken, TicketingController.checkInTicket);
 router.post(

@@ -1,5 +1,7 @@
 import express, { Router } from 'express';
+import { rateLimitByUser } from '../../../infrastructure/http/rateLimitByUser';
 import { UserController } from '../controllers/userController';
+import { UsernameController } from '../controllers/usernameController';
 import {
   verifyAuthToken,
   requireRecentAuthentication,
@@ -15,6 +17,15 @@ router.post(
   verifyAuthToken,
   express.json({ limit: '6mb' }),
   UserController.uploadPhoto
+);
+router.get('/me/username-suggestion', verifyAuthToken, UsernameController.suggest);
+router.put('/me/username', verifyAuthToken, UsernameController.claim);
+// A busca do @ revela quem tem conta: limite por pessoa contra varredura (D21, §7.4).
+router.get(
+  '/by-username/:username',
+  verifyAuthToken,
+  rateLimitByUser('username-lookup', 30, 10 * 60_000),
+  UsernameController.find
 );
 router.delete('/me', verifyAuthToken, requireRecentAuthentication, UserController.deleteAccount);
 

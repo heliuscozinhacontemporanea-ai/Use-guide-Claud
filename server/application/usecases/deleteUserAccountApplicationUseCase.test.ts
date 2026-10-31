@@ -11,7 +11,10 @@ vi.mock('../../domain/partners', () => ({
 }));
 vi.mock('../../domain/payment', () => ({ cancelPartnerPlanSubscriptionsUseCase: vi.fn() }));
 vi.mock('../../domain/reviews', () => ({ deleteReviewsByUserUseCase: vi.fn() }));
-vi.mock('../../domain/users', () => ({ deleteUserAccountUseCase: vi.fn() }));
+vi.mock('../../domain/users', () => ({
+  releaseUsernamesUseCase: vi.fn(),
+  deleteUserAccountUseCase: vi.fn(),
+}));
 vi.mock('./listingVerification/deleteVerificationFiles', () => ({
   deleteVerificationFiles: vi.fn(),
 }));

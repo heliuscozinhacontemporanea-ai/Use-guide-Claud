@@ -13,8 +13,18 @@ export interface UserProfile {
   role?: UserRole;
   /** Idioma escolhido pela pessoa; `null` enquanto ela não escolheu (decisão D10). */
   preferredLocale?: Locale | null;
+  /** @usuário (D21); null até a conta escolher. */
+  username?: string | null;
+  usernameChangedAt?: string | null;
   createdAt?: string | Date;
   updatedAt?: string | Date;
+}
+
+/** Perfil público achado pelo @, para confirmar quem recebe uma transferência. */
+export interface UsernameProfile {
+  username: string;
+  displayName: string | null;
+  photoURL: string | null;
 }
 
 export interface UserData {

@@ -251,26 +251,21 @@ export class HttpTicketingAdapter implements TicketingPort {
 
   async transferTicket(
     ticketId: string,
-    input: { recipientEmail: string; recipientName?: string }
-  ): Promise<{
-    oldTicket: Ticket;
-    newTicket: Ticket;
-    newRawQrToken: string;
-  }> {
+    username: string
+  ): Promise<{ ticketId: string; recipient: { username: string; displayName: string | null } }> {
     const res = await firebaseApiFetch(
-      `/api/ticketing/tickets/${encodeURIComponent(ticketId)}/transfer`,
+      '/api/ticket-transfers',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(input),
+        body: JSON.stringify({ ticketId, username: username.replace(/^@/, '').toLowerCase() }),
       },
       { requireAuth: true }
     );
-    return parseJsonOrThrow<{
-      oldTicket: Ticket;
-      newTicket: Ticket;
-      newRawQrToken: string;
-    }>(res, 'Não foi possível transferir o ingresso.');
+    const body = await res.json().catch(() => ({}));
+    // Erro com `code` estável: a carteira traduz pela chave (§12.5).
+    if (!res.ok) throw new Error(body?.error?.code || 'INTERNAL_ERROR');
+    return body;
   }
 
   async checkInTicket(input: {

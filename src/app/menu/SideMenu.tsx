@@ -12,6 +12,7 @@ import {
   ImageCropperView,
   MainMenuView,
   AccountView,
+  UsernameSettingsView,
   SettingsView,
   LanguageSettingsView,
   AppearanceSettingsView,
@@ -36,6 +37,7 @@ interface SideMenuProps {
 /** Telas que ocupam a altura toda do menu e rolam por dentro. */
 const FULL_HEIGHT_VIEWS: readonly MenuView[] = [
   'settings',
+  'username',
   'language',
   'appearance',
   'support',
@@ -45,6 +47,7 @@ const FULL_HEIGHT_VIEWS: readonly MenuView[] = [
 const SETTINGS_VIEWS: readonly MenuView[] = [
   'settings',
   'purchases',
+  'username',
   'language',
   'appearance',
   'support',
@@ -152,8 +155,11 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
             onOpenSupport={() => showView('support')}
             onOpenAbout={() => showView('about')}
             onOpenPurchases={user ? () => showView('purchases') : undefined}
+            onOpenUsername={user ? () => showView('username') : undefined}
           />
         );
+      case 'username':
+        return <UsernameSettingsView onBack={goBack} />;
       case 'purchases':
         return (
           <BuyerPurchasesComposition

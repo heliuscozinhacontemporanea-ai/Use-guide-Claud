@@ -34,6 +34,7 @@ import {
   adminSaleClaimRouter,
   saleClaimRouter,
 } from './server/interfaces/http/saleClaims/saleClaimRoutes';
+import { ticketTransferRouter } from './server/interfaces/http/ticketTransfers/ticketTransferRoutes';
 import {
   bookingsRouter,
   partnerOffersRouter,
@@ -209,6 +210,7 @@ async function startServer() {
   app.use('/api/payment/plans', billingRouter);
   app.use('/api/payment-accounts', paymentAccountRouter);
   app.use('/api/sale-claims', saleClaimRouter);
+  app.use('/api/ticket-transfers', ticketTransferRouter);
   app.use('/api/admin/sale-claims', adminSaleClaimRouter);
   app.use('/api/admin/account-debts', adminAccountDebtRouter);
   app.use('/api/payment', paymentRouter);

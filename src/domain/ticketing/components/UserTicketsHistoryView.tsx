@@ -128,8 +128,7 @@ export function UserTicketsHistoryView({ onBack }: UserTicketsHistoryViewProps =
       {actions.transferTicket && (
         <TransferTicketForm
           ticket={actions.transferTicket}
-          busy={actions.busy}
-          onSubmit={(recipient) => void actions.submitTransfer(recipient)}
+          onSubmit={actions.submitTransfer}
           onCancel={() => actions.setTransferTicket(null)}
         />
       )}

@@ -115,14 +115,6 @@ export const requestTicketRefundSchema = z
   })
   .strict();
 
-export const transferTicketSchema = z
-  .object({
-    recipientEmail: z.string().email(),
-    recipientName: z.string().trim().min(1).max(120).optional(),
-    toUserId: z.string().trim().min(1).optional(),
-  })
-  .strict();
-
 export const checkInTicketSchema = z
   .object({
     occurrenceId: z.string().trim().min(1),
