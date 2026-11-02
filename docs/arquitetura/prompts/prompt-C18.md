@@ -1,4 +1,4 @@
-# Prompt C18 — Correção do lote 18: painel admin, testes de auth, rollback do parceiro, pasta app/ e package-lock
+# Prompt C18 — Correção do lote 18: painel admin, testes de auth, rollback do parceiro, pasta app/, script de deploy e package-lock
 
 > Gerado da comparação do zip de 2026-11-01 (lote 18 aplicado) com a branch `claude/agents-md-v2` (`e088091`). Cole o bloco abaixo no agente do AI Studio, inteiro, de uma vez.
 
@@ -16,13 +16,16 @@ O QUE ESTÁ ERRADO E O QUE MUDA:
 2) src/domain/auth/application/usecases/authUseCases.test.ts perdeu 7 testes. Volta completo.
 3) server/application/usecases/registerPartnerApplicationUseCase.ts: o desfazer do cadastro passou a engolir erros em silêncio e a apagar o perfil mesmo quando ele já existia. Volta a apagar só o perfil criado agora e a registrar a falha do desfazer no log.
 4) Foi criado por engano o arquivo app/applet/src/app/routes/AppRoutes.tsx NA RAIZ DO PROJETO (cópia de src/app/routes/AppRoutes.tsx). Apague a pasta `app/` da raiz do projeto inteira. NÃO apague src/app/.
-5) package-lock.json está fora de sincronia: não tem o zxing-wasm (só o bun.lock foi atualizado no 21.5c). Rode `npm install` (sem mudar o package.json) para o package-lock.json ficar igual ao package.json. Não edite o lockfile à mão e não mexa no bun.lock.
+5) Apague scripts/deploy-cloud-run.cjs e tire do package.json a linha `"deploy:backend": "node scripts/deploy-cloud-run.cjs"` (a linha anterior, `"deploy:firestore"`, fica sem a vírgula no fim). O script publicava em produção com a chave JSON da conta de serviço (proibido em produção, AGENTS.md §2.1) e enviava a pasta inteira, com .env e segredos, para um bucket (§7.8). Se a pasta scripts/ ficar vazia, apague a pasta. Não crie outro script de deploy.
+6) package-lock.json está fora de sincronia: não tem o zxing-wasm (só o bun.lock foi atualizado no 21.5c). Depois do passo 5, rode `npm install` para o package-lock.json ficar igual ao package.json. Não edite o lockfile à mão e não mexa no bun.lock.
 
 ARQUIVOS:
 - src/domain/auth/adapters/firebaseAuthAdapter.ts (substituir)
 - src/domain/auth/application/usecases/authUseCases.test.ts (substituir)
 - server/application/usecases/registerPartnerApplicationUseCase.ts (substituir)
 - app/ na raiz do projeto (apagar a pasta inteira)
+- scripts/deploy-cloud-run.cjs (apagar)
+- package.json (só tirar a linha "deploy:backend")
 - package-lock.json (regerado por `npm install`)
 
 Copie os arquivos abaixo EXATAMENTE como estão.
@@ -500,7 +503,8 @@ VERIFICAÇÃO (obrigatória):
 - `npx vitest run src/domain/auth server/application/usecases/registerPartnerApplicationUseCase.test.ts` (todos verdes; authUseCases.test.ts com 14 testes);
 - `grep -c "claims.admin === true" src/domain/auth/adapters/firebaseAuthAdapter.ts` deve dar 3, e `grep -c "claims.role" src/domain/auth/adapters/firebaseAuthAdapter.ts` deve dar 0;
 - `grep -c '"node_modules/zxing-wasm"' package-lock.json` deve dar 1, e `npm ci --dry-run` não pode reclamar de package.json e package-lock.json fora de sincronia;
-- `ls app` na raiz deve dizer que a pasta não existe; `ls src/app/routes/AppRoutes.tsx` deve existir.
+- `ls app` na raiz deve dizer que a pasta não existe; `ls src/app/routes/AppRoutes.tsx` deve existir;
+- `ls scripts/deploy-cloud-run.cjs` deve dizer que o arquivo não existe e `grep -c deploy:backend package.json` deve dar 0.
 
 ENTREGA: responda no formato do AGENTS.md §16.3.
 
@@ -512,3 +516,4 @@ LIMPEZA (obrigatória, ao terminar de implementar): apague todos os arquivos de 
 1. Publique o Hosting e uma revisão nova do Cloud Run (`use-guide`, `us-east1`) com o mesmo código: o painel admin depende do frontend novo.
 2. Na conta de administrador, saia e entre de novo (ou recarregue a página) para o app reler a claim `admin`.
 3. Confira que a conta de administrador tem a claim `admin: true` (não `role: "admin"`): é a que o backend e o app usam.
+4. Se a chave JSON da conta de serviço (`FIREBASE_SERVICE_ACCOUNT_KEY`) estiver configurada fora do AI Studio, em especial para uso em produção, remova-a de lá. Se ela foi usada pelo script apagado, gere uma chave nova para o AI Studio e desative a antiga no Google Cloud › IAM › Contas de serviço › Chaves (AGENTS.md §7.8).
