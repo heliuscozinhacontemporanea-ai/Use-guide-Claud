@@ -8,6 +8,8 @@
   --dur: 1s;
   --ug-wheel-color: color-mix(in srgb, var(--ug-ink) 40%, transparent);
   position: relative;
+  /* Os z-index 1 e 2 das peças ficam só dentro da roda, sem disputar camada com o resto do app. */
+  isolation: isolate;
   width: 12em;
   height: 12em;
 }
