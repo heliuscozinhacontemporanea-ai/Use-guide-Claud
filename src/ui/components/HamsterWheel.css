@@ -7,6 +7,8 @@
 .ug-hamster-wheel {
   --dur: 1s;
   --ug-wheel-color: color-mix(in srgb, var(--ug-ink) 40%, transparent);
+  --ug-stand: 80deg;
+  --ug-stand-shift: -1.2em;
   position: relative;
   /* Os z-index 1 e 2 das peças ficam só dentro da roda, sem disputar camada com o resto do app. */
   isolation: isolate;
@@ -44,6 +46,20 @@
   transform: rotate(4deg) translate(-0.8em, 1.85em);
   transform-origin: 50% 0;
   z-index: 1;
+}
+
+.ug-hamster__pose {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* Gira em torno das patas de trás: com --ug-stand o hamster fica de pé. */
+  transform-origin: 5.5em 3.75em;
+  rotate: var(--ug-stand);
+  translate: var(--ug-stand-shift) 0;
+  transition:
+    rotate 0.5s ease-in-out,
+    translate 0.5s ease-in-out;
 }
 
 .ug-hamster__head {
@@ -172,12 +188,66 @@
     99% 99% no-repeat;
 }
 
+/*
+ * Fases (data-phase, controladas pelo componente): stand e look de pé com a roda parada; down desce
+ * para as quatro patas; run corre; up volta a ficar de pé. Fora de run, a corrida fica pausada onde
+ * parou (sem salto da roda nem das patas).
+ */
+.ug-hamster-wheel
+:is(
+  .ug-hamster,
+  .ug-hamster__head,
+  .ug-hamster__ear,
+  .ug-hamster__body,
+  .ug-hamster__limb--fr,
+  .ug-hamster__limb--fl,
+  .ug-hamster__limb--br,
+  .ug-hamster__limb--bl,
+  .ug-hamster__tail,
+  .ug-hamster-wheel__spoke
+) {
+  animation-play-state: paused;
+}
+
+.ug-hamster-wheel[data-phase="run"]
+  :is(
+    .ug-hamster,
+    .ug-hamster__head,
+    .ug-hamster__ear,
+    .ug-hamster__body,
+    .ug-hamster__limb--fr,
+    .ug-hamster__limb--fl,
+    .ug-hamster__limb--br,
+    .ug-hamster__limb--bl,
+    .ug-hamster__tail,
+    .ug-hamster-wheel__spoke
+  ) {
+  animation-play-state: running;
+}
+
+.ug-hamster-wheel:is([data-phase="down"], [data-phase="run"]) .ug-hamster__pose {
+  rotate: 0deg;
+  translate: 0 0;
+}
+
+/* Procurando algo: a cabeça vira para um lado e para o outro, e o olho acompanha. */
+.ug-hamster-wheel[data-phase="look"] .ug-hamster__head {
+  animation: ug-hamster-look 2.4s ease-in-out both;
+}
+
+.ug-hamster-wheel[data-phase="look"] .ug-hamster__eye {
+  animation:
+    ug-hamster-eye var(--dur) linear infinite,
+    ug-hamster-eye-look 2.4s ease-in-out both;
+}
+
 /* Movimento reduzido: o hamster fica parado na roda (AGENTS.md §11.7). Vem depois das regras acima
    e tem a mesma especificidade, por isso vence sem !important. */
 @media (prefers-reduced-motion: reduce) {
   .ug-hamster-wheel,
   .ug-hamster-wheel * {
     animation: none;
+    transition: none;
   }
 }
 
@@ -336,5 +406,35 @@
   }
   to {
     transform: rotate(-1turn);
+  }
+}
+
+@keyframes ug-hamster-look {
+  from,
+  to {
+    rotate: 0deg;
+  }
+  20%,
+  40% {
+    rotate: -32deg;
+  }
+  60%,
+  80% {
+    rotate: 28deg;
+  }
+}
+
+@keyframes ug-hamster-eye-look {
+  from,
+  to {
+    translate: 0 0;
+  }
+  20%,
+  40% {
+    translate: -0.4em 0.05em;
+  }
+  60%,
+  80% {
+    translate: 0.3em -0.05em;
   }
 }
