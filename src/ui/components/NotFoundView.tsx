@@ -3,9 +3,9 @@ import { Z_INDEX } from '../../shared/constants/zIndex';
 import { useLocalizedRouting } from '../../shared/hooks/useLocalizedRouting';
 import { cn } from '../../shared/utils/cn';
 import { BUTTON_PRIMARY } from '../styles/controls';
-import { HamsterWheel } from './HamsterWheel';
+import { PreaWheel } from './PreaWheel';
 
-/** Página não encontrada em tela cheia: "404" com o hamster na roda no lugar do zero. */
+/** Página não encontrada em tela cheia: "404" com o preá na roda no lugar do zero. */
 export function NotFoundView() {
   const { t } = useTranslation();
   const { goTo } = useLocalizedRouting();
@@ -17,7 +17,7 @@ export function NotFoundView() {
       <p className="flex items-center justify-center gap-1 font-display font-black leading-none text-ink text-[96px] sm:text-[140px]">
         <span className="sr-only">404</span>
         <span aria-hidden="true">4</span>
-        <HamsterWheel className="text-[7px] sm:text-[10px]" />
+        <PreaWheel className="w-[92px] h-[92px] sm:w-[136px] sm:h-[136px]" />
         <span aria-hidden="true">4</span>
       </p>
       <h1 className="text-[22px] sm:text-[28px] font-display font-bold">
