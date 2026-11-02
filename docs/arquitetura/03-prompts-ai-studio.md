@@ -165,7 +165,15 @@
 
 > **Envie um prompt por mensagem**, nesta ordem. Até o 18.3.1 (telas), trial, compra de plano e selo do admin pelo painel ficam fora do ar, e as métricas de estabelecimento sem plano mostram erro.
 
-# Lote 18 (Prompts C17, 20.6, A7 e 21.1 a 21.8) — aplicar sobre o zip de 2026-10-29
+# Lote 19 (Prompt C18) — aplicar sobre o zip de 2026-11-01
+
+| Ordem | Arquivo | Tema | Referência |
+|---|---|---|---|
+| 1 | `prompts/prompt-C18.md` | Correção do lote 18: papel de admin pela claim `admin` (painel admin), 7 testes de auth, rollback do cadastro de parceiro, pasta `app/` apagada da raiz e `package-lock.json` com o zxing-wasm | `e088091` |
+
+> Comparação do zip de 2026-11-01 (lote 18 aplicado): 159 arquivos diferentes, 153 só em ordem de imports e comentários (levados para a referência no `e088091`, junto com o TTL de `rateLimits.expiresAt` em `firestore.indexes.json`). Gates no zip: typecheck, lint (0 erros), build e 1.294 testes (a referência tem 1.301; os 7 a menos são os de auth). Fora dos prompts, o zip também trouxe `scripts/deploy-cloud-run.cjs` e o script `deploy:backend` no `package.json`, aguardando decisão.
+
+# Lote 18 (Prompts C17, 20.6, A7 e 21.1 a 21.8) ✅ aplicado (zip 2026-11-01)
 
 | Ordem | Arquivo | Tema | Commit de referência |
 |---|---|---|---|
