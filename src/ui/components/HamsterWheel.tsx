@@ -13,21 +13,17 @@ const NEXT: Record<Phase, Phase> = {
   up: 'stand',
 };
 
-// Duração de cada fase; a corrida é sorteada entre 5 e 8 s a cada volta.
-const PHASE_MS: Record<Exclude<Phase, 'run'>, number> = {
+const PHASE_MS: Record<Phase, number> = {
   stand: 800,
   look: 2400,
   down: 500,
+  run: 6000,
   up: 500,
 };
 
-function phaseDuration(phase: Phase): number {
-  return phase === 'run' ? 5000 + Math.random() * 3000 : PHASE_MS[phase];
-}
-
 /**
- * Hamster na roda (página não encontrada): de pé com a roda parada, procura algo, desce, corre de 5 a
- * 8 s, para e recomeça. Decorativo. Com movimento reduzido, fica de pé e parado. O tamanho vem do
+ * Hamster na roda (página não encontrada): de pé com a roda parada, procura algo, desce, corre 6 s,
+ * para e recomeça. Decorativo. Com movimento reduzido, fica de pé e parado. O tamanho vem do
  * `font-size` (a roda tem 12em).
  */
 export function HamsterWheel({ className }: { className?: string }) {
@@ -36,7 +32,7 @@ export function HamsterWheel({ className }: { className?: string }) {
 
   useEffect(() => {
     if (reducedMotion) return;
-    const timer = window.setTimeout(() => setPhase(NEXT[phase]), phaseDuration(phase));
+    const timer = window.setTimeout(() => setPhase(NEXT[phase]), PHASE_MS[phase]);
     return () => window.clearTimeout(timer);
   }, [phase, reducedMotion]);
 
