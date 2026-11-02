@@ -14,6 +14,7 @@ import { TipDetailModal } from '../domain/guide/components/TipDetailModal';
 import { TourDetailModal } from '../domain/guide/components/TourDetailModal';
 import { PartnersModal } from '../domain/partners';
 import { SearchOverlay } from '../domain/search';
+import { ACCOUNT_ACTION_PATH } from '../shared/constants/accountActionPath';
 import { useLocalizedRouting, useSyncLocaleWithUrl } from '../shared/hooks/useLocalizedRouting';
 import { useScrollLock } from '../shared/hooks/useScrollLock';
 import { useSEO } from '../shared/hooks/useSEO';
@@ -27,8 +28,8 @@ import { PartnerPortalComposition } from './compositions/PartnerPortalCompositio
 import { SideMenu } from './menu/SideMenu';
 import { useSideMenu } from './menu/useSideMenu';
 import { AppRoutes } from './routes/AppRoutes';
+import { useMissingItemNotice } from './useMissingItemNotice';
 import { useScrollContainer } from './useScrollContainer';
-import { ACCOUNT_ACTION_PATH } from '../shared/constants/accountActionPath';
 
 export function AppRouter() {
   const { user, refreshProfile } = useAuthContext();
@@ -104,7 +105,7 @@ export function AppRouter() {
     );
   };
 
-  const { items, events } = useGuideCatalog();
+  const { items, events, loading: catalogLoading, error: catalogError } = useGuideCatalog();
 
   const isSearchOpen = searchParams.get('search') === '1';
   const { isOpen: isMenuOpen, openMenu, closeMenu } = useSideMenu();
@@ -162,6 +163,11 @@ export function AppRouter() {
   }, [selectedItem, searchParams, isPartnersOpen]);
 
   useSEO(dynamicSEO);
+  useMissingItemNotice({
+    itemId: itemIdParam,
+    found: selectedItem !== null,
+    catalogReady: !catalogLoading && !catalogError,
+  });
 
   const setSelectedItem = (item: GuideItem | null) => {
     setSearchParams((prev) => {

@@ -334,6 +334,7 @@ export interface TranslationResource {
   pages: {
     notFoundTitle: string;
     notFoundDescription: string;
+    itemUnavailable: string;
     backHome: string;
     checkoutResultMissing: string;
     planPaymentTitle: string;
@@ -623,6 +624,7 @@ const ptBR: TranslationResource = {
   pages: {
     notFoundTitle: 'Página não encontrada',
     notFoundDescription: 'O endereço que você abriu não existe ou foi alterado.',
+    itemUnavailable: 'Este item não está mais disponível.',
     backHome: 'Voltar ao início',
     checkoutResultMissing: 'Não encontramos o pedido deste pagamento.',
     planPaymentTitle: 'Pagamento do plano em processamento',
@@ -913,6 +915,7 @@ const en: TranslationResource = {
   pages: {
     notFoundTitle: 'Page not found',
     notFoundDescription: 'The address you opened does not exist or has changed.',
+    itemUnavailable: 'This item is no longer available.',
     backHome: 'Back to home',
     checkoutResultMissing: 'We could not find the order for this payment.',
     planPaymentTitle: 'Plan payment processing',
@@ -1210,6 +1213,7 @@ const fr: TranslationResource = {
   pages: {
     notFoundTitle: 'Page introuvable',
     notFoundDescription: 'L’adresse que vous avez ouverte n’existe pas ou a changé.',
+    itemUnavailable: 'Cet élément n’est plus disponible.',
     backHome: 'Retour à l’accueil',
     checkoutResultMissing: 'Nous n’avons pas trouvé la commande de ce paiement.',
     planPaymentTitle: 'Paiement du forfait en cours',

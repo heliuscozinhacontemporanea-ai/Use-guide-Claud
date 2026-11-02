@@ -20,6 +20,7 @@ import {
   reviewReportRouter,
 } from './server/domain/reviews/routes/reviewReportRoutes';
 import reviewRouter from './server/domain/reviews/routes/reviewRoutes';
+import { isKnownPagePath } from './server/domain/seo';
 import { TicketingController } from './server/domain/ticketing/controllers/ticketingController';
 import ticketingRouter, {
   adminTicketingEventsRouter,
@@ -289,7 +290,8 @@ async function startServer() {
         res.setHeader('Content-Type', 'text/html; charset=utf-8');
         // A CDN do Hosting guarda por 5 min; o navegador sempre revalida.
         res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=300');
-        res.send(html);
+        // Endereço que não existe: o app mostra "Página não encontrada" com status 404 de verdade.
+        res.status(isKnownPagePath(req.path) ? 200 : 404).send(html);
       } catch (error) {
         console.error('[SEO render]', error instanceof Error ? error.message : error);
         res.setHeader('Cache-Control', 'no-cache');

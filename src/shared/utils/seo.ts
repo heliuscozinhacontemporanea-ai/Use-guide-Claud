@@ -69,6 +69,11 @@ const NON_LOCALIZED_ROUTE_SEO: Record<string, SEOMetadata> = {
     description: 'Confirmação de e-mail e nova senha da conta Use Guide.',
     robots: 'noindex, nofollow',
   },
+  '/checkout/result': {
+    title: 'Pagamento',
+    description: 'Resultado do pagamento no Use Guide.',
+    robots: 'noindex, nofollow',
+  },
 };
 
 /**

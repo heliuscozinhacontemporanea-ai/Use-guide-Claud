@@ -8,3 +8,4 @@ export type {
 } from './types/seoTypes';
 export { renderSeoHtmlUseCase } from './usecases/renderSeoHtmlUseCase';
 export { renderSitemapXmlUseCase } from './usecases/renderSitemapXmlUseCase';
+export { isKnownPagePath } from './utils/isKnownPagePath';

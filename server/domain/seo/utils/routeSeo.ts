@@ -197,4 +197,11 @@ export const NON_LOCALIZED_ROUTE_SEO: Record<string, SeoMetadata> = {
     robots: 'noindex, nofollow',
     type: 'website',
   },
+  // Volta do Stripe depois do pagamento (rota do app sem idioma).
+  '/checkout/result': {
+    title: 'Pagamento | Use Guide',
+    description: 'Resultado do pagamento no Use Guide.',
+    robots: 'noindex, nofollow',
+    type: 'website',
+  },
 };
