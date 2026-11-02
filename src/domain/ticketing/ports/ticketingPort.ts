@@ -1,17 +1,17 @@
 import type {
   EventCheckIn,
   EventSalesAnalytics,
+  OfflineCheckInChanges,
   OfflineCheckInSessionResponse,
   OfflineCheckInSyncResult,
   PublicTicketTypeProjection,
   Refund,
   Ticket,
+  TicketOrder,
+  TicketOrderItem,
   TicketQrPass,
   TicketTransferLinkCreated,
   TicketTransferLinkPreview,
-  OfflineCheckInChanges,
-  TicketOrder,
-  TicketOrderItem,
   TicketType,
 } from '../types/ticketing';
 

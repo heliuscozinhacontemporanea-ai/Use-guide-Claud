@@ -1,7 +1,7 @@
 import { type ReactNode, useState } from 'react';
-import type { AdminSaleClaim } from '../../types/adminFinance';
 import { useTranslation } from 'react-i18next';
 import { SegmentedControl } from '../../../../ui/components/SegmentedControl';
+import type { AdminSaleClaim } from '../../types/adminFinance';
 import { AdminDebtQueue } from './AdminDebtQueue';
 import { ForceMajeureQueue } from './ForceMajeureQueue';
 import { SaleClaimQueue } from './SaleClaimQueue';

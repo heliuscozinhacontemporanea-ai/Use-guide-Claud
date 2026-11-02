@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
   CheckInByCodeSchema,
-  EntryCheckInSchema,
   CreateOfferSchema,
   CreateSlotsSchema,
+  EntryCheckInSchema,
   UpdateOfferSchema,
 } from './bookingSchemas';
 

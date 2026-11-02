@@ -1,11 +1,11 @@
 import {
   type Booking,
+  bookingServiceEndsAt,
   clearBookingDeadlineUseCase,
   completeFinishedBookingsUseCase,
   eraseExpiredPickupAddressesUseCase,
   listBookingsWithDueDeadlineUseCase,
   resolveServiceConfirmationUseCase,
-  bookingServiceEndsAt,
 } from '../../../domain/bookings';
 import {
   decideSaleClaimUseCase,

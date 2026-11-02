@@ -1,15 +1,34 @@
 import {
+  type AdminFinanceTranslation,
+  adminFinanceEn,
+  adminFinanceFr,
+  adminFinancePtBR,
+} from './adminFinanceResources';
+import {
+  type AdminPanelTranslation,
+  adminPanelEn,
+  adminPanelFr,
+  adminPanelPtBR,
+} from './adminPanelResources';
+import {
   type BookingsTranslation,
   bookingsEn,
   bookingsFr,
   bookingsPtBR,
 } from './bookingsResources';
 import {
+  type EventSessionsTranslation,
+  eventSessionsEn,
+  eventSessionsFr,
+  eventSessionsPtBR,
+} from './eventSessionsResources';
+import {
   type InsightsTranslation,
   insightsEn,
   insightsFr,
   insightsPtBR,
 } from './insightsResources';
+import { type LegalTranslation, legalEn, legalFr, legalPtBR } from './legalResources';
 import {
   type ListingPlanTranslation,
   listingPlanEn,
@@ -17,35 +36,17 @@ import {
   listingPlanPtBR,
 } from './listingPlanResources';
 import {
+  type PartnersTranslation,
+  partnersEn,
+  partnersFr,
+  partnersPtBR,
+} from './partnersResources';
+import {
   type PaymentAccountsTranslation,
   paymentAccountsEn,
   paymentAccountsFr,
   paymentAccountsPtBR,
 } from './paymentAccountsResources';
-import {
-  type ReceivablesTranslation,
-  receivablesEn,
-  receivablesFr,
-  receivablesPtBR,
-} from './receivablesResources';
-import {
-  type AdminFinanceTranslation,
-  adminFinanceEn,
-  adminFinanceFr,
-  adminFinancePtBR,
-} from './adminFinanceResources';
-import {
-  saleClaimsEn,
-  saleClaimsFr,
-  saleClaimsPtBR,
-  type SaleClaimsTranslation,
-} from './saleClaimsResources';
-import {
-  type PurchasesTranslation,
-  purchasesEn,
-  purchasesFr,
-  purchasesPtBR,
-} from './purchasesResources';
 import {
   type MyReviewsTranslation,
   myReviewsEn,
@@ -57,35 +58,29 @@ import {
   profilePtBR,
 } from './profileResources';
 import {
+  type PurchasesTranslation,
+  purchasesEn,
+  purchasesFr,
+  purchasesPtBR,
+} from './purchasesResources';
+import {
+  type ReceivablesTranslation,
+  receivablesEn,
+  receivablesFr,
+  receivablesPtBR,
+} from './receivablesResources';
+import {
   type ReviewReportsTranslation,
   reviewReportsEn,
   reviewReportsFr,
   reviewReportsPtBR,
 } from './reviewReportsResources';
 import {
-  type AdminPanelTranslation,
-  adminPanelEn,
-  adminPanelFr,
-  adminPanelPtBR,
-} from './adminPanelResources';
-import {
-  type ServiceProofTranslation,
-  serviceProofEn,
-  serviceProofFr,
-  serviceProofPtBR,
-} from './serviceProofResources';
-import {
-  type TicketSessionsTranslation,
-  ticketSessionsEn,
-  ticketSessionsFr,
-  ticketSessionsPtBR,
-} from './ticketSessionsResources';
-import {
-  type PartnersTranslation,
-  partnersEn,
-  partnersFr,
-  partnersPtBR,
-} from './partnersResources';
+  type SaleClaimsTranslation,
+  saleClaimsEn,
+  saleClaimsFr,
+  saleClaimsPtBR,
+} from './saleClaimsResources';
 import {
   type SalesPolicyTranslation,
   salesPolicyEn,
@@ -93,17 +88,17 @@ import {
   salesPolicyPtBR,
 } from './salesPolicyResources';
 import {
+  type ServiceProofTranslation,
+  serviceProofEn,
+  serviceProofFr,
+  serviceProofPtBR,
+} from './serviceProofResources';
+import {
   type TicketCheckoutTranslation,
   ticketCheckoutEn,
   ticketCheckoutFr,
   ticketCheckoutPtBR,
 } from './ticketCheckoutResources';
-import {
-  type TicketWalletTranslation,
-  ticketWalletEn,
-  ticketWalletFr,
-  ticketWalletPtBR,
-} from './ticketWalletResources';
 import {
   type TicketGateTranslation,
   ticketGateEn,
@@ -111,36 +106,41 @@ import {
   ticketGatePtBR,
 } from './ticketGateResources';
 import {
+  type TicketSessionsTranslation,
+  ticketSessionsEn,
+  ticketSessionsFr,
+  ticketSessionsPtBR,
+} from './ticketSessionsResources';
+import {
+  type TicketWalletTranslation,
+  ticketWalletEn,
+  ticketWalletFr,
+  ticketWalletPtBR,
+} from './ticketWalletResources';
+import {
   type UsernameTranslation,
   usernameEn,
   usernameFr,
   usernamePtBR,
 } from './usernameResources';
 import {
-  type EmailVerificationTranslation,
-  emailVerificationEn,
-  emailVerificationFr,
-  emailVerificationPtBR,
-} from './emailVerificationResources';
-import {
-  type EventSessionsTranslation,
-  eventSessionsEn,
-  eventSessionsFr,
-  eventSessionsPtBR,
-} from './eventSessionsResources';
-import {
   type GateModeTranslation,
   gateModeEn,
   gateModeFr,
   gateModePtBR,
 } from './gateModeResources';
-import { type LegalTranslation, legalEn, legalFr, legalPtBR } from './legalResources';
 import {
   type VerificationTranslation,
   verificationEn,
   verificationFr,
   verificationPtBR,
 } from './verificationResources';
+import {
+  type EmailVerificationTranslation,
+  emailVerificationEn,
+  emailVerificationFr,
+  emailVerificationPtBR,
+} from './emailVerificationResources';
 
 export interface TranslationResource {
   bookings: BookingsTranslation;
@@ -163,11 +163,11 @@ export interface TranslationResource {
   ticketWallet: TicketWalletTranslation;
   ticketGate: TicketGateTranslation;
   username: UsernameTranslation;
-  emailVerification: EmailVerificationTranslation;
   eventSessions: EventSessionsTranslation;
   gateMode: GateModeTranslation;
   legal: LegalTranslation;
   verification: VerificationTranslation;
+  emailVerification: EmailVerificationTranslation;
   common: {
     language: string;
     cancel: string;
@@ -399,11 +399,11 @@ const ptBR: TranslationResource = {
   ticketWallet: ticketWalletPtBR,
   ticketGate: ticketGatePtBR,
   username: usernamePtBR,
-  emailVerification: emailVerificationPtBR,
   eventSessions: eventSessionsPtBR,
   gateMode: gateModePtBR,
   legal: legalPtBR,
   verification: verificationPtBR,
+  emailVerification: emailVerificationPtBR,
   common: {
     language: 'Idioma',
     cancel: 'Cancelar',
@@ -695,11 +695,11 @@ const en: TranslationResource = {
   ticketWallet: ticketWalletEn,
   ticketGate: ticketGateEn,
   username: usernameEn,
-  emailVerification: emailVerificationEn,
   eventSessions: eventSessionsEn,
   gateMode: gateModeEn,
   legal: legalEn,
   verification: verificationEn,
+  emailVerification: emailVerificationEn,
   common: {
     language: 'Language',
     cancel: 'Cancel',
@@ -985,11 +985,11 @@ const fr: TranslationResource = {
   ticketWallet: ticketWalletFr,
   ticketGate: ticketGateFr,
   username: usernameFr,
-  emailVerification: emailVerificationFr,
   eventSessions: eventSessionsFr,
   gateMode: gateModeFr,
   legal: legalFr,
   verification: verificationFr,
+  emailVerification: emailVerificationFr,
   common: {
     language: 'Langue',
     cancel: 'Annuler',

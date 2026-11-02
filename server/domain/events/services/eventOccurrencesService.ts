@@ -5,14 +5,14 @@ import {
 } from '../errors/eventDomainError';
 import type { EventsPort } from '../ports/eventsPort';
 import {
-  canTransitionOccurrenceStatus,
   type CreateEventOccurrenceInput,
+  canTransitionOccurrenceStatus,
   type EventOccurrence,
   type UpdateEventOccurrenceInput,
 } from '../types/eventTypes';
 import {
-  defaultSalesEndsAt,
   assertCanManageListing,
+  defaultSalesEndsAt,
   type EventActorContext,
   validateOccurrenceTiming,
 } from './eventAccess';

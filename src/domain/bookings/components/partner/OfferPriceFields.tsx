@@ -6,8 +6,8 @@ import {
   useFieldArray,
 } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import type { OfferFormInput } from '../../schemas/offerFormSchema';
 import { BUTTON_SECONDARY, INPUT } from '../../../../ui/styles/controls';
+import type { OfferFormInput } from '../../schemas/offerFormSchema';
 
 interface OfferPriceFieldsProps {
   control: Control<OfferFormInput>;

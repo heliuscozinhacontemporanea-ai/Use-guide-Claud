@@ -1,9 +1,9 @@
 import { Clock, Loader2, ShieldCheck } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { cn } from '../../../../shared/utils/cn';
+import { formatMoneyMinor } from '../../../../shared/utils/money';
 import { GlassCard } from '../../../../ui/components/GlassCard';
 import { StripePaymentElement } from '../../../payment';
-import { formatMoneyMinor } from '../../../../shared/utils/money';
-import { cn } from '../../../../shared/utils/cn';
 import type { TicketCheckoutState } from '../../hooks/useTicketCheckout';
 import type { TicketOrder } from '../../types/ticketing';
 import { SalesPolicyNotice } from './SalesPolicyNotice';

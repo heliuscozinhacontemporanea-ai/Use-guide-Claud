@@ -2,10 +2,10 @@ import { Loader2 } from 'lucide-react';
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Dialog } from '../../../../ui/components/Dialog';
+import { BUTTON_PRIMARY, INPUT } from '../../../../ui/styles/controls';
 import type { PartnerSlot } from '../../types/bookings';
 import { getBookingErrorMessage } from '../../utils/bookingErrorMessage';
 import { formatSlotDateTime, fortalezaInputToIso } from '../../utils/dates';
-import { BUTTON_PRIMARY, INPUT } from '../../../../ui/styles/controls';
 
 const MIN_REASON = 3;
 const MAX_REASON = 300;

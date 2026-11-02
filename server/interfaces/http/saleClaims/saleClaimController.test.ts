@@ -25,8 +25,8 @@ vi.mock('../../../domain/payment', async () => {
 
 import { PaymentDomainError } from '../../../domain/payment/services/stripePaymentService';
 import { SALE_CLAIM_REASONS } from '../../../domain/payment/types/saleClaim';
-import { SALE_CLAIM_REASON_VALUES } from './schemas/saleClaimSchemas';
 import { SaleClaimController } from './saleClaimController';
+import { SALE_CLAIM_REASON_VALUES } from './schemas/saleClaimSchemas';
 
 function response() {
   const res = { status: vi.fn(), json: vi.fn() };

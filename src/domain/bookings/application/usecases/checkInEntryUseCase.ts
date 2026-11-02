@@ -1,5 +1,5 @@
 import { bookingsApi } from '../../factory';
-import type { UnitCheckInResult, EntryCheckInPayload } from '../../types/bookings';
+import type { EntryCheckInPayload, UnitCheckInResult } from '../../types/bookings';
 
 export async function checkInEntryUseCase(
   offerId: string,

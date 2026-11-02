@@ -1,8 +1,9 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { prepareImageForStorageUseCase } from '../../media';
 import { UserService } from './userService';
 
 vi.mock('../../media', () => ({ prepareImageForStorageUseCase: vi.fn() }));
+
 import { UserPort } from '../ports/userPort';
 import { UserRole } from '../types/userTypes';
 

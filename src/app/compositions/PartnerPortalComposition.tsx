@@ -1,25 +1,25 @@
-import { useEffect, useMemo, useState } from 'react';
 import { LogIn, RefreshCw, ShieldAlert } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PartnerPanel, getPartnerProfileUseCase } from '../../domain/partners';
-import type { PartnerProfile, SubscriptionPlan } from '../../domain/partners';
 import { getActiveSubscriptionPlansUseCase } from '../../domain/admin';
-import { UserRole } from '../../domain/auth/types/auth';
 import { useAuthContext } from '../../domain/auth/context/AuthContext';
+import { UserRole } from '../../domain/auth/types/auth';
 import { EventSessionsField } from '../../domain/events';
 import { ReportsView } from '../../domain/insights';
+import { NotificationBell } from '../../domain/notifications';
+import type { PartnerProfile, SubscriptionPlan } from '../../domain/partners';
+import { getPartnerProfileUseCase, PartnerPanel } from '../../domain/partners';
 import {
   CheckoutModal,
   isPaidPlanId,
   type PlanPeriodOption,
   PlanSubscriptionCard,
 } from '../../domain/payment';
-import { PartnerBookingsComposition } from './PartnerBookingsComposition';
-import { PartnerEventTicketingComposition } from './PartnerEventTicketingComposition';
-import { NotificationBell } from '../../domain/notifications';
 import { useLocalizedRouting } from '../../shared/hooks/useLocalizedRouting';
 import { useUI } from '../../shared/stores/useUIStore';
 import { MessagePage } from '../../ui/components/MessagePage';
+import { PartnerBookingsComposition } from './PartnerBookingsComposition';
+import { PartnerEventTicketingComposition } from './PartnerEventTicketingComposition';
 
 export function PartnerPortalComposition() {
   const { t } = useTranslation();

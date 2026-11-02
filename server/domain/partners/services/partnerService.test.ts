@@ -1,7 +1,7 @@
-import { PARTNER_TERMS_VERSION } from '../../../shared/kernel/legalTerms';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { PartnerService } from './partnerService';
+import { PARTNER_TERMS_VERSION } from '../../../shared/kernel/legalTerms';
 import { PartnerPort } from '../ports/partnerPort';
+import { PartnerService } from './partnerService';
 
 function createPartnerPortMock(): PartnerPort {
   return {

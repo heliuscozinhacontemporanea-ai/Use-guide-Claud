@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { adminFinanceErrorKey } from '../../utils/adminFinanceErrors';
 import { ListEmpty, ListError, ListLoading } from '../../../../ui/components/ListState';
 import { BUTTON_SECONDARY } from '../../../../ui/styles/controls';
+import { adminFinanceErrorKey } from '../../utils/adminFinanceErrors';
 
 /** Carregando, erro, vazio e "carregar mais" de uma fila do admin (AGENTS.md §11.8). */
 export function AdminQueueFrame({

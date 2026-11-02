@@ -1,6 +1,6 @@
-import type { TermsAcceptance } from '../../../shared/kernel/legalTerms';
 import { FieldValue } from 'firebase-admin/firestore';
 import { adminDb } from '../../../infrastructure/firebase/adminClient';
+import type { TermsAcceptance } from '../../../shared/kernel/legalTerms';
 import { PartnerDomainError } from '../errors/partnerDomainError';
 import {
   toPartnerProfileDTO,

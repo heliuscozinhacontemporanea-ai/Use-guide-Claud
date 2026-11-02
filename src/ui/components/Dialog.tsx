@@ -1,9 +1,9 @@
-import { ReactNode } from 'react';
 import * as RadixDialog from '@radix-ui/react-dialog';
 import { X } from 'lucide-react';
+import { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { cn } from '../../shared/utils/cn';
 import { Z_INDEX } from '../../shared/constants/zIndex';
+import { cn } from '../../shared/utils/cn';
 
 interface DialogProps {
   open: boolean;

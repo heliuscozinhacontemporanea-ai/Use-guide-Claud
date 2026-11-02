@@ -2,9 +2,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { participantsFormSchema } from '../../schemas/participantsFormSchema';
 import { TextButton } from '../../../../ui/components/TextButton';
 import { BUTTON_PRIMARY, INPUT } from '../../../../ui/styles/controls';
+import { participantsFormSchema } from '../../schemas/participantsFormSchema';
 
 interface ParticipantsFormProps {
   count: number;

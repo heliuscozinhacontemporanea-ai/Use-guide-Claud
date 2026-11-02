@@ -1,5 +1,5 @@
-import type { TermsAcceptance } from '../../../shared/kernel/legalTerms';
 import { isCancellationPolicyAllowed } from '../../../shared/kernel/cancellationPolicy';
+import type { TermsAcceptance } from '../../../shared/kernel/legalTerms';
 import type {
   EventCheckIn,
   EventPromoCode,

@@ -1,13 +1,13 @@
 import { CalendarClock, Compass, MapPin, Ticket } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+import { formatBusinessWeekday } from '../../../../shared/utils/businessDateTime';
 import { rescheduleRefundDeadline } from '../../../../shared/utils/rescheduleRefundDeadline';
 import { StatusText, type StatusTone } from '../../../../ui/components/StatusText';
 import type { BookingStatus, BookingSummary } from '../../types/bookings';
-import { BookingCheckInPass } from './BookingCheckInPass';
 import { formatSlotDateTime, fortalezaDateKey } from '../../utils/dates';
 import { formatMinor } from '../../utils/money';
-import { formatBusinessWeekday } from '../../../../shared/utils/businessDateTime';
+import { BookingCheckInPass } from './BookingCheckInPass';
 
 const STATUS_TONE: Partial<Record<BookingStatus, StatusTone>> = {
   pending_payment: 'warn',

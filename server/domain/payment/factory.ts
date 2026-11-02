@@ -2,8 +2,8 @@ import { FirebaseAdminTransactionAdapter } from './adapters/firebaseAdminTransac
 import { FirestoreAccountDebtAdapter } from './adapters/firestoreAccountDebtAdapter';
 import { FirestorePaymentAccountAdapter } from './adapters/firestorePaymentAccountAdapter';
 import { FirestorePayoutEntryAdapter } from './adapters/firestorePayoutEntryAdapter';
-import { FirestoreSaleClaimAdapter } from './adapters/firestoreSaleClaimAdapter';
 import { FirestorePlanSubscriptionAdapter } from './adapters/firestorePlanSubscriptionAdapter';
+import { FirestoreSaleClaimAdapter } from './adapters/firestoreSaleClaimAdapter';
 import { StripeBillingGatewayAdapter } from './adapters/stripeBillingGatewayAdapter';
 import { StripeConnectMarketplaceAdapter } from './adapters/stripeConnectMarketplaceAdapter';
 import { StripePaymentGatewayAdapter } from './adapters/stripePaymentGatewayAdapter';

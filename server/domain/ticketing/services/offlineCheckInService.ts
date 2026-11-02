@@ -1,15 +1,15 @@
 import crypto from 'crypto';
 import { createEventAuditLogUseCase } from '../../events';
-import { hashTicketIdForOfflineManifest } from '../utils/offlineManifest';
 import { TicketingDomainError } from '../errors/ticketingDomainError';
-import type { TicketQrTokenPort } from '../ports/ticketQrTokenPort';
 import type { TicketingPort } from '../ports/ticketingPort';
+import type { TicketQrTokenPort } from '../ports/ticketQrTokenPort';
 import {
   type OfflineCheckInEvent,
   type OfflineCheckInManifest,
   type OfflineCheckInSession,
   type OfflineCheckInSyncResultItem,
 } from '../types/ticketingTypes';
+import { hashTicketIdForOfflineManifest } from '../utils/offlineManifest';
 import {
   assertCanManageOccurrence,
   getAuditActorType,

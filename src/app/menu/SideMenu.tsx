@@ -1,33 +1,33 @@
+import { AnimatePresence, motion } from 'motion/react';
 import React from 'react';
-import { motion, AnimatePresence } from 'motion/react';
 import { hasPasswordSignInUseCase, logoutUseCase } from '../../domain/auth';
 import { useAuthContext } from '../../domain/auth/context/AuthContext';
 import { UserRole } from '../../domain/auth/types/auth';
+import { MyBookingsView } from '../../domain/bookings';
 import { AboutView, SupportView } from '../../domain/content';
 import { FavoritesList } from '../../domain/favorites';
+import { UserTicketsHistoryView } from '../../domain/ticketing';
 import {
-  useUserProfile,
-  useUserPhoto,
+  AccountView,
+  AppearanceSettingsView,
   ChangePasswordView,
   ImageCropperView,
-  MainMenuView,
-  AccountView,
-  UsernameSettingsView,
-  SettingsView,
   LanguageSettingsView,
-  AppearanceSettingsView,
+  MainMenuView,
+  SettingsView,
+  UsernameSettingsView,
+  useUserPhoto,
+  useUserProfile,
 } from '../../domain/user';
 import { Z_INDEX } from '../../shared/constants/zIndex';
+import { useLocalizedRouting } from '../../shared/hooks/useLocalizedRouting';
 import { cn } from '../../shared/utils/cn';
 import { SidebarLayout } from '../../ui/layouts/SidebarLayout';
-import { MyBookingsView } from '../../domain/bookings';
-import { UserTicketsHistoryView } from '../../domain/ticketing';
 import { BuyerPurchasesComposition } from '../compositions/BuyerPurchasesComposition';
 import { MyReviewsComposition } from '../compositions/MyReviewsComposition';
 import { ProfileHighlightsComposition } from '../compositions/ProfileHighlightsComposition';
 import { type MenuView, parentMenuView, visibleMenuView } from './menuViews';
 import { useSideMenu } from './useSideMenu';
-import { useLocalizedRouting } from '../../shared/hooks/useLocalizedRouting';
 
 interface SideMenuProps {
   onPartnersOpen: () => void;

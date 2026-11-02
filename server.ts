@@ -1,52 +1,52 @@
-import express from 'express';
-import path from 'path';
-import helmet from 'helmet';
 import compression from 'compression';
-import paymentRouter from './server/domain/payment/routes/paymentRoutes';
-import { PaymentController } from './server/domain/payment/controllers/paymentController';
+import express from 'express';
+import helmet from 'helmet';
+import path from 'path';
+import { renderSeoPageApplicationUseCase } from './server/application/usecases/renderSeoPageApplicationUseCase';
+import { renderSitemapApplicationUseCase } from './server/application/usecases/renderSitemapApplicationUseCase';
+import adminRouter from './server/domain/admin/routes/adminRoutes';
 import climaWindRouter from './server/domain/climawind/routes/climaWindRoutes';
-import notificationRouter from './server/domain/notifications/routes/notificationRoutes';
-import userRouter from './server/domain/users/routes/userRoutes';
-import partnerRouter from './server/domain/partners/routes/partnerRoutes';
+import { adminEventsRouter, publicEventsRouter } from './server/domain/events/routes/eventRoutes';
+import favoriteRouter from './server/domain/favorites/routes/favoriteRoutes';
 import { itemRouter } from './server/domain/guide/routes/guideRoutes';
-import { publicEventsRouter, adminEventsRouter } from './server/domain/events/routes/eventRoutes';
-import ticketingRouter, {
-  adminTicketingEventsRouter,
-} from './server/domain/ticketing/routes/ticketingRoutes';
-import { TicketingController } from './server/domain/ticketing/controllers/ticketingController';
-import reviewRouter from './server/domain/reviews/routes/reviewRoutes';
+import insightsRouter from './server/domain/insights/routes/insightsRoutes';
+import mediaRouter from './server/domain/media/routes/mediaRoutes';
+import notificationRouter from './server/domain/notifications/routes/notificationRoutes';
+import partnerRouter from './server/domain/partners/routes/partnerRoutes';
+import { PaymentController } from './server/domain/payment/controllers/paymentController';
+import paymentRouter from './server/domain/payment/routes/paymentRoutes';
 import {
   adminReviewReportRouter,
   reviewReportRouter,
 } from './server/domain/reviews/routes/reviewReportRoutes';
-import insightsRouter from './server/domain/insights/routes/insightsRoutes';
-import adminRouter from './server/domain/admin/routes/adminRoutes';
-import favoriteRouter from './server/domain/favorites/routes/favoriteRoutes';
-import mediaRouter from './server/domain/media/routes/mediaRoutes';
+import reviewRouter from './server/domain/reviews/routes/reviewRoutes';
+import { TicketingController } from './server/domain/ticketing/controllers/ticketingController';
+import ticketingRouter, {
+  adminTicketingEventsRouter,
+} from './server/domain/ticketing/routes/ticketingRoutes';
+import userRouter from './server/domain/users/routes/userRoutes';
+import { verifyAppCheck } from './server/infrastructure/auth/appCheckMiddleware';
+import { verifyInternalJobKey } from './server/infrastructure/auth/internalJobAuth';
+import { resolveTrustProxyHops } from './server/infrastructure/config/trustProxy';
 import billingRouter from './server/interfaces/http/billing/billingRoutes';
-import listingVerificationRouter from './server/interfaces/http/listingVerifications/listingVerificationRoutes';
-import listingStatsRouter from './server/interfaces/http/insights/listingStatsRoutes';
-import listingPlanRouter from './server/interfaces/http/listingPlans/listingPlanRoutes';
-import paymentAccountRouter, {
-  adminAccountDebtRouter,
-} from './server/interfaces/http/paymentAccounts/paymentAccountRoutes';
-import {
-  adminSaleClaimRouter,
-  saleClaimRouter,
-} from './server/interfaces/http/saleClaims/saleClaimRoutes';
-import { ticketTransferRouter } from './server/interfaces/http/ticketTransfers/ticketTransferRoutes';
 import {
   bookingsRouter,
   partnerOffersRouter,
 } from './server/interfaces/http/bookings/bookingsRoutes';
 import { InternalBookingsController } from './server/interfaces/http/bookings/internalBookingsController';
-import { InternalPayoutsController } from './server/interfaces/http/payouts/internalPayoutsController';
+import listingStatsRouter from './server/interfaces/http/insights/listingStatsRoutes';
+import listingPlanRouter from './server/interfaces/http/listingPlans/listingPlanRoutes';
+import listingVerificationRouter from './server/interfaces/http/listingVerifications/listingVerificationRoutes';
 import { InternalPartnersController } from './server/interfaces/http/partners/internalPartnersController';
-import { verifyInternalJobKey } from './server/infrastructure/auth/internalJobAuth';
-import { resolveTrustProxyHops } from './server/infrastructure/config/trustProxy';
-import { renderSeoPageApplicationUseCase } from './server/application/usecases/renderSeoPageApplicationUseCase';
-import { renderSitemapApplicationUseCase } from './server/application/usecases/renderSitemapApplicationUseCase';
-import { verifyAppCheck } from './server/infrastructure/auth/appCheckMiddleware';
+import paymentAccountRouter, {
+  adminAccountDebtRouter,
+} from './server/interfaces/http/paymentAccounts/paymentAccountRoutes';
+import { InternalPayoutsController } from './server/interfaces/http/payouts/internalPayoutsController';
+import {
+  adminSaleClaimRouter,
+  saleClaimRouter,
+} from './server/interfaces/http/saleClaims/saleClaimRoutes';
+import { ticketTransferRouter } from './server/interfaces/http/ticketTransfers/ticketTransferRoutes';
 
 async function startServer() {
   const app = express();

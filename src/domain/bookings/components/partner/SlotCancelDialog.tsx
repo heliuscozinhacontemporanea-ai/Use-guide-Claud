@@ -1,9 +1,9 @@
 import { AlertTriangle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Dialog } from '../../../../ui/components/Dialog';
+import { BUTTON_PRIMARY, BUTTON_SECONDARY } from '../../../../ui/styles/controls';
 import type { PartnerSlot } from '../../types/bookings';
 import { formatSlotDateTime } from '../../utils/dates';
-import { BUTTON_PRIMARY, BUTTON_SECONDARY } from '../../../../ui/styles/controls';
 
 const BUTTON_DANGER =
   'press min-h-11 px-4 rounded-xl bg-danger-soft border border-danger-line text-danger text-xs font-bold cursor-pointer focus-visible:ring-2 focus-visible:ring-teal-400/50';

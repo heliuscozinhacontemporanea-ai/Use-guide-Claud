@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { canTransitionBooking } from '../types/bookingTypes';
-import { buildBookingId, buildSlotId } from './buildBookingId';
 import { priceBookingLines } from './bookingPricing';
+import { buildBookingId, buildSlotId } from './buildBookingId';
 import { expandSlotRecurrence, fortalezaLocalToUtcIso } from './slotRecurrence';
 
 const FEES = {

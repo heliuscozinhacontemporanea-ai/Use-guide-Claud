@@ -2,13 +2,13 @@ import { AlertTriangle, Loader2 } from 'lucide-react';
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Dialog } from '../../../../ui/components/Dialog';
-import { cancelPartnerEventOccurrenceUseCase, type EventOccurrence } from '../../../events';
 import {
   BUTTON_DANGER,
   BUTTON_PRIMARY,
   BUTTON_SECONDARY,
   INPUT,
 } from '../../../../ui/styles/controls';
+import { cancelPartnerEventOccurrenceUseCase, type EventOccurrence } from '../../../events';
 
 const MIN_REASON = 3;
 const MAX_REASON = 300;

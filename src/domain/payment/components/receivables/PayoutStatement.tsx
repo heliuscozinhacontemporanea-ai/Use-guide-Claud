@@ -1,9 +1,9 @@
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ListEmpty, ListError, ListLoading } from '../../../../ui/components/ListState';
 import { usePartnerPayouts } from '../../hooks/usePartnerPayouts';
 import type { PartnerPaymentAccount } from '../../types/payment';
 import { PayoutEntryRow } from './PayoutEntryRow';
-import { ListEmpty, ListError, ListLoading } from '../../../../ui/components/ListState';
 
 export function PayoutStatement({ accounts }: { accounts: PartnerPaymentAccount[] }) {
   const { t } = useTranslation();

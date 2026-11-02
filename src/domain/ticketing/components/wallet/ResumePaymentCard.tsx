@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { GlassCard } from '../../../../ui/components/GlassCard';
 import { formatMoneyMinor } from '../../../../shared/utils/money';
+import { GlassCard } from '../../../../ui/components/GlassCard';
 import { StripePaymentElement } from '../../../payment';
 import { confirmTicketOrderPaymentReturnUseCase } from '../../application/usecases/confirmTicketOrderPaymentReturnUseCase';
 import type { ResumingOrder } from '../../hooks/useTicketWalletActions';

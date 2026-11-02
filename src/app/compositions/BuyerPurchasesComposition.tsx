@@ -1,11 +1,11 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { BookingPurchaseDetails, useBookingPurchases } from '../../domain/bookings';
 import { MySaleClaimsProvider, SaleClaimAction } from '../../domain/payment';
 import { TicketPurchaseDetails, useTicketPurchases } from '../../domain/ticketing';
 import { PurchaseHistoryView } from '../../ui/components/purchases/PurchaseHistoryView';
 import type { PurchaseEntry } from '../../ui/components/purchases/purchaseEntry';
 import { BUTTON_SECONDARY } from '../../ui/styles/controls';
-import { useTranslation } from 'react-i18next';
 
 interface BuyerPurchasesCompositionProps {
   onBack: () => void;

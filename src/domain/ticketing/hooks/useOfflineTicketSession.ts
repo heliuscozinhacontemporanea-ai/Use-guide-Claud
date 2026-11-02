@@ -7,8 +7,8 @@ import {
   getOfflineManifestBundle,
   listPendingOfflineCheckInEvents,
   removeSyncedOfflineCheckInEvents,
-  saveOfflineManifestBundle,
   type StoredOfflineManifestBundle,
+  saveOfflineManifestBundle,
 } from '../utils/offlineCheckInStorage';
 
 export type OfflineSessionNotice =

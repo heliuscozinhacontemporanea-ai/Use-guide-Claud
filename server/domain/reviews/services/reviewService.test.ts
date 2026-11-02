@@ -1,9 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-
-import { ReviewService } from './reviewService';
-import type { ReviewPort, SubmitReviewResult } from '../ports/reviewPort';
-import type { ReviewNotificationPort } from '../ports/reviewNotificationPort';
 import { CreateReviewDTO } from '../dtos/CreateReviewDTO';
+import type { ReviewNotificationPort } from '../ports/reviewNotificationPort';
+import type { ReviewPort, SubmitReviewResult } from '../ports/reviewPort';
+import { ReviewService } from './reviewService';
 
 const ticketingMocks = vi.hoisted(() => ({
   getVerifiedAttendanceForReviewUseCase: vi.fn(),

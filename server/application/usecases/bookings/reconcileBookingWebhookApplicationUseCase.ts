@@ -1,13 +1,12 @@
-import { recordPaidSalePayoutApplicationUseCase } from '../payouts/recordPaidSalePayoutApplicationUseCase';
 import {
   BookingDomainError,
   bookingServiceEndsAt,
-  requiresServiceProof,
   confirmBookingPaymentUseCase,
   getBookingUseCase,
   markBookingDisputedUseCase,
   markBookingPaymentFailedUseCase,
   markBookingRefundedUseCase,
+  requiresServiceProof,
 } from '../../../domain/bookings';
 import { createNotificationUseCase } from '../../../domain/notifications';
 import {
@@ -17,6 +16,7 @@ import {
   updatePaymentTransactionStatusUseCase,
   type VerifiedWebhookEvent,
 } from '../../../domain/payment';
+import { recordPaidSalePayoutApplicationUseCase } from '../payouts/recordPaidSalePayoutApplicationUseCase';
 
 function readMetadata(obj: Record<string, unknown>): Record<string, string> {
   return (obj.metadata as Record<string, string> | undefined) ?? {};

@@ -1,7 +1,6 @@
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
-import { AdminPanelComposition } from './compositions/AdminPanelComposition';
 import { LoginModal } from '../domain/auth/components/LoginModal';
 import { useAuthContext } from '../domain/auth/context/AuthContext';
 import { UserRole } from '../domain/auth/types/auth';
@@ -15,20 +14,20 @@ import { TipDetailModal } from '../domain/guide/components/TipDetailModal';
 import { TourDetailModal } from '../domain/guide/components/TourDetailModal';
 import { PartnersModal } from '../domain/partners';
 import { SearchOverlay } from '../domain/search';
-import { useScrollLock } from '../shared/hooks/useScrollLock';
 import { useLocalizedRouting, useSyncLocaleWithUrl } from '../shared/hooks/useLocalizedRouting';
+import { useScrollLock } from '../shared/hooks/useScrollLock';
 import { useSEO } from '../shared/hooks/useSEO';
 import { useUI, useUIStore } from '../shared/stores/useUIStore';
 import { cn } from '../shared/utils/cn';
 import { BottomNav } from '../ui/components/BottomNav';
 import { Header } from '../ui/layouts/Header';
-
-import { PartnerPortalComposition } from './compositions/PartnerPortalComposition';
+import { AdminPanelComposition } from './compositions/AdminPanelComposition';
 import { ItemBookingComposition } from './compositions/ItemBookingComposition';
+import { PartnerPortalComposition } from './compositions/PartnerPortalComposition';
 import { SideMenu } from './menu/SideMenu';
 import { useSideMenu } from './menu/useSideMenu';
-import { useScrollContainer } from './useScrollContainer';
 import { AppRoutes } from './routes/AppRoutes';
+import { useScrollContainer } from './useScrollContainer';
 import { ACCOUNT_ACTION_PATH } from '../shared/constants/accountActionPath';
 
 export function AppRouter() {

@@ -5,8 +5,8 @@ import {
 } from '../../../../shared/kernel/platformFees';
 import {
   InventoryConflictError,
-  TicketTypeUnavailableError,
   TicketingDomainError,
+  TicketTypeUnavailableError,
 } from '../../errors/ticketingDomainError';
 import {
   deriveTicketTypeSaleStatus,

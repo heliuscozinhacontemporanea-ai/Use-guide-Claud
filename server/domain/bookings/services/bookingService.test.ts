@@ -1,5 +1,5 @@
-import { BUYER_TERMS_VERSION } from '../../../shared/kernel/legalTerms';
 import { describe, expect, it } from 'vitest';
+import { BUYER_TERMS_VERSION } from '../../../shared/kernel/legalTerms';
 import { InMemoryBookingsAdapter } from '../adapters/inMemoryBookingsAdapter';
 import type { BookableOffer } from '../types/bookingTypes';
 import { BookingService, type CreatePendingBookingInput } from './bookingService';

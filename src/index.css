@@ -124,7 +124,7 @@
   }
 }
 
-/* Leaflet */
+/* Leaflet: fundo na cor do tema enquanto os blocos do mapa carregam. */
 .leaflet-container {
   background: var(--ug-app) !important;
   font-family: inherit;
@@ -184,7 +184,6 @@
   --liquid-accent: #0d9488; /* Teal 600 */
   --liquid-gradient: linear-gradient(135deg, #0d9488 0%, #0891b2 100%);
 
-  /* Grafite liso e cartões sólidos um tom acima (D17, AGENTS.md §11.1). */
   --ug-app: #0d0e10;
   --ug-ink: #ffffff;
   --ug-surface: #1e2024;
@@ -352,7 +351,7 @@
   }
 }
 
-/* Cartão sólido (D17): o vidro fica só em barras fixas e folhas (`glassmorphism-vibrant`). */
+/* Cartão elevado sólido (D17, AGENTS.md §11.1). O vidro fica reservado para `.glassmorphism-vibrant`. */
 .glassmorphism {
   background-color: var(--ug-surface);
   border: 1px solid var(--ug-line);

@@ -1,9 +1,9 @@
 import { useTranslation } from 'react-i18next';
-import { BUTTON_PRIMARY, BUTTON_SECONDARY } from '../../../../ui/styles/controls';
+import { formatBusinessDateTime } from '../../../../shared/utils/businessDateTime';
 import { formatMoneyMinor } from '../../../../shared/utils/money';
+import { BUTTON_PRIMARY, BUTTON_SECONDARY } from '../../../../ui/styles/controls';
 import type { AccountDebtView } from '../../types/receivables';
 import { canDeclareForceMajeure, canPayDebt, debtStatusKey, debtStatusTone } from './debtStatus';
-import { formatBusinessDateTime } from '../../../../shared/utils/businessDateTime';
 
 export function DebtCard({
   debt,

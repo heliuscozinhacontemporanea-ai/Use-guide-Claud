@@ -4,7 +4,6 @@ import { confirmTicketOrderPaymentClientReturnApplicationUseCase } from '../../.
 import { createTicketOrderPaymentIntentApplicationUseCase } from '../../../application/usecases/createTicketOrderPaymentIntentApplicationUseCase';
 import { processTicketRefundApplicationUseCase } from '../../../application/usecases/processTicketRefundApplicationUseCase';
 import { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
-import { hashTicketIdForOfflineManifest } from '../utils/offlineManifest';
 import { TicketingDomainError } from '../errors/ticketingDomainError';
 import {
   checkInTicketSchema,
@@ -33,14 +32,15 @@ import { joinEventWaitlistUseCase } from '../usecases/joinEventWaitlistUseCase';
 import { listEventCheckInsForPartnerOrAdminUseCase } from '../usecases/listEventCheckInsForPartnerOrAdminUseCase';
 import { listEventOrdersForPartnerOrAdminUseCase } from '../usecases/listEventOrdersForPartnerOrAdminUseCase';
 import { listEventRefundsForPartnerOrAdminUseCase } from '../usecases/listEventRefundsForPartnerOrAdminUseCase';
+import { listOfflineCheckInChangesUseCase } from '../usecases/listOfflineCheckInChangesUseCase';
 import { listPublicTicketTypesByOccurrenceUseCase } from '../usecases/listPublicTicketTypesByOccurrenceUseCase';
 import { listTicketTypesForManagementUseCase } from '../usecases/listTicketTypesForManagementUseCase';
 import { listUserTicketOrdersUseCase } from '../usecases/listUserTicketOrdersUseCase';
 import { listUserTicketsUseCase } from '../usecases/listUserTicketsUseCase';
-import { listOfflineCheckInChangesUseCase } from '../usecases/listOfflineCheckInChangesUseCase';
 import { swapTicketQrUseCase } from '../usecases/swapTicketQrUseCase';
 import { syncOfflineCheckInsUseCase } from '../usecases/syncOfflineCheckInsUseCase';
 import { updateTicketTypeUseCase } from '../usecases/updateTicketTypeUseCase';
+import { hashTicketIdForOfflineManifest } from '../utils/offlineManifest';
 
 function getActor(req: AuthenticatedRequest) {
   return {

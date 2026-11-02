@@ -1,7 +1,7 @@
+import { firebaseApiFetch } from '../../../shared/infrastructure/firebase/firebaseApiFetch';
+import { getWeatherDesc } from '../../../shared/lib/weatherUtils';
 import { ClimaWindPort } from '../ports/climaWindPort';
 import { ApiWeatherResponse, ClimaWindData, HourlyWindItem } from '../types/climaWind';
-import { getWeatherDesc } from '../../../shared/lib/weatherUtils';
-import { firebaseApiFetch } from '../../../shared/infrastructure/firebase/firebaseApiFetch';
 
 /**
  * Implementação concreta do ClimaWindPort — chama o proxy /api/weather do backend.

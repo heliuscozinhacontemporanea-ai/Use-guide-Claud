@@ -1,5 +1,5 @@
-import { FirestoreReview, ReviewSortOption } from '../types/review';
 import { DatabaseCursor, DatabasePage } from '../../database/ports/databasePort';
+import { FirestoreReview, ReviewSortOption } from '../types/review';
 
 export interface ReviewPort {
   getReviews(

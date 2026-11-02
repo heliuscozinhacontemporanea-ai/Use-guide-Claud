@@ -27,10 +27,10 @@ import {
   listPayoutEntriesUseCase,
   startAccountDebtPaymentUseCase,
 } from '../../../domain/payment';
-import { listPartnerPayoutsApplicationUseCase } from './listPartnerPayoutsApplicationUseCase';
 import { listPartnerDebtsApplicationUseCase } from './listPartnerDebtsApplicationUseCase';
-import { startPartnerDebtPaymentApplicationUseCase } from './startPartnerDebtPaymentApplicationUseCase';
 import { listPartnerPaymentAccountsApplicationUseCase } from './listPartnerPaymentAccountsApplicationUseCase';
+import { listPartnerPayoutsApplicationUseCase } from './listPartnerPayoutsApplicationUseCase';
+import { startPartnerDebtPaymentApplicationUseCase } from './startPartnerDebtPaymentApplicationUseCase';
 import { startPaymentAccountSessionApplicationUseCase } from './startPaymentAccountSessionApplicationUseCase';
 
 const READY_VIEW = {

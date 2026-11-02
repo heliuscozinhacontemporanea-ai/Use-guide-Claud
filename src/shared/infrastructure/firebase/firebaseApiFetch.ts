@@ -1,6 +1,6 @@
-import { auth } from './firebaseAuth';
 import { noticeAppCheckFailure } from './appCheckFailureNotice';
 import { getFirebaseAppCheckToken } from './firebaseAppCheck';
+import { auth } from './firebaseAuth';
 
 export interface FirebaseApiFetchOptions {
   requireAuth?: boolean;

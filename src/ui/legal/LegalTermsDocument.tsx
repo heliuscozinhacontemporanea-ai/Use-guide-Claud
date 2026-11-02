@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { formatMoneyMinor } from '../../shared/utils/money';
-import { type CancellationPolicyFamily, policiesOf } from '../../shared/utils/cancellationPolicy';
 import { BUYER_TERMS_VERSION } from '../../shared/constants/legalTerms';
+import { type CancellationPolicyFamily, policiesOf } from '../../shared/utils/cancellationPolicy';
+import { formatMoneyMinor } from '../../shared/utils/money';
 
 export type LegalSectionKey = 'use' | 'purchases' | 'partner' | 'privacy';
 

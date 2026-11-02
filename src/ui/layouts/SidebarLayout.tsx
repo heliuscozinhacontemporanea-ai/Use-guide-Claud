@@ -1,12 +1,12 @@
+import { Settings } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
 import React from 'react';
 import { createPortal } from 'react-dom';
-import { motion, AnimatePresence } from 'motion/react';
-import { Settings } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { cn } from '../../shared/utils/cn';
 import { Z_INDEX } from '../../shared/constants/zIndex';
-import { useSwipeToClose } from './useSwipeToClose';
 import { useUIStore } from '../../shared/stores/useUIStore';
+import { cn } from '../../shared/utils/cn';
+import { useSwipeToClose } from './useSwipeToClose';
 
 interface SidebarLayoutProps {
   isOpen: boolean;

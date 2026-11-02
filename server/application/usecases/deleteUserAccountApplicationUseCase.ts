@@ -1,6 +1,6 @@
 import { anonymizeBuyerBookingsUseCase } from '../../domain/bookings';
-import { deleteResourcesByOwnerUseCase } from '../../domain/guide';
 import { deleteEventsByOwnerUseCase } from '../../domain/events';
+import { deleteResourcesByOwnerUseCase } from '../../domain/guide';
 import {
   deleteOwnerListingPlansUseCase,
   deleteOwnerListingVerificationsUseCase,

@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { EventOccurrencesService } from './eventOccurrencesService';
-import { EventsService } from './eventsService';
 import type { EventsPort } from '../ports/eventsPort';
 import type { EventListing, EventOccurrence } from '../types/eventTypes';
+import { EventOccurrencesService } from './eventOccurrencesService';
+import { EventsService } from './eventsService';
 
 function createMockPort(): EventsPort {
   return {

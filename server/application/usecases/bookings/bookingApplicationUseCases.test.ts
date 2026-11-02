@@ -34,18 +34,18 @@ import {
   requestCancellationByBuyerUseCase,
   rescheduleSlotByPartnerUseCase,
 } from '../../../domain/bookings';
+import { assertListingCanSellUseCase } from '../../../domain/partners';
 import {
   createMarketplacePaymentIntentUseCase,
   processProviderRefundUseCase,
   reschedulePayoutUseCase,
 } from '../../../domain/payment';
+import { isPartnerSuspended } from '../isPartnerSuspended';
+import { chargeCancellationPenaltyApplicationUseCase } from '../payouts/chargeCancellationPenaltyApplicationUseCase';
 import { cancelBookingByBuyerApplicationUseCase } from './cancelBookingByBuyerApplicationUseCase';
 import { cancelSlotByPartnerApplicationUseCase } from './cancelSlotByPartnerApplicationUseCase';
 import { createBookingApplicationUseCase } from './createBookingApplicationUseCase';
 import { rescheduleSlotByPartnerApplicationUseCase } from './rescheduleSlotByPartnerApplicationUseCase';
-import { isPartnerSuspended } from '../isPartnerSuspended';
-import { chargeCancellationPenaltyApplicationUseCase } from '../payouts/chargeCancellationPenaltyApplicationUseCase';
-import { assertListingCanSellUseCase } from '../../../domain/partners';
 
 const BOOKING = {
   id: 'bk_1',

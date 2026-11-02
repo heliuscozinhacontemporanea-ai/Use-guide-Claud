@@ -12,7 +12,10 @@ export function rateLimitByUser(name: string, limit: number, windowMs: number) {
     const allowed = await consumeRateLimit(`${name}:${uid}`, limit, windowMs).catch(() => true);
     if (allowed) return next();
     return res.status(429).json({
-      error: { code: 'RATE_LIMITED', message: 'Muitas tentativas. Tente de novo em alguns minutos.' },
+      error: {
+        code: 'RATE_LIMITED',
+        message: 'Muitas tentativas. Tente de novo em alguns minutos.',
+      },
     });
   };
 }

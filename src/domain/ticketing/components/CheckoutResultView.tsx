@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import {
   AlertTriangle,
   CheckCircle2,
@@ -7,6 +6,7 @@ import {
   Loader2,
   Ticket as TicketIcon,
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { GlassCard } from '../../../ui/components/GlassCard';
 import { confirmTicketOrderPaymentReturnUseCase } from '../application/usecases/confirmTicketOrderPaymentReturnUseCase';
 import { getTicketOrderUseCase } from '../application/usecases/getTicketOrderUseCase';

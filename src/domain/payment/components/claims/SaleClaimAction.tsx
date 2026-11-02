@@ -1,6 +1,7 @@
 import { MessageSquareWarning } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { formatBusinessDay } from '../../../../shared/utils/businessDateTime';
 import { formatMoneyMinor } from '../../../../shared/utils/money';
 import { StatusText, type StatusTone } from '../../../../ui/components/StatusText';
 import { TextButton } from '../../../../ui/components/TextButton';
@@ -8,7 +9,6 @@ import { useSaleClaimFor } from '../../hooks/mySaleClaimsContext';
 import type { ClaimableSale, SaleClaimStatus } from '../../types/saleClaims';
 import { CLAIM_WINDOW_HOURS, isWithinClaimWindow } from '../../utils/claimWindow';
 import { SaleClaimDialog } from './SaleClaimDialog';
-import { formatBusinessDay } from '../../../../shared/utils/businessDateTime';
 
 const TONE: Record<SaleClaimStatus, StatusTone> = {
   open: 'warn',

@@ -1,7 +1,7 @@
-import { UserPort } from '../ports/userPort';
 import type { Locale } from '../../../shared/i18n';
-import { UserProfile, UserData, UsernameProfile } from '../types/user';
 import { firebaseApiFetch } from '../../../shared/infrastructure/firebase/firebaseApiFetch';
+import { UserPort } from '../ports/userPort';
+import { UserData, UsernameProfile, UserProfile } from '../types/user';
 
 export class ApiUserAdapter implements UserPort {
   async getCurrentUser(): Promise<UserProfile | null> {

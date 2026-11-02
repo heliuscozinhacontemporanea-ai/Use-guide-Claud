@@ -4,8 +4,8 @@ import { createSlotsUseCase } from '../application/usecases/createSlotsUseCase';
 import { listPartnerSlotsUseCase } from '../application/usecases/listPartnerSlotsUseCase';
 import { rescheduleSlotUseCase } from '../application/usecases/rescheduleSlotUseCase';
 import type { CreateSlotsPayload, PartnerSlot } from '../types/bookings';
-import { addDays } from '../utils/dates';
 import { getBookingErrorMessage } from '../utils/bookingErrorMessage';
+import { addDays } from '../utils/dates';
 
 /** Horários de uma semana (início em `weekStart`, domingo 00:00 em Fortaleza). */
 export function usePartnerSlots(offerId: string, weekStart: Date) {

@@ -13,8 +13,8 @@ import {
   type BookableOfferStatus,
   type Booking,
   type BookingActor,
-  type PublicBookableOffer,
   cancellationFamilyOf,
+  type PublicBookableOffer,
   type PublicSlot,
 } from '../types/bookingTypes';
 import { buildSlotId } from '../utils/buildBookingId';

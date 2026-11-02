@@ -1,15 +1,14 @@
-import { type ReactNode, useMemo, useState } from 'react';
-import { UserRole } from '../../auth/types/auth';
-import { motion, AnimatePresence } from 'motion/react';
-import { useAuthContext } from '../../auth/context/AuthContext';
 import { RefreshCw } from 'lucide-react';
-import { useUI } from '../../../shared/stores/useUIStore';
+import { AnimatePresence, motion } from 'motion/react';
+import { type ReactNode, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLocalizedRouting } from '../../../shared/hooks/useLocalizedRouting';
-import { BackButton } from '../../../ui/components/BackButton';
-
-import { ErrorState } from '../../../ui/components/ErrorState';
 import { CATEGORIES } from '../../../shared/constants/categories';
+import { useLocalizedRouting } from '../../../shared/hooks/useLocalizedRouting';
+import { useUI } from '../../../shared/stores/useUIStore';
+import { BackButton } from '../../../ui/components/BackButton';
+import { ErrorState } from '../../../ui/components/ErrorState';
+import { useAuthContext } from '../../auth/context/AuthContext';
+import { UserRole } from '../../auth/types/auth';
 import {
   createAdminEventListingUseCase,
   deleteAdminEventListingUseCase,
@@ -19,8 +18,8 @@ import {
 import {
   createGuideItemUseCase,
   deleteGuideItemUseCase,
-  updateGuideItemUseCase,
   type GuideItem,
+  updateGuideItemUseCase,
 } from '../../guide';
 import {
   toGuideEventInput,
@@ -29,19 +28,18 @@ import {
   toGuideItemUpdateInput,
 } from '../application/mappers/adminGuideEditorMapper';
 import { useAdminGuideCatalog } from '../hooks/useAdminGuideCatalog';
-import { useAdminPartners } from '../hooks/useAdminPartners';
 import { useAdminPartnerActions } from '../hooks/useAdminPartnerActions';
+import { useAdminPartners } from '../hooks/useAdminPartners';
 import { useAdminStats } from '../hooks/useAdminStats';
-
-import { AdminNavigation, type AdminTabId } from './subcomponents/AdminNavigation';
-import { AdminStatsView } from './subcomponents/AdminStatsView';
-import { AdminPartnersView } from './subcomponents/AdminPartnersView';
-import { AdminGuideView } from './subcomponents/AdminGuideView';
-import { AdminEditorModal, type AdminEditorSaveData } from './subcomponents/AdminEditorModal';
-import type { AdminEventSlots } from './subcomponents/AdminEditorEventFields';
-import { AdminPlansView } from './subcomponents/AdminPlansView';
-import { AdminNotificationsView } from './subcomponents/AdminNotificationsView';
 import { AdminAccessDenied } from './subcomponents/AdminAccessDenied';
+import type { AdminEventSlots } from './subcomponents/AdminEditorEventFields';
+import { AdminEditorModal, type AdminEditorSaveData } from './subcomponents/AdminEditorModal';
+import { AdminGuideView } from './subcomponents/AdminGuideView';
+import { AdminNavigation, type AdminTabId } from './subcomponents/AdminNavigation';
+import { AdminNotificationsView } from './subcomponents/AdminNotificationsView';
+import { AdminPartnersView } from './subcomponents/AdminPartnersView';
+import { AdminPlansView } from './subcomponents/AdminPlansView';
+import { AdminStatsView } from './subcomponents/AdminStatsView';
 
 function newRecord(category: 'tips' | 'event'): GuideItem {
   return {

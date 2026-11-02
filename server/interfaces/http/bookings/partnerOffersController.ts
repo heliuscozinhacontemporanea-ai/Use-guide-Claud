@@ -1,16 +1,16 @@
 import type { Response } from 'express';
 import { answerProviderAbsenceApplicationUseCase } from '../../../application/usecases/bookings/answerProviderAbsenceApplicationUseCase';
+import { cancelSlotByPartnerApplicationUseCase } from '../../../application/usecases/bookings/cancelSlotByPartnerApplicationUseCase';
 import { checkInBookingApplicationUseCase } from '../../../application/usecases/bookings/checkInBookingApplicationUseCase';
 import { checkInWithoutCodeApplicationUseCase } from '../../../application/usecases/bookings/checkInWithoutCodeApplicationUseCase';
 import { recordProviderArrivalApplicationUseCase } from '../../../application/usecases/bookings/recordProviderArrivalApplicationUseCase';
-import { cancelSlotByPartnerApplicationUseCase } from '../../../application/usecases/bookings/cancelSlotByPartnerApplicationUseCase';
 import { rescheduleSlotByPartnerApplicationUseCase } from '../../../application/usecases/bookings/rescheduleSlotByPartnerApplicationUseCase';
 import { setBookableOfferStatusApplicationUseCase } from '../../../application/usecases/bookings/setBookableOfferStatusApplicationUseCase';
 import {
   checkInEntryUseCase,
   createAvailabilitySlotsUseCase,
-  getEntryVerificationKeysUseCase,
   createBookableOfferUseCase,
+  getEntryVerificationKeysUseCase,
   listOfferBookingsForPartnerUseCase,
   listOfferSlotsForPartnerUseCase,
   listPartnerOffersUseCase,

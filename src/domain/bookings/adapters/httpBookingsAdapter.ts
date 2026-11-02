@@ -1,26 +1,26 @@
 import { firebaseApiFetch } from '../../../shared/infrastructure/firebase/firebaseApiFetch';
 import type { BookingsApiPort } from '../ports/bookingsApiPort';
 import type {
+  ArrivalLocation,
   BookingDetails,
   BookingSummary,
   CancelBookingResponse,
-  ArrivalLocation,
   CheckInCodeView,
   CodeCheckInPayload,
-  EntryCheckInPayload,
-  EntryPassView,
-  UnitCheckInResult,
-  NoCodeReason,
   CreateBookingPayload,
   CreateBookingResponse,
   CreateOfferPayload,
   CreateSlotsPayload,
+  EntryCheckInPayload,
+  EntryPassView,
+  NoCodeReason,
   OfferFields,
   OfferStatus,
   Page,
   PartnerOffer,
   PartnerSlot,
   PublicSlot,
+  UnitCheckInResult,
 } from '../types/bookings';
 
 const OPTIONS = { requireAuth: true, requireAppCheck: true } as const;

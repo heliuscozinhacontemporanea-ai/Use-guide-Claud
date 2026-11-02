@@ -1,9 +1,9 @@
 import {
   type Booking,
   type BookingActor,
+  bookingServiceEndsAt,
   getBookingForAbsenceReportUseCase,
   recordProviderAbsenceUseCase,
-  bookingServiceEndsAt,
 } from '../../../domain/bookings';
 import { openSaleClaimUseCase } from '../../../domain/payment';
 import { sendBookingServiceNotice } from './bookingServiceNotices';

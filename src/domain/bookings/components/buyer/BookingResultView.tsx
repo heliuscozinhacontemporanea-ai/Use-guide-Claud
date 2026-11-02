@@ -2,11 +2,11 @@ import { CheckCircle2, Clock } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { GlassCard } from '../../../../ui/components/GlassCard';
+import { ListError, ListLoading } from '../../../../ui/components/ListState';
+import { BUTTON_PRIMARY } from '../../../../ui/styles/controls';
 import { getBookingUseCase } from '../../application/usecases/getBookingUseCase';
 import type { BookingStatus } from '../../types/bookings';
 import { getBookingErrorMessage } from '../../utils/bookingErrorMessage';
-import { ListError, ListLoading } from '../../../../ui/components/ListState';
-import { BUTTON_PRIMARY } from '../../../../ui/styles/controls';
 
 /** Retorno do Stripe para reservas: só mostra o status; quem confirma é o webhook. */
 export function BookingResultView({

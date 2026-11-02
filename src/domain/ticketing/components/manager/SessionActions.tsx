@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { BUTTON_SECONDARY } from '../../../../ui/styles/controls';
 import type { EventOccurrence } from '../../../events';
 import { OccurrenceCancelDialog } from './OccurrenceCancelDialog';
 import { OccurrencePostponeDialog } from './OccurrencePostponeDialog';
-import { BUTTON_SECONDARY } from '../../../../ui/styles/controls';
 
 /** Adiar ou cancelar a sessão escolhida; sessão já adiada ou cancelada só mostra o status. */
 export function SessionActions({

@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { AuthenticatedUserContext } from '../security/authenticatedUserContext';
-import { updatePartnerEventApplicationUseCase } from './updatePartnerEventApplicationUseCase';
-import { getEventListingByIdUseCase, type EventListing } from '../../domain/events';
+import { type EventListing, getEventListingByIdUseCase } from '../../domain/events';
 import { updateBusinessUseCase } from '../../domain/partners';
+import type { AuthenticatedUserContext } from '../security/authenticatedUserContext';
 import { updateEventListingSafelyApplicationUseCase } from './updateEventListingSafelyApplicationUseCase';
+import { updatePartnerEventApplicationUseCase } from './updatePartnerEventApplicationUseCase';
 
 vi.mock('../../domain/events', () => ({
   getEventListingByIdUseCase: vi.fn(),

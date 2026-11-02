@@ -1,7 +1,7 @@
 import type {
   CreatePaymentIntentResponse,
-  PaidPlanId,
   CreatePlanPaymentIntentPayload,
+  PaidPlanId,
   PartnerPaymentAccount,
   PartnerTermsView,
   PaymentLocale,

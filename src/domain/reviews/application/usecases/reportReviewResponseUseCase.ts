@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { reviewReportApi } from '../../factory';
-import { REVIEW_REPORT_REASONS, type MyReviewReport } from '../../types/reviewReport';
+import { type MyReviewReport, REVIEW_REPORT_REASONS } from '../../types/reviewReport';
 
 const schema = z
   .object({

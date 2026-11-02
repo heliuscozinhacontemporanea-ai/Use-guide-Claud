@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { eventSalesPolicySchema } from '../../events/schemas/eventSchema';
 import { E164_MESSAGE, E164_PATTERN } from '../../../shared/kernel/phone';
+import { eventSalesPolicySchema } from '../../events/schemas/eventSchema';
 
 const optionalUrl = z.string().url().or(z.literal('')).optional();
 

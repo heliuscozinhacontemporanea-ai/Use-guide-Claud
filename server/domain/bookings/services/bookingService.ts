@@ -1,4 +1,7 @@
+import { calculateBuyerRefund } from '../../../shared/kernel/cancellationPolicy';
+import { isCurrentBuyerTermsVersion } from '../../../shared/kernel/legalTerms';
 import type { Locale } from '../../../shared/kernel/locale';
+import type { PlatformFeeConfig } from '../../../shared/kernel/platformFees';
 import { BookingDomainError } from '../errors/bookingDomainError';
 import type { BookingsPort, PageRequest } from '../ports/bookingsPort';
 import {
@@ -10,14 +13,11 @@ import {
   cancellationFamilyOf,
   type Page,
 } from '../types/bookingTypes';
+import { priceBookingLines } from '../utils/bookingPricing';
+import { buildBookingId } from '../utils/buildBookingId';
 import { entryWindow, NO_SHOW_WAIT_MS, SERVICE_CONFIRMATION_MS } from '../utils/checkInWindow';
 import { hasAnyCheckIn } from '../utils/serviceProof';
 import { serviceEndsAtMs } from '../utils/serviceTime';
-import { buildBookingId } from '../utils/buildBookingId';
-import { priceBookingLines } from '../utils/bookingPricing';
-import { calculateBuyerRefund } from '../../../shared/kernel/cancellationPolicy';
-import { isCurrentBuyerTermsVersion } from '../../../shared/kernel/legalTerms';
-import type { PlatformFeeConfig } from '../../../shared/kernel/platformFees';
 
 // Tempo para pagar antes de a vaga voltar para a venda (inclui o Pix, que é assíncrono).
 const PAYMENT_WINDOW_MS = 15 * 60 * 1000;

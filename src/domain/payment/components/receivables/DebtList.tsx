@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ListEmpty, ListError, ListLoading } from '../../../../ui/components/ListState';
 import { usePartnerDebts } from '../../hooks/usePartnerDebts';
 import type { PartnerPaymentAccount } from '../../types/payment';
 import type { AccountDebtView } from '../../types/receivables';
 import { DebtCard } from './DebtCard';
 import { DebtPaymentDialog } from './DebtPaymentDialog';
 import { ForceMajeureDialog } from './ForceMajeureDialog';
-import { ListEmpty, ListError, ListLoading } from '../../../../ui/components/ListState';
 
 export function DebtList({
   accounts,

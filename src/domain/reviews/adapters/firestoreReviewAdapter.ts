@@ -1,15 +1,15 @@
+import { firebaseApiFetch } from '../../../shared/infrastructure/firebase/firebaseApiFetch';
 import {
+  type DatabaseCursor,
+  type DatabaseOrderClause,
+  type DatabasePage,
   getDocumentUseCase,
   queryDocumentsPageUseCase,
   queryDocumentsUseCase,
   subscribeToCollectionUseCase,
-  type DatabaseCursor,
-  type DatabaseOrderClause,
-  type DatabasePage,
 } from '../../database';
 import { ReviewPort } from '../ports/reviewPort';
 import { FirestoreReview, ReviewSortOption } from '../types/review';
-import { firebaseApiFetch } from '../../../shared/infrastructure/firebase/firebaseApiFetch';
 import { buildReviewId } from '../utils/buildReviewId';
 
 function getOrderClauses(sortBy: ReviewSortOption): DatabaseOrderClause[] {

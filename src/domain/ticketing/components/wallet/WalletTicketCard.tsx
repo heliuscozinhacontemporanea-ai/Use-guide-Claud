@@ -1,10 +1,10 @@
 import { QrCode, Send, ShieldAlert } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { cn } from '../../../../shared/utils/cn';
 import { ConfirmDialog, type ConfirmDialogData } from '../../../../ui/components/ConfirmDialog';
 import { GlassCard } from '../../../../ui/components/GlassCard';
 import { TextButton } from '../../../../ui/components/TextButton';
-import { cn } from '../../../../shared/utils/cn';
 import type { TicketQrPreview } from '../../hooks/useTicketWalletActions';
 import type { Ticket } from '../../types/ticketing';
 import { TICKET_CODE_PREFIX } from '../../utils/ticketCode';

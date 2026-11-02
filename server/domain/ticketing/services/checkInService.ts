@@ -1,8 +1,8 @@
 import { createEventAuditLogUseCase, getEventOccurrenceByIdUseCase } from '../../events';
 import { createNotificationUseCase } from '../../notifications';
 import { TicketingDomainError } from '../errors/ticketingDomainError';
-import type { TicketQrTokenPort } from '../ports/ticketQrTokenPort';
 import type { TicketingPort } from '../ports/ticketingPort';
+import type { TicketQrTokenPort } from '../ports/ticketQrTokenPort';
 import { type EventCheckIn, type Ticket } from '../types/ticketingTypes';
 import { listTicketQrTokenLookupHashes } from '../utils/qrToken';
 import {

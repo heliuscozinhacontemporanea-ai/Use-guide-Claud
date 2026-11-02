@@ -1,14 +1,14 @@
 import type { TicketingPort } from '../ports/ticketingPort';
-import { FirestoreTicketTypeStore } from './firestoreTicketTypeStore';
-import { FirestoreOrderReservationStore } from './firestoreOrderReservationStore';
+import { FirestoreCheckInStore } from './firestoreCheckInStore';
+import { FirestoreEngagementStore } from './firestoreEngagementStore';
 import { FirestoreOrderPaymentStore } from './firestoreOrderPaymentStore';
 import { FirestoreOrderQueryStore } from './firestoreOrderQueryStore';
-import { FirestoreTicketStore } from './firestoreTicketStore';
-import { FirestoreCheckInStore } from './firestoreCheckInStore';
+import { FirestoreOrderReservationStore } from './firestoreOrderReservationStore';
 import { FirestoreRefundStore } from './firestoreRefundStore';
-import { FirestoreEngagementStore } from './firestoreEngagementStore';
 import { FirestoreTicketPrivacyStore } from './firestoreTicketPrivacyStore';
 import { FirestoreTransferLinkStore } from './firestoreTransferLinkStore';
+import { FirestoreTicketStore } from './firestoreTicketStore';
+import { FirestoreTicketTypeStore } from './firestoreTicketTypeStore';
 
 /** Implementação do `TicketingPort` no Firestore, composta pelos stores de cada parte do ticketing. */
 export class FirestoreTicketingAdapter implements TicketingPort {

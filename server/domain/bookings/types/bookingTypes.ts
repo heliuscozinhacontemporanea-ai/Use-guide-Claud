@@ -1,5 +1,5 @@
-import type { TermsAcceptance } from '../../../shared/kernel/legalTerms';
 import type { BookingCancellationPolicy } from '../../../shared/kernel/cancellationPolicy';
+import type { TermsAcceptance } from '../../../shared/kernel/legalTerms';
 import type { Locale } from '../../../shared/kernel/locale';
 
 /** Texto cadastrado pelo parceiro; pt-BR é obrigatório (AGENTS.md §12.6). */

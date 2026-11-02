@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
 import { Route, Routes, type Location } from 'react-router-dom';
-import { AdminPanelComposition } from '../compositions/AdminPanelComposition';
 import { AccountActionPage } from '../../domain/auth';
 import type { GuideItem } from '../../domain/guide';
 import { ExploreView } from '../../domain/guide/components/ExploreView';
@@ -9,6 +8,7 @@ import { ACCOUNT_ACTION_PATH } from '../../shared/constants/accountActionPath';
 import { LOCALIZED_ROUTES, type RouteKey, SUPPORTED_LOCALES } from '../../shared/i18n';
 import { NotFoundView } from '../../ui/components/NotFoundView';
 import { PageLayout } from '../../ui/layouts/PageLayout';
+import { AdminPanelComposition } from '../compositions/AdminPanelComposition';
 import { CheckoutResultComposition } from '../compositions/CheckoutResultComposition';
 
 type GridCategory =

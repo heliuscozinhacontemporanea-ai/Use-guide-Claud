@@ -1,6 +1,8 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ListEmpty, ListError, ListLoading } from '../../../../ui/components/ListState';
+import { BUTTON_SECONDARY } from '../../../../ui/styles/controls';
 import { usePartnerSlots } from '../../hooks/usePartnerSlots';
 import type { CreateSlotsPayload, OfferKind, PartnerSlot } from '../../types/bookings';
 import { getBookingErrorMessage } from '../../utils/bookingErrorMessage';
@@ -11,8 +13,6 @@ import {
   fortalezaDateKey,
   startOfFortalezaWeek,
 } from '../../utils/dates';
-import { ListEmpty, ListError, ListLoading } from '../../../../ui/components/ListState';
-import { BUTTON_SECONDARY } from '../../../../ui/styles/controls';
 import { SlotCancelDialog } from './SlotCancelDialog';
 import { SlotCheckInSheet } from './SlotCheckInSheet';
 import { SlotCreationForm } from './SlotCreationForm';

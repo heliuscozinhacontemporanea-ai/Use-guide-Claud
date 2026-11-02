@@ -1,6 +1,6 @@
 import { getBookingEntryService } from '../factory';
-import type { EntryCheckInInput } from '../services/bookingEntryService';
 import type { UnitCheckInResult } from '../services/bookingCheckInService';
+import type { EntryCheckInInput } from '../services/bookingEntryService';
 import type { BookingActor } from '../types/bookingTypes';
 
 /** Entrada de uma pessoa na portaria, pelo QR ou pelo código de 8 caracteres (D20). */

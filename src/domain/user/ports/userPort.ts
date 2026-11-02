@@ -1,5 +1,5 @@
 import type { Locale } from '../../../shared/i18n';
-import { UserProfile, UserData, UsernameProfile } from '../types/user';
+import { UserData, UsernameProfile, UserProfile } from '../types/user';
 
 export interface UserPort {
   getCurrentUser(): Promise<UserProfile | null>;

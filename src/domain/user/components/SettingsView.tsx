@@ -4,15 +4,15 @@ import {
   HelpCircle,
   Info,
   Languages,
+  type LucideIcon,
   Monitor,
   Moon,
   ShoppingBag,
   Sun,
-  type LucideIcon,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { DEFAULT_LOCALE, getLocaleDisplayLabel, i18n, normalizeLocale } from '../../../shared/i18n';
 import { useTheme } from '../../../shared/context/ThemeContext';
+import { DEFAULT_LOCALE, getLocaleDisplayLabel, i18n, normalizeLocale } from '../../../shared/i18n';
 import { BackButton } from '../../../ui/components/BackButton';
 
 interface SettingsViewProps {

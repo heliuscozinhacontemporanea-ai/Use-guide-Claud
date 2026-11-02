@@ -2,11 +2,11 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatMoneyMinor } from '../../../../shared/utils/money';
 import { Dialog } from '../../../../ui/components/Dialog';
+import { ListLoading } from '../../../../ui/components/ListState';
 import { StripePaymentElement } from '../../adapters/ui/StripePaymentElement';
 import { startDebtPaymentUseCase } from '../../application/usecases/startDebtPaymentUseCase';
 import type { AccountDebtView } from '../../types/receivables';
 import { receivablesErrorKey } from '../../utils/receivablesFormat';
-import { ListLoading } from '../../../../ui/components/ListState';
 
 export function DebtPaymentDialog({
   debt,

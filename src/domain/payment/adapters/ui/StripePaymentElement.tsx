@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { Elements, PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js';
 import type { StripeElementsOptions } from '@stripe/stripe-js';
 import { Loader2, Lock } from 'lucide-react';
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useResolvedTheme } from '../../../../shared/context/ThemeContext';
-import { normalizeLocale, DEFAULT_LOCALE } from '../../../../shared/i18n';
+import { DEFAULT_LOCALE, normalizeLocale } from '../../../../shared/i18n';
 import { stripePromise } from '../stripePromise';
 
 interface StripePaymentElementProps {

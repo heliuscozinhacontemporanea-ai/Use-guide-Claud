@@ -1,13 +1,19 @@
-import { useEffect, useRef, useState } from 'react';
+import { type RefObject, useEffect, useRef, useState } from 'react';
+
+interface ScrollContainerState {
+  scrollContainerRef: RefObject<HTMLDivElement | null>;
+  isScrolled: boolean;
+}
 
 /**
- * Contêiner de rolagem do app: guarda a posição de cada rota e a restaura ao voltar, esperando o
- * conteúdo carregar; `isScrolled` indica rolagem além do topo.
+ * Guarda e restaura a altura da rolagem por rota e avisa o cabeçalho quando a página rolou.
+ * Espera os itens assíncronos montarem antes de aplicar a posição salva.
  */
-export function useScrollContainer(pathname: string) {
+export function useScrollContainer(pathname: string): ScrollContainerState {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const scrollPositions = useRef<Record<string, number>>({});
   const lastPathname = useRef(pathname);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
     const container = scrollContainerRef.current;
@@ -22,11 +28,6 @@ export function useScrollContainer(pathname: string) {
     let attempts = 0;
     const maxAttempts = 15;
     const scrollInterval = setInterval(() => {
-      if (!container) {
-        clearInterval(scrollInterval);
-        return;
-      }
-
       const currentMaxScroll = container.scrollHeight - container.clientHeight;
       const canReachSaved = currentMaxScroll >= savedPosition;
 
@@ -44,8 +45,6 @@ export function useScrollContainer(pathname: string) {
 
     return () => clearInterval(scrollInterval);
   }, [pathname]);
-
-  const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
     const container = scrollContainerRef.current;

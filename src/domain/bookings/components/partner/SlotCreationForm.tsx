@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { BUTTON_PRIMARY, BUTTON_SECONDARY, INPUT } from '../../../../ui/styles/controls';
 import type { CreateSlotsPayload } from '../../types/bookings';
 import { fortalezaInputToIso } from '../../utils/dates';
-import { BUTTON_PRIMARY, BUTTON_SECONDARY, INPUT } from '../../../../ui/styles/controls';
 
 const WEEKDAYS = [0, 1, 2, 3, 4, 5, 6] as const;
 

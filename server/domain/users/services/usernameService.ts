@@ -1,9 +1,9 @@
 import { UsernameError } from '../errors/usernameError';
 import type { UsernameOwner, UsernamePort } from '../ports/usernamePort';
 import {
+  normalizeUsername,
   USERNAME_CHANGE_INTERVAL_DAYS,
   USERNAME_RELEASE_DAYS,
-  normalizeUsername,
   usernameBaseFromName,
 } from '../utils/username';
 

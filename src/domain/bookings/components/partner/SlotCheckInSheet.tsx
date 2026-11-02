@@ -1,11 +1,11 @@
 import { Camera, ScanLine } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { cn } from '../../../../shared/utils/cn';
 import { CodeBoxesInput } from '../../../../ui/components/CodeBoxesInput';
 import { Dialog } from '../../../../ui/components/Dialog';
 import { GateModeScreen, type GateOutcome } from '../../../../ui/components/GateModeScreen';
 import { StatusText } from '../../../../ui/components/StatusText';
-import { cn } from '../../../../shared/utils/cn';
 import { useQrScanner } from '../../../../ui/hooks/useQrScanner';
 import { BUTTON_PRIMARY, BUTTON_SECONDARY } from '../../../../ui/styles/controls';
 import { useSlotCheckIn } from '../../hooks/useSlotCheckIn';

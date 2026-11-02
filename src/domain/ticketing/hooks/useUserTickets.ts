@@ -3,8 +3,8 @@ import { getTicketQrTokenUseCase } from '../application/usecases/getTicketQrToke
 import { listUserOrdersUseCase } from '../application/usecases/listUserOrdersUseCase';
 import { listUserTicketsUseCase } from '../application/usecases/listUserTicketsUseCase';
 import { returnTicketToBuyerUseCase } from '../application/usecases/returnTicketToBuyerUseCase';
-import { swapTicketQrUseCase } from '../application/usecases/swapTicketQrUseCase';
 import { requestTicketRefundUseCase } from '../application/usecases/requestTicketRefundUseCase';
+import { swapTicketQrUseCase } from '../application/usecases/swapTicketQrUseCase';
 import { transferTicketUseCase } from '../application/usecases/transferTicketUseCase';
 import type { Ticket, TicketOrder } from '../types/ticketing';
 

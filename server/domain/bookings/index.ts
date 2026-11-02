@@ -6,12 +6,12 @@ export type {
   UnitCheckInResult,
   UnitCode,
 } from './services/bookingCheckInService';
+export type { EntryCheckInInput, EntryPass, EntryPassView } from './services/bookingEntryService';
 export type {
   BookingDetails,
   BuyerCancellationResult,
   CreatePendingBookingInput,
 } from './services/bookingService';
-export type { EntryCheckInInput, EntryPass, EntryPassView } from './services/bookingEntryService';
 export type { CheckInWithoutCodeInput } from './services/bookingServiceProofService';
 export type { CreateSlotsInput, OfferInput } from './services/offerService';
 export {
@@ -55,10 +55,10 @@ export { getBookingForActorUseCase } from './usecases/getBookingForActorUseCase'
 export { getBookingUseCase } from './usecases/getBookingUseCase';
 export { getEntryPassUseCase } from './usecases/getEntryPassUseCase';
 export { getEntryVerificationKeysUseCase } from './usecases/getEntryVerificationKeysUseCase';
-export { getVerifiedServiceForReviewUseCase } from './usecases/getVerifiedServiceForReviewUseCase';
 export { getOpenProviderAbsenceUseCase } from './usecases/getOpenProviderAbsenceUseCase';
 export { getPendingServiceConfirmationUseCase } from './usecases/getPendingServiceConfirmationUseCase';
 export { getPublicOfferSummaryUseCase } from './usecases/getPublicOfferSummaryUseCase';
+export { getVerifiedServiceForReviewUseCase } from './usecases/getVerifiedServiceForReviewUseCase';
 export { hasCheckedInBookingUseCase } from './usecases/hasCheckedInBookingUseCase';
 export { listAvailableSlotsUseCase } from './usecases/listAvailableSlotsUseCase';
 export { listBookingsWithDueDeadlineUseCase } from './usecases/listBookingsWithDueDeadlineUseCase';
@@ -76,8 +76,8 @@ export { requestCancellationByBuyerUseCase } from './usecases/requestCancellatio
 export { rescheduleSlotByPartnerUseCase } from './usecases/rescheduleSlotByPartnerUseCase';
 export { resolveProviderAbsenceUseCase } from './usecases/resolveProviderAbsenceUseCase';
 export { resolveServiceConfirmationUseCase } from './usecases/resolveServiceConfirmationUseCase';
-export { setParticipantNameUseCase } from './usecases/setParticipantNameUseCase';
 export { setBookableOfferStatusUseCase } from './usecases/setBookableOfferStatusUseCase';
+export { setParticipantNameUseCase } from './usecases/setParticipantNameUseCase';
 export { updateBookableOfferUseCase } from './usecases/updateBookableOfferUseCase';
 export { priceBookingLines } from './utils/bookingPricing';
 export { hasServiceProof, requiresServiceProof } from './utils/serviceProof';

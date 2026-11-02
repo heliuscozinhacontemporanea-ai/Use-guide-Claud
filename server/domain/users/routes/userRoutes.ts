@@ -1,11 +1,11 @@
 import express, { Router } from 'express';
+import {
+  requireRecentAuthentication,
+  verifyAuthToken,
+} from '../../../infrastructure/auth/authMiddleware';
 import { rateLimitByUser } from '../../../infrastructure/http/rateLimitByUser';
 import { UserController } from '../controllers/userController';
 import { UsernameController } from '../controllers/usernameController';
-import {
-  verifyAuthToken,
-  requireRecentAuthentication,
-} from '../../../infrastructure/auth/authMiddleware';
 
 const router = Router();
 

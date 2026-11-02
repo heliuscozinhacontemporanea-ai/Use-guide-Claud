@@ -1,12 +1,12 @@
-import { BUYER_TERMS_VERSION } from '../../../shared/kernel/legalTerms';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { CheckInService } from './checkInService';
-import { TicketHolderService } from './ticketHolderService';
-import { TicketOrderService } from './ticketOrderService';
-import { TicketTypeService } from './ticketTypeService';
-import { TicketingReportService } from './ticketingReportService';
+import { BUYER_TERMS_VERSION } from '../../../shared/kernel/legalTerms';
 import type { TicketingPort } from '../ports/ticketingPort';
 import type { TicketType } from '../types/ticketingTypes';
+import { CheckInService } from './checkInService';
+import { TicketHolderService } from './ticketHolderService';
+import { TicketingReportService } from './ticketingReportService';
+import { TicketOrderService } from './ticketOrderService';
+import { TicketTypeService } from './ticketTypeService';
 
 vi.mock('../../events', () => ({
   EventNotFoundError: class extends Error {

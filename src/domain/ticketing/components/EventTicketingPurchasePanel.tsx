@@ -1,9 +1,9 @@
 import { AlertCircle, Loader2, Sparkles, Ticket as TicketIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { formatMoneyMinor } from '../../../shared/utils/money';
 import { GlassCard } from '../../../ui/components/GlassCard';
 import { TermsAcceptanceField } from '../../../ui/legal/TermsAcceptanceField';
-import { formatMoneyMinor } from '../../../shared/utils/money';
 import { useEventOccurrences } from '../../events';
 import { useEventSalesPolicy } from '../hooks/useEventSalesPolicy';
 import { useTicketCheckout } from '../hooks/useTicketCheckout';

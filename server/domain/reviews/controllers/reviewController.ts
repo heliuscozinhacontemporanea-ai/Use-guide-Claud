@@ -1,9 +1,9 @@
-import { BookingDomainError } from '../../bookings';
 import { Response } from 'express';
 import { AuthenticatedRequest } from '../../../infrastructure/auth/authMiddleware';
+import { BookingDomainError } from '../../bookings';
 import { CreateReviewDTO } from '../dtos/CreateReviewDTO';
-import { submitReviewSchema, respondReviewSchema } from '../schemas/reviewSchema';
 import { reviewService } from '../factory';
+import { respondReviewSchema, submitReviewSchema } from '../schemas/reviewSchema';
 
 export class ReviewController {
   static async submitReview(req: AuthenticatedRequest, res: Response): Promise<void> {

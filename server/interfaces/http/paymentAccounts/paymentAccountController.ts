@@ -1,11 +1,11 @@
 import type { Response } from 'express';
-import { listPartnerPaymentAccountsApplicationUseCase } from '../../../application/usecases/paymentAccounts/listPartnerPaymentAccountsApplicationUseCase';
-import { startPaymentAccountSessionApplicationUseCase } from '../../../application/usecases/paymentAccounts/startPaymentAccountSessionApplicationUseCase';
-import { listPartnerPayoutsApplicationUseCase } from '../../../application/usecases/paymentAccounts/listPartnerPayoutsApplicationUseCase';
-import { listPartnerDebtsApplicationUseCase } from '../../../application/usecases/paymentAccounts/listPartnerDebtsApplicationUseCase';
-import { startPartnerDebtPaymentApplicationUseCase } from '../../../application/usecases/paymentAccounts/startPartnerDebtPaymentApplicationUseCase';
 import { acceptPartnerTermsApplicationUseCase } from '../../../application/usecases/paymentAccounts/acceptPartnerTermsApplicationUseCase';
 import { getPartnerTermsApplicationUseCase } from '../../../application/usecases/paymentAccounts/getPartnerTermsApplicationUseCase';
+import { listPartnerDebtsApplicationUseCase } from '../../../application/usecases/paymentAccounts/listPartnerDebtsApplicationUseCase';
+import { listPartnerPaymentAccountsApplicationUseCase } from '../../../application/usecases/paymentAccounts/listPartnerPaymentAccountsApplicationUseCase';
+import { listPartnerPayoutsApplicationUseCase } from '../../../application/usecases/paymentAccounts/listPartnerPayoutsApplicationUseCase';
+import { startPartnerDebtPaymentApplicationUseCase } from '../../../application/usecases/paymentAccounts/startPartnerDebtPaymentApplicationUseCase';
+import { startPaymentAccountSessionApplicationUseCase } from '../../../application/usecases/paymentAccounts/startPaymentAccountSessionApplicationUseCase';
 import { ListingVerificationError, PartnerDomainError } from '../../../domain/partners';
 import { PaymentDomainError } from '../../../domain/payment';
 import type { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';

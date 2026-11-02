@@ -1,5 +1,5 @@
-import { getAppCheck } from 'firebase-admin/app-check';
 import type { NextFunction, Request, Response } from 'express';
+import { getAppCheck } from 'firebase-admin/app-check';
 
 // Fail-closed em produção: só desliga com APP_CHECK_REQUIRED=false explícito.
 export function isAppCheckRequired(env: NodeJS.ProcessEnv = process.env): boolean {

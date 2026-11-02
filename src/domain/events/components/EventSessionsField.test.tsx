@@ -11,7 +11,6 @@ describe('EventSessionsField', () => {
   beforeAll(async () => {
     await i18n.changeLanguage('pt-BR');
   });
-
   it('mostra os horários no fuso de Fortaleza e adiciona uma sessão', () => {
     const onChange = vi.fn();
     render(<EventSessionsField sessions={one} onChange={onChange} loadState="ready" />);

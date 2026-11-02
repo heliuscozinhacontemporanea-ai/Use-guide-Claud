@@ -28,8 +28,8 @@ vi.mock(
   })
 );
 
-import { PartnerDomainError } from '../../../domain/partners/errors/partnerDomainError';
 import { ListingVerificationError } from '../../../domain/partners/errors/listingVerificationError';
+import { PartnerDomainError } from '../../../domain/partners/errors/partnerDomainError';
 import { PaymentAccountController } from './paymentAccountController';
 
 function response() {

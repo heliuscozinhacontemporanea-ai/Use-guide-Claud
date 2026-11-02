@@ -7,8 +7,8 @@ import {
   TicketingDomainError,
   type TicketOrder,
 } from '../../domain/ticketing';
-import { OrchestrationActor } from './orchestrationActor';
 import { isPartnerSuspended } from './isPartnerSuspended';
+import { OrchestrationActor } from './orchestrationActor';
 
 export async function createTicketOrderPaymentIntentApplicationUseCase(
   actor: OrchestrationActor,

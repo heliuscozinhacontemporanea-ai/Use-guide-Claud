@@ -1,15 +1,15 @@
 import { AggregateField, FieldValue } from 'firebase-admin/firestore';
 import { adminDb } from '../../../infrastructure/firebase/adminClient';
+import { getEventListingByIdUseCase, updateEventRatingSummaryUseCase } from '../../events';
+import {
+  getItemByIdUseCase,
+  getResourceOwnerIdUseCase,
+  updateReviewAggregateUseCase,
+} from '../../guide';
+import { getUserPublicProfileUseCase } from '../../users';
 import { CreateReviewDTO } from '../dtos/CreateReviewDTO';
 import { ReviewPort, SubmitReviewResult } from '../ports/reviewPort';
 import { buildReviewId } from '../utils/buildReviewId';
-import { getUserPublicProfileUseCase } from '../../users';
-import {
-  getResourceOwnerIdUseCase,
-  getItemByIdUseCase,
-  updateReviewAggregateUseCase,
-} from '../../guide';
-import { getEventListingByIdUseCase, updateEventRatingSummaryUseCase } from '../../events';
 
 export class FirestoreReviewAdapter implements ReviewPort {
   async submitReviewAndRecalculateRating(dto: CreateReviewDTO): Promise<SubmitReviewResult> {

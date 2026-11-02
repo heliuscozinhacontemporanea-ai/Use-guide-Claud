@@ -1,14 +1,14 @@
-import { createEventAuditLogUseCase, getEventListingByIdUseCase } from '../../events';
-import { OrderNotFoundError, TicketingDomainError } from '../errors/ticketingDomainError';
-import type { TicketingPort } from '../ports/ticketingPort';
 import { isCurrentBuyerTermsVersion } from '../../../shared/kernel/legalTerms';
 import {
   PlatformFeeConfigError,
   resolvePlatformFeeConfig,
 } from '../../../shared/kernel/platformFees';
+import { createEventAuditLogUseCase, getEventListingByIdUseCase } from '../../events';
+import { OrderNotFoundError, TicketingDomainError } from '../errors/ticketingDomainError';
+import type { TicketingPort } from '../ports/ticketingPort';
 import {
-  canTransitionOrderStatus,
   CHECKOUT_RESERVATION_MINUTES,
+  canTransitionOrderStatus,
   type Ticket,
   type TicketOrder,
   type TicketOrderItem,

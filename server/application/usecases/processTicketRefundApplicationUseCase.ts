@@ -1,8 +1,8 @@
 import { processProviderRefundUseCase } from '../../domain/payment';
 import {
   finalizeTicketRefundStatusUseCase,
-  requestTicketRefundUseCase,
   type Refund,
+  requestTicketRefundUseCase,
 } from '../../domain/ticketing';
 import { OrchestrationActor } from './orchestrationActor';
 import { applyTicketRefundToPayoutApplicationUseCase } from './payouts/applyTicketRefundToPayoutApplicationUseCase';

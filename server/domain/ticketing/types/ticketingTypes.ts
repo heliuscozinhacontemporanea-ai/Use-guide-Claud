@@ -1,5 +1,5 @@
-import type { TermsAcceptance } from '../../../shared/kernel/legalTerms';
 import type { EventCancellationPolicy } from '../../../shared/kernel/cancellationPolicy';
+import type { TermsAcceptance } from '../../../shared/kernel/legalTerms';
 import type { ServiceFeeMode } from '../../../shared/kernel/platformFees';
 export type MoneyMinor = number;
 

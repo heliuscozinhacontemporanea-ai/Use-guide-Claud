@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
-import { InMemoryPayoutEntryAdapter } from '../adapters/inMemoryPayoutEntryAdapter';
 import { InMemoryAccountDebtAdapter } from '../adapters/inMemoryAccountDebtAdapter';
+import { InMemoryPayoutEntryAdapter } from '../adapters/inMemoryPayoutEntryAdapter';
 import { DebtService } from './debtService';
 import { PayoutService, type RecordSaleInput } from './payoutService';
 

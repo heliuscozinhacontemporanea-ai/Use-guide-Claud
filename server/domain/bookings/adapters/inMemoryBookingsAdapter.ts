@@ -1,6 +1,5 @@
 import { BookingDomainError } from '../errors/bookingDomainError';
 import type { BookingsPort, PageRequest } from '../ports/bookingsPort';
-import { newCheckIns } from '../utils/serviceProof';
 import {
   type AvailabilitySlot,
   type AvailabilitySlotStatus,
@@ -14,6 +13,7 @@ import {
   type Page,
   type PublicBookableOffer,
 } from '../types/bookingTypes';
+import { newCheckIns } from '../utils/serviceProof';
 
 /** Usado SOMENTE por testes (AGENTS.md §2.2 item 7): mesmas regras de vagas do adapter do Firestore. */
 export class InMemoryBookingsAdapter implements BookingsPort {

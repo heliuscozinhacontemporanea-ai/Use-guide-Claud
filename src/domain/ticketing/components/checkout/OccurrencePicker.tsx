@@ -1,7 +1,7 @@
 import { Calendar } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import type { EventOccurrence } from '../../../events';
 import { cn } from '../../../../shared/utils/cn';
+import type { EventOccurrence } from '../../../events';
 
 interface OccurrencePickerProps {
   occurrences: EventOccurrence[];

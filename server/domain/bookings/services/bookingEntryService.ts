@@ -7,22 +7,22 @@ import type {
   BookingActor,
   BookingCheckIn,
 } from '../types/bookingTypes';
-import type { UnitCheckInResult } from './bookingCheckInService';
 import {
   deriveCheckInCode,
   ENTRY_CODE_LENGTH,
   matchCheckInCodeUnit,
   normalizeCheckInCode,
 } from '../utils/checkInCode';
-import { checkInsOf } from '../utils/serviceProof';
 import {
   CHECK_IN_FAILURE_WINDOW_MS,
+  checkInCodeVisibleFromMs,
   ENTRY_MAX_FAILURES_PER_ACTOR,
   ENTRY_MAX_FAILURES_PER_SLOT,
-  checkInCodeVisibleFromMs,
   entryWindow,
   resolveCheckInTime,
 } from '../utils/checkInWindow';
+import { checkInsOf } from '../utils/serviceProof';
+import type { UnitCheckInResult } from './bookingCheckInService';
 
 const NOT_FOUND = () => new BookingDomainError('NOT_FOUND', 'Reserva não encontrada.');
 const NOT_ENTRY = () =>

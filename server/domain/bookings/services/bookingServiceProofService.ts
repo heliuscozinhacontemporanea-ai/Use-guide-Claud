@@ -11,9 +11,9 @@ import {
 } from '../types/bookingTypes';
 import {
   ABSENCE_RESPONSE_MS,
+  checkInWindow,
   PROVIDER_ABSENT_AFTER_MS,
   SERVICE_CONFIRMATION_MS,
-  checkInWindow,
 } from '../utils/checkInWindow';
 import { hasAnyCheckIn, hasServiceProof } from '../utils/serviceProof';
 

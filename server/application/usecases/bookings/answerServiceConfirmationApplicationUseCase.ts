@@ -1,9 +1,9 @@
 import {
   type Booking,
   type BookingActor,
+  bookingServiceEndsAt,
   getPendingServiceConfirmationUseCase,
   resolveServiceConfirmationUseCase,
-  bookingServiceEndsAt,
 } from '../../../domain/bookings';
 import { decideSaleClaimUseCase, openSaleClaimUseCase } from '../../../domain/payment';
 import { SYSTEM_ACTOR } from './answerProviderAbsenceApplicationUseCase';

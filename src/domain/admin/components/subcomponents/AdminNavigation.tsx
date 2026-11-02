@@ -1,4 +1,3 @@
-import { useEffect, useRef } from 'react';
 import {
   Award,
   Bell,
@@ -11,6 +10,7 @@ import {
   ShieldCheck,
   Users,
 } from 'lucide-react';
+import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '../../../../shared/utils/cn';
 

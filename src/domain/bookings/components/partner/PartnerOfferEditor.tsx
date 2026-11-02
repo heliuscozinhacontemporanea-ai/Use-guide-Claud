@@ -4,6 +4,7 @@ import { Controller, useForm, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useCancellationPolicyOptions } from '../../../../shared/hooks/useCancellationPolicyOptions';
 import { RadioCardGroup } from '../../../../ui/components/RadioCardGroup';
+import { BUTTON_PRIMARY, BUTTON_SECONDARY, INPUT } from '../../../../ui/styles/controls';
 import {
   type OfferFormInput,
   type OfferFormValues,
@@ -12,7 +13,6 @@ import {
 import type { OfferFields } from '../../types/bookings';
 import { getBookingErrorMessage } from '../../utils/bookingErrorMessage';
 import { offerFormToFields } from '../../utils/offerFormMapping';
-import { BUTTON_PRIMARY, BUTTON_SECONDARY, INPUT } from '../../../../ui/styles/controls';
 import { OfferPriceFields } from './OfferPriceFields';
 import { OfferSellingUnitFields } from './OfferSellingUnitFields';
 import { OfferTextFields } from './OfferTextFields';

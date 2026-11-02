@@ -1,5 +1,6 @@
 import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { formatBusinessDay } from '../../../../shared/utils/businessDateTime';
 import { formatMoneyMinor } from '../../../../shared/utils/money';
 import { StatusText } from '../../../../ui/components/StatusText';
 import { listAdminSaleClaimsUseCase } from '../../application/usecases/listAdminSaleClaimsUseCase';
@@ -8,7 +9,6 @@ import type { AdminSaleClaim } from '../../types/adminFinance';
 import { AdminQueueFrame } from './AdminQueueFrame';
 import { QueueRow } from './QueueRow';
 import { SaleClaimDecisionDialog } from './SaleClaimDecisionDialog';
-import { formatBusinessDay } from '../../../../shared/utils/businessDateTime';
 
 export function SaleClaimQueue({
   onNotice,

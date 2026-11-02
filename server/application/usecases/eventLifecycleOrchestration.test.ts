@@ -1,12 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { cancelEventOccurrenceAndRefundApplicationUseCase } from './cancelEventOccurrenceAndRefundApplicationUseCase';
-import { postponeEventOccurrenceAndNotifyApplicationUseCase } from './postponeEventOccurrenceAndNotifyApplicationUseCase';
 import {
   cancelEventOccurrenceUseCase,
-  getEventListingByIdUseCase,
-  postponeEventOccurrenceUseCase,
   type EventListing,
   type EventOccurrence,
+  getEventListingByIdUseCase,
+  postponeEventOccurrenceUseCase,
 } from '../../domain/events';
 import { createNotificationUseCase } from '../../domain/notifications';
 import { reschedulePayoutUseCase } from '../../domain/payment';
@@ -16,7 +14,9 @@ import {
   type Refund,
   type TicketOrder,
 } from '../../domain/ticketing';
+import { cancelEventOccurrenceAndRefundApplicationUseCase } from './cancelEventOccurrenceAndRefundApplicationUseCase';
 import { chargeCancellationPenaltyApplicationUseCase } from './payouts/chargeCancellationPenaltyApplicationUseCase';
+import { postponeEventOccurrenceAndNotifyApplicationUseCase } from './postponeEventOccurrenceAndNotifyApplicationUseCase';
 import { processTicketRefundApplicationUseCase } from './processTicketRefundApplicationUseCase';
 
 vi.mock('../../domain/events', () => ({

@@ -2,9 +2,9 @@ import {
   getOfflineManifestBundle,
   getOfflineUsedRecord,
   recordOfflineCheckInEvent,
+  type StoredOfflineCheckInEvent,
   saveOfflineManifestBundle,
   sha256HexBrowser,
-  type StoredOfflineCheckInEvent,
 } from './offlineCheckInStorage';
 
 /** Motivo de recusa, traduzido na tela (`ticketGate.offline.<motivo>`). */
