@@ -64,7 +64,7 @@ export function NotificationCenterSheet({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange} title={t('notify.center.title')}>
-      <div className="flex items-center justify-between gap-2 -mt-1 mb-4">
+      <div className="relative flex items-center justify-center -mt-1 mb-4 min-h-11">
         <div className="flex gap-2">
           {(['unread', 'all'] as const).map((key) => (
             <button
@@ -73,7 +73,7 @@ export function NotificationCenterSheet({
               aria-pressed={filter === key}
               onClick={() => setFilter(key)}
               className={cn(
-                'press min-h-11 px-4 rounded-full text-[14px] font-semibold border focus-visible:ring-2 focus-visible:ring-teal-400/50',
+                'press min-h-11 w-28 px-3 rounded-full text-[14px] font-semibold border focus-visible:ring-2 focus-visible:ring-teal-400/50',
                 filter === key ? 'bg-ink text-app border-ink' : 'text-ink/80 border-line'
               )}
             >
@@ -81,30 +81,32 @@ export function NotificationCenterSheet({
             </button>
           ))}
         </div>
-        <DropdownMenu
-          trigger={
-            <button
-              type="button"
-              aria-label={t('notify.center.more')}
-              className="press w-11 h-11 rounded-full flex items-center justify-center text-ink/80 hover:bg-ink/[0.06] focus-visible:ring-2 focus-visible:ring-teal-400/50"
-            >
-              <Ellipsis size={20} aria-hidden="true" />
-            </button>
-          }
-          items={[
-            {
-              label: t('notify.center.settings'),
-              icon: <SlidersHorizontal size={18} aria-hidden="true" />,
-              onClick: onOpenSettings,
-            },
-            {
-              label: t('notify.center.markAll'),
-              icon: <CheckCheck size={18} aria-hidden="true" />,
-              onClick: onMarkAllRead,
-              disabled: !hasUnread,
-            },
-          ]}
-        />
+        <div className="absolute right-0 top-1/2 -translate-y-1/2">
+          <DropdownMenu
+            trigger={
+              <button
+                type="button"
+                aria-label={t('notify.center.more')}
+                className="press w-11 h-11 rounded-full flex items-center justify-center text-ink/80 hover:bg-ink/[0.06] focus-visible:ring-2 focus-visible:ring-teal-400/50"
+              >
+                <Ellipsis size={20} aria-hidden="true" />
+              </button>
+            }
+            items={[
+              {
+                label: t('notify.center.settings'),
+                icon: <SlidersHorizontal size={18} aria-hidden="true" />,
+                onClick: onOpenSettings,
+              },
+              {
+                label: t('notify.center.markAll'),
+                icon: <CheckCheck size={18} aria-hidden="true" />,
+                onClick: onMarkAllRead,
+                disabled: !hasUnread,
+              },
+            ]}
+          />
+        </div>
       </div>
 
       {loading ? (

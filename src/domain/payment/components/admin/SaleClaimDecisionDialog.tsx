@@ -172,7 +172,7 @@ export function SaleClaimDecisionDialog({
               />
               <span
                 aria-hidden="true"
-                className="relative w-11 h-6 shrink-0 rounded-full bg-ink/20 transition-colors peer-checked:bg-teal-500 after:absolute after:top-0.5 after:left-0.5 after:w-5 after:h-5 after:rounded-full after:bg-surface-solid after:shadow after:transition-[translate] peer-checked:after:translate-x-5"
+                className="relative w-11 h-6 shrink-0 rounded-full bg-ink/20 transition-colors peer-checked:bg-teal-500 after:absolute after:top-0.5 after:left-0.5 after:w-5 after:h-5 after:rounded-full after:bg-[#ffffff] after:shadow after:transition-[translate] peer-checked:after:translate-x-5"
               />
             </label>
           )}

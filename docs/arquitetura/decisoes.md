@@ -369,3 +369,13 @@ Aprovada pelo responsável do produto em 2026-11-03 (proposta em `docs/arquitetu
 * **Revisão das telas (aprovada em 2026-11-03, substitui os interruptores por categoria, o silêncio noturno e o resumo diário como interruptor):** avisos que evitam perder um serviço, um prazo ou dinheiro chegam sempre, sem interruptor — compras e pagamentos, ingressos e reservas, conta e, para o parceiro, cancelamentos, reclamações, avaliações dos clientes, repasses e cadastro. A pessoa escolhe só **Pedidos de avaliação** (ligado) e **Novidades e ofertas** (desligado); o parceiro escolhe **aviso a cada venda** ou **resumo no fim do dia**. Avisos opcionais nunca chegam das 23h30 às 5h30 (Fortaleza; ajustado em 2026-11-03 a pedido do responsável do produto). Central com filtro "Não lidas / Tudo", menu "…" (Configurações, marcar todas como lidas) e "Você está em dia". Suporte como central de ajuda (saudação com busca, compras, assuntos, perguntas mais lidas, contato). Textos para quem usa o app, sem termos técnicos; visual da base D17 (ícones neutros, cor só com significado). Referências: Airbnb, Tripadvisor, Apple HIG.
 * **Adiado (2026-11-03):** aviso de evento novo para quem favoritou o lugar ou o organizador. O evento não aponta para um lugar do guia; a forma (pelo dono, pelo lugar escolhido no cadastro do evento ou "seguir o organizador") fica para decisão futura. Quando vier, entra como aviso opcional de Novidades.
 * **Avisos implementados (23.2 a 23.3):** 36 tipos gravados como tipo + dados, traduzidos no app e no push (textos espelhados com teste de paridade); fila de envio (outbox) com job a cada minuto, lembretes a cada 15 min (véspera e 2 h antes), resumo de vendas às 20h e convite para avaliar (único opcional hoje). Troca de senha e confirmação de e-mail não geram aviso (acontecem no Firebase Auth, sem passar pelo backend).
+
+## D26 — Verde forte para ação e folhas no tema claro (2026-11-03)
+
+Aprovada pelo responsável do produto em 2026-11-03.
+
+* **Cor de ação:** verde #11D450 (entre #21C063 e #01E93E), no lugar do verde-água. Fica na escala `teal-*` redefinida em `src/index.css` (o 400 é o tom principal), sem trocar as classes dos componentes; tokens `accent`: #3EE47A no escuro e #087A2E no claro (contraste AA sobre o bege). Stripe usa a mesma cor (`colorPrimary`).
+* **Concluído continua verde-menta** (#6EE7B7 no escuro): status é texto com ponto, nunca botão, então não se confunde com a ação (opção A).
+* **Folhas no tema claro seguem as telas:** fundo bege (#f3eee4) e cartões claros (#faf6ee) com borda (`bg-sheet`, `bg-sheet-card`, `border-sheet-card-line`). No escuro nada muda.
+* **Interruptores:** bolinha sempre branca, nos dois temas.
+* **AGENTS.md §11.1** atualizado com a cor nova (autorizado em 2026-11-03).
