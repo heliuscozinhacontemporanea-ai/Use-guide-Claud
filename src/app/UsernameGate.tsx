@@ -1,4 +1,5 @@
-import { logoutUseCase, useAuthContext } from '../domain/auth';
+import { useAuthContext } from '../domain/auth';
+import { signOut } from './signOut';
 import { UsernameOnboardingDialog } from '../domain/user';
 
 /**
@@ -12,7 +13,7 @@ export function UsernameGate() {
   return (
     <UsernameOnboardingDialog
       onDone={() => void refreshProfile()}
-      onSignOut={() => void logoutUseCase()}
+      onSignOut={() => void signOut()}
     />
   );
 }

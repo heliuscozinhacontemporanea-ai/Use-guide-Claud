@@ -2,7 +2,9 @@ import type { Locale } from '../../../shared/kernel/locale';
 import type { RouteKey } from '../../../shared/kernel/localizedRoutes';
 import type { SeoGuideCategory, SeoMetadata } from '../types/seoTypes';
 
-export const SITE_URL = 'https://useguide.com.br';
+import { SITE_URL } from '../../../shared/kernel/siteUrl';
+
+export { SITE_URL };
 
 export const DEFAULT_SEO_IMAGE =
   'https://firebasestorage.googleapis.com/v0/b/gen-lang-client-0788355965.firebasestorage.app/o/Marca%2F412E6CA0-01A8-48B1-B07B-BA4233C81769.png?alt=media&token=ff7e5442-a701-4854-aefc-1e36bb5fbd34';

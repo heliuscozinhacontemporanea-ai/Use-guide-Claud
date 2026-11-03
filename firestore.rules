@@ -171,6 +171,13 @@ service cloud.firestore {
     match /notificationPreferences/{uid} {
       allow read, write: if false;
     }
+    // Aparelhos do push e fila de envio (D25): só o backend.
+    match /pushDevices/{deviceId} {
+      allow read, write: if false;
+    }
+    match /notificationOutbox/{entryId} {
+      allow read, write: if false;
+    }
     match /transactions/{transactionId} {
       allow read, write: if false;
     }

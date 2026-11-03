@@ -26,11 +26,15 @@ export const NOTIFICATION_TYPES = {
   review_updated: 'partnerReviews',
   plan_expiring: 'finance',
   plan_renewal_failed: 'finance',
+  sale_daily_digest: 'sales',
   admin_message: 'messages',
 } as const;
 
 export type NotificationType = keyof typeof NOTIFICATION_TYPES;
-export type NotificationCategory = (typeof NOTIFICATION_TYPES)[NotificationType] | 'news' | 'reviews';
+export type NotificationCategory =
+  | (typeof NOTIFICATION_TYPES)[NotificationType]
+  | 'news'
+  | 'reviews';
 
 /** Dados que entram no texto traduzido. Nada de PII além do que a pessoa já vê no app. */
 export type NotificationParams = Record<string, string | number>;
@@ -65,3 +69,9 @@ export const DEFAULT_NOTIFICATION_PREFERENCES: NotificationPreferences = {
 
 /** Avisos somem da central depois de 90 dias (TTL do Firestore em `expiresAt`). */
 export const NOTIFICATION_RETENTION_DAYS = 90;
+
+/**
+ * Tipos opcionais (D25, revisão): só saem com a escolha ligada e nunca das 21h às 9h (Fortaleza).
+ * Hoje nenhum aviso gravado é opcional; os pedidos de avaliação e as novidades entram aqui quando existirem.
+ */
+export const OPTIONAL_TYPES: Partial<Record<NotificationType, 'reviewRequests' | 'news'>> = {};

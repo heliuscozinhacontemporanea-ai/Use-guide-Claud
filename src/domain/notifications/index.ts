@@ -1,3 +1,4 @@
+export { disablePushOnThisDeviceUseCase } from './application/usecases/disablePushOnThisDeviceUseCase';
 export { markAllNotificationsAsReadUseCase } from './application/usecases/markAllNotificationsAsReadUseCase';
 export { markNotificationAsReadUseCase } from './application/usecases/markNotificationAsReadUseCase';
 export { sendAdminNotificationUseCase } from './application/usecases/sendAdminNotificationUseCase';

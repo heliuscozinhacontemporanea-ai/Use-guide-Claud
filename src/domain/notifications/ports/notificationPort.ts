@@ -18,4 +18,8 @@ export interface NotificationPort {
   /** Escolhas da conta logada (D25): pedidos de avaliação, novidades e avisos de venda. */
   getPreferences(): Promise<NotificationPreferences>;
   updatePreferences(patch: Partial<NotificationPreferences>): Promise<void>;
+
+  /** Liga ou desliga o push deste aparelho para a conta logada. */
+  registerDevice(token: string, locale: string): Promise<void>;
+  unregisterDevice(token: string): Promise<void>;
 }

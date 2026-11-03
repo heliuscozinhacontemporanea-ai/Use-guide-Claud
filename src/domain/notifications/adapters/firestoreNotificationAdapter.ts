@@ -75,4 +75,30 @@ export class FirestoreNotificationAdapter implements NotificationPort {
     );
     if (!res.ok) throw new Error('PREFERENCES_SAVE_FAILED');
   }
+
+  async registerDevice(token: string, locale: string): Promise<void> {
+    const res = await firebaseApiFetch(
+      '/api/notifications/devices',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, locale }),
+      },
+      { requireAuth: true }
+    );
+    if (!res.ok) throw new Error('PUSH_DEVICE_FAILED');
+  }
+
+  async unregisterDevice(token: string): Promise<void> {
+    const res = await firebaseApiFetch(
+      '/api/notifications/devices',
+      {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token }),
+      },
+      { requireAuth: true }
+    );
+    if (!res.ok) throw new Error('PUSH_DEVICE_FAILED');
+  }
 }

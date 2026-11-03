@@ -14,6 +14,7 @@ import insightsRouter from './server/domain/insights/routes/insightsRoutes';
 import mediaRouter from './server/domain/media/routes/mediaRoutes';
 import notificationRouter from './server/domain/notifications/routes/notificationRoutes';
 import { adminMessageRouter } from './server/interfaces/http/notifications/adminMessageRoutes';
+import { InternalNotificationsController } from './server/interfaces/http/notifications/internalNotificationsController';
 import partnerRouter from './server/domain/partners/routes/partnerRoutes';
 import { PaymentController } from './server/domain/payment/controllers/paymentController';
 import paymentRouter from './server/domain/payment/routes/paymentRoutes';
@@ -152,6 +153,16 @@ async function startServer() {
     '/internal/bookings/complete',
     verifyInternalJobKey,
     InternalBookingsController.complete
+  );
+  app.post(
+    '/internal/notifications/dispatch',
+    verifyInternalJobKey,
+    InternalNotificationsController.dispatch
+  );
+  app.post(
+    '/internal/notifications/daily-digest',
+    verifyInternalJobKey,
+    InternalNotificationsController.dailyDigest
   );
   app.post(
     '/internal/partners/check-expiring-plans',

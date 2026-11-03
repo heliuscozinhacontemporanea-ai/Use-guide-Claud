@@ -1,19 +1,25 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => {
-  const doc = { get: vi.fn(), update: vi.fn(), create: vi.fn(), set: vi.fn() };
+  const doc = { id: 'k1', get: vi.fn(), update: vi.fn(), set: vi.fn() };
   const collection = { doc: vi.fn(() => doc), where: vi.fn() };
+  const batch = { create: vi.fn(), commit: vi.fn() };
   return {
     doc,
     collection,
-    adminDb: { collection: vi.fn(() => collection), bulkWriter: vi.fn() },
+    batch,
+    adminDb: {
+      collection: vi.fn(() => collection),
+      bulkWriter: vi.fn(),
+      batch: vi.fn(() => batch),
+    },
   };
 });
 
 vi.mock('../../../infrastructure/firebase/adminClient', () => ({ adminDb: mocks.adminDb }));
 vi.mock('firebase-admin/firestore', () => ({
   FieldValue: { serverTimestamp: vi.fn(() => 'SERVER_TIMESTAMP') },
-  Timestamp: { fromDate: vi.fn((date: Date) => ({ date })) },
+  Timestamp: { fromDate: vi.fn((date: Date) => ({ date })), now: vi.fn(() => 'NOW') },
 }));
 
 import { FirebaseAdminNotificationAdapter } from './firebaseAdminNotificationAdapter';
@@ -30,8 +36,8 @@ describe('FirebaseAdminNotificationAdapter', () => {
     expect(mocks.doc.update).not.toHaveBeenCalled();
   });
 
-  it('grava só os campos do aviso e não repete o mesmo dedupeKey', async () => {
-    mocks.doc.create.mockResolvedValueOnce(undefined);
+  it('grava o aviso e a entrada do push juntos, e não repete o mesmo dedupeKey', async () => {
+    mocks.batch.commit.mockResolvedValueOnce(undefined);
     expect(
       await adapter.create(
         { recipientUid: 'u1', type: 'plan_expiring', params: { days: 3 }, dedupeKey: 'k1' },
@@ -39,7 +45,7 @@ describe('FirebaseAdminNotificationAdapter', () => {
       )
     ).toBe(true);
     expect(mocks.collection.doc).toHaveBeenCalledWith('k1');
-    expect(mocks.doc.create).toHaveBeenCalledWith({
+    expect(mocks.batch.create).toHaveBeenCalledWith(mocks.doc, {
       recipientUid: 'u1',
       type: 'plan_expiring',
       params: { days: 3 },
@@ -48,8 +54,12 @@ describe('FirebaseAdminNotificationAdapter', () => {
       createdAt: 'SERVER_TIMESTAMP',
       expiresAt: { date: expiresAt },
     });
+    expect(mocks.batch.create).toHaveBeenCalledWith(
+      mocks.doc,
+      expect.objectContaining({ type: 'plan_expiring', attempts: 0, notBefore: 'NOW' })
+    );
 
-    mocks.doc.create.mockRejectedValueOnce(Object.assign(new Error('exists'), { code: 6 }));
+    mocks.batch.commit.mockRejectedValueOnce(Object.assign(new Error('exists'), { code: 6 }));
     expect(
       await adapter.create(
         { recipientUid: 'u1', type: 'plan_expiring', dedupeKey: 'k1' },

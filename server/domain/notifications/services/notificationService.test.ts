@@ -14,6 +14,8 @@ function createRepository(): NotificationRepositoryPort {
     getPreferences: vi.fn().mockResolvedValue(null),
     savePreferences: vi.fn(),
     deleteAllForUser: vi.fn(),
+    listDailySalesRecipients: vi.fn(),
+    countSalesSince: vi.fn(),
   };
 }
 

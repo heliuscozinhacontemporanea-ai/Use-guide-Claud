@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'motion/react';
 import React from 'react';
-import { hasPasswordSignInUseCase, logoutUseCase } from '../../domain/auth';
+import { hasPasswordSignInUseCase } from '../../domain/auth';
+import { signOut } from '../signOut';
 import { useAuthContext } from '../../domain/auth/context/AuthContext';
 import { UserRole } from '../../domain/auth/types/auth';
 import { MyBookingsView } from '../../domain/bookings';
@@ -145,7 +146,7 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
   };
 
   const handleLogout = async () => {
-    await logoutUseCase();
+    await signOut();
     closeMenu();
   };
 

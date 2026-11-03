@@ -65,6 +65,8 @@ export default defineConfig(() => {
           ],
         },
         workbox: {
+          // Push (D25): trata `push` e o toque na notificação (public/push-sw.js).
+          importScripts: ['/push-sw.js'],
           globPatterns: ['**/*.{js,css,html,ico,png,svg,webp}'],
           maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
           navigateFallbackDenylist: [/^\/__/, /^\/api/],

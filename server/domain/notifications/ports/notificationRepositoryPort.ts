@@ -1,7 +1,7 @@
 import type { NewNotification, NotificationPreferences } from '../types/notificationTypes';
 
 export interface NotificationRepositoryPort {
-  /** Falso quando o `dedupeKey` já existe. */
+  /** Grava o aviso e a entrada do push juntos. Falso quando o `dedupeKey` já existe. */
   create(notification: NewNotification, expiresAt: Date): Promise<boolean>;
   createMany(
     recipientUids: string[],
@@ -14,4 +14,8 @@ export interface NotificationRepositoryPort {
   getPreferences(uid: string): Promise<Partial<NotificationPreferences> | null>;
   savePreferences(uid: string, preferences: NotificationPreferences): Promise<void>;
   deleteAllForUser(uid: string): Promise<void>;
+  /** Parceiros que escolheram o resumo no fim do dia. */
+  listDailySalesRecipients(): Promise<string[]>;
+  /** Avisos de venda e reserva gravados desde `since` (para o resumo do dia). */
+  countSalesSince(uid: string, since: Date): Promise<number>;
 }

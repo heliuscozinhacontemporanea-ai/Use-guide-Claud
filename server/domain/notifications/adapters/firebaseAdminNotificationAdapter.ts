@@ -5,6 +5,8 @@ import type { NewNotification, NotificationPreferences } from '../types/notifica
 
 const NOTIFICATIONS = 'notifications';
 const PREFERENCES = 'notificationPreferences';
+const OUTBOX = 'notificationOutbox';
+const SALE_TYPES = ['sale_ticket', 'sale_booking'];
 
 function toDocument(
   data: Omit<NewNotification, 'dedupeKey'>,
@@ -21,17 +23,31 @@ function toDocument(
   };
 }
 
+/** Entrada do push (§5.6): mesma escrita do aviso, mesmo id. */
+function toOutbox(data: Omit<NewNotification, 'dedupeKey'>): Record<string, unknown> {
+  return {
+    recipientUid: data.recipientUid,
+    type: data.type,
+    params: data.params ?? {},
+    link: data.link ?? null,
+    attempts: 0,
+    notBefore: Timestamp.now(),
+    createdAt: FieldValue.serverTimestamp(),
+  };
+}
+
 export class FirebaseAdminNotificationAdapter implements NotificationRepositoryPort {
   async create(notification: NewNotification, expiresAt: Date): Promise<boolean> {
-    const collection = adminDb.collection(NOTIFICATIONS);
     const { dedupeKey, ...data } = notification;
-    if (!dedupeKey) {
-      await collection.doc().set(toDocument(data, expiresAt));
-      return true;
-    }
+    const ref = dedupeKey
+      ? adminDb.collection(NOTIFICATIONS).doc(dedupeKey)
+      : adminDb.collection(NOTIFICATIONS).doc();
+    const batch = adminDb.batch();
+    // `create` falha se o documento já existe: o mesmo aviso nunca sai duas vezes.
+    batch.create(ref, toDocument(data, expiresAt));
+    batch.create(adminDb.collection(OUTBOX).doc(ref.id), toOutbox(data));
     try {
-      // `create` falha se o documento já existe: o mesmo aviso nunca sai duas vezes.
-      await collection.doc(dedupeKey).create(toDocument(data, expiresAt));
+      await batch.commit();
       return true;
     } catch (error) {
       if ((error as { code?: number }).code === 6) return false;
@@ -46,10 +62,9 @@ export class FirebaseAdminNotificationAdapter implements NotificationRepositoryP
   ): Promise<void> {
     const writer = adminDb.bulkWriter();
     for (const recipientUid of recipientUids) {
-      writer.set(
-        adminDb.collection(NOTIFICATIONS).doc(),
-        toDocument({ ...data, recipientUid }, expiresAt)
-      );
+      const ref = adminDb.collection(NOTIFICATIONS).doc();
+      writer.set(ref, toDocument({ ...data, recipientUid }, expiresAt));
+      writer.set(adminDb.collection(OUTBOX).doc(ref.id), toOutbox({ ...data, recipientUid }));
     }
     await writer.close();
   }
@@ -102,5 +117,21 @@ export class FirebaseAdminNotificationAdapter implements NotificationRepositoryP
     for (const doc of snap.docs) writer.delete(doc.ref);
     writer.delete(adminDb.collection(PREFERENCES).doc(uid));
     await writer.close();
+  }
+
+  async listDailySalesRecipients(): Promise<string[]> {
+    const snap = await adminDb.collection(PREFERENCES).where('salesAlerts', '==', 'daily').get();
+    return snap.docs.map((doc) => doc.id);
+  }
+
+  async countSalesSince(uid: string, since: Date): Promise<number> {
+    const snap = await adminDb
+      .collection(NOTIFICATIONS)
+      .where('recipientUid', '==', uid)
+      .where('type', 'in', SALE_TYPES)
+      .where('createdAt', '>=', Timestamp.fromDate(since))
+      .count()
+      .get();
+    return snap.data().count;
   }
 }

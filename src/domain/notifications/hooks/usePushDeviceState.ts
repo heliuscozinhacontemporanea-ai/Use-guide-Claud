@@ -1,4 +1,6 @@
 import { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { syncPushDeviceUseCase } from '../application/usecases/syncPushDeviceUseCase';
 import type { PushDeviceState } from '../types/notificationCategories';
 
 function isAppleMobile(): boolean {
@@ -35,13 +37,18 @@ function readState(): PushDeviceState {
  * navegadores recusam pedidos de permissão sem gesto da pessoa.
  */
 export function usePushDeviceState() {
+  const { i18n } = useTranslation();
   const [state, setState] = useState<PushDeviceState>(readState);
 
   const enable = useCallback(async () => {
     if (state !== 'default') return;
-    await Notification.requestPermission();
+    const permission = await Notification.requestPermission();
     setState(readState());
-  }, [state]);
+    if (permission === 'granted') {
+      // Sem servidor alcançável o aviso continua na central; o próximo login tenta de novo.
+      await syncPushDeviceUseCase(i18n.language).catch(() => false);
+    }
+  }, [state, i18n.language]);
 
   return { state, enable };
 }

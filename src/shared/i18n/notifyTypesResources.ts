@@ -109,6 +109,11 @@ export const notifyTypesPtBR: NotificationTypeTexts = {
     title: 'Não conseguimos renovar seu plano',
     body: 'O cartão não passou. Atualize a forma de pagamento para manter o selo.',
   },
+  sale_daily_digest: {
+    title: 'Suas vendas de hoje',
+    body_one: '{{count}} venda ou reserva hoje. Veja os detalhes no painel.',
+    body_other: '{{count}} vendas ou reservas hoje. Veja os detalhes no painel.',
+  },
   admin_message: {
     title: '{{title}}',
     body: '{{message}}',
@@ -222,6 +227,11 @@ export const notifyTypesEn: NotificationTypeTexts = {
   plan_renewal_failed: {
     title: 'We couldn’t renew your plan',
     body: 'The card was declined. Update your payment method to keep the badge.',
+  },
+  sale_daily_digest: {
+    title: 'Today’s sales',
+    body_one: '{{count}} sale or booking today. See the details in your panel.',
+    body_other: '{{count}} sales or bookings today. See the details in your panel.',
   },
   admin_message: {
     title: '{{title}}',
@@ -338,6 +348,11 @@ export const notifyTypesFr: NotificationTypeTexts = {
   plan_renewal_failed: {
     title: 'Impossible de renouveler votre formule',
     body: 'La carte a été refusée. Mettez à jour votre moyen de paiement pour garder le badge.',
+  },
+  sale_daily_digest: {
+    title: 'Vos ventes du jour',
+    body_one: '{{count}} vente ou réservation aujourd’hui. Voir le détail dans votre espace.',
+    body_other: '{{count}} ventes ou réservations aujourd’hui. Voir le détail dans votre espace.',
   },
   admin_message: {
     title: '{{title}}',

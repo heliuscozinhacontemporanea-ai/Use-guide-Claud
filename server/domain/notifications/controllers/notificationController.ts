@@ -4,10 +4,13 @@ import { NotificationDomainError } from '../errors/notificationErrors';
 import {
   notificationIdParamsSchema,
   notificationPreferencesPatchSchema,
+  pushDeviceSchema,
 } from '../schemas/notificationSchema';
 import { getNotificationPreferencesUseCase } from '../usecases/getNotificationPreferencesUseCase';
 import { markAllNotificationsAsReadUseCase } from '../usecases/markAllNotificationsAsReadUseCase';
 import { markNotificationAsReadUseCase } from '../usecases/markNotificationAsReadUseCase';
+import { registerPushDeviceUseCase } from '../usecases/registerPushDeviceUseCase';
+import { unregisterPushDeviceUseCase } from '../usecases/unregisterPushDeviceUseCase';
 import { updateNotificationPreferencesUseCase } from '../usecases/updateNotificationPreferencesUseCase';
 
 function sendError(res: Response, status: number, code: string, message: string): Response {
@@ -65,6 +68,30 @@ export class NotificationController {
       return res.status(200).json({ data });
     } catch (error) {
       return handleError(res, error, 'updatePreferences');
+    }
+  }
+
+  static async registerDevice(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    if (!req.user?.uid) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
+    const body = pushDeviceSchema.safeParse(req.body);
+    if (!body.success) return sendError(res, 400, 'VALIDATION_ERROR', 'Aparelho inválido.');
+    try {
+      await registerPushDeviceUseCase(req.user.uid, body.data.token, body.data.locale ?? '');
+      return res.status(204).send();
+    } catch (error) {
+      return handleError(res, error, 'registerDevice');
+    }
+  }
+
+  static async unregisterDevice(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    if (!req.user?.uid) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
+    const body = pushDeviceSchema.safeParse(req.body);
+    if (!body.success) return sendError(res, 400, 'VALIDATION_ERROR', 'Aparelho inválido.');
+    try {
+      await unregisterPushDeviceUseCase(req.user.uid, body.data.token);
+      return res.status(204).send();
+    } catch (error) {
+      return handleError(res, error, 'unregisterDevice');
     }
   }
 }

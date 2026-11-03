@@ -60,4 +60,11 @@ describe('Firestore Rules — Notificações (D25)', () => {
     await assertFails(getDoc(doc(db, 'notificationPreferences/user-a')));
     await assertFails(setDoc(doc(db, 'notificationPreferences/user-a'), { news: true }));
   });
+
+  it('aparelhos do push e fila de envio ficam só no backend', async () => {
+    const db = testEnv.authenticatedContext('user-a').firestore();
+    await assertFails(getDoc(doc(db, 'pushDevices/d-1')));
+    await assertFails(setDoc(doc(db, 'pushDevices/d-1'), { uid: 'user-a', token: 'x' }));
+    await assertFails(getDoc(doc(db, 'notificationOutbox/n-1')));
+  });
 });
