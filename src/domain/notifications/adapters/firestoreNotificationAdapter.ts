@@ -1,11 +1,8 @@
-import { getDocumentUseCase, subscribeToCollectionUseCase } from '../../database';
-import { NotificationPort } from '../ports/notificationPort';
-import {
-  Notification,
-  NotificationSettings,
-  SendAdminNotificationPayload,
-} from '../types/notification';
 import { firebaseApiFetch } from '../../../shared/infrastructure/firebase/firebaseApiFetch';
+import { subscribeToCollectionUseCase } from '../../database';
+import { NotificationPort } from '../ports/notificationPort';
+import { Notification, SendAdminNotificationPayload } from '../types/notification';
+import type { NotificationPreferences } from '../types/notificationCategories';
 
 export class FirestoreNotificationAdapter implements NotificationPort {
   subscribeToNotifications(
@@ -52,41 +49,6 @@ export class FirestoreNotificationAdapter implements NotificationPort {
     }
   }
 
-  async getSettings(partnerId: string): Promise<NotificationSettings> {
-    const doc = await getDocumentUseCase<NotificationSettings>(
-      'partnerNotificationSettings',
-      partnerId
-    );
-    return (
-      doc || {
-        partnerId,
-        reviewNotifications: true,
-        planExpiringNotifications: true,
-      }
-    );
-  }
-
-  async updateSettings(
-    _partnerId: string,
-    settings: Partial<Omit<NotificationSettings, 'partnerId'>>
-  ): Promise<void> {
-    const res = await firebaseApiFetch(
-      '/api/notifications/settings',
-      {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(settings),
-      },
-      { requireAuth: true }
-    );
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error || 'Erro ao salvar configurações de notificação');
-    }
-  }
-
   async sendAdminNotification(payload: SendAdminNotificationPayload): Promise<void> {
     const res = await firebaseApiFetch(
       '/api/notifications/send-admin',
@@ -104,5 +66,29 @@ export class FirestoreNotificationAdapter implements NotificationPort {
       const errorData = await res.json().catch(() => ({}));
       throw new Error(errorData.error || 'Erro ao enviar notificação de administrador');
     }
+  }
+
+  async getPreferences(): Promise<NotificationPreferences> {
+    const res = await firebaseApiFetch(
+      '/api/notifications/preferences',
+      { method: 'GET' },
+      { requireAuth: true }
+    );
+    if (!res.ok) throw new Error('PREFERENCES_UNAVAILABLE');
+    const body = (await res.json()) as { data: NotificationPreferences };
+    return body.data;
+  }
+
+  async updatePreferences(patch: Partial<NotificationPreferences>): Promise<void> {
+    const res = await firebaseApiFetch(
+      '/api/notifications/preferences',
+      {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(patch),
+      },
+      { requireAuth: true }
+    );
+    if (!res.ok) throw new Error('PREFERENCES_SAVE_FAILED');
   }
 }

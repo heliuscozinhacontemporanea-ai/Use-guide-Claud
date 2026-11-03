@@ -1,8 +1,8 @@
+import { CheckCheck, Clock, Loader2, MessageSquare, Star } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
-import { Star, MessageSquare, Clock, CheckCheck, Loader2 } from 'lucide-react';
-import { Notification } from '../types/notification';
 import { Z_INDEX } from '../../../shared/constants/zIndex';
 import { cn } from '../../../shared/utils/cn';
+import { Notification } from '../types/notification';
 
 interface NotificationPanelProps {
   isOpen: boolean;

@@ -16,6 +16,8 @@ import {
   appAboutFr,
   appAboutPtBR,
 } from './appAboutResources';
+import { type NotifyTranslation, notifyEn, notifyFr, notifyPtBR } from './notifyResources';
+import { type HelpTranslation, helpEn, helpFr, helpPtBR } from './helpResources';
 import {
   type BookingsTranslation,
   bookingsEn,
@@ -170,6 +172,8 @@ export interface TranslationResource {
   ticketGate: TicketGateTranslation;
   username: UsernameTranslation;
   appAbout: AppAboutTranslation;
+  notify: NotifyTranslation;
+  help: HelpTranslation;
   eventSessions: EventSessionsTranslation;
   gateMode: GateModeTranslation;
   legal: LegalTranslation;
@@ -408,6 +412,8 @@ const ptBR: TranslationResource = {
   ticketGate: ticketGatePtBR,
   username: usernamePtBR,
   appAbout: appAboutPtBR,
+  notify: notifyPtBR,
+  help: helpPtBR,
   eventSessions: eventSessionsPtBR,
   gateMode: gateModePtBR,
   legal: legalPtBR,
@@ -706,6 +712,8 @@ const en: TranslationResource = {
   ticketGate: ticketGateEn,
   username: usernameEn,
   appAbout: appAboutEn,
+  notify: notifyEn,
+  help: helpEn,
   eventSessions: eventSessionsEn,
   gateMode: gateModeEn,
   legal: legalEn,
@@ -998,6 +1006,8 @@ const fr: TranslationResource = {
   ticketGate: ticketGateFr,
   username: usernameFr,
   appAbout: appAboutFr,
+  notify: notifyFr,
+  help: helpFr,
   eventSessions: eventSessionsFr,
   gateMode: gateModeFr,
   legal: legalFr,

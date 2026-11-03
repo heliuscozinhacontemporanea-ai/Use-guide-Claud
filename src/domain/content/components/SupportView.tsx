@@ -1,234 +1,270 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
 import {
-  ChevronLeft,
-  MessageSquare,
-  Mail,
-  HelpCircle,
-  ChevronDown,
-  Search,
+  Bug,
+  CalendarCheck,
   Check,
+  ChevronDown,
   Copy,
-  Layers,
-  Wind,
-  User,
-  Award,
-  Compass,
+  type LucideIcon,
+  Mail,
+  MessageCircle,
+  Search,
+  ShoppingBag,
+  Ticket,
+  UserRound,
 } from 'lucide-react';
+import { useId, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { APP_VERSION } from '../../../shared/constants/appVersion';
+import type { HelpTopic } from '../../../shared/i18n/helpResources';
 import { cn } from '../../../shared/utils/cn';
-import { FAQCategoryType } from '../types/content';
-import { FAQ_DATA } from '../data/faqItems';
 import { whatsAppUrl } from '../../../shared/utils/phone';
+import { BackButton } from '../../../ui/components/BackButton';
+import { INPUT } from '../../../ui/styles/controls';
+
+const SUPPORT_EMAIL = 'ajuda@useguide.com.br';
+const TOPICS: HelpTopic[] = [
+  'purchases',
+  'tickets',
+  'bookings',
+  'refunds',
+  'account',
+  'partners',
+  'app',
+];
+
+type FaqEntry = { id: string; topic: HelpTopic; q: string; a: string };
 
 interface SupportViewProps {
   onBack: () => void;
-  userEmail?: string | null | undefined;
+  /** Só com login: atalhos para as compras, os ingressos e as reservas da conta. */
+  onOpenPurchases?: () => void;
+  onOpenTickets?: () => void;
+  onOpenBookings?: () => void;
 }
 
-export function SupportView({ onBack, userEmail }: SupportViewProps) {
-  const [activeCategory, setActiveCategory] = useState<FAQCategoryType>('all');
-  const [openFaqId, setOpenFaqId] = useState<string | null>('faq-1');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [copiedEmail, setCopiedEmail] = useState(false);
+function normalize(text: string): string {
+  return text
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .toLowerCase();
+}
 
-  const supportEmail = 'ajuda@useguide.com.br';
+function Shortcut({
+  icon: Icon,
+  label,
+  onClick,
+}: {
+  icon: LucideIcon;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="press min-h-[72px] p-3 rounded-2xl bg-surface border border-line flex flex-col items-start justify-between gap-2 text-left focus-visible:ring-2 focus-visible:ring-teal-400/50"
+    >
+      <Icon size={20} className="text-accent" aria-hidden="true" />
+      <span className="text-[14px] font-semibold text-ink leading-tight">{label}</span>
+    </button>
+  );
+}
+
+function FaqItem({ entry }: { entry: FaqEntry }) {
+  const [open, setOpen] = useState(false);
+  const panelId = useId();
+  return (
+    <li>
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-controls={panelId}
+        onClick={() => setOpen((value) => !value)}
+        className="w-full min-h-14 px-4 py-3 flex items-center gap-3 text-left hover:bg-ink/[0.03] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-400/50 focus-visible:outline-none"
+      >
+        <span className="flex-1 text-[15px] font-semibold text-ink">{entry.q}</span>
+        <ChevronDown
+          size={18}
+          aria-hidden="true"
+          className={cn(
+            'shrink-0 text-ink/40 transition-transform motion-reduce:transition-none',
+            open && 'rotate-180'
+          )}
+        />
+      </button>
+      {open && (
+        <p id={panelId} className="px-4 pb-4 text-[14px] text-ink/80 leading-relaxed">
+          {entry.a}
+        </p>
+      )}
+    </li>
+  );
+}
+
+/** Configurações › Suporte: busca, atalhos, temas, perguntas e contato (D25). */
+export function SupportView({
+  onBack,
+  onOpenPurchases,
+  onOpenTickets,
+  onOpenBookings,
+}: SupportViewProps) {
+  const { t } = useTranslation();
+  const [query, setQuery] = useState('');
+  const [topic, setTopic] = useState<HelpTopic | 'all'>('all');
+  const [copied, setCopied] = useState(false);
+  const faq = t('help.faq', { returnObjects: true }) as FaqEntry[];
+
+  const visible = useMemo(() => {
+    const term = normalize(query.trim());
+    return faq.filter(
+      (entry) =>
+        (topic === 'all' || entry.topic === topic) &&
+        (!term || normalize(`${entry.q} ${entry.a}`).includes(term))
+    );
+  }, [faq, query, topic]);
+
   // Número real vem da configuração (AGENTS.md §11.10: nada de número fictício no código).
   const whatsappUrl = whatsAppUrl(
     import.meta.env.VITE_SUPPORT_WHATSAPP?.trim(),
-    'Olá, preciso de suporte no Use Guide.'
+    t('help.contactHint')
   );
+  const reportUrl = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(t('help.reportSubject', { version: APP_VERSION }))}`;
 
-  const filteredFaqs = FAQ_DATA.filter((item) => {
-    const matchesCategory = activeCategory === 'all' || item.category === activeCategory;
-    const matchesSearch =
-      item.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.answer.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
-
-  const handleCopyEmail = () => {
-    navigator.clipboard.writeText(supportEmail);
-    setCopiedEmail(true);
-    setTimeout(() => setCopiedEmail(false), 2500);
+  const copyEmail = async () => {
+    try {
+      await navigator.clipboard.writeText(SUPPORT_EMAIL);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2500);
+    } catch {
+      // Sem permissão de área de transferência: o e-mail continua visível e o link abre o app de e-mail.
+    }
   };
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center justify-center relative mb-4 pt-2 pr-2">
-        <button
-          onClick={onBack}
-          className="absolute left-0 p-2 text-white/70 hover:text-white active:scale-90 transition-all z-10"
-        >
-          <ChevronLeft size={28} />
-        </button>
-        <div className="text-center">
-          <h2 className="text-2xl font-display font-black mb-1 text-sky-400 leading-tight">
-            Suporte & FAQ
-          </h2>
-          <p className="text-[10px] text-white/50 font-black uppercase tracking-widest">
-            Estamos aqui para ajudar
-          </p>
-        </div>
+      <div className="flex items-center gap-2 mb-4">
+        <BackButton label={t('settings.back')} onClick={onBack} />
+        <h2 className="text-[22px] font-display font-bold text-ink">{t('help.title')}</h2>
       </div>
 
-      <div className="grid grid-cols-2 gap-2 mb-4">
+      <div className="shrink-0 relative mb-4">
+        <Search
+          size={18}
+          className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink/50"
+          aria-hidden="true"
+        />
+        <input
+          type="search"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder={t('help.search')}
+          aria-label={t('help.searchLabel')}
+          className={cn(INPUT, 'pl-10')}
+        />
+      </div>
+
+      <div className="shrink-0 grid grid-cols-2 gap-2 mb-5">
+        {onOpenPurchases && (
+          <Shortcut
+            icon={ShoppingBag}
+            label={t('help.shortcuts.purchases')}
+            onClick={onOpenPurchases}
+          />
+        )}
+        {onOpenTickets && (
+          <Shortcut icon={Ticket} label={t('help.shortcuts.tickets')} onClick={onOpenTickets} />
+        )}
+        {onOpenBookings && (
+          <Shortcut
+            icon={CalendarCheck}
+            label={t('help.shortcuts.bookings')}
+            onClick={onOpenBookings}
+          />
+        )}
+        <Shortcut
+          icon={UserRound}
+          label={t('help.shortcuts.account')}
+          onClick={() => setTopic('account')}
+        />
+      </div>
+
+      <div className="shrink-0 flex gap-2 overflow-x-auto no-scrollbar -mx-1 px-1 pb-1 mb-3">
+        {(['all', ...TOPICS] as const).map((key) => (
+          <button
+            key={key}
+            type="button"
+            aria-pressed={topic === key}
+            onClick={() => setTopic(key)}
+            className={cn(
+              'press shrink-0 min-h-11 px-4 rounded-full text-[13px] font-semibold whitespace-nowrap border focus-visible:ring-2 focus-visible:ring-teal-400/50',
+              topic === key
+                ? 'bg-accent-soft text-accent border-accent-line'
+                : 'bg-surface text-ink/80 border-line'
+            )}
+          >
+            {key === 'all' ? t('help.allTopics') : t(`help.topics.${key}`)}
+          </button>
+        ))}
+      </div>
+
+      {visible.length === 0 ? (
+        <p className="shrink-0 mb-5 px-1 text-[13px] text-ink/70">{t('help.noResults')}</p>
+      ) : (
+        <ul className="shrink-0 mb-5 rounded-[20px] bg-surface border border-line divide-y divide-line overflow-hidden">
+          {visible.map((entry) => (
+            <FaqItem key={entry.id} entry={entry} />
+          ))}
+        </ul>
+      )}
+
+      <section className="shrink-0 p-4 rounded-[20px] bg-surface border border-line space-y-3">
+        <div>
+          <h3 className="text-[15px] font-semibold text-ink">{t('help.contactTitle')}</h3>
+          <p className="text-[13px] text-ink/70">{t('help.contactHint')}</p>
+        </div>
         {whatsappUrl && (
           <a
             href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2.5 p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 active:scale-95 transition-all text-left group"
+            className="press min-h-12 px-4 rounded-xl bg-success-soft border border-success-line text-success flex items-center gap-3 font-semibold focus-visible:ring-2 focus-visible:ring-teal-400/50"
           >
-            <div className="w-8 h-8 rounded-xl bg-emerald-500/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition-all">
-              <MessageSquare size={16} />
-            </div>
-            <div className="overflow-hidden">
-              <span className="block text-[10px] font-black uppercase tracking-wider text-emerald-400">
-                WhatsApp
-              </span>
-              <span className="block text-[8px] text-emerald-300/60 truncate">
-                Atendimento humano
-              </span>
-            </div>
+            <MessageCircle size={20} aria-hidden="true" />
+            {t('help.whatsapp')}
           </a>
         )}
-
-        <button
-          onClick={handleCopyEmail}
-          className="flex items-center gap-2.5 p-3 rounded-2xl bg-sky-500/10 border border-sky-500/20 text-sky-400 hover:bg-sky-500/20 active:scale-95 transition-all text-left group relative"
-        >
-          <div className="w-8 h-8 rounded-xl bg-sky-500/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition-all">
-            {copiedEmail ? <Check size={16} className="text-teal-400" /> : <Mail size={16} />}
-          </div>
-          <div className="overflow-hidden">
-            <span className="block text-[10px] font-black uppercase tracking-wider text-sky-400">
-              {copiedEmail ? 'Copiado!' : 'E-mail'}
+        <div className="flex items-center gap-2">
+          <a
+            href={`mailto:${SUPPORT_EMAIL}`}
+            className="press flex-1 min-w-0 min-h-12 px-4 rounded-xl bg-app/40 border border-line text-ink flex items-center gap-3 focus-visible:ring-2 focus-visible:ring-teal-400/50"
+          >
+            <Mail size={20} className="shrink-0 text-accent" aria-hidden="true" />
+            <span className="min-w-0">
+              <span className="block text-[12px] text-ink/70">{t('help.email')}</span>
+              <span className="block text-[14px] font-semibold truncate">{SUPPORT_EMAIL}</span>
             </span>
-            <span className="block text-[8px] text-sky-300/60 truncate">{supportEmail}</span>
-          </div>
-          {!copiedEmail && (
-            <Copy
-              size={10}
-              className="absolute right-2 top-2 opacity-40 group-hover:opacity-100 transition-opacity"
-            />
-          )}
-        </button>
-      </div>
-
-      <div className="space-y-3 flex-1 flex flex-col overflow-hidden">
-        <div className="relative">
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Buscar dúvida..."
-            className="w-full h-10 bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 text-[11px] text-white placeholder:text-white/50 focus:outline-none focus:border-sky-500/50 transition-colors"
-          />
-          <Search size={14} className="absolute left-3 top-3 text-white/50" />
+          </a>
+          <button
+            type="button"
+            onClick={() => void copyEmail()}
+            aria-label={copied ? t('help.copied') : t('help.copy')}
+            className="press w-12 h-12 shrink-0 rounded-xl border border-line text-ink/80 flex items-center justify-center focus-visible:ring-2 focus-visible:ring-teal-400/50"
+          >
+            {copied ? (
+              <Check size={18} className="text-success" aria-hidden="true" />
+            ) : (
+              <Copy size={18} aria-hidden="true" />
+            )}
+          </button>
         </div>
-
-        <div className="flex gap-1 overflow-x-auto pb-1 no-scrollbar -mx-1 px-1">
-          {[
-            { id: 'all', label: 'Tudo', icon: Layers },
-            { id: 'general', label: 'Geral', icon: Compass },
-            { id: 'kitesurf', label: 'Vento', icon: Wind },
-            { id: 'account', label: 'Conta', icon: User },
-            { id: 'partner', label: 'Parceiro', icon: Award },
-          ].map((cat) => {
-            const CatIcon = cat.icon;
-            const isActive = activeCategory === cat.id;
-            return (
-              <button
-                key={cat.id}
-                onClick={() => setActiveCategory(cat.id as FAQCategoryType)}
-                className={cn(
-                  'flex items-center gap-1 px-3 py-1.5 rounded-xl text-[8px] font-black uppercase tracking-wider whitespace-nowrap transition-all',
-                  isActive
-                    ? 'bg-sky-500 text-black shadow-md shadow-sky-500/20'
-                    : 'bg-white/5 text-white/50 hover:text-white hover:bg-white/10'
-                )}
-              >
-                <CatIcon size={10} />
-                <span>{cat.label}</span>
-              </button>
-            );
-          })}
-        </div>
-
-        <div className="flex-1 overflow-y-auto pr-1 space-y-2 no-scrollbar">
-          {filteredFaqs.length > 0 ? (
-            filteredFaqs.map((faq) => {
-              const isOpen = openFaqId === faq.id;
-              const FaqIcon = faq.icon;
-              return (
-                <div
-                  key={faq.id}
-                  className={cn(
-                    'rounded-2xl border transition-all duration-300 overflow-hidden text-left',
-                    isOpen
-                      ? 'bg-white/10 border-sky-500/40 shadow-lg shadow-sky-500/5'
-                      : 'bg-white/5 border-white/5 hover:border-white/10'
-                  )}
-                >
-                  <button
-                    onClick={() => setOpenFaqId(isOpen ? null : faq.id)}
-                    className="w-full p-3.5 flex items-center justify-between gap-3 text-left transition-colors"
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <div
-                        className={cn(
-                          'w-6 h-6 rounded-lg flex items-center justify-center shrink-0 transition-colors',
-                          isOpen ? 'bg-sky-500/20 text-sky-400' : 'bg-white/5 text-white/50'
-                        )}
-                      >
-                        <FaqIcon size={12} />
-                      </div>
-                      <span className="text-[10px] font-bold text-white/90 leading-tight">
-                        {faq.question}
-                      </span>
-                    </div>
-                    <ChevronDown
-                      size={14}
-                      className={cn(
-                        'text-white/50 shrink-0 transition-transform duration-300',
-                        isOpen && 'rotate-180 text-sky-400'
-                      )}
-                    />
-                  </button>
-
-                  <AnimatePresence>
-                    {isOpen && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        <div className="px-3.5 pb-3.5 pt-1 border-t border-white/5 text-[10px] text-white/70 leading-relaxed font-sans">
-                          {faq.answer}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              );
-            })
-          ) : (
-            <div className="p-8 text-center space-y-2">
-              <HelpCircle size={24} className="mx-auto text-white/50" />
-              <p className="text-[10px] text-white/50 font-bold uppercase tracking-wider">
-                Nenhuma dúvida encontrada
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {userEmail && (
-        <div className="pt-2 text-[8px] text-center text-white/50 font-mono">
-          Suporte identificado para: {userEmail}
-        </div>
-      )}
+        <a
+          href={reportUrl}
+          className="press min-h-11 inline-flex items-center gap-2 text-[14px] font-semibold text-accent rounded-lg focus-visible:ring-2 focus-visible:ring-teal-400/50"
+        >
+          <Bug size={18} aria-hidden="true" />
+          {t('help.reportProblem')}
+        </a>
+      </section>
     </div>
   );
 }

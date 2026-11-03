@@ -6,7 +6,8 @@ import { useOpenSourceLicenses } from '../../hooks/useOpenSourceLicenses';
 import { LicenseEntry } from './LicenseEntry';
 
 const SECTION_TITLE = 'px-1 mb-2 text-[13px] font-semibold text-ink/70';
-const LIST = 'shrink-0 rounded-[20px] bg-surface border border-line divide-y divide-line overflow-hidden';
+const LIST =
+  'shrink-0 rounded-[20px] bg-surface border border-line divide-y divide-line overflow-hidden';
 
 /** Sobre o app › Licenças e créditos: autoria de trabalhos de terceiros e licenças das bibliotecas. */
 export function AboutLicensesView({ onBack }: { onBack: () => void }) {

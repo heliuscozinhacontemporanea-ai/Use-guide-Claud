@@ -15,16 +15,6 @@ export interface AppAboutTranslation {
   project: string;
   loadError: string;
   retry: string;
-  notifications: {
-    title: string;
-    intro: string;
-    reviews: string;
-    reviewsHint: string;
-    plan: string;
-    planHint: string;
-    loadError: string;
-    saveError: string;
-  };
 }
 
 export const appAboutPtBR: AppAboutTranslation = {
@@ -45,16 +35,6 @@ export const appAboutPtBR: AppAboutTranslation = {
   project: 'Página do projeto',
   loadError: 'Não foi possível carregar as licenças.',
   retry: 'Tentar de novo',
-  notifications: {
-    title: 'Notificações',
-    intro: 'Escolha os avisos que aparecem no seu painel de parceiro.',
-    reviews: 'Avaliações recebidas',
-    reviewsHint: 'Quando alguém avaliar um item ou evento seu.',
-    plan: 'Vencimento do plano',
-    planHint: 'Quando o plano de um estabelecimento estiver perto de vencer.',
-    loadError: 'Não foi possível carregar suas notificações.',
-    saveError: 'Não foi possível salvar. Tente de novo.',
-  },
 };
 
 export const appAboutEn: AppAboutTranslation = {
@@ -75,16 +55,6 @@ export const appAboutEn: AppAboutTranslation = {
   project: 'Project page',
   loadError: 'We couldn’t load the licenses.',
   retry: 'Try again',
-  notifications: {
-    title: 'Notifications',
-    intro: 'Choose the alerts that show up in your partner panel.',
-    reviews: 'Reviews received',
-    reviewsHint: 'When someone reviews one of your items or events.',
-    plan: 'Plan expiring',
-    planHint: 'When a business plan is about to expire.',
-    loadError: 'We couldn’t load your notifications.',
-    saveError: 'We couldn’t save. Try again.',
-  },
 };
 
 export const appAboutFr: AppAboutTranslation = {
@@ -105,14 +75,4 @@ export const appAboutFr: AppAboutTranslation = {
   project: 'Page du projet',
   loadError: 'Impossible de charger les licences.',
   retry: 'Réessayer',
-  notifications: {
-    title: 'Notifications',
-    intro: 'Choisissez les alertes affichées dans votre espace partenaire.',
-    reviews: 'Avis reçus',
-    reviewsHint: 'Quand quelqu’un évalue l’un de vos éléments ou événements.',
-    plan: 'Expiration de l’abonnement',
-    planHint: 'Quand l’abonnement d’un établissement arrive bientôt à échéance.',
-    loadError: 'Impossible de charger vos notifications.',
-    saveError: 'Impossible d’enregistrer. Réessayez.',
-  },
 };

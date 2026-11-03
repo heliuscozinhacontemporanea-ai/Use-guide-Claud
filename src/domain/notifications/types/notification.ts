@@ -24,9 +24,3 @@ export interface SendAdminNotificationPayload {
   title: string;
   message: string;
 }
-
-export interface NotificationSettings {
-  partnerId: string;
-  reviewNotifications: boolean;
-  planExpiringNotifications: boolean;
-}

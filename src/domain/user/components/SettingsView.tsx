@@ -26,7 +26,7 @@ interface SettingsViewProps {
   onOpenPurchases?: () => void;
   /** Só com login: o @ que outras pessoas usam para transferir ingressos (D21). */
   onOpenUsername?: () => void;
-  /** Só para parceiros: avisos do painel (avaliações, vencimento do plano). */
+  /** Só com login: avisos da conta e do parceiro (D25). */
   onOpenNotifications?: () => void;
 }
 
@@ -94,7 +94,7 @@ export function SettingsView({
         {onOpenNotifications && (
           <SettingsRow
             icon={Bell}
-            label={t('appAbout.notifications.title')}
+            label={t('notify.settingsTitle')}
             onClick={onOpenNotifications}
           />
         )}

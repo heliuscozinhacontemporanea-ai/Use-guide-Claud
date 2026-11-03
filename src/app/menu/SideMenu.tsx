@@ -78,9 +78,7 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
   // Papel vem da sessão (claims + perfil), a mesma fonte que o AppRouter usa para abrir os painéis.
   const isPartner = user?.role === UserRole.PARTNER;
   const isAdmin = user?.role === UserRole.ADMIN;
-  const visibleView = visibleMenuView(requestedView ?? 'main', Boolean(user));
-  // Notificações só existem para parceiros; outra conta que abrir o link vê Configurações.
-  const view = visibleView === 'notifications' && !isPartner ? 'settings' : visibleView;
+  const view = visibleMenuView(requestedView ?? 'main', Boolean(user));
   const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
 
   const showView = (target: MenuView) => openMenu(target);
@@ -167,11 +165,11 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
             onOpenAbout={() => showView('about')}
             onOpenPurchases={user ? () => showView('purchases') : undefined}
             onOpenUsername={user ? () => showView('username') : undefined}
-            onOpenNotifications={isPartner ? () => showView('notifications') : undefined}
+            onOpenNotifications={user ? () => showView('notifications') : undefined}
           />
         );
       case 'notifications':
-        return user ? <NotificationSettingsView partnerId={user.uid} onBack={goBack} /> : null;
+        return <NotificationSettingsView isPartner={isPartner} onBack={goBack} />;
       case 'username':
         return <UsernameSettingsView onBack={goBack} />;
       case 'purchases':
@@ -211,7 +209,14 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
       case 'licenses':
         return <AboutLicensesView onBack={goBack} />;
       case 'support':
-        return <SupportView onBack={goBack} userEmail={user?.email} />;
+        return (
+          <SupportView
+            onBack={goBack}
+            onOpenPurchases={user ? () => showView('purchases') : undefined}
+            onOpenTickets={user ? () => showView('tickets') : undefined}
+            onOpenBookings={user ? () => showView('bookings') : undefined}
+          />
+        );
       case 'tickets':
         return <UserTicketsHistoryView onBack={goBack} />;
       case 'bookings':

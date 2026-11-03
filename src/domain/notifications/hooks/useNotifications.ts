@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { subscribeToNotificationsUseCase } from '../application/usecases/subscribeToNotificationsUseCase';
-import { markNotificationAsReadUseCase } from '../application/usecases/markNotificationAsReadUseCase';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { markAllNotificationsAsReadUseCase } from '../application/usecases/markAllNotificationsAsReadUseCase';
+import { markNotificationAsReadUseCase } from '../application/usecases/markNotificationAsReadUseCase';
+import { subscribeToNotificationsUseCase } from '../application/usecases/subscribeToNotificationsUseCase';
 import { Notification } from '../types/notification';
 
 const PAGE_SIZE = 10;

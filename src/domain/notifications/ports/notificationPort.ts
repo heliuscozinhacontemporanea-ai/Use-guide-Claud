@@ -1,8 +1,5 @@
-import {
-  Notification,
-  NotificationSettings,
-  SendAdminNotificationPayload,
-} from '../types/notification';
+import { Notification, SendAdminNotificationPayload } from '../types/notification';
+import type { NotificationPreferences } from '../types/notificationCategories';
 
 export interface NotificationPort {
   subscribeToNotifications(
@@ -15,11 +12,9 @@ export interface NotificationPort {
   markAsRead(notificationId: string): Promise<void>;
   markAllAsRead(): Promise<void>;
 
-  getSettings(partnerId: string): Promise<NotificationSettings>;
-  updateSettings(
-    partnerId: string,
-    settings: Partial<Omit<NotificationSettings, 'partnerId'>>
-  ): Promise<void>;
-
   sendAdminNotification(payload: SendAdminNotificationPayload): Promise<void>;
+
+  /** Preferências da conta logada (D25): push por categoria, silêncio noturno e resumo diário. */
+  getPreferences(): Promise<NotificationPreferences>;
+  updatePreferences(patch: Partial<NotificationPreferences>): Promise<void>;
 }
