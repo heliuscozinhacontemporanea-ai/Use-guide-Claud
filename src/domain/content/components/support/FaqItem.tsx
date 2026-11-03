@@ -4,8 +4,11 @@ import { cn } from '../../../../shared/utils/cn';
 
 export type FaqEntry = { id: string; q: string; a: string };
 
-/** Pergunta que abre a resposta logo abaixo (botão com aria-expanded). */
-export function FaqItem({ entry }: { entry: FaqEntry }) {
+/**
+ * Pergunta que abre a resposta logo abaixo. Com `preview`, mostra o começo da resposta fechada
+ * (padrão "artigos principais" das centrais de ajuda).
+ */
+export function FaqItem({ entry, preview = false }: { entry: FaqEntry; preview?: boolean }) {
   const [open, setOpen] = useState(false);
   const panelId = useId();
   return (
@@ -15,14 +18,19 @@ export function FaqItem({ entry }: { entry: FaqEntry }) {
         aria-expanded={open}
         aria-controls={panelId}
         onClick={() => setOpen((value) => !value)}
-        className="w-full min-h-14 px-4 py-3 flex items-center gap-3 text-left hover:bg-ink/[0.03] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-400/50 focus-visible:outline-none"
+        className="w-full min-h-14 px-4 py-3.5 flex items-start gap-3 text-left hover:bg-ink/[0.03] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-400/50 focus-visible:outline-none"
       >
-        <span className="flex-1 text-[15px] font-semibold text-ink">{entry.q}</span>
+        <span className="flex-1 min-w-0">
+          <span className="block text-[15px] font-semibold text-ink">{entry.q}</span>
+          {preview && !open && (
+            <span className="mt-0.5 text-[13px] text-ink/70 line-clamp-2">{entry.a}</span>
+          )}
+        </span>
         <ChevronDown
           size={18}
           aria-hidden="true"
           className={cn(
-            'shrink-0 text-ink/40 transition-transform motion-reduce:transition-none',
+            'mt-0.5 shrink-0 text-ink/40 transition-transform motion-reduce:transition-none',
             open && 'rotate-180'
           )}
         />

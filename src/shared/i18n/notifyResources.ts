@@ -46,6 +46,11 @@ export interface NotifyTranslation {
     openUnread_one: string;
     openUnread_other: string;
     markAll: string;
+    more: string;
+    filterUnread: string;
+    filterAll: string;
+    upToDate: string;
+    upToDateHint: string;
     settings: string;
     today: string;
     earlier: string;
@@ -116,7 +121,12 @@ export const notifyPtBR: NotifyTranslation = {
     openUnread_one: 'Abrir notificações, {{count}} não lida',
     openUnread_other: 'Abrir notificações, {{count}} não lidas',
     markAll: 'Marcar todas como lidas',
-    settings: 'Ajustes de notificações',
+    more: 'Mais opções',
+    filterUnread: 'Não lidas',
+    filterAll: 'Tudo',
+    upToDate: 'Você está em dia',
+    upToDateHint: 'Quando chegar algo novo, aparece aqui.',
+    settings: 'Configurações',
     today: 'Hoje',
     earlier: 'Anteriores',
     empty: 'Nenhuma notificação',
@@ -183,7 +193,12 @@ export const notifyEn: NotifyTranslation = {
     openUnread_one: 'Open notifications, {{count}} unread',
     openUnread_other: 'Open notifications, {{count}} unread',
     markAll: 'Mark all as read',
-    settings: 'Notification settings',
+    more: 'More options',
+    filterUnread: 'Unread',
+    filterAll: 'All',
+    upToDate: 'You’re all caught up',
+    upToDateHint: 'New updates will show up here.',
+    settings: 'Settings',
     today: 'Today',
     earlier: 'Earlier',
     empty: 'No notifications',
@@ -260,7 +275,12 @@ export const notifyFr: NotifyTranslation = {
     openUnread_one: 'Ouvrir les notifications, {{count}} non lue',
     openUnread_other: 'Ouvrir les notifications, {{count}} non lues',
     markAll: 'Tout marquer comme lu',
-    settings: 'Réglages des notifications',
+    more: 'Plus d’options',
+    filterUnread: 'Non lues',
+    filterAll: 'Tout',
+    upToDate: 'Vous êtes à jour',
+    upToDateHint: 'Les nouveautés apparaîtront ici.',
+    settings: 'Réglages',
     today: 'Aujourd’hui',
     earlier: 'Plus tôt',
     empty: 'Aucune notification',

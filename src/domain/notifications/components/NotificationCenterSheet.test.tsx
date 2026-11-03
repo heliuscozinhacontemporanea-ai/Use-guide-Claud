@@ -51,7 +51,7 @@ describe('NotificationCenterSheet', () => {
     expect(onOpenItem).toHaveBeenCalledWith(items[1]);
   });
 
-  it('sem avisos mostra o estado vazio e desativa marcar todas', () => {
+  it('sem avisos mostra o estado vazio; em Não lidas, você está em dia', () => {
     render(
       <NotificationCenterSheet
         open
@@ -67,9 +67,7 @@ describe('NotificationCenterSheet', () => {
       />
     );
     expect(screen.getByText('Nenhuma notificação')).toBeTruthy();
-    expect(
-      (screen.getByRole('button', { name: 'Marcar todas como lidas' }) as HTMLButtonElement)
-        .disabled
-    ).toBe(true);
+    fireEvent.click(screen.getByRole('button', { name: 'Não lidas' }));
+    expect(screen.getByText('Você está em dia')).toBeTruthy();
   });
 });

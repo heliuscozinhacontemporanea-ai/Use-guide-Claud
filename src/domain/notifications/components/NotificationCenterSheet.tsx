@@ -1,7 +1,9 @@
-import { Settings } from 'lucide-react';
+import { BellCheck, CheckCheck, Ellipsis, SlidersHorizontal } from 'lucide-react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '../../../shared/utils/cn';
 import { Dialog } from '../../../ui/components/Dialog';
+import { DropdownMenu } from '../../../ui/components/DropdownMenu';
 import { TextButton } from '../../../ui/components/TextButton';
 import type { NotificationCenterItem } from '../types/notificationCategories';
 
@@ -37,7 +39,7 @@ interface NotificationCenterSheetProps {
   now?: Date;
 }
 
-/** Central de notificações de todas as contas (D25): Hoje e Antes, tocar abre o lugar certo. */
+/** Central de notificações de todas as contas (D25): filtro Não lidas/Tudo, Hoje e Anteriores; tocar abre o lugar certo. */
 export function NotificationCenterSheet({
   open,
   onOpenChange,
@@ -51,27 +53,58 @@ export function NotificationCenterSheet({
   now = new Date(),
 }: NotificationCenterSheetProps) {
   const { t, i18n } = useTranslation();
+  const [filter, setFilter] = useState<'unread' | 'all'>('all');
   const today = dayKey(now);
+  const shown = filter === 'unread' ? items.filter((item) => !item.read) : items;
   const groups = [
-    { key: 'today', items: items.filter((item) => dayKey(item.createdAt) === today) },
-    { key: 'earlier', items: items.filter((item) => dayKey(item.createdAt) !== today) },
+    { key: 'today', items: shown.filter((item) => dayKey(item.createdAt) === today) },
+    { key: 'earlier', items: shown.filter((item) => dayKey(item.createdAt) !== today) },
   ].filter((group) => group.items.length > 0);
   const hasUnread = items.some((item) => !item.read);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange} title={t('notify.center.title')}>
-      <div className="flex items-center justify-between gap-2 -mt-1 mb-3">
-        <TextButton tone="accent" disabled={!hasUnread} onClick={onMarkAllRead}>
-          {t('notify.center.markAll')}
-        </TextButton>
-        <button
-          type="button"
-          onClick={onOpenSettings}
-          aria-label={t('notify.center.settings')}
-          className="press w-11 h-11 rounded-xl flex items-center justify-center text-ink/80 hover:bg-ink/[0.05] focus-visible:ring-2 focus-visible:ring-teal-400/50"
-        >
-          <Settings size={20} aria-hidden="true" />
-        </button>
+      <div className="flex items-center justify-between gap-2 -mt-1 mb-4">
+        <div className="flex gap-2">
+          {(['unread', 'all'] as const).map((key) => (
+            <button
+              key={key}
+              type="button"
+              aria-pressed={filter === key}
+              onClick={() => setFilter(key)}
+              className={cn(
+                'press min-h-11 px-4 rounded-full text-[14px] font-semibold border focus-visible:ring-2 focus-visible:ring-teal-400/50',
+                filter === key ? 'bg-ink text-app border-ink' : 'text-ink/80 border-line'
+              )}
+            >
+              {t(key === 'unread' ? 'notify.center.filterUnread' : 'notify.center.filterAll')}
+            </button>
+          ))}
+        </div>
+        <DropdownMenu
+          trigger={
+            <button
+              type="button"
+              aria-label={t('notify.center.more')}
+              className="press w-11 h-11 rounded-full flex items-center justify-center text-ink/80 hover:bg-ink/[0.06] focus-visible:ring-2 focus-visible:ring-teal-400/50"
+            >
+              <Ellipsis size={20} aria-hidden="true" />
+            </button>
+          }
+          items={[
+            {
+              label: t('notify.center.settings'),
+              icon: <SlidersHorizontal size={18} aria-hidden="true" />,
+              onClick: onOpenSettings,
+            },
+            {
+              label: t('notify.center.markAll'),
+              icon: <CheckCheck size={18} aria-hidden="true" />,
+              onClick: onMarkAllRead,
+              disabled: !hasUnread,
+            },
+          ]}
+        />
       </div>
 
       {loading ? (
@@ -91,9 +124,14 @@ export function NotificationCenterSheet({
           </TextButton>
         </div>
       ) : groups.length === 0 ? (
-        <div className="py-10 text-center space-y-1">
-          <p className="text-[15px] font-semibold text-ink">{t('notify.center.empty')}</p>
-          <p className="text-[13px] text-ink/70">{t('notify.center.emptyHint')}</p>
+        <div className="py-12 flex flex-col items-center text-center gap-1">
+          <BellCheck size={28} className="mb-2 text-ink/70" aria-hidden="true" />
+          <p className="text-[16px] font-semibold text-ink">
+            {t(filter === 'unread' ? 'notify.center.upToDate' : 'notify.center.empty')}
+          </p>
+          <p className="text-[14px] text-ink/70">
+            {t(filter === 'unread' ? 'notify.center.upToDateHint' : 'notify.center.emptyHint')}
+          </p>
         </div>
       ) : (
         <div className="space-y-4">

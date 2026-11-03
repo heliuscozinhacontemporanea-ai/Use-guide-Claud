@@ -14,9 +14,10 @@ export interface HelpTranslation {
   searchLabel: string;
   shortcutsTitle: string;
   shortcuts: { purchases: string; tickets: string; bookings: string };
-  faqTitle: string;
-  showAll: string;
-  allTopics: string;
+  greeting: string;
+  topicsTitle: string;
+  topTitle: string;
+  resultsTitle: string;
   topics: Record<HelpTopic, string>;
   noResults: string;
   faq: Array<{ id: string; topic: HelpTopic; q: string; a: string }>;
@@ -33,7 +34,7 @@ export interface HelpTranslation {
 
 export const helpPtBR: HelpTranslation = {
   title: 'Suporte',
-  search: 'Como podemos ajudar?',
+  search: 'Buscar ajuda',
   searchLabel: 'Buscar nas perguntas',
   shortcutsTitle: 'Ajuda com uma compra',
   shortcuts: {
@@ -41,17 +42,18 @@ export const helpPtBR: HelpTranslation = {
     tickets: 'Meus ingressos',
     bookings: 'Minhas reservas',
   },
-  faqTitle: 'Perguntas frequentes',
-  showAll: 'Ver todas as {{count}} perguntas',
-  allTopics: 'Todas',
+  greeting: 'Oi! Como podemos ajudar?',
+  topicsTitle: 'Assuntos',
+  topTitle: 'Perguntas mais lidas',
+  resultsTitle: 'Resultados',
   topics: {
-    purchases: 'Pagamentos',
-    tickets: 'Ingressos',
-    bookings: 'Reservas',
-    refunds: 'Cancelamentos',
-    account: 'Conta',
-    partners: 'Parceiros',
-    app: 'App',
+    purchases: 'Compras e pagamentos',
+    tickets: 'Ingressos e QR Code',
+    bookings: 'Passeios, aluguéis e translados',
+    refunds: 'Cancelamentos e reembolsos',
+    account: 'Sua conta',
+    partners: 'Para parceiros',
+    app: 'Uso do app',
   },
   noResults: 'Não achamos nada com essas palavras. Fale com a gente aqui embaixo.',
   faq: [
@@ -177,7 +179,7 @@ export const helpPtBR: HelpTranslation = {
 
 export const helpEn: HelpTranslation = {
   title: 'Support',
-  search: 'How can we help?',
+  search: 'Search help',
   searchLabel: 'Search the questions',
   shortcutsTitle: 'Help with a purchase',
   shortcuts: {
@@ -185,17 +187,18 @@ export const helpEn: HelpTranslation = {
     tickets: 'My tickets',
     bookings: 'My bookings',
   },
-  faqTitle: 'Common questions',
-  showAll: 'See all {{count}} questions',
-  allTopics: 'All',
+  greeting: 'Hi! How can we help?',
+  topicsTitle: 'Topics',
+  topTitle: 'Most read questions',
+  resultsTitle: 'Results',
   topics: {
-    purchases: 'Payments',
-    tickets: 'Tickets',
-    bookings: 'Bookings',
-    refunds: 'Cancellations',
-    account: 'Account',
-    partners: 'Partners',
-    app: 'App',
+    purchases: 'Purchases and payments',
+    tickets: 'Tickets and QR code',
+    bookings: 'Tours, rentals and transfers',
+    refunds: 'Cancellations and refunds',
+    account: 'Your account',
+    partners: 'For partners',
+    app: 'Using the app',
   },
   noResults: 'Nothing matches those words. Get in touch with us below.',
   faq: [
@@ -321,7 +324,7 @@ export const helpEn: HelpTranslation = {
 
 export const helpFr: HelpTranslation = {
   title: 'Assistance',
-  search: 'Comment pouvons-nous vous aider ?',
+  search: 'Rechercher de l’aide',
   searchLabel: 'Rechercher dans les questions',
   shortcutsTitle: 'Aide pour un achat',
   shortcuts: {
@@ -329,17 +332,18 @@ export const helpFr: HelpTranslation = {
     tickets: 'Mes billets',
     bookings: 'Mes réservations',
   },
-  faqTitle: 'Questions fréquentes',
-  showAll: 'Voir les {{count}} questions',
-  allTopics: 'Toutes',
+  greeting: 'Bonjour ! Comment pouvons-nous vous aider ?',
+  topicsTitle: 'Sujets',
+  topTitle: 'Questions les plus lues',
+  resultsTitle: 'Résultats',
   topics: {
-    purchases: 'Paiements',
-    tickets: 'Billets',
-    bookings: 'Réservations',
-    refunds: 'Annulations',
-    account: 'Compte',
-    partners: 'Partenaires',
-    app: 'App',
+    purchases: 'Achats et paiements',
+    tickets: 'Billets et QR code',
+    bookings: 'Excursions, locations et transferts',
+    refunds: 'Annulations et remboursements',
+    account: 'Votre compte',
+    partners: 'Pour les partenaires',
+    app: 'Utiliser l’app',
   },
   noResults: 'Rien ne correspond à ces mots. Contactez-nous ci-dessous.',
   faq: [

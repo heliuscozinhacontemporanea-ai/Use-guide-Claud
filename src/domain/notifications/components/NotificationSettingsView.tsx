@@ -1,3 +1,13 @@
+import {
+  CalendarCheck,
+  type LucideIcon,
+  MessageSquareWarning,
+  ShieldCheck,
+  ShoppingBag,
+  Sparkles,
+  Star,
+  Wallet,
+} from 'lucide-react';
 import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BackButton } from '../../../ui/components/BackButton';
@@ -19,13 +29,39 @@ const NOTE = 'px-1 mt-2 text-[13px] text-ink/70';
 
 type AlwaysKey = 'purchases' | 'trips' | 'account' | 'partnerClaims' | 'partnerMoney';
 
+const ALWAYS_ICONS: Record<AlwaysKey, LucideIcon> = {
+  purchases: ShoppingBag,
+  trips: CalendarCheck,
+  account: ShieldCheck,
+  partnerClaims: MessageSquareWarning,
+  partnerMoney: Wallet,
+};
+
+/** Título com ícone neutro ao lado, sem caixa nem cor (só identifica o assunto). */
+function RowTitle({
+  icon: Icon,
+  id,
+  children,
+}: {
+  icon: LucideIcon;
+  id?: string;
+  children: string;
+}) {
+  return (
+    <p id={id} className="flex items-center gap-2 text-[15px] font-semibold text-ink">
+      <Icon size={18} className="shrink-0 text-ink/70" aria-hidden="true" />
+      {children}
+    </p>
+  );
+}
+
 function AlwaysRow({ item }: { item: AlwaysKey }) {
   const { t } = useTranslation();
   return (
     <li className="flex items-center gap-3 px-4 py-3.5 min-h-16">
       <div className="flex-1 min-w-0">
-        <p className="text-[15px] font-semibold text-ink">{t(`notify.always.${item}.label`)}</p>
-        <p className="text-[13px] text-ink/70">{t(`notify.always.${item}.hint`)}</p>
+        <RowTitle icon={ALWAYS_ICONS[item]}>{t(`notify.always.${item}.label`)}</RowTitle>
+        <p className="pl-[26px] text-[13px] text-ink/70">{t(`notify.always.${item}.hint`)}</p>
       </div>
       <span className="shrink-0 text-[13px] text-ink/60">{t('notify.always.on')}</span>
     </li>
@@ -33,11 +69,13 @@ function AlwaysRow({ item }: { item: AlwaysKey }) {
 }
 
 function ToggleRow({
+  icon,
   label,
   hint,
   checked,
   onChange,
 }: {
+  icon: LucideIcon;
   label: string;
   hint: string;
   checked: boolean;
@@ -47,10 +85,10 @@ function ToggleRow({
   return (
     <li className="flex items-center gap-3 pl-4 pr-2 py-3">
       <div className="flex-1 min-w-0">
-        <p id={id} className="text-[15px] font-semibold text-ink">
+        <RowTitle icon={icon} id={id}>
           {label}
-        </p>
-        <p id={`${id}-hint`} className="text-[13px] text-ink/70">
+        </RowTitle>
+        <p id={`${id}-hint`} className="pl-[26px] text-[13px] text-ink/70">
           {hint}
         </p>
       </div>
@@ -149,12 +187,14 @@ export function NotificationSettingsView({
           <h3 className={cn(SECTION_TITLE, 'mt-6')}>{t('notify.choices.title')}</h3>
           <ul className={LIST}>
             <ToggleRow
+              icon={Star}
               label={t('notify.choices.reviewRequests')}
               hint={t('notify.choices.reviewRequestsHint')}
               checked={preferences.reviewRequests}
               onChange={(value) => void update({ reviewRequests: value })}
             />
             <ToggleRow
+              icon={Sparkles}
               label={t('notify.choices.news')}
               hint={t('notify.choices.newsHint')}
               checked={preferences.news}

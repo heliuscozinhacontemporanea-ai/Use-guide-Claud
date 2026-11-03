@@ -8,22 +8,25 @@ describe('SupportView', () => {
     await i18n.changeLanguage('pt-BR');
   });
 
-  it('busca sem acento, filtra por tema e abre a resposta', () => {
+  it('busca sem acento e mostra só os resultados', () => {
     render(<SupportView onBack={() => undefined} />);
     fireEvent.change(screen.getByRole('searchbox', { name: 'Buscar nas perguntas' }), {
       target: { value: 'reembolso' },
     });
-    expect(screen.getByRole('button', { name: 'Quanto tempo o reembolso demora?' })).toBeTruthy();
-    expect(screen.queryByRole('button', { name: 'Esqueci minha senha.' })).toBeNull();
+    expect(screen.getByText('Resultados')).toBeTruthy();
+    expect(screen.getByRole('button', { name: /Quanto tempo o reembolso demora\?/ })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /Esqueci minha senha/ })).toBeNull();
+    expect(screen.queryByText('Assuntos')).toBeNull();
+  });
 
-    fireEvent.change(screen.getByRole('searchbox', { name: 'Buscar nas perguntas' }), {
-      target: { value: '' },
-    });
-    fireEvent.click(screen.getByRole('button', { name: 'Conta' }));
+  it('assunto abre a própria lista e a resposta', () => {
+    render(<SupportView onBack={() => undefined} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Sua conta' }));
     const question = screen.getByRole('button', { name: 'Esqueci minha senha.' });
     fireEvent.click(question);
     expect(question.getAttribute('aria-expanded')).toBe('true');
     expect(screen.getByText(/Esqueceu a senha\?/)).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /Como vendo pelo Use Guide/ })).toBeNull();
   });
 
   it('atalhos de compras, ingressos e reservas só com login; e-mail único ajuda@', () => {
@@ -34,12 +37,5 @@ describe('SupportView', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Minhas compras' }));
     expect(onOpenPurchases).toHaveBeenCalled();
     expect(screen.getByText('ajuda@useguide.com.br')).toBeTruthy();
-  });
-
-  it('sem busca mostra as 5 mais procuradas e abre a lista inteira', () => {
-    render(<SupportView onBack={() => undefined} />);
-    expect(screen.queryByRole('button', { name: 'Como excluo minha conta?' })).toBeNull();
-    fireEvent.click(screen.getByRole('button', { name: /Ver todas as \d+ perguntas/ }));
-    expect(screen.getByRole('button', { name: 'Como excluo minha conta?' })).toBeTruthy();
   });
 });
