@@ -2,6 +2,7 @@ import compression from 'compression';
 import express from 'express';
 import helmet from 'helmet';
 import path from 'path';
+import { version as APP_VERSION } from './package.json';
 import { renderSeoPageApplicationUseCase } from './server/application/usecases/renderSeoPageApplicationUseCase';
 import { renderSitemapApplicationUseCase } from './server/application/usecases/renderSitemapApplicationUseCase';
 import adminRouter from './server/domain/admin/routes/adminRoutes';
@@ -134,22 +135,9 @@ async function startServer() {
     PaymentController.stripeWebhook
   );
 
-  // 2. Health, Version e Internal Job (autenticado via X-Internal-Job-Key com timingSafeEqual)
+  // 2. Health e Internal Job (autenticado via X-Internal-Job-Key com timingSafeEqual)
   app.get('/api/health', (_req, res) => {
-    res.json({
-      status: 'ok',
-      version: process.env.npm_package_version || '0.0.0',
-      revision: process.env.K_REVISION || 'local-dev',
-    });
-  });
-  app.get('/api/version', (_req, res) => {
-    res.json({
-      version: process.env.npm_package_version || '0.0.0',
-      revision: process.env.K_REVISION || 'local-dev',
-      service: process.env.K_SERVICE || 'use-guide',
-      configuration: process.env.K_CONFIGURATION || 'local',
-      environment: process.env.NODE_ENV || 'development',
-    });
+    res.json({ status: 'ok', version: APP_VERSION });
   });
   // Rotas /internal nunca passam pelo rewrite do Hosting (AGENTS.md §7.9).
   app.post(
@@ -172,11 +160,7 @@ async function startServer() {
 
   // 3. App Check para rotas /api/*
   app.use('/api', (req, res, next) => {
-    if (
-      req.path === '/health' ||
-      req.path === '/version' ||
-      req.path.startsWith('/payment/webhook')
-    ) {
+    if (req.path === '/health' || req.path.startsWith('/payment/webhook')) {
       return next();
     }
     return verifyAppCheck(req, res, next);

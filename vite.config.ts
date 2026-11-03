@@ -4,12 +4,15 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
+import pkg from './package.json';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export default defineConfig(() => {
   return {
+    // Versão do app (package.json, alterada à mão a cada lançamento) gravada no build.
+    define: { __APP_VERSION__: JSON.stringify(pkg.version) },
     plugins: [
       react(),
       tailwindcss(),
@@ -109,7 +112,8 @@ export default defineConfig(() => {
               },
             },
             {
-              urlPattern: /^https:\/\/(images\.unsplash\.com|firebasestorage\.googleapis\.com)\/.*/i,
+              urlPattern:
+                /^https:\/\/(images\.unsplash\.com|firebasestorage\.googleapis\.com)\/.*/i,
               handler: 'StaleWhileRevalidate',
               options: {
                 cacheName: 'external-images-cache',

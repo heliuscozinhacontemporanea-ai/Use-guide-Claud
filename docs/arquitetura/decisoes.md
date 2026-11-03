@@ -345,3 +345,12 @@ Aprovada pelo responsável do produto em 2026-11-02. **Ainda não implementar:**
 * **Credenciais:** Workload Identity Federation (sem chave JSON), conta de publicação só com papéis de publicação e acesso restrito a este repositório e à branch `main`. Segredos continuam no Secret Manager.
 * **Condições:** Stripe em modo teste (`sk_test_`) até a liberação; na data de liberação, rever o modelo (prévia por PR com revisão sem tráfego do Cloud Run e canal de prévia do Hosting, ou projeto de teste separado).
 * **Ao executar:** abrir PR da `claude/agents-md-v2` para `main`; depois, PR de limpeza do que é só do AI Studio (testes de host `ais-`, `FIREBASE_SERVICE_ACCOUNT_KEY`, `firebase-applet-config.json`) e proposta de mudança do AGENTS.md §2 e do fluxo de entrega (com autorização antes de editar). Descarta a S19 (deploy pelo AI Studio com gcloud).
+
+## D24 — Sobre o app, versão do app e licenças (2026-11-03)
+
+Aprovada pelo responsável do produto em 2026-11-03.
+
+* **Sobre o app:** uma tela só. Abaixo do ícone, só "Versão X.Y.Z"; descrição neutra dos serviços (sem prender o app a uma região: o plano é cobrir o Ceará e depois o Brasil); itens Termos e políticas (uso, compras e cancelamento, privacidade), Termos do parceiro e Licenças e créditos; © com o ano corrente do aparelho.
+* **Versão:** o campo `version` do `package.json`, alterado à mão a cada lançamento, gravado no build do site (Vite) e do servidor (esbuild). Sem número de build nem revisão do Cloud Run no app; sai a rota `/api/version`, e `/api/health` devolve só `status` e `version`.
+* **Licenças e créditos:** créditos de trabalhos de terceiros (animação do hamster, MIT) e as bibliotecas de produção com o texto da licença, geradas por `npm run licenses` (um teste falha se ficar desatualizado).
+* **Notificações do parceiro:** em Configurações › Notificações, não mais em Sobre o app.

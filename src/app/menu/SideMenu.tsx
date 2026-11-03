@@ -4,13 +4,7 @@ import { hasPasswordSignInUseCase, logoutUseCase } from '../../domain/auth';
 import { useAuthContext } from '../../domain/auth/context/AuthContext';
 import { UserRole } from '../../domain/auth/types/auth';
 import { MyBookingsView } from '../../domain/bookings';
-import {
-  AboutCompanyView,
-  AboutLicensesView,
-  AboutTermsView,
-  AboutView,
-  SupportView,
-} from '../../domain/content';
+import { AboutLicensesView, AboutTermsView, AboutView, SupportView } from '../../domain/content';
 import { FavoritesList } from '../../domain/favorites';
 import { NotificationSettingsView } from '../../domain/notifications';
 import { UserTicketsHistoryView } from '../../domain/ticketing';
@@ -30,7 +24,6 @@ import { Z_INDEX } from '../../shared/constants/zIndex';
 import { useLocalizedRouting } from '../../shared/hooks/useLocalizedRouting';
 import { cn } from '../../shared/utils/cn';
 import { SidebarLayout } from '../../ui/layouts/SidebarLayout';
-import type { LegalSectionKey } from '../../ui/legal/LegalTermsDocument';
 import { BuyerPurchasesComposition } from '../compositions/BuyerPurchasesComposition';
 import { MyReviewsComposition } from '../compositions/MyReviewsComposition';
 import { ProfileHighlightsComposition } from '../compositions/ProfileHighlightsComposition';
@@ -50,11 +43,8 @@ const FULL_HEIGHT_VIEWS: readonly MenuView[] = [
   'appearance',
   'support',
   'about',
-  'company',
-  'legal-use',
-  'legal-purchases',
-  'legal-partner',
-  'legal-privacy',
+  'terms',
+  'partner-terms',
   'licenses',
   'notifications',
 ];
@@ -67,11 +57,8 @@ const SETTINGS_VIEWS: readonly MenuView[] = [
   'appearance',
   'support',
   'about',
-  'company',
-  'legal-use',
-  'legal-purchases',
-  'legal-partner',
-  'legal-privacy',
+  'terms',
+  'partner-terms',
   'licenses',
   'notifications',
 ];
@@ -212,25 +199,15 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
         return (
           <AboutView
             onBack={goBack}
-            onOpenCompany={() => showView('company')}
-            onOpenPartners={() => {
-              closeMenu();
-              onPartnersOpen();
-            }}
-            onOpenSupport={() => showView('support')}
-            onOpenLegal={(section) => showView(`legal-${section}`)}
+            onOpenTerms={() => showView('terms')}
+            onOpenPartnerTerms={() => showView('partner-terms')}
             onOpenLicenses={() => showView('licenses')}
           />
         );
-      case 'company':
-        return <AboutCompanyView onBack={goBack} />;
-      case 'legal-use':
-      case 'legal-purchases':
-      case 'legal-partner':
-      case 'legal-privacy':
-        return (
-          <AboutTermsView section={view.replace('legal-', '') as LegalSectionKey} onBack={goBack} />
-        );
+      case 'terms':
+        return <AboutTermsView document="terms" onBack={goBack} />;
+      case 'partner-terms':
+        return <AboutTermsView document="partner" onBack={goBack} />;
       case 'licenses':
         return <AboutLicensesView onBack={goBack} />;
       case 'support':
