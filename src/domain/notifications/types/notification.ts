@@ -8,7 +8,15 @@ export type NotificationDate = string | number | Date | TimestampLike | null;
 
 /** Para onde o toque leva (definido pelo servidor). */
 export interface NotificationLink {
-  screen: 'tickets' | 'bookings' | 'purchases' | 'partner' | 'item' | 'event';
+  screen:
+    | 'tickets'
+    | 'bookings'
+    | 'purchases'
+    | 'reviews'
+    | 'account'
+    | 'partner'
+    | 'item'
+    | 'event';
   id?: string;
 }
 

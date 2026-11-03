@@ -299,14 +299,15 @@ export class TicketOrderService {
     return this.port.expireOrderAndReleaseInventoryAtomic(orderId);
   }
 
-  async expireAllOverdueOrders(nowIso = new Date().toISOString()): Promise<number> {
+  /** Expira os pedidos não pagos no prazo e devolve os que expiraram agora (para avisar o comprador). */
+  async expireAllOverdueOrders(nowIso = new Date().toISOString()): Promise<TicketOrder[]> {
     const expiredOrders = await this.port.listExpiredPendingOrders(nowIso);
-    let count = 0;
+    const expired: TicketOrder[] = [];
     for (const order of expiredOrders) {
       const res = await this.port.expireOrderAndReleaseInventoryAtomic(order.id);
-      if (!res.alreadyReleased) count += 1;
+      if (!res.alreadyReleased) expired.push(order);
     }
-    return count;
+    return expired;
   }
 
   async getOrderForUser(

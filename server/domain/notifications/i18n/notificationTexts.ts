@@ -32,7 +32,8 @@ export const NOTIFICATION_TEXTS_PT_BR: NotificationTypeTexts = {
   event_postponed: {
     title: 'Evento com nova data',
     body: '{{event}} passou para {{date}}. Seu ingresso vale na nova data. Se não puder ir, peça o reembolso em até 7 dias.',
-    bodyGeneric: 'Um evento seu passou para {{date}}. Seu ingresso vale na nova data. Se não puder ir, peça o reembolso em até 7 dias.',
+    bodyGeneric:
+      'Um evento seu passou para {{date}}. Seu ingresso vale na nova data. Se não puder ir, peça o reembolso em até 7 dias.',
   },
   booking_provider_arrived: {
     title: '{{business}} chegou',
@@ -42,7 +43,8 @@ export const NOTIFICATION_TEXTS_PT_BR: NotificationTypeTexts = {
   booking_no_show_marked: {
     title: 'Ausência registrada',
     body: '{{business}} registrou que você não foi. Se você estava lá, conte pra gente em Compras.',
-    bodyGeneric: 'O prestador registrou que você não foi. Se você estava lá, conte pra gente em Compras.',
+    bodyGeneric:
+      'O prestador registrou que você não foi. Se você estava lá, conte pra gente em Compras.',
   },
   booking_absence_in_review: {
     title: 'Estamos analisando',
@@ -115,6 +117,54 @@ export const NOTIFICATION_TEXTS_PT_BR: NotificationTypeTexts = {
     body_one: '{{count}} venda ou reserva hoje. Veja os detalhes no painel.',
     body_other: '{{count}} vendas ou reservas hoje. Veja os detalhes no painel.',
   },
+  purchase_ticket_paid: {
+    title: 'Compra confirmada',
+    body_one: 'Seu ingresso para {{event}} já está em Ingressos.',
+    body_other: 'Seus {{count}} ingressos para {{event}} já estão em Ingressos.',
+  },
+  purchase_booking_paid: {
+    title: 'Reserva confirmada',
+    body: '{{offer}}, {{date}}. O seu código aparece no dia.',
+  },
+  purchase_expired: {
+    title: 'Compra não concluída',
+    body: 'O pagamento de {{offer}} não chegou a tempo e a vaga foi liberada. Você pode comprar de novo.',
+    bodyGeneric: 'O pagamento não chegou a tempo e a vaga foi liberada. Você pode comprar de novo.',
+  },
+  ticket_reminder_day: {
+    title: 'Seu evento é amanhã',
+    body: '{{event}}, {{date}}. O código do ingresso aparece a partir da meia-noite.',
+  },
+  ticket_reminder_soon: {
+    title: 'Começa daqui a pouco',
+    body: '{{event}} começa em menos de 2 horas. Seu ingresso está em Ingressos.',
+  },
+  booking_reminder_day: {
+    title: 'Sua reserva é amanhã',
+    body: '{{offer}}, {{date}}. O seu código aparece a partir da meia-noite.',
+  },
+  booking_reminder_soon: {
+    title: 'Falta pouco',
+    body: '{{offer}} começa em menos de 2 horas. Seu código está em Reservas.',
+  },
+  review_request: {
+    title: 'Como foi?',
+    body: 'Conte como foi {{offer}}. Sua avaliação ajuda outros viajantes.',
+    bodyGeneric: 'Conte como foi. Sua avaliação ajuda outros viajantes.',
+  },
+  review_reply_received: {
+    title: 'Responderam sua avaliação',
+    body: '{{business}} respondeu o que você escreveu.',
+    bodyGeneric: 'O estabelecimento respondeu o que você escreveu.',
+  },
+  review_report_decided: {
+    title: 'Analisamos sua denúncia',
+    body: 'Obrigado por avisar. A análise foi concluída.',
+  },
+  account_username_changed: {
+    title: 'Seu @ mudou',
+    body: 'Agora você é {{username}}. Se não foi você, fale com a gente.',
+  },
   admin_message: {
     title: '{{title}}',
     body: '{{message}}',
@@ -149,7 +199,8 @@ export const NOTIFICATION_TEXTS_EN: NotificationTypeTexts = {
   event_postponed: {
     title: 'Event has a new date',
     body: '{{event}} moved to {{date}}. Your ticket is valid on the new date. If you can’t go, ask for a refund within 7 days.',
-    bodyGeneric: 'One of your events moved to {{date}}. Your ticket is valid on the new date. If you can’t go, ask for a refund within 7 days.',
+    bodyGeneric:
+      'One of your events moved to {{date}}. Your ticket is valid on the new date. If you can’t go, ask for a refund within 7 days.',
   },
   booking_provider_arrived: {
     title: '{{business}} has arrived',
@@ -159,7 +210,8 @@ export const NOTIFICATION_TEXTS_EN: NotificationTypeTexts = {
   booking_no_show_marked: {
     title: 'Marked as no-show',
     body: '{{business}} marked that you didn’t show up. If you were there, tell us in Purchases.',
-    bodyGeneric: 'The provider marked that you didn’t show up. If you were there, tell us in Purchases.',
+    bodyGeneric:
+      'The provider marked that you didn’t show up. If you were there, tell us in Purchases.',
   },
   booking_absence_in_review: {
     title: 'We’re looking into it',
@@ -232,6 +284,54 @@ export const NOTIFICATION_TEXTS_EN: NotificationTypeTexts = {
     body_one: '{{count}} sale or booking today. See the details in your panel.',
     body_other: '{{count}} sales or bookings today. See the details in your panel.',
   },
+  purchase_ticket_paid: {
+    title: 'Purchase confirmed',
+    body_one: 'Your ticket for {{event}} is in Tickets.',
+    body_other: 'Your {{count}} tickets for {{event}} are in Tickets.',
+  },
+  purchase_booking_paid: {
+    title: 'Booking confirmed',
+    body: '{{offer}}, {{date}}. Your code appears on the day.',
+  },
+  purchase_expired: {
+    title: 'Purchase not completed',
+    body: 'Payment for {{offer}} didn’t arrive in time, so the spot was released. You can buy again.',
+    bodyGeneric: 'Payment didn’t arrive in time, so the spot was released. You can buy again.',
+  },
+  ticket_reminder_day: {
+    title: 'Your event is tomorrow',
+    body: '{{event}}, {{date}}. Your ticket code appears from midnight.',
+  },
+  ticket_reminder_soon: {
+    title: 'Starting soon',
+    body: '{{event}} starts in less than 2 hours. Your ticket is in Tickets.',
+  },
+  booking_reminder_day: {
+    title: 'Your booking is tomorrow',
+    body: '{{offer}}, {{date}}. Your code appears from midnight.',
+  },
+  booking_reminder_soon: {
+    title: 'Almost time',
+    body: '{{offer}} starts in less than 2 hours. Your code is in Bookings.',
+  },
+  review_request: {
+    title: 'How was it?',
+    body: 'Tell us how {{offer}} went. Your review helps other travelers.',
+    bodyGeneric: 'Tell us how it went. Your review helps other travelers.',
+  },
+  review_reply_received: {
+    title: 'Someone replied to your review',
+    body: '{{business}} replied to what you wrote.',
+    bodyGeneric: 'The business replied to what you wrote.',
+  },
+  review_report_decided: {
+    title: 'We reviewed your report',
+    body: 'Thanks for letting us know. The review is complete.',
+  },
+  account_username_changed: {
+    title: 'Your @ changed',
+    body: 'You’re now {{username}}. If this wasn’t you, contact us.',
+  },
   admin_message: {
     title: '{{title}}',
     body: '{{message}}',
@@ -266,7 +366,8 @@ export const NOTIFICATION_TEXTS_FR: NotificationTypeTexts = {
   event_postponed: {
     title: 'Nouvelle date pour l’événement',
     body: '{{event}} est reporté au {{date}}. Votre billet est valable à la nouvelle date. Si vous ne pouvez pas venir, demandez le remboursement sous 7 jours.',
-    bodyGeneric: 'Un de vos événements est reporté au {{date}}. Votre billet est valable à la nouvelle date. Si vous ne pouvez pas venir, demandez le remboursement sous 7 jours.',
+    bodyGeneric:
+      'Un de vos événements est reporté au {{date}}. Votre billet est valable à la nouvelle date. Si vous ne pouvez pas venir, demandez le remboursement sous 7 jours.',
   },
   booking_provider_arrived: {
     title: '{{business}} est arrivé',
@@ -276,7 +377,8 @@ export const NOTIFICATION_TEXTS_FR: NotificationTypeTexts = {
   booking_no_show_marked: {
     title: 'Absence enregistrée',
     body: '{{business}} a indiqué que vous n’êtes pas venu. Si vous étiez là, dites-le-nous dans Achats.',
-    bodyGeneric: 'Le prestataire a indiqué que vous n’êtes pas venu. Si vous étiez là, dites-le-nous dans Achats.',
+    bodyGeneric:
+      'Le prestataire a indiqué que vous n’êtes pas venu. Si vous étiez là, dites-le-nous dans Achats.',
   },
   booking_absence_in_review: {
     title: 'Nous examinons la situation',
@@ -337,8 +439,10 @@ export const NOTIFICATION_TEXTS_FR: NotificationTypeTexts = {
   },
   plan_expiring: {
     title: 'Votre formule se termine bientôt',
-    body_one: 'La formule de {{listing}} se termine dans {{count}} jour. Renouvelez-la pour garder le badge.',
-    body_other: 'La formule de {{listing}} se termine dans {{count}} jours. Renouvelez-la pour garder le badge.',
+    body_one:
+      'La formule de {{listing}} se termine dans {{count}} jour. Renouvelez-la pour garder le badge.',
+    body_other:
+      'La formule de {{listing}} se termine dans {{count}} jours. Renouvelez-la pour garder le badge.',
   },
   plan_renewal_failed: {
     title: 'Impossible de renouveler votre formule',
@@ -348,6 +452,55 @@ export const NOTIFICATION_TEXTS_FR: NotificationTypeTexts = {
     title: 'Vos ventes du jour',
     body_one: '{{count}} vente ou réservation aujourd’hui. Voir le détail dans votre espace.',
     body_other: '{{count}} ventes ou réservations aujourd’hui. Voir le détail dans votre espace.',
+  },
+  purchase_ticket_paid: {
+    title: 'Achat confirmé',
+    body_one: 'Votre billet pour {{event}} est dans Billets.',
+    body_other: 'Vos {{count}} billets pour {{event}} sont dans Billets.',
+  },
+  purchase_booking_paid: {
+    title: 'Réservation confirmée',
+    body: '{{offer}}, {{date}}. Votre code apparaît le jour même.',
+  },
+  purchase_expired: {
+    title: 'Achat non finalisé',
+    body: 'Le paiement de {{offer}} n’est pas arrivé à temps et la place a été libérée. Vous pouvez acheter à nouveau.',
+    bodyGeneric:
+      'Le paiement n’est pas arrivé à temps et la place a été libérée. Vous pouvez acheter à nouveau.',
+  },
+  ticket_reminder_day: {
+    title: 'Votre événement, c’est demain',
+    body: '{{event}}, {{date}}. Le code du billet apparaît à partir de minuit.',
+  },
+  ticket_reminder_soon: {
+    title: 'Ça commence bientôt',
+    body: '{{event}} commence dans moins de 2 heures. Votre billet est dans Billets.',
+  },
+  booking_reminder_day: {
+    title: 'Votre réservation, c’est demain',
+    body: '{{offer}}, {{date}}. Votre code apparaît à partir de minuit.',
+  },
+  booking_reminder_soon: {
+    title: 'C’est bientôt',
+    body: '{{offer}} commence dans moins de 2 heures. Votre code est dans Réservations.',
+  },
+  review_request: {
+    title: 'C’était comment ?',
+    body: 'Racontez-nous comment s’est passé {{offer}}. Votre avis aide les autres voyageurs.',
+    bodyGeneric: 'Racontez-nous comment ça s’est passé. Votre avis aide les autres voyageurs.',
+  },
+  review_reply_received: {
+    title: 'On a répondu à votre avis',
+    body: '{{business}} a répondu à ce que vous avez écrit.',
+    bodyGeneric: 'L’établissement a répondu à ce que vous avez écrit.',
+  },
+  review_report_decided: {
+    title: 'Nous avons examiné votre signalement',
+    body: 'Merci de nous avoir prévenus. L’examen est terminé.',
+  },
+  account_username_changed: {
+    title: 'Votre @ a changé',
+    body: 'Vous êtes maintenant {{username}}. Si ce n’était pas vous, contactez-nous.',
   },
   admin_message: {
     title: '{{title}}',

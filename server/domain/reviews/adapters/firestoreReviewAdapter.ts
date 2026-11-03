@@ -145,7 +145,7 @@ export class FirestoreReviewAdapter implements ReviewPort {
     response: string,
     responderId: string,
     isAdmin = false
-  ): Promise<void> {
+  ): Promise<{ authorId: string; itemName: string }> {
     const reviewRef = adminDb.collection('reviews').doc(reviewId);
 
     const reviewSnap = await reviewRef.get();
@@ -178,6 +178,15 @@ export class FirestoreReviewAdapter implements ReviewPort {
       responderId,
       updatedAt: FieldValue.serverTimestamp(),
     });
+    const saved = reviewSnap.data() ?? {};
+    const savedItemId = typeof saved.itemId === 'string' ? saved.itemId : '';
+    // Nome do lugar para o aviso a quem avaliou; sem nome, o texto do aviso diz "o estabelecimento".
+    const itemName = !savedItemId
+      ? ''
+      : saved.itemCollection === 'events'
+        ? ((await getEventListingByIdUseCase(savedItemId))?.title ?? '')
+        : ((await getItemByIdUseCase(savedItemId))?.name ?? '');
+    return { authorId: typeof saved.userId === 'string' ? saved.userId : '', itemName };
   }
 
   async deleteReview(reviewId: string, requesterId: string, isAdmin = false): Promise<void> {

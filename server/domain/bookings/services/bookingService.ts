@@ -174,9 +174,15 @@ export class BookingService {
     await this.port.recordBookingAudit(bookingId, 'system:webhook', 'payment_failed');
   }
 
-  async expireOverdueBookings(limit = 200): Promise<number> {
+  /** Reservas confirmadas que começam em [fromIso, toIso), para os lembretes (D25). */
+  listConfirmedStartingBetween(fromIso: string, toIso: string, limit = 200): Promise<Booking[]> {
+    return this.port.listConfirmedBookingsStartingBetween(fromIso, toIso, limit);
+  }
+
+  /** Devolve as vagas das reservas não pagas no prazo; retorna as que expiraram agora. */
+  async expireOverdueBookings(limit = 200): Promise<Booking[]> {
     const overdue = await this.port.listExpiredPendingBookings(this.now().toISOString(), limit);
-    let expired = 0;
+    const expired: Booking[] = [];
     for (const booking of overdue) {
       try {
         await this.port.releaseCapacityAndSetStatus({
@@ -185,7 +191,7 @@ export class BookingService {
           actorUid: SYSTEM_ACTOR,
           reason: 'payment_window_elapsed',
         });
-        expired += 1;
+        expired.push(booking);
       } catch (error) {
         // Uma reserva confirmada no meio do caminho não pode travar as demais.
         if (!(error instanceof BookingDomainError)) throw error;
@@ -353,7 +359,7 @@ export class BookingService {
    */
   async completeFinishedBookings(
     limit = 200
-  ): Promise<{ completed: number; askedToConfirm: Booking[] }> {
+  ): Promise<{ completed: number; askedToConfirm: Booking[]; reviewInvites: Booking[] }> {
     const nowDate = this.now();
     const started = await this.port.listConfirmedBookingsStartedBefore(
       nowDate.toISOString(),
@@ -361,6 +367,8 @@ export class BookingService {
     );
     let completed = 0;
     const askedToConfirm: Booking[] = [];
+    // Serviço que aconteceu (sem pergunta pendente nem ausência): convite para avaliar (D25).
+    const reviewInvites: Booking[] = [];
     for (const booking of started) {
       if ((await this.serviceEndMs(booking)) > nowDate.getTime()) continue;
       // Entrada de atração não usada até o fechamento é ausência, como ingresso não usado (D20, A).
@@ -389,8 +397,10 @@ export class BookingService {
       if (updated.status === 'confirmed') continue;
       completed += 1;
       if (ask && updated.status === 'completed') askedToConfirm.push(updated);
+      else if (updated.status === 'completed' && !updated.providerAbsence)
+        reviewInvites.push(updated);
     }
-    return { completed, askedToConfirm };
+    return { completed, askedToConfirm, reviewInvites };
   }
 
   /** Fim do serviço; a entrada de atração vale até o fechamento do horário (D20). */

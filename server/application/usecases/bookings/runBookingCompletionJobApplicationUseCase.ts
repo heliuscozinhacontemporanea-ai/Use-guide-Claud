@@ -1,3 +1,4 @@
+import { createNotificationUseCase } from '../../../domain/notifications';
 import {
   type Booking,
   bookingServiceEndsAt,
@@ -80,9 +81,19 @@ async function processDeadline(booking: Booking): Promise<void> {
 export async function runBookingCompletionJobApplicationUseCase(
   limit = 200
 ): Promise<BookingCompletionJobResult> {
-  const { completed, askedToConfirm } = await completeFinishedBookingsUseCase(limit);
+  const { completed, askedToConfirm, reviewInvites } = await completeFinishedBookingsUseCase(limit);
   for (const booking of askedToConfirm) {
     await sendBookingServiceNotice(booking.buyerId, 'confirmationAsked');
+  }
+  for (const booking of reviewInvites) {
+    // Opcional (D25): o envio respeita "Pedidos de avaliação" e o horário das 21h às 9h.
+    await createNotificationUseCase({
+      recipientUid: booking.buyerId,
+      type: 'review_request',
+      params: { offer: booking.offerSnapshot.title },
+      link: { screen: 'bookings' },
+      dedupeKey: `review_request_${booking.id}`,
+    }).catch(() => undefined);
   }
   let deadlinesProcessed = 0;
   for (const booking of await listBookingsWithDueDeadlineUseCase(limit)) {

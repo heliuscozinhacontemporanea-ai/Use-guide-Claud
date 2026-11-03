@@ -179,6 +179,7 @@ describe('serviços de ticketing', () => {
       syncOfflineCheckInsAtomic: vi.fn(),
       anonymizeUser: vi.fn(),
       listTicketsChangedSince: vi.fn().mockResolvedValue([]),
+      listTicketsByEventTime: vi.fn().mockResolvedValue([]),
       swapTicketQr: vi.fn(),
       createTransferLink: vi.fn(),
       getTransferLink: vi.fn(),

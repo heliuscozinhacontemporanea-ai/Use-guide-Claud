@@ -63,6 +63,7 @@ export class FirestoreTicketingAdapter implements TicketingPort {
   readonly listCheckInsByOccurrenceId = this.checkIn.listCheckInsByOccurrenceId.bind(this.checkIn);
   readonly anonymizeUser = this.privacy.anonymizeUser.bind(this.privacy);
   readonly listTicketsChangedSince = this.ticket.listTicketsChangedSince.bind(this.ticket);
+  readonly listTicketsByEventTime = this.ticket.listTicketsByEventTime.bind(this.ticket);
   readonly swapTicketQr = this.ticket.swapTicketQr.bind(this.ticket);
   readonly createTransferLink = this.transferLinks.createTransferLink.bind(this.transferLinks);
   readonly getTransferLink = this.transferLinks.getTransferLink.bind(this.transferLinks);

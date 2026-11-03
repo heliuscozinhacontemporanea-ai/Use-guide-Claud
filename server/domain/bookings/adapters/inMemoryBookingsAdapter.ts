@@ -302,4 +302,14 @@ export class InMemoryBookingsAdapter implements BookingsPort {
       .filter((b) => b.status === 'confirmed' && b.offerSnapshot.startsAt <= nowIso)
       .slice(0, limit);
   }
+  async listConfirmedBookingsStartingBetween(fromIso: string, toIso: string, limit: number) {
+    return [...this.bookings.values()]
+      .filter(
+        (b) =>
+          b.status === 'confirmed' &&
+          b.offerSnapshot.startsAt >= fromIso &&
+          b.offerSnapshot.startsAt < toIso
+      )
+      .slice(0, limit);
+  }
 }

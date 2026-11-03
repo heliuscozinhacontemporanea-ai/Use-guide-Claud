@@ -5,3 +5,4 @@ export { expireBookings } from './expireBookings';
 export { expireTicketingOrders } from './expireTicketingOrders';
 export { notificationsDailyDigest } from './notificationsDailyDigest';
 export { releasePayouts } from './releasePayouts';
+export { sendServiceReminders } from './sendServiceReminders';

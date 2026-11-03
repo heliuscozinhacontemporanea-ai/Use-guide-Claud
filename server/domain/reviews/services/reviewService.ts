@@ -84,7 +84,18 @@ export class ReviewService {
       throw new Error('Conteúdo da resposta é obrigatório');
     }
 
-    await this.reviewPort.respondToReview(reviewId, response.trim(), responderId, isAdmin);
+    const { authorId, itemName } = await this.reviewPort.respondToReview(
+      reviewId,
+      response.trim(),
+      responderId,
+      isAdmin
+    );
+    if (authorId && authorId !== responderId) {
+      // Só a primeira resposta avisa (dedupe pelo id da avaliação); editar a resposta não repete.
+      await this.reviewNotificationPort
+        .notifyReviewReplied({ authorId, reviewId, businessName: itemName })
+        .catch(() => undefined);
+    }
   }
 
   async deleteReview(reviewId: string, requesterId: string, isAdmin = false): Promise<void> {

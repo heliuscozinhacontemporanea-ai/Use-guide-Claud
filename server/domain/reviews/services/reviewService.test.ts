@@ -21,7 +21,7 @@ vi.mock('../../bookings', () => ({
 function createReviewPortMock(): ReviewPort {
   return {
     submitReviewAndRecalculateRating: vi.fn(),
-    respondToReview: vi.fn(),
+    respondToReview: vi.fn().mockResolvedValue({ authorId: 'user-1', itemName: 'Pousada' }),
     deleteReview: vi.fn(),
     deleteReviewsByUser: vi.fn(),
     getReviewsStats: vi.fn(),
@@ -31,6 +31,8 @@ function createReviewPortMock(): ReviewPort {
 function createReviewNotificationPortMock(): ReviewNotificationPort {
   return {
     notifyReviewReceived: vi.fn(),
+    notifyReviewReplied: vi.fn().mockResolvedValue(undefined),
+    notifyReportDecided: vi.fn().mockResolvedValue(undefined),
   };
 }
 
@@ -359,6 +361,11 @@ describe('ReviewService', () => {
         'partner-1',
         false
       );
+      expect(notificationPort.notifyReviewReplied).toHaveBeenCalledWith({
+        authorId: 'user-1',
+        reviewId: 'review-1',
+        businessName: 'Pousada',
+      });
     });
   });
 });

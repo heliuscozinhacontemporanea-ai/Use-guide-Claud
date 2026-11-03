@@ -109,4 +109,10 @@ export interface BookingsPort {
   listBookingsBySlot(slotId: string): Promise<Booking[]>;
   listExpiredPendingBookings(nowIso: string, limit: number): Promise<Booking[]>;
   listConfirmedBookingsStartedBefore(nowIso: string, limit: number): Promise<Booking[]>;
+  /** Reservas confirmadas que começam em [fromIso, toIso) — lembretes (D25). */
+  listConfirmedBookingsStartingBetween(
+    fromIso: string,
+    toIso: string,
+    limit: number
+  ): Promise<Booking[]>;
 }

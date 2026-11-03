@@ -258,6 +258,27 @@ export class FirestoreTicketStore {
     });
   }
 
+  async listTicketsByEventTime(query: {
+    status: TicketStatus;
+    field: 'startsAt' | 'endsAt';
+    fromIso: string;
+    toIso: string;
+    limit: number;
+  }): Promise<Ticket[]> {
+    const path = `eventSnapshot.${query.field}`;
+    const snap = await adminDb
+      .collection('tickets')
+      .where('status', '==', query.status)
+      .where(path, '>=', query.fromIso)
+      .where(path, '<', query.toIso)
+      .orderBy(path)
+      .limit(query.limit)
+      .get();
+    return snap.docs.map((doc) =>
+      TicketPersistenceMapper.toDomain(doc.id, (doc.data() || {}) as Record<string, unknown>)
+    );
+  }
+
   async listTicketsChangedSince(
     occurrenceId: string,
     sinceIso: string,

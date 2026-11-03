@@ -45,6 +45,8 @@ export { createTicketOrderUseCase } from './usecases/createTicketOrderUseCase';
 export { createTicketTypeUseCase } from './usecases/createTicketTypeUseCase';
 export { expireAllOverdueOrdersUseCase } from './usecases/expireAllOverdueOrdersUseCase';
 export { expireTicketOrderUseCase } from './usecases/expireTicketOrderUseCase';
+export { listCheckedInTicketsEndedBetweenUseCase } from './usecases/listCheckedInTicketsEndedBetweenUseCase';
+export { listIssuedTicketsStartingBetweenUseCase } from './usecases/listIssuedTicketsStartingBetweenUseCase';
 export { finalizeTicketRefundStatusUseCase } from './usecases/finalizeTicketRefundStatusUseCase';
 export { getEventSalesAnalyticsUseCase } from './usecases/getEventSalesAnalyticsUseCase';
 export { getTicketOrderUseCase } from './usecases/getTicketOrderUseCase';

@@ -37,6 +37,10 @@ export class UsernameService {
     return `${base.slice(0, 20)}${Date.now().toString(36).slice(-6)}`;
   }
 
+  async currentUsername(uid: string): Promise<string | null> {
+    return (await this.port.getCurrent(uid)).username;
+  }
+
   async claim(uid: string, rawUsername: string): Promise<string> {
     const username = normalizeUsername(rawUsername);
     if (!username) throw new UsernameError('USERNAME_INVALID', 'Nome de usuário inválido.');

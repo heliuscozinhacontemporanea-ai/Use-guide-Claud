@@ -85,6 +85,15 @@ export async function reconcileStripeWebhookEventApplicationUseCase(
         title: order.eventSnapshot?.title,
       });
 
+      if (!confirmed.alreadyPaid) {
+        await createNotificationUseCase({
+          recipientUid: order.buyerId,
+          type: 'purchase_ticket_paid',
+          params: { event: order.eventSnapshot?.title || '', count: confirmed.tickets.length },
+          link: { screen: 'tickets' },
+          dedupeKey: `purchase_ticket_paid_${order.id}`,
+        }).catch(() => undefined);
+      }
       const targetPartnerId = metadata.partnerId || metadata.sellerPartnerId;
       if (!confirmed.alreadyPaid && targetPartnerId) {
         await createNotificationUseCase({

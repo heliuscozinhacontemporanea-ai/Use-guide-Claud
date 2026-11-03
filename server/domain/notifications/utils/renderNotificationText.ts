@@ -12,7 +12,7 @@ const TEXTS: Record<Locale, NotificationTypeTexts> = {
   en: NOTIFICATION_TEXTS_EN,
   fr: NOTIFICATION_TEXTS_FR,
 };
-const NAMED_PARAMS = ['event', 'business', 'username', 'listing'];
+const NAMED_PARAMS = ['event', 'business', 'username', 'listing', 'offer'];
 const COUNT_PARAMS = ['count', 'participants', 'rating', 'days'];
 const TIME_ZONE = 'America/Fortaleza';
 

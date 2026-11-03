@@ -23,7 +23,6 @@ import { createEventPromoCodeUseCase } from '../usecases/createEventPromoCodeUse
 import { createOfflineCheckInSessionUseCase } from '../usecases/createOfflineCheckInSessionUseCase';
 import { createTicketOrderUseCase } from '../usecases/createTicketOrderUseCase';
 import { createTicketTypeUseCase } from '../usecases/createTicketTypeUseCase';
-import { expireAllOverdueOrdersUseCase } from '../usecases/expireAllOverdueOrdersUseCase';
 import { expireTicketOrderUseCase } from '../usecases/expireTicketOrderUseCase';
 import { getEventSalesAnalyticsUseCase } from '../usecases/getEventSalesAnalyticsUseCase';
 import { getTicketOrderUseCase } from '../usecases/getTicketOrderUseCase';
@@ -223,16 +222,6 @@ export class TicketingController {
       }
       await expireTicketOrderUseCase(orderId);
       return res.status(200).json({ status: 'success', orderId, expired: true });
-    } catch (error) {
-      return handleTicketingError(res, error);
-    }
-  }
-
-  // A chave do job é verificada antes, pelo middleware verifyInternalJobKey.
-  static async expireOrdersInternalJob(_req: Request, res: Response) {
-    try {
-      const result = await expireAllOverdueOrdersUseCase();
-      return res.status(200).json({ status: 'success', ...result });
     } catch (error) {
       return handleTicketingError(res, error);
     }

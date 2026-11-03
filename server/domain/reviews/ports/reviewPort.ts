@@ -26,7 +26,7 @@ export interface ReviewPort {
     response: string,
     responderId: string,
     isAdmin?: boolean
-  ): Promise<void>;
+  ): Promise<{ authorId: string; itemName: string }>;
   deleteReview(reviewId: string, requesterId: string, isAdmin?: boolean): Promise<void>;
   deleteReviewsByUser(userId: string): Promise<void>;
   getReviewsStats(): Promise<{ totalReviews: number; avgRating: number }>;

@@ -142,6 +142,17 @@ export interface TicketingPort {
   /** Ingressos da sessão alterados depois de `sinceIso` (lista sem internet, D21). */
   listTicketsChangedSince(occurrenceId: string, sinceIso: string, limit: number): Promise<Ticket[]>;
   /**
+   * Ingressos num estado cujo evento começa (`startsAt`) ou termina (`endsAt`) em [fromIso, toIso):
+   * lembretes e convite para avaliar (D25).
+   */
+  listTicketsByEventTime(query: {
+    status: TicketStatus;
+    field: 'startsAt' | 'endsAt';
+    fromIso: string;
+    toIso: string;
+    limit: number;
+  }): Promise<Ticket[]>;
+  /**
    * Troca única do QR pelo titular (D21): nova versão em transação. Lança FORBIDDEN para quem não é
    * o titular e UNPROCESSABLE_ENTITY se o ingresso não está emitido ou já teve o QR trocado.
    */

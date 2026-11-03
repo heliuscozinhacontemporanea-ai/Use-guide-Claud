@@ -5,7 +5,7 @@ import type { NotificationCenterItem } from '../types/notificationCategories';
 const TIME_ZONE = 'America/Fortaleza';
 
 /** Dados que, se vierem vazios, trocam o texto pela versão sem nome (`titleGeneric`/`bodyGeneric`). */
-const NAMED_PARAMS = ['event', 'business', 'username', 'listing'] as const;
+const NAMED_PARAMS = ['event', 'business', 'username', 'listing', 'offer'] as const;
 
 export function toDate(value: NotificationDate): Date {
   if (!value) return new Date(0);
@@ -47,7 +47,9 @@ export function describeNotification(
     if (typeof params[countKey] === 'number') values.count = params[countKey];
   }
   const pick = (part: 'title' | 'body') =>
-    missingName && hasText(t, `${base}.${part}Generic`) ? `${base}.${part}Generic` : `${base}.${part}`;
+    missingName && hasText(t, `${base}.${part}Generic`)
+      ? `${base}.${part}Generic`
+      : `${base}.${part}`;
 
   return {
     id: notification.id,

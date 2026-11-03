@@ -1,8 +1,6 @@
 import type { Response } from 'express';
 import type { AuthenticatedRequest } from '../../../infrastructure/auth/authMiddleware';
 import { UsernameError } from '../errors/usernameError';
-import { usernameSchema } from '../schemas/usernameSchema';
-import { claimUsernameUseCase } from '../usecases/claimUsernameUseCase';
 import { findUserByUsernameUseCase } from '../usecases/findUserByUsernameUseCase';
 import { suggestUsernameUseCase } from '../usecases/suggestUsernameUseCase';
 
@@ -38,24 +36,6 @@ export class UsernameController {
       return res.status(200).json({ username: await suggestUsernameUseCase(uid, name) });
     } catch (error) {
       return sendError(res, error, 'suggest');
-    }
-  }
-
-  static async claim(req: AuthenticatedRequest, res: Response) {
-    const uid = req.user?.uid;
-    if (!uid) return unauthenticated(res);
-    const parsed = usernameSchema.safeParse(req.body);
-    if (!parsed.success) {
-      return res
-        .status(400)
-        .json({ error: { code: 'VALIDATION_ERROR', message: 'Nome de usuário inválido.' } });
-    }
-    try {
-      return res
-        .status(200)
-        .json({ username: await claimUsernameUseCase(uid, parsed.data.username) });
-    } catch (error) {
-      return sendError(res, error, 'claim');
     }
   }
 

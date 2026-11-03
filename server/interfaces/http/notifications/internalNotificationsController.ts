@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+import { sendServiceRemindersApplicationUseCase } from '../../../application/usecases/notifications/sendServiceRemindersApplicationUseCase';
 import {
   dispatchPushNotificationsUseCase,
   enqueueDailySalesDigestUseCase,
@@ -14,7 +15,7 @@ function fail(res: Response, operation: string, error: unknown): Response {
     .json({ error: { code: 'PUSH_JOB_FAILED', message: 'Falha ao enviar notificações.' } });
 }
 
-/** Jobs do push (Cloud Scheduler, `X-Internal-Job-Key`): fila a cada minuto e resumo às 20h. */
+/** Jobs das notificações (Cloud Scheduler, `X-Internal-Job-Key`): fila, lembretes e resumo das 20h. */
 export class InternalNotificationsController {
   static async dispatch(_req: Request, res: Response): Promise<Response> {
     try {
@@ -29,6 +30,14 @@ export class InternalNotificationsController {
       return res.status(200).json({ data: { queued: await enqueueDailySalesDigestUseCase() } });
     } catch (error) {
       return fail(res, 'dailyDigest', error);
+    }
+  }
+
+  static async reminders(_req: Request, res: Response): Promise<Response> {
+    try {
+      return res.status(200).json({ data: await sendServiceRemindersApplicationUseCase() });
+    } catch (error) {
+      return fail(res, 'reminders', error);
     }
   }
 }

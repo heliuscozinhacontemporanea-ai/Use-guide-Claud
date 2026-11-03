@@ -220,6 +220,7 @@ describe('prova do serviço na camada application (D20)', () => {
     vi.mocked(completeFinishedBookingsUseCase).mockResolvedValue({
       completed: 2,
       askedToConfirm: [BOOKING as never],
+      reviewInvites: [],
     });
     vi.mocked(listBookingsWithDueDeadlineUseCase).mockResolvedValue([
       {
@@ -265,6 +266,7 @@ describe('prova do serviço na camada application (D20)', () => {
     vi.mocked(completeFinishedBookingsUseCase).mockResolvedValue({
       completed: 0,
       askedToConfirm: [],
+      reviewInvites: [],
     });
     vi.mocked(listBookingsWithDueDeadlineUseCase).mockResolvedValue([
       {

@@ -61,6 +61,7 @@ export { getPublicOfferSummaryUseCase } from './usecases/getPublicOfferSummaryUs
 export { getVerifiedServiceForReviewUseCase } from './usecases/getVerifiedServiceForReviewUseCase';
 export { hasCheckedInBookingUseCase } from './usecases/hasCheckedInBookingUseCase';
 export { listAvailableSlotsUseCase } from './usecases/listAvailableSlotsUseCase';
+export { listConfirmedBookingsStartingBetweenUseCase } from './usecases/listConfirmedBookingsStartingBetweenUseCase';
 export { listBookingsWithDueDeadlineUseCase } from './usecases/listBookingsWithDueDeadlineUseCase';
 export { listMyBookingsUseCase } from './usecases/listMyBookingsUseCase';
 export { listOfferBookingsForPartnerUseCase } from './usecases/listOfferBookingsForPartnerUseCase';

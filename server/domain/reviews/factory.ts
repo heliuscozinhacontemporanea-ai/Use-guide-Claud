@@ -5,7 +5,7 @@ import { ReviewReportService } from './services/reviewReportService';
 import { ReviewService } from './services/reviewService';
 
 const reviewAdapter = new FirestoreReviewAdapter();
-const reviewNotificationAdapter = new ReviewNotificationAdapter();
+export const reviewNotificationAdapter = new ReviewNotificationAdapter();
 
 export const reviewService = new ReviewService(reviewAdapter, reviewNotificationAdapter);
 export const reviewReportService = new ReviewReportService(new FirestoreReviewReportAdapter());

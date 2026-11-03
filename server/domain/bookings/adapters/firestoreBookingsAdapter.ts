@@ -368,4 +368,20 @@ export class FirestoreBookingsAdapter implements BookingsPort {
       .get();
     return snapshot.docs.map((doc) => BookingPersistenceMapper.toDomain(doc.id, doc.data()));
   }
+
+  async listConfirmedBookingsStartingBetween(
+    fromIso: string,
+    toIso: string,
+    limit: number
+  ): Promise<Booking[]> {
+    const snapshot = await adminDb
+      .collection(BOOKINGS)
+      .where('status', '==', 'confirmed')
+      .where('offerSnapshot.startsAt', '>=', fromIso)
+      .where('offerSnapshot.startsAt', '<', toIso)
+      .orderBy('offerSnapshot.startsAt', 'asc')
+      .limit(limit)
+      .get();
+    return snapshot.docs.map((doc) => BookingPersistenceMapper.toDomain(doc.id, doc.data()));
+  }
 }

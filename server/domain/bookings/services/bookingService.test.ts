@@ -154,7 +154,7 @@ describe('BookingService', () => {
     const { service, port, setNow } = setup({ capacity: 2 });
     const booking = await service.createPendingBooking(BUYER, INPUT, FEES);
     setNow('2026-11-01T12:16:00.000Z');
-    await expect(service.expireOverdueBookings()).resolves.toBe(1);
+    await expect(service.expireOverdueBookings()).resolves.toHaveLength(1);
     expect(port.slots.get('slot-1')?.capacityReserved).toBe(0);
     const other = await service.createPendingBooking({ uid: 'buyer-2', admin: false }, INPUT, FEES);
     await service.confirmBookingPayment(other.id, 'pi_2');
@@ -318,6 +318,8 @@ describe('BookingService', () => {
     setNow('2026-11-10T13:00:00.000Z');
     const result = await service.completeFinishedBookings();
     expect(result).toMatchObject({ completed: 1, askedToConfirm: [] });
+    // Serviço com prova: convite para avaliar (D25).
+    expect(result.reviewInvites.map((b) => b.id)).toEqual([booking.id]);
     expect(port.bookings.get(booking.id)?.serviceConfirmation).toBeUndefined();
   });
 

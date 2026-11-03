@@ -19,6 +19,28 @@ import { loadTransferContext } from './transferEligibility';
 export class TicketHolderService {
   constructor(private readonly port: TicketingPort) {}
 
+  /** Ingressos válidos cujo evento começa no intervalo (lembretes, D25). */
+  listIssuedTicketsStartingBetween(fromIso: string, toIso: string, limit = 500): Promise<Ticket[]> {
+    return this.port.listTicketsByEventTime({
+      status: 'issued',
+      field: 'startsAt',
+      fromIso,
+      toIso,
+      limit,
+    });
+  }
+
+  /** Ingressos usados na portaria cujo evento terminou no intervalo (convite para avaliar, D25). */
+  listCheckedInTicketsEndedBetween(fromIso: string, toIso: string, limit = 500): Promise<Ticket[]> {
+    return this.port.listTicketsByEventTime({
+      status: 'checked_in',
+      field: 'endsAt',
+      fromIso,
+      toIso,
+      limit,
+    });
+  }
+
   /** Exclusão de conta (§7.5): quantos registros perderam o dado pessoal. */
   async anonymizeUser(uid: string): Promise<number> {
     const result = await this.port.anonymizeUser(uid);

@@ -14,6 +14,8 @@ import insightsRouter from './server/domain/insights/routes/insightsRoutes';
 import mediaRouter from './server/domain/media/routes/mediaRoutes';
 import notificationRouter from './server/domain/notifications/routes/notificationRoutes';
 import { adminMessageRouter } from './server/interfaces/http/notifications/adminMessageRoutes';
+import { usernameClaimRouter } from './server/interfaces/http/users/usernameClaimRoutes';
+import { InternalTicketingController } from './server/interfaces/http/ticketing/internalTicketingController';
 import { InternalNotificationsController } from './server/interfaces/http/notifications/internalNotificationsController';
 import partnerRouter from './server/domain/partners/routes/partnerRoutes';
 import { PaymentController } from './server/domain/payment/controllers/paymentController';
@@ -24,7 +26,6 @@ import {
 } from './server/domain/reviews/routes/reviewReportRoutes';
 import reviewRouter from './server/domain/reviews/routes/reviewRoutes';
 import { isKnownPagePath } from './server/domain/seo';
-import { TicketingController } from './server/domain/ticketing/controllers/ticketingController';
 import ticketingRouter, {
   adminTicketingEventsRouter,
 } from './server/domain/ticketing/routes/ticketingRoutes';
@@ -145,7 +146,7 @@ async function startServer() {
   app.post(
     '/internal/ticketing/expire-orders',
     verifyInternalJobKey,
-    TicketingController.expireOrdersInternalJob
+    InternalTicketingController.expireOrders
   );
   app.post('/internal/bookings/expire', verifyInternalJobKey, InternalBookingsController.expire);
   app.post('/internal/payouts/release', verifyInternalJobKey, InternalPayoutsController.release);
@@ -158,6 +159,11 @@ async function startServer() {
     '/internal/notifications/dispatch',
     verifyInternalJobKey,
     InternalNotificationsController.dispatch
+  );
+  app.post(
+    '/internal/notifications/reminders',
+    verifyInternalJobKey,
+    InternalNotificationsController.reminders
   );
   app.post(
     '/internal/notifications/daily-digest',
@@ -214,6 +220,7 @@ async function startServer() {
   app.use('/api/weather', climaWindRouter);
   app.use('/api/admin/notifications', adminMessageRouter);
   app.use('/api/notifications', notificationRouter);
+  app.use('/api/users', usernameClaimRouter);
   app.use('/api/users', userRouter);
   app.use('/api/listing-verifications', listingVerificationRouter);
   app.use('/api/listing-plans', listingPlanRouter);

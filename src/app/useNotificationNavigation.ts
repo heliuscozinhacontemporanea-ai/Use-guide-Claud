@@ -7,6 +7,8 @@ const MENU_TARGET: Partial<Record<NotificationLink['screen'], MenuView>> = {
   tickets: 'tickets',
   bookings: 'bookings',
   purchases: 'purchases',
+  reviews: 'reviews',
+  account: 'username',
 };
 
 /**

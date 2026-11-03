@@ -1,13 +1,13 @@
 import type { Request, Response } from 'express';
+import { expireUnpaidBookingsApplicationUseCase } from '../../../application/usecases/notifications/expireUnpaidBookingsApplicationUseCase';
 import { runBookingCompletionJobApplicationUseCase } from '../../../application/usecases/bookings/runBookingCompletionJobApplicationUseCase';
-import { expireOverdueBookingsUseCase } from '../../../domain/bookings';
 import { handleBookingError } from './bookingHttpErrors';
 
 // Chamados pelos jobs agendados; a chave já foi conferida pelo middleware verifyInternalJobKey.
 export class InternalBookingsController {
   static async expire(_req: Request, res: Response): Promise<Response> {
     try {
-      return res.status(200).json({ expired: await expireOverdueBookingsUseCase(200) });
+      return res.status(200).json({ expired: await expireUnpaidBookingsApplicationUseCase(200) });
     } catch (error) {
       return handleBookingError(res, 'expireJob', error);
     }

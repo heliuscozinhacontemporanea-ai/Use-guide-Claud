@@ -19,7 +19,6 @@ router.post(
   UserController.uploadPhoto
 );
 router.get('/me/username-suggestion', verifyAuthToken, UsernameController.suggest);
-router.put('/me/username', verifyAuthToken, UsernameController.claim);
 // A busca do @ revela quem tem conta: limite por pessoa contra varredura (D21, §7.4).
 router.get(
   '/by-username/:username',

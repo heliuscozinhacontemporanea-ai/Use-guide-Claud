@@ -48,6 +48,13 @@ async function handlePaymentSucceeded(
       link: { screen: 'partner' },
       dedupeKey: `sale_booking_${booking.id}`,
     }).catch(() => undefined);
+    await createNotificationUseCase({
+      recipientUid: booking.buyerId,
+      type: 'purchase_booking_paid',
+      params: { offer: booking.offerSnapshot.title, startsAt: booking.offerSnapshot.startsAt },
+      link: { screen: 'bookings' },
+      dedupeKey: `purchase_booking_paid_${booking.id}`,
+    }).catch(() => undefined);
   } catch (error) {
     if (!(error instanceof BookingDomainError) || error.code !== 'LATE_PAYMENT_REJECTED') {
       throw error;
