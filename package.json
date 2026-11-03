@@ -25,7 +25,8 @@
     "deploy:storage": "firebase deploy --only storage",
     "deploy:firebase-rules": "firebase deploy --only firestore:rules,storage",
     "deploy:functions": "firebase deploy --only functions",
-    "deploy:firestore": "firebase deploy --only firestore"
+    "deploy:firestore": "firebase deploy --only firestore",
+    "licenses": "node scripts/generate-licenses.mjs"
   },
   "dependencies": {
     "@google-cloud/kms": "6.2.1",

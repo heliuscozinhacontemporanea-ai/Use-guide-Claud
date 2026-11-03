@@ -1,5 +1,6 @@
 import {
   AtSign,
+  Bell,
   ChevronRight,
   HelpCircle,
   Info,
@@ -25,6 +26,8 @@ interface SettingsViewProps {
   onOpenPurchases?: () => void;
   /** Só com login: o @ que outras pessoas usam para transferir ingressos (D21). */
   onOpenUsername?: () => void;
+  /** Só para parceiros: avisos do painel (avaliações, vencimento do plano). */
+  onOpenNotifications?: () => void;
 }
 
 function SettingsRow({
@@ -62,6 +65,7 @@ export function SettingsView({
   onOpenAbout,
   onOpenPurchases,
   onOpenUsername,
+  onOpenNotifications,
 }: SettingsViewProps) {
   const { t } = useTranslation();
   const { theme } = useTheme();
@@ -85,6 +89,13 @@ export function SettingsView({
             icon={ShoppingBag}
             label={t('purchases.settingsItem')}
             onClick={onOpenPurchases}
+          />
+        )}
+        {onOpenNotifications && (
+          <SettingsRow
+            icon={Bell}
+            label={t('appAbout.notifications.title')}
+            onClick={onOpenNotifications}
           />
         )}
         <SettingsRow

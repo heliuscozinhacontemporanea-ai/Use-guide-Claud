@@ -1,81 +1,80 @@
-import { ChevronLeft, Palette, Shield, Terminal } from 'lucide-react';
-import { AnimatePresence } from 'motion/react';
-import { useState } from 'react';
+import { ChevronRight, Code, type LucideIcon, ScrollText } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { cn } from '../../../shared/utils/cn';
+import { BackButton } from '../../../ui/components/BackButton';
 import { useAppVersion } from '../hooks/useAppVersion';
-import { AboutGeneralTab } from './about/AboutGeneralTab';
-import { AboutLicensesTab } from './about/AboutLicensesTab';
-import { AboutTermsTab } from './about/AboutTermsTab';
 
 interface AboutViewProps {
   onBack: () => void;
+  onOpenTerms: () => void;
+  onOpenLicenses: () => void;
 }
 
-type TabType = 'general' | 'licenses' | 'terms';
+function AboutRow({
+  icon: Icon,
+  label,
+  onClick,
+}: {
+  icon: LucideIcon;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <li>
+      <button
+        type="button"
+        onClick={onClick}
+        className="w-full min-h-14 px-4 flex items-center gap-3 text-left hover:bg-ink/[0.03] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-400/50 focus-visible:outline-none"
+      >
+        <Icon size={20} className="text-ink/80 shrink-0" aria-hidden="true" />
+        <span className="flex-1 text-[15px] font-semibold text-ink">{label}</span>
+        <ChevronRight size={18} className="text-ink/40 shrink-0" aria-hidden="true" />
+      </button>
+    </li>
+  );
+}
 
-export function AboutView({ onBack }: AboutViewProps) {
+/** Configurações › Sobre o app: quem somos, versão, termos e licenças (uma tela, sem abas). */
+export function AboutView({ onBack, onOpenTerms, onOpenLicenses }: AboutViewProps) {
   const { t } = useTranslation();
-  const [activeTab, setActiveTab] = useState<TabType>('general');
   const { appVersion } = useAppVersion();
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center justify-center relative mb-6 pt-2 pr-2">
-        <button
-          type="button"
-          onClick={onBack}
-          aria-label={t('legal.about.back')}
-          className="absolute left-0 p-2 text-white/70 hover:text-white active:scale-90 transition-all z-10"
-        >
-          <ChevronLeft size={28} />
-        </button>
-        <div className="text-center">
-          <h2 className="text-2xl font-display font-black mb-1 text-orange-400 leading-tight">
-            {t('legal.about.title')}
-          </h2>
-          <p className="text-[10px] text-white/50 font-black uppercase tracking-widest">
-            Use Guide v{appVersion?.version || '1.0.0'}{' '}
-            {appVersion?.revision ? `(${appVersion.revision})` : ''}
+      <div className="flex items-center gap-2 mb-5">
+        <BackButton label={t('settings.back')} onClick={onBack} />
+        <h2 className="text-[22px] font-display font-bold text-ink">{t('appAbout.title')}</h2>
+      </div>
+
+      <div className="flex flex-col items-center text-center gap-1 mb-6">
+        <img
+          src="/pwa-192x192.png"
+          alt=""
+          width={72}
+          height={72}
+          className="w-[72px] h-[72px] rounded-[20px] mb-2 shadow-sm"
+        />
+        <p className="text-[22px] font-display font-bold text-ink">Use Guide</p>
+        <p className="text-[13px] text-ink/70">{t('appAbout.tagline')}</p>
+        {appVersion && (
+          <p className="text-[12px] text-ink/70 tabular-nums">
+            {t('appAbout.version', { version: appVersion.version })}
+            {appVersion.revision && ` · ${t('appAbout.build', { revision: appVersion.revision })}`}
           </p>
-        </div>
+        )}
       </div>
 
-      <div className="flex gap-1 p-1 bg-black/20 rounded-2xl border border-white/5 mb-4">
-        {[
-          { id: 'general', label: t('legal.about.general'), icon: Palette },
-          { id: 'licenses', label: t('legal.about.licenses'), icon: Terminal },
-          { id: 'terms', label: t('legal.about.terms'), icon: Shield },
-        ].map((tab) => {
-          const TabIcon = tab.icon;
-          const isActive = activeTab === tab.id;
-          return (
-            <button
-              key={tab.id}
-              type="button"
-              aria-pressed={isActive}
-              onClick={() => setActiveTab(tab.id as TabType)}
-              className={cn(
-                'flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[8px] font-black uppercase tracking-wider transition-all duration-300',
-                isActive
-                  ? 'bg-white/10 text-white border border-white/10 shadow-md'
-                  : 'text-white/50 hover:text-white/70 hover:bg-white/5'
-              )}
-            >
-              <TabIcon size={10} className={cn(isActive ? 'text-orange-400' : 'opacity-60')} />
-              <span>{tab.label}</span>
-            </button>
-          );
-        })}
-      </div>
+      <p className="shrink-0 mb-4 px-4 py-3 rounded-[20px] bg-surface border border-line text-[15px] text-ink/80 leading-relaxed">
+        {t('appAbout.description')}
+      </p>
 
-      <div className="flex-1 overflow-y-auto pr-1 space-y-4 no-scrollbar">
-        <AnimatePresence mode="wait">
-          {activeTab === 'general' && <AboutGeneralTab key="general" />}
-          {activeTab === 'licenses' && <AboutLicensesTab key="licenses" />}
-          {activeTab === 'terms' && <AboutTermsTab key="terms" />}
-        </AnimatePresence>
-      </div>
+      <ul className="shrink-0 rounded-[20px] bg-surface border border-line divide-y divide-line overflow-hidden">
+        <AboutRow icon={ScrollText} label={t('appAbout.terms')} onClick={onOpenTerms} />
+        <AboutRow icon={Code} label={t('appAbout.licenses')} onClick={onOpenLicenses} />
+      </ul>
+
+      <p className="mt-auto pt-8 text-center text-[12px] text-ink/70">
+        {t('appAbout.rights', { year: new Date().getFullYear() })}
+      </p>
     </div>
   );
 }

@@ -27,6 +27,9 @@ describe('sub-telas do menu', () => {
     expect(parentMenuView('purchases')).toBe('settings');
     expect(parentMenuView('support')).toBe('settings');
     expect(parentMenuView('about')).toBe('settings');
+    expect(parentMenuView('terms')).toBe('about');
+    expect(parentMenuView('licenses')).toBe('about');
+    expect(parentMenuView('notifications')).toBe('settings');
     expect(parentMenuView('reviews')).toBe('main');
     expect(parentMenuView('password')).toBe('account');
     expect(parentMenuView('favorites')).toBe('main');

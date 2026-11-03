@@ -4,8 +4,9 @@ import { hasPasswordSignInUseCase, logoutUseCase } from '../../domain/auth';
 import { useAuthContext } from '../../domain/auth/context/AuthContext';
 import { UserRole } from '../../domain/auth/types/auth';
 import { MyBookingsView } from '../../domain/bookings';
-import { AboutView, SupportView } from '../../domain/content';
+import { AboutLicensesView, AboutTermsView, AboutView, SupportView } from '../../domain/content';
 import { FavoritesList } from '../../domain/favorites';
+import { NotificationSettingsView } from '../../domain/notifications';
 import { UserTicketsHistoryView } from '../../domain/ticketing';
 import {
   AccountView,
@@ -42,6 +43,9 @@ const FULL_HEIGHT_VIEWS: readonly MenuView[] = [
   'appearance',
   'support',
   'about',
+  'terms',
+  'licenses',
+  'notifications',
 ];
 
 const SETTINGS_VIEWS: readonly MenuView[] = [
@@ -52,6 +56,9 @@ const SETTINGS_VIEWS: readonly MenuView[] = [
   'appearance',
   'support',
   'about',
+  'terms',
+  'licenses',
+  'notifications',
 ];
 
 /** Compõe as telas de vários domínios (perfil, ingressos, reservas, compras, favoritos, avaliações, conteúdo) no menu. */
@@ -69,7 +76,9 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
   // Papel vem da sessão (claims + perfil), a mesma fonte que o AppRouter usa para abrir os painéis.
   const isPartner = user?.role === UserRole.PARTNER;
   const isAdmin = user?.role === UserRole.ADMIN;
-  const view = visibleMenuView(requestedView ?? 'main', Boolean(user));
+  const visibleView = visibleMenuView(requestedView ?? 'main', Boolean(user));
+  // Notificações só existem para parceiros; outra conta que abrir o link vê Configurações.
+  const view = visibleView === 'notifications' && !isPartner ? 'settings' : visibleView;
   const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
 
   const showView = (target: MenuView) => openMenu(target);
@@ -156,8 +165,11 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
             onOpenAbout={() => showView('about')}
             onOpenPurchases={user ? () => showView('purchases') : undefined}
             onOpenUsername={user ? () => showView('username') : undefined}
+            onOpenNotifications={isPartner ? () => showView('notifications') : undefined}
           />
         );
+      case 'notifications':
+        return user ? <NotificationSettingsView partnerId={user.uid} onBack={goBack} /> : null;
       case 'username':
         return <UsernameSettingsView onBack={goBack} />;
       case 'purchases':
@@ -182,7 +194,17 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
           />
         );
       case 'about':
-        return <AboutView onBack={goBack} />;
+        return (
+          <AboutView
+            onBack={goBack}
+            onOpenTerms={() => showView('terms')}
+            onOpenLicenses={() => showView('licenses')}
+          />
+        );
+      case 'terms':
+        return <AboutTermsView onBack={goBack} />;
+      case 'licenses':
+        return <AboutLicensesView onBack={goBack} />;
       case 'support':
         return <SupportView onBack={goBack} userEmail={user?.email} />;
       case 'tickets':

@@ -1,0 +1,126 @@
+/** Textos de Sobre o app, Licenças e créditos e Notificações (Configurações). pt-BR é a fonte. */
+export interface AppAboutTranslation {
+  title: string;
+  tagline: string;
+  version: string;
+  build: string;
+  description: string;
+  terms: string;
+  licenses: string;
+  rights: string;
+  licensesTitle: string;
+  licensesIntro: string;
+  credits: string;
+  hamsterWork: string;
+  creditBy: string;
+  libraries: string;
+  project: string;
+  loadError: string;
+  retry: string;
+  notifications: {
+    title: string;
+    intro: string;
+    reviews: string;
+    reviewsHint: string;
+    plan: string;
+    planHint: string;
+    loadError: string;
+    saveError: string;
+  };
+}
+
+export const appAboutPtBR: AppAboutTranslation = {
+  title: 'Sobre o app',
+  tagline: 'Seu guia de Jericoacoara, Preá e Barrinha de Baixo',
+  version: 'Versão {{version}}',
+  build: 'build {{revision}}',
+  description:
+    'O Use Guide reúne hospedagens, restaurantes, passeios, atrações, eventos e as condições do vento da região. Ingressos, passeios, aluguéis e traslados são comprados no próprio app.',
+  terms: 'Termos e políticas',
+  licenses: 'Licenças e créditos',
+  rights: '© {{year}} Use Guide. Todos os direitos reservados.',
+  licensesTitle: 'Licenças e créditos',
+  licensesIntro:
+    'O Use Guide usa projetos de código aberto e trabalhos de outros autores. Agradecemos a quem os criou.',
+  credits: 'Créditos',
+  hamsterWork: 'Animação do hamster na página não encontrada',
+  creditBy: 'por {{author}} · {{source}}',
+  libraries: 'Bibliotecas de código aberto',
+  project: 'Página do projeto',
+  loadError: 'Não foi possível carregar as licenças.',
+  retry: 'Tentar de novo',
+  notifications: {
+    title: 'Notificações',
+    intro: 'Escolha os avisos que aparecem no seu painel de parceiro.',
+    reviews: 'Avaliações recebidas',
+    reviewsHint: 'Quando alguém avaliar um item ou evento seu.',
+    plan: 'Vencimento do plano',
+    planHint: 'Quando o plano de um estabelecimento estiver perto de vencer.',
+    loadError: 'Não foi possível carregar suas notificações.',
+    saveError: 'Não foi possível salvar. Tente de novo.',
+  },
+};
+
+export const appAboutEn: AppAboutTranslation = {
+  title: 'About the app',
+  tagline: 'Your guide to Jericoacoara, Preá and Barrinha de Baixo',
+  version: 'Version {{version}}',
+  build: 'build {{revision}}',
+  description:
+    'Use Guide brings together stays, restaurants, tours, attractions, events and the wind conditions of the region. Tickets, tours, rentals and transfers are bought right in the app.',
+  terms: 'Terms and policies',
+  licenses: 'Licenses and credits',
+  rights: '© {{year}} Use Guide. All rights reserved.',
+  licensesTitle: 'Licenses and credits',
+  licensesIntro:
+    'Use Guide relies on open source projects and work by other authors. Thank you to everyone who made them.',
+  credits: 'Credits',
+  hamsterWork: 'Hamster animation on the page not found',
+  creditBy: 'by {{author}} · {{source}}',
+  libraries: 'Open source libraries',
+  project: 'Project page',
+  loadError: 'We couldn’t load the licenses.',
+  retry: 'Try again',
+  notifications: {
+    title: 'Notifications',
+    intro: 'Choose the alerts that show up in your partner panel.',
+    reviews: 'Reviews received',
+    reviewsHint: 'When someone reviews one of your items or events.',
+    plan: 'Plan expiring',
+    planHint: 'When a business plan is about to expire.',
+    loadError: 'We couldn’t load your notifications.',
+    saveError: 'We couldn’t save. Try again.',
+  },
+};
+
+export const appAboutFr: AppAboutTranslation = {
+  title: 'À propos de l’app',
+  tagline: 'Votre guide de Jericoacoara, Preá et Barrinha de Baixo',
+  version: 'Version {{version}}',
+  build: 'build {{revision}}',
+  description:
+    'Use Guide réunit hébergements, restaurants, excursions, attractions, événements et les conditions de vent de la région. Billets, excursions, locations et transferts s’achètent directement dans l’app.',
+  terms: 'Conditions et politiques',
+  licenses: 'Licences et crédits',
+  rights: '© {{year}} Use Guide. Tous droits réservés.',
+  licensesTitle: 'Licences et crédits',
+  licensesIntro:
+    'Use Guide s’appuie sur des projets open source et le travail d’autres auteurs. Merci à celles et ceux qui les ont créés.',
+  credits: 'Crédits',
+  hamsterWork: 'Animation du hamster de la page introuvable',
+  creditBy: 'par {{author}} · {{source}}',
+  libraries: 'Bibliothèques open source',
+  project: 'Page du projet',
+  loadError: 'Impossible de charger les licences.',
+  retry: 'Réessayer',
+  notifications: {
+    title: 'Notifications',
+    intro: 'Choisissez les alertes affichées dans votre espace partenaire.',
+    reviews: 'Avis reçus',
+    reviewsHint: 'Quand quelqu’un évalue l’un de vos éléments ou événements.',
+    plan: 'Expiration de l’abonnement',
+    planHint: 'Quand l’abonnement d’un établissement arrive bientôt à échéance.',
+    loadError: 'Impossible de charger vos notifications.',
+    saveError: 'Impossible d’enregistrer. Réessayez.',
+  },
+};

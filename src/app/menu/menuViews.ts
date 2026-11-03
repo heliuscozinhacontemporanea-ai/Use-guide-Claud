@@ -17,6 +17,9 @@ export const MENU_VIEWS = [
   'appearance',
   'support',
   'about',
+  'terms',
+  'licenses',
+  'notifications',
 ] as const;
 export type MenuView = (typeof MENU_VIEWS)[number];
 
@@ -37,6 +40,9 @@ const PARENT_VIEW: Record<Exclude<MenuView, 'main'>, MenuView> = {
   appearance: 'settings',
   support: 'settings',
   about: 'settings',
+  terms: 'about',
+  licenses: 'about',
+  notifications: 'settings',
 };
 
 /** Sub-telas com dados do próprio usuário: sem login, o menu mostra a tela principal (com o login). */
@@ -49,6 +55,7 @@ const PRIVATE_VIEWS: readonly MenuView[] = [
   'reviews',
   'purchases',
   'username',
+  'notifications',
 ];
 
 function isMenuView(value: string): value is MenuView {

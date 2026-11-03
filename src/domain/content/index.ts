@@ -1,4 +1,6 @@
+export { AboutView } from './components/AboutView';
+export { AboutLicensesView } from './components/about/AboutLicensesView';
+export { AboutTermsView } from './components/about/AboutTermsView';
+export { SupportView } from './components/SupportView';
 export { useAppVersion } from './hooks/useAppVersion';
 export * from './ports/contentPort';
-export { AboutView } from './components/AboutView';
-export { SupportView } from './components/SupportView';

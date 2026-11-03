@@ -11,17 +11,35 @@ import {
   adminPanelPtBR,
 } from './adminPanelResources';
 import {
+  type AppAboutTranslation,
+  appAboutEn,
+  appAboutFr,
+  appAboutPtBR,
+} from './appAboutResources';
+import {
   type BookingsTranslation,
   bookingsEn,
   bookingsFr,
   bookingsPtBR,
 } from './bookingsResources';
 import {
+  type EmailVerificationTranslation,
+  emailVerificationEn,
+  emailVerificationFr,
+  emailVerificationPtBR,
+} from './emailVerificationResources';
+import {
   type EventSessionsTranslation,
   eventSessionsEn,
   eventSessionsFr,
   eventSessionsPtBR,
 } from './eventSessionsResources';
+import {
+  type GateModeTranslation,
+  gateModeEn,
+  gateModeFr,
+  gateModePtBR,
+} from './gateModeResources';
 import {
   type InsightsTranslation,
   insightsEn,
@@ -124,23 +142,11 @@ import {
   usernamePtBR,
 } from './usernameResources';
 import {
-  type GateModeTranslation,
-  gateModeEn,
-  gateModeFr,
-  gateModePtBR,
-} from './gateModeResources';
-import {
   type VerificationTranslation,
   verificationEn,
   verificationFr,
   verificationPtBR,
 } from './verificationResources';
-import {
-  type EmailVerificationTranslation,
-  emailVerificationEn,
-  emailVerificationFr,
-  emailVerificationPtBR,
-} from './emailVerificationResources';
 
 export interface TranslationResource {
   bookings: BookingsTranslation;
@@ -163,6 +169,7 @@ export interface TranslationResource {
   ticketWallet: TicketWalletTranslation;
   ticketGate: TicketGateTranslation;
   username: UsernameTranslation;
+  appAbout: AppAboutTranslation;
   eventSessions: EventSessionsTranslation;
   gateMode: GateModeTranslation;
   legal: LegalTranslation;
@@ -400,6 +407,7 @@ const ptBR: TranslationResource = {
   ticketWallet: ticketWalletPtBR,
   ticketGate: ticketGatePtBR,
   username: usernamePtBR,
+  appAbout: appAboutPtBR,
   eventSessions: eventSessionsPtBR,
   gateMode: gateModePtBR,
   legal: legalPtBR,
@@ -697,6 +705,7 @@ const en: TranslationResource = {
   ticketWallet: ticketWalletEn,
   ticketGate: ticketGateEn,
   username: usernameEn,
+  appAbout: appAboutEn,
   eventSessions: eventSessionsEn,
   gateMode: gateModeEn,
   legal: legalEn,
@@ -988,6 +997,7 @@ const fr: TranslationResource = {
   ticketWallet: ticketWalletFr,
   ticketGate: ticketGateFr,
   username: usernameFr,
+  appAbout: appAboutFr,
   eventSessions: eventSessionsFr,
   gateMode: gateModeFr,
   legal: legalFr,
