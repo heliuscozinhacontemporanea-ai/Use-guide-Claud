@@ -354,3 +354,15 @@ Aprovada pelo responsável do produto em 2026-11-03.
 * **Versão:** o campo `version` do `package.json`, alterado à mão a cada lançamento, gravado no build do site (Vite) e do servidor (esbuild). Sem número de build nem revisão do Cloud Run no app; sai a rota `/api/version`, e `/api/health` devolve só `status` e `version`.
 * **Licenças e créditos:** créditos de trabalhos de terceiros (animação do hamster, MIT) e as bibliotecas de produção com o texto da licença, geradas por `npm run licenses` (um teste falha se ficar desatualizado).
 * **Notificações do parceiro:** em Configurações › Notificações, não mais em Sobre o app.
+
+## D25 — Notificações para todas as contas, Suporte e termos sem região (2026-11-03)
+
+Aprovada pelo responsável do produto em 2026-11-03 (proposta em `docs/arquitetura/propostas/notificacoes-suporte-termos.md`, aprovada inteira).
+
+* **Catálogo:** avisos para todas as contas (compras e pagamentos, ingressos, reservas, avaliações, conta e segurança, novidades opcionais) e, para parceiros, vendas, operação, financeiro, avaliações, cadastro e mensagens do Use Guide. Compras e pagamentos, conta e segurança e operação aparecem sempre na central; o push de cada categoria pode ser desligado. Novidades nascem desligadas (LGPD).
+* **Central de notificações** para todas as contas, com contador, "Hoje / Antes", marcar como lidas e link para o ingresso, a reserva ou o painel certo; avisos apagados depois de 90 dias.
+* **Configurações › Notificações** para todas as contas: estado do push no aparelho (ativo, bloqueado, não suportado, "instale na Tela de Início" no iPhone), interruptor por categoria, seção Parceiro, silêncio noturno das 22h às 8h (Fortaleza; avisos com prazo furam o silêncio) e resumo diário de vendas para parceiros.
+* **Push:** Firebase Cloud Messaging (sem fornecedor novo), permissão só depois de um toque; tokens por aparelho só no backend, apagados ao sair da conta neste aparelho, na exclusão de conta e quando o FCM recusar. E-mail fica fora desta fase.
+* **Arquitetura:** aviso gravado como tipo + parâmetros, traduzido no idioma de quem recebe (§12.5); outbox na mesma transação do evento e job de envio idempotente (§5.6); `notifications` vira domínio folha.
+* **Suporte:** busca, atalhos (problema com uma compra, ingressos, reservas, conta), temas, perguntas traduzidas a partir das regras reais, e-mail único `ajuda@useguide.com.br` e WhatsApp.
+* **Termos:** termos de uso sem região ("destinos turísticos no Brasil") e parágrafo de privacidade sobre o identificador do aparelho; versão dos termos de compra 2026-11-03 (compras novas pedem o aceite de novo).

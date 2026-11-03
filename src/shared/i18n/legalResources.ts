@@ -37,7 +37,7 @@ export const legalPtBR: LegalTranslation = {
     title: 'Termos de uso',
     paragraphs: [
       'Ao usar o Use Guide, você concorda com estes termos e com a política de privacidade abaixo. Se não concordar, não use o aplicativo.',
-      'O Use Guide reúne informações, mapas e recomendações sobre Jericoacoara, Preá e Barrinha de Baixo, e vende ingressos, passeios e entradas de organizadores e estabelecimentos cadastrados.',
+      'O Use Guide reúne informações, mapas e recomendações de destinos turísticos no Brasil e vende ingressos, passeios, aluguéis, traslados e entradas de organizadores e estabelecimentos cadastrados.',
       'Você deve informar dados verdadeiros e manter suas credenciais em sigilo. A conta é pessoal e intransferível.',
       'É proibido usar o aplicativo para atividades ilegais, copiar ou distribuir o conteúdo sem autorização e tentar acessar áreas restritas.',
       'As informações de rotas, trilhas e condições do tempo são orientativas. Avalie os riscos antes de seguir uma rota sugerida.',
@@ -87,6 +87,7 @@ export const legalPtBR: LegalTranslation = {
     paragraphs: [
       'Coletamos só o necessário, como nome, e-mail, localização e dados de uso, com o seu consentimento, para oferecer uma experiência personalizada (Lei 13.709/2018, LGPD).',
       'Usamos os dados para mostrar lugares e produtos, personalizar recomendações, melhorar o desempenho e a segurança e enviar notificações.',
+      'Se você ativar as notificações, guardamos um identificador do aparelho para enviá-las. Você pode desativar a qualquer momento em Configurações › Notificações ou no navegador; o identificador é apagado quando você sair da conta neste aparelho ou excluir a conta.',
       'Serviços de terceiros, como os do Google e o Stripe, seguem regras de privacidade próprias e compatíveis com a LGPD. Dados de cartão ficam no Stripe e nunca passam pelo Use Guide.',
       'Os dados ficam em servidores protegidos por criptografia e são acessados só por pessoas autorizadas.',
       'Você pode pedir acesso, correção ou exclusão dos seus dados pelo e-mail ajuda@useguide.com.br. Registros de compra são anonimizados, e não apagados, pelo prazo legal.',
@@ -123,7 +124,7 @@ export const legalEn: LegalTranslation = {
     title: 'Terms of use',
     paragraphs: [
       'By using Use Guide, you agree to these terms and to the privacy policy below. If you do not agree, do not use the app.',
-      'Use Guide brings together information, maps and tips about Jericoacoara, Preá and Barrinha de Baixo, and sells tickets, tours and entries from registered organizers and businesses.',
+      'Use Guide brings together information, maps and tips about travel destinations in Brazil and sells tickets, tours, rentals, transfers and entries from registered organizers and businesses.',
       'You must provide true information and keep your credentials secret. Your account is personal and non-transferable.',
       'You may not use the app for illegal activities, copy or distribute its content without permission, or try to access restricted areas.',
       'Route, trail and weather information is for guidance only. Assess the risks before following a suggested route.',
@@ -173,6 +174,7 @@ export const legalEn: LegalTranslation = {
     paragraphs: [
       'We collect only what is needed, such as name, email, location and usage data, with your consent, to offer a personalized experience (Brazilian Law 13.709/2018, LGPD).',
       'We use the data to show places and products, personalize recommendations, improve performance and security, and send notifications.',
+      'If you turn on notifications, we store an identifier for the device to send them. You can turn them off at any time in Settings › Notifications or in your browser; the identifier is deleted when you sign out on this device or delete your account.',
       'Third-party services such as Google and Stripe follow their own privacy rules, compatible with the LGPD. Card data stays with Stripe and never passes through Use Guide.',
       'Data is stored on servers protected by encryption and accessed only by authorized people.',
       'You can request access to, correction of or deletion of your data at ajuda@useguide.com.br. Purchase records are anonymized, not deleted, for the legal period.',
@@ -209,7 +211,7 @@ export const legalFr: LegalTranslation = {
     title: 'Conditions d’utilisation',
     paragraphs: [
       'En utilisant Use Guide, vous acceptez ces conditions et la politique de confidentialité ci-dessous. Si vous n’êtes pas d’accord, n’utilisez pas l’application.',
-      'Use Guide rassemble des informations, des cartes et des conseils sur Jericoacoara, Preá et Barrinha de Baixo, et vend des billets, des excursions et des entrées d’organisateurs et d’établissements inscrits.',
+      'Use Guide rassemble des informations, des cartes et des conseils sur des destinations touristiques au Brésil et vend des billets, des excursions, des locations, des transferts et des entrées d’organisateurs et d’établissements inscrits.',
       'Vous devez fournir des informations exactes et garder vos identifiants secrets. Le compte est personnel et non transférable.',
       'Il est interdit d’utiliser l’application pour des activités illégales, de copier ou diffuser son contenu sans autorisation et de tenter d’accéder à des zones restreintes.',
       'Les informations sur les itinéraires, les sentiers et la météo sont indicatives. Évaluez les risques avant de suivre un itinéraire proposé.',
@@ -259,6 +261,7 @@ export const legalFr: LegalTranslation = {
     paragraphs: [
       'Nous ne collectons que le nécessaire, comme le nom, l’e-mail, la localisation et les données d’utilisation, avec votre consentement, pour offrir une expérience personnalisée (loi brésilienne 13.709/2018, LGPD).',
       'Nous utilisons ces données pour afficher des lieux et des produits, personnaliser les recommandations, améliorer les performances et la sécurité et envoyer des notifications.',
+      'Si vous activez les notifications, nous conservons un identifiant de l’appareil pour les envoyer. Vous pouvez les désactiver à tout moment dans Paramètres › Notifications ou dans votre navigateur ; l’identifiant est supprimé lorsque vous vous déconnectez sur cet appareil ou supprimez votre compte.',
       'Les services tiers, comme Google et Stripe, suivent leurs propres règles de confidentialité, compatibles avec la LGPD. Les données de carte restent chez Stripe et ne passent jamais par Use Guide.',
       'Les données sont stockées sur des serveurs protégés par chiffrement et consultées uniquement par des personnes autorisées.',
       'Vous pouvez demander l’accès, la correction ou la suppression de vos données à ajuda@useguide.com.br. Les données d’achat sont anonymisées, et non supprimées, pendant la durée légale.',
