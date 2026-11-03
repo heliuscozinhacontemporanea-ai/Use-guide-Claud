@@ -1,10 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { getNotificationPreferencesUseCase } from '../application/usecases/getNotificationPreferencesUseCase';
 import { updateNotificationPreferencesUseCase } from '../application/usecases/updateNotificationPreferencesUseCase';
-import type {
-  NotificationCategory,
-  NotificationPreferences,
-} from '../types/notificationCategories';
+import type { NotificationPreferences } from '../types/notificationCategories';
 
 /** Preferências da conta: carrega, salva na hora e desfaz se o servidor recusar. */
 export function useNotificationPreferences() {
@@ -29,11 +26,12 @@ export function useNotificationPreferences() {
     void load();
   }, [load]);
 
-  const save = useCallback(
-    async (next: NotificationPreferences, patch: Partial<NotificationPreferences>) => {
+  const update = useCallback(
+    async (patch: Partial<NotificationPreferences>) => {
+      if (!preferences) return;
       const previous = preferences;
       setSaveError(false);
-      setPreferences(next);
+      setPreferences({ ...preferences, ...patch });
       try {
         await updateNotificationPreferencesUseCase(patch);
       } catch {
@@ -44,22 +42,5 @@ export function useNotificationPreferences() {
     [preferences]
   );
 
-  const setPush = useCallback(
-    (category: NotificationCategory, value: boolean) => {
-      if (!preferences) return;
-      const push = { ...preferences.push, [category]: value };
-      void save({ ...preferences, push }, { push });
-    },
-    [preferences, save]
-  );
-
-  const setOption = useCallback(
-    (key: 'quietHours' | 'dailyDigest', value: boolean) => {
-      if (!preferences) return;
-      void save({ ...preferences, [key]: value }, { [key]: value });
-    },
-    [preferences, save]
-  );
-
-  return { preferences, loading, error, saveError, reload: load, setPush, setOption };
+  return { preferences, loading, error, saveError, reload: load, update };
 }

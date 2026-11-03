@@ -28,7 +28,7 @@ describe('NotificationCenterSheet', () => {
     await i18n.changeLanguage('pt-BR');
   });
 
-  it('agrupa em Hoje e Antes, marca não lidas e abre o aviso tocado', () => {
+  it('agrupa em Hoje e Anteriores, marca não lidas e abre o aviso tocado', () => {
     const onOpenItem = vi.fn();
     render(
       <NotificationCenterSheet
@@ -45,7 +45,7 @@ describe('NotificationCenterSheet', () => {
       />
     );
     expect(screen.getByText('Hoje')).toBeTruthy();
-    expect(screen.getByText('Antes')).toBeTruthy();
+    expect(screen.getByText('Anteriores')).toBeTruthy();
     expect(screen.getAllByText('Não lida')).toHaveLength(1);
     fireEvent.click(screen.getByText('Reserva confirmada'));
     expect(onOpenItem).toHaveBeenCalledWith(items[1]);
@@ -66,7 +66,7 @@ describe('NotificationCenterSheet', () => {
         now={NOW}
       />
     );
-    expect(screen.getByText('Nada por aqui ainda')).toBeTruthy();
+    expect(screen.getByText('Nenhuma notificação')).toBeTruthy();
     expect(
       (screen.getByRole('button', { name: 'Marcar todas como lidas' }) as HTMLButtonElement)
         .disabled

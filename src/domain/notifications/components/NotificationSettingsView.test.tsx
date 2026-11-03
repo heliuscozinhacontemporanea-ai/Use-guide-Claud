@@ -21,31 +21,32 @@ describe('NotificationSettingsView', () => {
     vi.mocked(getNotificationPreferencesUseCase).mockResolvedValue(DEFAULT_PREFERENCES);
   });
 
-  it('mostra os avisos de todas as contas, sem a seção de parceiro', async () => {
+  it('avisos importantes não têm interruptor; só os opcionais têm', async () => {
     render(<NotificationSettingsView isPartner={false} onBack={() => undefined} />);
-    expect(await screen.findByRole('switch', { name: 'Ingressos' })).toBeTruthy();
-    expect(screen.getByRole('switch', { name: 'Novidades' }).getAttribute('aria-checked')).toBe(
-      'false'
-    );
-    expect(screen.queryByRole('switch', { name: 'Vendas' })).toBeNull();
-    expect(screen.getByRole('switch', { name: 'Silêncio noturno' })).toBeTruthy();
+    expect(screen.getByText('Compras, pagamentos e reembolsos')).toBeTruthy();
+    await screen.findByRole('switch', { name: 'Pedidos de avaliação' });
+    expect(screen.getAllByRole('switch')).toHaveLength(2);
+    expect(
+      screen.getByRole('switch', { name: 'Novidades e ofertas' }).getAttribute('aria-checked')
+    ).toBe('false');
+    expect(screen.queryByRole('radio')).toBeNull();
   });
 
-  it('parceiro vê a própria seção e o resumo diário', async () => {
+  it('parceiro escolhe entre aviso a cada venda e resumo do dia', async () => {
     render(<NotificationSettingsView isPartner onBack={() => undefined} />);
-    expect(await screen.findByRole('switch', { name: 'Vendas' })).toBeTruthy();
-    expect(screen.getByRole('switch', { name: 'Resumo diário de vendas' })).toBeTruthy();
+    const daily = await screen.findByRole('radio', { name: /Resumo no fim do dia/ });
+    expect(screen.getByRole('radio', { name: /A cada venda/ })).toHaveProperty('checked', true);
+    fireEvent.click(daily);
+    expect(updateNotificationPreferencesUseCase).toHaveBeenCalledWith({ salesAlerts: 'daily' });
   });
 
-  it('salva só a categoria tocada e desfaz se o servidor recusar', async () => {
+  it('salva só o que mudou e desfaz se o servidor recusar', async () => {
     vi.mocked(updateNotificationPreferencesUseCase).mockRejectedValueOnce(new Error('fail'));
     render(<NotificationSettingsView isPartner={false} onBack={() => undefined} />);
-    const tickets = await screen.findByRole('switch', { name: 'Ingressos' });
-    fireEvent.click(tickets);
-    expect(updateNotificationPreferencesUseCase).toHaveBeenCalledWith({
-      push: { ...DEFAULT_PREFERENCES.push, tickets: false },
-    });
-    expect(await screen.findByText('Não foi possível salvar. Tente de novo.')).toBeTruthy();
-    await waitFor(() => expect(tickets.getAttribute('aria-checked')).toBe('true'));
+    const reviews = await screen.findByRole('switch', { name: 'Pedidos de avaliação' });
+    fireEvent.click(reviews);
+    expect(updateNotificationPreferencesUseCase).toHaveBeenCalledWith({ reviewRequests: false });
+    expect(await screen.findByText('Não conseguimos salvar. Tente de novo.')).toBeTruthy();
+    await waitFor(() => expect(reviews.getAttribute('aria-checked')).toBe('true'));
   });
 });

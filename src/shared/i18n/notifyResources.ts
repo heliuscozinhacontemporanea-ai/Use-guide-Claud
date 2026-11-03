@@ -1,40 +1,41 @@
-/** Textos da central de notificações e de Configurações › Notificações (D25). pt-BR é a fonte. */
-type CategoryTexts = Record<
-  | 'purchases'
-  | 'tickets'
-  | 'bookings'
-  | 'reviews'
-  | 'account'
-  | 'news'
-  | 'sales'
-  | 'operations'
-  | 'finance'
-  | 'partnerReviews'
-  | 'registration'
-  | 'messages',
-  { label: string; hint: string }
->;
-
+/** Textos das notificações (central e Configurações › Notificações, D25). pt-BR é a fonte. */
 export interface NotifyTranslation {
   settingsTitle: string;
-  settingsIntro: string;
   device: {
-    title: string;
+    defaultTitle: string;
     default: string;
     enable: string;
     granted: string;
+    grantedHint: string;
     denied: string;
     install: string;
     unsupported: string;
   };
-  userSection: string;
-  partnerSection: string;
-  alwaysInCenter: string;
-  categories: CategoryTexts;
-  quietHours: string;
-  quietHoursHint: string;
-  dailyDigest: string;
-  dailyDigestHint: string;
+  always: {
+    title: string;
+    purchases: string;
+    trips: string;
+    account: string;
+    partnerClaims: string;
+    partnerMoney: string;
+    note: string;
+  };
+  choices: {
+    title: string;
+    reviewRequests: string;
+    reviewRequestsHint: string;
+    news: string;
+    newsHint: string;
+    nightNote: string;
+  };
+  sales: {
+    title: string;
+    each: string;
+    eachHint: string;
+    daily: string;
+    dailyHint: string;
+    note: string;
+  };
   loadError: string;
   saveError: string;
   retry: string;
@@ -56,70 +57,47 @@ export interface NotifyTranslation {
 
 export const notifyPtBR: NotifyTranslation = {
   settingsTitle: 'Notificações',
-  settingsIntro: 'Tudo fica na central de notificações. Escolha o que também chega neste aparelho.',
   device: {
-    title: 'Neste aparelho',
-    default: 'Receba avisos de compras, ingressos e reservas mesmo com o app fechado.',
-    enable: 'Ativar notificações',
-    granted: 'Notificações ativadas neste aparelho.',
+    defaultTitle: 'Ative as notificações',
+    default:
+      'Saiba na hora quando a compra for confirmada, o passeio mudar de horário ou o guia chegar.',
+    enable: 'Ativar',
+    granted: 'Notificações ativadas',
+    grantedHint: 'Para desligar, use os ajustes do celular ou do navegador.',
     denied:
-      'As notificações estão bloqueadas no navegador. Libere nas configurações do navegador e volte aqui.',
+      'As notificações do Use Guide estão desligadas aqui. Para receber, permita nos ajustes do navegador.',
     install:
-      'No iPhone e no iPad, adicione o Use Guide à Tela de Início (Compartilhar › Adicionar à Tela de Início) e abra por lá para ativar.',
+      'No iPhone, as notificações só chegam com o Use Guide na tela inicial. Toque em Compartilhar, depois em “Adicionar à Tela de Início”, e abra o app por lá.',
     unsupported:
-      'Este navegador não recebe notificações. Os avisos continuam na central de notificações.',
+      'Este navegador não mostra notificações. Você continua vendo tudo no sininho, no alto da tela.',
   },
-  userSection: 'Avisos',
-  partnerSection: 'Parceiro',
-  alwaysInCenter: 'Sempre na central',
-  categories: {
-    purchases: {
-      label: 'Compras e pagamentos',
-      hint: 'Pagamento confirmado, Pix pendente e reembolsos.',
-    },
-    tickets: {
-      label: 'Ingressos',
-      hint: 'Ingressos recebidos, mudanças no evento e lembretes.',
-    },
-    bookings: {
-      label: 'Reservas',
-      hint: 'Confirmação, lembretes, chegada do prestador e mudanças de horário.',
-    },
-    reviews: {
-      label: 'Avaliações',
-      hint: 'Respostas às suas avaliações e convites para avaliar.',
-    },
-    account: { label: 'Conta e segurança', hint: 'E-mail, senha e nome de usuário.' },
-    news: {
-      label: 'Novidades',
-      hint: 'Eventos novos em lugares favoritos e dicas da temporada.',
-    },
-    sales: { label: 'Vendas', hint: 'Nova venda, nova reserva e cancelamentos.' },
-    operations: {
-      label: 'Operação',
-      hint: 'Reclamações, contestações e avisos com prazo para responder.',
-    },
-    finance: {
-      label: 'Financeiro',
-      hint: 'Repasses, multas, conta de recebimento e plano.',
-    },
-    partnerReviews: {
-      label: 'Avaliações recebidas',
-      hint: 'Novas avaliações e resultado de denúncias.',
-    },
-    registration: {
-      label: 'Cadastro',
-      hint: 'Verificação de estabelecimentos e pedidos de força maior.',
-    },
-    messages: { label: 'Mensagens do Use Guide', hint: 'Comunicados da equipe Use Guide.' },
+  always: {
+    title: 'Sempre avisamos você',
+    purchases: 'Compras, pagamentos e reembolsos',
+    trips: 'Ingressos e reservas: confirmação, lembretes e mudanças',
+    account: 'Segurança da sua conta',
+    partnerClaims: 'Cancelamentos, reclamações e avaliações dos clientes',
+    partnerMoney: 'Repasses e cadastro do seu negócio',
+    note: 'São avisos importantes, por isso não dá para desligar.',
   },
-  quietHours: 'Silêncio noturno',
-  quietHoursHint:
-    'Das 22h às 8h (horário de Fortaleza), sem notificações no aparelho. Avisos com prazo chegam mesmo assim.',
-  dailyDigest: 'Resumo diário de vendas',
-  dailyDigestHint: 'Um aviso por dia com as vendas e reservas, em vez de um por venda.',
-  loadError: 'Não foi possível carregar suas preferências.',
-  saveError: 'Não foi possível salvar. Tente de novo.',
+  choices: {
+    title: 'Você decide',
+    reviewRequests: 'Pedidos de avaliação',
+    reviewRequestsHint: 'Depois de um passeio, evento ou estadia, pedimos sua opinião.',
+    news: 'Novidades e ofertas',
+    newsHint: 'Eventos novos e dicas para aproveitar a viagem.',
+    nightNote: 'Esses avisos nunca chegam entre 21h e 9h.',
+  },
+  sales: {
+    title: 'Avisos de venda',
+    each: 'A cada venda',
+    eachHint: 'Um aviso para cada venda ou reserva.',
+    daily: 'Resumo no fim do dia',
+    dailyHint: 'Um único aviso com as vendas do dia.',
+    note: 'Cancelamentos e reclamações chegam na hora, sempre.',
+  },
+  loadError: 'Não conseguimos carregar suas escolhas.',
+  saveError: 'Não conseguimos salvar. Tente de novo.',
   retry: 'Tentar de novo',
   center: {
     title: 'Notificações',
@@ -127,68 +105,59 @@ export const notifyPtBR: NotifyTranslation = {
     openUnread_one: 'Abrir notificações, {{count}} não lida',
     openUnread_other: 'Abrir notificações, {{count}} não lidas',
     markAll: 'Marcar todas como lidas',
-    settings: 'Configurar notificações',
+    settings: 'Ajustes de notificações',
     today: 'Hoje',
-    earlier: 'Antes',
-    empty: 'Nada por aqui ainda',
-    emptyHint: 'Avisos de compras, ingressos e reservas aparecem aqui.',
+    earlier: 'Anteriores',
+    empty: 'Nenhuma notificação',
+    emptyHint: 'Quando sua compra for confirmada ou algo mudar, você fica sabendo aqui.',
     unread: 'Não lida',
-    loadError: 'Não foi possível carregar as notificações.',
+    loadError: 'Não conseguimos carregar as notificações.',
   },
 };
 
 export const notifyEn: NotifyTranslation = {
   settingsTitle: 'Notifications',
-  settingsIntro:
-    'Everything stays in the notification center. Choose what also reaches this device.',
   device: {
-    title: 'On this device',
-    default: 'Get alerts about purchases, tickets and bookings even when the app is closed.',
-    enable: 'Turn on notifications',
-    granted: 'Notifications are on for this device.',
+    defaultTitle: 'Turn on notifications',
+    default:
+      'Know right away when your purchase is confirmed, a tour changes time or your guide arrives.',
+    enable: 'Turn on',
+    granted: 'Notifications are on',
+    grantedHint: 'To turn them off, use your phone or browser settings.',
     denied:
-      'Notifications are blocked in your browser. Allow them in the browser settings and come back.',
+      'Use Guide notifications are off here. To get them, allow them in your browser settings.',
     install:
-      'On iPhone and iPad, add Use Guide to your Home Screen (Share › Add to Home Screen) and open it from there to turn them on.',
+      'On iPhone, notifications only work with Use Guide on your Home Screen. Tap Share, then “Add to Home Screen”, and open the app from there.',
     unsupported:
-      'This browser can’t receive notifications. Alerts still show up in the notification center.',
+      'This browser doesn’t show notifications. You can still see everything under the bell at the top of the screen.',
   },
-  userSection: 'Alerts',
-  partnerSection: 'Partner',
-  alwaysInCenter: 'Always in the center',
-  categories: {
-    purchases: {
-      label: 'Purchases and payments',
-      hint: 'Payment confirmed, pending Pix and refunds.',
-    },
-    tickets: { label: 'Tickets', hint: 'Tickets received, event changes and reminders.' },
-    bookings: {
-      label: 'Bookings',
-      hint: 'Confirmation, reminders, provider arrival and schedule changes.',
-    },
-    reviews: { label: 'Reviews', hint: 'Replies to your reviews and invitations to review.' },
-    account: { label: 'Account and security', hint: 'Email, password and username.' },
-    news: { label: 'News', hint: 'New events at favorite places and seasonal tips.' },
-    sales: { label: 'Sales', hint: 'New sale, new booking and cancellations.' },
-    operations: {
-      label: 'Operations',
-      hint: 'Complaints, disputes and alerts with a response deadline.',
-    },
-    finance: { label: 'Finance', hint: 'Payouts, penalties, payout account and plan.' },
-    partnerReviews: { label: 'Reviews received', hint: 'New reviews and report outcomes.' },
-    registration: {
-      label: 'Registration',
-      hint: 'Business verification and force majeure requests.',
-    },
-    messages: { label: 'Messages from Use Guide', hint: 'Announcements from the Use Guide team.' },
+  always: {
+    title: 'We always let you know about',
+    purchases: 'Purchases, payments and refunds',
+    trips: 'Tickets and bookings: confirmation, reminders and changes',
+    account: 'Your account’s security',
+    partnerClaims: 'Cancellations, complaints and customer reviews',
+    partnerMoney: 'Payouts and your business details',
+    note: 'These are important, so they can’t be turned off.',
   },
-  quietHours: 'Quiet hours',
-  quietHoursHint:
-    'From 10 pm to 8 am (Fortaleza time), no notifications on the device. Alerts with a deadline still arrive.',
-  dailyDigest: 'Daily sales summary',
-  dailyDigestHint: 'One alert a day with sales and bookings, instead of one per sale.',
-  loadError: 'We couldn’t load your preferences.',
-  saveError: 'We couldn’t save. Try again.',
+  choices: {
+    title: 'Your choice',
+    reviewRequests: 'Review requests',
+    reviewRequestsHint: 'After a tour, event or stay, we ask what you thought.',
+    news: 'News and offers',
+    newsHint: 'New events and tips to make the most of your trip.',
+    nightNote: 'These never arrive between 9 pm and 9 am.',
+  },
+  sales: {
+    title: 'Sale alerts',
+    each: 'For every sale',
+    eachHint: 'One alert for each sale or booking.',
+    daily: 'End-of-day summary',
+    dailyHint: 'A single alert with the day’s sales.',
+    note: 'Cancellations and complaints always arrive right away.',
+  },
+  loadError: 'We couldn’t load your choices.',
+  saveError: 'We couldn’t save. Please try again.',
   retry: 'Try again',
   center: {
     title: 'Notifications',
@@ -199,70 +168,56 @@ export const notifyEn: NotifyTranslation = {
     settings: 'Notification settings',
     today: 'Today',
     earlier: 'Earlier',
-    empty: 'Nothing here yet',
-    emptyHint: 'Alerts about purchases, tickets and bookings show up here.',
+    empty: 'No notifications',
+    emptyHint: 'When your purchase is confirmed or something changes, you’ll see it here.',
     unread: 'Unread',
-    loadError: 'We couldn’t load the notifications.',
+    loadError: 'We couldn’t load your notifications.',
   },
 };
 
 export const notifyFr: NotifyTranslation = {
   settingsTitle: 'Notifications',
-  settingsIntro:
-    'Tout reste dans le centre de notifications. Choisissez ce qui arrive aussi sur cet appareil.',
   device: {
-    title: 'Sur cet appareil',
-    default: 'Recevez les alertes d’achats, de billets et de réservations même app fermée.',
-    enable: 'Activer les notifications',
-    granted: 'Notifications activées sur cet appareil.',
+    defaultTitle: 'Activez les notifications',
+    default:
+      'Sachez tout de suite quand votre achat est confirmé, qu’une excursion change d’horaire ou que votre guide arrive.',
+    enable: 'Activer',
+    granted: 'Notifications activées',
+    grantedHint: 'Pour les désactiver, passez par les réglages du téléphone ou du navigateur.',
     denied:
-      'Les notifications sont bloquées dans le navigateur. Autorisez-les dans ses réglages puis revenez ici.',
+      'Les notifications de Use Guide sont désactivées ici. Pour les recevoir, autorisez-les dans les réglages du navigateur.',
     install:
-      'Sur iPhone et iPad, ajoutez Use Guide à l’écran d’accueil (Partager › Sur l’écran d’accueil) et ouvrez-le depuis là pour les activer.',
+      'Sur iPhone, les notifications ne fonctionnent qu’avec Use Guide sur l’écran d’accueil. Touchez Partager, puis « Sur l’écran d’accueil », et ouvrez l’app depuis là.',
     unsupported:
-      'Ce navigateur ne reçoit pas de notifications. Les alertes restent dans le centre de notifications.',
+      'Ce navigateur n’affiche pas les notifications. Vous voyez toujours tout sous la cloche, en haut de l’écran.',
   },
-  userSection: 'Alertes',
-  partnerSection: 'Partenaire',
-  alwaysInCenter: 'Toujours dans le centre',
-  categories: {
-    purchases: {
-      label: 'Achats et paiements',
-      hint: 'Paiement confirmé, Pix en attente et remboursements.',
-    },
-    tickets: { label: 'Billets', hint: 'Billets reçus, changements d’événement et rappels.' },
-    bookings: {
-      label: 'Réservations',
-      hint: 'Confirmation, rappels, arrivée du prestataire et changements d’horaire.',
-    },
-    reviews: { label: 'Avis', hint: 'Réponses à vos avis et invitations à donner un avis.' },
-    account: { label: 'Compte et sécurité', hint: 'E-mail, mot de passe et nom d’utilisateur.' },
-    news: {
-      label: 'Nouveautés',
-      hint: 'Nouveaux événements dans vos lieux favoris et conseils de saison.',
-    },
-    sales: { label: 'Ventes', hint: 'Nouvelle vente, nouvelle réservation et annulations.' },
-    operations: {
-      label: 'Opérations',
-      hint: 'Réclamations, contestations et alertes avec délai de réponse.',
-    },
-    finance: {
-      label: 'Finances',
-      hint: 'Versements, pénalités, compte de paiement et abonnement.',
-    },
-    partnerReviews: { label: 'Avis reçus', hint: 'Nouveaux avis et résultat des signalements.' },
-    registration: {
-      label: 'Inscription',
-      hint: 'Vérification des établissements et demandes de force majeure.',
-    },
-    messages: { label: 'Messages de Use Guide', hint: 'Communications de l’équipe Use Guide.' },
+  always: {
+    title: 'Nous vous prévenons toujours pour',
+    purchases: 'Achats, paiements et remboursements',
+    trips: 'Billets et réservations : confirmation, rappels et changements',
+    account: 'La sécurité de votre compte',
+    partnerClaims: 'Annulations, réclamations et avis des clients',
+    partnerMoney: 'Versements et informations de votre établissement',
+    note: 'Ce sont des messages importants, ils ne peuvent donc pas être désactivés.',
   },
-  quietHours: 'Mode nuit',
-  quietHoursHint:
-    'De 22 h à 8 h (heure de Fortaleza), aucune notification sur l’appareil. Les alertes avec délai arrivent quand même.',
-  dailyDigest: 'Résumé quotidien des ventes',
-  dailyDigestHint: 'Une alerte par jour avec les ventes et réservations, au lieu d’une par vente.',
-  loadError: 'Impossible de charger vos préférences.',
+  choices: {
+    title: 'À vous de choisir',
+    reviewRequests: 'Demandes d’avis',
+    reviewRequestsHint:
+      'Après une excursion, un événement ou un séjour, nous demandons votre avis.',
+    news: 'Nouveautés et offres',
+    newsHint: 'Nouveaux événements et conseils pour profiter du voyage.',
+    nightNote: 'Ces messages n’arrivent jamais entre 21 h et 9 h.',
+  },
+  sales: {
+    title: 'Alertes de vente',
+    each: 'À chaque vente',
+    eachHint: 'Une alerte pour chaque vente ou réservation.',
+    daily: 'Résumé en fin de journée',
+    dailyHint: 'Une seule alerte avec les ventes du jour.',
+    note: 'Les annulations et réclamations arrivent toujours tout de suite.',
+  },
+  loadError: 'Impossible de charger vos choix.',
   saveError: 'Impossible d’enregistrer. Réessayez.',
   retry: 'Réessayer',
   center: {
@@ -274,8 +229,8 @@ export const notifyFr: NotifyTranslation = {
     settings: 'Réglages des notifications',
     today: 'Aujourd’hui',
     earlier: 'Plus tôt',
-    empty: 'Rien pour l’instant',
-    emptyHint: 'Les alertes d’achats, de billets et de réservations apparaissent ici.',
+    empty: 'Aucune notification',
+    emptyHint: 'Quand votre achat est confirmé ou que quelque chose change, vous le verrez ici.',
     unread: 'Non lue',
     loadError: 'Impossible de charger les notifications.',
   },

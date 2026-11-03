@@ -19,7 +19,7 @@ describe('SupportView', () => {
     fireEvent.change(screen.getByRole('searchbox', { name: 'Buscar nas perguntas' }), {
       target: { value: '' },
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Conta e segurança' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Conta' }));
     const question = screen.getByRole('button', { name: 'Esqueci minha senha.' });
     fireEvent.click(question);
     expect(question.getAttribute('aria-expanded')).toBe('true');
@@ -29,10 +29,17 @@ describe('SupportView', () => {
   it('atalhos de compras, ingressos e reservas só com login; e-mail único ajuda@', () => {
     const onOpenPurchases = vi.fn();
     const { rerender } = render(<SupportView onBack={() => undefined} />);
-    expect(screen.queryByRole('button', { name: 'Problema com uma compra' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Minhas compras' })).toBeNull();
     rerender(<SupportView onBack={() => undefined} onOpenPurchases={onOpenPurchases} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Problema com uma compra' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Minhas compras' }));
     expect(onOpenPurchases).toHaveBeenCalled();
     expect(screen.getByText('ajuda@useguide.com.br')).toBeTruthy();
+  });
+
+  it('sem busca mostra as 5 mais procuradas e abre a lista inteira', () => {
+    render(<SupportView onBack={() => undefined} />);
+    expect(screen.queryByRole('button', { name: 'Como excluo minha conta?' })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: /Ver todas as \d+ perguntas/ }));
+    expect(screen.getByRole('button', { name: 'Como excluo minha conta?' })).toBeTruthy();
   });
 });

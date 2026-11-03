@@ -1,62 +1,39 @@
-/** Categorias de aviso (D25). As de parceiro só aparecem para quem é parceiro. */
-export const USER_CATEGORIES = [
-  'purchases',
-  'tickets',
-  'bookings',
-  'reviews',
-  'account',
-  'news',
-] as const;
-export const PARTNER_CATEGORIES = [
-  'sales',
-  'operations',
-  'finance',
-  'partnerReviews',
-  'registration',
-  'messages',
-] as const;
+/** Assunto de cada aviso (D25). Define o ícone na central e para onde o toque leva. */
+export type NotificationCategory =
+  | 'purchases'
+  | 'tickets'
+  | 'bookings'
+  | 'reviews'
+  | 'account'
+  | 'news'
+  | 'sales'
+  | 'operations'
+  | 'finance'
+  | 'partnerReviews'
+  | 'registration'
+  | 'messages';
 
-export type UserCategory = (typeof USER_CATEGORIES)[number];
-export type PartnerCategory = (typeof PARTNER_CATEGORIES)[number];
-export type NotificationCategory = UserCategory | PartnerCategory;
-
-/** Sempre aparecem na central; a pessoa só escolhe se também chegam como push. */
-export const ALWAYS_IN_CENTER: readonly NotificationCategory[] = [
-  'purchases',
-  'account',
-  'operations',
-  'messages',
-];
-
+/**
+ * O que a pessoa escolhe (D25, revisão). Compras, ingressos, reservas, conta e, para o parceiro,
+ * vendas, cancelamentos, reclamações e repasses chegam sempre: sem eles a pessoa perde um serviço
+ * ou um prazo. Avisos opcionais nunca chegam das 21h às 9h (Fortaleza).
+ */
 export interface NotificationPreferences {
-  /** Push por categoria. Novidades nascem desligadas (LGPD). */
-  push: Record<NotificationCategory, boolean>;
-  /** Das 22h às 8h (Fortaleza), sem push; avisos com prazo chegam mesmo assim. */
-  quietHours: boolean;
-  /** Parceiro: um resumo por dia em vez de um push por venda. */
-  dailyDigest: boolean;
+  /** Pedido de avaliação depois de um passeio, evento ou estadia. */
+  reviewRequests: boolean;
+  /** Novidades e ofertas. Nascem desligadas (LGPD e Apple HIG: marketing só com aceite). */
+  news: boolean;
+  /** Parceiro: um aviso a cada venda ou um resumo no fim do dia. */
+  salesAlerts: 'each' | 'daily';
 }
 
 export const DEFAULT_PREFERENCES: NotificationPreferences = {
-  push: {
-    purchases: true,
-    tickets: true,
-    bookings: true,
-    reviews: true,
-    account: true,
-    news: false,
-    sales: true,
-    operations: true,
-    finance: true,
-    partnerReviews: true,
-    registration: true,
-    messages: true,
-  },
-  quietHours: true,
-  dailyDigest: false,
+  reviewRequests: true,
+  news: false,
+  salesAlerts: 'each',
 };
 
-/** Estado do push neste aparelho. `install`: iPhone/iPad fora da Tela de Início. */
+/** Estado das notificações neste aparelho. `install`: iPhone/iPad fora da Tela de Início. */
 export type PushDeviceState = 'unsupported' | 'install' | 'default' | 'granted' | 'denied';
 
 /** Linha da central de notificações, já no idioma de quem lê. */

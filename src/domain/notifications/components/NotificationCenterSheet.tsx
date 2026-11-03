@@ -142,15 +142,20 @@ export function NotificationCenterSheet({
                         onClick={() => onOpenItem(item)}
                         className={cn(
                           'w-full px-3 py-3 flex items-start gap-3 text-left hover:bg-ink/[0.03] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-400/50 focus-visible:outline-none',
-                          !item.read && 'bg-accent-soft/40'
+                          !item.read && 'bg-ink/[0.03]'
                         )}
                       >
-                        <span className="w-10 h-10 shrink-0 rounded-xl bg-accent-soft text-accent flex items-center justify-center">
+                        <span className="w-10 h-10 shrink-0 rounded-full bg-ink/[0.06] text-ink/70 flex items-center justify-center">
                           <Icon size={18} aria-hidden="true" />
                         </span>
                         <span className="flex-1 min-w-0">
                           <span className="flex items-baseline gap-2">
-                            <span className="flex-1 text-[15px] font-semibold text-ink break-words">
+                            <span
+                              className={cn(
+                                'flex-1 text-[15px] text-ink break-words',
+                                item.read ? 'font-medium' : 'font-semibold'
+                              )}
+                            >
                               {item.title}
                             </span>
                             <span className="shrink-0 text-[12px] text-ink/70 tabular-nums">

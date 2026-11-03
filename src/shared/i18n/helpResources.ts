@@ -12,18 +12,22 @@ export interface HelpTranslation {
   title: string;
   search: string;
   searchLabel: string;
-  shortcuts: { purchases: string; tickets: string; bookings: string; account: string };
+  shortcutsTitle: string;
+  shortcuts: { purchases: string; tickets: string; bookings: string };
+  faqTitle: string;
+  showAll: string;
   allTopics: string;
   topics: Record<HelpTopic, string>;
   noResults: string;
   faq: Array<{ id: string; topic: HelpTopic; q: string; a: string }>;
   contactTitle: string;
-  contactHint: string;
   whatsapp: string;
+  whatsappMessage: string;
   email: string;
   copy: string;
   copied: string;
   reportProblem: string;
+  reportHint: string;
   reportSubject: string;
 }
 
@@ -31,23 +35,25 @@ export const helpPtBR: HelpTranslation = {
   title: 'Suporte',
   search: 'Como podemos ajudar?',
   searchLabel: 'Buscar nas perguntas',
+  shortcutsTitle: 'Ajuda com uma compra',
   shortcuts: {
-    purchases: 'Problema com uma compra',
+    purchases: 'Minhas compras',
     tickets: 'Meus ingressos',
     bookings: 'Minhas reservas',
-    account: 'Conta e acesso',
   },
-  allTopics: 'Todos',
+  faqTitle: 'Perguntas frequentes',
+  showAll: 'Ver todas as {{count}} perguntas',
+  allTopics: 'Todas',
   topics: {
-    purchases: 'Compras e pagamentos',
-    tickets: 'Ingressos e QR Code',
-    bookings: 'Reservas e passeios',
-    refunds: 'Cancelamento e reembolso',
-    account: 'Conta e segurança',
-    partners: 'Para parceiros',
-    app: 'App e notificações',
+    purchases: 'Pagamentos',
+    tickets: 'Ingressos',
+    bookings: 'Reservas',
+    refunds: 'Cancelamentos',
+    account: 'Conta',
+    partners: 'Parceiros',
+    app: 'App',
   },
-  noResults: 'Nenhuma pergunta encontrada. Fale com a gente pelos contatos abaixo.',
+  noResults: 'Não achamos nada com essas palavras. Fale com a gente aqui embaixo.',
   faq: [
     {
       id: 'payment-methods',
@@ -88,8 +94,8 @@ export const helpPtBR: HelpTranslation = {
     {
       id: 'checkin-code',
       topic: 'bookings',
-      q: 'Como funciona o check-in de passeios e aluguéis?',
-      a: 'Mostre ao prestador o código da sua reserva, que aparece a partir das 0h do dia do serviço. Em reservas por pessoa, cada uma tem o seu código; em reservas por grupo, o código é do grupo.',
+      q: 'Como funciona a chegada no passeio ou no aluguel?',
+      a: 'Mostre ao prestador o código da sua reserva. Ele aparece a partir das 0h do dia do serviço. Se a reserva é por pessoa, cada uma tem o seu código; se é por grupo, o código é um só.',
     },
     {
       id: 'provider-absent',
@@ -113,7 +119,7 @@ export const helpPtBR: HelpTranslation = {
       id: 'refund-time',
       topic: 'refunds',
       q: 'Quanto tempo o reembolso demora?',
-      a: 'O reembolso é pedido na hora ao meio de pagamento. O prazo para aparecer depende do banco ou da administradora do cartão.',
+      a: 'Devolvemos o valor na hora. O tempo para aparecer na sua conta ou na fatura depende do seu banco ou do cartão.',
     },
     {
       id: 'forgot-password',
@@ -131,40 +137,41 @@ export const helpPtBR: HelpTranslation = {
       id: 'delete-account',
       topic: 'account',
       q: 'Como excluo minha conta?',
-      a: 'No menu, abra a sua conta e toque em "Excluir conta". Registros de compra são anonimizados, e não apagados, pelo prazo legal.',
+      a: 'No menu, abra a sua conta e toque em "Excluir conta". Por lei, os registros das compras ficam guardados, mas sem os seus dados pessoais.',
     },
     {
       id: 'sell',
       topic: 'partners',
       q: 'Como vendo pelo Use Guide?',
-      a: 'Toque em "Seja parceiro", cadastre seu negócio e conecte a conta de recebimento do CNPJ verificado do estabelecimento.',
+      a: 'Toque em "Seja parceiro", cadastre seu negócio e informe a conta que vai receber os pagamentos, no CNPJ do negócio.',
     },
     {
       id: 'payout',
       topic: 'partners',
       q: 'Quando recebo o valor das vendas?',
-      a: 'O repasse é feito 48 horas depois do fim do serviço, se não houver reclamação aberta. Acompanhe em Recebimentos, no painel do parceiro.',
+      a: 'O valor cai na sua conta 48 horas depois que o serviço termina, se o cliente não tiver aberto uma reclamação. Acompanhe em Recebimentos, no painel do parceiro.',
     },
     {
       id: 'notifications',
       topic: 'app',
       q: 'Como ativo as notificações?',
-      a: 'Em Configurações › Notificações, toque em "Ativar notificações". No iPhone e no iPad, adicione antes o Use Guide à Tela de Início e abra por lá.',
+      a: 'Em Configurações › Notificações, toque em "Ativar". No iPhone, primeiro coloque o Use Guide na tela inicial (Compartilhar › Adicionar à Tela de Início) e abra o app por lá.',
     },
     {
       id: 'wind',
       topic: 'app',
       q: 'De onde vem a previsão de vento e clima?',
-      a: 'De serviços meteorológicos públicos. A previsão é orientativa: avalie as condições no local antes de sair.',
+      a: 'De institutos públicos de meteorologia. É uma previsão: confira as condições no local antes de sair.',
     },
   ],
-  contactTitle: 'Ainda precisa de ajuda?',
-  contactHint: 'Fale com a equipe Use Guide.',
-  whatsapp: 'WhatsApp',
-  email: 'E-mail',
+  contactTitle: 'Fale com a gente',
+  whatsapp: 'Conversar no WhatsApp',
+  whatsappMessage: 'Olá! Preciso de ajuda com o Use Guide.',
+  email: 'Enviar e-mail',
   copy: 'Copiar e-mail',
   copied: 'E-mail copiado',
-  reportProblem: 'Informar um problema no app',
+  reportProblem: 'Algo não funciona no app?',
+  reportHint: 'Conte pra gente o que aconteceu',
   reportSubject: 'Problema no app (versão {{version}})',
 };
 
@@ -172,23 +179,25 @@ export const helpEn: HelpTranslation = {
   title: 'Support',
   search: 'How can we help?',
   searchLabel: 'Search the questions',
+  shortcutsTitle: 'Help with a purchase',
   shortcuts: {
-    purchases: 'Problem with a purchase',
+    purchases: 'My purchases',
     tickets: 'My tickets',
     bookings: 'My bookings',
-    account: 'Account and sign-in',
   },
+  faqTitle: 'Common questions',
+  showAll: 'See all {{count}} questions',
   allTopics: 'All',
   topics: {
-    purchases: 'Purchases and payments',
-    tickets: 'Tickets and QR code',
-    bookings: 'Bookings and tours',
-    refunds: 'Cancellation and refunds',
-    account: 'Account and security',
-    partners: 'For partners',
-    app: 'App and notifications',
+    purchases: 'Payments',
+    tickets: 'Tickets',
+    bookings: 'Bookings',
+    refunds: 'Cancellations',
+    account: 'Account',
+    partners: 'Partners',
+    app: 'App',
   },
-  noResults: 'No questions found. Contact us using the options below.',
+  noResults: 'Nothing matches those words. Get in touch with us below.',
   faq: [
     {
       id: 'payment-methods',
@@ -229,8 +238,8 @@ export const helpEn: HelpTranslation = {
     {
       id: 'checkin-code',
       topic: 'bookings',
-      q: 'How does check-in work for tours and rentals?',
-      a: 'Show the provider your booking code, which appears from midnight on the day of the service. In per-person bookings, each person has their own code; in group bookings, the code belongs to the group.',
+      q: 'How do I check in for a tour or rental?',
+      a: 'Show the provider your booking code. It appears from midnight on the day of the service. If the booking is per person, each person has a code; if it’s for a group, there’s one code.',
     },
     {
       id: 'provider-absent',
@@ -254,7 +263,7 @@ export const helpEn: HelpTranslation = {
       id: 'refund-time',
       topic: 'refunds',
       q: 'How long does a refund take?',
-      a: 'The refund is requested right away from the payment method. How long it takes to show up depends on your bank or card issuer.',
+      a: 'We send the money back right away. How long it takes to show up in your account or card statement depends on your bank or card.',
     },
     {
       id: 'forgot-password',
@@ -272,40 +281,41 @@ export const helpEn: HelpTranslation = {
       id: 'delete-account',
       topic: 'account',
       q: 'How do I delete my account?',
-      a: 'In the menu, open your account and tap "Delete account". Purchase records are anonymized, not deleted, for the legal period.',
+      a: 'In the menu, open your account and tap "Delete account". By law, purchase records are kept, but without your personal details.',
     },
     {
       id: 'sell',
       topic: 'partners',
       q: 'How do I sell on Use Guide?',
-      a: 'Tap "Become a partner", register your business and connect the payout account of the business’s verified CNPJ.',
+      a: 'Tap "Become a partner", register your business and add the account that will receive payments, under the business’s CNPJ.',
     },
     {
       id: 'payout',
       topic: 'partners',
       q: 'When do I get paid for sales?',
-      a: 'The payout is made 48 hours after the service ends, if there is no open complaint. Track it in Payouts, in the partner panel.',
+      a: 'The money reaches your account 48 hours after the service ends, as long as the customer hasn’t opened a complaint. Follow it in Payouts, in the partner panel.',
     },
     {
       id: 'notifications',
       topic: 'app',
       q: 'How do I turn on notifications?',
-      a: 'In Settings › Notifications, tap "Turn on notifications". On iPhone and iPad, first add Use Guide to your Home Screen and open it from there.',
+      a: 'In Settings › Notifications, tap "Turn on". On iPhone, first add Use Guide to your Home Screen (Share › Add to Home Screen) and open the app from there.',
     },
     {
       id: 'wind',
       topic: 'app',
       q: 'Where does the wind and weather forecast come from?',
-      a: 'From public weather services. The forecast is for guidance only: check the conditions on site before heading out.',
+      a: 'From public weather institutes. It’s a forecast: check the conditions on site before heading out.',
     },
   ],
-  contactTitle: 'Still need help?',
-  contactHint: 'Talk to the Use Guide team.',
-  whatsapp: 'WhatsApp',
-  email: 'Email',
+  contactTitle: 'Talk to us',
+  whatsapp: 'Chat on WhatsApp',
+  whatsappMessage: 'Hi! I need help with Use Guide.',
+  email: 'Send an email',
   copy: 'Copy email',
   copied: 'Email copied',
-  reportProblem: 'Report a problem with the app',
+  reportProblem: 'Something not working?',
+  reportHint: 'Tell us what happened',
   reportSubject: 'Problem with the app (version {{version}})',
 };
 
@@ -313,23 +323,25 @@ export const helpFr: HelpTranslation = {
   title: 'Assistance',
   search: 'Comment pouvons-nous vous aider ?',
   searchLabel: 'Rechercher dans les questions',
+  shortcutsTitle: 'Aide pour un achat',
   shortcuts: {
-    purchases: 'Problème avec un achat',
+    purchases: 'Mes achats',
     tickets: 'Mes billets',
     bookings: 'Mes réservations',
-    account: 'Compte et connexion',
   },
-  allTopics: 'Tout',
+  faqTitle: 'Questions fréquentes',
+  showAll: 'Voir les {{count}} questions',
+  allTopics: 'Toutes',
   topics: {
-    purchases: 'Achats et paiements',
-    tickets: 'Billets et QR code',
-    bookings: 'Réservations et excursions',
-    refunds: 'Annulation et remboursement',
-    account: 'Compte et sécurité',
-    partners: 'Pour les partenaires',
-    app: 'App et notifications',
+    purchases: 'Paiements',
+    tickets: 'Billets',
+    bookings: 'Réservations',
+    refunds: 'Annulations',
+    account: 'Compte',
+    partners: 'Partenaires',
+    app: 'App',
   },
-  noResults: 'Aucune question trouvée. Contactez-nous avec les options ci-dessous.',
+  noResults: 'Rien ne correspond à ces mots. Contactez-nous ci-dessous.',
   faq: [
     {
       id: 'payment-methods',
@@ -370,8 +382,8 @@ export const helpFr: HelpTranslation = {
     {
       id: 'checkin-code',
       topic: 'bookings',
-      q: 'Comment fonctionne l’enregistrement des excursions et locations ?',
-      a: 'Montrez au prestataire le code de votre réservation, qui apparaît à partir de minuit le jour de la prestation. Pour une réservation par personne, chacune a son code ; pour une réservation de groupe, le code est celui du groupe.',
+      q: 'Comment se passe l’arrivée pour une excursion ou une location ?',
+      a: 'Montrez au prestataire le code de votre réservation. Il apparaît à partir de minuit le jour de la prestation. Si la réservation est par personne, chacune a son code ; si elle est de groupe, il n’y a qu’un code.',
     },
     {
       id: 'provider-absent',
@@ -395,7 +407,7 @@ export const helpFr: HelpTranslation = {
       id: 'refund-time',
       topic: 'refunds',
       q: 'Combien de temps prend un remboursement ?',
-      a: 'Le remboursement est demandé immédiatement au moyen de paiement. Le délai d’affichage dépend de votre banque ou de l’émetteur de la carte.',
+      a: 'Nous renvoyons l’argent tout de suite. Le délai pour le voir sur votre compte ou votre relevé dépend de votre banque ou de votre carte.',
     },
     {
       id: 'forgot-password',
@@ -413,39 +425,40 @@ export const helpFr: HelpTranslation = {
       id: 'delete-account',
       topic: 'account',
       q: 'Comment supprimer mon compte ?',
-      a: 'Dans le menu, ouvrez votre compte et touchez « Supprimer le compte ». Les données d’achat sont anonymisées, et non supprimées, pendant la durée légale.',
+      a: 'Dans le menu, ouvrez votre compte et touchez « Supprimer le compte ». La loi impose de garder les achats, mais sans vos données personnelles.',
     },
     {
       id: 'sell',
       topic: 'partners',
       q: 'Comment vendre sur Use Guide ?',
-      a: 'Touchez « Devenir partenaire », inscrivez votre établissement et connectez le compte de paiement du CNPJ vérifié de l’établissement.',
+      a: 'Touchez « Devenir partenaire », inscrivez votre établissement et indiquez le compte qui recevra les paiements, au CNPJ de l’établissement.',
     },
     {
       id: 'payout',
       topic: 'partners',
       q: 'Quand suis-je payé pour mes ventes ?',
-      a: 'Le versement est fait 48 heures après la fin de la prestation, s’il n’y a pas de réclamation ouverte. Suivez-le dans Paiements, dans l’espace partenaire.',
+      a: 'L’argent arrive sur votre compte 48 heures après la fin de la prestation, si le client n’a pas ouvert de réclamation. Suivez-le dans Versements, dans l’espace partenaire.',
     },
     {
       id: 'notifications',
       topic: 'app',
       q: 'Comment activer les notifications ?',
-      a: 'Dans Paramètres › Notifications, touchez « Activer les notifications ». Sur iPhone et iPad, ajoutez d’abord Use Guide à l’écran d’accueil et ouvrez-le depuis là.',
+      a: 'Dans Réglages › Notifications, touchez « Activer ». Sur iPhone, ajoutez d’abord Use Guide à l’écran d’accueil (Partager › Sur l’écran d’accueil) et ouvrez l’app depuis là.',
     },
     {
       id: 'wind',
       topic: 'app',
       q: 'D’où viennent les prévisions de vent et de météo ?',
-      a: 'De services météorologiques publics. Les prévisions sont indicatives : vérifiez les conditions sur place avant de partir.',
+      a: 'D’instituts publics de météorologie. C’est une prévision : vérifiez les conditions sur place avant de partir.',
     },
   ],
-  contactTitle: 'Besoin d’aide ?',
-  contactHint: 'Parlez à l’équipe Use Guide.',
-  whatsapp: 'WhatsApp',
-  email: 'E-mail',
+  contactTitle: 'Nous contacter',
+  whatsapp: 'Discuter sur WhatsApp',
+  whatsappMessage: 'Bonjour ! J’ai besoin d’aide avec Use Guide.',
+  email: 'Envoyer un e-mail',
   copy: 'Copier l’e-mail',
   copied: 'E-mail copié',
-  reportProblem: 'Signaler un problème dans l’app',
+  reportProblem: 'Quelque chose ne marche pas ?',
+  reportHint: 'Racontez-nous ce qui s’est passé',
   reportSubject: 'Problème dans l’app (version {{version}})',
 };
