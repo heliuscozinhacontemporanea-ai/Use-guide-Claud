@@ -20,6 +20,8 @@ interface LegalTermsDocumentProps {
   /** Taxas vigentes vindas do backend; sem elas, o texto aponta para o painel de recebimentos. */
   fees?: PlatformFeesView | null;
   version?: string;
+  /** false quando a tela já mostra o título (um documento só, em Sobre o app). */
+  showSectionTitles?: boolean;
 }
 
 const FAMILIES: CancellationPolicyFamily[] = ['event', 'booking', 'transfer'];
@@ -31,6 +33,7 @@ export function LegalTermsDocument({
   focusSection,
   fees,
   version = BUYER_TERMS_VERSION,
+  showSectionTitles = true,
 }: LegalTermsDocumentProps) {
   const { t, i18n } = useTranslation();
   const focusRef = useRef<HTMLElement | null>(null);
@@ -63,7 +66,10 @@ export function LegalTermsDocument({
           aria-labelledby={`legal-${key}-title`}
           className="space-y-2 scroll-mt-4"
         >
-          <h3 id={`legal-${key}-title`} className="text-base font-bold text-ink">
+          <h3
+            id={`legal-${key}-title`}
+            className={showSectionTitles ? 'text-base font-bold text-ink' : 'sr-only'}
+          >
             {t(`legal.${key}.title`)}
           </h3>
           {key === 'partner' && (

@@ -1,15 +1,49 @@
-import { ChevronRight, Code, type LucideIcon, ScrollText } from 'lucide-react';
+import {
+  Building2,
+  ChevronRight,
+  Code,
+  FileText,
+  Handshake,
+  type LucideIcon,
+  MessageCircle,
+  ReceiptText,
+  ShieldCheck,
+  Store,
+} from 'lucide-react';
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BackButton } from '../../../ui/components/BackButton';
+import type { LegalSectionKey } from '../../../ui/legal/LegalTermsDocument';
 import { useAppVersion } from '../hooks/useAppVersion';
 
 interface AboutViewProps {
   onBack: () => void;
-  onOpenTerms: () => void;
+  onOpenCompany: () => void;
+  onOpenPartners: () => void;
+  onOpenSupport: () => void;
+  onOpenLegal: (section: LegalSectionKey) => void;
   onOpenLicenses: () => void;
 }
 
-function AboutRow({
+const LEGAL_ROWS: Array<{ section: LegalSectionKey; icon: LucideIcon }> = [
+  { section: 'use', icon: FileText },
+  { section: 'purchases', icon: ReceiptText },
+  { section: 'partner', icon: Store },
+  { section: 'privacy', icon: ShieldCheck },
+];
+
+function Group({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <section className="shrink-0 mb-5">
+      <h3 className="px-1 mb-2 text-[13px] font-semibold text-ink/70">{title}</h3>
+      <ul className="rounded-[20px] bg-surface border border-line divide-y divide-line overflow-hidden">
+        {children}
+      </ul>
+    </section>
+  );
+}
+
+function Row({
   icon: Icon,
   label,
   onClick,
@@ -33,8 +67,18 @@ function AboutRow({
   );
 }
 
-/** Configurações › Sobre o app: quem somos, versão, termos e licenças (uma tela, sem abas). */
-export function AboutView({ onBack, onOpenTerms, onOpenLicenses }: AboutViewProps) {
+/**
+ * Configurações › Sobre o app, no modelo de Airbnb e Tripadvisor: quem somos, cada documento legal
+ * num item próprio e a versão no fim.
+ */
+export function AboutView({
+  onBack,
+  onOpenCompany,
+  onOpenPartners,
+  onOpenSupport,
+  onOpenLegal,
+  onOpenLicenses,
+}: AboutViewProps) {
   const { t } = useTranslation();
   const { appVersion } = useAppVersion();
 
@@ -45,7 +89,7 @@ export function AboutView({ onBack, onOpenTerms, onOpenLicenses }: AboutViewProp
         <h2 className="text-[22px] font-display font-bold text-ink">{t('appAbout.title')}</h2>
       </div>
 
-      <div className="flex flex-col items-center text-center gap-1 mb-6">
+      <div className="shrink-0 flex flex-col items-center text-center gap-1 mb-6">
         <img
           src="/pwa-192x192.png"
           alt=""
@@ -55,24 +99,46 @@ export function AboutView({ onBack, onOpenTerms, onOpenLicenses }: AboutViewProp
         />
         <p className="text-[22px] font-display font-bold text-ink">Use Guide</p>
         <p className="text-[13px] text-ink/70">{t('appAbout.tagline')}</p>
-        {appVersion && (
-          <p className="text-[12px] text-ink/70 tabular-nums">
-            {t('appAbout.version', { version: appVersion.version })}
-            {appVersion.revision && ` · ${t('appAbout.build', { revision: appVersion.revision })}`}
-          </p>
-        )}
       </div>
 
-      <p className="shrink-0 mb-4 px-4 py-3 rounded-[20px] bg-surface border border-line text-[15px] text-ink/80 leading-relaxed">
-        {t('appAbout.description')}
-      </p>
+      <Group title={t('appAbout.groupUseGuide')}>
+        <Row icon={Building2} label={t('appAbout.company')} onClick={onOpenCompany} />
+        <Row icon={Handshake} label={t('appAbout.partners')} onClick={onOpenPartners} />
+        <Row icon={MessageCircle} label={t('appAbout.contact')} onClick={onOpenSupport} />
+      </Group>
 
-      <ul className="shrink-0 rounded-[20px] bg-surface border border-line divide-y divide-line overflow-hidden">
-        <AboutRow icon={ScrollText} label={t('appAbout.terms')} onClick={onOpenTerms} />
-        <AboutRow icon={Code} label={t('appAbout.licenses')} onClick={onOpenLicenses} />
-      </ul>
+      <Group title={t('appAbout.groupLegal')}>
+        {LEGAL_ROWS.map(({ section, icon }) => (
+          <Row
+            key={section}
+            icon={icon}
+            label={t(`legal.${section}.title`)}
+            onClick={() => onOpenLegal(section)}
+          />
+        ))}
+        <Row icon={Code} label={t('appAbout.licenses')} onClick={onOpenLicenses} />
+      </Group>
 
-      <p className="mt-auto pt-8 text-center text-[12px] text-ink/70">
+      {appVersion && (
+        <section className="shrink-0 mb-5">
+          <h3 className="px-1 mb-2 text-[13px] font-semibold text-ink/70">
+            {t('appAbout.groupApp')}
+          </h3>
+          <dl className="rounded-[20px] bg-surface border border-line px-4 min-h-14 flex items-center justify-between gap-3">
+            <dt className="text-[15px] font-semibold text-ink">{t('appAbout.versionRow')}</dt>
+            <dd className="text-[13px] text-ink/70 tabular-nums text-right">
+              {appVersion.version}
+              {appVersion.revision && (
+                <span className="block text-[12px]">
+                  {t('appAbout.build', { revision: appVersion.revision })}
+                </span>
+              )}
+            </dd>
+          </dl>
+        </section>
+      )}
+
+      <p className="mt-auto pt-4 text-center text-[12px] text-ink/70">
         {t('appAbout.rights', { year: new Date().getFullYear() })}
       </p>
     </div>
