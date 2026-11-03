@@ -1,10 +1,10 @@
-# Prompt 23.5 — Verde forte para ação, interruptor branco e filtros da central centralizados
+# Prompt 23.5 — Verde forte para ação, interruptor branco, filtros da central centralizados e mensagem do push testável
 
-> Lote 19, gerado dos commits de referência `3a7e901..e95c5c9` da branch `claude/agents-md-v2`. Aplique por último no lote 19, depois do 23.4. Cole o bloco abaixo no agente do AI Studio, inteiro, de uma vez.
+> Lote 19, gerado dos commits de referência `3a7e901..bc78a72` da branch `claude/agents-md-v2`. Aplique por último no lote 19, depois do 23.4. Cole o bloco abaixo no agente do AI Studio, inteiro, de uma vez.
 
 ---
 
-## Prompt 23.5 — Verde forte para ação, interruptor branco e filtros da central centralizados
+## Prompt 23.5 — Verde forte para ação, interruptor branco, filtros da central centralizados e mensagem do push testável
 
 D26, aprovada em 2026-11-03.
 
@@ -18,8 +18,11 @@ O QUE MUDA:
 2) Stripe (Payment Element e Connect): colorPrimary #11d450.
 3) Folha de decisão da reclamação: bolinha do interruptor da multa sempre branca, como nos outros.
 4) Central de notificações: filtros "Não lidas" e "Tudo" centralizados e com a mesma largura; o menu "…" fica no canto direito.
+5) server/domain/notifications/adapters/fcmPushSenderAdapter.ts: a mensagem do FCM passa a ser montada por buildFcmMulticastMessage (função pura, com teste); o envio não muda.
 
 ARQUIVOS (crie, altere ou apague exatamente estes):
+- server/domain/notifications/adapters/fcmPushSenderAdapter.test.ts (criar)
+- server/domain/notifications/adapters/fcmPushSenderAdapter.ts (alterar)
 - src/domain/notifications/components/NotificationCenterSheet.tsx (alterar)
 - src/domain/payment/adapters/stripeConnectAdapter.ts (alterar)
 - src/domain/payment/adapters/ui/StripePaymentElement.tsx (alterar)
@@ -27,6 +30,100 @@ ARQUIVOS (crie, altere ou apague exatamente estes):
 - src/index.css (alterar)
 
 Aplique as mudanças abaixo EXATAMENTE como estão (formato unified diff: linhas com "-" saem, linhas com "+" entram; as demais são contexto para localizar o trecho). Não reformate outros trechos dos arquivos.
+
+=== server/domain/notifications/adapters/fcmPushSenderAdapter.test.ts — ARQUIVO NOVO, conteúdo completo ===
+import { describe, expect, it, vi } from 'vitest';
+
+vi.mock('../../../infrastructure/firebase/adminClient', () => ({ adminMessaging: {} }));
+
+import { buildFcmMulticastMessage } from './fcmPushSenderAdapter';
+
+describe('buildFcmMulticastMessage', () => {
+  it('monta o web push com ícone, tag do aviso e link absoluto da tela certa', () => {
+    expect(
+      buildFcmMulticastMessage(['t1', 't2'], {
+        title: 'Você recebeu um ingresso',
+        body: 'Um ingresso para Luau está na sua carteira.',
+        link: { screen: 'tickets' },
+        tag: 'n1',
+      })
+    ).toEqual({
+      tokens: ['t1', 't2'],
+      webpush: {
+        notification: {
+          title: 'Você recebeu um ingresso',
+          body: 'Um ingresso para Luau está na sua carteira.',
+          icon: '/pwa-192x192.png',
+          badge: '/favicon-32x32.png',
+          tag: 'n1',
+        },
+        fcmOptions: { link: 'https://useguide.com.br/?menu=tickets' },
+      },
+      data: { link: 'https://useguide.com.br/?menu=tickets' },
+    });
+  });
+
+  it('aviso do parceiro abre o painel; sem destino, a página inicial', () => {
+    const partner = buildFcmMulticastMessage(['t'], {
+      title: 'a',
+      body: 'b',
+      link: { screen: 'partner' },
+      tag: 'x',
+    });
+    expect(partner.webpush.fcmOptions.link).toBe('https://useguide.com.br/?partner=1');
+    const none = buildFcmMulticastMessage(['t'], { title: 'a', body: 'b', link: null, tag: 'x' });
+    expect(none.data.link).toBe('https://useguide.com.br/');
+  });
+});
+
+=== server/domain/notifications/adapters/fcmPushSenderAdapter.ts — diff ===
+@@ -22,24 +22,31 @@ const INVALID_TOKEN_CODES = new Set([
+   'messaging/invalid-registration-token',
+ ]);
+ 
++/** Mensagem do FCM para os aparelhos (web push). Separada para a simulação e os testes. */
++export function buildFcmMulticastMessage(tokens: string[], message: PushMessage) {
++  const link = `${SITE_URL}${message.link ? PATHS[message.link.screen] : '/'}`;
++  return {
++    tokens,
++    webpush: {
++      notification: {
++        title: message.title,
++        body: message.body,
++        icon: '/pwa-192x192.png',
++        badge: '/favicon-32x32.png',
++        tag: message.tag,
++      },
++      fcmOptions: { link },
++    },
++    data: { link },
++  };
++}
++
+ export class FcmPushSenderAdapter implements PushSenderPort {
+   async send(tokens: string[], message: PushMessage): Promise<{ invalidTokens: string[] }> {
+     if (tokens.length === 0) return { invalidTokens: [] };
+-    const link = `${SITE_URL}${message.link ? PATHS[message.link.screen] : '/'}`;
+-    const response = await adminMessaging.sendEachForMulticast({
+-      tokens,
+-      webpush: {
+-        notification: {
+-          title: message.title,
+-          body: message.body,
+-          icon: '/pwa-192x192.png',
+-          badge: '/favicon-32x32.png',
+-          tag: message.tag,
+-        },
+-        fcmOptions: { link },
+-      },
+-      data: { link },
+-    });
++    const response = await adminMessaging.sendEachForMulticast(
++      buildFcmMulticastMessage(tokens, message)
++    );
+     const invalidTokens = tokens.filter((_, index) => {
+       const result = response.responses[index];
+       return result && !result.success && INVALID_TOKEN_CODES.has(result.error?.code ?? '');
 
 === src/domain/notifications/components/NotificationCenterSheet.tsx — diff ===
 @@ -64,7 +64,7 @@ export function NotificationCenterSheet({
@@ -215,7 +312,7 @@ Aplique as mudanças abaixo EXATAMENTE como estão (formato unified diff: linhas
 
 VERIFICAÇÃO (obrigatória):
 - `npm run typecheck`, `npx biome lint .` (0 erros; arquivos tocados sem avisos), `npm run build`;
-- testes ligados aos arquivos deste prompt: `npx vitest related --run src/domain/notifications/components/NotificationCenterSheet.tsx src/domain/payment/adapters/stripeConnectAdapter.ts src/domain/payment/adapters/ui/StripePaymentElement.tsx src/domain/payment/components/admin/SaleClaimDecisionDialog.tsx` (todos verdes). Não precisa rodar a suíte inteira.
+- testes ligados aos arquivos deste prompt: `npx vitest related --run server/domain/notifications/adapters/fcmPushSenderAdapter.test.ts server/domain/notifications/adapters/fcmPushSenderAdapter.ts src/domain/notifications/components/NotificationCenterSheet.tsx src/domain/payment/adapters/stripeConnectAdapter.ts src/domain/payment/adapters/ui/StripePaymentElement.tsx src/domain/payment/components/admin/SaleClaimDecisionDialog.tsx` (todos verdes). Não precisa rodar a suíte inteira.
 
 ENTREGA: responda no formato do AGENTS.md §16.3.
 
