@@ -146,7 +146,7 @@ export function StripePaymentElement({ clientSecret, ...formProps }: StripePayme
         : {
             theme: 'night',
             variables: {
-              colorPrimary: '#2dd4bf',
+              colorPrimary: '#11d450',
               colorBackground: '#090d16',
               colorText: '#f8fafc',
               colorDanger: '#f87171',

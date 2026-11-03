@@ -7,6 +7,22 @@
   --font-display: "Outfit", sans-serif;
   --color-zinc-850: #1f1f23;
 
+  /*
+   * Cor de ação do app (verde, 2026-11-03): entre #21C063 e #01E93E, a pedido do responsável do produto.
+   * Fica na escala `teal-*` porque os componentes já usam essas classes; o 400 é o tom principal.
+   */
+  --color-teal-50: #ecfdf1;
+  --color-teal-100: #d1fadd;
+  --color-teal-200: #a5f3bd;
+  --color-teal-300: #5ee88c;
+  --color-teal-400: #11d450;
+  --color-teal-500: #0eb845;
+  --color-teal-600: #0b9a3a;
+  --color-teal-700: #087a2e;
+  --color-teal-800: #076127;
+  --color-teal-900: #064f21;
+  --color-teal-950: #022c12;
+
   --radius-arredondados: 2.5rem;
   --radius-arredondados-sm: 1.5rem;
 
@@ -184,8 +200,8 @@
 :root {
   --glass-bg: rgba(255, 255, 255, 0.05);
   --glass-border: rgba(255, 255, 255, 0.1);
-  --liquid-accent: #0d9488; /* Teal 600 */
-  --liquid-gradient: linear-gradient(135deg, #0d9488 0%, #0891b2 100%);
+  --liquid-accent: #0b9a3a;
+  --liquid-gradient: linear-gradient(135deg, #0b9a3a 0%, #11d450 100%);
 
   --ug-app: #0d0e10;
   --ug-ink: #ffffff;
@@ -197,9 +213,9 @@
   --ug-sheet-card-line: transparent;
   --ug-line: rgba(255, 255, 255, 0.08);
   --ug-scrim: rgba(0, 0, 0, 0.7);
-  --ug-accent: #5eead4;
-  --ug-accent-soft: rgba(20, 184, 166, 0.12);
-  --ug-accent-line: rgba(20, 184, 166, 0.35);
+  --ug-accent: #3ee47a;
+  --ug-accent-soft: rgba(17, 212, 80, 0.12);
+  --ug-accent-line: rgba(17, 212, 80, 0.35);
   --ug-warn: #fcd34d;
   --ug-warn-soft: rgba(245, 158, 11, 0.1);
   --ug-warn-line: rgba(245, 158, 11, 0.25);
@@ -227,9 +243,9 @@
   --ug-sheet-card: rgba(255, 255, 255, 0.04);
   --ug-sheet-card-line: transparent;
   --ug-line: rgba(255, 255, 255, 0.08);
-  --ug-accent: #5eead4;
-  --ug-accent-soft: rgba(20, 184, 166, 0.12);
-  --ug-accent-line: rgba(20, 184, 166, 0.35);
+  --ug-accent: #3ee47a;
+  --ug-accent-soft: rgba(17, 212, 80, 0.12);
+  --ug-accent-line: rgba(17, 212, 80, 0.35);
   --ug-warn: #fcd34d;
   --ug-warn-soft: rgba(245, 158, 11, 0.1);
   --ug-success: #6ee7b7;
@@ -252,9 +268,9 @@
   --ug-sheet-card-line: rgba(35, 29, 22, 0.12);
   --ug-line: rgba(35, 29, 22, 0.12);
   --ug-scrim: rgba(35, 29, 22, 0.35);
-  --ug-accent: #0f766e;
-  --ug-accent-soft: rgba(13, 148, 136, 0.12);
-  --ug-accent-line: rgba(13, 148, 136, 0.4);
+  --ug-accent: #087a2e;
+  --ug-accent-soft: rgba(17, 180, 70, 0.14);
+  --ug-accent-line: rgba(8, 122, 46, 0.4);
   --ug-warn: #92400e;
   --ug-warn-soft: rgba(217, 119, 6, 0.12);
   --ug-warn-line: rgba(217, 119, 6, 0.35);
