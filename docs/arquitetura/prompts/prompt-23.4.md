@@ -1,10 +1,10 @@
-# Prompt 23.4 — Folhas seguem as telas no tema claro
+# Prompt 23.4 — Folhas seguem as telas no tema claro e título do Suporte
 
-> Lote 19, gerado dos commits de referência `7788a52..defb223` da branch `claude/agents-md-v2`. Aplique por último no lote 19 (depois do 23.3). Cole o bloco abaixo no agente do AI Studio, inteiro, de uma vez.
+> Lote 19, gerado dos commits de referência `7788a52..1bf7dc1` da branch `claude/agents-md-v2`. Aplique por último no lote 19 (depois do 23.3). Cole o bloco abaixo no agente do AI Studio, inteiro, de uma vez.
 
 ---
 
-## Prompt 23.4 — Folhas seguem as telas no tema claro
+## Prompt 23.4 — Folhas seguem as telas no tema claro e título do Suporte
 
 Pedido do responsável do produto em 2026-11-03: nas folhas do tema claro, fundo bege e cartões claros, como nas telas. O escuro não muda.
 
@@ -17,6 +17,7 @@ O QUE MUDA:
 1) Tokens novos em src/index.css: --ug-sheet, --ug-sheet-card e --ug-sheet-card-line (classes bg-sheet, bg-sheet-card, border-sheet-card-line). Claro: folha #f3eee4 (bege, como o fundo das telas) e cartões #faf6ee com borda. Escuro e modo portaria: iguais ao que já era (folha #1e2024, blocos 4% mais claros, sem borda).
 2) Dialog (folha do design system) usa bg-sheet.
 3) Blocos dentro das folhas (recibo de compra, central de notificações, decisão da reclamação, força maior, provas do serviço, ações da reserva, link de transferência recebido) usam bg-sheet-card com a borda.
+4) Suporte: o título perde o "Oi!" — "Como podemos ajudar?" (en: "How can we help?", fr: "Comment pouvons-nous vous aider ?").
 
 ARQUIVOS (crie, altere ou apague exatamente estes):
 - src/domain/bookings/components/admin/ServiceEvidenceList.tsx (alterar)
@@ -26,6 +27,7 @@ ARQUIVOS (crie, altere ou apague exatamente estes):
 - src/domain/payment/components/admin/SaleClaimDecisionDialog.tsx (alterar)
 - src/domain/ticketing/components/wallet/TransferLinkReceiverDialog.tsx (alterar)
 - src/index.css (alterar)
+- src/shared/i18n/helpResources.ts (alterar)
 - src/ui/components/Dialog.tsx (alterar)
 - src/ui/components/purchases/PurchaseReceiptSheet.tsx (alterar)
 
@@ -160,6 +162,35 @@ Aplique as mudanças abaixo EXATAMENTE como estão (formato unified diff: linhas
    --ug-scrim: rgba(35, 29, 22, 0.35);
    --ug-accent: #0f766e;
 
+=== src/shared/i18n/helpResources.ts — diff ===
+@@ -42,7 +42,7 @@ export const helpPtBR: HelpTranslation = {
+     tickets: 'Meus ingressos',
+     bookings: 'Minhas reservas',
+   },
+-  greeting: 'Oi! Como podemos ajudar?',
++  greeting: 'Como podemos ajudar?',
+   topicsTitle: 'Assuntos',
+   topTitle: 'Perguntas mais lidas',
+   resultsTitle: 'Resultados',
+@@ -187,7 +187,7 @@ export const helpEn: HelpTranslation = {
+     tickets: 'My tickets',
+     bookings: 'My bookings',
+   },
+-  greeting: 'Hi! How can we help?',
++  greeting: 'How can we help?',
+   topicsTitle: 'Topics',
+   topTitle: 'Most read questions',
+   resultsTitle: 'Results',
+@@ -332,7 +332,7 @@ export const helpFr: HelpTranslation = {
+     tickets: 'Mes billets',
+     bookings: 'Mes réservations',
+   },
+-  greeting: 'Bonjour ! Comment pouvons-nous vous aider ?',
++  greeting: 'Comment pouvons-nous vous aider ?',
+   topicsTitle: 'Sujets',
+   topTitle: 'Questions les plus lues',
+   resultsTitle: 'Résultats',
+
 === src/ui/components/Dialog.tsx — diff ===
 @@ -40,7 +40,7 @@ export function Dialog({
          {/* Celular: folha que sobe da borda (como num app nativo). Do sm em diante: cartão central. */}
@@ -184,7 +215,7 @@ Aplique as mudanças abaixo EXATAMENTE como estão (formato unified diff: linhas
 
 VERIFICAÇÃO (obrigatória):
 - `npm run typecheck`, `npx biome lint .` (0 erros; arquivos tocados sem avisos), `npm run build`;
-- testes ligados aos arquivos deste prompt: `npx vitest related --run src/domain/bookings/components/admin/ServiceEvidenceList.tsx src/domain/bookings/components/buyer/BookingServiceActions.tsx src/domain/notifications/components/NotificationCenterSheet.tsx src/domain/payment/components/admin/ForceMajeureSheet.tsx src/domain/payment/components/admin/SaleClaimDecisionDialog.tsx src/domain/ticketing/components/wallet/TransferLinkReceiverDialog.tsx src/ui/components/Dialog.tsx src/ui/components/purchases/PurchaseReceiptSheet.tsx` (todos verdes). Não precisa rodar a suíte inteira.
+- testes ligados aos arquivos deste prompt: `npx vitest related --run src/domain/bookings/components/admin/ServiceEvidenceList.tsx src/domain/bookings/components/buyer/BookingServiceActions.tsx src/domain/notifications/components/NotificationCenterSheet.tsx src/domain/payment/components/admin/ForceMajeureSheet.tsx src/domain/payment/components/admin/SaleClaimDecisionDialog.tsx src/domain/ticketing/components/wallet/TransferLinkReceiverDialog.tsx src/shared/i18n/helpResources.ts src/ui/components/Dialog.tsx src/ui/components/purchases/PurchaseReceiptSheet.tsx` (todos verdes). Não precisa rodar a suíte inteira.
 
 ENTREGA: responda no formato do AGENTS.md §16.3.
 

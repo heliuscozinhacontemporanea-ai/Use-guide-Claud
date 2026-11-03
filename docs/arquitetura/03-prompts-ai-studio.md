@@ -180,7 +180,7 @@
 | 9 | `prompts/prompt-23.2b.md` | Sininho para todas as contas e central em tempo real (app) | `8834efd..6739469` (src) |
 | 10 | `prompts/prompt-23.2c.md` | Push pelo Firebase Cloud Messaging, fila de envio e resumo diário (Functions novas) | `6739469..ef3d953` |
 | 11 | `prompts/prompt-23.3.md` | Avisos novos: compra confirmada e não concluída, lembretes, convite para avaliar, resposta, denúncia, troca do @; silêncio 23h30–5h30 | `ef3d953..23f936b` |
-| 12 | `prompts/prompt-23.4.md` | Folhas seguem as telas no tema claro (fundo bege, cartões claros) | `7788a52..defb223` |
+| 12 | `prompts/prompt-23.4.md` | Folhas seguem as telas no tema claro (fundo bege, cartões claros) e título do Suporte sem o "Oi!" | `7788a52..1bf7dc1` |
 
 > **Envie um prompt por mensagem**, nesta ordem. Simulação feita em 2026-11-03: os 11 prompts (23.4 incluído) aplicados só a partir do texto, sobre o estado do C18, deram resultado idêntico à referência (depois do `npm run licenses` do 22.6), com typecheck, lint, testes e build verdes. Configurações manuais no fim de cada prompt (chave VAPID, papel do FCM, URLs dos jobs, regras e índices, Functions).
 
