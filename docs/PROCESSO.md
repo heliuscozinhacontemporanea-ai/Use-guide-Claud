@@ -140,7 +140,7 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 | 21.7c | Modo portaria com economia de bateria e devolução de ingresso | `ec9e4e2..f29204b` | ✅ zip 2026-11-01 | ✅ igual à referência |
 | 21.7d | @ obrigatório depois do cadastro e link de transferência (30 min, uso único) | `f29204b..fef8a57` | ✅ zip 2026-11-01 | ✅ igual à referência |
 | 21.8 | Confirmação de e-mail com link nativo (D22) | `fd42053..734ae3e` | ✅ zip 2026-11-01 | ⚠️ `firebaseAuthAdapter.ts` reescrito (papel por `claims.role`: painel admin sumiu), 7 testes de auth apagados, rollback do parceiro mudado, pasta `app/` criada na raiz e `package-lock.json` sem o zxing-wasm → prompt C18 |
-| C18 | Correção do lote 18 | — | ⏳ enviar (lote 19) | — |
+| C18 | Correção do lote 18 | — | ✅ enviado (aguarda o zip) | — |
 | A8 | Decisões D23 (sair do AI Studio, adiada), D24 (Sobre o app) e D25 (notificações, Suporte, termos) | `08221c2..d324282` (só docs) | ⏳ enviar (lote 19) | — |
 | 22.1 | Página não encontrada nos dois temas, status 404 no servidor e aviso de item indisponível | `a692a83..b850241` | ⏳ enviar (lote 19) | — |
 | 22.2 | 404 em tela cheia com o hamster na roda | `b850241..98511bd` | ⏳ enviar (lote 19) | — |
