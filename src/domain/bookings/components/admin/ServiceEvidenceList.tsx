@@ -83,7 +83,7 @@ export function ServiceEvidenceList({ evidence }: { evidence: BookingServiceEvid
 
   const location = arrival?.location;
   return (
-    <div className="p-4 rounded-2xl bg-ink/[0.04] space-y-1.5">
+    <div className="p-4 rounded-2xl bg-sheet-card border border-sheet-card-line space-y-1.5">
       <p className="text-[13px] font-semibold text-ink">{t('serviceProof.evidence.title')}</p>
       <ul className="space-y-1">
         {lines.map((line) => (

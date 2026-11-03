@@ -95,7 +95,7 @@ export function BookingServiceActions({
   const absence = booking.providerAbsence;
   if (isConfirmationPending(booking, now) && booking.serviceConfirmation) {
     content = (
-      <div className="p-4 rounded-2xl bg-ink/[0.04] space-y-3">
+      <div className="p-4 rounded-2xl bg-sheet-card border border-sheet-card-line space-y-3">
         <div className="space-y-1">
           <p className="text-[15px] font-semibold text-ink">
             {t('serviceProof.buyer.questionTitle')}

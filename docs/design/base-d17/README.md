@@ -9,7 +9,8 @@ Prints aprovados em 2026-10-27, tirados do app depois dos prompts 20.0 e 20.1 (r
 | `light-2-reservas-anteriores.png` | Minhas reservas › Anteriores | claro |
 | `dark-4-pedidos.png` / `light-4-pedidos.png` | Ingressos › Pedidos | escuro / claro |
 | `dark-5-admin-reclamacoes.png` | Admin › Financeiro › Reclamações (lista compacta) | escuro |
-| `light-6-admin-decidir.png` | Folha de decisão da reclamação | claro |
+| `light-6-admin-decidir.png` | Folha de decisão da reclamação (refeito em 2026-11-03: folha bege, cartões claros) | claro |
+| `light-7-central-notificacoes.png` | Folha da central de notificações | claro |
 | `dark-8-admin-forca-maior-folha.png` | Folha da força maior | escuro |
 | `dark-9-admin-dividas.png` | Admin › Financeiro › Dívidas | escuro |
 | `fr-reservas-anteriores.png` | Minhas reservas em francês | escuro |
@@ -25,6 +26,7 @@ Prints aprovados em 2026-10-27, tirados do app depois dos prompts 20.0 e 20.1 (r
 - Voltar só com o chevron `<` (`BackButton`), sem caixa e sem seta.
 - Identificador (código do pedido) logo abaixo do nome, sem destaque: texto a 50% no escuro e 65% no claro (contraste AA).
 - Filas e listas longas em lista compacta (título, contexto, status e valor); detalhes e decisão na folha inferior (`Dialog`).
+- Folhas seguem as telas: fundo `bg-sheet` e blocos `bg-sheet-card border border-sheet-card-line`. No claro, fundo bege e cartões claros com borda; no escuro, folha na cor do cartão e blocos um pouco mais claros, sem borda.
 
 ## Onde ficam os reutilizáveis
 

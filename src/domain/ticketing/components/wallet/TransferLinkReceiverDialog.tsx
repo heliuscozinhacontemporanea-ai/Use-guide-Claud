@@ -98,7 +98,7 @@ export function TransferLinkReceiverDialog({
           </>
         ) : preview ? (
           <>
-            <div className="flex items-start gap-3 p-3 rounded-2xl bg-ink/[0.04]">
+            <div className="flex items-start gap-3 p-3 rounded-2xl bg-sheet-card border border-sheet-card-line">
               <span className="w-11 h-11 shrink-0 rounded-xl bg-accent-soft text-accent flex items-center justify-center">
                 <TicketIcon size={20} aria-hidden="true" />
               </span>

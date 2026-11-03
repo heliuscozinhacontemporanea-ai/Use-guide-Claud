@@ -37,7 +37,7 @@ export function ForceMajeureSheet({
     >
       {review && (
         <div className="space-y-4">
-          <div className="p-4 rounded-2xl bg-ink/[0.04] space-y-2">
+          <div className="p-4 rounded-2xl bg-sheet-card border border-sheet-card-line space-y-2">
             <p className="text-sm text-ink/80 whitespace-pre-line break-words">
               “{review.forceMajeureReason}”
             </p>

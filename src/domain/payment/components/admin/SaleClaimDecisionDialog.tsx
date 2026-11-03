@@ -12,7 +12,7 @@ import { adminFinanceErrorKey, errorCodeOf } from '../../utils/adminFinanceError
 const OUTCOMES: SaleClaimOutcome[] = ['release', 'refund_full', 'refund_partial'];
 
 const OPTION =
-  'press min-h-14 px-4 py-2.5 rounded-2xl bg-ink/[0.04] flex items-center gap-3 text-sm text-ink cursor-pointer has-[:checked]:bg-accent-soft has-[:checked]:ring-1 has-[:checked]:ring-accent-line focus-within:ring-2 focus-within:ring-teal-400/50';
+  'press min-h-14 px-4 py-2.5 rounded-2xl bg-sheet-card border border-sheet-card-line flex items-center gap-3 text-sm text-ink cursor-pointer has-[:checked]:bg-accent-soft has-[:checked]:ring-1 has-[:checked]:ring-accent-line focus-within:ring-2 focus-within:ring-teal-400/50';
 
 /** Decisão do admin (D16, 2A); o backend recalcula os valores e confere a multa. */
 export function SaleClaimDecisionDialog({
@@ -81,7 +81,7 @@ export function SaleClaimDecisionDialog({
     >
       {claim && (
         <form onSubmit={submit} className="space-y-4" noValidate>
-          <div className="p-4 rounded-2xl bg-ink/[0.04] space-y-1.5">
+          <div className="p-4 rounded-2xl bg-sheet-card border border-sheet-card-line space-y-1.5">
             <p className="text-[13px] font-semibold text-warn flex items-center gap-1.5">
               <AlertCircle size={15} aria-hidden="true" />
               {t(`saleClaims.reason.${claim.reason}`)}
@@ -154,7 +154,7 @@ export function SaleClaimDecisionDialog({
             </div>
           )}
           {penaltyAllowed && (
-            <label className="press min-h-14 px-4 py-2.5 rounded-2xl bg-ink/[0.04] flex items-center justify-between gap-3 cursor-pointer focus-within:ring-2 focus-within:ring-teal-400/50">
+            <label className="press min-h-14 px-4 py-2.5 rounded-2xl bg-sheet-card border border-sheet-card-line flex items-center justify-between gap-3 cursor-pointer focus-within:ring-2 focus-within:ring-teal-400/50">
               <span className="space-y-0.5">
                 <span className="block text-sm font-semibold text-ink">
                   {t('adminFinance.claims.penaltyLabel')}

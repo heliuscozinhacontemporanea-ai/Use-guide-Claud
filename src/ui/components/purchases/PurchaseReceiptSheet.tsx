@@ -63,7 +63,7 @@ export function PurchaseReceiptSheet({
           <p className="text-sm text-ink/70 mt-1">{serviceLine}</p>
         </div>
         {lines.length > 0 && (
-          <dl className="p-4 rounded-2xl bg-ink/[0.04] space-y-2">
+          <dl className="p-4 rounded-2xl bg-sheet-card border border-sheet-card-line space-y-2">
             {lines.map((line, index) => (
               <div
                 key={`${line.label}-${index}`}

@@ -144,7 +144,7 @@ export function NotificationCenterSheet({
                     <button
                       type="button"
                       onClick={() => onOpenItem(item)}
-                      className="press w-full p-4 rounded-2xl bg-ink/[0.04] flex items-start gap-3 text-left hover:bg-ink/[0.06] focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none"
+                      className="press w-full p-4 rounded-2xl bg-sheet-card border border-sheet-card-line flex items-start gap-3 text-left hover:bg-ink/[0.06] focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none"
                     >
                       <span className="flex-1 min-w-0 space-y-0.5">
                         <span

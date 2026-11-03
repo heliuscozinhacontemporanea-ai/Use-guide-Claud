@@ -84,6 +84,9 @@
   --color-ink: var(--ug-ink);
   --color-surface: var(--ug-surface);
   --color-surface-solid: var(--ug-surface-solid);
+  --color-sheet: var(--ug-sheet);
+  --color-sheet-card: var(--ug-sheet-card);
+  --color-sheet-card-line: var(--ug-sheet-card-line);
   --color-line: var(--ug-line);
   --color-scrim: var(--ug-scrim);
   --color-accent: var(--ug-accent);
@@ -188,6 +191,10 @@
   --ug-ink: #ffffff;
   --ug-surface: #1e2024;
   --ug-surface-solid: #1e2024;
+  /* Folhas (D17): no escuro, folha na cor do cartão e blocos um pouco mais claros. */
+  --ug-sheet: #1e2024;
+  --ug-sheet-card: rgba(255, 255, 255, 0.04);
+  --ug-sheet-card-line: transparent;
   --ug-line: rgba(255, 255, 255, 0.08);
   --ug-scrim: rgba(0, 0, 0, 0.7);
   --ug-accent: #5eead4;
@@ -215,6 +222,10 @@
   --ug-ink: #ffffff;
   --ug-surface: #1e2024;
   --ug-surface-solid: #1e2024;
+  /* Folhas (D17): no escuro, folha na cor do cartão e blocos um pouco mais claros. */
+  --ug-sheet: #1e2024;
+  --ug-sheet-card: rgba(255, 255, 255, 0.04);
+  --ug-sheet-card-line: transparent;
   --ug-line: rgba(255, 255, 255, 0.08);
   --ug-accent: #5eead4;
   --ug-accent-soft: rgba(20, 184, 166, 0.12);
@@ -235,6 +246,10 @@
   --ug-ink: #231d16;
   --ug-surface: rgba(250, 246, 238, 0.97);
   --ug-surface-solid: #faf6ee;
+  /* Folhas no claro seguem as telas: fundo bege e cartões claros com borda. */
+  --ug-sheet: #f3eee4;
+  --ug-sheet-card: #faf6ee;
+  --ug-sheet-card-line: rgba(35, 29, 22, 0.12);
   --ug-line: rgba(35, 29, 22, 0.12);
   --ug-scrim: rgba(35, 29, 22, 0.35);
   --ug-accent: #0f766e;
