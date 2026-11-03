@@ -21,8 +21,13 @@ const BATCH = 100;
 const LEASE_MS = 5 * MINUTE_MS;
 const MAX_ATTEMPTS = 5;
 
-function fortalezaHour(now: Date): number {
-  return new Date(now.getTime() - FORTALEZA_OFFSET_MS).getUTCHours();
+// Silêncio dos avisos opcionais (D25): das 23h30 às 5h30, em minutos do dia em Fortaleza.
+const QUIET_START_MIN = 23 * 60 + 30;
+const QUIET_END_MIN = 5 * 60 + 30;
+
+function fortalezaMinuteOfDay(now: Date): number {
+  const local = new Date(now.getTime() - FORTALEZA_OFFSET_MS);
+  return local.getUTCHours() * 60 + local.getUTCMinutes();
 }
 
 function fortalezaDayStart(now: Date): Date {
@@ -30,15 +35,16 @@ function fortalezaDayStart(now: Date): Date {
   return new Date(Math.floor(local / DAY_MS) * DAY_MS + FORTALEZA_OFFSET_MS);
 }
 
-/** Avisos opcionais nunca chegam das 21h às 9h (D25, revisão). */
+/** Avisos opcionais nunca chegam das 23h30 às 5h30 (D25, revisão). */
 export function isQuietHour(now: Date): boolean {
-  const hour = fortalezaHour(now);
-  return hour >= 21 || hour < 9;
+  const minute = fortalezaMinuteOfDay(now);
+  return minute >= QUIET_START_MIN || minute < QUIET_END_MIN;
 }
 
+/** Próximas 5h30 em Fortaleza: quando o aviso adiado sai. */
 export function nextMorning(now: Date): Date {
-  const nine = new Date(fortalezaDayStart(now).getTime() + 9 * HOUR_MS);
-  return fortalezaHour(now) < 9 ? nine : new Date(nine.getTime() + DAY_MS);
+  const morning = new Date(fortalezaDayStart(now).getTime() + QUIET_END_MIN * MINUTE_MS);
+  return fortalezaMinuteOfDay(now) < QUIET_END_MIN ? morning : new Date(morning.getTime() + DAY_MS);
 }
 
 export interface DispatchResult {

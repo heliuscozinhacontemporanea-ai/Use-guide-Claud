@@ -87,7 +87,7 @@ export const DEFAULT_NOTIFICATION_PREFERENCES: NotificationPreferences = {
 export const NOTIFICATION_RETENTION_DAYS = 90;
 
 /**
- * Tipos opcionais (D25, revisão): só saem com a escolha ligada e nunca das 21h às 9h (Fortaleza).
+ * Tipos opcionais (D25, revisão): só saem com a escolha ligada e nunca das 23h30 às 5h30 (Fortaleza).
  * Novidades entram aqui quando existirem.
  */
 export const OPTIONAL_TYPES: Partial<Record<NotificationType, 'reviewRequests' | 'news'>> = {

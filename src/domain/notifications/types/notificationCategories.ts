@@ -3,7 +3,7 @@ import type { NotificationLink } from './notification';
 /**
  * O que a pessoa escolhe (D25, revisão). Compras, ingressos, reservas, conta e, para o parceiro,
  * vendas, cancelamentos, reclamações e repasses chegam sempre: sem eles a pessoa perde um serviço
- * ou um prazo. Avisos opcionais nunca chegam das 21h às 9h (Fortaleza).
+ * ou um prazo. Avisos opcionais nunca chegam das 23h30 às 5h30 (Fortaleza).
  */
 export interface NotificationPreferences {
   /** Pedido de avaliação depois de um passeio, evento ou estadia. */

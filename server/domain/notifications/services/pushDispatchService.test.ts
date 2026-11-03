@@ -11,7 +11,7 @@ import { isQuietHour, nextMorning, PushDispatchService } from './pushDispatchSer
 
 // 15h em Fortaleza (UTC−3).
 const AFTERNOON = new Date('2026-11-03T18:00:00.000Z');
-const NIGHT = new Date('2026-11-04T01:30:00.000Z'); // 22h30 do dia 3 em Fortaleza
+const NIGHT = new Date('2026-11-04T03:00:00.000Z'); // meia-noite do dia 4 em Fortaleza
 
 function entry(partial: Partial<OutboxEntry> = {}): OutboxEntry {
   return {
@@ -103,13 +103,13 @@ describe('PushDispatchService', () => {
     expect(result.skipped).toBe(1);
   });
 
-  it('aviso opcional respeita a escolha e espera as 9h', async () => {
+  it('aviso opcional respeita a escolha e espera as 5h30', async () => {
     const optional = OPTIONAL_TYPES as Record<string, 'news'>;
     optional.ticket_received = 'news';
     try {
       vi.mocked(repo.getPreferences).mockResolvedValue({ news: true });
       expect(await service.dispatch(NIGHT)).toMatchObject({ deferred: 1 });
-      expect(outbox.defer).toHaveBeenCalledWith('n1', new Date('2026-11-04T12:00:00.000Z'));
+      expect(outbox.defer).toHaveBeenCalledWith('n1', new Date('2026-11-04T08:30:00.000Z'));
 
       vi.mocked(repo.getPreferences).mockResolvedValue({ news: false });
       expect(await service.dispatch(AFTERNOON)).toMatchObject({ skipped: 1 });
@@ -147,12 +147,18 @@ describe('PushDispatchService', () => {
     );
   });
 
-  it('horário de silêncio é das 21h às 9h em Fortaleza', () => {
+  it('horário de silêncio é das 23h30 às 5h30 em Fortaleza', () => {
     expect(isQuietHour(AFTERNOON)).toBe(false);
     expect(isQuietHour(NIGHT)).toBe(true);
-    expect(isQuietHour(new Date('2026-11-03T11:59:00.000Z'))).toBe(true);
-    expect(nextMorning(new Date('2026-11-03T10:00:00.000Z'))).toEqual(
-      new Date('2026-11-03T12:00:00.000Z')
+    expect(isQuietHour(new Date('2026-11-04T02:29:00.000Z'))).toBe(false); // 23h29
+    expect(isQuietHour(new Date('2026-11-04T02:30:00.000Z'))).toBe(true); // 23h30
+    expect(isQuietHour(new Date('2026-11-04T08:29:00.000Z'))).toBe(true); // 5h29
+    expect(isQuietHour(new Date('2026-11-04T08:30:00.000Z'))).toBe(false); // 5h30
+    expect(nextMorning(new Date('2026-11-04T07:00:00.000Z'))).toEqual(
+      new Date('2026-11-04T08:30:00.000Z')
+    );
+    expect(nextMorning(new Date('2026-11-04T02:45:00.000Z'))).toEqual(
+      new Date('2026-11-04T08:30:00.000Z')
     );
   });
 });

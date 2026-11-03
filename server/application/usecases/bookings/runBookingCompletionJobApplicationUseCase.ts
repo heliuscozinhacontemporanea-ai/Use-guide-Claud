@@ -86,7 +86,7 @@ export async function runBookingCompletionJobApplicationUseCase(
     await sendBookingServiceNotice(booking.buyerId, 'confirmationAsked');
   }
   for (const booking of reviewInvites) {
-    // Opcional (D25): o envio respeita "Pedidos de avaliação" e o horário das 21h às 9h.
+    // Opcional (D25): o envio respeita "Pedidos de avaliação" e o silêncio das 23h30 às 5h30.
     await createNotificationUseCase({
       recipientUid: booking.buyerId,
       type: 'review_request',

@@ -111,7 +111,7 @@ export const notifyPtBR: NotifyTranslation = {
     reviewRequestsHint: 'Depois de um passeio, evento ou estadia, pedimos sua opinião.',
     news: 'Novidades e ofertas',
     newsHint: 'Eventos novos e dicas para aproveitar a viagem.',
-    nightNote: 'Esses avisos nunca chegam entre 21h e 9h.',
+    nightNote: 'Esses avisos nunca chegam entre 23h30 e 5h30.',
   },
   sales: {
     title: 'Avisos de venda',
@@ -184,7 +184,7 @@ export const notifyEn: NotifyTranslation = {
     reviewRequestsHint: 'After a tour, event or stay, we ask what you thought.',
     news: 'News and offers',
     newsHint: 'New events and tips to make the most of your trip.',
-    nightNote: 'These never arrive between 9 pm and 9 am.',
+    nightNote: 'These never arrive between 11:30 pm and 5:30 am.',
   },
   sales: {
     title: 'Sale alerts',
@@ -267,7 +267,7 @@ export const notifyFr: NotifyTranslation = {
       'Après une excursion, un événement ou un séjour, nous demandons votre avis.',
     news: 'Nouveautés et offres',
     newsHint: 'Nouveaux événements et conseils pour profiter du voyage.',
-    nightNote: 'Ces messages n’arrivent jamais entre 21 h et 9 h.',
+    nightNote: 'Ces messages n’arrivent jamais entre 23 h 30 et 5 h 30.',
   },
   sales: {
     title: 'Alertes de vente',
