@@ -1,149 +1,106 @@
-import { adminDb } from '../../../infrastructure/firebase/adminClient';
 import { FieldValue, Timestamp } from 'firebase-admin/firestore';
-import {
-  NotificationRepositoryPort,
-  CreateNotificationInput,
-} from '../ports/notificationRepositoryPort';
-import { NotificationSettingsPatch } from '../dtos/UpdateNotificationSettingsDTO';
-import {
-  NotificationNotFoundError,
-  NotificationForbiddenError,
-} from '../errors/notificationErrors';
+import { adminDb } from '../../../infrastructure/firebase/adminClient';
+import type { NotificationRepositoryPort } from '../ports/notificationRepositoryPort';
+import type { NewNotification, NotificationPreferences } from '../types/notificationTypes';
+
+const NOTIFICATIONS = 'notifications';
+const PREFERENCES = 'notificationPreferences';
+
+function toDocument(
+  data: Omit<NewNotification, 'dedupeKey'>,
+  expiresAt: Date
+): Record<string, unknown> {
+  return {
+    recipientUid: data.recipientUid,
+    type: data.type,
+    params: data.params ?? {},
+    link: data.link ?? null,
+    read: false,
+    createdAt: FieldValue.serverTimestamp(),
+    expiresAt: Timestamp.fromDate(expiresAt),
+  };
+}
 
 export class FirebaseAdminNotificationAdapter implements NotificationRepositoryPort {
-  async createNotification(input: CreateNotificationInput): Promise<boolean> {
-    const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 30);
-
-    const { id, ...rest } = input;
-    const docRef = id
-      ? adminDb.collection('notifications').doc(id)
-      : adminDb.collection('notifications').doc();
-
-    if (id) {
-      const existing = await docRef.get();
-      if (existing.exists) {
-        return false;
-      }
+  async create(notification: NewNotification, expiresAt: Date): Promise<boolean> {
+    const collection = adminDb.collection(NOTIFICATIONS);
+    const { dedupeKey, ...data } = notification;
+    if (!dedupeKey) {
+      await collection.doc().set(toDocument(data, expiresAt));
+      return true;
     }
+    try {
+      // `create` falha se o documento já existe: o mesmo aviso nunca sai duas vezes.
+      await collection.doc(dedupeKey).create(toDocument(data, expiresAt));
+      return true;
+    } catch (error) {
+      if ((error as { code?: number }).code === 6) return false;
+      throw error;
+    }
+  }
 
-    await docRef.set({
-      ...rest,
-      relatedItemCollection: input.relatedItemCollection ?? input.itemCollection ?? null,
-      read: false,
-      createdAt: FieldValue.serverTimestamp(),
-      expiresAt: Timestamp.fromDate(expiresAt),
-    });
+  async createMany(
+    recipientUids: string[],
+    data: Omit<NewNotification, 'recipientUid' | 'dedupeKey'>,
+    expiresAt: Date
+  ): Promise<void> {
+    const writer = adminDb.bulkWriter();
+    for (const recipientUid of recipientUids) {
+      writer.set(
+        adminDb.collection(NOTIFICATIONS).doc(),
+        toDocument({ ...data, recipientUid }, expiresAt)
+      );
+    }
+    await writer.close();
+  }
+
+  async markAsRead(notificationId: string, recipientUid: string): Promise<boolean> {
+    const ref = adminDb.collection(NOTIFICATIONS).doc(notificationId);
+    const snap = await ref.get();
+    if (!snap.exists || snap.get('recipientUid') !== recipientUid) return false;
+    await ref.update({ read: true, readAt: FieldValue.serverTimestamp() });
     return true;
   }
 
-  async createBulkNotifications(
-    recipientPartnerIds: string[],
-    data: Omit<CreateNotificationInput, 'recipientPartnerId'>
-  ): Promise<void> {
-    if (recipientPartnerIds.length === 0) return;
-
-    const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 30);
-
-    const bulkWriter = adminDb.bulkWriter();
-
-    for (const partnerId of recipientPartnerIds) {
-      const docRef = adminDb.collection('notifications').doc();
-      bulkWriter.set(docRef, {
-        ...data,
-        relatedItemCollection: data.relatedItemCollection ?? data.itemCollection ?? null,
-        recipientPartnerId: partnerId,
-        read: false,
-        createdAt: FieldValue.serverTimestamp(),
-        expiresAt: Timestamp.fromDate(expiresAt),
-      });
-    }
-
-    await bulkWriter.close();
-  }
-
-  async markAsRead(notificationId: string, recipientId: string): Promise<void> {
-    const docRef = adminDb.collection('notifications').doc(notificationId);
-    const snap = await docRef.get();
-    if (!snap.exists) {
-      throw new NotificationNotFoundError();
-    }
-    const data = snap.data();
-    if (data?.recipientPartnerId !== recipientId) {
-      throw new NotificationForbiddenError();
-    }
-    await docRef.update({
-      read: true,
-      readAt: FieldValue.serverTimestamp(),
-    });
-  }
-
-  async markAllAsRead(recipientId: string): Promise<void> {
+  async markAllAsRead(recipientUid: string): Promise<void> {
     const snap = await adminDb
-      .collection('notifications')
-      .where('recipientPartnerId', '==', recipientId)
+      .collection(NOTIFICATIONS)
+      .where('recipientUid', '==', recipientUid)
       .where('read', '==', false)
       .get();
-
     if (snap.empty) return;
-
-    const bulkWriter = adminDb.bulkWriter();
-    snap.docs.forEach((doc) => {
-      bulkWriter.update(doc.ref, {
-        read: true,
-        readAt: FieldValue.serverTimestamp(),
-      });
-    });
-    await bulkWriter.close();
+    const writer = adminDb.bulkWriter();
+    for (const doc of snap.docs) {
+      writer.update(doc.ref, { read: true, readAt: FieldValue.serverTimestamp() });
+    }
+    await writer.close();
   }
 
-  async isNotificationTypeEnabled(
-    partnerId: string,
-    type: 'review' | 'plan_expiring'
-  ): Promise<boolean> {
-    const docRef = adminDb.collection('partnerNotificationSettings').doc(partnerId);
-    const doc = await docRef.get();
-
-    if (!doc.exists) {
-      return true; // Enabled by default
+  async getPreferences(uid: string): Promise<Partial<NotificationPreferences> | null> {
+    const snap = await adminDb.collection(PREFERENCES).doc(uid).get();
+    if (!snap.exists) return null;
+    const data = snap.data() ?? {};
+    const preferences: Partial<NotificationPreferences> = {};
+    if (typeof data.reviewRequests === 'boolean') preferences.reviewRequests = data.reviewRequests;
+    if (typeof data.news === 'boolean') preferences.news = data.news;
+    if (data.salesAlerts === 'each' || data.salesAlerts === 'daily') {
+      preferences.salesAlerts = data.salesAlerts;
     }
-
-    const settings = doc.data();
-    if (!settings) return true;
-
-    if (type === 'review') {
-      return settings.reviewNotifications !== false;
-    }
-    if (type === 'plan_expiring') {
-      return settings.planExpiringNotifications !== false;
-    }
-
-    return true;
+    return preferences;
   }
 
-  async getSettings(partnerId: string): Promise<Record<string, unknown>> {
-    const docRef = adminDb.collection('partnerNotificationSettings').doc(partnerId);
-    const doc = await docRef.get();
-    if (!doc.exists) {
-      return {
-        partnerId,
-        reviewNotifications: true,
-        planExpiringNotifications: true,
-      };
-    }
-    return doc.data() || {};
+  async savePreferences(uid: string, preferences: NotificationPreferences): Promise<void> {
+    await adminDb
+      .collection(PREFERENCES)
+      .doc(uid)
+      .set({ ...preferences, updatedAt: FieldValue.serverTimestamp() });
   }
 
-  async updateSettings(partnerId: string, settings: NotificationSettingsPatch): Promise<void> {
-    const docRef = adminDb.collection('partnerNotificationSettings').doc(partnerId);
-    const safeData: Record<string, unknown> = { partnerId };
-    if (settings.reviewNotifications !== undefined) {
-      safeData.reviewNotifications = settings.reviewNotifications;
-    }
-    if (settings.planExpiringNotifications !== undefined) {
-      safeData.planExpiringNotifications = settings.planExpiringNotifications;
-    }
-    await docRef.set(safeData, { merge: true });
+  async deleteAllForUser(uid: string): Promise<void> {
+    const snap = await adminDb.collection(NOTIFICATIONS).where('recipientUid', '==', uid).get();
+    const writer = adminDb.bulkWriter();
+    for (const doc of snap.docs) writer.delete(doc.ref);
+    writer.delete(adminDb.collection(PREFERENCES).doc(uid));
+    await writer.close();
   }
 }

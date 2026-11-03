@@ -9,12 +9,10 @@ export async function returnTicketToBuyerApplicationUseCase(
   const { newTicket } = await transferTicketUseCase(actor, { ticketId, returnToBuyer: true });
   // Aviso não pode desfazer a devolução já gravada.
   await createNotificationUseCase({
-    recipientPartnerId: newTicket.ownerUserId,
-    type: 'admin_message',
-    title: 'Ingresso devolvido',
-    message: newTicket.eventSnapshot?.title
-      ? `O ingresso para ${newTicket.eventSnapshot.title} voltou para a sua carteira.`
-      : 'Um ingresso voltou para a sua carteira.',
+    recipientUid: newTicket.ownerUserId,
+    type: 'ticket_returned',
+    params: { event: newTicket.eventSnapshot?.title || '' },
+    link: { screen: 'tickets' },
   }).catch(() => undefined);
   return { ticketId: newTicket.id };
 }

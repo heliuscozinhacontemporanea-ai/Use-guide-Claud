@@ -77,7 +77,7 @@ describe('openSaleClaimApplicationUseCase (D16)', () => {
       })
     );
     expect(createNotificationUseCase).toHaveBeenCalledWith(
-      expect.objectContaining({ recipientPartnerId: 'partner-1' })
+      expect.objectContaining({ recipientUid: 'partner-1' })
     );
     expect(JSON.stringify(vi.mocked(createNotificationUseCase).mock.calls)).not.toContain(
       'texto privado'

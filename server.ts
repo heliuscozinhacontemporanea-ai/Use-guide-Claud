@@ -13,6 +13,7 @@ import { itemRouter } from './server/domain/guide/routes/guideRoutes';
 import insightsRouter from './server/domain/insights/routes/insightsRoutes';
 import mediaRouter from './server/domain/media/routes/mediaRoutes';
 import notificationRouter from './server/domain/notifications/routes/notificationRoutes';
+import { adminMessageRouter } from './server/interfaces/http/notifications/adminMessageRoutes';
 import partnerRouter from './server/domain/partners/routes/partnerRoutes';
 import { PaymentController } from './server/domain/payment/controllers/paymentController';
 import paymentRouter from './server/domain/payment/routes/paymentRoutes';
@@ -200,6 +201,7 @@ async function startServer() {
   app.use('/api/admin/account-debts', adminAccountDebtRouter);
   app.use('/api/payment', paymentRouter);
   app.use('/api/weather', climaWindRouter);
+  app.use('/api/admin/notifications', adminMessageRouter);
   app.use('/api/notifications', notificationRouter);
   app.use('/api/users', userRouter);
   app.use('/api/listing-verifications', listingVerificationRouter);

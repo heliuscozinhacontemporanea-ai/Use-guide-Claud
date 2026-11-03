@@ -6,7 +6,6 @@ import { useAuthContext } from '../../domain/auth/context/AuthContext';
 import { UserRole } from '../../domain/auth/types/auth';
 import { EventSessionsField } from '../../domain/events';
 import { ReportsView } from '../../domain/insights';
-import { NotificationBell } from '../../domain/notifications';
 import type { PartnerProfile, SubscriptionPlan } from '../../domain/partners';
 import { getPartnerProfileUseCase, PartnerPanel } from '../../domain/partners';
 import {
@@ -163,7 +162,6 @@ export function PartnerPortalComposition() {
       renderReports={({ partnerId, items, events }) => (
         <ReportsView partnerId={partnerId} items={items} events={events} />
       )}
-      renderNotificationBell={(partnerId) => <NotificationBell partnerId={partnerId} />}
       renderCheckoutModal={({
         isOpen,
         onClose,

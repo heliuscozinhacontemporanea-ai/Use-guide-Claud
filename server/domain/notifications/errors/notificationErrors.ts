@@ -1,15 +1,19 @@
-export class NotificationNotFoundError extends Error {
-  readonly statusCode = 404;
-  constructor(message = 'Notificação não encontrada') {
-    super(message);
-    this.name = 'NotificationNotFoundError';
-  }
-}
+export type NotificationErrorCode = 'NOTIFICATION_NOT_FOUND' | 'VALIDATION_ERROR';
 
-export class NotificationForbiddenError extends Error {
-  readonly statusCode = 403;
-  constructor(message = 'Não autorizado a alterar esta notificação') {
+const STATUS: Record<NotificationErrorCode, number> = {
+  NOTIFICATION_NOT_FOUND: 404,
+  VALIDATION_ERROR: 400,
+};
+
+/** Erro com `code` estável (AGENTS.md §10.2). Aviso de outra pessoa responde 404, sem revelar que existe. */
+export class NotificationDomainError extends Error {
+  readonly statusCode: number;
+  constructor(
+    readonly code: NotificationErrorCode,
+    message: string
+  ) {
     super(message);
-    this.name = 'NotificationForbiddenError';
+    this.name = 'NotificationDomainError';
+    this.statusCode = STATUS[code];
   }
 }

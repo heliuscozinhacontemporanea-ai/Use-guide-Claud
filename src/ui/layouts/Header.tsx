@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useLocalizedRouting } from '../../shared/hooks/useLocalizedRouting';
 import { Search, Handshake, User as UserIcon } from 'lucide-react';
@@ -18,6 +19,8 @@ interface HeaderProps {
   isAdmin?: boolean;
   isPartner?: boolean;
   user?: UserSession | null;
+  /** Sininho de notificações, montado em src/app (o design system não conhece domínios). */
+  notificationSlot?: ReactNode;
 }
 
 export function Header({
@@ -29,6 +32,7 @@ export function Header({
   isAdmin = false,
   isPartner = false,
   user = null,
+  notificationSlot,
 }: HeaderProps) {
   const { pathname } = useLocation();
   const { t } = useTranslation();
@@ -109,9 +113,7 @@ export function Header({
             <button
               onClick={onAdminOpen}
               title={isAdmin ? t('header.managementPanel') : t('header.myPanel')}
-              aria-label={
-                isAdmin ? t('header.openManagementPanel') : t('header.openMyPanel')
-              }
+              aria-label={isAdmin ? t('header.openManagementPanel') : t('header.openMyPanel')}
               className="relative w-[34px] h-[34px] rounded-xl bg-white/10 border border-white/20 backdrop-blur-2xl flex items-center justify-center active:scale-90 transition-all hover:bg-white/20 text-indigo-400 shadow-md animate-fade-in before:absolute before:inset-[-5px] before:content-[''] focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none"
             >
               <Handshake size={16} />
@@ -126,6 +128,7 @@ export function Header({
           )}
         </div>
         <div className="flex items-center gap-3">
+          {notificationSlot}
           {!isMainPage && !isAdminPage && (
             <button
               onClick={onSearchClick}

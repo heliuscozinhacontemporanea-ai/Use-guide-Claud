@@ -49,12 +49,11 @@ export async function cancelEventOccurrenceAndRefundApplicationUseCase(
       refundsInitiated.push(refund);
 
       await createNotificationUseCase({
-        recipientPartnerId: order.buyerId,
-        type: 'admin_message',
-        title: 'Sessão de evento cancelada',
-        message: `A sessão do evento "${order.eventSnapshot?.title || 'Evento'}" foi cancelada. Seu reembolso foi iniciado.`,
-        relatedItemId: occurrence.eventListingId,
-        relatedItemCollection: 'events',
+        recipientUid: order.buyerId,
+        type: 'event_canceled',
+        params: { event: order.eventSnapshot?.title || '' },
+        link: { screen: 'purchases' },
+        dedupeKey: `event_canceled_${occurrence.id}_${order.id}`,
       }).catch(() => {});
     } catch {
       // Continua processando demais pedidos elegíveis

@@ -164,13 +164,12 @@ service cloud.firestore {
     match /notifications/{notificationId} {
       allow read:
         if isAuthenticated()
-        && resource.data.recipientPartnerId ==
-           request.auth.uid;
+        && resource.data.recipientUid == request.auth.uid;
       allow create, update, delete: if false;
     }
-    match /partnerNotificationSettings/{partnerId} {
-      allow read: if isOwner(partnerId);
-      allow create, update, delete: if false;
+    // Escolhas de notificação (D25): só o backend lê e grava (GET/PATCH /api/notifications/preferences).
+    match /notificationPreferences/{uid} {
+      allow read, write: if false;
     }
     match /transactions/{transactionId} {
       allow read, write: if false;

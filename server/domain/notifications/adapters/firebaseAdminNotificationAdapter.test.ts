@@ -1,110 +1,60 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => {
-  const notificationCollection = {
-    doc: vi.fn(),
-    where: vi.fn(),
-  };
-
-  const adminDb = {
-    collection: vi.fn(() => notificationCollection),
-    bulkWriter: vi.fn(),
-  };
-
+  const doc = { get: vi.fn(), update: vi.fn(), create: vi.fn(), set: vi.fn() };
+  const collection = { doc: vi.fn(() => doc), where: vi.fn() };
   return {
-    adminDb,
-    notificationCollection,
-
-    FieldValue: {
-      serverTimestamp: vi.fn(() => 'SERVER_TIMESTAMP'),
-    },
+    doc,
+    collection,
+    adminDb: { collection: vi.fn(() => collection), bulkWriter: vi.fn() },
   };
 });
 
-vi.mock('../../../infrastructure/firebase/adminClient', () => ({
-  adminDb: mocks.adminDb,
-}));
-
+vi.mock('../../../infrastructure/firebase/adminClient', () => ({ adminDb: mocks.adminDb }));
 vi.mock('firebase-admin/firestore', () => ({
-  FieldValue: mocks.FieldValue,
+  FieldValue: { serverTimestamp: vi.fn(() => 'SERVER_TIMESTAMP') },
+  Timestamp: { fromDate: vi.fn((date: Date) => ({ date })) },
 }));
 
 import { FirebaseAdminNotificationAdapter } from './firebaseAdminNotificationAdapter';
 
-import {
-  NotificationForbiddenError,
-  NotificationNotFoundError,
-} from '../errors/notificationErrors';
-
 describe('FirebaseAdminNotificationAdapter', () => {
   const adapter = new FirebaseAdminNotificationAdapter();
+  const expiresAt = new Date('2027-02-01T00:00:00.000Z');
 
-  beforeEach(() => {
-    vi.clearAllMocks();
+  beforeEach(() => vi.clearAllMocks());
+
+  it('não altera aviso de outra pessoa', async () => {
+    mocks.doc.get.mockResolvedValue({ exists: true, get: () => 'dono' });
+    expect(await adapter.markAsRead('n1', 'intruso')).toBe(false);
+    expect(mocks.doc.update).not.toHaveBeenCalled();
   });
 
-  it('deve rejeitar notification inexistente', async () => {
-    const get = vi.fn().mockResolvedValue({
-      exists: false,
-      data: () => undefined,
+  it('grava só os campos do aviso e não repete o mesmo dedupeKey', async () => {
+    mocks.doc.create.mockResolvedValueOnce(undefined);
+    expect(
+      await adapter.create(
+        { recipientUid: 'u1', type: 'plan_expiring', params: { days: 3 }, dedupeKey: 'k1' },
+        expiresAt
+      )
+    ).toBe(true);
+    expect(mocks.collection.doc).toHaveBeenCalledWith('k1');
+    expect(mocks.doc.create).toHaveBeenCalledWith({
+      recipientUid: 'u1',
+      type: 'plan_expiring',
+      params: { days: 3 },
+      link: null,
+      read: false,
+      createdAt: 'SERVER_TIMESTAMP',
+      expiresAt: { date: expiresAt },
     });
 
-    const update = vi.fn();
-
-    mocks.notificationCollection.doc.mockReturnValue({
-      get,
-      update,
-    });
-
-    await expect(adapter.markAsRead('notification-1', 'partner-1')).rejects.toBeInstanceOf(
-      NotificationNotFoundError
-    );
-
-    expect(update).not.toHaveBeenCalled();
-  });
-
-  it('deve rejeitar notification de outro parceiro', async () => {
-    const get = vi.fn().mockResolvedValue({
-      exists: true,
-      data: () => ({
-        recipientPartnerId: 'partner-2',
-      }),
-    });
-
-    const update = vi.fn();
-
-    mocks.notificationCollection.doc.mockReturnValue({
-      get,
-      update,
-    });
-
-    await expect(adapter.markAsRead('notification-1', 'partner-1')).rejects.toBeInstanceOf(
-      NotificationForbiddenError
-    );
-
-    expect(update).not.toHaveBeenCalled();
-  });
-
-  it('deve marcar como lida somente a notification do destinatário', async () => {
-    const get = vi.fn().mockResolvedValue({
-      exists: true,
-      data: () => ({
-        recipientPartnerId: 'partner-1',
-      }),
-    });
-
-    const update = vi.fn().mockResolvedValue(undefined);
-
-    mocks.notificationCollection.doc.mockReturnValue({
-      get,
-      update,
-    });
-
-    await adapter.markAsRead('notification-1', 'partner-1');
-
-    expect(update).toHaveBeenCalledWith({
-      read: true,
-      readAt: 'SERVER_TIMESTAMP',
-    });
+    mocks.doc.create.mockRejectedValueOnce(Object.assign(new Error('exists'), { code: 6 }));
+    expect(
+      await adapter.create(
+        { recipientUid: 'u1', type: 'plan_expiring', dedupeKey: 'k1' },
+        expiresAt
+      )
+    ).toBe(false);
   });
 });

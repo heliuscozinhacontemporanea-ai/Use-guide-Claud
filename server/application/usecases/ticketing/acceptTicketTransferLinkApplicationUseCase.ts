@@ -37,12 +37,10 @@ export async function acceptTicketTransferLinkApplicationUseCase(
       }
     );
     await createNotificationUseCase({
-      recipientPartnerId: link.fromUserId,
-      type: 'admin_message',
-      title: 'Ingresso entregue',
-      message: recipient?.username
-        ? `@${recipient.username} aceitou o ingresso que você enviou por link.`
-        : 'O ingresso que você enviou por link foi aceito.',
+      recipientUid: link.fromUserId,
+      type: 'ticket_link_accepted',
+      params: { username: recipient?.username || '' },
+      link: { screen: 'tickets' },
     }).catch(() => undefined);
     return { ticketId: newTicket.id };
   } catch (error) {

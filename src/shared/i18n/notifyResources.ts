@@ -1,3 +1,10 @@
+import {
+  type NotificationTypeTexts,
+  notifyTypesEn,
+  notifyTypesFr,
+  notifyTypesPtBR,
+} from './notifyTypesResources';
+
 /** Textos das notificações (central e Configurações › Notificações, D25). pt-BR é a fonte. */
 export interface NotifyTranslation {
   settingsTitle: string;
@@ -40,6 +47,7 @@ export interface NotifyTranslation {
   loadError: string;
   saveError: string;
   retry: string;
+  types: NotificationTypeTexts;
   center: {
     title: string;
     open: string;
@@ -62,6 +70,7 @@ export interface NotifyTranslation {
 }
 
 export const notifyPtBR: NotifyTranslation = {
+  types: notifyTypesPtBR,
   settingsTitle: 'Notificações',
   device: {
     defaultTitle: 'Ative as notificações',
@@ -137,6 +146,7 @@ export const notifyPtBR: NotifyTranslation = {
 };
 
 export const notifyEn: NotifyTranslation = {
+  types: notifyTypesEn,
   settingsTitle: 'Notifications',
   device: {
     defaultTitle: 'Turn on notifications',
@@ -209,6 +219,7 @@ export const notifyEn: NotifyTranslation = {
 };
 
 export const notifyFr: NotifyTranslation = {
+  types: notifyTypesFr,
   settingsTitle: 'Notifications',
   device: {
     defaultTitle: 'Activez les notifications',

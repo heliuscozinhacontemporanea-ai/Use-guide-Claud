@@ -6,17 +6,21 @@ export interface TimestampLike {
 
 export type NotificationDate = string | number | Date | TimestampLike | null;
 
-export interface Notification {
+/** Para onde o toque leva (definido pelo servidor). */
+export interface NotificationLink {
+  screen: 'tickets' | 'bookings' | 'purchases' | 'partner' | 'item' | 'event';
+  id?: string;
+}
+
+/** Aviso como está no Firestore (D25): tipo + dados, sem texto pronto. */
+export interface StoredNotification {
   id: string;
-  recipientPartnerId: string;
-  type: 'review' | 'admin_message' | 'plan_expiring';
-  title: string;
-  message: string;
-  relatedItemId?: string;
-  relatedItemCollection?: 'items' | 'events' | null;
+  recipientUid: string;
+  type: string;
+  params?: Record<string, string | number>;
+  link?: NotificationLink | null;
   read: boolean;
   createdAt: NotificationDate;
-  expiresAt: NotificationDate;
 }
 
 export interface SendAdminNotificationPayload {

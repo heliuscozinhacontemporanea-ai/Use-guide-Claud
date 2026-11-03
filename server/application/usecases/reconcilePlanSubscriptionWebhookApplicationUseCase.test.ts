@@ -85,7 +85,7 @@ describe('reconcilePlanSubscriptionWebhookApplicationUseCase', () => {
     );
     expect(activatePaidPlanApplicationUseCase).not.toHaveBeenCalled();
     expect(createNotificationUseCase).toHaveBeenCalledWith(
-      expect.objectContaining({ recipientPartnerId: 'p1' })
+      expect.objectContaining({ recipientUid: 'p1' })
     );
   });
 

@@ -6,6 +6,7 @@ import {
   deleteOwnerListingVerificationsUseCase,
   deletePartnerProfileUseCase,
 } from '../../domain/partners';
+import { deleteUserNotificationsUseCase } from '../../domain/notifications';
 import { cancelPartnerPlanSubscriptionsUseCase } from '../../domain/payment';
 import { deleteReviewsByUserUseCase } from '../../domain/reviews';
 import { anonymizeTicketingUserUseCase } from '../../domain/ticketing';
@@ -25,6 +26,8 @@ export interface UserDeletionCoordinatorDependencies {
   anonymizeBuyerBookings?: (uid: string) => Promise<void>;
   /** Pedidos, ingressos, transferências e lista de espera: sai nome e e-mail, fica o registro (§7.5). */
   anonymizeTicketing?: (uid: string) => Promise<void>;
+  /** Avisos e escolhas de notificação (D25, §7.5). */
+  deleteNotifications?: (uid: string) => Promise<void>;
   /** O @ fica reservado por 14 dias e depois é liberado (D21). */
   releaseUsernames?: (uid: string) => Promise<void>;
   deleteUserAccount: (uid: string) => Promise<void>;
@@ -49,6 +52,7 @@ export async function deleteUserAccountApplicationUseCase(
     anonymizeTicketing: async (id) => {
       await anonymizeTicketingUserUseCase(id);
     },
+    deleteNotifications: (id) => deleteUserNotificationsUseCase(id),
     releaseUsernames: (id) => releaseUsernamesUseCase(id),
     deleteUserAccount: (id) => deleteUserAccountUseCase(id),
   }
@@ -73,6 +77,9 @@ export async function deleteUserAccountApplicationUseCase(
   }
   if (deps.anonymizeTicketing) {
     await deps.anonymizeTicketing(uid);
+  }
+  if (deps.deleteNotifications) {
+    await deps.deleteNotifications(uid);
   }
   if (deps.releaseUsernames) {
     await deps.releaseUsernames(uid);

@@ -1,70 +1,69 @@
+import { NotificationDomainError } from '../errors/notificationErrors';
+import type { NotificationRepositoryPort } from '../ports/notificationRepositoryPort';
 import {
-  NotificationRepositoryPort,
-  CreateNotificationInput,
-} from '../ports/notificationRepositoryPort';
-import { NotificationSettingsPatch } from '../dtos/UpdateNotificationSettingsDTO';
-import { getAllPartnerIdsUseCase } from '../../partners';
+  DEFAULT_NOTIFICATION_PREFERENCES,
+  NOTIFICATION_RETENTION_DAYS,
+  NOTIFICATION_TYPES,
+  type NewNotification,
+  type NotificationPreferences,
+} from '../types/notificationTypes';
+
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 export class NotificationService {
-  constructor(private repo: NotificationRepositoryPort) {}
+  constructor(
+    private readonly repo: NotificationRepositoryPort,
+    private readonly now: () => Date = () => new Date()
+  ) {}
 
-  async createNotification(input: CreateNotificationInput): Promise<boolean> {
-    // If the type is configurable, check if the partner opted in
-    if (input.type === 'review' || input.type === 'plan_expiring') {
-      const enabled = await this.repo.isNotificationTypeEnabled(
-        input.recipientPartnerId,
-        input.type
-      );
-      if (!enabled) return false;
-    }
-
-    return this.repo.createNotification(input);
+  private expiresAt(): Date {
+    return new Date(this.now().getTime() + NOTIFICATION_RETENTION_DAYS * DAY_MS);
   }
 
-  async sendAdminMessage(
-    recipientIds: string[] | 'all',
-    title: string,
-    message: string
-  ): Promise<void> {
-    const data = {
-      type: 'admin_message' as const,
-      title,
-      message,
-    };
+  async create(notification: NewNotification): Promise<boolean> {
+    if (!notification.recipientUid || !(notification.type in NOTIFICATION_TYPES)) {
+      throw new NotificationDomainError('VALIDATION_ERROR', 'Aviso inválido.');
+    }
+    return this.repo.create(notification, this.expiresAt());
+  }
 
-    if (recipientIds === 'all') {
-      const allPartners = await getAllPartnerIdsUseCase();
-      await this.repo.createBulkNotifications(allPartners, data);
-    } else {
-      await this.repo.createBulkNotifications(recipientIds, data);
+  /** Mensagem escrita pelo admin: vai como está, sem tradução. */
+  async sendAdminMessage(recipientUids: string[], title: string, message: string): Promise<void> {
+    const unique = [...new Set(recipientUids.filter(Boolean))];
+    if (unique.length === 0) return;
+    await this.repo.createMany(
+      unique,
+      { type: 'admin_message', params: { title, message } },
+      this.expiresAt()
+    );
+  }
+
+  async markAsRead(notificationId: string, recipientUid: string): Promise<void> {
+    const updated = await this.repo.markAsRead(notificationId, recipientUid);
+    if (!updated) {
+      throw new NotificationDomainError('NOTIFICATION_NOT_FOUND', 'Notificação não encontrada.');
     }
   }
 
-  async markAsRead(notificationId: string, recipientId: string): Promise<void> {
-    if (!notificationId || !recipientId) {
-      throw new Error('ID da notificação e do destinatário são obrigatórios');
-    }
-    await this.repo.markAsRead(notificationId, recipientId);
+  markAllAsRead(recipientUid: string): Promise<void> {
+    return this.repo.markAllAsRead(recipientUid);
   }
 
-  async markAllAsRead(recipientId: string): Promise<void> {
-    if (!recipientId) {
-      throw new Error('ID do destinatário é obrigatório');
-    }
-    await this.repo.markAllAsRead(recipientId);
+  async getPreferences(uid: string): Promise<NotificationPreferences> {
+    const saved = await this.repo.getPreferences(uid);
+    return { ...DEFAULT_NOTIFICATION_PREFERENCES, ...(saved ?? {}) };
   }
 
-  async getSettings(partnerId: string): Promise<Record<string, unknown>> {
-    if (!partnerId) {
-      throw new Error('ID do parceiro é obrigatório');
-    }
-    return this.repo.getSettings(partnerId);
+  async updatePreferences(
+    uid: string,
+    patch: Partial<NotificationPreferences>
+  ): Promise<NotificationPreferences> {
+    const next = { ...(await this.getPreferences(uid)), ...patch };
+    await this.repo.savePreferences(uid, next);
+    return next;
   }
 
-  async updateSettings(partnerId: string, settings: NotificationSettingsPatch): Promise<void> {
-    if (!partnerId) {
-      throw new Error('ID do parceiro é obrigatório');
-    }
-    await this.repo.updateSettings(partnerId, settings);
+  deleteAllForUser(uid: string): Promise<void> {
+    return this.repo.deleteAllForUser(uid);
   }
 }

@@ -122,12 +122,12 @@ describe('Firestore Rules — Security Suite', () => {
       });
 
       await db.doc('notifications/notif-1').set({
-        recipientPartnerId: 'user-1',
-        title: 'Nova notificação',
+        recipientUid: 'user-1',
+        type: 'admin_message',
       });
 
-      await db.doc('partnerNotificationSettings/user-1').set({
-        reviewNotifications: true,
+      await db.doc('notificationPreferences/user-1').set({
+        news: false,
       });
 
       await db.doc('transactions/tx-1').set({
@@ -331,11 +331,11 @@ describe('Firestore Rules — Security Suite', () => {
       await assertFails(deleteDoc(doc(db, 'notifications/notif-1')));
     });
 
-    it('client → partnerNotificationSettings write negado', async () => {
+    it('client → notificationPreferences write negado', async () => {
       const db = testEnv.authenticatedContext('user-1').firestore();
-      await assertFails(setDoc(doc(db, 'partnerNotificationSettings/user-1'), { reviewNotifications: false }));
-      await assertFails(updateDoc(doc(db, 'partnerNotificationSettings/user-1'), { reviewNotifications: false }));
-      await assertFails(deleteDoc(doc(db, 'partnerNotificationSettings/user-1')));
+      await assertFails(setDoc(doc(db, 'notificationPreferences/user-1'), { news: true }));
+      await assertFails(updateDoc(doc(db, 'notificationPreferences/user-1'), { news: true }));
+      await assertFails(deleteDoc(doc(db, 'notificationPreferences/user-1')));
     });
 
     it('client → transactions write negado', async () => {

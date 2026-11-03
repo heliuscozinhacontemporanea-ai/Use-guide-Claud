@@ -1,21 +1,15 @@
 import { ChevronLeft } from 'lucide-react';
 import { motion } from 'motion/react';
-import React from 'react';
 import { PartnerProfile } from '../../types/partner';
 import { cn } from '../../../../shared/utils/cn';
 
 interface PartnerHeaderProps {
   partnerProfile: PartnerProfile | null;
   onNavigateBack: () => void;
-  notificationBell?: React.ReactNode;
 }
 
 /** O selo e o plano são de cada estabelecimento (D11): ficam nos cartões de cadastro, não aqui. */
-export function PartnerHeader({
-  partnerProfile,
-  onNavigateBack,
-  notificationBell,
-}: PartnerHeaderProps) {
+export function PartnerHeader({ partnerProfile, onNavigateBack }: PartnerHeaderProps) {
   return (
     <div className="space-y-6">
       <motion.div
@@ -63,7 +57,6 @@ export function PartnerHeader({
               </span>
             </div>
           </div>
-          {notificationBell}
         </div>
       </motion.div>
     </div>

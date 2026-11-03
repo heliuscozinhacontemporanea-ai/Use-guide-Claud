@@ -68,8 +68,8 @@ const BOOKING = {
 };
 const ABSENCE = { reportedAt: 't', respondBy: 't2', claimId: 'claim_booking_bk_1' };
 
-function notified(recipient: string, title: string) {
-  return expect.objectContaining({ recipientPartnerId: recipient, title });
+function notified(recipient: string, type: string) {
+  return expect.objectContaining({ recipientUid: recipient, type });
 }
 
 describe('prova do serviço na camada application (D20)', () => {
@@ -94,7 +94,7 @@ describe('prova do serviço na camada application (D20)', () => {
     });
     expect(recordProviderAbsenceUseCase).toHaveBeenCalledWith(BUYER, 'bk_1', 'claim_booking_bk_1');
     expect(createNotificationUseCase).toHaveBeenCalledWith(
-      notified('partner-1', 'O cliente diz que você não compareceu')
+      notified('partner-1', 'booking_absence_reported')
     );
   });
 
@@ -114,7 +114,7 @@ describe('prova do serviço na camada application (D20)', () => {
       'partner-1'
     );
     expect(createNotificationUseCase).toHaveBeenCalledWith(
-      notified('buyer-1', 'Reembolso a caminho')
+      notified('buyer-1', 'booking_absence_refunded_buyer')
     );
   });
 
@@ -244,7 +244,7 @@ describe('prova do serviço na camada application (D20)', () => {
       pickupAddressesErased: 0,
     });
     expect(createNotificationUseCase).toHaveBeenCalledWith(
-      notified('buyer-1', 'O serviço aconteceu?')
+      notified('buyer-1', 'booking_confirmation_asked')
     );
     expect(decideSaleClaimApplicationUseCase).toHaveBeenCalledWith('system', 'claim_absence', {
       outcome: 'refund_full',

@@ -126,8 +126,9 @@ describe('casos de uso do plano por estabelecimento (D11)', () => {
     expect(m.setActive).toHaveBeenCalledWith('item-1', false);
     expect(m.notify).toHaveBeenCalledTimes(1);
     expect(m.notify.mock.calls[0]?.[0]).toMatchObject({
-      id: 'plan_expiring_item-2_2d_2026-10-23',
-      recipientPartnerId: 'owner-1',
+      dedupeKey: 'plan_expiring_item-2_2d_2026-10-23',
+      recipientUid: 'owner-1',
+      type: 'plan_expiring',
     });
     expect(result).toEqual({ expired: 1, notified: 1 });
   });

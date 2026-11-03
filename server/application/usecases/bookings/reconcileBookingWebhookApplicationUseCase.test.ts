@@ -86,7 +86,7 @@ describe('reconcileBookingWebhookApplicationUseCase', () => {
       holdReasons: ['service_proof'],
     });
     expect(createNotificationUseCase).toHaveBeenCalledWith(
-      expect.objectContaining({ recipientPartnerId: 'p1' })
+      expect.objectContaining({ recipientUid: 'p1' })
     );
   });
 

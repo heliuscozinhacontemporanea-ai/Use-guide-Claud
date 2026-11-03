@@ -111,11 +111,9 @@ export class CheckInService {
   async swapPresentationQr(actor: TicketingActorContext, ticketId: string) {
     await this.port.swapTicketQr(ticketId, actor.uid, new Date(this.now()).toISOString());
     await createNotificationUseCase({
-      recipientPartnerId: actor.uid,
-      type: 'admin_message',
-      title: 'QR Code do ingresso trocado',
-      message:
-        'O QR Code e o código anteriores não valem mais. Se não foi você, fale com o suporte.',
+      recipientUid: actor.uid,
+      type: 'ticket_qr_replaced',
+      link: { screen: 'tickets' },
     }).catch(() => undefined);
     return this.generateTicketPresentationQr(actor, ticketId);
   }

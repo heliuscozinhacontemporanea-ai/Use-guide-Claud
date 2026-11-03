@@ -55,12 +55,11 @@ export async function postponeEventOccurrenceAndNotifyApplicationUseCase(
   for (const order of affectedOrders) {
     await reschedulePayoutUseCase('ticket_order', order.id, newOccurrence.endsAt);
     await createNotificationUseCase({
-      recipientPartnerId: order.buyerId,
-      type: 'admin_message',
-      title: 'Evento reagendado',
-      message: `A sessão do evento "${listing?.title || 'Evento'}" foi reagendada para ${new Date(newOccurrence.startsAt).toLocaleString('pt-BR', { timeZone: 'America/Fortaleza' })}. Seu ingresso vale na nova data. Se não puder ir, peça o reembolso integral em até 7 dias.`,
-      relatedItemId: postponedOccurrence.eventListingId,
-      relatedItemCollection: 'events',
+      recipientUid: order.buyerId,
+      type: 'event_postponed',
+      params: { event: listing?.title || '', startsAt: newOccurrence.startsAt },
+      link: { screen: 'tickets' },
+      dedupeKey: `event_postponed_${postponedOccurrence.id}_${order.id}`,
     }).catch(() => {});
   }
 

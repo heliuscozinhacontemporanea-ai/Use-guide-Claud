@@ -57,7 +57,7 @@ describe('transferência pelo @ (D21)', () => {
     });
     expect(JSON.stringify(result)).not.toContain('@exemplo.com');
     expect(createNotificationUseCase).toHaveBeenCalledWith(
-      expect.objectContaining({ recipientPartnerId: 'u2' })
+      expect.objectContaining({ recipientUid: 'u2' })
     );
   });
 

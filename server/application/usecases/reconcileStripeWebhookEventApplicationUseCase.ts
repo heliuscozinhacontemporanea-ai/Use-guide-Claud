@@ -88,10 +88,11 @@ export async function reconcileStripeWebhookEventApplicationUseCase(
       const targetPartnerId = metadata.partnerId || metadata.sellerPartnerId;
       if (!confirmed.alreadyPaid && targetPartnerId) {
         await createNotificationUseCase({
-          recipientPartnerId: targetPartnerId,
-          type: 'admin_message',
-          title: 'Nova venda de ingresso confirmada!',
-          message: `Pedido #${confirmed.order.id.slice(0, 8)} confirmado via Stripe (${confirmed.tickets.length} ingresso(s)).`,
+          recipientUid: targetPartnerId,
+          type: 'sale_ticket',
+          params: { count: confirmed.tickets.length },
+          link: { screen: 'partner' },
+          dedupeKey: `sale_ticket_${confirmed.order.id}`,
         }).catch(() => undefined);
       }
     } else if (

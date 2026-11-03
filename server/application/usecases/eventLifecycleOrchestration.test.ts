@@ -141,8 +141,8 @@ describe('eventLifecycleOrchestrationUseCases', () => {
     );
     expect(createNotificationUseCase).toHaveBeenCalledWith(
       expect.objectContaining({
-        recipientPartnerId: 'buyer-1',
-        title: 'Sessão de evento cancelada',
+        recipientUid: 'buyer-1',
+        type: 'event_canceled',
       })
     );
   });
@@ -197,9 +197,8 @@ describe('eventLifecycleOrchestrationUseCases', () => {
     );
     expect(createNotificationUseCase).toHaveBeenCalledWith(
       expect.objectContaining({
-        recipientPartnerId: 'buyer-1',
-        title: 'Evento reagendado',
-        message: expect.stringContaining('7 dias'),
+        recipientUid: 'buyer-1',
+        type: 'event_postponed',
       })
     );
   });

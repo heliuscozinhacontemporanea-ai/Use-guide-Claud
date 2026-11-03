@@ -5,6 +5,7 @@ import { LoginModal } from '../domain/auth/components/LoginModal';
 import { useAuthContext } from '../domain/auth/context/AuthContext';
 import { UserRole } from '../domain/auth/types/auth';
 import { GuideItem, useGuideCatalog } from '../domain/guide';
+import { NotificationBell } from '../domain/notifications';
 import { AttractionDetailModal } from '../domain/guide/components/AttractionDetailModal';
 import { EventDetailModal } from '../domain/guide/components/EventDetailModal';
 import { ItemDetailModal } from '../domain/guide/components/ItemDetailModal';
@@ -29,6 +30,7 @@ import { SideMenu } from './menu/SideMenu';
 import { useSideMenu } from './menu/useSideMenu';
 import { AppRoutes } from './routes/AppRoutes';
 import { useMissingItemNotice } from './useMissingItemNotice';
+import { useNotificationNavigation } from './useNotificationNavigation';
 import { useScrollContainer } from './useScrollContainer';
 
 export function AppRouter() {
@@ -109,6 +111,7 @@ export function AppRouter() {
 
   const isSearchOpen = searchParams.get('search') === '1';
   const { isOpen: isMenuOpen, openMenu, closeMenu } = useSideMenu();
+  const openNotificationLink = useNotificationNavigation(openMenu);
   const isPartnersOpen = searchParams.get('partners') === '1';
 
   const itemIdParam = searchParams.get('item');
@@ -263,6 +266,15 @@ export function AppRouter() {
             isAdmin={isAdmin}
             isPartner={isPartner}
             user={user}
+            notificationSlot={
+              user ? (
+                <NotificationBell
+                  uid={user.uid}
+                  onNavigate={openNotificationLink}
+                  onOpenSettings={() => openMenu('notifications')}
+                />
+              ) : null
+            }
           />
         )}
 

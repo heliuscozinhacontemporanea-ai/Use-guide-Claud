@@ -45,12 +45,10 @@ export async function transferTicketToUsernameApplicationUseCase(
   });
   // Aviso não pode desfazer a transferência já gravada.
   await createNotificationUseCase({
-    recipientPartnerId: recipient.uid,
-    type: 'admin_message',
-    title: 'Você recebeu um ingresso',
-    message: newTicket.eventSnapshot?.title
-      ? `Um ingresso para ${newTicket.eventSnapshot.title} está na sua carteira.`
-      : 'Um ingresso está na sua carteira.',
+    recipientUid: recipient.uid,
+    type: 'ticket_received',
+    params: { event: newTicket.eventSnapshot?.title || '' },
+    link: { screen: 'tickets' },
   }).catch(() => undefined);
   return {
     ticketId: newTicket.id,

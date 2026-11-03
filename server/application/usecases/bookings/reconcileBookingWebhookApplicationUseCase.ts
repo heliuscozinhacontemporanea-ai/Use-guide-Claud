@@ -42,10 +42,11 @@ async function handlePaymentSucceeded(
       ...(requiresServiceProof(booking.kind) ? { holdReasons: ['service_proof' as const] } : {}),
     });
     await createNotificationUseCase({
-      recipientPartnerId: booking.sellerPartnerId,
-      type: 'admin_message',
-      title: 'Nova reserva confirmada',
-      message: `${booking.offerSnapshot.title} — ${booking.participantsCount} participante(s).`,
+      recipientUid: booking.sellerPartnerId,
+      type: 'sale_booking',
+      params: { offer: booking.offerSnapshot.title, participants: booking.participantsCount },
+      link: { screen: 'partner' },
+      dedupeKey: `sale_booking_${booking.id}`,
     }).catch(() => undefined);
   } catch (error) {
     if (!(error instanceof BookingDomainError) || error.code !== 'LATE_PAYMENT_REJECTED') {

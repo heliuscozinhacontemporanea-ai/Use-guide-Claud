@@ -1,21 +1,21 @@
 import { firebaseApiFetch } from '../../../shared/infrastructure/firebase/firebaseApiFetch';
 import { subscribeToCollectionUseCase } from '../../database';
 import { NotificationPort } from '../ports/notificationPort';
-import { Notification, SendAdminNotificationPayload } from '../types/notification';
+import type { SendAdminNotificationPayload, StoredNotification } from '../types/notification';
 import type { NotificationPreferences } from '../types/notificationCategories';
 
 export class FirestoreNotificationAdapter implements NotificationPort {
   subscribeToNotifications(
-    partnerId: string,
-    onUpdate: (notifications: Notification[]) => void,
+    uid: string,
+    onUpdate: (notifications: StoredNotification[]) => void,
     onError?: (error: Error) => void,
     limitCount?: number
   ): () => void {
-    return subscribeToCollectionUseCase<Notification>(
+    return subscribeToCollectionUseCase<StoredNotification>(
       'notifications',
       onUpdate,
       onError,
-      [{ field: 'recipientPartnerId', op: '==', value: partnerId }],
+      [{ field: 'recipientUid', op: '==', value: uid }],
       [{ field: 'createdAt', direction: 'desc' }],
       limitCount
     );
@@ -23,49 +23,33 @@ export class FirestoreNotificationAdapter implements NotificationPort {
 
   async markAsRead(notificationId: string): Promise<void> {
     const res = await firebaseApiFetch(
-      `/api/notifications/${notificationId}/read`,
-      {
-        method: 'PATCH',
-      },
+      `/api/notifications/${encodeURIComponent(notificationId)}/read`,
+      { method: 'PATCH' },
       { requireAuth: true }
     );
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error || 'Erro ao marcar notificação como lida');
-    }
+    if (!res.ok) throw new Error('NOTIFICATION_UPDATE_FAILED');
   }
 
   async markAllAsRead(): Promise<void> {
     const res = await firebaseApiFetch(
       '/api/notifications/read-all',
-      {
-        method: 'PATCH',
-      },
+      { method: 'PATCH' },
       { requireAuth: true }
     );
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error || 'Erro ao marcar todas as notificações como lidas');
-    }
+    if (!res.ok) throw new Error('NOTIFICATION_UPDATE_FAILED');
   }
 
   async sendAdminNotification(payload: SendAdminNotificationPayload): Promise<void> {
     const res = await firebaseApiFetch(
-      '/api/notifications/send-admin',
+      '/api/admin/notifications',
       {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       },
       { requireAuth: true }
     );
-
-    if (!res.ok) {
-      const errorData = await res.json().catch(() => ({}));
-      throw new Error(errorData.error || 'Erro ao enviar notificação de administrador');
-    }
+    if (!res.ok) throw new Error('ADMIN_MESSAGE_FAILED');
   }
 
   async getPreferences(): Promise<NotificationPreferences> {

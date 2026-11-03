@@ -76,11 +76,10 @@ export async function openSaleClaimApplicationUseCase(
   if (sale.sellerPartnerId) {
     // Sem o texto do comprador: o parceiro vê só que o repasse desta venda está em análise.
     await createNotificationUseCase({
-      recipientPartnerId: sale.sellerPartnerId,
-      type: 'admin_message',
-      title: 'Reclamação em análise',
-      message:
-        'Um comprador relatou um problema. O repasse desta venda fica retido até a decisão, em até 5 dias.',
+      recipientUid: sale.sellerPartnerId,
+      type: 'sale_claim_opened',
+      link: { screen: 'partner' },
+      dedupeKey: `sale_claim_opened_${claim.id}`,
     }).catch(() => undefined);
   }
   return {

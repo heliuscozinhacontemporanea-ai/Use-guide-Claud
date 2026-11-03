@@ -1,17 +1,4 @@
-/** Assunto de cada aviso (D25). Define o ícone na central e para onde o toque leva. */
-export type NotificationCategory =
-  | 'purchases'
-  | 'tickets'
-  | 'bookings'
-  | 'reviews'
-  | 'account'
-  | 'news'
-  | 'sales'
-  | 'operations'
-  | 'finance'
-  | 'partnerReviews'
-  | 'registration'
-  | 'messages';
+import type { NotificationLink } from './notification';
 
 /**
  * O que a pessoa escolhe (D25, revisão). Compras, ingressos, reservas, conta e, para o parceiro,
@@ -39,9 +26,9 @@ export type PushDeviceState = 'unsupported' | 'install' | 'default' | 'granted' 
 /** Linha da central de notificações, já no idioma de quem lê. */
 export interface NotificationCenterItem {
   id: string;
-  category: NotificationCategory;
   title: string;
   body: string;
   createdAt: Date;
   read: boolean;
+  link?: NotificationLink | null;
 }
