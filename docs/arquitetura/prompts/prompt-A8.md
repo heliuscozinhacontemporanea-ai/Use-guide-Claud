@@ -1,28 +1,42 @@
-# Prompt A8 — Decisões D23, D24 e D25
+# Prompt A8 — AGENTS.md §11.1 (verde de ação) e decisões D23 a D26
 
-> Lote 19, gerado dos commits de referência `08221c2..d324282` da branch `claude/agents-md-v2`. Aplique na ordem do lote (C18, A8, 22.1, 22.2, 22.6, 23.0, 23.1, 23.2a, 23.2b, 23.2c, 23.3), um por vez, depois do C18. Cole o bloco abaixo no agente do AI Studio, inteiro, de uma vez.
+> Lote 19, gerado dos commits de referência `08221c2..e95c5c9` da branch `claude/agents-md-v2`. Aplique primeiro no lote 19, depois do C18 (ordem: A8, 22.1, 22.2, 22.6, 23.0, 23.1, 23.2a, 23.2b, 23.2c, 23.3, 23.4, 23.5), um por vez. Cole o bloco abaixo no agente do AI Studio, inteiro, de uma vez.
 
 ---
 
-## Prompt A8 — Decisões D23, D24 e D25
+## Prompt A8 — AGENTS.md §11.1 (verde de ação) e decisões D23 a D26
 
-D23 aprovada em 2026-11-01 (execução adiada); D24 e D25 aprovadas até 2026-11-03, com a revisão das telas, o silêncio das 23h30 às 5h30 e o adiamento do aviso de evento para favoritos.
+D23 aprovada em 2026-11-01 (execução adiada); D24, D25 e D26 aprovadas até 2026-11-03, com a revisão das telas, o silêncio das 23h30 às 5h30, o adiamento do aviso de evento para favoritos e o verde de ação. Mudança do AGENTS.md autorizada pelo responsável do produto em 2026-11-03. Junta o A8 e o A9 anteriores.
 
 ~~~~text
-Este prompt só altera documentação. Aplique EXATAMENTE o diff abaixo e nada mais. NÃO altere código: as regras são implementadas pelos prompts 22.1 a 23.3.
+Este prompt só altera documentação, e altera o AGENTS.md COM autorização explícita do responsável do produto. Aplique EXATAMENTE o diff abaixo e nada mais. NÃO altere código: as regras são implementadas pelos prompts 22.1 a 23.5 (a cor nova entra no 23.5).
 
 O QUE MUDA:
-1) docs/arquitetura/decisoes.md: D23 (sair do AI Studio com GitHub Actions, execução adiada), D24 (Sobre o app, versão pelo package.json, Licenças e créditos) e D25 (notificações para todas as contas, central, escolhas, push, Suporte e termos sem região, com a revisão aprovada).
-2) docs/arquitetura/propostas/notificacoes-suporte-termos.md: proposta aprovada (arquivo novo).
+1) AGENTS.md §11.1: verde #11D450 para ação (no lugar do verde-água), verde-menta para concluído; accent nas classes teal-* redefinidas em src/index.css; texto de ação #087A2E no tema claro.
+2) docs/arquitetura/decisoes.md: D23 (sair do AI Studio com GitHub Actions, execução adiada), D24 (Sobre o app, versão pelo package.json, Licenças e créditos), D25 (notificações para todas as contas, central, escolhas, push, Suporte e termos sem região, com a revisão aprovada) e D26 (verde de ação, concluído em menta, folhas no tema claro, interruptor branco).
+3) docs/arquitetura/propostas/notificacoes-suporte-termos.md: proposta aprovada (arquivo novo).
 
 ARQUIVOS (crie, altere ou apague exatamente estes):
+- AGENTS.md (alterar)
 - docs/arquitetura/decisoes.md (alterar)
 - docs/arquitetura/propostas/notificacoes-suporte-termos.md (criar)
 
 Aplique as mudanças abaixo EXATAMENTE como estão (formato unified diff: linhas com "-" saem, linhas com "+" entram; as demais são contexto para localizar o trecho). Não reformate outros trechos dos arquivos.
 
+=== AGENTS.md — diff ===
+@@ -615,8 +615,8 @@ Passeios, aluguéis, translados e entradas de atrações privadas compartilham o
+ 
+ ### 11.1. Identidade visual
+ 
+-* **Estilo:** superfícies sólidas e discretas sobre fundo neutro e liso: grafite no escuro (fundo `#0d0e10`, cartão `#1e2024`) e bege no claro (fundo `#f3eee4`, cartão `#faf6ee`). Sem gradientes, padrões nem linhas decorativas no fundo. Vidro (desfoque) só em barras fixas e folhas sobre o conteúdo. Cor só com significado: verde-água para ação, amarelo para pendente, verde para concluído, vermelho para perigo. Uma ação principal por tela; as demais como texto. Tema **dark é o padrão de design**; em Configurações a pessoa escolhe claro, escuro ou sistema (`ThemeContext`, `AppearanceSettingsView`). Todo componente novo ou tocado DEVE funcionar nos dois temas com os tokens `--ug-*` de `src/index.css` (`bg-app`, `text-ink`, `bg-surface`, `border-line`, `text-warn`, `text-danger`…), nunca `text-white` fixo em superfície que muda de cor. O tema claro NUNCA usa branco puro: fundo off-white bege (`#f3eee4`) e superfícies `#faf6ee`. O tema é aplicado antes da primeira pintura (sem piscar) e o `theme-color` acompanha o tema.
+-* **Accent:** teal (`teal-400`/`teal-500`); emerald = sucesso; cyan = informação.
++* **Estilo:** superfícies sólidas e discretas sobre fundo neutro e liso: grafite no escuro (fundo `#0d0e10`, cartão `#1e2024`) e bege no claro (fundo `#f3eee4`, cartão `#faf6ee`). Sem gradientes, padrões nem linhas decorativas no fundo. Vidro (desfoque) só em barras fixas e folhas sobre o conteúdo. Cor só com significado: verde (#11D450) para ação, amarelo para pendente, verde-menta para concluído, vermelho para perigo. Uma ação principal por tela; as demais como texto. Tema **dark é o padrão de design**; em Configurações a pessoa escolhe claro, escuro ou sistema (`ThemeContext`, `AppearanceSettingsView`). Todo componente novo ou tocado DEVE funcionar nos dois temas com os tokens `--ug-*` de `src/index.css` (`bg-app`, `text-ink`, `bg-surface`, `border-line`, `text-warn`, `text-danger`…), nunca `text-white` fixo em superfície que muda de cor. O tema claro NUNCA usa branco puro: fundo off-white bege (`#f3eee4`) e superfícies `#faf6ee`. O tema é aplicado antes da primeira pintura (sem piscar) e o `theme-color` acompanha o tema.
++* **Accent:** verde #11D450, nas classes `teal-*` (o 400 é o tom principal, redefinido em `src/index.css`); menta = sucesso; ciano = informação. No tema claro, texto de ação #087A2E.
+ * **Tipografia:** Inter (texto/UI) e Outfit (display). Proibida uma terceira fonte.
+ * **Superfície elevada:** cartão sólido do design system (`GlassCard` passa a ser sólido, sem desfoque).
+
 === docs/arquitetura/decisoes.md — diff ===
-@@ -334,3 +334,38 @@ Aprovada pelo responsável do produto em 2026-10-31.
+@@ -334,3 +334,48 @@ Aprovada pelo responsável do produto em 2026-10-31.
  * **Endereço oficial:** o link do e-mail é `https://useguide.com.br/conta/acao?mode=...&oobCode=...` (URL de ação dos modelos no console), o remetente é `noreply@useguide.com.br` (domínio personalizado no console) e o retorno (`continueUrl`) é sempre `https://useguide.com.br`, inclusive no AI Studio; só o teste local (`localhost`) volta para o próprio endereço. A mesma página trata a nova senha (`mode=resetPassword`); `/reset-password` deixa de existir.
  * **Onde exige e-mail confirmado:** comprar ingresso, reservar passeio, aluguel, translado ou entrada, cadastrar-se como parceiro, receber ingresso pelo @ e aceitar link de transferência (AGENTS.md §7.10, A07). O backend recusa com `EMAIL_NOT_VERIFIED` (403); o app abre o aviso. No cadastro de parceiro com conta nova, o cadastro para até a confirmação e continua ao enviar de novo, já logado.
  * **Token:** depois da confirmação o app relê a conta e renova o ID token, porque o backend lê `email_verified` do token. O app também relê ao voltar para a tela (link aberto em outra aba ou no celular).
@@ -61,6 +75,16 @@ Aplique as mudanças abaixo EXATAMENTE como estão (formato unified diff: linhas
 +* **Revisão das telas (aprovada em 2026-11-03, substitui os interruptores por categoria, o silêncio noturno e o resumo diário como interruptor):** avisos que evitam perder um serviço, um prazo ou dinheiro chegam sempre, sem interruptor — compras e pagamentos, ingressos e reservas, conta e, para o parceiro, cancelamentos, reclamações, avaliações dos clientes, repasses e cadastro. A pessoa escolhe só **Pedidos de avaliação** (ligado) e **Novidades e ofertas** (desligado); o parceiro escolhe **aviso a cada venda** ou **resumo no fim do dia**. Avisos opcionais nunca chegam das 23h30 às 5h30 (Fortaleza; ajustado em 2026-11-03 a pedido do responsável do produto). Central com filtro "Não lidas / Tudo", menu "…" (Configurações, marcar todas como lidas) e "Você está em dia". Suporte como central de ajuda (saudação com busca, compras, assuntos, perguntas mais lidas, contato). Textos para quem usa o app, sem termos técnicos; visual da base D17 (ícones neutros, cor só com significado). Referências: Airbnb, Tripadvisor, Apple HIG.
 +* **Adiado (2026-11-03):** aviso de evento novo para quem favoritou o lugar ou o organizador. O evento não aponta para um lugar do guia; a forma (pelo dono, pelo lugar escolhido no cadastro do evento ou "seguir o organizador") fica para decisão futura. Quando vier, entra como aviso opcional de Novidades.
 +* **Avisos implementados (23.2 a 23.3):** 36 tipos gravados como tipo + dados, traduzidos no app e no push (textos espelhados com teste de paridade); fila de envio (outbox) com job a cada minuto, lembretes a cada 15 min (véspera e 2 h antes), resumo de vendas às 20h e convite para avaliar (único opcional hoje). Troca de senha e confirmação de e-mail não geram aviso (acontecem no Firebase Auth, sem passar pelo backend).
++
++## D26 — Verde forte para ação e folhas no tema claro (2026-11-03)
++
++Aprovada pelo responsável do produto em 2026-11-03.
++
++* **Cor de ação:** verde #11D450 (entre #21C063 e #01E93E), no lugar do verde-água. Fica na escala `teal-*` redefinida em `src/index.css` (o 400 é o tom principal), sem trocar as classes dos componentes; tokens `accent`: #3EE47A no escuro e #087A2E no claro (contraste AA sobre o bege). Stripe usa a mesma cor (`colorPrimary`).
++* **Concluído continua verde-menta** (#6EE7B7 no escuro): status é texto com ponto, nunca botão, então não se confunde com a ação (opção A).
++* **Folhas no tema claro seguem as telas:** fundo bege (#f3eee4) e cartões claros (#faf6ee) com borda (`bg-sheet`, `bg-sheet-card`, `border-sheet-card-line`). No escuro nada muda.
++* **Interruptores:** bolinha sempre branca, nos dois temas.
++* **AGENTS.md §11.1** atualizado com a cor nova (autorizado em 2026-11-03).
 
 === docs/arquitetura/propostas/notificacoes-suporte-termos.md — ARQUIVO NOVO, conteúdo completo ===
 # Proposta — Notificações para todos, Suporte e texto novo dos termos (2026-11-03)
@@ -167,7 +191,7 @@ Privacidade, parágrafo novo (por causa do push):
 
 Efeito: nova versão dos termos de compra (`BUYER_TERMS_VERSION`); compras novas pedem o aceite da versão nova; pedidos antigos seguem a versão aceita.
 
-VERIFICAÇÃO: nenhum código muda; não precisa rodar testes. Confira só que os dois arquivos ficaram iguais ao diff.
+VERIFICAÇÃO: nenhum código muda; não precisa rodar testes. Confira só que os três arquivos ficaram iguais ao diff.
 
 ENTREGA: responda no formato do AGENTS.md §16.3.
 

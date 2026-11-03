@@ -1,6 +1,6 @@
 # Prompt 22.6 — Sobre o app, Termos do parceiro, Licenças e créditos e Notificações em Configurações
 
-> Lote 19, gerado dos commits de referência `98511bd..cd37326` da branch `claude/agents-md-v2`. Aplique na ordem do lote (C18, A8, 22.1, 22.2, 22.6, 23.0, 23.1, 23.2a, 23.2b, 23.2c, 23.3), um por vez, depois do C18. Cole o bloco abaixo no agente do AI Studio, inteiro, de uma vez.
+> Lote 19, gerado dos commits de referência `98511bd..cd37326` da branch `claude/agents-md-v2`. Aplique na ordem do lote (C18, A8, 22.1, 22.2, 22.6, 23.0, 23.1, 23.2a, 23.2b, 23.2c, 23.3, 23.4, 23.5), um por vez, depois do C18. Cole o bloco abaixo no agente do AI Studio, inteiro, de uma vez.
 
 ---
 

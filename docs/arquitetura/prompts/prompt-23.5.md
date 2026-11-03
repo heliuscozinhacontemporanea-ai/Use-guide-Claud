@@ -1,6 +1,6 @@
 # Prompt 23.5 — Verde forte para ação, interruptor branco e filtros da central centralizados
 
-> Lote 19, gerado dos commits de referência `3a7e901..e95c5c9` da branch `claude/agents-md-v2`. Aplique depois do 23.4, nesta ordem: A9 e 23.5. Cole o bloco abaixo no agente do AI Studio, inteiro, de uma vez.
+> Lote 19, gerado dos commits de referência `3a7e901..e95c5c9` da branch `claude/agents-md-v2`. Aplique por último no lote 19, depois do 23.4. Cole o bloco abaixo no agente do AI Studio, inteiro, de uma vez.
 
 ---
 
@@ -9,7 +9,7 @@
 D26, aprovada em 2026-11-03.
 
 ~~~~text
-Siga o AGENTS.md (com o §11.1 do prompt A9). O app ainda não foi liberado para usuários: nenhum código de compatibilidade ou transição (§2.2 item 8).
+Siga o AGENTS.md (o §11.1 já foi atualizado pelo prompt A8). O app ainda não foi liberado para usuários: nenhum código de compatibilidade ou transição (§2.2 item 8).
 
 IMPORTANTE: aplique os diffs abaixo EXATAMENTE. Não reescreva os arquivos do seu jeito. Arquivo tocado sai sem avisos do lint e formatado (AGENTS.md §13). Não altere firebase.json, functions/, AGENTS.md, docs/ nem .env.
 

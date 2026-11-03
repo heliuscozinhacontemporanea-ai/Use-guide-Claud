@@ -141,7 +141,7 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 | 21.7d | @ obrigatório depois do cadastro e link de transferência (30 min, uso único) | `f29204b..fef8a57` | ✅ zip 2026-11-01 | ✅ igual à referência |
 | 21.8 | Confirmação de e-mail com link nativo (D22) | `fd42053..734ae3e` | ✅ zip 2026-11-01 | ⚠️ `firebaseAuthAdapter.ts` reescrito (papel por `claims.role`: painel admin sumiu), 7 testes de auth apagados, rollback do parceiro mudado, pasta `app/` criada na raiz e `package-lock.json` sem o zxing-wasm → prompt C18 |
 | C18 | Correção do lote 18 | — | ✅ enviado (aguarda o zip) | — |
-| A8 | Decisões D23 (sair do AI Studio, adiada), D24 (Sobre o app) e D25 (notificações, Suporte, termos) | `08221c2..d324282` (só docs) | ⏳ enviar (lote 19) | — |
+| A8 | AGENTS.md §11.1 e decisões D23 a D26 | `08221c2..e95c5c9` (só AGENTS e docs) | ⏳ enviar (lote 19) | — |
 | 22.1 | Página não encontrada nos dois temas, status 404 no servidor e aviso de item indisponível | `a692a83..b850241` | ⏳ enviar (lote 19) | — |
 | 22.2 | 404 em tela cheia com o hamster na roda | `b850241..98511bd` | ⏳ enviar (lote 19) | — |
 | 22.6 | Sobre o app, Termos do parceiro, Licenças e créditos (`npm run licenses`), Notificações em Configurações | `98511bd..cd37326` | ⏳ enviar (lote 19) | — |
@@ -152,7 +152,6 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 | 23.2c | Push pelo Firebase Cloud Messaging, fila de envio e resumo diário (Functions novas) | `6739469..ef3d953` | ⏳ enviar (lote 19) | — |
 | 23.3 | Avisos novos: compra confirmada e não concluída, lembretes, convite para avaliar, resposta, denúncia, troca do @; silêncio 23h30–5h30 | `ef3d953..23f936b` | ⏳ enviar (lote 19) | — |
 | 23.4 | Folhas no tema claro e título do Suporte | `7788a52..1bf7dc1` | ⏳ enviar (lote 19) | — |
-| A9 | AGENTS.md §11.1 e D26 | `3a7e901..e95c5c9` | ⏳ enviar (lote 19) | — |
 | 23.5 | Verde de ação, interruptor e filtros da central | `3a7e901..e95c5c9` | ⏳ enviar (lote 19) | — |
 
 ### Revisões futuras (aprovadas para depois)
