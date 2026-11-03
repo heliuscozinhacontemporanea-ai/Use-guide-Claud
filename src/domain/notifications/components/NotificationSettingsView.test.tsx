@@ -23,7 +23,7 @@ describe('NotificationSettingsView', () => {
 
   it('avisos importantes não têm interruptor; só os opcionais têm', async () => {
     render(<NotificationSettingsView isPartner={false} onBack={() => undefined} />);
-    expect(screen.getByText('Compras, pagamentos e reembolsos')).toBeTruthy();
+    expect(screen.getByText('Compras e pagamentos')).toBeTruthy();
     await screen.findByRole('switch', { name: 'Pedidos de avaliação' });
     expect(screen.getAllByRole('switch')).toHaveLength(2);
     expect(

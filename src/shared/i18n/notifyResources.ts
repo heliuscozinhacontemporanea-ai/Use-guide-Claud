@@ -13,11 +13,12 @@ export interface NotifyTranslation {
   };
   always: {
     title: string;
-    purchases: string;
-    trips: string;
-    account: string;
-    partnerClaims: string;
-    partnerMoney: string;
+    on: string;
+    purchases: { label: string; hint: string };
+    trips: { label: string; hint: string };
+    account: { label: string; hint: string };
+    partnerClaims: { label: string; hint: string };
+    partnerMoney: { label: string; hint: string };
     note: string;
   };
   choices: {
@@ -73,11 +74,21 @@ export const notifyPtBR: NotifyTranslation = {
   },
   always: {
     title: 'Sempre avisamos você',
-    purchases: 'Compras, pagamentos e reembolsos',
-    trips: 'Ingressos e reservas: confirmação, lembretes e mudanças',
-    account: 'Segurança da sua conta',
-    partnerClaims: 'Cancelamentos, reclamações e avaliações dos clientes',
-    partnerMoney: 'Repasses e cadastro do seu negócio',
+    on: 'Sempre',
+    purchases: {
+      label: 'Compras e pagamentos',
+      hint: 'Pagamento confirmado, Pix pendente e reembolsos',
+    },
+    trips: { label: 'Ingressos e reservas', hint: 'Confirmação, lembretes e mudanças de horário' },
+    account: { label: 'Sua conta', hint: 'Acesso novo e troca de e-mail ou senha' },
+    partnerClaims: {
+      label: 'Cancelamentos e reclamações',
+      hint: 'Também as avaliações dos seus clientes',
+    },
+    partnerMoney: {
+      label: 'Repasses e cadastro',
+      hint: 'Pagamento das vendas e verificação do seu negócio',
+    },
     note: 'São avisos importantes, por isso não dá para desligar.',
   },
   choices: {
@@ -133,11 +144,18 @@ export const notifyEn: NotifyTranslation = {
   },
   always: {
     title: 'We always let you know about',
-    purchases: 'Purchases, payments and refunds',
-    trips: 'Tickets and bookings: confirmation, reminders and changes',
-    account: 'Your account’s security',
-    partnerClaims: 'Cancellations, complaints and customer reviews',
-    partnerMoney: 'Payouts and your business details',
+    on: 'Always',
+    purchases: {
+      label: 'Purchases and payments',
+      hint: 'Payment confirmed, pending Pix and refunds',
+    },
+    trips: { label: 'Tickets and bookings', hint: 'Confirmation, reminders and time changes' },
+    account: { label: 'Your account', hint: 'New sign-ins and email or password changes' },
+    partnerClaims: { label: 'Cancellations and complaints', hint: 'Plus your customers’ reviews' },
+    partnerMoney: {
+      label: 'Payouts and registration',
+      hint: 'Payment for your sales and your business’s verification',
+    },
     note: 'These are important, so they can’t be turned off.',
   },
   choices: {
@@ -193,11 +211,27 @@ export const notifyFr: NotifyTranslation = {
   },
   always: {
     title: 'Nous vous prévenons toujours pour',
-    purchases: 'Achats, paiements et remboursements',
-    trips: 'Billets et réservations : confirmation, rappels et changements',
-    account: 'La sécurité de votre compte',
-    partnerClaims: 'Annulations, réclamations et avis des clients',
-    partnerMoney: 'Versements et informations de votre établissement',
+    on: 'Toujours',
+    purchases: {
+      label: 'Achats et paiements',
+      hint: 'Paiement confirmé, Pix en attente et remboursements',
+    },
+    trips: {
+      label: 'Billets et réservations',
+      hint: 'Confirmation, rappels et changements d’horaire',
+    },
+    account: {
+      label: 'Votre compte',
+      hint: 'Nouvelles connexions et changement d’e-mail ou de mot de passe',
+    },
+    partnerClaims: {
+      label: 'Annulations et réclamations',
+      hint: 'Ainsi que les avis de vos clients',
+    },
+    partnerMoney: {
+      label: 'Versements et inscription',
+      hint: 'Paiement de vos ventes et vérification de votre établissement',
+    },
     note: 'Ce sont des messages importants, ils ne peuvent donc pas être désactivés.',
   },
   choices: {

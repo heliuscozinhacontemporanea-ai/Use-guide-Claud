@@ -1,12 +1,3 @@
-import {
-  CalendarCheck,
-  Check,
-  type LucideIcon,
-  MessageSquareText,
-  ShieldCheck,
-  ShoppingBag,
-  Wallet,
-} from 'lucide-react';
 import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BackButton } from '../../../ui/components/BackButton';
@@ -20,14 +11,23 @@ import { NotificationDeviceCard } from './NotificationDeviceCard';
 
 const LIST =
   'shrink-0 rounded-[20px] bg-surface border border-line divide-y divide-line overflow-hidden';
-const SECTION_TITLE = 'px-1 mb-2 text-[13px] font-semibold text-ink/70';
+const SECTION_TITLE = 'px-1 mb-2 text-xs font-bold text-ink';
+// Mesmo cartão de opção da folha de decisão (docs/design/base-d17/light-6-admin-decidir.png).
+const OPTION =
+  'press min-h-14 px-4 py-3 rounded-2xl bg-surface border border-line flex items-center gap-3 cursor-pointer has-[:checked]:bg-accent-soft has-[:checked]:border-accent-line focus-within:ring-2 focus-within:ring-teal-400/50';
 const NOTE = 'px-1 mt-2 text-[13px] text-ink/70';
 
-function AlwaysRow({ icon: Icon, text }: { icon: LucideIcon; text: string }) {
+type AlwaysKey = 'purchases' | 'trips' | 'account' | 'partnerClaims' | 'partnerMoney';
+
+function AlwaysRow({ item }: { item: AlwaysKey }) {
+  const { t } = useTranslation();
   return (
-    <li className="flex items-center gap-3 px-4 py-3 min-h-12">
-      <Icon size={18} className="shrink-0 text-ink/60" aria-hidden="true" />
-      <span className="text-[15px] text-ink">{text}</span>
+    <li className="flex items-center gap-3 px-4 py-3.5 min-h-16">
+      <div className="flex-1 min-w-0">
+        <p className="text-[15px] font-semibold text-ink">{t(`notify.always.${item}.label`)}</p>
+        <p className="text-[13px] text-ink/70">{t(`notify.always.${item}.hint`)}</p>
+      </div>
+      <span className="shrink-0 text-[13px] text-ink/60">{t('notify.always.on')}</span>
     </li>
   );
 }
@@ -71,21 +71,18 @@ function SalesChoice({
   return (
     <fieldset className="shrink-0 mt-6">
       <legend className={SECTION_TITLE}>{t('notify.sales.title')}</legend>
-      <div className={LIST}>
+      <div className="space-y-2">
         {(['each', 'daily'] as const).map((option) => (
-          <label
-            key={option}
-            className="flex items-center gap-3 px-4 py-3 min-h-14 cursor-pointer has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-inset has-[:focus-visible]:ring-teal-400/50"
-          >
+          <label key={option} className={OPTION}>
             <input
               type="radio"
               name={name}
               value={option}
               checked={value === option}
               onChange={() => onChange(option)}
-              className="sr-only"
+              className="w-4 h-4 shrink-0 accent-teal-500"
             />
-            <span className="flex-1 min-w-0">
+            <span className="min-w-0">
               <span className="block text-[15px] font-semibold text-ink">
                 {t(`notify.sales.${option}`)}
               </span>
@@ -93,11 +90,6 @@ function SalesChoice({
                 {t(`notify.sales.${option}Hint`)}
               </span>
             </span>
-            <Check
-              size={20}
-              aria-hidden="true"
-              className={cn('shrink-0 text-accent', value !== option && 'invisible')}
-            />
           </label>
         ))}
       </div>
@@ -131,13 +123,13 @@ export function NotificationSettingsView({
 
       <h3 className={SECTION_TITLE}>{t('notify.always.title')}</h3>
       <ul className={LIST}>
-        <AlwaysRow icon={ShoppingBag} text={t('notify.always.purchases')} />
-        <AlwaysRow icon={CalendarCheck} text={t('notify.always.trips')} />
-        <AlwaysRow icon={ShieldCheck} text={t('notify.always.account')} />
+        <AlwaysRow item="purchases" />
+        <AlwaysRow item="trips" />
+        <AlwaysRow item="account" />
         {isPartner && (
           <>
-            <AlwaysRow icon={MessageSquareText} text={t('notify.always.partnerClaims')} />
-            <AlwaysRow icon={Wallet} text={t('notify.always.partnerMoney')} />
+            <AlwaysRow item="partnerClaims" />
+            <AlwaysRow item="partnerMoney" />
           </>
         )}
       </ul>

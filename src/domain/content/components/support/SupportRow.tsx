@@ -1,11 +1,10 @@
-import { ChevronRight, type LucideIcon } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import type { ReactNode } from 'react';
 
 const ROW =
-  'press w-full min-h-14 px-4 py-3 flex items-center gap-3 text-left hover:bg-ink/[0.03] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-400/50 focus-visible:outline-none';
+  'press w-full min-h-16 px-4 py-3.5 flex items-center gap-3 text-left hover:bg-ink/[0.03] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-400/50 focus-visible:outline-none';
 
 interface SupportRowProps {
-  icon: LucideIcon;
   label: string;
   hint?: string;
   href?: string;
@@ -14,19 +13,10 @@ interface SupportRowProps {
   trailing?: ReactNode;
 }
 
-/** Linha de lista do Suporte: ícone neutro, texto e seta. Vira link quando recebe `href`. */
-export function SupportRow({
-  icon: Icon,
-  label,
-  hint,
-  href,
-  external,
-  onClick,
-  trailing,
-}: SupportRowProps) {
+/** Linha de lista do Suporte: título, contexto e seta, sem ícone (lista compacta da D17). Vira link quando recebe `href`. */
+export function SupportRow({ label, hint, href, external, onClick, trailing }: SupportRowProps) {
   const content = (
     <>
-      <Icon size={20} className="shrink-0 text-ink/60" aria-hidden="true" />
       <span className="flex-1 min-w-0">
         <span className="block text-[15px] font-semibold text-ink">{label}</span>
         {hint && <span className="block text-[13px] text-ink/70 break-words">{hint}</span>}

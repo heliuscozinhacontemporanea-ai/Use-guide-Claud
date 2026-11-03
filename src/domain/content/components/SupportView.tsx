@@ -1,14 +1,4 @@
-import {
-  CalendarCheck,
-  Check,
-  Copy,
-  Mail,
-  MessageCircle,
-  MessageSquareWarning,
-  Search,
-  ShoppingBag,
-  Ticket,
-} from 'lucide-react';
+import { Check, Copy, Search } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { APP_VERSION } from '../../../shared/constants/appVersion';
@@ -35,7 +25,7 @@ const LIST =
   'shrink-0 rounded-[20px] bg-surface border border-line divide-y divide-line overflow-hidden';
 /** Sem busca e sem assunto escolhido, mostra só as mais procuradas (padrão Airbnb). */
 const TOP_COUNT = 5;
-const SECTION_TITLE = 'px-1 mb-2 text-[13px] font-semibold text-ink/70';
+const SECTION_TITLE = 'px-1 mb-2 text-xs font-bold text-ink';
 
 interface SupportViewProps {
   onBack: () => void;
@@ -126,25 +116,13 @@ export function SupportView({
           <h3 className={SECTION_TITLE}>{t('help.shortcutsTitle')}</h3>
           <ul className={cn(LIST, 'mb-6')}>
             {onOpenPurchases && (
-              <SupportRow
-                icon={ShoppingBag}
-                label={t('help.shortcuts.purchases')}
-                onClick={onOpenPurchases}
-              />
+              <SupportRow label={t('help.shortcuts.purchases')} onClick={onOpenPurchases} />
             )}
             {onOpenTickets && (
-              <SupportRow
-                icon={Ticket}
-                label={t('help.shortcuts.tickets')}
-                onClick={onOpenTickets}
-              />
+              <SupportRow label={t('help.shortcuts.tickets')} onClick={onOpenTickets} />
             )}
             {onOpenBookings && (
-              <SupportRow
-                icon={CalendarCheck}
-                label={t('help.shortcuts.bookings')}
-                onClick={onOpenBookings}
-              />
+              <SupportRow label={t('help.shortcuts.bookings')} onClick={onOpenBookings} />
             )}
           </ul>
         </>
@@ -187,11 +165,8 @@ export function SupportView({
 
       <h3 className={SECTION_TITLE}>{t('help.contactTitle')}</h3>
       <ul className={LIST}>
-        {whatsappUrl && (
-          <SupportRow icon={MessageCircle} label={t('help.whatsapp')} href={whatsappUrl} external />
-        )}
+        {whatsappUrl && <SupportRow label={t('help.whatsapp')} href={whatsappUrl} external />}
         <SupportRow
-          icon={Mail}
           label={t('help.email')}
           hint={SUPPORT_EMAIL}
           href={`mailto:${SUPPORT_EMAIL}`}
@@ -210,12 +185,7 @@ export function SupportView({
             </button>
           }
         />
-        <SupportRow
-          icon={MessageSquareWarning}
-          label={t('help.reportProblem')}
-          hint={t('help.reportHint')}
-          href={reportUrl}
-        />
+        <SupportRow label={t('help.reportProblem')} hint={t('help.reportHint')} href={reportUrl} />
       </ul>
     </div>
   );
