@@ -152,6 +152,8 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 | 23.2c | Push pelo Firebase Cloud Messaging, fila de envio e resumo diário (Functions novas) | `6739469..ef3d953` | ⏳ enviar (lote 19) | — |
 | 23.3 | Avisos novos: compra confirmada e não concluída, lembretes, convite para avaliar, resposta, denúncia, troca do @; silêncio 23h30–5h30 | `ef3d953..23f936b` | ⏳ enviar (lote 19) | — |
 | 23.4 | Folhas no tema claro e título do Suporte | `7788a52..1bf7dc1` | ⏳ enviar (lote 19) | — |
+| A9 | AGENTS.md §11.1 e D26 | `3a7e901..e95c5c9` | ⏳ enviar (lote 19) | — |
+| 23.5 | Verde de ação, interruptor e filtros da central | `3a7e901..e95c5c9` | ⏳ enviar (lote 19) | — |
 
 ### Revisões futuras (aprovadas para depois)
 

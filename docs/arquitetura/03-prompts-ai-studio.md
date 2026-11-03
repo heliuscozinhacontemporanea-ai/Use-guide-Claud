@@ -165,7 +165,7 @@
 
 > **Envie um prompt por mensagem**, nesta ordem. Até o 18.3.1 (telas), trial, compra de plano e selo do admin pelo painel ficam fora do ar, e as métricas de estabelecimento sem plano mostram erro.
 
-# Lote 19 (Prompts C18, A8, 22.1, 22.2, 22.6, 23.0 a 23.4) — aplicar sobre o zip de 2026-11-01
+# Lote 19 (Prompts C18, A8, 22.1, 22.2, 22.6, 23.0 a 23.4, A9 e 23.5) — aplicar sobre o zip de 2026-11-01
 
 | Ordem | Arquivo | Tema | Referência |
 |---|---|---|---|
@@ -181,8 +181,10 @@
 | 10 | `prompts/prompt-23.2c.md` | Push pelo Firebase Cloud Messaging, fila de envio e resumo diário (Functions novas) | `6739469..ef3d953` |
 | 11 | `prompts/prompt-23.3.md` | Avisos novos: compra confirmada e não concluída, lembretes, convite para avaliar, resposta, denúncia, troca do @; silêncio 23h30–5h30 | `ef3d953..23f936b` |
 | 12 | `prompts/prompt-23.4.md` | Folhas seguem as telas no tema claro (fundo bege, cartões claros) e título do Suporte sem o "Oi!" | `7788a52..1bf7dc1` |
+| 13 | `prompts/prompt-A9.md` | AGENTS.md §11.1 (verde de ação) e D26 | `3a7e901..e95c5c9` (só AGENTS e decisões) |
+| 14 | `prompts/prompt-23.5.md` | Verde #11D450 para ação, interruptor branco na folha Decisão e filtros da central centralizados | `3a7e901..e95c5c9` |
 
-> **Envie um prompt por mensagem**, nesta ordem. Simulação feita em 2026-11-03: os 11 prompts (23.4 incluído) aplicados só a partir do texto, sobre o estado do C18, deram resultado idêntico à referência (depois do `npm run licenses` do 22.6), com typecheck, lint, testes e build verdes. Configurações manuais no fim de cada prompt (chave VAPID, papel do FCM, URLs dos jobs, regras e índices, Functions).
+> **Envie um prompt por mensagem**, nesta ordem. Simulação feita em 2026-11-03: os 13 prompts (23.4, A9 e 23.5 incluídos) aplicados só a partir do texto, sobre o estado do C18, deram resultado idêntico à referência (depois do `npm run licenses` do 22.6), com typecheck, lint, testes e build verdes. Configurações manuais no fim de cada prompt (chave VAPID, papel do FCM, URLs dos jobs, regras e índices, Functions).
 
 > Comparação do zip de 2026-11-01 (lote 18 aplicado): 159 arquivos diferentes, 153 só em ordem de imports e comentários (levados para a referência no `e088091`, junto com o TTL de `rateLimits.expiresAt` em `firestore.indexes.json`). Gates no zip: typecheck, lint (0 erros), build e 1.294 testes (a referência tem 1.301; os 7 a menos são os de auth). Fora dos prompts, o zip também trouxe `scripts/deploy-cloud-run.cjs` e o script `deploy:backend` no `package.json`; a remoção foi aprovada em 2026-11-02 e está no C18.
 
