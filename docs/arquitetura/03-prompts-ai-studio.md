@@ -165,11 +165,23 @@
 
 > **Envie um prompt por mensagem**, nesta ordem. Até o 18.3.1 (telas), trial, compra de plano e selo do admin pelo painel ficam fora do ar, e as métricas de estabelecimento sem plano mostram erro.
 
-# Lote 19 (Prompt C18) — aplicar sobre o zip de 2026-11-01
+# Lote 19 (Prompts C18, A8, 22.1, 22.2, 22.6, 23.0 a 23.3) — aplicar sobre o zip de 2026-11-01
 
 | Ordem | Arquivo | Tema | Referência |
 |---|---|---|---|
 | 1 | `prompts/prompt-C18.md` | Correção do lote 18: papel de admin pela claim `admin` (painel admin), 7 testes de auth, rollback do cadastro de parceiro, pasta `app/` apagada da raiz, `scripts/deploy-cloud-run.cjs` e `deploy:backend` removidos e `package-lock.json` com o zxing-wasm | `e088091` |
+| 2 | `prompts/prompt-A8.md` | Decisões D23 (sair do AI Studio, adiada), D24 (Sobre o app) e D25 (notificações, Suporte, termos) | `08221c2..d324282` (só docs) |
+| 3 | `prompts/prompt-22.1.md` | Página não encontrada nos dois temas, status 404 no servidor e aviso de item indisponível | `a692a83..b850241` |
+| 4 | `prompts/prompt-22.2.md` | 404 em tela cheia com o hamster na roda | `b850241..98511bd` |
+| 5 | `prompts/prompt-22.6.md` | Sobre o app, Termos do parceiro, Licenças e créditos (`npm run licenses`), Notificações em Configurações | `98511bd..cd37326` |
+| 6 | `prompts/prompt-23.0.md` | Versão 1.0.0, termos sem região (versão 2026-11-03) e e-mail ajuda@ | `cd37326..00f530e` |
+| 7 | `prompts/prompt-23.1.md` | Telas de Notificações, central e Suporte (aprovadas) | `00f530e..8834efd` |
+| 8 | `prompts/prompt-23.2a.md` | Avisos como tipo + dados, escolhas por conta, notifications folha (backend, rules e índice) | `8834efd..6739469` (server) |
+| 9 | `prompts/prompt-23.2b.md` | Sininho para todas as contas e central em tempo real (app) | `8834efd..6739469` (src) |
+| 10 | `prompts/prompt-23.2c.md` | Push pelo Firebase Cloud Messaging, fila de envio e resumo diário (Functions novas) | `6739469..ef3d953` |
+| 11 | `prompts/prompt-23.3.md` | Avisos novos: compra confirmada e não concluída, lembretes, convite para avaliar, resposta, denúncia, troca do @; silêncio 23h30–5h30 | `ef3d953..23f936b` |
+
+> **Envie um prompt por mensagem**, nesta ordem. Simulação feita em 2026-11-03: os 10 prompts aplicados só a partir do texto, sobre o estado do C18, deram resultado idêntico à referência (depois do `npm run licenses` do 22.6), com typecheck, lint, testes e build verdes. Configurações manuais no fim de cada prompt (chave VAPID, papel do FCM, URLs dos jobs, regras e índices, Functions).
 
 > Comparação do zip de 2026-11-01 (lote 18 aplicado): 159 arquivos diferentes, 153 só em ordem de imports e comentários (levados para a referência no `e088091`, junto com o TTL de `rateLimits.expiresAt` em `firestore.indexes.json`). Gates no zip: typecheck, lint (0 erros), build e 1.294 testes (a referência tem 1.301; os 7 a menos são os de auth). Fora dos prompts, o zip também trouxe `scripts/deploy-cloud-run.cjs` e o script `deploy:backend` no `package.json`; a remoção foi aprovada em 2026-11-02 e está no C18.
 
