@@ -132,7 +132,7 @@ export function NotificationCenterSheet({
               <h3 className="px-1 mb-1.5 text-[13px] font-semibold text-ink/70">
                 {t(`notify.center.${group.key}`)}
               </h3>
-              <ul className="rounded-[20px] bg-app/40 border border-line divide-y divide-line overflow-hidden">
+              <ul className="-mx-2 divide-y divide-line">
                 {group.items.map((item) => {
                   const Icon = ICONS[item.category];
                   return (
@@ -141,8 +141,8 @@ export function NotificationCenterSheet({
                         type="button"
                         onClick={() => onOpenItem(item)}
                         className={cn(
-                          'w-full px-3 py-3 flex items-start gap-3 text-left hover:bg-ink/[0.03] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-400/50 focus-visible:outline-none',
-                          !item.read && 'bg-ink/[0.03]'
+                          'w-full px-2 py-3 rounded-2xl flex items-start gap-3 text-left hover:bg-ink/[0.04] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-400/50 focus-visible:outline-none',
+                          !item.read && 'bg-ink/[0.04]'
                         )}
                       >
                         <span className="w-10 h-10 shrink-0 rounded-full bg-ink/[0.06] text-ink/70 flex items-center justify-center">
