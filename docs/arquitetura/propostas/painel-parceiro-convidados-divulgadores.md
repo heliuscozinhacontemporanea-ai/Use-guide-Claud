@@ -172,3 +172,13 @@ A portaria (D21, já implementada) entra por três caminhos: o cartão "Portaria
 * O estabelecimento ativo fica guardado no aparelho (preferência local, não é dado do servidor); na primeira vez, é o primeiro estabelecimento.
 * "Criar estabelecimento" abre o cadastro que já existe.
 
+### 11.3. Alternativa recomendada: todos por padrão, com filtro (p37, p38, p39)
+
+Referências: Airbnb (o anfitrião vê todos os anúncios no Hoje e filtra a agenda por anúncio), Uber Eats Manager e iFood (lojas da mesma conta, com a opção "todas as lojas"), Google Perfil da Empresa (vários locais numa conta). O Instagram troca de **conta**, com dados separados de verdade. No Use Guide é a mesma pessoa e o mesmo login, e um prazo escondido no outro estabelecimento custa dinheiro (multa, reclamação perdida).
+
+* **Um estabelecimento só** (a maioria): sem seta e sem folha, o topo mostra só o nome.
+* **Dois ou mais:** o padrão é "Todos os estabelecimentos". O toque no nome abre a folha "Mostrar no painel" (p38), que filtra por um estabelecimento ou cria outro.
+* **Sempre de todos, mesmo com filtro:** "Resolva agora" e o cartão da portaria do dia, porque prazo e portaria não podem sumir.
+* **Com "Todos":** cada linha leva uma etiqueta com o nome curto do estabelecimento (p37, p39). Catálogo agrupado por estabelecimento, Ganhos agrupado por conta de recebimento (CNPJ).
+* **O filtro fica guardado no aparelho** (preferência local).
+
