@@ -1,7 +1,7 @@
 # Proposta — Painel do parceiro, lista de convidados e divulgadores (2026-11-03)
 
 Status: **em aberto** (decisões de 2026-11-04 na seção 6; aguarda aprovação dos desenhos e das seções 7 a 9).
-Desenhos: `docs/arquitetura/propostas/painel-parceiro/` (p1 a p11, dois temas, verde da D26).
+Desenhos: `docs/arquitetura/propostas/painel-parceiro/` (p01 a p28, índice na seção 11; verde da D26).
 
 ## 1. Referências
 
@@ -22,11 +22,11 @@ Fontes: Airbnb ("Introducing the Today tab", central de recursos), GetYourGuide 
 - Ingresso do tipo **cortesia** (preço zero) já existe, mas só é vendido como os outros.
 - O pedido guarda um `promoterCode` livre, sem regra nem relatório.
 
-## 3. Painel do parceiro (p1, p2)
+## 3. Painel do parceiro (p01, p02)
 
 Barra inferior com cinco abas, como o app do anfitrião do Airbnb:
 
-1. **Início** — "Precisa de você" (prazos: ausência em 2 h, reclamação, força maior, verificação, plano), **Hoje** (horários de reserva e sessões do dia, com atalho para a portaria) e dois números: vendas de hoje e próximo repasse.
+1. **Início** — "Resolva agora" (prazos: ausência em 2 h, reclamação, força maior, verificação, plano), **Hoje** (horários de reserva e sessões do dia, com atalho para a portaria) e dois números: vendas de hoje e próximo repasse.
 2. **Agenda** — calendário com horários de reserva e sessões de evento; remarcar, cancelar e portaria saem daqui.
 3. **Anúncios** — estabelecimentos, eventos, passeios, aluguéis e translados (editor atual).
 4. **Ganhos** — Recebimentos, extrato, dívidas e relatórios/métricas.
@@ -34,7 +34,7 @@ Barra inferior com cinco abas, como o app do anfitrião do Airbnb:
 
 Cada evento abre uma página própria com abas **Vendas · Convidados · Divulgadores**.
 
-## 4. Lista de convidados (p3, p4)
+## 4. Lista de convidados (p13, p14, p15)
 
 - O parceiro busca o **@** da pessoa, escolhe quantos ingressos e envia. O ingresso de cortesia cai direto na carteira, com aviso no sininho e push ("Você ganhou um ingresso").
 - **Ocupa lugar** na capacidade da sessão; preço e taxa zero; sem repasse nem taxa da plataforma.
@@ -44,7 +44,7 @@ Cada evento abre uma página própria com abas **Vendas · Convidados · Divulga
 - Quem ainda não tem conta: link de convite (como o link de transferência), válido por **7 dias** e uso único.
 - Depois: importar lista por planilha (Shotgun aceita CSV).
 
-## 5. Divulgadores (p5, p6, p7)
+## 5. Divulgadores (p16, p17, p26, p27)
 
 - O parceiro adiciona pelo **@**; a pessoa recebe um convite e **aceita** (vê quanto ganha e os termos). Sem aceite, nada de link.
 - Cada divulgador ganha **um link por evento** (`useguide.com.br/e/<evento>?d=<código>`). A venda é atribuída ao último link usado, guardado por 7 dias no aparelho.
@@ -57,19 +57,19 @@ Cada evento abre uma página própria com abas **Vendas · Convidados · Divulga
 
 ## 6. Respostas do responsável do produto (2026-11-04) e o que mudou
 
-1. **Painel:** sem barra inferior. Atalhos em **quadrados levemente arredondados com ícone e nome dentro**, logo abaixo da saudação (referência: a linha de atalhos do app Telefone do iPhone): Agenda, Anúncios, Ganhos e Mais. A tela Início continua com "Precisa de você", "Hoje" e os números (p1, p2).
+1. **Painel:** sem barra inferior. Atalhos em **quadrados levemente arredondados com ícone e nome dentro**, logo abaixo da saudação (referência: a linha de atalhos do app Telefone do iPhone): Agenda, Anúncios, Ganhos e Mais. A tela Início continua com "Resolva agora", "Hoje" e os números (p01, p02).
 2. **Divulgador:** opção **A** — o parceiro paga direto; o Use Guide calcula e mostra.
 3. **Cortesias:** **sem limite por evento**, **uma por pessoa**. Proteções contra usar a cortesia para tirar a venda da plataforma (seção 7).
 4. **Cortesia intransferível:** sim.
 5. **Quem não tem conta:** ver seção 8 (recomendação: link pessoal de convite).
 6. **Divulgador aceita o convite:** sim.
-7. **Cachê fixo pelo evento:** entra como terceira opção (p6).
+7. **Cachê fixo pelo evento:** entra como terceira opção (p17).
 8. **Oferta aberta:** não agora; talvez no futuro.
 
-### 6.1. Início com cartões personalizáveis (pedido de 2026-11-04; p1, p2, p10, p11)
+### 6.1. Início com cartões personalizáveis (pedido de 2026-11-04; p01 a p04)
 
 - **Cinco atalhos no topo**, em quadrados levemente arredondados com ícone e nome: Início (marcado), Agenda, Anúncios, Ganhos e Mais.
-- **"Precisa de você" fixo no topo**, fora da personalização (prazos não podem sumir).
+- **"Resolva agora" fixo no topo**, fora da personalização (prazos não podem sumir).
 - Abaixo, **cartões em grade de duas colunas**, pequenos (meia largura) ou grandes (largura inteira). Tocar num cartão abre a aba certa (Hoje → Agenda, Vendas e repasse → Ganhos, evento → página do evento, Avaliações → avaliações).
 - **"Personalizar início"** abre o modo de edição: arrastar para mudar a ordem, "−" para tirar e "Adicionar cartão" para escolher numa galeria com descrição e tamanho; "Concluir" salva.
 - **Cartões disponíveis:** Hoje, Vendas de hoje, Próximo repasse, Próximo evento (vendidos, convidados, divulgadores), Avaliações, Reservas da semana, Convidados, Divulgadores, Plano e selo, Ocupação da semana e Vendas do mês. Os seis primeiros vêm por padrão.
@@ -94,7 +94,7 @@ A pesquisa não achou regra publicada pelas grandes plataformas sobre "cancelar 
 
 Recomendação: **link pessoal de convite**, de uso único, válido até o início do evento. O parceiro manda pelo WhatsApp dele; quem abre cria a conta e o ingresso fica preso a ela (vale a regra de uma por pessoa no resgate). Não enviamos e-mail nem SMS (pediria fornecedor novo, §15).
 
-## 9. O que fica na edição do evento e o que sai (p8, p9)
+## 9. O que fica na edição do evento e o que sai (p10, p18)
 
 Hoje a edição junta conteúdo e operação (lotes, vendas, participantes, check-in, reembolsos, configurações, financeiro). Proposta:
 
@@ -113,3 +113,38 @@ Hoje a edição junta conteúdo e operação (lotes, vendas, participantes, chec
 2. Convidados: cortesia por @ e por link pessoal, uma por pessoa, proteções da seção 7, aviso e portaria.
 3. Divulgadores: convite e aceite, link e atribuição, três formas de ganho, relatórios dos dois lados.
 4. Termos do parceiro: cláusula de venda por fora (nova versão).
+
+## 11. Índice dos desenhos (revisão de conteúdo, 2026-11-04)
+
+Atalhos do topo: Início, Agenda, Anúncios, Ganhos e Mais. "Precisa de você" passou a se chamar "Resolva agora" (nome em aberto).
+
+| Nº | Aba | Tela ou folha | Função |
+|---|---|---|---|
+| p01 | Início | Início (escuro) | "Resolva agora" fixo + cartões que levam à aba de cada assunto |
+| p02 | Início | Início (claro) | o mesmo, no tema claro |
+| p03 | Início | Personalizar início | arrastar, tirar e adicionar cartões |
+| p04 | Início | Folha Adicionar cartão | galeria de cartões disponíveis |
+| p05 | Agenda | Agenda | semana e lista do dia (horários de reserva e sessões de evento) |
+| p06 | Agenda | Folha do horário de reserva | participantes, quem chegou, confirmar chegada com código, mudar ou cancelar horário |
+| p07 | Agenda | Folha da sessão de evento | vendidos, convidados, entradas, abrir portaria, adiar ou cancelar |
+| p08 | Agenda | Folha Cancelar a sessão? | reembolso, multa de 20% e pedido de análise de força maior |
+| p09 | Anúncios | Anúncios | Lugares, Eventos e Passeios, com status |
+| p10 | Anúncios | Página do evento | resumo e entradas para vendas, convidados, divulgadores e edição |
+| p11 | Anúncios | Evento · Vendas | vendido, a receber, sessões e pedidos |
+| p12 | Anúncios | Folha do pedido | detalhe do pedido e situação do reembolso |
+| p13 | Anúncios | Evento · Convidados | lista de cortesias por sessão |
+| p14 | Anúncios | Folha Convidar | convite pelo @ ou por link pessoal |
+| p15 | Anúncios | Folha Link de convite criado | link de uso único, enviar pelo WhatsApp |
+| p16 | Anúncios | Evento · Divulgadores | divulgadores, vendas por link e valor devido |
+| p17 | Anúncios | Folha Adicionar divulgador | comissão, valor por ingresso ou cachê fixo |
+| p18 | Anúncios | Editar evento | só o que é cadastro: dados, sessões, ingressos, política |
+| p19 | Anúncios | Página do estabelecimento | status, plano, números, ofertas e avaliações |
+| p20 | Ganhos | Ganhos | a receber, recebido, Repasses, Extrato e Dívidas |
+| p21 | Ganhos | Folha do repasse | vendido, taxa, valor líquido e serviços incluídos |
+| p22 | Ganhos | Contas de recebimento | uma conta por CNPJ e sua situação |
+| p23 | Ganhos | Relatórios | vendas por período e por anúncio |
+| p24 | Mais | Mais | perfil, estabelecimentos, planos, contas, equipe, notificações, termos, ajuda |
+| p25 | Mais | Planos e selo | plano e selo por estabelecimento |
+| p26 | Conta do usuário | Divulgação | eventos que a pessoa divulga, link e resultado |
+| p27 | Conta do usuário | Folha Convite para divulgar | aceitar ou recusar, com as regras do ganho |
+| p28 | Fora do app | Página do link de cortesia | entrar ou criar conta para receber a cortesia |
