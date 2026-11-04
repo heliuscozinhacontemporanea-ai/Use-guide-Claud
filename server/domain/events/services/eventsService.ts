@@ -110,6 +110,10 @@ export class EventsService {
     return this.eventsPort.listAllListings();
   }
 
+  async listListingsByOwner(ownerId: string): Promise<EventListing[]> {
+    return this.eventsPort.listListingsByOwner(ownerId);
+  }
+
   async updateListing(
     actor: EventActorContext,
     id: string,

@@ -42,6 +42,7 @@ import { InternalBookingsController } from './server/interfaces/http/bookings/in
 import listingStatsRouter from './server/interfaces/http/insights/listingStatsRoutes';
 import listingPlanRouter from './server/interfaces/http/listingPlans/listingPlanRoutes';
 import listingVerificationRouter from './server/interfaces/http/listingVerifications/listingVerificationRoutes';
+import partnerHomeRouter from './server/interfaces/http/partnerHome/partnerHomeRoutes';
 import { InternalPartnersController } from './server/interfaces/http/partners/internalPartnersController';
 import paymentAccountRouter, {
   adminAccountDebtRouter,
@@ -212,6 +213,7 @@ async function startServer() {
   app.use('/api/bookings', bookingsRouter);
   app.use('/api/payment/plans', billingRouter);
   app.use('/api/payment-accounts', paymentAccountRouter);
+  app.use('/api/partner-home', partnerHomeRouter);
   app.use('/api/sale-claims', saleClaimRouter);
   app.use('/api/ticket-transfers', ticketTransferRouter);
   app.use('/api/admin/sale-claims', adminSaleClaimRouter);

@@ -8,6 +8,7 @@ import { BookingPrivacyService } from './services/bookingPrivacyService';
 import { BookingService } from './services/bookingService';
 import { BookingServiceProofService } from './services/bookingServiceProofService';
 import { OfferService } from './services/offerService';
+import { OwnerAgendaService } from './services/ownerAgendaService';
 
 let offerService: OfferService | null = null;
 let bookingService: BookingService | null = null;
@@ -16,6 +17,7 @@ let serviceProofService: BookingServiceProofService | null = null;
 let privacyService: BookingPrivacyService | null = null;
 let entryService: BookingEntryService | null = null;
 let participantService: BookingParticipantService | null = null;
+let ownerAgendaService: OwnerAgendaService | null = null;
 let port: FirestoreBookingsAdapter | null = null;
 
 function getPort(): FirestoreBookingsAdapter {
@@ -57,4 +59,9 @@ export function getBookingEntryService(): BookingEntryService {
 export function getBookingParticipantService(): BookingParticipantService {
   participantService ??= new BookingParticipantService(getPort());
   return participantService;
+}
+
+export function getOwnerAgendaService(): OwnerAgendaService {
+  ownerAgendaService ??= new OwnerAgendaService(getPort());
+  return ownerAgendaService;
 }

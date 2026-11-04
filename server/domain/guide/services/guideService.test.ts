@@ -14,6 +14,7 @@ function createGuidePortMock(): GuidePort {
     updateReviewAggregate: vi.fn(),
     deleteResourcesByOwner: vi.fn(),
     getAllItems: vi.fn(),
+    listItemsByOwner: vi.fn(),
   };
 }
 

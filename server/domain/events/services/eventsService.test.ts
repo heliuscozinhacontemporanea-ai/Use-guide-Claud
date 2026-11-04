@@ -10,6 +10,7 @@ function createMockPort(): EventsPort {
     getListingById: vi.fn(),
     listPublicListings: vi.fn(),
     listAllListings: vi.fn(),
+    listListingsByOwner: vi.fn(),
     updateListing: vi.fn(),
     deleteListing: vi.fn(),
     updateRatingSummary: vi.fn(),

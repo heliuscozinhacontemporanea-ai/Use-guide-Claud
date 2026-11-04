@@ -103,6 +103,10 @@ export class PayoutService {
     };
   }
 
+  async listOpenForAccounts(accountKeys: string[], limit: number): Promise<PayoutEntryView[]> {
+    return (await this.entries.listOpenByAccountKeys(accountKeys, limit)).map(toEntryView);
+  }
+
   /** Chamado pelo webhook de pagamento confirmado; repetir não cria outra entrada. */
   async recordSale(input: RecordSaleInput): Promise<PayoutEntry> {
     const nowIso = this.now().toISOString();

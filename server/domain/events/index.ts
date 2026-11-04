@@ -9,6 +9,7 @@ export { duplicateEventListingUseCase } from './usecases/duplicateEventListingUs
 export { getEventListingByIdUseCase } from './usecases/getEventListingByIdUseCase';
 export { getEventOccurrenceByIdUseCase } from './usecases/getEventOccurrenceByIdUseCase';
 export { listAllEventListingsUseCase } from './usecases/listAllEventListingsUseCase';
+export { listOwnerEventListingsUseCase } from './usecases/listOwnerEventListingsUseCase';
 export { listEventOccurrencesUseCase } from './usecases/listEventOccurrencesUseCase';
 export { listPublicEventListingsUseCase } from './usecases/listPublicEventListingsUseCase';
 export { pauseEventListingUseCase } from './usecases/pauseEventListingUseCase';

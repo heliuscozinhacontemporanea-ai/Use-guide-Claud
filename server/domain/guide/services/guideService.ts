@@ -143,4 +143,9 @@ export class GuideService {
   async getAllItems() {
     return this.guidePort.getAllItems();
   }
+
+  async listItemsByOwner(ownerId: string) {
+    ensureValidId(ownerId);
+    return this.guidePort.listItemsByOwner(ownerId);
+  }
 }

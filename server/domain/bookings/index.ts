@@ -14,6 +14,7 @@ export type {
 } from './services/bookingService';
 export type { CheckInWithoutCodeInput } from './services/bookingServiceProofService';
 export type { CreateSlotsInput, OfferInput } from './services/offerService';
+export type { OwnerOpenAbsence, OwnerSlotSummary } from './services/ownerAgendaService';
 export {
   type AvailabilitySlot,
   type BookableOffer,
@@ -66,6 +67,7 @@ export { listBookingsWithDueDeadlineUseCase } from './usecases/listBookingsWithD
 export { listMyBookingsUseCase } from './usecases/listMyBookingsUseCase';
 export { listOfferBookingsForPartnerUseCase } from './usecases/listOfferBookingsForPartnerUseCase';
 export { listOfferSlotsForPartnerUseCase } from './usecases/listOfferSlotsForPartnerUseCase';
+export { listOwnerAgendaUseCase } from './usecases/listOwnerAgendaUseCase';
 export { listPartnerOffersUseCase } from './usecases/listPartnerOffersUseCase';
 export { markBookingDisputedUseCase } from './usecases/markBookingDisputedUseCase';
 export { markBookingNoShowUseCase } from './usecases/markBookingNoShowUseCase';

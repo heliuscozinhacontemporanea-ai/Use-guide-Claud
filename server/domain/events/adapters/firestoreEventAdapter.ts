@@ -54,6 +54,13 @@ export class FirestoreEventAdapter implements EventsPort {
     );
   }
 
+  async listListingsByOwner(ownerId: string): Promise<EventListing[]> {
+    const snap = await adminDb.collection('events').where('ownerId', '==', ownerId).get();
+    return snap.docs.map((doc) =>
+      EventListingPersistenceMapper.toDomain(doc.id, (doc.data() || {}) as Record<string, unknown>)
+    );
+  }
+
   async updateListing(id: string, input: UpdateEventListingInput): Promise<EventListing> {
     const docRef = adminDb.collection('events').doc(id);
     const current = await docRef.get();

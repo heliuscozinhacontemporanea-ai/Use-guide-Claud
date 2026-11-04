@@ -29,6 +29,17 @@ export class InMemoryPayoutEntryAdapter implements PayoutEntryRepositoryPort {
       .slice(0, limit);
   }
 
+  async listOpenByAccountKeys(accountKeys: string[], limit: number): Promise<PayoutEntry[]> {
+    return [...this.rows.values()]
+      .filter(
+        (entry) =>
+          accountKeys.includes(entry.accountKey) &&
+          (entry.status === 'pending' || entry.status === 'on_hold')
+      )
+      .sort((a, b) => a.releaseAt.localeCompare(b.releaseAt))
+      .slice(0, limit);
+  }
+
   async listByAccountKeys(
     accountKeys: string[],
     limit: number,

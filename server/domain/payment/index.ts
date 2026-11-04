@@ -78,6 +78,7 @@ export { listMySaleClaimsUseCase } from './usecases/listMySaleClaimsUseCase';
 export { listOpenAccountDebtsForAdminUseCase } from './usecases/listOpenAccountDebtsForAdminUseCase';
 export { listOwnerPaymentAccountsUseCase } from './usecases/listOwnerPaymentAccountsUseCase';
 export { listPayoutEntriesUseCase } from './usecases/listPayoutEntriesUseCase';
+export { listOpenPayoutEntriesUseCase } from './usecases/listOpenPayoutEntriesUseCase';
 export { listPendingSaleClaimsUseCase } from './usecases/listPendingSaleClaimsUseCase';
 export { markAccountDebtPaidUseCase } from './usecases/markAccountDebtPaidUseCase';
 export { openSaleClaimUseCase } from './usecases/openSaleClaimUseCase';

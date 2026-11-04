@@ -41,6 +41,26 @@ export class FirestorePayoutEntryAdapter implements PayoutEntryRepositoryPort {
     return snapshot.docs.map((doc) => doc.data() as PayoutEntry);
   }
 
+  async listOpenByAccountKeys(accountKeys: string[], limit: number): Promise<PayoutEntry[]> {
+    if (accountKeys.length === 0) return [];
+    // Uma consulta por status: `in` em dois campos multiplica as combinações e passa do limite de 30.
+    const snapshots = await Promise.all(
+      (['pending', 'on_hold'] as const).map((status) =>
+        adminDb
+          .collection(ENTRIES)
+          .where('accountKey', 'in', accountKeys.slice(0, 30))
+          .where('status', '==', status)
+          .orderBy('releaseAt', 'asc')
+          .limit(limit)
+          .get()
+      )
+    );
+    return snapshots
+      .flatMap((snapshot) => snapshot.docs.map((doc) => doc.data() as PayoutEntry))
+      .sort((a, b) => a.releaseAt.localeCompare(b.releaseAt))
+      .slice(0, limit);
+  }
+
   async getByPaymentIntentId(paymentIntentId: string): Promise<PayoutEntry | null> {
     const snapshot = await adminDb
       .collection(ENTRIES)

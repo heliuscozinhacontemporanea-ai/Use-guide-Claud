@@ -14,6 +14,8 @@ export interface EventsPort {
   getListingById(id: string): Promise<EventListing | null>;
   listPublicListings(): Promise<EventListing[]>;
   listAllListings(): Promise<EventListing[]>;
+  /** Eventos de um dono (painel do parceiro, D27). */
+  listListingsByOwner(ownerId: string): Promise<EventListing[]>;
   updateListing(id: string, input: UpdateEventListingInput): Promise<EventListing>;
   deleteListing(id: string): Promise<void>;
   updateRatingSummary(id: string, summary: EventRatingSummary): Promise<void>;
