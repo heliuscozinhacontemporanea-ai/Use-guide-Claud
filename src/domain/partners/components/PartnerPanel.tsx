@@ -1,8 +1,10 @@
 import { RefreshCw } from 'lucide-react';
 import { AnimatePresence } from 'motion/react';
 import React, { useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useLocalizedRouting } from '../../../shared/hooks/useLocalizedRouting';
-import { type EventSessionsFieldProps, newEventSessionDraft } from '../../events';
+import type { EventSessionsFieldProps } from '../../events';
+import { newPartnerEventDraft } from '../utils/newPartnerEventDraft';
 import { createPartnerContentItemUseCase } from '../application/usecases/createPartnerContentItemUseCase';
 import { deletePartnerContentItemUseCase } from '../application/usecases/deletePartnerContentItemUseCase';
 import { updatePartnerContentItemUseCase } from '../application/usecases/updatePartnerContentItemUseCase';
@@ -14,10 +16,18 @@ import type { PartnerContentRecord } from '../types/partnerContent';
 import { ListingEditor } from './ListingEditor';
 import { PartnerEventEditor } from './PartnerEventEditor';
 import { ListingPlanDialog, type PaidPlanSelection } from './plan/ListingPlanDialog';
+import { usePartnerPanelHome } from '../hooks/usePartnerPanelHome';
+import { EstablishmentFilterSheet } from './panel/EstablishmentFilterSheet';
+import { ATTENTION_TAB } from './panel/PartnerAttentionList';
+import { type CatalogSegment, PartnerCatalogTab } from './panel/PartnerCatalogTab';
+import { PartnerHomeTab } from './panel/PartnerHomeTab';
+import { PartnerHomeHeader } from './panel/PartnerHomeHeader';
+import { PartnerMoreSection, type PartnerMoreView } from './panel/PartnerMoreSection';
+import { PartnerShortcuts } from './panel/PartnerShortcuts';
+import { PartnerTodayList } from './panel/PartnerTodayList';
+import type { PartnerPanelTab } from './panel/partnerPanelTabs';
 import { PartnerEventsTable } from './subcomponents/PartnerEventsTable';
-import { PartnerHeader } from './subcomponents/PartnerHeader';
 import { PartnerItemsTable } from './subcomponents/PartnerItemsTable';
-import { PartnerTabsNavigation } from './subcomponents/PartnerTabsNavigation';
 import { ListingVerificationDialog } from './verification/ListingVerificationDialog';
 import type { VerificationListingOption } from './verification/verificationListingOption';
 
@@ -52,6 +62,8 @@ export interface PartnerPanelProps {
   ) => React.ReactNode;
   /** Chamado ao fechar o checkout depois de um pagamento confirmado, para recarregar o perfil. */
   onPlanPurchased?: () => void;
+  /** Ganhos (domínio payment), montado pela composição. */
+  renderEarnings?: () => React.ReactNode;
 }
 
 export function PartnerPanel({
@@ -64,15 +76,20 @@ export function PartnerPanel({
   renderPlanSubscription,
   renderBookableOffersManager,
   onPlanPurchased,
+  renderEarnings,
 }: PartnerPanelProps) {
   const { goTo } = useLocalizedRouting();
+  const { t } = useTranslation();
+  const home = usePartnerPanelHome();
+  const [panelTab, setPanelTab] = React.useState<PartnerPanelTab>('home');
+  const [catalogSegment, setCatalogSegment] = React.useState<CatalogSegment>('places');
+  const [moreView, setMoreView] = React.useState<PartnerMoreView>('list');
 
   const {
     user,
     userLoading,
     partnerProfile,
     profileStatus,
-    activeTab,
     setActiveTab,
     isEditing,
     setIsEditing,
@@ -160,56 +177,98 @@ export function PartnerPanel({
       <div
         className={`max-w-4xl mx-auto space-y-8 relative z-10 transition-all duration-300 ${isEditing || editingListing !== undefined ? 'opacity-0 scale-[0.98] pointer-events-none h-0 overflow-hidden' : 'opacity-100 scale-100'}`}
       >
-        <PartnerHeader partnerProfile={partnerProfile} onNavigateBack={() => goTo('explore')} />
+        {panelTab === 'home' && (
+          <PartnerHomeHeader
+            establishments={home.establishments}
+            filterName={home.filterName}
+            otherPending={home.otherPending}
+            onOpenFilter={() => home.setSheetOpen(true)}
+          />
+        )}
 
-        <PartnerTabsNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
+        <PartnerShortcuts
+          value={panelTab}
+          onChange={(tab) => {
+            setPanelTab(tab);
+            setMoreView('list');
+          }}
+        />
 
-        {activeTab === 'reports' ? (
-          renderReports?.({ partnerId: user.uid, items: itemsList, events: eventsList })
-        ) : activeTab === 'items' ? (
-          <>
-            <PartnerItemsTable
-              itemsList={itemsList}
-              loading={dataLoading}
-              onEditItem={(item) => setEditingListing(item)}
-              onToggleActive={handleToggleActive}
-              onCreateNew={() => setEditingListing(null)}
-              verificationVersion={verificationVersion}
-              onVerifyItem={(item) =>
-                setVerifyingListing({ id: item.id, name: item.name, category: item.category })
-              }
-              planVersion={planVersion}
-              onOpenPlan={(item) => setPlanListing({ id: item.id, name: item.name })}
+        {panelTab === 'home' ? (
+          <PartnerHomeTab
+            loading={home.loading}
+            error={home.error}
+            onRetry={() => void home.reload()}
+            view={home.data}
+            attention={home.attention}
+            today={home.today}
+            labelFor={home.labelFor}
+            onOpenAttention={(item) => setPanelTab(ATTENTION_TAB[item.kind])}
+            onOpenToday={() => setPanelTab('agenda')}
+          />
+        ) : panelTab === 'agenda' ? (
+          <section className="space-y-4">
+            <h2 className="px-1 text-[22px] font-display font-bold text-ink">
+              {t('partnerPanel.agenda.title')}
+            </h2>
+            <PartnerTodayList
+              title={t('partnerPanel.agenda.today')}
+              items={home.today}
+              labelFor={home.labelFor}
+              onOpen={() => undefined}
             />
-            {renderBookableOffersManager?.(
+          </section>
+        ) : panelTab === 'catalog' ? (
+          <PartnerCatalogTab
+            segment={catalogSegment}
+            onSegmentChange={(segment) => {
+              setCatalogSegment(segment);
+              setActiveTab(segment === 'events' ? 'events' : 'items');
+            }}
+            places={
+              <PartnerItemsTable
+                itemsList={itemsList}
+                loading={dataLoading}
+                onEditItem={(item) => setEditingListing(item)}
+                onToggleActive={handleToggleActive}
+                onCreateNew={() => setEditingListing(null)}
+                verificationVersion={verificationVersion}
+                onVerifyItem={(item) =>
+                  setVerifyingListing({ id: item.id, name: item.name, category: item.category })
+                }
+                planVersion={planVersion}
+                onOpenPlan={(item) => setPlanListing({ id: item.id, name: item.name })}
+              />
+            }
+            events={
+              <PartnerEventsTable
+                eventsList={eventsList}
+                loading={dataLoading}
+                onEditEvent={(item) =>
+                  setIsEditing({
+                    ...item,
+                    images: item.images || (item.image ? [item.image] : []),
+                  })
+                }
+                onToggleActive={handleToggleActive}
+                onCreateNew={() => setIsEditing(newPartnerEventDraft(user?.uid ?? ''))}
+              />
+            }
+            offers={renderBookableOffersManager?.(
               itemsList.map((item) => ({ id: item.id, name: item.name, category: item.category }))
             )}
-          </>
+          />
+        ) : panelTab === 'earnings' ? (
+          renderEarnings?.()
         ) : (
-          <PartnerEventsTable
-            eventsList={eventsList}
-            loading={dataLoading}
-            onEditEvent={(item) =>
-              setIsEditing({
-                ...item,
-                images: item.images || (item.image ? [item.image] : []),
-              })
-            }
-            onToggleActive={handleToggleActive}
-            onCreateNew={() =>
-              setIsEditing({
-                id: '',
-                name: '',
-                description: '',
-                category: 'event',
-                location: '',
-                ownerId: user?.uid || '',
-                image: '',
-                images: [],
-                operationalInfo: {},
-                sessions: [newEventSessionDraft()],
-              })
-            }
+          <PartnerMoreSection
+            view={moreView}
+            onViewChange={setMoreView}
+            establishments={itemsList}
+            reports={renderReports?.({ partnerId: user.uid, items: itemsList, events: eventsList })}
+            onOpenPlan={(item) => setPlanListing({ id: item.id, name: item.name })}
+            onOpenEarnings={() => setPanelTab('earnings')}
+            onBackToGuide={() => goTo('explore')}
           />
         )}
       </div>
@@ -300,6 +359,16 @@ export function PartnerPanel({
           renderSubscription={renderPlanSubscription}
         />
       )}
+
+      <EstablishmentFilterSheet
+        open={home.sheetOpen}
+        onOpenChange={home.setSheetOpen}
+        establishments={home.establishments}
+        pendingById={home.pendingById}
+        value={home.filter}
+        onChange={home.setFilter}
+        onCreate={() => setEditingListing(null)}
+      />
 
       {renderCheckoutModal?.({
         isOpen: showCheckoutModal,

@@ -43,6 +43,12 @@ import {
   gateModePtBR,
 } from './gateModeResources';
 import {
+  type PartnerPanelTranslation,
+  partnerPanelEn,
+  partnerPanelFr,
+  partnerPanelPtBR,
+} from './partnerPanelResources';
+import {
   type InsightsTranslation,
   insightsEn,
   insightsFr,
@@ -176,6 +182,7 @@ export interface TranslationResource {
   help: HelpTranslation;
   eventSessions: EventSessionsTranslation;
   gateMode: GateModeTranslation;
+  partnerPanel: PartnerPanelTranslation;
   legal: LegalTranslation;
   verification: VerificationTranslation;
   emailVerification: EmailVerificationTranslation;
@@ -416,6 +423,7 @@ const ptBR: TranslationResource = {
   help: helpPtBR,
   eventSessions: eventSessionsPtBR,
   gateMode: gateModePtBR,
+  partnerPanel: partnerPanelPtBR,
   legal: legalPtBR,
   verification: verificationPtBR,
   emailVerification: emailVerificationPtBR,
@@ -716,6 +724,7 @@ const en: TranslationResource = {
   help: helpEn,
   eventSessions: eventSessionsEn,
   gateMode: gateModeEn,
+  partnerPanel: partnerPanelEn,
   legal: legalEn,
   verification: verificationEn,
   emailVerification: emailVerificationEn,
@@ -1010,6 +1019,7 @@ const fr: TranslationResource = {
   help: helpFr,
   eventSessions: eventSessionsFr,
   gateMode: gateModeFr,
+  partnerPanel: partnerPanelFr,
   legal: legalFr,
   verification: verificationFr,
   emailVerification: emailVerificationFr,

@@ -12,6 +12,7 @@ import {
   CheckoutModal,
   isPaidPlanId,
   type PlanPeriodOption,
+  PartnerStripeConnectPortal,
   PlanSubscriptionCard,
 } from '../../domain/payment';
 import { useLocalizedRouting } from '../../shared/hooks/useLocalizedRouting';
@@ -191,6 +192,7 @@ export function PartnerPortalComposition() {
         <PartnerEventTicketingComposition eventListingId={eventListingId} />
       )}
       renderEventSessionsField={(props) => <EventSessionsField {...props} />}
+      renderEarnings={() => <PartnerStripeConnectPortal />}
     />
   );
 }
