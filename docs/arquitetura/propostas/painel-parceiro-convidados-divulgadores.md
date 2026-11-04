@@ -107,12 +107,22 @@ Hoje a edição junta conteúdo e operação (lotes, vendas, participantes, chec
 | Regras de venda (cancelamento, taxa de serviço, transferência) | | |
 | Fotos e contato | | |
 
-## 10. Etapas (depois da aprovação dos desenhos)
+## 10. Etapas (aprovadas em 2026-11-04; plano revisto com as seções 11.3 e 11.4)
 
-1. Painel: cinco atalhos no topo, Início com cartões personalizáveis e página do evento separada da edição.
-2. Convidados: cortesia por @ e por link pessoal, uma por pessoa, proteções da seção 7, aviso e portaria.
-3. Divulgadores: convite e aceite, link e atribuição, três formas de ganho, relatórios dos dois lados.
-4. Termos do parceiro: cláusula de venda por fora (nova versão).
+1. **Estrutura do painel**
+   * 1a. Backend: leitura do Início num caso de uso de aplicação (`GET /api/partner-home`): "Resolva agora", "Hoje" e números, de todos os estabelecimentos ou de um só.
+   * 1b. Casca do painel: cinco atalhos no topo, nome do estabelecimento com a folha "Mostrar no painel", Início fixo ("Resolva agora", "Hoje", números) e Mais.
+   * 1c. Cartões personalizáveis do Início (Personalizar, Adicionar cartão).
+   * 1d. Agenda: semana, lista do dia e folhas do horário e da sessão (com as ações que já existem).
+   * 1e. Catálogo e página do evento separada da edição (Vendas e a edição só com o cadastro).
+   * 1f. Ganhos: resumo, Repasses, Extrato, Dívidas, contas de recebimento e relatórios.
+2. **Agora**
+   * 2a. Backend: código procurado em todos os horários abertos do estabelecimento, com o limite novo; telefone na compra, gravado na reserva e apagado em 7 dias; número mostrado depois do "Cheguei", com registro; "Estou chegando" e "Não vou mais" (ausência); aviso com "Seu código".
+   * 2b. Telas: cartões de "Agora" com as janelas de horário, folha do código, contatos e as telas do cliente.
+3. **Convidados:** cortesia por @ e por link pessoal, uma por pessoa, proteções da seção 7, aviso e portaria.
+4. **Divulgadores:** convite e aceite, link e atribuição, três formas de ganho, relatórios dos dois lados.
+5. **Termos do parceiro:** cláusulas de cortesia e de venda por fora (nova versão).
+6. **Depois:** relatório das funções e configurações que ficaram fora das telas e tour de primeira abertura.
 
 ## 11. Índice dos desenhos (revisão de conteúdo, 2026-11-04)
 
