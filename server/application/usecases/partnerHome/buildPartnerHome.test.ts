@@ -32,9 +32,16 @@ function entry(overrides: Partial<PayoutEntryView>): PayoutEntryView {
 function input(overrides: Partial<PartnerHomeInput> = {}): PartnerHomeInput {
   return {
     nowIso: NOW,
+    cards: ['today'],
     establishments: [
-      { id: 'buggy', name: 'Buggy do Preá', category: 'tour' },
-      { id: 'pousada', name: 'Pousada Vento Leste', category: 'lodging' },
+      { id: 'buggy', name: 'Buggy do Preá', category: 'tour', rating: 4.8, reviewCount: 96 },
+      {
+        id: 'pousada',
+        name: 'Pousada Vento Leste',
+        category: 'lodging',
+        rating: 0,
+        reviewCount: 0,
+      },
     ],
     documents: [{ accountKey: 'acc1', maskedDocument: '**.***.***/0001-81', itemIds: ['buggy'] }],
     slots: [],
@@ -184,5 +191,66 @@ describe('buildPartnerHome', () => {
       amountMinor: 3000,
       count: 2,
     });
+  });
+
+  it('monta os dados dos cartões: próximas sessões, semana e vendas do mês', () => {
+    const slot = (id: string, startsAt: string, unitsCount: number) => ({
+      slotId: id,
+      offerId: 'o1',
+      guideItemId: 'buggy',
+      kind: 'tour' as const,
+      title: { 'pt-BR': 'Passeio' },
+      startsAt,
+      status: 'open' as const,
+      capacityTotal: 8,
+      capacitySold: unitsCount,
+      bookingsCount: 0,
+      unitsCount,
+      checkedInUnits: 0,
+    });
+    const home = buildPartnerHome(
+      input({
+        slots: [
+          slot('a', '2026-11-08T12:00:00.000Z', 6),
+          slot('b', '2026-11-08T17:00:00.000Z', 2),
+          slot('c', '2026-11-10T12:00:00.000Z', 4),
+          slot('fora', '2026-11-15T12:00:00.000Z', 8),
+        ],
+        sessions: [
+          {
+            id: 'passou',
+            eventId: 'ev',
+            eventTitle: 'Luau',
+            establishmentId: 'buggy',
+            startsAt: '2026-11-08T03:00:00.000Z',
+            endsAt: null,
+            capacity: 300,
+            sold: 10,
+          },
+          {
+            id: 'proxima',
+            eventId: 'ev',
+            eventTitle: 'Luau',
+            establishmentId: 'buggy',
+            startsAt: '2026-12-20T23:00:00.000Z',
+            endsAt: null,
+            capacity: 300,
+            sold: 128,
+          },
+        ],
+        recentEntries: [
+          entry({ id: 'nov', grossMinor: 1000, createdAt: '2026-11-01T03:00:00.000Z' }),
+          entry({ id: 'out', grossMinor: 500, createdAt: '2026-11-01T02:59:00.000Z' }),
+          entry({ id: 'set', grossMinor: 900, createdAt: '2026-09-30T12:00:00.000Z' }),
+        ],
+      })
+    );
+    expect(home.cards).toEqual(['today']);
+    expect(home.upcomingSessions.map((session) => session.id)).toEqual(['proxima']);
+    expect(home.week).toEqual([
+      { date: '2026-11-08T03:00:00.000Z', establishmentIds: ['buggy'], sold: 8, capacity: 16 },
+      { date: '2026-11-10T03:00:00.000Z', establishmentIds: ['buggy'], sold: 4, capacity: 8 },
+    ]);
+    expect(home.numbers.month).toEqual({ currentMinor: 1000, previousMinor: 500 });
   });
 });

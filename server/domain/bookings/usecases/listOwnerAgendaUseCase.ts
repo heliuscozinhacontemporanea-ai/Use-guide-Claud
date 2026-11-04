@@ -5,7 +5,8 @@ import type { BookingActor } from '../types/bookingTypes';
 export function listOwnerAgendaUseCase(
   actor: BookingActor,
   fromIso: string,
-  toIso: string
+  toIso: string,
+  detailUntilIso?: string
 ): Promise<{ slots: OwnerSlotSummary[]; openAbsences: OwnerOpenAbsence[] }> {
-  return getOwnerAgendaService().listOwnerAgenda(actor, fromIso, toIso);
+  return getOwnerAgendaService().listOwnerAgenda(actor, fromIso, toIso, detailUntilIso);
 }

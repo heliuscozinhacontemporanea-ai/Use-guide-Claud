@@ -1,5 +1,6 @@
 /** Textos da casca do painel do parceiro (D27): atalhos, filtro, Início e Mais. pt-BR é a fonte. */
 type AttentionTexts = { title: string; detail: string };
+type CardTexts = { title: string; description: string };
 
 export interface PartnerPanelTranslation {
   shortcuts: string;
@@ -41,6 +42,30 @@ export interface PartnerPanelTranslation {
     payment_account: AttentionTexts;
     verification_rejected: AttentionTexts;
     plan_expiring: AttentionTexts;
+  };
+  cards: {
+    label: string;
+    customize: string;
+    editHint: string;
+    cancel: string;
+    done: string;
+    add: string;
+    addTitle: string;
+    addDescription: string;
+    galleryEmpty: string;
+    remove: string;
+    move: string;
+    saveError: string;
+    size: { small: string; large: string };
+    today: CardTexts;
+    sales_today: CardTexts;
+    next_payout: CardTexts;
+    next_event: CardTexts & { sold: string };
+    reviews: CardTexts & { count_one: string; count_other: string };
+    week_bookings: CardTexts & { occupancy: string };
+    plan_seal: CardTexts & { until: string };
+    week_occupancy: CardTexts;
+    month_sales: CardTexts & { compare: string; noCompare: string };
   };
   agenda: { title: string; today: string };
   catalog: { title: string; places: string; events: string; offers: string };
@@ -105,6 +130,53 @@ export const partnerPanelPtBR: PartnerPanelTranslation = {
       detail: 'Envie os documentos de novo',
     },
     plan_expiring: { title: 'Plano vence em breve', detail: 'Renove até {{date}}' },
+  },
+  cards: {
+    label: 'Cartões do início',
+    customize: 'Personalizar início',
+    editHint:
+      'Arraste pela alça para mudar a ordem. Toque no − para tirar. "Resolva agora" fica sempre no topo.',
+    cancel: 'Cancelar',
+    done: 'Concluir',
+    add: 'Adicionar cartão',
+    addTitle: 'Adicionar cartão',
+    addDescription: 'Escolha o que você quer ver no início.',
+    galleryEmpty: 'Todos os cartões disponíveis já estão no início.',
+    remove: 'Tirar {{name}}',
+    move: 'Mover {{name}}. Use as setas para cima e para baixo',
+    saveError: 'Não foi possível salvar o início.',
+    size: { small: 'Pequeno', large: 'Grande' },
+    today: { title: 'Hoje', description: 'Horários e sessões de hoje' },
+    sales_today: { title: 'Vendas de hoje', description: 'Total vendido hoje' },
+    next_payout: { title: 'Próximo repasse', description: 'Quanto cai e quando' },
+    next_event: {
+      title: 'Próximo evento',
+      description: 'Ingressos vendidos da próxima sessão',
+      sold: '{{sold}} de {{capacity}} vendidos',
+    },
+    reviews: {
+      title: 'Avaliações',
+      description: 'Nota média dos estabelecimentos',
+      count_one: '{{count}} avaliação',
+      count_other: '{{count}} avaliações',
+    },
+    week_bookings: {
+      title: 'Reservas da semana',
+      description: 'Lugares vendidos nos próximos 7 dias',
+      occupancy: '{{percent}}% dos lugares',
+    },
+    plan_seal: {
+      title: 'Plano e selo',
+      description: 'O próximo plano a vencer',
+      until: 'Plano até {{date}}',
+    },
+    week_occupancy: { title: 'Ocupação da semana', description: 'Lugares vendidos por dia' },
+    month_sales: {
+      title: 'Vendas do mês',
+      description: 'Total do mês e comparação com o anterior',
+      compare: '{{percent}}% que o mês passado',
+      noCompare: 'Sem vendas no mês passado',
+    },
   },
   agenda: { title: 'Agenda', today: 'Hoje' },
   catalog: { title: 'Catálogo', places: 'Lugares', events: 'Eventos', offers: 'Passeios' },
@@ -176,6 +248,53 @@ export const partnerPanelEn: PartnerPanelTranslation = {
     },
     plan_expiring: { title: 'Plan ending soon', detail: 'Renew by {{date}}' },
   },
+  cards: {
+    label: 'Home cards',
+    customize: 'Customize home',
+    editHint:
+      'Drag by the handle to change the order. Tap − to remove. "Act now" always stays on top.',
+    cancel: 'Cancel',
+    done: 'Done',
+    add: 'Add card',
+    addTitle: 'Add card',
+    addDescription: 'Choose what you want to see on the home screen.',
+    galleryEmpty: 'All available cards are already on the home screen.',
+    remove: 'Remove {{name}}',
+    move: 'Move {{name}}. Use the up and down arrows',
+    saveError: 'The home screen could not be saved.',
+    size: { small: 'Small', large: 'Large' },
+    today: { title: 'Today', description: "Today's time slots and sessions" },
+    sales_today: { title: 'Sales today', description: 'Total sold today' },
+    next_payout: { title: 'Next payout', description: 'How much and when' },
+    next_event: {
+      title: 'Next event',
+      description: 'Tickets sold for the next session',
+      sold: '{{sold}} of {{capacity}} sold',
+    },
+    reviews: {
+      title: 'Reviews',
+      description: 'Average rating of your businesses',
+      count_one: '{{count}} review',
+      count_other: '{{count}} reviews',
+    },
+    week_bookings: {
+      title: 'Bookings this week',
+      description: 'Spots sold in the next 7 days',
+      occupancy: '{{percent}}% of spots',
+    },
+    plan_seal: {
+      title: 'Plan and badge',
+      description: 'The next plan to end',
+      until: 'Plan until {{date}}',
+    },
+    week_occupancy: { title: 'Weekly occupancy', description: 'Spots sold per day' },
+    month_sales: {
+      title: 'Sales this month',
+      description: 'Month total compared with last month',
+      compare: '{{percent}}% vs. last month',
+      noCompare: 'No sales last month',
+    },
+  },
   agenda: { title: 'Schedule', today: 'Today' },
   catalog: { title: 'Catalog', places: 'Places', events: 'Events', offers: 'Tours' },
   more: {
@@ -246,6 +365,53 @@ export const partnerPanelFr: PartnerPanelTranslation = {
       detail: 'Renvoyez les documents',
     },
     plan_expiring: { title: 'Formule bientôt expirée', detail: 'Renouvelez avant le {{date}}' },
+  },
+  cards: {
+    label: 'Cartes de l’accueil',
+    customize: 'Personnaliser l’accueil',
+    editHint:
+      'Faites glisser la poignée pour changer l’ordre. Touchez − pour retirer. « À régler » reste toujours en haut.',
+    cancel: 'Annuler',
+    done: 'Terminer',
+    add: 'Ajouter une carte',
+    addTitle: 'Ajouter une carte',
+    addDescription: 'Choisissez ce que vous voulez voir sur l’accueil.',
+    galleryEmpty: 'Toutes les cartes disponibles sont déjà sur l’accueil.',
+    remove: 'Retirer {{name}}',
+    move: 'Déplacer {{name}}. Utilisez les flèches haut et bas',
+    saveError: 'Impossible d’enregistrer l’accueil.',
+    size: { small: 'Petite', large: 'Grande' },
+    today: { title: 'Aujourd’hui', description: 'Créneaux et séances du jour' },
+    sales_today: { title: 'Ventes du jour', description: 'Total vendu aujourd’hui' },
+    next_payout: { title: 'Prochain versement', description: 'Combien et quand' },
+    next_event: {
+      title: 'Prochain événement',
+      description: 'Billets vendus pour la prochaine séance',
+      sold: '{{sold}} sur {{capacity}} vendus',
+    },
+    reviews: {
+      title: 'Avis',
+      description: 'Note moyenne de vos établissements',
+      count_one: '{{count}} avis',
+      count_other: '{{count}} avis',
+    },
+    week_bookings: {
+      title: 'Réservations de la semaine',
+      description: 'Places vendues dans les 7 prochains jours',
+      occupancy: '{{percent}} % des places',
+    },
+    plan_seal: {
+      title: 'Formule et badge',
+      description: 'La prochaine formule à expirer',
+      until: 'Formule jusqu’au {{date}}',
+    },
+    week_occupancy: { title: 'Occupation de la semaine', description: 'Places vendues par jour' },
+    month_sales: {
+      title: 'Ventes du mois',
+      description: 'Total du mois comparé au mois précédent',
+      compare: '{{percent}} % par rapport au mois dernier',
+      noCompare: 'Aucune vente le mois dernier',
+    },
   },
   agenda: { title: 'Agenda', today: 'Aujourd’hui' },
   catalog: { title: 'Catalogue', places: 'Lieux', events: 'Événements', offers: 'Excursions' },

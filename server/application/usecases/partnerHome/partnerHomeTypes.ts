@@ -34,13 +34,45 @@ export interface PartnerTodayItem {
   arrivedAt: string | null;
 }
 
+/** Próxima sessão de evento, para o cartão "Próximo evento". */
+export interface PartnerUpcomingSession {
+  id: string;
+  eventId: string;
+  title: string;
+  establishmentIds: string[];
+  startsAt: string;
+  sold: number;
+  capacity: number;
+}
+
+/** Vagas de reserva de um dia (00:00 em Fortaleza) de um estabelecimento, nos próximos 7 dias. */
+export interface PartnerWeekDay {
+  date: string;
+  establishmentIds: string[];
+  sold: number;
+  capacity: number;
+}
+
 export interface PartnerHomeView {
-  establishments: Array<{ id: string; name: string; category: string }>;
+  /** Cartões do Início, na ordem que o parceiro escolheu (ou o padrão). */
+  cards: string[];
+  establishments: Array<{
+    id: string;
+    name: string;
+    category: string;
+    rating: number;
+    reviewCount: number;
+  }>;
   attention: PartnerAttentionItem[];
   today: PartnerTodayItem[];
   numbers: {
     salesTodayMinor: number;
     salesTodayCount: number;
     nextPayout: { releaseAt: string; amountMinor: number; count: number } | null;
+    /** Vendido no mês corrente e no anterior, de todos os CNPJs. */
+    month: { currentMinor: number; previousMinor: number };
   };
+  upcomingSessions: PartnerUpcomingSession[];
+  week: PartnerWeekDay[];
+  plans: Array<{ itemId: string; until: string | null }>;
 }

@@ -20,4 +20,8 @@ export interface PartnerPort {
   getTermsAcceptance(partnerId: string): Promise<TermsAcceptance | null>;
   /** Lança `NOT_FOUND` quando o parceiro não tem perfil. */
   recordTermsAcceptance(partnerId: string, acceptance: TermsAcceptance): Promise<void>;
+  /** Cartões escolhidos para o Início; `null` quando o parceiro nunca personalizou. */
+  getHomeCards(partnerId: string): Promise<string[] | null>;
+  /** Lança `NOT_FOUND` quando o parceiro não tem perfil. */
+  setHomeCards(partnerId: string, cards: string[]): Promise<void>;
 }

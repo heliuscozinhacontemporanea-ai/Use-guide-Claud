@@ -2,11 +2,19 @@ import type { Response } from 'express';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
 
-const m = vi.hoisted(() => ({ get: vi.fn() }));
+const m = vi.hoisted(() => ({ get: vi.fn(), save: vi.fn() }));
 
 vi.mock('../../../application/usecases/partnerHome/getPartnerHomeApplicationUseCase', () => ({
   getPartnerHomeApplicationUseCase: m.get,
 }));
+vi.mock('../../../domain/partners', async () => {
+  const { PartnerDomainError } = await import('../../../domain/partners/errors/partnerDomainError');
+  return {
+    PartnerDomainError,
+    PARTNER_HOME_CARD_IDS: ['today', 'sales_today', 'reviews'],
+    savePartnerHomeCardsUseCase: m.save,
+  };
+});
 
 import { PartnerHomeController } from './partnerHomeController';
 
@@ -17,8 +25,8 @@ function response() {
   return res;
 }
 
-function request(user?: { uid: string }): AuthenticatedRequest {
-  return { query: { ownerUid: 'outro' }, body: {}, params: {}, user } as never;
+function request(user?: { uid: string }, body: unknown = {}): AuthenticatedRequest {
+  return { query: { ownerUid: 'outro' }, body, params: {}, user } as never;
 }
 
 describe('PartnerHomeController', () => {
@@ -47,5 +55,28 @@ describe('PartnerHomeController', () => {
     await PartnerHomeController.get(request({ uid: 'owner-1' }), res as unknown as Response);
     expect(res.status).toHaveBeenCalledWith(503);
     expect(JSON.stringify(res.json.mock.calls[0]?.[0])).not.toContain('firestore');
+  });
+
+  it('salva os cartões de quem está logado', async () => {
+    m.save.mockResolvedValue(['reviews', 'today']);
+    const res = response();
+    await PartnerHomeController.saveCards(
+      request({ uid: 'owner-1' }, { cards: ['reviews', 'today'] }),
+      res as unknown as Response
+    );
+    expect(m.save).toHaveBeenCalledWith('owner-1', ['reviews', 'today']);
+    expect(res.json).toHaveBeenCalledWith({ data: { cards: ['reviews', 'today'] } });
+  });
+
+  it('recusa cartão desconhecido ou campo a mais', async () => {
+    for (const body of [{ cards: ['hack'] }, { cards: ['today'], ownerId: 'x' }]) {
+      const res = response();
+      await PartnerHomeController.saveCards(
+        request({ uid: 'owner-1' }, body),
+        res as unknown as Response
+      );
+      expect(res.status).toHaveBeenCalledWith(400);
+    }
+    expect(m.save).not.toHaveBeenCalled();
   });
 });

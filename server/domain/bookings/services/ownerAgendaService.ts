@@ -43,11 +43,16 @@ const ACTIVE: readonly Booking['status'][] = ['confirmed', 'completed'];
 export class OwnerAgendaService {
   constructor(private readonly port: BookingsPort) {}
 
-  /** Horários do dono que começam em [fromIso, toIso), com as ausências relatadas ainda abertas. */
+  /**
+   * Horários do dono que começam em [fromIso, toIso), com as ausências relatadas ainda abertas. As
+   * reservas só são lidas nos horários que começam antes de `detailUntilIso` (o dia de hoje); os
+   * outros usam os contadores do horário, para a semana não custar uma leitura por horário.
+   */
   async listOwnerAgenda(
     actor: BookingActor,
     fromIso: string,
-    toIso: string
+    toIso: string,
+    detailUntilIso: string = toIso
   ): Promise<{ slots: OwnerSlotSummary[]; openAbsences: OwnerOpenAbsence[] }> {
     const offers = await this.port.listOffersByOwner(actor.uid);
     const slots: OwnerSlotSummary[] = [];
@@ -56,7 +61,26 @@ export class OwnerAgendaService {
       const offerSlots = await this.port.listSlots(offer.id, fromIso, toIso);
       for (const slot of offerSlots) {
         if (slot.status === 'canceled') continue;
-        const bookings = await this.port.listBookingsBySlot(slot.id);
+        const bookings =
+          slot.startsAt < detailUntilIso ? await this.port.listBookingsBySlot(slot.id) : null;
+        if (!bookings) {
+          slots.push({
+            slotId: slot.id,
+            offerId: offer.id,
+            guideItemId: offer.guideItemId,
+            kind: offer.kind,
+            title: offer.title,
+            startsAt: slot.startsAt,
+            endsAt: slot.endsAt,
+            status: slot.status,
+            capacityTotal: slot.capacityTotal,
+            capacitySold: slot.capacitySold,
+            bookingsCount: 0,
+            unitsCount: slot.capacitySold,
+            checkedInUnits: 0,
+          });
+          continue;
+        }
         const active = bookings.filter((booking) => ACTIVE.includes(booking.status));
         const arrivals = bookings
           .map((booking) => booking.arrival?.at)

@@ -4,11 +4,13 @@ import type { OwnerSalesDocument } from '../../../domain/partners';
 import type { AccountDebtView, PayoutEntryView } from '../../../domain/payment';
 import { businessDayStartMs } from '../../../shared/kernel/businessDay';
 import type { PartnerPaymentAccount } from '../paymentAccounts/listPartnerPaymentAccountsApplicationUseCase';
+import { summarizeWeek, sumMonthSales } from './partnerHomeCardsData';
 import type { PartnerAttentionItem, PartnerHomeView, PartnerTodayItem } from './partnerHomeTypes';
 
 const DAY_MS = 24 * 60 * 60_000;
 // Plano vencendo entra em "Resolva agora" na última semana.
 const PLAN_WARNING_MS = 7 * DAY_MS;
+export const UPCOMING_SESSIONS = 5;
 
 export interface PartnerSessionInput {
   id: string;
@@ -23,15 +25,18 @@ export interface PartnerSessionInput {
 
 export interface PartnerHomeInput {
   nowIso: string;
+  cards: string[];
   establishments: OwnerGuideItemSummary[];
   documents: OwnerSalesDocument[];
   slots: OwnerSlotSummary[];
   openAbsences: OwnerOpenAbsence[];
+  /** Sessões de hoje e as próximas (até 5), sem repetir. */
   sessions: PartnerSessionInput[];
   debts: AccountDebtView[];
   accounts: PartnerPaymentAccount[];
   verifications: Array<{ itemId: string; status: string }>;
   planUntil: Array<{ itemId: string; until: string | null }>;
+  /** Extrato do mês corrente e do anterior, mais recentes primeiro. */
   recentEntries: PayoutEntryView[];
   openEntries: PayoutEntryView[];
 }
@@ -174,8 +179,29 @@ export function buildPartnerHome(input: PartnerHomeInput): PartnerHomeView {
   const nextDay = first ? businessDayStartMs(first.releaseAt) : null;
   const sameDay = pending.filter((entry) => businessDayStartMs(entry.releaseAt) === nextDay);
 
+  const upcomingSessions = input.sessions
+    .filter((session) => new Date(session.startsAt).getTime() >= now)
+    .sort((a, b) => a.startsAt.localeCompare(b.startsAt))
+    .slice(0, UPCOMING_SESSIONS)
+    .map((session) => ({
+      id: session.id,
+      eventId: session.eventId,
+      title: session.eventTitle,
+      establishmentIds: session.establishmentId ? [session.establishmentId] : [],
+      startsAt: session.startsAt,
+      sold: session.sold,
+      capacity: session.capacity,
+    }));
+
   return {
-    establishments: input.establishments.map(({ id, name, category }) => ({ id, name, category })),
+    cards: input.cards,
+    establishments: input.establishments.map(({ id, name, category, rating, reviewCount }) => ({
+      id,
+      name,
+      category,
+      rating,
+      reviewCount,
+    })),
     attention,
     today,
     numbers: {
@@ -188,6 +214,10 @@ export function buildPartnerHome(input: PartnerHomeInput): PartnerHomeView {
             count: sameDay.length,
           }
         : null,
+      month: sumMonthSales(input.recentEntries, input.nowIso),
     },
+    upcomingSessions,
+    week: summarizeWeek(input.slots, input.nowIso),
+    plans: input.planUntil,
   };
 }

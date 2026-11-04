@@ -16,6 +16,8 @@ function createPartnerPortMock(): PartnerPort {
     unlinkBusiness: vi.fn(),
     getTermsAcceptance: vi.fn().mockResolvedValue(null),
     recordTermsAcceptance: vi.fn(),
+    getHomeCards: vi.fn().mockResolvedValue(null),
+    setHomeCards: vi.fn(),
   };
 }
 

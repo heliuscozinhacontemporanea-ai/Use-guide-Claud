@@ -201,10 +201,9 @@ export function PartnerPanel({
             onRetry={() => void home.reload()}
             view={home.data}
             attention={home.attention}
-            today={home.today}
-            labelFor={home.labelFor}
+            cards={home.cards}
             onOpenAttention={(item) => setPanelTab(ATTENTION_TAB[item.kind])}
-            onOpenToday={() => setPanelTab('agenda')}
+            onOpenTab={setPanelTab}
           />
         ) : panelTab === 'agenda' ? (
           <section className="space-y-4">

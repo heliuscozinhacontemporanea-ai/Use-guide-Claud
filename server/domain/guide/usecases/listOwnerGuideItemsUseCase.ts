@@ -5,11 +5,19 @@ export interface OwnerGuideItemSummary {
   id: string;
   name: string;
   category: string;
+  rating: number;
+  reviewCount: number;
 }
 
 export async function listOwnerGuideItemsUseCase(
   ownerId: string
 ): Promise<OwnerGuideItemSummary[]> {
   const items = await guideService.listItemsByOwner(ownerId);
-  return items.map((item) => ({ id: item.id, name: item.name, category: item.category }));
+  return items.map((item) => ({
+    id: item.id,
+    name: item.name,
+    category: item.category,
+    rating: item.rating ?? 0,
+    reviewCount: item.reviewCount ?? 0,
+  }));
 }

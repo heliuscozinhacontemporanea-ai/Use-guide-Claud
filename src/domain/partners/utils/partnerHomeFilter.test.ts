@@ -21,13 +21,22 @@ const today = (id: string, establishmentIds: string[]) => ({
 });
 
 const VIEW: PartnerHomeView = {
+  cards: [],
   establishments: [],
   attention: [
     { kind: 'debt', refId: 'd', establishmentIds: ['a', 'b'], title: null, deadline: null },
     { kind: 'plan_expiring', refId: 'b', establishmentIds: ['b'], title: null, deadline: null },
   ],
   today: [today('x', ['a']), today('y', ['b']), today('z', [])],
-  numbers: { salesTodayMinor: 0, salesTodayCount: 0, nextPayout: null },
+  numbers: {
+    salesTodayMinor: 0,
+    salesTodayCount: 0,
+    nextPayout: null,
+    month: { currentMinor: 0, previousMinor: 0 },
+  },
+  upcomingSessions: [],
+  week: [],
+  plans: [],
 };
 
 describe('filtro do painel', () => {

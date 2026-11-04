@@ -3,6 +3,7 @@ import { listEventOccurrencesUseCase, listOwnerEventListingsUseCase } from '../.
 import { listOwnerGuideItemsUseCase } from '../../../domain/guide';
 import {
   getListingPlanUntilUseCase,
+  getPartnerHomeCardsUseCase,
   listOwnerSalesDocumentsUseCase,
   listOwnerVerificationStatusesUseCase,
 } from '../../../domain/partners';
@@ -10,44 +11,53 @@ import {
   listAccountDebtsUseCase,
   listOpenPayoutEntriesUseCase,
   listPayoutEntriesUseCase,
+  type PayoutEntryView,
 } from '../../../domain/payment';
 import { businessDayStartMs } from '../../../shared/kernel/businessDay';
 import { getCommittedTicketsCountForOccurrenceApplicationUseCase } from '../getCommittedTicketsCountForOccurrenceApplicationUseCase';
 import { listPartnerPaymentAccountsApplicationUseCase } from '../paymentAccounts/listPartnerPaymentAccountsApplicationUseCase';
-import { buildPartnerHome, type PartnerSessionInput } from './buildPartnerHome';
+import { buildPartnerHome, type PartnerSessionInput, UPCOMING_SESSIONS } from './buildPartnerHome';
+import { businessMonthStarts } from './partnerHomeCardsData';
 import type { PartnerHomeView } from './partnerHomeTypes';
 
 const DAY_MS = 24 * 60 * 60_000;
 // Ausência relatada ontem à noite ainda pode estar no prazo de 2 h de resposta.
 const ABSENCE_LOOKBACK_MS = DAY_MS;
-// Basta a primeira página do extrato para somar as vendas do dia.
-const RECENT_ENTRIES = 100;
+const WEEK_MS = 7 * DAY_MS;
+const PAGE = 100;
+// Teto do extrato lido para somar dois meses; acima disso o cartão do mês fica aproximado.
+const MAX_PAGES = 5;
 const OPEN_ENTRIES = 100;
 
-/** Início do painel do parceiro (D27): "Resolva agora", "Hoje" e números, de todos os estabelecimentos. */
+/** Início do painel do parceiro (D27): "Resolva agora", "Hoje", números e os dados dos cartões. */
 export async function getPartnerHomeApplicationUseCase(
   ownerUid: string,
   now: Date = new Date()
 ): Promise<PartnerHomeView> {
   const nowIso = now.toISOString();
   const dayStart = businessDayStartMs(nowIso);
-  const fromIso = new Date(dayStart - ABSENCE_LOOKBACK_MS).toISOString();
-  const toIso = new Date(dayStart + DAY_MS).toISOString();
   const actor = { uid: ownerUid, admin: false };
 
-  const [establishments, documents, agenda, events, accounts, verifications] = await Promise.all([
-    listOwnerGuideItemsUseCase(ownerUid),
-    listOwnerSalesDocumentsUseCase(ownerUid),
-    listOwnerAgendaUseCase(actor, fromIso, toIso),
-    listOwnerEventListingsUseCase(ownerUid),
-    listPartnerPaymentAccountsApplicationUseCase(ownerUid),
-    listOwnerVerificationStatusesUseCase(ownerUid),
-  ]);
+  const [establishments, documents, agenda, events, accounts, verifications, cards] =
+    await Promise.all([
+      listOwnerGuideItemsUseCase(ownerUid),
+      listOwnerSalesDocumentsUseCase(ownerUid),
+      listOwnerAgendaUseCase(
+        actor,
+        new Date(dayStart - ABSENCE_LOOKBACK_MS).toISOString(),
+        new Date(dayStart + WEEK_MS).toISOString(),
+        new Date(dayStart + DAY_MS).toISOString()
+      ),
+      listOwnerEventListingsUseCase(ownerUid),
+      listPartnerPaymentAccountsApplicationUseCase(ownerUid),
+      listOwnerVerificationStatusesUseCase(ownerUid),
+      getPartnerHomeCardsUseCase(ownerUid),
+    ]);
   const accountKeys = documents.map((document) => document.accountKey);
 
-  const [debts, recent, openEntries, planUntil, sessions] = await Promise.all([
+  const [debts, recentEntries, openEntries, planUntil, sessions] = await Promise.all([
     listAccountDebtsUseCase(accountKeys),
-    listPayoutEntriesUseCase(accountKeys, RECENT_ENTRIES),
+    loadTwoMonthsOfEntries(accountKeys, businessMonthStarts(nowIso).previous),
     listOpenPayoutEntriesUseCase(accountKeys, OPEN_ENTRIES),
     Promise.all(
       establishments.map(async (item) => ({
@@ -55,11 +65,12 @@ export async function getPartnerHomeApplicationUseCase(
         until: await getListingPlanUntilUseCase(item.id),
       }))
     ),
-    loadTodaySessions(ownerUid, events, dayStart),
+    loadSessions(ownerUid, events, dayStart, now.getTime()),
   ]);
 
   return buildPartnerHome({
     nowIso,
+    cards,
     establishments,
     documents,
     slots: agenda.slots,
@@ -69,41 +80,69 @@ export async function getPartnerHomeApplicationUseCase(
     accounts,
     verifications,
     planUntil,
-    recentEntries: recent.data,
+    recentEntries,
     openEntries,
   });
 }
 
-async function loadTodaySessions(
+async function loadTwoMonthsOfEntries(
+  accountKeys: string[],
+  sinceMs: number
+): Promise<PayoutEntryView[]> {
+  const entries: PayoutEntryView[] = [];
+  let cursor: string | undefined;
+  for (let page = 0; page < MAX_PAGES; page++) {
+    const result = await listPayoutEntriesUseCase(accountKeys, PAGE, cursor);
+    entries.push(...result.data);
+    const last = result.data[result.data.length - 1];
+    if (!result.nextCursor || !last || new Date(last.createdAt).getTime() < sinceMs) break;
+    cursor = result.nextCursor;
+  }
+  return entries;
+}
+
+/** Sessões de hoje e as próximas, com o vendido lido só delas. */
+async function loadSessions(
   ownerUid: string,
   events: Awaited<ReturnType<typeof listOwnerEventListingsUseCase>>,
-  dayStart: number
+  dayStart: number,
+  nowMs: number
 ): Promise<PartnerSessionInput[]> {
-  const perEvent = await Promise.all(
-    events.map(async (event) => {
-      const occurrences = await listEventOccurrencesUseCase(event.id);
-      const today = occurrences.filter((occurrence) => {
-        const ms = new Date(occurrence.startsAt).getTime();
-        return occurrence.status !== 'canceled' && ms >= dayStart && ms < dayStart + DAY_MS;
-      });
-      return Promise.all(
-        today.map(
-          async (occurrence): Promise<PartnerSessionInput> => ({
-            id: occurrence.id,
-            eventId: event.id,
-            eventTitle: event.title || event.name,
-            establishmentId: event.establishmentId ?? null,
-            startsAt: occurrence.startsAt,
-            endsAt: occurrence.endsAt ?? null,
-            capacity: occurrence.capacity,
-            sold: await getCommittedTicketsCountForOccurrenceApplicationUseCase(
-              { uid: ownerUid, admin: false, role: 'partner' },
-              occurrence.id
-            ),
-          })
+  const all = (
+    await Promise.all(
+      events.map(async (event) =>
+        (
+          await listEventOccurrencesUseCase(event.id)
         )
-      );
-    })
+          .filter((occurrence) => occurrence.status !== 'canceled')
+          .map((occurrence) => ({ event, occurrence }))
+      )
+    )
+  ).flat();
+  const today = all.filter(({ occurrence }) => {
+    const ms = new Date(occurrence.startsAt).getTime();
+    return ms >= dayStart && ms < dayStart + DAY_MS;
+  });
+  const upcoming = all
+    .filter(({ occurrence }) => new Date(occurrence.startsAt).getTime() >= nowMs)
+    .sort((a, b) => a.occurrence.startsAt.localeCompare(b.occurrence.startsAt))
+    .slice(0, UPCOMING_SESSIONS);
+  const chosen = new Map([...today, ...upcoming].map((row) => [row.occurrence.id, row]));
+  return Promise.all(
+    [...chosen.values()].map(
+      async ({ event, occurrence }): Promise<PartnerSessionInput> => ({
+        id: occurrence.id,
+        eventId: event.id,
+        eventTitle: event.title || event.name,
+        establishmentId: event.establishmentId ?? null,
+        startsAt: occurrence.startsAt,
+        endsAt: occurrence.endsAt ?? null,
+        capacity: occurrence.capacity,
+        sold: await getCommittedTicketsCountForOccurrenceApplicationUseCase(
+          { uid: ownerUid, admin: false, role: 'partner' },
+          occurrence.id
+        ),
+      })
+    )
   );
-  return perEvent.flat();
 }

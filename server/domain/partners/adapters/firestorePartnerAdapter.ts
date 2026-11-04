@@ -61,6 +61,25 @@ export class FirestorePartnerAdapter implements PartnerPort {
     return { version: raw.version, acceptedAt: raw.acceptedAt };
   }
 
+  async getHomeCards(partnerId: string): Promise<string[] | null> {
+    const docSnap = await adminDb.collection('partners').doc(partnerId).get();
+    const raw = docSnap.data()?.homeCards;
+    return Array.isArray(raw)
+      ? raw.filter((value): value is string => typeof value === 'string')
+      : null;
+  }
+
+  async setHomeCards(partnerId: string, cards: string[]): Promise<void> {
+    const partnerRef = adminDb.collection('partners').doc(partnerId);
+    await adminDb.runTransaction(async (transaction) => {
+      const snapshot = await transaction.get(partnerRef);
+      if (!snapshot.exists) {
+        throw new PartnerDomainError('NOT_FOUND', 'Perfil de parceiro não encontrado');
+      }
+      transaction.update(partnerRef, { homeCards: cards, updatedAt: FieldValue.serverTimestamp() });
+    });
+  }
+
   async recordTermsAcceptance(partnerId: string, acceptance: TermsAcceptance): Promise<void> {
     const partnerRef = adminDb.collection('partners').doc(partnerId);
     // Só no documento interno: o aceite não vai para a projeção pública (AGENTS.md §6.3).

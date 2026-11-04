@@ -14,4 +14,21 @@ export class ApiPartnerHomeAdapter implements PartnerHomePort {
     }
     return (body as { data: PartnerHomeView }).data;
   }
+
+  async saveCards(cards: string[]): Promise<string[]> {
+    const response = await firebaseApiFetch(
+      '/api/partner-home/cards',
+      {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cards }),
+      },
+      OPTIONS
+    );
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(typeof body?.error?.code === 'string' ? body.error.code : 'INTERNAL_ERROR');
+    }
+    return (body as { data: { cards: string[] } }).data.cards;
+  }
 }

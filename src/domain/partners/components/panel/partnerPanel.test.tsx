@@ -4,13 +4,15 @@ import { i18n } from '../../../../shared/i18n';
 import type { PartnerHomeView } from '../../types/partnerHome';
 import { EstablishmentFilterSheet } from './EstablishmentFilterSheet';
 import { EstablishmentTitle } from './EstablishmentTitle';
-import { PartnerHomeTab } from './PartnerHomeTab';
+import { type PartnerCardsState, PartnerHomeTab } from './PartnerHomeTab';
+import { type PartnerCardData, partnerCardData } from '../../utils/partnerHomeCardData';
 import { PartnerShortcuts } from './PartnerShortcuts';
 
 const VIEW: PartnerHomeView = {
+  cards: ['today', 'sales_today', 'reviews'],
   establishments: [
-    { id: 'buggy', name: 'Buggy do Preá', category: 'tour' },
-    { id: 'pousada', name: 'Pousada Vento Leste', category: 'lodging' },
+    { id: 'buggy', name: 'Buggy do Preá', category: 'tour', rating: 4.8, reviewCount: 96 },
+    { id: 'pousada', name: 'Pousada Vento Leste', category: 'lodging', rating: 4, reviewCount: 4 },
   ],
   attention: [
     {
@@ -41,8 +43,29 @@ const VIEW: PartnerHomeView = {
     salesTodayMinor: 234000,
     salesTodayCount: 14,
     nextPayout: { releaseAt: '2026-11-10T15:00:00.000Z', amountMinor: 518000, count: 3 },
+    month: { currentMinor: 900000, previousMinor: 600000 },
   },
+  upcomingSessions: [],
+  week: [],
+  plans: [],
 };
+
+function cardsState(overrides: Partial<PartnerCardsState> = {}): PartnerCardsState {
+  return {
+    visible: (['today', 'sales_today', 'reviews'] as const).map(
+      (id) => partnerCardData(id, VIEW, VIEW.today, null) as PartnerCardData
+    ),
+    available: ['today', 'sales_today', 'next_payout', 'reviews', 'month_sales'],
+    draft: null,
+    setDraft: vi.fn(),
+    startEditing: vi.fn(),
+    cancel: vi.fn(),
+    finish: vi.fn(),
+    saving: false,
+    error: null,
+    ...overrides,
+  };
+}
 
 describe('casca do painel do parceiro (D27)', () => {
   beforeEach(async () => {
@@ -78,7 +101,8 @@ describe('casca do painel do parceiro (D27)', () => {
     expect(screen.getByRole('heading', { name: 'Buggy do Preá' })).toBeInTheDocument();
   });
 
-  it('o Início mostra "Resolva agora", "Hoje" com a etiqueta do lugar e os números', () => {
+  it('o Início mostra "Resolva agora" e os cartões escolhidos', () => {
+    const onOpenTab = vi.fn();
     render(
       <PartnerHomeTab
         loading={false}
@@ -86,18 +110,51 @@ describe('casca do painel do parceiro (D27)', () => {
         onRetry={vi.fn()}
         view={VIEW}
         attention={VIEW.attention}
-        today={VIEW.today}
-        labelFor={() => 'Buggy'}
+        cards={cardsState()}
         onOpenAttention={vi.fn()}
-        onOpenToday={vi.fn()}
+        onOpenTab={onOpenTab}
       />
     );
     expect(screen.getByText('Multa ou dívida a pagar')).toBeInTheDocument();
     expect(screen.getByText('Pague até 9 de nov.')).toBeInTheDocument();
-    expect(screen.getByText('09:00 · Passeio de buggy')).toBeInTheDocument();
-    expect(screen.getByText('6 de 8 · 4 com código')).toBeInTheDocument();
-    expect(screen.getByText('Buggy')).toBeInTheDocument();
-    expect(screen.getByText(/14 vendas de todos os estabelecimentos/)).toBeInTheDocument();
+    expect(screen.getByText(/09:00 Passeio de buggy/)).toBeInTheDocument();
+    expect(screen.getByText('14 vendas')).toBeInTheDocument();
+    // Média ponderada: (4,8 × 96 + 4 × 4) / 100.
+    expect(screen.getByText('4,8 ★')).toBeInTheDocument();
+    expect(screen.getByText('100 avaliações')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /Vendas de hoje/ }));
+    expect(onOpenTab).toHaveBeenCalledWith('earnings');
+  });
+
+  it('o modo Personalizar tira, reordena pelo teclado e só conclui pelo botão', () => {
+    const setDraft = vi.fn();
+    const finish = vi.fn();
+    render(
+      <PartnerHomeTab
+        loading={false}
+        error={null}
+        onRetry={vi.fn()}
+        view={VIEW}
+        attention={VIEW.attention}
+        cards={cardsState({ draft: ['today', 'sales_today'], setDraft, finish })}
+        onOpenAttention={vi.fn()}
+        onOpenTab={vi.fn()}
+      />
+    );
+    expect(screen.queryByText('Multa ou dívida a pagar')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Tirar Hoje' }));
+    expect(setDraft).toHaveBeenLastCalledWith(['sales_today']);
+    fireEvent.keyDown(screen.getByRole('button', { name: /Mover Vendas de hoje/ }), {
+      key: 'ArrowUp',
+    });
+    expect(setDraft).toHaveBeenLastCalledWith(['sales_today', 'today']);
+    fireEvent.click(screen.getByRole('button', { name: 'Adicionar cartão' }));
+    expect(screen.getByText('Próximo repasse')).toBeInTheDocument();
+    expect(screen.getByText('Vendas do mês')).toBeInTheDocument();
+    fireEvent.click(screen.getByText('Vendas do mês'));
+    expect(setDraft).toHaveBeenLastCalledWith(['today', 'sales_today', 'month_sales']);
+    fireEvent.click(screen.getByRole('button', { name: 'Concluir' }));
+    expect(finish).toHaveBeenCalled();
   });
 
   it('o erro sem dados oferece nova tentativa', () => {
@@ -109,10 +166,9 @@ describe('casca do painel do parceiro (D27)', () => {
         onRetry={onRetry}
         view={null}
         attention={[]}
-        today={[]}
-        labelFor={() => null}
+        cards={cardsState()}
         onOpenAttention={vi.fn()}
-        onOpenToday={vi.fn()}
+        onOpenTab={vi.fn()}
       />
     );
     fireEvent.click(screen.getByRole('button'));
