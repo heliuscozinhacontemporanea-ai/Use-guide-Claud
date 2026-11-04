@@ -3,6 +3,7 @@ import { answerProviderAbsenceApplicationUseCase } from '../../../application/us
 import { cancelSlotByPartnerApplicationUseCase } from '../../../application/usecases/bookings/cancelSlotByPartnerApplicationUseCase';
 import { checkInBookingApplicationUseCase } from '../../../application/usecases/bookings/checkInBookingApplicationUseCase';
 import { checkInWithoutCodeApplicationUseCase } from '../../../application/usecases/bookings/checkInWithoutCodeApplicationUseCase';
+import { listSlotBookingsForPartnerApplicationUseCase } from '../../../application/usecases/bookings/listSlotBookingsForPartnerApplicationUseCase';
 import { recordProviderArrivalApplicationUseCase } from '../../../application/usecases/bookings/recordProviderArrivalApplicationUseCase';
 import { rescheduleSlotByPartnerApplicationUseCase } from '../../../application/usecases/bookings/rescheduleSlotByPartnerApplicationUseCase';
 import { setBookableOfferStatusApplicationUseCase } from '../../../application/usecases/bookings/setBookableOfferStatusApplicationUseCase';
@@ -174,6 +175,27 @@ export class PartnerOffersController {
       return res.status(200).json(result);
     } catch (error) {
       return handleBookingError(res, 'rescheduleSlot', error);
+    }
+  }
+
+  /** Folha do horário (p06): reservas do horário com o nome público do cliente. */
+  static async listSlotBookings(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    const actor = actorOf(req);
+    if (!actor) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
+    const offerId = DocumentIdSchema.safeParse(req.params.offerId);
+    const slotId = DocumentIdSchema.safeParse(req.params.slotId);
+    if (!offerId.success || !slotId.success) {
+      return sendError(res, 400, 'VALIDATION_ERROR', 'Parâmetros inválidos.');
+    }
+    try {
+      const data = await listSlotBookingsForPartnerApplicationUseCase(
+        actor,
+        offerId.data,
+        slotId.data
+      );
+      return res.status(200).json({ data });
+    } catch (error) {
+      return handleBookingError(res, 'listSlotBookings', error);
     }
   }
 

@@ -17,6 +17,7 @@ import type {
   Page,
   PartnerOffer,
   PartnerSlot,
+  PartnerSlotDetail,
   PublicSlot,
   UnitCheckInResult,
 } from '../types/bookings';
@@ -27,6 +28,7 @@ export interface BookingsApiPort {
   updateOffer(offerId: string, payload: Partial<OfferFields>): Promise<PartnerOffer>;
   setOfferStatus(offerId: string, status: Exclude<OfferStatus, 'draft'>): Promise<PartnerOffer>;
   listPartnerSlots(offerId: string, fromIso: string, toIso: string): Promise<PartnerSlot[]>;
+  getPartnerSlotDetail(offerId: string, slotId: string): Promise<PartnerSlotDetail>;
   createSlots(offerId: string, payload: CreateSlotsPayload): Promise<PartnerSlot[]>;
   cancelSlot(offerId: string, slotId: string): Promise<{ canceledBookings: number }>;
   rescheduleSlot(

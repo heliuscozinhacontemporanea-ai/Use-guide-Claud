@@ -68,6 +68,7 @@ export { listMyBookingsUseCase } from './usecases/listMyBookingsUseCase';
 export { listOfferBookingsForPartnerUseCase } from './usecases/listOfferBookingsForPartnerUseCase';
 export { listOfferSlotsForPartnerUseCase } from './usecases/listOfferSlotsForPartnerUseCase';
 export { listOwnerAgendaUseCase } from './usecases/listOwnerAgendaUseCase';
+export { listSlotBookingsForOwnerUseCase } from './usecases/listSlotBookingsForOwnerUseCase';
 export { listPartnerOffersUseCase } from './usecases/listPartnerOffersUseCase';
 export { markBookingDisputedUseCase } from './usecases/markBookingDisputedUseCase';
 export { markBookingNoShowUseCase } from './usecases/markBookingNoShowUseCase';

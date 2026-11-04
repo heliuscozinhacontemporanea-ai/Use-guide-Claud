@@ -1,16 +1,12 @@
 import { ScanLine } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CHECK_IN_ALPHABET } from '../../../../shared/constants/checkInCode';
 import { formatBusinessDateTime } from '../../../../shared/utils/businessDateTime';
-import { GateModeScreen, type GateOutcome } from '../../../../ui/components/GateModeScreen';
 import { BUTTON_PRIMARY } from '../../../../ui/styles/controls';
-import { useOfflineTicketSession } from '../../hooks/useOfflineTicketSession';
 import type { usePartnerEventSales } from '../../hooks/usePartnerEventSales';
-import { useTicketGate } from '../../hooks/useTicketGate';
 import type { EventCheckIn } from '../../types/ticketing';
-import { TICKET_CODE_LENGTH, TICKET_CODE_PREFIX } from '../../utils/ticketCode';
 import { OfflineSessionCard } from './OfflineSessionCard';
+import { SessionGateScreen, useSessionGate } from './SessionGate';
 import { TicketGateCard } from './TicketGateCard';
 
 /** Aba de check-in do evento: portaria, sessão sem internet e entradas já feitas. */
@@ -29,29 +25,8 @@ export function CheckInTab({
   reloadSales: () => Promise<void> | void;
 }) {
   const { t, i18n } = useTranslation();
-  const session = useOfflineTicketSession(occurrenceId, reloadSales);
-  const gate = useTicketGate({
-    occurrenceId,
-    performCheckIn: async (id, input) => {
-      const result = await performCheckIn(id, input);
-      await session.refresh();
-      return result;
-    },
-    onOfflineRecorded: session.refresh,
-  });
+  const { session, gate } = useSessionGate(occurrenceId, performCheckIn, reloadSales);
   const [gateMode, setGateMode] = useState(false);
-
-  const toOutcome = (result: Awaited<ReturnType<typeof gate.evaluate>>): GateOutcome => ({
-    tone: result.tone,
-    headline: t(
-      result.tone === 'success'
-        ? 'gateMode.allowed'
-        : result.tone === 'warn'
-          ? 'gateMode.attention'
-          : 'gateMode.denied'
-    ),
-    detail: result.detail ?? result.message,
-  });
 
   return (
     <div className="space-y-4">
@@ -65,15 +40,11 @@ export function CheckInTab({
         {t('gateMode.open')}
       </button>
       {gateMode && (
-        <GateModeScreen
-          title={sessionLabel}
-          stats={t('ticketGate.entries', { count: checkIns.length })}
-          online={session.isOnline}
-          codePrefix={TICKET_CODE_PREFIX}
-          codeLength={TICKET_CODE_LENGTH}
-          codeAlphabet={CHECK_IN_ALPHABET}
-          onQr={async (qrToken) => toOutcome(await gate.evaluate({ qrToken }))}
-          onCode={async (code) => toOutcome(await gate.evaluate({ code }))}
+        <SessionGateScreen
+          sessionLabel={sessionLabel}
+          entries={checkIns.length}
+          session={session}
+          gate={gate}
           onClose={() => setGateMode(false)}
         />
       )}

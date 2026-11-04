@@ -2,10 +2,13 @@ import type { Response } from 'express';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
 
-const m = vi.hoisted(() => ({ get: vi.fn(), save: vi.fn() }));
+const m = vi.hoisted(() => ({ get: vi.fn(), save: vi.fn(), agenda: vi.fn() }));
 
 vi.mock('../../../application/usecases/partnerHome/getPartnerHomeApplicationUseCase', () => ({
   getPartnerHomeApplicationUseCase: m.get,
+}));
+vi.mock('../../../application/usecases/partnerHome/getPartnerAgendaApplicationUseCase', () => ({
+  getPartnerAgendaApplicationUseCase: m.agenda,
 }));
 vi.mock('../../../domain/partners', async () => {
   const { PartnerDomainError } = await import('../../../domain/partners/errors/partnerDomainError');
@@ -78,5 +81,34 @@ describe('PartnerHomeController', () => {
       expect(res.status).toHaveBeenCalledWith(400);
     }
     expect(m.save).not.toHaveBeenCalled();
+  });
+
+  it('agenda: lê o período de quem está logado e recusa período inválido ou longo', async () => {
+    m.agenda.mockResolvedValue([]);
+    const ok = response();
+    await PartnerHomeController.getAgenda(
+      {
+        query: { from: '2026-11-02T03:00:00.000Z', to: '2026-11-09T03:00:00.000Z' },
+        user: { uid: 'owner-1' },
+      } as never,
+      ok as unknown as Response
+    );
+    expect(m.agenda).toHaveBeenCalledWith(
+      'owner-1',
+      '2026-11-02T03:00:00.000Z',
+      '2026-11-09T03:00:00.000Z'
+    );
+    for (const query of [
+      { from: '2026-11-09T03:00:00.000Z', to: '2026-11-02T03:00:00.000Z' },
+      { from: '2026-01-01T03:00:00.000Z', to: '2026-12-01T03:00:00.000Z' },
+      { from: 'ontem', to: 'hoje' },
+    ]) {
+      const res = response();
+      await PartnerHomeController.getAgenda(
+        { query, user: { uid: 'owner-1' } } as never,
+        res as unknown as Response
+      );
+      expect(res.status).toHaveBeenCalledWith(400);
+    }
   });
 });

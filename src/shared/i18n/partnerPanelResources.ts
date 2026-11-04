@@ -84,7 +84,22 @@ export interface PartnerPanelTranslation {
     week_occupancy: CardTexts;
     month_sales: CardTexts & { compare: string; noCompare: string };
   };
-  agenda: { title: string; today: string };
+  agenda: {
+    title: string;
+    today: string;
+    previousWeek: string;
+    nextWeek: string;
+    openMonth: string;
+    previousMonth: string;
+    nextMonth: string;
+    dayEmpty: string;
+    arrived_one: string;
+    arrived_other: string;
+    free_one: string;
+    free_other: string;
+    ongoing: string;
+    error: string;
+  };
   catalog: { title: string; places: string; events: string; offers: string };
   more: {
     title: string;
@@ -233,7 +248,22 @@ export const partnerPanelPtBR: PartnerPanelTranslation = {
       noCompare: 'Sem vendas no mês passado',
     },
   },
-  agenda: { title: 'Agenda', today: 'Hoje' },
+  agenda: {
+    title: 'Agenda',
+    today: 'Hoje',
+    previousWeek: 'Semana anterior',
+    nextWeek: 'Próxima semana',
+    openMonth: 'Abrir o calendário do mês',
+    previousMonth: 'Mês anterior',
+    nextMonth: 'Próximo mês',
+    dayEmpty: 'Nada marcado para este dia.',
+    arrived_one: '{{count}} chegou',
+    arrived_other: '{{count}} chegaram',
+    free_one: '{{count}} vaga livre',
+    free_other: '{{count}} vagas livres',
+    ongoing: 'Em andamento',
+    error: 'Não foi possível carregar a agenda.',
+  },
   catalog: { title: 'Catálogo', places: 'Lugares', events: 'Eventos', offers: 'Passeios' },
   more: {
     title: 'Mais',
@@ -387,7 +417,22 @@ export const partnerPanelEn: PartnerPanelTranslation = {
       noCompare: 'No sales last month',
     },
   },
-  agenda: { title: 'Schedule', today: 'Today' },
+  agenda: {
+    title: 'Schedule',
+    today: 'Today',
+    previousWeek: 'Previous week',
+    nextWeek: 'Next week',
+    openMonth: 'Open the month calendar',
+    previousMonth: 'Previous month',
+    nextMonth: 'Next month',
+    dayEmpty: 'Nothing scheduled for this day.',
+    arrived_one: '{{count}} arrived',
+    arrived_other: '{{count}} arrived',
+    free_one: '{{count}} spot left',
+    free_other: '{{count}} spots left',
+    ongoing: 'In progress',
+    error: 'The schedule could not be loaded.',
+  },
   catalog: { title: 'Catalog', places: 'Places', events: 'Events', offers: 'Tours' },
   more: {
     title: 'More',
@@ -542,7 +587,22 @@ export const partnerPanelFr: PartnerPanelTranslation = {
       noCompare: 'Aucune vente le mois dernier',
     },
   },
-  agenda: { title: 'Agenda', today: 'Aujourd’hui' },
+  agenda: {
+    title: 'Agenda',
+    today: 'Aujourd’hui',
+    previousWeek: 'Semaine précédente',
+    nextWeek: 'Semaine suivante',
+    openMonth: 'Ouvrir le calendrier du mois',
+    previousMonth: 'Mois précédent',
+    nextMonth: 'Mois suivant',
+    dayEmpty: 'Rien de prévu ce jour-là.',
+    arrived_one: '{{count}} arrivé',
+    arrived_other: '{{count}} arrivés',
+    free_one: '{{count}} place libre',
+    free_other: '{{count}} places libres',
+    ongoing: 'En cours',
+    error: 'Impossible de charger l’agenda.',
+  },
   catalog: { title: 'Catalogue', places: 'Lieux', events: 'Événements', offers: 'Excursions' },
   more: {
     title: 'Plus',

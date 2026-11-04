@@ -1,8 +1,9 @@
 import type { Response } from 'express';
+import { getPartnerAgendaApplicationUseCase } from '../../../application/usecases/partnerHome/getPartnerAgendaApplicationUseCase';
 import { getPartnerHomeApplicationUseCase } from '../../../application/usecases/partnerHome/getPartnerHomeApplicationUseCase';
 import { PartnerDomainError, savePartnerHomeCardsUseCase } from '../../../domain/partners';
 import type { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
-import { SavePartnerHomeCardsSchema } from './schemas/partnerHomeSchemas';
+import { PartnerAgendaQuerySchema, SavePartnerHomeCardsSchema } from './schemas/partnerHomeSchemas';
 
 function sendError(res: Response, status: number, code: string, message: string): Response {
   return res.status(status).json({ error: { code, message } });
@@ -44,6 +45,25 @@ export class PartnerHomeController {
         name: error instanceof Error ? error.name : 'UnknownError',
       });
       return sendError(res, 503, 'PARTNER_HOME_UNAVAILABLE', 'Não foi possível salvar agora.');
+    }
+  }
+
+  static async getAgenda(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    if (!req.user?.uid) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
+    const query = PartnerAgendaQuerySchema.safeParse(req.query);
+    if (!query.success) return sendError(res, 400, 'VALIDATION_ERROR', 'Período inválido.');
+    try {
+      const data = await getPartnerAgendaApplicationUseCase(
+        req.user.uid,
+        query.data.from,
+        query.data.to
+      );
+      return res.status(200).json({ data });
+    } catch (error) {
+      console.error('[PartnerHomeController.getAgenda]', {
+        name: error instanceof Error ? error.name : 'UnknownError',
+      });
+      return sendError(res, 503, 'PARTNER_HOME_UNAVAILABLE', 'Não foi possível carregar a agenda.');
     }
   }
 }

@@ -1,9 +1,11 @@
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, ShieldAlert } from 'lucide-react';
 import { AnimatePresence } from 'motion/react';
 import React, { useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useLocalizedRouting } from '../../../shared/hooks/useLocalizedRouting';
 import type { EventSessionsFieldProps } from '../../events';
 import { newPartnerEventDraft } from '../utils/newPartnerEventDraft';
+import { MessagePage } from '../../../ui/components/MessagePage';
 import { createPartnerContentItemUseCase } from '../application/usecases/createPartnerContentItemUseCase';
 import { deletePartnerContentItemUseCase } from '../application/usecases/deletePartnerContentItemUseCase';
 import { updatePartnerContentItemUseCase } from '../application/usecases/updatePartnerContentItemUseCase';
@@ -14,8 +16,11 @@ import { PartnerProfile, SubscriptionPlan } from '../types/partner';
 import type { PartnerContentRecord } from '../types/partnerContent';
 import { ListingEditor } from './ListingEditor';
 import { PartnerEventEditor } from './PartnerEventEditor';
-import { ListingPlanDialog, type PaidPlanSelection } from './plan/ListingPlanDialog';
+import type { PaidPlanSelection } from './plan/ListingPlanDialog';
+import { ListingPlanFlow } from './panel/ListingPlanFlow';
 import { usePartnerPanelHome } from '../hooks/usePartnerPanelHome';
+import type { PartnerTodayItem } from '../types/partnerHome';
+import { belongs } from '../utils/partnerHomeFilter';
 import { EstablishmentFilterSheet } from './panel/EstablishmentFilterSheet';
 import { ATTENTION_TAB } from './panel/PartnerAttentionList';
 import { type CatalogSegment, PartnerCatalogTab } from './panel/PartnerCatalogTab';
@@ -29,10 +34,14 @@ import {
 import { PartnerPanelTop } from './panel/PartnerPanelTop';
 import { PartnerAgendaTab } from './panel/PartnerAgendaTab';
 import type { PartnerPanelTab } from './panel/partnerPanelTabs';
-import { PartnerEventsTable } from './subcomponents/PartnerEventsTable';
-import { PartnerItemsTable } from './subcomponents/PartnerItemsTable';
-import { ListingVerificationDialog } from './verification/ListingVerificationDialog';
 import type { VerificationListingOption } from './verification/verificationListingOption';
+
+/** O que a composição recebe para abrir a folha de um item da Agenda. */
+export interface AgendaSheetProps {
+  item: PartnerTodayItem;
+  onClose: () => void;
+  onChanged: () => void;
+}
 
 export interface PartnerPanelProps {
   profile?: PartnerProfile;
@@ -67,6 +76,10 @@ export interface PartnerPanelProps {
   onPlanPurchased?: () => void;
   /** Ganhos (domínio payment), montado pela composição. */
   renderEarnings?: () => React.ReactNode;
+  /** Folha do horário de reserva (domínio bookings), montada pela composição. */
+  renderSlotSheet?: (props: AgendaSheetProps) => React.ReactNode;
+  /** Folha da sessão de evento (domínio ticketing), montada pela composição. */
+  renderSessionSheet?: (props: AgendaSheetProps) => React.ReactNode;
   /** Notificações, termos do parceiro e ajuda (outros domínios), montados pela composição. */
   renderAccountView?: (view: PartnerAccountView, onBack: () => void) => React.ReactNode;
 }
@@ -83,12 +96,21 @@ export function PartnerPanel({
   onPlanPurchased,
   renderEarnings,
   renderAccountView,
+  renderSlotSheet,
+  renderSessionSheet,
 }: PartnerPanelProps) {
   const { goTo } = useLocalizedRouting();
+  const { t } = useTranslation();
   const home = usePartnerPanelHome();
   const [panelTab, setPanelTab] = React.useState<PartnerPanelTab>('home');
   const [catalogSegment, setCatalogSegment] = React.useState<CatalogSegment>('places');
   const [moreView, setMoreView] = React.useState<PartnerMoreView>('list');
+  const [agendaItem, setAgendaItem] = React.useState<PartnerTodayItem | null>(null);
+  const [agendaVersion, setAgendaVersion] = React.useState(0);
+  const agendaChanged = () => {
+    setAgendaVersion((version) => version + 1);
+    void home.reload();
+  };
 
   const {
     user,
@@ -154,26 +176,21 @@ export function PartnerPanel({
 
   if (userLoading || profileStatus === 'loading') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-950">
-        <RefreshCw className="animate-spin text-accent" size={32} />
+      <div className="min-h-screen flex items-center justify-center bg-app">
+        <RefreshCw className="animate-spin text-accent" size={32} aria-hidden="true" />
       </div>
     );
   }
 
   if (!user || profileStatus === 'empty') {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-950 p-6 text-center">
-        <h2 className="text-2xl font-display font-extrabold mb-2 text-white">Acesso Restrito</h2>
-        <p className="text-white/50 mb-8 max-w-xs">
-          Este é o portal exclusivo para parceiros cadastrados.
-        </p>
-        <button
-          onClick={() => goTo('explore')}
-          className="press px-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-[11px] font-semibold tracking-wide text-white"
-        >
-          Voltar
-        </button>
-      </div>
+      <MessagePage
+        icon={ShieldAlert}
+        title={t('pages.partnerAreaTitle')}
+        description={t('pages.partnerProfileNotFound')}
+        actionLabel={t('pages.backHome')}
+        onAction={() => goTo('explore')}
+      />
     );
   }
 
@@ -205,7 +222,12 @@ export function PartnerPanel({
             onOpenTab={setPanelTab}
           />
         ) : panelTab === 'agenda' ? (
-          <PartnerAgendaTab today={home.today} labelFor={home.labelFor} />
+          <PartnerAgendaTab
+            visible={(item) => belongs(item.establishmentIds, home.filter)}
+            labelFor={home.labelFor}
+            onOpenItem={setAgendaItem}
+            reloadKey={agendaVersion}
+          />
         ) : panelTab === 'catalog' ? (
           <PartnerCatalogTab
             segment={catalogSegment}
@@ -213,35 +235,22 @@ export function PartnerPanel({
               setCatalogSegment(segment);
               setActiveTab(segment === 'events' ? 'events' : 'items');
             }}
-            places={
-              <PartnerItemsTable
-                itemsList={itemsList}
-                loading={dataLoading}
-                onEditItem={(item) => setEditingListing(item)}
-                onToggleActive={handleToggleActive}
-                onCreateNew={() => setEditingListing(null)}
-                verificationVersion={verificationVersion}
-                onVerifyItem={(item) =>
-                  setVerifyingListing({ id: item.id, name: item.name, category: item.category })
-                }
-                planVersion={planVersion}
-                onOpenPlan={(item) => setPlanListing({ id: item.id, name: item.name })}
-              />
+            items={itemsList}
+            events={eventsList}
+            loading={dataLoading}
+            onEditItem={(item) => setEditingListing(item)}
+            onCreateItem={() => setEditingListing(null)}
+            onEditEvent={(item) =>
+              setIsEditing({ ...item, images: item.images || (item.image ? [item.image] : []) })
             }
-            events={
-              <PartnerEventsTable
-                eventsList={eventsList}
-                loading={dataLoading}
-                onEditEvent={(item) =>
-                  setIsEditing({
-                    ...item,
-                    images: item.images || (item.image ? [item.image] : []),
-                  })
-                }
-                onToggleActive={handleToggleActive}
-                onCreateNew={() => setIsEditing(newPartnerEventDraft(user?.uid ?? ''))}
-              />
+            onCreateEvent={() => setIsEditing(newPartnerEventDraft(user?.uid ?? ''))}
+            onToggleActive={handleToggleActive}
+            verificationVersion={verificationVersion}
+            onVerifyItem={(item) =>
+              setVerifyingListing({ id: item.id, name: item.name, category: item.category })
             }
+            planVersion={planVersion}
+            onOpenPlan={(item) => setPlanListing({ id: item.id, name: item.name })}
             offers={renderBookableOffersManager?.(
               itemsList.map((item) => ({ id: item.id, name: item.name, category: item.category }))
             )}
@@ -317,48 +326,28 @@ export function PartnerPanel({
         )}
       </AnimatePresence>
 
-      {verifyingListing && (
-        <ListingVerificationDialog
-          listing={verifyingListing}
-          accountListings={itemsList.map((item) => ({
-            id: item.id,
-            name: item.name,
-            category: item.category,
-          }))}
-          onClose={() => {
-            setVerifyingListing(null);
-            setVerificationVersion((version) => version + 1);
-          }}
-        />
-      )}
+      <ListingPlanFlow
+        items={itemsList}
+        plans={subscriptionPlans ?? []}
+        verifying={verifyingListing}
+        onVerifyingChange={setVerifyingListing}
+        planListing={planListing}
+        onPlanListingChange={setPlanListing}
+        onClosedVerification={() => setVerificationVersion((version) => version + 1)}
+        onClosedPlan={() => setPlanVersion((version) => version + 1)}
+        onSelectPaidPlan={(selection) => {
+          setCheckoutPlanInfo(selection);
+          setShowCheckoutModal(true);
+        }}
+        renderSubscription={renderPlanSubscription}
+      />
 
-      {planListing && (
-        <ListingPlanDialog
-          listing={planListing}
-          plans={subscriptionPlans ?? []}
-          onClose={() => {
-            setPlanListing(null);
-            setPlanVersion((version) => version + 1);
-          }}
-          onVerify={() => {
-            const listing = itemsList.find((item) => item.id === planListing.id);
-            setPlanListing(null);
-            if (listing) {
-              setVerifyingListing({
-                id: listing.id,
-                name: listing.name,
-                category: listing.category,
-              });
-            }
-          }}
-          onSelectPaidPlan={(selection) => {
-            setPlanListing(null);
-            setCheckoutPlanInfo(selection);
-            setShowCheckoutModal(true);
-          }}
-          renderSubscription={renderPlanSubscription}
-        />
-      )}
+      {agendaItem &&
+        (agendaItem.kind === 'slot' ? renderSlotSheet : renderSessionSheet)?.({
+          item: agendaItem,
+          onClose: () => setAgendaItem(null),
+          onChanged: agendaChanged,
+        })}
 
       <EstablishmentFilterSheet
         open={home.sheetOpen}

@@ -1,6 +1,9 @@
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SegmentedControl } from '../../../../ui/components/SegmentedControl';
-import type { ReactNode } from 'react';
+import type { PartnerContentRecord } from '../../types/partnerContent';
+import { PartnerEventsTable } from '../subcomponents/PartnerEventsTable';
+import { PartnerItemsTable } from '../subcomponents/PartnerItemsTable';
 
 export type CatalogSegment = 'places' | 'events' | 'offers';
 
@@ -8,14 +11,34 @@ export type CatalogSegment = 'places' | 'events' | 'offers';
 export function PartnerCatalogTab({
   segment,
   onSegmentChange,
-  places,
+  items,
   events,
+  loading,
+  onEditItem,
+  onCreateItem,
+  onEditEvent,
+  onCreateEvent,
+  onToggleActive,
+  verificationVersion,
+  onVerifyItem,
+  planVersion,
+  onOpenPlan,
   offers,
 }: {
   segment: CatalogSegment;
   onSegmentChange: (segment: CatalogSegment) => void;
-  places: ReactNode;
-  events: ReactNode;
+  items: PartnerContentRecord[];
+  events: PartnerContentRecord[];
+  loading: boolean;
+  onEditItem: (item: PartnerContentRecord) => void;
+  onCreateItem: () => void;
+  onEditEvent: (item: PartnerContentRecord) => void;
+  onCreateEvent: () => void;
+  onToggleActive: React.ComponentProps<typeof PartnerItemsTable>['onToggleActive'];
+  verificationVersion: number;
+  onVerifyItem: (item: PartnerContentRecord) => void;
+  planVersion: number;
+  onOpenPlan: (item: PartnerContentRecord) => void;
   offers: ReactNode;
 }) {
   const { t } = useTranslation();
@@ -34,7 +57,29 @@ export function PartnerCatalogTab({
           { value: 'offers', label: t('partnerPanel.catalog.offers') },
         ]}
       />
-      {segment === 'places' ? places : segment === 'events' ? events : offers}
+      {segment === 'places' ? (
+        <PartnerItemsTable
+          itemsList={items}
+          loading={loading}
+          onEditItem={onEditItem}
+          onToggleActive={onToggleActive}
+          onCreateNew={onCreateItem}
+          verificationVersion={verificationVersion}
+          onVerifyItem={onVerifyItem}
+          planVersion={planVersion}
+          onOpenPlan={onOpenPlan}
+        />
+      ) : segment === 'events' ? (
+        <PartnerEventsTable
+          eventsList={events}
+          loading={loading}
+          onEditEvent={onEditEvent}
+          onToggleActive={onToggleActive}
+          onCreateNew={onCreateEvent}
+        />
+      ) : (
+        offers
+      )}
     </section>
   );
 }

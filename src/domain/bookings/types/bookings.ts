@@ -252,3 +252,10 @@ export interface ArrivalLocation {
   lng: number;
   accuracyM?: number;
 }
+
+/** Folha do horário no painel (p06): reservas com o nome público do cliente. */
+export interface PartnerSlotDetail {
+  slot: PartnerSlot;
+  offer: { id: string; title: string; kind: OfferKind; meetingPoint: string | null };
+  bookings: Array<{ id: string; buyerName: string | null; units: number; checkedInUnits: number }>;
+}

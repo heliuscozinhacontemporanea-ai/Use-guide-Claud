@@ -105,6 +105,24 @@ export interface BookingsTranslation {
     integer: string;
     atLeastOnePrice: string;
   };
+  slotSheet: {
+    when: string;
+    meetingPoint: string;
+    bookings: string;
+    people: string;
+    peopleOf: string;
+    arrived: string;
+    statusArrived: string;
+    statusWaiting: string;
+    noName: string;
+    units_one: string;
+    units_other: string;
+    confirmCode: string;
+    reschedule: string;
+    cancel: string;
+    error: string;
+    empty: string;
+  };
   slots: {
     title: string;
     previousWeek: string;
@@ -314,6 +332,24 @@ export const bookingsPtBR: BookingsTranslation = {
     priceInvalid: 'Informe um valor maior que zero.',
     integer: 'Informe um número inteiro.',
     atLeastOnePrice: 'Informe ao menos uma opção de preço.',
+  },
+  slotSheet: {
+    when: '{{date}} · {{time}}',
+    meetingPoint: 'ponto de encontro: {{place}}',
+    bookings: 'Reservas',
+    people: 'Pessoas',
+    peopleOf: '{{sold}} de {{capacity}}',
+    arrived: 'Chegaram',
+    statusArrived: 'Chegou',
+    statusWaiting: 'Aguardando',
+    noName: 'Cliente',
+    units_one: '{{count}} pessoa',
+    units_other: '{{count}} pessoas',
+    confirmCode: 'Confirmar chegada com código',
+    reschedule: 'Mudar horário',
+    cancel: 'Cancelar horário',
+    error: 'Não foi possível carregar as reservas do horário.',
+    empty: 'Nenhuma reserva neste horário.',
   },
   slots: {
     title: 'Horários',
@@ -530,6 +566,24 @@ export const bookingsEn: BookingsTranslation = {
     priceInvalid: 'Enter an amount greater than zero.',
     integer: 'Enter a whole number.',
     atLeastOnePrice: 'Add at least one price option.',
+  },
+  slotSheet: {
+    when: '{{date}} · {{time}}',
+    meetingPoint: 'meeting point: {{place}}',
+    bookings: 'Bookings',
+    people: 'People',
+    peopleOf: '{{sold}} of {{capacity}}',
+    arrived: 'Arrived',
+    statusArrived: 'Arrived',
+    statusWaiting: 'Waiting',
+    noName: 'Customer',
+    units_one: '{{count}} person',
+    units_other: '{{count}} people',
+    confirmCode: 'Confirm arrival with code',
+    reschedule: 'Change time',
+    cancel: 'Cancel time slot',
+    error: 'The bookings for this time slot could not be loaded.',
+    empty: 'No bookings in this time slot.',
   },
   slots: {
     title: 'Time slots',
@@ -750,6 +804,24 @@ export const bookingsFr: BookingsTranslation = {
     priceInvalid: 'Indiquez un montant supérieur à zéro.',
     integer: 'Indiquez un nombre entier.',
     atLeastOnePrice: 'Ajoutez au moins une option de tarif.',
+  },
+  slotSheet: {
+    when: '{{date}} · {{time}}',
+    meetingPoint: 'point de rendez-vous : {{place}}',
+    bookings: 'Réservations',
+    people: 'Personnes',
+    peopleOf: '{{sold}} sur {{capacity}}',
+    arrived: 'Arrivés',
+    statusArrived: 'Arrivé',
+    statusWaiting: 'En attente',
+    noName: 'Client',
+    units_one: '{{count}} personne',
+    units_other: '{{count}} personnes',
+    confirmCode: 'Confirmer l’arrivée avec le code',
+    reschedule: 'Changer l’horaire',
+    cancel: 'Annuler le créneau',
+    error: 'Impossible de charger les réservations de ce créneau.',
+    empty: 'Aucune réservation sur ce créneau.',
   },
   slots: {
     title: 'Créneaux',

@@ -4,6 +4,7 @@ import type { OwnerSalesDocument } from '../../../domain/partners';
 import type { AccountDebtView, PayoutEntryView } from '../../../domain/payment';
 import { businessDayStartMs } from '../../../shared/kernel/businessDay';
 import type { PartnerPaymentAccount } from '../paymentAccounts/listPartnerPaymentAccountsApplicationUseCase';
+import { sessionToAgendaItem, slotToAgendaItem } from './partnerAgendaItems';
 import { summarizeWeek, sumMonthSales } from './partnerHomeCardsData';
 import type { PartnerAttentionItem, PartnerHomeView, PartnerTodayItem } from './partnerHomeTypes';
 
@@ -135,41 +136,8 @@ export function buildPartnerHome(input: PartnerHomeInput): PartnerHomeView {
     return ms >= dayStart && ms < dayEnd;
   };
   const today: PartnerTodayItem[] = [
-    ...input.slots
-      .filter((slot) => isToday(slot.startsAt))
-      .map(
-        (slot): PartnerTodayItem => ({
-          kind: 'slot',
-          id: slot.slotId,
-          parentId: slot.offerId,
-          establishmentIds: [slot.guideItemId],
-          title: slot.title['pt-BR'],
-          offerKind: slot.kind,
-          startsAt: slot.startsAt,
-          endsAt: slot.endsAt ?? null,
-          sold: slot.unitsCount,
-          capacity: slot.capacityTotal,
-          checkedIn: slot.checkedInUnits,
-          arrivedAt: slot.arrivedAt ?? null,
-        })
-      ),
-    ...input.sessions
-      .filter((session) => isToday(session.startsAt))
-      .map(
-        (session): PartnerTodayItem => ({
-          kind: 'session',
-          id: session.id,
-          parentId: session.eventId,
-          establishmentIds: session.establishmentId ? [session.establishmentId] : [],
-          title: session.eventTitle,
-          startsAt: session.startsAt,
-          endsAt: session.endsAt,
-          sold: session.sold,
-          capacity: session.capacity,
-          checkedIn: null,
-          arrivedAt: null,
-        })
-      ),
+    ...input.slots.filter((slot) => isToday(slot.startsAt)).map(slotToAgendaItem),
+    ...input.sessions.filter((session) => isToday(session.startsAt)).map(sessionToAgendaItem),
   ].sort((a, b) => a.startsAt.localeCompare(b.startsAt));
 
   const soldToday = input.recentEntries.filter(

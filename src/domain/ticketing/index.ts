@@ -24,6 +24,7 @@ export { updateTicketTypeUseCase } from './application/usecases/updateTicketType
 export { CheckoutResultView } from './components/CheckoutResultView';
 export { EventTicketingPurchasePanel } from './components/EventTicketingPurchasePanel';
 export { PartnerEventTicketingManager } from './components/PartnerEventTicketingManager';
+export { PartnerSessionSheet } from './components/PartnerSessionSheet';
 export {
   type TicketOrderClaimSale,
   TicketPurchaseDetails,

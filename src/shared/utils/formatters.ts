@@ -139,3 +139,8 @@ export function formatRelativeTime(dateInput: string | number | Date): string {
   }
   return date.toLocaleDateString('pt-BR');
 }
+
+/** Primeira letra maiúscula (datas por extenso começam minúsculas em pt-BR e fr: "quarta-feira"). */
+export function capitalizeFirst(text: string, locale?: string): string {
+  return text.charAt(0).toLocaleUpperCase(locale) + text.slice(1);
+}

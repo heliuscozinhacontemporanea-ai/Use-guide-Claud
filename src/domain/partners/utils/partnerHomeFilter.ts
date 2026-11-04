@@ -3,7 +3,8 @@ import type { PartnerHomeView } from '../types/partnerHome';
 /** `null` = todos os estabelecimentos (padrão, D27). */
 export type EstablishmentFilter = string | null;
 
-const belongs = (ids: string[], filter: EstablishmentFilter) =>
+/** Item sem estabelecimento conhecido aparece em qualquer filtro. */
+export const belongs = (ids: string[], filter: EstablishmentFilter) =>
   filter === null || ids.length === 0 || ids.includes(filter);
 
 /**

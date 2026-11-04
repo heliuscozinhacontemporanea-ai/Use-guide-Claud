@@ -19,6 +19,7 @@ import type {
   Page,
   PartnerOffer,
   PartnerSlot,
+  PartnerSlotDetail,
   PublicSlot,
   UnitCheckInResult,
 } from '../types/bookings';
@@ -73,6 +74,14 @@ export class HttpBookingsAdapter implements BookingsApiPort {
   async listPartnerSlots(offerId: string, fromIso: string, toIso: string): Promise<PartnerSlot[]> {
     const query = new URLSearchParams({ from: fromIso, to: toIso });
     return (await call<{ data: PartnerSlot[] }>(`${offerPath(offerId)}/slots?${query}`)).data;
+  }
+
+  async getPartnerSlotDetail(offerId: string, slotId: string): Promise<PartnerSlotDetail> {
+    return (
+      await call<{ data: PartnerSlotDetail }>(
+        `${offerPath(offerId)}/slots/${encodeURIComponent(slotId)}/bookings`
+      )
+    ).data;
   }
 
   async createSlots(offerId: string, payload: CreateSlotsPayload): Promise<PartnerSlot[]> {

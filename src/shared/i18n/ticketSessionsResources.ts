@@ -1,5 +1,18 @@
 /** Textos das ações de sessão do evento no painel do parceiro (D14, D16). pt-BR é a fonte. */
 export interface TicketSessionsTranslation {
+  sheet: {
+    sold: string;
+    soldTickets: string;
+    entered: string;
+    enteredOf: string;
+    openGate: string;
+    postpone: string;
+    cancel: string;
+    gateTitle: string;
+    openGateMode: string;
+    offlineHint: string;
+    error: string;
+  };
   postpone: string;
   cancel: string;
   statusPostponed: string;
@@ -36,6 +49,20 @@ export interface TicketSessionsTranslation {
 }
 
 export const ticketSessionsPtBR: TicketSessionsTranslation = {
+  sheet: {
+    sold: 'Vendidos',
+    soldTickets: 'Ingressos vendidos',
+    entered: 'Entraram',
+    enteredOf: '{{entered}} de {{total}}',
+    openGate: 'Abrir portaria',
+    postpone: 'Adiar sessão',
+    cancel: 'Cancelar sessão',
+    gateTitle: 'Portaria',
+    openGateMode: 'Abrir modo portaria',
+    offlineHint:
+      'Sem internet, a portaria continua conferindo os QR Codes e envia as entradas quando a conexão voltar.',
+    error: 'Não foi possível carregar a sessão.',
+  },
   postpone: 'Adiar sessão',
   cancel: 'Cancelar sessão',
   statusPostponed: 'Sessão adiada',
@@ -78,6 +105,20 @@ export const ticketSessionsPtBR: TicketSessionsTranslation = {
 };
 
 export const ticketSessionsEn: TicketSessionsTranslation = {
+  sheet: {
+    sold: 'Sold',
+    soldTickets: 'Tickets sold',
+    entered: 'Entered',
+    enteredOf: '{{entered}} of {{total}}',
+    openGate: 'Open entrance',
+    postpone: 'Postpone session',
+    cancel: 'Cancel session',
+    gateTitle: 'Entrance',
+    openGateMode: 'Open entrance mode',
+    offlineHint:
+      'Without internet, the entrance keeps checking QR codes and sends the entries when the connection is back.',
+    error: 'The session could not be loaded.',
+  },
   postpone: 'Postpone session',
   cancel: 'Cancel session',
   statusPostponed: 'Session postponed',
@@ -120,6 +161,20 @@ export const ticketSessionsEn: TicketSessionsTranslation = {
 };
 
 export const ticketSessionsFr: TicketSessionsTranslation = {
+  sheet: {
+    sold: 'Vendus',
+    soldTickets: 'Billets vendus',
+    entered: 'Entrés',
+    enteredOf: '{{entered}} sur {{total}}',
+    openGate: 'Ouvrir l’accueil',
+    postpone: 'Reporter la séance',
+    cancel: 'Annuler la séance',
+    gateTitle: 'Accueil',
+    openGateMode: 'Ouvrir le mode accueil',
+    offlineHint:
+      'Sans internet, l’accueil continue de vérifier les QR codes et envoie les entrées au retour de la connexion.',
+    error: 'Impossible de charger la séance.',
+  },
   postpone: 'Reporter la séance',
   cancel: 'Annuler la séance',
   statusPostponed: 'Séance reportée',

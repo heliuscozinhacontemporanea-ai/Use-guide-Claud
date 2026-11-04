@@ -1,5 +1,5 @@
 import { listOwnerAgendaUseCase } from '../../../domain/bookings';
-import { listEventOccurrencesUseCase, listOwnerEventListingsUseCase } from '../../../domain/events';
+import { listOwnerEventListingsUseCase } from '../../../domain/events';
 import { listOwnerGuideItemsUseCase } from '../../../domain/guide';
 import {
   getListingPlanUntilUseCase,
@@ -15,10 +15,10 @@ import {
 } from '../../../domain/payment';
 import { countUnansweredReviewsUseCase } from '../../../domain/reviews';
 import { businessDayStartMs } from '../../../shared/kernel/businessDay';
-import { getCommittedTicketsCountForOccurrenceApplicationUseCase } from '../getCommittedTicketsCountForOccurrenceApplicationUseCase';
 import { listPartnerPaymentAccountsApplicationUseCase } from '../paymentAccounts/listPartnerPaymentAccountsApplicationUseCase';
 import { buildPartnerHome, type PartnerSessionInput, UPCOMING_SESSIONS } from './buildPartnerHome';
 import { businessMonthStarts } from './partnerHomeCardsData';
+import { listOwnerOccurrences, type OwnerEvent, toSessionInput } from './partnerSessions';
 import type { PartnerHomeView } from './partnerHomeTypes';
 
 const DAY_MS = 24 * 60 * 60_000;
@@ -109,21 +109,11 @@ async function loadTwoMonthsOfEntries(
 /** Sessões de hoje e as próximas, com o vendido lido só delas. */
 async function loadSessions(
   ownerUid: string,
-  events: Awaited<ReturnType<typeof listOwnerEventListingsUseCase>>,
+  events: OwnerEvent[],
   dayStart: number,
   nowMs: number
 ): Promise<PartnerSessionInput[]> {
-  const all = (
-    await Promise.all(
-      events.map(async (event) =>
-        (
-          await listEventOccurrencesUseCase(event.id)
-        )
-          .filter((occurrence) => occurrence.status !== 'canceled')
-          .map((occurrence) => ({ event, occurrence }))
-      )
-    )
-  ).flat();
+  const all = await listOwnerOccurrences(events);
   const today = all.filter(({ occurrence }) => {
     const ms = new Date(occurrence.startsAt).getTime();
     return ms >= dayStart && ms < dayStart + DAY_MS;
@@ -133,21 +123,5 @@ async function loadSessions(
     .sort((a, b) => a.occurrence.startsAt.localeCompare(b.occurrence.startsAt))
     .slice(0, UPCOMING_SESSIONS);
   const chosen = new Map([...today, ...upcoming].map((row) => [row.occurrence.id, row]));
-  return Promise.all(
-    [...chosen.values()].map(
-      async ({ event, occurrence }): Promise<PartnerSessionInput> => ({
-        id: occurrence.id,
-        eventId: event.id,
-        eventTitle: event.title || event.name,
-        establishmentId: event.establishmentId ?? null,
-        startsAt: occurrence.startsAt,
-        endsAt: occurrence.endsAt ?? null,
-        capacity: occurrence.capacity,
-        sold: await getCommittedTicketsCountForOccurrenceApplicationUseCase(
-          { uid: ownerUid, admin: false, role: 'partner' },
-          occurrence.id
-        ),
-      })
-    )
-  );
+  return Promise.all([...chosen.values()].map((row) => toSessionInput(ownerUid, row)));
 }

@@ -108,4 +108,23 @@ describe('OwnerAgendaService', () => {
     });
     expect(agenda.openAbsences.map((absence) => absence.bookingId)).toEqual(['b2']);
   });
+
+  it('folha do horário: só o dono vê, só reservas ativas, e o horário precisa ser da oferta', async () => {
+    const port = new InMemoryBookingsAdapter();
+    await port.createOffer(offer('o1', 'owner'));
+    await port.createOffer(offer('o2', 'owner'));
+    await port.createSlots([slot('s1', 'o1'), slot('s2', 'o2')]);
+    port.bookings.set('b1', booking('b1', 's1'));
+    port.bookings.set('b2', booking('b2', 's1', { status: 'canceled' }));
+    const service = new OwnerAgendaService(port);
+
+    const result = await service.listSlotBookings({ uid: 'owner', admin: false }, 'o1', 's1');
+    expect(result.bookings.map((item) => item.id)).toEqual(['b1']);
+    await expect(
+      service.listSlotBookings({ uid: 'outro', admin: false }, 'o1', 's1')
+    ).rejects.toMatchObject({ code: 'NOT_FOUND' });
+    await expect(
+      service.listSlotBookings({ uid: 'owner', admin: false }, 'o1', 's2')
+    ).rejects.toMatchObject({ code: 'NOT_FOUND' });
+  });
 });

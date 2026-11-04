@@ -54,6 +54,10 @@ partnerOffersRouter.post(
   PartnerOffersController.rescheduleSlot
 );
 partnerOffersRouter.get('/:offerId/bookings', PartnerOffersController.listBookings);
+partnerOffersRouter.get(
+  '/:offerId/slots/:slotId/bookings',
+  PartnerOffersController.listSlotBookings
+);
 // Check-in libera o repasse (D20): token revogado não serve.
 partnerOffersRouter.post(
   '/:offerId/slots/:slotId/check-ins',

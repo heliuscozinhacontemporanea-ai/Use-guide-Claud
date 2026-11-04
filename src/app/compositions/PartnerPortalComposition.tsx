@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getActiveSubscriptionPlansUseCase } from '../../domain/admin';
 import { useAuthContext } from '../../domain/auth/context/AuthContext';
+import { PartnerSlotSheet } from '../../domain/bookings';
 import { UserRole } from '../../domain/auth/types/auth';
 import { AboutTermsView, SupportView } from '../../domain/content';
 import { EventSessionsField } from '../../domain/events';
@@ -19,6 +20,7 @@ import {
 } from '../../domain/payment';
 import { useLocalizedRouting } from '../../shared/hooks/useLocalizedRouting';
 import { useUI } from '../../shared/stores/useUIStore';
+import { PartnerSessionSheet } from '../../domain/ticketing';
 import { MessagePage } from '../../ui/components/MessagePage';
 import { PartnerBookingsComposition } from './PartnerBookingsComposition';
 import { PartnerEventTicketingComposition } from './PartnerEventTicketingComposition';
@@ -195,6 +197,24 @@ export function PartnerPortalComposition() {
       )}
       renderEventSessionsField={(props) => <EventSessionsField {...props} />}
       renderEarnings={() => <PartnerStripeConnectPortal />}
+      renderSlotSheet={({ item, onClose, onChanged }) => (
+        <PartnerSlotSheet
+          offerId={item.parentId}
+          slotId={item.id}
+          onClose={onClose}
+          onChanged={onChanged}
+        />
+      )}
+      renderSessionSheet={({ item, onClose, onChanged }) => (
+        <PartnerSessionSheet
+          eventListingId={item.parentId}
+          occurrenceId={item.id}
+          title={item.title}
+          sold={item.sold}
+          onClose={onClose}
+          onChanged={onChanged}
+        />
+      )}
       renderAccountView={(view, onBack) =>
         view === 'notifications' ? (
           <NotificationSettingsView isPartner onBack={onBack} />

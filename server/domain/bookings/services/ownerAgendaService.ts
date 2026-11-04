@@ -1,6 +1,9 @@
+import { BookingDomainError } from '../errors/bookingDomainError';
 import type { BookingsPort } from '../ports/bookingsPort';
 import type {
+  AvailabilitySlot,
   AvailabilitySlotStatus,
+  BookableOffer,
   BookableOfferKind,
   Booking,
   BookingActor,
@@ -120,5 +123,25 @@ export class OwnerAgendaService {
     slots.sort((a, b) => a.startsAt.localeCompare(b.startsAt));
     openAbsences.sort((a, b) => a.respondBy.localeCompare(b.respondBy));
     return { slots, openAbsences };
+  }
+
+  /** Reservas ativas de um horário do dono, com a oferta e o horário (folha do horário, p06). */
+  async listSlotBookings(
+    actor: BookingActor,
+    offerId: string,
+    slotId: string
+  ): Promise<{ offer: BookableOffer; slot: AvailabilitySlot; bookings: Booking[] }> {
+    const [offer, slot] = await Promise.all([
+      this.port.getOffer(offerId),
+      this.port.getSlot(slotId),
+    ]);
+    // Oferta ou horário de outro parceiro responde como inexistente: não revela que o ID existe.
+    if (!offer || (!actor.admin && offer.ownerId !== actor.uid) || slot?.offerId !== offerId) {
+      throw new BookingDomainError('NOT_FOUND', 'Horário não encontrado.');
+    }
+    const bookings = (await this.port.listBookingsBySlot(slotId)).filter((booking) =>
+      ACTIVE.includes(booking.status)
+    );
+    return { offer, slot, bookings };
   }
 }

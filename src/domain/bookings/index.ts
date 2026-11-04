@@ -13,6 +13,7 @@ export { BookingResultView } from './components/buyer/BookingResultView';
 export { MyBookingsView } from './components/buyer/MyBookingsView';
 export type { PaymentElementSlotProps, RenderPaymentElement } from './components/buyer/types';
 export { PartnerOffersManager } from './components/partner/PartnerOffersManager';
+export { PartnerSlotSheet } from './components/partner/PartnerSlotSheet';
 export { useBookingPurchases } from './hooks/useBookingPurchases';
 export { useMyBookings } from './hooks/useMyBookings';
 export type { BookableGuideItem } from './types/bookings';
