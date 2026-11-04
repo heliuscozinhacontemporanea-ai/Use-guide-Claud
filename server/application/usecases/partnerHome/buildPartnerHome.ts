@@ -27,6 +27,7 @@ export interface PartnerHomeInput {
   nowIso: string;
   cards: string[];
   establishments: OwnerGuideItemSummary[];
+  unansweredReviews: Record<string, number>;
   documents: OwnerSalesDocument[];
   slots: OwnerSlotSummary[];
   openAbsences: OwnerOpenAbsence[];
@@ -203,6 +204,7 @@ export function buildPartnerHome(input: PartnerHomeInput): PartnerHomeView {
         location,
         rating,
         reviewCount,
+        unansweredReviews: input.unansweredReviews[id] ?? 0,
       })
     ),
     attention,

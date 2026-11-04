@@ -33,6 +33,7 @@ function input(overrides: Partial<PartnerHomeInput> = {}): PartnerHomeInput {
   return {
     nowIso: NOW,
     cards: ['today'],
+    unansweredReviews: { buggy: 2 },
     establishments: [
       {
         id: 'buggy',
@@ -106,6 +107,8 @@ describe('buildPartnerHome', () => {
       'plan_expiring',
       'verification_rejected',
     ]);
+    expect(home.establishments[0]).toMatchObject({ id: 'buggy', unansweredReviews: 2 });
+    expect(home.establishments[1]).toMatchObject({ id: 'pousada', unansweredReviews: 0 });
     expect(home.attention[1]).toMatchObject({
       establishmentIds: ['buggy'],
       title: 'Buggy do Preá',

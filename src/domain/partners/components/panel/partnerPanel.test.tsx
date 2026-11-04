@@ -19,6 +19,7 @@ const VIEW: PartnerHomeView = {
       location: 'Preá',
       rating: 4.8,
       reviewCount: 96,
+      unansweredReviews: 2,
     },
     {
       id: 'pousada',
@@ -27,6 +28,7 @@ const VIEW: PartnerHomeView = {
       location: 'Preá',
       rating: 4,
       reviewCount: 4,
+      unansweredReviews: 0,
     },
   ],
   attention: [
@@ -55,7 +57,7 @@ const VIEW: PartnerHomeView = {
     },
   ],
   numbers: {
-    salesTodayMinor: 234000,
+    salesTodayMinor: 234034,
     salesTodayCount: 14,
     nextPayout: {
       releaseAt: '2026-11-10T15:00:00.000Z',
@@ -141,12 +143,14 @@ describe('casca do painel do parceiro (D27)', () => {
     );
     expect(screen.getByText('Multa ou dívida a pagar')).toBeInTheDocument();
     expect(screen.getByText('Pague até 9 de nov.')).toBeInTheDocument();
-    expect(screen.getByText(/09:00 Passeio de buggy/)).toBeInTheDocument();
+    expect(screen.getByText('09:00 · Passeio de buggy')).toBeInTheDocument();
     expect(screen.getByText('4 de 6')).toBeInTheDocument();
     expect(screen.getByText('nos 2 estabelecimentos')).toBeInTheDocument();
     // Média ponderada: (4,8 × 96 + 4 × 4) / 100.
     expect(screen.getByText('4,8 ★')).toBeInTheDocument();
-    expect(screen.getByText('100 avaliações')).toBeInTheDocument();
+    expect(screen.getByText('2 novas para responder')).toBeInTheDocument();
+    // Centavos aparecem quando há centavos.
+    expect(screen.getByText(/2\.340,34/)).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: /Vendas de hoje/ }));
     expect(onOpenTab).toHaveBeenCalledWith('earnings');
   });

@@ -25,6 +25,7 @@ function createReviewPortMock(): ReviewPort {
     deleteReview: vi.fn(),
     deleteReviewsByUser: vi.fn(),
     getReviewsStats: vi.fn(),
+    countUnansweredByItems: vi.fn(),
   };
 }
 

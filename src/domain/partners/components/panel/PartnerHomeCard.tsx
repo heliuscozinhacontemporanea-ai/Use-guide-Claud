@@ -39,20 +39,25 @@ function Body({
       return data.items.length === 0 ? (
         <p className={SUB}>{t('partnerPanel.home.todayEmpty')}</p>
       ) : (
-        <ul className="space-y-1.5">
-          {data.items.slice(0, 4).map((item) => (
-            <li key={`${item.kind}-${item.id}`} className="flex items-center gap-2 text-[14px]">
-              <span className="flex-1 min-w-0 text-ink font-semibold truncate">
-                {time(item.startsAt)} {item.title}
-              </span>
-              {labelFor(item) && (
-                <span className="shrink-0 px-2 py-0.5 rounded-md bg-ink/[0.07] text-[12px] font-semibold text-ink/80">
-                  {labelFor(item)}
+        <ul className="space-y-3">
+          {data.items.slice(0, 4).map((item) => {
+            const label = labelFor(item);
+            return (
+              <li key={`${item.kind}-${item.id}`} className="text-[14px]">
+                <span className="block text-ink font-semibold truncate">
+                  {time(item.startsAt)} · {item.title}
                 </span>
-              )}
-              <TodayStatus item={item} />
-            </li>
-          ))}
+                <span className="flex items-center justify-between gap-3">
+                  <TodayStatus item={item} />
+                  {label && (
+                    <span className="shrink-0 px-2 py-0.5 rounded-md bg-ink/[0.07] text-[12px] font-semibold text-ink/80">
+                      {label}
+                    </span>
+                  )}
+                </span>
+              </li>
+            );
+          })}
         </ul>
       );
     case 'sales_today':
@@ -111,7 +116,11 @@ function Body({
           <p className={VALUE}>
             {new Intl.NumberFormat(lang, { maximumFractionDigits: 1 }).format(data.rating)} ★
           </p>
-          <p className={SUB}>{t('partnerPanel.cards.reviews.count', { count: data.count })}</p>
+          <p className={SUB}>
+            {data.unanswered > 0
+              ? t('partnerPanel.cards.reviews.unanswered', { count: data.unanswered })
+              : t('partnerPanel.cards.reviews.count', { count: data.count })}
+          </p>
         </>
       );
     case 'week_bookings':
@@ -171,16 +180,19 @@ function Body({
   }
 }
 
-/** Coluna da direita do Hoje (p01): quem já usou o código, o total de pessoas ou a portaria. */
+/** Segunda linha do Hoje: quem já usou o código, o total de pessoas ou o vendido e a portaria. */
 function TodayStatus({ item }: { item: PartnerTodayItem }) {
   const { t } = useTranslation();
   if (item.kind === 'session') {
     return (
-      <span className="shrink-0 text-accent font-semibold">{t('partnerPanel.home.gate')}</span>
+      <span className="min-w-0 text-ink/70">
+        {t('partnerPanel.home.sold', { sold: item.sold, capacity: item.capacity })} ·{' '}
+        <span className="text-accent font-semibold">{t('partnerPanel.home.gate')}</span>
+      </span>
     );
   }
   return (
-    <span className="shrink-0 text-ink/70">
+    <span className="min-w-0 text-ink/70">
       {item.checkedIn
         ? t('partnerPanel.home.arrived', { checkedIn: item.checkedIn, sold: item.sold })
         : t('partnerPanel.home.people', { count: item.sold })}

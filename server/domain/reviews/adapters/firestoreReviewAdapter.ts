@@ -140,6 +140,26 @@ export class FirestoreReviewAdapter implements ReviewPort {
     };
   }
 
+  async countUnansweredByItems(itemIds: string[]): Promise<Record<string, number>> {
+    const counts: Record<string, number> = {};
+    await Promise.all(
+      itemIds.map(async (itemId) => {
+        // `select` traz só a resposta: o texto e o autor das avaliações não saem do Firestore aqui.
+        const snapshot = await adminDb
+          .collection('reviews')
+          .where('itemId', '==', itemId)
+          .where('itemCollection', '==', 'items')
+          .select('partnerResponse')
+          .get();
+        counts[itemId] = snapshot.docs.filter((doc) => {
+          const response = doc.get('partnerResponse');
+          return typeof response !== 'string' || response.trim() === '';
+        }).length;
+      })
+    );
+    return counts;
+  }
+
   async respondToReview(
     reviewId: string,
     response: string,

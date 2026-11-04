@@ -73,7 +73,12 @@ export interface PartnerPanelTranslation {
       inAccounts_other: string;
     };
     next_event: CardTexts & { sold: string };
-    reviews: CardTexts & { count_one: string; count_other: string };
+    reviews: CardTexts & {
+      count_one: string;
+      count_other: string;
+      unanswered_one: string;
+      unanswered_other: string;
+    };
     week_bookings: CardTexts & { occupancy: string };
     plan_seal: CardTexts & { until: string };
     week_occupancy: CardTexts;
@@ -207,6 +212,8 @@ export const partnerPanelPtBR: PartnerPanelTranslation = {
       description: 'Nota média dos estabelecimentos',
       count_one: '{{count}} avaliação',
       count_other: '{{count}} avaliações',
+      unanswered_one: '{{count}} nova para responder',
+      unanswered_other: '{{count}} novas para responder',
     },
     week_bookings: {
       title: 'Reservas da semana',
@@ -359,6 +366,8 @@ export const partnerPanelEn: PartnerPanelTranslation = {
       description: 'Average rating of your businesses',
       count_one: '{{count}} review',
       count_other: '{{count}} reviews',
+      unanswered_one: '{{count}} new to reply to',
+      unanswered_other: '{{count}} new to reply to',
     },
     week_bookings: {
       title: 'Bookings this week',
@@ -512,6 +521,8 @@ export const partnerPanelFr: PartnerPanelTranslation = {
       description: 'Note moyenne de vos établissements',
       count_one: '{{count}} avis',
       count_other: '{{count}} avis',
+      unanswered_one: '{{count}} nouvel avis à traiter',
+      unanswered_other: '{{count}} nouveaux avis à traiter',
     },
     week_bookings: {
       title: 'Réservations de la semaine',

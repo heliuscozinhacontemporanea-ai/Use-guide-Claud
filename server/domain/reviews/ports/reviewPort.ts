@@ -30,4 +30,6 @@ export interface ReviewPort {
   deleteReview(reviewId: string, requesterId: string, isAdmin?: boolean): Promise<void>;
   deleteReviewsByUser(userId: string): Promise<void>;
   getReviewsStats(): Promise<{ totalReviews: number; avgRating: number }>;
+  /** Avaliações sem resposta do estabelecimento, por item do guia (painel do parceiro, D27). */
+  countUnansweredByItems(itemIds: string[]): Promise<Record<string, number>>;
 }

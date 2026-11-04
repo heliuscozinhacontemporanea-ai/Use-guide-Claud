@@ -5,8 +5,24 @@ import { partnerCardData } from './partnerHomeCardData';
 const VIEW: PartnerHomeView = {
   cards: [],
   establishments: [
-    { id: 'a', name: 'Buggy', category: 'tour', location: 'Preá', rating: 5, reviewCount: 1 },
-    { id: 'b', name: 'Pousada', category: 'lodging', location: 'Preá', rating: 0, reviewCount: 0 },
+    {
+      id: 'a',
+      name: 'Buggy',
+      category: 'tour',
+      location: 'Preá',
+      rating: 5,
+      reviewCount: 1,
+      unansweredReviews: 1,
+    },
+    {
+      id: 'b',
+      name: 'Pousada',
+      category: 'lodging',
+      location: 'Preá',
+      rating: 0,
+      reviewCount: 0,
+      unansweredReviews: 0,
+    },
   ],
   attention: [],
   today: [],

@@ -12,7 +12,7 @@ export type PartnerCardData =
   | { id: 'sales_today'; amountMinor: number; count: number; establishments: number }
   | { id: 'next_payout'; payout: PartnerHomeView['numbers']['nextPayout'] }
   | { id: 'next_event'; session: PartnerUpcomingSession }
-  | { id: 'reviews'; rating: number; count: number }
+  | { id: 'reviews'; rating: number; count: number; unanswered: number }
   | { id: 'week_bookings'; sold: number; capacity: number }
   | { id: 'plan_seal'; name: string; until: string }
   | { id: 'week_occupancy'; days: Array<{ date: string; sold: number; capacity: number }> }
@@ -64,7 +64,8 @@ export function partnerCardData(
       const count = establishments.reduce((sum, item) => sum + item.reviewCount, 0);
       if (count === 0) return null;
       const total = establishments.reduce((sum, item) => sum + item.rating * item.reviewCount, 0);
-      return { id, rating: total / count, count };
+      const unanswered = establishments.reduce((sum, item) => sum + item.unansweredReviews, 0);
+      return { id, rating: total / count, count, unanswered };
     }
     case 'week_bookings': {
       const capacity = week.reduce((sum, row) => sum + row.capacity, 0);

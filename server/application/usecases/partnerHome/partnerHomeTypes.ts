@@ -63,6 +63,8 @@ export interface PartnerHomeView {
     location: string;
     rating: number;
     reviewCount: number;
+    /** Avaliações ainda sem resposta do estabelecimento. */
+    unansweredReviews: number;
   }>;
   attention: PartnerAttentionItem[];
   today: PartnerTodayItem[];

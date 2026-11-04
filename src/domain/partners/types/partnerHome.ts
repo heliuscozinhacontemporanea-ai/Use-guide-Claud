@@ -38,6 +38,7 @@ export interface PartnerEstablishment {
   location: string;
   rating: number;
   reviewCount: number;
+  unansweredReviews: number;
 }
 
 export interface PartnerUpcomingSession {

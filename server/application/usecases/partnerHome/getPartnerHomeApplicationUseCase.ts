@@ -13,6 +13,7 @@ import {
   listPayoutEntriesUseCase,
   type PayoutEntryView,
 } from '../../../domain/payment';
+import { countUnansweredReviewsUseCase } from '../../../domain/reviews';
 import { businessDayStartMs } from '../../../shared/kernel/businessDay';
 import { getCommittedTicketsCountForOccurrenceApplicationUseCase } from '../getCommittedTicketsCountForOccurrenceApplicationUseCase';
 import { listPartnerPaymentAccountsApplicationUseCase } from '../paymentAccounts/listPartnerPaymentAccountsApplicationUseCase';
@@ -55,23 +56,27 @@ export async function getPartnerHomeApplicationUseCase(
     ]);
   const accountKeys = documents.map((document) => document.accountKey);
 
-  const [debts, recentEntries, openEntries, planUntil, sessions] = await Promise.all([
-    listAccountDebtsUseCase(accountKeys),
-    loadTwoMonthsOfEntries(accountKeys, businessMonthStarts(nowIso).previous),
-    listOpenPayoutEntriesUseCase(accountKeys, OPEN_ENTRIES),
-    Promise.all(
-      establishments.map(async (item) => ({
-        itemId: item.id,
-        until: await getListingPlanUntilUseCase(item.id),
-      }))
-    ),
-    loadSessions(ownerUid, events, dayStart, now.getTime()),
-  ]);
+  const [debts, recentEntries, openEntries, planUntil, sessions, unansweredReviews] =
+    await Promise.all([
+      listAccountDebtsUseCase(accountKeys),
+      loadTwoMonthsOfEntries(accountKeys, businessMonthStarts(nowIso).previous),
+      listOpenPayoutEntriesUseCase(accountKeys, OPEN_ENTRIES),
+      Promise.all(
+        establishments.map(async (item) => ({
+          itemId: item.id,
+          until: await getListingPlanUntilUseCase(item.id),
+        }))
+      ),
+      loadSessions(ownerUid, events, dayStart, now.getTime()),
+      // Só os itens do próprio dono: a lista vem de `listOwnerGuideItemsUseCase`.
+      countUnansweredReviewsUseCase(establishments.map((item) => item.id)),
+    ]);
 
   return buildPartnerHome({
     nowIso,
     cards,
     establishments,
+    unansweredReviews,
     documents,
     slots: agenda.slots,
     openAbsences: agenda.openAbsences,
