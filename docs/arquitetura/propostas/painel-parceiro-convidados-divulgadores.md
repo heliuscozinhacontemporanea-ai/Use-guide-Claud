@@ -1,7 +1,7 @@
 # Proposta — Painel do parceiro, lista de convidados e divulgadores (2026-11-03)
 
 Status: **em aberto** (decisões de 2026-11-04 na seção 6; aguarda aprovação dos desenhos e das seções 7 a 9).
-Desenhos: `docs/arquitetura/propostas/painel-parceiro/` (p01 a p36, índice na seção 11; verde da D26).
+Desenhos: `docs/arquitetura/propostas/painel-parceiro/` (p01 a p46, índice na seção 11; verde da D26).
 
 ## 1. Referências
 
@@ -181,4 +181,16 @@ Referências: Airbnb (o anfitrião vê todos os anúncios no Hoje e filtra a age
 * **Sempre de todos, mesmo com filtro:** "Resolva agora" e o cartão da portaria do dia, porque prazo e portaria não podem sumir.
 * **Com "Todos":** cada linha leva uma etiqueta com o nome curto do estabelecimento (p37, p39). Catálogo agrupado por estabelecimento, Ganhos agrupado por conta de recebimento (CNPJ).
 * **O filtro fica guardado no aparelho** (preferência local).
+
+### 11.4. Seção "Agora" no Início (aprovada em 2026-11-04, D27)
+
+| Nº | Aba | Tela ou folha | Função |
+|---|---|---|---|
+| p40 | Início | Início com "Agora" | cartões pelo horário: Cheguei, Inserir código, Portaria; "Agora" fica acima de "Resolva agora" |
+| p41 | Início | Folha Inserir código | um código por vez, em qualquer ordem; "2 de 4 entregues"; "Cliente sem código" |
+| p42 | Início | Depois do "Cheguei" | contatos (Ligar, WhatsApp) só das reservas sem código, e as respostas do cliente |
+| p43 | Início | Iniciar serviço e lista sem internet | "Iniciar serviço" depois do check-in; baixar a lista na véspera |
+| p44 | Compra (cliente) | Telefone na compra | "Mostraremos seu contato só no dia do serviço." |
+| p45 | Compra (cliente) | Aviso "chegou" | "Seu código", "Estou chegando" e "Não vou mais" |
+| p46 | Compra (cliente) | Folha Não vai mais? | confirma a ausência (sem reembolso), aguardando aprovação |
 
