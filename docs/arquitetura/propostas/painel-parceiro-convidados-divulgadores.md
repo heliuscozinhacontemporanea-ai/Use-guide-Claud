@@ -1,7 +1,7 @@
 # Proposta — Painel do parceiro, lista de convidados e divulgadores (2026-11-03)
 
 Status: **em aberto** (decisões de 2026-11-04 na seção 6; aguarda aprovação dos desenhos e das seções 7 a 9).
-Desenhos: `docs/arquitetura/propostas/painel-parceiro/` (p1 a p9, dois temas, verde da D26).
+Desenhos: `docs/arquitetura/propostas/painel-parceiro/` (p1 a p11, dois temas, verde da D26).
 
 ## 1. Referências
 
@@ -66,6 +66,16 @@ Cada evento abre uma página própria com abas **Vendas · Convidados · Divulga
 7. **Cachê fixo pelo evento:** entra como terceira opção (p6).
 8. **Oferta aberta:** não agora; talvez no futuro.
 
+### 6.1. Início com cartões personalizáveis (pedido de 2026-11-04; p1, p2, p10, p11)
+
+- **Cinco atalhos no topo**, em quadrados levemente arredondados com ícone e nome: Início (marcado), Agenda, Anúncios, Ganhos e Mais.
+- **"Precisa de você" fixo no topo**, fora da personalização (prazos não podem sumir).
+- Abaixo, **cartões em grade de duas colunas**, pequenos (meia largura) ou grandes (largura inteira). Tocar num cartão abre a aba certa (Hoje → Agenda, Vendas e repasse → Ganhos, evento → página do evento, Avaliações → avaliações).
+- **"Personalizar início"** abre o modo de edição: arrastar para mudar a ordem, "−" para tirar e "Adicionar cartão" para escolher numa galeria com descrição e tamanho; "Concluir" salva.
+- **Cartões disponíveis:** Hoje, Vendas de hoje, Próximo repasse, Próximo evento (vendidos, convidados, divulgadores), Avaliações, Reservas da semana, Convidados, Divulgadores, Plano e selo, Ocupação da semana e Vendas do mês. Os seis primeiros vêm por padrão.
+- A escolha fica salva na conta (vale em qualquer aparelho). Cartão sem dado (ex.: parceiro sem evento) não aparece na galeria.
+- Referências: Stripe (adicionar e tirar widgets do início), Cloudscape/AWS (painel configurável: reordenar, adicionar, tirar e tamanho), widgets do iPhone (modo de edição com "−", galeria e tamanhos), Nubank ("Organizar atalhos"), apps com cartões de início que se arrastam e se escondem.
+
 ## 7. Proteções da cortesia (proposta)
 
 A pesquisa não achou regra publicada pelas grandes plataformas sobre "cancelar a compra e dar cortesia"; elas tratam o assunto com controle de cortesias por pessoa, cortesia sem reembolso nem troca e termos que proíbem vender por fora. Proposta para o Use Guide:
@@ -99,7 +109,7 @@ Hoje a edição junta conteúdo e operação (lotes, vendas, participantes, chec
 
 ## 10. Etapas (depois da aprovação dos desenhos)
 
-1. Painel: atalhos no topo e tela Início; página do evento separada da edição.
+1. Painel: cinco atalhos no topo, Início com cartões personalizáveis e página do evento separada da edição.
 2. Convidados: cortesia por @ e por link pessoal, uma por pessoa, proteções da seção 7, aviso e portaria.
 3. Divulgadores: convite e aceite, link e atribuição, três formas de ganho, relatórios dos dois lados.
 4. Termos do parceiro: cláusula de venda por fora (nova versão).
