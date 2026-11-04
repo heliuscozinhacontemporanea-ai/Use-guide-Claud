@@ -18,3 +18,11 @@ export function lastBusinessDays(today: Date, count: number): string[] {
   }
   return days;
 }
+
+/** Mês atual e anterior (AAAA-MM) no fuso do negócio, para comparar as visitas do mês. */
+export function businessMonthKeys(today: Date): { current: string; previous: string } {
+  const current = businessDayKey(today).slice(0, 7);
+  const [year, month] = current.split('-').map(Number) as [number, number];
+  const previous = month === 1 ? `${year - 1}-12` : `${year}-${String(month - 1).padStart(2, '0')}`;
+  return { current, previous };
+}

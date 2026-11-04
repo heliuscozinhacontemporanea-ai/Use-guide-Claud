@@ -57,14 +57,17 @@ describe('PartnerOffersManager', () => {
       createdAt: '',
       updatedAt: '',
     }));
+    const onCreatingChange = vi.fn();
     render(
       <PartnerOffersManager
         canPublish={() => true}
         items={[{ id: 'item-1', name: 'Lagoa do Paraíso', category: 'tour' }]}
+        creating
+        onCreatingChange={onCreatingChange}
       />
     );
-    fireEvent.click(await screen.findByRole('button', { name: /Nova oferta/ }));
-    fireEvent.change(screen.getAllByLabelText('Título')[0]!, {
+    // Um estabelecimento só: o "Criar" do Catálogo abre o editor direto.
+    fireEvent.change((await screen.findAllByLabelText('Título'))[0]!, {
       target: { value: 'Passeio de buggy' },
     });
     fireEvent.change(screen.getByLabelText('Nome da opção'), { target: { value: 'Adulto' } });
@@ -78,6 +81,60 @@ describe('PartnerOffersManager', () => {
       title: { 'pt-BR': 'Passeio de buggy' },
     });
     expect(payload.pricing.priceOptions[0]?.unitAmountMinor).toBe(15090);
+    expect(onCreatingChange).toHaveBeenCalledWith(false);
+  });
+
+  it('linha da oferta abre a folha; sem conta pronta, "Publicar" fica desabilitado e explica', async () => {
+    vi.mocked(listPartnerOffersUseCase).mockResolvedValue([
+      {
+        id: 'o1',
+        guideItemId: 'item-1',
+        kind: 'tour',
+        status: 'draft',
+        title: { 'pt-BR': 'Passeio de buggy' },
+        pricing: {
+          currency: 'BRL',
+          priceOptions: [{ id: 'a', label: { 'pt-BR': 'Adulto' }, unitAmountMinor: 18000 }],
+        },
+        createdAt: '',
+        updatedAt: '',
+      } as never,
+    ]);
+    render(
+      <PartnerOffersManager
+        canPublish={() => false}
+        items={[{ id: 'item-1', name: 'Buggy do Preá', category: 'tour' }]}
+      />
+    );
+    fireEvent.click(await screen.findByRole('button', { name: /Passeio de buggy/ }));
+    const dialog = await screen.findByRole('dialog');
+    expect(within(dialog).getByText(/R\$\s180 por pessoa · Rascunho/)).toBeTruthy();
+    const publish = within(dialog).getByRole('button', { name: 'Publicar' });
+    expect((publish as HTMLButtonElement).disabled).toBe(true);
+    expect(
+      within(dialog).getByText(
+        'Conclua a configuração financeira do CNPJ deste estabelecimento para publicar.'
+      )
+    ).toBeTruthy();
+  });
+
+  it('com mais de um estabelecimento, "Criar" pergunta em qual', async () => {
+    vi.mocked(listPartnerOffersUseCase).mockResolvedValue([]);
+    render(
+      <PartnerOffersManager
+        canPublish={() => true}
+        creating
+        onCreatingChange={vi.fn()}
+        items={[
+          { id: 'a', name: 'Buggy do Preá', category: 'tour' },
+          { id: 'b', name: 'Dunas Park', category: 'sight' },
+        ]}
+      />
+    );
+    const dialog = await screen.findByRole('dialog');
+    expect(within(dialog).getByText('Em qual estabelecimento?')).toBeTruthy();
+    fireEvent.click(within(dialog).getByRole('button', { name: /Dunas Park/ }));
+    expect((await screen.findAllByLabelText('Título')).length).toBeGreaterThan(0);
   });
 });
 

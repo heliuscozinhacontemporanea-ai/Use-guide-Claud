@@ -5,7 +5,7 @@ import type {
   RecordInteractionInput,
 } from '../ports/insightsRepositoryPort';
 import type { InteractionCounter, ItemStats } from '../types/interaction';
-import { lastBusinessDays } from '../utils/businessDay';
+import { businessMonthKeys, lastBusinessDays } from '../utils/businessDay';
 
 // Coleções só do backend (firestore.rules nega leitura e escrita ao cliente).
 const STATS_COLLECTION = 'interactionStats';
@@ -94,6 +94,13 @@ export class FirebaseAdminInsightsAdapter implements InsightsRepositoryPort {
       }
     }
 
+    const months = businessMonthKeys(today);
+    const month = { currentViews: 0, previousViews: 0 };
+    for (const [day, views] of viewsByDay) {
+      if (day.startsWith(months.current)) month.currentViews += views;
+      else if (day.startsWith(months.previous)) month.previousViews += views;
+    }
+
     return {
       views: totals.viewsSignedIn + totals.viewsAnonymous,
       viewsSignedIn: totals.viewsSignedIn,
@@ -105,6 +112,7 @@ export class FirebaseAdminInsightsAdapter implements InsightsRepositoryPort {
         date: dayLabel(day),
         views: viewsByDay.get(day) ?? 0,
       })),
+      month,
     };
   }
 }

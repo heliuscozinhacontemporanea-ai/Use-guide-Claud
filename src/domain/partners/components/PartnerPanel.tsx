@@ -23,7 +23,8 @@ import type { PartnerTodayItem } from '../types/partnerHome';
 import { belongs } from '../utils/partnerHomeFilter';
 import { EstablishmentFilterSheet } from './panel/EstablishmentFilterSheet';
 import { ATTENTION_TAB } from './panel/PartnerAttentionList';
-import { type CatalogSegment, PartnerCatalogTab } from './panel/PartnerCatalogTab';
+import type { CatalogSegment } from './panel/PartnerCatalogTab';
+import { type PartnerCatalogRenders, PartnerCatalogSection } from './panel/PartnerCatalogSection';
 import { PartnerHomeTab } from './panel/PartnerHomeTab';
 import { PartnerEarningsTab } from './panel/PartnerEarningsTab';
 import {
@@ -69,9 +70,8 @@ export interface PartnerPanelProps {
     itemId: string,
     onLiveChange: (live: boolean) => void
   ) => React.ReactNode;
-  renderBookableOffersManager?: (
-    items: Array<{ id: string; name: string; category: string }>
-  ) => React.ReactNode;
+  /** Passeios, visitas e avaliações do Catálogo (outros domínios), montados pela composição. */
+  renderCatalog?: PartnerCatalogRenders;
   /** Chamado ao fechar o checkout depois de um pagamento confirmado, para recarregar o perfil. */
   onPlanPurchased?: () => void;
   /** Ganhos (domínio payment), montado pela composição. */
@@ -92,7 +92,7 @@ export function PartnerPanel({
   renderEventTicketingManager,
   renderEventSessionsField,
   renderPlanSubscription,
-  renderBookableOffersManager,
+  renderCatalog,
   onPlanPurchased,
   renderEarnings,
   renderAccountView,
@@ -104,6 +104,9 @@ export function PartnerPanel({
   const home = usePartnerPanelHome();
   const [panelTab, setPanelTab] = React.useState<PartnerPanelTab>('home');
   const [catalogSegment, setCatalogSegment] = React.useState<CatalogSegment>('places');
+  const [eventsVersion, setEventsVersion] = React.useState(0);
+  const [openReports, setOpenReports] = React.useState(false);
+  const [placeId, setPlaceId] = React.useState<string | null>(null);
   const [moreView, setMoreView] = React.useState<PartnerMoreView>('list');
   const [agendaItem, setAgendaItem] = React.useState<PartnerTodayItem | null>(null);
   const [agendaVersion, setAgendaVersion] = React.useState(0);
@@ -199,15 +202,19 @@ export function PartnerPanel({
       <div
         className={`max-w-4xl mx-auto space-y-8 relative z-10 transition-all duration-300 ${isEditing || editingListing !== undefined ? 'opacity-0 scale-[0.98] pointer-events-none h-0 overflow-hidden' : 'opacity-100 scale-100'}`}
       >
-        <PartnerPanelTop
-          home={home}
-          tab={panelTab}
-          onTabChange={(tab) => {
-            setPanelTab(tab);
-            setMoreView('list');
-          }}
-          onBack={() => goTo('explore')}
-        />
+        {!(panelTab === 'catalog' && placeId) && (
+          <PartnerPanelTop
+            home={home}
+            tab={panelTab}
+            onTabChange={(tab) => {
+              setPanelTab(tab);
+              setOpenReports(false);
+              setPlaceId(null);
+              setMoreView('list');
+            }}
+            onBack={() => goTo('explore')}
+          />
+        )}
 
         {panelTab === 'home' ? (
           <PartnerHomeTab
@@ -229,34 +236,43 @@ export function PartnerPanel({
             reloadKey={agendaVersion}
           />
         ) : panelTab === 'catalog' ? (
-          <PartnerCatalogTab
+          <PartnerCatalogSection
             segment={catalogSegment}
             onSegmentChange={(segment) => {
               setCatalogSegment(segment);
               setActiveTab(segment === 'events' ? 'events' : 'items');
             }}
+            placeId={placeId}
+            onPlaceChange={setPlaceId}
             items={itemsList}
             events={eventsList}
             loading={dataLoading}
+            filter={home.filter}
+            establishments={home.establishments}
+            eventsVersion={eventsVersion}
             onEditItem={(item) => setEditingListing(item)}
             onCreateItem={() => setEditingListing(null)}
-            onEditEvent={(item) =>
+            onOpenEvent={(item) =>
               setIsEditing({ ...item, images: item.images || (item.image ? [item.image] : []) })
             }
             onCreateEvent={() => setIsEditing(newPartnerEventDraft(user?.uid ?? ''))}
-            onToggleActive={handleToggleActive}
-            verificationVersion={verificationVersion}
-            onVerifyItem={(item) =>
+            onOpenPlan={(item) => setPlanListing({ id: item.id, name: item.name })}
+            onVerify={(item) =>
               setVerifyingListing({ id: item.id, name: item.name, category: item.category })
             }
+            onToggleActive={handleToggleActive}
+            verificationVersion={verificationVersion}
             planVersion={planVersion}
-            onOpenPlan={(item) => setPlanListing({ id: item.id, name: item.name })}
-            offers={renderBookableOffersManager?.(
-              itemsList.map((item) => ({ id: item.id, name: item.name, category: item.category }))
-            )}
+            onOpenReviews={() => {
+              setOpenReports(true);
+              setPanelTab('earnings');
+            }}
+            renders={renderCatalog ?? {}}
           />
         ) : panelTab === 'earnings' ? (
           <PartnerEarningsTab
+            showReports={openReports}
+            onShowReportsChange={setOpenReports}
             earnings={renderEarnings?.()}
             reports={renderReports?.({ partnerId: user.uid, items: itemsList, events: eventsList })}
           />
@@ -287,7 +303,10 @@ export function PartnerPanel({
           <PartnerEventEditor
             item={isEditing}
             onChange={(updatedItem) => setIsEditing(updatedItem)}
-            onClose={() => setIsEditing(null)}
+            onClose={() => {
+              setIsEditing(null);
+              setEventsVersion((version) => version + 1);
+            }}
             onSave={() =>
               handleSaveEvent({
                 sessionsLoadState: eventSessions.loadState,

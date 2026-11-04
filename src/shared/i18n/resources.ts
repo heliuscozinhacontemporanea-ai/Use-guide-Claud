@@ -49,6 +49,12 @@ import {
   partnerPanelPtBR,
 } from './partnerPanelResources';
 import {
+  type PartnerCatalogTranslation,
+  partnerCatalogEn,
+  partnerCatalogFr,
+  partnerCatalogPtBR,
+} from './partnerCatalogResources';
+import {
   type InsightsTranslation,
   insightsEn,
   insightsFr,
@@ -183,6 +189,7 @@ export interface TranslationResource {
   eventSessions: EventSessionsTranslation;
   gateMode: GateModeTranslation;
   partnerPanel: PartnerPanelTranslation;
+  partnerCatalog: PartnerCatalogTranslation;
   legal: LegalTranslation;
   verification: VerificationTranslation;
   emailVerification: EmailVerificationTranslation;
@@ -424,6 +431,7 @@ const ptBR: TranslationResource = {
   eventSessions: eventSessionsPtBR,
   gateMode: gateModePtBR,
   partnerPanel: partnerPanelPtBR,
+  partnerCatalog: partnerCatalogPtBR,
   legal: legalPtBR,
   verification: verificationPtBR,
   emailVerification: emailVerificationPtBR,
@@ -725,6 +733,7 @@ const en: TranslationResource = {
   eventSessions: eventSessionsEn,
   gateMode: gateModeEn,
   partnerPanel: partnerPanelEn,
+  partnerCatalog: partnerCatalogEn,
   legal: legalEn,
   verification: verificationEn,
   emailVerification: emailVerificationEn,
@@ -1020,6 +1029,7 @@ const fr: TranslationResource = {
   eventSessions: eventSessionsFr,
   gateMode: gateModeFr,
   partnerPanel: partnerPanelFr,
+  partnerCatalog: partnerCatalogFr,
   legal: legalFr,
   verification: verificationFr,
   emailVerification: emailVerificationFr,

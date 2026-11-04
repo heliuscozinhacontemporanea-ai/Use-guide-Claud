@@ -2,13 +2,16 @@ import type { Response } from 'express';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
 
-const m = vi.hoisted(() => ({ get: vi.fn(), save: vi.fn(), agenda: vi.fn() }));
+const m = vi.hoisted(() => ({ get: vi.fn(), save: vi.fn(), agenda: vi.fn(), catalog: vi.fn() }));
 
 vi.mock('../../../application/usecases/partnerHome/getPartnerHomeApplicationUseCase', () => ({
   getPartnerHomeApplicationUseCase: m.get,
 }));
 vi.mock('../../../application/usecases/partnerHome/getPartnerAgendaApplicationUseCase', () => ({
   getPartnerAgendaApplicationUseCase: m.agenda,
+}));
+vi.mock('../../../application/usecases/partnerHome/getPartnerCatalogApplicationUseCase', () => ({
+  getPartnerCatalogApplicationUseCase: m.catalog,
 }));
 vi.mock('../../../domain/partners', async () => {
   const { PartnerDomainError } = await import('../../../domain/partners/errors/partnerDomainError');
@@ -110,5 +113,22 @@ describe('PartnerHomeController', () => {
       );
       expect(res.status).toHaveBeenCalledWith(400);
     }
+  });
+
+  it('catálogo: lê só o do uid logado e responde 503 sem detalhe interno', async () => {
+    m.catalog.mockResolvedValueOnce({ events: [] });
+    const ok = response();
+    await PartnerHomeController.getCatalog(request({ uid: 'owner-1' }), ok as unknown as Response);
+    expect(m.catalog).toHaveBeenCalledWith('owner-1');
+    expect(ok.status).toHaveBeenCalledWith(200);
+
+    m.catalog.mockRejectedValueOnce(new Error('firestore: segredo interno'));
+    const fail = response();
+    await PartnerHomeController.getCatalog(
+      request({ uid: 'owner-1' }),
+      fail as unknown as Response
+    );
+    expect(fail.status).toHaveBeenCalledWith(503);
+    expect(JSON.stringify(fail.json.mock.calls)).not.toContain('segredo');
   });
 });

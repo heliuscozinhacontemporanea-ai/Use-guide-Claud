@@ -46,6 +46,13 @@ export interface InsightsTranslation {
     none: string;
     replyError: string;
   };
+  monthVisits: {
+    label: string;
+    versus: string;
+    firstMonth: string;
+    withPlan: string;
+    unavailable: string;
+  };
 }
 
 export const insightsPtBR: InsightsTranslation = {
@@ -95,6 +102,13 @@ export const insightsPtBR: InsightsTranslation = {
     reply: 'Responder avaliação',
     none: 'Nenhuma avaliação pendente',
     replyError: 'Erro ao enviar resposta.',
+  },
+  monthVisits: {
+    label: 'Visitas no mês',
+    versus: '{{percent}} que {{month}}',
+    firstMonth: 'Sem visitas em {{month}}',
+    withPlan: 'Disponível com o plano',
+    unavailable: 'Não carregou agora',
   },
 };
 
@@ -146,6 +160,13 @@ export const insightsEn: InsightsTranslation = {
     none: 'No pending reviews',
     replyError: 'Could not send the reply.',
   },
+  monthVisits: {
+    label: 'Visits this month',
+    versus: '{{percent}} vs. {{month}}',
+    firstMonth: 'No visits in {{month}}',
+    withPlan: 'Available with the plan',
+    unavailable: "Couldn't load now",
+  },
 };
 
 export const insightsFr: InsightsTranslation = {
@@ -195,5 +216,12 @@ export const insightsFr: InsightsTranslation = {
     reply: "Répondre à l'avis",
     none: 'Aucun avis en attente',
     replyError: "Impossible d'envoyer la réponse.",
+  },
+  monthVisits: {
+    label: 'Visites du mois',
+    versus: '{{percent}} par rapport à {{month}}',
+    firstMonth: 'Aucune visite en {{month}}',
+    withPlan: 'Disponible avec la formule',
+    unavailable: 'Chargement impossible pour le moment',
   },
 };

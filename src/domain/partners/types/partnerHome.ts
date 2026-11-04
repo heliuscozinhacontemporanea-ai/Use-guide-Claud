@@ -75,3 +75,18 @@ export interface PartnerHomeView {
   plans: Array<{ itemId: string; until: string | null }>;
   summary: { documents: number; pendingVerifications: number };
 }
+
+export type PartnerCatalogEventStatus = 'published' | 'draft' | 'paused' | 'ended';
+
+/** Linha de evento no Catálogo (p09), como `/api/partner-home/catalog` devolve. */
+export interface PartnerCatalogEvent {
+  id: string;
+  title: string;
+  establishmentIds: string[];
+  status: PartnerCatalogEventStatus;
+  missing: 'cover' | 'sessions' | null;
+  sessions: number;
+  nextStartsAt: string | null;
+  lastStartsAt: string | null;
+  sold: number;
+}

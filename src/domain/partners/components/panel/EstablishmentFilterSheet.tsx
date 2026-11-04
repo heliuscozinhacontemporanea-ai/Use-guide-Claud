@@ -5,6 +5,7 @@ import { Dialog } from '../../../../ui/components/Dialog';
 import { BUTTON_SECONDARY } from '../../../../ui/styles/controls';
 import type { PartnerEstablishment } from '../../types/partnerHome';
 import type { EstablishmentFilter } from '../../utils/partnerHomeFilter';
+import { locationName } from '../../../../shared/utils/locationName';
 
 function Radio({ on }: { on: boolean }) {
   return (
@@ -90,7 +91,7 @@ export function EstablishmentFilterSheet({
                     <span className="block text-[13px] text-ink/70 truncate">
                       {[
                         t(`partnerPanel.category.${item.category}`, { defaultValue: '' }),
-                        item.location,
+                        locationName(item.location),
                       ]
                         .filter(Boolean)
                         .join(' · ')}

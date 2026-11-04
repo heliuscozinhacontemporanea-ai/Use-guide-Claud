@@ -20,6 +20,7 @@ const stats = {
   share: 1,
   favorite: 3,
   history: [],
+  month: { currentViews: 0, previousViews: 0 },
 };
 
 describe('InsightsService', () => {

@@ -1,5 +1,6 @@
 import type { Response } from 'express';
 import { getPartnerAgendaApplicationUseCase } from '../../../application/usecases/partnerHome/getPartnerAgendaApplicationUseCase';
+import { getPartnerCatalogApplicationUseCase } from '../../../application/usecases/partnerHome/getPartnerCatalogApplicationUseCase';
 import { getPartnerHomeApplicationUseCase } from '../../../application/usecases/partnerHome/getPartnerHomeApplicationUseCase';
 import { PartnerDomainError, savePartnerHomeCardsUseCase } from '../../../domain/partners';
 import type { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
@@ -64,6 +65,26 @@ export class PartnerHomeController {
         name: error instanceof Error ? error.name : 'UnknownError',
       });
       return sendError(res, 503, 'PARTNER_HOME_UNAVAILABLE', 'Não foi possível carregar a agenda.');
+    }
+  }
+
+  static async getCatalog(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    if (!req.user?.uid) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
+    try {
+      // Só os eventos do próprio uid (AGENTS.md §7.10, A01).
+      return res
+        .status(200)
+        .json({ data: await getPartnerCatalogApplicationUseCase(req.user.uid) });
+    } catch (error) {
+      console.error('[PartnerHomeController.getCatalog]', {
+        name: error instanceof Error ? error.name : 'UnknownError',
+      });
+      return sendError(
+        res,
+        503,
+        'PARTNER_HOME_UNAVAILABLE',
+        'Não foi possível carregar o catálogo.'
+      );
     }
   }
 }

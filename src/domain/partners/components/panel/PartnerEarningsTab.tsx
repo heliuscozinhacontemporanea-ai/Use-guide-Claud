@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react';
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BackButton } from '../../../../ui/components/BackButton';
 import { PartnerMoreTab } from './PartnerMoreTab';
@@ -8,12 +7,16 @@ import { PartnerMoreTab } from './PartnerMoreTab';
 export function PartnerEarningsTab({
   earnings,
   reports,
+  showReports,
+  onShowReportsChange: setShowReports,
 }: {
   earnings: ReactNode;
   reports: ReactNode;
+  /** Relatórios abertos; a página do estabelecimento abre direto nas avaliações. */
+  showReports: boolean;
+  onShowReportsChange: (open: boolean) => void;
 }) {
   const { t } = useTranslation();
-  const [showReports, setShowReports] = useState(false);
   if (showReports) {
     return (
       <div className="space-y-4">

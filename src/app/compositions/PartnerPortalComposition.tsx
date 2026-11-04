@@ -3,12 +3,13 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getActiveSubscriptionPlansUseCase } from '../../domain/admin';
 import { useAuthContext } from '../../domain/auth/context/AuthContext';
-import { PartnerSlotSheet } from '../../domain/bookings';
+import { isBookableCategory, PartnerSlotSheet } from '../../domain/bookings';
 import { UserRole } from '../../domain/auth/types/auth';
 import { AboutTermsView, SupportView } from '../../domain/content';
 import { EventSessionsField } from '../../domain/events';
-import { ReportsView } from '../../domain/insights';
+import { MonthVisitsTile, ReportsView } from '../../domain/insights';
 import { NotificationSettingsView } from '../../domain/notifications';
+import { RecentItemReviews } from '../../domain/reviews';
 import type { PartnerProfile, SubscriptionPlan } from '../../domain/partners';
 import { getPartnerProfileUseCase, PartnerPanel } from '../../domain/partners';
 import {
@@ -191,7 +192,20 @@ export function PartnerPortalComposition() {
       renderPlanSubscription={(itemId, onLiveChange) => (
         <PlanSubscriptionCard itemId={itemId} plans={periodOptions} onLiveChange={onLiveChange} />
       )}
-      renderBookableOffersManager={(items) => <PartnerBookingsComposition items={items} />}
+      renderCatalog={{
+        renderOffers: ({ items, creating, onCreatingChange, inPage }) =>
+          inPage && !items.some((item) => isBookableCategory(item.category)) ? null : (
+            <PartnerBookingsComposition
+              items={items}
+              creating={creating}
+              onCreatingChange={onCreatingChange}
+            />
+          ),
+        renderVisits: (itemId, onOpenPlan) => (
+          <MonthVisitsTile itemId={itemId} onOpenPlan={onOpenPlan} />
+        ),
+        renderReviews: (itemId, onOpen) => <RecentItemReviews itemId={itemId} onOpen={onOpen} />,
+      }}
       renderEventTicketingManager={(eventListingId) => (
         <PartnerEventTicketingComposition eventListingId={eventListingId} />
       )}

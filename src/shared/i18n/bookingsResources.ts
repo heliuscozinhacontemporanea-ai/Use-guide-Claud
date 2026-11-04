@@ -67,6 +67,14 @@ export interface BookingsTranslation {
     stripeRequiredSome: string;
     accountStatusError: string;
     fromPrice: string;
+    /** Catálogo do painel (p09, p19): linha da oferta e folha de ações. */
+    perPerson: string;
+    perGroup: string;
+    fromPerPerson: string;
+    fromPerGroup: string;
+    emptyCatalog: string;
+    pickItem: string;
+    sheetActions: string;
   };
   status: {
     draft: string;
@@ -295,12 +303,19 @@ export const bookingsPtBR: BookingsTranslation = {
       'Alguns estabelecimentos ainda não podem vender: conclua a configuração financeira do CNPJ de cada um em Recebimentos.',
     accountStatusError: 'Não foi possível verificar sua conta financeira agora.',
     fromPrice: 'a partir de {{amount}}',
+    perPerson: '{{amount}} por pessoa',
+    perGroup: '{{amount}} por grupo',
+    fromPerPerson: 'a partir de {{amount}} por pessoa',
+    fromPerGroup: 'a partir de {{amount}} por grupo',
+    emptyCatalog: 'Nenhum passeio ou aluguel ainda.',
+    pickItem: 'Em qual estabelecimento?',
+    sheetActions: 'O que deseja fazer?',
   },
   status: {
     draft: 'Rascunho',
-    published: 'Publicada',
-    paused: 'Pausada',
-    archived: 'Arquivada',
+    published: 'À venda',
+    paused: 'Pausado',
+    archived: 'Arquivado',
   },
   kind: {
     tour: 'Passeio',
@@ -529,10 +544,17 @@ export const bookingsEn: BookingsTranslation = {
       'Some places can’t sell yet: finish the payment setup for each one’s CNPJ under Payouts.',
     accountStatusError: 'We couldn’t check your payment account right now.',
     fromPrice: 'from {{amount}}',
+    perPerson: '{{amount}} per person',
+    perGroup: '{{amount}} per group',
+    fromPerPerson: 'from {{amount}} per person',
+    fromPerGroup: 'from {{amount}} per group',
+    emptyCatalog: 'No tours or rentals yet.',
+    pickItem: 'For which business?',
+    sheetActions: 'What would you like to do?',
   },
   status: {
     draft: 'Draft',
-    published: 'Published',
+    published: 'On sale',
     paused: 'Paused',
     archived: 'Archived',
   },
@@ -767,12 +789,19 @@ export const bookingsFr: BookingsTranslation = {
       'Certains établissements ne peuvent pas encore vendre : terminez la configuration financière du CNPJ de chacun dans Versements.',
     accountStatusError: 'Impossible de vérifier votre compte financier pour le moment.',
     fromPrice: 'à partir de {{amount}}',
+    perPerson: '{{amount}} par personne',
+    perGroup: '{{amount}} par groupe',
+    fromPerPerson: 'à partir de {{amount}} par personne',
+    fromPerGroup: 'à partir de {{amount}} par groupe',
+    emptyCatalog: 'Aucune excursion ni location pour le moment.',
+    pickItem: 'Pour quel établissement ?',
+    sheetActions: 'Que voulez-vous faire ?',
   },
   status: {
     draft: 'Brouillon',
-    published: 'Publiée',
+    published: 'En vente',
     paused: 'En pause',
-    archived: 'Archivée',
+    archived: 'Archivé',
   },
   kind: {
     tour: 'Excursion',
