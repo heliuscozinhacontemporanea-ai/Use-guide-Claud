@@ -5,8 +5,8 @@ import { partnerCardData } from './partnerHomeCardData';
 const VIEW: PartnerHomeView = {
   cards: [],
   establishments: [
-    { id: 'a', name: 'Buggy', category: 'tour', rating: 5, reviewCount: 1 },
-    { id: 'b', name: 'Pousada', category: 'lodging', rating: 0, reviewCount: 0 },
+    { id: 'a', name: 'Buggy', category: 'tour', location: 'Preá', rating: 5, reviewCount: 1 },
+    { id: 'b', name: 'Pousada', category: 'lodging', location: 'Preá', rating: 0, reviewCount: 0 },
   ],
   attention: [],
   today: [],
@@ -31,6 +31,7 @@ const VIEW: PartnerHomeView = {
     { date: '2026-11-08T03:00:00.000Z', establishmentIds: ['a'], sold: 2, capacity: 4 },
     { date: '2026-11-08T03:00:00.000Z', establishmentIds: ['b'], sold: 1, capacity: 4 },
   ],
+  summary: { documents: 1, pendingVerifications: 0 },
   plans: [
     { itemId: 'a', until: '2027-03-12T03:00:00.000Z' },
     { itemId: 'b', until: '2026-12-01T03:00:00.000Z' },

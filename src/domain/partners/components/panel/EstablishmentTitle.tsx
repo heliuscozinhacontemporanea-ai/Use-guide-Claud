@@ -10,8 +10,11 @@ export function EstablishmentTitle({
   canChoose,
   otherPending,
   onOpen,
+  compact = false,
 }: {
   name: string;
+  /** "Todos os estabelecimentos" é longo: um tamanho menor cabe numa linha (p37). */
+  compact?: boolean;
   canChoose: boolean;
   /** Outro estabelecimento, fora do filtro, tem item em "Resolva agora". */
   otherPending: boolean;
@@ -19,7 +22,9 @@ export function EstablishmentTitle({
 }) {
   const { t } = useTranslation();
   const title = (
-    <span className="text-[24px] sm:text-[28px] font-display font-bold text-ink leading-tight">
+    <span
+      className={`${compact ? 'text-[22px]' : 'text-[28px]'} font-display font-bold text-ink leading-tight`}
+    >
       {name}
     </span>
   );

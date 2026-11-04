@@ -9,7 +9,7 @@ import type { EstablishmentFilter } from './partnerHomeFilter';
 
 export type PartnerCardData =
   | { id: 'today'; items: PartnerTodayItem[] }
-  | { id: 'sales_today'; amountMinor: number; count: number }
+  | { id: 'sales_today'; amountMinor: number; count: number; establishments: number }
   | { id: 'next_payout'; payout: PartnerHomeView['numbers']['nextPayout'] }
   | { id: 'next_event'; session: PartnerUpcomingSession }
   | { id: 'reviews'; rating: number; count: number }
@@ -52,6 +52,7 @@ export function partnerCardData(
         id,
         amountMinor: view.numbers.salesTodayMinor,
         count: view.numbers.salesTodayCount,
+        establishments: view.establishments.length,
       };
     case 'next_payout':
       return { id, payout: view.numbers.nextPayout };

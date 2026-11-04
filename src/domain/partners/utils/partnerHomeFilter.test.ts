@@ -37,6 +37,7 @@ const VIEW: PartnerHomeView = {
   upcomingSessions: [],
   week: [],
   plans: [],
+  summary: { documents: 0, pendingVerifications: 0 },
 };
 
 describe('filtro do painel', () => {

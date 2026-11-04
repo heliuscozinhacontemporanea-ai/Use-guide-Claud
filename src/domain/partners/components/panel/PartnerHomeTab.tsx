@@ -1,7 +1,11 @@
 import { useTranslation } from 'react-i18next';
 import { ListError, ListLoading } from '../../../../ui/components/ListState';
 import type { PartnerHomeCardId } from '../../types/partnerHomeCards';
-import type { PartnerAttentionItem, PartnerHomeView } from '../../types/partnerHome';
+import type {
+  PartnerAttentionItem,
+  PartnerHomeView,
+  PartnerTodayItem,
+} from '../../types/partnerHome';
 import type { PartnerCardData } from '../../utils/partnerHomeCardData';
 import { PartnerAttentionList } from './PartnerAttentionList';
 import { PartnerCardsEditor } from './PartnerCardsEditor';
@@ -13,6 +17,7 @@ export interface PartnerCardsState {
   visible: PartnerCardData[];
   /** Cartões com dado que podem ir para a galeria. */
   available: PartnerHomeCardId[];
+  dataOf: (id: PartnerHomeCardId) => PartnerCardData | null;
   draft: PartnerHomeCardId[] | null;
   setDraft: (cards: PartnerHomeCardId[]) => void;
   startEditing: () => void;
@@ -30,6 +35,7 @@ export function PartnerHomeTab({
   view,
   attention,
   cards,
+  labelFor,
   onOpenAttention,
   onOpenTab,
 }: {
@@ -39,6 +45,7 @@ export function PartnerHomeTab({
   view: PartnerHomeView | null;
   attention: PartnerAttentionItem[];
   cards: PartnerCardsState;
+  labelFor: (item: PartnerTodayItem) => string | null;
   onOpenAttention: (item: PartnerAttentionItem) => void;
   onOpenTab: (tab: PartnerPanelTab) => void;
 }) {
@@ -50,12 +57,14 @@ export function PartnerHomeTab({
     return (
       <PartnerCardsEditor
         draft={cards.draft}
+        dataOf={cards.dataOf}
         onDraftChange={cards.setDraft}
         available={cards.available}
-        onCancel={cards.cancel}
         onFinish={cards.finish}
         saving={cards.saving}
         error={cards.error}
+        labelFor={labelFor}
+        manyEstablishments={view.establishments.length > 1}
       />
     );
   }
@@ -65,6 +74,7 @@ export function PartnerHomeTab({
       <PartnerHomeCards
         cards={cards.visible}
         manyEstablishments={view.establishments.length > 1}
+        labelFor={labelFor}
         onOpenTab={onOpenTab}
         onCustomize={cards.startEditing}
       />

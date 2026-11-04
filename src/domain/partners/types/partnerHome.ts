@@ -35,6 +35,7 @@ export interface PartnerEstablishment {
   id: string;
   name: string;
   category: string;
+  location: string;
   rating: number;
   reviewCount: number;
 }
@@ -65,10 +66,11 @@ export interface PartnerHomeView {
   numbers: {
     salesTodayMinor: number;
     salesTodayCount: number;
-    nextPayout: { releaseAt: string; amountMinor: number; count: number } | null;
+    nextPayout: { releaseAt: string; amountMinor: number; count: number; accounts: number } | null;
     month: { currentMinor: number; previousMinor: number };
   };
   upcomingSessions: PartnerUpcomingSession[];
   week: PartnerWeekDay[];
   plans: Array<{ itemId: string; until: string | null }>;
+  summary: { documents: number; pendingVerifications: number };
 }

@@ -1,78 +1,106 @@
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BackButton } from '../../../../ui/components/BackButton';
-import { PartnerMoreTab } from './PartnerMoreTab';
+import { type PartnerMoreEntry, PartnerMoreTab } from './PartnerMoreTab';
 
-export type PartnerMoreView = 'list' | 'reports' | 'plans';
+/** Telas da conta que vêm de outros domínios, montadas pela composição do app. */
+export type PartnerAccountView = 'notifications' | 'terms' | 'help';
+export type PartnerMoreView = 'list' | 'plans' | PartnerAccountView;
 
-/** Mais: lista da conta, relatórios e o plano de cada estabelecimento. */
+/** Mais (p24): o que é da conta e não do dia a dia, em dois grupos. */
 export function PartnerMoreSection({
   view,
   onViewChange,
   establishments,
-  reports,
+  summary,
+  withoutPlan,
+  onOpenProducer,
+  onOpenEstablishments,
   onOpenPlan,
   onOpenEarnings,
-  onBackToGuide,
+  renderAccountView,
 }: {
   view: PartnerMoreView;
   onViewChange: (view: PartnerMoreView) => void;
   establishments: Array<{ id: string; name: string }>;
-  reports: ReactNode;
+  summary: { documents: number; pendingVerifications: number } | null;
+  withoutPlan: number;
+  onOpenProducer: () => void;
+  onOpenEstablishments: () => void;
   onOpenPlan: (listing: { id: string; name: string }) => void;
   onOpenEarnings: () => void;
-  onBackToGuide: () => void;
+  renderAccountView?: (view: PartnerAccountView, onBack: () => void) => ReactNode;
 }) {
   const { t } = useTranslation();
-  if (view !== 'list') {
+  const back = () => onViewChange('list');
+  if (view === 'plans') {
     return (
       <div className="space-y-4">
-        <BackButton label={t('partnerPanel.more.title')} onClick={() => onViewChange('list')} />
-        {view === 'reports' ? (
-          reports
-        ) : (
-          <PartnerMoreTab
-            title={t('partnerPanel.more.plans')}
-            entries={establishments.map((item) => ({
+        <BackButton label={t('partnerPanel.more.title')} onClick={back} />
+        <PartnerMoreTab
+          title={t('partnerPanel.more.plans')}
+          groups={[
+            establishments.map((item) => ({
               id: item.id,
               title: item.name,
-              hint: t('partnerPanel.more.plansHint'),
               onOpen: () => onOpenPlan(item),
-            }))}
-          />
-        )}
+            })),
+          ]}
+        />
       </div>
     );
   }
-  return (
-    <PartnerMoreTab
-      title={t('partnerPanel.more.title')}
-      entries={[
+  if (view !== 'list') return <>{renderAccountView?.(view, back)}</>;
+
+  const documentsHint = summary
+    ? [
+        t('partnerPanel.more.documents', { count: summary.documents }),
+        summary.pendingVerifications > 0
+          ? t('partnerPanel.more.pendingVerifications', { count: summary.pendingVerifications })
+          : null,
+      ]
+        .filter(Boolean)
+        .join(' · ')
+    : undefined;
+  const account: PartnerMoreEntry[] = [
+    {
+      id: 'producer',
+      title: t('partnerPanel.more.producer'),
+      hint: t('partnerPanel.more.producerHint'),
+      onOpen: onOpenProducer,
+    },
+    {
+      id: 'establishments',
+      title: t('partnerPanel.more.establishments'),
+      hint: documentsHint,
+      onOpen: onOpenEstablishments,
+    },
+    {
+      id: 'plans',
+      title: t('partnerPanel.more.plans'),
+      hint:
+        withoutPlan > 0
+          ? t('partnerPanel.more.withoutPlan', { count: withoutPlan })
+          : t('partnerPanel.more.plansHint'),
+      onOpen: () => onViewChange('plans'),
+    },
+    {
+      id: 'accounts',
+      title: t('partnerPanel.more.accounts'),
+      hint: t('partnerPanel.more.accountsHint'),
+      onOpen: onOpenEarnings,
+    },
+  ];
+  const help: PartnerMoreEntry[] = renderAccountView
+    ? [
         {
-          id: 'reports',
-          title: t('partnerPanel.more.reports'),
-          hint: t('partnerPanel.more.reportsHint'),
-          onOpen: () => onViewChange('reports'),
+          id: 'notifications',
+          title: t('partnerPanel.more.notifications'),
+          onOpen: () => onViewChange('notifications'),
         },
-        {
-          id: 'plans',
-          title: t('partnerPanel.more.plans'),
-          hint: t('partnerPanel.more.plansHint'),
-          onOpen: () => onViewChange('plans'),
-        },
-        {
-          id: 'accounts',
-          title: t('partnerPanel.more.accounts'),
-          hint: t('partnerPanel.more.accountsHint'),
-          onOpen: onOpenEarnings,
-        },
-        {
-          id: 'back',
-          title: t('partnerPanel.backToGuide'),
-          hint: t('partnerPanel.more.backHint'),
-          onOpen: onBackToGuide,
-        },
-      ]}
-    />
-  );
+        { id: 'terms', title: t('partnerPanel.more.terms'), onOpen: () => onViewChange('terms') },
+        { id: 'help', title: t('partnerPanel.more.help'), onOpen: () => onViewChange('help') },
+      ]
+    : [];
+  return <PartnerMoreTab title={t('partnerPanel.more.title')} groups={[account, help]} />;
 }

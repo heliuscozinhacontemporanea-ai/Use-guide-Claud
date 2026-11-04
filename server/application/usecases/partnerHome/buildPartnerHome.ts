@@ -195,13 +195,16 @@ export function buildPartnerHome(input: PartnerHomeInput): PartnerHomeView {
 
   return {
     cards: input.cards,
-    establishments: input.establishments.map(({ id, name, category, rating, reviewCount }) => ({
-      id,
-      name,
-      category,
-      rating,
-      reviewCount,
-    })),
+    establishments: input.establishments.map(
+      ({ id, name, category, location, rating, reviewCount }) => ({
+        id,
+        name,
+        category,
+        location,
+        rating,
+        reviewCount,
+      })
+    ),
     attention,
     today,
     numbers: {
@@ -212,6 +215,7 @@ export function buildPartnerHome(input: PartnerHomeInput): PartnerHomeView {
             releaseAt: first.releaseAt,
             amountMinor: sameDay.reduce((sum, entry) => sum + entry.partnerAmountMinor, 0),
             count: sameDay.length,
+            accounts: new Set(sameDay.map((entry) => entry.accountKey)).size,
           }
         : null,
       month: sumMonthSales(input.recentEntries, input.nowIso),
@@ -219,5 +223,9 @@ export function buildPartnerHome(input: PartnerHomeInput): PartnerHomeView {
     upcomingSessions,
     week: summarizeWeek(input.slots, input.nowIso),
     plans: input.planUntil,
+    summary: {
+      documents: input.documents.length,
+      pendingVerifications: input.verifications.filter((item) => item.status === 'pending').length,
+    },
   };
 }

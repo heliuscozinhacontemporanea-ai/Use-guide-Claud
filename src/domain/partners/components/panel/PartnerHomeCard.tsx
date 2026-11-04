@@ -1,19 +1,35 @@
 import { ChevronRight } from 'lucide-react';
-import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatBusinessDate, formatBusinessDay } from '../../../../shared/utils/businessDateTime';
 import { cn } from '../../../../shared/utils/cn';
-import { formatMoneyMinor } from '../../../../shared/utils/money';
+import type { PartnerTodayItem } from '../../types/partnerHome';
 import type { PartnerCardData } from '../../utils/partnerHomeCardData';
 
 const VALUE = 'text-[22px] font-bold text-ink truncate';
 const SUB = 'text-[13px] text-ink/70';
 
+/** Valor do cartão como no desenho (p01): sem centavos quando o valor é inteiro em reais. */
+function cardMoney(amountMinor: number, locale: string) {
+  return new Intl.NumberFormat(locale, {
+    style: 'currency',
+    currency: 'BRL',
+    minimumFractionDigits: amountMinor % 100 === 0 ? 0 : 2,
+  }).format(amountMinor / 100);
+}
+
 function percent(part: number, whole: number) {
   return whole > 0 ? Math.round((part / whole) * 100) : 0;
 }
 
-function Body({ data }: { data: PartnerCardData }) {
+function Body({
+  data,
+  labelFor,
+  manyEstablishments,
+}: {
+  data: PartnerCardData;
+  labelFor: (item: PartnerTodayItem) => string | null;
+  manyEstablishments: boolean;
+}) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
   const time = (iso: string) =>
@@ -25,13 +41,16 @@ function Body({ data }: { data: PartnerCardData }) {
       ) : (
         <ul className="space-y-1.5">
           {data.items.slice(0, 4).map((item) => (
-            <li key={`${item.kind}-${item.id}`} className="flex justify-between gap-3 text-[14px]">
-              <span className="text-ink font-semibold truncate">
+            <li key={`${item.kind}-${item.id}`} className="flex items-center gap-2 text-[14px]">
+              <span className="flex-1 min-w-0 text-ink font-semibold truncate">
                 {time(item.startsAt)} {item.title}
               </span>
-              <span className="text-ink/70 shrink-0">
-                {t('partnerPanel.home.sold', { sold: item.sold, capacity: item.capacity })}
-              </span>
+              {labelFor(item) && (
+                <span className="shrink-0 px-2 py-0.5 rounded-md bg-ink/[0.07] text-[12px] font-semibold text-ink/80">
+                  {labelFor(item)}
+                </span>
+              )}
+              <TodayStatus item={item} />
             </li>
           ))}
         </ul>
@@ -39,18 +58,24 @@ function Body({ data }: { data: PartnerCardData }) {
     case 'sales_today':
       return (
         <>
-          <p className={VALUE}>{formatMoneyMinor(data.amountMinor, lang)}</p>
-          <p className={SUB}>{t('partnerPanel.home.salesCount', { count: data.count })}</p>
+          <p className={VALUE}>{cardMoney(data.amountMinor, lang)}</p>
+          <p className={SUB}>
+            {manyEstablishments
+              ? t('partnerPanel.cards.sales_today.inEstablishments', { count: data.establishments })
+              : t('partnerPanel.home.salesCount', { count: data.count })}
+          </p>
         </>
       );
     case 'next_payout':
       return data.payout ? (
         <>
-          <p className={VALUE}>{formatMoneyMinor(data.payout.amountMinor, lang)}</p>
+          <p className={VALUE}>{cardMoney(data.payout.amountMinor, lang)}</p>
           <p className={SUB}>
-            {t('partnerPanel.home.nextPayoutOn', {
-              date: formatBusinessDay(data.payout.releaseAt, lang),
-            })}
+            {data.payout.accounts > 1
+              ? t('partnerPanel.cards.next_payout.inAccounts', { count: data.payout.accounts })
+              : t('partnerPanel.home.nextPayoutOn', {
+                  date: formatBusinessDay(data.payout.releaseAt, lang),
+                })}
           </p>
         </>
       ) : (
@@ -132,7 +157,7 @@ function Body({ data }: { data: PartnerCardData }) {
         data.previousMinor > 0 ? percent(data.currentMinor, data.previousMinor) - 100 : null;
       return (
         <>
-          <p className={VALUE}>{formatMoneyMinor(data.currentMinor, lang)}</p>
+          <p className={VALUE}>{cardMoney(data.currentMinor, lang)}</p>
           <p className={SUB}>
             {diff === null
               ? t('partnerPanel.cards.month_sales.noCompare')
@@ -146,39 +171,67 @@ function Body({ data }: { data: PartnerCardData }) {
   }
 }
 
+/** Coluna da direita do Hoje (p01): quem já usou o código, o total de pessoas ou a portaria. */
+function TodayStatus({ item }: { item: PartnerTodayItem }) {
+  const { t } = useTranslation();
+  if (item.kind === 'session') {
+    return (
+      <span className="shrink-0 text-accent font-semibold">{t('partnerPanel.home.gate')}</span>
+    );
+  }
+  return (
+    <span className="shrink-0 text-ink/70">
+      {item.checkedIn
+        ? t('partnerPanel.home.arrived', { checkedIn: item.checkedIn, sold: item.sold })
+        : t('partnerPanel.home.people', { count: item.sold })}
+    </span>
+  );
+}
+
 /** Um cartão do Início; o toque abre a aba do assunto (seção 6.1 da proposta). */
 export function PartnerHomeCard({
   data,
-  large,
   onOpen,
-  scopeNote,
+  labelFor,
+  manyEstablishments,
 }: {
   data: PartnerCardData;
-  large: boolean;
-  onOpen: () => void;
-  /** "de todos os estabelecimentos", nos cartões de dinheiro com mais de um estabelecimento. */
-  scopeNote?: ReactNode;
+  onOpen?: () => void;
+  labelFor: (item: PartnerTodayItem) => string | null;
+  manyEstablishments: boolean;
 }) {
   const { t } = useTranslation();
   const title =
-    data.id === 'next_event' ? data.session.title : t(`partnerPanel.cards.${data.id}.title`);
+    data.id === 'next_event'
+      ? data.session.title
+      : data.id === 'next_payout' && data.payout && data.payout.accounts > 1
+        ? t('partnerPanel.cards.next_payout.titleMany')
+        : t(`partnerPanel.cards.${data.id}.title`);
+  const body = (
+    <>
+      <span className={cn('flex items-center gap-2 mb-2', !onOpen && 'pr-9')}>
+        <span className="flex-1 min-w-0 text-[13px] font-semibold text-ink/70 line-clamp-2">
+          {title}
+        </span>
+        {onOpen && <ChevronRight size={16} className="text-ink/50 shrink-0" aria-hidden="true" />}
+      </span>
+      <Body data={data} labelFor={labelFor} manyEstablishments={manyEstablishments} />
+    </>
+  );
+  const box = 'w-full h-full min-w-0 rounded-[20px] bg-surface border border-line p-4 text-left';
+  // Sem `onOpen` é o cartão no modo Personalizar: não navega.
+  if (!onOpen) return <div className={box}>{body}</div>;
   return (
     <button
       type="button"
       onClick={onOpen}
-      className={cn(
-        'press min-w-0 rounded-[20px] bg-surface border border-line p-4 text-left focus-visible:ring-2 focus-visible:ring-teal-400/50',
-        large ? 'col-span-2' : 'col-span-2 min-[360px]:col-span-1'
-      )}
+      className={cn(box, 'press focus-visible:ring-2 focus-visible:ring-teal-400/50')}
     >
-      <span className="flex items-center gap-2 mb-2">
-        <span className="flex-1 min-w-0 text-[13px] font-semibold text-ink/70 line-clamp-2">
-          {title}
-        </span>
-        <ChevronRight size={16} className="text-ink/50 shrink-0" aria-hidden="true" />
-      </span>
-      <Body data={data} />
-      {scopeNote && <span className="block mt-1 text-[12px] text-ink/60">{scopeNote}</span>}
+      {body}
     </button>
   );
+}
+
+export function cardSpan(large: boolean) {
+  return large ? 'col-span-2' : 'col-span-2 min-[360px]:col-span-1';
 }

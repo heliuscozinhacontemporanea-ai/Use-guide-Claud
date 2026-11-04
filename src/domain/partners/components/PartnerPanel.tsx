@@ -1,7 +1,6 @@
 import { RefreshCw } from 'lucide-react';
 import { AnimatePresence } from 'motion/react';
 import React, { useRef } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useLocalizedRouting } from '../../../shared/hooks/useLocalizedRouting';
 import type { EventSessionsFieldProps } from '../../events';
 import { newPartnerEventDraft } from '../utils/newPartnerEventDraft';
@@ -21,10 +20,14 @@ import { EstablishmentFilterSheet } from './panel/EstablishmentFilterSheet';
 import { ATTENTION_TAB } from './panel/PartnerAttentionList';
 import { type CatalogSegment, PartnerCatalogTab } from './panel/PartnerCatalogTab';
 import { PartnerHomeTab } from './panel/PartnerHomeTab';
-import { PartnerHomeHeader } from './panel/PartnerHomeHeader';
-import { PartnerMoreSection, type PartnerMoreView } from './panel/PartnerMoreSection';
-import { PartnerShortcuts } from './panel/PartnerShortcuts';
-import { PartnerTodayList } from './panel/PartnerTodayList';
+import { PartnerEarningsTab } from './panel/PartnerEarningsTab';
+import {
+  type PartnerAccountView,
+  PartnerMoreSection,
+  type PartnerMoreView,
+} from './panel/PartnerMoreSection';
+import { PartnerPanelTop } from './panel/PartnerPanelTop';
+import { PartnerAgendaTab } from './panel/PartnerAgendaTab';
 import type { PartnerPanelTab } from './panel/partnerPanelTabs';
 import { PartnerEventsTable } from './subcomponents/PartnerEventsTable';
 import { PartnerItemsTable } from './subcomponents/PartnerItemsTable';
@@ -64,6 +67,8 @@ export interface PartnerPanelProps {
   onPlanPurchased?: () => void;
   /** Ganhos (domínio payment), montado pela composição. */
   renderEarnings?: () => React.ReactNode;
+  /** Notificações, termos do parceiro e ajuda (outros domínios), montados pela composição. */
+  renderAccountView?: (view: PartnerAccountView, onBack: () => void) => React.ReactNode;
 }
 
 export function PartnerPanel({
@@ -77,9 +82,9 @@ export function PartnerPanel({
   renderBookableOffersManager,
   onPlanPurchased,
   renderEarnings,
+  renderAccountView,
 }: PartnerPanelProps) {
   const { goTo } = useLocalizedRouting();
-  const { t } = useTranslation();
   const home = usePartnerPanelHome();
   const [panelTab, setPanelTab] = React.useState<PartnerPanelTab>('home');
   const [catalogSegment, setCatalogSegment] = React.useState<CatalogSegment>('places');
@@ -177,21 +182,14 @@ export function PartnerPanel({
       <div
         className={`max-w-4xl mx-auto space-y-8 relative z-10 transition-all duration-300 ${isEditing || editingListing !== undefined ? 'opacity-0 scale-[0.98] pointer-events-none h-0 overflow-hidden' : 'opacity-100 scale-100'}`}
       >
-        {panelTab === 'home' && (
-          <PartnerHomeHeader
-            establishments={home.establishments}
-            filterName={home.filterName}
-            otherPending={home.otherPending}
-            onOpenFilter={() => home.setSheetOpen(true)}
-          />
-        )}
-
-        <PartnerShortcuts
-          value={panelTab}
-          onChange={(tab) => {
+        <PartnerPanelTop
+          home={home}
+          tab={panelTab}
+          onTabChange={(tab) => {
             setPanelTab(tab);
             setMoreView('list');
           }}
+          onBack={() => goTo('explore')}
         />
 
         {panelTab === 'home' ? (
@@ -202,21 +200,12 @@ export function PartnerPanel({
             view={home.data}
             attention={home.attention}
             cards={home.cards}
+            labelFor={home.labelFor}
             onOpenAttention={(item) => setPanelTab(ATTENTION_TAB[item.kind])}
             onOpenTab={setPanelTab}
           />
         ) : panelTab === 'agenda' ? (
-          <section className="space-y-4">
-            <h2 className="px-1 text-[22px] font-display font-bold text-ink">
-              {t('partnerPanel.agenda.title')}
-            </h2>
-            <PartnerTodayList
-              title={t('partnerPanel.agenda.today')}
-              items={home.today}
-              labelFor={home.labelFor}
-              onOpen={() => undefined}
-            />
-          </section>
+          <PartnerAgendaTab today={home.today} labelFor={home.labelFor} />
         ) : panelTab === 'catalog' ? (
           <PartnerCatalogTab
             segment={catalogSegment}
@@ -258,16 +247,28 @@ export function PartnerPanel({
             )}
           />
         ) : panelTab === 'earnings' ? (
-          renderEarnings?.()
+          <PartnerEarningsTab
+            earnings={renderEarnings?.()}
+            reports={renderReports?.({ partnerId: user.uid, items: itemsList, events: eventsList })}
+          />
         ) : (
           <PartnerMoreSection
             view={moreView}
             onViewChange={setMoreView}
             establishments={itemsList}
-            reports={renderReports?.({ partnerId: user.uid, items: itemsList, events: eventsList })}
+            summary={home.data?.summary ?? null}
+            withoutPlan={home.data?.plans.filter((plan) => !plan.until).length ?? 0}
+            onOpenProducer={() =>
+              setEditingListing(itemsList.find((item) => item.category === 'producer') ?? null)
+            }
+            onOpenEstablishments={() => {
+              setCatalogSegment('places');
+              setActiveTab('items');
+              setPanelTab('catalog');
+            }}
             onOpenPlan={(item) => setPlanListing({ id: item.id, name: item.name })}
             onOpenEarnings={() => setPanelTab('earnings')}
-            onBackToGuide={() => goTo('explore')}
+            renderAccountView={renderAccountView}
           />
         )}
       </div>

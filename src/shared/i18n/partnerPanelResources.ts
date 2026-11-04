@@ -5,6 +5,10 @@ type CardTexts = { title: string; description: string };
 export interface PartnerPanelTranslation {
   shortcuts: string;
   backToGuide: string;
+  category: Record<
+    'restaurant' | 'sight' | 'tour' | 'tips' | 'hotel' | 'transfer' | 'rental' | 'producer',
+    string
+  >;
   tabs: { home: string; agenda: string; catalog: string; earnings: string; more: string };
   filter: {
     all: string;
@@ -34,6 +38,10 @@ export interface PartnerPanelTranslation {
     checkedIn: string;
     arrivedAt: string;
     session: string;
+    gate: string;
+    arrived: string;
+    people_one: string;
+    people_other: string;
   };
   attention: {
     provider_absence: AttentionTexts;
@@ -58,8 +66,12 @@ export interface PartnerPanelTranslation {
     saveError: string;
     size: { small: string; large: string };
     today: CardTexts;
-    sales_today: CardTexts;
-    next_payout: CardTexts;
+    sales_today: CardTexts & { inEstablishments_one: string; inEstablishments_other: string };
+    next_payout: CardTexts & {
+      titleMany: string;
+      inAccounts_one: string;
+      inAccounts_other: string;
+    };
     next_event: CardTexts & { sold: string };
     reviews: CardTexts & { count_one: string; count_other: string };
     week_bookings: CardTexts & { occupancy: string };
@@ -73,23 +85,44 @@ export interface PartnerPanelTranslation {
     title: string;
     reports: string;
     reportsHint: string;
+    producer: string;
+    producerHint: string;
+    establishments: string;
+    documents_one: string;
+    documents_other: string;
+    pendingVerifications_one: string;
+    pendingVerifications_other: string;
     plans: string;
     plansHint: string;
+    withoutPlan_one: string;
+    withoutPlan_other: string;
     accounts: string;
     accountsHint: string;
-    backHint: string;
+    notifications: string;
+    terms: string;
+    help: string;
   };
 }
 
 export const partnerPanelPtBR: PartnerPanelTranslation = {
   shortcuts: 'Atalhos do painel',
   backToGuide: 'Voltar ao guia',
+  category: {
+    restaurant: 'Restaurante',
+    sight: 'Atração',
+    tour: 'Passeio',
+    tips: 'Dica',
+    hotel: 'Hospedagem',
+    transfer: 'Translado',
+    rental: 'Aluguel',
+    producer: 'Produtor de eventos',
+  },
   tabs: { home: 'Início', agenda: 'Agenda', catalog: 'Catálogo', earnings: 'Ganhos', more: 'Mais' },
   filter: {
     all: 'Todos os estabelecimentos',
     open: 'Escolher o que mostrar no painel',
     title: 'Mostrar no painel',
-    description: 'Prazos de "Resolva agora" e a portaria do dia aparecem sempre, de todos.',
+    description: '"Agora" e "Resolva agora" permanecem na tela em qualquer filtro.',
     create: 'Criar estabelecimento',
     pending_one: '{{count}} pendência',
     pending_other: '{{count}} pendências',
@@ -113,6 +146,10 @@ export const partnerPanelPtBR: PartnerPanelTranslation = {
     checkedIn: '{{count}} com código',
     arrivedAt: 'Você chegou às {{time}}',
     session: 'Evento',
+    gate: 'Portaria',
+    arrived: '{{checkedIn}} de {{sold}}',
+    people_one: '{{count}} pessoa',
+    people_other: '{{count}} pessoas',
   },
   attention: {
     provider_absence: {
@@ -135,7 +172,7 @@ export const partnerPanelPtBR: PartnerPanelTranslation = {
     label: 'Cartões do início',
     customize: 'Personalizar início',
     editHint:
-      'Arraste pela alça para mudar a ordem. Toque no − para tirar. "Resolva agora" fica sempre no topo.',
+      'Arraste para mudar a ordem. Toque no − para tirar. "Resolva agora" fica sempre no topo.',
     cancel: 'Cancelar',
     done: 'Concluir',
     add: 'Adicionar cartão',
@@ -147,8 +184,19 @@ export const partnerPanelPtBR: PartnerPanelTranslation = {
     saveError: 'Não foi possível salvar o início.',
     size: { small: 'Pequeno', large: 'Grande' },
     today: { title: 'Hoje', description: 'Horários e sessões de hoje' },
-    sales_today: { title: 'Vendas de hoje', description: 'Total vendido hoje' },
-    next_payout: { title: 'Próximo repasse', description: 'Quanto cai e quando' },
+    sales_today: {
+      title: 'Vendas de hoje',
+      description: 'Total vendido hoje',
+      inEstablishments_one: 'em {{count}} estabelecimento',
+      inEstablishments_other: 'nos {{count}} estabelecimentos',
+    },
+    next_payout: {
+      title: 'Próximo repasse',
+      description: 'Quanto cai e quando',
+      titleMany: 'Próximos repasses',
+      inAccounts_one: 'em {{count}} conta',
+      inAccounts_other: 'em {{count}} contas',
+    },
     next_event: {
       title: 'Próximo evento',
       description: 'Ingressos vendidos da próxima sessão',
@@ -167,13 +215,13 @@ export const partnerPanelPtBR: PartnerPanelTranslation = {
     },
     plan_seal: {
       title: 'Plano e selo',
-      description: 'O próximo plano a vencer',
+      description: 'Quando vence o plano de cada estabelecimento',
       until: 'Plano até {{date}}',
     },
     week_occupancy: { title: 'Ocupação da semana', description: 'Lugares vendidos por dia' },
     month_sales: {
       title: 'Vendas do mês',
-      description: 'Total do mês e comparação com o anterior',
+      description: 'Total vendido e comparação com o mês passado',
       compare: '{{percent}}% que o mês passado',
       noCompare: 'Sem vendas no mês passado',
     },
@@ -183,18 +231,39 @@ export const partnerPanelPtBR: PartnerPanelTranslation = {
   more: {
     title: 'Mais',
     reports: 'Relatórios',
-    reportsHint: 'Visitas e vendas por item',
+    reportsHint: 'Vendas por item e por mês',
+    producer: 'Perfil de produtor',
+    producerHint: 'Nome, foto e descrição que o público vê',
+    establishments: 'Estabelecimentos e documentos',
+    documents_one: '{{count}} CNPJ',
+    documents_other: '{{count}} CNPJs',
+    pendingVerifications_one: '{{count}} verificação pendente',
+    pendingVerifications_other: '{{count}} verificações pendentes',
     plans: 'Planos e selo',
     plansHint: 'Plano de cada estabelecimento',
+    withoutPlan_one: '{{count}} estabelecimento sem plano',
+    withoutPlan_other: '{{count}} estabelecimentos sem plano',
     accounts: 'Contas de recebimento',
-    accountsHint: 'Uma por CNPJ, em Ganhos',
-    backHint: 'Ver o app como visitante',
+    accountsHint: 'Também em Ganhos',
+    notifications: 'Notificações',
+    terms: 'Termos do parceiro',
+    help: 'Ajuda para parceiros',
   },
 };
 
 export const partnerPanelEn: PartnerPanelTranslation = {
   shortcuts: 'Panel shortcuts',
   backToGuide: 'Back to the guide',
+  category: {
+    restaurant: 'Restaurant',
+    sight: 'Attraction',
+    tour: 'Tour',
+    tips: 'Tip',
+    hotel: 'Lodging',
+    transfer: 'Transfer',
+    rental: 'Rental',
+    producer: 'Event producer',
+  },
   tabs: {
     home: 'Home',
     agenda: 'Schedule',
@@ -206,7 +275,7 @@ export const partnerPanelEn: PartnerPanelTranslation = {
     all: 'All businesses',
     open: 'Choose what the panel shows',
     title: 'Show in the panel',
-    description: '"Act now" deadlines and today\'s entrance always show, for all businesses.',
+    description: '"Now" and "Act now" stay on screen with any filter.',
     create: 'Create business',
     pending_one: '{{count}} pending item',
     pending_other: '{{count}} pending items',
@@ -230,6 +299,10 @@ export const partnerPanelEn: PartnerPanelTranslation = {
     checkedIn: '{{count}} with code',
     arrivedAt: 'You arrived at {{time}}',
     session: 'Event',
+    gate: 'Entrance',
+    arrived: '{{checkedIn}} of {{sold}}',
+    people_one: '{{count}} person',
+    people_other: '{{count}} people',
   },
   attention: {
     provider_absence: {
@@ -251,8 +324,7 @@ export const partnerPanelEn: PartnerPanelTranslation = {
   cards: {
     label: 'Home cards',
     customize: 'Customize home',
-    editHint:
-      'Drag by the handle to change the order. Tap − to remove. "Act now" always stays on top.',
+    editHint: 'Drag to change the order. Tap − to remove. "Act now" always stays on top.',
     cancel: 'Cancel',
     done: 'Done',
     add: 'Add card',
@@ -264,8 +336,19 @@ export const partnerPanelEn: PartnerPanelTranslation = {
     saveError: 'The home screen could not be saved.',
     size: { small: 'Small', large: 'Large' },
     today: { title: 'Today', description: "Today's time slots and sessions" },
-    sales_today: { title: 'Sales today', description: 'Total sold today' },
-    next_payout: { title: 'Next payout', description: 'How much and when' },
+    sales_today: {
+      title: 'Sales today',
+      description: 'Total sold today',
+      inEstablishments_one: 'in {{count}} business',
+      inEstablishments_other: 'across {{count}} businesses',
+    },
+    next_payout: {
+      title: 'Next payout',
+      description: 'How much and when',
+      titleMany: 'Next payouts',
+      inAccounts_one: 'to {{count}} account',
+      inAccounts_other: 'to {{count}} accounts',
+    },
     next_event: {
       title: 'Next event',
       description: 'Tickets sold for the next session',
@@ -284,13 +367,13 @@ export const partnerPanelEn: PartnerPanelTranslation = {
     },
     plan_seal: {
       title: 'Plan and badge',
-      description: 'The next plan to end',
+      description: "When each business's plan ends",
       until: 'Plan until {{date}}',
     },
     week_occupancy: { title: 'Weekly occupancy', description: 'Spots sold per day' },
     month_sales: {
       title: 'Sales this month',
-      description: 'Month total compared with last month',
+      description: 'Total sold compared with last month',
       compare: '{{percent}}% vs. last month',
       noCompare: 'No sales last month',
     },
@@ -300,18 +383,39 @@ export const partnerPanelEn: PartnerPanelTranslation = {
   more: {
     title: 'More',
     reports: 'Reports',
-    reportsHint: 'Visits and sales per listing',
+    reportsHint: 'Sales per listing and per month',
+    producer: 'Producer profile',
+    producerHint: 'Name, photo and description the public sees',
+    establishments: 'Businesses and documents',
+    documents_one: '{{count}} CNPJ',
+    documents_other: '{{count}} CNPJs',
+    pendingVerifications_one: '{{count}} verification pending',
+    pendingVerifications_other: '{{count}} verifications pending',
     plans: 'Plans and badge',
     plansHint: 'Plan for each business',
+    withoutPlan_one: '{{count}} business without a plan',
+    withoutPlan_other: '{{count}} businesses without a plan',
     accounts: 'Payout accounts',
-    accountsHint: 'One per CNPJ, in Earnings',
-    backHint: 'See the app as a visitor',
+    accountsHint: 'Also in Earnings',
+    notifications: 'Notifications',
+    terms: 'Partner terms',
+    help: 'Help for partners',
   },
 };
 
 export const partnerPanelFr: PartnerPanelTranslation = {
   shortcuts: 'Raccourcis du tableau de bord',
   backToGuide: 'Retour au guide',
+  category: {
+    restaurant: 'Restaurant',
+    sight: 'Attraction',
+    tour: 'Excursion',
+    tips: 'Conseil',
+    hotel: 'Hébergement',
+    transfer: 'Transfert',
+    rental: 'Location',
+    producer: 'Organisateur d’événements',
+  },
   tabs: {
     home: 'Accueil',
     agenda: 'Agenda',
@@ -323,8 +427,7 @@ export const partnerPanelFr: PartnerPanelTranslation = {
     all: 'Tous les établissements',
     open: 'Choisir ce que le tableau de bord affiche',
     title: 'Afficher dans le tableau de bord',
-    description:
-      'Les échéances « À régler » et l’accueil du jour s’affichent toujours, pour tous les établissements.',
+    description: '« Maintenant » et « À régler » restent à l’écran quel que soit le filtre.',
     create: 'Créer un établissement',
     pending_one: '{{count}} point en attente',
     pending_other: '{{count}} points en attente',
@@ -348,6 +451,10 @@ export const partnerPanelFr: PartnerPanelTranslation = {
     checkedIn: '{{count}} avec code',
     arrivedAt: 'Vous êtes arrivé à {{time}}',
     session: 'Événement',
+    gate: 'Entrée',
+    arrived: '{{checkedIn}} sur {{sold}}',
+    people_one: '{{count}} personne',
+    people_other: '{{count}} personnes',
   },
   attention: {
     provider_absence: {
@@ -370,7 +477,7 @@ export const partnerPanelFr: PartnerPanelTranslation = {
     label: 'Cartes de l’accueil',
     customize: 'Personnaliser l’accueil',
     editHint:
-      'Faites glisser la poignée pour changer l’ordre. Touchez − pour retirer. « À régler » reste toujours en haut.',
+      'Faites glisser pour changer l’ordre. Touchez − pour retirer. « À régler » reste toujours en haut.',
     cancel: 'Annuler',
     done: 'Terminer',
     add: 'Ajouter une carte',
@@ -382,8 +489,19 @@ export const partnerPanelFr: PartnerPanelTranslation = {
     saveError: 'Impossible d’enregistrer l’accueil.',
     size: { small: 'Petite', large: 'Grande' },
     today: { title: 'Aujourd’hui', description: 'Créneaux et séances du jour' },
-    sales_today: { title: 'Ventes du jour', description: 'Total vendu aujourd’hui' },
-    next_payout: { title: 'Prochain versement', description: 'Combien et quand' },
+    sales_today: {
+      title: 'Ventes du jour',
+      description: 'Total vendu aujourd’hui',
+      inEstablishments_one: 'dans {{count}} établissement',
+      inEstablishments_other: 'dans {{count}} établissements',
+    },
+    next_payout: {
+      title: 'Prochain versement',
+      description: 'Combien et quand',
+      titleMany: 'Prochains versements',
+      inAccounts_one: 'sur {{count}} compte',
+      inAccounts_other: 'sur {{count}} comptes',
+    },
     next_event: {
       title: 'Prochain événement',
       description: 'Billets vendus pour la prochaine séance',
@@ -402,13 +520,13 @@ export const partnerPanelFr: PartnerPanelTranslation = {
     },
     plan_seal: {
       title: 'Formule et badge',
-      description: 'La prochaine formule à expirer',
+      description: 'Quand la formule de chaque établissement expire',
       until: 'Formule jusqu’au {{date}}',
     },
     week_occupancy: { title: 'Occupation de la semaine', description: 'Places vendues par jour' },
     month_sales: {
       title: 'Ventes du mois',
-      description: 'Total du mois comparé au mois précédent',
+      description: 'Total vendu comparé au mois dernier',
       compare: '{{percent}} % par rapport au mois dernier',
       noCompare: 'Aucune vente le mois dernier',
     },
@@ -418,11 +536,22 @@ export const partnerPanelFr: PartnerPanelTranslation = {
   more: {
     title: 'Plus',
     reports: 'Rapports',
-    reportsHint: 'Visites et ventes par fiche',
+    reportsHint: 'Ventes par fiche et par mois',
+    producer: 'Profil d’organisateur',
+    producerHint: 'Nom, photo et description visibles par le public',
+    establishments: 'Établissements et documents',
+    documents_one: '{{count}} CNPJ',
+    documents_other: '{{count}} CNPJ',
+    pendingVerifications_one: '{{count}} vérification en attente',
+    pendingVerifications_other: '{{count}} vérifications en attente',
     plans: 'Formules et badge',
     plansHint: 'Formule de chaque établissement',
+    withoutPlan_one: '{{count}} établissement sans formule',
+    withoutPlan_other: '{{count}} établissements sans formule',
     accounts: 'Comptes de versement',
-    accountsHint: 'Un par CNPJ, dans Gains',
-    backHint: 'Voir l’app comme un visiteur',
+    accountsHint: 'Aussi dans Gains',
+    notifications: 'Notifications',
+    terms: 'Conditions partenaire',
+    help: 'Aide aux partenaires',
   },
 };

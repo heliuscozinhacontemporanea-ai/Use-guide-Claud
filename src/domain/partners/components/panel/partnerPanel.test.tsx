@@ -5,14 +5,29 @@ import type { PartnerHomeView } from '../../types/partnerHome';
 import { EstablishmentFilterSheet } from './EstablishmentFilterSheet';
 import { EstablishmentTitle } from './EstablishmentTitle';
 import { type PartnerCardsState, PartnerHomeTab } from './PartnerHomeTab';
+import type { PartnerHomeCardId } from '../../types/partnerHomeCards';
 import { type PartnerCardData, partnerCardData } from '../../utils/partnerHomeCardData';
 import { PartnerShortcuts } from './PartnerShortcuts';
 
 const VIEW: PartnerHomeView = {
   cards: ['today', 'sales_today', 'reviews'],
   establishments: [
-    { id: 'buggy', name: 'Buggy do Preá', category: 'tour', rating: 4.8, reviewCount: 96 },
-    { id: 'pousada', name: 'Pousada Vento Leste', category: 'lodging', rating: 4, reviewCount: 4 },
+    {
+      id: 'buggy',
+      name: 'Buggy do Preá',
+      category: 'tour',
+      location: 'Preá',
+      rating: 4.8,
+      reviewCount: 96,
+    },
+    {
+      id: 'pousada',
+      name: 'Pousada Vento Leste',
+      category: 'lodging',
+      location: 'Preá',
+      rating: 4,
+      reviewCount: 4,
+    },
   ],
   attention: [
     {
@@ -42,16 +57,24 @@ const VIEW: PartnerHomeView = {
   numbers: {
     salesTodayMinor: 234000,
     salesTodayCount: 14,
-    nextPayout: { releaseAt: '2026-11-10T15:00:00.000Z', amountMinor: 518000, count: 3 },
+    nextPayout: {
+      releaseAt: '2026-11-10T15:00:00.000Z',
+      amountMinor: 518000,
+      count: 3,
+      accounts: 1,
+    },
     month: { currentMinor: 900000, previousMinor: 600000 },
   },
   upcomingSessions: [],
   week: [],
   plans: [],
+  summary: { documents: 1, pendingVerifications: 0 },
 };
 
 function cardsState(overrides: Partial<PartnerCardsState> = {}): PartnerCardsState {
+  const dataOf = (id: PartnerHomeCardId) => partnerCardData(id, VIEW, VIEW.today, null);
   return {
+    dataOf,
     visible: (['today', 'sales_today', 'reviews'] as const).map(
       (id) => partnerCardData(id, VIEW, VIEW.today, null) as PartnerCardData
     ),
@@ -111,6 +134,7 @@ describe('casca do painel do parceiro (D27)', () => {
         view={VIEW}
         attention={VIEW.attention}
         cards={cardsState()}
+        labelFor={() => null}
         onOpenAttention={vi.fn()}
         onOpenTab={onOpenTab}
       />
@@ -118,7 +142,8 @@ describe('casca do painel do parceiro (D27)', () => {
     expect(screen.getByText('Multa ou dívida a pagar')).toBeInTheDocument();
     expect(screen.getByText('Pague até 9 de nov.')).toBeInTheDocument();
     expect(screen.getByText(/09:00 Passeio de buggy/)).toBeInTheDocument();
-    expect(screen.getByText('14 vendas')).toBeInTheDocument();
+    expect(screen.getByText('4 de 6')).toBeInTheDocument();
+    expect(screen.getByText('nos 2 estabelecimentos')).toBeInTheDocument();
     // Média ponderada: (4,8 × 96 + 4 × 4) / 100.
     expect(screen.getByText('4,8 ★')).toBeInTheDocument();
     expect(screen.getByText('100 avaliações')).toBeInTheDocument();
@@ -137,6 +162,7 @@ describe('casca do painel do parceiro (D27)', () => {
         view={VIEW}
         attention={VIEW.attention}
         cards={cardsState({ draft: ['today', 'sales_today'], setDraft, finish })}
+        labelFor={() => null}
         onOpenAttention={vi.fn()}
         onOpenTab={vi.fn()}
       />
@@ -148,8 +174,8 @@ describe('casca do painel do parceiro (D27)', () => {
       key: 'ArrowUp',
     });
     expect(setDraft).toHaveBeenLastCalledWith(['sales_today', 'today']);
+    expect(screen.queryByText('Cancelar')).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Adicionar cartão' }));
-    expect(screen.getByText('Próximo repasse')).toBeInTheDocument();
     expect(screen.getByText('Vendas do mês')).toBeInTheDocument();
     fireEvent.click(screen.getByText('Vendas do mês'));
     expect(setDraft).toHaveBeenLastCalledWith(['today', 'sales_today', 'month_sales']);
@@ -167,6 +193,7 @@ describe('casca do painel do parceiro (D27)', () => {
         view={null}
         attention={[]}
         cards={cardsState()}
+        labelFor={() => null}
         onOpenAttention={vi.fn()}
         onOpenTab={vi.fn()}
       />

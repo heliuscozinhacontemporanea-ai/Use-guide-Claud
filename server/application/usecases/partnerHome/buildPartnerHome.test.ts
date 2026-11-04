@@ -34,11 +34,19 @@ function input(overrides: Partial<PartnerHomeInput> = {}): PartnerHomeInput {
     nowIso: NOW,
     cards: ['today'],
     establishments: [
-      { id: 'buggy', name: 'Buggy do Preá', category: 'tour', rating: 4.8, reviewCount: 96 },
+      {
+        id: 'buggy',
+        name: 'Buggy do Preá',
+        category: 'tour',
+        location: 'Preá',
+        rating: 4.8,
+        reviewCount: 96,
+      },
       {
         id: 'pousada',
         name: 'Pousada Vento Leste',
         category: 'lodging',
+        location: 'Preá',
         rating: 0,
         reviewCount: 0,
       },
@@ -190,6 +198,7 @@ describe('buildPartnerHome', () => {
       releaseAt: '2026-11-10T15:00:00.000Z',
       amountMinor: 3000,
       count: 2,
+      accounts: 1,
     });
   });
 

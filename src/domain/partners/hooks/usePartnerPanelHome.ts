@@ -47,6 +47,7 @@ export function usePartnerPanelHome() {
       view ? partnerCardData(id, view, filtered.today, filter) : null;
     return {
       ...cardsState,
+      dataOf,
       visible: cardsState.cards
         .map(dataOf)
         .filter((data): data is PartnerCardData => data !== null),

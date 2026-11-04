@@ -83,8 +83,18 @@ export function EstablishmentFilterSheet({
                   >
                     {item.name.trim().charAt(0).toUpperCase()}
                   </span>
-                  <span className="flex-1 min-w-0 block text-[15px] font-semibold text-ink truncate">
-                    {item.name}
+                  <span className="flex-1 min-w-0">
+                    <span className="block text-[15px] font-semibold text-ink truncate">
+                      {item.name}
+                    </span>
+                    <span className="block text-[13px] text-ink/70 truncate">
+                      {[
+                        t(`partnerPanel.category.${item.category}`, { defaultValue: '' }),
+                        item.location,
+                      ]
+                        .filter(Boolean)
+                        .join(' · ')}
+                    </span>
                   </span>
                   {pending > 0 && (
                     <span className="min-w-6 h-6 px-2 rounded-full bg-danger text-[#0d0e10] text-[12px] font-bold flex items-center justify-center">

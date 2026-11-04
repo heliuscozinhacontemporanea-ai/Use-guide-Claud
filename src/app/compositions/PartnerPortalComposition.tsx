@@ -4,8 +4,10 @@ import { useTranslation } from 'react-i18next';
 import { getActiveSubscriptionPlansUseCase } from '../../domain/admin';
 import { useAuthContext } from '../../domain/auth/context/AuthContext';
 import { UserRole } from '../../domain/auth/types/auth';
+import { AboutTermsView, SupportView } from '../../domain/content';
 import { EventSessionsField } from '../../domain/events';
 import { ReportsView } from '../../domain/insights';
+import { NotificationSettingsView } from '../../domain/notifications';
 import type { PartnerProfile, SubscriptionPlan } from '../../domain/partners';
 import { getPartnerProfileUseCase, PartnerPanel } from '../../domain/partners';
 import {
@@ -193,6 +195,15 @@ export function PartnerPortalComposition() {
       )}
       renderEventSessionsField={(props) => <EventSessionsField {...props} />}
       renderEarnings={() => <PartnerStripeConnectPortal />}
+      renderAccountView={(view, onBack) =>
+        view === 'notifications' ? (
+          <NotificationSettingsView isPartner onBack={onBack} />
+        ) : view === 'terms' ? (
+          <AboutTermsView document="partner" onBack={onBack} />
+        ) : (
+          <SupportView onBack={onBack} />
+        )
+      }
     />
   );
 }

@@ -5,6 +5,8 @@ export interface OwnerGuideItemSummary {
   id: string;
   name: string;
   category: string;
+  /** Endereço ou bairro como o parceiro cadastrou. */
+  location: string;
   rating: number;
   reviewCount: number;
 }
@@ -17,6 +19,7 @@ export async function listOwnerGuideItemsUseCase(
     id: item.id,
     name: item.name,
     category: item.category,
+    location: typeof item.location === 'string' ? item.location : '',
     rating: item.rating ?? 0,
     reviewCount: item.reviewCount ?? 0,
   }));
