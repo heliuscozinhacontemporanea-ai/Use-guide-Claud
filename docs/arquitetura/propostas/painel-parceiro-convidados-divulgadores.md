@@ -1,7 +1,7 @@
 # Proposta — Painel do parceiro, lista de convidados e divulgadores (2026-11-03)
 
 Status: **em aberto** (decisões de 2026-11-04 na seção 6; aguarda aprovação dos desenhos e das seções 7 a 9).
-Desenhos: `docs/arquitetura/propostas/painel-parceiro/` (p01 a p28, índice na seção 11; verde da D26).
+Desenhos: `docs/arquitetura/propostas/painel-parceiro/` (p01 a p35, índice na seção 11; verde da D26).
 
 ## 1. Referências
 
@@ -116,7 +116,7 @@ Hoje a edição junta conteúdo e operação (lotes, vendas, participantes, chec
 
 ## 11. Índice dos desenhos (revisão de conteúdo, 2026-11-04)
 
-Atalhos do topo: Início, Agenda, Anúncios, Ganhos e Mais. "Precisa de você" passou a se chamar "Resolva agora" (nome em aberto).
+Atalhos do topo: Início, Agenda, Anúncios, Ganhos e Mais. "Precisa de você" passou a se chamar "Resolva agora" (aprovado em 2026-11-04, D27).
 
 | Nº | Aba | Tela ou folha | Função |
 |---|---|---|---|
@@ -133,7 +133,7 @@ Atalhos do topo: Início, Agenda, Anúncios, Ganhos e Mais. "Precisa de você" p
 | p11 | Anúncios | Evento · Vendas | vendido, a receber, sessões e pedidos |
 | p12 | Anúncios | Folha do pedido | detalhe do pedido e situação do reembolso |
 | p13 | Anúncios | Evento · Convidados | lista de cortesias por sessão |
-| p14 | Anúncios | Folha Convidar | convite pelo @ ou por link pessoal |
+| p14 | Anúncios | Folha Convidar | convite pelo @ ou por link pessoal; "O ingresso vai direto para a carteira da pessoa convidada, sem custos." |
 | p15 | Anúncios | Folha Link de convite criado | link de uso único, enviar pelo WhatsApp |
 | p16 | Anúncios | Evento · Divulgadores | divulgadores, vendas por link e valor devido |
 | p17 | Anúncios | Folha Adicionar divulgador | comissão, valor por ingresso ou cachê fixo |
@@ -148,3 +148,17 @@ Atalhos do topo: Início, Agenda, Anúncios, Ganhos e Mais. "Precisa de você" p
 | p26 | Conta do usuário | Divulgação | eventos que a pessoa divulga, link e resultado |
 | p27 | Conta do usuário | Folha Convite para divulgar | aceitar ou recusar, com as regras do ganho |
 | p28 | Fora do app | Página do link de cortesia | entrar ou criar conta para receber a cortesia |
+| p29 | Início | Início no dia de portaria | cartão "Portaria" no topo, de 2 h antes do início até o fim da sessão, com "Abrir portaria" |
+| p30 | Agenda | Folha Portaria | números da sessão, lista para usar sem internet e "Abrir modo portaria" |
+| p31 | Portaria | Modo portaria lendo | tela que já existe (D21): câmera aberta, moldura, "Inserir código" |
+| p32 | Portaria | Folha Código Token | código de 8 caracteres abaixo do QR, quando a câmera não lê |
+| p33 | Portaria | Entrada liberada | verde até tocar em "Próximo" |
+| p34 | Portaria | Entrada recusada | vermelho, com o motivo (ex.: já entrou) |
+| p35 | Portaria | Atenção | amarelo, ex.: ingresso de outra sessão |
+
+### 11.1. Modo portaria no painel
+
+A portaria (D21, já implementada) entra por três caminhos: o cartão "Portaria" no topo do Início no dia (p29), a sessão na Agenda (p07 → p30) e a página do evento ou da atração. Vale para eventos e para entradas de atrações privadas; reservas de passeio, aluguel e translado usam a confirmação de chegada do horário (p06).
+
+**Pendência (a desenhar):** o parceiro escolher outros aparelhos (equipe) para usar o modo portaria durante o evento ou a atração. Modelo e proposta ainda serão feitos; até lá, o item "Equipe da portaria" em Mais (p24) não entra na implementação.
+

@@ -379,3 +379,16 @@ Aprovada pelo responsável do produto em 2026-11-03.
 * **Folhas no tema claro seguem as telas:** fundo bege (#f3eee4) e cartões claros (#faf6ee) com borda (`bg-sheet`, `bg-sheet-card`, `border-sheet-card-line`). No escuro nada muda.
 * **Interruptores:** bolinha sempre branca, nos dois temas.
 * **AGENTS.md §11.1** atualizado com a cor nova (autorizado em 2026-11-03).
+
+## D27 — Painel do parceiro, convidados e divulgadores (2026-11-04)
+
+Aprovada pelo responsável do produto em 2026-11-04. Proposta e desenhos: `docs/arquitetura/propostas/painel-parceiro-convidados-divulgadores.md` (p01 a p34).
+
+* **Painel sem barra inferior:** atalhos no topo em quadrados levemente arredondados (Início, Agenda, Anúncios, Ganhos, Mais); Início com cartões personalizáveis.
+* **"Resolva agora"** é o nome da seção fixa de prazos no topo do Início (antes "Precisa de você").
+* **Cortesias:** proteções da seção 7 da proposta aprovadas (uma por pessoa por evento; sem cortesia para quem comprou, cancelou ou foi reembolsado naquele evento; sem reembolso nem transferência; sem repasse nem taxa; cláusula nova nos termos do parceiro; relatório e alerta para o admin).
+* **Link pessoal de convite** para quem não tem conta: uso único, vale até o início do evento, enviado pelo parceiro (seção 8).
+* **Editar evento x página do evento:** divisão da seção 9 aprovada (a edição fica só com o cadastro; vendas, convidados, divulgadores, portaria e financeiro saem para a página do evento, a Agenda e Ganhos).
+* **Texto da folha Convidar:** "O ingresso vai direto para a carteira da pessoa convidada, sem custos."
+* **Em aberto (não implementar até decidir):** nome da aba "Anúncios" (conflita com os anúncios patrocinados que virão); nome do "painel do parceiro"; contatos nos anúncios (B37); escolha de outros aparelhos para o modo portaria (a desenhar).
+* **Depois da implementação:** relatório das funções e configurações que ficaram fora das telas e folhas, e tour na primeira abertura do painel, com sequência e opção de não mostrar de novo.
