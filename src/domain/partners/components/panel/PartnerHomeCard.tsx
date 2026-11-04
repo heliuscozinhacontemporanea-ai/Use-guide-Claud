@@ -2,20 +2,12 @@ import { ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { formatBusinessDate, formatBusinessDay } from '../../../../shared/utils/businessDateTime';
 import { cn } from '../../../../shared/utils/cn';
+import { formatMoneyMinorCompact } from '../../../../shared/utils/money';
 import type { PartnerTodayItem } from '../../types/partnerHome';
 import type { PartnerCardData } from '../../utils/partnerHomeCardData';
 
 const VALUE = 'text-[22px] font-bold text-ink truncate';
 const SUB = 'text-[13px] text-ink/70';
-
-/** Valor do cartão como no desenho (p01): sem centavos quando o valor é inteiro em reais. */
-function cardMoney(amountMinor: number, locale: string) {
-  return new Intl.NumberFormat(locale, {
-    style: 'currency',
-    currency: 'BRL',
-    minimumFractionDigits: amountMinor % 100 === 0 ? 0 : 2,
-  }).format(amountMinor / 100);
-}
 
 function percent(part: number, whole: number) {
   return whole > 0 ? Math.round((part / whole) * 100) : 0;
@@ -63,7 +55,7 @@ function Body({
     case 'sales_today':
       return (
         <>
-          <p className={VALUE}>{cardMoney(data.amountMinor, lang)}</p>
+          <p className={VALUE}>{formatMoneyMinorCompact(data.amountMinor, lang)}</p>
           <p className={SUB}>
             {manyEstablishments
               ? t('partnerPanel.cards.sales_today.inEstablishments', { count: data.establishments })
@@ -74,7 +66,7 @@ function Body({
     case 'next_payout':
       return data.payout ? (
         <>
-          <p className={VALUE}>{cardMoney(data.payout.amountMinor, lang)}</p>
+          <p className={VALUE}>{formatMoneyMinorCompact(data.payout.amountMinor, lang)}</p>
           <p className={SUB}>
             {data.payout.accounts > 1
               ? t('partnerPanel.cards.next_payout.inAccounts', { count: data.payout.accounts })
@@ -166,7 +158,7 @@ function Body({
         data.previousMinor > 0 ? percent(data.currentMinor, data.previousMinor) - 100 : null;
       return (
         <>
-          <p className={VALUE}>{cardMoney(data.currentMinor, lang)}</p>
+          <p className={VALUE}>{formatMoneyMinorCompact(data.currentMinor, lang)}</p>
           <p className={SUB}>
             {diff === null
               ? t('partnerPanel.cards.month_sales.noCompare')
