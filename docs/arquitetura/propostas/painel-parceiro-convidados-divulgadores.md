@@ -1,7 +1,7 @@
 # Proposta — Painel do parceiro, lista de convidados e divulgadores (2026-11-03)
 
-Status: **em aberto** (aguarda as decisões da seção 6; não implementar antes).
-Desenhos: `docs/arquitetura/propostas/painel-parceiro/` (p1 a p7, dois temas, verde da D26).
+Status: **em aberto** (decisões de 2026-11-04 na seção 6; aguarda aprovação dos desenhos e das seções 7 a 9).
+Desenhos: `docs/arquitetura/propostas/painel-parceiro/` (p1 a p9, dois temas, verde da D26).
 
 ## 1. Referências
 
@@ -55,22 +55,51 @@ Cada evento abre uma página própria com abas **Vendas · Convidados · Divulga
 - O divulgador não ganha comprando pelo próprio link.
 - O parceiro vê vendas, valor e quanto deve a cada divulgador; o divulgador vê, em **Menu › Divulgação**, os eventos, o link para compartilhar, as vendas e quanto tem a receber.
 
-## 6. Decisões (preciso da sua escolha)
+## 6. Respostas do responsável do produto (2026-11-04) e o que mudou
 
-1. **Painel:** barra inferior com Início, Agenda, Anúncios, Ganhos e Mais (proposta) ou manter abas no topo com uma tela Início?
-2. **Quem paga o divulgador:**
-   - **A (recomendado agora):** o parceiro paga direto ao divulgador (Pix); o Use Guide calcula e mostra o valor, como o Shotgun. Sem dinheiro novo passando pela plataforma, sem cadastro fiscal do divulgador.
-   - **B:** o Use Guide desconta a comissão do repasse do parceiro e paga o divulgador pelo Stripe (exige conta Stripe do divulgador com CPF, verificação e trato fiscal; mexe na D12 "CPF não vende" e no §15). Pode vir numa fase 2.
-3. **Limite de cortesias:** sugestão de até 10% da capacidade (o parceiro escolhe dentro do limite) ou livre?
-4. **Cortesia intransferível:** sim (proposta) ou pode transferir como ingresso pago?
-5. **Convite para quem não tem conta:** link de 7 dias (proposta) ou só por @?
-6. **Divulgador precisa aceitar** o convite (proposta) ou o link já sai ativo?
-7. **"Cachê fixo pelo evento"** (valor combinado, independe de vendas) entra também ou só comissão e valor por ingresso?
-8. **Oferta aberta** (qualquer comprador vira divulgador com uma comissão menor, como o Kickback público): agora, depois ou nunca?
+1. **Painel:** sem barra inferior. Atalhos em **quadrados levemente arredondados com ícone e nome dentro**, logo abaixo da saudação (referência: a linha de atalhos do app Telefone do iPhone): Agenda, Anúncios, Ganhos e Mais. A tela Início continua com "Precisa de você", "Hoje" e os números (p1, p2).
+2. **Divulgador:** opção **A** — o parceiro paga direto; o Use Guide calcula e mostra.
+3. **Cortesias:** **sem limite por evento**, **uma por pessoa**. Proteções contra usar a cortesia para tirar a venda da plataforma (seção 7).
+4. **Cortesia intransferível:** sim.
+5. **Quem não tem conta:** ver seção 8 (recomendação: link pessoal de convite).
+6. **Divulgador aceita o convite:** sim.
+7. **Cachê fixo pelo evento:** entra como terceira opção (p6).
+8. **Oferta aberta:** não agora; talvez no futuro.
 
-## 7. Etapas (depois das decisões)
+## 7. Proteções da cortesia (proposta)
 
-1. Painel: navegação nova e tela Início (sem regra de negócio nova).
-2. Convidados: cortesia por @, limite, cancelamento, aviso e portaria.
-3. Divulgadores: convite e aceite, link e atribuição, cálculo e relatórios dos dois lados.
-4. (Se a decisão 2 for B) pagamento automático aos divulgadores.
+A pesquisa não achou regra publicada pelas grandes plataformas sobre "cancelar a compra e dar cortesia"; elas tratam o assunto com controle de cortesias por pessoa, cortesia sem reembolso nem troca e termos que proíbem vender por fora. Proposta para o Use Guide:
+
+1. **Uma cortesia por pessoa por evento** (a regra que você pediu).
+2. **Sem cortesia para quem comprou este evento:** quem tem ingresso pago, ou teve compra deste evento cancelada ou reembolsada, não pode receber cortesia dele. Fecha o caminho "cancela aqui, paga por fora, ganha cortesia".
+3. **Cortesia não tem reembolso, troca nem transferência**, e não gera repasse nem taxa.
+4. **Termos do parceiro:** vender ou cobrar por fora um ingresso do Use Guide, ou pedir ao cliente que cancele para pagar por fora, é proibido; quebra leva a suspensão das vendas (texto novo, entra na próxima versão dos termos do parceiro).
+5. **Acompanhamento do admin:** relatório de cortesias por evento e alerta quando um evento tem muitas cortesias para pessoas que pediram reembolso.
+
+## 8. Convite para quem não tem conta (pesquisa)
+
+- Tito: convite com **link pessoal**, ou lote de links de uso único; quem abre "trava" o ingresso para si.
+- Ticketstripe, Posh, Quicket e outras: cortesia enviada **por e-mail ou telefone** com link para resgatar.
+- Shotgun: convite exige e-mail; com conta, o convite aparece também no app.
+
+Recomendação: **link pessoal de convite**, de uso único, válido até o início do evento. O parceiro manda pelo WhatsApp dele; quem abre cria a conta e o ingresso fica preso a ela (vale a regra de uma por pessoa no resgate). Não enviamos e-mail nem SMS (pediria fornecedor novo, §15).
+
+## 9. O que fica na edição do evento e o que sai (p8, p9)
+
+Hoje a edição junta conteúdo e operação (lotes, vendas, participantes, check-in, reembolsos, configurações, financeiro). Proposta:
+
+| Fica em **Editar evento** (o que o evento é) | Vai para a **página do evento** (operação) | Vai para outro lugar |
+|---|---|---|
+| Informações (nome, descrição, categoria, estabelecimento) | **Vendas:** números, pedidos e reembolsos (cada pedido abre uma folha com reembolso) | **Portaria:** pela sessão do dia na Agenda e no Início, e pela lista de sessões da página do evento |
+| Datas e sessões (criar e editar antes de vender) | **Convidados** | **Cancelar ou adiar sessão:** Agenda (é operação, com multa e reembolso) |
+| Local | **Divulgadores** | **Financeiro do evento:** resumo em Vendas; extrato completo em Ganhos, com filtro por evento |
+| Ingressos e lotes (preço, quantidade, meia) | Participantes: dentro de Vendas (busca por nome ou pedido) | **Conta de recebimento:** em Ganhos › Contas; a edição só mostra em qual CNPJ o evento recebe |
+| Regras de venda (cancelamento, taxa de serviço, transferência) | | |
+| Fotos e contato | | |
+
+## 10. Etapas (depois da aprovação dos desenhos)
+
+1. Painel: atalhos no topo e tela Início; página do evento separada da edição.
+2. Convidados: cortesia por @ e por link pessoal, uma por pessoa, proteções da seção 7, aviso e portaria.
+3. Divulgadores: convite e aceite, link e atribuição, três formas de ganho, relatórios dos dois lados.
+4. Termos do parceiro: cláusula de venda por fora (nova versão).
