@@ -1,7 +1,7 @@
 # Proposta — Painel do parceiro, lista de convidados e divulgadores (2026-11-03)
 
 Status: **em aberto** (decisões de 2026-11-04 na seção 6; aguarda aprovação dos desenhos e das seções 7 a 9).
-Desenhos: `docs/arquitetura/propostas/painel-parceiro/` (p01 a p35, índice na seção 11; verde da D26).
+Desenhos: `docs/arquitetura/propostas/painel-parceiro/` (p01 a p36, índice na seção 11; verde da D26).
 
 ## 1. Referências
 
@@ -28,7 +28,7 @@ Barra inferior com cinco abas, como o app do anfitrião do Airbnb:
 
 1. **Início** — "Resolva agora" (prazos: ausência em 2 h, reclamação, força maior, verificação, plano), **Hoje** (horários de reserva e sessões do dia, com atalho para a portaria) e dois números: vendas de hoje e próximo repasse.
 2. **Agenda** — calendário com horários de reserva e sessões de evento; remarcar, cancelar e portaria saem daqui.
-3. **Anúncios** — estabelecimentos, eventos, passeios, aluguéis e translados (editor atual).
+3. **Catálogo** — estabelecimentos, eventos, passeios, aluguéis e translados (editor atual).
 4. **Ganhos** — Recebimentos, extrato, dívidas e relatórios/métricas.
 5. **Mais** — perfil do produtor, documentos e verificação, planos e selo, contas de recebimento, notificações e ajuda.
 
@@ -57,7 +57,7 @@ Cada evento abre uma página própria com abas **Vendas · Convidados · Divulga
 
 ## 6. Respostas do responsável do produto (2026-11-04) e o que mudou
 
-1. **Painel:** sem barra inferior. Atalhos em **quadrados levemente arredondados com ícone e nome dentro**, logo abaixo da saudação (referência: a linha de atalhos do app Telefone do iPhone): Agenda, Anúncios, Ganhos e Mais. A tela Início continua com "Resolva agora", "Hoje" e os números (p01, p02).
+1. **Painel:** sem barra inferior. Atalhos em **quadrados levemente arredondados com ícone e nome dentro**, logo abaixo da saudação (referência: a linha de atalhos do app Telefone do iPhone): Agenda, Catálogo, Ganhos e Mais. A tela Início continua com "Resolva agora", "Hoje" e os números (p01, p02).
 2. **Divulgador:** opção **A** — o parceiro paga direto; o Use Guide calcula e mostra.
 3. **Cortesias:** **sem limite por evento**, **uma por pessoa**. Proteções contra usar a cortesia para tirar a venda da plataforma (seção 7).
 4. **Cortesia intransferível:** sim.
@@ -68,7 +68,7 @@ Cada evento abre uma página própria com abas **Vendas · Convidados · Divulga
 
 ### 6.1. Início com cartões personalizáveis (pedido de 2026-11-04; p01 a p04)
 
-- **Cinco atalhos no topo**, em quadrados levemente arredondados com ícone e nome: Início (marcado), Agenda, Anúncios, Ganhos e Mais.
+- **Cinco atalhos no topo**, em quadrados levemente arredondados com ícone e nome: Início (marcado), Agenda, Catálogo, Ganhos e Mais.
 - **"Resolva agora" fixo no topo**, fora da personalização (prazos não podem sumir).
 - Abaixo, **cartões em grade de duas colunas**, pequenos (meia largura) ou grandes (largura inteira). Tocar num cartão abre a aba certa (Hoje → Agenda, Vendas e repasse → Ganhos, evento → página do evento, Avaliações → avaliações).
 - **"Personalizar início"** abre o modo de edição: arrastar para mudar a ordem, "−" para tirar e "Adicionar cartão" para escolher numa galeria com descrição e tamanho; "Concluir" salva.
@@ -116,7 +116,7 @@ Hoje a edição junta conteúdo e operação (lotes, vendas, participantes, chec
 
 ## 11. Índice dos desenhos (revisão de conteúdo, 2026-11-04)
 
-Atalhos do topo: Início, Agenda, Anúncios, Ganhos e Mais. "Precisa de você" passou a se chamar "Resolva agora" (aprovado em 2026-11-04, D27).
+Atalhos do topo: Início, Agenda, Catálogo, Ganhos e Mais (a aba "Anúncios" passou a se chamar "Catálogo" em 2026-11-04, para não confundir com os anúncios patrocinados que virão). "Precisa de você" passou a se chamar "Resolva agora" (aprovado em 2026-11-04, D27).
 
 | Nº | Aba | Tela ou folha | Função |
 |---|---|---|---|
@@ -128,17 +128,17 @@ Atalhos do topo: Início, Agenda, Anúncios, Ganhos e Mais. "Precisa de você" p
 | p06 | Agenda | Folha do horário de reserva | participantes, quem chegou, confirmar chegada com código, mudar ou cancelar horário |
 | p07 | Agenda | Folha da sessão de evento | vendidos, convidados, entradas, abrir portaria, adiar ou cancelar |
 | p08 | Agenda | Folha Cancelar a sessão? | reembolso, multa de 20% e pedido de análise de força maior |
-| p09 | Anúncios | Anúncios | Lugares, Eventos e Passeios, com status |
-| p10 | Anúncios | Página do evento | resumo e entradas para vendas, convidados, divulgadores e edição |
-| p11 | Anúncios | Evento · Vendas | vendido, a receber, sessões e pedidos |
-| p12 | Anúncios | Folha do pedido | detalhe do pedido e situação do reembolso |
-| p13 | Anúncios | Evento · Convidados | lista de cortesias por sessão |
-| p14 | Anúncios | Folha Convidar | convite pelo @ ou por link pessoal; "O ingresso vai direto para a carteira da pessoa convidada, sem custos." |
-| p15 | Anúncios | Folha Link de convite criado | link de uso único, enviar pelo WhatsApp |
-| p16 | Anúncios | Evento · Divulgadores | divulgadores, vendas por link e valor devido |
-| p17 | Anúncios | Folha Adicionar divulgador | comissão, valor por ingresso ou cachê fixo |
-| p18 | Anúncios | Editar evento | só o que é cadastro: dados, sessões, ingressos, política |
-| p19 | Anúncios | Página do estabelecimento | status, plano, números, ofertas e avaliações |
+| p09 | Catálogo | Catálogo | Lugares, Eventos e Passeios, com status |
+| p10 | Catálogo | Página do evento | resumo e entradas para vendas, convidados, divulgadores e edição |
+| p11 | Catálogo | Evento · Vendas | vendido, a receber, sessões e pedidos |
+| p12 | Catálogo | Folha do pedido | detalhe do pedido e situação do reembolso |
+| p13 | Catálogo | Evento · Convidados | lista de cortesias por sessão |
+| p14 | Catálogo | Folha Convidar | convite pelo @ ou por link pessoal; "O ingresso vai direto para a carteira da pessoa convidada, sem custos." |
+| p15 | Catálogo | Folha Link de convite criado | link de uso único, enviar pelo WhatsApp |
+| p16 | Catálogo | Evento · Divulgadores | divulgadores, vendas por link e valor devido |
+| p17 | Catálogo | Folha Adicionar divulgador | comissão, valor por ingresso ou cachê fixo |
+| p18 | Catálogo | Editar evento | só o que é cadastro: dados, sessões, ingressos, política |
+| p19 | Catálogo | Página do estabelecimento | status, plano, números, ofertas e avaliações |
 | p20 | Ganhos | Ganhos | a receber, recebido, Repasses, Extrato e Dívidas |
 | p21 | Ganhos | Folha do repasse | vendido, taxa, valor líquido e serviços incluídos |
 | p22 | Ganhos | Contas de recebimento | uma conta por CNPJ e sua situação |
@@ -161,4 +161,14 @@ Atalhos do topo: Início, Agenda, Anúncios, Ganhos e Mais. "Precisa de você" p
 A portaria (D21, já implementada) entra por três caminhos: o cartão "Portaria" no topo do Início no dia (p29), a sessão na Agenda (p07 → p30) e a página do evento ou da atração. Vale para eventos e para entradas de atrações privadas; reservas de passeio, aluguel e translado usam a confirmação de chegada do horário (p06).
 
 **Pendência (a desenhar):** o parceiro escolher outros aparelhos (equipe) para usar o modo portaria durante o evento ou a atração. Modelo e proposta ainda serão feitos; até lá, o item "Equipe da portaria" em Mais (p24) não entra na implementação.
+
+| p36 | Início | Folha Seus estabelecimentos | tocar no nome do estabelecimento no topo do Início troca o estabelecimento ativo ou cria um novo, como a troca de conta do Instagram |
+
+### 11.2. Troca de estabelecimento (pedido de 2026-11-04, aguardando aprovação)
+
+* Não há nome para o painel: o topo do Início mostra o nome do estabelecimento ativo com uma seta; o toque abre a folha p36.
+* O painel mostra um estabelecimento por vez: Início, Agenda, Catálogo e Ganhos (repasses do CNPJ dele) passam a ser do escolhido. Mais continua sendo da conta (perfil de produtor, documentos, contas de recebimento de todos os CNPJs, planos, notificações).
+* Outro estabelecimento com item em "Resolva agora" aparece com um ponto vermelho ao lado do nome e o número na folha.
+* O estabelecimento ativo fica guardado no aparelho (preferência local, não é dado do servidor); na primeira vez, é o primeiro estabelecimento.
+* "Criar estabelecimento" abre o cadastro que já existe.
 

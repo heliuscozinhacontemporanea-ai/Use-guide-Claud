@@ -390,5 +390,7 @@ Aprovada pelo responsável do produto em 2026-11-04. Proposta e desenhos: `docs/
 * **Link pessoal de convite** para quem não tem conta: uso único, vale até o início do evento, enviado pelo parceiro (seção 8).
 * **Editar evento x página do evento:** divisão da seção 9 aprovada (a edição fica só com o cadastro; vendas, convidados, divulgadores, portaria e financeiro saem para a página do evento, a Agenda e Ganhos).
 * **Texto da folha Convidar:** "O ingresso vai direto para a carteira da pessoa convidada, sem custos."
-* **Em aberto (não implementar até decidir):** nome da aba "Anúncios" (conflita com os anúncios patrocinados que virão); nome do "painel do parceiro"; contatos nos anúncios (B37); escolha de outros aparelhos para o modo portaria (a desenhar).
+* **Aba "Catálogo"** no lugar de "Anúncios", para não confundir com os anúncios patrocinados que virão.
+* **Sem nome de painel:** o topo do Início mostra o nome do estabelecimento ativo; o toque abre a troca de estabelecimento, como no Instagram (desenho p36, seção 11.2 da proposta, aguardando aprovação do escopo).
+* **Em aberto (não implementar até decidir):** contatos nos anúncios (B37); escolha de outros aparelhos para o modo portaria (a desenhar).
 * **Depois da implementação:** relatório das funções e configurações que ficaram fora das telas e folhas, e tour na primeira abertura do painel, com sequência e opção de não mostrar de novo.
