@@ -1,4 +1,9 @@
-import type { PartnerCatalogEvent, PartnerHomeView, PartnerTodayItem } from '../types/partnerHome';
+import type {
+  PartnerCatalogEvent,
+  PartnerEventSales,
+  PartnerHomeView,
+  PartnerTodayItem,
+} from '../types/partnerHome';
 
 export interface PartnerHomePort {
   get(): Promise<PartnerHomeView>;
@@ -6,6 +11,8 @@ export interface PartnerHomePort {
   getAgenda(fromIso: string, toIso: string): Promise<PartnerTodayItem[]>;
   /** Eventos do dono para o Catálogo. */
   getCatalogEvents(): Promise<PartnerCatalogEvent[]>;
+  /** Vendas, sessões e pedidos de um evento do dono. */
+  getEventSales(eventId: string): Promise<PartnerEventSales>;
   /** Devolve os cartões gravados, na ordem. */
   saveCards(cards: string[]): Promise<string[]>;
 }

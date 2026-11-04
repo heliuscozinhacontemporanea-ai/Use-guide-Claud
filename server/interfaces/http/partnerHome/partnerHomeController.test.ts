@@ -2,7 +2,13 @@ import type { Response } from 'express';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
 
-const m = vi.hoisted(() => ({ get: vi.fn(), save: vi.fn(), agenda: vi.fn(), catalog: vi.fn() }));
+const m = vi.hoisted(() => ({
+  get: vi.fn(),
+  save: vi.fn(),
+  agenda: vi.fn(),
+  catalog: vi.fn(),
+  sales: vi.fn(),
+}));
 
 vi.mock('../../../application/usecases/partnerHome/getPartnerHomeApplicationUseCase', () => ({
   getPartnerHomeApplicationUseCase: m.get,
@@ -12,6 +18,9 @@ vi.mock('../../../application/usecases/partnerHome/getPartnerAgendaApplicationUs
 }));
 vi.mock('../../../application/usecases/partnerHome/getPartnerCatalogApplicationUseCase', () => ({
   getPartnerCatalogApplicationUseCase: m.catalog,
+}));
+vi.mock('../../../application/usecases/partnerHome/getPartnerEventSalesApplicationUseCase', () => ({
+  getPartnerEventSalesApplicationUseCase: m.sales,
 }));
 vi.mock('../../../domain/partners', async () => {
   const { PartnerDomainError } = await import('../../../domain/partners/errors/partnerDomainError');
@@ -130,5 +139,34 @@ describe('PartnerHomeController', () => {
     );
     expect(fail.status).toHaveBeenCalledWith(503);
     expect(JSON.stringify(fail.json.mock.calls)).not.toContain('segredo');
+  });
+
+  it('vendas do evento: lê do uid logado; evento de outro dono responde 404 (IDOR)', async () => {
+    const { TicketingDomainError } = await import(
+      '../../../domain/ticketing/errors/ticketingDomainError'
+    );
+    m.sales.mockResolvedValueOnce({ orders: [] });
+    const ok = response();
+    await PartnerHomeController.getEventSales(
+      { params: { eventId: 'ev1' }, user: { uid: 'owner-1' } } as never,
+      ok as unknown as Response
+    );
+    expect(m.sales).toHaveBeenCalledWith('owner-1', 'ev1');
+    expect(ok.status).toHaveBeenCalledWith(200);
+
+    m.sales.mockRejectedValueOnce(new TicketingDomainError('FORBIDDEN', 'Sem permissão.'));
+    const other = response();
+    await PartnerHomeController.getEventSales(
+      { params: { eventId: 'ev-de-outro' }, user: { uid: 'owner-1' } } as never,
+      other as unknown as Response
+    );
+    expect(other.status).toHaveBeenCalledWith(404);
+
+    const bad = response();
+    await PartnerHomeController.getEventSales(
+      { params: { eventId: '../x' }, user: { uid: 'owner-1' } } as never,
+      bad as unknown as Response
+    );
+    expect(bad.status).toHaveBeenCalledWith(400);
   });
 });

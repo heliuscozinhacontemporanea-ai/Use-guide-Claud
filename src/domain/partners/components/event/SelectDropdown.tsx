@@ -52,27 +52,27 @@ export function SelectDropdown({
         aria-expanded={isOpen}
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          'w-full min-h-[44px] bg-white/5 border border-white/10 rounded-2xl pr-5 py-4 text-white text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400/50 transition-all text-left flex items-center justify-between hover:bg-white/10',
+          'w-full min-h-[44px] bg-surface border border-line rounded-2xl pr-5 py-4 text-ink text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400/50 transition-all text-left flex items-center justify-between hover:bg-ink/[0.06]',
           withIcon ? 'pl-12' : 'pl-5'
         )}
       >
-        <span className={selected ? 'text-white' : 'text-white/50'}>
+        <span className={selected ? 'text-ink' : 'text-ink/70'}>
           {selected?.label || placeholder}
         </span>
         <ChevronDown
           size={16}
           aria-hidden="true"
-          className={cn('text-white/50 transition-transform duration-200', isOpen && 'rotate-180')}
+          className={cn('text-ink/70 transition-transform duration-200', isOpen && 'rotate-180')}
         />
       </button>
 
       {isOpen && (
         <div
           role="listbox"
-          className="absolute top-full left-0 right-0 mt-2 bg-zinc-950/90 backdrop-blur-3xl border border-white/10 rounded-2xl overflow-hidden shadow-2xl z-50 py-1 max-h-60 overflow-y-auto no-scrollbar"
+          className="absolute top-full left-0 right-0 mt-2 bg-zinc-950/90 backdrop-blur-3xl border border-line rounded-2xl overflow-hidden shadow-2xl z-50 py-1 max-h-60 overflow-y-auto no-scrollbar"
         >
           {options.length === 0 && emptyMessage ? (
-            <div className="px-5 py-3.5 text-white/50 text-xs">{emptyMessage}</div>
+            <div className="px-5 py-3.5 text-ink/70 text-xs">{emptyMessage}</div>
           ) : (
             options.map((option) => (
               <button
@@ -84,15 +84,13 @@ export function SelectDropdown({
                   onChange(option.value);
                   setIsOpen(false);
                 }}
-                className="w-full min-h-[44px] px-5 py-3.5 text-left text-white text-sm hover:bg-white/5 flex items-center justify-between transition-colors font-medium border-b border-white/[0.02]"
+                className="w-full min-h-[44px] px-5 py-3.5 text-left text-ink text-sm hover:bg-surface flex items-center justify-between transition-colors font-medium border-b border-line"
               >
-                <span
-                  className={option.value === value ? 'text-indigo-400 font-bold' : 'text-white/80'}
-                >
+                <span className={option.value === value ? 'text-accent font-bold' : 'text-ink/80'}>
                   {option.label}
                 </span>
                 {option.value === value && (
-                  <Check size={14} className="text-indigo-400" aria-hidden="true" />
+                  <Check size={14} className="text-accent" aria-hidden="true" />
                 )}
               </button>
             ))

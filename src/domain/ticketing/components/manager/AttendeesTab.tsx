@@ -15,7 +15,9 @@ export function AttendeesTab({ orders }: { orders: TicketOrder[] }) {
           >
             <div>
               <div className="font-bold text-white">
-                {ord.buyerSnapshot.name} ({ord.buyerSnapshot.email})
+                {ord.buyerSnapshot
+                  ? `${ord.buyerSnapshot.name} (${ord.buyerSnapshot.email})`
+                  : `#${ord.id.slice(0, 8)}`}
               </div>
               <div className="text-white/50">
                 Pedido #{ord.id.slice(0, 8)} •{' '}

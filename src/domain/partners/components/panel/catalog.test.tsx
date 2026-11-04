@@ -23,13 +23,17 @@ const place = (id: string, name: string, extra: Partial<PartnerContentRecord> = 
   }) as PartnerContentRecord;
 
 function renderSection(props: Partial<Parameters<typeof PartnerCatalogSection>[0]> = {}) {
-  const handlers = { onOpenEvent: vi.fn(), onPlaceChange: vi.fn(), onToggleActive: vi.fn() };
+  const handlers = { onEventChange: vi.fn(), onPlaceChange: vi.fn(), onToggleActive: vi.fn() };
   render(
     <PartnerCatalogSection
       segment="events"
       onSegmentChange={vi.fn()}
       placeId={null}
       onPlaceChange={handlers.onPlaceChange}
+      eventId={null}
+      onEventChange={handlers.onEventChange}
+      eventReloadKey={0}
+      onOpenSession={vi.fn()}
       items={[place('buggy', 'Buggy do Preá'), place('dunas', 'Dunas Park')]}
       events={[place('ev1', 'Luau na Duna')]}
       loading={false}
@@ -57,7 +61,7 @@ function renderSection(props: Partial<Parameters<typeof PartnerCatalogSection>[0
       eventsVersion={0}
       onEditItem={vi.fn()}
       onCreateItem={vi.fn()}
-      onOpenEvent={handlers.onOpenEvent}
+      onOpenEvent={vi.fn()}
       onCreateEvent={vi.fn()}
       onOpenPlan={vi.fn()}
       onVerify={vi.fn()}
@@ -115,13 +119,13 @@ describe('Catálogo (p09) e página do estabelecimento (p19)', () => {
     m.verification.mockReturnValue({ loading: false, data: { status: 'approved' } });
   });
 
-  it('eventos com status, agrupados por estabelecimento em "Todos"; o toque abre o evento', async () => {
-    const { onOpenEvent } = renderSection();
+  it('eventos com status, agrupados por estabelecimento em "Todos"; o toque abre a página do evento', async () => {
+    const { onEventChange } = renderSection();
     expect(await screen.findByText('Publicado · 128 vendidos')).toBeTruthy();
     expect(screen.getByText('Rascunho · falta a foto de capa')).toBeTruthy();
     expect(screen.getByRole('heading', { name: 'Dunas Park' })).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: /Luau na Duna/ }));
-    expect(onOpenEvent).toHaveBeenCalledWith(expect.objectContaining({ id: 'ev1' }));
+    expect(onEventChange).toHaveBeenCalledWith('ev1');
   });
 
   it('com filtro, só os eventos do estabelecimento escolhido e sem grupos', async () => {

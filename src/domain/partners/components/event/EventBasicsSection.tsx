@@ -4,9 +4,9 @@ import type { PartnerBusiness } from '../../types/partner';
 import { type EventSectionProps, updateEventField } from './eventSectionProps';
 import { SelectDropdown } from './SelectDropdown';
 
-const LABEL_CLASS = 'text-[10px] font-black uppercase tracking-widest text-white/50 ml-1';
+const LABEL_CLASS = 'text-[10px] font-black uppercase tracking-widest text-ink/70 ml-1';
 const INPUT_CLASS =
-  'w-full min-h-[44px] bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400/50 transition-all placeholder:text-white/50';
+  'w-full min-h-[44px] bg-surface border border-line rounded-2xl px-5 py-4 text-ink text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400/50 transition-all placeholder:text-ink/50';
 
 interface EventBasicsSectionProps extends EventSectionProps {
   businesses?: PartnerBusiness[];
@@ -22,10 +22,10 @@ export function EventBasicsSection({ item, onChange, businesses }: EventBasicsSe
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-2">
-        <span className="p-2 rounded-xl bg-white/5 border border-white/10 text-indigo-400">
+        <span className="p-2 rounded-xl bg-surface border border-line text-accent">
           <Building2 size={18} aria-hidden="true" />
         </span>
-        <h3 className="text-sm font-black text-white uppercase tracking-widest">
+        <h3 className="text-sm font-black text-ink uppercase tracking-widest">
           Informações Básicas
         </h3>
       </div>
@@ -34,16 +34,16 @@ export function EventBasicsSection({ item, onChange, businesses }: EventBasicsSe
         {/* Todo evento pertence a um estabelecimento ou ao perfil de produtor (decisão D9). */}
         <div className="space-y-2">
           <span className={LABEL_CLASS}>
-            Estabelecimento ou perfil de produtor <span className="text-rose-500 font-bold">*</span>
+            Estabelecimento ou perfil de produtor <span className="text-danger font-bold">*</span>
           </span>
           {item.id ? (
-            <div className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white/70 text-sm flex items-center justify-between cursor-not-allowed">
+            <div className="w-full bg-surface border border-line rounded-2xl px-5 py-4 text-ink/70 text-sm flex items-center justify-between cursor-not-allowed">
               <span>
                 {selectedEstablishment?.businessName ||
                   item.establishmentId ||
                   'Estabelecimento vinculado'}
               </span>
-              <span className="text-[10px] font-bold uppercase tracking-widest text-white/50">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-ink/70">
                 Somente leitura
               </span>
             </div>
@@ -64,7 +64,7 @@ export function EventBasicsSection({ item, onChange, businesses }: EventBasicsSe
 
         <label className="space-y-2 block">
           <span className={LABEL_CLASS}>
-            Nome do Evento <span className="text-rose-500 font-bold">*</span>
+            Nome do Evento <span className="text-danger font-bold">*</span>
           </span>
           <input
             type="text"
@@ -78,7 +78,7 @@ export function EventBasicsSection({ item, onChange, businesses }: EventBasicsSe
 
         <div className="space-y-2">
           <span className={LABEL_CLASS}>
-            Categoria <span className="text-rose-500 font-bold">*</span>
+            Categoria <span className="text-danger font-bold">*</span>
           </span>
           <SelectDropdown
             ariaLabel="Categoria do evento"
@@ -98,7 +98,7 @@ export function EventBasicsSection({ item, onChange, businesses }: EventBasicsSe
         {item.eventCategory === CUSTOM_EVENT_CATEGORY && (
           <label className="space-y-2 block animate-fade-in">
             <span className={LABEL_CLASS}>
-              Especifique a Categoria <span className="text-rose-500 font-bold">*</span>
+              Especifique a Categoria <span className="text-danger font-bold">*</span>
             </span>
             <input
               type="text"
@@ -113,10 +113,10 @@ export function EventBasicsSection({ item, onChange, businesses }: EventBasicsSe
 
         <label className="space-y-2 block">
           <span className="flex justify-between items-center px-1">
-            <span className="text-[10px] font-black uppercase tracking-widest text-white/50">
+            <span className="text-[10px] font-black uppercase tracking-widest text-ink/70">
               Descrição do Evento
             </span>
-            <span className="text-[10px] font-bold text-white/50">
+            <span className="text-[10px] font-bold text-ink/70">
               {item.description?.length || 0}/400
             </span>
           </span>

@@ -1,11 +1,27 @@
-import { RefreshCw, Trash2, X } from 'lucide-react';
-import { AnimatePresence, motion } from 'motion/react';
-import type { ChangeEvent, ReactNode } from 'react';
+import { RefreshCw } from 'lucide-react';
+import { motion } from 'motion/react';
+import { type ChangeEvent, type ReactNode, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Z_INDEX } from '../../../shared/constants/zIndex';
-import type { EventSessionsFieldProps, EventSessionsLoadState } from '../../events';
+import { BackButton } from '../../../ui/components/BackButton';
+import { ConfirmDialog } from '../../../ui/components/ConfirmDialog';
+import { ListCard, ListRowButton } from '../../../ui/components/ListRows';
+import { TextButton } from '../../../ui/components/TextButton';
+import { BUTTON_PRIMARY } from '../../../ui/styles/controls';
+import {
+  DEFAULT_EVENT_SALES_POLICY,
+  type EventSessionsFieldProps,
+  type EventSessionsLoadState,
+} from '../../events';
 import type { PartnerBusiness } from '../types/partner';
 import type { PartnerContentEditorState } from '../types/partnerContent';
-import { PartnerEventForm } from './PartnerEventForm';
+import { EventBasicsSection } from './event/EventBasicsSection';
+import { EventContactSection } from './event/EventContactSection';
+import { EventEntrySection } from './event/EventEntrySection';
+import { EventPhotosSection } from './event/EventPhotosSection';
+import { EventSalesPolicySection } from './event/EventSalesPolicySection';
+
+type Section = 'info' | 'sessions' | 'location' | 'tickets' | 'policy' | 'photos' | 'contact';
 
 interface PartnerEventEditorProps {
   item: PartnerContentEditorState;
@@ -19,12 +35,19 @@ interface PartnerEventEditorProps {
   sessionsLoadState: EventSessionsLoadState;
   renderSessionsField?: (props: EventSessionsFieldProps) => ReactNode;
   renderEventTicketingManager?: (eventListingId: string) => ReactNode;
+  /** Conta de recebimento do estabelecimento do evento (payment), montada pela composição. */
+  renderAccountCard?: (establishmentId: string, establishmentName: string) => ReactNode;
+  /** Com vendas, o evento não é excluído: as sessões são canceladas pela folha da sessão. */
+  hasSales?: boolean;
   showDeleteConfirm: boolean;
   onRequestDelete: (open: boolean) => void;
   onConfirmDelete: () => Promise<void>;
 }
 
-/** Modal do editor de evento do parceiro, com a confirmação de exclusão. Não fecha ao clicar fora. */
+/**
+ * Editar evento (p18): só o que o evento é. Vendas, pedidos e portaria ficam na página do evento,
+ * e adiar ou cancelar uma sessão fica na folha da sessão (D27).
+ */
 export function PartnerEventEditor({
   item,
   onChange,
@@ -37,143 +60,211 @@ export function PartnerEventEditor({
   sessionsLoadState,
   renderSessionsField,
   renderEventTicketingManager,
+  renderAccountCard,
+  hasSales = false,
   showDeleteConfirm,
   onRequestDelete,
   onConfirmDelete,
 }: PartnerEventEditorProps) {
-  return (
-    <>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        style={{ zIndex: Z_INDEX.modal }}
-        className="fixed inset-0 flex overflow-y-auto no-scrollbar justify-center items-start pt-[7.5vh] pb-[7.5vh] px-4 bg-black/5 backdrop-blur-xl"
-      >
-        <motion.div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="partner-event-editor-title"
-          initial={{ scale: 0.95, y: 15, opacity: 0 }}
-          animate={{ scale: 1, y: 0, opacity: 1 }}
-          exit={{ scale: 0.95, y: 15, opacity: 0 }}
-          transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-          style={{ height: 'calc(85vh - env(safe-area-inset-bottom))' }}
-          className="w-full max-w-xl glassmorphism-vibrant bg-white/10 backdrop-blur-3xl rounded-[2.5rem] border border-white/10 overflow-hidden flex flex-col shadow-2xl relative z-10"
-        >
-          <div className="p-8 flex items-center justify-between flex-shrink-0">
-            <div>
-              <h3
-                id="partner-event-editor-title"
-                className="text-xl font-display font-black text-white tracking-tight"
-              >
-                {item.id ? 'Editar Evento' : 'Novo Evento'}
-              </h3>
-              <p className="text-[10px] text-white/50 font-medium tracking-wide">
-                Preencha os detalhes do seu evento
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label="Fechar editor de evento"
-              className="w-11 h-11 flex items-center justify-center bg-white/5 rounded-2xl text-white/50 focus-visible:ring-2 focus-visible:ring-teal-400/50"
-            >
-              <X size={24} aria-hidden="true" />
-            </button>
-          </div>
+  const { t } = useTranslation();
+  const [section, setSection] = useState<Section | null>(null);
+  const paid = item.entryType === 'pago';
+  const policy = item.salesPolicy ?? DEFAULT_EVENT_SALES_POLICY;
+  const photos = item.images?.length ?? 0;
+  const contacts = [
+    item.phone && 'WhatsApp',
+    item.websiteLink && t('partnerCatalog.editor.site'),
+    item.instagramLink && 'Instagram',
+  ].filter(Boolean);
 
-          <PartnerEventForm
-            item={item}
-            onChange={onChange}
-            isUploading={isUploading}
-            onImageUpload={onImageUpload}
-            businesses={businesses}
-            sessionsLoadState={sessionsLoadState}
-            renderSessionsField={renderSessionsField}
-            renderEventTicketingManager={renderEventTicketingManager}
-          />
+  const rows: Array<{ id: Section; title: string; sub: string }> = [
+    {
+      id: 'info',
+      title: t('partnerCatalog.editor.info'),
+      sub: t('partnerCatalog.editor.infoHint'),
+    },
+    {
+      id: 'sessions',
+      title: t('partnerCatalog.editor.sessions'),
+      sub: item.sessions?.length
+        ? t('partnerCatalog.event.sessions', { count: item.sessions.length })
+        : t('partnerCatalog.editor.noSessions'),
+    },
+    {
+      id: 'location',
+      title: t('partnerCatalog.editor.location'),
+      sub:
+        [item.address, item.location].filter(Boolean).join(', ') ||
+        t('partnerCatalog.editor.locationHint'),
+    },
+    {
+      id: 'tickets',
+      title: t('partnerCatalog.editor.tickets'),
+      sub: t(paid ? 'partnerCatalog.editor.paid' : 'partnerCatalog.editor.free'),
+    },
+    ...(paid
+      ? [
+          {
+            id: 'policy' as const,
+            title: t('partnerCatalog.editor.policy'),
+            sub: [
+              t(`salesPolicy.policies.event.${policy.cancellationPolicy}.title`),
+              t(
+                policy.serviceFeeMode === 'absorb'
+                  ? 'salesPolicy.serviceFee.absorb.title'
+                  : 'salesPolicy.serviceFee.passToBuyer.title'
+              ),
+            ].join(' · '),
+          },
+        ]
+      : []),
+    {
+      id: 'photos',
+      title: t('partnerCatalog.editor.photos'),
+      sub: photos
+        ? t('partnerCatalog.editor.photos', { count: photos })
+        : t('partnerCatalog.editor.noPhotos'),
+    },
+    {
+      id: 'contact',
+      title: t('partnerCatalog.editor.contact'),
+      sub: contacts.length ? contacts.join(', ') : t('partnerCatalog.editor.noContact'),
+    },
+  ];
 
-          <div className="p-8 border-t border-white/5 flex gap-3 items-center flex-shrink-0">
-            <button
-              type="button"
-              onClick={onSave}
-              disabled={isLoading}
-              className="flex-1 min-h-[44px] bg-[#00D4FF] text-black py-4 rounded-2xl font-semibold tracking-wide text-[12px] shadow-lg shadow-[#00D4FF]/20 active:scale-95 flex items-center justify-center gap-2 hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-80 disabled:hover:scale-100 focus-visible:ring-2 focus-visible:ring-teal-400/50"
-            >
-              {isLoading && <RefreshCw className="animate-spin" size={16} aria-hidden="true" />}
-              Salvar
-            </button>
-            {item.id && (
-              <button
-                type="button"
-                onClick={() => onRequestDelete(true)}
-                disabled={isLoading}
-                aria-label="Excluir evento"
-                className="py-4 px-4 aspect-square bg-rose-500/10 text-rose-500 border border-rose-500/20 rounded-2xl flex items-center justify-center transition-all hover:bg-rose-500 hover:text-white flex-shrink-0 focus-visible:ring-2 focus-visible:ring-teal-400/50"
-              >
-                <Trash2 size={16} aria-hidden="true" />
-              </button>
+  const sectionProps = { item, onChange };
+  const body = (open: Section) => {
+    switch (open) {
+      case 'info':
+        return <EventBasicsSection {...sectionProps} businesses={businesses} />;
+      case 'sessions':
+        return renderSessionsField?.({
+          sessions: item.sessions ?? [],
+          onChange: (sessions) => onChange({ ...item, sessions }),
+          loadState: sessionsLoadState,
+        });
+      case 'location':
+        return <EventContactSection {...sectionProps} part="location" />;
+      case 'tickets':
+        return (
+          <div className="space-y-3">
+            <EventEntrySection
+              {...sectionProps}
+              renderEventTicketingManager={renderEventTicketingManager}
+            />
+            {!item.id && paid && (
+              <p className="px-1 text-[13px] text-ink/70">{t('partnerCatalog.editor.saveFirst')}</p>
             )}
           </div>
-        </motion.div>
-      </motion.div>
+        );
+      case 'policy':
+        return <EventSalesPolicySection {...sectionProps} />;
+      case 'photos':
+        return (
+          <EventPhotosSection
+            {...sectionProps}
+            isUploading={isUploading}
+            onImageUpload={onImageUpload}
+          />
+        );
+      case 'contact':
+        return <EventContactSection {...sectionProps} part="contact" />;
+    }
+  };
 
-      <AnimatePresence>
-        {showDeleteConfirm && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            style={{ zIndex: Z_INDEX.modalNested }}
-            className="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center p-6"
+  const title = section
+    ? (rows.find((row) => row.id === section)?.title ?? '')
+    : t(item.id ? 'partnerCatalog.editor.titleEdit' : 'partnerCatalog.editor.titleNew');
+
+  return (
+    <motion.div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="partner-event-editor-title"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      style={{ zIndex: Z_INDEX.modal }}
+      className="fixed inset-0 overflow-y-auto bg-app"
+    >
+      <div className="max-w-xl mx-auto px-4 pt-12 pb-40 space-y-6">
+        <div className="flex items-center gap-2">
+          <BackButton
+            label={t('partnerPanel.tabs.catalog')}
+            onClick={() => (section ? setSection(null) : onClose())}
+          />
+          <h2
+            id="partner-event-editor-title"
+            className="text-[24px] font-display font-bold text-ink break-words"
           >
-            <div
-              role="alertdialog"
-              aria-modal="true"
-              aria-labelledby="partner-event-delete-title"
-              className="w-full max-w-xs bg-[#0A0C10] rounded-[2.5rem] border border-white/10 p-8 text-center space-y-6"
-            >
-              <div className="w-16 h-16 rounded-2xl bg-rose-500/10 flex items-center justify-center text-rose-500 mx-auto shadow-2xl shadow-rose-500/10">
-                <Trash2 size={32} aria-hidden="true" />
-              </div>
-              <div>
-                <h3
-                  id="partner-event-delete-title"
-                  className="text-lg font-display font-black text-white"
-                >
-                  Excluir {item.name || 'evento'}?
-                </h3>
-                <p className="text-white/50 text-xs mt-2 leading-relaxed">
-                  Esta ação não poderá ser desfeita.
+            {title}
+          </h2>
+        </div>
+
+        {section ? (
+          <div className="space-y-6">{body(section)}</div>
+        ) : (
+          <>
+            <ListCard>
+              {rows.map((row) => (
+                <ListRowButton
+                  key={row.id}
+                  title={row.title}
+                  sub={row.sub}
+                  onClick={() => setSection(row.id)}
+                />
+              ))}
+            </ListCard>
+            {item.establishmentId &&
+              renderAccountCard?.(
+                item.establishmentId,
+                businesses?.find((business) => business.businessId === item.establishmentId)
+                  ?.businessName ?? ''
+              )}
+            {item.id &&
+              (hasSales ? (
+                <p className="px-1 text-[13px] text-ink/70">
+                  {t('partnerCatalog.editor.deleteHasSales')}
                 </p>
-              </div>
-              <div className="flex flex-col gap-3">
-                <button
-                  type="button"
-                  onClick={onConfirmDelete}
-                  disabled={isLoading}
-                  className="w-full min-h-[44px] bg-rose-500 text-white py-4 rounded-2xl font-bold uppercase tracking-widest text-[10px] shadow-xl shadow-rose-500/20 transition-all hover:bg-rose-400 active:scale-95 flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-teal-400/50"
-                >
-                  {isLoading ? (
-                    <RefreshCw className="animate-spin" size={14} aria-hidden="true" />
-                  ) : (
-                    <Trash2 size={14} aria-hidden="true" />
-                  )}
-                  Excluir
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onRequestDelete(false)}
-                  className="w-full min-h-[44px] bg-white/5 text-white/50 py-4 rounded-2xl font-bold uppercase tracking-widest text-[10px] hover:bg-white/10 transition-all focus-visible:ring-2 focus-visible:ring-teal-400/50"
-                >
-                  Cancelar
-                </button>
-              </div>
-            </div>
-          </motion.div>
+              ) : (
+                <TextButton tone="danger" onClick={() => onRequestDelete(true)}>
+                  {t('partnerCatalog.editor.delete')}
+                </TextButton>
+              ))}
+          </>
         )}
-      </AnimatePresence>
-    </>
+      </div>
+
+      <div
+        className="fixed inset-x-0 bottom-0 border-t border-line bg-app/90 backdrop-blur-md"
+        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+      >
+        <div className="max-w-xl mx-auto px-4 py-3">
+          <button
+            type="button"
+            onClick={() => void onSave()}
+            disabled={isLoading}
+            className={`${BUTTON_PRIMARY} w-full`}
+          >
+            {isLoading && <RefreshCw className="animate-spin" size={16} aria-hidden="true" />}
+            {t('partnerCatalog.editor.save')}
+          </button>
+        </div>
+      </div>
+
+      <ConfirmDialog
+        data={
+          showDeleteConfirm
+            ? {
+                title: t('partnerCatalog.editor.deleteTitle', { name: item.name || '' }),
+                message: t('partnerCatalog.editor.deleteMessage'),
+                confirmLabel: t('partnerCatalog.editor.delete'),
+                onConfirm: () => void onConfirmDelete(),
+                onCancel: () => onRequestDelete(false),
+              }
+            : null
+        }
+      />
+    </motion.div>
   );
 }

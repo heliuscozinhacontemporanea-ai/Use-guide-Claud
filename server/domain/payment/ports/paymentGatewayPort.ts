@@ -83,6 +83,8 @@ export interface PaymentGatewayPort {
     status: string;
     amountMinor: number;
     metadata: Record<string, string>;
+    /** Meio usado no pagamento, quando já houver ("card", "pix"...). */
+    paymentMethodType: string | null;
   }>;
   constructWebhookEvent(payload: string | Buffer, signature: string): VerifiedWebhookEvent;
 }

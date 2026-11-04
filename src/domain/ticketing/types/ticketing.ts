@@ -109,7 +109,8 @@ export interface TicketOrder {
   paymentChargeId?: string;
   paymentTransferId?: string;
   promoCodeId?: string;
-  buyerSnapshot: {
+  /** Só para o admin: o parceiro não recebe os dados pessoais do comprador (§7.9). */
+  buyerSnapshot?: {
     name: string;
     email: string;
     document?: string;

@@ -89,6 +89,17 @@ export class PayoutService {
     return this.entries.get(entryIdFor(referenceType, referenceId));
   }
 
+  /** Repasses de várias vendas do mesmo tipo (ex.: os pedidos de um evento). */
+  async listForReferences(
+    referenceType: string,
+    referenceIds: string[]
+  ): Promise<PayoutEntryView[]> {
+    const entries = await this.entries.getMany(
+      referenceIds.map((referenceId) => entryIdFor(referenceType, referenceId))
+    );
+    return entries.map(toEntryView);
+  }
+
   /** Extrato do parceiro, paginado por cursor (AGENTS.md §6.4). */
   async listForAccounts(
     accountKeys: string[],

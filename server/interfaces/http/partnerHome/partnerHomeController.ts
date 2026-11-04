@@ -1,10 +1,16 @@
 import type { Response } from 'express';
 import { getPartnerAgendaApplicationUseCase } from '../../../application/usecases/partnerHome/getPartnerAgendaApplicationUseCase';
+import { getPartnerEventSalesApplicationUseCase } from '../../../application/usecases/partnerHome/getPartnerEventSalesApplicationUseCase';
 import { getPartnerCatalogApplicationUseCase } from '../../../application/usecases/partnerHome/getPartnerCatalogApplicationUseCase';
 import { getPartnerHomeApplicationUseCase } from '../../../application/usecases/partnerHome/getPartnerHomeApplicationUseCase';
 import { PartnerDomainError, savePartnerHomeCardsUseCase } from '../../../domain/partners';
+import { TicketingDomainError } from '../../../domain/ticketing';
 import type { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
-import { PartnerAgendaQuerySchema, SavePartnerHomeCardsSchema } from './schemas/partnerHomeSchemas';
+import {
+  PartnerAgendaQuerySchema,
+  PartnerEventParamsSchema,
+  SavePartnerHomeCardsSchema,
+} from './schemas/partnerHomeSchemas';
 
 function sendError(res: Response, status: number, code: string, message: string): Response {
   return res.status(status).json({ error: { code, message } });
@@ -84,6 +90,34 @@ export class PartnerHomeController {
         503,
         'PARTNER_HOME_UNAVAILABLE',
         'Não foi possível carregar o catálogo.'
+      );
+    }
+  }
+
+  static async getEventSales(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    if (!req.user?.uid) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
+    const params = PartnerEventParamsSchema.safeParse(req.params);
+    if (!params.success) return sendError(res, 400, 'VALIDATION_ERROR', 'Evento inválido.');
+    try {
+      const data = await getPartnerEventSalesApplicationUseCase(req.user.uid, params.data.eventId);
+      return res.status(200).json({ data });
+    } catch (error) {
+      // Evento de outro dono responde igual a inexistente, para não confirmar que ele existe (A01).
+      if (
+        (error instanceof TicketingDomainError &&
+          (error.code === 'FORBIDDEN' || error.code === 'NOT_FOUND')) ||
+        (error instanceof Error && error.message === 'EVENT_NOT_FOUND')
+      ) {
+        return sendError(res, 404, 'EVENT_NOT_FOUND', 'Evento não encontrado.');
+      }
+      console.error('[PartnerHomeController.getEventSales]', {
+        name: error instanceof Error ? error.name : 'UnknownError',
+      });
+      return sendError(
+        res,
+        503,
+        'PARTNER_HOME_UNAVAILABLE',
+        'Não foi possível carregar as vendas.'
       );
     }
   }

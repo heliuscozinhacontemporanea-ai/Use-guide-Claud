@@ -17,7 +17,7 @@ export function EventSalesPolicySection({ item, onChange }: EventSectionProps) {
   return (
     <div className="space-y-6 pt-4 border-t border-line">
       <div className="flex items-center gap-2">
-        <span className="p-2 rounded-xl bg-surface border border-line text-indigo-400">
+        <span className="p-2 rounded-xl bg-surface border border-line text-accent">
           <ShieldCheck size={18} aria-hidden="true" />
         </span>
         <h3 className="text-sm font-black text-ink uppercase tracking-widest">

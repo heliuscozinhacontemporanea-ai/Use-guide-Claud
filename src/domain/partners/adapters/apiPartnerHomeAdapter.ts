@@ -1,6 +1,11 @@
 import { firebaseApiFetch } from '../../../shared/infrastructure/firebase/firebaseApiFetch';
 import type { PartnerHomePort } from '../ports/partnerHomePort';
-import type { PartnerCatalogEvent, PartnerHomeView, PartnerTodayItem } from '../types/partnerHome';
+import type {
+  PartnerCatalogEvent,
+  PartnerEventSales,
+  PartnerHomeView,
+  PartnerTodayItem,
+} from '../types/partnerHome';
 
 const OPTIONS = { requireAuth: true, requireAppCheck: true } as const;
 
@@ -40,6 +45,19 @@ export class ApiPartnerHomeAdapter implements PartnerHomePort {
       throw new Error(typeof body?.error?.code === 'string' ? body.error.code : 'INTERNAL_ERROR');
     }
     return (body as { data: { events: PartnerCatalogEvent[] } }).data.events;
+  }
+
+  async getEventSales(eventId: string): Promise<PartnerEventSales> {
+    const response = await firebaseApiFetch(
+      `/api/partner-home/events/${encodeURIComponent(eventId)}/sales`,
+      { method: 'GET' },
+      OPTIONS
+    );
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(typeof body?.error?.code === 'string' ? body.error.code : 'INTERNAL_ERROR');
+    }
+    return (body as { data: PartnerEventSales }).data;
   }
 
   async saveCards(cards: string[]): Promise<string[]> {

@@ -1,10 +1,11 @@
 import { type ReactNode, useState } from 'react';
 import { usePartnerCatalogEvents } from '../../hooks/usePartnerCatalogEvents';
 import type { PartnerContentRecord } from '../../types/partnerContent';
-import type { PartnerEstablishment } from '../../types/partnerHome';
+import type { PartnerEstablishment, PartnerTodayItem } from '../../types/partnerHome';
 import { belongs, type EstablishmentFilter } from '../../utils/partnerHomeFilter';
 import { type CatalogSegment, PartnerCatalogTab } from './PartnerCatalogTab';
 import { PartnerEstablishmentPage } from './PartnerEstablishmentPage';
+import { PartnerEventPage } from './PartnerEventPage';
 
 /** O que a composição monta no Catálogo (outros domínios). */
 export interface PartnerCatalogRenders {
@@ -28,6 +29,10 @@ export function PartnerCatalogSection({
   onSegmentChange,
   placeId,
   onPlaceChange: setPlaceId,
+  eventId,
+  onEventChange,
+  eventReloadKey,
+  onOpenSession,
   items,
   events,
   loading,
@@ -51,6 +56,12 @@ export function PartnerCatalogSection({
   /** Estabelecimento aberto (p19); o painel esconde os atalhos enquanto ele está aberto. */
   placeId: string | null;
   onPlaceChange: (placeId: string | null) => void;
+  /** Evento aberto (p10); o painel esconde os atalhos enquanto ele está aberto. */
+  eventId: string | null;
+  onEventChange: (eventId: string | null) => void;
+  /** Muda depois de adiar ou cancelar uma sessão. */
+  eventReloadKey: number;
+  onOpenSession: (item: PartnerTodayItem) => void;
   items: PartnerContentRecord[];
   events: PartnerContentRecord[];
   loading: boolean;
@@ -60,7 +71,8 @@ export function PartnerCatalogSection({
   eventsVersion: number;
   onEditItem: (item: PartnerContentRecord) => void;
   onCreateItem: () => void;
-  onOpenEvent: (item: PartnerContentRecord) => void;
+  /** Abre Editar evento (p18). */
+  onOpenEvent: (item: PartnerContentRecord, hasSales: boolean) => void;
   onCreateEvent: () => void;
   onOpenPlan: (item: PartnerContentRecord) => void;
   onVerify: (item: PartnerContentRecord) => void;
@@ -80,6 +92,19 @@ export function PartnerCatalogSection({
     name: item.name,
     category: item.category,
   });
+
+  if (eventId) {
+    const record = events.find((entry) => entry.id === eventId);
+    return (
+      <PartnerEventPage
+        eventId={eventId}
+        reloadKey={eventReloadKey + eventsVersion}
+        onBack={() => onEventChange(null)}
+        onEdit={(hasSales) => record && onOpenEvent(record, hasSales)}
+        onOpenSession={onOpenSession}
+      />
+    );
+  }
 
   const place = placeId ? items.find((item) => item.id === placeId) : undefined;
   if (place) {
@@ -124,10 +149,7 @@ export function PartnerCatalogSection({
           : null
       }
       onOpenPlace={(item) => setPlaceId(item.id)}
-      onOpenEvent={(eventId) => {
-        const event = events.find((entry) => entry.id === eventId);
-        if (event) onOpenEvent(event);
-      }}
+      onOpenEvent={onEventChange}
       onCreate={() =>
         segment === 'places'
           ? onCreateItem()

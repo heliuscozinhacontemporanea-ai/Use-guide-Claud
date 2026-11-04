@@ -90,3 +90,41 @@ export interface PartnerCatalogEvent {
   lastStartsAt: string | null;
   sold: number;
 }
+
+export type PartnerOrderStatus =
+  | 'paid'
+  | 'refund_requested'
+  | 'partially_refunded'
+  | 'refunded'
+  | 'disputed';
+
+/** Pedido na página do evento (p11, p12): sem e-mail nem documento do comprador. */
+export interface PartnerEventOrder {
+  id: string;
+  code: string;
+  buyerName: string | null;
+  occurrenceId: string;
+  tickets: number;
+  createdAt: string;
+  status: PartnerOrderStatus;
+  lines: Array<{ name: string; unitPriceMinor: number; quantity: number }>;
+  serviceFeeMinor: number;
+  paymentMethod: 'card' | 'pix' | 'other' | null;
+  refund: {
+    state: 'in_progress' | 'done' | 'failed' | 'rejected';
+    amountMinor: number;
+    full: boolean;
+    at: string;
+  } | null;
+}
+
+/** Página do evento · Vendas, como `/api/partner-home/events/:id/sales` devolve. */
+export interface PartnerEventSales {
+  event: { id: string; title: string; status: PartnerCatalogEventStatus; sessions: number };
+  soldMinor: number;
+  ticketsSold: number;
+  receiveMinor: number;
+  sessions: Array<{ id: string; startsAt: string; sold: number; capacity: number }>;
+  orders: PartnerEventOrder[];
+  ordersTotal: number;
+}

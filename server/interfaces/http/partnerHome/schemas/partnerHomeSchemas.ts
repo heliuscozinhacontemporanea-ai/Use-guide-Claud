@@ -17,3 +17,7 @@ export const PartnerAgendaQuerySchema = z
     const range = new Date(to).getTime() - new Date(from).getTime();
     return range > 0 && range <= MAX_RANGE_MS;
   });
+
+export const PartnerEventParamsSchema = z
+  .object({ eventId: z.string().regex(/^[A-Za-z0-9_-]{1,128}$/) })
+  .strict();

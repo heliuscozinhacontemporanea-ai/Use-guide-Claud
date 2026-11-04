@@ -24,6 +24,7 @@ import { useUI } from '../../shared/stores/useUIStore';
 import { PartnerSessionSheet } from '../../domain/ticketing';
 import { MessagePage } from '../../ui/components/MessagePage';
 import { PartnerBookingsComposition } from './PartnerBookingsComposition';
+import { EventPaymentAccountCard } from './EventPaymentAccountCard';
 import { PartnerEventTicketingComposition } from './PartnerEventTicketingComposition';
 
 export function PartnerPortalComposition() {
@@ -207,7 +208,13 @@ export function PartnerPortalComposition() {
         renderReviews: (itemId, onOpen) => <RecentItemReviews itemId={itemId} onOpen={onOpen} />,
       }}
       renderEventTicketingManager={(eventListingId) => (
-        <PartnerEventTicketingComposition eventListingId={eventListingId} />
+        <PartnerEventTicketingComposition eventListingId={eventListingId} lotsOnly />
+      )}
+      renderEventAccountCard={(establishmentId, establishmentName) => (
+        <EventPaymentAccountCard
+          establishmentId={establishmentId}
+          establishmentName={establishmentName}
+        />
       )}
       renderEventSessionsField={(props) => <EventSessionsField {...props} />}
       renderEarnings={() => <PartnerStripeConnectPortal />}

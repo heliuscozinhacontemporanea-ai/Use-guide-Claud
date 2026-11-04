@@ -39,7 +39,29 @@ import { listUserTicketsUseCase } from '../usecases/listUserTicketsUseCase';
 import { swapTicketQrUseCase } from '../usecases/swapTicketQrUseCase';
 import { syncOfflineCheckInsUseCase } from '../usecases/syncOfflineCheckInsUseCase';
 import { updateTicketTypeUseCase } from '../usecases/updateTicketTypeUseCase';
+import type { TicketOrder } from '../types/ticketingTypes';
 import { hashTicketIdForOfflineManifest } from '../utils/offlineManifest';
+
+/** Pedido para o dono do evento: dados da venda, sem os dados pessoais do comprador. */
+function toPartnerOrderDto(order: TicketOrder) {
+  return {
+    id: order.id,
+    eventListingId: order.eventListingId,
+    occurrenceId: order.occurrenceId,
+    status: order.status,
+    currency: order.currency,
+    subtotalMinor: order.subtotalMinor,
+    discountMinor: order.discountMinor,
+    platformFeeMinor: order.platformFeeMinor,
+    paymentFeeMinor: order.paymentFeeMinor,
+    serviceFeeMinor: order.serviceFeeMinor,
+    totalMinor: order.totalMinor,
+    paymentMethod: order.paymentMethod,
+    paidAt: order.paidAt,
+    createdAt: order.createdAt,
+    updatedAt: order.updatedAt,
+  };
+}
 
 function getActor(req: AuthenticatedRequest) {
   return {
@@ -416,8 +438,12 @@ export class TicketingController {
     try {
       if (!req.user) return res.status(401).json({ error: 'Não autenticado.' });
       const eventListingId = String(req.params.id || '');
-      const orders = await listEventOrdersForPartnerOrAdminUseCase(getActor(req), eventListingId);
-      return res.status(200).json({ status: 'success', data: orders });
+      const actor = getActor(req);
+      const orders = await listEventOrdersForPartnerOrAdminUseCase(actor, eventListingId);
+      // Parceiro não recebe e-mail nem documento do comprador (AGENTS.md §7.9 regra 4, D27).
+      return res
+        .status(200)
+        .json({ status: 'success', data: actor.admin ? orders : orders.map(toPartnerOrderDto) });
     } catch (error) {
       return handleTicketingError(res, error);
     }

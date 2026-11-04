@@ -41,6 +41,7 @@ import {
   recordSalePayoutUseCase,
   settleSaleClaimRefundUseCase,
   updatePaymentTransactionStatusUseCase,
+  retrievePaymentIntentUseCase,
 } from '../../domain/payment';
 import {
   confirmTicketOrderPaymentUseCase,
@@ -194,6 +195,42 @@ describe('ticketingPaymentOrchestrationUseCases — repasse (D14)', () => {
       serviceEndsAt: '2026-12-21T03:00:00.000Z',
       title: 'Show',
     });
+  });
+
+  it('pagamento confirmado grava o meio (Pix) no pedido; sem resposta do Stripe confirma igual', async () => {
+    vi.mocked(confirmTicketOrderPaymentUseCase).mockResolvedValue({
+      order: {
+        id: 'ord_1',
+        totalMinor: 100,
+        serviceFeeMinor: 0,
+        platformFeeMinor: 0,
+      } as TicketOrder,
+      tickets: [],
+      alreadyPaid: true,
+    });
+    const event = {
+      id: 'evt_pix',
+      type: 'payment_intent.succeeded',
+      created: 1,
+      dataObject: {
+        id: 'pi_1',
+        latest_charge: 'ch_1',
+        metadata: { referenceType: 'ticket_order', referenceId: 'ord_1', accountKey: 'key-1' },
+      },
+    };
+    vi.mocked(retrievePaymentIntentUseCase).mockResolvedValueOnce({
+      paymentMethodType: 'pix',
+    } as never);
+    await reconcileStripeWebhookEventApplicationUseCase(event);
+    expect(confirmTicketOrderPaymentUseCase).toHaveBeenLastCalledWith(
+      expect.objectContaining({ orderId: 'ord_1', paymentMethod: 'pix' })
+    );
+
+    vi.mocked(retrievePaymentIntentUseCase).mockRejectedValueOnce(new Error('stripe fora'));
+    await reconcileStripeWebhookEventApplicationUseCase({ ...event, id: 'evt_pix_2' });
+    expect(confirmTicketOrderPaymentUseCase).toHaveBeenLastCalledWith(
+      expect.objectContaining({ orderId: 'ord_1', paymentMethod: undefined })
+    );
   });
 
   it('pagamento de dívida do parceiro quita a dívida, sem tocar em pedido (D16)', async () => {

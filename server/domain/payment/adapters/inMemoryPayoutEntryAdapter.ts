@@ -16,6 +16,13 @@ export class InMemoryPayoutEntryAdapter implements PayoutEntryRepositoryPort {
     return this.rows.get(id) ?? null;
   }
 
+  async getMany(ids: string[]): Promise<PayoutEntry[]> {
+    return ids.flatMap((id) => {
+      const entry = this.rows.get(id);
+      return entry ? [entry] : [];
+    });
+  }
+
   async getByPaymentIntentId(paymentIntentId: string): Promise<PayoutEntry | null> {
     return (
       [...this.rows.values()].find((entry) => entry.paymentIntentId === paymentIntentId) ?? null

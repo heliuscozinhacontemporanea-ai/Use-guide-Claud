@@ -1,6 +1,6 @@
 import { RefreshCw, ShieldAlert } from 'lucide-react';
 import { AnimatePresence } from 'motion/react';
-import React, { useRef } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocalizedRouting } from '../../../shared/hooks/useLocalizedRouting';
 import type { EventSessionsFieldProps } from '../../events';
@@ -12,11 +12,11 @@ import { updatePartnerContentItemUseCase } from '../application/usecases/updateP
 import { useEditorScrollLock } from '../hooks/useEditorScrollLock';
 import { usePartnerEventSessions } from '../hooks/usePartnerEventSessions';
 import { usePartnerPanelActions } from '../hooks/usePartnerPanelActions';
+import { usePlanCheckout } from '../hooks/usePlanCheckout';
 import { PartnerProfile, SubscriptionPlan } from '../types/partner';
 import type { PartnerContentRecord } from '../types/partnerContent';
 import { ListingEditor } from './ListingEditor';
 import { PartnerEventEditor } from './PartnerEventEditor';
-import type { PaidPlanSelection } from './plan/ListingPlanDialog';
 import { ListingPlanFlow } from './panel/ListingPlanFlow';
 import { usePartnerPanelHome } from '../hooks/usePartnerPanelHome';
 import type { PartnerTodayItem } from '../types/partnerHome';
@@ -76,6 +76,8 @@ export interface PartnerPanelProps {
   onPlanPurchased?: () => void;
   /** Ganhos (domínio payment), montado pela composição. */
   renderEarnings?: () => React.ReactNode;
+  /** Conta de recebimento do evento em Editar evento (payment), montada pela composição. */
+  renderEventAccountCard?: (establishmentId: string, establishmentName: string) => React.ReactNode;
   /** Folha do horário de reserva (domínio bookings), montada pela composição. */
   renderSlotSheet?: (props: AgendaSheetProps) => React.ReactNode;
   /** Folha da sessão de evento (domínio ticketing), montada pela composição. */
@@ -98,6 +100,7 @@ export function PartnerPanel({
   renderAccountView,
   renderSlotSheet,
   renderSessionSheet,
+  renderEventAccountCard,
 }: PartnerPanelProps) {
   const { goTo } = useLocalizedRouting();
   const { t } = useTranslation();
@@ -107,6 +110,8 @@ export function PartnerPanel({
   const [eventsVersion, setEventsVersion] = React.useState(0);
   const [openReports, setOpenReports] = React.useState(false);
   const [placeId, setPlaceId] = React.useState<string | null>(null);
+  const [eventId, setEventId] = React.useState<string | null>(null);
+  const [editingHasSales, setEditingHasSales] = React.useState(false);
   const [moreView, setMoreView] = React.useState<PartnerMoreView>('list');
   const [agendaItem, setAgendaItem] = React.useState<PartnerTodayItem | null>(null);
   const [agendaVersion, setAgendaVersion] = React.useState(0);
@@ -153,29 +158,8 @@ export function PartnerPanel({
   const [verificationVersion, setVerificationVersion] = React.useState(0);
 
   const [planListing, setPlanListing] = React.useState<{ id: string; name: string } | null>(null);
-  // Troca a chave dos selos de plano para relerem o estado depois do trial ou da compra.
-  const [planVersion, setPlanVersion] = React.useState(0);
-  const [showCheckoutModal, setShowCheckoutModal] = React.useState(false);
-  const [checkoutPlanInfo, setCheckoutPlanInfo] = React.useState<PaidPlanSelection>({
-    itemId: '',
-    planId: 'monthly',
-    itemName: '',
-    amountMinor: 0,
-  });
-
-  // O modal mostra a própria tela de sucesso; o perfil é recarregado quando o parceiro fecha.
-  const planPurchasedRef = useRef(false);
-  const handleCheckoutSuccess = () => {
-    planPurchasedRef.current = true;
-  };
-  const handleCheckoutClose = () => {
-    setShowCheckoutModal(false);
-    if (planPurchasedRef.current) {
-      planPurchasedRef.current = false;
-      setPlanVersion((version) => version + 1);
-      onPlanPurchased?.();
-    }
-  };
+  const checkout = usePlanCheckout(onPlanPurchased);
+  const planVersion = checkout.planVersion;
 
   if (userLoading || profileStatus === 'loading') {
     return (
@@ -202,7 +186,7 @@ export function PartnerPanel({
       <div
         className={`max-w-4xl mx-auto space-y-8 relative z-10 transition-all duration-300 ${isEditing || editingListing !== undefined ? 'opacity-0 scale-[0.98] pointer-events-none h-0 overflow-hidden' : 'opacity-100 scale-100'}`}
       >
-        {!(panelTab === 'catalog' && placeId) && (
+        {!(panelTab === 'catalog' && (placeId || eventId)) && (
           <PartnerPanelTop
             home={home}
             tab={panelTab}
@@ -210,6 +194,7 @@ export function PartnerPanel({
               setPanelTab(tab);
               setOpenReports(false);
               setPlaceId(null);
+              setEventId(null);
               setMoreView('list');
             }}
             onBack={() => goTo('explore')}
@@ -244,6 +229,10 @@ export function PartnerPanel({
             }}
             placeId={placeId}
             onPlaceChange={setPlaceId}
+            eventId={eventId}
+            onEventChange={setEventId}
+            eventReloadKey={agendaVersion}
+            onOpenSession={setAgendaItem}
             items={itemsList}
             events={eventsList}
             loading={dataLoading}
@@ -252,10 +241,14 @@ export function PartnerPanel({
             eventsVersion={eventsVersion}
             onEditItem={(item) => setEditingListing(item)}
             onCreateItem={() => setEditingListing(null)}
-            onOpenEvent={(item) =>
-              setIsEditing({ ...item, images: item.images || (item.image ? [item.image] : []) })
-            }
-            onCreateEvent={() => setIsEditing(newPartnerEventDraft(user?.uid ?? ''))}
+            onOpenEvent={(item, hasSales) => {
+              setEditingHasSales(hasSales);
+              setIsEditing({ ...item, images: item.images || (item.image ? [item.image] : []) });
+            }}
+            onCreateEvent={() => {
+              setEditingHasSales(false);
+              setIsEditing(newPartnerEventDraft(user?.uid ?? ''));
+            }}
             onOpenPlan={(item) => setPlanListing({ id: item.id, name: item.name })}
             onVerify={(item) =>
               setVerifyingListing({ id: item.id, name: item.name, category: item.category })
@@ -320,9 +313,14 @@ export function PartnerPanel({
             sessionsLoadState={eventSessions.loadState}
             renderSessionsField={renderEventSessionsField}
             renderEventTicketingManager={renderEventTicketingManager}
+            renderAccountCard={renderEventAccountCard}
+            hasSales={editingHasSales}
             showDeleteConfirm={showDeleteConfirm}
             onRequestDelete={setShowDeleteConfirm}
-            onConfirmDelete={handleDelete}
+            onConfirmDelete={async () => {
+              await handleDelete();
+              setEventId(null);
+            }}
           />
         )}
       </AnimatePresence>
@@ -353,10 +351,9 @@ export function PartnerPanel({
         planListing={planListing}
         onPlanListingChange={setPlanListing}
         onClosedVerification={() => setVerificationVersion((version) => version + 1)}
-        onClosedPlan={() => setPlanVersion((version) => version + 1)}
+        onClosedPlan={checkout.bumpPlanVersion}
         onSelectPaidPlan={(selection) => {
-          setCheckoutPlanInfo(selection);
-          setShowCheckoutModal(true);
+          checkout.start(selection);
         }}
         renderSubscription={renderPlanSubscription}
       />
@@ -379,19 +376,11 @@ export function PartnerPanel({
       />
 
       {renderCheckoutModal?.({
-        isOpen: showCheckoutModal,
-        onClose: handleCheckoutClose,
-        itemId: checkoutPlanInfo.itemId,
-        planId: checkoutPlanInfo.planId,
-        itemName: checkoutPlanInfo.itemName,
-        amountMinor: checkoutPlanInfo.amountMinor,
-        onPaymentSuccess: handleCheckoutSuccess,
+        isOpen: checkout.open,
+        onClose: checkout.onClose,
+        ...checkout.selection,
+        onPaymentSuccess: checkout.onSuccess,
       })}
-
-      <style>{`
-        .glassmorphism { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.08); }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-      `}</style>
     </div>
   );
 }

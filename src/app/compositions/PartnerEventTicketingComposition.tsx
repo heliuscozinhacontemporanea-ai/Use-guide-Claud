@@ -12,7 +12,14 @@ import { PartnerEventTicketingManager } from '../../domain/ticketing';
  * Painel de ingressos do parceiro com a conta financeira certa: o evento vende pela conta do CNPJ do
  * estabelecimento dele (D14), não por qualquer CNPJ pronto (B26).
  */
-export function PartnerEventTicketingComposition({ eventListingId }: { eventListingId: string }) {
+export function PartnerEventTicketingComposition({
+  eventListingId,
+  lotsOnly = false,
+}: {
+  eventListingId: string;
+  /** Editar evento do parceiro (p18): só ingressos e lotes. */
+  lotsOnly?: boolean;
+}) {
   const { t } = useTranslation();
   const [ready, setReady] = useState<boolean | null>(null);
 
@@ -48,7 +55,8 @@ export function PartnerEventTicketingComposition({ eventListingId }: { eventList
           <PaymentAccountNotice message={t('ticketSessions.accountNotice')} onClosed={loadStatus} />
         ) : null
       }
-      financePanel={<PartnerStripeConnectPortal />}
+      financePanel={lotsOnly ? undefined : <PartnerStripeConnectPortal />}
+      lotsOnly={lotsOnly}
     />
   );
 }

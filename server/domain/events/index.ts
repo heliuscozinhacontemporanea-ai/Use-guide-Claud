@@ -26,6 +26,7 @@ export { updateEstablishmentEventsVerificationUseCase } from './usecases/updateE
 
 export {
   EventDomainError,
+  EventHasSalesError,
   EventNotFoundError,
   EventOwnershipError,
   OccurrenceNotFoundError,

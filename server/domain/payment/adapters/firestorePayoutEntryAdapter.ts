@@ -2,6 +2,7 @@ import { adminDb } from '../../../infrastructure/firebase/adminClient';
 import type { PayoutEntryRepositoryPort } from '../ports/payoutEntryRepositoryPort';
 import type { PayoutEntry } from '../types/payoutEntry';
 
+const GET_MANY_BATCH = 100;
 const ENTRIES = 'payoutEntries';
 
 /** Coleção só de backend (`allow read, write: if false`, AGENTS.md §6.2). */
@@ -19,6 +20,21 @@ export class FirestorePayoutEntryAdapter implements PayoutEntryRepositoryPort {
   async get(id: string): Promise<PayoutEntry | null> {
     const snapshot = await adminDb.collection(ENTRIES).doc(id).get();
     return snapshot.exists ? (snapshot.data() as PayoutEntry) : null;
+  }
+
+  async getMany(ids: string[]): Promise<PayoutEntry[]> {
+    const entries: PayoutEntry[] = [];
+    // getAll lê por ID, sem consulta nem índice; em lotes para não montar pedidos enormes.
+    for (let start = 0; start < ids.length; start += GET_MANY_BATCH) {
+      const refs = ids
+        .slice(start, start + GET_MANY_BATCH)
+        .map((id) => adminDb.collection(ENTRIES).doc(id));
+      const snapshots = await adminDb.getAll(...refs);
+      for (const snapshot of snapshots) {
+        if (snapshot.exists) entries.push(snapshot.data() as PayoutEntry);
+      }
+    }
+    return entries;
   }
 
   async listByAccountKeys(

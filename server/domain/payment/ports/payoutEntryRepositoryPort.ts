@@ -4,6 +4,8 @@ export interface PayoutEntryRepositoryPort {
   /** Cria só se ainda não existir; devolve a entrada gravada. */
   createIfAbsent(entry: PayoutEntry): Promise<PayoutEntry>;
   get(id: string): Promise<PayoutEntry | null>;
+  /** Várias entradas pelo ID; as que não existem ficam de fora. */
+  getMany(ids: string[]): Promise<PayoutEntry[]>;
   getByPaymentIntentId(paymentIntentId: string): Promise<PayoutEntry | null>;
   /** Entradas `pending` com `releaseAt` até `nowIso`, mais antigas primeiro. */
   listDue(nowIso: string, limit: number): Promise<PayoutEntry[]>;

@@ -72,6 +72,8 @@ export interface InventoryReservation {
   releasedAt?: string;
 }
 
+export type TicketPaymentMethod = 'card' | 'pix' | 'other';
+
 export type TicketOrderStatus =
   | 'pending_payment'
   | 'payment_processing'
@@ -107,6 +109,8 @@ export interface TicketOrder {
   totalMinor: MoneyMinor;
   paymentId?: string;
   paymentIntentId?: string;
+  /** Meio de pagamento (classe Interna, §7.6); dados do cartão ficam só no Stripe. */
+  paymentMethod?: TicketPaymentMethod;
   promoCodeId?: string;
   promoterCode?: string;
   buyerSnapshot: {

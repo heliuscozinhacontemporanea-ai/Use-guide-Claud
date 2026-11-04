@@ -12,6 +12,7 @@ import {
   type Ticket,
   type TicketOrder,
   type TicketOrderItem,
+  type TicketPaymentMethod,
   type TicketType,
 } from '../types/ticketingTypes';
 import { generateOpaqueTicketQrToken } from '../utils/qrToken';
@@ -182,6 +183,7 @@ export class TicketOrderService {
     orderId: string;
     paymentId?: string;
     paymentIntentId?: string;
+    paymentMethod?: TicketPaymentMethod;
   }): Promise<{
     order: TicketOrder;
     tickets: Ticket[];
@@ -234,6 +236,12 @@ export class TicketOrderService {
       paymentIntentId: params.paymentIntentId,
       ticketsToIssue,
     });
+
+    if (!confirmed.alreadyPaid && params.paymentMethod) {
+      confirmed.order = await this.port.updateOrderStatus(order.id, 'paid', {
+        paymentMethod: params.paymentMethod,
+      });
+    }
 
     if (!confirmed.alreadyPaid) {
       await createEventAuditLogUseCase({

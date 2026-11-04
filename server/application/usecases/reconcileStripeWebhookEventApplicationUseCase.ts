@@ -3,6 +3,7 @@ import {
   closePayoutDisputeUseCase,
   holdPayoutForDisputeUseCase,
   markAccountDebtPaidUseCase,
+  retrievePaymentIntentUseCase,
   settleSaleClaimRefundUseCase,
   syncPaymentAccountFromWebhookUseCase,
   updatePaymentTransactionStatusUseCase,
@@ -23,6 +24,23 @@ import {
   PLAN_SUBSCRIPTION_WEBHOOK_EVENTS,
   reconcilePlanSubscriptionWebhookApplicationUseCase,
 } from './reconcilePlanSubscriptionWebhookApplicationUseCase';
+
+/**
+ * Pix ou cartão, para a folha do pedido do parceiro (p12). Sem resposta do Stripe o pedido é
+ * confirmado mesmo assim: o meio é só informativo.
+ */
+async function paymentMethodOf(
+  paymentIntentId: string
+): Promise<'card' | 'pix' | 'other' | undefined> {
+  let type: string | null = null;
+  try {
+    type = (await retrievePaymentIntentUseCase(paymentIntentId))?.paymentMethodType ?? null;
+  } catch {
+    return undefined;
+  }
+  if (!type) return undefined;
+  return type === 'card' || type === 'pix' ? type : 'other';
+}
 
 export async function reconcileStripeWebhookEventApplicationUseCase(
   event: VerifiedWebhookEvent
@@ -73,6 +91,7 @@ export async function reconcileStripeWebhookEventApplicationUseCase(
         orderId,
         paymentId: paymentIntentId,
         paymentIntentId,
+        paymentMethod: await paymentMethodOf(paymentIntentId),
       });
       const { order } = confirmed;
       await recordPaidSalePayoutApplicationUseCase(obj, {

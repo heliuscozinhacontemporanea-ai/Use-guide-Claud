@@ -7,7 +7,7 @@ import { postponeEventOccurrenceAndNotifyApplicationUseCase } from '../../../app
 import { updateEventListingSafelyApplicationUseCase } from '../../../application/usecases/updateEventListingSafelyApplicationUseCase';
 import { updateEventOccurrenceSafelyApplicationUseCase } from '../../../application/usecases/updateEventOccurrenceSafelyApplicationUseCase';
 import { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
-import { EventDomainError } from '../errors/eventDomainError';
+import { EventDomainError, EventHasSalesError } from '../errors/eventDomainError';
 import {
   createEventListingSchema,
   createEventOccurrenceSchema,
@@ -23,6 +23,9 @@ import { pauseEventListingUseCase } from '../usecases/pauseEventListingUseCase';
 import { publishEventListingUseCase } from '../usecases/publishEventListingUseCase';
 
 function handleEventError(res: Response, error: unknown): Response {
+  if (error instanceof EventHasSalesError) {
+    return res.status(409).json({ error: { code: error.reason, message: error.message } });
+  }
   if (error instanceof EventDomainError) {
     switch (error.code) {
       case 'INVALID_ARGUMENT':

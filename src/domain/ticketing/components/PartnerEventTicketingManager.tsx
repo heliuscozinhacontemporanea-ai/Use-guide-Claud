@@ -23,6 +23,11 @@ interface PartnerEventTicketingManagerProps {
   accountNotice?: ReactNode;
   /** Recebimentos, montado pela composição; sem ele a aba Financeiro não aparece. */
   financePanel?: ReactNode;
+  /**
+   * Só ingressos e lotes (Editar evento do parceiro, p18): vendas, pedidos e portaria ficam na
+   * página do evento e a sessão é adiada ou cancelada pela folha da sessão (D27).
+   */
+  lotsOnly?: boolean;
 }
 
 export function PartnerEventTicketingManager({
@@ -30,6 +35,7 @@ export function PartnerEventTicketingManager({
   asAdmin = false,
   accountNotice,
   financePanel,
+  lotsOnly = false,
 }: PartnerEventTicketingManagerProps) {
   const {
     occurrences,
@@ -37,7 +43,8 @@ export function PartnerEventTicketingManager({
     reload: reloadOccurrences,
   } = useEventOccurrences(eventListingId);
   const [selectedOccurrenceId, setSelectedOccurrenceId] = useState<string>('');
-  const [activeTab, setActiveTab] = useState<ManagerTab>('lots');
+  const [chosenTab, setActiveTab] = useState<ManagerTab>('lots');
+  const activeTab: ManagerTab = lotsOnly ? 'lots' : chosenTab;
 
   useEffect(() => {
     if (!selectedOccurrenceId && occurrences.length > 0 && occurrences[0]) {
@@ -59,7 +66,11 @@ export function PartnerEventTicketingManager({
     loading: salesLoading,
     reload: reloadSales,
     performCheckIn,
-  } = usePartnerEventSales(eventListingId, selectedOccurrenceId || undefined, asAdmin);
+  } = usePartnerEventSales(
+    lotsOnly ? undefined : eventListingId,
+    selectedOccurrenceId || undefined,
+    asAdmin
+  );
 
   const [feedback, setFeedback] = useState<ManagerFeedback | null>(null);
 
@@ -103,28 +114,32 @@ export function PartnerEventTicketingManager({
         </div>
       )}
 
-      <SessionActions
-        eventListingId={eventListingId}
-        occurrence={selectedOccurrence}
-        paidOrders={paidOrders}
-        onChanged={(message) => {
-          setFeedback({ type: 'success', message });
-          void reloadOccurrences();
-          void reloadSales();
-        }}
-      />
+      {!lotsOnly && (
+        <SessionActions
+          eventListingId={eventListingId}
+          occurrence={selectedOccurrence}
+          paidOrders={paidOrders}
+          onChanged={(message) => {
+            setFeedback({ type: 'success', message });
+            void reloadOccurrences();
+            void reloadSales();
+          }}
+        />
+      )}
 
-      <ManagerTabBar
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        showFinance={financePanel !== undefined}
-        counts={{
-          lots: ticketTypes.length,
-          attendees: orders.length,
-          checkIns: checkIns.length,
-          refunds: refunds.length,
-        }}
-      />
+      {!lotsOnly && (
+        <ManagerTabBar
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          showFinance={financePanel !== undefined}
+          counts={{
+            lots: ticketTypes.length,
+            attendees: orders.length,
+            checkIns: checkIns.length,
+            refunds: refunds.length,
+          }}
+        />
+      )}
 
       {feedback && (
         <div

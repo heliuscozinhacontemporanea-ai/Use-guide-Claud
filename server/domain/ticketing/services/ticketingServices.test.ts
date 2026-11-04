@@ -205,6 +205,38 @@ describe('serviços de ticketing', () => {
     };
   });
 
+  it('grava o meio de pagamento só na primeira confirmação do pedido', async () => {
+    const order = { id: 'ord-pm', buyerId: 'buyer-1', buyerSnapshot: { name: 'A', email: 'a@x' } };
+    vi.mocked(mockPort.getOrderById).mockResolvedValue(order as never);
+    vi.mocked(mockPort.listOrderItemsByOrderId).mockResolvedValue([]);
+    vi.mocked(mockPort.updateOrderStatus).mockResolvedValue({
+      ...order,
+      paymentMethod: 'pix',
+    } as never);
+    vi.mocked(mockPort.confirmOrderPaymentAndIssueTicketsAtomic).mockResolvedValueOnce({
+      order,
+      tickets: [],
+      alreadyPaid: false,
+    } as never);
+    const first = await services.orders.confirmTicketOrderPayment({
+      orderId: 'ord-pm',
+      paymentMethod: 'pix',
+    });
+    expect(mockPort.updateOrderStatus).toHaveBeenCalledWith('ord-pm', 'paid', {
+      paymentMethod: 'pix',
+    });
+    expect(first.order.paymentMethod).toBe('pix');
+
+    vi.mocked(mockPort.updateOrderStatus).mockClear();
+    vi.mocked(mockPort.confirmOrderPaymentAndIssueTicketsAtomic).mockResolvedValueOnce({
+      order,
+      tickets: [],
+      alreadyPaid: true,
+    } as never);
+    await services.orders.confirmTicketOrderPayment({ orderId: 'ord-pm', paymentMethod: 'card' });
+    expect(mockPort.updateOrderStatus).not.toHaveBeenCalled();
+  });
+
   it('prevents changing priceMinor on a ticketType with existing sales or reservations', async () => {
     vi.mocked(mockPort.getTicketTypeById).mockResolvedValueOnce(
       createMockTicketType({ soldCount: 2 })

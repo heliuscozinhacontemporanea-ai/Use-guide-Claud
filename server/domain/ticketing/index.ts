@@ -56,6 +56,7 @@ export { hasCheckedInTicketForOrderUseCase } from './usecases/hasCheckedInTicket
 export { joinEventWaitlistUseCase } from './usecases/joinEventWaitlistUseCase';
 export { listEventCheckInsForPartnerOrAdminUseCase } from './usecases/listEventCheckInsForPartnerOrAdminUseCase';
 export { listEventOrdersForPartnerOrAdminUseCase } from './usecases/listEventOrdersForPartnerOrAdminUseCase';
+export { listEventTicketsForPartnerOrAdminUseCase } from './usecases/listEventTicketsForPartnerOrAdminUseCase';
 export { listEventRefundsForPartnerOrAdminUseCase } from './usecases/listEventRefundsForPartnerOrAdminUseCase';
 export { listPublicTicketTypesByOccurrenceUseCase } from './usecases/listPublicTicketTypesByOccurrenceUseCase';
 export { listTicketTypesForManagementUseCase } from './usecases/listTicketTypesForManagementUseCase';
