@@ -88,3 +88,13 @@ partnerOffersRouter.post(
   verifyAuthTokenStrict,
   PartnerOffersController.checkInEntry
 );
+
+/** Ações do estabelecimento que valem para todas as ofertas dele (D27). */
+export const partnerEstablishmentsRouter = Router();
+partnerEstablishmentsRouter.use(verifyAuthToken);
+// Check-in libera o repasse (D20): token revogado não serve.
+partnerEstablishmentsRouter.post(
+  '/:guideItemId/check-ins',
+  verifyAuthTokenStrict,
+  PartnerOffersController.checkInByEstablishment
+);

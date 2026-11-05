@@ -13,6 +13,10 @@ export type {
   CreatePendingBookingInput,
 } from './services/bookingService';
 export type { CheckInWithoutCodeInput } from './services/bookingServiceProofService';
+export type {
+  EstablishmentCheckInInput,
+  EstablishmentCheckInResult,
+} from './services/bookingCheckInService';
 export type { CreateSlotsInput, OfferInput } from './services/offerService';
 export type { OwnerOpenAbsence, OwnerSlotSummary } from './services/ownerAgendaService';
 export {
@@ -40,6 +44,7 @@ export { cancelBookingForCanceledSlotUseCase } from './usecases/cancelBookingFor
 export { cancelPendingBookingUseCase } from './usecases/cancelPendingBookingUseCase';
 export { cancelSlotByPartnerUseCase } from './usecases/cancelSlotByPartnerUseCase';
 export { checkInBookingByCodeUseCase } from './usecases/checkInBookingByCodeUseCase';
+export { checkInByEstablishmentCodeUseCase } from './usecases/checkInByEstablishmentCodeUseCase';
 export { checkInEntryUseCase } from './usecases/checkInEntryUseCase';
 export { checkInWithoutCodeUseCase } from './usecases/checkInWithoutCodeUseCase';
 export { clearBookingDeadlineUseCase } from './usecases/clearBookingDeadlineUseCase';

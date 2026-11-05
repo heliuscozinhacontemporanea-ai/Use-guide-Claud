@@ -2,6 +2,7 @@ import type { Response } from 'express';
 import { answerProviderAbsenceApplicationUseCase } from '../../../application/usecases/bookings/answerProviderAbsenceApplicationUseCase';
 import { cancelSlotByPartnerApplicationUseCase } from '../../../application/usecases/bookings/cancelSlotByPartnerApplicationUseCase';
 import { checkInBookingApplicationUseCase } from '../../../application/usecases/bookings/checkInBookingApplicationUseCase';
+import { checkInByEstablishmentCodeApplicationUseCase } from '../../../application/usecases/bookings/checkInByEstablishmentCodeApplicationUseCase';
 import { checkInWithoutCodeApplicationUseCase } from '../../../application/usecases/bookings/checkInWithoutCodeApplicationUseCase';
 import { listSlotBookingsForPartnerApplicationUseCase } from '../../../application/usecases/bookings/listSlotBookingsForPartnerApplicationUseCase';
 import { recordProviderArrivalApplicationUseCase } from '../../../application/usecases/bookings/recordProviderArrivalApplicationUseCase';
@@ -235,6 +236,32 @@ export class PartnerOffersController {
       return res.status(200).json(toUnitCheckIn(result));
     } catch (error) {
       return handleBookingError(res, 'checkIn', error);
+    }
+  }
+
+  /** "Inserir código" do estabelecimento (D27): sem escolher oferta nem horário. */
+  static async checkInByEstablishment(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    const actor = actorOf(req);
+    if (!actor) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
+    const guideItemId = DocumentIdSchema.safeParse(req.params.guideItemId);
+    const body = CheckInByCodeSchema.safeParse(req.body);
+    if (!guideItemId.success || !body.success) {
+      return sendError(res, 400, 'VALIDATION_ERROR', 'Dados do check-in inválidos.');
+    }
+    try {
+      const result = await checkInByEstablishmentCodeApplicationUseCase(actor, {
+        guideItemId: guideItemId.data,
+        ...body.data,
+      });
+      return res.status(200).json({
+        ...toUnitCheckIn(result),
+        buyerName: result.buyerName,
+        offer: result.offer,
+        slot: result.slot,
+        delivered: result.delivered,
+      });
+    } catch (error) {
+      return handleBookingError(res, 'checkInByEstablishment', error);
     }
   }
 

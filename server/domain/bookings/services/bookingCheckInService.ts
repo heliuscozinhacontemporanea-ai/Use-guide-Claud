@@ -13,6 +13,7 @@ import {
 } from '../utils/checkInCode';
 import {
   CHECK_IN_FAILURE_WINDOW_MS,
+  CHECK_IN_OPENS_BEFORE_MS,
   CHECK_IN_MAX_FAILURES,
   checkInCodeVisibleFromMs,
   checkInWindow,
@@ -46,6 +47,21 @@ export interface CheckInByCodeInput {
   capturedAt?: string;
 }
 
+/** Código digitado no cartão "Inserir código" do estabelecimento (D27): sem escolher o horário. */
+export interface EstablishmentCheckInInput {
+  guideItemId: string;
+  code: string;
+  capturedAt?: string;
+}
+
+/** Resultado do código do estabelecimento: a unidade e o progresso do horário em que caiu. */
+export interface EstablishmentCheckInResult extends UnitCheckInResult {
+  offer: { id: string; title: string; kind: string };
+  slot: { id: string; startsAt: string };
+  /** Unidades com check-in no horário, depois deste, e o total vendido. */
+  delivered: { checkedIn: number; total: number };
+}
+
 /** Resultado do check-in de uma unidade, com o nome para o parceiro conferir na entrada nominal. */
 export interface UnitCheckInResult {
   booking: Booking;
@@ -54,6 +70,24 @@ export interface UnitCheckInResult {
   /** A unidade já tinha check-in: a portaria avisa em vez de deixar entrar de novo. */
   alreadyCheckedIn: boolean;
   checkedInAt: string;
+}
+
+// Teto de erros do "Inserir código" do estabelecimento a cada 15 min (D27).
+const ESTABLISHMENT_MAX_FAILURES = 20;
+// Horários que começaram até 36 h atrás ainda podem estar abertos (12 h depois do fim, D20).
+const ESTABLISHMENT_LOOKBACK_MS = 36 * 60 * 60_000;
+
+/** Os erros do código do estabelecimento ficam numa chave própria, separada dos horários. */
+export function establishmentFailureScope(guideItemId: string): string {
+  return `guide_item:${guideItemId}`;
+}
+
+function isActive(booking: Booking): boolean {
+  return (
+    (booking.status === 'confirmed' || booking.status === 'completed') &&
+    // Já reembolsada porque o parceiro não veio (D20): os códigos não valem mais.
+    booking.providerAbsence?.resolution !== 'refunded'
+  );
 }
 
 /** Códigos de check-in do cliente, um por unidade, e check-in pelo parceiro (D20). */
@@ -136,34 +170,122 @@ export class BookingCheckInService {
       );
     }
 
-    const code = normalizeCheckInCode(input.code);
-    let match: { booking: Booking; unit: number } | null = null;
-    if (code) {
-      for (const booking of await this.port.listBookingsBySlot(slot.id)) {
-        const active =
-          (booking.status === 'confirmed' || booking.status === 'completed') &&
-          // Já reembolsada porque o parceiro não veio (D20): os códigos não valem mais.
-          booking.providerAbsence?.resolution !== 'refunded';
-        const unit = active
-          ? matchCheckInCodeUnit(booking.id, booking.participantsCount, code)
-          : null;
-        if (unit !== null) {
-          match = { booking, unit };
-          break;
-        }
-      }
-    }
+    const match = await this.findCode([slot.id], input.code);
     if (!match) {
       await this.port.addCheckInFailure(slot.id, actor.uid, nowDate.toISOString());
       throw new BookingDomainError('INVALID_CHECK_IN_CODE', 'Código incorreto.');
     }
+    return this.record(actor, match, atMs, nowDate, input.capturedAt);
+  }
 
+  /**
+   * "Inserir código" do estabelecimento (D27): o código é procurado em todos os horários com
+   * check-in aberto das ofertas do dono naquele item, em qualquer ordem. Erros contam por
+   * estabelecimento: 5 por horário aberto, com teto de 20 a cada 15 min.
+   */
+  async checkInByEstablishmentCode(
+    actor: BookingActor,
+    input: EstablishmentCheckInInput
+  ): Promise<EstablishmentCheckInResult> {
+    const offers = (await this.port.listOffersByOwner(actor.uid)).filter(
+      (offer) => offer.guideItemId === input.guideItemId && CHECK_IN_CODE_KINDS.includes(offer.kind)
+    );
+    // Item de outro dono, ou sem ofertas com código, responde como inexistente (§7.10).
+    if (offers.length === 0) {
+      throw new BookingDomainError('NOT_FOUND', 'Estabelecimento não encontrado.');
+    }
+    const nowDate = this.now();
+    const atMs = resolveCheckInTime(input.capturedAt, nowDate.getTime());
+    if (atMs === null) {
+      throw new BookingDomainError('VALIDATION_ERROR', 'Hora do check-in inválida.');
+    }
+    const open = (
+      await Promise.all(
+        offers.map(async (offer) =>
+          (
+            await this.port.listSlots(
+              offer.id,
+              new Date(atMs - ESTABLISHMENT_LOOKBACK_MS).toISOString(),
+              new Date(atMs + CHECK_IN_OPENS_BEFORE_MS + 1).toISOString()
+            )
+          )
+            .filter((slot) => slot.status === 'open')
+            .filter((slot) => {
+              const { opensAtMs, closesAtMs } = checkInWindow(slot.startsAt, offer.durationMinutes);
+              return atMs >= opensAtMs && atMs <= closesAtMs;
+            })
+            .map((slot) => ({ offer, slot }))
+        )
+      )
+    ).flat();
+    if (open.length === 0) {
+      throw new BookingDomainError(
+        'CHECK_IN_WINDOW_CLOSED',
+        'Nenhum horário com check-in aberto agora.'
+      );
+    }
+
+    const scope = establishmentFailureScope(input.guideItemId);
+    const since = new Date(nowDate.getTime() - CHECK_IN_FAILURE_WINDOW_MS).toISOString();
+    const limit = Math.min(CHECK_IN_MAX_FAILURES * open.length, ESTABLISHMENT_MAX_FAILURES);
+    if ((await this.port.countCheckInFailures(scope, since)) >= limit) {
+      throw new BookingDomainError(
+        'CHECK_IN_LOCKED',
+        'Muitos códigos errados. Tente de novo em 15 minutos.'
+      );
+    }
+    const match = await this.findCode(
+      open.map((entry) => entry.slot.id),
+      input.code
+    );
+    if (!match) {
+      await this.port.addCheckInFailure(scope, actor.uid, nowDate.toISOString());
+      throw new BookingDomainError('INVALID_CHECK_IN_CODE', 'Código incorreto.');
+    }
+    const result = await this.record(actor, match, atMs, nowDate, input.capturedAt);
+    const { offer, slot } = open.find((entry) => entry.slot.id === result.booking.slotId)!;
+    const bookings = (await this.port.listBookingsBySlot(slot.id)).filter(isActive);
+    return {
+      ...result,
+      offer: { id: offer.id, title: offer.title['pt-BR'], kind: offer.kind },
+      slot: { id: slot.id, startsAt: slot.startsAt },
+      delivered: {
+        checkedIn: bookings.reduce((sum, booking) => sum + checkInsOf(booking).length, 0),
+        total: bookings.reduce((sum, booking) => sum + booking.participantsCount, 0),
+      },
+    };
+  }
+
+  private async findCode(
+    slotIds: string[],
+    raw: string
+  ): Promise<{ booking: Booking; unit: number } | null> {
+    const code = normalizeCheckInCode(raw);
+    if (!code) return null;
+    for (const slotId of slotIds) {
+      for (const booking of await this.port.listBookingsBySlot(slotId)) {
+        const unit = isActive(booking)
+          ? matchCheckInCodeUnit(booking.id, booking.participantsCount, code)
+          : null;
+        if (unit !== null) return { booking, unit };
+      }
+    }
+    return null;
+  }
+
+  private async record(
+    actor: BookingActor,
+    match: { booking: Booking; unit: number },
+    atMs: number,
+    nowDate: Date,
+    capturedAt: string | undefined
+  ): Promise<UnitCheckInResult> {
     const checkIn: BookingCheckIn = {
       unit: match.unit,
       at: new Date(atMs).toISOString(),
       byUid: actor.uid,
       method: 'code',
-      ...(input.capturedAt ? { syncedAt: nowDate.toISOString() } : {}),
+      ...(capturedAt ? { syncedAt: nowDate.toISOString() } : {}),
     };
     const before = checkInsOf(match.booking).find((item) => item.unit === match.unit);
     const booking = before

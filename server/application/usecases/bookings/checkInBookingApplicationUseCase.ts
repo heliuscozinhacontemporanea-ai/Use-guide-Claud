@@ -18,7 +18,14 @@ export async function checkInBookingApplicationUseCase(
   actor: BookingActor,
   input: CheckInByCodeInput
 ): Promise<UnitCheckInResult> {
-  const result = await checkInBookingByCodeUseCase(actor, input);
+  return afterCodeCheckIn(actor, await checkInBookingByCodeUseCase(actor, input));
+}
+
+/** O que vale para todo check-in com código: soltar o repasse e encerrar o "não veio" aberto. */
+export async function afterCodeCheckIn<T extends UnitCheckInResult>(
+  actor: BookingActor,
+  result: T
+): Promise<T> {
   await releaseServiceProofHold(result.booking.id);
   const absence = result.booking.providerAbsence;
   if (absence && !absence.resolution) {

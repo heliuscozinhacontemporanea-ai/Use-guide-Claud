@@ -12,6 +12,12 @@ vi.mock('../../../domain/bookings', async () => {
 vi.mock('../../../application/usecases/bookings/checkInBookingApplicationUseCase', () => ({
   checkInBookingApplicationUseCase: vi.fn(),
 }));
+vi.mock(
+  '../../../application/usecases/bookings/checkInByEstablishmentCodeApplicationUseCase',
+  () => ({
+    checkInByEstablishmentCodeApplicationUseCase: vi.fn(),
+  })
+);
 vi.mock('../../../application/usecases/bookings/recordProviderArrivalApplicationUseCase', () => ({
   recordProviderArrivalApplicationUseCase: vi.fn(),
 }));
@@ -23,6 +29,7 @@ vi.mock('../../../application/usecases/bookings/answerProviderAbsenceApplication
 }));
 
 import { checkInBookingApplicationUseCase as checkInBookingByCodeUseCase } from '../../../application/usecases/bookings/checkInBookingApplicationUseCase';
+import { checkInByEstablishmentCodeApplicationUseCase } from '../../../application/usecases/bookings/checkInByEstablishmentCodeApplicationUseCase';
 import { checkInWithoutCodeApplicationUseCase } from '../../../application/usecases/bookings/checkInWithoutCodeApplicationUseCase';
 import { recordProviderArrivalApplicationUseCase } from '../../../application/usecases/bookings/recordProviderArrivalApplicationUseCase';
 import {
@@ -178,5 +185,55 @@ describe('PartnerOffersController — entrada de atração (D20)', () => {
     const ok = response();
     await PartnerOffersController.entryVerificationKeys(request({}), ok.res);
     expect(ok.json).toHaveBeenCalledWith({ data: [{ kid: 'k1', publicKeyJwk: { kty: 'OKP' } }] });
+  });
+});
+
+describe('PartnerOffersController.checkInByEstablishment (D27)', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  const req = (body: unknown) =>
+    ({
+      params: { guideItemId: 'item-1' },
+      query: {},
+      headers: {},
+      body,
+      user: { uid: 'partner-1', admin: false, emailVerified: true, authTime: 0 },
+    }) as unknown as AuthenticatedRequest;
+
+  it('passa o item e o código; responde com o horário, o progresso e o nome público', async () => {
+    vi.mocked(checkInByEstablishmentCodeApplicationUseCase).mockResolvedValue({
+      booking: { id: 'bk_1', status: 'confirmed', lines: [], offerSnapshot: {} },
+      unit: 0,
+      name: null,
+      alreadyCheckedIn: false,
+      checkedInAt: '2026-11-10T12:24:00.000Z',
+      offer: { id: 'o1', title: 'Aluguel', kind: 'rental' },
+      slot: { id: 's1', startsAt: '2026-11-10T12:30:00.000Z' },
+      delivered: { checkedIn: 2, total: 4 },
+      buyerName: 'Ana Souza',
+    } as never);
+    const { res, status, json } = response();
+    await PartnerOffersController.checkInByEstablishment(req({ code: 'k7m4qx' }), res);
+    expect(checkInByEstablishmentCodeApplicationUseCase).toHaveBeenCalledWith(
+      expect.objectContaining({ uid: 'partner-1' }),
+      { guideItemId: 'item-1', code: 'k7m4qx' }
+    );
+    expect(status).toHaveBeenCalledWith(200);
+    expect(json.mock.calls[0]?.[0]).toMatchObject({
+      buyerName: 'Ana Souza',
+      delivered: { checkedIn: 2, total: 4 },
+    });
+  });
+
+  it('item de outro dono: 404; código vazio: 400', async () => {
+    vi.mocked(checkInByEstablishmentCodeApplicationUseCase).mockRejectedValueOnce(
+      new BookingDomainError('NOT_FOUND', 'Estabelecimento não encontrado.')
+    );
+    const notFound = response();
+    await PartnerOffersController.checkInByEstablishment(req({ code: 'K7M4QX' }), notFound.res);
+    expect(notFound.status).toHaveBeenCalledWith(404);
+    const bad = response();
+    await PartnerOffersController.checkInByEstablishment(req({ code: '' }), bad.res);
+    expect(bad.status).toHaveBeenCalledWith(400);
   });
 });

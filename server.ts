@@ -36,6 +36,7 @@ import { resolveTrustProxyHops } from './server/infrastructure/config/trustProxy
 import billingRouter from './server/interfaces/http/billing/billingRoutes';
 import {
   bookingsRouter,
+  partnerEstablishmentsRouter,
   partnerOffersRouter,
 } from './server/interfaces/http/bookings/bookingsRoutes';
 import { InternalBookingsController } from './server/interfaces/http/bookings/internalBookingsController';
@@ -227,6 +228,7 @@ async function startServer() {
   app.use('/api/listing-verifications', listingVerificationRouter);
   app.use('/api/listing-plans', listingPlanRouter);
   app.use('/api/partners/offers', partnerOffersRouter);
+  app.use('/api/partners/establishments', partnerEstablishmentsRouter);
   app.use('/api/partners', partnerRouter);
   app.use('/api/items', itemRouter);
   app.use('/api/events', publicEventsRouter);
