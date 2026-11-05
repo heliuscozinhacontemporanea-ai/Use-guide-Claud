@@ -5,6 +5,8 @@ import { ListEmpty, ListError, ListLoading } from '../../../../ui/components/Lis
 import { SegmentedControl } from '../../../../ui/components/SegmentedControl';
 import { BUTTON_SECONDARY } from '../../../../ui/styles/controls';
 import { useMyBookings } from '../../hooks/useMyBookings';
+import { showsArrivalNotice } from '../../utils/arrivalNotice';
+import { ArrivalNoticeCard } from './ArrivalNoticeCard';
 import { BuyerBookingCard } from './BuyerBookingCard';
 
 /**
@@ -19,6 +21,8 @@ export function MyBookingsView({ onBack }: { onBack: () => void }) {
   const upcoming = data.filter((booking) => new Date(booking.offer.startsAt) > now);
   const past = data.filter((booking) => new Date(booking.offer.startsAt) <= now);
   const shown = tab === 'upcoming' ? upcoming : past;
+  // O aviso "chegou" fica acima das abas: o serviço pode já ter começado (D27).
+  const arrived = data.filter((booking) => showsArrivalNotice(booking, now));
 
   return (
     <section className="w-full space-y-5">
@@ -28,6 +32,9 @@ export function MyBookingsView({ onBack }: { onBack: () => void }) {
           {t('bookings.buyer.myBookingsTitle')}
         </h2>
       </div>
+      {arrived.map((booking) => (
+        <ArrivalNoticeCard key={booking.id} booking={booking} onChanged={reload} />
+      ))}
       <SegmentedControl
         label={t('bookings.buyer.tabsLabel')}
         value={tab}

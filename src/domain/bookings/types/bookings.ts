@@ -124,6 +124,8 @@ export interface BookingSummary {
   requiresParticipantNames: boolean;
   /** "Cheguei" do prestador (D20). */
   arrivedAt: string | null;
+  /** Resposta do cliente ao aviso "chegou" (D27). */
+  arrivalResponse: { response: ArrivalResponse; at: string } | null;
   providerAbsence: {
     reportedAt: string;
     respondBy: string;

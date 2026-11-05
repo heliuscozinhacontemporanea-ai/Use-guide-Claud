@@ -48,6 +48,8 @@ export function toBuyerBooking(booking: Booking) {
     groupMaxPeople: booking.offerSnapshot.groupMaxPeople ?? null,
     requiresParticipantNames: booking.offerSnapshot.requiresParticipantNames ?? false,
     arrivedAt: booking.arrival?.at ?? null,
+    // "Estou chegando" ou "Não vou mais" ao aviso "chegou" (D27).
+    arrivalResponse: booking.arrivalResponse ?? null,
     providerAbsence: booking.providerAbsence
       ? {
           reportedAt: booking.providerAbsence.reportedAt,

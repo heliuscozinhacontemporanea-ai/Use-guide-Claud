@@ -61,6 +61,12 @@ import {
   partnerAgoraPtBR,
 } from './partnerAgoraResources';
 import {
+  type ArrivalNoticeTranslation,
+  arrivalNoticeEn,
+  arrivalNoticeFr,
+  arrivalNoticePtBR,
+} from './arrivalNoticeResources';
+import {
   type PartnerCatalogTranslation,
   partnerCatalogEn,
   partnerCatalogFr,
@@ -204,6 +210,7 @@ export interface TranslationResource {
   partnerCatalog: PartnerCatalogTranslation;
   partnerEarnings: PartnerEarningsTranslation;
   partnerAgora: PartnerAgoraTranslation;
+  arrivalNotice: ArrivalNoticeTranslation;
   legal: LegalTranslation;
   verification: VerificationTranslation;
   emailVerification: EmailVerificationTranslation;
@@ -448,6 +455,7 @@ const ptBR: TranslationResource = {
   partnerCatalog: partnerCatalogPtBR,
   partnerEarnings: partnerEarningsPtBR,
   partnerAgora: partnerAgoraPtBR,
+  arrivalNotice: arrivalNoticePtBR,
   legal: legalPtBR,
   verification: verificationPtBR,
   emailVerification: emailVerificationPtBR,
@@ -752,6 +760,7 @@ const en: TranslationResource = {
   partnerCatalog: partnerCatalogEn,
   partnerEarnings: partnerEarningsEn,
   partnerAgora: partnerAgoraEn,
+  arrivalNotice: arrivalNoticeEn,
   legal: legalEn,
   verification: verificationEn,
   emailVerification: emailVerificationEn,
@@ -1050,6 +1059,7 @@ const fr: TranslationResource = {
   partnerCatalog: partnerCatalogFr,
   partnerEarnings: partnerEarningsFr,
   partnerAgora: partnerAgoraFr,
+  arrivalNotice: arrivalNoticeFr,
   legal: legalFr,
   verification: verificationFr,
   emailVerification: emailVerificationFr,
