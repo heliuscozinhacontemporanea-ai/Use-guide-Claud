@@ -41,6 +41,7 @@ const VIEW: PartnerHomeView = {
       amountMinor: 5000,
     },
   ],
+  agora: [],
   today: [
     {
       kind: 'slot',

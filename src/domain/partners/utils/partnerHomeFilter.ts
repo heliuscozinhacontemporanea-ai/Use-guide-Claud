@@ -15,6 +15,13 @@ export function filterPartnerHome(view: PartnerHomeView, filter: EstablishmentFi
   return {
     attention: view.attention,
     today: view.today.filter((item) => belongs(item.establishmentIds, filter)),
+    // Portaria e lista sem internet mostram sempre todos (D27); o código segue o filtro.
+    agora: view.agora.filter(
+      (item) =>
+        item.kind === 'session' ||
+        item.offerKind === 'private_entry' ||
+        belongs(item.establishmentIds, filter)
+    ),
   };
 }
 

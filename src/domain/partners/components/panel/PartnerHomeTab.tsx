@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ListError, ListLoading } from '../../../../ui/components/ListState';
 import type { PartnerHomeCardId } from '../../types/partnerHomeCards';
@@ -27,7 +28,7 @@ export interface PartnerCardsState {
   error: string | null;
 }
 
-/** Início: "Resolva agora" fixo no topo e os cartões escolhidos abaixo (D27, seção 6.1). */
+/** Início: "Agora" e "Resolva agora" no topo e os cartões escolhidos abaixo (D27, seção 6.1). */
 export function PartnerHomeTab({
   loading,
   error,
@@ -38,6 +39,7 @@ export function PartnerHomeTab({
   labelFor,
   onOpenAttention,
   onOpenTab,
+  agora,
 }: {
   loading: boolean;
   error: string | null;
@@ -48,6 +50,8 @@ export function PartnerHomeTab({
   labelFor: (item: PartnerTodayItem) => string | null;
   onOpenAttention: (item: PartnerAttentionItem) => void;
   onOpenTab: (tab: PartnerPanelTab) => void;
+  /** Seção "Agora", acima de "Resolva agora": na hora do serviço é o que importa primeiro. */
+  agora?: ReactNode;
 }) {
   const { t } = useTranslation();
   if (loading && !view) return <ListLoading label={t('partnerPanel.tabs.home')} />;
@@ -70,6 +74,7 @@ export function PartnerHomeTab({
   }
   return (
     <div className="space-y-7">
+      {agora}
       <PartnerAttentionList items={attention} onOpen={onOpenAttention} />
       <PartnerHomeCards
         cards={cards.visible}

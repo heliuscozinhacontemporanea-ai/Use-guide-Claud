@@ -249,6 +249,27 @@ export interface UnitCheckInResult {
   checkedInAt: string;
 }
 
+/** Código do cartão "Inserir código" (D27, p41): o servidor procura em todos os horários abertos. */
+export interface EstablishmentCheckInResult extends UnitCheckInResult {
+  buyerName: string | null;
+  offer: { id: string; title: string; kind: string };
+  slot: { id: string; startsAt: string };
+  delivered: { checkedIn: number; total: number };
+}
+
+/** Cliente que ainda não chegou, com o telefone liberado depois do "Cheguei" (D27, p42). */
+export interface SlotContact {
+  bookingId: string;
+  buyerName: string | null;
+  units: number;
+  /** E.164. */
+  phone: string;
+  response: { response: ArrivalResponse; at: string } | null;
+  arrivedAt: string | null;
+}
+
+export type ArrivalResponse = 'coming' | 'not_going';
+
 export interface ArrivalLocation {
   lat: number;
   lng: number;

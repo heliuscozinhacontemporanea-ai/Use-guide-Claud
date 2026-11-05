@@ -3,7 +3,13 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getActiveSubscriptionPlansUseCase } from '../../domain/admin';
 import { useAuthContext } from '../../domain/auth/context/AuthContext';
-import { isBookableCategory, PartnerSlotSheet } from '../../domain/bookings';
+import {
+  EstablishmentCodeSheet,
+  isBookableCategory,
+  PartnerSlotSheet,
+  SlotContactsList,
+  useSlotArrival,
+} from '../../domain/bookings';
 import { UserRole } from '../../domain/auth/types/auth';
 import { AboutTermsView, SupportView } from '../../domain/content';
 import { EventSessionsField } from '../../domain/events';
@@ -34,6 +40,7 @@ export function PartnerPortalComposition() {
   const { user, loading } = useAuthContext();
   const { openLoginModal } = useUI();
   const { goTo } = useLocalizedRouting();
+  const arriveAtSlot = useSlotArrival();
 
   const [profile, setProfile] = useState<PartnerProfile | null>(null);
   const [profileLoading, setProfileLoading] = useState(true);
@@ -237,20 +244,38 @@ export function PartnerPortalComposition() {
           <PartnerPaymentAccountsPage onBack={onBack} nameFor={establishmentNameFor} />
         ),
       }}
-      renderSlotSheet={({ item, onClose, onChanged }) => (
+      renderAgora={{
+        arrive: (item) => arriveAtSlot(item.parentId, item.id),
+        renderCodeSheet: ({ item, noShowAllowed, onClose, onChanged }) => (
+          <EstablishmentCodeSheet
+            guideItemId={item.establishmentIds[0] ?? ''}
+            offerId={item.parentId}
+            slotId={item.id}
+            noShowAllowed={noShowAllowed}
+            onClose={onClose}
+            onChanged={onChanged}
+          />
+        ),
+        renderContacts: (item, version) => (
+          <SlotContactsList offerId={item.parentId} slotId={item.id} version={version} />
+        ),
+      }}
+      renderSlotSheet={({ item, gate, onClose, onChanged }) => (
         <PartnerSlotSheet
           offerId={item.parentId}
           slotId={item.id}
+          startAtCheckIn={gate}
           onClose={onClose}
           onChanged={onChanged}
         />
       )}
-      renderSessionSheet={({ item, onClose, onChanged }) => (
+      renderSessionSheet={({ item, gate, onClose, onChanged }) => (
         <PartnerSessionSheet
           eventListingId={item.parentId}
           occurrenceId={item.id}
           title={item.title}
           sold={item.sold}
+          startAtGate={gate}
           onClose={onClose}
           onChanged={onChanged}
         />

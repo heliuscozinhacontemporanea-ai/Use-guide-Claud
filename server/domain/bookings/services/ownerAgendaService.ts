@@ -9,6 +9,7 @@ import type {
   BookingActor,
   LocalizedText,
 } from '../types/bookingTypes';
+import { serviceEndsAtMs } from '../utils/serviceTime';
 
 /** Um horário de oferta do dono, com o que já foi vendido e usado (painel do parceiro, D27). */
 export interface OwnerSlotSummary {
@@ -29,6 +30,11 @@ export interface OwnerSlotSummary {
   checkedInUnits: number;
   /** Primeiro "Cheguei" registrado no horário. */
   arrivedAt?: string;
+  /** Fim do serviço: o fim do horário ou o início mais a duração (cartões de "Agora", D27). */
+  serviceEndsAt: string;
+  meetingPoint: string | null;
+  /** Reservas que ainda esperam o cliente (sem código, sem ausência). */
+  waitingBookings: number;
 }
 
 /** "O prestador não veio" ainda sem resposta do prestador (D20): prazo de 2 h. */
@@ -81,6 +87,8 @@ export class OwnerAgendaService {
             bookingsCount: 0,
             unitsCount: slot.capacitySold,
             checkedInUnits: 0,
+            ...extras(offer, slot),
+            waitingBookings: 0,
           });
           continue;
         }
@@ -104,6 +112,10 @@ export class OwnerAgendaService {
           unitsCount: active.reduce((sum, booking) => sum + booking.participantsCount, 0),
           checkedInUnits: active.reduce((sum, booking) => sum + (booking.checkIns?.length ?? 0), 0),
           arrivedAt: arrivals[0],
+          ...extras(offer, slot),
+          waitingBookings: active.filter(
+            (booking) => booking.status === 'confirmed' && !(booking.checkIns?.length ?? 0)
+          ).length,
         });
         for (const booking of bookings) {
           const absence = booking.providerAbsence;
@@ -144,4 +156,15 @@ export class OwnerAgendaService {
     );
     return { offer, slot, bookings };
   }
+}
+
+function extras(
+  offer: { meetingPoint?: { address: string }; durationMinutes?: number },
+  slot: { startsAt: string; endsAt?: string }
+): { serviceEndsAt: string; meetingPoint: string | null } {
+  return {
+    serviceEndsAt:
+      slot.endsAt ?? new Date(serviceEndsAtMs(slot.startsAt, offer.durationMinutes)).toISOString(),
+    meetingPoint: offer.meetingPoint?.address ?? null,
+  };
 }

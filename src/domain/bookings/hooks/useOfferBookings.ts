@@ -1,28 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
+import { currentLocation } from '../adapters/browserLocation';
 import { answerProviderAbsenceUseCase } from '../application/usecases/answerProviderAbsenceUseCase';
 import { checkInWithoutCodeUseCase } from '../application/usecases/checkInWithoutCodeUseCase';
 import { listOfferBookingsUseCase } from '../application/usecases/listOfferBookingsUseCase';
 import { markNoShowUseCase } from '../application/usecases/markNoShowUseCase';
 import { recordArrivalUseCase } from '../application/usecases/recordArrivalUseCase';
-import type { ArrivalLocation, BookingSummary, NoCodeReason } from '../types/bookings';
+import type { BookingSummary, NoCodeReason } from '../types/bookings';
 import { getBookingErrorMessage } from '../utils/bookingErrorMessage';
-
-/** Localização só no toque do "Cheguei" (D20); recusada ou sem resposta em 8 s, segue sem ela. */
-function currentLocation(): Promise<ArrivalLocation | null> {
-  return new Promise((resolve) => {
-    if (!navigator.geolocation) return resolve(null);
-    navigator.geolocation.getCurrentPosition(
-      (position) =>
-        resolve({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-          accuracyM: Math.round(position.coords.accuracy),
-        }),
-      () => resolve(null),
-      { enableHighAccuracy: true, timeout: 8000, maximumAge: 60_000 }
-    );
-  });
-}
 
 export function useOfferBookings(offerId: string) {
   const [data, setData] = useState<BookingSummary[]>([]);

@@ -31,7 +31,9 @@ export function useSlotCheckIn(
   const entry = kind === 'private_entry';
   const [sending, setSending] = useState(false);
   const [result, setResult] = useState<CheckInResult | null>(null);
-  const [pending, setPending] = useState(() => pendingCheckIns.list(offerId).length);
+  const [pending, setPending] = useState(
+    () => pendingCheckIns.list(offerId).filter((item) => item.kind !== 'establishment').length
+  );
 
   const send = useCallback(
     (payload: { code?: string; qrToken?: string; capturedAt?: string }) =>
@@ -73,7 +75,8 @@ export function useSlotCheckIn(
   );
 
   const sync = useCallback(async () => {
-    for (const item of pendingCheckIns.list(offerId)) {
+    // Os do cartão "Inserir código" voltam pelo próprio cartão, no endpoint do estabelecimento.
+    for (const item of pendingCheckIns.list(offerId).filter((i) => i.kind !== 'establishment')) {
       try {
         const checkIn = await (item.kind === 'entry'
           ? checkInEntryUseCase(item.offerId, item.slotId, item.payload)
@@ -90,7 +93,9 @@ export function useSlotCheckIn(
         setResult({ tone: 'danger', message: getBookingErrorMessage(error) });
       }
     }
-    setPending(pendingCheckIns.list(offerId).length);
+    setPending(
+      pendingCheckIns.list(offerId).filter((item) => item.kind !== 'establishment').length
+    );
   }, [offerId, onCheckedIn]);
 
   useEffect(() => {
@@ -128,7 +133,9 @@ export function useSlotCheckIn(
           kind: entry ? 'entry' : 'code',
           payload: { ...input, capturedAt: new Date().toISOString() },
         });
-        setPending(pendingCheckIns.list(offerId).length);
+        setPending(
+          pendingCheckIns.list(offerId).filter((item) => item.kind !== 'establishment').length
+        );
         return {
           tone: offline === 'valid' ? 'success' : 'warn',
           message: t(

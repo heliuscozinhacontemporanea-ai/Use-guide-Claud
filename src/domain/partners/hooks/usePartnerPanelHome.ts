@@ -19,7 +19,8 @@ export function usePartnerPanelHome() {
   const [sheetOpen, setSheetOpen] = useState(false);
 
   const filtered = useMemo(
-    () => (home.data ? filterPartnerHome(home.data, filter) : { attention: [], today: [] }),
+    () =>
+      home.data ? filterPartnerHome(home.data, filter) : { attention: [], today: [], agora: [] },
     [home.data, filter]
   );
   const pendingById = useMemo(
@@ -71,6 +72,10 @@ export function usePartnerPanelHome() {
     today: filtered.today,
     pendingById,
     labelFor,
+    agora: filtered.agora,
+    /** Nome do estabelecimento do item, para "Portaria · Dunas Park". */
+    placeName: (item: PartnerTodayItem) =>
+      item.establishmentIds.map((id) => names.get(id)).find(Boolean) ?? item.title,
     otherPending,
     cards,
   };

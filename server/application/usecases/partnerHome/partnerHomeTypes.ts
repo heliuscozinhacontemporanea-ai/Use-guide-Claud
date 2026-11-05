@@ -32,6 +32,11 @@ export interface PartnerTodayItem {
   /** Só nos horários de reserva; nas sessões a portaria tem a própria contagem. */
   checkedIn: number | null;
   arrivedAt: string | null;
+  /** Só nos horários de reserva, para os cartões de "Agora" (D27). */
+  bookings?: number;
+  waitingBookings?: number;
+  meetingPoint?: string | null;
+  serviceEndsAt?: string;
 }
 
 /** Próxima sessão de evento, para o cartão "Próximo evento". */
@@ -68,6 +73,8 @@ export interface PartnerHomeView {
   }>;
   attention: PartnerAttentionItem[];
   today: PartnerTodayItem[];
+  /** Horários de ontem a amanhã e sessões até amanhã, para os cartões de "Agora" (D27). */
+  agora: PartnerTodayItem[];
   numbers: {
     salesTodayMinor: number;
     salesTodayCount: number;

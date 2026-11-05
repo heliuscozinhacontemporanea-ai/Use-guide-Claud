@@ -28,6 +28,7 @@ const VIEW: PartnerHomeView = {
     { kind: 'plan_expiring', refId: 'b', establishmentIds: ['b'], title: null, deadline: null },
   ],
   today: [today('x', ['a']), today('y', ['b']), today('z', [])],
+  agora: [],
   numbers: {
     salesTodayMinor: 0,
     salesTodayCount: 0,

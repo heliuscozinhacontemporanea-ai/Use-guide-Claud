@@ -24,11 +24,14 @@ const BLOCK = 'rounded-2xl bg-sheet-card border border-sheet-card-line';
 export function PartnerSlotSheet({
   offerId,
   slotId,
+  startAtCheckIn = false,
   onClose,
   onChanged,
 }: {
   offerId: string;
   slotId: string;
+  /** Aberta pelo cartão de portaria de "Agora" (D27): começa na portaria da entrada. */
+  startAtCheckIn?: boolean;
   onClose: () => void;
   /** Depois de check-in, remarcação ou cancelamento, para a agenda recarregar. */
   onChanged: (message?: string) => void;
@@ -36,7 +39,7 @@ export function PartnerSlotSheet({
   const { t, i18n } = useTranslation();
   const [detail, setDetail] = useState<PartnerSlotDetail | null>(null);
   const [error, setError] = useState(false);
-  const [checkingIn, setCheckingIn] = useState(false);
+  const [checkingIn, setCheckingIn] = useState(startAtCheckIn);
   const [rescheduling, setRescheduling] = useState<PartnerSlot | null>(null);
   const [canceling, setCanceling] = useState<PartnerSlot | null>(null);
 
@@ -160,6 +163,7 @@ export function PartnerSlotSheet({
           kind={detail.offer.kind}
           slot={slot}
           onClose={() => {
+            if (startAtCheckIn) return onClose();
             setCheckingIn(false);
             void load();
           }}

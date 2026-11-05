@@ -100,6 +100,7 @@ export function PartnerSessionSheet({
   occurrenceId,
   title,
   sold,
+  startAtGate = false,
   onClose,
   onChanged,
 }: {
@@ -108,13 +109,17 @@ export function PartnerSessionSheet({
   title: string;
   /** Ingressos vendidos e reservados, como a agenda mostra. */
   sold: number;
+  /** Aberta pelo cartão de portaria de "Agora" (D27): começa na portaria. */
+  startAtGate?: boolean;
   onClose: () => void;
   onChanged: (message?: string) => void;
 }) {
   const { t, i18n } = useTranslation();
   const occurrences = useEventOccurrences(eventListingId);
   const sales = usePartnerEventSales(eventListingId, occurrenceId);
-  const [view, setView] = useState<'session' | 'gate' | 'postpone' | 'cancel'>('session');
+  const [view, setView] = useState<'session' | 'gate' | 'postpone' | 'cancel'>(
+    startAtGate ? 'gate' : 'session'
+  );
   const occurrence: EventOccurrence | undefined = occurrences.occurrences.find(
     (item) => item.id === occurrenceId
   );
@@ -148,7 +153,7 @@ export function PartnerSessionSheet({
         description={description}
         sold={sold}
         sales={sales}
-        onClose={() => setView('session')}
+        onClose={() => (startAtGate ? onClose() : setView('session'))}
       />
     );
   }

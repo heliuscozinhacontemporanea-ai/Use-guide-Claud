@@ -140,6 +140,17 @@ export function buildPartnerHome(input: PartnerHomeInput): PartnerHomeView {
     ...input.sessions.filter((session) => isToday(session.startsAt)).map(sessionToAgendaItem),
   ].sort((a, b) => a.startsAt.localeCompare(b.startsAt));
 
+  // Cartões de "Agora" (D27): o código vale até 12 h depois do fim (horários de ontem) e a lista
+  // sem internet sai na véspera (horários de amanhã). O aparelho decide a hora de cada cartão.
+  const inAgora = (iso: string) => {
+    const ms = new Date(iso).getTime();
+    return ms >= dayStart - DAY_MS && ms < dayEnd + DAY_MS;
+  };
+  const agora: PartnerTodayItem[] = [
+    ...input.slots.filter((slot) => inAgora(slot.startsAt)).map(slotToAgendaItem),
+    ...input.sessions.filter((session) => inAgora(session.startsAt)).map(sessionToAgendaItem),
+  ].sort((a, b) => a.startsAt.localeCompare(b.startsAt));
+
   const soldToday = input.recentEntries.filter(
     (entry) => entry.status !== 'canceled' && new Date(entry.createdAt).getTime() >= dayStart
   );
@@ -177,6 +188,7 @@ export function buildPartnerHome(input: PartnerHomeInput): PartnerHomeView {
     ),
     attention,
     today,
+    agora,
     numbers: {
       salesTodayMinor: soldToday.reduce((sum, entry) => sum + entry.grossMinor, 0),
       salesTodayCount: soldToday.length,

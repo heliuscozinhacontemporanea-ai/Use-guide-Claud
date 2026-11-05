@@ -1,5 +1,6 @@
 import type {
   ArrivalLocation,
+  ArrivalResponse,
   BookingDetails,
   BookingSummary,
   CancelBookingResponse,
@@ -11,6 +12,7 @@ import type {
   CreateSlotsPayload,
   EntryCheckInPayload,
   EntryPassView,
+  EstablishmentCheckInResult,
   NoCodeReason,
   OfferFields,
   OfferStatus,
@@ -19,6 +21,7 @@ import type {
   PartnerSlot,
   PartnerSlotDetail,
   PublicSlot,
+  SlotContact,
   UnitCheckInResult,
 } from '../types/bookings';
 
@@ -68,6 +71,19 @@ export interface BookingsApiPort {
     bookingId: string,
     location?: ArrivalLocation
   ): Promise<BookingSummary>;
+  /** "Inserir código" do estabelecimento (D27): qualquer horário aberto do dono no item. */
+  checkInByEstablishmentCode(
+    guideItemId: string,
+    payload: CodeCheckInPayload
+  ): Promise<EstablishmentCheckInResult>;
+  /** "Cheguei" do horário inteiro (D27). */
+  recordSlotArrival(
+    offerId: string,
+    slotId: string,
+    location?: ArrivalLocation
+  ): Promise<{ arrivedAt: string | null; waiting: number }>;
+  listSlotContacts(offerId: string, slotId: string): Promise<SlotContact[]>;
+  respondToArrival(bookingId: string, response: ArrivalResponse): Promise<BookingSummary>;
   checkInWithoutCode(
     offerId: string,
     bookingId: string,

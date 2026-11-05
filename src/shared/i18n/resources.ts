@@ -55,6 +55,12 @@ import {
   partnerEarningsPtBR,
 } from './partnerEarningsResources';
 import {
+  type PartnerAgoraTranslation,
+  partnerAgoraEn,
+  partnerAgoraFr,
+  partnerAgoraPtBR,
+} from './partnerAgoraResources';
+import {
   type PartnerCatalogTranslation,
   partnerCatalogEn,
   partnerCatalogFr,
@@ -197,6 +203,7 @@ export interface TranslationResource {
   partnerPanel: PartnerPanelTranslation;
   partnerCatalog: PartnerCatalogTranslation;
   partnerEarnings: PartnerEarningsTranslation;
+  partnerAgora: PartnerAgoraTranslation;
   legal: LegalTranslation;
   verification: VerificationTranslation;
   emailVerification: EmailVerificationTranslation;
@@ -440,6 +447,7 @@ const ptBR: TranslationResource = {
   partnerPanel: partnerPanelPtBR,
   partnerCatalog: partnerCatalogPtBR,
   partnerEarnings: partnerEarningsPtBR,
+  partnerAgora: partnerAgoraPtBR,
   legal: legalPtBR,
   verification: verificationPtBR,
   emailVerification: emailVerificationPtBR,
@@ -743,6 +751,7 @@ const en: TranslationResource = {
   partnerPanel: partnerPanelEn,
   partnerCatalog: partnerCatalogEn,
   partnerEarnings: partnerEarningsEn,
+  partnerAgora: partnerAgoraEn,
   legal: legalEn,
   verification: verificationEn,
   emailVerification: emailVerificationEn,
@@ -1040,6 +1049,7 @@ const fr: TranslationResource = {
   partnerPanel: partnerPanelFr,
   partnerCatalog: partnerCatalogFr,
   partnerEarnings: partnerEarningsFr,
+  partnerAgora: partnerAgoraFr,
   legal: legalFr,
   verification: verificationFr,
   emailVerification: emailVerificationFr,

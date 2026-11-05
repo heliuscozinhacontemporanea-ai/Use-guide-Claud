@@ -26,6 +26,7 @@ const VIEW: PartnerHomeView = {
   ],
   attention: [],
   today: [],
+  agora: [],
   numbers: {
     salesTodayMinor: 0,
     salesTodayCount: 0,

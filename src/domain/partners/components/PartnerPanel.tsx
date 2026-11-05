@@ -25,6 +25,7 @@ import { EstablishmentFilterSheet } from './panel/EstablishmentFilterSheet';
 import { ATTENTION_TAB } from './panel/PartnerAttentionList';
 import type { CatalogSegment } from './panel/PartnerCatalogTab';
 import { PartnerCatalogSection } from './panel/PartnerCatalogSection';
+import { PartnerAgoraSection } from './panel/PartnerAgoraSection';
 import { PartnerHomeTab } from './panel/PartnerHomeTab';
 import { PartnerEarningsTab } from './panel/PartnerEarningsTab';
 import { PartnerMoreSection, type PartnerMoreView } from './panel/PartnerMoreSection';
@@ -47,6 +48,7 @@ export function PartnerPanel({
   renderAccountView,
   renderSlotSheet,
   renderSessionSheet,
+  renderAgora,
   renderEventAccountCard,
   renderNotificationsHint,
 }: PartnerPanelProps) {
@@ -63,6 +65,7 @@ export function PartnerPanel({
   const [editingHasSales, setEditingHasSales] = React.useState(false);
   const [moreView, setMoreView] = React.useState<PartnerMoreView>('list');
   const [agendaItem, setAgendaItem] = React.useState<PartnerTodayItem | null>(null);
+  const [agendaGate, setAgendaGate] = React.useState(false);
   const [agendaVersion, setAgendaVersion] = React.useState(0);
   const agendaChanged = () => {
     setAgendaVersion((version) => version + 1);
@@ -165,6 +168,21 @@ export function PartnerPanel({
             labelFor={home.labelFor}
             onOpenAttention={(item) => setPanelTab(ATTENTION_TAB[item.kind])}
             onOpenTab={setPanelTab}
+            agora={
+              renderAgora && (
+                <PartnerAgoraSection
+                  items={home.agora}
+                  nameOf={home.placeName}
+                  renders={renderAgora}
+                  version={agendaVersion}
+                  onOpenGate={(item) => {
+                    setAgendaGate(true);
+                    setAgendaItem(item);
+                  }}
+                  onChanged={agendaChanged}
+                />
+              )
+            }
           />
         ) : panelTab === 'agenda' ? (
           <PartnerAgendaTab
@@ -324,7 +342,11 @@ export function PartnerPanel({
       {agendaItem &&
         (agendaItem.kind === 'slot' ? renderSlotSheet : renderSessionSheet)?.({
           item: agendaItem,
-          onClose: () => setAgendaItem(null),
+          gate: agendaGate,
+          onClose: () => {
+            setAgendaItem(null);
+            setAgendaGate(false);
+          },
           onChanged: agendaChanged,
         })}
 

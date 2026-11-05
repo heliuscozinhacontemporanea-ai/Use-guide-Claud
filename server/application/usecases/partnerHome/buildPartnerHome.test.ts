@@ -146,6 +146,9 @@ describe('buildPartnerHome', () => {
             bookingsCount: 3,
             unitsCount: 6,
             checkedInUnits: 0,
+            serviceEndsAt: '2026-11-08T04:00:00.000Z',
+            meetingPoint: null,
+            waitingBookings: 0,
           },
           {
             slotId: 'manha',
@@ -160,6 +163,9 @@ describe('buildPartnerHome', () => {
             bookingsCount: 3,
             unitsCount: 6,
             checkedInUnits: 4,
+            serviceEndsAt: '2026-11-08T14:00:00.000Z',
+            meetingPoint: 'Praça Principal',
+            waitingBookings: 1,
           },
         ],
         sessions: [
@@ -177,7 +183,17 @@ describe('buildPartnerHome', () => {
       })
     );
     expect(home.today.map((item) => item.id)).toEqual(['manha', 's1']);
-    expect(home.today[0]).toMatchObject({ sold: 6, capacity: 8, checkedIn: 4 });
+    expect(home.today[0]).toMatchObject({
+      sold: 6,
+      capacity: 8,
+      checkedIn: 4,
+      bookings: 3,
+      waitingBookings: 1,
+      meetingPoint: 'Praça Principal',
+      serviceEndsAt: '2026-11-08T14:00:00.000Z',
+    });
+    // "Agora" também leva o horário de ontem à noite: o código vale até 12 h depois do fim.
+    expect(home.agora.map((item) => item.id)).toEqual(['ontem', 'manha', 's1']);
   });
 
   it('soma as vendas de hoje e o próximo repasse do mesmo dia', () => {
@@ -219,6 +235,9 @@ describe('buildPartnerHome', () => {
       bookingsCount: 0,
       unitsCount,
       checkedInUnits: 0,
+      serviceEndsAt: startsAt,
+      meetingPoint: null,
+      waitingBookings: 0,
     });
     const home = buildPartnerHome(
       input({

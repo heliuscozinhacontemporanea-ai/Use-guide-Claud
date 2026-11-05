@@ -29,6 +29,11 @@ export interface PartnerTodayItem {
   capacity: number;
   checkedIn: number | null;
   arrivedAt: string | null;
+  /** Só nos horários de reserva, para os cartões de "Agora" (D27). */
+  bookings?: number;
+  waitingBookings?: number;
+  meetingPoint?: string | null;
+  serviceEndsAt?: string;
 }
 
 export interface PartnerEstablishment {
@@ -64,6 +69,8 @@ export interface PartnerHomeView {
   establishments: PartnerEstablishment[];
   attention: PartnerAttentionItem[];
   today: PartnerTodayItem[];
+  /** Horários de ontem a amanhã e sessões até amanhã; o aparelho escolhe os cartões de "Agora". */
+  agora: PartnerTodayItem[];
   numbers: {
     salesTodayMinor: number;
     salesTodayCount: number;
