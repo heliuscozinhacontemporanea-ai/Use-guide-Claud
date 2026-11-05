@@ -20,7 +20,8 @@ export async function recordProviderArrivalApplicationUseCase(
   await sendBookingServiceNotice(
     booking.buyerId,
     'providerArrived',
-    booking.offerSnapshot.businessName
+    booking.offerSnapshot.businessName,
+    booking.id
   );
   return booking;
 }

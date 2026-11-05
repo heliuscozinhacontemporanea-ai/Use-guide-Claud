@@ -13,6 +13,7 @@ export type {
   CreatePendingBookingInput,
 } from './services/bookingService';
 export type { CheckInWithoutCodeInput } from './services/bookingServiceProofService';
+export type { SlotContact } from './services/bookingArrivalService';
 export type {
   EstablishmentCheckInInput,
   EstablishmentCheckInResult,
@@ -53,7 +54,7 @@ export { confirmBookingPaymentUseCase } from './usecases/confirmBookingPaymentUs
 export { createAvailabilitySlotsUseCase } from './usecases/createAvailabilitySlotsUseCase';
 export { createBookableOfferUseCase } from './usecases/createBookableOfferUseCase';
 export { createPendingBookingUseCase } from './usecases/createPendingBookingUseCase';
-export { eraseExpiredPickupAddressesUseCase } from './usecases/eraseExpiredPickupAddressesUseCase';
+export { eraseExpiredBookingContactsUseCase } from './usecases/eraseExpiredBookingContactsUseCase';
 export { expireOverdueBookingsUseCase } from './usecases/expireOverdueBookingsUseCase';
 export { getBookingCheckInCodeUseCase } from './usecases/getBookingCheckInCodeUseCase';
 export { getBookingForAbsenceReportUseCase } from './usecases/getBookingForAbsenceReportUseCase';
@@ -81,6 +82,9 @@ export { markBookingPaymentFailedUseCase } from './usecases/markBookingPaymentFa
 export { markBookingRefundedUseCase } from './usecases/markBookingRefundedUseCase';
 export { recordProviderAbsenceUseCase } from './usecases/recordProviderAbsenceUseCase';
 export { recordProviderArrivalUseCase } from './usecases/recordProviderArrivalUseCase';
+export { recordSlotArrivalUseCase } from './usecases/recordSlotArrivalUseCase';
+export { listSlotContactsUseCase } from './usecases/listSlotContactsUseCase';
+export { respondToArrivalUseCase } from './usecases/respondToArrivalUseCase';
 export { requestCancellationByBuyerUseCase } from './usecases/requestCancellationByBuyerUseCase';
 export { rescheduleSlotByPartnerUseCase } from './usecases/rescheduleSlotByPartnerUseCase';
 export { resolveProviderAbsenceUseCase } from './usecases/resolveProviderAbsenceUseCase';

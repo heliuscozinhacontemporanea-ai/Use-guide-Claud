@@ -242,9 +242,9 @@ export class InMemoryBookingsAdapter implements BookingsPort {
       .sort((a, b) => (a.deadline?.at ?? '').localeCompare(b.deadline?.at ?? ''))
       .slice(0, limit);
   }
-  async listBookingsWithPickupAddressEraseBefore(nowIso: string, limit: number) {
+  async listBookingsWithPersonalDataEraseBefore(nowIso: string, limit: number) {
     return [...this.bookings.values()]
-      .filter((b) => b.pickupAddressEraseAt && b.pickupAddressEraseAt <= nowIso)
+      .filter((b) => b.personalDataEraseAt && b.personalDataEraseAt <= nowIso)
       .slice(0, limit);
   }
   async deleteParticipants(bookingId: string) {

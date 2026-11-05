@@ -23,7 +23,9 @@ import { serviceEndsAtMs } from '../utils/serviceTime';
 const PAYMENT_WINDOW_MS = 15 * 60 * 1000;
 const SYSTEM_ACTOR = 'system';
 // O endereço serve de prova até a reclamação ser decidida: 48 h para abrir mais 5 dias para decidir (D16).
-const PICKUP_ADDRESS_RETENTION_MS = 7 * 24 * 60 * 60 * 1000;
+const CONTACT_RETENTION_MS = 7 * 24 * 60 * 60 * 1000;
+// Telefone em E.164 (§12.4): +, código do país e até 15 dígitos.
+const E164 = /^\+[1-9]\d{7,14}$/;
 
 export interface CreatePendingBookingInput {
   offerId: string;
@@ -35,6 +37,8 @@ export interface CreatePendingBookingInput {
   acceptedTermsVersion: string;
   /** Obrigatório quando a oferta busca o comprador no endereço (D20). */
   pickupAddress?: string;
+  /** Telefone do cliente em E.164; obrigatório em passeio, aluguel e translado (D27). */
+  contactPhone?: string;
 }
 
 export interface BuyerCancellationResult {
@@ -97,6 +101,13 @@ export class BookingService {
       throw new BookingDomainError('VALIDATION_ERROR', 'Informe onde você está hospedado.');
     }
 
+    const contactPhone = input.contactPhone?.trim() ?? '';
+    const needsPhone = CHECK_IN_CODE_KINDS.includes(offer.kind);
+    if (needsPhone && !E164.test(contactPhone)) {
+      throw new BookingDomainError('VALIDATION_ERROR', 'Informe seu telefone com DDD.');
+    }
+    const keepsContacts = offer.pickupMode === 'buyer_address' || needsPhone;
+
     const nowDate = this.now();
     const timestamp = nowDate.toISOString();
     const booking: Booking = {
@@ -124,11 +135,12 @@ export class BookingService {
         ...(named ? { requiresParticipantNames: true } : {}),
       },
       termsAcceptance: { version: input.acceptedTermsVersion, acceptedAt: timestamp },
-      ...(offer.pickupMode === 'buyer_address'
+      ...(offer.pickupMode === 'buyer_address' ? { pickupAddress } : {}),
+      ...(needsPhone ? { contactPhone } : {}),
+      ...(keepsContacts
         ? {
-            pickupAddress,
-            pickupAddressEraseAt: new Date(
-              serviceEndsAtMs(slot.startsAt, offer.durationMinutes) + PICKUP_ADDRESS_RETENTION_MS
+            personalDataEraseAt: new Date(
+              serviceEndsAtMs(slot.startsAt, offer.durationMinutes) + CONTACT_RETENTION_MS
             ).toISOString(),
           }
         : {}),

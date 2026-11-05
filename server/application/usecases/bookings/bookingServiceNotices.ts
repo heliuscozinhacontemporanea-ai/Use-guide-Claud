@@ -34,12 +34,18 @@ export function bookingServiceNoticeType(notice: BookingServiceNotice): Notifica
 export async function sendBookingServiceNotice(
   recipientUid: string,
   notice: BookingServiceNotice,
-  businessName?: string
+  businessName?: string,
+  /** Abre a reserva no app; o aviso "chegou" leva ao código ("Seu código", D27). */
+  bookingId?: string
 ): Promise<void> {
+  const partner = PARTNER_NOTICES.has(notice);
   await createNotificationUseCase({
     recipientUid,
     type: NOTICE_TYPES[notice],
     params: businessName ? { business: businessName } : {},
-    link: { screen: PARTNER_NOTICES.has(notice) ? 'partner' : 'bookings' },
+    link: {
+      screen: partner ? 'partner' : 'bookings',
+      ...(!partner && bookingId ? { id: bookingId } : {}),
+    },
   }).catch(() => undefined);
 }

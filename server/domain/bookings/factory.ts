@@ -1,6 +1,7 @@
 import { Ed25519EntryPassAdapter } from './adapters/ed25519EntryPassAdapter';
 import { FirestoreBookingsAdapter } from './adapters/firestoreBookingsAdapter';
 import { GuideBookableItemLookupAdapter } from './adapters/guideBookableItemLookupAdapter';
+import { BookingArrivalService } from './services/bookingArrivalService';
 import { BookingCheckInService } from './services/bookingCheckInService';
 import { BookingEntryService } from './services/bookingEntryService';
 import { BookingParticipantService } from './services/bookingParticipantService';
@@ -18,6 +19,7 @@ let privacyService: BookingPrivacyService | null = null;
 let entryService: BookingEntryService | null = null;
 let participantService: BookingParticipantService | null = null;
 let ownerAgendaService: OwnerAgendaService | null = null;
+let arrivalService: BookingArrivalService | null = null;
 let port: FirestoreBookingsAdapter | null = null;
 
 function getPort(): FirestoreBookingsAdapter {
@@ -64,4 +66,9 @@ export function getBookingParticipantService(): BookingParticipantService {
 export function getOwnerAgendaService(): OwnerAgendaService {
   ownerAgendaService ??= new OwnerAgendaService(getPort());
   return ownerAgendaService;
+}
+
+export function getBookingArrivalService(): BookingArrivalService {
+  arrivalService ??= new BookingArrivalService(getPort());
+  return arrivalService;
 }

@@ -69,9 +69,23 @@ const INPUT: CreatePendingBookingInput = {
   idempotencyKey: 'key-12345',
   locale: 'pt-BR',
   acceptedTermsVersion: BUYER_TERMS_VERSION,
+  contactPhone: '+5588998123456',
 };
 
 describe('BookingService', () => {
+  it('telefone na compra de passeio (D27): obrigatório, em E.164, apagado com o endereço', async () => {
+    const { service } = setup();
+    await expect(
+      service.createPendingBooking(BUYER, { ...INPUT, contactPhone: undefined }, FEES)
+    ).rejects.toMatchObject({ code: 'VALIDATION_ERROR' });
+    await expect(
+      service.createPendingBooking(BUYER, { ...INPUT, contactPhone: '88998123456' }, FEES)
+    ).rejects.toMatchObject({ code: 'VALIDATION_ERROR' });
+    const booking = await service.createPendingBooking(BUYER, INPUT, FEES);
+    expect(booking.contactPhone).toBe('+5588998123456');
+    expect(booking.personalDataEraseAt).toBeTruthy();
+  });
+
   it('cria reserva pendente com preço do backend, vagas reservadas e prazo de 15 min', async () => {
     const { service, port } = setup();
     const booking = await service.createPendingBooking(BUYER, INPUT, FEES);

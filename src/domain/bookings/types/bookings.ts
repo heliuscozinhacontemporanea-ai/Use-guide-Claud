@@ -169,6 +169,8 @@ export interface CreateBookingPayload {
   lines: Array<{ priceOptionId: string; quantity: number }>;
   participants: Array<{ name: string }>;
   pickupAddress?: string;
+  /** Telefone em E.164; o servidor exige em passeio, aluguel e translado (D27). */
+  contactPhone?: string;
   idempotencyKey: string;
   locale: 'pt-BR' | 'en' | 'fr';
   acceptedTermsVersion: string;

@@ -115,8 +115,8 @@ export class FirestoreBookingsAdapter implements BookingsPort {
   readonly listBookingsWithDeadlineBefore = this.checkIns.listBookingsWithDeadlineBefore.bind(
     this.checkIns
   );
-  readonly listBookingsWithPickupAddressEraseBefore =
-    this.checkIns.listBookingsWithPickupAddressEraseBefore.bind(this.checkIns);
+  readonly listBookingsWithPersonalDataEraseBefore =
+    this.checkIns.listBookingsWithPersonalDataEraseBefore.bind(this.checkIns);
   readonly deleteParticipants = this.checkIns.deleteParticipants.bind(this.checkIns);
 
   async reserveCapacityAndCreateBooking(

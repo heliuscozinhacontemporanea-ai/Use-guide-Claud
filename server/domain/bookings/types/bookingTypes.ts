@@ -212,8 +212,15 @@ export interface Booking {
   termsAcceptance?: TermsAcceptance;
   /** Onde o comprador está (hospedagem ou endereço), quando a oferta busca no endereço. PII (§7.6). */
   pickupAddress?: string;
-  /** Quando o endereço de busca é apagado: 7 dias depois do fim do serviço (D20, §7.5). */
-  pickupAddressEraseAt?: string;
+  /**
+   * Telefone do cliente (E.164), pedido na compra de passeio, aluguel e translado (D27). Confidencial
+   * (§7.6): o parceiro vê só depois do "Cheguei" e só enquanto o cliente não usou o código.
+   */
+  contactPhone?: string;
+  /** Quando endereço de busca e telefone são apagados: 7 dias depois do fim do serviço (D20, D27, §7.5). */
+  personalDataEraseAt?: string;
+  /** Resposta do cliente ao aviso "chegou" (D27): "Estou chegando" ou "Não vou mais". */
+  arrivalResponse?: { response: 'coming' | 'not_going'; at: string };
   /** Uma entrada por unidade usada; repetir o check-in da mesma unidade não cria outra. */
   checkIns?: BookingCheckIn[];
   arrival?: BookingArrival;

@@ -23,6 +23,12 @@ bookingsRouter.put(
 );
 bookingsRouter.post('/:bookingId/cancel', verifyAuthTokenStrict, BookingsController.cancel);
 bookingsRouter.post('/:bookingId/no-show', verifyAuthToken, BookingsController.markNoShow);
+// "Não vou mais" é ausência sem reembolso (D27): token revogado não serve.
+bookingsRouter.post(
+  '/:bookingId/arrival-response',
+  verifyAuthTokenStrict,
+  BookingsController.respondToArrival
+);
 // Relato e resposta mexem no reembolso (D20): token revogado não serve.
 bookingsRouter.post(
   '/:bookingId/provider-absent',
@@ -63,6 +69,15 @@ partnerOffersRouter.post(
   '/:offerId/slots/:slotId/check-ins',
   verifyAuthTokenStrict,
   PartnerOffersController.checkIn
+);
+partnerOffersRouter.post(
+  '/:offerId/slots/:slotId/arrival',
+  verifyAuthToken,
+  PartnerOffersController.recordSlotArrival
+);
+partnerOffersRouter.get(
+  '/:offerId/slots/:slotId/contacts',
+  PartnerOffersController.listSlotContacts
 );
 partnerOffersRouter.post(
   '/:offerId/bookings/:bookingId/arrival',

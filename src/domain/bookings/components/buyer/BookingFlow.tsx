@@ -2,6 +2,7 @@ import { ChevronLeft } from 'lucide-react';
 import { useId, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BUYER_TERMS_VERSION } from '../../../../shared/constants/legalTerms';
+import { E164PhoneField } from '../../../../ui/components/E164PhoneField';
 import { TermsAcceptanceField } from '../../../../ui/legal/TermsAcceptanceField';
 import { BUTTON_PRIMARY, BUTTON_SECONDARY, INPUT } from '../../../../ui/styles/controls';
 import type { PublicOffer, PublicSlot } from '../../types/bookings';
@@ -30,12 +31,17 @@ export function BookingFlow({
 }: BookingFlowProps) {
   const { t } = useTranslation();
   const pickupId = useId();
+  const phoneId = useId();
   const [step, setStep] = useState<Step>('select');
   const [slot, setSlot] = useState<PublicSlot | null>(null);
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [names, setNames] = useState<string[]>([]);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [pickupAddress, setPickupAddress] = useState('');
+  const [contactPhone, setContactPhone] = useState<string | undefined>(undefined);
+  // Telefone para o dia do serviço (D27); a entrada de atração usa QR e não precisa.
+  const needsPhone = offer.kind !== 'private_entry';
+  const phoneReady = !needsPhone || /^\+[1-9]\d{7,14}$/.test(contactPhone ?? '');
   const needsPickup = offer.pickupMode === 'buyer_address';
   const group = offer.sellingUnit === 'group';
   const pickupReady = !needsPickup || pickupAddress.trim().length >= 3;
@@ -51,9 +57,10 @@ export function BookingFlow({
         .map(([priceOptionId, quantity]) => ({ priceOptionId, quantity })),
       participants: names.map((name) => ({ name })),
       ...(needsPickup ? { pickupAddress: pickupAddress.trim() } : {}),
+      ...(needsPhone && contactPhone ? { contactPhone } : {}),
       acceptedTermsVersion: BUYER_TERMS_VERSION,
     }),
-    [offer.id, slot?.id, quantities, names, needsPickup, pickupAddress]
+    [offer.id, slot?.id, quantities, names, needsPickup, pickupAddress, needsPhone, contactPhone]
   );
 
   const proceed = () => {
@@ -140,6 +147,15 @@ export function BookingFlow({
           </p>
         </div>
       )}
+      {slot && participants > 0 && needsPhone && (
+        <div className="space-y-1.5">
+          <label htmlFor={phoneId} className="text-[13px] font-semibold text-ink/80">
+            {t('serviceProof.checkout.phoneLabel')}
+          </label>
+          <E164PhoneField id={phoneId} value={contactPhone} onChange={setContactPhone} />
+          <p className="text-[12px] text-ink/70">{t('serviceProof.checkout.phoneHint')}</p>
+        </div>
+      )}
       {slot && participants > 0 && !isAuthenticated && (
         <p className="text-xs text-ink/70">{t('bookings.buyer.loginRequired')}</p>
       )}
@@ -153,7 +169,7 @@ export function BookingFlow({
       {slot && (
         <button
           type="button"
-          disabled={participants === 0 || !termsAccepted || !pickupReady}
+          disabled={participants === 0 || !termsAccepted || !pickupReady || !phoneReady}
           onClick={proceed}
           className={`${BUTTON_PRIMARY} w-full`}
         >
