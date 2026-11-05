@@ -6,5 +6,6 @@ export { subscribeToNotificationsUseCase } from './application/usecases/subscrib
 // Componentes públicos só para src/app: sininho no topo e Configurações › Notificações (D25).
 export { NotificationBell } from './components/NotificationBell';
 export { NotificationSettingsView } from './components/NotificationSettingsView';
+export { SalesAlertsSummary } from './components/SalesAlertsSummary';
 export { useNotifications } from './hooks/useNotifications';
 export type { NotificationLink } from './types/notification';

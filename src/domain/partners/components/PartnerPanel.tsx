@@ -3,7 +3,6 @@ import { AnimatePresence } from 'motion/react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocalizedRouting } from '../../../shared/hooks/useLocalizedRouting';
-import type { EventSessionsFieldProps } from '../../events';
 import { newPartnerEventDraft } from '../utils/newPartnerEventDraft';
 import { MessagePage } from '../../../ui/components/MessagePage';
 import { createPartnerContentItemUseCase } from '../application/usecases/createPartnerContentItemUseCase';
@@ -13,78 +12,26 @@ import { useEditorScrollLock } from '../hooks/useEditorScrollLock';
 import { usePartnerEventSessions } from '../hooks/usePartnerEventSessions';
 import { usePartnerPanelActions } from '../hooks/usePartnerPanelActions';
 import { usePlanCheckout } from '../hooks/usePlanCheckout';
-import { PartnerProfile, SubscriptionPlan } from '../types/partner';
 import type { PartnerContentRecord } from '../types/partnerContent';
+import type { PartnerPanelProps } from './partnerPanelProps';
 import { ListingEditor } from './ListingEditor';
 import { PartnerEventEditor } from './PartnerEventEditor';
 import { ListingPlanFlow } from './panel/ListingPlanFlow';
 import { usePartnerPanelHome } from '../hooks/usePartnerPanelHome';
 import type { PartnerTodayItem } from '../types/partnerHome';
+export type { AgendaSheetProps, PartnerPanelProps } from './partnerPanelProps';
 import { belongs } from '../utils/partnerHomeFilter';
 import { EstablishmentFilterSheet } from './panel/EstablishmentFilterSheet';
 import { ATTENTION_TAB } from './panel/PartnerAttentionList';
 import type { CatalogSegment } from './panel/PartnerCatalogTab';
-import { type PartnerCatalogRenders, PartnerCatalogSection } from './panel/PartnerCatalogSection';
+import { PartnerCatalogSection } from './panel/PartnerCatalogSection';
 import { PartnerHomeTab } from './panel/PartnerHomeTab';
-import { type PartnerEarningsRenders, PartnerEarningsTab } from './panel/PartnerEarningsTab';
-import {
-  type PartnerAccountView,
-  PartnerMoreSection,
-  type PartnerMoreView,
-} from './panel/PartnerMoreSection';
+import { PartnerEarningsTab } from './panel/PartnerEarningsTab';
+import { PartnerMoreSection, type PartnerMoreView } from './panel/PartnerMoreSection';
 import { PartnerPanelTop } from './panel/PartnerPanelTop';
 import { PartnerAgendaTab } from './panel/PartnerAgendaTab';
 import type { PartnerPanelTab } from './panel/partnerPanelTabs';
 import type { VerificationListingOption } from './verification/verificationListingOption';
-
-/** O que a composição recebe para abrir a folha de um item da Agenda. */
-export interface AgendaSheetProps {
-  item: PartnerTodayItem;
-  onClose: () => void;
-  onChanged: () => void;
-}
-
-export interface PartnerPanelProps {
-  profile?: PartnerProfile;
-  subscriptionPlans?: SubscriptionPlan[];
-  renderReports?: (props: {
-    partnerId: string;
-    items: PartnerContentRecord[];
-    events: PartnerContentRecord[];
-  }) => React.ReactNode;
-  renderCheckoutModal?: (props: {
-    isOpen: boolean;
-    onClose: () => void;
-    /** Estabelecimento que recebe o plano (D11). */
-    itemId: string;
-    planId: string;
-    itemName: string;
-    amountMinor: number;
-    onPaymentSuccess: () => void;
-  }) => React.ReactNode;
-  renderEventTicketingManager?: (eventListingId: string) => React.ReactNode;
-  /** Campo de sessões do evento (domínio events), montado pela composição do app. */
-  renderEventSessionsField?: (props: EventSessionsFieldProps) => React.ReactNode;
-  /** Assinatura no cartão do plano de um estabelecimento, montada pela composição. */
-  renderPlanSubscription?: (
-    itemId: string,
-    onLiveChange: (live: boolean) => void
-  ) => React.ReactNode;
-  /** Passeios, visitas e avaliações do Catálogo (outros domínios), montados pela composição. */
-  renderCatalog?: PartnerCatalogRenders;
-  /** Chamado ao fechar o checkout depois de um pagamento confirmado, para recarregar o perfil. */
-  onPlanPurchased?: () => void;
-  /** Ganhos (domínio payment), montado pela composição. */
-  renderEarnings?: PartnerEarningsRenders;
-  /** Conta de recebimento do evento em Editar evento (payment), montada pela composição. */
-  renderEventAccountCard?: (establishmentId: string, establishmentName: string) => React.ReactNode;
-  /** Folha do horário de reserva (domínio bookings), montada pela composição. */
-  renderSlotSheet?: (props: AgendaSheetProps) => React.ReactNode;
-  /** Folha da sessão de evento (domínio ticketing), montada pela composição. */
-  renderSessionSheet?: (props: AgendaSheetProps) => React.ReactNode;
-  /** Notificações, termos do parceiro e ajuda (outros domínios), montados pela composição. */
-  renderAccountView?: (view: PartnerAccountView, onBack: () => void) => React.ReactNode;
-}
 
 export function PartnerPanel({
   profile,
@@ -101,6 +48,7 @@ export function PartnerPanel({
   renderSlotSheet,
   renderSessionSheet,
   renderEventAccountCard,
+  renderNotificationsHint,
 }: PartnerPanelProps) {
   const { goTo } = useLocalizedRouting();
   const { t } = useTranslation();
@@ -108,7 +56,7 @@ export function PartnerPanel({
   const [panelTab, setPanelTab] = React.useState<PartnerPanelTab>('home');
   const [catalogSegment, setCatalogSegment] = React.useState<CatalogSegment>('places');
   const [eventsVersion, setEventsVersion] = React.useState(0);
-  const [openReports, setOpenReports] = React.useState(false);
+  const [openReports, setOpenReports] = React.useState<false | 'sales' | 'reviews'>(false);
   const [openAccounts, setOpenAccounts] = React.useState(false);
   const [placeId, setPlaceId] = React.useState<string | null>(null);
   const [eventId, setEventId] = React.useState<string | null>(null);
@@ -262,7 +210,7 @@ export function PartnerPanel({
             verificationVersion={verificationVersion}
             planVersion={planVersion}
             onOpenReviews={() => {
-              setOpenReports(true);
+              setOpenReports('reviews');
               setPanelTab('earnings');
             }}
             renders={renderCatalog ?? {}}
@@ -274,7 +222,14 @@ export function PartnerPanel({
             showAccounts={openAccounts}
             onShowAccountsChange={setOpenAccounts}
             renders={renderEarnings ?? {}}
-            reports={renderReports?.({ partnerId: user.uid, items: itemsList, events: eventsList })}
+            reports={renderReports?.({
+              partnerId: user.uid,
+              items: itemsList,
+              events: eventsList,
+              unansweredReviews: Object.fromEntries(
+                home.establishments.map((entry) => [entry.id, entry.unansweredReviews])
+              ),
+            })}
           />
         ) : (
           <PartnerMoreSection
@@ -294,6 +249,7 @@ export function PartnerPanel({
             onOpenPlan={(item) => setPlanListing({ id: item.id, name: item.name })}
             onOpenEarnings={() => setPanelTab('earnings')}
             renderAccountView={renderAccountView}
+            notificationsHint={renderNotificationsHint?.()}
           />
         )}
       </div>

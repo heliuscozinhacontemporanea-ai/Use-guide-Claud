@@ -19,6 +19,7 @@ export function PartnerMoreSection({
   onOpenPlan,
   onOpenEarnings,
   renderAccountView,
+  notificationsHint,
 }: {
   view: PartnerMoreView;
   onViewChange: (view: PartnerMoreView) => void;
@@ -30,6 +31,8 @@ export function PartnerMoreSection({
   onOpenPlan: (listing: { id: string; name: string }) => void;
   onOpenEarnings: () => void;
   renderAccountView?: (view: PartnerAccountView, onBack: () => void) => ReactNode;
+  /** Escolha de avisos de venda (notifications), montada pela composição. */
+  notificationsHint?: ReactNode;
 }) {
   const { t } = useTranslation();
   const back = () => onViewChange('list');
@@ -96,6 +99,7 @@ export function PartnerMoreSection({
         {
           id: 'notifications',
           title: t('partnerPanel.more.notifications'),
+          hint: notificationsHint,
           onOpen: () => onViewChange('notifications'),
         },
         { id: 'terms', title: t('partnerPanel.more.terms'), onOpen: () => onViewChange('terms') },

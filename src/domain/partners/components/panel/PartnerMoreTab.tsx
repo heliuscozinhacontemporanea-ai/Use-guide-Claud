@@ -1,9 +1,10 @@
 import { ChevronRight } from 'lucide-react';
+import type { ReactNode } from 'react';
 
 export interface PartnerMoreEntry {
   id: string;
   title: string;
-  hint?: string;
+  hint?: ReactNode;
   onOpen: () => void;
 }
 

@@ -162,3 +162,20 @@ export interface PartnerEarnings {
   payouts: PartnerPayoutGroup[];
   accounts: { count: number; ready: number };
 }
+
+export type PartnerReportPeriod = '7d' | '30d' | '12m';
+
+/** Relatórios (p23), como `/api/partner-home/reports` devolve. */
+export interface PartnerReports {
+  period: PartnerReportPeriod;
+  soldMinor: number;
+  buckets: Array<{ start: string; soldMinor: number }>;
+  items: Array<{
+    key: string;
+    title: string | null;
+    referenceType: string;
+    soldMinor: number;
+    sales: number;
+  }>;
+  truncated: boolean;
+}

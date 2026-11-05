@@ -18,6 +18,21 @@ export interface PartnerEarningsTranslation {
   accountsReady_one: string;
   accountsReady_other: string;
   accountsPartial: string;
+  reports: {
+    title: string;
+    periods: { '7d': string; '30d': string; '12m': string };
+    sold: string;
+    groupBy: string;
+    units: { day: string; week: string; month: string };
+    byItem: string;
+    sales_one: string;
+    sales_other: string;
+    empty: string;
+    truncated: string;
+    loadError: string;
+    profile: string;
+    profileHint: string;
+  };
   sheet: {
     title: string;
     heldTitle: string;
@@ -55,6 +70,21 @@ export const partnerEarningsPtBR: PartnerEarningsTranslation = {
   accountsReady_one: '{{count}} CNPJ · tudo certo',
   accountsReady_other: '{{count}} CNPJs · tudo certo',
   accountsPartial: '{{ready}} de {{count}} prontas para receber',
+  reports: {
+    title: 'Relatórios',
+    periods: { '7d': '7 dias', '30d': '30 dias', '12m': '12 meses' },
+    sold: 'Vendido em {{period}}',
+    groupBy: 'Agrupar por: {{unit}}',
+    units: { day: 'Dia', week: 'Semana', month: 'Mês' },
+    byItem: 'Por item',
+    sales_one: '{{count}} venda',
+    sales_other: '{{count}} vendas',
+    empty: 'Nenhuma venda no período.',
+    truncated: 'Muitas vendas no período: os valores podem estar abaixo do total.',
+    loadError: 'Não foi possível carregar os relatórios.',
+    profile: 'Visitas e avaliações',
+    profileHint: 'Quem viu seus anúncios e avaliações para responder',
+  },
   sheet: {
     title: 'Repasse de {{date}}',
     heldTitle: 'Venda retida',
@@ -92,6 +122,21 @@ export const partnerEarningsEn: PartnerEarningsTranslation = {
   accountsReady_one: '{{count}} CNPJ · all set',
   accountsReady_other: '{{count}} CNPJs · all set',
   accountsPartial: '{{ready}} of {{count}} ready to receive',
+  reports: {
+    title: 'Reports',
+    periods: { '7d': '7 days', '30d': '30 days', '12m': '12 months' },
+    sold: 'Sold in {{period}}',
+    groupBy: 'Group by: {{unit}}',
+    units: { day: 'Day', week: 'Week', month: 'Month' },
+    byItem: 'By item',
+    sales_one: '{{count}} sale',
+    sales_other: '{{count}} sales',
+    empty: 'No sales in this period.',
+    truncated: 'Many sales in this period: amounts may be below the total.',
+    loadError: "Couldn't load the reports.",
+    profile: 'Visits and reviews',
+    profileHint: 'Who saw your listings and reviews to reply to',
+  },
   sheet: {
     title: 'Payout on {{date}}',
     heldTitle: 'Held sale',
@@ -130,6 +175,21 @@ export const partnerEarningsFr: PartnerEarningsTranslation = {
   accountsReady_one: '{{count}} CNPJ · tout est en ordre',
   accountsReady_other: '{{count}} CNPJ · tout est en ordre',
   accountsPartial: '{{ready}} sur {{count}} prêts à recevoir',
+  reports: {
+    title: 'Rapports',
+    periods: { '7d': '7 jours', '30d': '30 jours', '12m': '12 mois' },
+    sold: 'Vendu sur {{period}}',
+    groupBy: 'Regrouper par : {{unit}}',
+    units: { day: 'Jour', week: 'Semaine', month: 'Mois' },
+    byItem: 'Par élément',
+    sales_one: '{{count}} vente',
+    sales_other: '{{count}} ventes',
+    empty: 'Aucune vente sur la période.',
+    truncated: 'Beaucoup de ventes sur la période : les montants peuvent être inférieurs au total.',
+    loadError: 'Impossible de charger les rapports.',
+    profile: 'Visites et avis',
+    profileHint: 'Qui a vu vos annonces et les avis à répondre',
+  },
   sheet: {
     title: 'Versement du {{date}}',
     heldTitle: 'Vente retenue',

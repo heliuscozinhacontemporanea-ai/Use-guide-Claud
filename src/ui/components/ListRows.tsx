@@ -50,3 +50,24 @@ export function ListRowButton({
     </li>
   );
 }
+
+/** Linha só de leitura, com valor à direita (ex.: vendas por item, p23). */
+export function ListRowStatic({
+  title,
+  sub,
+  aside,
+}: {
+  title: string;
+  sub?: string;
+  aside?: ReactNode;
+}) {
+  return (
+    <li className="px-4 py-3.5 min-h-16 flex items-center gap-3">
+      <span className="flex-1 min-w-0">
+        <span className="block text-[15px] font-semibold text-ink break-words">{title}</span>
+        {sub && <span className="block text-[13px] text-ink/70">{sub}</span>}
+      </span>
+      {aside}
+    </li>
+  );
+}

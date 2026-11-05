@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatBusinessDate } from '../../../../shared/utils/businessDateTime';
 import { formatMoneyMinorCompact } from '../../../../shared/utils/money';
-import { BackButton } from '../../../../ui/components/BackButton';
 import { ListEmpty, ListError, ListLoading } from '../../../../ui/components/ListState';
 import { ListCard, ListRowButton } from '../../../../ui/components/ListRows';
 import { SegmentedControl } from '../../../../ui/components/SegmentedControl';
@@ -13,6 +12,7 @@ import { usePartnerEarnings } from '../../hooks/usePartnerEarnings';
 import type { PartnerPayoutGroup } from '../../types/partnerHome';
 import { payoutRow } from '../../utils/payoutFormat';
 import { PartnerPayoutSheet } from './PartnerPayoutSheet';
+import { PartnerReportsPage } from './PartnerReportsPage';
 
 type EarningsSegment = 'payouts' | 'statement' | 'debts';
 
@@ -40,9 +40,9 @@ export function PartnerEarningsTab({
 }: {
   renders: PartnerEarningsRenders;
   reports: ReactNode;
-  /** Relatórios abertos; a página do estabelecimento abre direto nas avaliações. */
-  showReports: boolean;
-  onShowReportsChange: (open: boolean) => void;
+  /** Relatórios abertos; a página do estabelecimento abre direto em "Visitas e avaliações". */
+  showReports: false | 'sales' | 'reviews';
+  onShowReportsChange: (open: false | 'sales' | 'reviews') => void;
   /** Contas de recebimento (p22); o painel esconde os atalhos enquanto ela está aberta. */
   showAccounts: boolean;
   onShowAccountsChange: (open: boolean) => void;
@@ -55,10 +55,12 @@ export function PartnerEarningsTab({
 
   if (showReports) {
     return (
-      <div className="space-y-4">
-        <BackButton label={t('partnerPanel.tabs.earnings')} onClick={() => setShowReports(false)} />
-        {reports}
-      </div>
+      <PartnerReportsPage
+        key={showReports}
+        initialProfile={showReports === 'reviews'}
+        onBack={() => setShowReports(false)}
+        profile={reports}
+      />
     );
   }
   if (showAccounts) return <>{renders.renderAccounts?.(() => setShowAccounts(false))}</>;
@@ -143,7 +145,7 @@ export function PartnerEarningsTab({
         <ListRowButton
           title={t('partnerPanel.more.reports')}
           sub={t('partnerPanel.more.reportsHint')}
-          onClick={() => setShowReports(true)}
+          onClick={() => setShowReports('sales')}
         />
       </ListCard>
 

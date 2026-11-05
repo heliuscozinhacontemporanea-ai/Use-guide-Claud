@@ -17,6 +17,8 @@ interface ReportsViewProps {
   partnerId: string;
   items: GuideItem[];
   events: GuideItem[];
+  /** Avaliações sem resposta por item, contadas no servidor (a lista carrega só as recentes). */
+  unansweredByItem?: Record<string, number>;
 }
 
 function toEntity(item: GuideItem, type: ReportEntity['type']): ReportEntity {
@@ -31,7 +33,7 @@ function toEntity(item: GuideItem, type: ReportEntity['type']): ReportEntity {
   };
 }
 
-export function ReportsView({ items, events }: ReportsViewProps) {
+export function ReportsView({ items, events, unansweredByItem }: ReportsViewProps) {
   const { t } = useTranslation();
   const entities = [
     ...items.map((item) => toEntity(item, 'items')),
@@ -126,7 +128,11 @@ export function ReportsView({ items, events }: ReportsViewProps) {
               </p>
             </div>
           </div>
-          <PendingReviewsPanel reviews={report.reviews} onReplied={report.markReplied} />
+          <PendingReviewsPanel
+            reviews={report.reviews}
+            onReplied={report.markReplied}
+            pendingTotal={unansweredByItem?.[selected.id]}
+          />
         </div>
       ) : (
         <motion.div
@@ -136,7 +142,11 @@ export function ReportsView({ items, events }: ReportsViewProps) {
         >
           <ReportsStatsGrid stats={report.stats} />
           <ReportsViewsChart history={report.stats.history} />
-          <PendingReviewsPanel reviews={report.reviews} onReplied={report.markReplied} />
+          <PendingReviewsPanel
+            reviews={report.reviews}
+            onReplied={report.markReplied}
+            pendingTotal={unansweredByItem?.[selected.id]}
+          />
         </motion.div>
       )}
     </div>

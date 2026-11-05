@@ -21,3 +21,7 @@ export const PartnerAgendaQuerySchema = z
 export const PartnerEventParamsSchema = z
   .object({ eventId: z.string().regex(/^[A-Za-z0-9_-]{1,128}$/) })
   .strict();
+
+export const PartnerReportsQuerySchema = z
+  .object({ period: z.enum(['7d', '30d', '12m']) })
+  .strict();

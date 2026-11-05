@@ -3,6 +3,8 @@ import type {
   PartnerEarnings,
   PartnerEventSales,
   PartnerHomeView,
+  PartnerReportPeriod,
+  PartnerReports,
   PartnerTodayItem,
 } from '../types/partnerHome';
 
@@ -16,6 +18,8 @@ export interface PartnerHomePort {
   getEventSales(eventId: string): Promise<PartnerEventSales>;
   /** A receber, recebido no mês e repasses dos CNPJs do parceiro. */
   getEarnings(): Promise<PartnerEarnings>;
+  /** Vendas do período por barra e por item. */
+  getReports(period: PartnerReportPeriod): Promise<PartnerReports>;
   /** Devolve os cartões gravados, na ordem. */
   saveCards(cards: string[]): Promise<string[]>;
 }

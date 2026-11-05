@@ -9,6 +9,7 @@ const m = vi.hoisted(() => ({
   catalog: vi.fn(),
   sales: vi.fn(),
   earnings: vi.fn(),
+  reports: vi.fn(),
 }));
 
 vi.mock('../../../application/usecases/partnerHome/getPartnerHomeApplicationUseCase', () => ({
@@ -25,6 +26,9 @@ vi.mock('../../../application/usecases/partnerHome/getPartnerEventSalesApplicati
 }));
 vi.mock('../../../application/usecases/partnerHome/getPartnerEarningsApplicationUseCase', () => ({
   getPartnerEarningsApplicationUseCase: m.earnings,
+}));
+vi.mock('../../../application/usecases/partnerHome/getPartnerReportsApplicationUseCase', () => ({
+  getPartnerReportsApplicationUseCase: m.reports,
 }));
 vi.mock('../../../domain/partners', async () => {
   const { PartnerDomainError } = await import('../../../domain/partners/errors/partnerDomainError');
@@ -187,5 +191,21 @@ describe('PartnerHomeController', () => {
     );
     expect(fail.status).toHaveBeenCalledWith(503);
     expect(JSON.stringify(fail.json.mock.calls)).not.toContain('chave');
+  });
+
+  it('relatórios: só os períodos conhecidos, do uid logado', async () => {
+    m.reports.mockResolvedValueOnce({ items: [] });
+    const ok = response();
+    await PartnerHomeController.getReports(
+      { query: { period: '30d' }, user: { uid: 'owner-1' } } as never,
+      ok as unknown as Response
+    );
+    expect(m.reports).toHaveBeenCalledWith('owner-1', '30d');
+    const bad = response();
+    await PartnerHomeController.getReports(
+      { query: { period: '5y' }, user: { uid: 'owner-1' } } as never,
+      bad as unknown as Response
+    );
+    expect(bad.status).toHaveBeenCalledWith(400);
   });
 });

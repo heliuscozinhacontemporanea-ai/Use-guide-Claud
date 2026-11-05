@@ -5,6 +5,8 @@ import type {
   PartnerEarnings,
   PartnerEventSales,
   PartnerHomeView,
+  PartnerReportPeriod,
+  PartnerReports,
   PartnerTodayItem,
 } from '../types/partnerHome';
 
@@ -72,6 +74,19 @@ export class ApiPartnerHomeAdapter implements PartnerHomePort {
       throw new Error(typeof body?.error?.code === 'string' ? body.error.code : 'INTERNAL_ERROR');
     }
     return (body as { data: PartnerEarnings }).data;
+  }
+
+  async getReports(period: PartnerReportPeriod): Promise<PartnerReports> {
+    const response = await firebaseApiFetch(
+      `/api/partner-home/reports?${new URLSearchParams({ period })}`,
+      { method: 'GET' },
+      OPTIONS
+    );
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(typeof body?.error?.code === 'string' ? body.error.code : 'INTERNAL_ERROR');
+    }
+    return (body as { data: PartnerReports }).data;
   }
 
   async saveCards(cards: string[]): Promise<string[]> {

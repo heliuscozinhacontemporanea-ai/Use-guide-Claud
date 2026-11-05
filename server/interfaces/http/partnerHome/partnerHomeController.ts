@@ -1,6 +1,7 @@
 import type { Response } from 'express';
 import { getPartnerAgendaApplicationUseCase } from '../../../application/usecases/partnerHome/getPartnerAgendaApplicationUseCase';
 import { getPartnerEarningsApplicationUseCase } from '../../../application/usecases/partnerHome/getPartnerEarningsApplicationUseCase';
+import { getPartnerReportsApplicationUseCase } from '../../../application/usecases/partnerHome/getPartnerReportsApplicationUseCase';
 import { getPartnerEventSalesApplicationUseCase } from '../../../application/usecases/partnerHome/getPartnerEventSalesApplicationUseCase';
 import { getPartnerCatalogApplicationUseCase } from '../../../application/usecases/partnerHome/getPartnerCatalogApplicationUseCase';
 import { getPartnerHomeApplicationUseCase } from '../../../application/usecases/partnerHome/getPartnerHomeApplicationUseCase';
@@ -10,6 +11,7 @@ import type { AuthenticatedRequest } from '../../../infrastructure/auth/authenti
 import {
   PartnerAgendaQuerySchema,
   PartnerEventParamsSchema,
+  PartnerReportsQuerySchema,
   SavePartnerHomeCardsSchema,
 } from './schemas/partnerHomeSchemas';
 
@@ -139,6 +141,26 @@ export class PartnerHomeController {
         503,
         'PARTNER_HOME_UNAVAILABLE',
         'Não foi possível carregar os ganhos.'
+      );
+    }
+  }
+
+  static async getReports(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    if (!req.user?.uid) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
+    const query = PartnerReportsQuerySchema.safeParse(req.query);
+    if (!query.success) return sendError(res, 400, 'VALIDATION_ERROR', 'Período inválido.');
+    try {
+      const data = await getPartnerReportsApplicationUseCase(req.user.uid, query.data.period);
+      return res.status(200).json({ data });
+    } catch (error) {
+      console.error('[PartnerHomeController.getReports]', {
+        name: error instanceof Error ? error.name : 'UnknownError',
+      });
+      return sendError(
+        res,
+        503,
+        'PARTNER_HOME_UNAVAILABLE',
+        'Não foi possível carregar os relatórios.'
       );
     }
   }

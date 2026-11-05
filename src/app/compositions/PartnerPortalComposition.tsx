@@ -8,7 +8,7 @@ import { UserRole } from '../../domain/auth/types/auth';
 import { AboutTermsView, SupportView } from '../../domain/content';
 import { EventSessionsField } from '../../domain/events';
 import { MonthVisitsTile, ReportsView } from '../../domain/insights';
-import { NotificationSettingsView } from '../../domain/notifications';
+import { NotificationSettingsView, SalesAlertsSummary } from '../../domain/notifications';
 import { RecentItemReviews } from '../../domain/reviews';
 import type { PartnerProfile, SubscriptionPlan } from '../../domain/partners';
 import { getPartnerProfileUseCase, PartnerPanel } from '../../domain/partners';
@@ -173,8 +173,13 @@ export function PartnerPortalComposition() {
       profile={profile}
       onPlanPurchased={() => setProfileVersion((version) => version + 1)}
       subscriptionPlans={plans}
-      renderReports={({ partnerId, items, events }) => (
-        <ReportsView partnerId={partnerId} items={items} events={events} />
+      renderReports={({ partnerId, items, events, unansweredReviews }) => (
+        <ReportsView
+          partnerId={partnerId}
+          items={items}
+          events={events}
+          unansweredByItem={unansweredReviews}
+        />
       )}
       renderCheckoutModal={({
         isOpen,
@@ -217,6 +222,7 @@ export function PartnerPortalComposition() {
       renderEventTicketingManager={(eventListingId) => (
         <PartnerEventTicketingComposition eventListingId={eventListingId} lotsOnly />
       )}
+      renderNotificationsHint={() => <SalesAlertsSummary />}
       renderEventAccountCard={(establishmentId, establishmentName) => (
         <EventPaymentAccountCard
           establishmentId={establishmentId}
