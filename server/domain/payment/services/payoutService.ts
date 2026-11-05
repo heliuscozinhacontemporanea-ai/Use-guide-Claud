@@ -89,6 +89,15 @@ export class PayoutService {
     return this.entries.get(entryIdFor(referenceType, referenceId));
   }
 
+  /** Repasses já pagos desde `sinceIso` (Ganhos, p20). */
+  async listReleasedForAccounts(
+    accountKeys: string[],
+    sinceIso: string,
+    limit: number
+  ): Promise<PayoutEntryView[]> {
+    return (await this.entries.listReleasedSince(accountKeys, sinceIso, limit)).map(toEntryView);
+  }
+
   /** Repasses de várias vendas do mesmo tipo (ex.: os pedidos de um evento). */
   async listForReferences(
     referenceType: string,

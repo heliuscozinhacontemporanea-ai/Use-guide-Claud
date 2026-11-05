@@ -13,6 +13,8 @@ export interface PayoutEntryRepositoryPort {
   listByAccountKeys(accountKeys: string[], limit: number, cursor?: string): Promise<PayoutEntry[]>;
   /** Entradas ainda não pagas (`pending` e `on_hold`) dos CNPJs, pela data de liberação. */
   listOpenByAccountKeys(accountKeys: string[], limit: number): Promise<PayoutEntry[]>;
+  /** Entradas pagas (`released`) dos CNPJs desde `sinceIso`, das mais recentes para as antigas. */
+  listReleasedSince(accountKeys: string[], sinceIso: string, limit: number): Promise<PayoutEntry[]>;
   /** Lê, aplica a mudança e grava na mesma transação; `null` deixa como está. */
   update(
     id: string,

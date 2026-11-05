@@ -16,7 +16,9 @@ import {
   CheckoutModal,
   isPaidPlanId,
   type PlanPeriodOption,
-  PartnerStripeConnectPortal,
+  PartnerDebtsPanel,
+  PartnerPaymentAccountsPage,
+  PartnerStatementPanel,
   PlanSubscriptionCard,
 } from '../../domain/payment';
 import { useLocalizedRouting } from '../../shared/hooks/useLocalizedRouting';
@@ -135,6 +137,11 @@ export function PartnerPortalComposition() {
     );
   }
 
+  // Nome do estabelecimento de um CNPJ, para Contas de recebimento (p22).
+  const establishmentNameFor = (itemIds: string[]) =>
+    profile?.businesses?.find((business) => itemIds.includes(business.businessId))?.businessName ??
+    null;
+
   if (profile?.status === 'suspended') {
     return (
       <MessagePage
@@ -217,7 +224,13 @@ export function PartnerPortalComposition() {
         />
       )}
       renderEventSessionsField={(props) => <EventSessionsField {...props} />}
-      renderEarnings={() => <PartnerStripeConnectPortal />}
+      renderEarnings={{
+        renderStatement: () => <PartnerStatementPanel />,
+        renderDebts: () => <PartnerDebtsPanel />,
+        renderAccounts: (onBack) => (
+          <PartnerPaymentAccountsPage onBack={onBack} nameFor={establishmentNameFor} />
+        ),
+      }}
       renderSlotSheet={({ item, onClose, onChanged }) => (
         <PartnerSlotSheet
           offerId={item.parentId}

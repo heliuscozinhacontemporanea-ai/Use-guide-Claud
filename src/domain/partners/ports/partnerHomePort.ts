@@ -1,5 +1,6 @@
 import type {
   PartnerCatalogEvent,
+  PartnerEarnings,
   PartnerEventSales,
   PartnerHomeView,
   PartnerTodayItem,
@@ -13,6 +14,8 @@ export interface PartnerHomePort {
   getCatalogEvents(): Promise<PartnerCatalogEvent[]>;
   /** Vendas, sessões e pedidos de um evento do dono. */
   getEventSales(eventId: string): Promise<PartnerEventSales>;
+  /** A receber, recebido no mês e repasses dos CNPJs do parceiro. */
+  getEarnings(): Promise<PartnerEarnings>;
   /** Devolve os cartões gravados, na ordem. */
   saveCards(cards: string[]): Promise<string[]>;
 }

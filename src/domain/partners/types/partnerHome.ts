@@ -128,3 +128,37 @@ export interface PartnerEventSales {
   orders: PartnerEventOrder[];
   ordersTotal: number;
 }
+
+/** Venda dentro de um repasse (p21). */
+export interface PartnerPayoutLine {
+  id: string;
+  title: string | null;
+  referenceType: string;
+  serviceEndsAt: string;
+  grossMinor: number;
+  serviceFeeMinor: number;
+  refundedMinor: number;
+  platformFeeMinor: number;
+  offsetMinor: number;
+  netMinor: number;
+}
+
+/** Repasse na tela (p20): as vendas do mesmo CNPJ que caem no mesmo dia. */
+export interface PartnerPayoutGroup {
+  id: string;
+  status: 'scheduled' | 'held' | 'paid';
+  date: string;
+  accountKey: string;
+  account: { maskedDocument: string; name: string | null };
+  amountMinor: number;
+  holdReasons: string[];
+  lines: PartnerPayoutLine[];
+}
+
+/** Ganhos, como `/api/partner-home/earnings` devolve. */
+export interface PartnerEarnings {
+  toReceiveMinor: number;
+  receivedThisMonthMinor: number;
+  payouts: PartnerPayoutGroup[];
+  accounts: { count: number; ready: number };
+}

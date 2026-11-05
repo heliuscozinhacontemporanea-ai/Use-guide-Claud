@@ -8,6 +8,7 @@ const m = vi.hoisted(() => ({
   agenda: vi.fn(),
   catalog: vi.fn(),
   sales: vi.fn(),
+  earnings: vi.fn(),
 }));
 
 vi.mock('../../../application/usecases/partnerHome/getPartnerHomeApplicationUseCase', () => ({
@@ -21,6 +22,9 @@ vi.mock('../../../application/usecases/partnerHome/getPartnerCatalogApplicationU
 }));
 vi.mock('../../../application/usecases/partnerHome/getPartnerEventSalesApplicationUseCase', () => ({
   getPartnerEventSalesApplicationUseCase: m.sales,
+}));
+vi.mock('../../../application/usecases/partnerHome/getPartnerEarningsApplicationUseCase', () => ({
+  getPartnerEarningsApplicationUseCase: m.earnings,
 }));
 vi.mock('../../../domain/partners', async () => {
   const { PartnerDomainError } = await import('../../../domain/partners/errors/partnerDomainError');
@@ -168,5 +172,20 @@ describe('PartnerHomeController', () => {
       bad as unknown as Response
     );
     expect(bad.status).toHaveBeenCalledWith(400);
+  });
+
+  it('ganhos: lê só do uid logado e responde 503 sem detalhe interno', async () => {
+    m.earnings.mockResolvedValueOnce({ payouts: [] });
+    const ok = response();
+    await PartnerHomeController.getEarnings(request({ uid: 'owner-1' }), ok as unknown as Response);
+    expect(m.earnings).toHaveBeenCalledWith('owner-1');
+    m.earnings.mockRejectedValueOnce(new Error('stripe: chave interna'));
+    const fail = response();
+    await PartnerHomeController.getEarnings(
+      request({ uid: 'owner-1' }),
+      fail as unknown as Response
+    );
+    expect(fail.status).toHaveBeenCalledWith(503);
+    expect(JSON.stringify(fail.json.mock.calls)).not.toContain('chave');
   });
 });

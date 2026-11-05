@@ -23,6 +23,22 @@ export class InMemoryPayoutEntryAdapter implements PayoutEntryRepositoryPort {
     });
   }
 
+  async listReleasedSince(
+    accountKeys: string[],
+    sinceIso: string,
+    limit: number
+  ): Promise<PayoutEntry[]> {
+    return [...this.rows.values()]
+      .filter(
+        (entry) =>
+          accountKeys.includes(entry.accountKey) &&
+          entry.status === 'released' &&
+          (entry.releasedAt ?? '') >= sinceIso
+      )
+      .sort((a, b) => (b.releasedAt ?? '').localeCompare(a.releasedAt ?? ''))
+      .slice(0, limit);
+  }
+
   async getByPaymentIntentId(paymentIntentId: string): Promise<PayoutEntry | null> {
     return (
       [...this.rows.values()].find((entry) => entry.paymentIntentId === paymentIntentId) ?? null

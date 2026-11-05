@@ -26,7 +26,7 @@ import { ATTENTION_TAB } from './panel/PartnerAttentionList';
 import type { CatalogSegment } from './panel/PartnerCatalogTab';
 import { type PartnerCatalogRenders, PartnerCatalogSection } from './panel/PartnerCatalogSection';
 import { PartnerHomeTab } from './panel/PartnerHomeTab';
-import { PartnerEarningsTab } from './panel/PartnerEarningsTab';
+import { type PartnerEarningsRenders, PartnerEarningsTab } from './panel/PartnerEarningsTab';
 import {
   type PartnerAccountView,
   PartnerMoreSection,
@@ -75,7 +75,7 @@ export interface PartnerPanelProps {
   /** Chamado ao fechar o checkout depois de um pagamento confirmado, para recarregar o perfil. */
   onPlanPurchased?: () => void;
   /** Ganhos (domínio payment), montado pela composição. */
-  renderEarnings?: () => React.ReactNode;
+  renderEarnings?: PartnerEarningsRenders;
   /** Conta de recebimento do evento em Editar evento (payment), montada pela composição. */
   renderEventAccountCard?: (establishmentId: string, establishmentName: string) => React.ReactNode;
   /** Folha do horário de reserva (domínio bookings), montada pela composição. */
@@ -109,6 +109,7 @@ export function PartnerPanel({
   const [catalogSegment, setCatalogSegment] = React.useState<CatalogSegment>('places');
   const [eventsVersion, setEventsVersion] = React.useState(0);
   const [openReports, setOpenReports] = React.useState(false);
+  const [openAccounts, setOpenAccounts] = React.useState(false);
   const [placeId, setPlaceId] = React.useState<string | null>(null);
   const [eventId, setEventId] = React.useState<string | null>(null);
   const [editingHasSales, setEditingHasSales] = React.useState(false);
@@ -186,13 +187,17 @@ export function PartnerPanel({
       <div
         className={`max-w-4xl mx-auto space-y-8 relative z-10 transition-all duration-300 ${isEditing || editingListing !== undefined ? 'opacity-0 scale-[0.98] pointer-events-none h-0 overflow-hidden' : 'opacity-100 scale-100'}`}
       >
-        {!(panelTab === 'catalog' && (placeId || eventId)) && (
+        {!(
+          (panelTab === 'catalog' && (placeId || eventId)) ||
+          (panelTab === 'earnings' && (openReports || openAccounts))
+        ) && (
           <PartnerPanelTop
             home={home}
             tab={panelTab}
             onTabChange={(tab) => {
               setPanelTab(tab);
               setOpenReports(false);
+              setOpenAccounts(false);
               setPlaceId(null);
               setEventId(null);
               setMoreView('list');
@@ -266,7 +271,9 @@ export function PartnerPanel({
           <PartnerEarningsTab
             showReports={openReports}
             onShowReportsChange={setOpenReports}
-            earnings={renderEarnings?.()}
+            showAccounts={openAccounts}
+            onShowAccountsChange={setOpenAccounts}
+            renders={renderEarnings ?? {}}
             reports={renderReports?.({ partnerId: user.uid, items: itemsList, events: eventsList })}
           />
         ) : (
