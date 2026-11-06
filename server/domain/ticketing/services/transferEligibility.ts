@@ -15,6 +15,13 @@ export async function loadTransferContext(
   ticket: Ticket,
   nowMs = Date.now()
 ): Promise<{ order: TicketOrder | null }> {
+  // Cortesia é nominal (D27): não passa para outra pessoa, nem por @ nem por link.
+  if (ticket.courtesyId) {
+    throw new TicketingDomainError(
+      'COURTESY_NOT_TRANSFERABLE',
+      'Cortesia é pessoal e não pode ser transferida.'
+    );
+  }
   const [order, listing, occurrence] = await Promise.all([
     port.getOrderById(ticket.orderId),
     getEventListingByIdUseCase(ticket.eventListingId),

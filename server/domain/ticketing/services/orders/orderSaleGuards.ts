@@ -1,7 +1,7 @@
 import { getEventListingByIdUseCase, getEventOccurrenceByIdUseCase } from '../../../events';
 import {
-  TicketTypeUnavailableError,
   TicketingDomainError,
+  TicketTypeUnavailableError,
 } from '../../errors/ticketingDomainError';
 import type { TicketingPort } from '../../ports/ticketingPort';
 import type { EventPromoCode } from '../../types/ticketingTypes';

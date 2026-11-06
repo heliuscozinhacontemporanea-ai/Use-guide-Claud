@@ -1,4 +1,4 @@
-import { ShortCodeDeriver, normalizeShortCode } from '../../../infrastructure/crypto/shortCode';
+import { normalizeShortCode, ShortCodeDeriver } from '../../../infrastructure/crypto/shortCode';
 
 /** Código junto do QR do ingresso, para a portaria digitar quando a leitura falha (D20). */
 export const TICKET_CODE_LENGTH = 8;

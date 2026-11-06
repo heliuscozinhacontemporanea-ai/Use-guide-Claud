@@ -186,6 +186,8 @@ export interface Ticket {
   receivedFrom?: { username: string | null; displayName: string | null };
   /** Link de transferência pendente (D21): até quando vale. */
   transferLinkExpiresAt?: string;
+  /** Cortesia do organizador (D27): sem pedido, sem reembolso e sem transferência. */
+  courtesyId?: string;
   /** Última mudança: a lista sem internet da portaria baixa só o que mudou (D21). */
   updatedAt?: string;
   transferredAt?: string;

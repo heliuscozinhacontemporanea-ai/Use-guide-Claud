@@ -6,6 +6,7 @@ import {
 } from '../../events';
 import { TicketingDomainError } from '../errors/ticketingDomainError';
 import type { TicketingPort } from '../ports/ticketingPort';
+import { isCourtesyTicketTypeId } from '../types/courtesyTypes';
 import {
   assertMoneyMinor,
   deriveTicketTypeSaleStatus,
@@ -136,7 +137,8 @@ export class TicketTypeService {
     >
   ): Promise<TicketType> {
     const existing = await this.port.getTicketTypeById(ticketTypeId);
-    if (!existing) {
+    // O lote das cortesias é do sistema (D27): o organizador não edita nem arquiva.
+    if (!existing || isCourtesyTicketTypeId(existing.id)) {
       throw new TicketingDomainError('NOT_FOUND', 'Lote de ingresso não encontrado.');
     }
 
@@ -198,7 +200,8 @@ export class TicketTypeService {
     ticketTypeId: string
   ): Promise<{ mode: 'deleted' | 'archived' }> {
     const existing = await this.port.getTicketTypeById(ticketTypeId);
-    if (!existing) {
+    // O lote das cortesias é do sistema (D27): o organizador não edita nem arquiva.
+    if (!existing || isCourtesyTicketTypeId(existing.id)) {
       throw new TicketingDomainError('NOT_FOUND', 'Lote de ingresso não encontrado.');
     }
     const { occurrence, listing } = await assertCanManageOccurrence(actor, existing.occurrenceId);
@@ -263,7 +266,8 @@ export class TicketTypeService {
     occurrenceId: string
   ): Promise<TicketType[]> {
     await assertCanManageOccurrence(actor, occurrenceId);
-    return this.port.listTicketTypesByOccurrenceId(occurrenceId);
+    const types = await this.port.listTicketTypesByOccurrenceId(occurrenceId);
+    return types.filter((type) => !isCourtesyTicketTypeId(type.id));
   }
 
   async createPromoCode(

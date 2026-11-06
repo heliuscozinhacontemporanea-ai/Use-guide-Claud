@@ -1,5 +1,5 @@
-import { FieldValue } from 'firebase-admin/firestore';
 import type { DocumentReference, WriteBatch } from 'firebase-admin/firestore';
+import { FieldValue } from 'firebase-admin/firestore';
 import { adminDb } from '../../../infrastructure/firebase/adminClient';
 
 // Limite do Firestore por lote de escrita.

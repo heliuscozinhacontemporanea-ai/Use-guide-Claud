@@ -13,10 +13,6 @@ import { itemRouter } from './server/domain/guide/routes/guideRoutes';
 import insightsRouter from './server/domain/insights/routes/insightsRoutes';
 import mediaRouter from './server/domain/media/routes/mediaRoutes';
 import notificationRouter from './server/domain/notifications/routes/notificationRoutes';
-import { adminMessageRouter } from './server/interfaces/http/notifications/adminMessageRoutes';
-import { usernameClaimRouter } from './server/interfaces/http/users/usernameClaimRoutes';
-import { InternalTicketingController } from './server/interfaces/http/ticketing/internalTicketingController';
-import { InternalNotificationsController } from './server/interfaces/http/notifications/internalNotificationsController';
 import partnerRouter from './server/domain/partners/routes/partnerRoutes';
 import { PaymentController } from './server/domain/payment/controllers/paymentController';
 import paymentRouter from './server/domain/payment/routes/paymentRoutes';
@@ -40,9 +36,12 @@ import {
   partnerOffersRouter,
 } from './server/interfaces/http/bookings/bookingsRoutes';
 import { InternalBookingsController } from './server/interfaces/http/bookings/internalBookingsController';
+import { courtesyRouter } from './server/interfaces/http/courtesies/courtesyRoutes';
 import listingStatsRouter from './server/interfaces/http/insights/listingStatsRoutes';
 import listingPlanRouter from './server/interfaces/http/listingPlans/listingPlanRoutes';
 import listingVerificationRouter from './server/interfaces/http/listingVerifications/listingVerificationRoutes';
+import { adminMessageRouter } from './server/interfaces/http/notifications/adminMessageRoutes';
+import { InternalNotificationsController } from './server/interfaces/http/notifications/internalNotificationsController';
 import partnerHomeRouter from './server/interfaces/http/partnerHome/partnerHomeRoutes';
 import { InternalPartnersController } from './server/interfaces/http/partners/internalPartnersController';
 import paymentAccountRouter, {
@@ -53,7 +52,9 @@ import {
   adminSaleClaimRouter,
   saleClaimRouter,
 } from './server/interfaces/http/saleClaims/saleClaimRoutes';
+import { InternalTicketingController } from './server/interfaces/http/ticketing/internalTicketingController';
 import { ticketTransferRouter } from './server/interfaces/http/ticketTransfers/ticketTransferRoutes';
+import { usernameClaimRouter } from './server/interfaces/http/users/usernameClaimRoutes';
 
 async function startServer() {
   const app = express();
@@ -217,6 +218,7 @@ async function startServer() {
   app.use('/api/partner-home', partnerHomeRouter);
   app.use('/api/sale-claims', saleClaimRouter);
   app.use('/api/ticket-transfers', ticketTransferRouter);
+  app.use('/api/courtesies', courtesyRouter);
   app.use('/api/admin/sale-claims', adminSaleClaimRouter);
   app.use('/api/admin/account-debts', adminAccountDebtRouter);
   app.use('/api/payment', paymentRouter);

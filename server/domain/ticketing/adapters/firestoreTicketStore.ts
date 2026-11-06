@@ -5,6 +5,7 @@ import {
   TicketTransferPersistenceMapper,
 } from '../dtos/ticketingPersistenceMappers';
 import { TicketingDomainError } from '../errors/ticketingDomainError';
+import { courtesyTicketTypeId } from '../types/courtesyTypes';
 import type { Ticket, TicketStatus, TicketTransfer } from '../types/ticketingTypes';
 
 /** Ingressos: leitura, status, transferência e troca de sessão. Coleções só de backend; o cliente lê pela API (§6.2). */
@@ -198,6 +199,20 @@ export class FirestoreTicketStore {
       const ticketsSnap = await tx.get(
         adminDb.collection('tickets').where('occurrenceId', '==', params.fromOccurrenceId)
       );
+      // Cortesias vão junto para a nova data (D27): a lista, os links abertos e o lugar na sessão.
+      const courtesiesSnap = await tx.get(
+        adminDb.collection('eventCourtesies').where('occurrenceId', '==', params.fromOccurrenceId)
+      );
+      const fromTypeRef = adminDb
+        .collection('ticketTypes')
+        .doc(courtesyTicketTypeId(params.fromOccurrenceId));
+      const toTypeRef = adminDb
+        .collection('ticketTypes')
+        .doc(courtesyTicketTypeId(params.toOccurrenceId));
+      const [fromTypeSnap, toTypeSnap] = await Promise.all([
+        tx.get(fromTypeRef),
+        tx.get(toTypeRef),
+      ]);
 
       const nowIso = new Date().toISOString();
       let movedOrdersCount = 0;
@@ -239,6 +254,9 @@ export class FirestoreTicketStore {
         if (ticket.status === 'issued' || ticket.status === 'reserved') {
           tx.update(ticketDoc.ref, {
             occurrenceId: params.toOccurrenceId,
+            ...(ticket.courtesyId
+              ? { ticketTypeId: courtesyTicketTypeId(params.toOccurrenceId) }
+              : {}),
             updatedAt: nowIso,
             ...(ticket.eventSnapshot
               ? {
@@ -252,6 +270,30 @@ export class FirestoreTicketStore {
           });
           movedTicketsCount += 1;
         }
+      }
+
+      for (const courtesyDoc of courtesiesSnap.docs) {
+        const pending = courtesyDoc.data().status === 'pending_link';
+        tx.update(courtesyDoc.ref, {
+          occurrenceId: params.toOccurrenceId,
+          ...(pending ? { linkExpiresAt: params.newStartsAt } : {}),
+          updatedAt: nowIso,
+        });
+      }
+      const heldSeats = fromTypeSnap.exists ? Number(fromTypeSnap.data()?.soldCount ?? 0) : 0;
+      if (fromTypeSnap.exists && heldSeats > 0) {
+        tx.set(
+          toTypeRef,
+          {
+            ...fromTypeSnap.data(),
+            occurrenceId: params.toOccurrenceId,
+            soldCount:
+              heldSeats + (toTypeSnap.exists ? Number(toTypeSnap.data()?.soldCount ?? 0) : 0),
+            updatedAt: nowIso,
+          },
+          { merge: true }
+        );
+        tx.update(fromTypeRef, { soldCount: 0, updatedAt: nowIso });
       }
 
       return { movedOrdersCount, movedTicketsCount };

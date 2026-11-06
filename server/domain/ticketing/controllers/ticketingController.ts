@@ -17,6 +17,7 @@ import {
   syncOfflineCheckInsSchema,
   updateTicketTypeSchema,
 } from '../schemas/ticketingSchema';
+import type { TicketOrder } from '../types/ticketingTypes';
 import { archiveTicketTypeUseCase } from '../usecases/archiveTicketTypeUseCase';
 import { checkInTicketUseCase } from '../usecases/checkInTicketUseCase';
 import { createEventPromoCodeUseCase } from '../usecases/createEventPromoCodeUseCase';
@@ -39,7 +40,6 @@ import { listUserTicketsUseCase } from '../usecases/listUserTicketsUseCase';
 import { swapTicketQrUseCase } from '../usecases/swapTicketQrUseCase';
 import { syncOfflineCheckInsUseCase } from '../usecases/syncOfflineCheckInsUseCase';
 import { updateTicketTypeUseCase } from '../usecases/updateTicketTypeUseCase';
-import type { TicketOrder } from '../types/ticketingTypes';
 import { hashTicketIdForOfflineManifest } from '../utils/offlineManifest';
 
 /** Pedido para o dono do evento: dados da venda, sem os dados pessoais do comprador. */
@@ -89,6 +89,7 @@ function handleTicketingError(res: Response, error: unknown): Response {
         return res.status(429).json({ error: error.message });
       case 'TRANSFER_ONLY_TO_BUYER':
       case 'TRANSFER_LINK_OWN':
+      case 'COURTESY_NOT_TRANSFERABLE':
         return res.status(422).json({ error: error.message });
       case 'TRANSFER_LINK_INVALID':
         return res.status(404).json({ error: error.message });

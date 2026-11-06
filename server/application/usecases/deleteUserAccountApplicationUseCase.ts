@@ -9,7 +9,10 @@ import {
 import { deleteUserNotificationsUseCase } from '../../domain/notifications';
 import { cancelPartnerPlanSubscriptionsUseCase } from '../../domain/payment';
 import { deleteReviewsByUserUseCase } from '../../domain/reviews';
-import { anonymizeTicketingUserUseCase } from '../../domain/ticketing';
+import {
+  anonymizeCourtesyGuestUseCase,
+  anonymizeTicketingUserUseCase,
+} from '../../domain/ticketing';
 import { deleteUserAccountUseCase, releaseUsernamesUseCase } from '../../domain/users';
 import { deleteVerificationFiles } from './listingVerification/deleteVerificationFiles';
 
@@ -51,6 +54,8 @@ export async function deleteUserAccountApplicationUseCase(
     },
     anonymizeTicketing: async (id) => {
       await anonymizeTicketingUserUseCase(id);
+      // A lista de convidados do organizador guarda @ e nome públicos (D27).
+      await anonymizeCourtesyGuestUseCase(id);
     },
     deleteNotifications: (id) => deleteUserNotificationsUseCase(id),
     releaseUsernames: (id) => releaseUsernamesUseCase(id),

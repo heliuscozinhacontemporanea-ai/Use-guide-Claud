@@ -649,6 +649,20 @@
           "order": "DESCENDING"
         }
       ]
+    },
+    {
+      "collectionGroup": "eventCourtesies",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "eventListingId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
     }
   ],
   "fieldOverrides": [

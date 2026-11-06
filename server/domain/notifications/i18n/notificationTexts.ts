@@ -5,6 +5,21 @@
 export type NotificationTypeTexts = Record<string, Record<string, string>>;
 
 export const NOTIFICATION_TEXTS_PT_BR: NotificationTypeTexts = {
+  courtesy_received: {
+    title: 'Você ganhou um ingresso',
+    body: '{{business}} convidou você para {{event}}. O ingresso está na sua carteira.',
+    bodyGeneric: 'Uma cortesia está na sua carteira.',
+  },
+  courtesy_canceled: {
+    title: 'Cortesia cancelada',
+    body: 'A cortesia para {{event}} foi cancelada pelo organizador.',
+    bodyGeneric: 'Uma cortesia sua foi cancelada pelo organizador.',
+  },
+  courtesy_link_accepted: {
+    title: 'Convite aceito',
+    body: '{{username}} recebeu a cortesia do seu link de convite.',
+    bodyGeneric: 'A cortesia do seu link de convite foi recebida.',
+  },
   ticket_received: {
     title: 'Você recebeu um ingresso',
     body: 'Um ingresso para {{event}} está na sua carteira.',
@@ -172,6 +187,21 @@ export const NOTIFICATION_TEXTS_PT_BR: NotificationTypeTexts = {
 };
 
 export const NOTIFICATION_TEXTS_EN: NotificationTypeTexts = {
+  courtesy_received: {
+    title: 'You got a ticket',
+    body: '{{business}} invited you to {{event}}. The ticket is in your wallet.',
+    bodyGeneric: 'A complimentary ticket is in your wallet.',
+  },
+  courtesy_canceled: {
+    title: 'Complimentary ticket canceled',
+    body: 'The complimentary ticket for {{event}} was canceled by the organizer.',
+    bodyGeneric: 'A complimentary ticket of yours was canceled by the organizer.',
+  },
+  courtesy_link_accepted: {
+    title: 'Invite accepted',
+    body: '{{username}} got the complimentary ticket from your invite link.',
+    bodyGeneric: 'The complimentary ticket from your invite link was received.',
+  },
   ticket_received: {
     title: 'You got a ticket',
     body: 'A ticket for {{event}} is in your wallet.',
@@ -339,6 +369,21 @@ export const NOTIFICATION_TEXTS_EN: NotificationTypeTexts = {
 };
 
 export const NOTIFICATION_TEXTS_FR: NotificationTypeTexts = {
+  courtesy_received: {
+    title: 'Vous avez reçu un billet',
+    body: '{{business}} vous a invité à {{event}}. Le billet est dans votre portefeuille.',
+    bodyGeneric: 'Un billet offert est dans votre portefeuille.',
+  },
+  courtesy_canceled: {
+    title: 'Billet offert annulé',
+    body: 'Le billet offert pour {{event}} a été annulé par l’organisateur.',
+    bodyGeneric: 'Un de vos billets offerts a été annulé par l’organisateur.',
+  },
+  courtesy_link_accepted: {
+    title: 'Invitation acceptée',
+    body: '{{username}} a reçu le billet offert de votre lien d’invitation.',
+    bodyGeneric: 'Le billet offert de votre lien d’invitation a été reçu.',
+  },
   ticket_received: {
     title: 'Vous avez reçu un billet',
     body: 'Un billet pour {{event}} est dans votre portefeuille.',

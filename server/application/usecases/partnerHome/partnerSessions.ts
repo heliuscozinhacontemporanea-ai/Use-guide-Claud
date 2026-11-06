@@ -3,7 +3,7 @@ import {
   listEventOccurrencesUseCase,
   listOwnerEventListingsUseCase,
 } from '../../../domain/events';
-import { getCommittedTicketsCountForOccurrenceApplicationUseCase } from '../getCommittedTicketsCountForOccurrenceApplicationUseCase';
+import { getSoldTicketsCountForOccurrenceApplicationUseCase } from '../getSoldTicketsCountForOccurrenceApplicationUseCase';
 import type { PartnerSessionInput } from './buildPartnerHome';
 
 export type OwnerEvent = Awaited<ReturnType<typeof listOwnerEventListingsUseCase>>[number];
@@ -38,7 +38,7 @@ export async function toSessionInput(
     startsAt: occurrence.startsAt,
     endsAt: occurrence.endsAt ?? null,
     capacity: occurrence.capacity,
-    sold: await getCommittedTicketsCountForOccurrenceApplicationUseCase(
+    sold: await getSoldTicketsCountForOccurrenceApplicationUseCase(
       { uid: ownerUid, admin: false, role: 'partner' },
       occurrence.id
     ),

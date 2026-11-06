@@ -1,5 +1,5 @@
 import { listEventOccurrencesUseCase, listOwnerEventListingsUseCase } from '../../../domain/events';
-import { getCommittedTicketsCountForOccurrenceApplicationUseCase } from '../getCommittedTicketsCountForOccurrenceApplicationUseCase';
+import { getSoldTicketsCountForOccurrenceApplicationUseCase } from '../getSoldTicketsCountForOccurrenceApplicationUseCase';
 import { buildCatalogEvents, type PartnerCatalogEvent } from './buildCatalogEvents';
 
 export interface PartnerCatalogView {
@@ -22,7 +22,7 @@ export async function getPartnerCatalogApplicationUseCase(
           occurrences
             .filter((occurrence) => occurrence.status !== 'canceled')
             .map((occurrence) =>
-              getCommittedTicketsCountForOccurrenceApplicationUseCase(actor, occurrence.id)
+              getSoldTicketsCountForOccurrenceApplicationUseCase(actor, occurrence.id)
             )
         );
         return { event, occurrences, sold: counts.reduce((sum, count) => sum + count, 0) };

@@ -229,6 +229,7 @@ export class TicketPersistenceMapper {
           }
         : {}),
       ...(typeof raw.updatedAt === 'string' ? { updatedAt: raw.updatedAt } : {}),
+      ...(typeof raw.courtesyId === 'string' ? { courtesyId: raw.courtesyId } : {}),
       status:
         raw.status === 'reserved' ||
         raw.status === 'checked_in' ||

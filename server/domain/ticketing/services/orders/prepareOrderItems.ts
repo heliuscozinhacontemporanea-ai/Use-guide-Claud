@@ -8,6 +8,7 @@ import {
   TicketingDomainError,
   TicketTypeUnavailableError,
 } from '../../errors/ticketingDomainError';
+import { isCourtesyTicketTypeId } from '../../types/courtesyTypes';
 import {
   deriveTicketTypeSaleStatus,
   type EventPromoCode,
@@ -56,7 +57,8 @@ export function prepareOrderItems(params: {
 
   for (const reqItem of params.items) {
     const ticketType = params.typeMap.get(reqItem.ticketTypeId);
-    if (!ticketType) {
+    // O lote das cortesias nunca é vendido, mesmo que alguém mande o ID dele (D27).
+    if (!ticketType || isCourtesyTicketTypeId(ticketType.id)) {
       throw new TicketingDomainError('NOT_FOUND', 'Lote de ingresso não encontrado.');
     }
 
