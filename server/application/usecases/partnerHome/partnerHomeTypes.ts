@@ -32,6 +32,8 @@ export interface PartnerTodayItem {
   /** Só nos horários de reserva; nas sessões a portaria tem a própria contagem. */
   checkedIn: number | null;
   arrivedAt: string | null;
+  /** Só nas sessões: cortesias que ocupam lugar (D27). */
+  courtesies?: number;
   /** Só nos horários de reserva, para os cartões de "Agora" (D27). */
   bookings?: number;
   waitingBookings?: number;
@@ -48,6 +50,7 @@ export interface PartnerUpcomingSession {
   startsAt: string;
   sold: number;
   capacity: number;
+  courtesies: number;
 }
 
 /** Vagas de reserva de um dia (00:00 em Fortaleza) de um estabelecimento, nos próximos 7 dias. */

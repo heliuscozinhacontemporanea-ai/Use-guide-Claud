@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { cn } from '../../../../shared/utils/cn';
-import { PARTNER_HOME_CARD_SIZE, type PartnerHomeCardId } from '../../types/partnerHomeCards';
 import type { PartnerTodayItem } from '../../types/partnerHome';
+import { PARTNER_HOME_CARD_SIZE, type PartnerHomeCardId } from '../../types/partnerHomeCards';
 import type { PartnerCardData } from '../../utils/partnerHomeCardData';
 import { cardSpan, PartnerHomeCard } from './PartnerHomeCard';
 import type { PartnerPanelTab } from './partnerPanelTabs';
@@ -14,6 +14,7 @@ const CARD_TAB: Record<PartnerHomeCardId, PartnerPanelTab> = {
   next_event: 'catalog',
   reviews: 'catalog',
   week_bookings: 'agenda',
+  guests: 'catalog',
   plan_seal: 'more',
   week_occupancy: 'agenda',
   month_sales: 'earnings',

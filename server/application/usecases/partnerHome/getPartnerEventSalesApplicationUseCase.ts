@@ -15,7 +15,13 @@ export interface PartnerEventSalesView {
   soldMinor: number;
   ticketsSold: number;
   receiveMinor: number;
-  sessions: Array<{ id: string; startsAt: string; sold: number; capacity: number }>;
+  sessions: Array<{
+    id: string;
+    startsAt: string;
+    sold: number;
+    capacity: number;
+    courtesies: number;
+  }>;
   orders: PartnerEventOrderView[];
   ordersTotal: number;
 }
@@ -73,6 +79,7 @@ export async function getPartnerEventSalesApplicationUseCase(
         startsAt: session.startsAt,
         sold: session.sold,
         capacity: session.capacity,
+        courtesies: session.courtesies,
       }))
       .sort((a, b) => a.startsAt.localeCompare(b.startsAt)),
     ...buildEventSales({ orders, tickets, refunds, entries, names: new Map(names) }),

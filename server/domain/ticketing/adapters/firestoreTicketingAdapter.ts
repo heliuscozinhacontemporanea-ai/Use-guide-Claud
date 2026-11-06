@@ -6,9 +6,9 @@ import { FirestoreOrderQueryStore } from './firestoreOrderQueryStore';
 import { FirestoreOrderReservationStore } from './firestoreOrderReservationStore';
 import { FirestoreRefundStore } from './firestoreRefundStore';
 import { FirestoreTicketPrivacyStore } from './firestoreTicketPrivacyStore';
+import { FirestoreTransferLinkStore } from './firestoreTransferLinkStore';
 import { FirestoreTicketStore } from './firestoreTicketStore';
 import { FirestoreTicketTypeStore } from './firestoreTicketTypeStore';
-import { FirestoreTransferLinkStore } from './firestoreTransferLinkStore';
 
 /** Implementação do `TicketingPort` no Firestore, composta pelos stores de cada parte do ticketing. */
 export class FirestoreTicketingAdapter implements TicketingPort {

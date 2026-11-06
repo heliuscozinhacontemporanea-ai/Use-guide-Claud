@@ -1,3 +1,4 @@
+import { capitalizeFirst } from './formatters';
 // Fortaleza é UTC−3 fixo, sem horário de verão (AGENTS.md §1): campos de data e hora dos
 // formulários mostram e recebem a hora do negócio, qualquer que seja o fuso do navegador.
 const BUSINESS_OFFSET_MS = 3 * 60 * 60 * 1000;
@@ -56,4 +57,10 @@ export function formatBusinessDateTime(iso: string, locale: string): string {
     hour: '2-digit',
     minute: '2-digit',
   });
+}
+
+/** "Sáb., 20 de dez. · 20:00" — sessão de evento no fuso do negócio. */
+export function formatSessionLabel(iso: string, locale: string): string {
+  const time = formatBusinessDate(iso, locale, { hour: '2-digit', minute: '2-digit' });
+  return `${capitalizeFirst(formatBusinessWeekday(iso, locale), locale)} · ${time}`;
 }

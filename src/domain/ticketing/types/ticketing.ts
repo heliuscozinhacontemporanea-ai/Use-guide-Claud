@@ -167,6 +167,8 @@ export interface Ticket {
   receivedFrom?: { username: string | null; displayName: string | null };
   /** Link de transferência pendente: até quando vale (D21). */
   transferLinkExpiresAt?: string;
+  /** Cortesia do organizador (D27): nominal, sem transferência nem reembolso. */
+  courtesyId?: string;
   status: TicketStatus;
   ticketTypeSnapshot?: {
     name: string;

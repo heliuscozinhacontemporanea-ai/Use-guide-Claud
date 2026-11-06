@@ -6,6 +6,8 @@ const HOUR_MS = 60 * 60 * 1000;
 /** Transferência pela regra gravada na compra; o backend confere de novo. */
 export function canTransferTicket(ticket: Ticket, order: TicketOrder | undefined, now: Date) {
   if (ticket.status !== 'issued') return false;
+  // Cortesia é nominal (D27): não passa para outra pessoa.
+  if (ticket.courtesyId) return false;
   const policy = order?.salesPolicySnapshot;
   if (policy && !policy.allowTicketTransfer) return false;
   if (!ticket.eventSnapshot?.startsAt) return true;

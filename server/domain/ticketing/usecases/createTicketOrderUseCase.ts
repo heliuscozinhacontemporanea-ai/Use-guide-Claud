@@ -1,5 +1,5 @@
-import { TicketingDomainError } from '../errors/ticketingDomainError';
 import { ticketOrderService } from '../factory';
+import { TicketingDomainError } from '../errors/ticketingDomainError';
 import type { TicketingActorContext } from '../services/ticketingAccess';
 import type { Ticket, TicketOrder, TicketOrderItem } from '../types/ticketingTypes';
 

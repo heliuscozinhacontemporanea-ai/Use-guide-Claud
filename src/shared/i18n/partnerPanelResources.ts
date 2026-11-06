@@ -80,6 +80,7 @@ export interface PartnerPanelTranslation {
       unanswered_other: string;
     };
     week_bookings: CardTexts & { occupancy: string };
+    guests: CardTexts;
     plan_seal: CardTexts & { until: string };
     week_occupancy: CardTexts;
     month_sales: CardTexts & { compare: string; noCompare: string };
@@ -234,6 +235,10 @@ export const partnerPanelPtBR: PartnerPanelTranslation = {
       title: 'Reservas da semana',
       description: 'Lugares vendidos nos próximos 7 dias',
       occupancy: '{{percent}}% dos lugares',
+    },
+    guests: {
+      title: 'Convidados',
+      description: 'Cortesias enviadas para o próximo evento',
     },
     plan_seal: {
       title: 'Plano e selo',
@@ -404,6 +409,10 @@ export const partnerPanelEn: PartnerPanelTranslation = {
       description: 'Spots sold in the next 7 days',
       occupancy: '{{percent}}% of spots',
     },
+    guests: {
+      title: 'Guests',
+      description: 'Complimentary tickets sent for the next event',
+    },
     plan_seal: {
       title: 'Plan and badge',
       description: "When each business's plan ends",
@@ -573,6 +582,10 @@ export const partnerPanelFr: PartnerPanelTranslation = {
       title: 'Réservations de la semaine',
       description: 'Places vendues dans les 7 prochains jours',
       occupancy: '{{percent}} % des places',
+    },
+    guests: {
+      title: 'Invités',
+      description: 'Billets offerts envoyés pour le prochain événement',
     },
     plan_seal: {
       title: 'Formule et badge',

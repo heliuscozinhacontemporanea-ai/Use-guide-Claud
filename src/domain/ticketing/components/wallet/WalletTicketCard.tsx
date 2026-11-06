@@ -45,7 +45,9 @@ export function WalletTicketCard({
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <p className="text-xs font-bold uppercase tracking-wider text-accent">
-            {ticket.ticketTypeSnapshot?.name || t('ticketCheckout.issued.defaultType')}
+            {ticket.courtesyId
+              ? t('courtesy.wallet.label')
+              : ticket.ticketTypeSnapshot?.name || t('ticketCheckout.issued.defaultType')}
           </p>
           <h4 className="text-sm font-bold text-ink break-words">
             {ticket.eventSnapshot?.title || ticket.holderName}
@@ -73,6 +75,9 @@ export function WalletTicketCard({
         </span>
       </div>
 
+      {ticket.courtesyId && ticket.status === 'issued' && (
+        <p className="text-[13px] text-ink/70">{t('courtesy.wallet.personal')}</p>
+      )}
       {ticket.transferLinkExpiresAt && new Date(ticket.transferLinkExpiresAt) > new Date() && (
         <p className="text-[13px] text-warn">
           {t('username.transfer.link.pending', { time: formatDate(ticket.transferLinkExpiresAt) })}

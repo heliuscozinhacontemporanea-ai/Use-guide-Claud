@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getActiveSubscriptionPlansUseCase } from '../../domain/admin';
 import { useAuthContext } from '../../domain/auth/context/AuthContext';
+import { UserRole } from '../../domain/auth/types/auth';
 import {
   EstablishmentCodeSheet,
   isBookableCategory,
@@ -10,29 +11,28 @@ import {
   SlotContactsList,
   useSlotArrival,
 } from '../../domain/bookings';
-import { UserRole } from '../../domain/auth/types/auth';
 import { AboutTermsView, SupportView } from '../../domain/content';
 import { EventSessionsField } from '../../domain/events';
 import { MonthVisitsTile, ReportsView } from '../../domain/insights';
 import { NotificationSettingsView, SalesAlertsSummary } from '../../domain/notifications';
-import { RecentItemReviews } from '../../domain/reviews';
 import type { PartnerProfile, SubscriptionPlan } from '../../domain/partners';
 import { getPartnerProfileUseCase, PartnerPanel } from '../../domain/partners';
 import {
   CheckoutModal,
   isPaidPlanId,
-  type PlanPeriodOption,
   PartnerDebtsPanel,
   PartnerPaymentAccountsPage,
   PartnerStatementPanel,
+  type PlanPeriodOption,
   PlanSubscriptionCard,
 } from '../../domain/payment';
+import { RecentItemReviews } from '../../domain/reviews';
+import { EventGuestsPanel, PartnerSessionSheet } from '../../domain/ticketing';
 import { useLocalizedRouting } from '../../shared/hooks/useLocalizedRouting';
 import { useUI } from '../../shared/stores/useUIStore';
-import { PartnerSessionSheet } from '../../domain/ticketing';
 import { MessagePage } from '../../ui/components/MessagePage';
-import { PartnerBookingsComposition } from './PartnerBookingsComposition';
 import { EventPaymentAccountCard } from './EventPaymentAccountCard';
+import { PartnerBookingsComposition } from './PartnerBookingsComposition';
 import { PartnerEventTicketingComposition } from './PartnerEventTicketingComposition';
 
 export function PartnerPortalComposition() {
@@ -225,6 +225,15 @@ export function PartnerPortalComposition() {
           <MonthVisitsTile itemId={itemId} onOpenPlan={onOpenPlan} />
         ),
         renderReviews: (itemId, onOpen) => <RecentItemReviews itemId={itemId} onOpen={onOpen} />,
+        renderGuests: ({ eventId, eventTitle, openSessions, allSessions, onChanged }) => (
+          <EventGuestsPanel
+            eventListingId={eventId}
+            eventTitle={eventTitle}
+            sessions={openSessions}
+            allSessions={allSessions}
+            onChanged={onChanged}
+          />
+        ),
       }}
       renderEventTicketingManager={(eventListingId) => (
         <PartnerEventTicketingComposition eventListingId={eventListingId} lotsOnly />
@@ -275,6 +284,7 @@ export function PartnerPortalComposition() {
           occurrenceId={item.id}
           title={item.title}
           sold={item.sold}
+          courtesies={item.courtesies ?? 0}
           startAtGate={gate}
           onClose={onClose}
           onChanged={onChanged}

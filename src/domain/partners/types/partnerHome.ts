@@ -29,6 +29,8 @@ export interface PartnerTodayItem {
   capacity: number;
   checkedIn: number | null;
   arrivedAt: string | null;
+  /** Só nas sessões: cortesias que ocupam lugar (D27). */
+  courtesies?: number;
   /** Só nos horários de reserva, para os cartões de "Agora" (D27). */
   bookings?: number;
   waitingBookings?: number;
@@ -54,6 +56,7 @@ export interface PartnerUpcomingSession {
   startsAt: string;
   sold: number;
   capacity: number;
+  courtesies: number;
 }
 
 /** Vagas de reserva de um dia (00:00 em Fortaleza) de um estabelecimento. */
@@ -131,7 +134,13 @@ export interface PartnerEventSales {
   soldMinor: number;
   ticketsSold: number;
   receiveMinor: number;
-  sessions: Array<{ id: string; startsAt: string; sold: number; capacity: number }>;
+  sessions: Array<{
+    id: string;
+    startsAt: string;
+    sold: number;
+    capacity: number;
+    courtesies: number;
+  }>;
   orders: PartnerEventOrder[];
   ordersTotal: number;
 }

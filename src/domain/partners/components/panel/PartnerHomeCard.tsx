@@ -98,10 +98,19 @@ function Body({
               sold: session.sold,
               capacity: session.capacity,
             })}
+            {session.courtesies > 0 &&
+              ` · ${t('courtesy.sessionGuests', { count: session.courtesies })}`}
           </p>
         </>
       );
     }
+    case 'guests':
+      return (
+        <>
+          <p className={VALUE}>{data.session.courtesies}</p>
+          <p className={cn(SUB, 'truncate')}>{data.session.title}</p>
+        </>
+      );
     case 'reviews':
       return (
         <>

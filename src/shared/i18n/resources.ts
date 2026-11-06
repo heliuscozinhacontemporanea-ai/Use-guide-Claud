@@ -16,14 +16,24 @@ import {
   appAboutFr,
   appAboutPtBR,
 } from './appAboutResources';
-import { type NotifyTranslation, notifyEn, notifyFr, notifyPtBR } from './notifyResources';
-import { type HelpTranslation, helpEn, helpFr, helpPtBR } from './helpResources';
+import {
+  type ArrivalNoticeTranslation,
+  arrivalNoticeEn,
+  arrivalNoticeFr,
+  arrivalNoticePtBR,
+} from './arrivalNoticeResources';
 import {
   type BookingsTranslation,
   bookingsEn,
   bookingsFr,
   bookingsPtBR,
 } from './bookingsResources';
+import {
+  type CourtesyTranslation,
+  courtesyEn,
+  courtesyFr,
+  courtesyPtBR,
+} from './courtesyResources';
 import {
   type EmailVerificationTranslation,
   emailVerificationEn,
@@ -42,36 +52,7 @@ import {
   gateModeFr,
   gateModePtBR,
 } from './gateModeResources';
-import {
-  type PartnerPanelTranslation,
-  partnerPanelEn,
-  partnerPanelFr,
-  partnerPanelPtBR,
-} from './partnerPanelResources';
-import {
-  type PartnerEarningsTranslation,
-  partnerEarningsEn,
-  partnerEarningsFr,
-  partnerEarningsPtBR,
-} from './partnerEarningsResources';
-import {
-  type PartnerAgoraTranslation,
-  partnerAgoraEn,
-  partnerAgoraFr,
-  partnerAgoraPtBR,
-} from './partnerAgoraResources';
-import {
-  type ArrivalNoticeTranslation,
-  arrivalNoticeEn,
-  arrivalNoticeFr,
-  arrivalNoticePtBR,
-} from './arrivalNoticeResources';
-import {
-  type PartnerCatalogTranslation,
-  partnerCatalogEn,
-  partnerCatalogFr,
-  partnerCatalogPtBR,
-} from './partnerCatalogResources';
+import { type HelpTranslation, helpEn, helpFr, helpPtBR } from './helpResources';
 import {
   type InsightsTranslation,
   insightsEn,
@@ -85,6 +66,31 @@ import {
   listingPlanFr,
   listingPlanPtBR,
 } from './listingPlanResources';
+import { type NotifyTranslation, notifyEn, notifyFr, notifyPtBR } from './notifyResources';
+import {
+  type PartnerAgoraTranslation,
+  partnerAgoraEn,
+  partnerAgoraFr,
+  partnerAgoraPtBR,
+} from './partnerAgoraResources';
+import {
+  type PartnerCatalogTranslation,
+  partnerCatalogEn,
+  partnerCatalogFr,
+  partnerCatalogPtBR,
+} from './partnerCatalogResources';
+import {
+  type PartnerEarningsTranslation,
+  partnerEarningsEn,
+  partnerEarningsFr,
+  partnerEarningsPtBR,
+} from './partnerEarningsResources';
+import {
+  type PartnerPanelTranslation,
+  partnerPanelEn,
+  partnerPanelFr,
+  partnerPanelPtBR,
+} from './partnerPanelResources';
 import {
   type PartnersTranslation,
   partnersEn,
@@ -210,6 +216,7 @@ export interface TranslationResource {
   partnerCatalog: PartnerCatalogTranslation;
   partnerEarnings: PartnerEarningsTranslation;
   partnerAgora: PartnerAgoraTranslation;
+  courtesy: CourtesyTranslation;
   arrivalNotice: ArrivalNoticeTranslation;
   legal: LegalTranslation;
   verification: VerificationTranslation;
@@ -455,6 +462,7 @@ const ptBR: TranslationResource = {
   partnerCatalog: partnerCatalogPtBR,
   partnerEarnings: partnerEarningsPtBR,
   partnerAgora: partnerAgoraPtBR,
+  courtesy: courtesyPtBR,
   arrivalNotice: arrivalNoticePtBR,
   legal: legalPtBR,
   verification: verificationPtBR,
@@ -760,6 +768,7 @@ const en: TranslationResource = {
   partnerCatalog: partnerCatalogEn,
   partnerEarnings: partnerEarningsEn,
   partnerAgora: partnerAgoraEn,
+  courtesy: courtesyEn,
   arrivalNotice: arrivalNoticeEn,
   legal: legalEn,
   verification: verificationEn,
@@ -1059,6 +1068,7 @@ const fr: TranslationResource = {
   partnerCatalog: partnerCatalogFr,
   partnerEarnings: partnerEarningsFr,
   partnerAgora: partnerAgoraFr,
+  courtesy: courtesyFr,
   arrivalNotice: arrivalNoticeFr,
   legal: legalFr,
   verification: verificationFr,

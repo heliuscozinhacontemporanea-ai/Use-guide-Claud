@@ -3,6 +3,7 @@ import {
   listEventOccurrencesUseCase,
   listOwnerEventListingsUseCase,
 } from '../../../domain/events';
+import { countOccurrenceCourtesiesUseCase } from '../../../domain/ticketing';
 import { getSoldTicketsCountForOccurrenceApplicationUseCase } from '../getSoldTicketsCountForOccurrenceApplicationUseCase';
 import type { PartnerSessionInput } from './buildPartnerHome';
 
@@ -42,5 +43,6 @@ export async function toSessionInput(
       { uid: ownerUid, admin: false, role: 'partner' },
       occurrence.id
     ),
+    courtesies: await countOccurrenceCourtesiesUseCase(occurrence.id).catch(() => 0),
   };
 }

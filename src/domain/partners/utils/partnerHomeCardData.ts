@@ -1,10 +1,10 @@
-import type { PartnerHomeCardId } from '../types/partnerHomeCards';
 import type {
   PartnerHomeView,
   PartnerTodayItem,
   PartnerUpcomingSession,
   PartnerWeekDay,
 } from '../types/partnerHome';
+import type { PartnerHomeCardId } from '../types/partnerHomeCards';
 import type { EstablishmentFilter } from './partnerHomeFilter';
 
 export type PartnerCardData =
@@ -14,6 +14,7 @@ export type PartnerCardData =
   | { id: 'next_event'; session: PartnerUpcomingSession }
   | { id: 'reviews'; rating: number; count: number; unanswered: number }
   | { id: 'week_bookings'; sold: number; capacity: number }
+  | { id: 'guests'; session: PartnerUpcomingSession }
   | { id: 'plan_seal'; name: string; until: string }
   | { id: 'week_occupancy'; days: Array<{ date: string; sold: number; capacity: number }> }
   | { id: 'month_sales'; currentMinor: number; previousMinor: number };
@@ -58,6 +59,13 @@ export function partnerCardData(
       return { id, payout: view.numbers.nextPayout };
     case 'next_event': {
       const session = view.upcomingSessions.find((item) => inFilter(item.establishmentIds, filter));
+      return session ? { id, session } : null;
+    }
+    case 'guests': {
+      // Próxima sessão com cortesias (D27); sem convidado, o cartão não aparece.
+      const session = view.upcomingSessions.find(
+        (item) => item.courtesies > 0 && inFilter(item.establishmentIds, filter)
+      );
       return session ? { id, session } : null;
     }
     case 'reviews': {

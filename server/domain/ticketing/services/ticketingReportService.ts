@@ -1,7 +1,7 @@
 import { getEventListingByIdUseCase, getEventOccurrenceByIdUseCase } from '../../events';
 import {
-  TicketingDomainError,
   TicketNotEligibleForReviewError,
+  TicketingDomainError,
 } from '../errors/ticketingDomainError';
 import type { TicketingPort } from '../ports/ticketingPort';
 import {

@@ -18,8 +18,8 @@ const SALES: PartnerEventSales = {
   ticketsSold: 128,
   receiveMinor: 1152000,
   sessions: [
-    { id: 's1', startsAt: '2026-12-20T23:00:00.000Z', sold: 128, capacity: 300 },
-    { id: 's2', startsAt: '2026-12-21T23:00:00.000Z', sold: 40, capacity: 300 },
+    { id: 's1', startsAt: '2026-12-20T23:00:00.000Z', sold: 128, capacity: 300, courtesies: 12 },
+    { id: 's2', startsAt: '2026-12-21T23:00:00.000Z', sold: 40, capacity: 300, courtesies: 0 },
   ],
   orders: [
     {

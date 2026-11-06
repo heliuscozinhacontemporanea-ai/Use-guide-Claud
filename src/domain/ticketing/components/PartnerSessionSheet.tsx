@@ -35,6 +35,7 @@ function GateSheet({
   title,
   description,
   sold,
+  courtesies,
   sales,
   onClose,
 }: {
@@ -42,6 +43,7 @@ function GateSheet({
   title: string;
   description: string;
   sold: number;
+  courtesies: number;
   sales: ReturnType<typeof usePartnerEventSales>;
   onClose: () => void;
 }) {
@@ -61,9 +63,13 @@ function GateSheet({
           <Lines
             rows={[
               [t('ticketSessions.sheet.soldTickets'), String(sold)],
+              ...(courtesies > 0
+                ? [[t('courtesy.tabs.guests'), String(courtesies)] as [string, string]]
+                : []),
               [
                 t('ticketSessions.sheet.entered'),
-                t('ticketSessions.sheet.enteredOf', { entered, total: sold }),
+                // Convidados também entram pela portaria (D27).
+                t('ticketSessions.sheet.enteredOf', { entered, total: sold + courtesies }),
               ],
             ]}
           />
@@ -100,6 +106,7 @@ export function PartnerSessionSheet({
   occurrenceId,
   title,
   sold,
+  courtesies = 0,
   startAtGate = false,
   onClose,
   onChanged,
@@ -109,6 +116,8 @@ export function PartnerSessionSheet({
   title: string;
   /** Ingressos vendidos e reservados, como a agenda mostra. */
   sold: number;
+  /** Cortesias que ocupam lugar na sessão (D27). */
+  courtesies?: number;
   /** Aberta pelo cartão de portaria de "Agora" (D27): começa na portaria. */
   startAtGate?: boolean;
   onClose: () => void;
@@ -152,6 +161,7 @@ export function PartnerSessionSheet({
         title={title}
         description={description}
         sold={sold}
+        courtesies={courtesies}
         sales={sales}
         onClose={() => (startAtGate ? onClose() : setView('session'))}
       />
@@ -180,6 +190,9 @@ export function PartnerSessionSheet({
                     total: occurrence.capacity,
                   }),
                 ],
+                ...(courtesies > 0
+                  ? [[t('courtesy.tabs.guests'), String(courtesies)] as [string, string]]
+                  : []),
                 [t('ticketSessions.sheet.entered'), String(sales.checkIns.length)],
               ]}
             />

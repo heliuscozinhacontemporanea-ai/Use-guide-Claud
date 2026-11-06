@@ -1,5 +1,6 @@
 import type { TermsAcceptance } from '../../../shared/kernel/legalTerms';
 import type {
+  TicketTransferLink,
   EventCheckIn,
   EventPromoCode,
   EventWaitlistEntry,
@@ -16,7 +17,6 @@ import type {
   TicketOrderStatus,
   TicketStatus,
   TicketTransfer,
-  TicketTransferLink,
   TicketType,
 } from '../types/ticketingTypes';
 

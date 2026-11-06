@@ -36,6 +36,7 @@ export function sessionToAgendaItem(session: PartnerSessionInput): PartnerTodayI
     endsAt: session.endsAt,
     sold: session.sold,
     capacity: session.capacity,
+    courtesies: session.courtesies,
     checkedIn: null,
     arrivedAt: null,
   };

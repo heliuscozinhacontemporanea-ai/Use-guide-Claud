@@ -5,7 +5,7 @@ import type { AccountDebtView, PayoutEntryView } from '../../../domain/payment';
 import { businessDayStartMs } from '../../../shared/kernel/businessDay';
 import type { PartnerPaymentAccount } from '../paymentAccounts/listPartnerPaymentAccountsApplicationUseCase';
 import { sessionToAgendaItem, slotToAgendaItem } from './partnerAgendaItems';
-import { summarizeWeek, sumMonthSales } from './partnerHomeCardsData';
+import { sumMonthSales, summarizeWeek } from './partnerHomeCardsData';
 import type { PartnerAttentionItem, PartnerHomeView, PartnerTodayItem } from './partnerHomeTypes';
 
 const DAY_MS = 24 * 60 * 60_000;
@@ -22,6 +22,8 @@ export interface PartnerSessionInput {
   endsAt: string | null;
   capacity: number;
   sold: number;
+  /** Cortesias que ocupam lugar (D27); fora do "vendidos". */
+  courtesies: number;
 }
 
 export interface PartnerHomeInput {
@@ -171,6 +173,7 @@ export function buildPartnerHome(input: PartnerHomeInput): PartnerHomeView {
       startsAt: session.startsAt,
       sold: session.sold,
       capacity: session.capacity,
+      courtesies: session.courtesies,
     }));
 
   return {

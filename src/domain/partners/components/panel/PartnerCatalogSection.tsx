@@ -21,6 +21,17 @@ export interface PartnerCatalogRenders {
   renderVisits?: (itemId: string, onOpenPlan: () => void) => ReactNode;
   /** Avaliações recentes (reviews); o toque leva às respostas. */
   renderReviews?: (itemId: string, onOpen: () => void) => ReactNode;
+  /** Aba Convidados da página do evento (ticketing, D27). */
+  renderGuests?: (props: EventGuestsRenderProps) => ReactNode;
+}
+
+export interface EventGuestsRenderProps {
+  eventId: string;
+  eventTitle: string;
+  /** Sessões que ainda aceitam convite, e todas, para dar nome a cada linha. */
+  openSessions: Array<{ id: string; startsAt: string }>;
+  allSessions: Array<{ id: string; startsAt: string }>;
+  onChanged: () => void;
 }
 
 /** Catálogo (p09) e página do estabelecimento (p19), com o filtro de estabelecimento (11.3). */
@@ -102,6 +113,7 @@ export function PartnerCatalogSection({
         onBack={() => onEventChange(null)}
         onEdit={(hasSales) => record && onOpenEvent(record, hasSales)}
         onOpenSession={onOpenSession}
+        renderGuests={renders.renderGuests}
       />
     );
   }

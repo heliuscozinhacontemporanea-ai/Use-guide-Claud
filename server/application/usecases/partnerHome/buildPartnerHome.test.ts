@@ -178,6 +178,7 @@ describe('buildPartnerHome', () => {
             endsAt: null,
             capacity: 300,
             sold: 128,
+            courtesies: 0,
           },
         ],
       })
@@ -257,6 +258,7 @@ describe('buildPartnerHome', () => {
             endsAt: null,
             capacity: 300,
             sold: 10,
+            courtesies: 0,
           },
           {
             id: 'proxima',
@@ -267,6 +269,7 @@ describe('buildPartnerHome', () => {
             endsAt: null,
             capacity: 300,
             sold: 128,
+            courtesies: 0,
           },
         ],
         recentEntries: [

@@ -42,6 +42,7 @@ const VIEW: PartnerHomeView = {
       startsAt: '2026-12-20T23:00:00.000Z',
       sold: 1,
       capacity: 2,
+      courtesies: 0,
     },
   ],
   week: [
