@@ -9,6 +9,7 @@ import { createTicketOrderUseCase } from '../application/usecases/createTicketOr
 import { expireTicketOrderUseCase } from '../application/usecases/expireTicketOrderUseCase';
 import { getTicketOrderUseCase } from '../application/usecases/getTicketOrderUseCase';
 import type { PublicTicketTypeProjection, Ticket, TicketOrder } from '../types/ticketing';
+import { readPromoterLink } from '../utils/promoterLinkStorage';
 import { useCheckoutCountdown } from './useCheckoutCountdown';
 
 export interface IssuedTicketView {
@@ -167,6 +168,7 @@ export function useTicketCheckout({
     setSubmitting(true);
     setError(null);
     try {
+      const promoterLink = readPromoterLink();
       const result = await createTicketOrderUseCase({
         occurrenceId,
         items: selectedItems.map(({ ticketType, quantity }) => ({
@@ -182,6 +184,7 @@ export function useTicketCheckout({
         })),
         buyer: { name: buyerName.trim(), email: buyerEmail.trim() },
         ...(promoCode.trim() ? { promoCode: promoCode.trim().toUpperCase() } : {}),
+        ...(promoterLink ? { promoterCode: promoterLink } : {}),
         idempotencyKey: `ord_${occurrenceId}_${user.uid}_${crypto.randomUUID()}`,
         acceptedTermsVersion: BUYER_TERMS_VERSION,
       });

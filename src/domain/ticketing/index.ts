@@ -29,6 +29,7 @@ export { EventTicketingPurchasePanel } from './components/EventTicketingPurchase
 export { PartnerEventTicketingManager } from './components/PartnerEventTicketingManager';
 export { PartnerSessionSheet } from './components/PartnerSessionSheet';
 export { EventPromotersPanel } from './components/promoters/EventPromotersPanel';
+export { MyPromotionsView } from './components/promoters/MyPromotionsView';
 export {
   type TicketOrderClaimSale,
   TicketPurchaseDetails,
@@ -36,6 +37,7 @@ export {
 export { UserTicketsHistoryView } from './components/UserTicketsHistoryView';
 export { TransferLinkReceiverDialog } from './components/wallet/TransferLinkReceiverDialog';
 export { useCheckoutCountdown } from './hooks/useCheckoutCountdown';
+export { useMyPromotions } from './hooks/useMyPromotions';
 export { usePartnerEventSales } from './hooks/usePartnerEventSales';
 export { useTicketPurchases } from './hooks/useTicketPurchases';
 export {
@@ -53,4 +55,5 @@ export type {
   TicketType,
 } from './types/ticketing';
 export { parseCourtesyLinkHash } from './utils/courtesyLinkUrl';
+export { rememberPromoterLink } from './utils/promoterLinkStorage';
 export { parseTransferLinkHash } from './utils/transferLinkUrl';

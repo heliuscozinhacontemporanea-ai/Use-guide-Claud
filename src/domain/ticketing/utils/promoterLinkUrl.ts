@@ -10,6 +10,7 @@ export function buildPromoterLinkUrl(
   code: string
 ): string {
   const param = username ? `${username}-${code}` : code;
-  const query = new URLSearchParams({ item: eventListingId, type: 'event', d: param });
+  // `d` primeiro: na tela o link é cortado e o @ precisa aparecer.
+  const query = new URLSearchParams({ d: param, item: eventListingId, type: 'event' });
   return `${origin}${eventsPath}?${query.toString()}`;
 }

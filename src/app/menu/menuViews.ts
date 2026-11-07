@@ -21,6 +21,7 @@ export const MENU_VIEWS = [
   'partner-terms',
   'licenses',
   'notifications',
+  'promotions',
 ] as const;
 export type MenuView = (typeof MENU_VIEWS)[number];
 
@@ -45,6 +46,7 @@ const PARENT_VIEW: Record<Exclude<MenuView, 'main'>, MenuView> = {
   'partner-terms': 'about',
   licenses: 'about',
   notifications: 'settings',
+  promotions: 'main',
 };
 
 /** Sub-telas com dados do próprio usuário: sem login, o menu mostra a tela principal (com o login). */
@@ -57,6 +59,7 @@ const PRIVATE_VIEWS: readonly MenuView[] = [
   'reviews',
   'purchases',
   'username',
+  'promotions',
   'notifications',
 ];
 

@@ -1,14 +1,13 @@
 import { AnimatePresence, motion } from 'motion/react';
 import React from 'react';
 import { hasPasswordSignInUseCase } from '../../domain/auth';
-import { signOut } from '../signOut';
 import { useAuthContext } from '../../domain/auth/context/AuthContext';
 import { UserRole } from '../../domain/auth/types/auth';
 import { MyBookingsView } from '../../domain/bookings';
 import { AboutLicensesView, AboutTermsView, AboutView, SupportView } from '../../domain/content';
 import { FavoritesList } from '../../domain/favorites';
 import { NotificationSettingsView } from '../../domain/notifications';
-import { UserTicketsHistoryView } from '../../domain/ticketing';
+import { MyPromotionsView, UserTicketsHistoryView, useMyPromotions } from '../../domain/ticketing';
 import {
   AccountView,
   AppearanceSettingsView,
@@ -28,6 +27,7 @@ import { SidebarLayout } from '../../ui/layouts/SidebarLayout';
 import { BuyerPurchasesComposition } from '../compositions/BuyerPurchasesComposition';
 import { MyReviewsComposition } from '../compositions/MyReviewsComposition';
 import { ProfileHighlightsComposition } from '../compositions/ProfileHighlightsComposition';
+import { signOut } from '../signOut';
 import { type MenuView, parentMenuView, visibleMenuView } from './menuViews';
 import { useSideMenu } from './useSideMenu';
 
@@ -67,6 +67,9 @@ const SETTINGS_VIEWS: readonly MenuView[] = [
 /** Compõe as telas de vários domínios (perfil, ingressos, reservas, compras, favoritos, avaliações, conteúdo) no menu. */
 export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
   const { user } = useAuthContext();
+  // A linha Divulgação só aparece para quem divulga ou tem convite (D27).
+  const promotions = useMyPromotions(Boolean(user && !user.isAnonymous));
+  const hasPromotions = promotions.data.length > 0;
   const { goTo } = useLocalizedRouting();
   const {
     view: requestedView,
@@ -218,6 +221,8 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
             onOpenBookings={user ? () => showView('bookings') : undefined}
           />
         );
+      case 'promotions':
+        return <MyPromotionsView onBack={goBack} />;
       case 'tickets':
         return <UserTicketsHistoryView onBack={goBack} />;
       case 'bookings':
@@ -269,6 +274,7 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
               onAdminOpen={onAdminOpen}
               onLogout={handleLogout}
               onPhotoClick={() => fileInputRef.current?.click()}
+              onPromotionsOpen={hasPromotions ? () => showView('promotions') : undefined}
               highlights={
                 menuUser && (
                   <ProfileHighlightsComposition

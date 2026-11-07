@@ -79,6 +79,8 @@ export interface TicketingPort {
     }>;
     buyer: { name: string; email: string };
     promoCode?: string;
+    /** `d` do link do divulgador (D27); o servidor decide se vale. */
+    promoterCode?: string;
     idempotencyKey: string;
     acceptedTermsVersion: string;
   }): Promise<CreateOrderResult>;

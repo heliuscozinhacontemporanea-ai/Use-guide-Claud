@@ -1,4 +1,4 @@
-import { Handshake, User } from 'lucide-react';
+import { Handshake, Megaphone, User } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatBusinessDate } from '../../../shared/utils/businessDateTime';
@@ -27,6 +27,8 @@ interface MainMenuViewProps {
   onPhotoClick: () => void;
   /** "Próximo" e os cartões de ingressos, reservas, favoritos e avaliações, da composição. */
   highlights?: ReactNode;
+  /** Divulgação (D27): só para quem divulga ou foi convidado a divulgar algum evento. */
+  onPromotionsOpen?: () => void;
 }
 
 /** Tela principal do menu (D19): perfil com login; sem login, entrar ou cadastrar. */
@@ -45,6 +47,7 @@ export function MainMenuView({
   onLogout,
   onPhotoClick,
   highlights,
+  onPromotionsOpen,
 }: MainMenuViewProps) {
   const { t, i18n } = useTranslation();
   const fullName = userData.firstName ? `${userData.firstName} ${userData.lastName}`.trim() : '';
@@ -79,6 +82,13 @@ export function MainMenuView({
           {highlights}
           <ul className="rounded-[20px] bg-surface border border-line divide-y divide-line overflow-hidden">
             <MenuRow icon={User} label={t('profile.account')} onClick={onAccountOpen} />
+            {onPromotionsOpen && (
+              <MenuRow
+                icon={Megaphone}
+                label={t('promoters.user.menu')}
+                onClick={onPromotionsOpen}
+              />
+            )}
             {isAdmin || isPartner ? (
               <MenuRow
                 icon={Handshake}

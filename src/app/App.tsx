@@ -4,6 +4,7 @@ import { CourtesyLinkReceiver } from './CourtesyLinkReceiver';
 import { EmailVerificationGate } from './EmailVerificationGate';
 import { ErrorBoundary } from './ErrorBoundary';
 import { LocalePreference } from './locale/LocalePreference';
+import { PromoterLinkCapture } from './PromoterLinkCapture';
 import { TransferLinkReceiver } from './TransferLinkReceiver';
 import { UsernameGate } from './UsernameGate';
 
@@ -15,6 +16,7 @@ export default function App() {
         <UsernameGate />
         <TransferLinkReceiver />
         <CourtesyLinkReceiver />
+        <PromoterLinkCapture />
         <EmailVerificationGate />
         <LocalePreference />
       </AppProviders>
