@@ -42,16 +42,26 @@ export interface EventSalesInput {
   tickets: Ticket[];
   refunds: Refund[];
   entries: PayoutEntryView[];
-  names: Map<string, string | null>;
+}
+
+export interface EventOrderRowsInput {
+  orders: TicketOrder[];
+  tickets: Ticket[];
+  refunds: Refund[];
   /** @ de cada divulgador do evento, pelo ID. */
   promoters?: Map<string, string | null>;
+}
+
+/** Linha da lista de pedidos; `buyerId` fica no servidor e só serve para buscar o nome público. */
+export interface EventOrderRow {
+  buyerId: string;
+  view: PartnerEventOrderView;
 }
 
 // Pedidos que aparecem para o parceiro: os pagos e o que veio depois do pagamento.
 const SHOWN = new Set(['paid', 'partially_refunded', 'refunded', 'chargeback', 'canceled']);
 // Ingresso que conta como vendido; o "transferred" vira outro ingresso e contaria duas vezes.
 const SOLD_TICKETS = new Set(['issued', 'checked_in', 'refund_pending']);
-export const ORDERS_LIMIT = 100;
 
 interface OrderRefund {
   state: RefundState;
@@ -104,61 +114,76 @@ function statusOf(order: TicketOrder, refund: OrderRefund | null): PartnerOrderS
   return 'paid';
 }
 
-/** Totais e pedidos da página do evento; quem chama já conferiu que o evento é do parceiro. */
-export function buildEventSales(input: EventSalesInput) {
-  const refundsByOrder = new Map<string, Refund[]>();
-  for (const refund of input.refunds) {
-    refundsByOrder.set(refund.orderId, [...(refundsByOrder.get(refund.orderId) ?? []), refund]);
-  }
-  const refundOf = (orderId: string) => summarize(refundsByOrder.get(orderId) ?? []);
-  const ticketsByOrder = new Map<string, Ticket[]>();
-  for (const ticket of input.tickets) {
-    ticketsByOrder.set(ticket.orderId, [...(ticketsByOrder.get(ticket.orderId) ?? []), ticket]);
-  }
+function groupBy<T extends { orderId: string }>(items: T[]) {
+  const map = new Map<string, T[]>();
+  for (const item of items) map.set(item.orderId, [...(map.get(item.orderId) ?? []), item]);
+  return map;
+}
 
-  const shown = input.orders
+function shownOrders(orders: TicketOrder[], refundsByOrder: Map<string, Refund[]>) {
+  return orders
     .filter((order) => SHOWN.has(order.status))
-    .filter((order) => order.status !== 'canceled' || refundsByOrder.has(order.id))
-    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    .filter((order) => order.status !== 'canceled' || refundsByOrder.has(order.id));
+}
 
-  const orders = shown.map((order): PartnerEventOrderView => {
-    const refund = refundOf(order.id);
-    const tickets = ticketsByOrder.get(order.id) ?? [];
-    const lines = new Map<string, { name: string; unitPriceMinor: number; quantity: number }>();
-    for (const ticket of tickets) {
-      const name = ticket.ticketTypeSnapshot?.name ?? '';
-      const unitPriceMinor = ticket.ticketTypeSnapshot?.unitPriceMinor ?? 0;
-      const key = `${name}|${unitPriceMinor}`;
-      const line = lines.get(key) ?? { name, unitPriceMinor, quantity: 0 };
-      line.quantity += 1;
-      lines.set(key, line);
-    }
-    return {
-      id: order.id,
-      code: order.id.slice(0, 6),
-      buyerName: input.names.get(order.buyerId) ?? null,
-      promoterUsername: order.promoterId ? (input.promoters?.get(order.promoterId) ?? null) : null,
-      occurrenceId: order.occurrenceId,
-      tickets: tickets.length,
-      createdAt: order.paidAt ?? order.createdAt,
-      status: statusOf(order, refund),
-      lines: [...lines.values()],
-      serviceFeeMinor: order.serviceFeeMinor,
-      paymentMethod: order.paymentMethod ?? null,
-      refund: refund
-        ? {
-            state: refund.state,
-            amountMinor: refund.amountMinor,
-            full: refund.amountMinor >= order.totalMinor,
-            at: refund.at,
-          }
-        : null,
-    };
-  });
+/** Pedidos da página do evento, do mais recente ao mais antigo, ainda sem o nome do comprador. */
+export function buildEventOrderRows(input: EventOrderRowsInput): EventOrderRow[] {
+  const refundsByOrder = groupBy(input.refunds);
+  const ticketsByOrder = groupBy(input.tickets);
+  return shownOrders(input.orders, refundsByOrder)
+    .map((order): EventOrderRow => {
+      const refund = summarize(refundsByOrder.get(order.id) ?? []);
+      const lines = new Map<string, { name: string; unitPriceMinor: number; quantity: number }>();
+      const tickets = ticketsByOrder.get(order.id) ?? [];
+      for (const ticket of tickets) {
+        const name = ticket.ticketTypeSnapshot?.name ?? '';
+        const unitPriceMinor = ticket.ticketTypeSnapshot?.unitPriceMinor ?? 0;
+        const key = `${name}|${unitPriceMinor}`;
+        const line = lines.get(key) ?? { name, unitPriceMinor, quantity: 0 };
+        line.quantity += 1;
+        lines.set(key, line);
+      }
+      return {
+        buyerId: order.buyerId,
+        view: {
+          id: order.id,
+          code: order.id.slice(0, 6),
+          buyerName: null,
+          promoterUsername: order.promoterId
+            ? (input.promoters?.get(order.promoterId) ?? null)
+            : null,
+          occurrenceId: order.occurrenceId,
+          tickets: tickets.length,
+          createdAt: order.paidAt ?? order.createdAt,
+          status: statusOf(order, refund),
+          lines: [...lines.values()],
+          serviceFeeMinor: order.serviceFeeMinor,
+          paymentMethod: order.paymentMethod ?? null,
+          refund: refund
+            ? {
+                state: refund.state,
+                amountMinor: refund.amountMinor,
+                full: refund.amountMinor >= order.totalMinor,
+                at: refund.at,
+              }
+            : null,
+        },
+      };
+    })
+    .sort(
+      (a, b) =>
+        b.view.createdAt.localeCompare(a.view.createdAt) || b.view.id.localeCompare(a.view.id)
+    );
+}
+
+/** Totais da página do evento; quem chama já conferiu que o evento é do parceiro. */
+export function buildEventSales(input: EventSalesInput) {
+  const refundsByOrder = groupBy(input.refunds);
+  const shown = shownOrders(input.orders, refundsByOrder);
 
   // Vendido: valor dos ingressos, sem a taxa de serviço, menos o que já voltou ao comprador.
   const soldMinor = shown.reduce((sum, order) => {
-    const refund = refundOf(order.id);
+    const refund = summarize(refundsByOrder.get(order.id) ?? []);
     if (statusOf(order, refund) === 'refunded') return sum;
     const tickets = order.subtotalMinor - order.discountMinor;
     return sum + Math.max(0, tickets - (refund?.doneTicketsMinor ?? 0));
@@ -170,7 +195,6 @@ export function buildEventSales(input: EventSalesInput) {
     receiveMinor: input.entries
       .filter((entry) => entry.status !== 'canceled')
       .reduce((sum, entry) => sum + entry.partnerAmountMinor, 0),
-    orders: orders.slice(0, ORDERS_LIMIT),
-    ordersTotal: orders.length,
+    ordersTotal: shown.length,
   };
 }

@@ -25,3 +25,15 @@ export const PartnerEventParamsSchema = z
 export const PartnerReportsQuerySchema = z
   .object({ period: z.enum(['7d', '30d', '12m']) })
   .strict();
+
+export const PartnerEventOrdersQuerySchema = z
+  .object({
+    limit: z.coerce.number().int().min(1).max(50).default(20),
+    cursor: z
+      .string()
+      .regex(/^[A-Za-z0-9_-]{1,200}$/)
+      .optional(),
+    q: z.string().max(60).optional(),
+    filter: z.enum(['all', 'refunds']).default('all'),
+  })
+  .strict();

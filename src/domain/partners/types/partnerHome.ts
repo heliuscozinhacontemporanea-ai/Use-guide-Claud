@@ -156,8 +156,23 @@ export interface PartnerEventSales {
     capacity: number;
     courtesies: number;
   }>;
-  orders: PartnerEventOrder[];
+  /** Pedidos mostrados na página; a lista vem por página em `/orders`. */
   ordersTotal: number;
+}
+
+export type PartnerEventOrdersFilter = 'all' | 'refunds';
+
+export interface PartnerEventOrdersQuery {
+  q?: string;
+  filter: PartnerEventOrdersFilter;
+  cursor?: string;
+}
+
+/** Uma página de `/api/partner-home/events/:id/orders`. */
+export interface PartnerEventOrdersPage {
+  data: PartnerEventOrder[];
+  nextCursor: string | null;
+  total: number;
 }
 
 /** Venda dentro de um repasse (p21). */

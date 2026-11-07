@@ -1,6 +1,8 @@
 import type {
   PartnerCatalogEvent,
   PartnerEarnings,
+  PartnerEventOrdersPage,
+  PartnerEventOrdersQuery,
   PartnerEventSales,
   PartnerHomeView,
   PartnerReportPeriod,
@@ -14,8 +16,10 @@ export interface PartnerHomePort {
   getAgenda(fromIso: string, toIso: string): Promise<PartnerTodayItem[]>;
   /** Eventos do dono para o Catálogo. */
   getCatalogEvents(): Promise<PartnerCatalogEvent[]>;
-  /** Vendas, sessões e pedidos de um evento do dono. */
+  /** Vendas e sessões de um evento do dono. */
   getEventSales(eventId: string): Promise<PartnerEventSales>;
+  /** Pedidos do evento, por página, com busca por nome ou código e filtro de reembolso. */
+  listEventOrders(eventId: string, query: PartnerEventOrdersQuery): Promise<PartnerEventOrdersPage>;
   /** A receber, recebido no mês e repasses dos CNPJs do parceiro. */
   getEarnings(): Promise<PartnerEarnings>;
   /** Vendas do período por barra e por item. */

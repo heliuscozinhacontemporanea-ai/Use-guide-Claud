@@ -46,7 +46,19 @@ export interface PartnerCatalogTranslation {
     sessionSold: string;
     ordersTitle: string;
     ordersEmpty: string;
-    ordersMore: string;
+    ordersSearch: string;
+    ordersClear: string;
+    ordersFilter: string;
+    ordersAll: string;
+    ordersRefunds: string;
+    ordersNoResults: string;
+    ordersNoRefunds: string;
+    ordersFound_one: string;
+    ordersFound_other: string;
+    ordersMore_one: string;
+    ordersMore_other: string;
+    ordersLoading: string;
+    ordersError: string;
     viaPromoter: string;
     loadError: string;
     today: string;
@@ -154,7 +166,19 @@ export const partnerCatalogPtBR: PartnerCatalogTranslation = {
     sessionSold: '{{sold}} de {{capacity}}',
     ordersTitle: 'Pedidos',
     ordersEmpty: 'Nenhum pedido ainda.',
-    ordersMore: 'Mostrando os {{shown}} pedidos mais recentes de {{total}}.',
+    ordersSearch: 'Buscar por nome ou nº do pedido',
+    ordersClear: 'Limpar busca',
+    ordersFilter: 'Mostrar pedidos',
+    ordersAll: 'Todos',
+    ordersRefunds: 'Com reembolso',
+    ordersNoResults: 'Nenhum pedido encontrado.',
+    ordersNoRefunds: 'Nenhum pedido com reembolso.',
+    ordersFound_one: '{{count}} pedido',
+    ordersFound_other: '{{count}} pedidos',
+    ordersMore_one: 'Ver mais {{count}} pedido',
+    ordersMore_other: 'Ver mais {{count}} pedidos',
+    ordersLoading: 'Carregando…',
+    ordersError: 'Não foi possível carregar os pedidos.',
     viaPromoter: 'pelo link de @{{username}}',
     loadError: 'Não foi possível carregar as vendas.',
     today: 'hoje, {{time}}',
@@ -265,7 +289,19 @@ export const partnerCatalogEn: PartnerCatalogTranslation = {
     sessionSold: '{{sold}} of {{capacity}}',
     ordersTitle: 'Orders',
     ordersEmpty: 'No orders yet.',
-    ordersMore: 'Showing the {{shown}} most recent of {{total}} orders.',
+    ordersSearch: 'Search by name or order no.',
+    ordersClear: 'Clear search',
+    ordersFilter: 'Show orders',
+    ordersAll: 'All',
+    ordersRefunds: 'With refund',
+    ordersNoResults: 'No orders found.',
+    ordersNoRefunds: 'No orders with a refund.',
+    ordersFound_one: '{{count}} order',
+    ordersFound_other: '{{count}} orders',
+    ordersMore_one: 'Show {{count}} more order',
+    ordersMore_other: 'Show {{count}} more orders',
+    ordersLoading: 'Loading…',
+    ordersError: "Couldn't load the orders.",
     viaPromoter: "through @{{username}}'s link",
     loadError: "Couldn't load the sales.",
     today: 'today, {{time}}',
@@ -375,7 +411,19 @@ export const partnerCatalogFr: PartnerCatalogTranslation = {
     sessionSold: '{{sold}} sur {{capacity}}',
     ordersTitle: 'Commandes',
     ordersEmpty: 'Aucune commande pour le moment.',
-    ordersMore: 'Les {{shown}} commandes les plus récentes sur {{total}}.',
+    ordersSearch: 'Nom ou nº de commande',
+    ordersClear: 'Effacer la recherche',
+    ordersFilter: 'Afficher les commandes',
+    ordersAll: 'Toutes',
+    ordersRefunds: 'Avec remboursement',
+    ordersNoResults: 'Aucune commande trouvée.',
+    ordersNoRefunds: 'Aucune commande avec remboursement.',
+    ordersFound_one: '{{count}} commande',
+    ordersFound_other: '{{count}} commandes',
+    ordersMore_one: 'Voir {{count}} commande de plus',
+    ordersMore_other: 'Voir {{count}} commandes de plus',
+    ordersLoading: 'Chargement…',
+    ordersError: 'Impossible de charger les commandes.',
     viaPromoter: 'via le lien de @{{username}}',
     loadError: 'Impossible de charger les ventes.',
     today: "aujourd'hui, {{time}}",

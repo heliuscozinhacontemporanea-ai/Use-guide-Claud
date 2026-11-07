@@ -12,5 +12,6 @@ router.get('/catalog', verifyAuthToken, PartnerHomeController.getCatalog);
 router.get('/earnings', verifyAuthToken, PartnerHomeController.getEarnings);
 router.get('/reports', verifyAuthToken, PartnerHomeController.getReports);
 router.get('/events/:eventId/sales', verifyAuthToken, PartnerHomeController.getEventSales);
+router.get('/events/:eventId/orders', verifyAuthToken, PartnerHomeController.listEventOrders);
 
 export default router;

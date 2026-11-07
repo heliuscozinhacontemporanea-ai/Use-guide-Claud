@@ -8,6 +8,7 @@ const m = vi.hoisted(() => ({
   agenda: vi.fn(),
   catalog: vi.fn(),
   sales: vi.fn(),
+  orders: vi.fn(),
   earnings: vi.fn(),
   reports: vi.fn(),
 }));
@@ -24,6 +25,12 @@ vi.mock('../../../application/usecases/partnerHome/getPartnerCatalogApplicationU
 vi.mock('../../../application/usecases/partnerHome/getPartnerEventSalesApplicationUseCase', () => ({
   getPartnerEventSalesApplicationUseCase: m.sales,
 }));
+vi.mock(
+  '../../../application/usecases/partnerHome/listPartnerEventOrdersApplicationUseCase',
+  () => ({
+    listPartnerEventOrdersApplicationUseCase: m.orders,
+  })
+);
 vi.mock('../../../application/usecases/partnerHome/getPartnerEarningsApplicationUseCase', () => ({
   getPartnerEarningsApplicationUseCase: m.earnings,
 }));
@@ -153,7 +160,7 @@ describe('PartnerHomeController', () => {
     const { TicketingDomainError } = await import(
       '../../../domain/ticketing/errors/ticketingDomainError'
     );
-    m.sales.mockResolvedValueOnce({ orders: [] });
+    m.sales.mockResolvedValueOnce({ ordersTotal: 0 });
     const ok = response();
     await PartnerHomeController.getEventSales(
       { params: { eventId: 'ev1' }, user: { uid: 'owner-1' } } as never,
@@ -176,6 +183,53 @@ describe('PartnerHomeController', () => {
       bad as unknown as Response
     );
     expect(bad.status).toHaveBeenCalledWith(400);
+  });
+
+  it('pedidos do evento: valida a busca, pagina e esconde evento de outro dono (IDOR)', async () => {
+    const { TicketingDomainError } = await import(
+      '../../../domain/ticketing/errors/ticketingDomainError'
+    );
+    m.orders.mockResolvedValueOnce({ data: [], nextCursor: null, total: 0 });
+    const ok = response();
+    await PartnerHomeController.listEventOrders(
+      {
+        params: { eventId: 'ev1' },
+        query: { q: 'ana', filter: 'refunds', limit: '10' },
+        user: { uid: 'owner-1' },
+      } as never,
+      ok as unknown as Response
+    );
+    expect(m.orders).toHaveBeenCalledWith('owner-1', 'ev1', {
+      q: 'ana',
+      filter: 'refunds',
+      limit: 10,
+    });
+    expect(ok.status).toHaveBeenCalledWith(200);
+
+    for (const query of [{ filter: 'todos' }, { limit: '500' }, { extra: '1' }]) {
+      const bad = response();
+      await PartnerHomeController.listEventOrders(
+        { params: { eventId: 'ev1' }, query, user: { uid: 'owner-1' } } as never,
+        bad as unknown as Response
+      );
+      expect(bad.status).toHaveBeenCalledWith(400);
+    }
+
+    m.orders.mockRejectedValueOnce(new Error('INVALID_CURSOR'));
+    const cursor = response();
+    await PartnerHomeController.listEventOrders(
+      { params: { eventId: 'ev1' }, query: { cursor: 'abc' }, user: { uid: 'owner-1' } } as never,
+      cursor as unknown as Response
+    );
+    expect(cursor.status).toHaveBeenCalledWith(400);
+
+    m.orders.mockRejectedValueOnce(new TicketingDomainError('FORBIDDEN', 'Sem permissão.'));
+    const other = response();
+    await PartnerHomeController.listEventOrders(
+      { params: { eventId: 'ev-de-outro' }, query: {}, user: { uid: 'owner-1' } } as never,
+      other as unknown as Response
+    );
+    expect(other.status).toHaveBeenCalledWith(404);
   });
 
   it('ganhos: lê só do uid logado e responde 503 sem detalhe interno', async () => {

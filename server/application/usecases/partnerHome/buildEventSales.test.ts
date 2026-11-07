@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { PayoutEntryView } from '../../../domain/payment';
 import type { Refund, Ticket, TicketOrder } from '../../../domain/ticketing';
-import { buildEventSales } from './buildEventSales';
+import { buildEventOrderRows, buildEventSales } from './buildEventSales';
 
 function order(id: string, overrides: Partial<TicketOrder> = {}): TicketOrder {
   return {
@@ -42,15 +42,17 @@ function refund(orderId: string, overrides: Partial<Refund>): Refund {
   } as unknown as Refund;
 }
 
-const names = new Map([
-  ['buyer-a', 'Ana Souza'],
-  ['buyer-bb', 'Carlos Melo'],
-  ['buyer-ccc', null],
-]);
+function both(input: Parameters<typeof buildEventSales>[0]) {
+  return {
+    ...buildEventSales(input),
+    orders: buildEventOrderRows(input).map((row) => row.view),
+    buyers: buildEventOrderRows(input).map((row) => row.buyerId),
+  };
+}
 
 describe('buildEventSales', () => {
   it('mostra pagos e reembolsos, sem e-mail nem documento, e soma o vendido sem a taxa', () => {
-    const result = buildEventSales({
+    const result = both({
       orders: [
         order('a'),
         order('bb'),
@@ -71,7 +73,6 @@ describe('buildEventSales', () => {
         { partnerAmountMinor: 18000, status: 'pending' },
         { partnerAmountMinor: 5000, status: 'canceled' },
       ] as PayoutEntryView[],
-      names,
     });
 
     expect(result.orders.map((row) => [row.code, row.status])).toEqual([
@@ -79,15 +80,15 @@ describe('buildEventSales', () => {
       ['bb', 'refund_requested'],
       ['a', 'paid'],
     ]);
+    expect(result.buyers).toEqual(['buyer-ccc', 'buyer-bb', 'buyer-a']);
     expect(result.orders[2]).toMatchObject({
-      buyerName: 'Ana Souza',
+      buyerName: null,
       tickets: 2,
       lines: [{ name: 'Pista', unitPriceMinor: 10000, quantity: 2 }],
       serviceFeeMinor: 600,
       refund: null,
     });
     expect(result.orders[1]?.refund).toMatchObject({ state: 'in_progress', full: true });
-    expect(result.orders[0]?.buyerName).toBeNull();
     expect(JSON.stringify(result)).not.toContain('segredo');
     expect(JSON.stringify(result)).not.toContain('Nome Completo');
     // a + bb (o reembolso de bb ainda não saiu); ccc já voltou inteiro.
@@ -98,12 +99,11 @@ describe('buildEventSales', () => {
   });
 
   it('reembolso parcial aprovado sai do vendido só pela parte do ingresso', () => {
-    const result = buildEventSales({
+    const result = both({
       orders: [order('a', { status: 'partially_refunded' })],
       tickets: [ticket('a'), ticket('a', 'refunded')],
       refunds: [refund('a', { status: 'approved', amountMinor: 10000, serviceFeeMinor: 0 })],
       entries: [],
-      names,
     });
     expect(result.orders[0]).toMatchObject({
       status: 'partially_refunded',
@@ -113,12 +113,11 @@ describe('buildEventSales', () => {
   });
 
   it('disputa aparece como disputa', () => {
-    const result = buildEventSales({
+    const result = both({
       orders: [order('a', { status: 'chargeback' })],
       tickets: [],
       refunds: [],
       entries: [],
-      names,
     });
     expect(result.orders[0]?.status).toBe('disputed');
   });

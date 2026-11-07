@@ -4,20 +4,16 @@ import { formatBusinessDate } from '../../../../shared/utils/businessDateTime';
 import { formatMoneyMinorCompact } from '../../../../shared/utils/money';
 import { BackButton } from '../../../../ui/components/BackButton';
 import { ListCard, ListRowButton } from '../../../../ui/components/ListRows';
-import { ListEmpty, ListError, ListLoading } from '../../../../ui/components/ListState';
+import { ListError, ListLoading } from '../../../../ui/components/ListState';
 import { SegmentedControl } from '../../../../ui/components/SegmentedControl';
 import { StatTile } from '../../../../ui/components/StatTile';
 import { TextButton } from '../../../../ui/components/TextButton';
 import { usePartnerEventSalesPage } from '../../hooks/usePartnerEventSalesPage';
-import type {
-  PartnerEventOrder,
-  PartnerEventSales,
-  PartnerTodayItem,
-} from '../../types/partnerHome';
+import type { PartnerEventSales, PartnerTodayItem } from '../../types/partnerHome';
 import { addBusinessDays, businessDay, sameBusinessDay } from '../../utils/agendaCalendar';
-import { ORDER_TONE, sessionLabel } from '../../utils/eventSalesFormat';
+import { sessionLabel } from '../../utils/eventSalesFormat';
 import type { EventGuestsRenderProps } from './PartnerCatalogSection';
-import { PartnerOrderSheet } from './PartnerOrderSheet';
+import { PartnerEventOrders } from './PartnerEventOrders';
 
 function sessionItem(sales: PartnerEventSales, session: PartnerEventSales['sessions'][number]) {
   return {
@@ -57,7 +53,6 @@ export function PartnerEventPage({
   const { t, i18n } = useTranslation();
   const locale = i18n.language;
   const { data, loading, error, reload } = usePartnerEventSalesPage(eventId, reloadKey);
-  const [order, setOrder] = useState<PartnerEventOrder | null>(null);
   const [tab, setTab] = useState<'sales' | 'guests' | 'promoters'>('sales');
   const now = new Date();
   const guests = tab === 'guests' && renderGuests;
@@ -193,53 +188,14 @@ export function PartnerEventPage({
             </section>
           )}
 
-          <section className="space-y-3">
-            <h3 className="px-1 text-[18px] font-display font-bold text-ink">
-              {t('partnerCatalog.event.ordersTitle')}
-            </h3>
-            {data.orders.length === 0 ? (
-              <ListEmpty message={t('partnerCatalog.event.ordersEmpty')} />
-            ) : (
-              <ListCard>
-                {data.orders.map((row) => (
-                  <ListRowButton
-                    key={row.id}
-                    title={`${row.buyerName ?? t('partnerCatalog.event.buyer')} · ${t(
-                      'partnerCatalog.event.tickets',
-                      { count: row.tickets }
-                    )}`}
-                    sub={[
-                      `#${row.code}`,
-                      row.promoterUsername
-                        ? t('partnerCatalog.event.viaPromoter', { username: row.promoterUsername })
-                        : when(row.createdAt),
-                    ].join(' · ')}
-                    status={{
-                      tone: ORDER_TONE[row.status],
-                      text: t(`partnerCatalog.event.status.${row.status}`),
-                    }}
-                    onClick={() => setOrder(row)}
-                  />
-                ))}
-              </ListCard>
-            )}
-            {data.ordersTotal > data.orders.length && (
-              <p className="px-1 text-[13px] text-ink/70">
-                {t('partnerCatalog.event.ordersMore', {
-                  shown: data.orders.length,
-                  total: data.ordersTotal,
-                })}
-              </p>
-            )}
-          </section>
+          <PartnerEventOrders
+            eventId={eventId}
+            reloadKey={reloadKey}
+            sessions={data.sessions}
+            when={when}
+          />
         </>
       )}
-
-      <PartnerOrderSheet
-        order={order}
-        session={data?.sessions.find((session) => session.id === order?.occurrenceId)}
-        onClose={() => setOrder(null)}
-      />
     </div>
   );
 }

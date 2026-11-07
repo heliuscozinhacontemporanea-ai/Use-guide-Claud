@@ -5,6 +5,7 @@ import { getPartnerEarningsApplicationUseCase } from '../../../application/useca
 import { getPartnerEventSalesApplicationUseCase } from '../../../application/usecases/partnerHome/getPartnerEventSalesApplicationUseCase';
 import { getPartnerHomeApplicationUseCase } from '../../../application/usecases/partnerHome/getPartnerHomeApplicationUseCase';
 import { getPartnerReportsApplicationUseCase } from '../../../application/usecases/partnerHome/getPartnerReportsApplicationUseCase';
+import { listPartnerEventOrdersApplicationUseCase } from '../../../application/usecases/partnerHome/listPartnerEventOrdersApplicationUseCase';
 import {
   completePartnerPanelTourUseCase,
   PartnerDomainError,
@@ -14,6 +15,7 @@ import { TicketingDomainError } from '../../../domain/ticketing';
 import type { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
 import {
   PartnerAgendaQuerySchema,
+  PartnerEventOrdersQuerySchema,
   PartnerEventParamsSchema,
   PartnerReportsQuerySchema,
   SavePartnerHomeCardsSchema,
@@ -138,6 +140,43 @@ export class PartnerHomeController {
         503,
         'PARTNER_HOME_UNAVAILABLE',
         'Não foi possível carregar as vendas.'
+      );
+    }
+  }
+
+  static async listEventOrders(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    if (!req.user?.uid) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
+    const params = PartnerEventParamsSchema.safeParse(req.params);
+    const query = PartnerEventOrdersQuerySchema.safeParse(req.query);
+    if (!params.success || !query.success) {
+      return sendError(res, 400, 'VALIDATION_ERROR', 'Busca inválida.');
+    }
+    try {
+      const page = await listPartnerEventOrdersApplicationUseCase(
+        req.user.uid,
+        params.data.eventId,
+        query.data
+      );
+      return res.status(200).json(page);
+    } catch (error) {
+      if (error instanceof Error && error.message === 'INVALID_CURSOR') {
+        return sendError(res, 400, 'VALIDATION_ERROR', 'Busca inválida.');
+      }
+      // Evento de outro dono responde igual a inexistente, para não confirmar que ele existe (A01).
+      if (
+        error instanceof TicketingDomainError &&
+        (error.code === 'FORBIDDEN' || error.code === 'NOT_FOUND')
+      ) {
+        return sendError(res, 404, 'EVENT_NOT_FOUND', 'Evento não encontrado.');
+      }
+      console.error('[PartnerHomeController.listEventOrders]', {
+        name: error instanceof Error ? error.name : 'UnknownError',
+      });
+      return sendError(
+        res,
+        503,
+        'PARTNER_HOME_UNAVAILABLE',
+        'Não foi possível carregar os pedidos.'
       );
     }
   }

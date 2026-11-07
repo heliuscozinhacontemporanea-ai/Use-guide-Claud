@@ -3,6 +3,8 @@ import type { PartnerHomePort } from '../ports/partnerHomePort';
 import type {
   PartnerCatalogEvent,
   PartnerEarnings,
+  PartnerEventOrdersPage,
+  PartnerEventOrdersQuery,
   PartnerEventSales,
   PartnerHomeView,
   PartnerReportPeriod,
@@ -11,6 +13,7 @@ import type {
 } from '../types/partnerHome';
 
 const OPTIONS = { requireAuth: true, requireAppCheck: true } as const;
+const ORDERS_PAGE = 20;
 
 export class ApiPartnerHomeAdapter implements PartnerHomePort {
   /** Lança Error com o `code` estável do backend (AGENTS.md §10.2); a UI traduz pelo código. */
@@ -61,6 +64,25 @@ export class ApiPartnerHomeAdapter implements PartnerHomePort {
       throw new Error(typeof body?.error?.code === 'string' ? body.error.code : 'INTERNAL_ERROR');
     }
     return (body as { data: PartnerEventSales }).data;
+  }
+
+  async listEventOrders(
+    eventId: string,
+    query: PartnerEventOrdersQuery
+  ): Promise<PartnerEventOrdersPage> {
+    const params = new URLSearchParams({ filter: query.filter, limit: String(ORDERS_PAGE) });
+    if (query.q?.trim()) params.set('q', query.q.trim());
+    if (query.cursor) params.set('cursor', query.cursor);
+    const response = await firebaseApiFetch(
+      `/api/partner-home/events/${encodeURIComponent(eventId)}/orders?${params}`,
+      { method: 'GET' },
+      OPTIONS
+    );
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(typeof body?.error?.code === 'string' ? body.error.code : 'INTERNAL_ERROR');
+    }
+    return body as PartnerEventOrdersPage;
   }
 
   async getEarnings(): Promise<PartnerEarnings> {
