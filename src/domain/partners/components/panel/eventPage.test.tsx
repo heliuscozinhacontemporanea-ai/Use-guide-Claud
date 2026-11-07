@@ -77,6 +77,22 @@ describe('Página do evento (p10–p12) e Editar evento (p18)', () => {
     );
   });
 
+  it('atalho Cupons leva à área Cupons do evento', async () => {
+    const onOpenCoupons = vi.fn();
+    render(
+      <PartnerEventPage
+        eventId="ev1"
+        reloadKey={0}
+        onBack={vi.fn()}
+        onEdit={vi.fn()}
+        onOpenSession={vi.fn()}
+        onOpenCoupons={onOpenCoupons}
+      />
+    );
+    fireEvent.click(await screen.findByRole('button', { name: /Cupons/ }));
+    expect(onOpenCoupons).toHaveBeenCalled();
+  });
+
   it('o pedido abre a folha com ingresso, taxa, sessão e o reembolso integral em andamento', async () => {
     render(
       <PartnerEventPage

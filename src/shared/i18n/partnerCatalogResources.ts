@@ -60,6 +60,8 @@ export interface PartnerCatalogTranslation {
     ordersLoading: string;
     ordersError: string;
     viaPromoter: string;
+    coupons: string;
+    couponsHint: string;
     loadError: string;
     today: string;
     yesterday: string;
@@ -180,6 +182,8 @@ export const partnerCatalogPtBR: PartnerCatalogTranslation = {
     ordersLoading: 'Carregando…',
     ordersError: 'Não foi possível carregar os pedidos.',
     viaPromoter: 'pelo link de @{{username}}',
+    coupons: 'Cupons',
+    couponsHint: 'Descontos que valem para este evento',
     loadError: 'Não foi possível carregar as vendas.',
     today: 'hoje, {{time}}',
     yesterday: 'ontem, {{time}}',
@@ -303,6 +307,8 @@ export const partnerCatalogEn: PartnerCatalogTranslation = {
     ordersLoading: 'Loading…',
     ordersError: "Couldn't load the orders.",
     viaPromoter: "through @{{username}}'s link",
+    coupons: 'Promo codes',
+    couponsHint: 'Discounts valid for this event',
     loadError: "Couldn't load the sales.",
     today: 'today, {{time}}',
     yesterday: 'yesterday, {{time}}',
@@ -425,6 +431,8 @@ export const partnerCatalogFr: PartnerCatalogTranslation = {
     ordersLoading: 'Chargement…',
     ordersError: 'Impossible de charger les commandes.',
     viaPromoter: 'via le lien de @{{username}}',
+    coupons: 'Codes promo',
+    couponsHint: 'Réductions valables pour cet événement',
     loadError: 'Impossible de charger les ventes.',
     today: "aujourd'hui, {{time}}",
     yesterday: 'hier, {{time}}',

@@ -17,6 +17,7 @@ import { MonthVisitsTile, ReportsView } from '../../domain/insights';
 import { NotificationSettingsView, SalesAlertsSummary } from '../../domain/notifications';
 import type { PartnerProfile, SubscriptionPlan } from '../../domain/partners';
 import { getPartnerProfileUseCase, PartnerPanel } from '../../domain/partners';
+import { PromoCodesPage } from '../../domain/promotions';
 import {
   CheckoutModal,
   isPaidPlanId,
@@ -240,6 +241,9 @@ export function PartnerPortalComposition() {
         <PartnerEventTicketingComposition eventListingId={eventListingId} lotsOnly />
       )}
       renderNotificationsHint={() => <SalesAlertsSummary />}
+      renderCoupons={({ eventId, backLabel, onBack }) => (
+        <PromoCodesPage eventId={eventId} backLabel={backLabel} onBack={onBack} />
+      )}
       renderEventAccountCard={(establishmentId, establishmentName) => (
         <EventPaymentAccountCard
           establishmentId={establishmentId}

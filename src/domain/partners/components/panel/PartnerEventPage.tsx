@@ -40,6 +40,7 @@ export function PartnerEventPage({
   onOpenSession,
   renderGuests,
   renderPromoters,
+  onOpenCoupons,
 }: {
   eventId: string;
   reloadKey: number;
@@ -49,6 +50,8 @@ export function PartnerEventPage({
   onOpenSession: (item: PartnerTodayItem) => void;
   renderGuests?: (props: EventGuestsRenderProps) => ReactNode;
   renderPromoters?: (eventId: string) => ReactNode;
+  /** Cupons deste evento, na área Cupons (B1). */
+  onOpenCoupons?: () => void;
 }) {
   const { t, i18n } = useTranslation();
   const locale = i18n.language;
@@ -186,6 +189,16 @@ export function PartnerEventPage({
                 ))}
               </ListCard>
             </section>
+          )}
+
+          {onOpenCoupons && (
+            <ListCard>
+              <ListRowButton
+                title={t('partnerCatalog.event.coupons')}
+                sub={t('partnerCatalog.event.couponsHint')}
+                onClick={onOpenCoupons}
+              />
+            </ListCard>
           )}
 
           <PartnerEventOrders

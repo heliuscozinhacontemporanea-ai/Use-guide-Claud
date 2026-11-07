@@ -11,6 +11,7 @@ import { updatePartnerContentItemUseCase } from '../application/usecases/updateP
 import { useEditorScrollLock } from '../hooks/useEditorScrollLock';
 import { usePartnerEventSessions } from '../hooks/usePartnerEventSessions';
 import { usePartnerPanelActions } from '../hooks/usePartnerPanelActions';
+import { usePanelNavigation } from '../hooks/usePanelNavigation';
 import { usePanelTour } from '../hooks/usePanelTour';
 import { usePlanCheckout } from '../hooks/usePlanCheckout';
 import type { PartnerContentRecord } from '../types/partnerContent';
@@ -29,12 +30,11 @@ import { PartnerCatalogSection } from './panel/PartnerCatalogSection';
 import { PartnerAgoraSection } from './panel/PartnerAgoraSection';
 import { PartnerHomeTab } from './panel/PartnerHomeTab';
 import { PartnerEarningsTab } from './panel/PartnerEarningsTab';
-import { PartnerMoreSection, type PartnerMoreView } from './panel/PartnerMoreSection';
+import { PartnerMoreSection } from './panel/PartnerMoreSection';
 import { PartnerPanelTop } from './panel/PartnerPanelTop';
 import { PanelTourChooser } from './panel/PanelTourChooser';
 import { PartnerPanelTour } from './panel/PartnerPanelTour';
 import { PartnerAgendaTab } from './panel/PartnerAgendaTab';
-import type { PartnerPanelTab } from './panel/partnerPanelTabs';
 import type { VerificationListingOption } from './verification/verificationListingOption';
 
 export function PartnerPanel({
@@ -54,36 +54,24 @@ export function PartnerPanel({
   renderAgora,
   renderEventAccountCard,
   renderNotificationsHint,
+  renderCoupons,
 }: PartnerPanelProps) {
   const { goTo } = useLocalizedRouting();
   const { t } = useTranslation();
   const home = usePartnerPanelHome();
-  const [panelTab, setPanelTab] = React.useState<PartnerPanelTab>('home');
+  const nav = usePanelNavigation();
+  const { panelTab, setPanelTab, eventId } = nav;
   const [catalogSegment, setCatalogSegment] = React.useState<CatalogSegment>('places');
   const [eventsVersion, setEventsVersion] = React.useState(0);
-  const [openReports, setOpenReports] = React.useState<false | 'sales' | 'reviews'>(false);
-  const [openAccounts, setOpenAccounts] = React.useState(false);
-  const [placeId, setPlaceId] = React.useState<string | null>(null);
-  const [eventId, setEventId] = React.useState<string | null>(null);
   const [editingHasSales, setEditingHasSales] = React.useState(false);
-  const [moreView, setMoreView] = React.useState<PartnerMoreView>('list');
   const [agendaItem, setAgendaItem] = React.useState<PartnerTodayItem | null>(null);
   const [agendaGate, setAgendaGate] = React.useState(false);
   const [agendaVersion, setAgendaVersion] = React.useState(0);
-  // Abrir uma aba fecha o que estava aberto dentro de outra (página do evento, relatórios…).
-  const openTab = React.useCallback((tab: PartnerPanelTab) => {
-    setPanelTab(tab);
-    setOpenReports(false);
-    setOpenAccounts(false);
-    setPlaceId(null);
-    setEventId(null);
-    setMoreView('list');
-  }, []);
   const tour = usePanelTour({
     tour: home.data?.tour,
     tab: panelTab,
     editing: home.cards.editing,
-    onTabChange: openTab,
+    onTabChange: nav.openTab,
   });
   const agendaChanged = () => {
     setAgendaVersion((version) => version + 1);
@@ -157,13 +145,13 @@ export function PartnerPanel({
         className={`max-w-4xl mx-auto space-y-8 relative z-10 transition-all duration-300 ${isEditing || editingListing !== undefined ? 'opacity-0 scale-[0.98] pointer-events-none h-0 overflow-hidden' : 'opacity-100 scale-100'}`}
       >
         {!(
-          (panelTab === 'catalog' && (placeId || eventId)) ||
-          (panelTab === 'earnings' && (openReports || openAccounts))
+          (panelTab === 'catalog' && (nav.placeId || eventId)) ||
+          (panelTab === 'earnings' && (nav.openReports || nav.openAccounts))
         ) && (
           <PartnerPanelTop
             home={home}
             tab={panelTab}
-            onTabChange={openTab}
+            onTabChange={nav.openTab}
             onBack={() => goTo('explore')}
           />
         )}
@@ -209,10 +197,10 @@ export function PartnerPanel({
               setCatalogSegment(segment);
               setActiveTab(segment === 'events' ? 'events' : 'items');
             }}
-            placeId={placeId}
-            onPlaceChange={setPlaceId}
+            placeId={nav.placeId}
+            onPlaceChange={nav.setPlaceId}
             eventId={eventId}
-            onEventChange={setEventId}
+            onEventChange={nav.setEventId}
             eventReloadKey={agendaVersion}
             onOpenSession={setAgendaItem}
             items={itemsList}
@@ -239,17 +227,18 @@ export function PartnerPanel({
             verificationVersion={verificationVersion}
             planVersion={planVersion}
             onOpenReviews={() => {
-              setOpenReports('reviews');
+              nav.setOpenReports('reviews');
               setPanelTab('earnings');
             }}
             renders={renderCatalog ?? {}}
+            onOpenCoupons={renderCoupons ? nav.openCoupons : undefined}
           />
         ) : panelTab === 'earnings' ? (
           <PartnerEarningsTab
-            showReports={openReports}
-            onShowReportsChange={setOpenReports}
-            showAccounts={openAccounts}
-            onShowAccountsChange={setOpenAccounts}
+            showReports={nav.openReports}
+            onShowReportsChange={nav.setOpenReports}
+            showAccounts={nav.openAccounts}
+            onShowAccountsChange={nav.setOpenAccounts}
             renders={renderEarnings ?? {}}
             reports={renderReports?.({
               partnerId: user.uid,
@@ -262,8 +251,8 @@ export function PartnerPanel({
           />
         ) : (
           <PartnerMoreSection
-            view={moreView}
-            onViewChange={setMoreView}
+            view={nav.moreView}
+            onViewChange={nav.setMoreView}
             establishments={itemsList}
             summary={home.data?.summary ?? null}
             withoutPlan={home.data?.plans.filter((plan) => !plan.until).length ?? 0}
@@ -279,6 +268,18 @@ export function PartnerPanel({
             onOpenEarnings={() => setPanelTab('earnings')}
             renderAccountView={renderAccountView}
             onReplayTour={() => tour.setChooserOpen(true)}
+            renderCoupons={
+              renderCoupons
+                ? () =>
+                    renderCoupons({
+                      eventId: nav.couponsFrom,
+                      backLabel: t(
+                        nav.couponsFrom ? 'partnerPanel.tabs.catalog' : 'partnerPanel.more.title'
+                      ),
+                      onBack: nav.closeCoupons,
+                    })
+                : undefined
+            }
             notificationsHint={renderNotificationsHint?.()}
           />
         )}
@@ -312,7 +313,7 @@ export function PartnerPanel({
             onRequestDelete={setShowDeleteConfirm}
             onConfirmDelete={async () => {
               await handleDelete();
-              setEventId(null);
+              nav.setEventId(null);
             }}
           />
         )}
@@ -375,7 +376,7 @@ export function PartnerPanel({
       {tour.open && (
         <PartnerPanelTour
           startChapter={tour.startChapter}
-          onTabChange={openTab}
+          onTabChange={nav.openTab}
           onClose={tour.close}
         />
       )}

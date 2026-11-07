@@ -110,6 +110,8 @@ export interface PartnerPanelTranslation {
     reportsHint: string;
     producer: string;
     producerHint: string;
+    coupons: string;
+    couponsHint: string;
     establishments: string;
     documents_one: string;
     documents_other: string;
@@ -287,6 +289,8 @@ export const partnerPanelPtBR: PartnerPanelTranslation = {
     reportsHint: 'Vendas por item e por mês',
     producer: 'Perfil de produtor',
     producerHint: 'Nome, foto e descrição que o público vê',
+    coupons: 'Cupons',
+    couponsHint: 'Descontos para seus eventos',
     establishments: 'Estabelecimentos e documentos',
     documents_one: '{{count}} CNPJ',
     documents_other: '{{count}} CNPJs',
@@ -469,6 +473,8 @@ export const partnerPanelEn: PartnerPanelTranslation = {
     reportsHint: 'Sales per listing and per month',
     producer: 'Producer profile',
     producerHint: 'Name, photo and description the public sees',
+    coupons: 'Promo codes',
+    couponsHint: 'Discounts for your events',
     establishments: 'Businesses and documents',
     documents_one: '{{count}} CNPJ',
     documents_other: '{{count}} CNPJs',
@@ -652,6 +658,8 @@ export const partnerPanelFr: PartnerPanelTranslation = {
     reportsHint: 'Ventes par fiche et par mois',
     producer: 'Profil d’organisateur',
     producerHint: 'Nom, photo et description visibles par le public',
+    coupons: 'Codes promo',
+    couponsHint: 'Réductions pour vos événements',
     establishments: 'Établissements et documents',
     documents_one: '{{count}} CNPJ',
     documents_other: '{{count}} CNPJ',

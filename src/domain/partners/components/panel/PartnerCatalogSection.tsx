@@ -63,6 +63,7 @@ export function PartnerCatalogSection({
   planVersion,
   onOpenReviews,
   renders,
+  onOpenCoupons,
 }: {
   segment: CatalogSegment;
   onSegmentChange: (segment: CatalogSegment) => void;
@@ -96,6 +97,8 @@ export function PartnerCatalogSection({
   planVersion: number;
   onOpenReviews: () => void;
   renders: PartnerCatalogRenders;
+  /** Área Cupons já com o evento escolhido (B1). */
+  onOpenCoupons?: (eventId: string) => void;
 }) {
   const catalogEvents = usePartnerCatalogEvents(eventsVersion);
   const [creatingOffer, setCreatingOffer] = useState(false);
@@ -117,6 +120,7 @@ export function PartnerCatalogSection({
         onOpenSession={onOpenSession}
         renderGuests={renders.renderGuests}
         renderPromoters={renders.renderPromoters}
+        onOpenCoupons={onOpenCoupons ? () => onOpenCoupons(eventId) : undefined}
       />
     );
   }

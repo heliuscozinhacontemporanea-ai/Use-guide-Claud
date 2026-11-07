@@ -48,6 +48,12 @@ export interface PartnerPanelProps {
   onPlanPurchased?: () => void;
   /** Ganhos (domínio payment), montado pela composição. */
   renderEarnings?: PartnerEarningsRenders;
+  /** Área Cupons (promotions, B1); `eventId` abre só os cupons daquele evento. */
+  renderCoupons?: (props: {
+    eventId: string | null;
+    backLabel: string;
+    onBack: () => void;
+  }) => ReactNode;
   /** Resumo dos avisos de venda na linha Notificações do Mais (notifications). */
   renderNotificationsHint?: () => ReactNode;
   /** Conta de recebimento do evento em Editar evento (payment), montada pela composição. */

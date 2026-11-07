@@ -5,7 +5,7 @@ import { type PartnerMoreEntry, PartnerMoreTab } from './PartnerMoreTab';
 
 /** Telas da conta que vêm de outros domínios, montadas pela composição do app. */
 export type PartnerAccountView = 'notifications' | 'terms' | 'help';
-export type PartnerMoreView = 'list' | 'plans' | PartnerAccountView;
+export type PartnerMoreView = 'list' | 'plans' | 'coupons' | PartnerAccountView;
 
 /** Mais (p24): o que é da conta e não do dia a dia, em dois grupos. */
 export function PartnerMoreSection({
@@ -21,6 +21,7 @@ export function PartnerMoreSection({
   renderAccountView,
   notificationsHint,
   onReplayTour,
+  renderCoupons,
 }: {
   view: PartnerMoreView;
   onViewChange: (view: PartnerMoreView) => void;
@@ -36,6 +37,8 @@ export function PartnerMoreSection({
   notificationsHint?: ReactNode;
   /** "Ver o tour do painel" em Ajuda (etapa 6). */
   onReplayTour?: () => void;
+  /** Área Cupons, montada pela composição (promotions). */
+  renderCoupons?: () => ReactNode;
 }) {
   const { t } = useTranslation();
   const back = () => onViewChange('list');
@@ -56,6 +59,7 @@ export function PartnerMoreSection({
       </div>
     );
   }
+  if (view === 'coupons') return <>{renderCoupons?.()}</>;
   if (view !== 'list') return <>{renderAccountView?.(view, back)}</>;
 
   const documentsHint = summary
@@ -97,6 +101,16 @@ export function PartnerMoreSection({
       onOpen: onOpenEarnings,
     },
   ];
+  const sales: PartnerMoreEntry[] = renderCoupons
+    ? [
+        {
+          id: 'coupons',
+          title: t('partnerPanel.more.coupons'),
+          hint: t('partnerPanel.more.couponsHint'),
+          onOpen: () => onViewChange('coupons'),
+        },
+      ]
+    : [];
   const help: PartnerMoreEntry[] = renderAccountView
     ? [
         {
@@ -122,7 +136,7 @@ export function PartnerMoreSection({
   return (
     <PartnerMoreTab
       title={t('partnerPanel.more.title')}
-      groups={[account, help]}
+      groups={[account, sales, help]}
       tourTarget="more-list"
     />
   );

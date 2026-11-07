@@ -104,6 +104,12 @@ import {
   partnerTourPtBR,
 } from './partnerTourResources';
 import {
+  type PromoCodeTranslation,
+  promoCodeEn,
+  promoCodeFr,
+  promoCodePtBR,
+} from './promoCodeResources';
+import {
   type PaymentAccountsTranslation,
   paymentAccountsEn,
   paymentAccountsFr,
@@ -230,6 +236,7 @@ export interface TranslationResource {
   partnerAgora: PartnerAgoraTranslation;
   courtesy: CourtesyTranslation;
   promoters: PromoterTranslation;
+  promoCodes: PromoCodeTranslation;
   partnerTour: PartnerTourTranslation;
   arrivalNotice: ArrivalNoticeTranslation;
   legal: LegalTranslation;
@@ -478,6 +485,7 @@ const ptBR: TranslationResource = {
   partnerAgora: partnerAgoraPtBR,
   courtesy: courtesyPtBR,
   promoters: promoterPtBR,
+  promoCodes: promoCodePtBR,
   partnerTour: partnerTourPtBR,
   arrivalNotice: arrivalNoticePtBR,
   legal: legalPtBR,
@@ -786,6 +794,7 @@ const en: TranslationResource = {
   partnerAgora: partnerAgoraEn,
   courtesy: courtesyEn,
   promoters: promoterEn,
+  promoCodes: promoCodeEn,
   partnerTour: partnerTourEn,
   arrivalNotice: arrivalNoticeEn,
   legal: legalEn,
@@ -1088,6 +1097,7 @@ const fr: TranslationResource = {
   partnerAgora: partnerAgoraFr,
   courtesy: courtesyFr,
   promoters: promoterFr,
+  promoCodes: promoCodeFr,
   partnerTour: partnerTourFr,
   arrivalNotice: arrivalNoticeFr,
   legal: legalFr,
