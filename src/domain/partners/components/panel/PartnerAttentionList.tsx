@@ -14,6 +14,7 @@ export const ATTENTION_TAB: Record<PartnerAttentionKind, PartnerPanelTab> = {
   payment_account: 'earnings',
   verification_rejected: 'catalog',
   plan_expiring: 'catalog',
+  partner_terms: 'earnings',
 };
 
 function useDetail() {

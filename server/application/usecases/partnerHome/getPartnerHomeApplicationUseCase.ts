@@ -16,6 +16,7 @@ import {
 import { countUnansweredReviewsUseCase } from '../../../domain/reviews';
 import { getEventPromotersUseCase } from '../../../domain/ticketing';
 import { businessDayStartMs } from '../../../shared/kernel/businessDay';
+import { hasCurrentPartnerTerms } from '../partnerTermsGate';
 import { listPartnerPaymentAccountsApplicationUseCase } from '../paymentAccounts/listPartnerPaymentAccountsApplicationUseCase';
 import { buildPartnerHome, type PartnerSessionInput, UPCOMING_SESSIONS } from './buildPartnerHome';
 import { businessMonthStarts } from './partnerHomeCardsData';
@@ -89,7 +90,25 @@ export async function getPartnerHomeApplicationUseCase(
     recentEntries,
     openEntries,
   });
-  return { ...view, promoters: await loadNextPromoters(ownerUid, view.upcomingSessions) };
+  const [promoters, termsOk] = await Promise.all([
+    loadNextPromoters(ownerUid, view.upcomingSessions),
+    hasCurrentPartnerTerms(ownerUid),
+  ]);
+  // Termos novos sem aceite param as vendas (etapa 5): vai para o topo de "Resolva agora".
+  const attention =
+    termsOk || accounts.length === 0
+      ? view.attention
+      : [
+          {
+            kind: 'partner_terms' as const,
+            refId: 'partner_terms',
+            establishmentIds: [],
+            title: null,
+            deadline: null,
+          },
+          ...view.attention,
+        ];
+  return { ...view, attention, promoters };
 }
 
 // Poucos eventos por abertura: o cartão olha só os próximos, na ordem das sessões.

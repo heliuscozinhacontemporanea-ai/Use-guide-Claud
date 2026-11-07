@@ -3,7 +3,7 @@
  * aceite da versão atual, e o pedido guarda a versão aceita como prova.
  */
 export const BUYER_TERMS_VERSION = '2026-11-03';
-export const PARTNER_TERMS_VERSION = '2026-10-25';
+export const PARTNER_TERMS_VERSION = '2026-11-07';
 
 export interface TermsAcceptance {
   version: string;

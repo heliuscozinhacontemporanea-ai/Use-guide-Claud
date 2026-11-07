@@ -11,6 +11,7 @@ import {
   resolvePlatformFeeConfig,
 } from '../../../shared/kernel/platformFees';
 import { isPartnerSuspended } from '../isPartnerSuspended';
+import { hasCurrentPartnerTerms } from '../partnerTermsGate';
 
 export interface BookingBuyer {
   uid: string;
@@ -55,7 +56,10 @@ export async function createBookingApplicationUseCase(
   );
 
   try {
-    if (await isPartnerSuspended(booking.sellerPartnerId)) {
+    if (
+      (await isPartnerSuspended(booking.sellerPartnerId)) ||
+      !(await hasCurrentPartnerTerms(booking.sellerPartnerId))
+    ) {
       throw new BookingDomainError(
         'PARTNER_SUSPENDED',
         'Este parceiro não está aceitando reservas no momento.'

@@ -82,6 +82,7 @@ export interface CourtesyTranslation {
     RECIPIENT_NOT_VERIFIED: string;
     USERNAME_NOT_FOUND: string;
     RATE_LIMITED: string;
+    PARTNER_TERMS_PENDING: string;
     failed: string;
   };
 }
@@ -170,6 +171,8 @@ export const courtesyPtBR: CourtesyTranslation = {
     RECIPIENT_NOT_VERIFIED: 'Esta conta ainda não confirmou o e-mail e não pode receber ingressos.',
     USERNAME_NOT_FOUND: 'Não achamos ninguém com esse @.',
     RATE_LIMITED: 'Muitas tentativas. Tente de novo em alguns minutos.',
+    PARTNER_TERMS_PENDING:
+      'Aceite os novos termos do parceiro em Ganhos › Contas de recebimento para continuar.',
     failed: 'Não foi possível concluir. Tente de novo.',
   },
 };
@@ -261,6 +264,8 @@ export const courtesyEn: CourtesyTranslation = {
     RECIPIENT_NOT_VERIFIED: "This account hasn't confirmed its email and can't receive tickets.",
     USERNAME_NOT_FOUND: "We couldn't find anyone with that @.",
     RATE_LIMITED: 'Too many attempts. Try again in a few minutes.',
+    PARTNER_TERMS_PENDING:
+      'Accept the new partner terms in Earnings › Payout accounts to continue.',
     failed: 'Something went wrong. Try again.',
   },
 };
@@ -351,6 +356,8 @@ export const courtesyFr: CourtesyTranslation = {
       "Ce compte n'a pas encore confirmé son e-mail et ne peut pas recevoir de billets.",
     USERNAME_NOT_FOUND: "Nous n'avons trouvé personne avec ce @.",
     RATE_LIMITED: 'Trop de tentatives. Réessayez dans quelques minutes.',
+    PARTNER_TERMS_PENDING:
+      'Acceptez les nouvelles conditions du partenaire dans Gains › Comptes de versement pour continuer.',
     failed: 'Une erreur est survenue. Réessayez.',
   },
 };

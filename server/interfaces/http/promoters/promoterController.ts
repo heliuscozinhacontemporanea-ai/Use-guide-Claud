@@ -1,4 +1,5 @@
 import type { Response } from 'express';
+import { PartnerTermsPendingError } from '../../../application/usecases/partnerTermsGate';
 import { invitePromoterApplicationUseCase } from '../../../application/usecases/promoters/invitePromoterApplicationUseCase';
 import { listMyPromotionsApplicationUseCase } from '../../../application/usecases/promoters/listMyPromotionsApplicationUseCase';
 import { respondPromoterInviteApplicationUseCase } from '../../../application/usecases/promoters/respondPromoterInviteApplicationUseCase';
@@ -22,8 +23,12 @@ function sendError(res: Response, status: number, code: string, message: string)
 }
 
 function sendPromoterError(res: Response, error: unknown, operation: string): Response {
-  if (error instanceof PromoterError)
+  if (error instanceof PromoterError) {
     return sendError(res, error.status, error.code, error.message);
+  }
+  if (error instanceof PartnerTermsPendingError) {
+    return sendError(res, 403, error.code, error.message);
+  }
   if (error instanceof UsernameError) {
     return sendError(
       res,

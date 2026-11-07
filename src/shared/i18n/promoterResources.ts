@@ -86,6 +86,7 @@ export interface PromoterTranslation {
     PROMOTER_WRONG_STATUS: string;
     USERNAME_NOT_FOUND: string;
     RATE_LIMITED: string;
+    PARTNER_TERMS_PENDING: string;
     failed: string;
   };
 }
@@ -182,6 +183,8 @@ export const promoterPtBR: PromoterTranslation = {
     PROMOTER_WRONG_STATUS: 'Este convite já foi respondido ou encerrado.',
     USERNAME_NOT_FOUND: 'Não achamos ninguém com esse usuário.',
     RATE_LIMITED: 'Muitas tentativas. Tente de novo em alguns minutos.',
+    PARTNER_TERMS_PENDING:
+      'Aceite os novos termos do parceiro em Ganhos › Contas de recebimento para continuar.',
     failed: 'Não foi possível concluir. Tente de novo.',
   },
 };
@@ -278,6 +281,8 @@ export const promoterEn: PromoterTranslation = {
     PROMOTER_WRONG_STATUS: 'This invitation was already answered or ended.',
     USERNAME_NOT_FOUND: "We couldn't find anyone with that username.",
     RATE_LIMITED: 'Too many attempts. Try again in a few minutes.',
+    PARTNER_TERMS_PENDING:
+      'Accept the new partner terms in Earnings › Payout accounts to continue.',
     failed: 'Something went wrong. Try again.',
   },
 };
@@ -375,6 +380,8 @@ export const promoterFr: PromoterTranslation = {
     PROMOTER_WRONG_STATUS: 'Cette invitation a déjà reçu une réponse ou est terminée.',
     USERNAME_NOT_FOUND: "Nous n'avons trouvé personne avec cet utilisateur.",
     RATE_LIMITED: 'Trop de tentatives. Réessayez dans quelques minutes.',
+    PARTNER_TERMS_PENDING:
+      'Acceptez les nouvelles conditions du partenaire dans Gains › Comptes de versement pour continuer.',
     failed: 'Une erreur est survenue. Réessayez.',
   },
 };

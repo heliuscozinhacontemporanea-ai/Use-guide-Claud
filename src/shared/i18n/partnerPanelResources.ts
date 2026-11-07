@@ -50,6 +50,7 @@ export interface PartnerPanelTranslation {
     payment_account: AttentionTexts;
     verification_rejected: AttentionTexts;
     plan_expiring: AttentionTexts;
+    partner_terms: AttentionTexts;
   };
   cards: {
     label: string;
@@ -180,6 +181,10 @@ export const partnerPanelPtBR: PartnerPanelTranslation = {
     },
     sale_claim: { title: 'Reclamação aberta', detail: 'Repasse retido até a decisão' },
     debt: { title: 'Multa ou dívida a pagar', detail: 'Pague até {{date}}' },
+    partner_terms: {
+      title: 'Novos termos do parceiro',
+      detail: 'Aceite para voltar a vender',
+    },
     payment_account: {
       title: 'Conta de recebimento pendente',
       detail: 'Complete o cadastro para vender',
@@ -359,6 +364,10 @@ export const partnerPanelEn: PartnerPanelTranslation = {
     },
     sale_claim: { title: 'Open claim', detail: 'Payout on hold until the decision' },
     debt: { title: 'Fee or debt to pay', detail: 'Pay by {{date}}' },
+    partner_terms: {
+      title: 'New partner terms',
+      detail: 'Accept them to sell again',
+    },
     payment_account: {
       title: 'Payout account pending',
       detail: 'Finish the setup to sell',
@@ -537,6 +546,10 @@ export const partnerPanelFr: PartnerPanelTranslation = {
     },
     sale_claim: { title: 'Réclamation ouverte', detail: 'Versement bloqué jusqu’à la décision' },
     debt: { title: 'Pénalité ou dette à payer', detail: 'Payez avant le {{date}}' },
+    partner_terms: {
+      title: 'Nouvelles conditions du partenaire',
+      detail: 'Acceptez-les pour vendre de nouveau',
+    },
     payment_account: {
       title: 'Compte de versement incomplet',
       detail: 'Terminez l’inscription pour vendre',

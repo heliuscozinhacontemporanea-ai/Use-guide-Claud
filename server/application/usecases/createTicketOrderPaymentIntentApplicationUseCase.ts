@@ -9,6 +9,7 @@ import {
 } from '../../domain/ticketing';
 import { isPartnerSuspended } from './isPartnerSuspended';
 import { OrchestrationActor } from './orchestrationActor';
+import { hasCurrentPartnerTerms } from './partnerTermsGate';
 
 export async function createTicketOrderPaymentIntentApplicationUseCase(
   actor: OrchestrationActor,
@@ -73,7 +74,9 @@ export async function createTicketOrderPaymentIntentApplicationUseCase(
 
   const partnerId = listing.partnerId || listing.ownerId;
 
-  if (await isPartnerSuspended(partnerId)) {
+  // Sem o aceite dos termos atuais do parceiro, nada de venda nova (etapa 5); o comprador vê a
+  // mesma mensagem da suspensão, sem o motivo.
+  if ((await isPartnerSuspended(partnerId)) || !(await hasCurrentPartnerTerms(listing.ownerId))) {
     throw new TicketingDomainError(
       'FORBIDDEN',
       'Este organizador não está vendendo ingressos no momento.'

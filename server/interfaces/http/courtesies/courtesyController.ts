@@ -2,11 +2,12 @@ import type { Response } from 'express';
 import { acceptCourtesyLinkApplicationUseCase } from '../../../application/usecases/courtesies/acceptCourtesyLinkApplicationUseCase';
 import { cancelCourtesyApplicationUseCase } from '../../../application/usecases/courtesies/cancelCourtesyApplicationUseCase';
 import { CourtesyRecipientError } from '../../../application/usecases/courtesies/courtesyRecipientError';
+import { createCourtesyLinkApplicationUseCase } from '../../../application/usecases/courtesies/createCourtesyLinkApplicationUseCase';
 import { inviteCourtesyByUsernameApplicationUseCase } from '../../../application/usecases/courtesies/inviteCourtesyByUsernameApplicationUseCase';
 import { previewCourtesyLinkApplicationUseCase } from '../../../application/usecases/courtesies/previewCourtesyLinkApplicationUseCase';
+import { PartnerTermsPendingError } from '../../../application/usecases/partnerTermsGate';
 import {
   CourtesyError,
-  createCourtesyLinkUseCase,
   listEventCourtesiesUseCase,
   TicketingDomainError,
 } from '../../../domain/ticketing';
@@ -35,6 +36,9 @@ function sendError(res: Response, status: number, code: string, message: string)
 function sendCourtesyError(res: Response, error: unknown, operation: string): Response {
   if (error instanceof CourtesyError) {
     return sendError(res, error.status, error.code, error.message);
+  }
+  if (error instanceof PartnerTermsPendingError) {
+    return sendError(res, 403, error.code, error.message);
   }
   if (error instanceof CourtesyRecipientError) {
     return sendError(res, 422, error.code, error.message);
@@ -95,7 +99,10 @@ export class CourtesyController {
     const parsed = courtesyLinkCreateSchema.safeParse(req.body);
     if (!parsed.success) return sendError(res, 400, 'VALIDATION_ERROR', 'Dados inválidos.');
     try {
-      const data = await createCourtesyLinkUseCase(actorOf(req), parsed.data.occurrenceId);
+      const data = await createCourtesyLinkApplicationUseCase(
+        actorOf(req),
+        parsed.data.occurrenceId
+      );
       // O código só existe nesta resposta; o servidor guarda o HMAC (§7.7).
       res.setHeader('Cache-Control', 'no-store');
       return res.status(201).json({ data });

@@ -5,7 +5,8 @@ export type PartnerAttentionKind =
   | 'debt'
   | 'payment_account'
   | 'verification_rejected'
-  | 'plan_expiring';
+  | 'plan_expiring'
+  | 'partner_terms';
 
 export interface PartnerAttentionItem {
   kind: PartnerAttentionKind;
