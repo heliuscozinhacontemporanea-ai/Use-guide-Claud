@@ -43,6 +43,7 @@ export function PartnerEventPage({
   onEdit,
   onOpenSession,
   renderGuests,
+  renderPromoters,
 }: {
   eventId: string;
   reloadKey: number;
@@ -51,14 +52,17 @@ export function PartnerEventPage({
   onEdit: (hasSales: boolean) => void;
   onOpenSession: (item: PartnerTodayItem) => void;
   renderGuests?: (props: EventGuestsRenderProps) => ReactNode;
+  renderPromoters?: (eventId: string) => ReactNode;
 }) {
   const { t, i18n } = useTranslation();
   const locale = i18n.language;
   const { data, loading, error, reload } = usePartnerEventSalesPage(eventId, reloadKey);
   const [order, setOrder] = useState<PartnerEventOrder | null>(null);
-  const [tab, setTab] = useState<'sales' | 'guests'>('sales');
+  const [tab, setTab] = useState<'sales' | 'guests' | 'promoters'>('sales');
   const now = new Date();
   const guests = tab === 'guests' && renderGuests;
+  const promoters = tab === 'promoters' && renderPromoters;
+  const operation = guests || promoters;
   // No topo de Convidados, a próxima sessão e o vendido dela (p13).
   const next =
     data?.sessions.find((session) => new Date(session.startsAt) > now) ?? data?.sessions[0];
@@ -84,14 +88,14 @@ export function PartnerEventPage({
           <h2 className="flex-1 min-w-0 text-[24px] font-display font-bold text-ink break-words">
             {data?.event.title ?? ''}
           </h2>
-          {!guests && (
+          {!operation && (
             <TextButton tone="accent" onClick={() => onEdit((data?.ordersTotal ?? 0) > 0)}>
               {t('partnerCatalog.event.edit')}
             </TextButton>
           )}
         </div>
         {data &&
-          (guests && next ? (
+          (operation && next ? (
             <p className="px-1 text-[14px] text-ink/70">
               {t('courtesy.header', {
                 when: sessionLabel(next.startsAt, locale),
@@ -107,14 +111,19 @@ export function PartnerEventPage({
           ))}
       </div>
 
-      {renderGuests && (
+      {(renderGuests || renderPromoters) && (
         <SegmentedControl
           label={data?.event.title ?? ''}
           value={tab}
           onChange={setTab}
           options={[
             { value: 'sales', label: t('courtesy.tabs.sales') },
-            { value: 'guests', label: t('courtesy.tabs.guests') },
+            ...(renderGuests
+              ? [{ value: 'guests' as const, label: t('courtesy.tabs.guests') }]
+              : []),
+            ...(renderPromoters
+              ? [{ value: 'promoters' as const, label: t('promoters.tab') }]
+              : []),
           ]}
         />
       )}
@@ -123,6 +132,8 @@ export function PartnerEventPage({
         <ListLoading label={t('partnerCatalog.event.ordersTitle')} />
       ) : error || !data ? (
         <ListError message={t('partnerCatalog.event.loadError')} onRetry={() => void reload()} />
+      ) : promoters ? (
+        promoters(eventId)
       ) : guests ? (
         guests({
           eventId,
@@ -197,7 +208,12 @@ export function PartnerEventPage({
                       'partnerCatalog.event.tickets',
                       { count: row.tickets }
                     )}`}
-                    sub={`#${row.code} · ${when(row.createdAt)}`}
+                    sub={[
+                      `#${row.code}`,
+                      row.promoterUsername
+                        ? t('partnerCatalog.event.viaPromoter', { username: row.promoterUsername })
+                        : when(row.createdAt),
+                    ].join(' · ')}
                     status={{
                       tone: ORDER_TONE[row.status],
                       text: t(`partnerCatalog.event.status.${row.status}`),

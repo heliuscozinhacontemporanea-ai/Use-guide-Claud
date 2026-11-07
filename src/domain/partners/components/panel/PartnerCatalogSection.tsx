@@ -23,6 +23,8 @@ export interface PartnerCatalogRenders {
   renderReviews?: (itemId: string, onOpen: () => void) => ReactNode;
   /** Aba Convidados da página do evento (ticketing, D27). */
   renderGuests?: (props: EventGuestsRenderProps) => ReactNode;
+  /** Aba Divulgadores da página do evento (ticketing, D27). */
+  renderPromoters?: (eventId: string) => ReactNode;
 }
 
 export interface EventGuestsRenderProps {
@@ -114,6 +116,7 @@ export function PartnerCatalogSection({
         onEdit={(hasSales) => record && onOpenEvent(record, hasSales)}
         onOpenSession={onOpenSession}
         renderGuests={renders.renderGuests}
+        renderPromoters={renders.renderPromoters}
       />
     );
   }

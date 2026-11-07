@@ -1,5 +1,5 @@
 /**
- * Cartões do Início do painel (D27, seção 6.1 da proposta). Convidados entram com a etapa 3 e
+ * Cartões do Início do painel (D27, seção 6.1 da proposta). Convidados entraram com a etapa 3 e
  * divulgadores com a 4. A ordem do array é a ordem da galeria; os seis primeiros são o padrão.
  */
 export const PARTNER_HOME_CARD_IDS = [
@@ -10,6 +10,7 @@ export const PARTNER_HOME_CARD_IDS = [
   'reviews',
   'week_bookings',
   'guests',
+  'promoters',
   'plan_seal',
   'week_occupancy',
   'month_sales',

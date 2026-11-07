@@ -1,4 +1,5 @@
 import type {
+  PartnerHomePromoters,
   PartnerHomeView,
   PartnerTodayItem,
   PartnerUpcomingSession,
@@ -15,6 +16,7 @@ export type PartnerCardData =
   | { id: 'reviews'; rating: number; count: number; unanswered: number }
   | { id: 'week_bookings'; sold: number; capacity: number }
   | { id: 'guests'; session: PartnerUpcomingSession }
+  | { id: 'promoters'; promoters: PartnerHomePromoters }
   | { id: 'plan_seal'; name: string; until: string }
   | { id: 'week_occupancy'; days: Array<{ date: string; sold: number; capacity: number }> }
   | { id: 'month_sales'; currentMinor: number; previousMinor: number };
@@ -67,6 +69,10 @@ export function partnerCardData(
         (item) => item.courtesies > 0 && inFilter(item.establishmentIds, filter)
       );
       return session ? { id, session } : null;
+    }
+    case 'promoters': {
+      const promoters = view.promoters;
+      return promoters && inFilter(promoters.establishmentIds, filter) ? { id, promoters } : null;
     }
     case 'reviews': {
       const count = establishments.reduce((sum, item) => sum + item.reviewCount, 0);

@@ -114,6 +114,12 @@ import {
   profilePtBR,
 } from './profileResources';
 import {
+  type PromoterTranslation,
+  promoterEn,
+  promoterFr,
+  promoterPtBR,
+} from './promoterResources';
+import {
   type PurchasesTranslation,
   purchasesEn,
   purchasesFr,
@@ -217,6 +223,7 @@ export interface TranslationResource {
   partnerEarnings: PartnerEarningsTranslation;
   partnerAgora: PartnerAgoraTranslation;
   courtesy: CourtesyTranslation;
+  promoters: PromoterTranslation;
   arrivalNotice: ArrivalNoticeTranslation;
   legal: LegalTranslation;
   verification: VerificationTranslation;
@@ -463,6 +470,7 @@ const ptBR: TranslationResource = {
   partnerEarnings: partnerEarningsPtBR,
   partnerAgora: partnerAgoraPtBR,
   courtesy: courtesyPtBR,
+  promoters: promoterPtBR,
   arrivalNotice: arrivalNoticePtBR,
   legal: legalPtBR,
   verification: verificationPtBR,
@@ -769,6 +777,7 @@ const en: TranslationResource = {
   partnerEarnings: partnerEarningsEn,
   partnerAgora: partnerAgoraEn,
   courtesy: courtesyEn,
+  promoters: promoterEn,
   arrivalNotice: arrivalNoticeEn,
   legal: legalEn,
   verification: verificationEn,
@@ -1069,6 +1078,7 @@ const fr: TranslationResource = {
   partnerEarnings: partnerEarningsFr,
   partnerAgora: partnerAgoraFr,
   courtesy: courtesyFr,
+  promoters: promoterFr,
   arrivalNotice: arrivalNoticeFr,
   legal: legalFr,
   verification: verificationFr,

@@ -53,6 +53,15 @@ export interface PartnerUpcomingSession {
   courtesies: number;
 }
 
+export interface PartnerHomePromoters {
+  eventId: string;
+  title: string;
+  establishmentIds: string[];
+  owedMinor: number;
+  /** Os três que mais venderam. */
+  top: Array<{ username: string | null; tickets: number; owedMinor: number }>;
+}
+
 /** Vagas de reserva de um dia (00:00 em Fortaleza) de um estabelecimento, nos próximos 7 dias. */
 export interface PartnerWeekDay {
   date: string;
@@ -87,6 +96,8 @@ export interface PartnerHomeView {
     month: { currentMinor: number; previousMinor: number };
   };
   upcomingSessions: PartnerUpcomingSession[];
+  /** Divulgadores do próximo evento que tem algum (cartão "Divulgadores", D27). */
+  promoters: PartnerHomePromoters | null;
   week: PartnerWeekDay[];
   plans: Array<{ itemId: string; until: string | null }>;
   /** Para as linhas do Mais (p24). */

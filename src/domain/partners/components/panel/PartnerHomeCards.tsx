@@ -15,6 +15,7 @@ const CARD_TAB: Record<PartnerHomeCardId, PartnerPanelTab> = {
   reviews: 'catalog',
   week_bookings: 'agenda',
   guests: 'catalog',
+  promoters: 'catalog',
   plan_seal: 'more',
   week_occupancy: 'agenda',
   month_sales: 'earnings',

@@ -68,6 +68,7 @@ const VIEW: PartnerHomeView = {
     },
     month: { currentMinor: 900000, previousMinor: 600000 },
   },
+  promoters: null,
   upcomingSessions: [],
   week: [],
   plans: [],

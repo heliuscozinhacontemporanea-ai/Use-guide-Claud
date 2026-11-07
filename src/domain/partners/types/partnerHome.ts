@@ -59,6 +59,15 @@ export interface PartnerUpcomingSession {
   courtesies: number;
 }
 
+/** Divulgadores do próximo evento que tem algum (D27). */
+export interface PartnerHomePromoters {
+  eventId: string;
+  title: string;
+  establishmentIds: string[];
+  owedMinor: number;
+  top: Array<{ username: string | null; tickets: number; owedMinor: number }>;
+}
+
 /** Vagas de reserva de um dia (00:00 em Fortaleza) de um estabelecimento. */
 export interface PartnerWeekDay {
   date: string;
@@ -81,6 +90,7 @@ export interface PartnerHomeView {
     month: { currentMinor: number; previousMinor: number };
   };
   upcomingSessions: PartnerUpcomingSession[];
+  promoters: PartnerHomePromoters | null;
   week: PartnerWeekDay[];
   plans: Array<{ itemId: string; until: string | null }>;
   summary: { documents: number; pendingVerifications: number };
@@ -113,6 +123,8 @@ export interface PartnerEventOrder {
   id: string;
   code: string;
   buyerName: string | null;
+  /** @ do divulgador do link usado na compra (D27). */
+  promoterUsername: string | null;
   occurrenceId: string;
   tickets: number;
   createdAt: string;

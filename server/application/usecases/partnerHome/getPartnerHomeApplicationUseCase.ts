@@ -14,12 +14,13 @@ import {
   type PayoutEntryView,
 } from '../../../domain/payment';
 import { countUnansweredReviewsUseCase } from '../../../domain/reviews';
+import { getEventPromotersUseCase } from '../../../domain/ticketing';
 import { businessDayStartMs } from '../../../shared/kernel/businessDay';
 import { listPartnerPaymentAccountsApplicationUseCase } from '../paymentAccounts/listPartnerPaymentAccountsApplicationUseCase';
 import { buildPartnerHome, type PartnerSessionInput, UPCOMING_SESSIONS } from './buildPartnerHome';
 import { businessMonthStarts } from './partnerHomeCardsData';
+import type { PartnerHomePromoters, PartnerHomeView } from './partnerHomeTypes';
 import { listOwnerOccurrences, type OwnerEvent, toSessionInput } from './partnerSessions';
-import type { PartnerHomeView } from './partnerHomeTypes';
 
 const DAY_MS = 24 * 60 * 60_000;
 // Ausência relatada ontem à noite ainda pode estar no prazo de 2 h de resposta.
@@ -72,7 +73,7 @@ export async function getPartnerHomeApplicationUseCase(
       countUnansweredReviewsUseCase(establishments.map((item) => item.id)),
     ]);
 
-  return buildPartnerHome({
+  const view = buildPartnerHome({
     nowIso,
     cards,
     establishments,
@@ -88,6 +89,37 @@ export async function getPartnerHomeApplicationUseCase(
     recentEntries,
     openEntries,
   });
+  return { ...view, promoters: await loadNextPromoters(ownerUid, view.upcomingSessions) };
+}
+
+// Poucos eventos por abertura: o cartão olha só os próximos, na ordem das sessões.
+const PROMOTER_EVENTS_CHECKED = 3;
+
+async function loadNextPromoters(
+  ownerUid: string,
+  sessions: PartnerHomeView['upcomingSessions']
+): Promise<PartnerHomePromoters | null> {
+  const events = [...new Map(sessions.map((session) => [session.eventId, session])).values()];
+  for (const session of events.slice(0, PROMOTER_EVENTS_CHECKED)) {
+    const summary = await getEventPromotersUseCase(
+      { uid: ownerUid, admin: false, role: 'partner' },
+      session.eventId
+    ).catch(() => null);
+    const rows = summary?.rows.filter((row) => row.status !== 'invited') ?? [];
+    if (!summary || rows.length === 0) continue;
+    return {
+      eventId: session.eventId,
+      title: session.title,
+      establishmentIds: session.establishmentIds,
+      owedMinor: summary.owedMinor,
+      top: rows.slice(0, 3).map((row) => ({
+        username: row.promoter.username,
+        tickets: row.tickets,
+        owedMinor: row.owedMinor,
+      })),
+    };
+  }
+  return null;
 }
 
 async function loadTwoMonthsOfEntries(

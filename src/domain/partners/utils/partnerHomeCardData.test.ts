@@ -33,6 +33,7 @@ const VIEW: PartnerHomeView = {
     nextPayout: null,
     month: { currentMinor: 0, previousMinor: 0 },
   },
+  promoters: null,
   upcomingSessions: [
     {
       id: 's',

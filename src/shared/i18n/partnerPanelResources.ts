@@ -81,6 +81,7 @@ export interface PartnerPanelTranslation {
     };
     week_bookings: CardTexts & { occupancy: string };
     guests: CardTexts;
+    promoters: CardTexts & { owed: string };
     plan_seal: CardTexts & { until: string };
     week_occupancy: CardTexts;
     month_sales: CardTexts & { compare: string; noCompare: string };
@@ -239,6 +240,11 @@ export const partnerPanelPtBR: PartnerPanelTranslation = {
     guests: {
       title: 'Convidados',
       description: 'Cortesias enviadas para o próximo evento',
+    },
+    promoters: {
+      title: 'Divulgadores',
+      description: 'Quem mais vendeu e quanto você deve',
+      owed: '{{amount}} a pagar · {{event}}',
     },
     plan_seal: {
       title: 'Plano e selo',
@@ -413,6 +419,11 @@ export const partnerPanelEn: PartnerPanelTranslation = {
       title: 'Guests',
       description: 'Complimentary tickets sent for the next event',
     },
+    promoters: {
+      title: 'Promoters',
+      description: 'Who sold the most and how much you owe',
+      owed: '{{amount}} to pay · {{event}}',
+    },
     plan_seal: {
       title: 'Plan and badge',
       description: "When each business's plan ends",
@@ -586,6 +597,11 @@ export const partnerPanelFr: PartnerPanelTranslation = {
     guests: {
       title: 'Invités',
       description: 'Billets offerts envoyés pour le prochain événement',
+    },
+    promoters: {
+      title: 'Promoteurs',
+      description: 'Qui a le plus vendu et combien vous devez',
+      owed: '{{amount}} à payer · {{event}}',
     },
     plan_seal: {
       title: 'Formule et badge',

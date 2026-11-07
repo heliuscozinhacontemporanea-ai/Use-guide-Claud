@@ -47,6 +47,7 @@ export interface PartnerCatalogTranslation {
     ordersTitle: string;
     ordersEmpty: string;
     ordersMore: string;
+    viaPromoter: string;
     loadError: string;
     today: string;
     yesterday: string;
@@ -154,6 +155,7 @@ export const partnerCatalogPtBR: PartnerCatalogTranslation = {
     ordersTitle: 'Pedidos',
     ordersEmpty: 'Nenhum pedido ainda.',
     ordersMore: 'Mostrando os {{shown}} pedidos mais recentes de {{total}}.',
+    viaPromoter: 'pelo link de @{{username}}',
     loadError: 'Não foi possível carregar as vendas.',
     today: 'hoje, {{time}}',
     yesterday: 'ontem, {{time}}',
@@ -264,6 +266,7 @@ export const partnerCatalogEn: PartnerCatalogTranslation = {
     ordersTitle: 'Orders',
     ordersEmpty: 'No orders yet.',
     ordersMore: 'Showing the {{shown}} most recent of {{total}} orders.',
+    viaPromoter: "through @{{username}}'s link",
     loadError: "Couldn't load the sales.",
     today: 'today, {{time}}',
     yesterday: 'yesterday, {{time}}',
@@ -373,6 +376,7 @@ export const partnerCatalogFr: PartnerCatalogTranslation = {
     ordersTitle: 'Commandes',
     ordersEmpty: 'Aucune commande pour le moment.',
     ordersMore: 'Les {{shown}} commandes les plus récentes sur {{total}}.',
+    viaPromoter: 'via le lien de @{{username}}',
     loadError: 'Impossible de charger les ventes.',
     today: "aujourd'hui, {{time}}",
     yesterday: 'hier, {{time}}',

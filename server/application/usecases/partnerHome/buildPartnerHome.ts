@@ -206,6 +206,8 @@ export function buildPartnerHome(input: PartnerHomeInput): PartnerHomeView {
       month: sumMonthSales(input.recentEntries, input.nowIso),
     },
     upcomingSessions,
+    // Preenchido pelo caso de uso, que lê os divulgadores (ticketing).
+    promoters: null,
     week: summarizeWeek(input.slots, input.nowIso),
     plans: input.planUntil,
     summary: {

@@ -26,6 +26,7 @@ const SALES: PartnerEventSales = {
       id: 'o2Kq81xyz',
       code: 'o2Kq81',
       buyerName: 'Carlos Melo',
+      promoterUsername: null,
       occurrenceId: 's1',
       tickets: 1,
       createdAt: '2026-11-03T21:42:00.000Z',

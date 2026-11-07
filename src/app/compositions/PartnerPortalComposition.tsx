@@ -27,7 +27,7 @@ import {
   PlanSubscriptionCard,
 } from '../../domain/payment';
 import { RecentItemReviews } from '../../domain/reviews';
-import { EventGuestsPanel, PartnerSessionSheet } from '../../domain/ticketing';
+import { EventGuestsPanel, EventPromotersPanel, PartnerSessionSheet } from '../../domain/ticketing';
 import { useLocalizedRouting } from '../../shared/hooks/useLocalizedRouting';
 import { useUI } from '../../shared/stores/useUIStore';
 import { MessagePage } from '../../ui/components/MessagePage';
@@ -234,6 +234,7 @@ export function PartnerPortalComposition() {
             onChanged={onChanged}
           />
         ),
+        renderPromoters: (eventId) => <EventPromotersPanel eventListingId={eventId} />,
       }}
       renderEventTicketingManager={(eventListingId) => (
         <PartnerEventTicketingComposition eventListingId={eventListingId} lotsOnly />

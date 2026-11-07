@@ -28,6 +28,7 @@ export { EventGuestsPanel } from './components/courtesy/EventGuestsPanel';
 export { EventTicketingPurchasePanel } from './components/EventTicketingPurchasePanel';
 export { PartnerEventTicketingManager } from './components/PartnerEventTicketingManager';
 export { PartnerSessionSheet } from './components/PartnerSessionSheet';
+export { EventPromotersPanel } from './components/promoters/EventPromotersPanel';
 export {
   type TicketOrderClaimSale,
   TicketPurchaseDetails,

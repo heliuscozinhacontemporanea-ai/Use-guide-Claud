@@ -104,6 +104,33 @@ function Body({
         </>
       );
     }
+    case 'promoters':
+      return (
+        <>
+          <ul className="space-y-1.5 mb-2">
+            {data.promoters.top.map((row, index) => (
+              <li
+                key={row.username ?? index}
+                className="flex items-center justify-between gap-3 text-[14px]"
+              >
+                <span className="min-w-0 truncate text-ink font-semibold">
+                  {row.username ? `@${row.username}` : t('promoters.tab')}
+                </span>
+                <span className="shrink-0 text-ink/70">
+                  {t('promoters.soldTickets', { count: row.tickets })} ·{' '}
+                  {formatMoneyMinorCompact(row.owedMinor, lang)}
+                </span>
+              </li>
+            ))}
+          </ul>
+          <p className={SUB}>
+            {t('partnerPanel.cards.promoters.owed', {
+              amount: formatMoneyMinorCompact(data.promoters.owedMinor, lang),
+              event: data.promoters.title,
+            })}
+          </p>
+        </>
+      );
     case 'guests':
       return (
         <>
