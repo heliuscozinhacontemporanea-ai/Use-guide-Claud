@@ -21,7 +21,11 @@ export function PartnerShortcuts({
 }) {
   const { t } = useTranslation();
   return (
-    <nav aria-label={t('partnerPanel.shortcuts')} className="grid grid-cols-5 gap-2">
+    <nav
+      aria-label={t('partnerPanel.shortcuts')}
+      data-tour="shortcuts"
+      className="grid grid-cols-5 gap-2"
+    >
       {PARTNER_PANEL_TABS.map((tab) => {
         const Icon = ICONS[tab];
         const active = tab === value;
@@ -30,6 +34,7 @@ export function PartnerShortcuts({
             key={tab}
             type="button"
             aria-current={active ? 'page' : undefined}
+            data-tour={`tab-${tab}`}
             onClick={() => onChange(tab)}
             className={cn(
               'press aspect-square min-h-11 rounded-2xl border flex flex-col items-center justify-center gap-1 focus-visible:ring-2 focus-visible:ring-teal-400/50',

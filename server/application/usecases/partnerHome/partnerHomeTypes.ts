@@ -99,6 +99,8 @@ export interface PartnerHomeView {
   upcomingSessions: PartnerUpcomingSession[];
   /** Divulgadores do próximo evento que tem algum (cartão "Divulgadores", D27). */
   promoters: PartnerHomePromoters | null;
+  /** Tour do painel concluído ou dispensado (etapa 6): não abre mais sozinho. */
+  tourDone: boolean;
   week: PartnerWeekDay[];
   plans: Array<{ itemId: string; until: string | null }>;
   /** Para as linhas do Mais (p24). */

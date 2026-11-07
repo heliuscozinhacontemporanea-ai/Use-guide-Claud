@@ -24,4 +24,7 @@ export interface PartnerPort {
   getHomeCards(partnerId: string): Promise<string[] | null>;
   /** Lança `NOT_FOUND` quando o parceiro não tem perfil. */
   setHomeCards(partnerId: string, cards: string[]): Promise<void>;
+  /** Tour do painel concluído ou com "Não mostrar novamente" (etapa 6); null se nunca. */
+  getPanelTourDoneAt(partnerId: string): Promise<string | null>;
+  setPanelTourDone(partnerId: string, atIso: string): Promise<void>;
 }

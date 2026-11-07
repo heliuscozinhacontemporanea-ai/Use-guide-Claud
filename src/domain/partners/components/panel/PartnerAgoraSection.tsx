@@ -60,7 +60,7 @@ export function PartnerAgoraSection({
   };
 
   return (
-    <section className="space-y-3" aria-labelledby="partner-agora-title">
+    <section className="space-y-3" aria-labelledby="partner-agora-title" data-tour="agora">
       <h2 id="partner-agora-title" className="px-1 text-[22px] font-display font-bold text-ink">
         {t('partnerAgora.title')}
       </h2>

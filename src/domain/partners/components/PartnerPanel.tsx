@@ -11,6 +11,7 @@ import { updatePartnerContentItemUseCase } from '../application/usecases/updateP
 import { useEditorScrollLock } from '../hooks/useEditorScrollLock';
 import { usePartnerEventSessions } from '../hooks/usePartnerEventSessions';
 import { usePartnerPanelActions } from '../hooks/usePartnerPanelActions';
+import { usePanelTour } from '../hooks/usePanelTour';
 import { usePlanCheckout } from '../hooks/usePlanCheckout';
 import type { PartnerContentRecord } from '../types/partnerContent';
 import type { PartnerPanelProps } from './partnerPanelProps';
@@ -30,6 +31,7 @@ import { PartnerHomeTab } from './panel/PartnerHomeTab';
 import { PartnerEarningsTab } from './panel/PartnerEarningsTab';
 import { PartnerMoreSection, type PartnerMoreView } from './panel/PartnerMoreSection';
 import { PartnerPanelTop } from './panel/PartnerPanelTop';
+import { PartnerPanelTour } from './panel/PartnerPanelTour';
 import { PartnerAgendaTab } from './panel/PartnerAgendaTab';
 import type { PartnerPanelTab } from './panel/partnerPanelTabs';
 import type { VerificationListingOption } from './verification/verificationListingOption';
@@ -56,6 +58,12 @@ export function PartnerPanel({
   const { t } = useTranslation();
   const home = usePartnerPanelHome();
   const [panelTab, setPanelTab] = React.useState<PartnerPanelTab>('home');
+  const tour = usePanelTour({
+    tourDone: home.data?.tourDone,
+    tab: panelTab,
+    editing: home.cards.editing,
+    onTabChange: setPanelTab,
+  });
   const [catalogSegment, setCatalogSegment] = React.useState<CatalogSegment>('places');
   const [eventsVersion, setEventsVersion] = React.useState(0);
   const [openReports, setOpenReports] = React.useState<false | 'sales' | 'reviews'>(false);
@@ -267,6 +275,7 @@ export function PartnerPanel({
             onOpenPlan={(item) => setPlanListing({ id: item.id, name: item.name })}
             onOpenEarnings={() => setPanelTab('earnings')}
             renderAccountView={renderAccountView}
+            onReplayTour={tour.replay}
             notificationsHint={renderNotificationsHint?.()}
           />
         )}
@@ -359,6 +368,8 @@ export function PartnerPanel({
         onChange={home.setFilter}
         onCreate={() => setEditingListing(null)}
       />
+
+      {tour.open && <PartnerPanelTour onClose={tour.close} />}
 
       {renderCheckoutModal?.({
         isOpen: checkout.open,

@@ -4,6 +4,7 @@ import { listOwnerGuideItemsUseCase } from '../../../domain/guide';
 import {
   getListingPlanUntilUseCase,
   getPartnerHomeCardsUseCase,
+  getPartnerPanelTourUseCase,
   listOwnerSalesDocumentsUseCase,
   listOwnerVerificationStatusesUseCase,
 } from '../../../domain/partners';
@@ -90,9 +91,10 @@ export async function getPartnerHomeApplicationUseCase(
     recentEntries,
     openEntries,
   });
-  const [promoters, termsOk] = await Promise.all([
+  const [promoters, termsOk, tourDoneAt] = await Promise.all([
     loadNextPromoters(ownerUid, view.upcomingSessions),
     hasCurrentPartnerTerms(ownerUid),
+    getPartnerPanelTourUseCase(ownerUid).catch(() => null),
   ]);
   // Termos novos sem aceite: pedido no topo de "Resolva agora", sem parar as vendas.
   const attention =
@@ -108,7 +110,7 @@ export async function getPartnerHomeApplicationUseCase(
           },
           ...view.attention,
         ];
-  return { ...view, attention, promoters };
+  return { ...view, attention, promoters, tourDone: tourDoneAt !== null };
 }
 
 // Poucos eventos por abertura: o cartão olha só os próximos, na ordem das sessões.

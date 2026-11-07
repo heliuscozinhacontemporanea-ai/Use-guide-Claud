@@ -37,7 +37,7 @@ export function PartnerHomeCards({
 }) {
   const { t } = useTranslation();
   return (
-    <section aria-label={t('partnerPanel.cards.label')} className="space-y-7">
+    <section aria-label={t('partnerPanel.cards.label')} data-tour="cards" className="space-y-7">
       <div className="grid grid-cols-2 gap-3">
         {cards.map((data) => {
           const large = PARTNER_HOME_CARD_SIZE[data.id] === 'large';

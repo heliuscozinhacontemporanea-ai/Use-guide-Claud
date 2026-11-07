@@ -39,7 +39,7 @@ export function PartnerAttentionList({
   const { t } = useTranslation();
   const detail = useDetail();
   return (
-    <section aria-labelledby="partner-attention-title">
+    <section aria-labelledby="partner-attention-title" data-tour="attention">
       <h2
         id="partner-attention-title"
         className="px-1 mb-2 text-[18px] font-display font-bold text-ink"

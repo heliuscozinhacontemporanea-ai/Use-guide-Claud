@@ -20,6 +20,7 @@ export function PartnerMoreSection({
   onOpenEarnings,
   renderAccountView,
   notificationsHint,
+  onReplayTour,
 }: {
   view: PartnerMoreView;
   onViewChange: (view: PartnerMoreView) => void;
@@ -33,6 +34,8 @@ export function PartnerMoreSection({
   renderAccountView?: (view: PartnerAccountView, onBack: () => void) => ReactNode;
   /** Escolha de avisos de venda (notifications), montada pela composição. */
   notificationsHint?: ReactNode;
+  /** "Ver o tour do painel" em Ajuda (etapa 6). */
+  onReplayTour?: () => void;
 }) {
   const { t } = useTranslation();
   const back = () => onViewChange('list');
@@ -104,6 +107,16 @@ export function PartnerMoreSection({
         },
         { id: 'terms', title: t('partnerPanel.more.terms'), onOpen: () => onViewChange('terms') },
         { id: 'help', title: t('partnerPanel.more.help'), onOpen: () => onViewChange('help') },
+        ...(onReplayTour
+          ? [
+              {
+                id: 'tour',
+                title: t('partnerTour.replay'),
+                hint: t('partnerTour.replayHint'),
+                onOpen: onReplayTour,
+              },
+            ]
+          : []),
       ]
     : [];
   return <PartnerMoreTab title={t('partnerPanel.more.title')} groups={[account, help]} />;

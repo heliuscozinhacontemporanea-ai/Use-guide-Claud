@@ -5,6 +5,11 @@ import {
 } from '../../../shared/kernel/legalTerms';
 import { PartnerDomainError } from '../errors/partnerDomainError';
 import { PartnerPort } from '../ports/partnerPort';
+import {
+  DEFAULT_PARTNER_HOME_CARDS,
+  isPartnerHomeCardId,
+  type PartnerHomeCardId,
+} from '../types/partnerHomeCards';
 import type {
   PartnerBusiness,
   PartnerProfileDocument,
@@ -12,11 +17,6 @@ import type {
   PartnerStatus,
   RegisterPartnerResult,
 } from '../types/partnerTypes';
-import {
-  DEFAULT_PARTNER_HOME_CARDS,
-  isPartnerHomeCardId,
-  type PartnerHomeCardId,
-} from '../types/partnerHomeCards';
 
 export interface PartnerTermsStatus {
   currentVersion: string;
@@ -70,6 +70,14 @@ export class PartnerService {
   }
 
   /** Cartões do Início na ordem escolhida; sem escolha, o padrão. Cartão que saiu da lista é ignorado. */
+  getPanelTourDoneAt(partnerId: string): Promise<string | null> {
+    return this.partnerPort.getPanelTourDoneAt(partnerId);
+  }
+
+  setPanelTourDone(partnerId: string, now: Date = new Date()): Promise<void> {
+    return this.partnerPort.setPanelTourDone(partnerId, now.toISOString());
+  }
+
   async getHomeCards(partnerId: string): Promise<PartnerHomeCardId[]> {
     const stored = await this.partnerPort.getHomeCards(partnerId);
     if (stored === null) return [...DEFAULT_PARTNER_HOME_CARDS];

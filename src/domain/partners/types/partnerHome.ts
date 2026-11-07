@@ -92,6 +92,8 @@ export interface PartnerHomeView {
   };
   upcomingSessions: PartnerUpcomingSession[];
   promoters: PartnerHomePromoters | null;
+  /** Tour do painel concluído ou dispensado: não abre mais sozinho. */
+  tourDone: boolean;
   week: PartnerWeekDay[];
   plans: Array<{ itemId: string; until: string | null }>;
   summary: { documents: number; pendingVerifications: number };

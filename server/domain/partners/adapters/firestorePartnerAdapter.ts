@@ -80,6 +80,19 @@ export class FirestorePartnerAdapter implements PartnerPort {
     });
   }
 
+  async getPanelTourDoneAt(partnerId: string): Promise<string | null> {
+    const raw = (await adminDb.collection('partners').doc(partnerId).get()).data()?.panelTourDoneAt;
+    return typeof raw === 'string' ? raw : null;
+  }
+
+  async setPanelTourDone(partnerId: string, atIso: string): Promise<void> {
+    // Interno (só o dono lê pela regra que já existe); não vai para a projeção pública.
+    await adminDb
+      .collection('partners')
+      .doc(partnerId)
+      .update({ panelTourDoneAt: atIso, updatedAt: FieldValue.serverTimestamp() });
+  }
+
   async recordTermsAcceptance(partnerId: string, acceptance: TermsAcceptance): Promise<void> {
     const partnerRef = adminDb.collection('partners').doc(partnerId);
     // Só no documento interno: o aceite não vai para a projeção pública (AGENTS.md §6.3).

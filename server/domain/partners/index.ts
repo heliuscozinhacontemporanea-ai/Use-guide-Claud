@@ -22,6 +22,11 @@ export type {
   VerificationDecision,
   VerificationListing,
 } from './types/listingVerification';
+export {
+  DEFAULT_PARTNER_HOME_CARDS,
+  PARTNER_HOME_CARD_IDS,
+  type PartnerHomeCardId,
+} from './types/partnerHomeCards';
 export type {
   PartnerBusiness,
   PartnerBusinessType,
@@ -39,6 +44,7 @@ export { assertListingCanSellUseCase } from './usecases/assertListingCanSellUseC
 export { assertListingPlanActiveUseCase } from './usecases/assertListingPlanActiveUseCase';
 export { assertListingPlanPurchasableUseCase } from './usecases/assertListingPlanPurchasableUseCase';
 export { assertPartnerTermsAcceptedUseCase } from './usecases/assertPartnerTermsAcceptedUseCase';
+export { completePartnerPanelTourUseCase } from './usecases/completePartnerPanelTourUseCase';
 export { computeListingSealUseCase } from './usecases/computeListingSealUseCase';
 export { deleteListingPlanUseCase } from './usecases/deleteListingPlanUseCase';
 export { deleteListingVerificationUseCase } from './usecases/deleteListingVerificationUseCase';
@@ -53,6 +59,8 @@ export { getListingVerificationFilePathUseCase } from './usecases/getListingVeri
 export { getListingVerificationStatusUseCase } from './usecases/getListingVerificationStatusUseCase';
 export { getListingVerificationUseCase } from './usecases/getListingVerificationUseCase';
 export { getOwnerSalesDocumentUseCase } from './usecases/getOwnerSalesDocumentUseCase';
+export { getPartnerHomeCardsUseCase } from './usecases/getPartnerHomeCardsUseCase';
+export { getPartnerPanelTourUseCase } from './usecases/getPartnerPanelTourUseCase';
 export { getPartnerProfileUseCase } from './usecases/getPartnerProfileUseCase';
 export { getPartnerTermsStatusUseCase } from './usecases/getPartnerTermsStatusUseCase';
 export { linkBusinessUseCase } from './usecases/linkBusinessUseCase';
@@ -62,16 +70,10 @@ export { listExpiringListingSealsUseCase } from './usecases/listExpiringListingS
 export { listLinkedListingIdsUseCase } from './usecases/listLinkedListingIdsUseCase';
 export { listListingVerificationsUseCase } from './usecases/listListingVerificationsUseCase';
 export { listOwnerSalesDocumentsUseCase } from './usecases/listOwnerSalesDocumentsUseCase';
-export { getPartnerHomeCardsUseCase } from './usecases/getPartnerHomeCardsUseCase';
-export { savePartnerHomeCardsUseCase } from './usecases/savePartnerHomeCardsUseCase';
-export {
-  DEFAULT_PARTNER_HOME_CARDS,
-  PARTNER_HOME_CARD_IDS,
-  type PartnerHomeCardId,
-} from './types/partnerHomeCards';
 export { listOwnerVerificationStatusesUseCase } from './usecases/listOwnerVerificationStatusesUseCase';
 export { registerPartnerUseCase } from './usecases/registerPartnerUseCase';
 export { reviewListingVerificationUseCase } from './usecases/reviewListingVerificationUseCase';
+export { savePartnerHomeCardsUseCase } from './usecases/savePartnerHomeCardsUseCase';
 export { setListingSealActiveUseCase } from './usecases/setListingSealActiveUseCase';
 export { setListingSealByAdminUseCase } from './usecases/setListingSealByAdminUseCase';
 export { submitListingVerificationUseCase } from './usecases/submitListingVerificationUseCase';

@@ -35,6 +35,7 @@ export function EstablishmentTitle({
         type="button"
         onClick={onOpen}
         aria-haspopup="dialog"
+        data-tour="establishment"
         aria-label={`${name}. ${t('partnerPanel.filter.open')}`}
         className="press inline-flex items-center gap-1.5 min-h-11 rounded-xl text-left focus-visible:ring-2 focus-visible:ring-teal-400/50"
       >

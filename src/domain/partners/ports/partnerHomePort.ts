@@ -22,4 +22,6 @@ export interface PartnerHomePort {
   getReports(period: PartnerReportPeriod): Promise<PartnerReports>;
   /** Devolve os cartões gravados, na ordem. */
   saveCards(cards: string[]): Promise<string[]>;
+  /** Tour concluído ou "Não mostrar novamente" (etapa 6). */
+  completeTour(): Promise<void>;
 }

@@ -1,11 +1,15 @@
 import type { Response } from 'express';
 import { getPartnerAgendaApplicationUseCase } from '../../../application/usecases/partnerHome/getPartnerAgendaApplicationUseCase';
-import { getPartnerEarningsApplicationUseCase } from '../../../application/usecases/partnerHome/getPartnerEarningsApplicationUseCase';
-import { getPartnerReportsApplicationUseCase } from '../../../application/usecases/partnerHome/getPartnerReportsApplicationUseCase';
-import { getPartnerEventSalesApplicationUseCase } from '../../../application/usecases/partnerHome/getPartnerEventSalesApplicationUseCase';
 import { getPartnerCatalogApplicationUseCase } from '../../../application/usecases/partnerHome/getPartnerCatalogApplicationUseCase';
+import { getPartnerEarningsApplicationUseCase } from '../../../application/usecases/partnerHome/getPartnerEarningsApplicationUseCase';
+import { getPartnerEventSalesApplicationUseCase } from '../../../application/usecases/partnerHome/getPartnerEventSalesApplicationUseCase';
 import { getPartnerHomeApplicationUseCase } from '../../../application/usecases/partnerHome/getPartnerHomeApplicationUseCase';
-import { PartnerDomainError, savePartnerHomeCardsUseCase } from '../../../domain/partners';
+import { getPartnerReportsApplicationUseCase } from '../../../application/usecases/partnerHome/getPartnerReportsApplicationUseCase';
+import {
+  completePartnerPanelTourUseCase,
+  PartnerDomainError,
+  savePartnerHomeCardsUseCase,
+} from '../../../domain/partners';
 import { TicketingDomainError } from '../../../domain/ticketing';
 import type { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
 import {
@@ -52,6 +56,19 @@ export class PartnerHomeController {
         return sendError(res, status, code, error.message);
       }
       console.error('[PartnerHomeController.saveCards]', {
+        name: error instanceof Error ? error.name : 'UnknownError',
+      });
+      return sendError(res, 503, 'PARTNER_HOME_UNAVAILABLE', 'Não foi possível salvar agora.');
+    }
+  }
+
+  static async completeTour(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    if (!req.user?.uid) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
+    try {
+      await completePartnerPanelTourUseCase(req.user.uid);
+      return res.status(204).send();
+    } catch (error) {
+      console.error('[PartnerHomeController.completeTour]', {
         name: error instanceof Error ? error.name : 'UnknownError',
       });
       return sendError(res, 503, 'PARTNER_HOME_UNAVAILABLE', 'Não foi possível salvar agora.');
