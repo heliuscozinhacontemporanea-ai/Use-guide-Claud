@@ -1,5 +1,5 @@
-import type { UserProfileDto } from '../dtos/userDto';
 import { userService } from '../factory';
+import type { UserProfileDto } from '../dtos/userDto';
 
 export async function getUserProfilesBatchUseCase(
   uids: string[]
