@@ -26,6 +26,13 @@ router.get(
   rateLimitByUser('username-lookup', 30, 10 * 60_000),
   UsernameController.find
 );
+// Busca pelo começo do @ a cada letra: limite maior, ainda por pessoa (§7.4).
+router.get(
+  '/usernames',
+  verifyAuthToken,
+  rateLimitByUser('username-search', 120, 10 * 60_000),
+  UsernameController.search
+);
 router.delete('/me', verifyAuthToken, requireRecentAuthentication, UserController.deleteAccount);
 
 export default router;

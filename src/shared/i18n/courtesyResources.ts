@@ -27,6 +27,7 @@ export interface CourtesyTranslation {
     searchLabel: string;
     searchPlaceholder: string;
     searching: string;
+    results: string;
     rule: string;
     send: string;
     sent: string;
@@ -113,6 +114,7 @@ export const courtesyPtBR: CourtesyTranslation = {
     searchLabel: '@ da pessoa',
     searchPlaceholder: '@usuario',
     searching: 'Procurando…',
+    results: 'Contas encontradas',
     rule: 'Uma cortesia por pessoa. Não pode ser repassada nem vendida, e você pode cancelar até a pessoa entrar.',
     send: 'Enviar cortesia',
     sent: 'Cortesia enviada para @{{username}}.',
@@ -200,6 +202,7 @@ export const courtesyEn: CourtesyTranslation = {
     searchLabel: "Person's @",
     searchPlaceholder: '@username',
     searching: 'Searching…',
+    results: 'Accounts found',
     rule: 'One complimentary ticket per person. It cannot be passed on or sold, and you can cancel it until the person checks in.',
     send: 'Send complimentary ticket',
     sent: 'Complimentary ticket sent to @{{username}}.',
@@ -290,6 +293,7 @@ export const courtesyFr: CourtesyTranslation = {
     searchLabel: '@ de la personne',
     searchPlaceholder: '@utilisateur',
     searching: 'Recherche…',
+    results: 'Comptes trouvés',
     rule: "Un billet offert par personne. Il ne peut être ni cédé ni vendu, et vous pouvez l'annuler jusqu'à l'entrée de la personne.",
     send: 'Envoyer le billet offert',
     sent: 'Billet offert envoyé à @{{username}}.',

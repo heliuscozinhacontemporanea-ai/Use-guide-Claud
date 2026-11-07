@@ -1,3 +1,4 @@
+import { FieldPath } from 'firebase-admin/firestore';
 import { adminAuth, adminDb } from '../../../infrastructure/firebase/adminClient';
 import { UsernameError } from '../errors/usernameError';
 import type { UsernameOwner, UsernamePort } from '../ports/usernamePort';
@@ -78,6 +79,39 @@ export class FirestoreUsernameAdapter implements UsernamePort {
       email: authUser.email ?? '',
       emailVerified: authUser.emailVerified,
     };
+  }
+
+  async searchByPrefix(
+    prefix: string,
+    limit: number
+  ): Promise<Array<{ username: string; displayName: string | null; photoURL: string | null }>> {
+    // Lê um pouco a mais: @ antigos (reservados por 14 dias) e de contas excluídas ficam de fora.
+    const snap = await adminDb
+      .collection(USERNAMES)
+      .orderBy(FieldPath.documentId())
+      .startAt(prefix)
+      .endAt(`${prefix}\uf8ff`)
+      .limit(limit * 3)
+      .get();
+    const active = snap.docs
+      .map((doc) => ({ username: doc.id, reservation: readReservation(doc.data()) }))
+      .filter(
+        (row): row is { username: string; reservation: Reservation } =>
+          !!row.reservation && !row.reservation.releasedAt && row.reservation.uid !== DELETED_OWNER
+      )
+      .slice(0, limit);
+    if (active.length === 0) return [];
+    const profiles = await adminDb.getAll(
+      ...active.map((row) => adminDb.collection('publicProfiles').doc(row.reservation.uid))
+    );
+    return active.map((row, index) => {
+      const profile = profiles[index]?.data() ?? {};
+      return {
+        username: row.username,
+        displayName: typeof profile.displayName === 'string' ? profile.displayName : null,
+        photoURL: typeof profile.photoURL === 'string' ? profile.photoURL : null,
+      };
+    });
   }
 
   async releaseAll(uid: string, releaseAtIso: string): Promise<void> {

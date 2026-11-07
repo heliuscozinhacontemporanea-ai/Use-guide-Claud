@@ -32,6 +32,13 @@ class InMemoryUsernames implements UsernamePort {
       emailVerified: true,
     };
   }
+  prefixCalls: Array<{ prefix: string; limit: number }> = [];
+  async searchByPrefix(prefix: string, limit: number) {
+    this.prefixCalls.push({ prefix, limit });
+    return [...this.reservations.keys()]
+      .filter((name) => name.startsWith(prefix))
+      .map((username) => ({ username, displayName: null, photoURL: null }));
+  }
   async releaseAll(uid: string, releaseAtIso: string) {
     for (const [name, value] of this.reservations) {
       if (value.uid === uid)
@@ -96,5 +103,16 @@ describe('@usuário (D21)', () => {
     });
     await service.releaseAll('u1');
     await expect(service.findProfile('ana')).rejects.toMatchObject({ code: 'USERNAME_NOT_FOUND' });
+  });
+
+  it('busca pelo começo do @ (D27): a partir de 2 caracteres, no máximo 8, com @ opcional', async () => {
+    const { service, port } = setup();
+    await service.claim('u1', 'bia.reis');
+    expect(await service.searchProfiles('b')).toEqual([]);
+    expect(await service.searchProfiles('bia r')).toEqual([]);
+    expect(await service.searchProfiles('@Bia.R')).toEqual([
+      { username: 'bia.reis', displayName: null, photoURL: null },
+    ]);
+    expect(port.prefixCalls).toEqual([{ prefix: 'bia.r', limit: 8 }]);
   });
 });

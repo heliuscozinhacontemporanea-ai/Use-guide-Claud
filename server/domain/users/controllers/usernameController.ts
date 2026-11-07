@@ -2,6 +2,7 @@ import type { Response } from 'express';
 import type { AuthenticatedRequest } from '../../../infrastructure/auth/authMiddleware';
 import { UsernameError } from '../errors/usernameError';
 import { findUserByUsernameUseCase } from '../usecases/findUserByUsernameUseCase';
+import { searchUsernamesUseCase } from '../usecases/searchUsernamesUseCase';
 import { suggestUsernameUseCase } from '../usecases/suggestUsernameUseCase';
 
 const STATUS: Record<UsernameError['code'], number> = {
@@ -36,6 +37,17 @@ export class UsernameController {
       return res.status(200).json({ username: await suggestUsernameUseCase(uid, name) });
     } catch (error) {
       return sendError(res, error, 'suggest');
+    }
+  }
+
+  static async search(req: AuthenticatedRequest, res: Response) {
+    if (!req.user?.uid) return unauthenticated(res);
+    const prefix = typeof req.query.prefix === 'string' ? req.query.prefix.slice(0, 31) : '';
+    try {
+      res.setHeader('Cache-Control', 'private, no-store');
+      return res.status(200).json({ data: await searchUsernamesUseCase(prefix) });
+    } catch (error) {
+      return sendError(res, error, 'search');
     }
   }
 

@@ -30,7 +30,7 @@ vi.mock('../../application/usecases/previewCourtesyLinkUseCase', () => ({
 vi.mock('../../application/usecases/acceptCourtesyLinkUseCase', () => ({
   acceptCourtesyLinkUseCase: m.accept,
 }));
-vi.mock('../../../user', () => ({ findUserByUsernameUseCase: m.find }));
+vi.mock('../../../user', () => ({ searchUsernamesUseCase: m.find }));
 vi.mock('../../../auth', () => ({ openEmailVerificationPromptUseCase: vi.fn() }));
 
 import { CourtesyLinkReceiverPage } from './CourtesyLinkReceiverPage';
@@ -108,21 +108,27 @@ describe('convidados (p13, p14, p15, p28)', () => {
     expect(screen.getByText('Cancelado por você')).toBeTruthy();
   });
 
-  it('Convidar: acha o @ exato e envia a cortesia para a sessão', async () => {
-    m.find.mockResolvedValue({ username: 'bia.reis', displayName: 'Bia Reis', photoURL: null });
+  it('Convidar: busca pelo começo do @, a pessoa toca no nome e envia para a sessão', async () => {
+    m.find.mockResolvedValue([
+      { username: 'bia.reis', displayName: 'Bia Reis', photoURL: null },
+      { username: 'bia.ramos', displayName: 'Bia Ramos', photoURL: null },
+    ]);
     m.invite.mockResolvedValue(ROWS[1]);
     renderPanel();
     await screen.findByText('3 cortesias enviadas');
     fireEvent.click(screen.getByRole('button', { name: 'Convidar' }));
     vi.useFakeTimers();
-    fireEvent.change(screen.getByLabelText('@ da pessoa'), { target: { value: '@bia.reis' } });
+    fireEvent.change(screen.getByLabelText('@ da pessoa'), { target: { value: '@bi' } });
     await act(async () => {
-      vi.advanceTimersByTime(500);
+      vi.advanceTimersByTime(400);
     });
     vi.useRealTimers();
-    await screen.findByText('@bia.reis');
-    expect(m.find).toHaveBeenCalledWith('bia.reis');
-    fireEvent.click(screen.getByRole('button', { name: 'Enviar cortesia' }));
+    await screen.findByText('@bia.ramos');
+    expect(m.find).toHaveBeenCalledWith('bi');
+    const send = screen.getByRole('button', { name: 'Enviar cortesia' }) as HTMLButtonElement;
+    expect(send.disabled).toBe(true);
+    fireEvent.click(screen.getByRole('button', { name: /@bia\.reis/ }));
+    fireEvent.click(send);
     await waitFor(() => expect(m.invite).toHaveBeenCalledWith('oc1', 'bia.reis'));
     expect(await screen.findByText('Cortesia enviada para @bia.reis.')).toBeTruthy();
   });

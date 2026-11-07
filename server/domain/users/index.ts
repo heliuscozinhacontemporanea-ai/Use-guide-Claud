@@ -15,5 +15,6 @@ export { getUserPublicProfileUseCase } from './usecases/getUserPublicProfileUseC
 export { getUsersCountUseCase } from './usecases/getUsersCountUseCase';
 export { releaseUsernamesUseCase } from './usecases/releaseUsernamesUseCase';
 export { resolveUsernameOwnerUseCase } from './usecases/resolveUsernameOwnerUseCase';
+export { searchUsernamesUseCase } from './usecases/searchUsernamesUseCase';
 export { suggestUsernameUseCase } from './usecases/suggestUsernameUseCase';
 export { upgradeUserToPartnerUseCase } from './usecases/upgradeUserToPartnerUseCase';
