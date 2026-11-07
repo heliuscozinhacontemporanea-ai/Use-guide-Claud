@@ -1,6 +1,5 @@
 import { adminDb } from '../../../infrastructure/firebase/adminClient';
 import {
-  EventPromoCodePersistenceMapper,
   InventoryReservationPersistenceMapper,
   TicketOrderItemPersistenceMapper,
   TicketOrderPersistenceMapper,
@@ -77,28 +76,6 @@ export class FirestoreOrderReservationStore {
         }
       }
 
-      if (input.promoCodeId) {
-        const promoRef = adminDb.collection('eventPromoCodes').doc(input.promoCodeId);
-        const promoSnap = await tx.get(promoRef);
-        if (!promoSnap.exists) {
-          throw new TicketingDomainError('INVALID_ARGUMENT', 'Cupom promocional inválido.');
-        }
-        const promo = EventPromoCodePersistenceMapper.toDomain(
-          promoSnap.id,
-          (promoSnap.data() || {}) as Record<string, unknown>
-        );
-        if (!promo.isActive || (promo.maxUses !== undefined && promo.usedCount >= promo.maxUses)) {
-          throw new TicketingDomainError(
-            'UNPROCESSABLE_ENTITY',
-            'Cupom promocional esgotado ou inativo.'
-          );
-        }
-        tx.update(promoRef, {
-          usedCount: promo.usedCount + 1,
-          updatedAt: new Date().toISOString(),
-        });
-      }
-
       const nowIso = new Date().toISOString();
       const orderRef = adminDb.collection('ticketOrders').doc();
       const orderStatus: TicketOrderStatus = input.issueImmediately ? 'paid' : 'pending_payment';
@@ -116,6 +93,7 @@ export class FirestoreOrderReservationStore {
         serviceFeeMinor: input.serviceFeeMinor,
         totalMinor: input.totalMinor,
         ...(input.promoCodeId ? { promoCodeId: input.promoCodeId } : {}),
+        ...(input.promoRedemptionId ? { promoRedemptionId: input.promoRedemptionId } : {}),
         ...(input.promoterId ? { promoterId: input.promoterId } : {}),
         buyerSnapshot: input.buyerSnapshot,
         eventSnapshot: input.eventSnapshot,

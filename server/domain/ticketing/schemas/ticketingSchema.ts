@@ -133,21 +133,6 @@ export const checkInTicketSchema = z
     }
   });
 
-export const createPromoCodeSchema = z
-  .object({
-    eventListingId: z.string().trim().min(1),
-    code: z.string().trim().min(2).max(40),
-    type: z.enum(['percentage', 'fixed']),
-    valueMinor: z.number().int().positive().optional(),
-    percentage: z.number().int().min(1).max(100).optional(),
-    maxUses: z.number().int().positive().optional(),
-    startsAt: z.string().datetime({ offset: true }).optional(),
-    endsAt: z.string().datetime({ offset: true }).optional(),
-    ticketTypeIds: z.array(z.string().trim().min(1)).optional(),
-    isActive: z.boolean().default(true),
-  })
-  .strict();
-
 export const joinWaitlistSchema = z
   .object({
     occurrenceId: z.string().trim().min(1),

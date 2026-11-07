@@ -75,7 +75,6 @@ router.get('/events/:id/refunds', verifyAuthToken, TicketingController.listEvent
 router.get('/events/:id/check-ins', verifyAuthToken, TicketingController.listEventCheckIns);
 router.get('/events/:id/analytics', verifyAuthToken, TicketingController.getEventSalesAnalytics);
 
-router.post('/promo-codes', verifyAuthToken, TicketingController.createPromoCode);
 router.post('/waitlist', verifyAuthToken, TicketingController.joinWaitlist);
 
 export default router;

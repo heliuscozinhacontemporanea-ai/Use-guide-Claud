@@ -56,7 +56,14 @@ service cloud.firestore {
     match /ticketTransfers/{transferId} {
       allow read, write: if false;
     }
-    match /eventPromoCodes/{promoCodeId} {
+    // Cupons (domínio promotions, B1): só backend; o dono lê pela API.
+    match /promoCodes/{promoCodeId} {
+      allow read, write: if false;
+    }
+    match /promoRedemptions/{redemptionId} {
+      allow read, write: if false;
+    }
+    match /promoBuyers/{buyerKey} {
       allow read, write: if false;
     }
     match /eventWaitlistEntries/{entryId} {

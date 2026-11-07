@@ -44,6 +44,7 @@ import { adminMessageRouter } from './server/interfaces/http/notifications/admin
 import { InternalNotificationsController } from './server/interfaces/http/notifications/internalNotificationsController';
 import { InternalTermsController } from './server/interfaces/http/notifications/internalTermsController';
 import partnerHomeRouter from './server/interfaces/http/partnerHome/partnerHomeRoutes';
+import promoCodesRouter from './server/interfaces/http/promoCodes/promoCodesRoutes';
 import { InternalPartnersController } from './server/interfaces/http/partners/internalPartnersController';
 import paymentAccountRouter, {
   adminAccountDebtRouter,
@@ -223,6 +224,7 @@ async function startServer() {
   app.use('/api/payment/plans', billingRouter);
   app.use('/api/payment-accounts', paymentAccountRouter);
   app.use('/api/partner-home', partnerHomeRouter);
+  app.use('/api/promo-codes', promoCodesRouter);
   app.use('/api/sale-claims', saleClaimRouter);
   app.use('/api/ticket-transfers', ticketTransferRouter);
   app.use('/api/courtesies', courtesyRouter);

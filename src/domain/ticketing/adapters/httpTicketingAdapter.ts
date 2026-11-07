@@ -130,7 +130,8 @@ export class HttpTicketingAdapter implements TicketingPort {
     );
     const body = await res.json().catch(() => ({}));
     if (!res.ok) {
-      if (body?.error?.code === 'EMAIL_NOT_VERIFIED') throw new Error('EMAIL_NOT_VERIFIED');
+      const code = typeof body?.error?.code === 'string' ? body.error.code : null;
+      if (code === 'EMAIL_NOT_VERIFIED' || code?.startsWith('PROMO_')) throw new Error(code);
       throw new Error(body?.error || body?.message || 'Não foi possível reservar os ingressos.');
     }
     const payload = (body?.data ?? body) as CreateOrderResult;

@@ -8,7 +8,6 @@ import { TicketingDomainError } from '../errors/ticketingDomainError';
 import {
   checkInTicketSchema,
   createOfflineCheckInSessionSchema,
-  createPromoCodeSchema,
   createTicketOrderSchema,
   createTicketTypeSchema,
   joinWaitlistSchema,
@@ -17,10 +16,10 @@ import {
   syncOfflineCheckInsSchema,
   updateTicketTypeSchema,
 } from '../schemas/ticketingSchema';
+import { PromotionsDomainError } from '../../promotions';
 import type { TicketOrder } from '../types/ticketingTypes';
 import { archiveTicketTypeUseCase } from '../usecases/archiveTicketTypeUseCase';
 import { checkInTicketUseCase } from '../usecases/checkInTicketUseCase';
-import { createEventPromoCodeUseCase } from '../usecases/createEventPromoCodeUseCase';
 import { createOfflineCheckInSessionUseCase } from '../usecases/createOfflineCheckInSessionUseCase';
 import { createTicketOrderUseCase } from '../usecases/createTicketOrderUseCase';
 import { createTicketTypeUseCase } from '../usecases/createTicketTypeUseCase';
@@ -73,6 +72,10 @@ function getActor(req: AuthenticatedRequest) {
 }
 
 function handleTicketingError(res: Response, error: unknown): Response {
+  // Cupom recusado na compra: a tela traduz pelo código (inválido, encerrado, esgotado, já usado).
+  if (error instanceof PromotionsDomainError) {
+    return res.status(422).json({ error: { code: error.code, message: error.message } });
+  }
   if (error instanceof TicketingDomainError) {
     switch (error.code) {
       case 'INVALID_ARGUMENT':
@@ -470,20 +473,6 @@ export class TicketingController {
       const eventListingId = String(req.params.id || '');
       const refunds = await listEventRefundsForPartnerOrAdminUseCase(getActor(req), eventListingId);
       return res.status(200).json({ status: 'success', data: refunds });
-    } catch (error) {
-      return handleTicketingError(res, error);
-    }
-  }
-
-  static async createPromoCode(req: AuthenticatedRequest, res: Response) {
-    try {
-      if (!req.user) return res.status(401).json({ error: 'Não autenticado.' });
-      const parsed = createPromoCodeSchema.safeParse(req.body);
-      if (!parsed.success) {
-        return res.status(400).json({ error: 'Dados inválidos.', details: parsed.error.flatten() });
-      }
-      const created = await createEventPromoCodeUseCase(getActor(req), parsed.data);
-      return res.status(201).json({ status: 'success', data: created });
     } catch (error) {
       return handleTicketingError(res, error);
     }

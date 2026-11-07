@@ -31,7 +31,6 @@ export {
   canTransitionTicketStatus,
   deriveTicketTypeSaleStatus,
   type EventCheckIn,
-  type EventPromoCode,
   type EventSalesAnalytics,
   type EventWaitlistEntry,
   type InventoryReservation,
@@ -65,7 +64,6 @@ export { claimTicketTransferLinkUseCase } from './usecases/claimTicketTransferLi
 export { confirmTicketOrderPaymentUseCase } from './usecases/confirmTicketOrderPaymentUseCase';
 export { countOccurrenceCourtesiesUseCase } from './usecases/countOccurrenceCourtesiesUseCase';
 export { createCourtesyLinkUseCase } from './usecases/createCourtesyLinkUseCase';
-export { createEventPromoCodeUseCase } from './usecases/createEventPromoCodeUseCase';
 export { createOfflineCheckInSessionUseCase } from './usecases/createOfflineCheckInSessionUseCase';
 export { createTicketOrderUseCase } from './usecases/createTicketOrderUseCase';
 export { createTicketTransferLinkUseCase } from './usecases/createTicketTransferLinkUseCase';

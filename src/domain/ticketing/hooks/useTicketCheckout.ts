@@ -52,6 +52,17 @@ async function withQrCodes(
 }
 
 /** Seleção, reserva, pagamento e emissão de ingressos de uma sessão. */
+const PROMO_ERRORS = [
+  'PROMO_INVALID',
+  'PROMO_NOT_STARTED',
+  'PROMO_EXPIRED',
+  'PROMO_EXHAUSTED',
+  'PROMO_ALREADY_USED',
+] as const;
+type PromoError = (typeof PROMO_ERRORS)[number];
+const isPromoError = (code: string): code is PromoError =>
+  (PROMO_ERRORS as readonly string[]).includes(code);
+
 export function useTicketCheckout({
   occurrenceId,
   ticketTypes,
@@ -214,6 +225,8 @@ export function useTicketCheckout({
       if (err instanceof Error && err.message === 'EMAIL_NOT_VERIFIED') {
         setError(t('ticketCheckout.errors.emailNotVerified'));
         openEmailVerificationPromptUseCase();
+      } else if (err instanceof Error && isPromoError(err.message)) {
+        setError(t(`ticketCheckout.errors.promo.${err.message}`));
       } else {
         setError(err instanceof Error ? err.message : t('ticketCheckout.errors.createFailed'));
       }

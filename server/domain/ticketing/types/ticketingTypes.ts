@@ -112,6 +112,8 @@ export interface TicketOrder {
   /** Meio de pagamento (classe Interna, §7.6); dados do cartão ficam só no Stripe. */
   paymentMethod?: TicketPaymentMethod;
   promoCodeId?: string;
+  /** Uso do cupom guardado para o pedido; devolvido se o pedido expirar sem pagamento. */
+  promoRedemptionId?: string;
   /** Divulgador do link usado na compra (D27), conferido no servidor. */
   promoterId?: string;
   buyerSnapshot: {
@@ -320,23 +322,6 @@ export interface OfflineCheckInEvent {
 export interface OfflineCheckInSyncResultItem {
   clientEventId: string;
   status: 'accepted' | 'already_checked_in' | 'invalid' | 'expired' | 'wrong_occurrence';
-}
-
-export interface EventPromoCode {
-  id: string;
-  eventListingId: string;
-  code: string;
-  type: 'percentage' | 'fixed';
-  valueMinor?: MoneyMinor;
-  percentage?: number;
-  maxUses?: number;
-  usedCount: number;
-  startsAt?: string;
-  endsAt?: string;
-  ticketTypeIds?: string[];
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
 }
 
 export interface PlatformFeePolicy {

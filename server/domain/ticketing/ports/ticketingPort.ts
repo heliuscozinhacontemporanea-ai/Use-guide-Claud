@@ -2,7 +2,6 @@ import type { TermsAcceptance } from '../../../shared/kernel/legalTerms';
 import type {
   TicketTransferLink,
   EventCheckIn,
-  EventPromoCode,
   EventWaitlistEntry,
   InventoryReservation,
   OfflineCheckInEvent,
@@ -34,6 +33,8 @@ export interface ReserveOrderTransactionInput {
   serviceFeeMinor: number;
   totalMinor: number;
   promoCodeId?: string;
+  /** Uso do cupom guardado para este pedido (domínio promotions). */
+  promoRedemptionId?: string;
   promoterId?: string;
   buyerSnapshot: {
     name: string;
@@ -250,11 +251,6 @@ export interface TicketingPort {
     newStartsAt: string;
     newEndsAt: string;
   }): Promise<{ movedOrdersCount: number; movedTicketsCount: number }>;
-
-  createPromoCode(
-    input: Omit<EventPromoCode, 'id' | 'usedCount' | 'createdAt' | 'updatedAt'>
-  ): Promise<EventPromoCode>;
-  getPromoCodeByCode(eventListingId: string, code: string): Promise<EventPromoCode | null>;
 
   createWaitlistEntry(
     input: Omit<EventWaitlistEntry, 'id' | 'status' | 'createdAt'>

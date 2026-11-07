@@ -92,8 +92,6 @@ export class FirestoreTicketingAdapter implements TicketingPort {
   readonly transferTicketAtomic = this.ticket.transferTicketAtomic.bind(this.ticket);
   readonly moveOrdersAndTicketsToOccurrenceAtomic =
     this.ticket.moveOrdersAndTicketsToOccurrenceAtomic.bind(this.ticket);
-  readonly createPromoCode = this.engagement.createPromoCode.bind(this.engagement);
-  readonly getPromoCodeByCode = this.engagement.getPromoCodeByCode.bind(this.engagement);
   readonly createWaitlistEntry = this.engagement.createWaitlistEntry.bind(this.engagement);
   readonly listWaitlistByOccurrenceId = this.engagement.listWaitlistByOccurrenceId.bind(
     this.engagement
