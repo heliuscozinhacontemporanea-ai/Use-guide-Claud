@@ -119,5 +119,11 @@ export function PartnerMoreSection({
           : []),
       ]
     : [];
-  return <PartnerMoreTab title={t('partnerPanel.more.title')} groups={[account, help]} />;
+  return (
+    <PartnerMoreTab
+      title={t('partnerPanel.more.title')}
+      groups={[account, help]}
+      tourTarget="more-list"
+    />
+  );
 }

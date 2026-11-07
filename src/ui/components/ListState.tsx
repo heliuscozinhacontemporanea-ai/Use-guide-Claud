@@ -5,7 +5,7 @@ import { Skeleton } from './Skeleton';
 /** Estados de uma lista assíncrona (AGENTS.md §11.8): carregando, vazio e erro com nova tentativa. */
 export function ListLoading({ label }: { label: string }) {
   return (
-    <div role="status" className="space-y-2">
+    <div role="status" data-loading="" className="space-y-2">
       <Skeleton className="h-14 w-full" />
       <Skeleton className="h-14 w-full" />
       <span className="sr-only">{label}</span>

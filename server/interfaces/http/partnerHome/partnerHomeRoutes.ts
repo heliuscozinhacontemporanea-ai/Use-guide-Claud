@@ -6,7 +6,7 @@ const router = Router();
 
 router.get('/', verifyAuthToken, PartnerHomeController.get);
 router.put('/cards', verifyAuthToken, PartnerHomeController.saveCards);
-router.put('/tour', verifyAuthToken, PartnerHomeController.completeTour);
+router.put('/tour', verifyAuthToken, PartnerHomeController.recordTour);
 router.get('/agenda', verifyAuthToken, PartnerHomeController.getAgenda);
 router.get('/catalog', verifyAuthToken, PartnerHomeController.getCatalog);
 router.get('/earnings', verifyAuthToken, PartnerHomeController.getEarnings);

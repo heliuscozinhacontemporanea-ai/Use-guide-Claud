@@ -18,8 +18,8 @@ function createPartnerPortMock(): PartnerPort {
     recordTermsAcceptance: vi.fn(),
     getHomeCards: vi.fn().mockResolvedValue(null),
     setHomeCards: vi.fn(),
-    getPanelTourDoneAt: vi.fn(),
-    setPanelTourDone: vi.fn(),
+    getPanelTour: vi.fn(),
+    recordPanelTour: vi.fn(),
   };
 }
 

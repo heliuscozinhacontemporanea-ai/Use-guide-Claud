@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { PARTNER_HOME_CARD_IDS } from '../../../../domain/partners';
+import { PANEL_TOUR_ACTIONS, PARTNER_HOME_CARD_IDS } from '../../../../domain/partners';
 
 export const SavePartnerHomeCardsSchema = z
   .object({
@@ -37,3 +37,5 @@ export const PartnerEventOrdersQuerySchema = z
     filter: z.enum(['all', 'refunds']).default('all'),
   })
   .strict();
+
+export const PanelTourActionSchema = z.object({ action: z.enum(PANEL_TOUR_ACTIONS) }).strict();

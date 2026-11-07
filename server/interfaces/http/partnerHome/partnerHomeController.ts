@@ -7,13 +7,14 @@ import { getPartnerHomeApplicationUseCase } from '../../../application/usecases/
 import { getPartnerReportsApplicationUseCase } from '../../../application/usecases/partnerHome/getPartnerReportsApplicationUseCase';
 import { listPartnerEventOrdersApplicationUseCase } from '../../../application/usecases/partnerHome/listPartnerEventOrdersApplicationUseCase';
 import {
-  completePartnerPanelTourUseCase,
   PartnerDomainError,
+  recordPartnerPanelTourUseCase,
   savePartnerHomeCardsUseCase,
 } from '../../../domain/partners';
 import { TicketingDomainError } from '../../../domain/ticketing';
 import type { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
 import {
+  PanelTourActionSchema,
   PartnerAgendaQuerySchema,
   PartnerEventOrdersQuerySchema,
   PartnerEventParamsSchema,
@@ -64,13 +65,16 @@ export class PartnerHomeController {
     }
   }
 
-  static async completeTour(req: AuthenticatedRequest, res: Response): Promise<Response> {
+  static async recordTour(req: AuthenticatedRequest, res: Response): Promise<Response> {
     if (!req.user?.uid) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
+    const body = PanelTourActionSchema.safeParse(req.body);
+    if (!body.success) return sendError(res, 400, 'VALIDATION_ERROR', 'Ação inválida.');
     try {
-      await completePartnerPanelTourUseCase(req.user.uid);
+      // Só grava no próprio uid: não há parâmetro de dono (A01).
+      await recordPartnerPanelTourUseCase(req.user.uid, body.data.action);
       return res.status(204).send();
     } catch (error) {
-      console.error('[PartnerHomeController.completeTour]', {
+      console.error('[PartnerHomeController.recordTour]', {
         name: error instanceof Error ? error.name : 'UnknownError',
       });
       return sendError(res, 503, 'PARTNER_HOME_UNAVAILABLE', 'Não foi possível salvar agora.');

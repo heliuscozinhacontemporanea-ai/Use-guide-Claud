@@ -34,7 +34,6 @@ export function PartnerShortcuts({
             key={tab}
             type="button"
             aria-current={active ? 'page' : undefined}
-            data-tour={`tab-${tab}`}
             onClick={() => onChange(tab)}
             className={cn(
               'press aspect-square min-h-11 rounded-2xl border flex flex-col items-center justify-center gap-1 focus-visible:ring-2 focus-visible:ring-teal-400/50',

@@ -111,8 +111,16 @@ export class ApiPartnerHomeAdapter implements PartnerHomePort {
     return (body as { data: PartnerReports }).data;
   }
 
-  async completeTour(): Promise<void> {
-    const response = await firebaseApiFetch('/api/partner-home/tour', { method: 'PUT' }, OPTIONS);
+  async recordTour(action: 'shown' | 'done' | 'tips_off'): Promise<void> {
+    const response = await firebaseApiFetch(
+      '/api/partner-home/tour',
+      {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action }),
+      },
+      OPTIONS
+    );
     if (!response.ok) throw new Error('INTERNAL_ERROR');
   }
 

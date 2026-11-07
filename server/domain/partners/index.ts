@@ -44,7 +44,6 @@ export { assertListingCanSellUseCase } from './usecases/assertListingCanSellUseC
 export { assertListingPlanActiveUseCase } from './usecases/assertListingPlanActiveUseCase';
 export { assertListingPlanPurchasableUseCase } from './usecases/assertListingPlanPurchasableUseCase';
 export { assertPartnerTermsAcceptedUseCase } from './usecases/assertPartnerTermsAcceptedUseCase';
-export { completePartnerPanelTourUseCase } from './usecases/completePartnerPanelTourUseCase';
 export { computeListingSealUseCase } from './usecases/computeListingSealUseCase';
 export { deleteListingPlanUseCase } from './usecases/deleteListingPlanUseCase';
 export { deleteListingVerificationUseCase } from './usecases/deleteListingVerificationUseCase';
@@ -61,6 +60,13 @@ export { getListingVerificationUseCase } from './usecases/getListingVerification
 export { getOwnerSalesDocumentUseCase } from './usecases/getOwnerSalesDocumentUseCase';
 export { getPartnerHomeCardsUseCase } from './usecases/getPartnerHomeCardsUseCase';
 export { getPartnerPanelTourUseCase } from './usecases/getPartnerPanelTourUseCase';
+export { recordPartnerPanelTourUseCase } from './usecases/recordPartnerPanelTourUseCase';
+export {
+  PANEL_TOUR_ACTIONS,
+  type PanelTourAction,
+  type PanelTourState,
+  shouldShowPanelTour,
+} from './types/panelTour';
 export { getPartnerProfileUseCase } from './usecases/getPartnerProfileUseCase';
 export { getPartnerTermsStatusUseCase } from './usecases/getPartnerTermsStatusUseCase';
 export { linkBusinessUseCase } from './usecases/linkBusinessUseCase';

@@ -4,6 +4,7 @@ import {
   type TermsAcceptance,
 } from '../../../shared/kernel/legalTerms';
 import { PartnerDomainError } from '../errors/partnerDomainError';
+import type { PanelTourAction, PanelTourState } from '../types/panelTour';
 import { PartnerPort } from '../ports/partnerPort';
 import {
   DEFAULT_PARTNER_HOME_CARDS,
@@ -69,15 +70,15 @@ export class PartnerService {
     return { currentVersion: PARTNER_TERMS_VERSION, accepted: true, acceptance };
   }
 
+  getPanelTour(partnerId: string): Promise<PanelTourState> {
+    return this.partnerPort.getPanelTour(partnerId);
+  }
+
+  recordPanelTour(partnerId: string, action: PanelTourAction, now = new Date()): Promise<void> {
+    return this.partnerPort.recordPanelTour(partnerId, action, now.toISOString());
+  }
+
   /** Cartões do Início na ordem escolhida; sem escolha, o padrão. Cartão que saiu da lista é ignorado. */
-  getPanelTourDoneAt(partnerId: string): Promise<string | null> {
-    return this.partnerPort.getPanelTourDoneAt(partnerId);
-  }
-
-  setPanelTourDone(partnerId: string, now: Date = new Date()): Promise<void> {
-    return this.partnerPort.setPanelTourDone(partnerId, now.toISOString());
-  }
-
   async getHomeCards(partnerId: string): Promise<PartnerHomeCardId[]> {
     const stored = await this.partnerPort.getHomeCards(partnerId);
     if (stored === null) return [...DEFAULT_PARTNER_HOME_CARDS];

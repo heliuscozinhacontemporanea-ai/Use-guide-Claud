@@ -9,6 +9,7 @@ const m = vi.hoisted(() => ({
   catalog: vi.fn(),
   sales: vi.fn(),
   orders: vi.fn(),
+  tour: vi.fn(),
   earnings: vi.fn(),
   reports: vi.fn(),
 }));
@@ -42,16 +43,19 @@ vi.mock('../../../domain/partners', async () => {
   return {
     PartnerDomainError,
     PARTNER_HOME_CARD_IDS: ['today', 'sales_today', 'reviews'],
+    PANEL_TOUR_ACTIONS: ['shown', 'done', 'tips_off'],
     savePartnerHomeCardsUseCase: m.save,
+    recordPartnerPanelTourUseCase: m.tour,
   };
 });
 
 import { PartnerHomeController } from './partnerHomeController';
 
 function response() {
-  const res = { status: vi.fn(), json: vi.fn() };
+  const res = { status: vi.fn(), json: vi.fn(), send: vi.fn() };
   res.status.mockReturnValue(res);
   res.json.mockReturnValue(res);
+  res.send.mockReturnValue(res);
   return res;
 }
 
@@ -230,6 +234,27 @@ describe('PartnerHomeController', () => {
       other as unknown as Response
     );
     expect(other.status).toHaveBeenCalledWith(404);
+  });
+
+  it('tour: grava só no uid logado e só as ações conhecidas', async () => {
+    m.tour.mockResolvedValueOnce(undefined);
+    const ok = response();
+    await PartnerHomeController.recordTour(
+      request({ uid: 'owner-1' }, { action: 'tips_off' }),
+      ok as unknown as Response
+    );
+    expect(m.tour).toHaveBeenCalledWith('owner-1', 'tips_off');
+    expect(ok.status).toHaveBeenCalledWith(204);
+
+    for (const body of [{}, { action: 'reset' }, { action: 'done', ownerUid: 'outro' }]) {
+      const bad = response();
+      await PartnerHomeController.recordTour(
+        request({ uid: 'owner-1' }, body),
+        bad as unknown as Response
+      );
+      expect(bad.status).toHaveBeenCalledWith(400);
+    }
+    expect(m.tour).toHaveBeenCalledTimes(1);
   });
 
   it('ganhos: lê só do uid logado e responde 503 sem detalhe interno', async () => {

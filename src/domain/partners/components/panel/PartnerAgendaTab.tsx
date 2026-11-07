@@ -62,7 +62,7 @@ export function PartnerAgendaTab({
 
   return (
     <section className="space-y-6" aria-label={t('partnerPanel.agenda.title')}>
-      <div className="flex items-center justify-between gap-2">
+      <div data-tour="agenda-week" className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-1 min-w-0">
           <button
             type="button"
@@ -100,6 +100,7 @@ export function PartnerAgendaTab({
       </div>
 
       <div
+        data-tour="agenda-week"
         className="grid grid-cols-7 gap-1 touch-pan-y"
         onPointerDown={(event) => {
           swipeFrom.current = event.clientX;
@@ -153,17 +154,19 @@ export function PartnerAgendaTab({
       ) : agenda.error ? (
         <ListError message={t('partnerPanel.agenda.error')} onRetry={() => void agenda.reload()} />
       ) : (
-        <AgendaDayList
-          title={formatBusinessDate(selected.toISOString(), lang, {
-            weekday: 'long',
-            day: 'numeric',
-            month: 'long',
-          })}
-          items={dayItems}
-          isToday={isToday}
-          labelFor={labelFor}
-          onOpen={onOpenItem}
-        />
+        <div data-tour="agenda-day">
+          <AgendaDayList
+            title={formatBusinessDate(selected.toISOString(), lang, {
+              weekday: 'long',
+              day: 'numeric',
+              month: 'long',
+            })}
+            items={dayItems}
+            isToday={isToday}
+            labelFor={labelFor}
+            onOpen={onOpenItem}
+          />
+        </div>
       )}
 
       {monthOpen && (

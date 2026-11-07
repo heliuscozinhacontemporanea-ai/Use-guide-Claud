@@ -1,5 +1,7 @@
 # Tour do painel do parceiro — proposta 2 (2026-11-07)
 
+> Aprovada e implementada em 2026-11-07. Na implementação, os textos do Catálogo usam os nomes das abas reais (Lugares, Eventos, Passeios) e o passo de Mais destaca o primeiro grupo (perfil, estabelecimentos, planos e contas).
+
 O tour entregue no `b13b68c` cobre só o Início. Agenda, Catálogo, Ganhos e Mais aparecem no máximo como "toque aqui", sem explicar o que há dentro de cada uma.
 
 ## O que as referências dizem

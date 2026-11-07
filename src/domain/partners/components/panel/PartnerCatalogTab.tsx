@@ -150,34 +150,38 @@ export function PartnerCatalogTab({
         <h2 id="partner-catalog-title" className="text-[22px] font-display font-bold text-ink">
           {t('partnerPanel.catalog.title')}
         </h2>
-        <TextButton tone="accent" onClick={onCreate}>
+        <TextButton tone="accent" onClick={onCreate} data-tour="catalog-create">
           <Plus size={18} aria-hidden="true" />
           {t('partnerCatalog.create')}
         </TextButton>
       </div>
-      <SegmentedControl<CatalogSegment>
-        label={t('partnerPanel.catalog.title')}
-        value={segment}
-        onChange={onSegmentChange}
-        options={[
-          { value: 'places', label: t('partnerPanel.catalog.places') },
-          { value: 'events', label: t('partnerPanel.catalog.events') },
-          { value: 'offers', label: t('partnerPanel.catalog.offers') },
-        ]}
-      />
-      {segment === 'places' ? (
-        placesLoading ? (
-          <ListLoading label={t('partnerPanel.catalog.places')} />
-        ) : places.length === 0 ? (
-          <ListEmpty message={t('partnerCatalog.emptyPlaces')} />
+      <div data-tour="catalog-kinds">
+        <SegmentedControl<CatalogSegment>
+          label={t('partnerPanel.catalog.title')}
+          value={segment}
+          onChange={onSegmentChange}
+          options={[
+            { value: 'places', label: t('partnerPanel.catalog.places') },
+            { value: 'events', label: t('partnerPanel.catalog.events') },
+            { value: 'offers', label: t('partnerPanel.catalog.offers') },
+          ]}
+        />
+      </div>
+      <div data-tour="catalog-list">
+        {segment === 'places' ? (
+          placesLoading ? (
+            <ListLoading label={t('partnerPanel.catalog.places')} />
+          ) : places.length === 0 ? (
+            <ListEmpty message={t('partnerCatalog.emptyPlaces')} />
+          ) : (
+            <ListCard>{places.map(placeRow)}</ListCard>
+          )
+        ) : segment === 'events' ? (
+          <div className="space-y-4">{eventsContent()}</div>
         ) : (
-          <ListCard>{places.map(placeRow)}</ListCard>
-        )
-      ) : segment === 'events' ? (
-        <div className="space-y-4">{eventsContent()}</div>
-      ) : (
-        offers
-      )}
+          offers
+        )}
+      </div>
     </section>
   );
 }

@@ -13,20 +13,24 @@ export function PartnerMoreTab({
   title,
   groups,
   hideTitle = false,
+  tourTarget,
 }: {
   title: string;
   groups: PartnerMoreEntry[][];
   /** Sem título visível: a lista fica abaixo de outra tela (ex.: Ganhos). */
   hideTitle?: boolean;
+  /** `data-tour` do primeiro grupo, para o tour do painel. */
+  tourTarget?: string;
 }) {
   return (
     <section aria-label={title} className="space-y-6">
       {!hideTitle && <h2 className="px-1 text-[22px] font-display font-bold text-ink">{title}</h2>}
       {groups
         .filter((group) => group.length > 0)
-        .map((group) => (
+        .map((group, index) => (
           <ul
             key={group[0]?.id}
+            data-tour={index === 0 ? tourTarget : undefined}
             className="rounded-[20px] bg-surface border border-line divide-y divide-line overflow-hidden"
           >
             {group.map((entry) => (

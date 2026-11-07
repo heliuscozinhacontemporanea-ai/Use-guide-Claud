@@ -5,6 +5,7 @@ import {
   getListingPlanUntilUseCase,
   getPartnerHomeCardsUseCase,
   getPartnerPanelTourUseCase,
+  shouldShowPanelTour,
   listOwnerSalesDocumentsUseCase,
   listOwnerVerificationStatusesUseCase,
 } from '../../../domain/partners';
@@ -91,7 +92,7 @@ export async function getPartnerHomeApplicationUseCase(
     recentEntries,
     openEntries,
   });
-  const [promoters, termsOk, tourDoneAt] = await Promise.all([
+  const [promoters, termsOk, tour] = await Promise.all([
     loadNextPromoters(ownerUid, view.upcomingSessions),
     hasCurrentPartnerTerms(ownerUid),
     getPartnerPanelTourUseCase(ownerUid).catch(() => null),
@@ -110,7 +111,15 @@ export async function getPartnerHomeApplicationUseCase(
           },
           ...view.attention,
         ];
-  return { ...view, attention, promoters, tourDone: tourDoneAt !== null };
+  return {
+    ...view,
+    attention,
+    promoters,
+    // Sem leitura do estado, o tour não abre: melhor não mostrar que mostrar de novo a quem já viu.
+    tour: tour
+      ? { show: shouldShowPanelTour(tour), tipsOff: tour.tipsOff }
+      : { show: false, tipsOff: false },
+  };
 }
 
 // Poucos eventos por abertura: o cartão olha só os próximos, na ordem das sessões.

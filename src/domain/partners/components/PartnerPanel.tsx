@@ -31,6 +31,7 @@ import { PartnerHomeTab } from './panel/PartnerHomeTab';
 import { PartnerEarningsTab } from './panel/PartnerEarningsTab';
 import { PartnerMoreSection, type PartnerMoreView } from './panel/PartnerMoreSection';
 import { PartnerPanelTop } from './panel/PartnerPanelTop';
+import { PanelTourChooser } from './panel/PanelTourChooser';
 import { PartnerPanelTour } from './panel/PartnerPanelTour';
 import { PartnerAgendaTab } from './panel/PartnerAgendaTab';
 import type { PartnerPanelTab } from './panel/partnerPanelTabs';
@@ -58,12 +59,6 @@ export function PartnerPanel({
   const { t } = useTranslation();
   const home = usePartnerPanelHome();
   const [panelTab, setPanelTab] = React.useState<PartnerPanelTab>('home');
-  const tour = usePanelTour({
-    tourDone: home.data?.tourDone,
-    tab: panelTab,
-    editing: home.cards.editing,
-    onTabChange: setPanelTab,
-  });
   const [catalogSegment, setCatalogSegment] = React.useState<CatalogSegment>('places');
   const [eventsVersion, setEventsVersion] = React.useState(0);
   const [openReports, setOpenReports] = React.useState<false | 'sales' | 'reviews'>(false);
@@ -75,6 +70,21 @@ export function PartnerPanel({
   const [agendaItem, setAgendaItem] = React.useState<PartnerTodayItem | null>(null);
   const [agendaGate, setAgendaGate] = React.useState(false);
   const [agendaVersion, setAgendaVersion] = React.useState(0);
+  // Abrir uma aba fecha o que estava aberto dentro de outra (página do evento, relatórios…).
+  const openTab = React.useCallback((tab: PartnerPanelTab) => {
+    setPanelTab(tab);
+    setOpenReports(false);
+    setOpenAccounts(false);
+    setPlaceId(null);
+    setEventId(null);
+    setMoreView('list');
+  }, []);
+  const tour = usePanelTour({
+    tour: home.data?.tour,
+    tab: panelTab,
+    editing: home.cards.editing,
+    onTabChange: openTab,
+  });
   const agendaChanged = () => {
     setAgendaVersion((version) => version + 1);
     void home.reload();
@@ -153,14 +163,7 @@ export function PartnerPanel({
           <PartnerPanelTop
             home={home}
             tab={panelTab}
-            onTabChange={(tab) => {
-              setPanelTab(tab);
-              setOpenReports(false);
-              setOpenAccounts(false);
-              setPlaceId(null);
-              setEventId(null);
-              setMoreView('list');
-            }}
+            onTabChange={openTab}
             onBack={() => goTo('explore')}
           />
         )}
@@ -275,7 +278,7 @@ export function PartnerPanel({
             onOpenPlan={(item) => setPlanListing({ id: item.id, name: item.name })}
             onOpenEarnings={() => setPanelTab('earnings')}
             renderAccountView={renderAccountView}
-            onReplayTour={tour.replay}
+            onReplayTour={() => tour.setChooserOpen(true)}
             notificationsHint={renderNotificationsHint?.()}
           />
         )}
@@ -369,7 +372,18 @@ export function PartnerPanel({
         onCreate={() => setEditingListing(null)}
       />
 
-      {tour.open && <PartnerPanelTour onClose={tour.close} />}
+      {tour.open && (
+        <PartnerPanelTour
+          startChapter={tour.startChapter}
+          onTabChange={openTab}
+          onClose={tour.close}
+        />
+      )}
+      <PanelTourChooser
+        open={tour.chooserOpen}
+        onOpenChange={tour.setChooserOpen}
+        onStart={tour.replay}
+      />
 
       {renderCheckoutModal?.({
         isOpen: checkout.open,

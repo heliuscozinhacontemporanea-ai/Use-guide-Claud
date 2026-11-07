@@ -79,7 +79,7 @@ export function PartnerEarningsTab({
       ) : error || !data ? (
         <ListError message={t('partnerEarnings.loadError')} onRetry={() => void reload()} />
       ) : (
-        <div className="grid grid-cols-2 gap-3">
+        <div data-tour="earnings-totals" className="grid grid-cols-2 gap-3">
           <StatTile
             label={t('partnerEarnings.toReceive')}
             value={formatMoneyMinorCompact(data.toReceiveMinor, locale)}
@@ -93,16 +93,18 @@ export function PartnerEarningsTab({
         </div>
       )}
 
-      <SegmentedControl<EarningsSegment>
-        label={t('partnerEarnings.title')}
-        value={segment}
-        onChange={setSegment}
-        options={[
-          { value: 'payouts', label: t('partnerEarnings.tabs.payouts') },
-          { value: 'statement', label: t('partnerEarnings.tabs.statement') },
-          { value: 'debts', label: t('partnerEarnings.tabs.debts') },
-        ]}
-      />
+      <div data-tour="earnings-tabs">
+        <SegmentedControl<EarningsSegment>
+          label={t('partnerEarnings.title')}
+          value={segment}
+          onChange={setSegment}
+          options={[
+            { value: 'payouts', label: t('partnerEarnings.tabs.payouts') },
+            { value: 'statement', label: t('partnerEarnings.tabs.statement') },
+            { value: 'debts', label: t('partnerEarnings.tabs.debts') },
+          ]}
+        />
+      </div>
 
       {segment === 'statement' ? (
         renders.renderStatement?.()
@@ -130,24 +132,26 @@ export function PartnerEarningsTab({
         </ListCard>
       ) : null}
 
-      <ListCard>
-        <ListRowButton
-          title={t('partnerEarnings.accounts')}
-          sub={
-            data
-              ? data.accounts.ready === data.accounts.count
-                ? t('partnerEarnings.accountsReady', { count: data.accounts.count })
-                : t('partnerEarnings.accountsPartial', data.accounts)
-              : undefined
-          }
-          onClick={() => setShowAccounts(true)}
-        />
-        <ListRowButton
-          title={t('partnerPanel.more.reports')}
-          sub={t('partnerPanel.more.reportsHint')}
-          onClick={() => setShowReports('sales')}
-        />
-      </ListCard>
+      <div data-tour="earnings-links">
+        <ListCard>
+          <ListRowButton
+            title={t('partnerEarnings.accounts')}
+            sub={
+              data
+                ? data.accounts.ready === data.accounts.count
+                  ? t('partnerEarnings.accountsReady', { count: data.accounts.count })
+                  : t('partnerEarnings.accountsPartial', data.accounts)
+                : undefined
+            }
+            onClick={() => setShowAccounts(true)}
+          />
+          <ListRowButton
+            title={t('partnerPanel.more.reports')}
+            sub={t('partnerPanel.more.reportsHint')}
+            onClick={() => setShowReports('sales')}
+          />
+        </ListCard>
+      </div>
 
       <PartnerPayoutSheet group={open} onClose={() => setOpen(null)} />
     </section>
