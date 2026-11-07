@@ -131,7 +131,7 @@ export class TicketOrderPersistenceMapper {
       paymentId: typeof raw.paymentId === 'string' ? raw.paymentId : undefined,
       paymentIntentId: typeof raw.paymentIntentId === 'string' ? raw.paymentIntentId : undefined,
       promoCodeId: typeof raw.promoCodeId === 'string' ? raw.promoCodeId : undefined,
-      promoterCode: typeof raw.promoterCode === 'string' ? raw.promoterCode : undefined,
+      promoterId: typeof raw.promoterId === 'string' ? raw.promoterId : undefined,
       buyerSnapshot: {
         name: String(rawBuyer.name || ''),
         email: String(rawBuyer.email || ''),

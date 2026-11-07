@@ -18,6 +18,7 @@ export const NOTIFICATION_TYPES = {
   ticket_returned: 'tickets',
   ticket_link_accepted: 'tickets',
   courtesy_received: 'tickets',
+  promoter_invited: 'tickets',
   courtesy_canceled: 'tickets',
   ticket_qr_replaced: 'tickets',
   event_canceled: 'tickets',
@@ -31,6 +32,8 @@ export const NOTIFICATION_TYPES = {
   sale_booking: 'sales',
   sale_claim_opened: 'operations',
   courtesy_link_accepted: 'operations',
+  promoter_accepted: 'operations',
+  promoter_declined: 'operations',
   booking_absence_reported: 'operations',
   booking_absence_refunded_partner: 'operations',
   booking_confirmation_denied: 'operations',
@@ -60,7 +63,8 @@ export interface NotificationLink {
     | 'account'
     | 'partner'
     | 'item'
-    | 'event';
+    | 'event'
+    | 'promotions';
   id?: string;
 }
 

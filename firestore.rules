@@ -113,6 +113,10 @@ service cloud.firestore {
     match /eventCourtesyGuests/{lockId} {
       allow read, write: if false;
     }
+    // Divulgadores (D27): só o backend; organizador e divulgador leem pela API.
+    match /eventPromoters/{promoterId} {
+      allow read, write: if false;
+    }
     match /bookingAuditLogs/{logId} {
       allow read: if isAdmin();
       allow write: if false;

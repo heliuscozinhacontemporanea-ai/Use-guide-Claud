@@ -17,6 +17,8 @@ export interface PartnerEventOrderView {
   code: string;
   /** Nome do perfil público; `null` quando o comprador não tem. */
   buyerName: string | null;
+  /** @ do divulgador do link usado na compra (D27), ou null. */
+  promoterUsername: string | null;
   occurrenceId: string;
   tickets: number;
   createdAt: string;
@@ -41,6 +43,8 @@ export interface EventSalesInput {
   refunds: Refund[];
   entries: PayoutEntryView[];
   names: Map<string, string | null>;
+  /** @ de cada divulgador do evento, pelo ID. */
+  promoters?: Map<string, string | null>;
 }
 
 // Pedidos que aparecem para o parceiro: os pagos e o que veio depois do pagamento.
@@ -133,6 +137,7 @@ export function buildEventSales(input: EventSalesInput) {
       id: order.id,
       code: order.id.slice(0, 6),
       buyerName: input.names.get(order.buyerId) ?? null,
+      promoterUsername: order.promoterId ? (input.promoters?.get(order.promoterId) ?? null) : null,
       occurrenceId: order.occurrenceId,
       tickets: tickets.length,
       createdAt: order.paidAt ?? order.createdAt,

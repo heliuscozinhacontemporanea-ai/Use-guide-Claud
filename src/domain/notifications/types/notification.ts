@@ -16,7 +16,8 @@ export interface NotificationLink {
     | 'account'
     | 'partner'
     | 'item'
-    | 'event';
+    | 'event'
+    | 'promotions';
   id?: string;
 }
 

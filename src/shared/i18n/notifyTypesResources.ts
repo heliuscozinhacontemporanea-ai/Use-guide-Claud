@@ -2,6 +2,21 @@
 export type NotificationTypeTexts = Record<string, Record<string, string>>;
 
 export const notifyTypesPtBR: NotificationTypeTexts = {
+  promoter_invited: {
+    title: 'Convite para divulgar',
+    body: '{{business}} quer que você divulgue {{event}}. Veja quanto você ganha.',
+    bodyGeneric: 'Você recebeu um convite para divulgar um evento.',
+  },
+  promoter_accepted: {
+    title: 'Divulgador aceitou',
+    body: '{{username}} aceitou divulgar {{event}}.',
+    bodyGeneric: 'Um divulgador aceitou o seu convite.',
+  },
+  promoter_declined: {
+    title: 'Convite recusado',
+    body: '{{username}} recusou divulgar {{event}}.',
+    bodyGeneric: 'Um convite para divulgar foi recusado.',
+  },
   courtesy_received: {
     title: 'Você ganhou um ingresso',
     body: '{{business}} convidou você para {{event}}. O ingresso está na sua carteira.',
@@ -184,6 +199,21 @@ export const notifyTypesPtBR: NotificationTypeTexts = {
 };
 
 export const notifyTypesEn: NotificationTypeTexts = {
+  promoter_invited: {
+    title: 'Invitation to promote',
+    body: '{{business}} wants you to promote {{event}}. See how much you earn.',
+    bodyGeneric: 'You got an invitation to promote an event.',
+  },
+  promoter_accepted: {
+    title: 'Promoter accepted',
+    body: '{{username}} agreed to promote {{event}}.',
+    bodyGeneric: 'A promoter accepted your invitation.',
+  },
+  promoter_declined: {
+    title: 'Invitation declined',
+    body: '{{username}} declined to promote {{event}}.',
+    bodyGeneric: 'An invitation to promote was declined.',
+  },
   courtesy_received: {
     title: 'You got a ticket',
     body: '{{business}} invited you to {{event}}. The ticket is in your wallet.',
@@ -366,6 +396,21 @@ export const notifyTypesEn: NotificationTypeTexts = {
 };
 
 export const notifyTypesFr: NotificationTypeTexts = {
+  promoter_invited: {
+    title: 'Invitation à promouvoir',
+    body: '{{business}} veut que vous fassiez la promotion de {{event}}. Voyez combien vous gagnez.',
+    bodyGeneric: 'Vous avez reçu une invitation à promouvoir un événement.',
+  },
+  promoter_accepted: {
+    title: 'Promoteur accepté',
+    body: '{{username}} a accepté de promouvoir {{event}}.',
+    bodyGeneric: 'Un promoteur a accepté votre invitation.',
+  },
+  promoter_declined: {
+    title: 'Invitation refusée',
+    body: '{{username}} a refusé de promouvoir {{event}}.',
+    bodyGeneric: 'Une invitation à promouvoir a été refusée.',
+  },
   courtesy_received: {
     title: 'Vous avez reçu un billet',
     body: '{{business}} vous a invité à {{event}}. Le billet est dans votre portefeuille.',

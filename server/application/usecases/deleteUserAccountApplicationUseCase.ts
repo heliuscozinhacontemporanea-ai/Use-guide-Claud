@@ -1,16 +1,17 @@
 import { anonymizeBuyerBookingsUseCase } from '../../domain/bookings';
 import { deleteEventsByOwnerUseCase } from '../../domain/events';
 import { deleteResourcesByOwnerUseCase } from '../../domain/guide';
+import { deleteUserNotificationsUseCase } from '../../domain/notifications';
 import {
   deleteOwnerListingPlansUseCase,
   deleteOwnerListingVerificationsUseCase,
   deletePartnerProfileUseCase,
 } from '../../domain/partners';
-import { deleteUserNotificationsUseCase } from '../../domain/notifications';
 import { cancelPartnerPlanSubscriptionsUseCase } from '../../domain/payment';
 import { deleteReviewsByUserUseCase } from '../../domain/reviews';
 import {
   anonymizeCourtesyGuestUseCase,
+  anonymizePromoterUseCase,
   anonymizeTicketingUserUseCase,
 } from '../../domain/ticketing';
 import { deleteUserAccountUseCase, releaseUsernamesUseCase } from '../../domain/users';
@@ -56,6 +57,7 @@ export async function deleteUserAccountApplicationUseCase(
       await anonymizeTicketingUserUseCase(id);
       // A lista de convidados do organizador guarda @ e nome públicos (D27).
       await anonymizeCourtesyGuestUseCase(id);
+      await anonymizePromoterUseCase(id);
     },
     deleteNotifications: (id) => deleteUserNotificationsUseCase(id),
     releaseUsernames: (id) => releaseUsernamesUseCase(id),

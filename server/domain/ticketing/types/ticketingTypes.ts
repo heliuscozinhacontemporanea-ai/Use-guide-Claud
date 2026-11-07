@@ -112,7 +112,8 @@ export interface TicketOrder {
   /** Meio de pagamento (classe Interna, §7.6); dados do cartão ficam só no Stripe. */
   paymentMethod?: TicketPaymentMethod;
   promoCodeId?: string;
-  promoterCode?: string;
+  /** Divulgador do link usado na compra (D27), conferido no servidor. */
+  promoterId?: string;
   buyerSnapshot: {
     name: string;
     email: string;

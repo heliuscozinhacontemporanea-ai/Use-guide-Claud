@@ -116,7 +116,7 @@ export class FirestoreOrderReservationStore {
         serviceFeeMinor: input.serviceFeeMinor,
         totalMinor: input.totalMinor,
         ...(input.promoCodeId ? { promoCodeId: input.promoCodeId } : {}),
-        ...(input.promoterCode ? { promoterCode: input.promoterCode } : {}),
+        ...(input.promoterId ? { promoterId: input.promoterId } : {}),
         buyerSnapshot: input.buyerSnapshot,
         eventSnapshot: input.eventSnapshot,
         salesPolicySnapshot: input.salesPolicySnapshot,

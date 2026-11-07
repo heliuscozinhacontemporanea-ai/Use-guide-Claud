@@ -34,7 +34,7 @@ export interface ReserveOrderTransactionInput {
   serviceFeeMinor: number;
   totalMinor: number;
   promoCodeId?: string;
-  promoterCode?: string;
+  promoterId?: string;
   buyerSnapshot: {
     name: string;
     email: string;

@@ -244,7 +244,7 @@ describe('Firestore Rules — Security Suite', () => {
       await assertFails(getDoc(doc(db, 'transactions/tx-2')));
     });
 
-    it('cortesias (D27): eventCourtesies e eventCourtesyGuests negados até para o dono e admin', async () => {
+    it('cortesias e divulgadores (D27): eventCourtesies, eventCourtesyGuests e eventPromoters negados até para o dono e admin', async () => {
       const adminDb = testEnv.authenticatedContext('admin-user', { admin: true }).firestore();
       const ownerDb = testEnv.authenticatedContext('partner-1').firestore();
       for (const db of [adminDb, ownerDb]) {
@@ -252,6 +252,8 @@ describe('Firestore Rules — Security Suite', () => {
         await assertFails(setDoc(doc(db, 'eventCourtesies/c-2'), { status: 'issued' }));
         await assertFails(getDoc(doc(db, 'eventCourtesyGuests/ev-1__user-1')));
         await assertFails(setDoc(doc(db, 'eventCourtesyGuests/ev-1__user-2'), { courtesyId: 'x' }));
+        await assertFails(getDoc(doc(db, 'eventPromoters/p-1')));
+        await assertFails(setDoc(doc(db, 'eventPromoters/p-2'), { status: 'active' }));
       }
     });
 

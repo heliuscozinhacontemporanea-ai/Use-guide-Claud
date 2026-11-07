@@ -1,6 +1,7 @@
 import { getEventListingByIdUseCase, listEventOccurrencesUseCase } from '../../../domain/events';
 import { listPayoutEntriesForReferencesUseCase } from '../../../domain/payment';
 import {
+  getEventPromotersUseCase,
   listEventOrdersForPartnerOrAdminUseCase,
   listEventRefundsForPartnerOrAdminUseCase,
   listEventTicketsForPartnerOrAdminUseCase,
@@ -38,7 +39,7 @@ export async function getPartnerEventSalesApplicationUseCase(
   const actor = { uid: ownerUid, admin: false, role: 'partner' as const };
   // Pedidos primeiro: lança FORBIDDEN ou NOT_FOUND antes de ler qualquer outra coisa.
   const orders = await listEventOrdersForPartnerOrAdminUseCase(actor, eventId);
-  const [event, occurrences, tickets, refunds, entries] = await Promise.all([
+  const [event, occurrences, tickets, refunds, entries, promoters] = await Promise.all([
     getEventListingByIdUseCase(eventId),
     listEventOccurrencesUseCase(eventId),
     listEventTicketsForPartnerOrAdminUseCase(actor, eventId),
@@ -47,6 +48,7 @@ export async function getPartnerEventSalesApplicationUseCase(
       'ticket_order',
       orders.map((order) => order.id)
     ),
+    getEventPromotersUseCase(actor, eventId).catch(() => ({ rows: [] })),
   ]);
   if (!event) throw new Error('EVENT_NOT_FOUND');
 
@@ -82,6 +84,13 @@ export async function getPartnerEventSalesApplicationUseCase(
         courtesies: session.courtesies,
       }))
       .sort((a, b) => a.startsAt.localeCompare(b.startsAt)),
-    ...buildEventSales({ orders, tickets, refunds, entries, names: new Map(names) }),
+    ...buildEventSales({
+      orders,
+      tickets,
+      refunds,
+      entries,
+      names: new Map(names),
+      promoters: new Map(promoters.rows.map((row) => [row.id, row.promoter.username])),
+    }),
   };
 }

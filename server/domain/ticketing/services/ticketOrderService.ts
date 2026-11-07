@@ -38,8 +38,18 @@ function loadFeeConfig() {
 }
 
 /** Pedidos de ingresso: criação com reserva de estoque, pagamento e expiração. */
+export type PromoterResolver = (
+  eventListingId: string,
+  rawParam: string | undefined,
+  buyerUid: string
+) => Promise<string | null>;
+
 export class TicketOrderService {
-  constructor(private readonly port: TicketingPort) {}
+  constructor(
+    private readonly port: TicketingPort,
+    /** Divulgador do link (D27); sem ele a compra fica sem atribuição. */
+    private readonly resolvePromoter: PromoterResolver = async () => null
+  ) {}
 
   async createTicketOrder(
     actor: TicketingActorContext,
@@ -115,6 +125,10 @@ export class TicketOrderService {
       serviceFeeMode: listing.salesPolicy.serviceFeeMode,
     });
 
+    // Código inválido, de divulgador encerrado ou a própria compra do divulgador: sem atribuição.
+    const promoterId = await this.resolvePromoter(listing.id, input.promoterCode, actor.uid).catch(
+      () => null
+    );
     const expiresAt = new Date(nowMs + CHECKOUT_RESERVATION_MINUTES * 60 * 1000).toISOString();
     const issueImmediately = totalMinor === 0;
 
@@ -132,7 +146,7 @@ export class TicketOrderService {
       serviceFeeMinor,
       totalMinor,
       promoCodeId: promo?.id,
-      promoterCode: input.promoterCode,
+      promoterId: promoterId ?? undefined,
       buyerSnapshot: {
         name: input.buyer.name.trim(),
         email: input.buyer.email.trim(),

@@ -94,3 +94,15 @@ export { swapTicketQrUseCase } from './usecases/swapTicketQrUseCase';
 export { syncOfflineCheckInsUseCase } from './usecases/syncOfflineCheckInsUseCase';
 export { transferTicketUseCase } from './usecases/transferTicketUseCase';
 export { updateTicketTypeUseCase } from './usecases/updateTicketTypeUseCase';
+export { PromoterError, type PromoterErrorCode } from './errors/promoterError';
+export type {
+  EventPromotersSummary,
+  PromoterRow,
+} from './services/promoterService';
+export type { EventPromoter, PromoterEarning } from './types/promoterTypes';
+export { anonymizePromoterUseCase } from './usecases/anonymizePromoterUseCase';
+export { endPromoterUseCase } from './usecases/endPromoterUseCase';
+export { getEventPromotersUseCase } from './usecases/getEventPromotersUseCase';
+export { invitePromoterUseCase } from './usecases/invitePromoterUseCase';
+export { listMyPromotionsUseCase } from './usecases/listMyPromotionsUseCase';
+export { respondPromoterInviteUseCase } from './usecases/respondPromoterInviteUseCase';
