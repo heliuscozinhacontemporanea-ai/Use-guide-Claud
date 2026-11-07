@@ -7,7 +7,6 @@ import {
 } from '../../../domain/ticketing';
 import { resolveUsernameOwnerUseCase } from '../../../domain/users';
 import { courtesyBusinessName } from '../courtesies/courtesyBusinessName';
-import { assertActorPartnerTerms } from '../partnerTermsGate';
 
 /** Convite pelo @ (D27): a pessoa é avisada e vê quanto ganha antes de aceitar. */
 export async function invitePromoterApplicationUseCase(
@@ -16,7 +15,6 @@ export async function invitePromoterApplicationUseCase(
   username: string,
   earning: PromoterEarning
 ): Promise<{ id: string }> {
-  await assertActorPartnerTerms(actor);
   const owner = await resolveUsernameOwnerUseCase(username);
   const promoter = await invitePromoterUseCase(
     actor,

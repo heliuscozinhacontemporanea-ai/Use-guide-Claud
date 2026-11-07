@@ -1,3 +1,4 @@
+export { announceTermsUpdates } from './announceTermsUpdates';
 export { checkExpiringPlans } from './checkExpiringPlans';
 export { completeBookings } from './completeBookings';
 export { dispatchNotifications } from './dispatchNotifications';

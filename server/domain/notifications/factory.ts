@@ -1,5 +1,6 @@
 import { FcmPushSenderAdapter } from './adapters/fcmPushSenderAdapter';
 import { FirebaseAdminNotificationAdapter } from './adapters/firebaseAdminNotificationAdapter';
+import { FirestoreNotificationCampaignAdapter } from './adapters/firestoreNotificationCampaignAdapter';
 import { FirestoreNotificationOutboxAdapter } from './adapters/firestoreNotificationOutboxAdapter';
 import { FirestorePushDeviceAdapter } from './adapters/firestorePushDeviceAdapter';
 import { NotificationService } from './services/notificationService';
@@ -16,3 +17,4 @@ export const pushDispatchService = new PushDispatchService(
   new FcmPushSenderAdapter(),
   notificationRepository
 );
+export const notificationCampaigns = new FirestoreNotificationCampaignAdapter();

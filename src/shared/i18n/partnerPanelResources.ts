@@ -183,7 +183,7 @@ export const partnerPanelPtBR: PartnerPanelTranslation = {
     debt: { title: 'Multa ou dívida a pagar', detail: 'Pague até {{date}}' },
     partner_terms: {
       title: 'Novos termos do parceiro',
-      detail: 'Aceite para voltar a vender',
+      detail: 'Leia e aceite a versão nova',
     },
     payment_account: {
       title: 'Conta de recebimento pendente',
@@ -366,7 +366,7 @@ export const partnerPanelEn: PartnerPanelTranslation = {
     debt: { title: 'Fee or debt to pay', detail: 'Pay by {{date}}' },
     partner_terms: {
       title: 'New partner terms',
-      detail: 'Accept them to sell again',
+      detail: 'Read and accept the new version',
     },
     payment_account: {
       title: 'Payout account pending',
@@ -548,7 +548,7 @@ export const partnerPanelFr: PartnerPanelTranslation = {
     debt: { title: 'Pénalité ou dette à payer', detail: 'Payez avant le {{date}}' },
     partner_terms: {
       title: 'Nouvelles conditions du partenaire',
-      detail: 'Acceptez-les pour vendre de nouveau',
+      detail: 'Lisez et acceptez la nouvelle version',
     },
     payment_account: {
       title: 'Compte de versement incomplet',

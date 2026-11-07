@@ -28,7 +28,6 @@ vi.mock('../../domain/partners', async () => {
   return { ListingVerificationError, assertListingCanSellUseCase: mocks.assertCanSell };
 });
 vi.mock('./isPartnerSuspended', () => ({ isPartnerSuspended: vi.fn().mockResolvedValue(false) }));
-vi.mock('./partnerTermsGate', () => ({ hasCurrentPartnerTerms: vi.fn().mockResolvedValue(true) }));
 
 import { ListingVerificationError } from '../../domain/partners/errors/listingVerificationError';
 import { createTicketOrderPaymentIntentApplicationUseCase } from './createTicketOrderPaymentIntentApplicationUseCase';

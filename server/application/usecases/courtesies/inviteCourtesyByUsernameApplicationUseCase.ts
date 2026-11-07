@@ -6,7 +6,6 @@ import {
   type TicketingActorContext,
 } from '../../../domain/ticketing';
 import { getUserProfileUseCase, resolveUsernameOwnerUseCase } from '../../../domain/users';
-import { assertActorPartnerTerms } from '../partnerTermsGate';
 import { courtesyBusinessName } from './courtesyBusinessName';
 import { CourtesyRecipientError } from './courtesyRecipientError';
 
@@ -19,7 +18,6 @@ export async function inviteCourtesyByUsernameApplicationUseCase(
   occurrenceId: string,
   username: string
 ): Promise<CourtesyRow> {
-  await assertActorPartnerTerms(actor);
   const owner = await resolveUsernameOwnerUseCase(username);
   if (!owner.emailVerified) {
     throw new CourtesyRecipientError(

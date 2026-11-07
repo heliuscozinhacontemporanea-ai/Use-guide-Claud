@@ -17,7 +17,9 @@ export interface NotificationLink {
     | 'partner'
     | 'item'
     | 'event'
-    | 'promotions';
+    | 'promotions'
+    | 'terms'
+    | 'partner_terms';
   id?: string;
 }
 

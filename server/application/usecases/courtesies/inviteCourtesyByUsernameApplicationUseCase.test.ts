@@ -20,7 +20,6 @@ vi.mock('../../../domain/events', () => ({
   })),
   getEventOccurrenceByIdUseCase: vi.fn(async () => null),
 }));
-vi.mock('../partnerTermsGate', () => ({ assertActorPartnerTerms: vi.fn() }));
 vi.mock('../../../domain/guide', () => ({
   getPublicGuideItemUseCase: vi.fn(async () => ({ name: 'Buggy do Preá' })),
 }));

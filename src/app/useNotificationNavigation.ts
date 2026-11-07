@@ -10,6 +10,8 @@ const MENU_TARGET: Partial<Record<NotificationLink['screen'], MenuView>> = {
   reviews: 'reviews',
   account: 'username',
   promotions: 'promotions',
+  terms: 'terms',
+  partner_terms: 'partner-terms',
 };
 
 /**

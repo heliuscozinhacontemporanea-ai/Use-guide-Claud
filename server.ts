@@ -42,6 +42,7 @@ import listingPlanRouter from './server/interfaces/http/listingPlans/listingPlan
 import listingVerificationRouter from './server/interfaces/http/listingVerifications/listingVerificationRoutes';
 import { adminMessageRouter } from './server/interfaces/http/notifications/adminMessageRoutes';
 import { InternalNotificationsController } from './server/interfaces/http/notifications/internalNotificationsController';
+import { InternalTermsController } from './server/interfaces/http/notifications/internalTermsController';
 import partnerHomeRouter from './server/interfaces/http/partnerHome/partnerHomeRoutes';
 import { InternalPartnersController } from './server/interfaces/http/partners/internalPartnersController';
 import paymentAccountRouter, {
@@ -153,6 +154,11 @@ async function startServer() {
     InternalTicketingController.expireOrders
   );
   app.post('/internal/bookings/expire', verifyInternalJobKey, InternalBookingsController.expire);
+  app.post(
+    '/internal/notifications/terms-announcements',
+    verifyInternalJobKey,
+    InternalTermsController.announce
+  );
   app.post('/internal/payouts/release', verifyInternalJobKey, InternalPayoutsController.release);
   app.post(
     '/internal/bookings/complete',

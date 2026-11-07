@@ -7,7 +7,6 @@ const KNOWN = new Set([
   'PROMOTER_WRONG_STATUS',
   'USERNAME_NOT_FOUND',
   'RATE_LIMITED',
-  'PARTNER_TERMS_PENDING',
 ]);
 
 /** Chave `promoters.errors.*` do erro da API; o resto vira "failed" (§12.5). */

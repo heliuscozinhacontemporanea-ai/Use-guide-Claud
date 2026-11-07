@@ -21,6 +21,7 @@ describe('UserService', () => {
       upgradeRoleToPartner: vi.fn(),
       deleteUserAccount: vi.fn(),
       getUsersCount: vi.fn(),
+      listUserIdsPage: vi.fn(),
     };
 
     userService = new UserService(userPortMock);

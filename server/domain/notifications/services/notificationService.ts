@@ -2,9 +2,9 @@ import { NotificationDomainError } from '../errors/notificationErrors';
 import type { NotificationRepositoryPort } from '../ports/notificationRepositoryPort';
 import {
   DEFAULT_NOTIFICATION_PREFERENCES,
+  type NewNotification,
   NOTIFICATION_RETENTION_DAYS,
   NOTIFICATION_TYPES,
-  type NewNotification,
   type NotificationPreferences,
 } from '../types/notificationTypes';
 
@@ -36,6 +36,20 @@ export class NotificationService {
       { type: 'admin_message', params: { title, message } },
       this.expiresAt()
     );
+  }
+
+  /** Mesmo aviso traduzido para muitas contas (ex.: termos mudaram), com push pela outbox. */
+  async broadcast(
+    recipientUids: string[],
+    data: Pick<NewNotification, 'type' | 'params' | 'link'>
+  ): Promise<number> {
+    const unique = [...new Set(recipientUids.filter(Boolean))];
+    if (unique.length === 0) return 0;
+    if (!(data.type in NOTIFICATION_TYPES)) {
+      throw new NotificationDomainError('VALIDATION_ERROR', 'Aviso inválido.');
+    }
+    await this.repo.createMany(unique, data, this.expiresAt());
+    return unique.length;
   }
 
   async markAsRead(notificationId: string, recipientUid: string): Promise<void> {

@@ -1,10 +1,10 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { UserController } from './userController';
-import { userService } from '../factory';
 import { Response } from 'express';
-import type { UserProfileDto } from '../dtos/userDto';
-import { AuthenticatedRequest } from '../../../infrastructure/auth/authMiddleware';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { deleteUserAccountApplicationUseCase } from '../../../application/usecases/deleteUserAccountApplicationUseCase';
+import { AuthenticatedRequest } from '../../../infrastructure/auth/authMiddleware';
+import type { UserProfileDto } from '../dtos/userDto';
+import { userService } from '../factory';
+import { UserController } from './userController';
 
 vi.mock('../../../application/usecases/deleteUserAccountApplicationUseCase', () => ({
   deleteUserAccountApplicationUseCase: vi.fn(),

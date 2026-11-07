@@ -13,6 +13,7 @@ export { getUserProfilesBatchUseCase } from './usecases/getUserProfilesBatchUseC
 export { getUserProfileUseCase } from './usecases/getUserProfileUseCase';
 export { getUserPublicProfileUseCase } from './usecases/getUserPublicProfileUseCase';
 export { getUsersCountUseCase } from './usecases/getUsersCountUseCase';
+export { listUserIdsPageUseCase } from './usecases/listUserIdsPageUseCase';
 export { releaseUsernamesUseCase } from './usecases/releaseUsernamesUseCase';
 export { resolveUsernameOwnerUseCase } from './usecases/resolveUsernameOwnerUseCase';
 export { searchUsernamesUseCase } from './usecases/searchUsernamesUseCase';

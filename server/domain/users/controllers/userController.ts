@@ -1,13 +1,13 @@
 import { Response } from 'express';
+import { deleteUserAccountApplicationUseCase } from '../../../application/usecases/deleteUserAccountApplicationUseCase';
 import { AuthenticatedRequest } from '../../../infrastructure/auth/authMiddleware';
-import { userService } from '../factory';
 import { MediaDomainError } from '../../media';
+import { userService } from '../factory';
 import {
   updateUserPreferencesSchema,
   updateUserProfileSchema,
   uploadUserPhotoSchema,
 } from '../schemas/userSchema';
-import { deleteUserAccountApplicationUseCase } from '../../../application/usecases/deleteUserAccountApplicationUseCase';
 
 export class UserController {
   static async getProfile(req: AuthenticatedRequest, res: Response) {

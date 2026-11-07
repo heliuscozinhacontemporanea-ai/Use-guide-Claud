@@ -1,5 +1,5 @@
-import { userService } from '../factory';
 import { PublicUserProfileDto, toPublicUserProfileDto } from '../dtos/userDto';
+import { userService } from '../factory';
 
 export async function getUserPublicProfileUseCase(
   uid: string

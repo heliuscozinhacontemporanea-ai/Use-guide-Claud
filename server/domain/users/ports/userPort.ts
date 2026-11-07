@@ -10,4 +10,9 @@ export interface UserPort {
   upgradeRoleToPartner(uid: string): Promise<void>;
   deleteUserAccount(uid: string): Promise<void>;
   getUsersCount(): Promise<number>;
+  /** IDs de contas em ordem, para avisos a todos (ex.: termos mudaram). */
+  listUserIdsPage(
+    cursor: string | null,
+    limit: number
+  ): Promise<{ ids: string[]; nextCursor: string | null }>;
 }

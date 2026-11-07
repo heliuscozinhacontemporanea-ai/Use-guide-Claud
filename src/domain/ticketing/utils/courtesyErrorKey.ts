@@ -10,7 +10,6 @@ const KNOWN = new Set([
   'RECIPIENT_NOT_VERIFIED',
   'USERNAME_NOT_FOUND',
   'RATE_LIMITED',
-  'PARTNER_TERMS_PENDING',
 ]);
 
 /** Chave `courtesy.errors.*` do erro da API; o resto vira "failed" (§12.5). */

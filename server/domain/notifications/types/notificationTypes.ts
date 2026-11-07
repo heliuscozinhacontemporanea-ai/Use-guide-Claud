@@ -14,6 +14,8 @@ export const NOTIFICATION_TYPES = {
   review_reply_received: 'reviews',
   review_report_decided: 'reviews',
   account_username_changed: 'account',
+  terms_updated_buyer: 'account',
+  terms_updated_partner: 'account',
   ticket_received: 'tickets',
   ticket_returned: 'tickets',
   ticket_link_accepted: 'tickets',
@@ -64,7 +66,9 @@ export interface NotificationLink {
     | 'partner'
     | 'item'
     | 'event'
-    | 'promotions';
+    | 'promotions'
+    | 'terms'
+    | 'partner_terms';
   id?: string;
 }
 

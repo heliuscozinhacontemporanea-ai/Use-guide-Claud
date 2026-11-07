@@ -2,6 +2,14 @@
 export type NotificationTypeTexts = Record<string, Record<string, string>>;
 
 export const notifyTypesPtBR: NotificationTypeTexts = {
+  terms_updated_partner: {
+    title: 'Os termos do parceiro mudaram',
+    body: 'As mudanças passam a valer 15 dias depois deste aviso. Toque para ler e aceitar a versão nova.',
+  },
+  terms_updated_buyer: {
+    title: 'Os termos de uso mudaram',
+    body: 'As mudanças passam a valer 15 dias depois deste aviso. Toque para ler.',
+  },
   promoter_invited: {
     title: 'Convite para divulgar',
     body: '{{business}} quer que você divulgue {{event}}. Veja quanto você ganha.',
@@ -199,6 +207,14 @@ export const notifyTypesPtBR: NotificationTypeTexts = {
 };
 
 export const notifyTypesEn: NotificationTypeTexts = {
+  terms_updated_partner: {
+    title: 'The partner terms have changed',
+    body: 'The changes take effect 15 days after this notice. Tap to read and accept the new version.',
+  },
+  terms_updated_buyer: {
+    title: 'The terms of use have changed',
+    body: 'The changes take effect 15 days after this notice. Tap to read.',
+  },
   promoter_invited: {
     title: 'Invitation to promote',
     body: '{{business}} wants you to promote {{event}}. See how much you earn.',
@@ -396,6 +412,14 @@ export const notifyTypesEn: NotificationTypeTexts = {
 };
 
 export const notifyTypesFr: NotificationTypeTexts = {
+  terms_updated_partner: {
+    title: 'Les conditions du partenaire ont changé',
+    body: 'Les changements s’appliquent 15 jours après cet avis. Touchez pour lire et accepter la nouvelle version.',
+  },
+  terms_updated_buyer: {
+    title: 'Les conditions d’utilisation ont changé',
+    body: 'Les changements s’appliquent 15 jours après cet avis. Touchez pour lire.',
+  },
   promoter_invited: {
     title: 'Invitation à promouvoir',
     body: '{{business}} veut que vous fassiez la promotion de {{event}}. Voyez combien vous gagnez.',

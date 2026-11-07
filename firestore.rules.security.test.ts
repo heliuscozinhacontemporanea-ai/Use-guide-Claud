@@ -254,6 +254,7 @@ describe('Firestore Rules — Security Suite', () => {
         await assertFails(setDoc(doc(db, 'eventCourtesyGuests/ev-1__user-2'), { courtesyId: 'x' }));
         await assertFails(getDoc(doc(db, 'eventPromoters/p-1')));
         await assertFails(setDoc(doc(db, 'eventPromoters/p-2'), { status: 'active' }));
+        await assertFails(getDoc(doc(db, 'notificationCampaigns/terms_partner_v1')));
       }
     });
 

@@ -16,7 +16,7 @@ import {
 import { countUnansweredReviewsUseCase } from '../../../domain/reviews';
 import { getEventPromotersUseCase } from '../../../domain/ticketing';
 import { businessDayStartMs } from '../../../shared/kernel/businessDay';
-import { hasCurrentPartnerTerms } from '../partnerTermsGate';
+import { hasCurrentPartnerTerms } from '../partnerTermsStatus';
 import { listPartnerPaymentAccountsApplicationUseCase } from '../paymentAccounts/listPartnerPaymentAccountsApplicationUseCase';
 import { buildPartnerHome, type PartnerSessionInput, UPCOMING_SESSIONS } from './buildPartnerHome';
 import { businessMonthStarts } from './partnerHomeCardsData';
@@ -94,7 +94,7 @@ export async function getPartnerHomeApplicationUseCase(
     loadNextPromoters(ownerUid, view.upcomingSessions),
     hasCurrentPartnerTerms(ownerUid),
   ]);
-  // Termos novos sem aceite param as vendas (etapa 5): vai para o topo de "Resolva agora".
+  // Termos novos sem aceite: pedido no topo de "Resolva agora", sem parar as vendas.
   const attention =
     termsOk || accounts.length === 0
       ? view.attention

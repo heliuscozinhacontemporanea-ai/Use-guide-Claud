@@ -1,6 +1,6 @@
 import { prepareImageForStorageUseCase } from '../../media';
-import { UserPort } from '../ports/userPort';
 import { UserProfileDto } from '../dtos/userDto';
+import { UserPort } from '../ports/userPort';
 import { UpdateUserPreferencesInput, UpdateUserProfileInput } from '../schemas/userSchema';
 
 export class UserService {
@@ -54,6 +54,13 @@ export class UserService {
       throw new Error('UID do usuário é obrigatório');
     }
     await this.userPort.upgradeRoleToPartner(uid);
+  }
+
+  listUserIdsPage(
+    cursor: string | null,
+    limit: number
+  ): Promise<{ ids: string[]; nextCursor: string | null }> {
+    return this.userPort.listUserIdsPage(cursor, limit);
   }
 
   async getUsersCount(): Promise<number> {
