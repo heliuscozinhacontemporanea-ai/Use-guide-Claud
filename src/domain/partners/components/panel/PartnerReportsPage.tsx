@@ -5,11 +5,11 @@ import { formatBusinessDate } from '../../../../shared/utils/businessDateTime';
 import { formatMoneyMinorCompact } from '../../../../shared/utils/money';
 import { BackButton } from '../../../../ui/components/BackButton';
 import { DropdownMenu } from '../../../../ui/components/DropdownMenu';
-import { ListEmpty, ListError, ListLoading } from '../../../../ui/components/ListState';
 import { ListCard, ListRowButton, ListRowStatic } from '../../../../ui/components/ListRows';
+import { ListEmpty, ListError, ListLoading } from '../../../../ui/components/ListState';
 import { SegmentedControl } from '../../../../ui/components/SegmentedControl';
 import { usePartnerReports } from '../../hooks/usePartnerReports';
-import type { PartnerReportPeriod } from '../../types/partnerHome';
+import type { PartnerReportPeriod, PartnerReports } from '../../types/partnerHome';
 import { DEFAULT_UNIT, groupReportBuckets, type ReportUnit } from '../../utils/reportGrouping';
 
 function Bars({
@@ -48,6 +48,8 @@ function Bars({
   );
 }
 
+type ReportItem = PartnerReports['items'][number];
+
 /** Relatórios (p23): vendido no período, por dia ou mês, e por item. */
 export function PartnerReportsPage({
   onBack,
@@ -60,6 +62,19 @@ export function PartnerReportsPage({
   initialProfile?: boolean;
 }) {
   const { t, i18n } = useTranslation();
+  // Ingressos (e quantos vieram de divulgador) ou pessoas e grupos; sem unidades, o número de vendas.
+  const itemUnits = (item: ReportItem) => {
+    const parts = [
+      item.tickets > 0 && t('partnerEarnings.reports.tickets', { count: item.tickets }),
+      item.promoterTickets > 0 &&
+        t('partnerEarnings.reports.promoterTickets', { count: item.promoterTickets }),
+      item.people > 0 && t('partnerEarnings.reports.people', { count: item.people }),
+      item.groups > 0 && t('partnerEarnings.reports.groups', { count: item.groups }),
+    ].filter(Boolean);
+    return parts.length > 0
+      ? parts.join(' · ')
+      : t('partnerEarnings.reports.sales', { count: item.sales });
+  };
   const locale = i18n.language;
   const [period, setPeriod] = useState<PartnerReportPeriod>('30d');
   // `null` segue o padrão do período; a escolha no "^" vale até trocar de período.
@@ -159,7 +174,7 @@ export function PartnerReportsPage({
                   <ListRowStatic
                     key={item.key}
                     title={item.title ?? '—'}
-                    sub={t('partnerEarnings.reports.sales', { count: item.sales })}
+                    sub={itemUnits(item)}
                     aside={
                       <span className="shrink-0 text-[15px] font-semibold text-ink">
                         {formatMoneyMinorCompact(item.soldMinor, locale)}

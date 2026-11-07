@@ -27,6 +27,14 @@ export interface PartnerEarningsTranslation {
     byItem: string;
     sales_one: string;
     sales_other: string;
+    tickets_one: string;
+    tickets_other: string;
+    promoterTickets_one: string;
+    promoterTickets_other: string;
+    people_one: string;
+    people_other: string;
+    groups_one: string;
+    groups_other: string;
     empty: string;
     truncated: string;
     loadError: string;
@@ -79,6 +87,14 @@ export const partnerEarningsPtBR: PartnerEarningsTranslation = {
     byItem: 'Por item',
     sales_one: '{{count}} venda',
     sales_other: '{{count}} vendas',
+    tickets_one: '{{count}} ingresso',
+    tickets_other: '{{count}} ingressos',
+    promoterTickets_one: '{{count}} por divulgadores',
+    promoterTickets_other: '{{count}} por divulgadores',
+    people_one: '{{count}} pessoa',
+    people_other: '{{count}} pessoas',
+    groups_one: '{{count}} grupo',
+    groups_other: '{{count}} grupos',
     empty: 'Nenhuma venda no período.',
     truncated: 'Muitas vendas no período: os valores podem estar abaixo do total.',
     loadError: 'Não foi possível carregar os relatórios.',
@@ -131,6 +147,14 @@ export const partnerEarningsEn: PartnerEarningsTranslation = {
     byItem: 'By item',
     sales_one: '{{count}} sale',
     sales_other: '{{count}} sales',
+    tickets_one: '{{count}} ticket',
+    tickets_other: '{{count}} tickets',
+    promoterTickets_one: '{{count}} by promoters',
+    promoterTickets_other: '{{count}} by promoters',
+    people_one: '{{count}} person',
+    people_other: '{{count}} people',
+    groups_one: '{{count}} group',
+    groups_other: '{{count}} groups',
     empty: 'No sales in this period.',
     truncated: 'Many sales in this period: amounts may be below the total.',
     loadError: "Couldn't load the reports.",
@@ -184,6 +208,14 @@ export const partnerEarningsFr: PartnerEarningsTranslation = {
     byItem: 'Par élément',
     sales_one: '{{count}} vente',
     sales_other: '{{count}} ventes',
+    tickets_one: '{{count}} billet',
+    tickets_other: '{{count}} billets',
+    promoterTickets_one: '{{count}} par les promoteurs',
+    promoterTickets_other: '{{count}} par les promoteurs',
+    people_one: '{{count}} personne',
+    people_other: '{{count}} personnes',
+    groups_one: '{{count}} groupe',
+    groups_other: '{{count}} groupes',
     empty: 'Aucune vente sur la période.',
     truncated: 'Beaucoup de ventes sur la période : les montants peuvent être inférieurs au total.',
     loadError: 'Impossible de charger les rapports.',

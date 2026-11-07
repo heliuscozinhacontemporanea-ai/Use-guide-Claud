@@ -13,6 +13,12 @@ export interface PartnerReportsView {
     referenceType: string;
     soldMinor: number;
     sales: number;
+    /** Eventos: ingressos que valem; quantos deles vieram de link de divulgador (D27). */
+    tickets: number;
+    promoterTickets: number;
+    /** Passeios, aluguéis e translados: pessoas, ou grupos quando a oferta vende por grupo. */
+    people: number;
+    groups: number;
   }>;
   /** A leitura parou no teto de páginas: os totais podem estar abaixo do real. */
   truncated: boolean;
@@ -42,12 +48,21 @@ export function reportBuckets(period: ReportPeriod, nowIso: string): string[] {
 const sold = (entry: PayoutEntryView) =>
   Math.max(0, entry.grossMinor - entry.serviceFeeMinor - entry.refundedMinor);
 
+/** Unidades de cada venda, pelo ID do pedido ou da reserva; sem entrada, só valor e vendas. */
+export interface ReportSaleUnits {
+  tickets?: number;
+  viaPromoter?: boolean;
+  people?: number;
+  groups?: number;
+}
+
 /** Vendas do período por barra e por item (p23); venda cancelada inteira não conta. */
 export function buildPartnerReports(
   period: ReportPeriod,
   nowIso: string,
   entries: PayoutEntryView[],
-  truncated: boolean
+  truncated: boolean,
+  units: Map<string, ReportSaleUnits> = new Map()
 ): PartnerReportsView {
   const starts = reportBuckets(period, nowIso);
   const from = starts[0] ?? nowIso;
@@ -73,9 +88,18 @@ export function buildPartnerReports(
       referenceType: entry.referenceType,
       soldMinor: 0,
       sales: 0,
+      tickets: 0,
+      promoterTickets: 0,
+      people: 0,
+      groups: 0,
     };
+    const unit = units.get(entry.referenceId);
     item.soldMinor += sold(entry);
     item.sales += 1;
+    item.tickets += unit?.tickets ?? 0;
+    if (unit?.viaPromoter) item.promoterTickets += unit.tickets ?? 0;
+    item.people += unit?.people ?? 0;
+    item.groups += unit?.groups ?? 0;
     items.set(key, item);
   }
   return {

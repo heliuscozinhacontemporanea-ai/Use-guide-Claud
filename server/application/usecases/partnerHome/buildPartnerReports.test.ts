@@ -69,4 +69,27 @@ describe('buildPartnerReports', () => {
       ['Luau na Duna', 10000, 1],
     ]);
   });
+
+  it('ingressos (e quantos vieram de divulgador), pessoas e grupos por item', () => {
+    const report = buildPartnerReports(
+      '7d',
+      NOW,
+      [
+        entry({ id: 'a', referenceId: 'bk1' }),
+        entry({ id: 'b', referenceId: 'bk2' }),
+        entry({ id: 'c', referenceType: 'ticket_order', referenceId: 'o1', title: 'Luau na Duna' }),
+        entry({ id: 'd', referenceType: 'ticket_order', referenceId: 'o2', title: 'Luau na Duna' }),
+      ],
+      false,
+      new Map([
+        ['bk1', { people: 3, groups: 0 }],
+        ['bk2', { people: 0, groups: 1 }],
+        ['o1', { tickets: 2, viaPromoter: true }],
+        ['o2', { tickets: 4, viaPromoter: false }],
+      ])
+    );
+    const byTitle = Object.fromEntries(report.items.map((item) => [item.title, item]));
+    expect(byTitle['Luau na Duna']).toMatchObject({ tickets: 6, promoterTickets: 2 });
+    expect(byTitle['Passeio de buggy']).toMatchObject({ people: 3, groups: 1, tickets: 0 });
+  });
 });

@@ -27,6 +27,32 @@ describe('Relatórios (p23)', () => {
           referenceType: 'booking',
           soldMinor: 2628000,
           sales: 73,
+          tickets: 0,
+          promoterTickets: 0,
+          people: 146,
+          groups: 0,
+        },
+        {
+          key: 'ticket_order|Luau',
+          title: 'Luau na Duna',
+          referenceType: 'ticket_order',
+          soldMinor: 1280000,
+          sales: 60,
+          tickets: 128,
+          promoterTickets: 43,
+          people: 0,
+          groups: 0,
+        },
+        {
+          key: 'booking|Antigo',
+          title: 'Aluguel antigo',
+          referenceType: 'booking',
+          soldMinor: 10000,
+          sales: 2,
+          tickets: 0,
+          promoterTickets: 0,
+          people: 0,
+          groups: 0,
         },
       ],
       truncated: false,
@@ -37,7 +63,9 @@ describe('Relatórios (p23)', () => {
     render(<PartnerReportsPage onBack={vi.fn()} profile={<p>visitas</p>} />);
     expect(await screen.findByText('Vendido em 30 dias')).toBeTruthy();
     expect(screen.getByText('Passeio de buggy ao Preá')).toBeTruthy();
-    expect(screen.getByText('73 vendas')).toBeTruthy();
+    expect(screen.getByText('146 pessoas')).toBeTruthy();
+    expect(screen.getByText('128 ingressos · 43 por divulgadores')).toBeTruthy();
+    expect(screen.getByText('2 vendas')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: '7 dias' }));
     expect(await screen.findByText('Vendido em 7 dias')).toBeTruthy();
     expect(m.reports).toHaveBeenLastCalledWith('7d');

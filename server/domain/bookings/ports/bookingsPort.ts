@@ -103,6 +103,8 @@ export interface BookingsPort {
   deleteParticipants(bookingId: string): Promise<void>;
 
   getBooking(bookingId: string): Promise<Booking | null>;
+  /** Várias reservas de uma vez (relatórios); as que não existem ficam de fora. */
+  getBookings(bookingIds: string[]): Promise<Booking[]>;
   getParticipants(bookingId: string): Promise<BookingParticipant[]>;
   listBookingsByBuyer(buyerId: string, page: PageRequest): Promise<Page<Booking>>;
   listBookingsByOffer(offerId: string, page: PageRequest): Promise<Page<Booking>>;

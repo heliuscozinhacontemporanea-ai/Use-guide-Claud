@@ -52,6 +52,9 @@ export interface BookingDetails {
   participants: BookingParticipant[];
 }
 
+// Reserva que virou venda e não voltou ao comprador (Relatórios, p23).
+const SOLD_STATUSES = new Set(['confirmed', 'completed', 'no_show', 'disputed']);
+
 export class BookingService {
   constructor(
     private readonly port: BookingsPort,
@@ -167,6 +170,27 @@ export class BookingService {
 
   async getBooking(bookingId: string): Promise<Booking | null> {
     return this.port.getBooking(bookingId);
+  }
+
+  /**
+   * Pessoas e grupos vendidos por reserva, para Relatórios (p23). Só as reservas do próprio
+   * vendedor; cancelada, reembolsada ou não paga não conta.
+   */
+  async summarizeUnits(
+    sellerUid: string,
+    bookingIds: string[]
+  ): Promise<Record<string, { people: number; groups: number }>> {
+    const bookings = await this.port.getBookings([...new Set(bookingIds)]);
+    const out: Record<string, { people: number; groups: number }> = {};
+    for (const booking of bookings) {
+      if (booking.sellerPartnerId !== sellerUid || !SOLD_STATUSES.has(booking.status)) continue;
+      const group = booking.offerSnapshot.sellingUnit === 'group';
+      out[booking.id] = {
+        people: group ? 0 : booking.participantsCount,
+        groups: group ? booking.participantsCount : 0,
+      };
+    }
+    return out;
   }
 
   async listBuyerBookings(actor: BookingActor, page: PageRequest): Promise<Page<Booking>> {

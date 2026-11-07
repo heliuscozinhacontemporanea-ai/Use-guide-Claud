@@ -262,6 +262,9 @@ export class InMemoryBookingsAdapter implements BookingsPort {
   async getBooking(bookingId: string) {
     return this.bookings.get(bookingId) ?? null;
   }
+  async getBookings(bookingIds: string[]) {
+    return bookingIds.flatMap((id) => this.bookings.get(id) ?? []);
+  }
   async getParticipants(bookingId: string) {
     return this.participants.get(bookingId) ?? [];
   }

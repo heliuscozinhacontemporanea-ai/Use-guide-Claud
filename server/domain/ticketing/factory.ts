@@ -1,10 +1,12 @@
 import { Ed25519TicketQrTokenAdapter } from './adapters/ed25519TicketQrTokenAdapter';
 import { FirestoreCourtesyStore } from './adapters/firestoreCourtesyStore';
+import { FirestoreOrderReportStore } from './adapters/firestoreOrderReportStore';
 import { FirestorePromoterStore } from './adapters/firestorePromoterStore';
 import { FirestoreTicketingAdapter } from './adapters/firestoreTicketingAdapter';
 import { CheckInService } from './services/checkInService';
 import { CourtesyService } from './services/courtesyService';
 import { OfflineCheckInService } from './services/offlineCheckInService';
+import { OrderReportService } from './services/orderReportService';
 import { PromoterService } from './services/promoterService';
 import { TicketHolderService } from './services/ticketHolderService';
 import { TicketingReportService } from './services/ticketingReportService';
@@ -31,3 +33,4 @@ export const offlineCheckInService = new OfflineCheckInService(
 );
 export const ticketingReportService = new TicketingReportService(ticketingAdapter);
 export const courtesyService = new CourtesyService(new FirestoreCourtesyStore(), ticketingAdapter);
+export const orderReportService = new OrderReportService(new FirestoreOrderReportStore());

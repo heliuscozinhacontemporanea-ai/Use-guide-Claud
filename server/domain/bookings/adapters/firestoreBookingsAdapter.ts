@@ -315,6 +315,20 @@ export class FirestoreBookingsAdapter implements BookingsPort {
       : null;
   }
 
+  async getBookings(bookingIds: string[]): Promise<Booking[]> {
+    const out: Booking[] = [];
+    for (let i = 0; i < bookingIds.length; i += 100) {
+      const refs = bookingIds.slice(i, i + 100).map((id) => adminDb.collection(BOOKINGS).doc(id));
+      if (refs.length === 0) continue;
+      for (const snapshot of await adminDb.getAll(...refs)) {
+        if (snapshot.exists) {
+          out.push(BookingPersistenceMapper.toDomain(snapshot.id, snapshot.data() ?? {}));
+        }
+      }
+    }
+    return out;
+  }
+
   async getParticipants(bookingId: string): Promise<BookingParticipant[]> {
     const snapshot = await adminDb
       .collection(PARTICIPANTS)

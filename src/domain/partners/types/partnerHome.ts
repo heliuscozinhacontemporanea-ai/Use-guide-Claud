@@ -204,6 +204,10 @@ export interface PartnerReports {
     referenceType: string;
     soldMinor: number;
     sales: number;
+    tickets: number;
+    promoterTickets: number;
+    people: number;
+    groups: number;
   }>;
   truncated: boolean;
 }

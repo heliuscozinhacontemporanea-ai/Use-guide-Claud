@@ -1,9 +1,12 @@
+import { summarizeBookingUnitsUseCase } from '../../../domain/bookings';
 import { listPayoutEntriesUseCase, type PayoutEntryView } from '../../../domain/payment';
+import { summarizeOrderTicketsUseCase } from '../../../domain/ticketing';
 import { listPartnerPaymentAccountsApplicationUseCase } from '../paymentAccounts/listPartnerPaymentAccountsApplicationUseCase';
 import {
   buildPartnerReports,
   type PartnerReportsView,
   type ReportPeriod,
+  type ReportSaleUnits,
   reportBuckets,
 } from './buildPartnerReports';
 
@@ -35,5 +38,28 @@ export async function getPartnerReportsApplicationUseCase(
     if (!result.nextCursor || !last || last.createdAt < since) break;
     cursor = result.nextCursor;
   }
-  return buildPartnerReports(period, nowIso, entries, truncated);
+  return buildPartnerReports(
+    period,
+    nowIso,
+    entries,
+    truncated,
+    await loadUnits(ownerUid, entries, since)
+  );
+}
+
+/** Ingressos e pessoas das vendas do período, lidos em lote de cada domínio. */
+async function loadUnits(
+  ownerUid: string,
+  entries: PayoutEntryView[],
+  since: string
+): Promise<Map<string, ReportSaleUnits>> {
+  const recent = entries.filter((entry) => entry.status !== 'canceled' && entry.createdAt >= since);
+  const ids = (type: string) =>
+    recent.filter((entry) => entry.referenceType === type).map((entry) => entry.referenceId);
+  // Sem as unidades o relatório ainda mostra valor e vendas.
+  const [orders, bookings] = await Promise.all([
+    summarizeOrderTicketsUseCase(ownerUid, ids('ticket_order')).catch(() => ({})),
+    summarizeBookingUnitsUseCase(ownerUid, ids('booking')).catch(() => ({})),
+  ]);
+  return new Map<string, ReportSaleUnits>([...Object.entries(orders), ...Object.entries(bookings)]);
 }
