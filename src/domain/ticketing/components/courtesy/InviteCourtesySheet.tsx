@@ -206,7 +206,7 @@ export function InviteCourtesySheet({
                     )}
                     <span className="flex-1 min-w-0">
                       <span className="block text-[17px] font-semibold text-ink truncate">
-                        @{profile.username}
+                        {profile.username}
                       </span>
                       {profile.displayName && (
                         <span className="block text-[15px] text-ink/70 truncate">

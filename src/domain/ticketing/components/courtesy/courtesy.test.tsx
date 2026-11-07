@@ -123,11 +123,11 @@ describe('convidados (p13, p14, p15, p28)', () => {
       vi.advanceTimersByTime(400);
     });
     vi.useRealTimers();
-    await screen.findByText('@bia.ramos');
+    await screen.findByText('bia.ramos');
     expect(m.find).toHaveBeenCalledWith('bi');
     const send = screen.getByRole('button', { name: 'Enviar cortesia' }) as HTMLButtonElement;
     expect(send.disabled).toBe(true);
-    fireEvent.click(screen.getByRole('button', { name: /@bia\.reis/ }));
+    fireEvent.click(screen.getByRole('button', { name: /bia\.reis/ }));
     fireEvent.click(send);
     await waitFor(() => expect(m.invite).toHaveBeenCalledWith('oc1', 'bia.reis'));
     expect(await screen.findByText('Cortesia enviada para @bia.reis.')).toBeTruthy();
