@@ -30,7 +30,6 @@
   },
   "dependencies": {
     "@google-cloud/kms": "6.2.1",
-    "@google/genai": "^2.27.0",
     "@hookform/resolvers": "^5.9.1",
     "@radix-ui/react-dialog": "^1.1.23",
     "@radix-ui/react-dropdown-menu": "^2.1.24",
@@ -91,5 +90,10 @@
     "typescript": "^7.0.2",
     "vite-plugin-pwa": "^2.0.0",
     "vitest": "^5.0.3"
+  },
+  "overrides": {
+    "@firebase/firestore": {
+      "@grpc/grpc-js": "^1.14.5"
+    }
   }
 }

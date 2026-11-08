@@ -104,3 +104,10 @@ Mais um passo: a conta de publicação precisa "agir como" a conta que o Cloud R
 ## 7. Depois
 
 Rules, índices e Functions pelo Actions, alertas de erro e backup: `publicacao-alertas-backup.md`.
+
+## 9. Notas da implementação (PR da D23)
+
+* O `firebase.json` não muda. Por isso o deploy do Hosting roda de novo o `predeploy` (`npm run build`), com as mesmas variáveis do primeiro build: o resultado é o mesmo `dist`.
+* `npm audit fix` (sem mudar versão principal) e um `overrides` para o `@grpc/grpc-js` do SDK web do Firebase (1.9.16 → 1.14.x, só usado no Node pelos testes das rules) zeraram as vulnerabilidades altas; o CI passa a exigir isso (§7.4). Os 67 testes das rules passam com a versão nova.
+* O servidor foi testado como no container: só `dist` e dependências de produção, `NODE_ENV=production`, responde `200` em `/api/health`.
+

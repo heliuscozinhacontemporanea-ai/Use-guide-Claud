@@ -1,0 +1,46 @@
+# Gates do AGENTS.md §16.1 em todo PR e push (D23). A proteção da `main` exige este job verde.
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      # O emulador do Firestore (testes das rules) precisa de Java.
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - run: npm ci --no-audit --no-fund
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+      - run: npm run test:rules
+      - name: Functions
+        working-directory: functions
+        run: |
+          npm ci --no-audit --no-fund
+          npx tsc --noEmit -p .
+      # §7.4: nenhuma vulnerabilidade alta ou crítica para o merge.
+      - run: npm audit --audit-level=high
+      - name: npm audit (functions)
+        working-directory: functions
+        run: npm audit --audit-level=high
