@@ -13,6 +13,8 @@ export const getEmptyFormData = (category = ''): FormState => ({
   bookingLinks: '',
   googleMaps: '',
   address: '',
+  state: '',
+  city: '',
   region: '',
   servesBreakfast: null,
   breakfastIncluded: null,
@@ -94,6 +96,8 @@ export const mapItemToFormData = (item: PartnerContentRecord): FormState => {
     bookingLinks: item.bookingLink || '',
     googleMaps: item.googleMapsLink || '',
     address: item.address || '',
+    state: item.state || '',
+    city: item.city || '',
     region: (() => {
       if (item.location === 'jeri') return 'Jericoacoara';
       if (item.location === 'prea') return 'Praia do Preá';

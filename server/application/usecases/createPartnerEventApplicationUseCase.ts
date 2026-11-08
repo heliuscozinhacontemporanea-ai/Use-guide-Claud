@@ -55,6 +55,8 @@ export async function createPartnerEventApplicationUseCase(
     title: data.name,
     coverImage: data.image,
     establishmentId: data.establishmentId,
+    // O evento usa o fuso do estabelecimento ou do perfil de produtor (D28).
+    ...(typeof establishment.timeZone === 'string' ? { timeZone: establishment.timeZone } : {}),
   });
 
   const eventId = created.listing.id;

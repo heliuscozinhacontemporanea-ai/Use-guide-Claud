@@ -86,6 +86,25 @@ describe('createPartnerEventApplicationUseCase', () => {
     }
   );
 
+  it('o evento usa o fuso do estabelecimento (D28)', async () => {
+    mocks.getPartnerProfileUseCase.mockResolvedValue({ id: 'partner-1' });
+    mocks.getItemByIdUseCase.mockResolvedValue({
+      id: 'est-1',
+      ownerId: 'partner-1',
+      category: 'restaurant',
+      name: 'Bar no Amazonas',
+      timeZone: 'America/Manaus',
+    });
+    await createPartnerEventApplicationUseCase(partnerUser, {
+      ...baseEventInput,
+      establishmentId: 'est-1',
+    });
+    expect(mocks.createEventListingUseCase).toHaveBeenCalledWith(
+      partnerUser,
+      expect.objectContaining({ timeZone: 'America/Manaus' })
+    );
+  });
+
   it('recusa evento sem estabelecimento nem perfil de produtor', async () => {
     mocks.getPartnerProfileUseCase.mockResolvedValue({ id: 'partner-1' });
     await expect(

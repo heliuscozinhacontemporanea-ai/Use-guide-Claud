@@ -128,6 +128,7 @@ export class EventListingPersistenceMapper {
       ownerId,
       partnerId: typeof raw.partnerId === 'string' ? raw.partnerId : undefined,
       establishmentId: typeof raw.establishmentId === 'string' ? raw.establishmentId : undefined,
+      timeZone: typeof raw.timeZone === 'string' ? raw.timeZone : undefined,
       title,
       name: title,
       summary: typeof raw.summary === 'string' ? raw.summary : undefined,
@@ -201,6 +202,7 @@ export class EventListingPersistenceMapper {
       ownerId: input.ownerId,
       ...(input.partnerId ? { partnerId: input.partnerId } : {}),
       ...(input.establishmentId ? { establishmentId: input.establishmentId } : {}),
+      ...(input.timeZone ? { timeZone: input.timeZone } : {}),
       title,
       name: title,
       ...(input.summary ? { summary: input.summary } : {}),
@@ -254,6 +256,7 @@ export class EventListingPersistenceMapper {
       patch.title = title;
       patch.name = title;
     }
+    if (input.timeZone !== undefined) patch.timeZone = input.timeZone;
     if (input.summary !== undefined) patch.summary = input.summary;
     if (input.description !== undefined) patch.description = input.description;
     if (input.eventCategory !== undefined || input.category !== undefined) {

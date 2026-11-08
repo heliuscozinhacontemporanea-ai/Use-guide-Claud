@@ -12,6 +12,8 @@ export function isSignupStep1Incomplete(formData: FormState): boolean {
 
 export function isSignupStep2Incomplete(formData: FormState): boolean {
   if (!formData.phone) return true;
+  // Estado e cidade dão o fuso dos horários (D28), também para o produtor.
+  if (!formData.state || !formData.city?.trim()) return true;
   if (formData.category === 'producer') return false;
   if (!formData.region || !formData.googleMaps) return true;
   return formData.category === 'hotel' && !formData.bookingLinks;

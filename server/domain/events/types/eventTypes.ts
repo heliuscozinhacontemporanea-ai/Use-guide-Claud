@@ -38,6 +38,8 @@ export interface EventListing {
   ownerId: string;
   partnerId?: string;
   establishmentId?: string;
+  /** Fuso do estabelecimento (D28), copiado pelo servidor; nunca vem do cliente. */
+  timeZone?: string;
   title: string;
   name: string;
   summary?: string;
@@ -113,6 +115,8 @@ export interface CreateEventListingInput {
   ownerId: string;
   partnerId?: string;
   establishmentId?: string;
+  /** Fuso do estabelecimento (D28), copiado pelo servidor; nunca vem do cliente. */
+  timeZone?: string;
   title?: string;
   name?: string;
   summary?: string;
@@ -148,6 +152,8 @@ export interface CreateEventListingInput {
 }
 
 export interface UpdateEventListingInput {
+  /** Fuso do estabelecimento (D28), posto pelo servidor. */
+  timeZone?: string;
   title?: string;
   name?: string;
   summary?: string;

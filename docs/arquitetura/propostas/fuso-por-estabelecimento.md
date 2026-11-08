@@ -68,7 +68,7 @@ Regra comum: **a hora de um serviço é sempre a hora do lugar onde ele acontece
 
 ### 4. Etapas
 
-1. **F1:** campo `timeZone` no estabelecimento, no evento e na oferta; escolha no cadastro; utilitários de data com fuso no app e no servidor (`server/shared/kernel`), com teste de paridade.
+1. **F1 (feita em 2026-11-08):** estado e cidade no cadastro do estabelecimento (obrigatórios, também no perfil de produtor); `timeZone` calculado no servidor e copiado para evento e oferta (ao criar e ao editar); utilitários de fuso em `server/shared/kernel/timeZones.ts` e `src/shared/utils/timeZones.ts`, com teste de paridade; AGENTS.md §1 e §12.4 atualizados. Ainda nada muda na tela de horários: isso é a F2.
 2. **F2:** formulários e telas de evento, sessão, oferta e horário; avisos fixos saem.
 3. **F3:** compra e reserva (resumos com fuso), carteira, recibos, e-mails, push e PDFs.
 4. **F4:** painel ("Hoje", Agenda, Agora, relatórios) e jobs nas Cloud Functions.

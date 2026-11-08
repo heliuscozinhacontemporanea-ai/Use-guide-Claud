@@ -26,12 +26,24 @@ describe('signupStepGates', () => {
   });
 
   it('etapa 2 exige link de reserva só para hospedagem', () => {
-    const base = { phone: '88999999999', region: 'Jericoacoara', googleMaps: 'https://maps' };
+    const base = {
+      phone: '88999999999',
+      region: 'Jericoacoara',
+      state: 'CE',
+      city: 'Jijoca de Jericoacoara',
+      googleMaps: 'https://maps',
+    };
     expect(isSignupStep2Incomplete(form({ ...base, category: 'restaurant' }))).toBe(false);
     expect(isSignupStep2Incomplete(form({ ...base, category: 'hotel' }))).toBe(true);
+    // Estado e cidade (fuso, D28) valem também para o produtor.
     expect(isSignupStep2Incomplete(form({ category: 'producer', phone: '88999999999' }))).toBe(
-      false
+      true
     );
+    expect(
+      isSignupStep2Incomplete(
+        form({ category: 'producer', phone: '88999999999', state: 'AM', city: 'Manaus' })
+      )
+    ).toBe(false);
   });
 
   it('etapa 3 pede o preço do café quando não está incluso', () => {

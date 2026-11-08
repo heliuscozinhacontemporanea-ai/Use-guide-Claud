@@ -158,6 +158,41 @@ describe('GuideService', () => {
     });
   });
 
+  describe('fuso do lugar (D28)', () => {
+    it('calcula o fuso pelo estado e pela cidade; o cliente não manda fuso', async () => {
+      vi.mocked(port.createItem).mockResolvedValue('item-1');
+      await service.createItem(partnerUser, {
+        name: 'Passeio no Encontro das Águas',
+        description: 'Barco',
+        category: 'tour',
+        image: 'https://img.jpg',
+        images: [],
+        location: 'Centro',
+        state: 'AM',
+        city: 'Manaus',
+      });
+      expect(port.createItem).toHaveBeenCalledWith(
+        expect.objectContaining({ state: 'AM', city: 'Manaus', timeZone: 'America/Manaus' })
+      );
+    });
+
+    it('ao mudar só a cidade, usa o estado que já estava gravado', async () => {
+      vi.mocked(port.getItemById).mockResolvedValue({
+        id: 'item-1',
+        ownerId: 'partner-1',
+        state: 'AM',
+        city: 'Manaus',
+      } as never);
+      await service.updateItem(partnerUser, 'item-1', { city: 'Tabatinga' });
+      expect(port.updateItem).toHaveBeenCalledWith('item-1', {
+        city: 'Tabatinga',
+        timeZone: 'America/Eirunepe',
+      });
+      await service.updateItem(partnerUser, 'item-1', { name: 'Outro nome' });
+      expect(port.updateItem).toHaveBeenLastCalledWith('item-1', { name: 'Outro nome' });
+    });
+  });
+
   describe('updateItem', () => {
     it('deve permitir admin atualizar item de qualquer dono', async () => {
       vi.mocked(port.getItemById).mockResolvedValue({

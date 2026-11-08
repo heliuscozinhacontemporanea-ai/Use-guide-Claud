@@ -64,6 +64,18 @@ describe('OfferService', () => {
     });
   });
 
+  it('a oferta usa o fuso do estabelecimento ao criar e ao editar (D28)', async () => {
+    const { service } = setup({ timeZone: 'America/Manaus' });
+    const offer = await service.createOffer(OWNER, {
+      ...INPUT,
+      guideItemId: 'item-1',
+      kind: 'tour',
+    });
+    expect(offer.timeZone).toBe('America/Manaus');
+    const updated = await service.updateOffer(OWNER, offer.id, { title: { 'pt-BR': 'Novo' } });
+    expect(updated.timeZone).toBe('America/Manaus');
+  });
+
   it('venda por grupo exige o tamanho do grupo e não vale para entrada de atração (D20)', async () => {
     const { service } = setup();
     await expect(

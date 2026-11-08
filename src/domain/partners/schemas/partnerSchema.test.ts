@@ -56,6 +56,18 @@ describe('Partner Validation Schemas (Frontend)', () => {
   });
 
   describe('step2Schema', () => {
+    it('exige estado e cidade, que dão o fuso dos horários (D28)', () => {
+      const result = step2Schema.safeParse({
+        category: 'producer',
+        phone: '88999999999',
+        state: 'XX',
+        city: '',
+      });
+      expect(result.success).toBe(false);
+      const paths = result.success ? [] : result.error.issues.map((issue) => issue.path[0]);
+      expect(paths).toEqual(expect.arrayContaining(['state', 'city']));
+    });
+
     it('deve validar dados de contato do hotel com booking link e google maps', () => {
       const result = step2Schema.safeParse({
         category: 'hotel',
@@ -63,6 +75,8 @@ describe('Partner Validation Schemas (Frontend)', () => {
         phoneDdi: '+55',
         googleMaps: 'https://maps.google.com/?q=Jericoacoara',
         region: 'Jericoacoara',
+        state: 'CE',
+        city: 'Jijoca de Jericoacoara',
         bookingLinks: 'https://booking.com/hotel-test',
         website: 'https://hoteltest.com',
         instagram: '@hoteltest',
@@ -77,6 +91,8 @@ describe('Partner Validation Schemas (Frontend)', () => {
         phone: '(85) 98888-8888',
         googleMaps: 'https://maps.google.com/?q=Jericoacoara',
         region: 'Jericoacoara',
+        state: 'CE',
+        city: 'Jijoca de Jericoacoara',
         bookingLinks: '',
       });
       expect(result.success).toBe(false);
@@ -88,6 +104,8 @@ describe('Partner Validation Schemas (Frontend)', () => {
         phone: '',
         googleMaps: 'https://maps.google.com/?q=Jericoacoara',
         region: 'Jericoacoara',
+        state: 'CE',
+        city: 'Jijoca de Jericoacoara',
         bookingLinks: 'https://booking.com/hotel-test',
       });
       expect(result.success).toBe(false);

@@ -1,5 +1,14 @@
 /** Textos do domínio partners (pt-BR é a fonte; en e fr têm as mesmas chaves, garantidas pelo tipo). */
 export interface PartnersTranslation {
+  place: {
+    state: string;
+    statePlaceholder: string;
+    city: string;
+    cityPlaceholder: string;
+    region: string;
+    regionPlaceholder: string;
+    required: string;
+  };
   signupSuccess: {
     title: string;
     /** `<name>` e `<active>` viram destaque pelo componente `<Trans>`. */
@@ -19,6 +28,15 @@ export interface PartnersTranslation {
 }
 
 export const partnersPtBR: PartnersTranslation = {
+  place: {
+    state: 'Estado',
+    statePlaceholder: 'Selecione',
+    city: 'Cidade',
+    cityPlaceholder: 'Ex.: Jijoca de Jericoacoara',
+    region: 'Região / Bairro',
+    regionPlaceholder: 'Selecione uma região...',
+    required: 'Informe o estado e a cidade',
+  },
   signupSuccess: {
     title: 'Cadastro concluído!',
     message:
@@ -38,6 +56,15 @@ export const partnersPtBR: PartnersTranslation = {
 };
 
 export const partnersEn: PartnersTranslation = {
+  place: {
+    state: 'State',
+    statePlaceholder: 'Select',
+    city: 'City',
+    cityPlaceholder: 'E.g. Jijoca de Jericoacoara',
+    region: 'Area / Neighborhood',
+    regionPlaceholder: 'Select an area...',
+    required: 'Enter the state and the city',
+  },
   signupSuccess: {
     title: 'Sign-up complete!',
     message:
@@ -57,6 +84,15 @@ export const partnersEn: PartnersTranslation = {
 };
 
 export const partnersFr: PartnersTranslation = {
+  place: {
+    state: 'État',
+    statePlaceholder: 'Choisir',
+    city: 'Ville',
+    cityPlaceholder: 'Ex. : Jijoca de Jericoacoara',
+    region: 'Région / Quartier',
+    regionPlaceholder: 'Choisissez une région...',
+    required: "Indiquez l'État et la ville",
+  },
   signupSuccess: {
     title: 'Inscription terminée !',
     message:

@@ -61,6 +61,8 @@ export interface BookableOffer {
   groupMaxPeople?: number;
   /** Nome do estabelecimento, copiado do item do guia: é como o cliente reconhece quem presta (D20). */
   businessName?: string;
+  /** Fuso do estabelecimento (D28), copiado ao criar e ao editar a oferta. */
+  timeZone?: string;
   cancellationPolicy: BookingCancellationPolicy;
   maxParticipantsPerBooking: number;
   requiresParticipantNames: boolean;

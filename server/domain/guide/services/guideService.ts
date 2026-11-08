@@ -1,3 +1,4 @@
+import { type BrState, timeZoneForBrazilianCity } from '../../../shared/kernel/timeZones';
 import { GuideDomainError } from '../errors/guideDomainError';
 import { GuidePort, GuideVerificationUpdate } from '../ports/guidePort';
 import { AuthenticatedUserContext } from '../../../application/security/authenticatedUserContext';
@@ -68,6 +69,13 @@ function ensureOwnership(user: AuthenticatedUserContext, ownerId: string): void 
   }
 }
 
+/** Fuso do lugar (D28): só com estado e cidade; o cliente nunca manda o fuso. */
+function placeTimeZone(place: { state?: BrState; city?: string }): { timeZone?: string } {
+  return place.state && place.city?.trim()
+    ? { timeZone: timeZoneForBrazilianCity(place.state, place.city) }
+    : {};
+}
+
 export class GuideService {
   constructor(private readonly guidePort: GuidePort) {}
 
@@ -79,6 +87,7 @@ export class GuideService {
     ensureCreateItemCategory(user, data.category);
     return this.guidePort.createItem({
       ...data,
+      ...placeTimeZone(data),
       ownerId: user.uid,
       isActive: data.isActive ?? true,
     });
@@ -96,7 +105,11 @@ export class GuideService {
       throw new GuideDomainError('NOT_FOUND', 'Item não encontrado');
     }
     ensureOwnership(user, existing.ownerId);
-    await this.guidePort.updateItem(id, data);
+    const place =
+      data.state !== undefined || data.city !== undefined
+        ? placeTimeZone({ state: data.state ?? existing.state, city: data.city ?? existing.city })
+        : {};
+    await this.guidePort.updateItem(id, { ...data, ...place });
   }
 
   async deleteItem(user: AuthenticatedUserContext, id: string): Promise<void> {

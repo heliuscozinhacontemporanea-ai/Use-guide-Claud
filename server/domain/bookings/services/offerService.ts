@@ -136,6 +136,7 @@ export class OfferService {
     const offer: BookableOffer = {
       ...input,
       ...(item.name ? { businessName: item.name } : {}),
+      ...(item.timeZone ? { timeZone: item.timeZone } : {}),
       id: `offer_${this.newId()}`,
       ownerId: item.ownerId,
       partnerId: item.partnerId,
@@ -176,7 +177,14 @@ export class OfferService {
         );
       }
     }
-    const updated: BookableOffer = { ...offer, ...input, updatedAt: this.now().toISOString() };
+    // O fuso segue o do estabelecimento, que pode ter mudado de cidade desde a criação (D28).
+    const item = await this.items.getItem(offer.guideItemId);
+    const updated: BookableOffer = {
+      ...offer,
+      ...input,
+      ...(item?.timeZone ? { timeZone: item.timeZone } : {}),
+      updatedAt: this.now().toISOString(),
+    };
     await this.port.saveOffer(updated);
     if (updated.status === 'published') {
       await this.port.upsertPublicOfferProjection(toPublicOffer(updated));

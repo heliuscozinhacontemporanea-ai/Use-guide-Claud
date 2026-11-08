@@ -10,6 +10,8 @@ function validTour(): FormState {
     businessName: 'Passeio Lagoa do Paraíso',
     description: 'Roteiro de meio dia pelas lagoas.',
     region: 'Jericoacoara',
+    state: 'CE',
+    city: 'Jijoca de Jericoacoara',
     phone: '88999999999',
     tourDurationHours: '4',
     meetingPoint: 'Praça principal',
@@ -43,6 +45,8 @@ describe('useListingEditorValidation', () => {
         ...getEmptyFormData('producer'),
         businessName: 'Produções Ceará',
         region: 'Jericoacoara',
+        state: 'CE',
+        city: 'Jijoca de Jericoacoara',
         phone: '88999999999',
         googleMaps: 'https://maps.google.com/?q=jericoacoara',
       })

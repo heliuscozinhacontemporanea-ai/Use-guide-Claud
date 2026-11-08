@@ -94,6 +94,10 @@ export interface PartnerContentRecord {
   phone?: string;
   googleMapsLink?: string;
   address?: string;
+  /** Estado (UF) e cidade; o fuso (`timeZone`) é calculado pelo servidor (D28). */
+  state?: string;
+  city?: string;
+  timeZone?: string;
   tags?: string[];
   ownerId?: string;
   partnerId?: string;
@@ -124,6 +128,10 @@ export interface PartnerContentItemInput {
   phone?: string;
   googleMapsLink?: string;
   address?: string;
+  /** Estado (UF) e cidade; o fuso (`timeZone`) é calculado pelo servidor (D28). */
+  state?: string;
+  city?: string;
+  timeZone?: string;
   tags?: string[];
   operationalInfo?: Record<string, unknown>;
   isActive?: boolean;
@@ -147,6 +155,10 @@ export interface PartnerContentEventInput {
   phone?: string;
   googleMapsLink?: string;
   address?: string;
+  /** Estado (UF) e cidade; o fuso (`timeZone`) é calculado pelo servidor (D28). */
+  state?: string;
+  city?: string;
+  timeZone?: string;
   tags?: string[];
   operationalInfo?: Record<string, unknown>;
   isActive?: boolean;

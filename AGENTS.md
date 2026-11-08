@@ -46,7 +46,7 @@ O **Use Guide** é um guia turístico e marketplace (referência de mercado: Tri
 | Condições de vento/clima | `climawind` |
 | SEO no servidor (HTML hidratado) | `seo` |
 
-**Fuso horário canônico do negócio:** `America/Fortaleza` (UTC−3, sem horário de verão). Datas DEVEM ser persistidas em UTC (ISO 8601 ou Timestamp) e exibidas no fuso do negócio, ou no fuso do usuário quando ele escolher.
+**Fuso horário:** cada estabelecimento tem o seu (`timeZone`, nome IANA, calculado a partir do estado e da cidade), e eventos e ofertas usam o do estabelecimento. Datas DEVEM ser persistidas em UTC (ISO 8601 ou Timestamp). A hora de um serviço é exibida e digitada no fuso do serviço (quem planeja a viagem de outro fuso vê a hora do destino), com o fuso indicado quando o usuário estiver em outro. Contas da plataforma (vigência de termos, jobs, destaques) usam `America/Sao_Paulo` (Brasília).
 
 **Moeda:** BRL. Valores monetários DEVEM ser inteiros em centavos (`amountMinor`, tipo `MoneyMinor`). É proibido `number` com casas decimais para dinheiro.
 
@@ -740,7 +740,7 @@ Regras:
 ### 12.4. Formatação regional
 
 * **Moeda:** `new Intl.NumberFormat(locale, { style: 'currency', currency: 'BRL' }).format(amountMinor / 100)`. Proibido montar `'R$ ' + valor`. A moeda continua BRL em todos os idiomas.
-* **Data e hora:** `Intl.DateTimeFormat(locale, { timeZone: 'America/Fortaleza', ... })` ou `date-fns` com o locale correspondente (`ptBR`, `enUS`, `fr`). Horário de evento, passeio e translado SEMPRE no fuso do negócio, com o fuso indicado quando o usuário estiver em outro.
+* **Data e hora:** `Intl.DateTimeFormat(locale, { timeZone: <fuso do estabelecimento>, ... })` ou `date-fns` com o locale correspondente (`ptBR`, `enUS`, `fr`). Horário de evento, passeio e translado SEMPRE no fuso do estabelecimento, com o fuso indicado quando o usuário estiver em outro.
 * **Números e unidades:** `Intl.NumberFormat`; unidades (km/h, nós, °C) com rótulo traduzido.
 * **Telefone:** armazenado em E.164; exibido formatado.
 * Máscaras de entrada (`currencyMask`, datas) DEVEM respeitar o idioma ativo.
@@ -774,7 +774,7 @@ Regras:
 - [ ] Nenhum texto visível fixo no JSX, hook, schema ou toast
 - [ ] Chaves criadas em `pt-BR`, `en` e `fr` (o teste de paridade passa)
 - [ ] Plural e interpolação pelo i18next, sem concatenação
-- [ ] Moeda, data e número com `Intl`/`date-fns` no idioma ativo e no fuso `America/Fortaleza`
+- [ ] Moeda, data e número com `Intl`/`date-fns` no idioma ativo e no fuso do estabelecimento
 - [ ] Erros do backend traduzidos por `code`
 - [ ] Layout verificado em `fr` (texto mais longo)
 
@@ -883,6 +883,6 @@ npm run test:rules  # quando firestore.rules mudar (emulador)
 - [ ] Dinheiro em centavos, preço e taxa calculados no backend, idempotência no Stripe, webhook como fonte da verdade (§8)
 - [ ] Erro no formato padrão, sem vazar detalhes; logs sem PII (§10)
 - [ ] Contraste, toque ≥ 44px, `aria-label`, foco visível, z-index da escala, responsivo, dois temas (§11)
-- [ ] Nenhum texto fixo; chaves nos 3 idiomas; moeda/data com `Intl` no fuso do negócio (§12)
+- [ ] Nenhum texto fixo; chaves nos 3 idiomas; moeda/data com `Intl` no fuso do estabelecimento (§12)
 - [ ] Um UseCase por arquivo; arquivo grande dividido ao tocar (§13)
 - [ ] Gates de qualidade verdes (§16.1)

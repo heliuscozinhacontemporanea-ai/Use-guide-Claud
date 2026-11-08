@@ -12,6 +12,7 @@ export class GuideBookableItemLookupAdapter implements BookableItemLookupPort {
         typeof item.partnerId === 'string' && item.partnerId ? item.partnerId : item.ownerId,
       category: String(item.category ?? ''),
       name: typeof item.name === 'string' ? item.name : '',
+      ...(typeof item.timeZone === 'string' ? { timeZone: item.timeZone } : {}),
     };
   }
 }

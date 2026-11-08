@@ -6,6 +6,8 @@ export interface BookableItem {
   category: string;
   /** Nome do estabelecimento, mostrado ao cliente na reserva (D20). */
   name: string;
+  /** Fuso do estabelecimento (D28); sem estado e cidade no cadastro, ausente. */
+  timeZone?: string;
 }
 
 export interface BookableItemLookupPort {

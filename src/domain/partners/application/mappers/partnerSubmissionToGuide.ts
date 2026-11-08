@@ -1,3 +1,4 @@
+import { isBrState } from '../../../../shared/utils/timeZones';
 import type { PartnerContentItemInput } from '../../types/partnerContent';
 import { toE164 } from '../../../../shared/utils/phone';
 import type { PartnerSubmissionData } from '../../types/partner';
@@ -136,6 +137,9 @@ export function mapPartnerSubmissionToGuideItem(
     phone: toE164(formData.phoneDdi, formData.phone),
     googleMapsLink: formData.googleMaps,
     address: formData.address,
+    ...(isBrState(formData.state) && formData.city?.trim()
+      ? { state: formData.state, city: formData.city.trim() }
+      : {}),
     operationalInfo: buildOperationalInfo(formData),
   };
 }
