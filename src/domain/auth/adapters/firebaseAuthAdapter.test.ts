@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { authActionContinueUrl, FirebaseAuthAdapter } from './firebaseAuthAdapter';
 import * as firebaseAuth from 'firebase/auth';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { authActionContinueUrl, FirebaseAuthAdapter } from './firebaseAuthAdapter';
 
 vi.mock('firebase/auth', () => ({
   getAuth: vi.fn(),
@@ -161,9 +161,12 @@ describe('FirebaseAuthAdapter', () => {
   });
 
   it('volta sempre para o site oficial, exceto no teste local (D22)', () => {
-    expect(authActionContinueUrl('ais-dev-123.run.app', 'https://ais-dev-123.run.app')).toBe(
-      'https://useguide.com.br'
-    );
+    expect(
+      authActionContinueUrl(
+        'use-guide-123.us-east1.run.app',
+        'https://use-guide-123.us-east1.run.app'
+      )
+    ).toBe('https://useguide.com.br');
     expect(authActionContinueUrl('useguide.com.br', 'https://useguide.com.br')).toBe(
       'https://useguide.com.br'
     );

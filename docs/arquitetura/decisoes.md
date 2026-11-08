@@ -335,9 +335,9 @@ Aprovada pelo responsável do produto em 2026-10-31.
 * **Onde exige e-mail confirmado:** comprar ingresso, reservar passeio, aluguel, translado ou entrada, cadastrar-se como parceiro, receber ingresso pelo @ e aceitar link de transferência (AGENTS.md §7.10, A07). O backend recusa com `EMAIL_NOT_VERIFIED` (403); o app abre o aviso. No cadastro de parceiro com conta nova, o cadastro para até a confirmação e continua ao enviar de novo, já logado.
 * **Token:** depois da confirmação o app relê a conta e renova o ID token, porque o backend lê `email_verified` do token. O app também relê ao voltar para a tela (link aberto em outra aba ou no celular).
 
-## D23 — Sair do AI Studio: GitHub Actions publica direto em produção (aprovada em 2026-11-02, execução adiada)
+## D23 — Sair do AI Studio: GitHub Actions publica direto em produção (aprovada em 2026-11-02, executada em 2026-11-08)
 
-Aprovada pelo responsável do produto em 2026-11-02. **Ainda não implementar:** o AI Studio continua como ambiente de desenvolvimento enquanto o plano pago dele estiver em vigor. Retomar quando o responsável pedir.
+Aprovada pelo responsável do produto em 2026-11-02 e executada em 2026-11-08, quando ele pediu para abandonar o AI Studio de vez. Último zip importado na `main` (`77595c0`); PR #1 levou a referência para a `main`; primeiro deploy pelo Actions publicado depois dos PRs #2 e #3 (`docs/arquitetura/propostas/sair-do-ai-studio.md`).
 
 * **Um ambiente só (até a liberação):** o projeto atual (`gen-lang-client-0788355965`) e `useguide.com.br`; sem projeto de teste. A prévia é o próprio site no ar, depois do merge.
 * **Fluxo:** Claude escreve numa branch por tarefa (`claude/<tema>`) e abre PR para `main`; o GitHub Actions roda os gates em cada push (typecheck, lint, testes, build, regras no emulador); o responsável aprova fazendo o merge (ou autoriza Claude a fazer); no merge, o Actions publica Cloud Run e depois Hosting, sem aprovação extra. Ninguém escreve direto na `main` (proteção: só por PR com gates verdes).

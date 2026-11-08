@@ -1,27 +1,27 @@
 import {
+  applyActionCode,
+  confirmPasswordReset,
+  EmailAuthProvider,
   createUserWithEmailAndPassword as fbCreateUserWithEmailAndPassword,
+  sendEmailVerification as fbSendEmailVerification,
+  sendPasswordResetEmail as fbSendPasswordResetEmail,
   signInWithEmailAndPassword as fbSignInWithEmailAndPassword,
   signInWithPopup as fbSignInWithPopup,
   signOut as fbSignOut,
-  sendPasswordResetEmail as fbSendPasswordResetEmail,
-  sendEmailVerification as fbSendEmailVerification,
-  applyActionCode,
-  verifyPasswordResetCode,
-  confirmPasswordReset,
   onAuthStateChanged,
   reauthenticateWithCredential,
   reauthenticateWithPopup,
-  EmailAuthProvider,
   updatePassword,
+  verifyPasswordResetCode,
 } from 'firebase/auth';
 import { SITE_URL } from '../../../shared/constants/siteUrl';
 import { auth, googleProvider } from '../../../shared/infrastructure/firebase/firebaseAuth';
-import { UserRole, UserSession, AuthIdentity } from '../types/auth';
+import { AuthIdentity, UserRole, UserSession } from '../types/auth';
 import { AuthPort } from '../types/authPort';
 
 /**
  * Para onde o botão "continuar" do Firebase leva depois da ação. Fora do teste local é sempre o site
- * oficial (D22): os e-mails nunca mostram o endereço do AI Studio. O link do e-mail em si é o URL de
+ * oficial (D22): os e-mails nunca mostram o endereço do Cloud Run. O link do e-mail em si é o URL de
  * ação configurado no console (Authentication › Modelos).
  */
 export function authActionContinueUrl(hostname: string, origin: string): string {

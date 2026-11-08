@@ -1,6 +1,6 @@
-import { getApps, initializeApp, cert, applicationDefault, type App } from 'firebase-admin/app';
-import { getAuth, type Auth } from 'firebase-admin/auth';
-import { getFirestore, type Firestore } from 'firebase-admin/firestore';
+import { type App, applicationDefault, getApps, initializeApp } from 'firebase-admin/app';
+import { type Auth, getAuth } from 'firebase-admin/auth';
+import { type Firestore, getFirestore } from 'firebase-admin/firestore';
 import { getMessaging, type Messaging } from 'firebase-admin/messaging';
 import { getStorage, type Storage } from 'firebase-admin/storage';
 
@@ -12,16 +12,6 @@ function requiredEnv(name: string): string {
   return value;
 }
 
-function resolveCredential() {
-  const saKey = process.env.FIREBASE_SERVICE_ACCOUNT_KEY?.trim();
-  // Em produção (Cloud Run) a credencial é sempre a conta de serviço anexada (ADC);
-  // a chave JSON só é aceita fora de produção (AGENTS.md §2.1).
-  if (saKey && process.env.NODE_ENV !== 'production') {
-    return cert(JSON.parse(saKey));
-  }
-  return applicationDefault();
-}
-
 let cachedApp: App | undefined;
 
 function getFirebaseAdminApp(): App {
@@ -29,7 +19,9 @@ function getFirebaseAdminApp(): App {
   cachedApp =
     getApps()[0] ??
     initializeApp({
-      credential: resolveCredential(),
+      // Sempre ADC, sem chave JSON (D23): no Cloud Run, a conta de serviço anexada; no desenvolvimento
+      // local, `gcloud auth application-default login` ou os emuladores.
+      credential: applicationDefault(),
       projectId:
         process.env.FIREBASE_PROJECT_ID?.trim() || process.env.VITE_FIREBASE_PROJECT_ID?.trim(),
       storageBucket: requiredEnv('FIREBASE_STORAGE_BUCKET'),

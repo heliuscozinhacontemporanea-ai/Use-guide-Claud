@@ -1,7 +1,7 @@
 # Use Guide
 
 ## 1. Visão Geral
-O **Use Guide** é uma solução completa e robusta desenvolvida em arquitetura full-stack (React + Express) que fornece um guia turístico e comercial inteligente, integrando dados em tempo real, pagamentos transparentes, e previsões meteorológicas. O projeto utiliza o **Google AI Studio** e é projetado para operar com alta confiabilidade e segurança, empregando conceitos modernos de engenharia de software como a Arquitetura Hexagonal (Ports & Adapters) e Inversão de Dependência (DIP).
+O **Use Guide** é uma solução completa e robusta desenvolvida em arquitetura full-stack (React + Express) que fornece um guia turístico e comercial inteligente, integrando dados em tempo real, pagamentos transparentes, e previsões meteorológicas. O projeto é publicado no Google Cloud (Cloud Run e Firebase Hosting) pelo GitHub Actions e é projetado para operar com alta confiabilidade e segurança, empregando conceitos modernos de engenharia de software como a Arquitetura Hexagonal (Ports & Adapters) e Inversão de Dependência (DIP).
 
 ---
 
@@ -61,14 +61,10 @@ O sistema é estruturado seguindo rigorosamente os padrões de **Ports & Adapter
 ---
 
 ## 5. Variáveis de Ambiente
-As configurações do sistema são mantidas de forma segura. Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
+A lista completa, com o que cada variável faz, está em `.env.example`. No desenvolvimento local, copie-o para um `.env` (fora do git) e use só chaves de teste. Em produção, os segredos ficam no Secret Manager e os valores públicos do navegador (`VITE_*`) nas variáveis do repositório no GitHub. Exemplo:
 
 ```env
-# Google Gemini API
-GEMINI_API_KEY="seu_gemini_api_key"
-
-# Google Maps Platform Keys
-GOOGLE_MAPS_PLATFORM_KEY="chave_de_servico_backend"
+# Chave pública do mapa (navegador)
 VITE_GOOGLE_MAPS_API_KEY="chave_publica_frontend"
 
 # URL da Aplicação
@@ -98,7 +94,7 @@ Para iniciar o projeto em seu ambiente local de desenvolvimento, certifique-se d
    ```bash
    npm run dev
    ```
-   *Nota: O servidor roda na porta `3000`, que é a única porta exposta externamente e mapeada pelo proxy reverso do Google AI Studio.*
+   *Nota: o servidor roda em `http://localhost:3000` (ou na porta de `PORT`). O Firebase Admin usa as credenciais do `gcloud auth application-default login` ou os emuladores (`npm run test:rules` usa o do Firestore).*
 
 ---
 
@@ -114,9 +110,10 @@ O processo de build consiste de duas etapas coordenadas:
 ---
 
 ## 8. Deploy
-A aplicação foi projetada para ser implantada em containers Docker no **Google Cloud Run**.
-- O script `start` em `package.json` inicia o servidor otimizado usando `node dist/server.cjs`.
-- O servidor Express serve os arquivos estáticos do frontend localizados em `dist/` de forma nativa quando em `production`.
+Publicação automática no merge para a `main` (decisão D23), pelo `.github/workflows/deploy.yml`:
+- O build roda uma vez no GitHub Actions; a imagem (`Dockerfile`, só `dist` e dependências de produção) vai para o Artifact Registry e o **Cloud Run** (`use-guide`, `us-east1`), e o mesmo `dist` vai para o **Firebase Hosting**.
+- O login no Google Cloud é sem chave (Workload Identity Federation). Configuração em `docs/arquitetura/propostas/sair-do-ai-studio.md`.
+- Todo PR passa pelo `.github/workflows/ci.yml` (tipos, lint, testes, build, regras, Functions e `npm audit`); a `main` só aceita merge com ele verde.
 
 ---
 
@@ -124,7 +121,7 @@ A aplicação foi projetada para ser implantada em containers Docker no **Google
 O Use Guide utiliza o ecossistema do **Firebase** para persistência de dados e autenticação de usuários.
 - **Modelagem de Dados:** O arquivo `firebase-blueprint.json` documenta de forma agnóstica o esquema das coleções do Firestore (como `partners`, `notifications`, `users` e `guides`).
 - **Segurança de Dados:** O arquivo `firestore.rules` provê um controle rígido baseado em papéis e identidades (ABAC), garantindo que escritas sejam devidamente validadas por esquemas estritos, prevenindo adulterações de identidade e vazamento de informações privadas (PII).
-- **Tratamento de Erros:** Todas as operações que geram erros de permissão insuficiente são envelopadas no helper `handleFirestoreError`, que padroniza o erro em formato JSON estruturado, facilitando diagnósticos rápidos no painel do AI Studio.
+- **Tratamento de Erros:** Todas as operações que geram erros de permissão insuficiente são envelopadas no helper `handleFirestoreError`, que padroniza o erro em formato JSON estruturado, facilitando o diagnóstico nos logs.
 
 ---
 

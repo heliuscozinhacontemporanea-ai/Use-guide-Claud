@@ -1,4 +1,8 @@
-# Processo de trabalho: Referência (Claude) × AI Studio (Gemini)
+# Processo de trabalho
+
+> **Desde 2026-11-08 (D23):** o AI Studio saiu do processo. A `main` é o código publicado; o Claude trabalha numa branch por tarefa (`claude/<tema>`) e abre PR para a `main`; o `ci` roda os gates; o responsável faz o merge, e o merge publica (`.github/workflows/deploy.yml`). Não há mais prompts nem zips. O que segue é o histórico do processo antigo, mantido como registro.
+
+# Histórico: Referência (Claude) × AI Studio (Gemini), até 2026-11-08
 
 ## Branches
 
@@ -7,7 +11,7 @@
 | `main` | **Espelho do AI Studio.** Cada commit é a importação de um zip exportado do AI Studio. Nunca recebe código escrito à mão. | Claude, ao receber um zip novo |
 | `claude/agents-md-v2` | **Implementação de referência.** Um commit por prompt (`Prompt N: …`), com os gates rodados. É o resultado esperado de cada prompt. | Claude |
 
-O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio implementar.
+O PR `claude/agents-md-v2 → main` mostrava tudo o que ainda faltava o AI Studio implementar.
 
 ## Ciclo
 
