@@ -84,7 +84,7 @@ TICKET_SERVICE_FEE_MINOR="300"
 ---
 
 ## 6. Execução Local
-Para iniciar o projeto em seu ambiente local de desenvolvimento, certifique-se de ter o Node.js (versão 22+) instalado.
+Para iniciar o projeto em seu ambiente local de desenvolvimento, certifique-se de ter o Node.js 26 (LTS) instalado; as Cloud Functions rodam em Node 24.
 
 1. Instale as dependências:
    ```bash

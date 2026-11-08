@@ -430,3 +430,12 @@ Aprovada pelo responsável do produto em 2026-11-04. Proposta e desenhos: `docs/
 * **Pedidos do evento — busca, filtro e páginas (A1 + A3 da etapa 6, 2026-11-07):** em Vendas, Pedidos ganha a busca "Buscar por nome ou nº do pedido" (o código vale pelo começo, com ou sem "#"; o nome público vale por qualquer parte, sem diferença de acento ou maiúscula) e o filtro Todos / Com reembolso (pediu reembolso, reembolso parcial e reembolsado; disputa fica só em Todos). A lista vem de 20 em 20 por cursor, com "Ver mais N pedidos"; com busca ou filtro, aparece quantos pedidos foram encontrados. Rota `GET /api/partner-home/events/:eventId/orders` (dono do evento; evento de outro dono responde 404); o resumo do evento continua com `ordersTotal` para Editar evento. Sem mudança no modelo de dados; o custo de leitura que fica está em B39.
 * **Em aberto (não implementar até decidir):** contatos nos anúncios (B37); escolha de outros aparelhos para o modo portaria (a desenhar).
 * **Depois da implementação:** relatório das funções e configurações que ficaram fora das telas e folhas, e tour na primeira abertura do painel, com sequência e opção de não mostrar de novo.
+
+## D29 — Versão do Node.js (aprovada em 2026-11-08)
+
+Aprovada pelo responsável do produto em 2026-11-08, depois da saída do AI Studio (que limitava ao Node 22).
+
+* **Servidor (Cloud Run), CI e desenvolvimento:** Node.js **26** (LTS desde outubro de 2026, fim de vida em abril de 2029). A versão está no `Dockerfile` (`node:26-slim`), nos workflows e em `engines` do `package.json`.
+* **Cloud Functions:** Node.js **24**, a versão estável mais nova do Google; o 26 ainda está em prévia lá. Passar para 26 quando o Google publicar como estável.
+* **Ações do GitHub** nas versões maiores atuais (Node 24 nos runners), sem o aviso de Node 20 descontinuado.
+

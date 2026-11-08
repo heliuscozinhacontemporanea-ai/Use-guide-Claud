@@ -1,6 +1,6 @@
 {
   "name": "notifications-functions",
-  "engines": { "node": "22" },
+  "engines": { "node": "24" },
   "main": "lib/index.js",
   "scripts": {
     "build": "tsc",
