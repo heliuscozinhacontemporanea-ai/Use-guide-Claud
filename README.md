@@ -119,7 +119,6 @@ Publicação automática no merge para a `main` (decisão D23), pelo `.github/wo
 
 ## 9. Integração Firebase (Firestore & Auth)
 O Use Guide utiliza o ecossistema do **Firebase** para persistência de dados e autenticação de usuários.
-- **Modelagem de Dados:** O arquivo `firebase-blueprint.json` documenta de forma agnóstica o esquema das coleções do Firestore (como `partners`, `notifications`, `users` e `guides`).
 - **Segurança de Dados:** O arquivo `firestore.rules` provê um controle rígido baseado em papéis e identidades (ABAC), garantindo que escritas sejam devidamente validadas por esquemas estritos, prevenindo adulterações de identidade e vazamento de informações privadas (PII).
 - **Tratamento de Erros:** Todas as operações que geram erros de permissão insuficiente são envelopadas no helper `handleFirestoreError`, que padroniza o erro em formato JSON estruturado, facilitando o diagnóstico nos logs.
 

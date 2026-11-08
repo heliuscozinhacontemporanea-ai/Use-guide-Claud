@@ -1,24 +1,14 @@
-import { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { Handshake, X } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import { useEffect, useRef, useState } from 'react';
 import { FormProvider } from 'react-hook-form';
-import { X, Handshake } from 'lucide-react';
-import { ModalLayout } from '../../../ui/layouts/ModalLayout';
-import { useScrollLock } from '../../../shared/hooks/useScrollLock';
-import { Step1CompanyInfo } from './steps/Step1CompanyInfo';
-import { Step2ContactInfo } from './steps/Step2ContactInfo';
-import { Step3Details } from './steps/Step3Details';
-import { Step4Additional } from './steps/Step4Additional';
-import { Step5Media } from './steps/Step5Media';
-import { PartnerPresentation } from './sections/PartnerPresentation';
-import { StepNavigation } from './sections/StepNavigation';
-import { ErrorState } from './sections/ErrorState';
-import { SignupProcessingState } from './sections/SignupProcessingState';
-import { SignupStepActions } from './sections/SignupStepActions';
-import { SignupStepPanel } from './sections/SignupStepPanel';
-import { Step6Success } from './steps/Step6Success';
-import { usePartnerForm } from '../hooks/usePartnerForm';
 import { Z_INDEX } from '../../../shared/constants/zIndex';
+import { useScrollLock } from '../../../shared/hooks/useScrollLock';
+import { ErrorState } from '../../../ui/components/ErrorState';
+import type { PhoneInputFieldRef } from '../../../ui/components/PhoneInputField';
+import { ModalLayout } from '../../../ui/layouts/ModalLayout';
 import { LISTING_CATEGORIES } from '../constants/listingCategories';
+import { usePartnerForm } from '../hooks/usePartnerForm';
 import {
   isSignupStep1Incomplete,
   isSignupStep2Incomplete,
@@ -26,7 +16,17 @@ import {
   isSignupStep4Incomplete,
   isSignupStep5Incomplete,
 } from '../utils/signupStepGates';
-import type { PhoneInputFieldRef } from '../../../ui/components/PhoneInputField';
+import { PartnerPresentation } from './sections/PartnerPresentation';
+import { SignupProcessingState } from './sections/SignupProcessingState';
+import { SignupStepActions } from './sections/SignupStepActions';
+import { SignupStepPanel } from './sections/SignupStepPanel';
+import { StepNavigation } from './sections/StepNavigation';
+import { Step1CompanyInfo } from './steps/Step1CompanyInfo';
+import { Step2ContactInfo } from './steps/Step2ContactInfo';
+import { Step3Details } from './steps/Step3Details';
+import { Step4Additional } from './steps/Step4Additional';
+import { Step5Media } from './steps/Step5Media';
+import { Step6Success } from './steps/Step6Success';
 
 interface PartnersModalProps {
   isOpen: boolean;
