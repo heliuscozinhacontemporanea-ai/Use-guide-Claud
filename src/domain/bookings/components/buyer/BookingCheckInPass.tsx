@@ -2,6 +2,7 @@ import { ShieldAlert } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatBusinessDateTime } from '../../../../shared/utils/businessDateTime';
+import { placeTimeSuffix } from '../../../../shared/utils/placeTime';
 import { TextButton } from '../../../../ui/components/TextButton';
 import { useBookingCheckInPass } from '../../hooks/useBookingCheckInPass';
 import type { BookingSummary } from '../../types/bookings';
@@ -21,7 +22,13 @@ export function BookingCheckInPass({ booking }: { booking: BookingSummary }) {
   const [selected, setSelected] = useState(0);
   const [editing, setEditing] = useState(false);
   const entry = booking.kind === 'private_entry';
-  const date = (iso: string) => formatBusinessDateTime(iso, i18n.language);
+  // Prazos e horários do serviço na hora do lugar (D28), com o lugar para quem está em outro fuso.
+  const place = {
+    timeZone: booking.offer.timeZone ?? undefined,
+    city: booking.offer.city ?? undefined,
+  };
+  const date = (iso: string) =>
+    formatBusinessDateTime(iso, i18n.language, place.timeZone) + placeTimeSuffix(t, place, iso);
 
   if (loading && !data) {
     return (

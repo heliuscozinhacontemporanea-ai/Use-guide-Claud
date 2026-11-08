@@ -75,8 +75,9 @@ export class BookingEntryService {
     }
     const slot = await this.port.getSlot(booking.slotId);
     if (!slot) throw NOT_FOUND();
-    const { closesAtMs } = entryWindow(slot, booking.offerSnapshot.durationMinutes);
-    const visibleFromMs = checkInCodeVisibleFromMs(slot.startsAt);
+    const { durationMinutes, timeZone } = booking.offerSnapshot;
+    const { closesAtMs } = entryWindow(slot, durationMinutes, timeZone);
+    const visibleFromMs = checkInCodeVisibleFromMs(slot.startsAt, timeZone);
     const nowMs = this.now().getTime();
     const open = nowMs >= visibleFromMs && nowMs <= closesAtMs;
     const participants = await this.port.getParticipants(booking.id);
@@ -119,7 +120,7 @@ export class BookingEntryService {
     if (atMs === null) {
       throw new BookingDomainError('VALIDATION_ERROR', 'Hora da entrada inválida.');
     }
-    const { opensAtMs, closesAtMs } = entryWindow(slot, offer.durationMinutes);
+    const { opensAtMs, closesAtMs } = entryWindow(slot, offer.durationMinutes, offer.timeZone);
     if (atMs < opensAtMs || atMs > closesAtMs) {
       throw new BookingDomainError(
         'CHECK_IN_WINDOW_CLOSED',

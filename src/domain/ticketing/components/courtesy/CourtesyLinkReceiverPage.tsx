@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { Z_INDEX } from '../../../../shared/constants/zIndex';
 import { formatSessionLabel } from '../../../../shared/utils/businessDateTime';
+import { placeTimeSuffix } from '../../../../shared/utils/placeTime';
 import { StatusText } from '../../../../ui/components/StatusText';
 import { TextButton } from '../../../../ui/components/TextButton';
 import { BUTTON_PRIMARY } from '../../../../ui/styles/controls';
@@ -60,7 +61,11 @@ export function CourtesyLinkReceiverPage({
 
   const when =
     preview &&
-    [formatSessionLabel(preview.startsAt, i18n.language), preview.locationName]
+    [
+      formatSessionLabel(preview.startsAt, i18n.language, preview.timeZone) +
+        placeTimeSuffix(t, preview, preview.startsAt),
+      preview.locationName,
+    ]
       .filter(Boolean)
       .join(' · ');
 

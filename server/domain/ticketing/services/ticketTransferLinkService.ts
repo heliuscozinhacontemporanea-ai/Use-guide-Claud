@@ -11,6 +11,8 @@ export const TRANSFER_LINK_TTL_MS = 30 * 60 * 1000;
 export interface TransferLinkPreview {
   eventTitle: string | null;
   startsAt: string | null;
+  timeZone?: string;
+  city?: string;
   ticketType: string | null;
   from: TicketTransferLink['receivedFrom'];
   expiresAt: string;
@@ -65,6 +67,8 @@ export class TicketTransferLinkService {
     return {
       eventTitle: ticket?.eventSnapshot?.title ?? null,
       startsAt: ticket?.eventSnapshot?.startsAt ?? null,
+      timeZone: ticket?.eventSnapshot?.timeZone,
+      city: ticket?.eventSnapshot?.city,
       ticketType: ticket?.ticketTypeSnapshot?.name ?? null,
       from: link.receivedFrom,
       expiresAt: link.expiresAt,

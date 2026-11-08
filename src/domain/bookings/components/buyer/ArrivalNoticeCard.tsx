@@ -6,6 +6,7 @@ import { StatusText } from '../../../../ui/components/StatusText';
 import { BUTTON_DANGER, BUTTON_PRIMARY, BUTTON_SECONDARY } from '../../../../ui/styles/controls';
 import { respondToArrivalUseCase } from '../../application/usecases/respondToArrivalUseCase';
 import type { ArrivalResponse, BookingSummary } from '../../types/bookings';
+import { placeTimeSuffix } from '../../../../shared/utils/placeTime';
 import { formatSlotDateTime } from '../../utils/dates';
 import { BookingCheckInPass } from './BookingCheckInPass';
 
@@ -99,7 +100,7 @@ export function ArrivalNoticeCard({
         title={t('arrivalNotice.sheetTitle')}
         description={t('arrivalNotice.sheetDescription', {
           title: booking.offer.title,
-          when: formatSlotDateTime(booking.offer.startsAt, i18n.language),
+          when: `${formatSlotDateTime(booking.offer.startsAt, i18n.language, booking.offer.timeZone ?? undefined)}${placeTimeSuffix(t, { timeZone: booking.offer.timeZone ?? undefined, city: booking.offer.city ?? undefined }, booking.offer.startsAt)}`,
         })}
       >
         <div className="space-y-4">

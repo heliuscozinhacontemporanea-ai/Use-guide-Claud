@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatBusinessDateTime } from '../../../../shared/utils/businessDateTime';
+import { placeTimeSuffix } from '../../../../shared/utils/placeTime';
 import { ConfirmDialog, type ConfirmDialogData } from '../../../../ui/components/ConfirmDialog';
 import { StatusText } from '../../../../ui/components/StatusText';
 import { TextButton } from '../../../../ui/components/TextButton';
@@ -34,7 +35,13 @@ export function BookingServiceActions({
   const [confirm, setConfirm] = useState<ConfirmDialogData | null>(null);
   const [sending, setSending] = useState(false);
   const now = new Date();
-  const date = (iso: string) => formatBusinessDateTime(iso, i18n.language);
+  // Prazos e horários do serviço na hora do lugar (D28), com o lugar para quem está em outro fuso.
+  const place = {
+    timeZone: booking.offer.timeZone ?? undefined,
+    city: booking.offer.city ?? undefined,
+  };
+  const date = (iso: string) =>
+    formatBusinessDateTime(iso, i18n.language, place.timeZone) + placeTimeSuffix(t, place, iso);
   const business = booking.businessName || t('serviceProof.buyer.businessFallback');
 
   const run = async (action: () => Promise<unknown>, success: string) => {

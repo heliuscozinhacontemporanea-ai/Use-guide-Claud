@@ -1,3 +1,4 @@
+import { placeTimeOf } from '../../../shared/kernel/timeZones';
 import { isCurrentBuyerTermsVersion } from '../../../shared/kernel/legalTerms';
 import {
   PlatformFeeConfigError,
@@ -153,6 +154,7 @@ export class TicketOrderService {
           startsAt: occurrence.startsAt,
           endsAt: occurrence.endsAt,
           locationName: occurrence.locationOverride?.name || listing.location.name,
+          ...placeTimeOf(listing),
         },
         salesPolicySnapshot: { ...listing.salesPolicy },
         termsAcceptance: {

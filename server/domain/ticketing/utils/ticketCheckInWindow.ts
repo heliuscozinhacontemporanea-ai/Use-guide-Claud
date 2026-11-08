@@ -21,7 +21,7 @@ export function ticketCheckInWindow(
   };
 }
 
-/** O código aparece para o comprador a partir de 00:00 do dia da sessão em Fortaleza (D20). */
-export function ticketCodeVisibleFromMs(startsAt: string): number {
-  return businessDayStartMs(startsAt);
+/** O código aparece para o comprador a partir de 00:00 do dia da sessão na hora do lugar (D20, D28). */
+export function ticketCodeVisibleFromMs(startsAt: string, timeZone?: string): number {
+  return businessDayStartMs(startsAt, timeZone);
 }

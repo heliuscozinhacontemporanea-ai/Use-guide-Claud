@@ -12,9 +12,9 @@ export const CHECK_IN_CLOSES_AFTER_MS = 12 * HOUR_MS;
 export const CHECK_IN_MAX_FAILURES = 5;
 export const CHECK_IN_FAILURE_WINDOW_MS = 15 * MINUTE_MS;
 
-/** 00:00 do dia do serviço em Fortaleza: a partir daí o comprador vê o código. */
-export function checkInCodeVisibleFromMs(startsAt: string): number {
-  return businessDayStartMs(startsAt);
+/** 00:00 do dia do serviço na hora do lugar (D28): a partir daí o comprador vê o código. */
+export function checkInCodeVisibleFromMs(startsAt: string, timeZone?: string): number {
+  return businessDayStartMs(startsAt, timeZone);
 }
 
 export function checkInWindow(
@@ -42,18 +42,19 @@ export const ENTRY_MAX_FAILURES_PER_SLOT = 50;
 
 /**
  * Entrada vale o dia do horário até o fechamento (D20): até o fim do horário, ou o fim da duração,
- * ou, sem nenhum dos dois, o fim do dia em Fortaleza.
+ * ou, sem nenhum dos dois, o fim do dia na hora do lugar.
  */
 export function entryWindow(
   slot: { startsAt: string; endsAt?: string },
-  durationMinutes?: number
+  durationMinutes?: number,
+  timeZone?: string
 ): { opensAtMs: number; closesAtMs: number } {
   const startMs = new Date(slot.startsAt).getTime();
   const closesAtMs = slot.endsAt
     ? new Date(slot.endsAt).getTime()
     : durationMinutes
       ? serviceEndsAtMs(slot.startsAt, durationMinutes)
-      : checkInCodeVisibleFromMs(slot.startsAt) + DAY_MS - 1;
+      : checkInCodeVisibleFromMs(slot.startsAt, timeZone) + DAY_MS - 1;
   return { opensAtMs: startMs - CHECK_IN_OPENS_BEFORE_MS, closesAtMs };
 }
 

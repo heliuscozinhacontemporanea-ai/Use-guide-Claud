@@ -111,6 +111,9 @@ export interface BookingSummary {
     durationMinutes: number | null;
     meetingPoint: string | null;
     cancellationPolicy: BookingCancellationPolicy;
+    /** Fuso e cidade da oferta na compra (D28). */
+    timeZone?: string | null;
+    city?: string | null;
   };
   cancellation: {
     by: 'buyer' | 'partner' | 'system';

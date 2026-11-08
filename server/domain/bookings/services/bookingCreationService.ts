@@ -1,3 +1,4 @@
+import { placeTimeOf } from '../../../shared/kernel/timeZones';
 import { isCurrentBuyerTermsVersion } from '../../../shared/kernel/legalTerms';
 import type { Locale } from '../../../shared/kernel/locale';
 import type { PlatformFeeConfig } from '../../../shared/kernel/platformFees';
@@ -117,6 +118,7 @@ export class BookingCreationService {
           ? { groupMaxPeople: offer.groupMaxPeople }
           : {}),
         ...(named ? { requiresParticipantNames: true } : {}),
+        ...placeTimeOf(offer),
       },
       termsAcceptance: { version: input.acceptedTermsVersion, acceptedAt: timestamp },
       ...(offer.pickupMode === 'buyer_address' ? { pickupAddress } : {}),

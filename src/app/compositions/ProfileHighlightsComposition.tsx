@@ -5,6 +5,7 @@ import { useFavorites } from '../../domain/favorites';
 import { useMyReviews } from '../../domain/reviews';
 import { useUserTicketsAndOrders } from '../../domain/ticketing';
 import { formatBusinessDate } from '../../shared/utils/businessDateTime';
+import { placeTimeSuffix } from '../../shared/utils/placeTime';
 import { ShortcutTile } from '../../ui/components/ShortcutTile';
 
 interface ProfileHighlightsProps {
@@ -19,6 +20,8 @@ interface NextUp {
   title: string;
   startsAt: string;
   place: string | null;
+  timeZone?: string;
+  city?: string;
   count: number;
 }
 
@@ -62,6 +65,8 @@ export function ProfileHighlightsComposition({
         title: event.title,
         startsAt: event.startsAt,
         place: event.locationName ?? null,
+        timeZone: event.timeZone,
+        city: event.city,
         count: 1,
       });
   }
@@ -72,6 +77,8 @@ export function ProfileHighlightsComposition({
       title: booking.offer.title,
       startsAt: booking.offer.startsAt,
       place: booking.offer.meetingPoint,
+      timeZone: booking.offer.timeZone ?? undefined,
+      city: booking.offer.city ?? undefined,
       count: booking.participantsCount,
     });
   }
@@ -102,14 +109,19 @@ export function ProfileHighlightsComposition({
                 {next.title}
               </span>
               <span className="block text-sm text-ink/70">
-                {formatBusinessDate(next.startsAt, i18n.language, {
-                  weekday: 'short',
-                  day: 'numeric',
-                  month: 'short',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                })}{' '}
-                ·{' '}
+                {formatBusinessDate(
+                  next.startsAt,
+                  i18n.language,
+                  {
+                    weekday: 'short',
+                    day: 'numeric',
+                    month: 'short',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  },
+                  next.timeZone
+                )}
+                {placeTimeSuffix(t, next, next.startsAt)} ·{' '}
                 {t(next.kind === 'ticket' ? 'profile.nextTickets' : 'profile.nextParticipants', {
                   count: next.count,
                 })}

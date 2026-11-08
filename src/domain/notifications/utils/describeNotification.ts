@@ -1,8 +1,8 @@
 import type { TFunction } from 'i18next';
+import { placeTimeSuffix } from '../../../shared/utils/placeTime';
+import { PLATFORM_TIME_ZONE } from '../../../shared/utils/timeZones';
 import type { NotificationDate, StoredNotification } from '../types/notification';
 import type { NotificationCenterItem } from '../types/notificationCategories';
-
-const TIME_ZONE = 'America/Fortaleza';
 
 /** Dados que, se vierem vazios, trocam o texto pela versão sem nome (`titleGeneric`/`bodyGeneric`). */
 const NAMED_PARAMS = ['event', 'business', 'username', 'listing', 'offer'] as const;
@@ -37,11 +37,17 @@ export function describeNotification(
     values.username = `@${params.username}`;
   }
   if (typeof params.startsAt === 'string') {
-    values.date = new Intl.DateTimeFormat(locale, {
-      dateStyle: 'long',
-      timeStyle: 'short',
-      timeZone: TIME_ZONE,
-    }).format(new Date(params.startsAt));
+    // Hora do lugar do serviço (D28), com o lugar para quem está em outro fuso.
+    const place = {
+      timeZone: typeof params.timeZone === 'string' ? params.timeZone : undefined,
+      city: typeof params.city === 'string' ? params.city : undefined,
+    };
+    values.date =
+      new Intl.DateTimeFormat(locale, {
+        dateStyle: 'long',
+        timeStyle: 'short',
+        timeZone: place.timeZone ?? PLATFORM_TIME_ZONE,
+      }).format(new Date(params.startsAt)) + placeTimeSuffix(t, place, params.startsAt);
   }
   for (const countKey of ['count', 'participants', 'rating', 'days']) {
     if (typeof params[countKey] === 'number') values.count = params[countKey];

@@ -2,6 +2,8 @@ import { QrCode, Send, ShieldAlert } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '../../../../shared/utils/cn';
+import { placeTimeSuffix } from '../../../../shared/utils/placeTime';
+import { PLATFORM_TIME_ZONE } from '../../../../shared/utils/timeZones';
 import { ConfirmDialog, type ConfirmDialogData } from '../../../../ui/components/ConfirmDialog';
 import { GlassCard } from '../../../../ui/components/GlassCard';
 import { TextButton } from '../../../../ui/components/TextButton';
@@ -34,9 +36,12 @@ export function WalletTicketCard({
   const { t, i18n } = useTranslation();
   const [confirm, setConfirm] = useState<ConfirmDialogData | null>(null);
   const startsAt = ticket.eventSnapshot?.startsAt;
-  const formatDate = (iso: string) =>
+  // Sessão e liberação do código na hora do lugar do evento (D28); o prazo do link de transferência,
+  // que a pessoa usa agora, no relógio do aparelho.
+  const place = ticket.eventSnapshot;
+  const formatDate = (iso: string, timeZone?: string) =>
     new Intl.DateTimeFormat(i18n.language, {
-      timeZone: 'America/Fortaleza',
+      timeZone,
       dateStyle: 'medium',
       timeStyle: 'short',
     }).format(new Date(iso));
@@ -57,7 +62,11 @@ export function WalletTicketCard({
           </p>
           {startsAt && (
             <p className="text-xs text-ink/70 mt-0.5">
-              {t('ticketWallet.session', { date: formatDate(startsAt) })}
+              {t('ticketWallet.session', {
+                date:
+                  formatDate(startsAt, place?.timeZone ?? PLATFORM_TIME_ZONE) +
+                  placeTimeSuffix(t, place, startsAt),
+              })}
             </p>
           )}
         </div>
@@ -111,7 +120,9 @@ export function WalletTicketCard({
           ) : (
             qr.codeVisibleFrom && (
               <p className="text-[13px] text-ink/70 text-center">
-                {t('ticketWallet.code.notYet', { date: formatDate(qr.codeVisibleFrom) })}
+                {t('ticketWallet.code.notYet', {
+                  date: formatDate(qr.codeVisibleFrom, place?.timeZone ?? PLATFORM_TIME_ZONE),
+                })}
               </p>
             )
           )}

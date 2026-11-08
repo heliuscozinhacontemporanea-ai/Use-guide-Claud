@@ -28,6 +28,8 @@ export function toBuyerBooking(booking: Booking) {
       durationMinutes: booking.offerSnapshot.durationMinutes ?? null,
       meetingPoint: booking.offerSnapshot.meetingPoint ?? null,
       cancellationPolicy: booking.offerSnapshot.cancellationPolicy,
+      timeZone: booking.offerSnapshot.timeZone ?? null,
+      city: booking.offerSnapshot.city ?? null,
     },
     cancellation: booking.cancellation
       ? {

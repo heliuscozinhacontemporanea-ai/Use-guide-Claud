@@ -125,6 +125,9 @@ export interface TicketOrder {
     startsAt: string;
     endsAt: string;
     locationName?: string;
+    /** Fuso e cidade do evento na compra (D28): recibo, carteira e avisos na hora do lugar. */
+    timeZone?: string;
+    city?: string;
   };
   salesPolicySnapshot: TicketOrderSalesPolicySnapshot;
   /** Versão dos termos aceita na compra (D15). */
@@ -205,6 +208,9 @@ export interface Ticket {
     startsAt: string;
     endsAt: string;
     locationName?: string;
+    /** Fuso e cidade do evento na compra (D28): recibo, carteira e avisos na hora do lugar. */
+    timeZone?: string;
+    city?: string;
   };
 }
 

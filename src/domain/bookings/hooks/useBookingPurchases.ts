@@ -65,7 +65,11 @@ export function useBookingPurchases() {
       code: booking.id.slice(0, BOOKING_CODE_LENGTH),
       purchasedAt: booking.createdAt,
       serviceLine: t(`purchases.service.${booking.kind}`, {
-        date: formatBusinessDay(booking.offer.startsAt, i18n.language),
+        date: formatBusinessDay(
+          booking.offer.startsAt,
+          i18n.language,
+          booking.offer.timeZone ?? undefined
+        ),
       }),
       amountMinor: booking.totalMinor,
       struck: section === 'canceled',

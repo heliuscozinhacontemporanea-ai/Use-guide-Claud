@@ -28,5 +28,7 @@ export interface CourtesyLinkPreview {
   eventTitle: string;
   startsAt: string;
   locationName: string | null;
+  timeZone?: string;
+  city?: string;
   expiresAt: string;
 }

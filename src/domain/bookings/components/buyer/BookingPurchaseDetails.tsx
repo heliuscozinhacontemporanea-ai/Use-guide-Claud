@@ -10,6 +10,7 @@ import { TextButton } from '../../../../ui/components/TextButton';
 import { BOOKING_CODE_LENGTH, type BookingPurchasesSource } from '../../hooks/useBookingPurchases';
 import type { BookingSummary } from '../../types/bookings';
 import { getBookingErrorMessage } from '../../utils/bookingErrorMessage';
+import { placeTimeSuffix } from '../../../../shared/utils/placeTime';
 import { formatSlotDateTime } from '../../utils/dates';
 import { formatMinor } from '../../utils/money';
 import { previewRefund } from '../../utils/refundPreview';
@@ -177,7 +178,7 @@ export function BookingPurchaseDetails({
         purchasedAt={booking.createdAt}
         serviceLine={[
           booking.offer.meetingPoint,
-          formatSlotDateTime(booking.offer.startsAt, i18n.language),
+          `${formatSlotDateTime(booking.offer.startsAt, i18n.language, booking.offer.timeZone ?? undefined)}${placeTimeSuffix(t, { timeZone: booking.offer.timeZone ?? undefined, city: booking.offer.city ?? undefined }, booking.offer.startsAt)}`,
         ]
           .filter(Boolean)
           .join(' · ')}

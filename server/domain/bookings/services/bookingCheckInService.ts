@@ -112,8 +112,8 @@ export class BookingCheckInService {
     if (booking.status !== 'confirmed' && booking.status !== 'completed') {
       throw new BookingDomainError('INVALID_TRANSITION', 'Esta reserva não tem código ativo.');
     }
-    const { startsAt, durationMinutes } = booking.offerSnapshot;
-    const visibleFromMs = checkInCodeVisibleFromMs(startsAt);
+    const { startsAt, durationMinutes, timeZone } = booking.offerSnapshot;
+    const visibleFromMs = checkInCodeVisibleFromMs(startsAt, timeZone);
     const { closesAtMs } = checkInWindow(startsAt, durationMinutes);
     const nowMs = this.now().getTime();
     const open = nowMs >= visibleFromMs && nowMs <= closesAtMs;

@@ -1,5 +1,6 @@
 import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { placeTimeSuffix } from '../../../../shared/utils/placeTime';
 import {
   formatBusinessDate,
   formatBusinessDateTime,
@@ -166,13 +167,18 @@ export function TicketPurchaseDetails({
           event
             ? [
                 event.locationName,
-                formatBusinessDate(event.startsAt, i18n.language, {
-                  weekday: 'short',
-                  day: 'numeric',
-                  month: 'short',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                }),
+                formatBusinessDate(
+                  event.startsAt,
+                  i18n.language,
+                  {
+                    weekday: 'short',
+                    day: 'numeric',
+                    month: 'short',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  },
+                  event.timeZone
+                ) + placeTimeSuffix(t, event, event.startsAt),
               ]
                 .filter(Boolean)
                 .join(' · ')
