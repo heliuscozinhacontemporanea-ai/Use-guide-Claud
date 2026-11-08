@@ -1,3 +1,4 @@
+import { summarizeOwnerPromoCodesUseCase } from '../../../domain/promotions';
 import { listOwnerAgendaUseCase } from '../../../domain/bookings';
 import { listOwnerEventListingsUseCase } from '../../../domain/events';
 import { listOwnerGuideItemsUseCase } from '../../../domain/guide';
@@ -92,10 +93,12 @@ export async function getPartnerHomeApplicationUseCase(
     recentEntries,
     openEntries,
   });
-  const [promoters, termsOk, tour] = await Promise.all([
+  const [promoters, termsOk, tour, promoCodes] = await Promise.all([
     loadNextPromoters(ownerUid, view.upcomingSessions),
     hasCurrentPartnerTerms(ownerUid),
     getPartnerPanelTourUseCase(ownerUid).catch(() => null),
+    // O cartão é opcional: sem leitura dos cupons, ele só não aparece.
+    summarizeOwnerPromoCodesUseCase(ownerUid).catch(() => null),
   ]);
   // Termos novos sem aceite: pedido no topo de "Resolva agora", sem parar as vendas.
   const attention =
@@ -115,6 +118,7 @@ export async function getPartnerHomeApplicationUseCase(
     ...view,
     attention,
     promoters,
+    promoCodes,
     // Sem leitura do estado, o tour não abre: melhor não mostrar que mostrar de novo a quem já viu.
     tour: tour
       ? { show: shouldShowPanelTour(tour), tipsOff: tour.tipsOff }

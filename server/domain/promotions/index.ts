@@ -6,6 +6,7 @@ export {
   type PromoCode,
   type PromoCodeInput,
   type PromoCodeLimitsEdit,
+  type PromoCodesSummary,
   type PromoDiscountType,
   type PromoStatus,
   type PromoTarget,
@@ -20,5 +21,6 @@ export { listOwnerPromoCodesUseCase } from './usecases/listOwnerPromoCodesUseCas
 export { releasePromoUseUseCase } from './usecases/releasePromoUseUseCase';
 export { replacePromoCodeUseCase } from './usecases/replacePromoCodeUseCase';
 export { reservePromoUseUseCase } from './usecases/reservePromoUseUseCase';
+export { summarizeOwnerPromoCodesUseCase } from './usecases/summarizeOwnerPromoCodesUseCase';
 export { updatePromoCodeLimitsUseCase } from './usecases/updatePromoCodeLimitsUseCase';
 export { computePromoDiscount, type PromoLine } from './utils/computePromoDiscount';

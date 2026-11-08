@@ -7,8 +7,11 @@ import {
   type PromoCode,
   type PromoCodeInput,
   type PromoCodeLimitsEdit,
+  PROMO_SUMMARY_DAYS,
+  type PromoCodesSummary,
   type PromoTarget,
   promoTargetKey,
+  summarizePromoCodes,
 } from '../types/promoCode';
 import { assertPromoUsable } from '../utils/assertPromoUsable';
 
@@ -113,6 +116,16 @@ export class PromoCodeService {
       (item) => item.kind === params.target.kind && item.id === params.target.id
     );
     return { promo, optionIds: target?.optionIds ?? null };
+  }
+
+  /** Cartão "Cupons" do Início: ativos, usos na semana, o mais usado e o que acaba primeiro. */
+  async summarize(ownerId: string, now = new Date()): Promise<PromoCodesSummary | null> {
+    const since = new Date(now.getTime() - PROMO_SUMMARY_DAYS * 24 * 60 * 60 * 1000);
+    const [promos, uses] = await Promise.all([
+      this.port.listByOwner(ownerId),
+      this.port.countOwnerUsesSince(ownerId, since.toISOString()),
+    ]);
+    return summarizePromoCodes(promos, uses, now);
   }
 
   reserveUse(promoId: string, buyerUid: string, now = new Date()): Promise<string> {

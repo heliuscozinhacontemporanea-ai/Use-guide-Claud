@@ -39,6 +39,7 @@ export function PartnerHomeTab({
   labelFor,
   onOpenAttention,
   onOpenTab,
+  onOpenCoupons,
   agora,
 }: {
   loading: boolean;
@@ -50,6 +51,8 @@ export function PartnerHomeTab({
   labelFor: (item: PartnerTodayItem) => string | null;
   onOpenAttention: (item: PartnerAttentionItem) => void;
   onOpenTab: (tab: PartnerPanelTab) => void;
+  /** Toque no cartão "Cupons". */
+  onOpenCoupons?: () => void;
   /** Seção "Agora", acima de "Resolva agora": na hora do serviço é o que importa primeiro. */
   agora?: ReactNode;
 }) {
@@ -81,6 +84,7 @@ export function PartnerHomeTab({
         manyEstablishments={view.establishments.length > 1}
         labelFor={labelFor}
         onOpenTab={onOpenTab}
+        onOpenCoupons={onOpenCoupons}
         onCustomize={cards.startEditing}
       />
     </div>

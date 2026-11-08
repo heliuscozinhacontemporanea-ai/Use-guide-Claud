@@ -19,4 +19,6 @@ export interface PromoCodePort {
   reserveUse(promoId: string, buyerUid: string, nowIso: string): Promise<string>;
   /** Devolve o uso de um pedido que não foi pago; repetir não faz nada. */
   releaseUse(redemptionId: string, nowIso: string): Promise<void>;
+  /** Usos guardados (não devolvidos) dos cupons do dono desde `sinceIso`, por cupom. */
+  countOwnerUsesSince(ownerId: string, sinceIso: string): Promise<Map<string, number>>;
 }

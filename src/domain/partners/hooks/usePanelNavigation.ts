@@ -13,7 +13,7 @@ export function usePanelNavigation() {
   const [eventId, setEventId] = useState<string | null>(null);
   const [moreView, setMoreView] = useState<PartnerMoreView>('list');
   // Cupons abertos por um evento ou uma oferta: voltar leva de novo ao Catálogo.
-  const [couponsFrom, setCouponsFrom] = useState<CouponsScope | null>(null);
+  const [couponsFrom, setCouponsFrom] = useState<CouponsScope | 'home' | null>(null);
 
   // Abrir uma aba fecha o que estava aberto dentro de outra.
   const openTab = useCallback((tab: PartnerPanelTab) => {
@@ -26,21 +26,36 @@ export function usePanelNavigation() {
     setCouponsFrom(null);
   }, []);
 
-  const openCoupons = useCallback((from: CouponsScope) => {
+  const openCoupons = useCallback((from: CouponsScope | 'home') => {
     setCouponsFrom(from);
     setEventId(null);
     setMoreView('coupons');
     setPanelTab('more');
   }, []);
 
-  /** Devolve de onde os cupons foram abertos, para o painel voltar ao lugar certo. */
-  const closeCoupons = useCallback(() => {
-    if (couponsFrom) setPanelTab('catalog');
-    if (couponsFrom?.kind === 'event') setEventId(couponsFrom.id);
-    setCouponsFrom(null);
-    setMoreView('list');
-    return couponsFrom;
-  }, [couponsFrom]);
+  /** Volta para onde os cupons foram abertos; `onOffer` reabre as ofertas no Catálogo. */
+  const closeCoupons = useCallback(
+    (onOffer?: () => void) => {
+      if (couponsFrom && couponsFrom !== 'home' && couponsFrom.kind === 'offer') onOffer?.();
+      if (couponsFrom === 'home') setPanelTab('home');
+      else if (couponsFrom) setPanelTab('catalog');
+      if (couponsFrom && couponsFrom !== 'home' && couponsFrom.kind === 'event') {
+        setEventId(couponsFrom.id);
+      }
+      setCouponsFrom(null);
+      setMoreView('list');
+    },
+    [couponsFrom]
+  );
+
+  const couponsScope = couponsFrom === 'home' ? null : couponsFrom;
+  // Rótulo do "voltar" da área Cupons.
+  const couponsBackKey =
+    couponsFrom === 'home'
+      ? 'partnerPanel.tabs.home'
+      : couponsFrom
+        ? 'partnerPanel.tabs.catalog'
+        : 'partnerPanel.more.title';
 
   return {
     panelTab,
@@ -55,7 +70,8 @@ export function usePanelNavigation() {
     setEventId,
     moreView,
     setMoreView,
-    couponsFrom,
+    couponsScope,
+    couponsBackKey,
     openTab,
     openCoupons,
     closeCoupons,

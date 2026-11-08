@@ -211,9 +211,32 @@ export class FirestorePromoCodeAdapter implements PromoCodePort {
         updatedAt: nowIso,
       });
       if (promo.onePerAccount) tx.set(buyerRef, { redemptionId: redemptionRef.id });
-      tx.set(redemptionRef, { promoId, buyerUid, status: 'reserved', createdAt: nowIso });
+      tx.set(redemptionRef, {
+        promoId,
+        ownerId: promo.ownerId,
+        buyerUid,
+        status: 'reserved',
+        createdAt: nowIso,
+      });
     });
     return redemptionRef.id;
+  }
+
+  async countOwnerUsesSince(ownerId: string, sinceIso: string): Promise<Map<string, number>> {
+    const snap = await adminDb
+      .collection(REDEMPTIONS)
+      .where('ownerId', '==', ownerId)
+      .where('createdAt', '>=', sinceIso)
+      .limit(2000)
+      .get();
+    const counts = new Map<string, number>();
+    for (const doc of snap.docs) {
+      const data = doc.data();
+      if (data.status !== 'reserved') continue;
+      const promoId = String(data.promoId);
+      counts.set(promoId, (counts.get(promoId) ?? 0) + 1);
+    }
+    return counts;
   }
 
   async releaseUse(redemptionId: string, nowIso: string): Promise<void> {

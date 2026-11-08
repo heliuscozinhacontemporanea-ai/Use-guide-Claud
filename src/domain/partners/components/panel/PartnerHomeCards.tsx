@@ -19,6 +19,7 @@ const CARD_TAB: Record<PartnerHomeCardId, PartnerPanelTab> = {
   plan_seal: 'more',
   week_occupancy: 'agenda',
   month_sales: 'earnings',
+  promo_codes: 'more',
 };
 
 /** Cartões do Início em grade de duas colunas (p01) e o "Personalizar início" embaixo. */
@@ -28,12 +29,15 @@ export function PartnerHomeCards({
   labelFor,
   onOpenTab,
   onCustomize,
+  onOpenCoupons,
 }: {
   cards: PartnerCardData[];
   manyEstablishments: boolean;
   labelFor: (item: PartnerTodayItem) => string | null;
   onOpenTab: (tab: PartnerPanelTab) => void;
   onCustomize: () => void;
+  /** O cartão "Cupons" abre a área Cupons, e não só a aba Mais. */
+  onOpenCoupons?: () => void;
 }) {
   const { t } = useTranslation();
   return (
@@ -45,7 +49,11 @@ export function PartnerHomeCards({
             <div key={data.id} className={cn('flex', cardSpan(large))}>
               <PartnerHomeCard
                 data={data}
-                onOpen={() => onOpenTab(CARD_TAB[data.id])}
+                onOpen={() =>
+                  data.id === 'promo_codes' && onOpenCoupons
+                    ? onOpenCoupons()
+                    : onOpenTab(CARD_TAB[data.id])
+                }
                 labelFor={labelFor}
                 manyEstablishments={manyEstablishments}
               />

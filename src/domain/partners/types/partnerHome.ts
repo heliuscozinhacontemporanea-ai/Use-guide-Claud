@@ -92,6 +92,8 @@ export interface PartnerHomeView {
   };
   upcomingSessions: PartnerUpcomingSession[];
   promoters: PartnerHomePromoters | null;
+  /** Cartão "Cupons": `null` sem cupom ativo nem uso na semana. */
+  promoCodes: PartnerHomePromoCodes | null;
   /** Tour do painel: `show` quando abre sozinho na entrada; `tipsOff` desliga as dicas. */
   tour: { show: boolean; tipsOff: boolean };
   week: PartnerWeekDay[];
@@ -141,6 +143,17 @@ export interface PartnerEventOrder {
     full: boolean;
     at: string;
   } | null;
+}
+
+/** Resumo dos cupons para o cartão do Início. */
+export interface PartnerHomePromoCodes {
+  active: number;
+  weekUses: number;
+  top: { code: string; uses: number } | null;
+  alert:
+    | { code: string; kind: 'ending'; endsAt: string }
+    | { code: string; kind: 'running_out'; used: number; max: number }
+    | null;
 }
 
 /** Página do evento · Vendas, como `/api/partner-home/events/:id/sales` devolve. */

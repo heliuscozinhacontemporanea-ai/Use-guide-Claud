@@ -167,6 +167,7 @@ export function PartnerPanel({
             labelFor={home.labelFor}
             onOpenAttention={(item) => setPanelTab(ATTENTION_TAB[item.kind])}
             onOpenTab={setPanelTab}
+            onOpenCoupons={renderCoupons ? () => nav.openCoupons('home') : undefined}
             agora={
               renderAgora && (
                 <PartnerAgoraSection
@@ -272,13 +273,9 @@ export function PartnerPanel({
               renderCoupons
                 ? () =>
                     renderCoupons({
-                      scope: nav.couponsFrom,
-                      backLabel: t(
-                        nav.couponsFrom ? 'partnerPanel.tabs.catalog' : 'partnerPanel.more.title'
-                      ),
-                      onBack: () => {
-                        if (nav.closeCoupons()?.kind === 'offer') setCatalogSegment('offers');
-                      },
+                      scope: nav.couponsScope,
+                      backLabel: t(nav.couponsBackKey),
+                      onBack: () => nav.closeCoupons(() => setCatalogSegment('offers')),
                     })
                 : undefined
             }

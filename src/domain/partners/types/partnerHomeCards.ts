@@ -14,6 +14,7 @@ export const PARTNER_HOME_CARD_IDS = [
   'plan_seal',
   'week_occupancy',
   'month_sales',
+  'promo_codes',
 ] as const;
 
 export type PartnerHomeCardId = (typeof PARTNER_HOME_CARD_IDS)[number];
@@ -31,6 +32,7 @@ export const PARTNER_HOME_CARD_SIZE: Record<PartnerHomeCardId, 'small' | 'large'
   plan_seal: 'small',
   week_occupancy: 'large',
   month_sales: 'small',
+  promo_codes: 'large',
 };
 
 export function isPartnerHomeCardId(value: string): value is PartnerHomeCardId {

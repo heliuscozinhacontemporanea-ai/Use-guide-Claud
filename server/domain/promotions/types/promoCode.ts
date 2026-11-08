@@ -87,3 +87,55 @@ export function promoStatus(promo: PromoCode, nowIso: string): PromoStatus {
 export function isPromoLocked(promo: PromoCode): boolean {
   return promo.firstUsedAt !== null;
 }
+
+/** Cartão "Cupons" do Início (2026-11-08): só números do dono, sem quem usou. */
+export interface PromoCodesSummary {
+  /** Ativos ou agendados. */
+  active: number;
+  /** Compras com cupom nos últimos 7 dias (pagas ou aguardando pagamento). */
+  weekUses: number;
+  top: { code: string; uses: number } | null;
+  /** O que acaba primeiro: em até 3 dias ou com 80% dos usos gastos. */
+  alert:
+    | { code: string; kind: 'ending'; endsAt: string }
+    | { code: string; kind: 'running_out'; used: number; max: number }
+    | null;
+}
+
+export const PROMO_SUMMARY_DAYS = 7;
+const ENDING_MS = 3 * 24 * 60 * 60 * 1000;
+
+/** Resumo para o cartão; `null` quando não há cupom ativo nem uso na semana. */
+export function summarizePromoCodes(
+  promos: PromoCode[],
+  weekUsesByPromo: Map<string, number>,
+  now: Date
+): PromoCodesSummary | null {
+  const nowIso = now.toISOString();
+  const live = promos.filter((promo) => {
+    const status = promoStatus(promo, nowIso);
+    return status === 'active' || status === 'scheduled';
+  });
+  const weekUses = [...weekUsesByPromo.values()].reduce((sum, value) => sum + value, 0);
+  if (live.length === 0 && weekUses === 0) return null;
+  const byId = new Map(promos.map((promo) => [promo.id, promo]));
+  const [topId, topUses] = [...weekUsesByPromo.entries()].sort((a, b) => b[1] - a[1])[0] ?? [];
+  const top = topId && topUses ? { code: byId.get(topId)?.code ?? '', uses: topUses } : null;
+  const ending = live
+    .filter((promo) => promo.endsAt && Date.parse(promo.endsAt) - now.getTime() <= ENDING_MS)
+    .sort((a, b) => (a.endsAt ?? '').localeCompare(b.endsAt ?? ''))[0];
+  const runningOut = live.find(
+    (promo) => promo.maxUses !== null && promo.usedCount >= Math.ceil(promo.maxUses * 0.8)
+  );
+  const alert = ending?.endsAt
+    ? { code: ending.code, kind: 'ending' as const, endsAt: ending.endsAt }
+    : runningOut && runningOut.maxUses !== null
+      ? {
+          code: runningOut.code,
+          kind: 'running_out' as const,
+          used: runningOut.usedCount,
+          max: runningOut.maxUses,
+        }
+      : null;
+  return { active: live.length, weekUses, top, alert };
+}

@@ -205,6 +205,38 @@ function Body({
         </>
       );
     }
+    case 'promo_codes': {
+      const { summary } = data;
+      const alert = summary.alert;
+      return (
+        <>
+          <p className={VALUE}>
+            {t('partnerPanel.cards.promo_codes.active', { count: summary.active })}
+          </p>
+          <p className={SUB}>
+            {t('partnerPanel.cards.promo_codes.weekUses', { count: summary.weekUses })}
+          </p>
+          {summary.top && (
+            <p className={cn(SUB, 'truncate')}>
+              {t('partnerPanel.cards.promo_codes.top', {
+                code: summary.top.code,
+                count: summary.top.uses,
+              })}
+            </p>
+          )}
+          {alert && (
+            <p className="mt-1 text-[13px] font-semibold text-warn truncate">
+              {alert.kind === 'ending'
+                ? t('partnerPanel.cards.promo_codes.ending', {
+                    code: alert.code,
+                    when: formatBusinessDay(alert.endsAt, lang),
+                  })
+                : t('partnerPanel.cards.promo_codes.runningOut', alert)}
+            </p>
+          )}
+        </>
+      );
+    }
   }
 }
 

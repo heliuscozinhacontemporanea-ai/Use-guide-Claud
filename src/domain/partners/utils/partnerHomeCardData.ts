@@ -1,4 +1,5 @@
 import type {
+  PartnerHomePromoCodes,
   PartnerHomePromoters,
   PartnerHomeView,
   PartnerTodayItem,
@@ -19,7 +20,8 @@ export type PartnerCardData =
   | { id: 'promoters'; promoters: PartnerHomePromoters }
   | { id: 'plan_seal'; name: string; until: string }
   | { id: 'week_occupancy'; days: Array<{ date: string; sold: number; capacity: number }> }
-  | { id: 'month_sales'; currentMinor: number; previousMinor: number };
+  | { id: 'month_sales'; currentMinor: number; previousMinor: number }
+  | { id: 'promo_codes'; summary: PartnerHomePromoCodes };
 
 const inFilter = (ids: string[], filter: EstablishmentFilter) =>
   filter === null || ids.length === 0 || ids.includes(filter);
@@ -101,5 +103,8 @@ export function partnerCardData(
     }
     case 'month_sales':
       return { id, ...view.numbers.month };
+    case 'promo_codes':
+      // Cupom vale para vários anúncios: o cartão não segue o filtro de estabelecimento.
+      return view.promoCodes ? { id, summary: view.promoCodes } : null;
   }
 }

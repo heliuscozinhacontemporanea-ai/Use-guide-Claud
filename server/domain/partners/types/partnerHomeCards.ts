@@ -14,6 +14,7 @@ export const PARTNER_HOME_CARD_IDS = [
   'plan_seal',
   'week_occupancy',
   'month_sales',
+  'promo_codes',
 ] as const;
 
 export type PartnerHomeCardId = (typeof PARTNER_HOME_CARD_IDS)[number];

@@ -209,6 +209,7 @@ export function buildPartnerHome(input: PartnerHomeInput): PartnerHomeView {
     // Preenchido pelo caso de uso, que lê os divulgadores (ticketing).
     promoters: null,
     tour: { show: false, tipsOff: false },
+    promoCodes: null,
     week: summarizeWeek(input.slots, input.nowIso),
     plans: input.planUntil,
     summary: {

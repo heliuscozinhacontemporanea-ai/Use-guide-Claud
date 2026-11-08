@@ -86,6 +86,15 @@ export interface PartnerPanelTranslation {
     plan_seal: CardTexts & { until: string };
     week_occupancy: CardTexts;
     month_sales: CardTexts & { compare: string; noCompare: string };
+    promo_codes: CardTexts & {
+      active_one: string;
+      active_other: string;
+      weekUses_one: string;
+      weekUses_other: string;
+      top: string;
+      ending: string;
+      runningOut: string;
+    };
   };
   agenda: {
     title: string;
@@ -264,6 +273,17 @@ export const partnerPanelPtBR: PartnerPanelTranslation = {
       description: 'Total vendido e comparação com o mês passado',
       compare: '{{percent}}% que o mês passado',
       noCompare: 'Sem vendas no mês passado',
+    },
+    promo_codes: {
+      title: 'Cupons',
+      description: 'Cupons ativos e usos na semana',
+      active_one: '{{count}} ativo',
+      active_other: '{{count}} ativos',
+      weekUses_one: '{{count}} uso em 7 dias',
+      weekUses_other: '{{count}} usos em 7 dias',
+      top: 'Mais usado: {{code}} · {{count}}',
+      ending: '{{code}} acaba {{when}}',
+      runningOut: '{{code}} esgotando ({{used}} de {{max}})',
     },
   },
   agenda: {
@@ -449,6 +469,17 @@ export const partnerPanelEn: PartnerPanelTranslation = {
       compare: '{{percent}}% vs. last month',
       noCompare: 'No sales last month',
     },
+    promo_codes: {
+      title: 'Promo codes',
+      description: 'Active promo codes and uses this week',
+      active_one: '{{count}} active',
+      active_other: '{{count}} active',
+      weekUses_one: '{{count}} use in 7 days',
+      weekUses_other: '{{count}} uses in 7 days',
+      top: 'Most used: {{code}} · {{count}}',
+      ending: '{{code}} ends {{when}}',
+      runningOut: '{{code}} running out ({{used}} of {{max}})',
+    },
   },
   agenda: {
     title: 'Schedule',
@@ -633,6 +664,17 @@ export const partnerPanelFr: PartnerPanelTranslation = {
       description: 'Total vendu comparé au mois dernier',
       compare: '{{percent}} % par rapport au mois dernier',
       noCompare: 'Aucune vente le mois dernier',
+    },
+    promo_codes: {
+      title: 'Codes promo',
+      description: 'Codes promo actifs et utilisations de la semaine',
+      active_one: '{{count}} actif',
+      active_other: '{{count}} actifs',
+      weekUses_one: '{{count}} utilisation en 7 jours',
+      weekUses_other: '{{count}} utilisations en 7 jours',
+      top: 'Le plus utilisé : {{code}} · {{count}}',
+      ending: '{{code}} se termine {{when}}',
+      runningOut: '{{code}} bientôt épuisé ({{used}} sur {{max}})',
     },
   },
   agenda: {

@@ -1,3 +1,4 @@
+import type { PromoCodesSummary } from '../../../domain/promotions';
 /** Leitura do Início do painel do parceiro (D27). Textos ficam no app; aqui só tipo, ids e valores. */
 export type PartnerAttentionKind =
   | 'provider_absence'
@@ -99,6 +100,8 @@ export interface PartnerHomeView {
   upcomingSessions: PartnerUpcomingSession[];
   /** Divulgadores do próximo evento que tem algum (cartão "Divulgadores", D27). */
   promoters: PartnerHomePromoters | null;
+  /** Cartão "Cupons": `null` sem cupom ativo nem uso na semana. */
+  promoCodes: PromoCodesSummary | null;
   /** Tour do painel: `show` quando abre sozinho na entrada; `tipsOff` desliga as dicas. */
   tour: { show: boolean; tipsOff: boolean };
   week: PartnerWeekDay[];

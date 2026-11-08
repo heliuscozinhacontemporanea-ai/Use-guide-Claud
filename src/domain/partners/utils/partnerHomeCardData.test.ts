@@ -35,6 +35,7 @@ const VIEW: PartnerHomeView = {
   },
   promoters: null,
   tour: { show: false, tipsOff: false },
+  promoCodes: null,
   upcomingSessions: [
     {
       id: 's',
@@ -76,5 +77,16 @@ describe('dados dos cartões do Início', () => {
       days: [{ date: '2026-11-08T03:00:00.000Z', sold: 3, capacity: 8 }],
     });
     expect(partnerCardData('plan_seal', VIEW, [], null)).toMatchObject({ name: 'Pousada' });
+  });
+});
+
+describe('cartão Cupons', () => {
+  it('aparece só com resumo e não segue o filtro de estabelecimento', () => {
+    expect(partnerCardData('promo_codes', VIEW, [], null)).toBeNull();
+    const summary = { active: 2, weekUses: 15, top: { code: 'VERAO', uses: 12 }, alert: null };
+    expect(partnerCardData('promo_codes', { ...VIEW, promoCodes: summary }, [], 'outro')).toEqual({
+      id: 'promo_codes',
+      summary,
+    });
   });
 });

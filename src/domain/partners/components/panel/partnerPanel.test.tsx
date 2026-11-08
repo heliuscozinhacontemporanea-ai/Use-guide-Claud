@@ -70,6 +70,7 @@ const VIEW: PartnerHomeView = {
   },
   promoters: null,
   tour: { show: false, tipsOff: false },
+  promoCodes: null,
   upcomingSessions: [],
   week: [],
   plans: [],
