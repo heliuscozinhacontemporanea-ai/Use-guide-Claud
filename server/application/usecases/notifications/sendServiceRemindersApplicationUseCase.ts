@@ -1,3 +1,4 @@
+import { placeTimeOf } from '../../../shared/kernel/timeZones';
 import { listConfirmedBookingsStartingBetweenUseCase } from '../../../domain/bookings';
 import { createNotificationUseCase, type NewNotification } from '../../../domain/notifications';
 import {
@@ -49,6 +50,7 @@ async function ticketReminders(
       params: {
         event: first.eventSnapshot?.title || '',
         startsAt: first.eventSnapshot?.startsAt || '',
+        ...(first.eventSnapshot ? placeTimeOf(first.eventSnapshot) : {}),
         count: group.length,
       },
       link: { screen: 'tickets' },
@@ -69,7 +71,11 @@ async function bookingReminders(
     const created = await send({
       recipientUid: booking.buyerId,
       type,
-      params: { offer: booking.offerSnapshot.title, startsAt: booking.offerSnapshot.startsAt },
+      params: {
+        offer: booking.offerSnapshot.title,
+        startsAt: booking.offerSnapshot.startsAt,
+        ...placeTimeOf(booking.offerSnapshot),
+      },
       link: { screen: 'bookings' },
       dedupeKey: `${type}_${booking.id}`,
     });

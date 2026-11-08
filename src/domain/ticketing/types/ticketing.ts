@@ -120,6 +120,9 @@ export interface TicketOrder {
     startsAt: string;
     endsAt: string;
     locationName?: string;
+    /** Fuso e cidade do evento na compra (D28). */
+    timeZone?: string;
+    city?: string;
   };
   salesPolicySnapshot: TicketOrderSalesPolicySnapshot;
   paidAt?: string;
@@ -180,6 +183,9 @@ export interface Ticket {
     startsAt: string;
     endsAt: string;
     locationName?: string;
+    /** Fuso e cidade do evento na compra (D28). */
+    timeZone?: string;
+    city?: string;
   };
   issuedAt: string;
   checkedInAt?: string;
@@ -258,6 +264,8 @@ export interface TicketTransferLinkCreated {
 export interface TicketTransferLinkPreview {
   eventTitle: string | null;
   startsAt: string | null;
+  timeZone?: string;
+  city?: string;
   ticketType: string | null;
   from: { username: string | null; displayName: string | null };
   expiresAt: string;

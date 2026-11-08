@@ -6,6 +6,8 @@ export interface CourtesyLinkPublicPreview {
   eventTitle: string;
   startsAt: string;
   locationName: string | null;
+  timeZone?: string;
+  city?: string;
   expiresAt: string;
 }
 
@@ -20,6 +22,8 @@ export async function previewCourtesyLinkApplicationUseCase(
     eventTitle: preview.eventTitle,
     startsAt: preview.startsAt,
     locationName: preview.locationName,
+    timeZone: preview.timeZone,
+    city: preview.city,
     expiresAt: preview.expiresAt,
   };
 }

@@ -1,3 +1,4 @@
+import { placeTimeOf } from '../../../shared/kernel/timeZones';
 import { getEventListingByIdUseCase, getEventOccurrenceByIdUseCase } from '../../events';
 import { CourtesyError } from '../errors/courtesyError';
 import { TicketingDomainError } from '../errors/ticketingDomainError';
@@ -43,6 +44,8 @@ export interface CourtesyLinkPreview {
   eventTitle: string;
   startsAt: string;
   locationName: string | null;
+  timeZone?: string;
+  city?: string;
   expiresAt: string;
 }
 
@@ -128,6 +131,7 @@ export class CourtesyService {
       eventTitle: listing.title,
       startsAt: occurrence.startsAt,
       locationName: occurrence.locationOverride?.name || listing.location.name || null,
+      ...placeTimeOf(listing),
       expiresAt: courtesy.linkExpiresAt ?? occurrence.startsAt,
     };
   }
@@ -279,6 +283,7 @@ export class CourtesyService {
         startsAt: occurrence.startsAt,
         endsAt: occurrence.endsAt,
         ...(locationName ? { locationName } : {}),
+        ...placeTimeOf(listing),
       },
     };
   }

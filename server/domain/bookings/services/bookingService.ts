@@ -338,9 +338,9 @@ export class BookingService {
 
   /** Fim do serviço; a entrada de atração vale até o fechamento do horário (D20). */
   private async serviceEndMs(booking: Booking): Promise<number> {
-    const { startsAt, durationMinutes } = booking.offerSnapshot;
+    const { startsAt, durationMinutes, timeZone } = booking.offerSnapshot;
     if (booking.kind !== 'private_entry') return serviceEndsAtMs(startsAt, durationMinutes);
     const slot = await this.port.getSlot(booking.slotId);
-    return entryWindow(slot ?? { startsAt }, durationMinutes).closesAtMs;
+    return entryWindow(slot ?? { startsAt }, durationMinutes, timeZone).closesAtMs;
   }
 }

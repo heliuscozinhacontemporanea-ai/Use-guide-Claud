@@ -1,3 +1,4 @@
+import { placeTimeOf } from '../../../shared/kernel/timeZones';
 import {
   BookingDomainError,
   bookingServiceEndsAt,
@@ -51,7 +52,11 @@ async function handlePaymentSucceeded(
     await createNotificationUseCase({
       recipientUid: booking.buyerId,
       type: 'purchase_booking_paid',
-      params: { offer: booking.offerSnapshot.title, startsAt: booking.offerSnapshot.startsAt },
+      params: {
+        offer: booking.offerSnapshot.title,
+        startsAt: booking.offerSnapshot.startsAt,
+        ...placeTimeOf(booking.offerSnapshot),
+      },
       link: { screen: 'bookings' },
       dedupeKey: `purchase_booking_paid_${booking.id}`,
     }).catch(() => undefined);

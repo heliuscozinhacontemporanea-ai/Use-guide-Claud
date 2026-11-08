@@ -89,7 +89,9 @@ export class CheckInService {
       qv: qrVersion,
       exp: expSec,
     });
-    const codeVisibleFromMs = occurrence ? ticketCodeVisibleFromMs(occurrence.startsAt) : null;
+    const codeVisibleFromMs = occurrence
+      ? ticketCodeVisibleFromMs(occurrence.startsAt, ticket.eventSnapshot?.timeZone)
+      : null;
 
     return {
       ticketId: ticket.id,

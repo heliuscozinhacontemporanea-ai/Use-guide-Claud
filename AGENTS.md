@@ -1,6 +1,6 @@
 # AGENTS.md — Use Guide
 
-> Versão 2.0 · Diretrizes obrigatórias para qualquer agente de IA (Gemini no Google AI Studio, Claude, Copilot etc.) e para desenvolvedores humanos.
+> Versão 2.0 · Diretrizes obrigatórias para qualquer agente de IA (Claude, Copilot etc.) e para desenvolvedores humanos.
 > Palavras-chave **DEVE / NÃO DEVE / DEVERIA / PODE** seguem a RFC 2119 (DEVE = obrigatório; DEVERIA = obrigatório salvo justificativa registrada; PODE = opcional).
 
 ---
@@ -12,7 +12,7 @@
 Quando duas regras parecerem conflitar, vale a de número menor:
 
 1. **Segurança, criptografia, privacidade (LGPD) e integridade financeira** (§7, §8)
-2. **Funcionamento nos dois ambientes — AI Studio e Produção** (§2)
+2. **Funcionamento nos dois ambientes — desenvolvimento local e produção** (§2)
 3. **Direção de dependências e comunicação entre domínios** (§3, §4)
 4. **Leitura vs. escrita (CQRS)** (§6)
 5. **Contratos de API, erros e observabilidade** (§10)
@@ -34,7 +34,7 @@ O **Use Guide** é um guia turístico e marketplace (referência de mercado: Tri
 | Catálogo: restaurantes, hospedagens, passeios, atrações públicas e privadas, dicas de viagem | `guide` |
 | Eventos (listagem, ocorrências/datas, publicação) | `events` |
 | Venda de ingressos, check-in por QR Code, transferência, reembolso, lista de espera | `ticketing` |
-| Venda de passeios, aluguel (ex: quadriciclo), translado, entradas de atrações privadas | `bookings` (**novo — ainda não existe**, ver §9.3) |
+| Venda de passeios, aluguel (ex: quadriciclo), translado, entradas de atrações privadas | `bookings` (§9.3) |
 | Pagamentos, Stripe Connect, repasse ao parceiro, taxa da plataforma | `payment` |
 | Parceiros/estabelecimentos (cadastro, verificação, planos) | `partners` |
 | Planos de assinatura e administração | `admin` |
@@ -54,23 +54,24 @@ O **Use Guide** é um guia turístico e marketplace (referência de mercado: Tri
 
 ---
 
-## 2. Ambientes: Google AI Studio (Desenvolvimento) e Produção
+## 2. Ambientes: Desenvolvimento local e Produção
 
 O código DEVE funcionar **sem alterações** nos dois ambientes. Nenhuma funcionalidade pode depender de um ambiente só, salvo as exceções explícitas desta seção.
 
 ### 2.1. Matriz de ambientes
 
-| Aspecto | AI Studio (dev) | Produção |
+| Aspecto | Desenvolvimento local | Produção |
 |---|---|---|
-| Processo | `npm run dev` → `tsx server.ts` (Express + Vite em middleware mode) | `npm run build` → `node dist/server.cjs` no Cloud Run (`use-guide`, `us-east1`) |
+| Processo | `npm run dev` → `tsx server.ts` (Express + Vite em middleware mode) | Publicado pelo GitHub Actions no merge para a `main` (§2.4): imagem do `Dockerfile` (`node dist/server.cjs`) no Cloud Run (`use-guide`, `us-east1`) |
+| Node.js | 26 (Functions: 24) | 26 no Cloud Run; 24 nas Functions (D29) |
 | `NODE_ENV` | ≠ `production` | `production` |
-| Porta | `3000` (única porta exposta pelo proxy do AI Studio) | `process.env.PORT` (definida pelo Cloud Run) |
+| Porta | `PORT` ou `3000` | `process.env.PORT` (definida pelo Cloud Run) |
 | Frontend | Servido pelo Vite middleware do mesmo Express | Firebase Hosting (CDN) com rewrite `/api/**` → Cloud Run |
-| Firestore | Database ID de `firebase-applet-config.json` / `FIRESTORE_DATABASE_ID` | `FIRESTORE_DATABASE_ID` de produção |
-| Segredos | Painel **Secrets** do AI Studio | Secret Manager montado como variável de ambiente no Cloud Run |
-| Credenciais Admin SDK | `FIREBASE_SERVICE_ACCOUNT_KEY` (aceito somente em dev) | **ADC** — conta de serviço anexada ao Cloud Run (não usar chave JSON) |
+| Firestore | Emulador ou `FIRESTORE_DATABASE_ID` do projeto | `FIRESTORE_DATABASE_ID` de produção |
+| Segredos | `.env` local, fora do git, só com chaves de teste | Secret Manager montado como variável de ambiente no Cloud Run |
+| Credenciais Admin SDK | **ADC** (`gcloud auth application-default login`) ou emuladores; nunca chave JSON | **ADC** — conta de serviço anexada ao Cloud Run |
 | App Check | `APP_CHECK_REQUIRED=false` permitido | `APP_CHECK_REQUIRED=true` |
-| Stripe | Chaves `sk_test_` / `pk_test_` e webhook do Stripe CLI ou endpoint de teste | Chaves `sk_live_` / `pk_live_` e endpoint de webhook live |
+| Stripe | Chaves de teste e `stripe listen` | Chaves live depois da liberação; **até lá, chaves de teste (D23)** |
 
 ### 2.2. Regras obrigatórias
 
@@ -78,8 +79,8 @@ O código DEVE funcionar **sem alterações** nos dois ambientes. Nenhuma funcio
 2. Variáveis expostas ao navegador DEVEM ter prefixo `VITE_` e conter **somente** valores públicos (chave publicável do Stripe, config do Firebase Web). Segredos NUNCA usam `VITE_`.
 3. Detecção de ambiente DEVE ser centralizada (uma função/módulo de config), nunca espalhada com `host.includes(...)` em vários arquivos.
 4. Adapters DEVEM inicializar SDKs de forma preguiçosa (*lazy*): a importação de um módulo NÃO DEVE abrir conexões, ler segredos obrigatórios nem lançar exceção. Falta de configuração DEVE falhar na primeira chamada, com mensagem clara.
-5. O servidor DEVE subir mesmo sem integrações opcionais configuradas (ex: Stripe ausente no AI Studio). Rotas dependentes DEVEM responder `503` com código de erro estável (§10.2), nunca derrubar o processo.
-6. É proibido código que só funciona em produção sem um caminho de teste no AI Studio (ex: modo teste do Stripe, emulador, dados de seed explícitos).
+5. O servidor DEVE subir mesmo sem integrações opcionais configuradas (ex: Stripe ausente no desenvolvimento local). Rotas dependentes DEVEM responder `503` com código de erro estável (§10.2), nunca derrubar o processo.
+6. É proibido código que só funciona em produção sem um caminho de teste no desenvolvimento local (ex: modo teste do Stripe, emulador, dados de seed explícitos).
 7. Mocks, stubs e fakes são permitidos **somente** em arquivos de teste (`*.test.ts`) ou adapters in-memory usados exclusivamente por testes. É proibido dado fictício no código de produção (ver §11.10).
 8. Enquanto o app não for liberado para usuários, NÃO DEVE ser criado código de compatibilidade com dados ou versões anteriores (leitura de formatos antigos, rotas duplicadas, scripts de migração, segredos ou hashes legados). Mudanças de modelo de dados são feitas diretamente, e os dados de teste podem ser recriados. Esta regra deixa de valer na data de liberação, registrada em `docs/arquitetura/decisoes.md`.
 
@@ -90,6 +91,14 @@ O código DEVE funcionar **sem alterações** nos dois ambientes. Nenhuma funcio
 * **Cloud Run é stateless:** proibido guardar estado em memória entre requisições (sessões, filas, rate limit) sem fallback em armazenamento externo.
 * **Desligamento gracioso:** o servidor DEVE tratar `SIGTERM` (já implementado em `server.ts`).
 * **Webhooks do Stripe** DEVEM apontar para uma URL HTTPS pública estável; o handler DEVE responder em poucos segundos (§8.6).
+
+### 2.4. Publicação e branches (D23, D29, D31)
+
+* **`main`:** código oficial. Só recebe PR da `claude/agents/useguide`, com o `ci` verde (proteção da branch). O merge publica no Cloud Run e no Hosting (`.github/workflows/deploy.yml`).
+* **`claude/agents/useguide`:** onde o agente trabalha, sem `docs/`. As mudanças se acumulam no PR aberto; o merge só acontece com "aprovado, pode publicar" do responsável, e com essa autorização o próprio agente PODE fazer o merge.
+* **`claude/agents/documentacao`:** só documentação (`docs/`, `AGENTS.md`, `README.md`). Branch órfã, nunca sobe. As decisões e os débitos citados neste documento (`docs/arquitetura/decisoes.md`, `docs/arquitetura/debitos.md`) estão nela.
+* `AGENTS.md` e `README.md` existem nas três branches; ao mudar, as três são atualizadas no mesmo dia.
+* NÃO ligar "Automatically delete head branches" (apagaria a `claude/agents/useguide` a cada merge).
 
 ---
 
@@ -255,7 +264,7 @@ Um domínio NÃO DEVE importar de outro: services, repositories, ports internos,
 reviews ─┐
 favorites┤
 insights ┼──► guide · events ◄── ticketing ◄── (application) ──► payment
-partners ┘                                     bookings (novo) ──► payment
+partners ┘                                     bookings ──► payment
 notifications  (folha: não importa nenhum domínio; recebe dados por parâmetro)
 users · admin · climawind · seo  (folhas)
 ```
@@ -387,7 +396,7 @@ Todo campo novo DEVE ser classificado antes de ser persistido. A classe define o
 4. *Associated data* (AAD) DEVE incluir o ID do documento e o nome do campo, impedindo copiar o valor cifrado para outro registro.
 5. Contrato: `FieldEncryptionPort { encrypt(plain, context): Promise<EncryptedField>; decrypt(field, context): Promise<string> }` em `server/shared/kernel`, implementado por `server/infrastructure/crypto/kmsFieldEncryptionAdapter.ts`. Domínios usam o port, nunca o SDK do KMS.
 6. Criptografia e descriptografia acontecem **somente no backend**. O frontend nunca recebe chave nem dado Restrito descriptografado, salvo o próprio titular em tela específica e mascarada por padrão.
-7. No AI Studio, PODE ser usado um adapter local com chave de teste vinda do painel Secrets (`FIELD_ENCRYPTION_DEV_KEY`, 32 bytes base64). Esse adapter DEVE se recusar a iniciar com `NODE_ENV=production`.
+7. No desenvolvimento local, PODE ser usado um adapter local com chave de teste vinda do `.env` (`FIELD_ENCRYPTION_DEV_KEY`, 32 bytes base64). Esse adapter DEVE se recusar a iniciar com `NODE_ENV=production`.
 
 **Blind index (busca e unicidade sem expor o dado):**
 
@@ -424,7 +433,7 @@ Todo campo novo DEVE ser classificado antes de ser persistido. A classe define o
 
 Regras:
 
-1. Chaves de teste (AI Studio) e de produção são **sempre diferentes**. Nunca copiar segredo de produção para o AI Studio.
+1. Chaves de teste (desenvolvimento local) e de produção são **sempre diferentes**. Nunca copiar segredo de produção para o `.env` local.
 2. A conta de serviço do Cloud Run recebe `roles/secretmanager.secretAccessor` **por segredo**, não no projeto inteiro.
 3. Rotação de segredo é ação irreversível de alto impacto: o agente DEVE pedir confirmação (§15).
 4. Segredo vazado (commit, log, print): revogar imediatamente, rotacionar e registrar o incidente. Apagar o commit não é suficiente.
@@ -449,7 +458,7 @@ Regras obrigatórias:
 
 1. É proibido desativar validação de certificado (`NODE_TLS_REJECT_UNAUTHORIZED=0`, `rejectUnauthorized: false`) em qualquer ambiente.
 2. **SSRF:** o backend NUNCA faz requisição para URL vinda do usuário (ex: "importar foto de link"). Se for necessário, usar allowlist de hosts, bloquear IPs privados/metadata (`169.254.169.254`, `10.0.0.0/8` etc.) e limitar tamanho e tempo.
-3. **CORS:** a API é same-origin; NÃO DEVE responder `Access-Control-Allow-Origin: *`. Se for preciso liberar outra origem (ex: domínio do AI Studio), usar allowlist explícita vinda da configuração.
+3. **CORS:** a API é same-origin; NÃO DEVE responder `Access-Control-Allow-Origin: *`. Se for preciso liberar outra origem (ex: um domínio de prévia), usar allowlist explícita vinda da configuração.
 4. **DTO de saída:** respostas da API DEVEM ser montadas por allowlist de campos. É proibido devolver o documento do Firestore inteiro (vaza campos internos e PII).
 5. **Exportações e backups** (export do Firestore, relatórios CSV) contêm PII: bucket privado, acesso restrito por IAM, retenção definida e criptografia CMEK quando incluírem dados Restritos.
 6. **Logs** são transferência de dados: o §10.3 vale também para Cloud Functions e scripts.
@@ -543,7 +552,7 @@ O Stripe é o **único** provedor de pagamentos. Referências a Mercado Pago no 
 
 ### 8.8. Testes de pagamento
 
-* AI Studio/dev usa somente chaves de teste; `stripe listen --forward-to localhost:3000/api/payment/webhook/stripe` para webhooks locais.
+* O desenvolvimento local usa somente chaves de teste; `stripe listen --forward-to localhost:3000/api/payment/webhook/stripe` para webhooks locais.
 * Todo fluxo de pagamento DEVE ter testes unitários do service com gateway fake e teste do handler de webhook (assinatura inválida, evento duplicado, falha no processamento → reenvio).
 
 ---
@@ -561,7 +570,7 @@ O Stripe é o **único** provedor de pagamentos. Referências a Mercado Pago no 
 * Estoque DEVE ser controlado por transação + reserva com expiração (`inventoryReservations`), liberada por job (`expireTicketingOrders`).
 * QR Code de ingresso DEVE ser assinado (RSA-PSS — já implementado) e verificável offline no check-in.
 
-### 9.3. Reservas de serviços (`bookings` — novo domínio)
+### 9.3. Reservas de serviços (`bookings`)
 
 Passeios, aluguéis, translados e entradas de atrações privadas compartilham o mesmo modelo e NÃO DEVEM ser implementados dentro de `ticketing` nem de `guide`:
 
@@ -569,7 +578,7 @@ Passeios, aluguéis, translados e entradas de atrações privadas compartilham o
 * Reserva de capacidade com expiração, igual a ingressos.
 * Translado: origem/destino, data/hora, número de passageiros e bagagem.
 * Aluguel: período (início/fim), caução opcional (pré-autorização de cartão), termo de responsabilidade aceito.
-* Antes de criar o domínio, o agente DEVE apresentar o desenho para aprovação (§15).
+* O desenho aprovado está em `docs/arquitetura/04-bookings-design.md` (branch `claude/agents/documentacao`); mudança de modelo segue o §15.
 
 ### 9.4. Avaliações (`reviews`)
 
@@ -872,7 +881,7 @@ npm run test:rules  # quando firestore.rules mudar (emulador)
 
 ## 17. Checklist Rápido do Agente
 
-- [ ] Funciona no AI Studio **e** em produção, sem SDK inicializado na importação (§2)
+- [ ] Funciona no desenvolvimento local **e** em produção, sem SDK inicializado na importação (§2)
 - [ ] SDK de fornecedor só em `adapters/` (ou `adapters/ui/`) (§3.2)
 - [ ] Nenhum `domain → application`, `ui/shared → domain`, nem import interno de outro domínio (§3.4, §5.2)
 - [ ] Nenhum ciclo novo no grafo (§5.4)

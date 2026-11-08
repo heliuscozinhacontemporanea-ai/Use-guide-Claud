@@ -212,6 +212,9 @@ export interface Booking {
     groupMaxPeople?: number;
     /** Entrada nominal: o cliente informa o nome de cada pessoa (D20). */
     requiresParticipantNames?: boolean;
+    /** Fuso e cidade da oferta na compra (D28): recibo, carteira e avisos na hora do lugar. */
+    timeZone?: string;
+    city?: string;
   };
   /** Aviso de nova data pelo parceiro: até 7 dias depois, o comprador cancela com reembolso integral (D16, 4A). */
   rescheduledAt?: string;

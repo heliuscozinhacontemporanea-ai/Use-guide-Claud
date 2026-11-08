@@ -38,7 +38,14 @@ export interface CourtesyTicketDraft {
   holderName: string;
   holderEmail: string;
   qrTokenHash: string;
-  eventSnapshot: { title: string; startsAt: string; endsAt: string; locationName?: string };
+  eventSnapshot: {
+    title: string;
+    startsAt: string;
+    endsAt: string;
+    locationName?: string;
+    timeZone?: string;
+    city?: string;
+  };
 }
 
 // Lote oculto com ID fixo por sessão: a soma de vendidos + reservados da compra já conta a cortesia.

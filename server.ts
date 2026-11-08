@@ -30,6 +30,11 @@ import { verifyAppCheck } from './server/infrastructure/auth/appCheckMiddleware'
 import { verifyInternalJobKey } from './server/infrastructure/auth/internalJobAuth';
 import { isDirectCloudRunHost } from './server/infrastructure/config/canonicalHost';
 import { resolveTrustProxyHops } from './server/infrastructure/config/trustProxy';
+import {
+  installStructuredConsole,
+  logContextFromTraceHeader,
+  runWithLogContext,
+} from './server/infrastructure/logging/structuredLog';
 import billingRouter from './server/interfaces/http/billing/billingRoutes';
 import {
   bookingsRouter,
@@ -68,6 +73,17 @@ async function startServer() {
     throw new Error(`PORT inválida: ${rawPort}`);
   }
   app.set('trust proxy', resolveTrustProxyHops());
+  if (process.env.NODE_ENV === 'production') {
+    installStructuredConsole(process.env.K_SERVICE);
+  }
+  const logProjectId = process.env.FIREBASE_PROJECT_ID || process.env.VITE_FIREBASE_PROJECT_ID;
+  // Cada requisição ganha requestId e trace nos logs (AGENTS.md §10.3).
+  app.use((req, _res, next) => {
+    runWithLogContext(
+      logContextFromTraceHeader(req.header('x-cloud-trace-context'), logProjectId),
+      next
+    );
+  });
   const isProduction = process.env.NODE_ENV === 'production';
   if (isProduction) {
     app.use(

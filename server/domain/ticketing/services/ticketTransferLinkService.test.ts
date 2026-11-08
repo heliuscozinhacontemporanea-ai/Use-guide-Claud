@@ -23,7 +23,12 @@ function setup(ownerUserId = 'buyer') {
       orderId: 'ord_1',
       ownerUserId,
       status: 'issued',
-      eventSnapshot: { title: 'Luau', startsAt: '2026-12-20T23:00:00.000Z' },
+      eventSnapshot: {
+        title: 'Luau',
+        startsAt: '2026-12-20T23:00:00.000Z',
+        timeZone: 'America/Fortaleza',
+        city: 'Jijoca de Jericoacoara',
+      },
       ticketTypeSnapshot: { name: 'Pista' },
     }),
     getOrderById: vi.fn().mockResolvedValue({
@@ -58,6 +63,8 @@ describe('link de transferência (D21)', () => {
     expect(JSON.stringify([...links.values()])).not.toContain(created.token);
     await expect(service.preview('lnk_1', created.token)).resolves.toMatchObject({
       eventTitle: 'Luau',
+      timeZone: 'America/Fortaleza',
+      city: 'Jijoca de Jericoacoara',
       ticketType: 'Pista',
       from: FROM,
     });

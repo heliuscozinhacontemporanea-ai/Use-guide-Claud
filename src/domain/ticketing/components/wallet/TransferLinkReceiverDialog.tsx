@@ -2,6 +2,7 @@ import { Ticket as TicketIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatBusinessDateTime } from '../../../../shared/utils/businessDateTime';
+import { placeTimeSuffix } from '../../../../shared/utils/placeTime';
 import { Dialog } from '../../../../ui/components/Dialog';
 import { StatusText } from '../../../../ui/components/StatusText';
 import { TextButton } from '../../../../ui/components/TextButton';
@@ -109,7 +110,9 @@ export function TransferLinkReceiverDialog({
                 <p className="text-[13px] text-ink/70">
                   {[
                     preview.ticketType,
-                    preview.startsAt && formatBusinessDateTime(preview.startsAt, i18n.language),
+                    preview.startsAt &&
+                      formatBusinessDateTime(preview.startsAt, i18n.language, preview.timeZone) +
+                        placeTimeSuffix(t, preview, preview.startsAt),
                   ]
                     .filter(Boolean)
                     .join(' · ')}

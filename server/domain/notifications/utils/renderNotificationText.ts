@@ -1,3 +1,4 @@
+import { PLATFORM_TIME_ZONE } from '../../../shared/kernel/timeZones';
 import { DEFAULT_LOCALE, type Locale, SUPPORTED_LOCALES } from '../../../shared/kernel/locale';
 import {
   NOTIFICATION_TEXTS_EN,
@@ -14,7 +15,6 @@ const TEXTS: Record<Locale, NotificationTypeTexts> = {
 };
 const NAMED_PARAMS = ['event', 'business', 'username', 'listing', 'offer'];
 const COUNT_PARAMS = ['count', 'participants', 'rating', 'days'];
-const TIME_ZONE = 'America/Fortaleza';
 
 export function toLocale(value: unknown): Locale {
   return SUPPORTED_LOCALES.includes(value as Locale) ? (value as Locale) : DEFAULT_LOCALE;
@@ -44,7 +44,8 @@ export function renderNotificationText(
     values.date = new Intl.DateTimeFormat(locale, {
       dateStyle: 'long',
       timeStyle: 'short',
-      timeZone: TIME_ZONE,
+      // A data do serviço sai na hora do lugar (D28); avisos sem o fuso usam o da plataforma.
+      timeZone: typeof params.timeZone === 'string' ? params.timeZone : PLATFORM_TIME_ZONE,
     }).format(new Date(params.startsAt));
   }
   for (const key of COUNT_PARAMS) {

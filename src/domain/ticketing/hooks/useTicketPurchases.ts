@@ -49,7 +49,9 @@ export function useTicketPurchases() {
       code: order.id.slice(0, ORDER_CODE_LENGTH),
       purchasedAt: order.createdAt,
       serviceLine: event
-        ? t('purchases.service.event', { date: formatBusinessDay(event.startsAt, i18n.language) })
+        ? t('purchases.service.event', {
+            date: formatBusinessDay(event.startsAt, i18n.language, event.timeZone),
+          })
         : '',
       amountMinor: order.totalMinor,
       struck: section === 'canceled',

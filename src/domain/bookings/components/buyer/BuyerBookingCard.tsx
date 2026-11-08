@@ -2,6 +2,7 @@ import { CalendarClock, Compass, MapPin, Ticket } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatBusinessWeekday } from '../../../../shared/utils/businessDateTime';
+import { placeTimeSuffix } from '../../../../shared/utils/placeTime';
 import { rescheduleRefundDeadline } from '../../../../shared/utils/rescheduleRefundDeadline';
 import { StatusText, type StatusTone } from '../../../../ui/components/StatusText';
 import type { BookingStatus, BookingSummary } from '../../types/bookings';
@@ -30,6 +31,9 @@ export function BuyerBookingCard({
   upcoming: boolean;
 }) {
   const { t, i18n } = useTranslation();
+  // Hora do lugar da oferta, gravada na compra (D28).
+  const tz = booking.offer.timeZone ?? undefined;
+  const place = { timeZone: tz, city: booking.offer.city ?? undefined };
   const Icon = booking.kind === 'private_entry' ? Ticket : Compass;
   const refundUntil =
     booking.status === 'confirmed'
@@ -71,13 +75,13 @@ export function BuyerBookingCard({
           )}
           <p className="text-sm text-ink/70 mt-0.5">
             {upcoming
-              ? `${formatSlotDateTime(booking.offer.startsAt, i18n.language)} · ${t(
+              ? `${formatSlotDateTime(booking.offer.startsAt, i18n.language, tz)}${placeTimeSuffix(t, place, booking.offer.startsAt)} · ${t(
                   booking.sellingUnit === 'group'
                     ? 'serviceProof.units.groups'
                     : 'bookings.bookingsList.participants',
                   { count: booking.participantsCount }
                 )}`
-              : `${formatBusinessWeekday(booking.offer.startsAt, i18n.language)} · ${price}`}
+              : `${formatBusinessWeekday(booking.offer.startsAt, i18n.language, tz)} · ${price}`}
           </p>
         </div>
       </div>
@@ -85,7 +89,7 @@ export function BuyerBookingCard({
         <p className="mt-3 flex items-start gap-2 text-[13px] text-info">
           <CalendarClock size={16} className="shrink-0 mt-px" aria-hidden="true" />
           {t('bookings.buyer.rescheduledNotice', {
-            date: formatBusinessWeekday(refundUntil, i18n.language),
+            date: formatBusinessWeekday(refundUntil, i18n.language, tz),
           })}
         </p>
       )}
@@ -93,7 +97,8 @@ export function BuyerBookingCard({
       {booking.status === 'confirmed' &&
         booking.checkIns.length < booking.participantsCount &&
         (upcoming ||
-          placeDateKey(booking.offer.startsAt) === placeDateKey(new Date().toISOString())) && (
+          placeDateKey(booking.offer.startsAt, tz) ===
+            placeDateKey(new Date().toISOString(), tz)) && (
           <div className="mt-3 pt-3 border-t border-line">
             <BookingCheckInPass booking={booking} />
           </div>

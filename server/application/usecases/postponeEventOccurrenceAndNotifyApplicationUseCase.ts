@@ -1,3 +1,4 @@
+import { placeTimeOf } from '../../shared/kernel/timeZones';
 import {
   type EventOccurrence,
   getEventListingByIdUseCase,
@@ -57,7 +58,11 @@ export async function postponeEventOccurrenceAndNotifyApplicationUseCase(
     await createNotificationUseCase({
       recipientUid: order.buyerId,
       type: 'event_postponed',
-      params: { event: listing?.title || '', startsAt: newOccurrence.startsAt },
+      params: {
+        event: listing?.title || '',
+        startsAt: newOccurrence.startsAt,
+        ...(listing ? placeTimeOf(listing) : {}),
+      },
       link: { screen: 'tickets' },
       dedupeKey: `event_postponed_${postponedOccurrence.id}_${order.id}`,
     }).catch(() => {});

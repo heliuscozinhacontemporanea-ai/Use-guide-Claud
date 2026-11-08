@@ -1,3 +1,4 @@
+import { placeTimeOf } from '../../../shared/kernel/timeZones';
 import { isCancellationPolicyAllowed } from '../../../shared/kernel/cancellationPolicy';
 import type { TermsAcceptance } from '../../../shared/kernel/legalTerms';
 import type {
@@ -144,6 +145,7 @@ export class TicketOrderPersistenceMapper {
             endsAt: String(rawEvent.endsAt || ''),
             locationName:
               typeof rawEvent.locationName === 'string' ? rawEvent.locationName : undefined,
+            ...placeTimeOf(rawEvent),
           }
         : undefined,
       salesPolicySnapshot: normalizeSalesPolicySnapshot(rawPolicy),
@@ -273,6 +275,7 @@ export class TicketPersistenceMapper {
             endsAt: String(rawEventSnap.endsAt || ''),
             locationName:
               typeof rawEventSnap.locationName === 'string' ? rawEventSnap.locationName : undefined,
+            ...placeTimeOf(rawEventSnap),
           }
         : undefined,
     };
