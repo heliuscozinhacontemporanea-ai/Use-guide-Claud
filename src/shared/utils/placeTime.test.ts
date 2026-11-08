@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import type { Translate } from '../i18n/translate';
 import {
   isDeviceInOtherZone,
   placeTimeFormNote,
@@ -6,8 +7,9 @@ import {
   utcOffsetLabel,
 } from './placeTime';
 
-const t = (key: string, options?: Record<string, unknown>) =>
-  `${key}${options ? JSON.stringify(options) : ''}`;
+// Tradução de mentira: devolve a chave e os valores, para conferir qual texto seria usado.
+const t = ((key: string, options?: Record<string, unknown>) =>
+  `${key}${options ? JSON.stringify(options) : ''}`) as unknown as Translate;
 const deviceZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 // +14 o ano todo: nunca é o fuso do aparelho que roda o teste.
 const FAR = 'Pacific/Kiritimati';

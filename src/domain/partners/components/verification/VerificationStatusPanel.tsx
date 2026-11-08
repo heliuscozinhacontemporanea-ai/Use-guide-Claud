@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import type { Translate } from '../../../../shared/i18n/translate';
 import { cn } from '../../../../shared/utils/cn';
 import type { ListingVerificationView } from '../../types/listingVerification';
 import { VERIFICATION_STATUS_STYLE } from './verificationStatusStyle';
@@ -7,10 +8,7 @@ interface VerificationStatusPanelProps {
   view: ListingVerificationView;
 }
 
-function statusMessages(
-  view: ListingVerificationView,
-  t: (key: string, values?: Record<string, string>) => string
-): string[] {
+function statusMessages(view: ListingVerificationView, t: Translate): string[] {
   if (view.status === 'pending') return [t('verification.panel.pending')];
   if (view.status === 'rejected') {
     return [

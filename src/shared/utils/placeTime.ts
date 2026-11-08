@@ -1,3 +1,4 @@
+import type { Translate } from '../i18n/translate';
 import { PLATFORM_TIME_ZONE, timeZoneOffsetMs } from './timeZones';
 
 /** Fuso e cidade do lugar do serviço, copiados do estabelecimento (D28). */
@@ -5,8 +6,6 @@ export interface PlaceTime {
   timeZone?: string;
   city?: string;
 }
-
-type Translate = (key: string, options?: Record<string, unknown>) => string;
 
 function instantOf(iso?: string): number {
   const ms = iso ? Date.parse(iso) : Number.NaN;
