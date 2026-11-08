@@ -2,6 +2,7 @@ import { AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
 import { type ReactNode, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatBusinessDateTime } from '../../../shared/utils/businessDateTime';
+import type { PlaceTime } from '../../../shared/utils/placeTime';
 import { type EventOccurrence, useEventOccurrences } from '../../events';
 import { usePartnerEventSales } from '../hooks/usePartnerEventSales';
 import { useTicketLotForm } from '../hooks/useTicketLotForm';
@@ -28,6 +29,8 @@ interface PartnerEventTicketingManagerProps {
    * página do evento e a sessão é adiada ou cancelada pela folha da sessão (D27).
    */
   lotsOnly?: boolean;
+  /** Fuso e cidade do evento (D28): sessões e janelas de venda na hora do lugar. */
+  place?: PlaceTime;
 }
 
 export function PartnerEventTicketingManager({
@@ -36,7 +39,9 @@ export function PartnerEventTicketingManager({
   accountNotice,
   financePanel,
   lotsOnly = false,
+  place,
 }: PartnerEventTicketingManagerProps) {
+  const tz = place?.timeZone;
   const {
     occurrences,
     loading: occLoading,
@@ -74,7 +79,12 @@ export function PartnerEventTicketingManager({
 
   const [feedback, setFeedback] = useState<ManagerFeedback | null>(null);
 
-  const lotForm = useTicketLotForm({ selectedOccurrenceId, reloadLots, setFeedback });
+  const lotForm = useTicketLotForm({
+    selectedOccurrenceId,
+    timeZone: tz,
+    reloadLots,
+    setFeedback,
+  });
 
   const { i18n } = useTranslation();
   const selectedOccurrence = occurrences.find((occ) => occ.id === selectedOccurrenceId);
@@ -101,14 +111,7 @@ export function PartnerEventTicketingManager({
                   : 'bg-surface border border-line text-ink/80 hover:bg-accent-soft'
               }`}
             >
-              {new Date(occ.startsAt).toLocaleDateString('pt-BR', {
-                day: '2-digit',
-                month: 'short',
-                hour: '2-digit',
-                minute: '2-digit',
-                timeZone: 'America/Fortaleza',
-              })}{' '}
-              • Cap: {occ.capacity}
+              {formatBusinessDateTime(occ.startsAt, i18n.language, tz)} • Cap: {occ.capacity}
             </button>
           ))}
         </div>
@@ -119,6 +122,7 @@ export function PartnerEventTicketingManager({
           eventListingId={eventListingId}
           occurrence={selectedOccurrence}
           paidOrders={paidOrders}
+          place={place}
           onChanged={(message) => {
             setFeedback({ type: 'success', message });
             void reloadOccurrences();
@@ -169,6 +173,7 @@ export function PartnerEventTicketingManager({
           form={lotForm}
           ticketTypes={ticketTypes}
           selectedOccurrenceId={selectedOccurrenceId}
+          timeZone={tz}
         />
       ) : activeTab === 'sales' ? (
         <SalesTab analytics={analytics} />
@@ -179,7 +184,7 @@ export function PartnerEventTicketingManager({
           occurrenceId={selectedOccurrenceId}
           sessionLabel={
             selectedOccurrence
-              ? formatBusinessDateTime(selectedOccurrence.startsAt, i18n.language)
+              ? formatBusinessDateTime(selectedOccurrence.startsAt, i18n.language, tz)
               : ''
           }
           checkIns={checkIns}

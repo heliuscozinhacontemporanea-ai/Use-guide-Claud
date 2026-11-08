@@ -69,7 +69,7 @@ Regra comum: **a hora de um serviço é sempre a hora do lugar onde ele acontece
 ### 4. Etapas
 
 1. **F1 (feita em 2026-11-08):** estado e cidade no cadastro do estabelecimento (obrigatórios, também no perfil de produtor); `timeZone` calculado no servidor e copiado para evento e oferta (ao criar e ao editar); utilitários de fuso em `server/shared/kernel/timeZones.ts` e `src/shared/utils/timeZones.ts`, com teste de paridade; AGENTS.md §1 e §12.4 atualizados. Ainda nada muda na tela de horários: isso é a F2.
-2. **F2:** formulários e telas de evento, sessão, oferta e horário; avisos fixos saem.
+2. **F2 (feita em 2026-11-08):** evento e oferta guardam também a cidade do estabelecimento (`city`), o nome mostrado ao lado da hora; mudar o estado ou a cidade do estabelecimento leva o fuso novo para os eventos e ofertas dele; a recorrência de horários é expandida no servidor no fuso da oferta. No app, as sessões do editor (parceiro e admin), os lotes, adiar sessão, criar e remarcar horários de passeio, a semana de horários, a escolha de sessão e de horário do comprador e a data na página do evento usam a hora do lugar. Para quem está em outro fuso aparece "Horários de Jericoacoara (UTC−3)" nos formulários e listas, e "20:00 (horário de Jericoacoara)" numa hora sozinha. Os 3 avisos fixos de Fortaleza saíram. A região do estabelecimento e do evento virou texto livre, com as regiões de Jericoacoara como sugestão. Ficam para a F4: datas dos cupons e o rótulo de sessão em "Vale para".
 3. **F3:** compra e reserva (resumos com fuso), carteira, recibos, e-mails, push e PDFs.
 4. **F4:** painel ("Hoje", Agenda, Agora, relatórios) e jobs nas Cloud Functions.
 5. **F5:** AGENTS.md e `decisoes.md`.

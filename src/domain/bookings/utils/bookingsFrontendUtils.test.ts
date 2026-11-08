@@ -1,7 +1,7 @@
 import type { TFunction } from 'i18next';
 import { describe, expect, it } from 'vitest';
 import { buildSlotsPayload } from '../components/partner/SlotCreationForm';
-import { fortalezaDateKey, fortalezaInputToIso, startOfFortalezaWeek } from './dates';
+import { placeDateKey, placeInputToIso, startOfPlaceWeek } from './dates';
 import { formatMinor, minorToReaisInput, parseReaisToMinor } from './money';
 import { emptyOfferFormValues, offerFormToFields } from './offerFormMapping';
 import { canEditUnitName, unitLabel } from './unitLabel';
@@ -23,17 +23,29 @@ describe('dinheiro', () => {
   });
 });
 
-describe('datas no fuso de Fortaleza', () => {
+describe('datas no fuso do lugar', () => {
   it('converte o horário digitado em UTC e agrupa pelo dia local', () => {
-    expect(fortalezaInputToIso('2026-11-02T08:00')).toBe('2026-11-02T11:00:00.000Z');
-    expect(fortalezaDateKey('2026-11-03T01:30:00.000Z')).toBe('2026-11-02');
+    expect(placeInputToIso('2026-11-02T08:00')).toBe('2026-11-02T11:00:00.000Z');
+    expect(placeDateKey('2026-11-03T01:30:00.000Z')).toBe('2026-11-02');
   });
 
-  it('a semana começa no domingo 00:00 de Fortaleza', () => {
+  it('a semana começa no domingo 00:00 do lugar', () => {
     // Quarta, 04/11/2026 10:00 local → domingo 01/11 00:00 local = 03:00Z.
-    expect(startOfFortalezaWeek(new Date('2026-11-04T13:00:00.000Z')).toISOString()).toBe(
+    expect(startOfPlaceWeek(new Date('2026-11-04T13:00:00.000Z')).toISOString()).toBe(
       '2026-11-01T03:00:00.000Z'
     );
+    // Em Manaus (UTC−4), domingo 00:00 é 04:00Z.
+    expect(
+      startOfPlaceWeek(new Date('2026-11-04T13:00:00.000Z'), 'America/Manaus').toISOString()
+    ).toBe('2026-11-01T04:00:00.000Z');
+  });
+
+  it('lê e agrupa no fuso da oferta', () => {
+    expect(placeInputToIso('2026-11-02T08:00', 'America/Rio_Branco')).toBe(
+      '2026-11-02T13:00:00.000Z'
+    );
+    expect(placeDateKey('2026-11-03T03:30:00.000Z', 'America/Manaus')).toBe('2026-11-02');
+    expect(placeInputToIso('bad')).toBeNull();
   });
 });
 

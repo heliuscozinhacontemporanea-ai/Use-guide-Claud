@@ -8,10 +8,12 @@ import { BookingParticipantService } from './services/bookingParticipantService'
 import { BookingPrivacyService } from './services/bookingPrivacyService';
 import { BookingService } from './services/bookingService';
 import { BookingServiceProofService } from './services/bookingServiceProofService';
+import { OfferPlaceService } from './services/offerPlaceService';
 import { OfferService } from './services/offerService';
 import { OwnerAgendaService } from './services/ownerAgendaService';
 
 let offerService: OfferService | null = null;
+let offerPlaceService: OfferPlaceService | null = null;
 let bookingService: BookingService | null = null;
 let checkInService: BookingCheckInService | null = null;
 let serviceProofService: BookingServiceProofService | null = null;
@@ -30,6 +32,11 @@ function getPort(): FirestoreBookingsAdapter {
 export function getOfferService(): OfferService {
   offerService ??= new OfferService(getPort(), new GuideBookableItemLookupAdapter());
   return offerService;
+}
+
+export function getOfferPlaceService(): OfferPlaceService {
+  offerPlaceService ??= new OfferPlaceService(getPort(), new GuideBookableItemLookupAdapter());
+  return offerPlaceService;
 }
 
 export function getBookingService(): BookingService {

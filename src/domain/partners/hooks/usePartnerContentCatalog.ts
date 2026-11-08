@@ -61,6 +61,10 @@ export function usePartnerContentCatalog({ userId, activeTab }: UsePartnerConten
           endDate: item.endDate,
           eventCategory: item.eventCategory,
           customCategory: item.customCategory,
+          establishmentId: item.establishmentId,
+          state: item.state,
+          city: item.city,
+          timeZone: item.timeZone,
         }));
 
         const mappedEvents: PartnerContentRecord[] = events.map((event) => ({
@@ -93,6 +97,10 @@ export function usePartnerContentCatalog({ userId, activeTab }: UsePartnerConten
           endDate: event.endDate,
           eventCategory: event.eventCategory,
           customCategory: event.customCategory,
+          establishmentId: event.establishmentId,
+          state: event.state,
+          city: event.city,
+          timeZone: event.timeZone,
         }));
 
         setItemsList(mappedItems);

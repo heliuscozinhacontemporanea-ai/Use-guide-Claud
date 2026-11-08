@@ -1,15 +1,16 @@
-import type { AuthenticatedUserContext } from '../security/authenticatedUserContext';
 import {
+  type CreateEventListingInput,
   createEventListingUseCase,
   deleteOrArchiveEventListingUseCase,
-  type CreateEventListingInput,
 } from '../../domain/events';
 import { getItemByIdUseCase } from '../../domain/guide';
 import {
-  PartnerDomainError,
   getPartnerProfileUseCase,
   linkBusinessUseCase,
+  PartnerDomainError,
 } from '../../domain/partners';
+import { placeTimeOf } from '../../shared/kernel/timeZones';
+import type { AuthenticatedUserContext } from '../security/authenticatedUserContext';
 import { syncListingSealApplicationUseCase } from './listingPlans/syncListingSealApplicationUseCase';
 
 export type CreatePartnerEventInput = Omit<CreateEventListingInput, 'ownerId'> & {
@@ -55,8 +56,8 @@ export async function createPartnerEventApplicationUseCase(
     title: data.name,
     coverImage: data.image,
     establishmentId: data.establishmentId,
-    // O evento usa o fuso do estabelecimento ou do perfil de produtor (D28).
-    ...(typeof establishment.timeZone === 'string' ? { timeZone: establishment.timeZone } : {}),
+    // O evento usa o fuso e a cidade do estabelecimento ou do perfil de produtor (D28).
+    ...placeTimeOf(establishment),
   });
 
   const eventId = created.listing.id;

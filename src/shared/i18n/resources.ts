@@ -104,17 +104,17 @@ import {
   partnerTourPtBR,
 } from './partnerTourResources';
 import {
-  type PromoCodeTranslation,
-  promoCodeEn,
-  promoCodeFr,
-  promoCodePtBR,
-} from './promoCodeResources';
-import {
   type PaymentAccountsTranslation,
   paymentAccountsEn,
   paymentAccountsFr,
   paymentAccountsPtBR,
 } from './paymentAccountsResources';
+import {
+  type PlaceTimeTranslation,
+  placeTimeEn,
+  placeTimeFr,
+  placeTimePtBR,
+} from './placeTimeResources';
 import {
   type MyReviewsTranslation,
   myReviewsEn,
@@ -125,6 +125,12 @@ import {
   profileFr,
   profilePtBR,
 } from './profileResources';
+import {
+  type PromoCodeTranslation,
+  promoCodeEn,
+  promoCodeFr,
+  promoCodePtBR,
+} from './promoCodeResources';
 import {
   type PromoterTranslation,
   promoterEn,
@@ -229,6 +235,7 @@ export interface TranslationResource {
   notify: NotifyTranslation;
   help: HelpTranslation;
   eventSessions: EventSessionsTranslation;
+  placeTime: PlaceTimeTranslation;
   gateMode: GateModeTranslation;
   partnerPanel: PartnerPanelTranslation;
   partnerCatalog: PartnerCatalogTranslation;
@@ -478,6 +485,7 @@ const ptBR: TranslationResource = {
   notify: notifyPtBR,
   help: helpPtBR,
   eventSessions: eventSessionsPtBR,
+  placeTime: placeTimePtBR,
   gateMode: gateModePtBR,
   partnerPanel: partnerPanelPtBR,
   partnerCatalog: partnerCatalogPtBR,
@@ -787,6 +795,7 @@ const en: TranslationResource = {
   notify: notifyEn,
   help: helpEn,
   eventSessions: eventSessionsEn,
+  placeTime: placeTimeEn,
   gateMode: gateModeEn,
   partnerPanel: partnerPanelEn,
   partnerCatalog: partnerCatalogEn,
@@ -1090,6 +1099,7 @@ const fr: TranslationResource = {
   notify: notifyFr,
   help: helpFr,
   eventSessions: eventSessionsFr,
+  placeTime: placeTimeFr,
   gateMode: gateModeFr,
   partnerPanel: partnerPanelFr,
   partnerCatalog: partnerCatalogFr,

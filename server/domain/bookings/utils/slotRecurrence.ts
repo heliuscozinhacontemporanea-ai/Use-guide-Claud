@@ -1,7 +1,6 @@
+import { PLATFORM_TIME_ZONE, zonedDateTimeToIso } from '../../../shared/kernel/timeZones';
 import { BookingDomainError } from '../errors/bookingDomainError';
 
-// America/Fortaleza é UTC−3 fixo (sem horário de verão desde 2019), então a conversão é aritmética.
-const FORTALEZA_OFFSET_HOURS = 3;
 const MAX_DAYS = 370;
 
 export interface SlotRecurrence {
@@ -23,17 +22,21 @@ function parseTime(value: string): { hours: number; minutes: number } {
   return { hours: Number(match[1]), minutes: Number(match[2]) };
 }
 
-/** Converte data e hora locais de Fortaleza em ISO UTC. */
-export function fortalezaLocalToUtcIso(date: string, time: string): string {
-  const { year, month, day } = parseDate(date);
-  const { hours, minutes } = parseTime(time);
-  return new Date(
-    Date.UTC(year, month - 1, day, hours + FORTALEZA_OFFSET_HOURS, minutes)
-  ).toISOString();
+/** Converte data e hora locais do lugar (fuso IANA) em ISO UTC. */
+export function placeLocalToUtcIso(date: string, time: string, timeZone: string): string {
+  parseDate(date);
+  parseTime(time);
+  return zonedDateTimeToIso(`${date}T${time}`, timeZone);
 }
 
-/** Expande a recorrência (dias da semana 0=domingo … 6=sábado, horários locais) em instantes UTC. */
-export function expandSlotRecurrence(recurrence: SlotRecurrence): string[] {
+/**
+ * Expande a recorrência (dias da semana 0=domingo … 6=sábado, horários na hora do lugar) em instantes
+ * UTC. Sem fuso do estabelecimento, usa o da plataforma (D28).
+ */
+export function expandSlotRecurrence(
+  recurrence: SlotRecurrence,
+  timeZone: string = PLATFORM_TIME_ZONE
+): string[] {
   const start = parseDate(recurrence.startDate);
   const end = parseDate(recurrence.endDate);
   const startUtc = Date.UTC(start.year, start.month - 1, start.day);
@@ -49,7 +52,7 @@ export function expandSlotRecurrence(recurrence: SlotRecurrence): string[] {
     if (!weekdays.has(current.getUTCDay())) continue;
     const date = current.toISOString().slice(0, 10);
     for (const time of recurrence.times) {
-      result.push(fortalezaLocalToUtcIso(date, time));
+      result.push(placeLocalToUtcIso(date, time, timeZone));
     }
   }
   return result;

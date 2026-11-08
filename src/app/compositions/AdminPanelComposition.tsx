@@ -106,8 +106,8 @@ export function AdminPanelComposition() {
       )}
       renderModerationQueue={() => <ReviewModerationQueue />}
       renderSessionsField={(props) => <EventSessionsField {...props} />}
-      renderTicketingManager={(eventListingId) => (
-        <PartnerEventTicketingManager eventListingId={eventListingId} asAdmin />
+      renderTicketingManager={(eventListingId, place) => (
+        <PartnerEventTicketingManager eventListingId={eventListingId} asAdmin place={place} />
       )}
     />
   );

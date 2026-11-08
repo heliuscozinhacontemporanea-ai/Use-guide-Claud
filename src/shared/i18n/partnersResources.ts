@@ -34,7 +34,7 @@ export const partnersPtBR: PartnersTranslation = {
     city: 'Cidade',
     cityPlaceholder: 'Ex.: Jijoca de Jericoacoara',
     region: 'Região / Bairro',
-    regionPlaceholder: 'Selecione uma região...',
+    regionPlaceholder: 'Bairro, praia ou região',
     required: 'Informe o estado e a cidade',
   },
   signupSuccess: {
@@ -62,7 +62,7 @@ export const partnersEn: PartnersTranslation = {
     city: 'City',
     cityPlaceholder: 'E.g. Jijoca de Jericoacoara',
     region: 'Area / Neighborhood',
-    regionPlaceholder: 'Select an area...',
+    regionPlaceholder: 'Neighborhood, beach or area',
     required: 'Enter the state and the city',
   },
   signupSuccess: {
@@ -90,7 +90,7 @@ export const partnersFr: PartnersTranslation = {
     city: 'Ville',
     cityPlaceholder: 'Ex. : Jijoca de Jericoacoara',
     region: 'Région / Quartier',
-    regionPlaceholder: 'Choisissez une région...',
+    regionPlaceholder: 'Quartier, plage ou région',
     required: "Indiquez l'État et la ville",
   },
   signupSuccess: {

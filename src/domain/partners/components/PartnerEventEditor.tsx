@@ -14,7 +14,7 @@ import {
   type EventSessionsLoadState,
 } from '../../events';
 import type { PartnerBusiness } from '../types/partner';
-import type { PartnerContentEditorState } from '../types/partnerContent';
+import type { PartnerContentEditorState, PartnerContentRecord } from '../types/partnerContent';
 import { EventBasicsSection } from './event/EventBasicsSection';
 import { EventContactSection } from './event/EventContactSection';
 import { EventEntrySection } from './event/EventEntrySection';
@@ -32,6 +32,8 @@ interface PartnerEventEditorProps {
   isUploading: boolean;
   onImageUpload: (e: ChangeEvent<HTMLInputElement>) => void;
   businesses?: PartnerBusiness[];
+  /** Estabelecimentos do parceiro: o fuso das sessões é o do escolhido (D28). */
+  establishments?: PartnerContentRecord[];
   sessionsLoadState: EventSessionsLoadState;
   renderSessionsField?: (props: EventSessionsFieldProps) => ReactNode;
   renderEventTicketingManager?: (eventListingId: string) => ReactNode;
@@ -42,6 +44,12 @@ interface PartnerEventEditorProps {
   showDeleteConfirm: boolean;
   onRequestDelete: (open: boolean) => void;
   onConfirmDelete: () => Promise<void>;
+}
+
+/** Fuso e cidade do estabelecimento escolhido; sem ele, os do próprio evento salvo. */
+function eventPlace(item: PartnerContentEditorState, establishments?: PartnerContentRecord[]) {
+  const place = establishments?.find((entry) => entry.id === item.establishmentId) ?? item;
+  return { timeZone: place.timeZone, city: place.city };
 }
 
 /**
@@ -57,6 +65,7 @@ export function PartnerEventEditor({
   isUploading,
   onImageUpload,
   businesses,
+  establishments,
   sessionsLoadState,
   renderSessionsField,
   renderEventTicketingManager,
@@ -142,6 +151,7 @@ export function PartnerEventEditor({
           sessions: item.sessions ?? [],
           onChange: (sessions) => onChange({ ...item, sessions }),
           loadState: sessionsLoadState,
+          place: eventPlace(item, establishments),
         });
       case 'location':
         return <EventContactSection {...sectionProps} part="location" />;

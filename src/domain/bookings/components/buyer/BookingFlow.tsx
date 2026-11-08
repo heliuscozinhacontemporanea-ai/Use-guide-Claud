@@ -125,6 +125,7 @@ export function BookingFlow({
     <div className="space-y-4">
       <SlotPicker
         offerId={offer.id}
+        place={{ timeZone: offer.timeZone, city: offer.city }}
         selectedId={slot?.id ?? null}
         onSelect={(selected) => {
           setSlot(selected);

@@ -157,7 +157,6 @@ export interface BookingsTranslation {
     canceled_other: string;
     statusClosed: string;
     statusCanceled: string;
-    timezoneNotice: string;
     reschedule: string;
     rescheduleTitle: string;
     rescheduleDescription: string;
@@ -399,7 +398,6 @@ export const bookingsPtBR: BookingsTranslation = {
     canceled_other: 'Horário cancelado. {{count}} reservas reembolsadas.',
     statusClosed: 'Fechado',
     statusCanceled: 'Cancelado',
-    timezoneNotice: 'Horários no fuso de Fortaleza (UTC−3).',
     reschedule: 'Remarcar',
     rescheduleTitle: 'Remarcar horário',
     rescheduleDescription:
@@ -647,7 +645,6 @@ export const bookingsEn: BookingsTranslation = {
     canceled_other: 'Time slot canceled. {{count}} bookings refunded.',
     statusClosed: 'Closed',
     statusCanceled: 'Canceled',
-    timezoneNotice: 'Times in Fortaleza time (UTC−3).',
     reschedule: 'Reschedule',
     rescheduleTitle: 'Reschedule time slot',
     rescheduleDescription:
@@ -899,7 +896,6 @@ export const bookingsFr: BookingsTranslation = {
     canceled_other: 'Créneau annulé. {{count}} réservations remboursées.',
     statusClosed: 'Fermé',
     statusCanceled: 'Annulé',
-    timezoneNotice: 'Horaires à l’heure de Fortaleza (UTC−3).',
     reschedule: 'Reprogrammer',
     rescheduleTitle: 'Reprogrammer le créneau',
     rescheduleDescription:

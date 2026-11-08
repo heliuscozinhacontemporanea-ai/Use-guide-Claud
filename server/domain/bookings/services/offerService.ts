@@ -1,7 +1,5 @@
-import {
-  canChangeCancellationPolicy,
-  isCancellationPolicyAllowed,
-} from '../../../shared/kernel/cancellationPolicy';
+import { canChangeCancellationPolicy } from '../../../shared/kernel/cancellationPolicy';
+import { placeTimeOf } from '../../../shared/kernel/timeZones';
 import { BookingDomainError } from '../errors/bookingDomainError';
 import type { BookableItemLookupPort } from '../ports/bookableItemLookupPort';
 import type { BookingsPort } from '../ports/bookingsPort';
@@ -18,6 +16,7 @@ import {
   type PublicSlot,
 } from '../types/bookingTypes';
 import { buildSlotId } from '../utils/buildBookingId';
+import { assertPolicyForKind, assertSellingUnit, assertValidPricing } from '../utils/offerRules';
 import { expandSlotRecurrence, type SlotRecurrence } from '../utils/slotRecurrence';
 
 const MAX_SLOTS_PER_REQUEST = 200;
@@ -53,47 +52,6 @@ export type OfferInput = Pick<
 export type CreateSlotsInput =
   | { mode: 'list'; slots: Array<{ startsAt: string; endsAt?: string }>; capacity: number }
   | ({ mode: 'recurrence'; capacity: number } & SlotRecurrence);
-
-function assertPolicyForKind(kind: BookableOfferKind, policy: string): void {
-  if (!isCancellationPolicyAllowed(cancellationFamilyOf(kind), policy)) {
-    throw new BookingDomainError(
-      'VALIDATION_ERROR',
-      'Política de cancelamento não disponível para este tipo de oferta.'
-    );
-  }
-}
-
-/** Entrada de atração é sempre por pessoa; venda por grupo precisa do tamanho do grupo (D20). */
-function assertSellingUnit(
-  kind: BookableOfferKind,
-  unit: BookableOffer['sellingUnit'],
-  groupMaxPeople: number | undefined
-): void {
-  if (unit !== 'group') return;
-  if (kind === 'private_entry') {
-    throw new BookingDomainError('VALIDATION_ERROR', 'Entrada de atração é vendida por pessoa.');
-  }
-  if (!groupMaxPeople) {
-    throw new BookingDomainError(
-      'VALIDATION_ERROR',
-      'Informe quantas pessoas cabem em cada grupo.'
-    );
-  }
-}
-
-function assertValidPricing(pricing: BookableOffer['pricing']): void {
-  if (pricing.priceOptions.length === 0) {
-    throw new BookingDomainError('VALIDATION_ERROR', 'Informe ao menos uma opção de preço.');
-  }
-  for (const option of pricing.priceOptions) {
-    if (!Number.isInteger(option.unitAmountMinor) || option.unitAmountMinor <= 0) {
-      throw new BookingDomainError(
-        'VALIDATION_ERROR',
-        'Preço deve ser um valor inteiro em centavos.'
-      );
-    }
-  }
-}
 
 export function toPublicOffer(offer: BookableOffer): PublicBookableOffer {
   const { ownerId: _owner, partnerId: _partner, createdAt: _created, ...publicFields } = offer;
@@ -136,7 +94,7 @@ export class OfferService {
     const offer: BookableOffer = {
       ...input,
       ...(item.name ? { businessName: item.name } : {}),
-      ...(item.timeZone ? { timeZone: item.timeZone } : {}),
+      ...placeTimeOf(item),
       id: `offer_${this.newId()}`,
       ownerId: item.ownerId,
       partnerId: item.partnerId,
@@ -182,7 +140,7 @@ export class OfferService {
     const updated: BookableOffer = {
       ...offer,
       ...input,
-      ...(item?.timeZone ? { timeZone: item.timeZone } : {}),
+      ...(item ? placeTimeOf(item) : {}),
       updatedAt: this.now().toISOString(),
     };
     await this.port.saveOffer(updated);
@@ -240,7 +198,10 @@ export class OfferService {
             startsAt: new Date(slot.startsAt).toISOString(),
             endsAt: slot.endsAt,
           }))
-        : expandSlotRecurrence(input).map((startsAt) => ({ startsAt, endsAt: undefined }));
+        : expandSlotRecurrence(input, offer.timeZone).map((startsAt) => ({
+            startsAt,
+            endsAt: undefined,
+          }));
     if (requested.length > MAX_SLOTS_PER_REQUEST) {
       throw new BookingDomainError(
         'VALIDATION_ERROR',

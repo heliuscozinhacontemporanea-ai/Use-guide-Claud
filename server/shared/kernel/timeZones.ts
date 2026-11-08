@@ -155,3 +155,17 @@ export function isoToZonedDateTime(iso: string, timeZone: string): string {
 export function zonedDayKey(iso: string, timeZone: string): string {
   return isoToZonedDateTime(iso, timeZone).slice(0, 10);
 }
+
+/** Fuso e cidade do lugar onde o serviço acontece: a cidade é o nome mostrado ao lado da hora. */
+export interface PlaceTime {
+  timeZone: string;
+  city?: string;
+}
+
+/** Fuso e cidade copiados do estabelecimento para evento e oferta; vazio sem fuso calculado. */
+export function placeTimeOf(source: object): Partial<PlaceTime> {
+  const place = source as { timeZone?: unknown; city?: unknown };
+  if (typeof place.timeZone !== 'string' || !place.timeZone) return {};
+  const city = typeof place.city === 'string' ? place.city.trim() : '';
+  return { timeZone: place.timeZone, ...(city ? { city } : {}) };
+}

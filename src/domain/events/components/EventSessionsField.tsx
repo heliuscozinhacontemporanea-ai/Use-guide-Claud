@@ -4,6 +4,7 @@ import {
   businessDateTimeToIso,
   isoToBusinessDateTime,
 } from '../../../shared/utils/businessDateTime';
+import { type PlaceTime, placeTimeFormNote } from '../../../shared/utils/placeTime';
 import { INPUT } from '../../../ui/styles/controls';
 import type { EventSessionDraft, EventSessionsLoadState } from '../types/eventSession';
 import { defaultSalesEndsAt, newEventSessionDraft, withStartsAt } from '../utils/eventSessions';
@@ -13,13 +14,22 @@ export interface EventSessionsFieldProps {
   onChange: (sessions: EventSessionDraft[]) => void;
   /** Estado da leitura das sessões salvas; enquanto não está pronta, a lista não é editável. */
   loadState: EventSessionsLoadState;
+  /** Fuso e cidade do estabelecimento: as sessões são digitadas na hora do lugar (D28). */
+  place?: PlaceTime;
 }
 
 const LABEL = 'text-[12px] font-semibold text-ink/70';
 
-/** Sessões do evento (data, horário, capacidade e fim das vendas), no fuso de Fortaleza. Usado pelo parceiro e pelo admin. */
-export function EventSessionsField({ sessions, onChange, loadState }: EventSessionsFieldProps) {
+/** Sessões do evento (data, horário, capacidade e fim das vendas) na hora do lugar. Parceiro e admin. */
+export function EventSessionsField({
+  sessions,
+  onChange,
+  loadState,
+  place,
+}: EventSessionsFieldProps) {
   const { t } = useTranslation();
+  const tz = place?.timeZone;
+  const zoneNote = placeTimeFormNote(t, place);
   if (loadState === 'loading') {
     return (
       <p role="status" className="px-2 text-[13px] text-ink/70">
@@ -44,7 +54,7 @@ export function EventSessionsField({ sessions, onChange, loadState }: EventSessi
       <div className="flex items-center justify-between gap-2 px-2">
         <div>
           <p className="text-sm font-semibold text-ink">{t('eventSessions.title')}</p>
-          <p className="text-[12px] text-ink/70">{t('eventSessions.timezone')}</p>
+          {zoneNote && <p className="text-[12px] text-ink/70">{zoneNote}</p>}
         </div>
         <button
           type="button"
@@ -81,9 +91,9 @@ export function EventSessionsField({ sessions, onChange, loadState }: EventSessi
                 <span className={LABEL}>{t('eventSessions.startsAt')}</span>
                 <input
                   type="datetime-local"
-                  value={isoToBusinessDateTime(session.startsAt)}
+                  value={isoToBusinessDateTime(session.startsAt, tz)}
                   onChange={(e) =>
-                    replace(index, withStartsAt(session, businessDateTimeToIso(e.target.value)))
+                    replace(index, withStartsAt(session, businessDateTimeToIso(e.target.value, tz)))
                   }
                   className={INPUT}
                 />
@@ -92,9 +102,12 @@ export function EventSessionsField({ sessions, onChange, loadState }: EventSessi
                 <span className={LABEL}>{t('eventSessions.endsAt')}</span>
                 <input
                   type="datetime-local"
-                  value={isoToBusinessDateTime(session.endsAt)}
+                  value={isoToBusinessDateTime(session.endsAt, tz)}
                   onChange={(e) =>
-                    replace(index, { ...session, endsAt: businessDateTimeToIso(e.target.value) })
+                    replace(index, {
+                      ...session,
+                      endsAt: businessDateTimeToIso(e.target.value, tz),
+                    })
                   }
                   className={INPUT}
                 />
@@ -117,12 +130,13 @@ export function EventSessionsField({ sessions, onChange, loadState }: EventSessi
                 <input
                   type="datetime-local"
                   value={isoToBusinessDateTime(
-                    session.salesEndsAt ?? defaultSalesEndsAt(session.startsAt)
+                    session.salesEndsAt ?? defaultSalesEndsAt(session.startsAt),
+                    tz
                   )}
                   onChange={(e) =>
                     replace(index, {
                       ...session,
-                      salesEndsAt: businessDateTimeToIso(e.target.value),
+                      salesEndsAt: businessDateTimeToIso(e.target.value, tz),
                     })
                   }
                   className={INPUT}

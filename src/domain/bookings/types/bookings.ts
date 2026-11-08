@@ -39,6 +39,9 @@ export interface PartnerOffer extends OfferFields {
   guideItemId: string;
   kind: OfferKind;
   status: OfferStatus;
+  /** Fuso e cidade do estabelecimento (D28), postos pelo servidor. */
+  timeZone?: string;
+  city?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -165,6 +168,8 @@ export interface PublicOffer extends OfferFields {
   guideItemId: string;
   kind: OfferKind;
   status: 'published';
+  timeZone?: string;
+  city?: string;
   updatedAt: string;
 }
 

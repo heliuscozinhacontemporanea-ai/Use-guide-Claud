@@ -1,6 +1,6 @@
 import { subscribeToCollectionUseCase } from '../../database';
-import type { FeaturedListings } from '../types/featuredListing';
 import { GuideCatalogPort, GuideCatalogSnapshot } from '../ports/guideCatalogPort';
+import type { FeaturedListings } from '../types/featuredListing';
 import { GuideItem } from '../types/guide';
 
 export function mapGuideItem(record: Record<string, unknown>): GuideItem {
@@ -35,6 +35,9 @@ export function mapGuideItem(record: Record<string, unknown>): GuideItem {
     ownerId: typeof record.ownerId === 'string' ? record.ownerId : undefined,
     establishmentId:
       typeof record.establishmentId === 'string' ? record.establishmentId : undefined,
+    timeZone: typeof record.timeZone === 'string' ? record.timeZone : undefined,
+    state: typeof record.state === 'string' ? record.state : undefined,
+    city: typeof record.city === 'string' ? record.city : undefined,
     isVerified: typeof record.isVerified === 'boolean' ? record.isVerified : undefined,
     verifiedUntil:
       typeof record.verifiedUntil === 'string'

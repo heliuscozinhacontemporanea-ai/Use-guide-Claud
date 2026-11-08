@@ -7,6 +7,7 @@ import {
   PaymentAccountNotice,
 } from '../../domain/payment';
 import { PartnerEventTicketingManager } from '../../domain/ticketing';
+import type { PlaceTime } from '../../shared/utils/placeTime';
 
 /**
  * Painel de ingressos do parceiro com a conta financeira certa: o evento vende pela conta do CNPJ do
@@ -22,6 +23,7 @@ export function PartnerEventTicketingComposition({
 }) {
   const { t } = useTranslation();
   const [ready, setReady] = useState<boolean | null>(null);
+  const [place, setPlace] = useState<PlaceTime | undefined>(undefined);
 
   const loadStatus = useCallback(() => {
     let active = true;
@@ -34,7 +36,10 @@ export function PartnerEventTicketingComposition({
             !!establishmentId &&
             entry.itemIds.includes(establishmentId)
         );
-        if (active) setReady(isReady);
+        if (active) {
+          setReady(isReady);
+          setPlace(listing ? { timeZone: listing.timeZone, city: listing.city } : undefined);
+        }
       })
       .catch(() => {
         // Falha de rede não significa conta incompleta: não mostra o aviso por engano.
@@ -57,6 +62,7 @@ export function PartnerEventTicketingComposition({
       }
       financePanel={lotsOnly ? undefined : <PartnerStripeConnectPortal />}
       lotsOnly={lotsOnly}
+      place={place}
     />
   );
 }

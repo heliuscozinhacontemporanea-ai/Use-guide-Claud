@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { PlaceTime } from '../../../../shared/utils/placeTime';
 import { BUTTON_SECONDARY } from '../../../../ui/styles/controls';
 import type { EventOccurrence } from '../../../events';
 import { OccurrenceCancelDialog } from './OccurrenceCancelDialog';
@@ -11,8 +12,10 @@ export function SessionActions({
   occurrence,
   paidOrders,
   onChanged,
+  place,
 }: {
   eventListingId: string;
+  place?: PlaceTime;
   occurrence: EventOccurrence | undefined;
   paidOrders: number;
   onChanged: (message: string) => void;
@@ -62,6 +65,7 @@ export function SessionActions({
         eventListingId={eventListingId}
         occurrence={postponing}
         paidOrders={paidOrders}
+        place={place}
         onClose={() => setPostponing(null)}
         onDone={done}
       />

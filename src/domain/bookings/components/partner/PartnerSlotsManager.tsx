@@ -1,6 +1,7 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { type PlaceTime, placeTimeFormNote } from '../../../../shared/utils/placeTime';
 import { ListEmpty, ListError, ListLoading } from '../../../../ui/components/ListState';
 import { BUTTON_SECONDARY } from '../../../../ui/styles/controls';
 import { usePartnerSlots } from '../../hooks/usePartnerSlots';
@@ -10,18 +11,18 @@ import {
   addDays,
   formatDayLabel,
   formatSlotTime,
-  fortalezaDateKey,
-  startOfFortalezaWeek,
+  placeDateKey,
+  startOfPlaceWeek,
 } from '../../utils/dates';
 import { SlotCancelDialog } from './SlotCancelDialog';
 import { SlotCheckInSheet } from './SlotCheckInSheet';
 import { SlotCreationForm } from './SlotCreationForm';
 import { SlotRescheduleDialog } from './SlotRescheduleDialog';
 
-function groupByDay(slots: PartnerSlot[]): Array<[string, PartnerSlot[]]> {
+function groupByDay(slots: PartnerSlot[], timeZone?: string): Array<[string, PartnerSlot[]]> {
   const groups = new Map<string, PartnerSlot[]>();
   for (const slot of slots) {
-    const key = fortalezaDateKey(slot.startsAt);
+    const key = placeDateKey(slot.startsAt, timeZone);
     groups.set(key, [...(groups.get(key) ?? []), slot]);
   }
   return [...groups.entries()];
@@ -30,12 +31,16 @@ function groupByDay(slots: PartnerSlot[]): Array<[string, PartnerSlot[]]> {
 export function PartnerSlotsManager({
   offerId,
   kind = 'tour',
+  place,
 }: {
   offerId: string;
   kind?: OfferKind;
+  /** Fuso e cidade da oferta: os horários são digitados e mostrados na hora do lugar (D28). */
+  place?: PlaceTime;
 }) {
   const { t, i18n } = useTranslation();
-  const [weekStart, setWeekStart] = useState(() => startOfFortalezaWeek(new Date()));
+  const tz = place?.timeZone;
+  const [weekStart, setWeekStart] = useState(() => startOfPlaceWeek(new Date(), tz));
   const { data, loading, error, reload, create, cancel, reschedule } = usePartnerSlots(
     offerId,
     weekStart
@@ -43,9 +48,10 @@ export function PartnerSlotsManager({
   const [canceling, setCanceling] = useState<PartnerSlot | null>(null);
   const [rescheduling, setRescheduling] = useState<PartnerSlot | null>(null);
   const [checkingIn, setCheckingIn] = useState<PartnerSlot | null>(null);
-  const today = fortalezaDateKey(new Date().toISOString());
+  const today = placeDateKey(new Date().toISOString(), tz);
+  const zoneNote = placeTimeFormNote(t, place);
   const [notice, setNotice] = useState<string | null>(null);
-  const days = useMemo(() => groupByDay(data), [data]);
+  const days = useMemo(() => groupByDay(data, tz), [data, tz]);
 
   const handleCreate = async (payload: CreateSlotsPayload) => {
     try {
@@ -87,8 +93,8 @@ export function PartnerSlotsManager({
           <ChevronLeft size={16} aria-hidden="true" />
         </button>
         <p className="text-sm font-semibold text-ink">
-          {formatDayLabel(weekStart.toISOString(), i18n.language)} –{' '}
-          {formatDayLabel(addDays(weekStart, 6).toISOString(), i18n.language)}
+          {formatDayLabel(weekStart.toISOString(), i18n.language, tz)} –{' '}
+          {formatDayLabel(addDays(weekStart, 6).toISOString(), i18n.language, tz)}
         </p>
         <button
           type="button"
@@ -99,6 +105,7 @@ export function PartnerSlotsManager({
           <ChevronRight size={16} aria-hidden="true" />
         </button>
       </div>
+      {zoneNote && <p className="text-xs text-ink/70">{zoneNote}</p>}
       {notice && (
         <p role="status" className="text-xs text-accent">
           {notice}
@@ -114,7 +121,7 @@ export function PartnerSlotsManager({
         days.map(([day, slots]) => (
           <div key={day} className="space-y-2">
             <h4 className="text-xs font-bold uppercase tracking-wide text-ink/70">
-              {formatDayLabel(slots[0]!.startsAt, i18n.language)}
+              {formatDayLabel(slots[0]!.startsAt, i18n.language, tz)}
             </h4>
             <ul className="space-y-2">
               {slots.map((slot) => {
@@ -129,7 +136,7 @@ export function PartnerSlotsManager({
                   >
                     <div>
                       <p className="text-sm font-bold text-ink">
-                        {formatSlotTime(slot.startsAt, i18n.language)}
+                        {formatSlotTime(slot.startsAt, i18n.language, tz)}
                       </p>
                       <p className="text-xs text-ink/70">
                         {slot.status === 'open'
@@ -148,7 +155,7 @@ export function PartnerSlotsManager({
                     {slot.status === 'open' && (
                       <div className="flex flex-wrap gap-2">
                         {/* Check-in só no dia do horário (D20). */}
-                        {fortalezaDateKey(slot.startsAt) === today && slot.capacitySold > 0 && (
+                        {placeDateKey(slot.startsAt, tz) === today && slot.capacitySold > 0 && (
                           <button
                             type="button"
                             onClick={() => setCheckingIn(slot)}
@@ -188,12 +195,14 @@ export function PartnerSlotsManager({
           offerId={offerId}
           kind={kind}
           slot={checkingIn}
+          timeZone={tz}
           onClose={() => setCheckingIn(null)}
         />
       )}
-      <SlotCreationForm onCreate={handleCreate} />
+      <SlotCreationForm onCreate={handleCreate} timeZone={tz} />
       <SlotCancelDialog
         slot={canceling}
+        timeZone={tz}
         onClose={() => setCanceling(null)}
         onConfirm={(slot) => void confirmCancel(slot)}
         onReschedule={(slot) => {
@@ -205,6 +214,7 @@ export function PartnerSlotsManager({
       <SlotRescheduleDialog
         key={rescheduling?.id ?? 'none'}
         slot={rescheduling}
+        place={place}
         onClose={() => setRescheduling(null)}
         onSubmit={submitReschedule}
       />

@@ -1,3 +1,4 @@
+import type { PlaceTime } from '../../../shared/kernel/timeZones';
 import type {
   CreateEventListingInput,
   CreateEventOccurrenceInput,
@@ -20,6 +21,8 @@ export interface EventsPort {
   deleteListing(id: string): Promise<void>;
   updateRatingSummary(id: string, summary: EventRatingSummary): Promise<void>;
   /** Eventos herdam o selo do estabelecimento ou perfil de produtor ao qual pertencem (D11). */
+  /** Eventos seguem o fuso e a cidade do estabelecimento quando ele muda de lugar (D28). */
+  updatePlaceByEstablishment(establishmentId: string, place: PlaceTime): Promise<void>;
   updateVerificationByEstablishment(
     establishmentId: string,
     verification: {

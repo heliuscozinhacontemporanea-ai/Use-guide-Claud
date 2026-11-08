@@ -1,66 +1,56 @@
 import { capitalizeFirst } from './formatters';
-// Fortaleza é UTC−3 fixo, sem horário de verão (AGENTS.md §1): campos de data e hora dos
-// formulários mostram e recebem a hora do negócio, qualquer que seja o fuso do navegador.
-const BUSINESS_OFFSET_MS = 3 * 60 * 60 * 1000;
-const INPUT_PATTERN = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/;
+import { isoToZonedDateTime, PLATFORM_TIME_ZONE, zonedDateTimeToIso } from './timeZones';
 
-/** "AAAA-MM-DDTHH:MM" digitado em hora de Fortaleza → ISO UTC; vazio se inválido. */
-export function businessDateTimeToIso(value: string): string {
-  const match = INPUT_PATTERN.exec(value);
-  if (!match) {
-    return '';
-  }
-  const [, y, m, d, h, min] = match.map(Number) as [number, number, number, number, number, number];
-  return new Date(Date.UTC(y, m - 1, d, h, min) + BUSINESS_OFFSET_MS).toISOString();
+// A hora de um serviço é a do lugar onde ele acontece (D28, AGENTS.md §1): formulários e telas recebem
+// o fuso do estabelecimento; sem ele, usam o da plataforma.
+
+/** "AAAA-MM-DDTHH:MM" digitado na hora do lugar → ISO UTC; vazio se inválido. */
+export function businessDateTimeToIso(value: string, timeZone = PLATFORM_TIME_ZONE): string {
+  return zonedDateTimeToIso(value, timeZone);
 }
 
-/** ISO → "AAAA-MM-DDTHH:MM" em hora de Fortaleza, para `<input type="datetime-local">`. */
-export function isoToBusinessDateTime(value?: string): string {
-  if (!value) {
-    return '';
-  }
-  const time = new Date(value).getTime();
-  if (Number.isNaN(time)) {
-    return '';
-  }
-  return new Date(time - BUSINESS_OFFSET_MS).toISOString().slice(0, 16);
+/** ISO → "AAAA-MM-DDTHH:MM" na hora do lugar, para `<input type="datetime-local">`. */
+export function isoToBusinessDateTime(value?: string, timeZone = PLATFORM_TIME_ZONE): string {
+  return value ? isoToZonedDateTime(value, timeZone) : '';
 }
 
-const BUSINESS_TIME_ZONE = 'America/Fortaleza';
-
-/** Data no fuso do negócio (AGENTS.md §12.4), com o formato que a tela pedir. */
+/** Data na hora do lugar (AGENTS.md §12.4), com o formato que a tela pedir. */
 export function formatBusinessDate(
   iso: string,
   locale: string,
-  options: Intl.DateTimeFormatOptions
+  options: Intl.DateTimeFormatOptions,
+  timeZone = PLATFORM_TIME_ZONE
 ): string {
-  return new Intl.DateTimeFormat(locale, { timeZone: BUSINESS_TIME_ZONE, ...options }).format(
-    new Date(iso)
-  );
+  return new Intl.DateTimeFormat(locale, { timeZone, ...options }).format(new Date(iso));
 }
 
 /** "28 de out." — linhas curtas de status e prazo. */
-export function formatBusinessDay(iso: string, locale: string): string {
-  return formatBusinessDate(iso, locale, { day: 'numeric', month: 'short' });
+export function formatBusinessDay(iso: string, locale: string, timeZone?: string): string {
+  return formatBusinessDate(iso, locale, { day: 'numeric', month: 'short' }, timeZone);
 }
 
 /** "seg., 26 de out." — data de uma compra ou serviço. */
-export function formatBusinessWeekday(iso: string, locale: string): string {
-  return formatBusinessDate(iso, locale, { weekday: 'short', day: 'numeric', month: 'short' });
+export function formatBusinessWeekday(iso: string, locale: string, timeZone?: string): string {
+  return formatBusinessDate(
+    iso,
+    locale,
+    { weekday: 'short', day: 'numeric', month: 'short' },
+    timeZone
+  );
 }
 
 /** "26 de out., 14:30" — data e hora de um registro. */
-export function formatBusinessDateTime(iso: string, locale: string): string {
-  return formatBusinessDate(iso, locale, {
-    day: '2-digit',
-    month: 'short',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+export function formatBusinessDateTime(iso: string, locale: string, timeZone?: string): string {
+  return formatBusinessDate(
+    iso,
+    locale,
+    { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' },
+    timeZone
+  );
 }
 
-/** "Sáb., 20 de dez. · 20:00" — sessão de evento no fuso do negócio. */
-export function formatSessionLabel(iso: string, locale: string): string {
-  const time = formatBusinessDate(iso, locale, { hour: '2-digit', minute: '2-digit' });
-  return `${capitalizeFirst(formatBusinessWeekday(iso, locale), locale)} · ${time}`;
+/** "Sáb., 20 de dez. · 20:00" — sessão de evento na hora do lugar. */
+export function formatSessionLabel(iso: string, locale: string, timeZone?: string): string {
+  const time = formatBusinessDate(iso, locale, { hour: '2-digit', minute: '2-digit' }, timeZone);
+  return `${capitalizeFirst(formatBusinessWeekday(iso, locale, timeZone), locale)} · ${time}`;
 }

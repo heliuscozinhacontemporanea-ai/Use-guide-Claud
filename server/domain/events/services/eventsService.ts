@@ -1,4 +1,5 @@
 import { canChangeCancellationPolicy } from '../../../shared/kernel/cancellationPolicy';
+import type { PlaceTime } from '../../../shared/kernel/timeZones';
 import {
   EventDomainError,
   EventNotFoundError,
@@ -252,6 +253,13 @@ export class EventsService {
 
   async updateRatingSummary(eventListingId: string, summary: EventRatingSummary): Promise<void> {
     await this.eventsPort.updateRatingSummary(eventListingId, summary);
+  }
+
+  async updateEstablishmentPlace(establishmentId: string, place: PlaceTime): Promise<void> {
+    if (!establishmentId?.trim()) {
+      throw new EventDomainError('INVALID_ARGUMENT', 'ID do estabelecimento inválido');
+    }
+    await this.eventsPort.updatePlaceByEstablishment(establishmentId, place);
   }
 
   async updateEstablishmentVerification(

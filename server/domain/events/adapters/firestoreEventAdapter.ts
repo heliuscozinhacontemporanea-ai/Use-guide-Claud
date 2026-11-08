@@ -1,4 +1,5 @@
 import { adminDb } from '../../../infrastructure/firebase/adminClient';
+import type { PlaceTime } from '../../../shared/kernel/timeZones';
 import {
   EventListingPersistenceMapper,
   EventOccurrencePersistenceMapper,
@@ -91,6 +92,20 @@ export class FirestoreEventAdapter implements EventsPort {
       reviewCount: summary.count,
       updatedAt: new Date().toISOString(),
     });
+  }
+
+  async updatePlaceByEstablishment(establishmentId: string, place: PlaceTime): Promise<void> {
+    const snapshot = await adminDb
+      .collection('events')
+      .where('establishmentId', '==', establishmentId)
+      .get();
+    if (snapshot.empty) return;
+    const batch = adminDb.batch();
+    const updatedAt = new Date().toISOString();
+    snapshot.forEach((doc) => {
+      batch.update(doc.ref, { timeZone: place.timeZone, city: place.city ?? null, updatedAt });
+    });
+    await batch.commit();
   }
 
   async updateVerificationByEstablishment(

@@ -3,7 +3,6 @@ export interface EventSessionsTranslation {
   loading: string;
   loadError: string;
   title: string;
-  timezone: string;
   add: string;
   session: string;
   remove: string;
@@ -19,7 +18,6 @@ export const eventSessionsPtBR: EventSessionsTranslation = {
   loadError:
     'Não foi possível carregar as sessões deste evento. Feche e abra o editor de novo antes de salvar.',
   title: 'Sessões do evento',
-  timezone: 'Horários no fuso de Fortaleza (UTC−3).',
   add: 'Adicionar data',
   session: 'Sessão {{n}}',
   remove: 'Remover {{session}}',
@@ -35,7 +33,6 @@ export const eventSessionsEn: EventSessionsTranslation = {
   loading: 'Loading the event sessions…',
   loadError: 'Could not load this event’s sessions. Close and reopen the editor before saving.',
   title: 'Event sessions',
-  timezone: 'Times in the Fortaleza time zone (UTC−3).',
   add: 'Add date',
   session: 'Session {{n}}',
   remove: 'Remove {{session}}',
@@ -52,7 +49,6 @@ export const eventSessionsFr: EventSessionsTranslation = {
   loadError:
     'Impossible de charger les séances de cet événement. Fermez et rouvrez l’éditeur avant d’enregistrer.',
   title: 'Séances de l’événement',
-  timezone: 'Horaires au fuseau de Fortaleza (UTC−3).',
   add: 'Ajouter une date',
   session: 'Séance {{n}}',
   remove: 'Supprimer {{session}}',

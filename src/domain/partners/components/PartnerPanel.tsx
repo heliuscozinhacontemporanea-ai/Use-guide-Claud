@@ -3,38 +3,40 @@ import { AnimatePresence } from 'motion/react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocalizedRouting } from '../../../shared/hooks/useLocalizedRouting';
-import { newPartnerEventDraft } from '../utils/newPartnerEventDraft';
 import { MessagePage } from '../../../ui/components/MessagePage';
 import { createPartnerContentItemUseCase } from '../application/usecases/createPartnerContentItemUseCase';
 import { deletePartnerContentItemUseCase } from '../application/usecases/deletePartnerContentItemUseCase';
 import { updatePartnerContentItemUseCase } from '../application/usecases/updatePartnerContentItemUseCase';
 import { useEditorScrollLock } from '../hooks/useEditorScrollLock';
-import { usePartnerEventSessions } from '../hooks/usePartnerEventSessions';
-import { usePartnerPanelActions } from '../hooks/usePartnerPanelActions';
 import { usePanelNavigation } from '../hooks/usePanelNavigation';
 import { usePanelTour } from '../hooks/usePanelTour';
+import { usePartnerEventSessions } from '../hooks/usePartnerEventSessions';
+import { usePartnerPanelActions } from '../hooks/usePartnerPanelActions';
+import { usePartnerPanelHome } from '../hooks/usePartnerPanelHome';
 import { usePlanCheckout } from '../hooks/usePlanCheckout';
 import type { PartnerContentRecord } from '../types/partnerContent';
-import type { PartnerPanelProps } from './partnerPanelProps';
+import type { PartnerTodayItem } from '../types/partnerHome';
+import { newPartnerEventDraft } from '../utils/newPartnerEventDraft';
 import { ListingEditor } from './ListingEditor';
 import { PartnerEventEditor } from './PartnerEventEditor';
 import { ListingPlanFlow } from './panel/ListingPlanFlow';
-import { usePartnerPanelHome } from '../hooks/usePartnerPanelHome';
-import type { PartnerTodayItem } from '../types/partnerHome';
+import type { PartnerPanelProps } from './partnerPanelProps';
+
 export type { AgendaSheetProps, PartnerPanelProps } from './partnerPanelProps';
+
 import { belongs } from '../utils/partnerHomeFilter';
 import { EstablishmentFilterSheet } from './panel/EstablishmentFilterSheet';
-import { ATTENTION_TAB } from './panel/PartnerAttentionList';
-import type { CatalogSegment } from './panel/PartnerCatalogTab';
-import { PartnerCatalogSection } from './panel/PartnerCatalogSection';
+import { PanelTourChooser } from './panel/PanelTourChooser';
+import { PartnerAgendaTab } from './panel/PartnerAgendaTab';
 import { PartnerAgoraSection } from './panel/PartnerAgoraSection';
-import { PartnerHomeTab } from './panel/PartnerHomeTab';
+import { ATTENTION_TAB } from './panel/PartnerAttentionList';
+import { PartnerCatalogSection } from './panel/PartnerCatalogSection';
+import type { CatalogSegment } from './panel/PartnerCatalogTab';
 import { PartnerEarningsTab } from './panel/PartnerEarningsTab';
+import { PartnerHomeTab } from './panel/PartnerHomeTab';
 import { PartnerMoreSection } from './panel/PartnerMoreSection';
 import { PartnerPanelTop } from './panel/PartnerPanelTop';
-import { PanelTourChooser } from './panel/PanelTourChooser';
 import { PartnerPanelTour } from './panel/PartnerPanelTour';
-import { PartnerAgendaTab } from './panel/PartnerAgendaTab';
 import type { VerificationListingOption } from './verification/verificationListingOption';
 
 export function PartnerPanel({
@@ -303,6 +305,7 @@ export function PartnerPanel({
             isUploading={isUploading}
             onImageUpload={handleImageUpload}
             businesses={partnerProfile?.businesses}
+            establishments={itemsList}
             sessionsLoadState={eventSessions.loadState}
             renderSessionsField={renderEventSessionsField}
             renderEventTicketingManager={renderEventTicketingManager}

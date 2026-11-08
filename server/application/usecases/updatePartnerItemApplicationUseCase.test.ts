@@ -1,12 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { AuthenticatedUserContext } from '../security/authenticatedUserContext';
-import { updatePartnerItemApplicationUseCase } from './updatePartnerItemApplicationUseCase';
+import { syncOffersPlaceFromItemUseCase } from '../../domain/bookings';
+import { updateEstablishmentEventsPlaceUseCase } from '../../domain/events';
 import {
   getItemByIdUseCase,
   type PublicResourceDTO,
   updateGuideItemUseCase,
 } from '../../domain/guide';
 import { updateBusinessUseCase } from '../../domain/partners';
+import type { AuthenticatedUserContext } from '../security/authenticatedUserContext';
+import { updatePartnerItemApplicationUseCase } from './updatePartnerItemApplicationUseCase';
 
 vi.mock('../../domain/guide', () => ({
   getItemByIdUseCase: vi.fn(),
@@ -15,6 +17,14 @@ vi.mock('../../domain/guide', () => ({
 
 vi.mock('../../domain/partners', () => ({
   updateBusinessUseCase: vi.fn(),
+}));
+
+vi.mock('../../domain/events', () => ({
+  updateEstablishmentEventsPlaceUseCase: vi.fn(),
+}));
+
+vi.mock('../../domain/bookings', () => ({
+  syncOffersPlaceFromItemUseCase: vi.fn(),
 }));
 
 describe('updatePartnerItemApplicationUseCase', () => {
@@ -48,6 +58,29 @@ describe('updatePartnerItemApplicationUseCase', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  it('mudar de cidade leva o fuso novo para eventos e ofertas (D28)', async () => {
+    vi.mocked(getItemByIdUseCase)
+      .mockResolvedValueOnce({ ...mockItem, timeZone: 'America/Fortaleza', city: 'Jijoca' })
+      .mockResolvedValueOnce({ ...mockItem, timeZone: 'America/Manaus', city: 'Manaus' });
+    await updatePartnerItemApplicationUseCase(regularUser, 'item-100', {
+      state: 'AM',
+      city: 'Manaus',
+    });
+    expect(updateEstablishmentEventsPlaceUseCase).toHaveBeenCalledWith('item-100', {
+      timeZone: 'America/Manaus',
+      city: 'Manaus',
+    });
+    expect(syncOffersPlaceFromItemUseCase).toHaveBeenCalledWith('item-100');
+  });
+
+  it('sem mudança de lugar, eventos e ofertas ficam como estão', async () => {
+    const placed = { ...mockItem, timeZone: 'America/Fortaleza', city: 'Jijoca' };
+    vi.mocked(getItemByIdUseCase).mockResolvedValueOnce(placed).mockResolvedValueOnce(placed);
+    await updatePartnerItemApplicationUseCase(regularUser, 'item-100', { description: 'Nova' });
+    expect(updateEstablishmentEventsPlaceUseCase).not.toHaveBeenCalled();
+    expect(syncOffersPlaceFromItemUseCase).not.toHaveBeenCalled();
   });
 
   it('Guide update + Partner update succeeds = success', async () => {

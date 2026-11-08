@@ -1,8 +1,7 @@
-import { Building2, Check, ChevronDown, Hash, MapPin } from 'lucide-react';
-import { useEffect, useId, useRef, useState } from 'react';
+import { Building2, Hash, MapPin } from 'lucide-react';
+import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { REGIONS } from '../../../../shared/constants/regions';
-import { Z_INDEX } from '../../../../shared/constants/zIndex';
 import { cn } from '../../../../shared/utils/cn';
 import { BR_STATES } from '../../../../shared/utils/timeZones';
 
@@ -12,70 +11,41 @@ const FIELD =
 const ICON = 'absolute left-4 top-1/2 -translate-y-1/2 text-ink/60 pointer-events-none';
 const ERROR = 'text-[11px] font-semibold text-danger ml-1';
 
-function RegionDropdown({
+/**
+ * Região ou bairro em texto livre, para o país inteiro; as regiões já usadas pela busca aparecem como
+ * sugestão.
+ */
+export function RegionInput({
   value,
   onChange,
-  placeholder,
+  label,
   hasError,
 }: {
   value: string;
-  onChange: (val: string) => void;
-  placeholder: string;
+  onChange: (value: string) => void;
+  label: string;
   hasError?: boolean;
 }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
+  const { t } = useTranslation();
+  const listId = useId();
   return (
-    <div className="relative w-full" ref={dropdownRef}>
-      <button
-        type="button"
-        onClick={() => setIsOpen(!isOpen)}
-        aria-expanded={isOpen}
-        className={cn(
-          FIELD,
-          'text-left flex items-center justify-between',
-          hasError ? 'border-danger' : 'border-line'
-        )}
-      >
-        <span className={value ? 'text-ink' : 'text-ink/50'}>{value || placeholder}</span>
-        <ChevronDown
-          size={16}
-          aria-hidden="true"
-          className={cn('text-ink/60 transition-transform duration-200', isOpen && 'rotate-180')}
-        />
-      </button>
-      {isOpen && (
-        <div
-          style={{ zIndex: Z_INDEX.dropdown }}
-          className="absolute top-full left-0 right-0 mt-2 bg-surface border border-line rounded-2xl overflow-hidden shadow-2xl py-1 max-h-60 overflow-y-auto"
-        >
-          {REGIONS.map((region) => (
-            <button
-              key={region}
-              type="button"
-              onClick={() => {
-                onChange(region);
-                setIsOpen(false);
-              }}
-              className="w-full min-h-11 px-5 py-3 text-left text-ink text-sm hover:bg-accent-soft flex items-center justify-between"
-            >
-              <span className={value === region ? 'text-accent font-bold' : ''}>{region}</span>
-              {value === region && <Check size={14} className="text-accent" aria-hidden="true" />}
-            </button>
-          ))}
-        </div>
-      )}
+    <div className="relative">
+      <Hash size={16} className={ICON} aria-hidden="true" />
+      <input
+        type="text"
+        aria-label={label}
+        list={listId}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        placeholder={t('partners.place.regionPlaceholder')}
+        maxLength={100}
+        className={cn(FIELD, hasError ? 'border-danger' : 'border-line')}
+      />
+      <datalist id={listId}>
+        {REGIONS.map((region) => (
+          <option key={region} value={region} />
+        ))}
+      </datalist>
     </div>
   );
 }
@@ -163,15 +133,12 @@ export function PlaceFields({
           <span className={LABEL}>
             {t('partners.place.region')} <span className="text-danger">*</span>
           </span>
-          <div className="relative">
-            <Hash size={16} className={cn(ICON, 'z-10')} aria-hidden="true" />
-            <RegionDropdown
-              value={formData.region || ''}
-              onChange={(value) => updateFieldValue('region', value)}
-              placeholder={t('partners.place.regionPlaceholder')}
-              hasError={!!getFieldError('region')}
-            />
-          </div>
+          <RegionInput
+            value={formData.region || ''}
+            onChange={(value) => updateFieldValue('region', value)}
+            label={t('partners.place.region')}
+            hasError={!!getFieldError('region')}
+          />
           {getFieldError('region') && <p className={ERROR}>{getFieldError('region')}</p>}
         </div>
       </div>

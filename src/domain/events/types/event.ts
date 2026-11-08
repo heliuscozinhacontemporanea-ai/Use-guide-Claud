@@ -40,6 +40,9 @@ export interface EventListing {
   ownerId: string;
   partnerId?: string;
   establishmentId?: string;
+  /** Fuso e cidade do estabelecimento (D28), postos pelo servidor. */
+  timeZone?: string;
+  city?: string;
   title: string;
   name: string;
   summary?: string;

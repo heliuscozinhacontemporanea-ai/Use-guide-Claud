@@ -1,10 +1,10 @@
-import { Building2, Camera, Globe, Hash, MapPin, Phone } from 'lucide-react';
+import { Building2, Camera, Globe, MapPin, Phone } from 'lucide-react';
 import type { ReactNode } from 'react';
-import { REGIONS } from '../../../../shared/constants/regions';
+import { useTranslation } from 'react-i18next';
 import { E164PhoneField } from '../../../../ui/components/E164PhoneField';
 import type { PartnerContentEditorState } from '../../types/partnerContent';
+import { RegionInput } from '../steps/PlaceFields';
 import { type EventSectionProps, updateEventField } from './eventSectionProps';
-import { SelectDropdown } from './SelectDropdown';
 
 const LABEL_CLASS = 'text-[10px] font-black uppercase tracking-widest text-ink/70 ml-1';
 const ICON_INPUT_CLASS =
@@ -57,6 +57,7 @@ export function EventContactSection({
   onChange,
   part = 'all',
 }: EventSectionProps & { part?: 'all' | 'contact' | 'location' }) {
+  const { t } = useTranslation();
   const section = { item, onChange };
   const contact = part !== 'location';
   const location = part !== 'contact';
@@ -117,19 +118,11 @@ export function EventContactSection({
               <span className={LABEL_CLASS}>
                 Região / Bairro <span className="text-danger font-bold">*</span>
               </span>
-              <div className="relative">
-                <span className={`${ICON_CLASS} z-10 pointer-events-none`} aria-hidden="true">
-                  <Hash size={16} />
-                </span>
-                <SelectDropdown
-                  ariaLabel="Região do evento"
-                  withIcon
-                  value={item.location || ''}
-                  options={REGIONS.map((region) => ({ value: region, label: region }))}
-                  onChange={(value) => updateEventField(section, 'location', value)}
-                  placeholder="Selecione uma região..."
-                />
-              </div>
+              <RegionInput
+                value={item.location || ''}
+                onChange={(value) => updateEventField(section, 'location', value)}
+                label={t('partners.place.region')}
+              />
             </div>
           </>
         )}

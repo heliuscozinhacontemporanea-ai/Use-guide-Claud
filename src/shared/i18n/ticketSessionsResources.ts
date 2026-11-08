@@ -96,7 +96,7 @@ export const ticketSessionsPtBR: TicketSessionsTranslation = {
     description:
       'Os ingressos valem na nova data, sem multa para você. Cada comprador é avisado e tem 7 dias para pedir reembolso integral, com a taxa de serviço.',
     newStart: 'Nova data e hora de início',
-    durationKept: 'A duração da sessão continua a mesma. Horário de Fortaleza (UTC−3).',
+    durationKept: 'A duração da sessão continua a mesma.',
     reason: 'Motivo',
     reasonHint: 'Aparece no aviso aos compradores. De 3 a 300 caracteres.',
     submit: 'Adiar sessão',
@@ -163,7 +163,7 @@ export const ticketSessionsEn: TicketSessionsTranslation = {
     description:
       'Tickets stay valid on the new date, with no penalty for you. Each buyer is notified and has 7 days to ask for a full refund, service fee included.',
     newStart: 'New start date and time',
-    durationKept: 'The session keeps the same duration. Fortaleza time (UTC−3).',
+    durationKept: 'The session keeps the same duration.',
     reason: 'Reason',
     reasonHint: 'Shown in the notice to buyers. 3 to 300 characters.',
     submit: 'Postpone session',
@@ -230,7 +230,7 @@ export const ticketSessionsFr: TicketSessionsTranslation = {
     description:
       'Les billets restent valables à la nouvelle date, sans pénalité pour vous. Chaque acheteur est prévenu et a 7 jours pour demander un remboursement intégral, frais de service compris.',
     newStart: 'Nouvelle date et heure de début',
-    durationKept: 'La séance garde la même durée. Heure de Fortaleza (UTC−3).',
+    durationKept: 'La séance garde la même durée.',
     reason: 'Motif',
     reasonHint: 'Visible dans l’avis aux acheteurs. De 3 à 300 caractères.',
     submit: 'Reporter la séance',

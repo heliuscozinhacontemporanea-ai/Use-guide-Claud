@@ -11,12 +11,30 @@ describe('EventSessionsField', () => {
   beforeAll(async () => {
     await i18n.changeLanguage('pt-BR');
   });
-  it('mostra os horários no fuso de Fortaleza e adiciona uma sessão', () => {
+  it('sem fuso do lugar, usa o da plataforma e adiciona uma sessão', () => {
     const onChange = vi.fn();
     render(<EventSessionsField sessions={one} onChange={onChange} loadState="ready" />);
     expect(screen.getByLabelText('Início')).toHaveProperty('value', '2026-11-01T20:00');
     fireEvent.click(screen.getByRole('button', { name: /Adicionar data/ }));
     expect(onChange.mock.calls[0]?.[0]).toHaveLength(2);
+  });
+
+  it('lê e grava as sessões na hora do lugar do estabelecimento', () => {
+    const onChange = vi.fn();
+    render(
+      <EventSessionsField
+        sessions={one}
+        onChange={onChange}
+        loadState="ready"
+        place={{ timeZone: 'Pacific/Kiritimati', city: 'Manaus' }}
+      />
+    );
+    // 23:00Z é 13:00 do dia seguinte em UTC+14.
+    const start = screen.getByLabelText('Início');
+    expect(start).toHaveProperty('value', '2026-11-02T13:00');
+    expect(screen.getByText('Horários de Manaus (UTC+14).')).toBeTruthy();
+    fireEvent.change(start, { target: { value: '2026-11-02T14:00' } });
+    expect(onChange.mock.calls[0]?.[0]?.[0]?.startsAt).toBe('2026-11-02T00:00:00.000Z');
   });
 
   it('só permite remover quando há mais de uma sessão', () => {

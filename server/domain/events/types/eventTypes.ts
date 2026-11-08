@@ -40,6 +40,8 @@ export interface EventListing {
   establishmentId?: string;
   /** Fuso do estabelecimento (D28), copiado pelo servidor; nunca vem do cliente. */
   timeZone?: string;
+  /** Cidade do estabelecimento, mostrada ao lado da hora para quem está em outro fuso. */
+  city?: string;
   title: string;
   name: string;
   summary?: string;
@@ -117,6 +119,8 @@ export interface CreateEventListingInput {
   establishmentId?: string;
   /** Fuso do estabelecimento (D28), copiado pelo servidor; nunca vem do cliente. */
   timeZone?: string;
+  /** Cidade do estabelecimento, mostrada ao lado da hora para quem está em outro fuso. */
+  city?: string;
   title?: string;
   name?: string;
   summary?: string;
@@ -154,6 +158,7 @@ export interface CreateEventListingInput {
 export interface UpdateEventListingInput {
   /** Fuso do estabelecimento (D28), posto pelo servidor. */
   timeZone?: string;
+  city?: string;
   title?: string;
   name?: string;
   summary?: string;

@@ -17,8 +17,10 @@ export function SlotCancelDialog({
   onClose,
   onConfirm,
   onReschedule,
+  timeZone,
 }: {
   slot: PartnerSlot | null;
+  timeZone?: string;
   onClose: () => void;
   onConfirm: (slot: PartnerSlot) => void;
   onReschedule: (slot: PartnerSlot) => void;
@@ -31,7 +33,7 @@ export function SlotCancelDialog({
       open={slot !== null}
       onOpenChange={(open) => !open && onClose()}
       title={t('bookings.slots.cancelTitle')}
-      description={slot ? formatSlotDateTime(slot.startsAt, i18n.language) : undefined}
+      description={slot ? formatSlotDateTime(slot.startsAt, i18n.language, timeZone) : undefined}
     >
       {slot && (
         <div className="space-y-4">

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { ListEmpty, ListError, ListLoading } from '../../../../ui/components/ListState';
 import { BUTTON_SECONDARY } from '../../../../ui/styles/controls';
 import { useOfferBookings } from '../../hooks/useOfferBookings';
-import { formatSlotDateTime, fortalezaDateKey } from '../../utils/dates';
+import { formatSlotDateTime, placeDateKey } from '../../utils/dates';
 import { formatMinor } from '../../utils/money';
 import { BookingServiceControls } from './BookingServiceControls';
 
@@ -14,7 +14,7 @@ export function PartnerBookingsList({ offerId }: { offerId: string }) {
   const bookings = useOfferBookings(offerId);
   const { data, loading, error, hasMore, reload, loadMore } = bookings;
   const [notice, setNotice] = useState<string | null>(null);
-  const today = fortalezaDateKey(new Date().toISOString());
+  const today = placeDateKey(new Date().toISOString());
 
   return (
     <section className="space-y-3" aria-label={t('bookings.bookingsList.title')}>
@@ -29,7 +29,7 @@ export function PartnerBookingsList({ offerId }: { offerId: string }) {
       )}
       <ul className="space-y-2">
         {data.map((booking) => {
-          const serviceDay = fortalezaDateKey(booking.offer.startsAt) === today;
+          const serviceDay = placeDateKey(booking.offer.startsAt) === today;
           return (
             <li
               key={booking.id}

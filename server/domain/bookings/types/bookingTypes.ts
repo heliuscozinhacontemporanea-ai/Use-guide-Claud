@@ -63,6 +63,8 @@ export interface BookableOffer {
   businessName?: string;
   /** Fuso do estabelecimento (D28), copiado ao criar e ao editar a oferta. */
   timeZone?: string;
+  /** Cidade do estabelecimento, mostrada ao lado da hora para quem está em outro fuso. */
+  city?: string;
   cancellationPolicy: BookingCancellationPolicy;
   maxParticipantsPerBooking: number;
   requiresParticipantNames: boolean;

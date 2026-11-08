@@ -8,6 +8,8 @@ export interface BookableItem {
   name: string;
   /** Fuso do estabelecimento (D28); sem estado e cidade no cadastro, ausente. */
   timeZone?: string;
+  /** Cidade do estabelecimento, mostrada ao lado da hora para quem está em outro fuso. */
+  city?: string;
 }
 
 export interface BookableItemLookupPort {

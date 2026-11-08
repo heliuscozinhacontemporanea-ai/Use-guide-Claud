@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatBusinessDate } from '../../../shared/utils/businessDateTime';
 import { capitalizeFirst } from '../../../shared/utils/formatters';
+import { placeTimeSuffix } from '../../../shared/utils/placeTime';
 import { Dialog } from '../../../ui/components/Dialog';
 import { ListCard, ListRowButton } from '../../../ui/components/ListRows';
 import { ListError, ListLoading } from '../../../ui/components/ListState';
 import { BUTTON_PRIMARY } from '../../../ui/styles/controls';
 import { type EventOccurrence, useEventOccurrences } from '../../events';
+import { useEventPlace } from '../hooks/useEventPlace';
 import { usePartnerEventSales } from '../hooks/usePartnerEventSales';
 import { OccurrenceCancelDialog } from './manager/OccurrenceCancelDialog';
 import { OccurrencePostponeDialog } from './manager/OccurrencePostponeDialog';
@@ -128,6 +130,7 @@ export function PartnerSessionSheet({
   const { t, i18n } = useTranslation();
   const occurrences = useEventOccurrences(eventListingId);
   const sales = usePartnerEventSales(eventListingId, occurrenceId);
+  const place = useEventPlace(eventListingId);
   const [view, setView] = useState<'session' | 'gate' | 'postpone' | 'cancel' | 'entries'>(
     startAtGate ? 'gate' : 'session'
   );
@@ -141,15 +144,20 @@ export function PartnerSessionSheet({
   ).length;
   const description = occurrence
     ? capitalizeFirst(
-        formatBusinessDate(occurrence.startsAt, i18n.language, {
-          weekday: 'long',
-          day: 'numeric',
-          month: 'short',
-          hour: '2-digit',
-          minute: '2-digit',
-        }),
+        formatBusinessDate(
+          occurrence.startsAt,
+          i18n.language,
+          {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'short',
+            hour: '2-digit',
+            minute: '2-digit',
+          },
+          place?.timeZone
+        ),
         i18n.language
-      )
+      ) + placeTimeSuffix(t, place, occurrence.startsAt)
     : '';
   const done = (message: string) => {
     onChanged(message);
@@ -250,6 +258,7 @@ export function PartnerSessionSheet({
         eventListingId={eventListingId}
         occurrence={view === 'postpone' ? (occurrence ?? null) : null}
         paidOrders={paidOrders}
+        place={place}
         onClose={() => setView('session')}
         onDone={done}
       />

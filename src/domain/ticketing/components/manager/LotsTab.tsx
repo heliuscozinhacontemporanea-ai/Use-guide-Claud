@@ -1,4 +1,5 @@
 import { Plus, Trash2 } from 'lucide-react';
+import { PLATFORM_TIME_ZONE } from '../../../../shared/utils/timeZones';
 import type { TicketLotForm } from '../../hooks/useTicketLotForm';
 import { formatMoneyMinorBrl, type TicketType } from '../../types/ticketing';
 
@@ -6,10 +7,13 @@ export function LotsTab({
   form,
   ticketTypes,
   selectedOccurrenceId,
+  timeZone = PLATFORM_TIME_ZONE,
 }: {
   form: TicketLotForm;
   ticketTypes: TicketType[];
   selectedOccurrenceId: string;
+  /** Fuso do evento: a janela de vendas aparece na hora do lugar (D28). */
+  timeZone?: string;
 }) {
   const {
     newName,
@@ -199,15 +203,11 @@ export function LotsTab({
                 <div className="text-[11px] text-ink/70">
                   Janela:{' '}
                   {tt.salesStartsAt
-                    ? new Date(tt.salesStartsAt).toLocaleString('pt-BR', {
-                        timeZone: 'America/Fortaleza',
-                      })
+                    ? new Date(tt.salesStartsAt).toLocaleString('pt-BR', { timeZone })
                     : 'Imediato'}{' '}
                   até{' '}
                   {tt.salesEndsAt
-                    ? new Date(tt.salesEndsAt).toLocaleString('pt-BR', {
-                        timeZone: 'America/Fortaleza',
-                      })
+                    ? new Date(tt.salesEndsAt).toLocaleString('pt-BR', { timeZone })
                     : 'Início da sessão'}
                 </div>
               )}

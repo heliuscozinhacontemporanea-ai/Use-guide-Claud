@@ -2,6 +2,7 @@ import { Loader2 } from 'lucide-react';
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { businessDateTimeToIso } from '../../../../shared/utils/businessDateTime';
+import { type PlaceTime, placeTimeFormNote } from '../../../../shared/utils/placeTime';
 import { Dialog } from '../../../../ui/components/Dialog';
 import { BUTTON_PRIMARY, INPUT } from '../../../../ui/styles/controls';
 import { type EventOccurrence, postponePartnerEventOccurrenceUseCase } from '../../../events';
@@ -16,8 +17,11 @@ export function OccurrencePostponeDialog({
   paidOrders,
   onClose,
   onDone,
+  place,
 }: {
   eventListingId: string;
+  /** Fuso e cidade do evento: a nova data é digitada na hora do lugar (D28). */
+  place?: PlaceTime;
   occurrence: EventOccurrence | null;
   paidOrders: number;
   onClose: () => void;
@@ -26,6 +30,7 @@ export function OccurrencePostponeDialog({
   const { t } = useTranslation();
   const id = useId();
   const [when, setWhen] = useState('');
+  const zoneNote = placeTimeFormNote(t, place);
   const [reason, setReason] = useState('');
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -33,7 +38,7 @@ export function OccurrencePostponeDialog({
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!occurrence) return;
-    const startsAt = businessDateTimeToIso(when);
+    const startsAt = businessDateTimeToIso(when, place?.timeZone);
     if (
       !startsAt ||
       new Date(startsAt).getTime() <= Date.now() ||
@@ -82,6 +87,7 @@ export function OccurrencePostponeDialog({
           />
           <p id={`${id}-duration`} className="text-[11px] text-ink/70">
             {t('ticketSessions.postponeDialog.durationKept')}
+            {zoneNote && ` ${zoneNote}`}
           </p>
         </div>
         <div className="space-y-1.5">

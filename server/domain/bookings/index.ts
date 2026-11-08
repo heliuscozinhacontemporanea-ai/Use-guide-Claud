@@ -90,6 +90,7 @@ export { respondToArrivalUseCase } from './usecases/respondToArrivalUseCase';
 export { setBookableOfferStatusUseCase } from './usecases/setBookableOfferStatusUseCase';
 export { setParticipantNameUseCase } from './usecases/setParticipantNameUseCase';
 export { summarizeBookingUnitsUseCase } from './usecases/summarizeBookingUnitsUseCase';
+export { syncOffersPlaceFromItemUseCase } from './usecases/syncOffersPlaceFromItemUseCase';
 export { updateBookableOfferUseCase } from './usecases/updateBookableOfferUseCase';
 export { priceBookingLines } from './utils/bookingPricing';
 export { hasServiceProof, requiresServiceProof } from './utils/serviceProof';

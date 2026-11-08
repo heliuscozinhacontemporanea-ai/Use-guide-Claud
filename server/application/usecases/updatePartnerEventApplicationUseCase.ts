@@ -1,11 +1,12 @@
-import type { AuthenticatedUserContext } from '../security/authenticatedUserContext';
 import {
   getEventListingByIdUseCase,
-  updateEventListingUseCase,
   type UpdateEventListingInput,
+  updateEventListingUseCase,
 } from '../../domain/events';
 import { getItemByIdUseCase } from '../../domain/guide';
 import { updateBusinessUseCase } from '../../domain/partners';
+import { placeTimeOf } from '../../shared/kernel/timeZones';
+import type { AuthenticatedUserContext } from '../security/authenticatedUserContext';
 import { updateEventListingSafelyApplicationUseCase } from './updateEventListingSafelyApplicationUseCase';
 
 export async function updatePartnerEventApplicationUseCase(
@@ -27,12 +28,12 @@ export async function updatePartnerEventApplicationUseCase(
   const establishment = previous.establishmentId
     ? await getItemByIdUseCase(previous.establishmentId)
     : null;
-  const { timeZone: _ignored, ...fromClient } = data;
+  const { timeZone: _ignoredZone, city: _ignoredCity, ...fromClient } = data;
   const updatePayload: UpdateEventListingInput = {
     ...fromClient,
     title: data.name,
     coverImage: data.image,
-    ...(typeof establishment?.timeZone === 'string' ? { timeZone: establishment.timeZone } : {}),
+    ...(establishment ? placeTimeOf(establishment) : {}),
   };
 
   await updateEventListingSafelyApplicationUseCase(user, id, updatePayload);

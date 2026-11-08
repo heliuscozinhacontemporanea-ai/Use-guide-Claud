@@ -89,6 +89,11 @@ export interface GuideItem {
   partnerId?: string;
   ownerId?: string;
   establishmentId?: string;
+  /** Fuso e cidade do estabelecimento (D28): a hora do evento é a do lugar. */
+  timeZone?: string;
+  /** Estado (UF) e cidade do estabelecimento (D28). */
+  state?: string;
+  city?: string;
   isVerified?: boolean;
   verifiedUntil?: string | null;
   isVerificationSuspended?: boolean;

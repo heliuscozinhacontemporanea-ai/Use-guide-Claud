@@ -1,11 +1,12 @@
 import { Loader2 } from 'lucide-react';
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { type PlaceTime, placeTimeFormNote } from '../../../../shared/utils/placeTime';
 import { Dialog } from '../../../../ui/components/Dialog';
 import { BUTTON_PRIMARY, INPUT } from '../../../../ui/styles/controls';
 import type { PartnerSlot } from '../../types/bookings';
 import { getBookingErrorMessage } from '../../utils/bookingErrorMessage';
-import { formatSlotDateTime, fortalezaInputToIso } from '../../utils/dates';
+import { formatSlotDateTime, placeInputToIso } from '../../utils/dates';
 
 const MIN_REASON = 3;
 const MAX_REASON = 300;
@@ -14,14 +15,17 @@ export function SlotRescheduleDialog({
   slot,
   onClose,
   onSubmit,
+  place,
 }: {
   slot: PartnerSlot | null;
+  place?: PlaceTime;
   onClose: () => void;
   onSubmit: (slot: PartnerSlot, change: { startsAt: string; reason: string }) => Promise<void>;
 }) {
   const { t, i18n } = useTranslation();
   const id = useId();
   const [when, setWhen] = useState('');
+  const zoneNote = placeTimeFormNote(t, place);
   const [reason, setReason] = useState('');
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -29,7 +33,7 @@ export function SlotRescheduleDialog({
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!slot) return;
-    const startsAt = fortalezaInputToIso(when);
+    const startsAt = placeInputToIso(when, place?.timeZone);
     if (
       !startsAt ||
       new Date(startsAt).getTime() <= Date.now() ||
@@ -58,7 +62,7 @@ export function SlotRescheduleDialog({
       {slot && (
         <form onSubmit={submit} className="space-y-4" noValidate>
           <p className="text-xs font-bold text-ink/80">
-            {formatSlotDateTime(slot.startsAt, i18n.language)}
+            {formatSlotDateTime(slot.startsAt, i18n.language, place?.timeZone)}
           </p>
           <div className="space-y-1.5">
             <label htmlFor={`${id}-when`} className="text-xs font-bold text-ink">
@@ -69,12 +73,14 @@ export function SlotRescheduleDialog({
               type="datetime-local"
               value={when}
               onChange={(event) => setWhen(event.target.value)}
-              aria-describedby={`${id}-tz`}
+              aria-describedby={zoneNote ? `${id}-tz` : undefined}
               className={INPUT}
             />
-            <p id={`${id}-tz`} className="text-[11px] text-ink/70">
-              {t('bookings.slots.timezoneNotice')}
-            </p>
+            {zoneNote && (
+              <p id={`${id}-tz`} className="text-[11px] text-ink/70">
+                {zoneNote}
+              </p>
+            )}
           </div>
           <div className="space-y-1.5">
             <label htmlFor={`${id}-reason`} className="text-xs font-bold text-ink">

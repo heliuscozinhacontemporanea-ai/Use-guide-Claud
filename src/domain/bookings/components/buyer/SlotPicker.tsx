@@ -1,18 +1,22 @@
 import { useTranslation } from 'react-i18next';
+import { type PlaceTime, placeTimeFormNote } from '../../../../shared/utils/placeTime';
 import { ListEmpty, ListError, ListLoading } from '../../../../ui/components/ListState';
 import { usePublicSlots } from '../../hooks/usePublicSlots';
 import type { PublicSlot } from '../../types/bookings';
-import { formatDayLabel, formatSlotTime, fortalezaDateKey } from '../../utils/dates';
+import { formatDayLabel, formatSlotTime, placeDateKey } from '../../utils/dates';
 
 interface SlotPickerProps {
   offerId: string;
   selectedId: string | null;
   onSelect: (slot: PublicSlot) => void;
+  /** Hora do lugar da oferta; quem está em outro fuso vê o lugar e a diferença (D28). */
+  place?: PlaceTime;
 }
 
-export function SlotPicker({ offerId, selectedId, onSelect }: SlotPickerProps) {
+export function SlotPicker({ offerId, selectedId, onSelect, place }: SlotPickerProps) {
   const { t, i18n } = useTranslation();
   const { data, loading, error, reload } = usePublicSlots(offerId);
+  const tz = place?.timeZone;
 
   if (loading) return <ListLoading label={t('bookings.buyer.loading')} />;
   if (error) return <ListError message={error} onRetry={() => void reload()} />;
@@ -20,7 +24,7 @@ export function SlotPicker({ offerId, selectedId, onSelect }: SlotPickerProps) {
 
   const days = new Map<string, PublicSlot[]>();
   for (const slot of data) {
-    const key = fortalezaDateKey(slot.startsAt);
+    const key = placeDateKey(slot.startsAt, tz);
     days.set(key, [...(days.get(key) ?? []), slot]);
   }
 
@@ -29,10 +33,13 @@ export function SlotPicker({ offerId, selectedId, onSelect }: SlotPickerProps) {
       <legend className="text-xs font-semibold text-white/70">
         {t('bookings.buyer.chooseSlot')}
       </legend>
+      {placeTimeFormNote(t, place) && (
+        <p className="text-xs text-ink/70">{placeTimeFormNote(t, place)}</p>
+      )}
       {[...days.entries()].map(([day, slots]) => (
         <div key={day} className="space-y-1.5">
           <p className="text-xs font-bold text-white/80">
-            {formatDayLabel(slots[0]!.startsAt, i18n.language)}
+            {formatDayLabel(slots[0]!.startsAt, i18n.language, tz)}
           </p>
           <div className="flex flex-wrap gap-2">
             {slots.map((slot) => {
@@ -52,7 +59,7 @@ export function SlotPicker({ offerId, selectedId, onSelect }: SlotPickerProps) {
                   }`}
                 >
                   <span className="block font-bold">
-                    {formatSlotTime(slot.startsAt, i18n.language)}
+                    {formatSlotTime(slot.startsAt, i18n.language, tz)}
                   </span>
                   <span className="block">
                     {soldOut

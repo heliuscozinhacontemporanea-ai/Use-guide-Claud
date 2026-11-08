@@ -1,7 +1,10 @@
-import type { AuthenticatedUserContext } from '../security/authenticatedUserContext';
-import { getItemByIdUseCase, updateGuideItemUseCase } from '../../domain/guide';
+import { syncOffersPlaceFromItemUseCase } from '../../domain/bookings';
+import { updateEstablishmentEventsPlaceUseCase } from '../../domain/events';
 import type { GuideUpdateItemInput } from '../../domain/guide';
+import { getItemByIdUseCase, updateGuideItemUseCase } from '../../domain/guide';
 import { updateBusinessUseCase } from '../../domain/partners';
+import { placeTimeOf } from '../../shared/kernel/timeZones';
+import type { AuthenticatedUserContext } from '../security/authenticatedUserContext';
 
 function toItemRollbackInput(previous: { [key: string]: unknown }): GuideUpdateItemInput {
   const result: GuideUpdateItemInput = {};
@@ -62,6 +65,18 @@ function toItemRollbackInput(previous: { [key: string]: unknown }): GuideUpdateI
   return result;
 }
 
+/** Estabelecimento que mudou de estado ou cidade leva o fuso novo para os eventos e ofertas dele (D28). */
+async function syncPlaceIfMoved(id: string, previous: { [key: string]: unknown }): Promise<void> {
+  const current = await getItemByIdUseCase(id);
+  const place = current ? placeTimeOf(current) : {};
+  const before = placeTimeOf(previous);
+  if (!place.timeZone || (place.timeZone === before.timeZone && place.city === before.city)) {
+    return;
+  }
+  await updateEstablishmentEventsPlaceUseCase(id, { timeZone: place.timeZone, city: place.city });
+  await syncOffersPlaceFromItemUseCase(id);
+}
+
 export async function updatePartnerItemApplicationUseCase(
   user: AuthenticatedUserContext,
   id: string,
@@ -78,6 +93,7 @@ export async function updatePartnerItemApplicationUseCase(
   }
 
   await updateGuideItemUseCase(user, id, data);
+  await syncPlaceIfMoved(id, previous);
 
   if (data.name && data.name !== previous.name) {
     try {

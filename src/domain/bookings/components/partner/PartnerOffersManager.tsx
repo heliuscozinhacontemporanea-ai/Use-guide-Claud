@@ -4,8 +4,8 @@ import { formatMoneyMinorCompact } from '../../../../shared/utils/money';
 import { BackButton } from '../../../../ui/components/BackButton';
 import { ConfirmDialog, type ConfirmDialogData } from '../../../../ui/components/ConfirmDialog';
 import { Dialog } from '../../../../ui/components/Dialog';
-import { ListEmpty, ListError, ListLoading } from '../../../../ui/components/ListState';
 import { ListCard, ListRowButton } from '../../../../ui/components/ListRows';
+import { ListEmpty, ListError, ListLoading } from '../../../../ui/components/ListState';
 import type { StatusTone } from '../../../../ui/components/StatusText';
 import { usePartnerOffers } from '../../hooks/usePartnerOffers';
 import type { BookableGuideItem, OfferStatus, PartnerOffer } from '../../types/bookings';
@@ -155,7 +155,11 @@ export function PartnerOffersManager({
           </p>
         </div>
         {view.type === 'slots' ? (
-          <PartnerSlotsManager offerId={view.offer.id} kind={view.offer.kind} />
+          <PartnerSlotsManager
+            offerId={view.offer.id}
+            kind={view.offer.kind}
+            place={{ timeZone: view.offer.timeZone, city: view.offer.city }}
+          />
         ) : (
           <PartnerBookingsList offerId={view.offer.id} />
         )}

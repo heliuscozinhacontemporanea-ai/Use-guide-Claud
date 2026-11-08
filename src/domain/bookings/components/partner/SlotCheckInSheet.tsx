@@ -18,12 +18,14 @@ export function SlotCheckInSheet({
   offerId,
   kind,
   slot,
+  timeZone,
   onClose,
   onCheckedIn,
 }: {
   offerId: string;
   kind: OfferKind;
   slot: PartnerSlot;
+  timeZone?: string;
   onClose: () => void;
   onCheckedIn?: (booking: BookingSummary) => void;
 }) {
@@ -67,7 +69,7 @@ export function SlotCheckInSheet({
     <Dialog
       open
       onOpenChange={(open) => !open && onClose()}
-      title={`${t(entry ? 'serviceProof.partner.entrySheetTitle' : 'serviceProof.partner.sheetTitle')} · ${formatSlotTime(slot.startsAt, i18n.language)}`}
+      title={`${t(entry ? 'serviceProof.partner.entrySheetTitle' : 'serviceProof.partner.sheetTitle')} · ${formatSlotTime(slot.startsAt, i18n.language, timeZone)}`}
     >
       <div className="space-y-5">
         {entry && (
@@ -85,7 +87,7 @@ export function SlotCheckInSheet({
         )}
         {entry && gateMode && (
           <GateModeScreen
-            title={`${t('serviceProof.partner.entrySheetTitle')} · ${formatSlotTime(slot.startsAt, i18n.language)}`}
+            title={`${t('serviceProof.partner.entrySheetTitle')} · ${formatSlotTime(slot.startsAt, i18n.language, timeZone)}`}
             online={typeof navigator === 'undefined' || navigator.onLine}
             codePrefix={prefix}
             codeLength={length}
