@@ -1,86 +1,107 @@
-# Sair do Google AI Studio — proposta (2026-11-08)
+# Sair do Google AI Studio — execução da D23 (2026-11-08)
 
-O responsável do produto decidiu abandonar o AI Studio como ambiente de desenvolvimento e de publicação. Esta proposta lista o que no repositório ainda depende dele e o que configurar no GitHub, no Google Cloud, no Firebase e no Stripe.
+O responsável do produto pediu para abandonar o AI Studio de vez. O plano já foi aprovado em 2026-11-02 (**D23**, `decisoes.md`) e só estava adiado enquanto o plano pago do AI Studio estivesse em vigor. Esta página traz a D23 para a prática: o que muda, o que configurar e em que ordem.
 
-## 1. O que depende do AI Studio hoje
+## 1. O que a D23 já decidiu (não muda)
 
-| Onde | O quê |
-|---|---|
-| Projeto Google Cloud | `gen-lang-client-0788355965`, criado pelo AI Studio. O Firestore usa o banco `ai-studio-3b61db50-…`, não o `(default)`. |
-| Publicação | O Cloud Run `use-guide` (us-east1) é publicado pelo AI Studio. Não há Dockerfile, workflow do GitHub nem script de deploy do servidor no repositório. |
-| `metadata.json`, `firebase-applet-config.json` | Arquivos do AI Studio. O segundo duplica a configuração web do Firebase, que já vem das variáveis `VITE_FIREBASE_*`. |
-| `server.ts` | Detecção espalhada `host.includes('ais-')` para não redirecionar o domínio `*.run.app` no AI Studio (contra o §2.2 item 3). |
-| `server/infrastructure/config/trustProxy.ts` | Em desenvolvimento, confia em 1 proxy "do AI Studio" por padrão. |
-| `server/infrastructure/firebase/adminClient.ts` | Aceita `FIREBASE_SERVICE_ACCOUNT_KEY` (chave JSON) fora de produção. |
-| `vite.config.ts` | `DISABLE_HMR` do AI Studio. |
-| `package.json` | `@google/genai`, sem uso no código. `.env.example` tem `GEMINI_API_KEY`, também sem uso. |
-| README, `docs/PROCESSO.md`, `docs/arquitetura/03-prompts-ai-studio.md` | Instruções do AI Studio (porta 3000 do proxy, painel Secrets). |
-| AGENTS.md §2 | Todo o capítulo de ambientes é escrito como "AI Studio × Produção". |
+* **Um ambiente só até a liberação:** o projeto atual (`gen-lang-client-0788355965`) e `useguide.com.br`, sem projeto de teste. A prévia é o próprio site no ar, depois do merge.
+* **Fluxo:** Claude trabalha numa branch por tarefa (`claude/<tema>`) e abre PR para `main`. O GitHub Actions roda os gates em cada push: typecheck, lint, testes, build e regras no emulador. O responsável aprova fazendo o merge, ou autoriza Claude a fazê-lo. No merge, o Actions publica o Cloud Run e depois o Hosting, sem aprovação extra. Ninguém escreve direto na `main`.
+* **Artefato único:** o build roda no Actions. Uma imagem (Dockerfile novo) leva o servidor e o `dist` para o Cloud Run, e o mesmo `dist` vai para o Hosting.
+* **Credenciais:** Workload Identity Federation, sem chave JSON; a conta de publicação só tem papéis de publicação e só aceita este repositório e a branch `main`. Os segredos continuam no Secret Manager.
+* **Stripe em modo teste** até a liberação. Na data de liberação, rever o modelo de prévia: revisão sem tráfego no Cloud Run e canal de prévia no Hosting, ou projeto de teste separado.
+* **Descartada a S19** (deploy pelo AI Studio com gcloud).
 
-## 2. Ambientes propostos
+## 2. O que muda com o abandono
 
-| Ambiente | Onde roda | Dados | Pagamentos |
-|---|---|---|---|
-| **Local** | `npm run dev` na máquina ou numa sessão do Claude Code, com os **emuladores do Firebase** (Auth, Firestore, Storage, Functions) | dados de seed, apagados quando quiser | Stripe em modo teste + `stripe listen` |
-| **Homologação** (staging) | projeto Google Cloud próprio, Cloud Run + Hosting, publicado sozinho a cada junção na `main` | dados de teste | Stripe em modo teste |
-| **Produção** | projeto Google Cloud próprio, publicado só com aprovação | dados reais | Stripe live |
+* **A `main` deixa de ser o espelho do AI Studio** (`docs/PROCESSO.md`) e passa a ser o código publicado. Prompts e zips acabam.
+* **A branch `claude/agents-md-v2` é a referência:** tudo que o AI Studio fez certo já foi adotado nela, na conferência de cada zip. O que ficou só no AI Studio é descartado: o C18 (sem zip) e o lote 19 (não enviado).
+* **A `main` tem 4 importações de zip** que não estão na branch (2026-10-22 a 10-25). Elas entram por um merge que mantém a versão da referência, como já foi feito no lote 12 (`2de5e07`).
+* **O site no ar hoje** roda o código publicado pelo AI Studio, que está atrás da referência. O primeiro deploy pelo Actions publica de uma vez tudo o que ainda não estava lá (lotes 18 e 19, painel, cupons, fuso). Com o Stripe em modo teste, isso não afeta dinheiro real.
 
-Projetos separados isolam permissões, segredos, cotas e faturamento: um erro na homologação não toca a produção (prática recomendada do Firebase para vários ambientes).
+## 3. Ordem de execução
 
-## 3. GitHub
+| Passo | Quem | O quê |
+|---|---|---|
+| 1 | Responsável | Configurações do Google Cloud e do GitHub da seção 4 |
+| 2 | Claude | PR `claude/agents-md-v2 → main`: merge da `main` mantendo a referência + `Dockerfile`, `.dockerignore`, `.gcloudignore` e os workflows `ci.yml` (gates em todo PR) e `deploy.yml` (publica no merge) |
+| 3 | Responsável | Confere o PR com os gates verdes e faz o merge. O primeiro deploy pelo Actions vai ao ar |
+| 4 | Claude | PR de limpeza do AI Studio (seção 5) e proposta do novo AGENTS.md §2 e do `PROCESSO.md` (seção 6), com autorização antes de editar |
 
-1. **Workflow de verificação** (`.github/workflows/ci.yml`), em todo PR e push: `npm ci`, `typecheck`, `lint`, `test`, `build`, `tsc` das functions, testes das rules no emulador e `npm audit --audit-level=high`.
-2. **Proteção da `main`**: junção só por PR, com o workflow verde; sem push direto nem force-push.
-3. **Workflow de publicação** (`deploy.yml`): `main` → homologação, automático; tag `v*` ou disparo manual → produção, com aprovação no GitHub Environment `production`.
-4. **Login sem chave**: o GitHub entra no Google Cloud por **Workload Identity Federation** (`google-github-actions/auth`), restrito a este repositório. Nenhuma chave JSON de conta de serviço no GitHub.
-5. **GitHub Environments** `staging` e `production`, só com valores públicos (ID do projeto, região, nome do serviço). Segredos ficam no Secret Manager, nunca no GitHub.
-6. **Dependabot** para atualizações de segurança semanais (§7.10 A06).
+## 4. Configurações que o responsável faz
 
-## 4. Google Cloud (em cada projeto)
+### Google Cloud (projeto `gen-lang-client-0788355965`, número `377157973786`)
 
-1. **APIs**: Cloud Run, Cloud Build, Artifact Registry, Secret Manager, Cloud Scheduler, Cloud KMS, IAM Credentials.
-2. **Contas de serviço**:
-   * `use-guide-run`: a conta do Cloud Run, com `roles/datastore.user`, acesso ao bucket do Storage, `secretmanager.secretAccessor` **por segredo**, `cloudkms.cryptoKeyEncrypterDecrypter` só na chave de campo e `firebasemessaging` para o push;
-   * `github-deployer`: usada pelo GitHub para publicar (Cloud Run, Artifact Registry, Firebase Hosting, Rules, Functions), sem acesso a dados;
-   * `scheduler-invoker`: chama `/internal/*` com token OIDC (alvo do §7.9).
-3. **Secret Manager**: um segredo por variável secreta do `.env.example` (Stripe, QR, códigos, chave de job, chave de índice cego, chaves Ed25519), montado como variável no Cloud Run. Valores diferentes entre homologação e produção.
-4. **Cloud Run `use-guide`**: imagem construída no CI a partir de um `Dockerfile` novo (Node 22, `npm ci --omit=dev`, `node dist/server.cjs`); `NODE_ENV=production`, `APP_CHECK_REQUIRED=true`, `TRUST_PROXY_HOPS` com o número certo de proxies.
-5. **Cloud Scheduler**: os jobs que hoje chamam `*_JOB_URL`, com OIDC da `scheduler-invoker`.
-6. **Observabilidade**: alertas no Cloud Monitoring para picos de 5xx, falhas de webhook e de checkout, e picos de 401/403/429 (§7.10 A09); alerta de orçamento no faturamento.
-7. **Firestore**: banco `(default)`, PITR ligado e export agendado; um teste de restauração antes do lançamento (§7.10).
+No Cloud Shell, conectado ao projeto:
 
-## 5. Firebase (em cada projeto)
+```bash
+PROJECT_ID=gen-lang-client-0788355965
+PROJECT_NUMBER=377157973786
+REPO=heliuscozinhacontemporanea-ai/Use-guide-Claud
 
-* Hosting com o domínio `useguide.com.br` na produção e um subdomínio de homologação; os rewrites para o Cloud Run continuam iguais.
-* **Domínios autorizados** do Auth: tirar os do AI Studio, deixar o domínio próprio e `localhost`.
-* App Check (reCAPTCHA Enterprise) aplicado no Firestore, no Storage e na API em produção.
-* Chaves de API do navegador (Firebase e Maps) restritas aos domínios de cada ambiente.
-* Rules e índices publicados pelo workflow, não à mão (resolve a lista de publicações pendentes).
+# APIs usadas pelo deploy
+gcloud services enable run.googleapis.com artifactregistry.googleapis.com \
+  iamcredentials.googleapis.com firebasehosting.googleapis.com --project=$PROJECT_ID
 
-## 6. Stripe
+# Repositório de imagens, na região do Cloud Run
+gcloud artifacts repositories create use-guide --repository-format=docker \
+  --location=us-east1 --project=$PROJECT_ID
 
-* Endpoints de webhook separados para homologação (teste) e produção (live), cada um com o seu `STRIPE_WEBHOOK_SECRET`.
-* Connect: URLs de retorno do onboarding apontando para o domínio de cada ambiente.
+# Conta de publicação (só publica; não lê dados)
+gcloud iam service-accounts create github-deployer --project=$PROJECT_ID \
+  --display-name="Publicação pelo GitHub Actions"
+for ROLE in roles/run.admin roles/artifactregistry.writer roles/firebasehosting.admin; do
+  gcloud projects add-iam-policy-binding $PROJECT_ID \
+    --member="serviceAccount:github-deployer@$PROJECT_ID.iam.gserviceaccount.com" --role=$ROLE
+done
 
-## 7. Mudanças no código (depois da aprovação)
+# Pool e provedor do GitHub: só este repositório e só a main
+gcloud iam workload-identity-pools create github --location=global --project=$PROJECT_ID \
+  --display-name="GitHub Actions"
+gcloud iam workload-identity-pools providers create-oidc use-guide-main --location=global \
+  --workload-identity-pool=github --project=$PROJECT_ID \
+  --issuer-uri="https://token.actions.githubusercontent.com" \
+  --attribute-mapping="google.subject=assertion.sub,attribute.repository=assertion.repository,attribute.ref=assertion.ref" \
+  --attribute-condition="assertion.repository=='$REPO' && assertion.ref=='refs/heads/main'"
+gcloud iam service-accounts add-iam-policy-binding \
+  github-deployer@$PROJECT_ID.iam.gserviceaccount.com --project=$PROJECT_ID \
+  --role=roles/iam.workloadIdentityUser \
+  --member="principalSet://iam.googleapis.com/projects/$PROJECT_NUMBER/locations/global/workloadIdentityPools/github/attribute.repository/$REPO"
+```
 
-1. Apagar `metadata.json`, `firebase-applet-config.json`, `@google/genai` e `GEMINI_API_KEY`.
-2. `firebase.json` e `.firebaserc`: aliases `staging` e `production` e banco `(default)`.
-3. Centralizar a detecção de ambiente em `server/infrastructure/config` (resolve o `host.includes('ais-')`).
-4. Desenvolvimento local com credencial do `gcloud auth application-default login` ou com os emuladores; remover `FIREBASE_SERVICE_ACCOUNT_KEY`.
-5. `TRUST_PROXY_HOPS` padrão 0 em desenvolvimento (sem proxy na frente).
-6. `Dockerfile`, `.dockerignore` e os workflows `ci.yml` e `deploy.yml`.
-7. Script de seed para os emuladores e a homologação.
-8. Atualizar o README, `docs/PROCESSO.md` e o AGENTS.md §2 (precisa de autorização, §15).
+Mais um passo: a conta de publicação precisa "agir como" a conta que o Cloud Run usa ao rodar. Veja qual é em Cloud Run → `use-guide` → Segurança → Conta de serviço, e dê à `github-deployer` o papel **Usuário da conta de serviço** (`roles/iam.serviceAccountUser`) **só nessa conta**, não no projeto inteiro.
 
-## 8. Mudança no AGENTS.md (§15: precisa de autorização)
+### GitHub (Settings do repositório)
 
-* **§2, texto atual:** "Ambientes: Google AI Studio (Desenvolvimento) e Produção", com a matriz AI Studio × Produção e as regras citando o painel Secrets, `FIREBASE_SERVICE_ACCOUNT_KEY` e a porta 3000 do proxy.
-* **§2, texto proposto:** "Ambientes: Local, Homologação e Produção". A matriz passa a ter três colunas: local com emuladores e Stripe teste; homologação com projeto próprio e Stripe teste; produção com Stripe live. As credenciais passam a ser ADC em todos os ambientes, sem chave JSON, e os segredos ficam no Secret Manager, mais `.env` local fora do git. A regra "funciona nos dois ambientes" vira "funciona nos três". As menções ao AI Studio nos §2.2, §7.7, §7.8 e §8.8 trocam para "local/homologação".
-* **Motivo:** o AI Studio deixa de ser usado. Sem a mudança, o AGENTS.md exigiria compatibilidade com um ambiente que não existe mais.
+1. **Branches → regra para `main`:** exigir PR antes do merge e exigir o status `ci` verde; bloquear force-push e exclusão.
+2. **Actions → General:** permitir o GitHub Actions neste repositório.
+3. **Secrets and variables → Actions → Variables** (não são segredos):
+   * `GCP_PROJECT_ID` = `gen-lang-client-0788355965`
+   * `GCP_WIF_PROVIDER` = `projects/377157973786/locations/global/workloadIdentityPools/github/providers/use-guide-main`
+   * `GCP_DEPLOYER_SA` = `github-deployer@gen-lang-client-0788355965.iam.gserviceaccount.com`
+   * mais as `VITE_*` públicas do build (config web do Firebase, chave publicável do Stripe, chave do Maps), copiadas de onde estão hoje no AI Studio.
+4. Nenhum segredo vai para o GitHub: o Cloud Run continua lendo do Secret Manager.
 
-## 9. Decisões do responsável do produto
+### O que se faz uma vez só, antes do primeiro deploy
 
-1. **Projeto Google Cloud:** (a) criar dois projetos novos (`use-guide-staging` e `use-guide-prod`); (b) **o atual vira homologação e só a produção é nova (recomendado)**; (c) manter o atual para tudo.
-2. **Publicação em produção:** (a) **manual com aprovação no GitHub (recomendado)**; (b) automática ao juntar na `main`.
-3. **Onde desenvolver:** (a) **emuladores locais e sessões do Claude Code, com a homologação para testar Stripe e push (recomendado)**; (b) direto na homologação, sem emuladores.
+* Conferir se todos os segredos do `.env.example` que o servidor usa existem no Secret Manager e estão ligados ao Cloud Run. Os que só existiam no painel Secrets do AI Studio precisam ser criados lá.
+* No Firebase Auth, tirar os domínios do AI Studio da lista de domínios autorizados (`*.run.app` do AI Studio e os de prévia).
+
+## 5. Limpeza do AI Studio no código (PR do passo 4)
+
+* Apagar `metadata.json`, `firebase-applet-config.json`, a dependência `@google/genai` e `GEMINI_API_KEY` (sem uso).
+* `server.ts`: tirar o `host.includes('ais-')` e os testes de host do AI Studio.
+* `adminClient.ts`: tirar `FIREBASE_SERVICE_ACCOUNT_KEY`. Em desenvolvimento valem os emuladores ou `gcloud auth application-default login`.
+* `trustProxy.ts`: o padrão de 1 proxy "do AI Studio" vira 0 em desenvolvimento.
+* `vite.config.ts`: tirar `DISABLE_HMR`.
+* README e `PROCESSO.md` sem as instruções do AI Studio; `03-prompts-ai-studio.md` fica como histórico.
+
+## 6. Mudança no AGENTS.md (§15: precisa de autorização)
+
+* **§2, texto atual:** "Ambientes: Google AI Studio (Desenvolvimento) e Produção", com a matriz AI Studio × Produção (painel Secrets, `FIREBASE_SERVICE_ACCOUNT_KEY`, porta 3000 do proxy) e as menções ao AI Studio nos §2.2, §7.7, §7.8 e §8.8.
+* **§2, texto proposto:** "Ambientes: desenvolvimento local e produção". Desenvolvimento com `npm run dev`, emuladores do Firebase e Stripe teste; produção publicada pelo GitHub Actions no merge para `main` (D23). Credencial sempre ADC, sem chave JSON. Segredos no Secret Manager e `.env` local fora do git. As menções ao AI Studio passam a dizer "desenvolvimento local".
+* **Motivo:** o AI Studio deixa de existir no processo, e a regra "funciona nos dois ambientes" passaria a exigir um ambiente que ninguém usa.
+
+## 7. Depois (fora da D23, propostas à parte)
+
+* Publicar também rules, índices e Functions pelo Actions (hoje é à mão).
+* Alertas de erro, logs estruturados com `requestId`, backup e teste de restauração do Firestore.
