@@ -42,6 +42,9 @@ export type OfferInput = Pick<
   | 'pricing'
   | 'durationMinutes'
   | 'meetingPoint'
+  | 'pickupMode'
+  | 'sellingUnit'
+  | 'groupMaxPeople'
   | 'cancellationPolicy'
   | 'maxParticipantsPerBooking'
   | 'requiresParticipantNames'
@@ -56,6 +59,24 @@ function assertPolicyForKind(kind: BookableOfferKind, policy: string): void {
     throw new BookingDomainError(
       'VALIDATION_ERROR',
       'Política de cancelamento não disponível para este tipo de oferta.'
+    );
+  }
+}
+
+/** Entrada de atração é sempre por pessoa; venda por grupo precisa do tamanho do grupo (D20). */
+function assertSellingUnit(
+  kind: BookableOfferKind,
+  unit: BookableOffer['sellingUnit'],
+  groupMaxPeople: number | undefined
+): void {
+  if (unit !== 'group') return;
+  if (kind === 'private_entry') {
+    throw new BookingDomainError('VALIDATION_ERROR', 'Entrada de atração é vendida por pessoa.');
+  }
+  if (!groupMaxPeople) {
+    throw new BookingDomainError(
+      'VALIDATION_ERROR',
+      'Informe quantas pessoas cabem em cada grupo.'
     );
   }
 }
@@ -109,10 +130,12 @@ export class OfferService {
     }
     assertValidPricing(input.pricing);
     assertPolicyForKind(input.kind, input.cancellationPolicy);
+    assertSellingUnit(input.kind, input.sellingUnit, input.groupMaxPeople);
 
     const timestamp = this.now().toISOString();
     const offer: BookableOffer = {
       ...input,
+      ...(item.name ? { businessName: item.name } : {}),
       id: `offer_${this.newId()}`,
       ownerId: item.ownerId,
       partnerId: item.partnerId,
@@ -134,6 +157,11 @@ export class OfferService {
       throw new BookingDomainError('INVALID_TRANSITION', 'Oferta arquivada não pode ser editada.');
     }
     if (input.pricing) assertValidPricing(input.pricing);
+    assertSellingUnit(
+      offer.kind,
+      input.sellingUnit ?? offer.sellingUnit,
+      input.groupMaxPeople ?? offer.groupMaxPeople
+    );
     if (input.cancellationPolicy) {
       assertPolicyForKind(offer.kind, input.cancellationPolicy);
       // D14: depois de publicar, a política só fica igual ou mais flexível (protege quem já reservou).
@@ -305,6 +333,42 @@ export class OfferService {
         booking.status === 'pending_payment' ||
         (booking.status === 'canceled' && booking.cancellation?.by === 'partner')
     );
+  }
+
+  /**
+   * Reagendamento pelo parceiro (D16, 4A): o horário muda e as reservas ativas valem na nova data.
+   * Horário cancelado não volta; a nova data precisa ser futura.
+   */
+  async rescheduleSlot(
+    actor: BookingActor,
+    offerId: string,
+    slotId: string,
+    change: { startsAt: string; endsAt?: string; reason: string }
+  ): Promise<Booking[]> {
+    await this.getOwnedOffer(actor, offerId);
+    const slot = await this.port.getSlot(slotId);
+    if (slot?.offerId !== offerId) {
+      throw new BookingDomainError('NOT_FOUND', 'Horário não encontrado.');
+    }
+    if (slot.status === 'canceled') {
+      throw new BookingDomainError('SLOT_UNAVAILABLE', 'Horário cancelado não pode ser remarcado.');
+    }
+    const startsAt = new Date(change.startsAt);
+    const endsAt = change.endsAt ? new Date(change.endsAt) : null;
+    if (
+      Number.isNaN(startsAt.getTime()) ||
+      startsAt.getTime() <= this.now().getTime() ||
+      (endsAt && !(endsAt.getTime() > startsAt.getTime()))
+    ) {
+      throw new BookingDomainError('VALIDATION_ERROR', 'Informe uma nova data futura.');
+    }
+    return this.port.rescheduleSlot({
+      slotId,
+      startsAt: startsAt.toISOString(),
+      ...(endsAt ? { endsAt: endsAt.toISOString() } : {}),
+      actorUid: actor.uid,
+      reason: change.reason.slice(0, 300),
+    });
   }
 
   /** Visão do parceiro: inclui vagas reservadas e vendidas e horários fechados ou cancelados. */

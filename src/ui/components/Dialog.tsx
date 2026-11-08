@@ -1,6 +1,7 @@
 import * as RadixDialog from '@radix-ui/react-dialog';
 import { X } from 'lucide-react';
 import { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Z_INDEX } from '../../shared/constants/zIndex';
 import { cn } from '../../shared/utils/cn';
 
@@ -13,6 +14,8 @@ interface DialogProps {
   className?: string;
   /** Aberto por cima de outro modal (ex.: termos dentro do checkout). */
   nested?: boolean;
+  /** false: passo obrigatório, sem botão fechar, Esc nem toque fora. */
+  dismissible?: boolean;
 }
 
 export function Dialog({
@@ -23,24 +26,29 @@ export function Dialog({
   children,
   className,
   nested = false,
+  dismissible = true,
 }: DialogProps) {
+  const { t } = useTranslation();
   return (
     <RadixDialog.Root open={open} onOpenChange={onOpenChange}>
       <RadixDialog.Portal>
         <RadixDialog.Overlay
           className="fixed inset-0 bg-scrim backdrop-blur-md animate-fade-in data-[state=closed]:animate-fade-out motion-reduce:animate-none"
-          style={{ zIndex: nested ? Z_INDEX.modalNested : Z_INDEX.overlay }}
+          // Mesma camada do conteúdo (que vem depois no DOM): o fundo escurece também sobre o menu lateral.
+          style={{ zIndex: nested ? Z_INDEX.modalNested : Z_INDEX.modal }}
         />
         {/* Celular: folha que sobe da borda (como num app nativo). Do sm em diante: cartão central. */}
         <RadixDialog.Content
           className={cn(
-            'fixed inset-x-0 bottom-0 mx-auto w-full max-w-md max-h-[92dvh] overflow-y-auto p-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] rounded-t-3xl bg-surface border border-line shadow-2xl backdrop-blur-xl text-ink outline-none overscroll-contain animate-sheet-up data-[state=closed]:animate-sheet-down motion-reduce:animate-none',
+            'fixed inset-x-0 bottom-0 mx-auto w-full max-w-md max-h-[92dvh] overflow-y-auto p-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] rounded-t-3xl bg-sheet border border-line shadow-2xl backdrop-blur-xl text-ink outline-none overscroll-contain animate-sheet-up data-[state=closed]:animate-sheet-down motion-reduce:animate-none',
             'sm:inset-x-auto sm:bottom-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-[calc(100%-2rem)] sm:pb-6 sm:rounded-3xl sm:animate-scale-in sm:data-[state=closed]:animate-scale-out',
             className
           )}
           style={{ zIndex: nested ? Z_INDEX.modalNested : Z_INDEX.modal }}
           // O Radix foca o primeiro controle (o botão fechar) e o anel de foco aparece sem o usuário usar o teclado.
           // Focar a própria folha mantém o Tab e o leitor de tela começando dentro do diálogo.
+          onEscapeKeyDown={(event) => !dismissible && event.preventDefault()}
+          onPointerDownOutside={(event) => !dismissible && event.preventDefault()}
           onOpenAutoFocus={(event) => {
             event.preventDefault();
             (event.currentTarget as HTMLElement).focus();
@@ -56,19 +64,21 @@ export function Dialog({
             </RadixDialog.Title>
           )}
           {description && (
-            <RadixDialog.Description className="text-xs text-white/60 mb-4 leading-relaxed">
+            <RadixDialog.Description className="text-xs text-ink/70 mb-4 leading-relaxed">
               {description}
             </RadixDialog.Description>
           )}
 
           {children}
 
-          <RadixDialog.Close
-            aria-label="Fechar modal"
-            className="press absolute top-4 right-4 w-11 h-11 flex items-center justify-center rounded-full text-white/60 hover:text-white hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none"
-          >
-            <X size={20} />
-          </RadixDialog.Close>
+          {dismissible && (
+            <RadixDialog.Close
+              aria-label={t('common.close')}
+              className="press absolute top-4 right-4 w-11 h-11 flex items-center justify-center rounded-full text-ink/60 hover:text-ink hover:bg-ink/[0.06] focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none"
+            >
+              <X size={20} />
+            </RadixDialog.Close>
+          )}
         </RadixDialog.Content>
       </RadixDialog.Portal>
     </RadixDialog.Root>

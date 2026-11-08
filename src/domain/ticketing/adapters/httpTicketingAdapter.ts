@@ -7,6 +7,7 @@ import type {
 import type {
   EventCheckIn,
   EventSalesAnalytics,
+  OfflineCheckInChanges,
   OfflineCheckInSessionResponse,
   OfflineCheckInSyncResult,
   PublicTicketTypeProjection,
@@ -14,6 +15,9 @@ import type {
   Ticket,
   TicketOrder,
   TicketOrderItem,
+  TicketQrPass,
+  TicketTransferLinkCreated,
+  TicketTransferLinkPreview,
   TicketType,
 } from '../types/ticketing';
 
@@ -23,6 +27,28 @@ async function parseJsonOrThrow<T>(response: Response, fallbackError: string): P
     throw new Error(body?.error || body?.message || fallbackError);
   }
   return (body?.data ?? body) as T;
+}
+
+/** Rotas de transferência: erro vira `Error(code)` para a tela traduzir (§12.5). */
+async function transferCall<T>(
+  path: string,
+  method: 'POST' | 'DELETE',
+  body?: unknown
+): Promise<T> {
+  const res = await firebaseApiFetch(
+    path,
+    {
+      method,
+      ...(body
+        ? { headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
+        : {}),
+    },
+    { requireAuth: true }
+  );
+  if (res.status === 204) return undefined as T;
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(json?.error?.code || 'INTERNAL_ERROR');
+  return json as T;
 }
 
 export class HttpTicketingAdapter implements TicketingPort {
@@ -104,6 +130,7 @@ export class HttpTicketingAdapter implements TicketingPort {
     );
     const body = await res.json().catch(() => ({}));
     if (!res.ok) {
+      if (body?.error?.code === 'EMAIL_NOT_VERIFIED') throw new Error('EMAIL_NOT_VERIFIED');
       throw new Error(body?.error || body?.message || 'Não foi possível reservar os ingressos.');
     }
     const payload = (body?.data ?? body) as CreateOrderResult;
@@ -207,27 +234,75 @@ export class HttpTicketingAdapter implements TicketingPort {
     return parseJsonOrThrow<Ticket[]>(res, 'Não foi possível carregar seus ingressos.');
   }
 
-  async getTicketQrToken(ticketId: string): Promise<{
-    ticket: Ticket;
-    rawQrToken: string;
-  }> {
+  async getTicketQrToken(ticketId: string): Promise<TicketQrPass> {
     const res = await firebaseApiFetch(
       `/api/ticketing/tickets/${encodeURIComponent(ticketId)}/qr`,
       { method: 'GET' },
       { requireAuth: true }
     );
-    return parseJsonOrThrow<{ ticket: Ticket; rawQrToken: string }>(
+    return parseJsonOrThrow<TicketQrPass>(
       res,
       'Não foi possível gerar o QR Code assinado do ingresso.'
     );
   }
 
-  async reissueTicketQrToken(ticketId: string): Promise<{
-    ticket: Ticket;
-    rawQrToken: string;
-  }> {
+  async listOfflineCheckInChanges(
+    sessionId: string,
+    since: string
+  ): Promise<OfflineCheckInChanges> {
     const res = await firebaseApiFetch(
-      `/api/ticketing/tickets/${encodeURIComponent(ticketId)}/qr/reissue`,
+      `/api/ticketing/check-in/offline-sessions/${encodeURIComponent(sessionId)}/changes?since=${encodeURIComponent(since)}`,
+      { method: 'GET' },
+      { requireAuth: true }
+    );
+    return parseJsonOrThrow<OfflineCheckInChanges>(res, 'Não foi possível atualizar a lista.');
+  }
+
+  async createTransferLink(ticketId: string): Promise<TicketTransferLinkCreated> {
+    return transferCall('/api/ticket-transfers/links', 'POST', { ticketId });
+  }
+
+  async cancelTransferLink(ticketId: string): Promise<void> {
+    await transferCall(
+      `/api/ticket-transfers/links/by-ticket/${encodeURIComponent(ticketId)}`,
+      'DELETE'
+    );
+  }
+
+  async previewTransferLink(linkId: string, token: string): Promise<TicketTransferLinkPreview> {
+    return transferCall(
+      `/api/ticket-transfers/links/${encodeURIComponent(linkId)}/preview`,
+      'POST',
+      { token }
+    );
+  }
+
+  async acceptTransferLink(linkId: string, token: string): Promise<{ ticketId: string }> {
+    return transferCall(
+      `/api/ticket-transfers/links/${encodeURIComponent(linkId)}/accept`,
+      'POST',
+      { token }
+    );
+  }
+
+  async returnTicketToBuyer(ticketId: string): Promise<{ ticketId: string }> {
+    const res = await firebaseApiFetch(
+      '/api/ticket-transfers/return',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ticketId }),
+      },
+      { requireAuth: true }
+    );
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(body?.error?.code || 'INTERNAL_ERROR');
+    return body;
+  }
+
+  async swapTicketQr(ticketId: string): Promise<TicketQrPass> {
+    const res = await firebaseApiFetch(
+      `/api/ticketing/tickets/${encodeURIComponent(ticketId)}/qr/swap`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -235,10 +310,7 @@ export class HttpTicketingAdapter implements TicketingPort {
       },
       { requireAuth: true }
     );
-    return parseJsonOrThrow<{ ticket: Ticket; rawQrToken: string }>(
-      res,
-      'Não foi possível reemitir o QR Code do ingresso.'
-    );
+    return parseJsonOrThrow<TicketQrPass>(res, 'Não foi possível trocar o QR Code do ingresso.');
   }
 
   async requestRefund(
@@ -259,32 +331,29 @@ export class HttpTicketingAdapter implements TicketingPort {
 
   async transferTicket(
     ticketId: string,
-    input: { recipientEmail: string; recipientName?: string }
-  ): Promise<{
-    oldTicket: Ticket;
-    newTicket: Ticket;
-    newRawQrToken: string;
-  }> {
+    username: string
+  ): Promise<{ ticketId: string; recipient: { username: string; displayName: string | null } }> {
     const res = await firebaseApiFetch(
-      `/api/ticketing/tickets/${encodeURIComponent(ticketId)}/transfer`,
+      '/api/ticket-transfers',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(input),
+        body: JSON.stringify({ ticketId, username: username.replace(/^@/, '').toLowerCase() }),
       },
       { requireAuth: true }
     );
-    return parseJsonOrThrow<{
-      oldTicket: Ticket;
-      newTicket: Ticket;
-      newRawQrToken: string;
-    }>(res, 'Não foi possível transferir o ingresso.');
+    const body = await res.json().catch(() => ({}));
+    // Erro com `code` estável: a carteira traduz pela chave (§12.5).
+    if (!res.ok) throw new Error(body?.error?.code || 'INTERNAL_ERROR');
+    return body;
   }
 
   async checkInTicket(input: {
     occurrenceId: string;
     ticketId?: string;
     qrToken?: string;
+    /** Código de 8 caracteres do ingresso, quando o QR não lê (D20). */
+    code?: string;
   }): Promise<{ ticket: Ticket; checkIn: EventCheckIn }> {
     const res = await firebaseApiFetch(
       '/api/ticketing/check-in',
@@ -329,6 +398,7 @@ export class HttpTicketingAdapter implements TicketingPort {
       clientEventId: string;
       ticketId: string;
       qrToken: string;
+      qrVersion: number;
       checkedInAt: string;
     }>;
   }): Promise<{ results: OfflineCheckInSyncResult[] }> {

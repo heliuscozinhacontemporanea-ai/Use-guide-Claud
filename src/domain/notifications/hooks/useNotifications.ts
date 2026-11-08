@@ -1,89 +1,55 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { subscribeToNotificationsUseCase } from '../application/usecases/subscribeToNotificationsUseCase';
-import { markNotificationAsReadUseCase } from '../application/usecases/markNotificationAsReadUseCase';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { markAllNotificationsAsReadUseCase } from '../application/usecases/markAllNotificationsAsReadUseCase';
-import { Notification } from '../types/notification';
+import { markNotificationAsReadUseCase } from '../application/usecases/markNotificationAsReadUseCase';
+import { subscribeToNotificationsUseCase } from '../application/usecases/subscribeToNotificationsUseCase';
+import type { StoredNotification } from '../types/notification';
+import { describeNotification } from '../utils/describeNotification';
 
-const PAGE_SIZE = 10;
+// A central mostra os 50 mais recentes; avisos somem sozinhos depois de 90 dias (D25).
+const LIMIT = 50;
 
-export function useNotifications(partnerId: string | undefined) {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [limitCount, setLimitCount] = useState(PAGE_SIZE);
-  const [hasMore, setHasMore] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+/** Avisos da conta em tempo real, já no idioma ativo. Sem `uid` (sem login), fica vazio. */
+export function useNotifications(uid: string | undefined) {
+  const { t, i18n } = useTranslation();
+  const [raw, setRaw] = useState<StoredNotification[]>([]);
+  const [loading, setLoading] = useState(Boolean(uid));
+  const [error, setError] = useState(false);
+  const [attempt, setAttempt] = useState(0);
 
-  const prevPartnerIdRef = useRef<string | undefined>(partnerId);
-
+  // biome-ignore lint/correctness/useExhaustiveDependencies: `attempt` refaz a assinatura no "Tentar de novo".
   useEffect(() => {
-    if (prevPartnerIdRef.current !== partnerId) {
-      prevPartnerIdRef.current = partnerId;
-      setLimitCount(PAGE_SIZE);
-      setNotifications([]);
-      setHasMore(true);
-    }
-  }, [partnerId]);
-
-  useEffect(() => {
-    if (!partnerId) {
+    setRaw([]);
+    setError(false);
+    if (!uid) {
       setLoading(false);
-      setLoadingMore(false);
       return;
     }
-
-    if (limitCount === PAGE_SIZE) {
-      setLoading(true);
-    } else {
-      setLoadingMore(true);
-    }
-    setError(null);
-
+    setLoading(true);
     const unsubscribe = subscribeToNotificationsUseCase(
-      partnerId,
+      uid,
       (data) => {
-        setNotifications(data);
-        setHasMore(data.length >= limitCount);
+        setRaw(data);
         setLoading(false);
-        setLoadingMore(false);
       },
-      (err) => {
-        console.error('[useNotifications] Erro ao carregar notificações:', err);
-        setError('Não foi possível carregar as notificações.');
+      () => {
+        setError(true);
         setLoading(false);
-        setLoadingMore(false);
       },
-      limitCount
+      LIMIT
     );
+    return unsubscribe;
+  }, [uid, attempt]);
 
-    return () => unsubscribe();
-  }, [partnerId, limitCount]);
+  const items = useMemo(
+    () => raw.map((notification) => describeNotification(notification, t, i18n.language)),
+    [raw, t, i18n.language]
+  );
+  const unreadCount = items.filter((item) => !item.read).length;
 
-  const loadMore = useCallback(() => {
-    if (!loading && !loadingMore && hasMore) {
-      setLimitCount((prev) => prev + PAGE_SIZE);
-    }
-  }, [loading, loadingMore, hasMore]);
+  const markAsRead = useCallback((id: string) => markNotificationAsReadUseCase(id), []);
+  const markAllAsRead = useCallback(() => markAllNotificationsAsReadUseCase(), []);
+  const retry = useCallback(() => setAttempt((value) => value + 1), []);
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
-
-  const markAsRead = useCallback(async (notificationId: string) => {
-    await markNotificationAsReadUseCase(notificationId);
-  }, []);
-
-  const markAllAsRead = useCallback(async () => {
-    if (unreadCount === 0) return;
-    await markAllNotificationsAsReadUseCase();
-  }, [unreadCount]);
-
-  return {
-    notifications,
-    unreadCount,
-    loading,
-    loadingMore,
-    hasMore,
-    loadMore,
-    markAsRead,
-    markAllAsRead,
-  };
+  return { items, unreadCount, loading, error, retry, markAsRead, markAllAsRead };
 }

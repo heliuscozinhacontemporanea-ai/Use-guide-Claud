@@ -14,8 +14,26 @@ bookingsRouter.get('/offers/:offerId/slots', BookingsController.listSlots);
 bookingsRouter.post('/', verifyAuthTokenStrict, BookingsController.create);
 bookingsRouter.get('/me', verifyAuthToken, BookingsController.listMine);
 bookingsRouter.get('/:bookingId', verifyAuthToken, BookingsController.get);
+bookingsRouter.get('/:bookingId/check-in-code', verifyAuthToken, BookingsController.getCheckInCode);
+bookingsRouter.get('/:bookingId/entry-pass', verifyAuthToken, BookingsController.getEntryPass);
+bookingsRouter.put(
+  '/:bookingId/participants/:unit',
+  verifyAuthToken,
+  BookingsController.setParticipantName
+);
 bookingsRouter.post('/:bookingId/cancel', verifyAuthTokenStrict, BookingsController.cancel);
 bookingsRouter.post('/:bookingId/no-show', verifyAuthToken, BookingsController.markNoShow);
+// Relato e resposta mexem no reembolso (D20): token revogado não serve.
+bookingsRouter.post(
+  '/:bookingId/provider-absent',
+  verifyAuthTokenStrict,
+  BookingsController.reportProviderAbsent
+);
+bookingsRouter.post(
+  '/:bookingId/service-confirmation',
+  verifyAuthTokenStrict,
+  BookingsController.answerServiceConfirmation
+);
 
 export const partnerOffersRouter = Router();
 partnerOffersRouter.use(verifyAuthToken);
@@ -30,4 +48,39 @@ partnerOffersRouter.post(
   verifyAuthTokenStrict,
   PartnerOffersController.cancelSlot
 );
+partnerOffersRouter.post(
+  '/:offerId/slots/:slotId/reschedule',
+  verifyAuthTokenStrict,
+  PartnerOffersController.rescheduleSlot
+);
 partnerOffersRouter.get('/:offerId/bookings', PartnerOffersController.listBookings);
+// Check-in libera o repasse (D20): token revogado não serve.
+partnerOffersRouter.post(
+  '/:offerId/slots/:slotId/check-ins',
+  verifyAuthTokenStrict,
+  PartnerOffersController.checkIn
+);
+partnerOffersRouter.post(
+  '/:offerId/bookings/:bookingId/arrival',
+  verifyAuthToken,
+  PartnerOffersController.recordArrival
+);
+partnerOffersRouter.post(
+  '/:offerId/bookings/:bookingId/check-in-without-code',
+  verifyAuthTokenStrict,
+  PartnerOffersController.checkInWithoutCode
+);
+partnerOffersRouter.post(
+  '/:offerId/bookings/:bookingId/absence-response',
+  verifyAuthTokenStrict,
+  PartnerOffersController.answerProviderAbsence
+);
+partnerOffersRouter.get(
+  '/:offerId/entry-verification-keys',
+  PartnerOffersController.entryVerificationKeys
+);
+partnerOffersRouter.post(
+  '/:offerId/slots/:slotId/entry-check-ins',
+  verifyAuthTokenStrict,
+  PartnerOffersController.checkInEntry
+);

@@ -4,6 +4,7 @@ import type {
   Booking,
   BookingDetails,
   BookingStatus,
+  UnitCheckInResult,
 } from '../../../domain/bookings';
 
 /** Saída por allowlist (AGENTS.md §7.9 regra 4): nunca o documento inteiro. */
@@ -32,6 +33,35 @@ export function toBuyerBooking(booking: Booking) {
           refundPercent: booking.cancellation.refundPercent,
           refundAmountMinor: booking.cancellation.refundAmountMinor,
           at: booking.cancellation.at,
+        }
+      : null,
+    rescheduledAt: booking.rescheduledAt ?? null,
+    pickupAddress: booking.pickupAddress ?? null,
+    // Por unidade, sem quem fez o check-in (allowlist, §7.9 regra 4).
+    checkIns: (booking.checkIns ?? []).map((checkIn) => ({
+      unit: checkIn.unit,
+      at: checkIn.at,
+      method: checkIn.method,
+    })),
+    businessName: booking.offerSnapshot.businessName ?? null,
+    sellingUnit: booking.offerSnapshot.sellingUnit ?? 'person',
+    groupMaxPeople: booking.offerSnapshot.groupMaxPeople ?? null,
+    requiresParticipantNames: booking.offerSnapshot.requiresParticipantNames ?? false,
+    arrivedAt: booking.arrival?.at ?? null,
+    providerAbsence: booking.providerAbsence
+      ? {
+          reportedAt: booking.providerAbsence.reportedAt,
+          respondBy: booking.providerAbsence.respondBy,
+          answer: booking.providerAbsence.answer ?? null,
+          resolution: booking.providerAbsence.resolution ?? null,
+        }
+      : null,
+    serviceConfirmation: booking.serviceConfirmation
+      ? {
+          askedAt: booking.serviceConfirmation.askedAt,
+          answerBy: booking.serviceConfirmation.answerBy,
+          answer: booking.serviceConfirmation.answer ?? null,
+          resolution: booking.serviceConfirmation.resolution ?? null,
         }
       : null,
     createdAt: booking.createdAt,
@@ -78,5 +108,16 @@ export function toPartnerSlot(slot: AvailabilitySlot) {
     capacityReserved: slot.capacityReserved,
     capacitySold: slot.capacitySold,
     status: slot.status,
+  };
+}
+
+/** Check-in de uma unidade: a reserva, qual unidade, o nome (entrada nominal) e se já tinha entrado. */
+export function toUnitCheckIn(result: UnitCheckInResult) {
+  return {
+    booking: toSellerBooking(result.booking),
+    unit: result.unit,
+    name: result.name,
+    alreadyCheckedIn: result.alreadyCheckedIn,
+    checkedInAt: result.checkedInAt,
   };
 }

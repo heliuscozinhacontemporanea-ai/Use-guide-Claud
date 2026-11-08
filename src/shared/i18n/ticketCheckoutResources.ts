@@ -29,6 +29,7 @@ export interface TicketCheckoutTranslation {
   errors: {
     expired: string;
     loginRequired: string;
+    emailNotVerified: string;
     selectSession: string;
     selectTicket: string;
     buyerRequired: string;
@@ -99,6 +100,7 @@ export const ticketCheckoutPtBR: TicketCheckoutTranslation = {
   errors: {
     expired: 'Sua reserva expirou. Selecione os ingressos novamente.',
     loginRequired: 'Entre na sua conta Use Guide para reservar ou comprar ingressos.',
+    emailNotVerified: 'Confirme seu e-mail para comprar ingressos.',
     selectSession: 'Selecione uma sessão do evento.',
     selectTicket: 'Selecione ao menos 1 ingresso.',
     buyerRequired: 'Preencha o nome e o e-mail do comprador.',
@@ -169,6 +171,7 @@ export const ticketCheckoutEn: TicketCheckoutTranslation = {
   errors: {
     expired: 'Your reservation expired. Select the tickets again.',
     loginRequired: 'Sign in to your Use Guide account to reserve or buy tickets.',
+    emailNotVerified: 'Confirm your email to buy tickets.',
     selectSession: 'Select an event session.',
     selectTicket: 'Select at least 1 ticket.',
     buyerRequired: 'Fill in the buyer name and email.',
@@ -239,6 +242,7 @@ export const ticketCheckoutFr: TicketCheckoutTranslation = {
   errors: {
     expired: 'Votre réservation a expiré. Sélectionnez à nouveau les billets.',
     loginRequired: 'Connectez-vous à votre compte Use Guide pour réserver ou acheter des billets.',
+    emailNotVerified: 'Confirmez votre e-mail pour acheter des billets.',
     selectSession: 'Sélectionnez une séance de l’événement.',
     selectTicket: 'Sélectionnez au moins 1 billet.',
     buyerRequired: 'Renseignez le nom et l’e-mail de l’acheteur.',

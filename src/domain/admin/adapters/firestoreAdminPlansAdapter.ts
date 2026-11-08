@@ -1,5 +1,5 @@
-import { queryDocumentsUseCase } from '../../database';
 import { firebaseApiFetch } from '../../../shared/infrastructure/firebase/firebaseApiFetch';
+import { queryDocumentsUseCase } from '../../database';
 import type { AdminPlansPort } from '../ports/adminPlansPort';
 import type { SubscriptionPlan } from '../types/admin';
 
@@ -70,11 +70,8 @@ export class FirestoreAdminPlansAdapter implements AdminPlansPort {
 
     if (!response.ok) {
       const body = await response.json().catch(() => null);
-      throw new Error(
-        typeof body?.error === 'string'
-          ? body.error
-          : 'Erro ao atualizar plano'
-      );
+      const message = typeof body?.error === 'string' ? body.error : body?.error?.message;
+      throw new Error(message || 'Erro ao atualizar plano');
     }
   }
 }

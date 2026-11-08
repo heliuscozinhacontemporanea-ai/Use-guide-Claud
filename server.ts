@@ -1,40 +1,57 @@
-import express from 'express';
-import path from 'path';
-import helmet from 'helmet';
 import compression from 'compression';
-import paymentRouter from './server/domain/payment/routes/paymentRoutes';
-import { PaymentController } from './server/domain/payment/controllers/paymentController';
+import express from 'express';
+import helmet from 'helmet';
+import path from 'path';
+import { version as APP_VERSION } from './package.json';
+import { renderSeoPageApplicationUseCase } from './server/application/usecases/renderSeoPageApplicationUseCase';
+import { renderSitemapApplicationUseCase } from './server/application/usecases/renderSitemapApplicationUseCase';
+import adminRouter from './server/domain/admin/routes/adminRoutes';
 import climaWindRouter from './server/domain/climawind/routes/climaWindRoutes';
-import notificationRouter from './server/domain/notifications/routes/notificationRoutes';
-import userRouter from './server/domain/users/routes/userRoutes';
-import partnerRouter from './server/domain/partners/routes/partnerRoutes';
+import { adminEventsRouter, publicEventsRouter } from './server/domain/events/routes/eventRoutes';
+import favoriteRouter from './server/domain/favorites/routes/favoriteRoutes';
 import { itemRouter } from './server/domain/guide/routes/guideRoutes';
-import { publicEventsRouter, adminEventsRouter } from './server/domain/events/routes/eventRoutes';
+import insightsRouter from './server/domain/insights/routes/insightsRoutes';
+import mediaRouter from './server/domain/media/routes/mediaRoutes';
+import notificationRouter from './server/domain/notifications/routes/notificationRoutes';
+import { usernameClaimRouter } from './server/interfaces/http/users/usernameClaimRoutes';
+import { InternalTicketingController } from './server/interfaces/http/ticketing/internalTicketingController';
+import partnerRouter from './server/domain/partners/routes/partnerRoutes';
+import { PaymentController } from './server/domain/payment/controllers/paymentController';
+import paymentRouter from './server/domain/payment/routes/paymentRoutes';
+import {
+  adminReviewReportRouter,
+  reviewReportRouter,
+} from './server/domain/reviews/routes/reviewReportRoutes';
+import reviewRouter from './server/domain/reviews/routes/reviewRoutes';
+import { isKnownPagePath } from './server/domain/seo';
 import ticketingRouter, {
   adminTicketingEventsRouter,
 } from './server/domain/ticketing/routes/ticketingRoutes';
-import { TicketingController } from './server/domain/ticketing/controllers/ticketingController';
-import reviewRouter from './server/domain/reviews/routes/reviewRoutes';
-import insightsRouter from './server/domain/insights/routes/insightsRoutes';
-import adminRouter from './server/domain/admin/routes/adminRoutes';
-import favoriteRouter from './server/domain/favorites/routes/favoriteRoutes';
-import mediaRouter from './server/domain/media/routes/mediaRoutes';
+import userRouter from './server/domain/users/routes/userRoutes';
+import { verifyAppCheck } from './server/infrastructure/auth/appCheckMiddleware';
+import { verifyInternalJobKey } from './server/infrastructure/auth/internalJobAuth';
+import { resolveTrustProxyHops } from './server/infrastructure/config/trustProxy';
 import billingRouter from './server/interfaces/http/billing/billingRoutes';
-import listingVerificationRouter from './server/interfaces/http/listingVerifications/listingVerificationRoutes';
-import listingStatsRouter from './server/interfaces/http/insights/listingStatsRoutes';
-import listingPlanRouter from './server/interfaces/http/listingPlans/listingPlanRoutes';
-import paymentAccountRouter from './server/interfaces/http/paymentAccounts/paymentAccountRoutes';
 import {
   bookingsRouter,
   partnerOffersRouter,
 } from './server/interfaces/http/bookings/bookingsRoutes';
 import { InternalBookingsController } from './server/interfaces/http/bookings/internalBookingsController';
+import listingStatsRouter from './server/interfaces/http/insights/listingStatsRoutes';
+import listingPlanRouter from './server/interfaces/http/listingPlans/listingPlanRoutes';
+import listingVerificationRouter from './server/interfaces/http/listingVerifications/listingVerificationRoutes';
+import { adminMessageRouter } from './server/interfaces/http/notifications/adminMessageRoutes';
+import { InternalNotificationsController } from './server/interfaces/http/notifications/internalNotificationsController';
 import { InternalPartnersController } from './server/interfaces/http/partners/internalPartnersController';
-import { verifyInternalJobKey } from './server/infrastructure/auth/internalJobAuth';
-import { resolveTrustProxyHops } from './server/infrastructure/config/trustProxy';
-import { renderSeoPageApplicationUseCase } from './server/application/usecases/renderSeoPageApplicationUseCase';
-import { renderSitemapApplicationUseCase } from './server/application/usecases/renderSitemapApplicationUseCase';
-import { verifyAppCheck } from './server/infrastructure/auth/appCheckMiddleware';
+import paymentAccountRouter, {
+  adminAccountDebtRouter,
+} from './server/interfaces/http/paymentAccounts/paymentAccountRoutes';
+import { InternalPayoutsController } from './server/interfaces/http/payouts/internalPayoutsController';
+import {
+  adminSaleClaimRouter,
+  saleClaimRouter,
+} from './server/interfaces/http/saleClaims/saleClaimRoutes';
+import { ticketTransferRouter } from './server/interfaces/http/ticketTransfers/ticketTransferRoutes';
 
 async function startServer() {
   const app = express();
@@ -54,6 +71,8 @@ async function startServer() {
             scriptSrc: [
               "'self'",
               "'unsafe-inline'",
+              // Leitor de QR da portaria (zxing-wasm, D20): compila o .wasm servido do próprio domínio.
+              "'wasm-unsafe-eval'",
               'https://apis.google.com',
               'https://*.firebaseapp.com',
               'https://js.stripe.com',
@@ -119,34 +138,37 @@ async function startServer() {
     PaymentController.stripeWebhook
   );
 
-  // 2. Health, Version e Internal Job (autenticado via X-Internal-Job-Key com timingSafeEqual)
+  // 2. Health e Internal Job (autenticado via X-Internal-Job-Key com timingSafeEqual)
   app.get('/api/health', (_req, res) => {
-    res.json({
-      status: 'ok',
-      version: process.env.npm_package_version || '0.0.0',
-      revision: process.env.K_REVISION || 'local-dev',
-    });
-  });
-  app.get('/api/version', (_req, res) => {
-    res.json({
-      version: process.env.npm_package_version || '0.0.0',
-      revision: process.env.K_REVISION || 'local-dev',
-      service: process.env.K_SERVICE || 'use-guide',
-      configuration: process.env.K_CONFIGURATION || 'local',
-      environment: process.env.NODE_ENV || 'development',
-    });
+    res.json({ status: 'ok', version: APP_VERSION });
   });
   // Rotas /internal nunca passam pelo rewrite do Hosting (AGENTS.md §7.9).
   app.post(
     '/internal/ticketing/expire-orders',
     verifyInternalJobKey,
-    TicketingController.expireOrdersInternalJob
+    InternalTicketingController.expireOrders
   );
   app.post('/internal/bookings/expire', verifyInternalJobKey, InternalBookingsController.expire);
+  app.post('/internal/payouts/release', verifyInternalJobKey, InternalPayoutsController.release);
   app.post(
     '/internal/bookings/complete',
     verifyInternalJobKey,
     InternalBookingsController.complete
+  );
+  app.post(
+    '/internal/notifications/dispatch',
+    verifyInternalJobKey,
+    InternalNotificationsController.dispatch
+  );
+  app.post(
+    '/internal/notifications/reminders',
+    verifyInternalJobKey,
+    InternalNotificationsController.reminders
+  );
+  app.post(
+    '/internal/notifications/daily-digest',
+    verifyInternalJobKey,
+    InternalNotificationsController.dailyDigest
   );
   app.post(
     '/internal/partners/check-expiring-plans',
@@ -156,11 +178,7 @@ async function startServer() {
 
   // 3. App Check para rotas /api/*
   app.use('/api', (req, res, next) => {
-    if (
-      req.path === '/health' ||
-      req.path === '/version' ||
-      req.path.startsWith('/payment/webhook')
-    ) {
+    if (req.path === '/health' || req.path.startsWith('/payment/webhook')) {
       return next();
     }
     return verifyAppCheck(req, res, next);
@@ -194,9 +212,15 @@ async function startServer() {
   app.use('/api/bookings', bookingsRouter);
   app.use('/api/payment/plans', billingRouter);
   app.use('/api/payment-accounts', paymentAccountRouter);
+  app.use('/api/sale-claims', saleClaimRouter);
+  app.use('/api/ticket-transfers', ticketTransferRouter);
+  app.use('/api/admin/sale-claims', adminSaleClaimRouter);
+  app.use('/api/admin/account-debts', adminAccountDebtRouter);
   app.use('/api/payment', paymentRouter);
   app.use('/api/weather', climaWindRouter);
+  app.use('/api/admin/notifications', adminMessageRouter);
   app.use('/api/notifications', notificationRouter);
+  app.use('/api/users', usernameClaimRouter);
   app.use('/api/users', userRouter);
   app.use('/api/listing-verifications', listingVerificationRouter);
   app.use('/api/listing-plans', listingPlanRouter);
@@ -208,6 +232,8 @@ async function startServer() {
   app.use('/api/admin/events', adminTicketingEventsRouter);
   app.use('/api/ticketing', ticketingRouter);
   app.use('/api/reviews', reviewRouter);
+  app.use('/api/review-reports', reviewReportRouter);
+  app.use('/api/admin/review-reports', adminReviewReportRouter);
   app.use('/api/insights/stats', listingStatsRouter);
   app.use('/api/insights', insightsRouter);
   app.use('/api/admin', adminRouter);
@@ -268,7 +294,8 @@ async function startServer() {
         res.setHeader('Content-Type', 'text/html; charset=utf-8');
         // A CDN do Hosting guarda por 5 min; o navegador sempre revalida.
         res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=300');
-        res.send(html);
+        // Endereço que não existe: o app mostra "Página não encontrada" com status 404 de verdade.
+        res.status(isKnownPagePath(req.path) ? 200 : 404).send(html);
       } catch (error) {
         console.error('[SEO render]', error instanceof Error ? error.message : error);
         res.setHeader('Cache-Control', 'no-cache');

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DEFAULT_LOCALE, normalizeLocale } from '../../../shared/i18n';
+import { openEmailVerificationPromptUseCase } from '../../auth';
 import { createBookingUseCase } from '../application/usecases/createBookingUseCase';
 import { getBookingUseCase } from '../application/usecases/getBookingUseCase';
 import type { CreateBookingPayload, CreateBookingResponse } from '../types/bookings';
@@ -47,6 +48,9 @@ export function useBookingCheckout() {
         setCheckout(response);
         setStatus(response.status === 'confirmed' ? 'confirmed' : 'ready');
       } catch (err: unknown) {
+        if (err instanceof Error && err.message === 'EMAIL_NOT_VERIFIED') {
+          openEmailVerificationPromptUseCase();
+        }
         setError(getBookingErrorMessage(err));
         setStatus('failed');
       }

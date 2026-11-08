@@ -11,6 +11,15 @@ export interface AuthPort {
 
   resetPassword(email: string): Promise<void>;
 
+  /** Envia o link de confirmação do e-mail da conta atual, no idioma informado (D22). */
+  sendEmailVerification(locale: string): Promise<void>;
+
+  /** Relê a conta no Firebase; se o e-mail já foi confirmado, renova o token para o backend saber. */
+  refreshEmailVerified(): Promise<boolean>;
+
+  /** Aplica o código do link de confirmação (página de ação da conta). */
+  applyEmailVerificationCode(code: string): Promise<void>;
+
   verifyResetCode(code: string): Promise<string>;
 
   confirmReset(code: string, newPass: string): Promise<void>;

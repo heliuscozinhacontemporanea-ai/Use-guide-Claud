@@ -4,6 +4,7 @@ import type {
   BookableOffer,
   Booking,
   BookingCancellation,
+  BookingCheckIn,
   BookingParticipant,
   BookingStatus,
   Page,
@@ -33,6 +34,14 @@ export interface BookingsPort {
   getSlot(slotId: string): Promise<AvailabilitySlot | null>;
   listSlots(offerId: string, fromIso: string, toIso: string): Promise<AvailabilitySlot[]>;
   setSlotStatus(slotId: string, status: AvailabilitySlotStatus): Promise<void>;
+  /** Muda o horário e leva as reservas ativas junto, na mesma transação; devolve as reservas movidas. */
+  rescheduleSlot(params: {
+    slotId: string;
+    startsAt: string;
+    endsAt?: string;
+    actorUid: string;
+    reason: string;
+  }): Promise<Booking[]>;
 
   /** Idempotente pelo ID da reserva; lança INSUFFICIENT_CAPACITY ou SLOT_UNAVAILABLE. */
   reserveCapacityAndCreateBooking(
@@ -58,6 +67,41 @@ export interface BookingsPort {
   /** Só auditoria, sem mudar status (ex: pagamento recusado que ainda pode ser tentado de novo). */
   recordBookingAudit(bookingId: string, actorUid: string, reason: string): Promise<void>;
 
+  /**
+   * Grava check-ins de unidades numa transação: só reserva confirmada ou concluída; unidade que já tem
+   * check-in fica como está (repetir não cria outro).
+   */
+  recordCheckIns(bookingId: string, checkIns: BookingCheckIn[]): Promise<Booking>;
+  /**
+   * Grava o nome da pessoa de uma unidade numa transação; `change` recebe o atual (ou null) e devolve o
+   * novo, ou lança para recusar.
+   */
+  setParticipant(
+    bookingId: string,
+    unit: number,
+    change: (current: BookingParticipant | null) => BookingParticipant
+  ): Promise<BookingParticipant>;
+  /** Códigos errados no horário desde `sinceIso`, contados no Firestore (o Cloud Run não guarda estado). */
+  countCheckInFailures(slotId: string, sinceIso: string, actorUid?: string): Promise<number>;
+  addCheckInFailure(slotId: string, actorUid: string, atIso: string): Promise<void>;
+
+  /**
+   * Muda a reserva numa transação: `change` recebe o estado atual e devolve o novo, ou null para não
+   * gravar nada (idempotência); pode lançar para recusar. Grava auditoria com `reason`.
+   */
+  updateBooking(
+    bookingId: string,
+    change: (current: Booking) => Booking | null,
+    audit: { actorUid: string; reason: string }
+  ): Promise<Booking>;
+  /** Reservas com prazo (`deadline.at`) vencido até `nowIso`, do mais antigo para o mais novo. */
+  listBookingsWithDeadlineBefore(nowIso: string, limit: number): Promise<Booking[]>;
+
+  /** Reservas com endereço de busca a apagar até `nowIso` (D20, §7.5). */
+  listBookingsWithPickupAddressEraseBefore(nowIso: string, limit: number): Promise<Booking[]>;
+  /** Apaga os nomes dos participantes da reserva (exclusão de conta, §7.5). */
+  deleteParticipants(bookingId: string): Promise<void>;
+
   getBooking(bookingId: string): Promise<Booking | null>;
   getParticipants(bookingId: string): Promise<BookingParticipant[]>;
   listBookingsByBuyer(buyerId: string, page: PageRequest): Promise<Page<Booking>>;
@@ -65,4 +109,10 @@ export interface BookingsPort {
   listBookingsBySlot(slotId: string): Promise<Booking[]>;
   listExpiredPendingBookings(nowIso: string, limit: number): Promise<Booking[]>;
   listConfirmedBookingsStartedBefore(nowIso: string, limit: number): Promise<Booking[]>;
+  /** Reservas confirmadas que começam em [fromIso, toIso) — lembretes (D25). */
+  listConfirmedBookingsStartingBetween(
+    fromIso: string,
+    toIso: string,
+    limit: number
+  ): Promise<Booking[]>;
 }

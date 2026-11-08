@@ -400,6 +400,7 @@ Todo campo novo DEVE ser classificado antes de ser persistido. A classe define o
 |---|---|---|
 | Senhas de usuário | Firebase Auth (o backend nunca recebe nem guarda senha) | qualquer armazenamento próprio de senha |
 | Tokens opacos (QR de ingresso, convite, link de transferência, reset) | gerar com `crypto.randomBytes(≥ 16)` (≥ 128 bits); guardar só `HMAC-SHA-256` com chave do Secret Manager | guardar o token em texto puro; `Math.random()`; UUID como segredo |
+| Código curto de check-in (exceção ao mínimo de 128 bits, D20) | derivado por `HMAC-SHA-256` com chave do Secret Manager (o segredo anterior vale durante a rotação, §7.8), nunca gravado: 6 caracteres a partir do ID da reserva (passeio, aluguel, translado) ou 8 a partir do ID e da versão do ingresso (ingresso de evento e entrada de atração, junto do QR); válido só para quem gerencia a oferta ou o evento, autenticado, na janela do serviço; reserva: no máximo 5 erros por horário a cada 15 min; ingresso: 5 por pessoa da equipe a cada 15 min e 50 por sessão | usar o código fora dessa janela ou sem login; aceitá-lo por canal que não seja o painel do prestador; usar o código curto no lugar da assinatura do QR para validar sem internet |
 | Assinatura offline (check-in) | RSA-PSS SHA-256 com chave ≥ 3072 bits **ou** Ed25519; `kid` no token para rotação | RSA PKCS#1 v1.5 em código novo; chave privada no frontend |
 | Comparar segredos | `crypto.timingSafeEqual` sobre buffers de mesmo tamanho | `===` em segredos |
 | Integridade de webhook | verificação do SDK do provedor (`stripe.webhooks.constructEvent`) | verificação manual sem tolerância de tempo |
@@ -416,7 +417,7 @@ Todo campo novo DEVE ser classificado antes de ser persistido. A classe define o
 | `STRIPE_SECRET_KEY` | Secret Manager | ao suspeitar de vazamento e na troca de responsável | preferir **restricted key** com permissões mínimas |
 | `STRIPE_WEBHOOK_SECRET` | Secret Manager | a cada 12 meses (o Stripe permite período de sobreposição de até 24 h) | um segredo por endpoint |
 | `TICKET_QR_SECRET` (HMAC) | Secret Manager | a cada 12 meses, com `kid` | manter a versão anterior ativa até expirarem os ingressos emitidos com ela |
-| `OFFLINE_CHECKIN_PRIVATE_KEY_PEM` / `TICKET_QR_PRIVATE_KEY_PEM` | Secret Manager | a cada 12 meses, com `OFFLINE_CHECKIN_KEY_ID` novo | a chave pública anterior continua aceita até o fim dos eventos |
+| `TICKET_QR_PRIVATE_KEY_PEM` (Ed25519) | Secret Manager | a cada 12 meses, com `TICKET_QR_KEY_ID` novo | a chave pública anterior continua aceita até o fim dos eventos |
 | `PII_BLIND_INDEX_KEY` (HMAC) | Secret Manager | só com reindexação planejada | trocar exige recalcular todos os índices |
 | KEK de campo | Cloud KMS | automática a cada 90 dias | versões antigas ficam ativas para descriptografia |
 | Chave de job interno (legado) | Secret Manager | a cada 90 dias até migrar para OIDC (§7.9) | ≥ 32 bytes aleatórios |
@@ -614,10 +615,10 @@ Passeios, aluguéis, translados e entradas de atrações privadas compartilham o
 
 ### 11.1. Identidade visual
 
-* **Estilo:** Glassmorphism. Tema **dark é o padrão de design**; em Configurações a pessoa escolhe claro, escuro ou sistema (`ThemeContext`, `AppearanceSettingsView`). Todo componente novo ou tocado DEVE funcionar nos dois temas com os tokens `--ug-*` de `src/index.css` (`bg-app`, `text-ink`, `bg-surface`, `border-line`, `text-warn`, `text-danger`…), nunca `text-white` fixo em superfície que muda de cor. O tema claro NUNCA usa branco puro: fundo off-white bege (`#f3eee4`) e superfícies `#faf6ee`. O tema é aplicado antes da primeira pintura (sem piscar) e o `theme-color` acompanha o tema.
-* **Accent:** teal (`teal-400`/`teal-500`); emerald = sucesso; cyan = informação.
+* **Estilo:** superfícies sólidas e discretas sobre fundo neutro e liso: grafite no escuro (fundo `#0d0e10`, cartão `#1e2024`) e bege no claro (fundo `#f3eee4`, cartão `#faf6ee`). Sem gradientes, padrões nem linhas decorativas no fundo. Vidro (desfoque) só em barras fixas e folhas sobre o conteúdo. Cor só com significado: verde (#11D450) para ação, amarelo para pendente, verde-menta para concluído, vermelho para perigo. Uma ação principal por tela; as demais como texto. Tema **dark é o padrão de design**; em Configurações a pessoa escolhe claro, escuro ou sistema (`ThemeContext`, `AppearanceSettingsView`). Todo componente novo ou tocado DEVE funcionar nos dois temas com os tokens `--ug-*` de `src/index.css` (`bg-app`, `text-ink`, `bg-surface`, `border-line`, `text-warn`, `text-danger`…), nunca `text-white` fixo em superfície que muda de cor. O tema claro NUNCA usa branco puro: fundo off-white bege (`#f3eee4`) e superfícies `#faf6ee`. O tema é aplicado antes da primeira pintura (sem piscar) e o `theme-color` acompanha o tema.
+* **Accent:** verde #11D450, nas classes `teal-*` (o 400 é o tom principal, redefinido em `src/index.css`); menta = sucesso; ciano = informação. No tema claro, texto de ação #087A2E.
 * **Tipografia:** Inter (texto/UI) e Outfit (display). Proibida uma terceira fonte.
-* **Superfície elevada:** `GlassCard` (`src/ui/components/GlassCard.tsx`).
+* **Superfície elevada:** cartão sólido do design system (`GlassCard` passa a ser sólido, sem desfoque).
 
 ### 11.2. Contraste (WCAG 2.2 AA)
 
@@ -783,7 +784,8 @@ Regras:
 
 * Cada arquivo tem uma razão para mudar. Componentes que misturam formulário + lista + filtros + métricas DEVEM ser divididos; o container só orquestra.
 * **Um UseCase por arquivo** (`createBookingUseCase.ts`), com o nome do arquivo igual ao da função exportada. É proibido criar arquivo agregador de UseCases; tipos compartilhados entre UseCases ficam em arquivo próprio (ex: `orchestrationActor.ts`).
-* Referência de tamanho: arquivo acima de **~200 linhas** DEVE ser avaliado para divisão; acima de **400** linhas, dividir ao tocar (exceto testes, schemas e mappers declarativos).
+* Referência de tamanho (vale só para código: componentes, hooks, services, controllers, adapters): arquivo acima de **~200 linhas** DEVE ser avaliado para divisão. Acima de **400 linhas**, DEVE ser dividido ao tocar quando tiver mais de uma responsabilidade; se tiver uma só, PODE ficar, e a entrega registra em uma linha qual é a responsabilidade e por que não divide.
+* Conteúdo não tem limite de linhas: traduções (`src/shared/i18n/`), textos legais e institucionais (termos, políticas, Sobre), testes, schemas e mappers declarativos. Textos legais e institucionais DEVEM ficar como conteúdo nos arquivos de tradução, por idioma, e não escritos dentro de componentes.
 * Arquivo tocado DEVE sair sem avisos do lint (`npx biome lint <arquivo>`) e formatado (`npx biome format --write <arquivo>`). Aviso que não puder ser corrigido sem mudar comportamento recebe `biome-ignore` com justificativa ou vai para `docs/arquitetura/debitos.md`.
 * Hooks com estados não relacionados DEVEM ser divididos em hooks compostos.
 

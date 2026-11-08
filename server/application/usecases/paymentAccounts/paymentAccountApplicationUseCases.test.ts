@@ -5,9 +5,14 @@ vi.mock('../../../domain/partners', () => ({
   getOwnerSalesDocumentUseCase: vi.fn(),
   assertPartnerTermsAcceptedUseCase: vi.fn(),
 }));
-vi.mock('../../../domain/payment', () => ({
+vi.mock('../../../domain/payment', async () => ({
+  PaymentDomainError: (await import('../../../domain/payment/services/stripePaymentService'))
+    .PaymentDomainError,
+  listPayoutEntriesUseCase: vi.fn().mockResolvedValue({ data: [], nextCursor: null }),
   listOwnerPaymentAccountsUseCase: vi.fn(),
   createPaymentAccountSessionUseCase: vi.fn(),
+  listAccountDebtsUseCase: vi.fn().mockResolvedValue([]),
+  startAccountDebtPaymentUseCase: vi.fn().mockResolvedValue({ clientSecret: 'cs' }),
 }));
 
 import {
@@ -17,9 +22,15 @@ import {
 } from '../../../domain/partners';
 import {
   createPaymentAccountSessionUseCase,
+  listAccountDebtsUseCase,
   listOwnerPaymentAccountsUseCase,
+  listPayoutEntriesUseCase,
+  startAccountDebtPaymentUseCase,
 } from '../../../domain/payment';
+import { listPartnerDebtsApplicationUseCase } from './listPartnerDebtsApplicationUseCase';
 import { listPartnerPaymentAccountsApplicationUseCase } from './listPartnerPaymentAccountsApplicationUseCase';
+import { listPartnerPayoutsApplicationUseCase } from './listPartnerPayoutsApplicationUseCase';
+import { startPartnerDebtPaymentApplicationUseCase } from './startPartnerDebtPaymentApplicationUseCase';
 import { startPaymentAccountSessionApplicationUseCase } from './startPaymentAccountSessionApplicationUseCase';
 
 const READY_VIEW = {
@@ -90,5 +101,42 @@ describe('contas de recebimento por CNPJ (D14)', () => {
       startPaymentAccountSessionApplicationUseCase({ uid: 'owner-1', email: 'a@b.c' }, 'key-1')
     ).rejects.toThrow('terms');
     expect(createPaymentAccountSessionUseCase).not.toHaveBeenCalled();
+  });
+});
+
+describe('dívidas do parceiro (D16)', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('lista e paga só com os CNPJs do próprio parceiro', async () => {
+    vi.mocked(listOwnerSalesDocumentsUseCase).mockResolvedValue([
+      { accountKey: 'key-1', maskedDocument: '**.***.***/0001-81', itemIds: [] },
+    ]);
+    await listPartnerDebtsApplicationUseCase('owner-1');
+    expect(listOwnerSalesDocumentsUseCase).toHaveBeenCalledWith('owner-1');
+    expect(listAccountDebtsUseCase).toHaveBeenCalledWith(['key-1']);
+    await startPartnerDebtPaymentApplicationUseCase('owner-1', 'debt_x');
+    expect(startAccountDebtPaymentUseCase).toHaveBeenCalledWith('debt_x', ['key-1']);
+  });
+});
+
+describe('extrato do parceiro (D14)', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('todos os CNPJs do parceiro, ou um só; CNPJ de outra pessoa responde 404', async () => {
+    vi.mocked(listOwnerSalesDocumentsUseCase).mockResolvedValue([
+      { accountKey: 'key-1', maskedDocument: '', itemIds: [] },
+      { accountKey: 'key-2', maskedDocument: '', itemIds: [] },
+    ]);
+    await listPartnerPayoutsApplicationUseCase('owner-1', { limit: 30 });
+    expect(listPayoutEntriesUseCase).toHaveBeenLastCalledWith(['key-1', 'key-2'], 30, undefined);
+    await listPartnerPayoutsApplicationUseCase('owner-1', {
+      accountKey: 'key-2',
+      limit: 10,
+      cursor: 'c',
+    });
+    expect(listPayoutEntriesUseCase).toHaveBeenLastCalledWith(['key-2'], 10, 'c');
+    await expect(
+      listPartnerPayoutsApplicationUseCase('owner-1', { accountKey: 'key-9', limit: 10 })
+    ).rejects.toMatchObject({ code: 'NOT_FOUND', statusCode: 404 });
   });
 });

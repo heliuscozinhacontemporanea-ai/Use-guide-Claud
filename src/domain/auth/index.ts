@@ -7,3 +7,5 @@ export * from './components';
 export * from './schemas/authSchema';
 export * from './schemas/passwordSchema';
 export * from './utils/passwordRequirements';
+export { startEmailVerificationUseCase } from './application/usecases/startEmailVerificationUseCase';
+export { openEmailVerificationPromptUseCase } from './application/usecases/openEmailVerificationPromptUseCase';

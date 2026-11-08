@@ -1,10 +1,10 @@
-import { ArrowLeft } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { ChevronLeft } from 'lucide-react';
+import { useId, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BUYER_TERMS_VERSION } from '../../../../shared/constants/legalTerms';
 import { TermsAcceptanceField } from '../../../../ui/legal/TermsAcceptanceField';
+import { BUTTON_PRIMARY, BUTTON_SECONDARY, INPUT } from '../../../../ui/styles/controls';
 import type { PublicOffer, PublicSlot } from '../../types/bookings';
-import { BUTTON_PRIMARY, BUTTON_SECONDARY } from '../shared/ListState';
 import { BookingCheckout } from './BookingCheckout';
 import { ParticipantsForm } from './ParticipantsForm';
 import { QuantitySelector } from './QuantitySelector';
@@ -29,11 +29,16 @@ export function BookingFlow({
   renderPaymentElement,
 }: BookingFlowProps) {
   const { t } = useTranslation();
+  const pickupId = useId();
   const [step, setStep] = useState<Step>('select');
   const [slot, setSlot] = useState<PublicSlot | null>(null);
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [names, setNames] = useState<string[]>([]);
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [pickupAddress, setPickupAddress] = useState('');
+  const needsPickup = offer.pickupMode === 'buyer_address';
+  const group = offer.sellingUnit === 'group';
+  const pickupReady = !needsPickup || pickupAddress.trim().length >= 3;
   const participants = Object.values(quantities).reduce((sum, quantity) => sum + quantity, 0);
   const maxParticipants = Math.min(offer.maxParticipantsPerBooking, slot?.available ?? 0);
 
@@ -45,9 +50,10 @@ export function BookingFlow({
         .filter(([, quantity]) => quantity > 0)
         .map(([priceOptionId, quantity]) => ({ priceOptionId, quantity })),
       participants: names.map((name) => ({ name })),
+      ...(needsPickup ? { pickupAddress: pickupAddress.trim() } : {}),
       acceptedTermsVersion: BUYER_TERMS_VERSION,
     }),
-    [offer.id, slot?.id, quantities, names]
+    [offer.id, slot?.id, quantities, names, needsPickup, pickupAddress]
   );
 
   const proceed = () => {
@@ -55,7 +61,8 @@ export function BookingFlow({
       onRequireLogin();
       return;
     }
-    setStep(offer.requiresParticipantNames ? 'participants' : 'checkout');
+    // Grupo não tem nome por pessoa: o cliente decide quem leva (D20).
+    setStep(offer.requiresParticipantNames && !group ? 'participants' : 'checkout');
   };
 
   const restart = () => {
@@ -80,7 +87,7 @@ export function BookingFlow({
     return (
       <div className="space-y-3">
         <button type="button" onClick={() => setStep('select')} className={BUTTON_SECONDARY}>
-          <ArrowLeft size={13} className="inline mr-1" aria-hidden="true" />
+          <ChevronLeft size={13} className="inline mr-1" aria-hidden="true" />
           {t('bookings.buyer.back')}
         </button>
         <ParticipantsForm
@@ -110,10 +117,31 @@ export function BookingFlow({
           maxParticipants={maxParticipants}
           value={quantities}
           onChange={setQuantities}
+          groupMaxPeople={group ? offer.groupMaxPeople : undefined}
         />
       )}
+      {slot && participants > 0 && needsPickup && (
+        <div className="space-y-1.5">
+          <label htmlFor={pickupId} className="text-[13px] font-semibold text-ink/80">
+            {t('serviceProof.checkout.pickupLabel')}
+          </label>
+          <input
+            id={pickupId}
+            value={pickupAddress}
+            onChange={(event) => setPickupAddress(event.target.value)}
+            maxLength={300}
+            autoComplete="street-address"
+            placeholder={t('serviceProof.checkout.pickupPlaceholder')}
+            aria-describedby={`${pickupId}-hint`}
+            className={INPUT}
+          />
+          <p id={`${pickupId}-hint`} className="text-[12px] text-ink/70">
+            {t('serviceProof.checkout.pickupHint')}
+          </p>
+        </div>
+      )}
       {slot && participants > 0 && !isAuthenticated && (
-        <p className="text-xs text-white/70">{t('bookings.buyer.loginRequired')}</p>
+        <p className="text-xs text-ink/70">{t('bookings.buyer.loginRequired')}</p>
       )}
       {slot && participants > 0 && (
         <TermsAcceptanceField
@@ -125,7 +153,7 @@ export function BookingFlow({
       {slot && (
         <button
           type="button"
-          disabled={participants === 0 || !termsAccepted}
+          disabled={participants === 0 || !termsAccepted || !pickupReady}
           onClick={proceed}
           className={`${BUTTON_PRIMARY} w-full`}
         >

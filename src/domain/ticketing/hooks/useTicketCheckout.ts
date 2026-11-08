@@ -2,7 +2,7 @@ import QRCode from 'qrcode';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BUYER_TERMS_VERSION } from '../../../shared/constants/legalTerms';
-import { useAuthContext } from '../../auth';
+import { openEmailVerificationPromptUseCase, useAuthContext } from '../../auth';
 import { confirmTicketOrderPaymentReturnUseCase } from '../application/usecases/confirmTicketOrderPaymentReturnUseCase';
 import { createTicketOrderPaymentIntentUseCase } from '../application/usecases/createTicketOrderPaymentIntentUseCase';
 import { createTicketOrderUseCase } from '../application/usecases/createTicketOrderUseCase';
@@ -157,6 +157,12 @@ export function useTicketCheckout({
       return setError(t('ticketCheckout.errors.buyerRequired'));
     }
     if (!termsAccepted) return setError(t('legal.accept.required'));
+    // O servidor também recusa (AGENTS.md §7.10); aqui só evita a viagem e abre o aviso (D22).
+    if (!user.emailVerified) {
+      setError(t('ticketCheckout.errors.emailNotVerified'));
+      openEmailVerificationPromptUseCase();
+      return;
+    }
 
     setSubmitting(true);
     setError(null);
@@ -202,7 +208,12 @@ export function useTicketCheckout({
         setPaymentIntentId(intent.paymentIntentId);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('ticketCheckout.errors.createFailed'));
+      if (err instanceof Error && err.message === 'EMAIL_NOT_VERIFIED') {
+        setError(t('ticketCheckout.errors.emailNotVerified'));
+        openEmailVerificationPromptUseCase();
+      } else {
+        setError(err instanceof Error ? err.message : t('ticketCheckout.errors.createFailed'));
+      }
     } finally {
       setSubmitting(false);
     }

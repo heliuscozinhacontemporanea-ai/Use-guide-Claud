@@ -1,14 +1,19 @@
 import type { Response } from 'express';
 import { acceptPartnerTermsApplicationUseCase } from '../../../application/usecases/paymentAccounts/acceptPartnerTermsApplicationUseCase';
 import { getPartnerTermsApplicationUseCase } from '../../../application/usecases/paymentAccounts/getPartnerTermsApplicationUseCase';
+import { listPartnerDebtsApplicationUseCase } from '../../../application/usecases/paymentAccounts/listPartnerDebtsApplicationUseCase';
 import { listPartnerPaymentAccountsApplicationUseCase } from '../../../application/usecases/paymentAccounts/listPartnerPaymentAccountsApplicationUseCase';
+import { listPartnerPayoutsApplicationUseCase } from '../../../application/usecases/paymentAccounts/listPartnerPayoutsApplicationUseCase';
+import { startPartnerDebtPaymentApplicationUseCase } from '../../../application/usecases/paymentAccounts/startPartnerDebtPaymentApplicationUseCase';
 import { startPaymentAccountSessionApplicationUseCase } from '../../../application/usecases/paymentAccounts/startPaymentAccountSessionApplicationUseCase';
 import { ListingVerificationError, PartnerDomainError } from '../../../domain/partners';
 import { PaymentDomainError } from '../../../domain/payment';
 import type { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
 import {
   AcceptPartnerTermsSchema,
+  AccountDebtParamsSchema,
   ListPaymentAccountsQuerySchema,
+  ListPayoutsQuerySchema,
   PaymentAccountSessionSchema,
 } from './schemas/paymentAccountSchemas';
 
@@ -70,6 +75,43 @@ export class PaymentAccountController {
       return res.status(200).json({ data: terms });
     } catch (error) {
       return handleError(res, error, 'acceptTerms');
+    }
+  }
+
+  static async listPayouts(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    if (!req.user?.uid) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
+    const query = ListPayoutsQuerySchema.safeParse(req.query);
+    if (!query.success) return sendError(res, 400, 'VALIDATION_ERROR', 'Consulta inválida.');
+    try {
+      return res
+        .status(200)
+        .json(await listPartnerPayoutsApplicationUseCase(req.user.uid, query.data));
+    } catch (error) {
+      return handleError(res, error, 'listPayouts');
+    }
+  }
+
+  static async listDebts(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    if (!req.user?.uid) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
+    try {
+      return res.status(200).json({ data: await listPartnerDebtsApplicationUseCase(req.user.uid) });
+    } catch (error) {
+      return handleError(res, error, 'listDebts');
+    }
+  }
+
+  static async payDebt(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    if (!req.user?.uid) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
+    const params = AccountDebtParamsSchema.safeParse(req.params);
+    if (!params.success) return sendError(res, 400, 'VALIDATION_ERROR', 'Dívida inválida.');
+    try {
+      const payment = await startPartnerDebtPaymentApplicationUseCase(
+        req.user.uid,
+        params.data.debtId
+      );
+      return res.status(200).json({ data: payment });
+    } catch (error) {
+      return handleError(res, error, 'payDebt');
     }
   }
 

@@ -1,11 +1,23 @@
-import { deletePartnerProfileUseCase, registerPartnerUseCase } from '../../domain/partners';
+import {
+  deletePartnerProfileUseCase,
+  PartnerDomainError,
+  registerPartnerUseCase,
+} from '../../domain/partners';
 import { upgradeUserToPartnerUseCase } from '../../domain/users';
 import type { PartnerRegistrationData } from '../../domain/partners';
 
 export async function registerPartnerApplicationUseCase(
-  uid: string,
+  actor: { uid: string; emailVerified: boolean },
   data: PartnerRegistrationData
 ): Promise<void> {
+  // E-mail confirmado antes de virar parceiro (AGENTS.md §7.10, A07).
+  if (!actor.emailVerified) {
+    throw new PartnerDomainError(
+      'EMAIL_NOT_VERIFIED',
+      'Confirme seu e-mail antes de cadastrar seu negócio.'
+    );
+  }
+  const { uid } = actor;
   const registration = await registerPartnerUseCase(uid, data);
   try {
     await upgradeUserToPartnerUseCase(uid);

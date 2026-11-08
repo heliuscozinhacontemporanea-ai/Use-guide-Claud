@@ -33,6 +33,7 @@ describe('Firestore Rules — bookings', () => {
       await setDoc(doc(db, 'bookings/booking-1'), { buyerId: 'buyer-1' });
       await setDoc(doc(db, 'bookingParticipants/booking-1_0'), { bookingId: 'booking-1' });
       await setDoc(doc(db, 'bookingAuditLogs/log-1'), { bookingId: 'booking-1' });
+      await setDoc(doc(db, 'bookingCheckInFailures/f-1'), { slotId: 'slot-1' });
     });
   });
 
@@ -58,6 +59,8 @@ describe('Firestore Rules — bookings', () => {
     await assertFails(setDoc(doc(partner, 'bookableOffers/offer-1'), { ownerId: 'partner-1' }));
     await assertFails(getDoc(doc(partner, 'availabilitySlots/slot-1')));
     await assertFails(setDoc(doc(partner, 'availabilitySlots/slot-1'), { capacityTotal: 999 }));
+    await assertFails(getDoc(doc(partner, 'bookingCheckInFailures/f-1')));
+    await assertFails(setDoc(doc(partner, 'bookingCheckInFailures/f-2'), { slotId: 'slot-1' }));
   });
 
   it('auditoria só é lida por admin e nunca escrita pelo cliente', async () => {

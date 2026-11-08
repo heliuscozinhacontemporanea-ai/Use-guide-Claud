@@ -1,5 +1,16 @@
-import { motion } from 'motion/react';
-import { Award, Bell, Calendar, Database, Layers, ShieldCheck, Users } from 'lucide-react';
+import {
+  Award,
+  Bell,
+  Calendar,
+  Database,
+  Flag,
+  Landmark,
+  Layers,
+  type LucideIcon,
+  ShieldCheck,
+  Users,
+} from 'lucide-react';
+import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '../../../../shared/utils/cn';
 
@@ -9,6 +20,8 @@ export type AdminTabId =
   | 'reports'
   | 'partners'
   | 'verifications'
+  | 'finance'
+  | 'moderation'
   | 'plans'
   | 'notifications';
 
@@ -17,100 +30,79 @@ interface AdminNavigationProps {
   onSelectTab: (tab: AdminTabId) => void;
   /** A fila de verificação vem de outro domínio; a aba só aparece quando a composição a monta. */
   showVerifications?: boolean;
+  /** As filas financeiras vêm do payment; a aba só aparece quando a composição as monta. */
+  showFinance?: boolean;
+  /** A fila de denúncias vem do reviews (D19); a aba só aparece quando a composição a monta. */
+  showModeration?: boolean;
 }
 
-const ADMIN_TABS = [
-  {
-    id: 'reports' as const,
-    label: 'Relatórios',
-    icon: Database,
-    color: 'bg-amber-500',
-    shadow: 'shadow-amber-500/40',
-  },
-  {
-    id: 'partners' as const,
-    label: 'Parceiros',
-    icon: Users,
-    color: 'bg-indigo-500',
-    shadow: 'shadow-indigo-500/40',
-  },
-  {
-    id: 'verifications' as const,
-    label: '',
-    icon: ShieldCheck,
-    color: 'bg-emerald-500',
-    shadow: 'shadow-emerald-500/40',
-  },
-  {
-    id: 'items' as const,
-    label: 'Guia Local',
-    icon: Layers,
-    color: 'bg-teal-500',
-    shadow: 'shadow-teal-500/40',
-  },
-  {
-    id: 'events' as const,
-    label: 'Agenda',
-    icon: Calendar,
-    color: 'bg-[#00D4FF]',
-    shadow: 'shadow-[#00D4FF]/40',
-  },
-  {
-    id: 'plans' as const,
-    label: 'Planos',
-    icon: Award,
-    color: 'bg-fuchsia-500',
-    shadow: 'shadow-fuchsia-500/40',
-  },
-  {
-    id: 'notifications' as const,
-    label: 'Avisos',
-    icon: Bell,
-    color: 'bg-rose-500',
-    shadow: 'shadow-rose-500/40',
-  },
+// Ordem das abas; o rótulo de cada uma vem da tradução (as de outros domínios usam o namespace deles).
+const ADMIN_TABS: { id: AdminTabId; icon: LucideIcon; labelKey: string }[] = [
+  { id: 'reports', icon: Database, labelKey: 'adminPanel.tabs.reports' },
+  { id: 'partners', icon: Users, labelKey: 'adminPanel.tabs.partners' },
+  { id: 'verifications', icon: ShieldCheck, labelKey: 'verification.admin.tab' },
+  { id: 'finance', icon: Landmark, labelKey: 'adminFinance.title' },
+  { id: 'moderation', icon: Flag, labelKey: 'reviewReports.admin.tab' },
+  { id: 'items', icon: Layers, labelKey: 'adminPanel.tabs.items' },
+  { id: 'events', icon: Calendar, labelKey: 'adminPanel.tabs.events' },
+  { id: 'plans', icon: Award, labelKey: 'adminPanel.tabs.plans' },
+  { id: 'notifications', icon: Bell, labelKey: 'adminPanel.tabs.notifications' },
 ];
 
+/**
+ * Abas do painel admin (D17): rolam para o lado no celular, com o nome inteiro, e a ativa fica
+ * invertida, sem cor de destaque. A aba escolhida rola para ficar visível.
+ */
 export function AdminNavigation({
   activeTab,
   onSelectTab,
   showVerifications = false,
+  showFinance = false,
+  showModeration = false,
 }: AdminNavigationProps) {
   const { t } = useTranslation();
-  const tabs = ADMIN_TABS.filter((tab) => tab.id !== 'verifications' || showVerifications).map(
-    (tab) => (tab.id === 'verifications' ? { ...tab, label: t('verification.admin.tab') } : tab)
-  );
+  const activeRef = useRef<HTMLButtonElement>(null);
+  const shown: Partial<Record<AdminTabId, boolean>> = {
+    verifications: showVerifications,
+    finance: showFinance,
+    moderation: showModeration,
+  };
+  const tabs = ADMIN_TABS.filter((tab) => shown[tab.id] ?? true);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: rolar de novo só quando a aba muda
+  useEffect(() => {
+    activeRef.current?.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+  }, [activeTab]);
+
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      className="flex gap-2 p-2 glassmorphism rounded-[2rem] sticky top-20 z-50 shadow-2xl"
+    <nav
+      aria-label={t('adminPanel.tabsLabel')}
       id="admin-navigation-tabs"
+      className="sticky top-0 z-30 -mx-4 px-4 py-2 bg-app"
     >
-      {tabs.map((tab) => (
-        <button
-          key={tab.id}
-          type="button"
-          onClick={() => onSelectTab(tab.id)}
-          aria-label={tab.label}
-          className={cn(
-            'flex-1 min-h-[44px] flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl text-[10px] font-extrabold uppercase tracking-[0.1em] transition-all relative group overflow-hidden focus-visible:ring-2 focus-visible:ring-teal-400/50',
-            activeTab === tab.id
-              ? `${tab.color} text-black shadow-lg ${tab.shadow} scale-[1.02]`
-              : 'text-white/50 hover:bg-white/5'
-          )}
-        >
-          <tab.icon size={14} strokeWidth={activeTab === tab.id ? 3 : 2} />
-          <span className="hidden sm:inline">{tab.label}</span>
-          <span className="sm:sr-only">{tab.label}</span>
-          {activeTab === tab.id && (
-            <motion.div
-              layoutId="tab-glow"
-              className="absolute inset-0 bg-white/20 blur-xl -z-10"
-            />
-          )}
-        </button>
-      ))}
-    </motion.div>
+      <div className="flex gap-1 p-1 rounded-full bg-ink/[0.06] overflow-x-auto no-scrollbar">
+        {tabs.map((tab) => {
+          const active = activeTab === tab.id;
+          const label = t(tab.labelKey);
+          return (
+            <button
+              key={tab.id}
+              ref={active ? activeRef : undefined}
+              type="button"
+              aria-pressed={active}
+              aria-label={label}
+              onClick={() => onSelectTab(tab.id)}
+              className={cn(
+                'press shrink-0 min-h-11 px-4 rounded-full inline-flex items-center gap-2 whitespace-nowrap text-sm font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none',
+                active ? 'bg-ink text-app' : 'text-ink/70 hover:text-ink'
+              )}
+            >
+              <tab.icon size={16} aria-hidden="true" />
+              {label}
+            </button>
+          );
+        })}
+      </div>
+    </nav>
   );
 }

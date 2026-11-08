@@ -12,6 +12,8 @@ export interface AuthStoreState {
   setProfile: (profile: UserProfile | null) => void;
   setPhotoURL: (photoURL: string | null) => void;
   setLoading: (loading: boolean) => void;
+  /** O Firebase não avisa quando o e-mail é confirmado; quem relê a conta atualiza aqui. */
+  setEmailVerified: (emailVerified: boolean) => void;
   setSession: (session: UserSession | null, profile?: UserProfile | null) => void;
   clearAuth: () => void;
 }
@@ -47,6 +49,8 @@ export const useAuthStore = create<AuthStoreState>((set) => ({
       profile: state.profile ? { ...state.profile, photoURL } : null,
     })),
   setLoading: (loading) => set({ loading }),
+  setEmailVerified: (emailVerified) =>
+    set((state) => ({ user: state.user ? { ...state.user, emailVerified } : null })),
   setSession: (session, profile = null) =>
     set((state) => {
       if (!session) {

@@ -1,3 +1,4 @@
+import { getVerifiedServiceForReviewUseCase } from '../../bookings';
 import { getVerifiedAttendanceForReviewUseCase } from '../../ticketing';
 import { CreateReviewDTO } from '../dtos/CreateReviewDTO';
 import { ReviewNotificationPort } from '../ports/reviewNotificationPort';
@@ -36,6 +37,19 @@ export class ReviewService {
       }
     }
 
+    if (dto.bookingId) {
+      if (dto.itemCollection !== 'items') {
+        throw new Error('Reserva só comprova avaliação de passeio, aluguel ou translado.');
+      }
+      const service = await getVerifiedServiceForReviewUseCase({
+        userId: dto.userId,
+        bookingId: dto.bookingId,
+      });
+      if (service.guideItemId !== dto.itemId) {
+        throw new Error('A reserva informada não pertence a este item.');
+      }
+    }
+
     const result = await this.reviewPort.submitReviewAndRecalculateRating(dto);
 
     if (result.target.partnerId) {
@@ -70,7 +84,18 @@ export class ReviewService {
       throw new Error('Conteúdo da resposta é obrigatório');
     }
 
-    await this.reviewPort.respondToReview(reviewId, response.trim(), responderId, isAdmin);
+    const { authorId, itemName } = await this.reviewPort.respondToReview(
+      reviewId,
+      response.trim(),
+      responderId,
+      isAdmin
+    );
+    if (authorId && authorId !== responderId) {
+      // Só a primeira resposta avisa (dedupe pelo id da avaliação); editar a resposta não repete.
+      await this.reviewNotificationPort
+        .notifyReviewReplied({ authorId, reviewId, businessName: itemName })
+        .catch(() => undefined);
+    }
   }
 
   async deleteReview(reviewId: string, requesterId: string, isAdmin = false): Promise<void> {

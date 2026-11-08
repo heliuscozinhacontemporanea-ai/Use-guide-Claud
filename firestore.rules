@@ -66,6 +66,18 @@ service cloud.firestore {
     match /paymentAccounts/{accountKey} {
       allow read, write: if false;
     }
+    // Repasse de cada venda (D14): financeiro, só backend.
+    match /payoutEntries/{entryId} {
+      allow read, write: if false;
+    }
+    // Dívida do CNPJ com a plataforma (D16): financeiro, só backend.
+    match /accountDebts/{debtId} {
+      allow read, write: if false;
+    }
+    // Reclamação do comprador (D16): confidencial, só backend.
+    match /saleClaims/{claimId} {
+      allow read, write: if false;
+    }
     match /planSubscriptions/{itemId} {
       allow read, write: if false;
     }
@@ -85,6 +97,15 @@ service cloud.firestore {
     match /bookingParticipants/{participantId} {
       allow read, write: if false;
     }
+    match /bookingCheckInFailures/{failureId} {
+      allow read, write: if false;
+    }
+    match /ticketCheckInCodeFailures/{failureId} {
+      allow read, write: if false;
+    }
+    match /ticketTransferLinks/{linkId} {
+      allow read, write: if false;
+    }
     match /bookingAuditLogs/{logId} {
       allow read: if isAdmin();
       allow write: if false;
@@ -102,6 +123,10 @@ service cloud.firestore {
     match /reviews/{reviewId} {
       allow read: if true;
       allow write: if false;
+    }
+    // Denúncias de resposta (D19): só o backend lê e grava; quem denunciou não é exposto.
+    match /reviewReports/{reportId} {
+      allow read, write: if false;
     }
     match /partners/{partnerId} {
       allow read:
@@ -124,6 +149,12 @@ service cloud.firestore {
       allow read: if true;
       allow create, update, delete: if false;
     }
+    match /usernames/{username} {
+      allow read, write: if false;
+    }
+    match /rateLimits/{limitId} {
+      allow read, write: if false;
+    }
     match /favorites/{favoriteId} {
       allow read:
         if isAuthenticated()
@@ -133,13 +164,19 @@ service cloud.firestore {
     match /notifications/{notificationId} {
       allow read:
         if isAuthenticated()
-        && resource.data.recipientPartnerId ==
-           request.auth.uid;
+        && resource.data.recipientUid == request.auth.uid;
       allow create, update, delete: if false;
     }
-    match /partnerNotificationSettings/{partnerId} {
-      allow read: if isOwner(partnerId);
-      allow create, update, delete: if false;
+    // Escolhas de notificação (D25): só o backend lê e grava (GET/PATCH /api/notifications/preferences).
+    match /notificationPreferences/{uid} {
+      allow read, write: if false;
+    }
+    // Aparelhos do push e fila de envio (D25): só o backend.
+    match /pushDevices/{deviceId} {
+      allow read, write: if false;
+    }
+    match /notificationOutbox/{entryId} {
+      allow read, write: if false;
     }
     match /transactions/{transactionId} {
       allow read, write: if false;

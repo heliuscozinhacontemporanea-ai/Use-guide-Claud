@@ -38,6 +38,7 @@ export async function saveEventSessionsUseCase({
       startsAt: session.startsAt,
       endsAt: session.endsAt,
       capacity: session.capacity,
+      ...(session.salesEndsAt ? { salesEndsAt: session.salesEndsAt } : {}),
     });
   }
   for (const session of toUpdate) {
@@ -45,6 +46,7 @@ export async function saveEventSessionsUseCase({
       startsAt: session.startsAt,
       endsAt: session.endsAt,
       capacity: session.capacity,
+      ...(session.salesEndsAt ? { salesEndsAt: session.salesEndsAt } : {}),
     });
   }
   for (const id of toDeleteIds) {

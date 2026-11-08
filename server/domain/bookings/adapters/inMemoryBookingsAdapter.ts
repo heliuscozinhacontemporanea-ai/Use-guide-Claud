@@ -6,12 +6,14 @@ import {
   type BookableOffer,
   type Booking,
   type BookingCancellation,
+  type BookingCheckIn,
   type BookingParticipant,
   type BookingStatus,
   canTransitionBooking,
   type Page,
   type PublicBookableOffer,
 } from '../types/bookingTypes';
+import { newCheckIns } from '../utils/serviceProof';
 
 /** Usado SOMENTE por testes (AGENTS.md §2.2 item 7): mesmas regras de vagas do adapter do Firestore. */
 export class InMemoryBookingsAdapter implements BookingsPort {
@@ -63,6 +65,38 @@ export class InMemoryBookingsAdapter implements BookingsPort {
   async setSlotStatus(slotId: string, status: AvailabilitySlotStatus) {
     const slot = this.slots.get(slotId);
     if (slot) slot.status = status;
+  }
+
+  async rescheduleSlot(params: {
+    slotId: string;
+    startsAt: string;
+    endsAt?: string;
+    actorUid: string;
+    reason: string;
+  }): Promise<Booking[]> {
+    const slot = this.slots.get(params.slotId);
+    if (!slot) throw new BookingDomainError('NOT_FOUND', 'Horário não encontrado.');
+    const at = new Date().toISOString();
+    this.slots.set(slot.id, {
+      ...slot,
+      startsAt: params.startsAt,
+      endsAt: params.endsAt,
+      updatedAt: at,
+    });
+    const moved: Booking[] = [];
+    for (const booking of this.bookings.values()) {
+      if (booking.slotId !== slot.id) continue;
+      if (booking.status !== 'confirmed' && booking.status !== 'pending_payment') continue;
+      const updated: Booking = {
+        ...booking,
+        offerSnapshot: { ...booking.offerSnapshot, startsAt: params.startsAt },
+        rescheduledAt: at,
+        updatedAt: at,
+      };
+      this.bookings.set(booking.id, updated);
+      moved.push(updated);
+    }
+    return moved;
   }
 
   private available(slot: AvailabilitySlot) {
@@ -163,6 +197,68 @@ export class InMemoryBookingsAdapter implements BookingsPort {
   async recordBookingAudit(bookingId: string, _actorUid: string, reason: string) {
     this.audit.push({ bookingId, reason });
   }
+  readonly checkInFailures: Array<{ slotId: string; actorUid: string; at: string }> = [];
+
+  async recordCheckIns(bookingId: string, checkIns: BookingCheckIn[]) {
+    const booking = this.bookings.get(bookingId);
+    if (!booking) throw new BookingDomainError('NOT_FOUND', 'Reserva não encontrada.');
+    const added = newCheckIns(booking, checkIns);
+    if (added.length === 0) return booking;
+    if (booking.status !== 'confirmed' && booking.status !== 'completed') {
+      throw new BookingDomainError('INVALID_TRANSITION', 'Esta reserva não aceita check-in.');
+    }
+    const updated: Booking = { ...booking, checkIns: [...(booking.checkIns ?? []), ...added] };
+    this.bookings.set(bookingId, updated);
+    this.audit.push({ bookingId, reason: 'checked_in' });
+    return updated;
+  }
+  async setParticipant(
+    bookingId: string,
+    unit: number,
+    change: (current: BookingParticipant | null) => BookingParticipant
+  ) {
+    const list = [...(this.participants.get(bookingId) ?? [])];
+    const next = change(list[unit] ?? null);
+    list[unit] = next;
+    this.participants.set(bookingId, list);
+    return next;
+  }
+  async updateBooking(
+    bookingId: string,
+    change: (current: Booking) => Booking | null,
+    audit: { actorUid: string; reason: string }
+  ) {
+    const booking = this.bookings.get(bookingId);
+    if (!booking) throw new BookingDomainError('NOT_FOUND', 'Reserva não encontrada.');
+    const updated = change(booking);
+    if (!updated) return booking;
+    this.bookings.set(bookingId, updated);
+    this.audit.push({ bookingId, reason: audit.reason });
+    return updated;
+  }
+  async listBookingsWithDeadlineBefore(nowIso: string, limit: number) {
+    return [...this.bookings.values()]
+      .filter((b) => b.deadline && b.deadline.at <= nowIso)
+      .sort((a, b) => (a.deadline?.at ?? '').localeCompare(b.deadline?.at ?? ''))
+      .slice(0, limit);
+  }
+  async listBookingsWithPickupAddressEraseBefore(nowIso: string, limit: number) {
+    return [...this.bookings.values()]
+      .filter((b) => b.pickupAddressEraseAt && b.pickupAddressEraseAt <= nowIso)
+      .slice(0, limit);
+  }
+  async deleteParticipants(bookingId: string) {
+    this.participants.delete(bookingId);
+  }
+  async countCheckInFailures(slotId: string, sinceIso: string, actorUid?: string) {
+    return this.checkInFailures.filter(
+      (f) => f.slotId === slotId && f.at >= sinceIso && (!actorUid || f.actorUid === actorUid)
+    ).length;
+  }
+  async addCheckInFailure(slotId: string, actorUid: string, at: string) {
+    this.checkInFailures.push({ slotId, actorUid, at });
+  }
+
   async getBooking(bookingId: string) {
     return this.bookings.get(bookingId) ?? null;
   }
@@ -204,6 +300,16 @@ export class InMemoryBookingsAdapter implements BookingsPort {
   async listConfirmedBookingsStartedBefore(nowIso: string, limit: number) {
     return [...this.bookings.values()]
       .filter((b) => b.status === 'confirmed' && b.offerSnapshot.startsAt <= nowIso)
+      .slice(0, limit);
+  }
+  async listConfirmedBookingsStartingBetween(fromIso: string, toIso: string, limit: number) {
+    return [...this.bookings.values()]
+      .filter(
+        (b) =>
+          b.status === 'confirmed' &&
+          b.offerSnapshot.startsAt >= fromIso &&
+          b.offerSnapshot.startsAt < toIso
+      )
       .slice(0, limit);
   }
 }

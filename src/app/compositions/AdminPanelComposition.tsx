@@ -1,5 +1,6 @@
 import { AdminDispatcher, type AdminListingEditorProps } from '../../domain/admin';
 import { useAuthContext } from '../../domain/auth/context/AuthContext';
+import { isBookingServiceEvidence, ServiceEvidenceList } from '../../domain/bookings';
 import { EventSessionsField } from '../../domain/events';
 import {
   createGuideItemUseCase,
@@ -16,6 +17,8 @@ import {
   type PartnerContentItemInput,
   type PartnerContentRecord,
 } from '../../domain/partners';
+import { AdminFinanceQueues } from '../../domain/payment';
+import { ReviewModerationQueue } from '../../domain/reviews';
 import { PartnerEventTicketingManager } from '../../domain/ticketing';
 
 // Cadastros novos que o admin pode criar pelo editor do parceiro (o servidor permite só estes ao admin).
@@ -83,7 +86,8 @@ function AdminListingEditor({ item, onClose }: AdminListingEditorProps) {
 
 /**
  * Painel admin com os editores compartilhados: cadastro (o mesmo do parceiro, decisão D9), fila de
- * verificação dos estabelecimentos (D12), selo por estabelecimento (D11), sessões do evento e gerenciador de ingressos.
+ * verificação dos estabelecimentos (D12), selo por estabelecimento (D11), filas financeiras (D16), denúncias de respostas (D19), sessões do evento e
+ * gerenciador de ingressos.
  */
 export function AdminPanelComposition() {
   return (
@@ -91,6 +95,16 @@ export function AdminPanelComposition() {
       renderListingEditor={(props) => <AdminListingEditor {...props} />}
       renderVerificationQueue={() => <ListingVerificationQueue />}
       renderListingSeal={(item) => <AdminListingSealControl itemId={item.id} name={item.name} />}
+      renderFinanceQueues={() => (
+        <AdminFinanceQueues
+          renderClaimEvidence={(claim) =>
+            isBookingServiceEvidence(claim.serviceEvidence) ? (
+              <ServiceEvidenceList evidence={claim.serviceEvidence} />
+            ) : null
+          }
+        />
+      )}
+      renderModerationQueue={() => <ReviewModerationQueue />}
       renderSessionsField={(props) => <EventSessionsField {...props} />}
       renderTicketingManager={(eventListingId) => (
         <PartnerEventTicketingManager eventListingId={eventListingId} asAdmin />

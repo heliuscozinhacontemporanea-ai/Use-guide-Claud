@@ -1,11 +1,16 @@
 import type { Response } from 'express';
+import { answerServiceConfirmationApplicationUseCase } from '../../../application/usecases/bookings/answerServiceConfirmationApplicationUseCase';
 import { cancelBookingByBuyerApplicationUseCase } from '../../../application/usecases/bookings/cancelBookingByBuyerApplicationUseCase';
 import { createBookingApplicationUseCase } from '../../../application/usecases/bookings/createBookingApplicationUseCase';
+import { markBookingNoShowApplicationUseCase } from '../../../application/usecases/bookings/markBookingNoShowApplicationUseCase';
+import { reportProviderAbsentApplicationUseCase } from '../../../application/usecases/bookings/reportProviderAbsentApplicationUseCase';
 import {
+  getBookingCheckInCodeUseCase,
   getBookingForActorUseCase,
+  getEntryPassUseCase,
   listAvailableSlotsUseCase,
   listMyBookingsUseCase,
-  markBookingNoShowUseCase,
+  setParticipantNameUseCase,
 } from '../../../domain/bookings';
 import type { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
 import { handleBookingError, sendError } from './bookingHttpErrors';
@@ -16,6 +21,8 @@ import {
   DocumentIdSchema,
   IdempotencyKeyHeaderSchema,
   PageQuerySchema,
+  ParticipantNameSchema,
+  ServiceConfirmationAnswerSchema,
   SlotWindowQuerySchema,
 } from './schemas/bookingSchemas';
 
@@ -92,6 +99,60 @@ export class BookingsController {
     }
   }
 
+  static async getCheckInCode(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    const actor = actorOf(req);
+    if (!actor) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
+    const bookingId = DocumentIdSchema.safeParse(req.params.bookingId);
+    if (!bookingId.success) return sendError(res, 404, 'NOT_FOUND', 'Reserva não encontrada.');
+    try {
+      const view = await getBookingCheckInCodeUseCase(actor, bookingId.data);
+      // O código não pode ficar em cache de proxy nem do navegador.
+      res.setHeader('Cache-Control', 'no-store');
+      return res.status(200).json(view);
+    } catch (error) {
+      return handleBookingError(res, 'getCheckInCode', error);
+    }
+  }
+
+  static async getEntryPass(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    const actor = actorOf(req);
+    if (!actor) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
+    const bookingId = DocumentIdSchema.safeParse(req.params.bookingId);
+    if (!bookingId.success) return sendError(res, 404, 'NOT_FOUND', 'Reserva não encontrada.');
+    try {
+      const view = await getEntryPassUseCase(actor, bookingId.data);
+      // QR e código não podem ficar em cache de proxy nem do navegador.
+      res.setHeader('Cache-Control', 'no-store');
+      return res.status(200).json(view);
+    } catch (error) {
+      return handleBookingError(res, 'getEntryPass', error);
+    }
+  }
+
+  static async setParticipantName(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    const actor = actorOf(req);
+    if (!actor) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
+    const bookingId = DocumentIdSchema.safeParse(req.params.bookingId);
+    const unit = Number(req.params.unit);
+    const body = ParticipantNameSchema.safeParse(req.body);
+    if (!bookingId.success || !Number.isInteger(unit) || unit < 0 || unit > 49 || !body.success) {
+      return sendError(res, 400, 'VALIDATION_ERROR', 'Nome inválido.');
+    }
+    try {
+      const participant = await setParticipantNameUseCase(
+        actor,
+        bookingId.data,
+        unit,
+        body.data.name
+      );
+      return res
+        .status(200)
+        .json({ unit, name: participant.name, changed: Boolean(participant.nameChangedAt) });
+    } catch (error) {
+      return handleBookingError(res, 'setParticipantName', error);
+    }
+  }
+
   static async cancel(req: AuthenticatedRequest, res: Response): Promise<Response> {
     const actor = actorOf(req);
     if (!actor) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
@@ -118,10 +179,46 @@ export class BookingsController {
     const bookingId = DocumentIdSchema.safeParse(req.params.bookingId);
     if (!bookingId.success) return sendError(res, 404, 'NOT_FOUND', 'Reserva não encontrada.');
     try {
-      const booking = await markBookingNoShowUseCase(actor, bookingId.data);
+      const booking = await markBookingNoShowApplicationUseCase(actor, bookingId.data);
       return res.status(200).json(toSellerBooking(booking));
     } catch (error) {
       return handleBookingError(res, 'markNoShow', error);
+    }
+  }
+
+  static async reportProviderAbsent(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    const actor = actorOf(req);
+    if (!actor) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
+    const bookingId = DocumentIdSchema.safeParse(req.params.bookingId);
+    if (!bookingId.success) return sendError(res, 404, 'NOT_FOUND', 'Reserva não encontrada.');
+    try {
+      const booking = await reportProviderAbsentApplicationUseCase(actor, bookingId.data);
+      return res.status(200).json(toBuyerBooking(booking));
+    } catch (error) {
+      return handleBookingError(res, 'reportProviderAbsent', error);
+    }
+  }
+
+  static async answerServiceConfirmation(
+    req: AuthenticatedRequest,
+    res: Response
+  ): Promise<Response> {
+    const actor = actorOf(req);
+    if (!actor) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
+    const bookingId = DocumentIdSchema.safeParse(req.params.bookingId);
+    const body = ServiceConfirmationAnswerSchema.safeParse(req.body);
+    if (!bookingId.success || !body.success) {
+      return sendError(res, 400, 'VALIDATION_ERROR', 'Resposta inválida.');
+    }
+    try {
+      const booking = await answerServiceConfirmationApplicationUseCase(
+        actor,
+        bookingId.data,
+        body.data.answer
+      );
+      return res.status(200).json(toBuyerBooking(booking));
+    } catch (error) {
+      return handleBookingError(res, 'answerServiceConfirmation', error);
     }
   }
 }

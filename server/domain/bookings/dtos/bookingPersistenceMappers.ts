@@ -82,6 +82,10 @@ export const BookingPersistenceMapper = {
 
 export const ParticipantPersistenceMapper = {
   toDomain(data: Data): BookingParticipant {
-    return { name: str(data.name), isLeadContact: data.isLeadContact === true };
+    return {
+      name: str(data.name),
+      isLeadContact: data.isLeadContact === true,
+      ...(typeof data.nameChangedAt === 'string' ? { nameChangedAt: data.nameChangedAt } : {}),
+    };
   },
 };

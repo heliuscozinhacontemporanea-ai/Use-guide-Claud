@@ -7,6 +7,22 @@
   --font-display: "Outfit", sans-serif;
   --color-zinc-850: #1f1f23;
 
+  /*
+   * Cor de ação do app (verde, 2026-11-03): entre #21C063 e #01E93E, a pedido do responsável do produto.
+   * Fica na escala `teal-*` porque os componentes já usam essas classes; o 400 é o tom principal.
+   */
+  --color-teal-50: #ecfdf1;
+  --color-teal-100: #d1fadd;
+  --color-teal-200: #a5f3bd;
+  --color-teal-300: #5ee88c;
+  --color-teal-400: #11d450;
+  --color-teal-500: #0eb845;
+  --color-teal-600: #0b9a3a;
+  --color-teal-700: #087a2e;
+  --color-teal-800: #076127;
+  --color-teal-900: #064f21;
+  --color-teal-950: #022c12;
+
   --radius-arredondados: 2.5rem;
   --radius-arredondados-sm: 1.5rem;
 
@@ -22,6 +38,18 @@
   --animate-pulse-slow: pulse-slow 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 
   /* Transições de app nativo: entrada e saída curtas, curva de desaceleração (iOS/Material). */
+  /* Barra fina que sobe e desce dentro da moldura do leitor (modo portaria, D21). */
+  @keyframes scan-line {
+    0%,
+    100% {
+      top: 4%;
+    }
+    50% {
+      top: 96%;
+    }
+  }
+  --animate-scan-line: scan-line 2.4s ease-in-out infinite;
+
   @keyframes fade-in {
     from {
       opacity: 0;
@@ -72,6 +100,9 @@
   --color-ink: var(--ug-ink);
   --color-surface: var(--ug-surface);
   --color-surface-solid: var(--ug-surface-solid);
+  --color-sheet: var(--ug-sheet);
+  --color-sheet-card: var(--ug-sheet-card);
+  --color-sheet-card-line: var(--ug-sheet-card-line);
   --color-line: var(--ug-line);
   --color-scrim: var(--ug-scrim);
   --color-accent: var(--ug-accent);
@@ -112,9 +143,9 @@
   }
 }
 
-/* Leaflet Overrides for Glassmorphism */
+/* Leaflet: fundo na cor do tema enquanto os blocos do mapa carregam. */
 .leaflet-container {
-  background: #060b1e !important;
+  background: var(--ug-app) !important;
   font-family: inherit;
 }
 
@@ -169,18 +200,22 @@
 :root {
   --glass-bg: rgba(255, 255, 255, 0.05);
   --glass-border: rgba(255, 255, 255, 0.1);
-  --liquid-accent: #0d9488; /* Teal 600 */
-  --liquid-gradient: linear-gradient(135deg, #0d9488 0%, #0891b2 100%);
+  --liquid-accent: #0b9a3a;
+  --liquid-gradient: linear-gradient(135deg, #0b9a3a 0%, #11d450 100%);
 
-  --ug-app: #060b1e;
+  --ug-app: #0d0e10;
   --ug-ink: #ffffff;
-  --ug-surface: rgba(20, 22, 28, 0.94);
-  --ug-surface-solid: #14161c;
-  --ug-line: rgba(255, 255, 255, 0.1);
+  --ug-surface: #1e2024;
+  --ug-surface-solid: #1e2024;
+  /* Folhas (D17): no escuro, folha na cor do cartão e blocos um pouco mais claros. */
+  --ug-sheet: #1e2024;
+  --ug-sheet-card: rgba(255, 255, 255, 0.04);
+  --ug-sheet-card-line: transparent;
+  --ug-line: rgba(255, 255, 255, 0.08);
   --ug-scrim: rgba(0, 0, 0, 0.7);
-  --ug-accent: #5eead4;
-  --ug-accent-soft: rgba(20, 184, 166, 0.12);
-  --ug-accent-line: rgba(20, 184, 166, 0.35);
+  --ug-accent: #3ee47a;
+  --ug-accent-soft: rgba(17, 212, 80, 0.12);
+  --ug-accent-line: rgba(17, 212, 80, 0.35);
   --ug-warn: #fcd34d;
   --ug-warn-soft: rgba(245, 158, 11, 0.1);
   --ug-warn-line: rgba(245, 158, 11, 0.25);
@@ -197,6 +232,27 @@
   --ug-seal-soft: rgba(59, 130, 246, 0.12);
 }
 
+/* Modo portaria (D21): sempre escuro, mesmo no tema claro, para gastar menos bateria em telas OLED. */
+.ug-force-dark {
+  --ug-app: #0d0e10;
+  --ug-ink: #ffffff;
+  --ug-surface: #1e2024;
+  --ug-surface-solid: #1e2024;
+  /* Folhas (D17): no escuro, folha na cor do cartão e blocos um pouco mais claros. */
+  --ug-sheet: #1e2024;
+  --ug-sheet-card: rgba(255, 255, 255, 0.04);
+  --ug-sheet-card-line: transparent;
+  --ug-line: rgba(255, 255, 255, 0.08);
+  --ug-accent: #3ee47a;
+  --ug-accent-soft: rgba(17, 212, 80, 0.12);
+  --ug-accent-line: rgba(17, 212, 80, 0.35);
+  --ug-warn: #fcd34d;
+  --ug-warn-soft: rgba(245, 158, 11, 0.1);
+  --ug-success: #6ee7b7;
+  --ug-danger: #fda4af;
+  color-scheme: dark;
+}
+
 /* Tema claro em tons de linho: fundo, superfícies e tinta quentes, sem branco puro. */
 :root.light {
   --glass-bg: rgba(35, 29, 22, 0.04);
@@ -206,11 +262,15 @@
   --ug-ink: #231d16;
   --ug-surface: rgba(250, 246, 238, 0.97);
   --ug-surface-solid: #faf6ee;
+  /* Folhas no claro seguem as telas: fundo bege e cartões claros com borda. */
+  --ug-sheet: #f3eee4;
+  --ug-sheet-card: #faf6ee;
+  --ug-sheet-card-line: rgba(35, 29, 22, 0.12);
   --ug-line: rgba(35, 29, 22, 0.12);
   --ug-scrim: rgba(35, 29, 22, 0.35);
-  --ug-accent: #0f766e;
-  --ug-accent-soft: rgba(13, 148, 136, 0.12);
-  --ug-accent-line: rgba(13, 148, 136, 0.4);
+  --ug-accent: #087a2e;
+  --ug-accent-soft: rgba(17, 180, 70, 0.14);
+  --ug-accent-line: rgba(8, 122, 46, 0.4);
   --ug-warn: #92400e;
   --ug-warn-soft: rgba(217, 119, 6, 0.12);
   --ug-warn-line: rgba(217, 119, 6, 0.35);
@@ -236,8 +296,6 @@
 :root.light .bg-\[\#020508\] {
   background-color: var(--ug-app) !important;
 }
-
-/* Remove fixed background overlay to let BackgroundBlobs handle it dynamically */
 
 :root.light .text-white {
   color: #231d16 !important;
@@ -313,7 +371,7 @@
 
 @layer base {
   body {
-    @apply bg-[#060b1e] text-white overflow-hidden font-sans;
+    @apply bg-app text-white overflow-hidden font-sans;
     min-height: 100vh;
   }
 
@@ -324,15 +382,14 @@
   }
 }
 
+/* Cartão elevado sólido (D17, AGENTS.md §11.1). O vidro fica reservado para `.glassmorphism-vibrant`. */
 .glassmorphism {
-  @apply backdrop-blur-2xl bg-white/5 border border-white/10;
-  box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.5);
+  background-color: var(--ug-surface);
+  border: 1px solid var(--ug-line);
 }
 
 :root.light .glassmorphism {
-  background-color: rgba(250, 246, 238, 0.55);
-  border-color: rgba(35, 29, 22, 0.08);
-  box-shadow: 0 4px 24px 0 rgba(35, 29, 22, 0.04);
+  box-shadow: 0 1px 3px rgba(35, 29, 22, 0.06);
 }
 
 .glassmorphism-vibrant {

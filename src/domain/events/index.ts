@@ -1,5 +1,6 @@
 export { archiveAdminEventListingUseCase } from './application/usecases/archiveAdminEventListingUseCase';
 export { cancelAdminEventListingUseCase } from './application/usecases/cancelAdminEventListingUseCase';
+export { cancelPartnerEventOccurrenceUseCase } from './application/usecases/cancelPartnerEventOccurrenceUseCase';
 export { createAdminEventListingUseCase } from './application/usecases/createAdminEventListingUseCase';
 export { createAdminEventOccurrenceUseCase } from './application/usecases/createAdminEventOccurrenceUseCase';
 export { createPartnerEventListingUseCase } from './application/usecases/createPartnerEventListingUseCase';
@@ -10,6 +11,7 @@ export { deletePartnerEventListingUseCase } from './application/usecases/deleteP
 export { deletePartnerEventOccurrenceUseCase } from './application/usecases/deletePartnerEventOccurrenceUseCase';
 export { getEventListingByIdUseCase } from './application/usecases/getEventListingByIdUseCase';
 export { listEventOccurrencesUseCase } from './application/usecases/listEventOccurrencesUseCase';
+export { postponePartnerEventOccurrenceUseCase } from './application/usecases/postponePartnerEventOccurrenceUseCase';
 export type { SaveEventSessionsInput } from './application/usecases/saveEventSessionsUseCase';
 export { saveEventSessionsUseCase } from './application/usecases/saveEventSessionsUseCase';
 export { updateAdminEventListingUseCase } from './application/usecases/updateAdminEventListingUseCase';

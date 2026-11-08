@@ -57,9 +57,8 @@ export async function reconcilePlanSubscriptionWebhookApplicationUseCase(
 
   // TODO: notifications ainda não aceita chave i18n (AGENTS.md §12.5); texto em pt-BR por enquanto.
   await createNotificationUseCase({
-    recipientPartnerId: partnerId,
-    type: 'admin_message',
-    title: 'Falha na renovação do plano',
-    message: 'Não conseguimos cobrar seu cartão. Atualize a forma de pagamento para manter o selo.',
+    recipientUid: partnerId,
+    type: 'plan_renewal_failed',
+    link: { screen: 'partner' },
   }).catch(() => undefined);
 }

@@ -15,6 +15,9 @@ import {
   createReauthenticateWithGoogleUseCase,
   createHasPasswordSignInUseCase,
   createChangePasswordUseCase,
+  createSendEmailVerificationUseCase,
+  createRefreshEmailVerifiedUseCase,
+  createApplyEmailVerificationCodeUseCase,
 } from './application/usecases';
 
 const authPort: AuthPort = new FirebaseAuthAdapter();
@@ -33,3 +36,6 @@ export const reauthenticateUseCase = createReauthenticateUseCase(authPort);
 export const reauthenticateWithGoogleUseCase = createReauthenticateWithGoogleUseCase(authPort);
 export const hasPasswordSignInUseCase = createHasPasswordSignInUseCase(authPort);
 export const changePasswordUseCase = createChangePasswordUseCase(authPort);
+export const sendEmailVerificationUseCase = createSendEmailVerificationUseCase(authPort);
+export const refreshEmailVerifiedUseCase = createRefreshEmailVerifiedUseCase(authPort);
+export const applyEmailVerificationCodeUseCase = createApplyEmailVerificationCodeUseCase(authPort);

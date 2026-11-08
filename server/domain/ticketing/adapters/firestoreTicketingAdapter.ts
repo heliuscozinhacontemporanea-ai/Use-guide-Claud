@@ -1,12 +1,14 @@
 import type { TicketingPort } from '../ports/ticketingPort';
-import { FirestoreTicketTypeStore } from './firestoreTicketTypeStore';
-import { FirestoreOrderReservationStore } from './firestoreOrderReservationStore';
+import { FirestoreCheckInStore } from './firestoreCheckInStore';
+import { FirestoreEngagementStore } from './firestoreEngagementStore';
 import { FirestoreOrderPaymentStore } from './firestoreOrderPaymentStore';
 import { FirestoreOrderQueryStore } from './firestoreOrderQueryStore';
-import { FirestoreTicketStore } from './firestoreTicketStore';
-import { FirestoreCheckInStore } from './firestoreCheckInStore';
+import { FirestoreOrderReservationStore } from './firestoreOrderReservationStore';
 import { FirestoreRefundStore } from './firestoreRefundStore';
-import { FirestoreEngagementStore } from './firestoreEngagementStore';
+import { FirestoreTicketPrivacyStore } from './firestoreTicketPrivacyStore';
+import { FirestoreTransferLinkStore } from './firestoreTransferLinkStore';
+import { FirestoreTicketStore } from './firestoreTicketStore';
+import { FirestoreTicketTypeStore } from './firestoreTicketTypeStore';
 
 /** Implementação do `TicketingPort` no Firestore, composta pelos stores de cada parte do ticketing. */
 export class FirestoreTicketingAdapter implements TicketingPort {
@@ -18,6 +20,8 @@ export class FirestoreTicketingAdapter implements TicketingPort {
   private readonly checkIn = new FirestoreCheckInStore();
   private readonly refund = new FirestoreRefundStore();
   private readonly engagement = new FirestoreEngagementStore();
+  private readonly privacy = new FirestoreTicketPrivacyStore();
+  private readonly transferLinks = new FirestoreTransferLinkStore();
 
   readonly createTicketType = this.ticketType.createTicketType.bind(this.ticketType);
   readonly getTicketTypeById = this.ticketType.getTicketTypeById.bind(this.ticketType);
@@ -57,6 +61,19 @@ export class FirestoreTicketingAdapter implements TicketingPort {
   readonly updateTicketStatus = this.ticket.updateTicketStatus.bind(this.ticket);
   readonly checkInTicketAtomic = this.checkIn.checkInTicketAtomic.bind(this.checkIn);
   readonly listCheckInsByOccurrenceId = this.checkIn.listCheckInsByOccurrenceId.bind(this.checkIn);
+  readonly anonymizeUser = this.privacy.anonymizeUser.bind(this.privacy);
+  readonly listTicketsChangedSince = this.ticket.listTicketsChangedSince.bind(this.ticket);
+  readonly listTicketsByEventTime = this.ticket.listTicketsByEventTime.bind(this.ticket);
+  readonly swapTicketQr = this.ticket.swapTicketQr.bind(this.ticket);
+  readonly createTransferLink = this.transferLinks.createTransferLink.bind(this.transferLinks);
+  readonly getTransferLink = this.transferLinks.getTransferLink.bind(this.transferLinks);
+  readonly claimTransferLink = this.transferLinks.claimTransferLink.bind(this.transferLinks);
+  readonly releaseTransferLink = this.transferLinks.releaseTransferLink.bind(this.transferLinks);
+  readonly cancelTransferLinksForTicket = this.transferLinks.cancelTransferLinksForTicket.bind(
+    this.transferLinks
+  );
+  readonly countCheckInCodeFailures = this.checkIn.countCheckInCodeFailures.bind(this.checkIn);
+  readonly addCheckInCodeFailure = this.checkIn.addCheckInCodeFailure.bind(this.checkIn);
   readonly listCheckInsByEventListingId = this.checkIn.listCheckInsByEventListingId.bind(
     this.checkIn
   );

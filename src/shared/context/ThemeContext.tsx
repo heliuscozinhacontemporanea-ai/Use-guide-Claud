@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
 export type Theme = 'light' | 'dark' | 'system';
 
@@ -38,7 +38,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       // Barra de status do celular na cor do fundo, como num app nativo.
       document
         .querySelector('meta[name="theme-color"]')
-        ?.setAttribute('content', isDark ? '#060b1e' : '#f3eee4');
+        ?.setAttribute('content', isDark ? '#0d0e10' : '#f3eee4');
       if (isDark) {
         root.classList.remove('light');
         root.classList.add('dark');
@@ -64,6 +64,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       {children}
     </ThemeContext.Provider>
   );
+}
+
+/** Tema efetivo para componentes que também aparecem fora do provider (testes, prévias); padrão escuro. */
+export function useResolvedTheme(): 'light' | 'dark' {
+  return useContext(ThemeContext)?.resolvedTheme ?? 'dark';
 }
 
 export function useTheme() {

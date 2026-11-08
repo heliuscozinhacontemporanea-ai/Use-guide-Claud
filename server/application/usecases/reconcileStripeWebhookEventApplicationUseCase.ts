@@ -1,5 +1,9 @@
 import { createNotificationUseCase } from '../../domain/notifications';
 import {
+  closePayoutDisputeUseCase,
+  holdPayoutForDisputeUseCase,
+  markAccountDebtPaidUseCase,
+  settleSaleClaimRefundUseCase,
   syncPaymentAccountFromWebhookUseCase,
   updatePaymentTransactionStatusUseCase,
   type VerifiedWebhookEvent,
@@ -12,6 +16,9 @@ import {
 } from '../../domain/ticketing';
 import { activatePaidPlanApplicationUseCase } from './activatePaidPlanApplicationUseCase';
 import { reconcileBookingWebhookApplicationUseCase } from './bookings/reconcileBookingWebhookApplicationUseCase';
+import { applyTicketRefundToPayoutApplicationUseCase } from './payouts/applyTicketRefundToPayoutApplicationUseCase';
+import { disputeOutcomeApplicationUseCase } from './payouts/disputeOutcomeApplicationUseCase';
+import { recordPaidSalePayoutApplicationUseCase } from './payouts/recordPaidSalePayoutApplicationUseCase';
 import {
   PLAN_SUBSCRIPTION_WEBHOOK_EVENTS,
   reconcilePlanSubscriptionWebhookApplicationUseCase,
@@ -21,6 +28,20 @@ export async function reconcileStripeWebhookEventApplicationUseCase(
   event: VerifiedWebhookEvent
 ): Promise<{ processed: boolean; eventType: string }> {
   const obj = event.dataObject || {};
+
+  // Contestação segura o repasse de qualquer venda, antes do tratamento de cada produto (D14).
+  if (event.type === 'charge.dispute.created' && obj.payment_intent) {
+    await holdPayoutForDisputeUseCase(String(obj.payment_intent));
+  }
+  if (event.type === 'charge.dispute.closed') {
+    if (obj.payment_intent) {
+      await closePayoutDisputeUseCase(
+        String(obj.payment_intent),
+        await disputeOutcomeApplicationUseCase(String(obj.payment_intent), String(obj.status || ''))
+      );
+    }
+    return { processed: true, eventType: event.type };
+  }
 
   if (await reconcileBookingWebhookApplicationUseCase(event)) {
     return { processed: true, eventType: event.type };
@@ -37,6 +58,10 @@ export async function reconcileStripeWebhookEventApplicationUseCase(
   if (event.type === 'payment_intent.succeeded') {
     const paymentIntentId = String(obj.id || '');
     const metadata = (obj.metadata as Record<string, string> | undefined) || {};
+    if (metadata.referenceType === 'account_debt' && metadata.referenceId) {
+      await markAccountDebtPaidUseCase(metadata.referenceId, paymentIntentId);
+      return { processed: true, eventType: event.type };
+    }
     await updatePaymentTransactionStatusUseCase(paymentIntentId, 'succeeded');
 
     if (
@@ -49,14 +74,34 @@ export async function reconcileStripeWebhookEventApplicationUseCase(
         paymentId: paymentIntentId,
         paymentIntentId,
       });
+      const { order } = confirmed;
+      await recordPaidSalePayoutApplicationUseCase(obj, {
+        referenceType: 'ticket_order',
+        referenceId: order.id,
+        grossMinor: order.totalMinor,
+        serviceFeeMinor: order.serviceFeeMinor,
+        platformFeeMinor: order.platformFeeMinor,
+        serviceEndsAt: order.eventSnapshot?.endsAt || order.eventSnapshot?.startsAt || '',
+        title: order.eventSnapshot?.title,
+      });
 
+      if (!confirmed.alreadyPaid) {
+        await createNotificationUseCase({
+          recipientUid: order.buyerId,
+          type: 'purchase_ticket_paid',
+          params: { event: order.eventSnapshot?.title || '', count: confirmed.tickets.length },
+          link: { screen: 'tickets' },
+          dedupeKey: `purchase_ticket_paid_${order.id}`,
+        }).catch(() => undefined);
+      }
       const targetPartnerId = metadata.partnerId || metadata.sellerPartnerId;
       if (!confirmed.alreadyPaid && targetPartnerId) {
         await createNotificationUseCase({
-          recipientPartnerId: targetPartnerId,
-          type: 'admin_message',
-          title: 'Nova venda de ingresso confirmada!',
-          message: `Pedido #${confirmed.order.id.slice(0, 8)} confirmado via Stripe (${confirmed.tickets.length} ingresso(s)).`,
+          recipientUid: targetPartnerId,
+          type: 'sale_ticket',
+          params: { count: confirmed.tickets.length },
+          link: { screen: 'partner' },
+          dedupeKey: `sale_ticket_${confirmed.order.id}`,
         }).catch(() => undefined);
       }
     } else if (
@@ -98,13 +143,22 @@ export async function reconcileStripeWebhookEventApplicationUseCase(
   if (event.type === 'refund.updated' || event.type === 'refund.created') {
     const refundMetadata = (obj.metadata as Record<string, string> | undefined) || {};
     const providerStatus = String(obj.status || '');
+    if (refundMetadata.referenceType === 'claim_refund' && refundMetadata.claimId) {
+      await settleSaleClaimRefundUseCase(
+        refundMetadata.claimId,
+        String(obj.id || ''),
+        providerStatus
+      );
+      return { processed: true, eventType: event.type };
+    }
     if (refundMetadata.refundId) {
       if (providerStatus === 'succeeded') {
-        await finalizeTicketRefundStatusUseCase(
+        const refund = await finalizeTicketRefundStatusUseCase(
           refundMetadata.refundId,
           'approved',
           String(obj.id || '')
         );
+        await applyTicketRefundToPayoutApplicationUseCase(refund);
       } else if (providerStatus === 'failed' || providerStatus === 'canceled') {
         await finalizeTicketRefundStatusUseCase(
           refundMetadata.refundId,

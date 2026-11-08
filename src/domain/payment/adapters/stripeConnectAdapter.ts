@@ -5,7 +5,7 @@ export type ConnectTheme = 'light' | 'dark';
 // Cores do tema do app (src/index.css): o componente do Stripe não lê as variáveis CSS da página.
 const APPEARANCE: Record<ConnectTheme, Record<string, string>> = {
   dark: {
-    colorPrimary: '#2dd4bf',
+    colorPrimary: '#11d450',
     colorBackground: '#0b1120',
     colorText: '#f8fafc',
     colorSecondaryText: '#94a3b8',

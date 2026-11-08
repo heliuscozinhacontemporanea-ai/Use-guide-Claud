@@ -4,6 +4,12 @@ export type TicketingErrorCode =
   | 'NOT_FOUND'
   | 'CONFLICT'
   | 'UNPROCESSABLE_ENTITY'
+  | 'TOO_MANY_REQUESTS'
+  | 'TRANSFER_ONLY_TO_BUYER'
+  | 'TRANSFER_LINK_INVALID'
+  | 'TRANSFER_LINK_EXPIRED'
+  | 'TRANSFER_LINK_OWN'
+  | 'EMAIL_NOT_VERIFIED'
   | 'SERVICE_UNAVAILABLE';
 
 export class TicketingDomainError extends Error {

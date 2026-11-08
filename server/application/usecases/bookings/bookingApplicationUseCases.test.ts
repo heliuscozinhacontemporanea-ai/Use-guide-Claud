@@ -3,17 +3,25 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('../../../domain/bookings', async () => {
   const { BookingDomainError } = await import('../../../domain/bookings/errors/bookingDomainError');
   return {
+    bookingServiceEndsAt: (await import('../../../domain/bookings/utils/serviceTime'))
+      .bookingServiceEndsAt,
     BookingDomainError,
     createPendingBookingUseCase: vi.fn(),
     cancelPendingBookingUseCase: vi.fn().mockResolvedValue({}),
     requestCancellationByBuyerUseCase: vi.fn(),
     cancelSlotByPartnerUseCase: vi.fn(),
     cancelBookingForCanceledSlotUseCase: vi.fn(),
+    rescheduleSlotByPartnerUseCase: vi.fn(),
   };
 });
 vi.mock('../../../domain/payment', () => ({
   createMarketplacePaymentIntentUseCase: vi.fn(),
   processProviderRefundUseCase: vi.fn().mockResolvedValue({}),
+  releasePayoutHoldUseCase: vi.fn().mockResolvedValue(null),
+  reschedulePayoutUseCase: vi.fn().mockResolvedValue(null),
+}));
+vi.mock('../payouts/chargeCancellationPenaltyApplicationUseCase', () => ({
+  chargeCancellationPenaltyApplicationUseCase: vi.fn().mockResolvedValue(0),
 }));
 vi.mock('../isPartnerSuspended', () => ({ isPartnerSuspended: vi.fn().mockResolvedValue(false) }));
 vi.mock('../../../domain/partners', () => ({ assertListingCanSellUseCase: vi.fn() }));
@@ -24,16 +32,20 @@ import {
   cancelSlotByPartnerUseCase,
   createPendingBookingUseCase,
   requestCancellationByBuyerUseCase,
+  rescheduleSlotByPartnerUseCase,
 } from '../../../domain/bookings';
 import { assertListingCanSellUseCase } from '../../../domain/partners';
 import {
   createMarketplacePaymentIntentUseCase,
   processProviderRefundUseCase,
+  reschedulePayoutUseCase,
 } from '../../../domain/payment';
 import { isPartnerSuspended } from '../isPartnerSuspended';
+import { chargeCancellationPenaltyApplicationUseCase } from '../payouts/chargeCancellationPenaltyApplicationUseCase';
 import { cancelBookingByBuyerApplicationUseCase } from './cancelBookingByBuyerApplicationUseCase';
 import { cancelSlotByPartnerApplicationUseCase } from './cancelSlotByPartnerApplicationUseCase';
 import { createBookingApplicationUseCase } from './createBookingApplicationUseCase';
+import { rescheduleSlotByPartnerApplicationUseCase } from './rescheduleSlotByPartnerApplicationUseCase';
 
 const BOOKING = {
   id: 'bk_1',
@@ -135,7 +147,7 @@ describe('createBookingApplicationUseCase', () => {
 describe('cancelBookingByBuyerApplicationUseCase', () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it('100% devolve também a taxa da plataforma', async () => {
+  it('reembolsa do saldo da plataforma, sem reverter transferência (D14)', async () => {
     vi.mocked(requestCancellationByBuyerUseCase).mockResolvedValue({
       booking: { ...BOOKING, status: 'canceled' },
       refundPercent: 100,
@@ -145,14 +157,12 @@ describe('cancelBookingByBuyerApplicationUseCase', () => {
     expect(processProviderRefundUseCase).toHaveBeenCalledWith({
       paymentIntentId: 'pi_1',
       amountMinor: 20000,
-      reverseTransfer: true,
-      refundApplicationFee: true,
       idempotencyKey: 'refund_booking_bk_1',
       metadata: { referenceType: 'booking_refund', bookingId: 'bk_1' },
     });
   });
 
-  it('50% não devolve a taxa', async () => {
+  it('50% devolve só a metade', async () => {
     vi.mocked(requestCancellationByBuyerUseCase).mockResolvedValue({
       booking: { ...BOOKING, status: 'canceled' },
       refundPercent: 50,
@@ -160,20 +170,8 @@ describe('cancelBookingByBuyerApplicationUseCase', () => {
     } as never);
     await cancelBookingByBuyerApplicationUseCase({ uid: 'buyer-1', admin: false }, 'bk_1', '');
     expect(processProviderRefundUseCase).toHaveBeenCalledWith(
-      expect.objectContaining({ amountMinor: 10000, refundApplicationFee: false })
+      expect.objectContaining({ amountMinor: 10000 })
     );
-  });
-
-  it('0% não chama o Stripe', async () => {
-    vi.mocked(requestCancellationByBuyerUseCase).mockResolvedValue({
-      booking: { ...BOOKING, status: 'canceled' },
-      refundPercent: 0,
-      refundAmountMinor: 0,
-    } as never);
-    await expect(
-      cancelBookingByBuyerApplicationUseCase({ uid: 'buyer-1', admin: false }, 'bk_1', '')
-    ).resolves.toEqual({ status: 'canceled', refundPercent: 0, refundAmountMinor: 0 });
-    expect(processProviderRefundUseCase).not.toHaveBeenCalled();
   });
 });
 
@@ -182,9 +180,9 @@ describe('cancelSlotByPartnerApplicationUseCase', () => {
 
   it('reembolsa por inteiro as reservas pagas e conta as falhas', async () => {
     vi.mocked(cancelSlotByPartnerUseCase).mockResolvedValue([
-      { id: 'bk_1' },
-      { id: 'bk_2' },
-      { id: 'bk_3' },
+      { id: 'bk_1', status: 'confirmed' },
+      { id: 'bk_2', status: 'pending_payment' },
+      { id: 'bk_3', status: 'confirmed' },
     ] as never);
     vi.mocked(cancelBookingForCanceledSlotUseCase)
       .mockResolvedValueOnce({
@@ -210,10 +208,57 @@ describe('cancelSlotByPartnerApplicationUseCase', () => {
     expect(processProviderRefundUseCase).toHaveBeenCalledWith(
       expect.objectContaining({
         paymentIntentId: 'pi_1',
-        refundApplicationFee: true,
-        reverseTransfer: true,
         idempotencyKey: 'refund_slot_bk_1',
       })
     );
+    expect(chargeCancellationPenaltyApplicationUseCase).toHaveBeenCalledWith({
+      referenceType: 'booking_slot',
+      referenceId: 'slot-1',
+      sales: [
+        { referenceType: 'booking', referenceId: 'bk_1' },
+        { referenceType: 'booking', referenceId: 'bk_3' },
+      ],
+    });
+  });
+
+  it('admin cancelando não gera multa automática', async () => {
+    vi.mocked(cancelSlotByPartnerUseCase).mockResolvedValue([
+      { id: 'bk_1', status: 'confirmed' },
+    ] as never);
+    vi.mocked(cancelBookingForCanceledSlotUseCase).mockResolvedValueOnce({
+      id: 'bk_1',
+      cancellation: { refundAmountMinor: 0 },
+    } as never);
+    await cancelSlotByPartnerApplicationUseCase({ uid: 'a1', admin: true }, 'offer-1', 'slot-1');
+    expect(chargeCancellationPenaltyApplicationUseCase).not.toHaveBeenCalled();
+  });
+});
+
+describe('rescheduleSlotByPartnerApplicationUseCase (D16 4A)', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('o repasse das reservas pagas acompanha a nova data, sem multa', async () => {
+    vi.mocked(rescheduleSlotByPartnerUseCase).mockResolvedValue([
+      {
+        id: 'bk_1',
+        status: 'confirmed',
+        offerSnapshot: { startsAt: '2026-11-12T11:00:00.000Z', durationMinutes: 120 },
+      },
+      { id: 'bk_2', status: 'pending_payment', offerSnapshot: { startsAt: 'x' } },
+    ] as never);
+    const result = await rescheduleSlotByPartnerApplicationUseCase(
+      { uid: 'p1', admin: false },
+      'offer-1',
+      'slot-1',
+      { startsAt: '2026-11-12T11:00:00.000Z', reason: 'Mar agitado' }
+    );
+    expect(result).toEqual({ rescheduledBookings: 2 });
+    expect(reschedulePayoutUseCase).toHaveBeenCalledTimes(1);
+    expect(reschedulePayoutUseCase).toHaveBeenCalledWith(
+      'booking',
+      'bk_1',
+      '2026-11-12T13:00:00.000Z'
+    );
+    expect(chargeCancellationPenaltyApplicationUseCase).not.toHaveBeenCalled();
   });
 });

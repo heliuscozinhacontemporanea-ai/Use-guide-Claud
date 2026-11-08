@@ -39,7 +39,11 @@ describe('PartnerOfferRow', () => {
     const onStatus = renderRow(false);
     const publish = screen.getByRole('button', { name: 'Publicar' });
     expect((publish as HTMLButtonElement).disabled).toBe(true);
-    expect(screen.getByText('Conclua a configuração financeira para publicar.')).toBeTruthy();
+    expect(
+      screen.getByText(
+        'Conclua a configuração financeira do CNPJ deste estabelecimento para publicar.'
+      )
+    ).toBeTruthy();
     fireEvent.click(publish);
     expect(onStatus).not.toHaveBeenCalled();
   });

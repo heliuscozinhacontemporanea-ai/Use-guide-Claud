@@ -1,16 +1,16 @@
 import type { Response } from 'express';
-import type { AuthenticatedRequest } from '../../../infrastructure/auth/authMiddleware';
 import type { AuthenticatedUserContext } from '../../../application/security/authenticatedUserContext';
+import { cancelEventOccurrenceAndRefundApplicationUseCase } from '../../../application/usecases/cancelEventOccurrenceAndRefundApplicationUseCase';
 import { createPartnerEventApplicationUseCase } from '../../../application/usecases/createPartnerEventApplicationUseCase';
 import { createPartnerItemApplicationUseCase } from '../../../application/usecases/createPartnerItemApplicationUseCase';
+import { deleteEventOccurrenceSafelyApplicationUseCase } from '../../../application/usecases/deleteEventOccurrenceSafelyApplicationUseCase';
 import { deletePartnerEventApplicationUseCase } from '../../../application/usecases/deletePartnerEventApplicationUseCase';
 import { deletePartnerItemApplicationUseCase } from '../../../application/usecases/deletePartnerItemApplicationUseCase';
-import { updatePartnerEventApplicationUseCase } from '../../../application/usecases/updatePartnerEventApplicationUseCase';
-import { updatePartnerItemApplicationUseCase } from '../../../application/usecases/updatePartnerItemApplicationUseCase';
-import { cancelEventOccurrenceAndRefundApplicationUseCase } from '../../../application/usecases/cancelEventOccurrenceAndRefundApplicationUseCase';
-import { deleteEventOccurrenceSafelyApplicationUseCase } from '../../../application/usecases/deleteEventOccurrenceSafelyApplicationUseCase';
 import { postponeEventOccurrenceAndNotifyApplicationUseCase } from '../../../application/usecases/postponeEventOccurrenceAndNotifyApplicationUseCase';
 import { updateEventOccurrenceSafelyApplicationUseCase } from '../../../application/usecases/updateEventOccurrenceSafelyApplicationUseCase';
+import { updatePartnerEventApplicationUseCase } from '../../../application/usecases/updatePartnerEventApplicationUseCase';
+import { updatePartnerItemApplicationUseCase } from '../../../application/usecases/updatePartnerItemApplicationUseCase';
+import type { AuthenticatedRequest } from '../../../infrastructure/auth/authMiddleware';
 import { createEventOccurrenceUseCase } from '../../events';
 import {
   getEventSalesAnalyticsUseCase,
@@ -255,14 +255,12 @@ export class PartnerContentController {
       const startsAt = String(req.body?.startsAt ?? '');
       const endsAt = String(req.body?.endsAt ?? '');
       const reason = String(req.body?.reason ?? 'Evento adiado pelo parceiro.');
-      const moveExistingOrders = req.body?.moveExistingOrders === true;
       const result = await postponeEventOccurrenceAndNotifyApplicationUseCase(user, occurrenceId, {
         startsAt,
         endsAt,
         salesStartsAt: req.body?.salesStartsAt,
         salesEndsAt: req.body?.salesEndsAt,
         reason,
-        moveExistingOrders,
       });
       return res.status(200).json({ status: 'success', data: result });
     } catch (error: unknown) {

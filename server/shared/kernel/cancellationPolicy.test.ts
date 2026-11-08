@@ -30,11 +30,13 @@ function refund(
 describe('políticas de cancelamento (D14)', () => {
   it('arrependimento: 7 dias da compra e 48 h antes do início devolve tudo, com a taxa de serviço', () => {
     const purchased = hoursBefore(100).toISOString();
+    // Vale até 48 h antes do início, que chega antes dos 7 dias da compra.
     expect(refund('event', 'none', 72, purchased)).toEqual({
       reason: 'withdrawal',
       percent: 100,
       refundMinor: 10000,
       serviceFeeRefundMinor: 300,
+      until: hoursBefore(48).toISOString(),
     });
     // Menos de 48 h antes do início: vale a política, e a taxa de serviço não volta.
     expect(refund('event', 'none', 40, purchased)).toMatchObject({
@@ -46,6 +48,45 @@ describe('políticas de cancelamento (D14)', () => {
       refundMinor: 10000,
       serviceFeeRefundMinor: 0,
     });
+  });
+
+  it('reagendamento: até 7 dias depois do aviso e antes da nova data devolve tudo (D16 4A)', () => {
+    const base = {
+      family: 'event' as const,
+      policy: 'none' as const,
+      purchasedAt: OLD_PURCHASE,
+      startsAt: STARTS,
+      paidMinor: 10000,
+      serviceFeeMinor: 300,
+    };
+    const now = hoursBefore(24);
+    const daysAgo = (days: number) => new Date(now.getTime() - days * 86_400_000).toISOString();
+    // Aviso de 7 dias atrás: o prazo termina agora.
+    expect(calculateBuyerRefund({ ...base, now, rescheduledAt: daysAgo(7) })).toEqual({
+      reason: 'reschedule',
+      percent: 100,
+      refundMinor: 10000,
+      serviceFeeRefundMinor: 300,
+      until: now.toISOString(),
+    });
+    expect(calculateBuyerRefund({ ...base, now, rescheduledAt: daysAgo(7.1) })).toMatchObject({
+      reason: 'none',
+    });
+    expect(
+      calculateBuyerRefund({ ...base, now: hoursBefore(-1), rescheduledAt: daysAgo(1) })
+    ).toMatchObject({ reason: 'none', refundMinor: 0 });
+  });
+
+  it('informa até quando vale o reembolso de agora', () => {
+    const purchased = hoursBefore(30 * 24).toISOString();
+    // Arrependimento termina 7 dias depois da compra, antes das 48 h do início.
+    expect(refund('booking', 'none', 29 * 24, purchased).until).toBe(
+      hoursBefore(23 * 24).toISOString()
+    );
+    // Moderada das reservas: 100% até 5 dias antes, depois 50% até 24 h antes.
+    expect(refund('booking', 'moderate', 6 * 24).until).toBe(hoursBefore(5 * 24).toISOString());
+    expect(refund('booking', 'moderate', 3 * 24).until).toBe(hoursBefore(24).toISOString());
+    expect(refund('booking', 'moderate', 12).until).toBeNull();
   });
 
   it('eventos: flexível 24 h, moderada 7 dias, rígida 30 dias', () => {

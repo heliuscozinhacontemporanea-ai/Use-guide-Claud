@@ -8,6 +8,7 @@ export const submitReviewSchema = z
     itemCollection: reviewItemCollectionSchema,
     occurrenceId: z.string().trim().min(1).max(200).optional(),
     ticketId: z.string().trim().min(1).max(200).optional(),
+    bookingId: z.string().trim().min(1).max(200).optional(),
     rating: z
       .number()
       .int('Nota deve ser um número inteiro')

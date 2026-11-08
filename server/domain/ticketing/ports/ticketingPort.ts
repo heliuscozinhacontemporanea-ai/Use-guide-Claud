@@ -1,5 +1,6 @@
 import type { TermsAcceptance } from '../../../shared/kernel/legalTerms';
 import type {
+  TicketTransferLink,
   EventCheckIn,
   EventPromoCode,
   EventWaitlistEntry,
@@ -138,6 +139,36 @@ export interface TicketingPort {
   listTicketsByOrderId(orderId: string): Promise<Ticket[]>;
   listTicketsByOwnerUserId(ownerUserId: string): Promise<Ticket[]>;
   listTicketsByOccurrenceId(occurrenceId: string): Promise<Ticket[]>;
+  /** Ingressos da sessão alterados depois de `sinceIso` (lista sem internet, D21). */
+  listTicketsChangedSince(occurrenceId: string, sinceIso: string, limit: number): Promise<Ticket[]>;
+  /**
+   * Ingressos num estado cujo evento começa (`startsAt`) ou termina (`endsAt`) em [fromIso, toIso):
+   * lembretes e convite para avaliar (D25).
+   */
+  listTicketsByEventTime(query: {
+    status: TicketStatus;
+    field: 'startsAt' | 'endsAt';
+    fromIso: string;
+    toIso: string;
+    limit: number;
+  }): Promise<Ticket[]>;
+  /**
+   * Troca única do QR pelo titular (D21): nova versão em transação. Lança FORBIDDEN para quem não é
+   * o titular e UNPROCESSABLE_ENTITY se o ingresso não está emitido ou já teve o QR trocado.
+   */
+  swapTicketQr(ticketId: string, ownerUid: string, nowIso: string): Promise<Ticket>;
+  /** Grava o link e cancela outro pendente do mesmo ingresso, em transação (D21). */
+  createTransferLink(link: Omit<TicketTransferLink, 'id'>): Promise<TicketTransferLink>;
+  getTransferLink(linkId: string): Promise<TicketTransferLink | null>;
+  /** Marca como aceito se ainda pendente e dentro da validade; senão lança TRANSFER_LINK_*. */
+  claimTransferLink(
+    linkId: string,
+    acceptorUid: string,
+    nowIso: string
+  ): Promise<TicketTransferLink>;
+  /** A transferência falhou depois do aceite: o link volta a valer até expirar. */
+  releaseTransferLink(linkId: string): Promise<void>;
+  cancelTransferLinksForTicket(ticketId: string, ownerUid: string): Promise<void>;
   listTicketsByEventListingId(eventListingId: string): Promise<Ticket[]>;
   updateTicketStatus(
     ticketId: string,
@@ -155,6 +186,20 @@ export interface TicketingPort {
     clientEventId?: string;
   }): Promise<{ ticket: Ticket; checkIn: EventCheckIn }>;
   listCheckInsByOccurrenceId(occurrenceId: string): Promise<EventCheckIn[]>;
+  /** Exclusão de conta (§7.5): tira nome e e-mail de pedidos, ingressos e transferências e apaga a lista de espera. */
+  anonymizeUser(uid: string): Promise<{
+    orders: number;
+    tickets: number;
+    transfers: number;
+    waitlist: number;
+  }>;
+  /** Códigos errados na sessão desde `sinceIso`; com `actorUid`, só os dessa pessoa da equipe. */
+  countCheckInCodeFailures(
+    occurrenceId: string,
+    sinceIso: string,
+    actorUid?: string
+  ): Promise<number>;
+  addCheckInCodeFailure(occurrenceId: string, actorUid: string, atIso: string): Promise<void>;
   listCheckInsByEventListingId(eventListingId: string): Promise<EventCheckIn[]>;
 
   createOfflineCheckInSession(
@@ -171,6 +216,7 @@ export interface TicketingPort {
     orderId: string;
     ticketId?: string;
     amountMinor: number;
+    serviceFeeMinor: number;
     requestedBy: Refund['requestedBy'];
     reason: string;
     idempotencyKey: string;
@@ -191,6 +237,7 @@ export interface TicketingPort {
     recipientEmail: string;
     recipientName?: string;
     newQrTokenHash: string;
+    receivedFrom?: Ticket['receivedFrom'];
   }): Promise<{
     oldTicket: Ticket;
     newTicket: Ticket;

@@ -5,13 +5,14 @@ import {
 } from '../errors/eventDomainError';
 import type { EventsPort } from '../ports/eventsPort';
 import {
-  canTransitionOccurrenceStatus,
   type CreateEventOccurrenceInput,
+  canTransitionOccurrenceStatus,
   type EventOccurrence,
   type UpdateEventOccurrenceInput,
 } from '../types/eventTypes';
 import {
   assertCanManageListing,
+  defaultSalesEndsAt,
   type EventActorContext,
   validateOccurrenceTiming,
 } from './eventAccess';
@@ -29,9 +30,13 @@ export class EventOccurrencesService {
       throw new EventNotFoundError();
     }
     assertCanManageListing(actor, listing);
-    validateOccurrenceTiming(input);
+    const withSalesEnd = {
+      ...input,
+      salesEndsAt: input.salesEndsAt ?? defaultSalesEndsAt(input.startsAt),
+    };
+    validateOccurrenceTiming(withSalesEnd);
 
-    const occurrence = await this.eventsPort.createOccurrence(input);
+    const occurrence = await this.eventsPort.createOccurrence(withSalesEnd);
 
     if (!listing.date) {
       await this.eventsPort.updateListing(listing.id, {
@@ -122,6 +127,12 @@ export class EventOccurrencesService {
     const nextEndsAt = input.endsAt || occurrence.endsAt;
     const nextCapacity = input.capacity ?? occurrence.capacity;
     const nextSalesStart = input.salesStartsAt ?? occurrence.salesStartsAt;
+    // Fim das vendas no padrão acompanha o novo horário; escolhido pelo parceiro, fica como está.
+    const followsDefault =
+      !occurrence.salesEndsAt || occurrence.salesEndsAt === defaultSalesEndsAt(occurrence.startsAt);
+    if (input.startsAt && !input.salesEndsAt && followsDefault) {
+      input = { ...input, salesEndsAt: defaultSalesEndsAt(input.startsAt) };
+    }
     const nextSalesEnd = input.salesEndsAt ?? occurrence.salesEndsAt;
 
     validateOccurrenceTiming({

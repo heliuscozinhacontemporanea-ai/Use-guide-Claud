@@ -11,6 +11,18 @@ export const AVAILABLE_OFFER_KINDS: readonly BookableOfferKind[] = ['tour', 'pri
 
 export type BookableOfferStatus = 'draft' | 'published' | 'paused' | 'archived';
 
+/** Tipos com check-in por código de 6 caracteres (D20); a entrada de atração privada usa QR Code. */
+export const CHECK_IN_CODE_KINDS: readonly BookableOfferKind[] = ['tour', 'rental', 'transfer'];
+
+/** Onde o serviço começa: no ponto de encontro da oferta ou no endereço que o comprador informa (D20). */
+export type PickupMode = 'meeting_point' | 'buyer_address';
+
+/**
+ * Unidade de venda (D20): por pessoa, cada pessoa tem o próprio código ou QR; por grupo, um código vale
+ * para o grupo inteiro, até `groupMaxPeople`. Entrada de atração é sempre por pessoa.
+ */
+export type SellingUnit = 'person' | 'group';
+
 export interface PriceOption {
   id: string;
   label: LocalizedText;
@@ -43,6 +55,12 @@ export interface BookableOffer {
   pricing: { currency: 'BRL'; priceOptions: PriceOption[] };
   durationMinutes?: number;
   meetingPoint?: MeetingPoint;
+  pickupMode?: PickupMode;
+  sellingUnit?: SellingUnit;
+  /** Só na venda por grupo: quantas pessoas cabem em cada unidade (ex.: buggy até 4). */
+  groupMaxPeople?: number;
+  /** Nome do estabelecimento, copiado do item do guia: é como o cliente reconhece quem presta (D20). */
+  businessName?: string;
   cancellationPolicy: BookingCancellationPolicy;
   maxParticipantsPerBooking: number;
   requiresParticipantNames: boolean;
@@ -99,6 +117,65 @@ export interface BookingCancellation {
   at: string;
 }
 
+/** Check-in de uma unidade da reserva (D20): prova de que o serviço começou para ela. */
+export interface BookingCheckIn {
+  /** Unidade usada: a pessoa (venda por pessoa) ou o grupo, de 0 até `participantsCount - 1`. */
+  unit: number;
+  /** Hora em que o prestador fez o check-in (a do aparelho, quando foi feito sem internet). */
+  at: string;
+  byUid: string;
+  /**
+   * `qr`: QR da entrada de atração. `no_code`: "Cliente sem código", por conta e risco do prestador
+   * até o comprador confirmar.
+   */
+  method: 'code' | 'qr' | 'no_code';
+  /** Só no check-in feito sem internet: quando o servidor recebeu e validou o código. */
+  syncedAt?: string;
+  noCodeReason?: NoCodeReason;
+}
+
+export const NO_CODE_REASONS = ['no_phone', 'refused', 'other'] as const;
+export type NoCodeReason = (typeof NO_CODE_REASONS)[number];
+
+/** "Cheguei": hora e localização do prestador no ponto de encontro ou no endereço (D20). */
+export interface BookingArrival {
+  at: string;
+  byUid: string;
+  /** Prova para o admin; nunca vai para log (AGENTS.md §10.3). */
+  location?: { lat: number; lng: number; accuracyM?: number };
+}
+
+/** "O prestador não veio": o comprador relata e o prestador tem 2 h para responder (D20). */
+export interface BookingProviderAbsence {
+  reportedAt: string;
+  respondBy: string;
+  /** Reclamação aberta junto, que retém o repasse e leva o caso ao admin. */
+  claimId: string;
+  answer?: 'was_there' | 'admitted';
+  answeredAt?: string;
+  /** refunded: sem resposta ou admitida; withdrawn: o prestador fez o check-in; admin: disse que foi. */
+  resolution?: 'refunded' | 'withdrawn' | 'admin';
+  resolvedAt?: string;
+}
+
+/** "O serviço aconteceu?": pergunta ao comprador quando falta a prova do código (D20). */
+export interface BookingServiceConfirmation {
+  askedAt: string;
+  answerBy: string;
+  reason: 'no_code' | 'no_record';
+  answer?: 'yes' | 'no';
+  answeredAt?: string;
+  claimId?: string;
+  /** confirmed: respondeu sim; admin: respondeu não; refunded: não respondeu em 72 h. */
+  resolution?: 'confirmed' | 'admin' | 'refunded';
+}
+
+/** Próximo prazo da reserva, num campo só para o job buscar por data (D20). */
+export interface BookingDeadline {
+  kind: 'provider_absence_response' | 'service_confirmation';
+  at: string;
+}
+
 export interface Booking {
   id: string;
   offerId: string;
@@ -121,20 +198,43 @@ export interface Booking {
     durationMinutes?: number;
     meetingPoint?: string;
     cancellationPolicy: BookingCancellationPolicy;
+    businessName?: string;
+    sellingUnit?: SellingUnit;
+    groupMaxPeople?: number;
+    /** Entrada nominal: o cliente informa o nome de cada pessoa (D20). */
+    requiresParticipantNames?: boolean;
   };
+  /** Aviso de nova data pelo parceiro: até 7 dias depois, o comprador cancela com reembolso integral (D16, 4A). */
+  rescheduledAt?: string;
   /** Gravado ao cancelar: torna o cancelamento repetível sem recalcular o reembolso. */
   cancellation?: BookingCancellation;
   /** Versão dos termos aceita na compra (D15). */
   termsAcceptance?: TermsAcceptance;
+  /** Onde o comprador está (hospedagem ou endereço), quando a oferta busca no endereço. PII (§7.6). */
+  pickupAddress?: string;
+  /** Quando o endereço de busca é apagado: 7 dias depois do fim do serviço (D20, §7.5). */
+  pickupAddressEraseAt?: string;
+  /** Uma entrada por unidade usada; repetir o check-in da mesma unidade não cria outra. */
+  checkIns?: BookingCheckIn[];
+  arrival?: BookingArrival;
+  providerAbsence?: BookingProviderAbsence;
+  serviceConfirmation?: BookingServiceConfirmation;
+  deadline?: BookingDeadline;
   locale: Locale;
   idempotencyKey: string;
   createdAt: string;
   updatedAt: string;
 }
 
+/**
+ * Pessoa de uma unidade, só quando a oferta pede nomes (entrada nominal, D20). O nome pode ser dado na
+ * compra ou depois, e trocado uma vez até 24 h antes.
+ */
 export interface BookingParticipant {
   name: string;
   isLeadContact: boolean;
+  /** Quando o nome já informado foi trocado: depois disso não muda mais. */
+  nameChangedAt?: string;
 }
 
 /** Quem age na operação. Neutro de propósito: o domínio não conhece a camada application. */

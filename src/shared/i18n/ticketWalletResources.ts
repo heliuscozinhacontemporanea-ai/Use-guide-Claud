@@ -9,67 +9,64 @@ type TicketStatusKey =
   | 'canceled'
   | 'invalidated'
   | 'expired';
-type OrderStatusKey =
-  | 'pending_payment'
-  | 'payment_processing'
-  | 'paid'
-  | 'payment_failed'
-  | 'expired'
-  | 'refund_pending'
-  | 'partially_refunded'
-  | 'refunded'
-  | 'canceled'
-  | 'disputed';
-
 export interface TicketWalletTranslation {
+  title: string;
+  tabsLabel: string;
   back: string;
   refresh: string;
   loading: string;
-  tabs: { tickets: string; orders: string };
-  emptyTickets: string;
-  emptyTicketsHint: string;
-  emptyOrders: string;
-  emptyOrdersHint: string;
+  tabs: { upcoming: string; past: string };
+  emptyUpcoming: string;
+  emptyPast: string;
   session: string;
-  qrSigned: string;
+  code: { label: string; hint: string; warning: string; notYet: string };
   order: string;
-  reservedUntil: string;
-  refundConfirm: string;
-  actions: { showQr: string; reissueQr: string; transfer: string; resume: string; refund: string };
+  ticketCount_one: string;
+  ticketCount_other: string;
+  actions: { showQr: string; transfer: string; return: string };
+  swap: { action: string; title: string; message: string; confirm: string };
   ticketStatus: Record<TicketStatusKey, string>;
-  orderStatus: Record<OrderStatusKey, string>;
-  transfer: { title: string; name: string; email: string; confirm: string };
   resume: { title: string; close: string };
   feedback: {
-    qrReissued: string;
-    transferred: string;
+    qrSwapped: string;
     refundRequested: string;
     alreadyPaid: string;
     paid: string;
   };
-  errors: { qr: string; qrReissue: string; transfer: string; refund: string; resume: string };
+  errors: { qr: string; qrSwap: string; refund: string; resume: string };
 }
 
 export const ticketWalletPtBR: TicketWalletTranslation = {
+  title: 'Ingressos',
+  tabsLabel: 'Ingressos por data',
   back: 'Voltar',
-  refresh: 'Atualizar ingressos e pedidos',
+  refresh: 'Atualizar ingressos',
   loading: 'Carregando seus ingressos…',
-  tabs: { tickets: 'Meus ingressos ({{count}})', orders: 'Pedidos ({{count}})' },
-  emptyTickets: 'Nenhum ingresso encontrado',
-  emptyTicketsHint: 'Os ingressos e inscrições da agenda aparecem aqui.',
-  emptyOrders: 'Nenhum pedido registrado',
-  emptyOrdersHint: 'Você ainda não fez pedidos de ingressos.',
+  tabs: { upcoming: 'Próximos ({{count}})', past: 'Anteriores ({{count}})' },
+  emptyUpcoming: 'Nenhum ingresso para os próximos eventos.',
+  emptyPast: 'Nenhum ingresso de eventos passados.',
   session: 'Sessão: {{date}}',
-  qrSigned: 'QR assinado • v{{version}}',
-  order: 'Pedido #{{id}} • {{amount}}',
-  reservedUntil: 'Reserva válida até {{time}}',
-  refundConfirm: 'Cancelar o pedido e receber {{amount}} de reembolso?',
+  code: {
+    label: 'Código {{code}}',
+    hint: 'Mostre o QR Code na entrada. Se a leitura falhar, informe o código.',
+    warning:
+      'Nunca informe o código por telefone ou mensagem. Ninguém do Use Guide pede este código.',
+    notYet: 'O código aparece no dia do evento, a partir de {{date}}.',
+  },
+  order: 'Pedido #{{id}}',
+  ticketCount_one: '{{count}} ingresso',
+  ticketCount_other: '{{count}} ingressos',
   actions: {
     showQr: 'Ver QR',
-    reissueQr: 'Novo QR',
     transfer: 'Transferir',
-    resume: 'Continuar pagamento',
-    refund: 'Cancelar e pedir reembolso',
+    return: 'Devolver',
+  },
+  swap: {
+    action: 'Problema com o QR Code?',
+    title: 'Trocar o QR Code?',
+    message:
+      'Use se alguém viu ou copiou seu QR Code. O QR e o código atuais param de funcionar, e você só pode fazer isso uma vez. Se a portaria estiver sem internet, o QR antigo ainda pode passar até ela atualizar: chegue cedo e, se precisar, mostre seu documento.',
+    confirm: 'Trocar QR Code',
   },
   ticketStatus: {
     reserved: 'Reservado',
@@ -82,61 +79,51 @@ export const ticketWalletPtBR: TicketWalletTranslation = {
     invalidated: 'Inválido',
     expired: 'Expirado',
   },
-  orderStatus: {
-    pending_payment: 'Pagamento pendente',
-    payment_processing: 'Pagamento em processamento',
-    paid: 'Pago',
-    payment_failed: 'Pagamento recusado',
-    expired: 'Expirado',
-    refund_pending: 'Reembolso em processamento',
-    partially_refunded: 'Reembolsado em parte',
-    refunded: 'Reembolsado',
-    canceled: 'Cancelado',
-    disputed: 'Em disputa',
-  },
-  transfer: {
-    title: 'Transferir ingresso #{{id}}',
-    name: 'Nome do novo titular',
-    email: 'E-mail do novo titular',
-    confirm: 'Confirmar transferência',
-  },
   resume: { title: 'Concluir pagamento do pedido #{{id}}', close: 'Fechar' },
   feedback: {
-    qrReissued: 'Novo QR Code emitido. O anterior deixou de valer.',
-    transferred: 'Ingresso transferido. O novo titular recebeu um QR Code novo.',
+    qrSwapped: 'QR Code trocado. O anterior e o código antigo não valem mais.',
     refundRequested: 'Reembolso solicitado. Você recebe pelo mesmo meio de pagamento.',
     alreadyPaid: 'Seu pagamento já estava confirmado. Ingressos atualizados.',
     paid: 'Pagamento confirmado e ingressos emitidos!',
   },
   errors: {
     qr: 'Não foi possível gerar o QR Code.',
-    qrReissue: 'Não foi possível emitir um novo QR Code.',
-    transfer: 'Não foi possível transferir o ingresso.',
+    qrSwap: 'Não foi possível trocar o QR Code.',
     refund: 'Não foi possível pedir o reembolso.',
     resume: 'Não foi possível retomar o pagamento deste pedido.',
   },
 };
 
 export const ticketWalletEn: TicketWalletTranslation = {
+  title: 'Tickets',
+  tabsLabel: 'Tickets by date',
   back: 'Back',
-  refresh: 'Refresh tickets and orders',
+  refresh: 'Refresh tickets',
   loading: 'Loading your tickets…',
-  tabs: { tickets: 'My tickets ({{count}})', orders: 'Orders ({{count}})' },
-  emptyTickets: 'No tickets found',
-  emptyTicketsHint: 'Tickets and registrations from the agenda show up here.',
-  emptyOrders: 'No orders yet',
-  emptyOrdersHint: 'You have not ordered tickets yet.',
+  tabs: { upcoming: 'Upcoming ({{count}})', past: 'Past ({{count}})' },
+  emptyUpcoming: 'No tickets for upcoming events.',
+  emptyPast: 'No tickets for past events.',
   session: 'Session: {{date}}',
-  qrSigned: 'Signed QR • v{{version}}',
-  order: 'Order #{{id}} • {{amount}}',
-  reservedUntil: 'Reservation valid until {{time}}',
-  refundConfirm: 'Cancel the order and get a {{amount}} refund?',
+  code: {
+    label: 'Code {{code}}',
+    hint: 'Show the QR code at the entrance. If it cannot be read, tell them the code.',
+    warning: 'Never share the code by phone or message. No one at Use Guide asks for this code.',
+    notYet: 'The code appears on the day of the event, from {{date}}.',
+  },
+  order: 'Order #{{id}}',
+  ticketCount_one: '{{count}} ticket',
+  ticketCount_other: '{{count}} tickets',
   actions: {
     showQr: 'Show QR',
-    reissueQr: 'New QR',
     transfer: 'Transfer',
-    resume: 'Continue payment',
-    refund: 'Cancel and request refund',
+    return: 'Give back',
+  },
+  swap: {
+    action: 'Problem with the QR code?',
+    title: 'Replace the QR code?',
+    message:
+      'Use this if someone saw or copied your QR code. The current QR and code stop working, and you can only do this once. If the entrance is offline, the old QR may still pass until it updates: arrive early and show your ID if needed.',
+    confirm: 'Replace QR code',
   },
   ticketStatus: {
     reserved: 'Reserved',
@@ -149,61 +136,52 @@ export const ticketWalletEn: TicketWalletTranslation = {
     invalidated: 'Invalid',
     expired: 'Expired',
   },
-  orderStatus: {
-    pending_payment: 'Payment pending',
-    payment_processing: 'Payment processing',
-    paid: 'Paid',
-    payment_failed: 'Payment declined',
-    expired: 'Expired',
-    refund_pending: 'Refund in progress',
-    partially_refunded: 'Partially refunded',
-    refunded: 'Refunded',
-    canceled: 'Canceled',
-    disputed: 'Disputed',
-  },
-  transfer: {
-    title: 'Transfer ticket #{{id}}',
-    name: 'New holder name',
-    email: 'New holder email',
-    confirm: 'Confirm transfer',
-  },
   resume: { title: 'Complete payment for order #{{id}}', close: 'Close' },
   feedback: {
-    qrReissued: 'New QR code issued. The previous one is no longer valid.',
-    transferred: 'Ticket transferred. The new holder received a new QR code.',
+    qrSwapped: 'QR code replaced. The previous one and the old code no longer work.',
     refundRequested: 'Refund requested. You will receive it through the same payment method.',
     alreadyPaid: 'Your payment was already confirmed. Tickets updated.',
     paid: 'Payment confirmed and tickets issued!',
   },
   errors: {
     qr: 'Could not generate the QR code.',
-    qrReissue: 'Could not issue a new QR code.',
-    transfer: 'Could not transfer the ticket.',
+    qrSwap: 'Could not replace the QR code.',
     refund: 'Could not request the refund.',
     resume: 'Could not resume payment for this order.',
   },
 };
 
 export const ticketWalletFr: TicketWalletTranslation = {
+  title: 'Billets',
+  tabsLabel: 'Billets par date',
   back: 'Retour',
-  refresh: 'Actualiser les billets et commandes',
+  refresh: 'Actualiser les billets',
   loading: 'Chargement de vos billets…',
-  tabs: { tickets: 'Mes billets ({{count}})', orders: 'Commandes ({{count}})' },
-  emptyTickets: 'Aucun billet trouvé',
-  emptyTicketsHint: 'Les billets et inscriptions de l’agenda apparaissent ici.',
-  emptyOrders: 'Aucune commande',
-  emptyOrdersHint: 'Vous n’avez pas encore commandé de billets.',
+  tabs: { upcoming: 'À venir ({{count}})', past: 'Passés ({{count}})' },
+  emptyUpcoming: 'Aucun billet pour les prochains événements.',
+  emptyPast: 'Aucun billet pour les événements passés.',
   session: 'Séance : {{date}}',
-  qrSigned: 'QR signé • v{{version}}',
-  order: 'Commande n° {{id}} • {{amount}}',
-  reservedUntil: 'Réservation valable jusqu’à {{time}}',
-  refundConfirm: 'Annuler la commande et recevoir un remboursement de {{amount}} ?',
+  code: {
+    label: 'Code {{code}}',
+    hint: 'Montrez le QR code à l’entrée. Si la lecture échoue, donnez le code.',
+    warning:
+      'Ne communiquez jamais le code par téléphone ou par message. Personne chez Use Guide ne vous le demande.',
+    notYet: 'Le code apparaît le jour de l’événement, à partir de {{date}}.',
+  },
+  order: 'Commande n° {{id}}',
+  ticketCount_one: '{{count}} billet',
+  ticketCount_other: '{{count}} billets',
   actions: {
     showQr: 'Voir le QR',
-    reissueQr: 'Nouveau QR',
     transfer: 'Transférer',
-    resume: 'Continuer le paiement',
-    refund: 'Annuler et demander le remboursement',
+    return: 'Rendre',
+  },
+  swap: {
+    action: 'Un problème avec le QR code ?',
+    title: 'Remplacer le QR code ?',
+    message:
+      'À utiliser si quelqu’un a vu ou copié votre QR code. Le QR et le code actuels ne fonctionnent plus, et vous ne pouvez le faire qu’une fois. Si l’entrée est hors ligne, l’ancien QR peut encore passer jusqu’à sa mise à jour : arrivez tôt et montrez votre pièce d’identité si besoin.',
+    confirm: 'Remplacer le QR code',
   },
   ticketStatus: {
     reserved: 'Réservé',
@@ -216,36 +194,16 @@ export const ticketWalletFr: TicketWalletTranslation = {
     invalidated: 'Invalide',
     expired: 'Expiré',
   },
-  orderStatus: {
-    pending_payment: 'Paiement en attente',
-    payment_processing: 'Paiement en cours',
-    paid: 'Payé',
-    payment_failed: 'Paiement refusé',
-    expired: 'Expiré',
-    refund_pending: 'Remboursement en cours',
-    partially_refunded: 'Remboursé en partie',
-    refunded: 'Remboursé',
-    canceled: 'Annulé',
-    disputed: 'En litige',
-  },
-  transfer: {
-    title: 'Transférer le billet n° {{id}}',
-    name: 'Nom du nouveau titulaire',
-    email: 'E-mail du nouveau titulaire',
-    confirm: 'Confirmer le transfert',
-  },
   resume: { title: 'Finaliser le paiement de la commande n° {{id}}', close: 'Fermer' },
   feedback: {
-    qrReissued: 'Nouveau QR code émis. L’ancien n’est plus valable.',
-    transferred: 'Billet transféré. Le nouveau titulaire a reçu un nouveau QR code.',
+    qrSwapped: 'QR code remplacé. L’ancien et l’ancien code ne sont plus valables.',
     refundRequested: 'Remboursement demandé. Vous le recevrez par le même moyen de paiement.',
     alreadyPaid: 'Votre paiement était déjà confirmé. Billets mis à jour.',
     paid: 'Paiement confirmé et billets émis !',
   },
   errors: {
     qr: 'Impossible de générer le QR code.',
-    qrReissue: 'Impossible d’émettre un nouveau QR code.',
-    transfer: 'Impossible de transférer le billet.',
+    qrSwap: 'Impossible de remplacer le QR code.',
     refund: 'Impossible de demander le remboursement.',
     resume: 'Impossible de reprendre le paiement de cette commande.',
   },

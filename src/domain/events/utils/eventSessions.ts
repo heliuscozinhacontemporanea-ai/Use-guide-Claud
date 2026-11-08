@@ -1,6 +1,23 @@
 import type { EventSessionDraft } from '../types/eventSession';
 
 const THREE_HOURS_MS = 3 * 60 * 60 * 1000;
+const SALES_END_BEFORE_START_MS = 2 * 60 * 60 * 1000;
+
+/** Fim das vendas sugerido (D21): 2 h antes do início, igual ao padrão do servidor. */
+export function defaultSalesEndsAt(startsAt: string): string {
+  return new Date(new Date(startsAt).getTime() - SALES_END_BEFORE_START_MS).toISOString();
+}
+
+/** Ao mudar o início, o fim das vendas no padrão acompanha; escolhido pelo parceiro, fica. */
+export function withStartsAt(session: EventSessionDraft, startsAt: string): EventSessionDraft {
+  const followsDefault =
+    !session.salesEndsAt || session.salesEndsAt === defaultSalesEndsAt(session.startsAt);
+  return {
+    ...session,
+    startsAt,
+    ...(followsDefault ? { salesEndsAt: defaultSalesEndsAt(startsAt) } : {}),
+  };
+}
 
 export interface EventSessionChanges {
   toCreate: EventSessionDraft[];
@@ -61,5 +78,6 @@ export function newEventSessionDraft(now: Date = new Date()): EventSessionDraft 
     startsAt: now.toISOString(),
     endsAt: new Date(now.getTime() + THREE_HOURS_MS).toISOString(),
     capacity: 100,
+    salesEndsAt: defaultSalesEndsAt(now.toISOString()),
   };
 }

@@ -1,18 +1,10 @@
-// Contratos e tipos públicos do domínio de Notificações
-export type { Notification, NotificationSettings } from './types/notification';
-
-// Hooks públicos do domínio de Notificações
-export { useNotifications } from './hooks/useNotifications';
-export { useNotificationSettings } from './hooks/useNotificationSettings';
-
-// Componentes públicos do domínio de Notificações
-export { NotificationBell } from './components/NotificationBell';
-export { NotificationPanel } from './components/NotificationPanel';
-
-// Use Cases públicos do domínio de Notificações
-export { subscribeToNotificationsUseCase } from './application/usecases/subscribeToNotificationsUseCase';
-export { markNotificationAsReadUseCase } from './application/usecases/markNotificationAsReadUseCase';
+export { disablePushOnThisDeviceUseCase } from './application/usecases/disablePushOnThisDeviceUseCase';
 export { markAllNotificationsAsReadUseCase } from './application/usecases/markAllNotificationsAsReadUseCase';
-export { getNotificationSettingsUseCase } from './application/usecases/getNotificationSettingsUseCase';
-export { updateNotificationSettingsUseCase } from './application/usecases/updateNotificationSettingsUseCase';
+export { markNotificationAsReadUseCase } from './application/usecases/markNotificationAsReadUseCase';
 export { sendAdminNotificationUseCase } from './application/usecases/sendAdminNotificationUseCase';
+export { subscribeToNotificationsUseCase } from './application/usecases/subscribeToNotificationsUseCase';
+// Componentes públicos só para src/app: sininho no topo e Configurações › Notificações (D25).
+export { NotificationBell } from './components/NotificationBell';
+export { NotificationSettingsView } from './components/NotificationSettingsView';
+export { useNotifications } from './hooks/useNotifications';
+export type { NotificationLink } from './types/notification';

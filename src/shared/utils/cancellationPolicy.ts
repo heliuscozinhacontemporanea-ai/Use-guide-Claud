@@ -47,6 +47,9 @@ const POLICY_TIERS: Record<CancellationPolicyFamily, Record<string, RefundTier[]
 
 /** Direito de arrependimento (CDC art. 49): 7 dias da compra, até 48 h antes do início (D14). */
 export const WITHDRAWAL_DAYS = 7;
+
+/** Depois do aviso de reagendamento, o comprador tem 7 dias para pedir reembolso integral (D16, 4A). */
+export const RESCHEDULE_REFUND_DAYS = 7;
 export const WITHDRAWAL_MIN_HOURS_BEFORE_START = 48;
 
 const HOUR_MS = 60 * 60 * 1000;
@@ -75,15 +78,18 @@ export function canChangeCancellationPolicy(
 }
 
 export interface BuyerRefund {
-  reason: 'withdrawal' | 'policy' | 'none';
+  reason: 'withdrawal' | 'reschedule' | 'policy' | 'none';
   percent: number;
   refundMinor: number;
   serviceFeeRefundMinor: number;
+  /** Até quando vale este reembolso (ISO); depois o valor muda ou acaba. `null` quando não há reembolso. */
+  until: string | null;
 }
 
 /**
  * Quanto volta ao comprador que cancela. `paidMinor` é o valor do serviço (sem a taxa de serviço), que só
- * volta no arrependimento. Depois do início (ou no-show) não há reembolso.
+ * volta no arrependimento e no reagendamento. Depois do início (ou no-show) não há reembolso.
+ * `rescheduledAt` é o aviso da nova data: até 7 dias depois dele, volta tudo, sem multa ao proprietário.
  */
 export function calculateBuyerRefund(params: {
   family: CancellationPolicyFamily;
@@ -93,14 +99,30 @@ export function calculateBuyerRefund(params: {
   now: Date;
   paidMinor: number;
   serviceFeeMinor: number;
+  rescheduledAt?: string;
 }): BuyerRefund {
   const nowMs = params.now.getTime();
   const startsAtMs = new Date(params.startsAt).getTime();
   const hoursUntilStart = (startsAtMs - nowMs) / HOUR_MS;
+  const iso = (ms: number) => new Date(ms).toISOString();
   if (hoursUntilStart <= 0) {
-    return { reason: 'none', percent: 0, refundMinor: 0, serviceFeeRefundMinor: 0 };
+    return { reason: 'none', percent: 0, refundMinor: 0, serviceFeeRefundMinor: 0, until: null };
   }
-  const daysSincePurchase = (nowMs - new Date(params.purchasedAt).getTime()) / (24 * HOUR_MS);
+  const daysSinceReschedule = params.rescheduledAt
+    ? (nowMs - new Date(params.rescheduledAt).getTime()) / (24 * HOUR_MS)
+    : Number.POSITIVE_INFINITY;
+  if (daysSinceReschedule >= 0 && daysSinceReschedule <= RESCHEDULE_REFUND_DAYS) {
+    const rescheduledAtMs = new Date(params.rescheduledAt as string).getTime();
+    return {
+      reason: 'reschedule',
+      percent: 100,
+      refundMinor: params.paidMinor,
+      serviceFeeRefundMinor: params.serviceFeeMinor,
+      until: iso(Math.min(rescheduledAtMs + RESCHEDULE_REFUND_DAYS * 24 * HOUR_MS, startsAtMs)),
+    };
+  }
+  const purchasedAtMs = new Date(params.purchasedAt).getTime();
+  const daysSincePurchase = (nowMs - purchasedAtMs) / (24 * HOUR_MS);
   if (
     daysSincePurchase <= WITHDRAWAL_DAYS &&
     hoursUntilStart >= WITHDRAWAL_MIN_HOURS_BEFORE_START
@@ -110,15 +132,23 @@ export function calculateBuyerRefund(params: {
       percent: 100,
       refundMinor: params.paidMinor,
       serviceFeeRefundMinor: params.serviceFeeMinor,
+      until: iso(
+        Math.min(
+          purchasedAtMs + WITHDRAWAL_DAYS * 24 * HOUR_MS,
+          startsAtMs - WITHDRAWAL_MIN_HOURS_BEFORE_START * HOUR_MS
+        )
+      ),
     };
   }
   const tiers = POLICY_TIERS[params.family][params.policy] ?? [];
-  const percent = tiers.find((tier) => hoursUntilStart >= tier.hoursBefore)?.percent ?? 0;
+  const tier = tiers.find((candidate) => hoursUntilStart >= candidate.hoursBefore);
+  const percent = tier?.percent ?? 0;
   return {
     reason: percent > 0 ? 'policy' : 'none',
     percent,
     // Arredonda para baixo: nunca devolve mais do que o percentual da política.
     refundMinor: Math.floor((params.paidMinor * percent) / 100),
     serviceFeeRefundMinor: 0,
+    until: tier && percent > 0 ? iso(startsAtMs - tier.hoursBefore * HOUR_MS) : null,
   };
 }

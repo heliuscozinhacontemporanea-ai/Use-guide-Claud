@@ -41,6 +41,7 @@ export function usePartnerEventSessions(
             startsAt: occurrence.startsAt,
             endsAt: occurrence.endsAt,
             capacity: occurrence.capacity,
+            ...(occurrence.salesEndsAt ? { salesEndsAt: occurrence.salesEndsAt } : {}),
           })),
           ...(listing
             ? {

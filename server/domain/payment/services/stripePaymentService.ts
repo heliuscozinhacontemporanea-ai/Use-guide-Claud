@@ -5,6 +5,7 @@ import type {
   VerifiedWebhookEvent,
 } from '../ports/paymentGatewayPort';
 import type { TransactionRepositoryPort } from '../ports/transactionRepositoryPort';
+import { paymentMethodsForService } from '../utils/payoutRules';
 import type { PaymentAccountService } from './paymentAccountService';
 
 export class PaymentDomainError extends Error {
@@ -22,7 +23,8 @@ export class StripePaymentService {
   constructor(
     private readonly paymentGateway: PaymentGatewayPort,
     private readonly transactionRepo: TransactionRepositoryPort,
-    private readonly paymentAccounts: Pick<PaymentAccountService, 'assertReady'>
+    private readonly paymentAccounts: Pick<PaymentAccountService, 'assertReady'>,
+    private readonly now: () => Date = () => new Date()
   ) {}
 
   async createTicketOrderPaymentIntent(params: {
@@ -33,17 +35,19 @@ export class StripePaymentService {
     eventListingId: string;
     occurrenceId: string;
     eventTitle: string;
+    serviceStartsAt: string;
     totalMinor: number;
     platformFeeMinor: number;
     idempotencyKey: string;
   }): Promise<CreatePaymentIntentResult & { transactionId: string }> {
-    return this.createDestinationChargeIntent({
+    return this.createPlatformChargeIntent({
       referenceType: 'ticket_order',
       referenceId: params.orderId,
       buyerId: params.buyerId,
       sellerPartnerId: params.sellerPartnerId,
       sellerAccountKey: params.sellerAccountKey,
       description: `Use Guide — ${params.eventTitle}`,
+      serviceStartsAt: params.serviceStartsAt,
       totalMinor: params.totalMinor,
       platformFeeMinor: params.platformFeeMinor,
       idempotencyKey: params.idempotencyKey,
@@ -56,7 +60,7 @@ export class StripePaymentService {
     });
   }
 
-  /** Venda de marketplace genérica (destination charge, decisão D1); o chamador define a referência. */
+  /** Venda de marketplace genérica (cobrança na plataforma, D1 e D14); o chamador define a referência. */
   async createMarketplacePaymentIntent(params: {
     referenceType: string;
     referenceId: string;
@@ -64,11 +68,12 @@ export class StripePaymentService {
     sellerPartnerId: string;
     sellerAccountKey: string;
     description: string;
+    serviceStartsAt: string;
     totalMinor: number;
     platformFeeMinor: number;
     idempotencyKey: string;
   }): Promise<CreatePaymentIntentResult & { transactionId: string }> {
-    return this.createDestinationChargeIntent({ ...params, extraMetadata: {} });
+    return this.createPlatformChargeIntent({ ...params, extraMetadata: {} });
   }
 
   /** Referência gravada na criação do pagamento (o objeto Dispute do Stripe não traz a metadata). */
@@ -80,7 +85,11 @@ export class StripePaymentService {
     return { referenceType: record.referenceType, referenceId: record.referenceId };
   }
 
-  private async createDestinationChargeIntent(params: {
+  /**
+   * Cobrança na plataforma, sem destino: o dinheiro fica no saldo do Use Guide e vai ao CNPJ pelo repasse,
+   * 48 h depois do fim do serviço (separate charges and transfers, D14).
+   */
+  private async createPlatformChargeIntent(params: {
     referenceType: string;
     referenceId: string;
     buyerId: string;
@@ -88,6 +97,7 @@ export class StripePaymentService {
     /** Conta Stripe do CNPJ do estabelecimento que vende (D14). */
     sellerAccountKey: string;
     description: string;
+    serviceStartsAt: string;
     totalMinor: number;
     platformFeeMinor: number;
     idempotencyKey: string;
@@ -109,21 +119,22 @@ export class StripePaymentService {
       };
     }
 
-    const sellerAccount = await this.paymentAccounts.assertReady(params.sellerAccountKey);
+    // Antes de cobrar, a conta do CNPJ precisa estar habilitada (AGENTS.md §8.1).
+    await this.paymentAccounts.assertReady(params.sellerAccountKey);
 
     const result = await this.paymentGateway.createPaymentIntent({
       orderId: params.referenceId,
       amountMinor: params.totalMinor,
       currency: 'BRL',
       description: params.description,
-      connectedAccountId: sellerAccount.stripeAccountId,
-      applicationFeeMinor: params.platformFeeMinor,
-      paymentMethodTypes: ['card', 'pix'],
+      transferGroup: params.referenceId,
+      paymentMethodTypes: paymentMethodsForService(params.serviceStartsAt, this.now()),
       metadata: {
         referenceType: params.referenceType,
         referenceId: params.referenceId,
         ...params.extraMetadata,
         partnerId: params.sellerPartnerId,
+        accountKey: params.sellerAccountKey,
       },
       idempotencyKey: params.idempotencyKey,
     });
@@ -135,7 +146,7 @@ export class StripePaymentService {
       referenceType: params.referenceType,
       referenceId: params.referenceId,
       providerPaymentId: result.paymentIntentId,
-      connectedAccountId: sellerAccount.stripeAccountId,
+      accountKey: params.sellerAccountKey,
       amountMinor: params.totalMinor,
       platformFeeMinor: params.platformFeeMinor,
       paymentMethod: 'stripe_payment_element',
@@ -184,7 +195,6 @@ export class StripePaymentService {
       amountMinor: params.amountMinor,
       currency: 'BRL',
       description: `Use Guide — Plano ${params.planName}`,
-      applicationFeeMinor: 0,
       paymentMethodTypes: ['card', 'pix'],
       metadata: {
         referenceType: 'plan_payment',
@@ -223,16 +233,12 @@ export class StripePaymentService {
   async refundPayment(params: {
     paymentIntentId: string;
     amountMinor?: number;
-    reverseTransfer?: boolean;
-    refundApplicationFee?: boolean;
     idempotencyKey: string;
     metadata?: Record<string, string>;
   }): Promise<RefundPaymentResult> {
     return this.paymentGateway.refundPayment({
       paymentIntentId: params.paymentIntentId,
       amountMinor: params.amountMinor,
-      reverseTransfer: params.reverseTransfer ?? true,
-      refundApplicationFee: params.refundApplicationFee ?? true,
       idempotencyKey: params.idempotencyKey,
       metadata: params.metadata,
     });

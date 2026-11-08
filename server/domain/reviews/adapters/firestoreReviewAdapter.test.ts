@@ -63,12 +63,12 @@ const mocks = vi.hoisted(() => {
 
   const createQueryObj = (
     col: string,
-    filters: Array<{ field: string; op: string; val: any }> = []
+    filters: Array<{ field: string; op: string; val: unknown }> = []
   ) => {
-    const queryObj: any = {
+    const queryObj: Record<string, unknown> = {
       _col: col,
       _filters: [...filters],
-      where: vi.fn((field: string, op: string, val: any) => {
+      where: vi.fn((field: string, op: string, val: unknown): Record<string, unknown> => {
         return createQueryObj(col, [...filters, { field, op, val }]);
       }),
       get: vi.fn().mockResolvedValue({ empty: true, forEach: () => {}, docs: [] }),
@@ -84,7 +84,7 @@ const mocks = vi.hoisted(() => {
   const adminDb = {
     collection: vi.fn((col: string) => ({
       doc: (id: string) => getDocRef(col, id),
-      where: (field: string, op: string, val: any) => createQueryObj(col, [{ field, op, val }]),
+      where: (field: string, op: string, val: unknown) => createQueryObj(col, [{ field, op, val }]),
       get: vi.fn().mockResolvedValue({ empty: true, docs: [] }),
     })),
     batch: vi.fn(() => mockBatch),
@@ -150,7 +150,7 @@ describe('FirestoreReviewAdapter — respondToReview Authorization', () => {
 
     await expect(
       adapter.respondToReview('review-id', 'Resposta do proprietário', 'owner-atual', false)
-    ).resolves.toBeUndefined();
+    ).resolves.toMatchObject({ authorId: expect.any(String) });
 
     expect(reviewRef.update).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -172,7 +172,7 @@ describe('FirestoreReviewAdapter — respondToReview Authorization', () => {
 
     await expect(
       adapter.respondToReview('review-id', 'Moderação oficial da plataforma', 'admin-id', true)
-    ).resolves.toBeUndefined();
+    ).resolves.toMatchObject({ authorId: expect.any(String) });
 
     expect(reviewRef.update).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -222,7 +222,7 @@ describe('FirestoreReviewAdapter — submitReviewAndRecalculateRating', () => {
       get: vi.fn().mockResolvedValue({
         empty: false,
         docs: reviews.map((r) => ({ data: () => r })),
-        forEach: (cb: any) => {
+        forEach: (cb: (doc: { data: () => unknown }) => void) => {
           reviews.forEach((r) => {
             cb({ data: () => r });
           });
@@ -238,7 +238,7 @@ describe('FirestoreReviewAdapter — submitReviewAndRecalculateRating', () => {
         };
       }
       return { doc: (id: string) => mocks.getDocRef(col, id) };
-    }) as any);
+    }) as never);
 
     const result = await adapter.submitReviewAndRecalculateRating({
       itemId: 'item-1',
@@ -282,7 +282,7 @@ describe('FirestoreReviewAdapter — deleteReviewsByUser', () => {
         get: vi.fn().mockResolvedValue({ empty: true, forEach: () => {} }),
       })),
       doc: (id: string) => mocks.getDocRef(col, id),
-    })) as any);
+    })) as never);
 
     await expect(adapter.deleteReviewsByUser('user-sem-reviews')).resolves.toBeUndefined();
   });

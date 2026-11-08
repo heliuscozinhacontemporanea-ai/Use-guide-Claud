@@ -1,0 +1,183 @@
+import { Flag } from 'lucide-react';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { formatBusinessDate, formatBusinessDay } from '../../../../shared/utils/businessDateTime';
+import { BackButton } from '../../../../ui/components/BackButton';
+import { ConfirmDialog, type ConfirmDialogData } from '../../../../ui/components/ConfirmDialog';
+import { ListEmpty, ListError, ListLoading } from '../../../../ui/components/ListState';
+import { StatusText } from '../../../../ui/components/StatusText';
+import { BUTTON_SECONDARY } from '../../../../ui/styles/controls';
+import { useMyReviewReports } from '../../hooks/useMyReviewReports';
+import type { MyReviewsSource } from '../../hooks/useMyReviews';
+import type { FirestoreReview } from '../../types/review';
+import type { MyReviewReport } from '../../types/reviewReport';
+import { reviewDateToIso } from '../../utils/reviewDateToIso';
+import { EditReviewSheet } from './EditReviewSheet';
+import { MyReviewCard } from './MyReviewCard';
+import { ReportResponseSheet } from './ReportResponseSheet';
+
+interface MyReviewsViewProps {
+  source: MyReviewsSource;
+  onBack: () => void;
+  /** Nome do lugar ou evento, vindo do guia pela composição; `undefined` se não está mais no guia. */
+  titleOf: (review: FirestoreReview) => string | undefined;
+}
+
+const REPORT_TONE = { open: 'warn', upheld: 'success', dismissed: 'muted' } as const;
+
+/** Minhas avaliações (D19): um cartão por avaliação; editar, denunciar a resposta e excluir no menu "…". */
+export function MyReviewsView({ source, onBack, titleOf }: MyReviewsViewProps) {
+  const { t, i18n } = useTranslation();
+  const { data, loading, error, hasMore, reload, loadMore, remove, save } = source;
+  const reports = useMyReviewReports();
+  const [editing, setEditing] = useState<FirestoreReview | null>(null);
+  const [reporting, setReporting] = useState<FirestoreReview | null>(null);
+  const [confirm, setConfirm] = useState<ConfirmDialogData | null>(null);
+  const [notice, setNotice] = useState<{ tone: 'ok' | 'error'; text: string } | null>(null);
+  const title = (review: FirestoreReview) => titleOf(review) ?? t('myReviews.unknownPlace');
+
+  // Denúncia aberta ou recusada para a resposta atual: o backend recusaria outra igual.
+  const canReport = (review: FirestoreReview, latest?: MyReviewReport) =>
+    Boolean(review.partnerResponse) && (!latest || latest.status === 'upheld');
+
+  const reportFooter = (latest?: MyReviewReport) =>
+    latest && (
+      <StatusText tone={REPORT_TONE[latest.status]}>
+        {t(`reviewReports.status.${latest.status}`, {
+          date: formatBusinessDay(latest.decideBy, i18n.language),
+        })}
+      </StatusText>
+    );
+
+  // Agrupa pelo dia da avaliação, como as outras listas (ex.: "26 de agosto"); o ano só aparece
+  // quando não é o atual.
+  const yearOf = (iso: string) => formatBusinessDate(iso, 'en', { year: 'numeric' });
+  const currentYear = yearOf(new Date().toISOString());
+  const dayLabel = (review: FirestoreReview) => {
+    const iso = reviewDateToIso(review.createdAt);
+    if (!iso) return '';
+    const sameYear = yearOf(iso) === currentYear;
+    return formatBusinessDate(iso, i18n.language, {
+      day: 'numeric',
+      month: 'long',
+      ...(sameYear ? {} : { year: 'numeric' }),
+    });
+  };
+  const groups: { label: string; reviews: FirestoreReview[] }[] = [];
+  for (const review of data) {
+    const label = dayLabel(review);
+    const last = groups.at(-1);
+    if (last && last.label === label) last.reviews.push(review);
+    else groups.push({ label, reviews: [review] });
+  }
+
+  const askDelete = (review: FirestoreReview) =>
+    setConfirm({
+      title: t('myReviews.deleteTitle'),
+      message: t('myReviews.deleteMessage'),
+      confirmLabel: t('myReviews.delete'),
+      onCancel: () => setConfirm(null),
+      onConfirm: async () => {
+        setConfirm(null);
+        try {
+          await remove(review.id);
+          setNotice({ tone: 'ok', text: t('myReviews.deleted') });
+        } catch {
+          setNotice({ tone: 'error', text: t('myReviews.errors.delete') });
+        }
+      },
+    });
+
+  return (
+    <section className="w-full space-y-5">
+      <div className="flex items-center gap-2">
+        <BackButton label={t('myReviews.back')} onClick={onBack} />
+        <h2 className="text-[22px] font-display font-bold text-ink">{t('myReviews.title')}</h2>
+      </div>
+      {notice && (
+        <p
+          role={notice.tone === 'error' ? 'alert' : 'status'}
+          className={notice.tone === 'error' ? 'text-sm text-danger' : 'text-sm text-accent'}
+        >
+          {notice.text}
+        </p>
+      )}
+      {error && <ListError message={error} onRetry={() => void reload()} />}
+      {!error && !loading && data.length === 0 && <ListEmpty message={t('myReviews.empty')} />}
+      {groups.map((group) => (
+        <section key={group.label || 'sem-data'} className="space-y-2">
+          {group.label && (
+            <h3 className="text-[13px] font-semibold text-ink/70 px-1">{group.label}</h3>
+          )}
+          <ul className="space-y-3">
+            {group.reviews.map((review) => {
+              const latest = reports.latestFor(review.id);
+              return (
+                <MyReviewCard
+                  key={review.id}
+                  review={review}
+                  title={title(review)}
+                  onEdit={() => {
+                    setNotice(null);
+                    setEditing(review);
+                  }}
+                  onDelete={() => askDelete(review)}
+                  extraMenuItems={
+                    canReport(review, latest)
+                      ? [
+                          {
+                            label: t('reviewReports.action'),
+                            icon: <Flag size={16} aria-hidden="true" />,
+                            onClick: () => {
+                              setNotice(null);
+                              setReporting(review);
+                            },
+                          },
+                        ]
+                      : []
+                  }
+                  footer={reportFooter(latest)}
+                />
+              );
+            })}
+          </ul>
+        </section>
+      ))}
+      {loading && <ListLoading label={t('myReviews.loading')} />}
+      {!loading && hasMore && (
+        <button type="button" onClick={() => void loadMore()} className={BUTTON_SECONDARY}>
+          {t('myReviews.loadMore')}
+        </button>
+      )}
+      {editing && (
+        <EditReviewSheet
+          review={editing}
+          title={title(editing)}
+          onClose={() => setEditing(null)}
+          onSave={async (rating, comment) => {
+            try {
+              await save(editing, rating, comment);
+              setEditing(null);
+              setNotice({ tone: 'ok', text: t('myReviews.saved') });
+            } catch {
+              setEditing(null);
+              setNotice({ tone: 'error', text: t('myReviews.errors.save') });
+            }
+          }}
+        />
+      )}
+      {reporting && (
+        <ReportResponseSheet
+          place={title(reporting)}
+          onClose={() => setReporting(null)}
+          onSubmit={async (reason, details) => {
+            await reports.report(reporting.id, reason, details);
+            setReporting(null);
+            setNotice({ tone: 'ok', text: t('reviewReports.sent') });
+          }}
+        />
+      )}
+      <ConfirmDialog data={confirm} />
+    </section>
+  );
+}

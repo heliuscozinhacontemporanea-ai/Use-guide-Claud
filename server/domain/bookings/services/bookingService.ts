@@ -9,15 +9,21 @@ import {
   type BookingActor,
   type BookingCancellation,
   type BookingParticipant,
+  CHECK_IN_CODE_KINDS,
   cancellationFamilyOf,
   type Page,
 } from '../types/bookingTypes';
 import { priceBookingLines } from '../utils/bookingPricing';
 import { buildBookingId } from '../utils/buildBookingId';
+import { entryWindow, NO_SHOW_WAIT_MS, SERVICE_CONFIRMATION_MS } from '../utils/checkInWindow';
+import { hasAnyCheckIn } from '../utils/serviceProof';
+import { serviceEndsAtMs } from '../utils/serviceTime';
 
 // Tempo para pagar antes de a vaga voltar para a venda (inclui o Pix, que é assíncrono).
 const PAYMENT_WINDOW_MS = 15 * 60 * 1000;
 const SYSTEM_ACTOR = 'system';
+// O endereço serve de prova até a reclamação ser decidida: 48 h para abrir mais 5 dias para decidir (D16).
+const PICKUP_ADDRESS_RETENTION_MS = 7 * 24 * 60 * 60 * 1000;
 
 export interface CreatePendingBookingInput {
   offerId: string;
@@ -27,6 +33,8 @@ export interface CreatePendingBookingInput {
   idempotencyKey: string;
   locale: Locale;
   acceptedTermsVersion: string;
+  /** Obrigatório quando a oferta busca o comprador no endereço (D20). */
+  pickupAddress?: string;
 }
 
 export interface BuyerCancellationResult {
@@ -68,14 +76,25 @@ export class BookingService {
     }
     const priced = priceBookingLines(offer, input.lines, feeConfig);
 
-    const names = input.participants.map((participant) => participant.name.trim());
-    if (offer.requiresParticipantNames) {
+    // Entrada nominal (D20): os nomes podem vir agora ou depois da compra, até o dia; venda por grupo
+    // não tem nomes, porque o cliente decide quem leva.
+    const named = offer.requiresParticipantNames && offer.sellingUnit !== 'group';
+    const names = named ? input.participants.map((participant) => participant.name.trim()) : [];
+    if (names.length > 0) {
       if (names.length !== priced.participantsCount) {
-        throw new BookingDomainError('VALIDATION_ERROR', 'Informe o nome de cada participante.');
+        throw new BookingDomainError('VALIDATION_ERROR', 'Informe o nome de cada pessoa.');
       }
       if (names.some((name) => name.length < 2 || name.length > 80)) {
         throw new BookingDomainError('VALIDATION_ERROR', 'Nome de participante inválido.');
       }
+    }
+
+    const pickupAddress = input.pickupAddress?.trim() ?? '';
+    if (
+      offer.pickupMode === 'buyer_address' &&
+      (pickupAddress.length < 3 || pickupAddress.length > 300)
+    ) {
+      throw new BookingDomainError('VALIDATION_ERROR', 'Informe onde você está hospedado.');
     }
 
     const nowDate = this.now();
@@ -97,16 +116,28 @@ export class BookingService {
         ...(offer.durationMinutes ? { durationMinutes: offer.durationMinutes } : {}),
         ...(offer.meetingPoint ? { meetingPoint: offer.meetingPoint.address } : {}),
         cancellationPolicy: offer.cancellationPolicy,
+        ...(offer.businessName ? { businessName: offer.businessName } : {}),
+        sellingUnit: offer.sellingUnit ?? 'person',
+        ...(offer.sellingUnit === 'group' && offer.groupMaxPeople
+          ? { groupMaxPeople: offer.groupMaxPeople }
+          : {}),
+        ...(named ? { requiresParticipantNames: true } : {}),
       },
       termsAcceptance: { version: input.acceptedTermsVersion, acceptedAt: timestamp },
+      ...(offer.pickupMode === 'buyer_address'
+        ? {
+            pickupAddress,
+            pickupAddressEraseAt: new Date(
+              serviceEndsAtMs(slot.startsAt, offer.durationMinutes) + PICKUP_ADDRESS_RETENTION_MS
+            ).toISOString(),
+          }
+        : {}),
       locale: input.locale,
       idempotencyKey: input.idempotencyKey,
       createdAt: timestamp,
       updatedAt: timestamp,
     };
-    const participants = offer.requiresParticipantNames
-      ? names.map((name, index) => ({ name, isLeadContact: index === 0 }))
-      : [];
+    const participants = names.map((name, index) => ({ name, isLeadContact: index === 0 }));
     return this.port.reserveCapacityAndCreateBooking(booking, participants);
   }
 
@@ -143,9 +174,15 @@ export class BookingService {
     await this.port.recordBookingAudit(bookingId, 'system:webhook', 'payment_failed');
   }
 
-  async expireOverdueBookings(limit = 200): Promise<number> {
+  /** Reservas confirmadas que começam em [fromIso, toIso), para os lembretes (D25). */
+  listConfirmedStartingBetween(fromIso: string, toIso: string, limit = 200): Promise<Booking[]> {
+    return this.port.listConfirmedBookingsStartingBetween(fromIso, toIso, limit);
+  }
+
+  /** Devolve as vagas das reservas não pagas no prazo; retorna as que expiraram agora. */
+  async expireOverdueBookings(limit = 200): Promise<Booking[]> {
     const overdue = await this.port.listExpiredPendingBookings(this.now().toISOString(), limit);
-    let expired = 0;
+    const expired: Booking[] = [];
     for (const booking of overdue) {
       try {
         await this.port.releaseCapacityAndSetStatus({
@@ -154,7 +191,7 @@ export class BookingService {
           actorUid: SYSTEM_ACTOR,
           reason: 'payment_window_elapsed',
         });
-        expired += 1;
+        expired.push(booking);
       } catch (error) {
         // Uma reserva confirmada no meio do caminho não pode travar as demais.
         if (!(error instanceof BookingDomainError)) throw error;
@@ -187,7 +224,7 @@ export class BookingService {
       );
     }
     const nowDate = this.now();
-    // D14: arrependimento de 7 dias até 48 h antes do início, senão a política gravada na compra.
+    // D14: arrependimento de 7 dias até 48 h antes do início; D16: 7 dias depois do reagendamento; senão a política.
     const calculated = calculateBuyerRefund({
       family: cancellationFamilyOf(booking.kind),
       policy: booking.offerSnapshot.cancellationPolicy,
@@ -196,7 +233,15 @@ export class BookingService {
       now: nowDate,
       paidMinor: booking.totalMinor,
       serviceFeeMinor: 0,
+      rescheduledAt: booking.rescheduledAt,
     });
+    // Sem reembolso não há o que cancelar: a reserva paga continua valendo até a data do serviço.
+    if (calculated.refundMinor <= 0) {
+      throw new BookingDomainError(
+        'CANCELLATION_NOT_ALLOWED',
+        'O prazo de cancelamento terminou. Sua reserva continua valendo.'
+      );
+    }
     const refund = {
       refundPercent: calculated.percent,
       refundAmountMinor: calculated.refundMinor,
@@ -277,6 +322,28 @@ export class BookingService {
     if (this.now().getTime() < new Date(booking.offerSnapshot.startsAt).getTime()) {
       throw new BookingDomainError('INVALID_TRANSITION', 'Só é possível marcar após o início.');
     }
+    // Check-in prova que o comprador apareceu (D20).
+    if (hasAnyCheckIn(booking)) {
+      throw new BookingDomainError('INVALID_TRANSITION', 'Reserva com check-in não é ausência.');
+    }
+    if (CHECK_IN_CODE_KINDS.includes(booking.kind)) {
+      // D20: ausência só depois do "Cheguei" e de 30 min de espera, e sem relato de que o prestador faltou.
+      const waitedUntil = booking.arrival
+        ? new Date(booking.arrival.at).getTime() + NO_SHOW_WAIT_MS
+        : Number.POSITIVE_INFINITY;
+      if (this.now().getTime() < waitedUntil) {
+        throw new BookingDomainError(
+          'NO_SHOW_TOO_EARLY',
+          'Toque em "Cheguei" e espere 30 min antes de marcar a ausência.'
+        );
+      }
+      if (booking.providerAbsence) {
+        throw new BookingDomainError(
+          'INVALID_TRANSITION',
+          'O comprador relatou sua ausência: responda pelo aviso da reserva.'
+        );
+      }
+    }
     return this.port.setBookingStatus({
       bookingId,
       to: 'no_show',
@@ -285,26 +352,62 @@ export class BookingService {
     });
   }
 
-  async completeFinishedBookings(limit = 200): Promise<number> {
+  /**
+   * Conclui as reservas cujo horário terminou. Sem check-in nem outro registro, o comprador recebe a
+   * pergunta "O serviço aconteceu?" (D20); essas reservas voltam em `askedToConfirm`. A entrada de
+   * atração não usada vira ausência e conta em `completed`.
+   */
+  async completeFinishedBookings(
+    limit = 200
+  ): Promise<{ completed: number; askedToConfirm: Booking[]; reviewInvites: Booking[] }> {
     const nowDate = this.now();
     const started = await this.port.listConfirmedBookingsStartedBefore(
       nowDate.toISOString(),
       limit
     );
     let completed = 0;
+    const askedToConfirm: Booking[] = [];
+    // Serviço que aconteceu (sem pergunta pendente nem ausência): convite para avaliar (D25).
+    const reviewInvites: Booking[] = [];
     for (const booking of started) {
-      const endsAtMs =
-        new Date(booking.offerSnapshot.startsAt).getTime() +
-        (booking.offerSnapshot.durationMinutes ?? 0) * 60_000;
-      if (endsAtMs > nowDate.getTime()) continue;
-      await this.port.setBookingStatus({
-        bookingId: booking.id,
-        to: 'completed',
-        actorUid: SYSTEM_ACTOR,
-        reason: 'finished',
-      });
+      if ((await this.serviceEndMs(booking)) > nowDate.getTime()) continue;
+      // Entrada de atração não usada até o fechamento é ausência, como ingresso não usado (D20, A).
+      const unusedEntry = booking.kind === 'private_entry' && !hasAnyCheckIn(booking);
+      const ask =
+        CHECK_IN_CODE_KINDS.includes(booking.kind) &&
+        !hasAnyCheckIn(booking) &&
+        !booking.providerAbsence &&
+        !booking.serviceConfirmation;
+      const updated = await this.port.updateBooking(
+        booking.id,
+        (current) => {
+          if (current.status !== 'confirmed') return null;
+          if (unusedEntry) return { ...current, status: 'no_show' };
+          if (!ask) return { ...current, status: 'completed' };
+          const answerBy = new Date(nowDate.getTime() + SERVICE_CONFIRMATION_MS).toISOString();
+          return {
+            ...current,
+            status: 'completed',
+            serviceConfirmation: { askedAt: nowDate.toISOString(), answerBy, reason: 'no_record' },
+            deadline: { kind: 'service_confirmation', at: answerBy },
+          };
+        },
+        { actorUid: SYSTEM_ACTOR, reason: unusedEntry ? 'entry_unused' : 'finished' }
+      );
+      if (updated.status === 'confirmed') continue;
       completed += 1;
+      if (ask && updated.status === 'completed') askedToConfirm.push(updated);
+      else if (updated.status === 'completed' && !updated.providerAbsence)
+        reviewInvites.push(updated);
     }
-    return completed;
+    return { completed, askedToConfirm, reviewInvites };
+  }
+
+  /** Fim do serviço; a entrada de atração vale até o fechamento do horário (D20). */
+  private async serviceEndMs(booking: Booking): Promise<number> {
+    const { startsAt, durationMinutes } = booking.offerSnapshot;
+    if (booking.kind !== 'private_entry') return serviceEndsAtMs(startsAt, durationMinutes);
+    const slot = await this.port.getSlot(booking.slotId);
+    return entryWindow(slot ?? { startsAt }, durationMinutes).closesAtMs;
   }
 }

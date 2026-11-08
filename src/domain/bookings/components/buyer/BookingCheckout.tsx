@@ -1,10 +1,11 @@
 import { CheckCircle2, Clock } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ListError, ListLoading } from '../../../../ui/components/ListState';
+import { BUTTON_PRIMARY, BUTTON_SECONDARY } from '../../../../ui/styles/controls';
 import { useBookingCheckout } from '../../hooks/useBookingCheckout';
 import type { CreateBookingPayload } from '../../types/bookings';
 import { formatMinor } from '../../utils/money';
-import { BUTTON_PRIMARY, BUTTON_SECONDARY, ListError, ListLoading } from '../shared/ListState';
 import type { RenderPaymentElement } from './types';
 
 interface BookingCheckoutProps {

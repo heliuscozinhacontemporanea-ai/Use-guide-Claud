@@ -31,11 +31,11 @@ export async function runListingPlanMaintenanceApplicationUseCase(
     const listingName = typeof item?.name === 'string' ? item.name : '';
     // TODO: notifications ainda não aceita chave i18n (AGENTS.md §12.5); texto em pt-BR por enquanto.
     const created = await createNotificationUseCase({
-      id: `plan_expiring_${plan.itemId}_${daysRemaining}d_${plan.planUntil.slice(0, 10)}`,
-      recipientPartnerId: plan.ownerId,
+      dedupeKey: `plan_expiring_${plan.itemId}_${daysRemaining}d_${plan.planUntil.slice(0, 10)}`,
+      recipientUid: plan.ownerId,
       type: 'plan_expiring',
-      title: 'Seu plano está expirando',
-      message: `O plano de ${listingName || 'um estabelecimento'} vence em ${daysRemaining} dia(s). Renove para manter o selo.`,
+      params: { listing: listingName || '', days: daysRemaining },
+      link: { screen: 'partner' },
     });
     if (created) notified++;
   }

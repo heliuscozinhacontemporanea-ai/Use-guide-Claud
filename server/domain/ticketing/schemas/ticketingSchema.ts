@@ -115,23 +115,16 @@ export const requestTicketRefundSchema = z
   })
   .strict();
 
-export const transferTicketSchema = z
-  .object({
-    recipientEmail: z.string().email(),
-    recipientName: z.string().trim().min(1).max(120).optional(),
-    toUserId: z.string().trim().min(1).optional(),
-  })
-  .strict();
-
 export const checkInTicketSchema = z
   .object({
     occurrenceId: z.string().trim().min(1),
     ticketId: z.string().trim().min(1).optional(),
     qrToken: z.string().trim().min(8).max(512).optional(),
+    code: z.string().trim().min(8).max(16).optional(),
   })
   .strict()
   .superRefine((data, ctx) => {
-    if (!data.ticketId && !data.qrToken) {
+    if (!data.ticketId && !data.qrToken && !data.code) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['qrToken'],

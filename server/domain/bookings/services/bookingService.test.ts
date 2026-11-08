@@ -154,7 +154,7 @@ describe('BookingService', () => {
     const { service, port, setNow } = setup({ capacity: 2 });
     const booking = await service.createPendingBooking(BUYER, INPUT, FEES);
     setNow('2026-11-01T12:16:00.000Z');
-    await expect(service.expireOverdueBookings()).resolves.toBe(1);
+    await expect(service.expireOverdueBookings()).resolves.toHaveLength(1);
     expect(port.slots.get('slot-1')?.capacityReserved).toBe(0);
     const other = await service.createPendingBooking({ uid: 'buyer-2', admin: false }, INPUT, FEES);
     await service.confirmBookingPayment(other.id, 'pi_2');
@@ -188,6 +188,33 @@ describe('BookingService', () => {
     });
   });
 
+  it('sem reembolso o cancelamento é recusado e a reserva continua valendo', async () => {
+    const { service, port, setNow } = setup();
+    const booking = await service.createPendingBooking(BUYER, INPUT, FEES);
+    await service.confirmBookingPayment(booking.id, 'pi_1');
+    setNow(new Date(new Date(STARTS_AT).getTime() - 12 * 3_600_000).toISOString());
+    await expect(service.requestCancellationByBuyer(BUYER, booking.id, '')).rejects.toMatchObject({
+      code: 'CANCELLATION_NOT_ALLOWED',
+    });
+    expect(port.bookings.get(booking.id)?.status).toBe('confirmed');
+    expect(port.slots.get('slot-1')?.capacitySold).toBe(2);
+  });
+
+  it('reagendada pelo parceiro: até 7 dias depois do aviso devolve tudo, mesmo fora da política (D16)', async () => {
+    const { service, port, setNow } = setup();
+    const booking = await service.createPendingBooking(BUYER, INPUT, FEES);
+    await service.confirmBookingPayment(booking.id, 'pi_1');
+    const confirmed = port.bookings.get(booking.id);
+    if (confirmed) {
+      port.bookings.set(booking.id, { ...confirmed, rescheduledAt: '2026-11-08T00:00:00.000Z' });
+    }
+    setNow('2026-11-09T12:00:00.000Z');
+    await expect(service.requestCancellationByBuyer(BUYER, booking.id, '')).resolves.toMatchObject({
+      refundPercent: 100,
+      refundAmountMinor: 20000,
+    });
+  });
+
   it('reserva pendente não pode ser cancelada pelo comprador', async () => {
     const { service } = setup();
     const booking = await service.createPendingBooking(BUYER, INPUT, FEES);
@@ -205,9 +232,139 @@ describe('BookingService', () => {
       code: 'INVALID_TRANSITION',
     });
     setNow('2026-11-10T12:00:00.000Z');
-    await expect(service.completeFinishedBookings()).resolves.toBe(0);
+    await expect(service.completeFinishedBookings()).resolves.toMatchObject({ completed: 0 });
     setNow('2026-11-10T13:00:00.000Z');
-    await expect(service.completeFinishedBookings()).resolves.toBe(1);
+    const result = await service.completeFinishedBookings();
+    expect(result.completed).toBe(1);
     expect(port.bookings.get(booking.id)?.status).toBe('completed');
+    // Sem check-in nem outro registro: pergunta "O serviço aconteceu?" por 72 h (D20).
+    expect(result.askedToConfirm.map((b) => b.id)).toEqual([booking.id]);
+    expect(port.bookings.get(booking.id)).toMatchObject({
+      serviceConfirmation: { reason: 'no_record', answerBy: '2026-11-13T13:00:00.000Z' },
+      deadline: { kind: 'service_confirmation', at: '2026-11-13T13:00:00.000Z' },
+    });
+  });
+
+  it('reserva com check-in não pode ser marcada como ausência (D20)', async () => {
+    const { service, port, setNow } = setup();
+    const booking = await service.createPendingBooking(BUYER, INPUT, FEES);
+    await service.confirmBookingPayment(booking.id, 'pi_1');
+    await port.recordCheckIns(booking.id, [
+      { unit: 0, at: '2026-11-10T11:02:00.000Z', byUid: 'partner-1', method: 'code' },
+    ]);
+    setNow('2026-11-10T12:00:00.000Z');
+    await expect(
+      service.markBookingNoShow({ uid: 'partner-1', admin: false }, booking.id)
+    ).rejects.toMatchObject({ code: 'INVALID_TRANSITION' });
+  });
+
+  it('oferta que busca no endereço exige onde o comprador está e grava na reserva (D20)', async () => {
+    const { service } = setup({ offer: { pickupMode: 'buyer_address' } });
+    await expect(service.createPendingBooking(BUYER, INPUT, FEES)).rejects.toMatchObject({
+      code: 'VALIDATION_ERROR',
+    });
+    const booking = await service.createPendingBooking(
+      BUYER,
+      { ...INPUT, pickupAddress: '  Pousada Vila Jeri, Rua do Forró  ' },
+      FEES
+    );
+    expect(booking.pickupAddress).toBe('Pousada Vila Jeri, Rua do Forró');
+  });
+
+  it('oferta com ponto de encontro ignora o endereço enviado', async () => {
+    const { service } = setup();
+    const booking = await service.createPendingBooking(
+      BUYER,
+      { ...INPUT, pickupAddress: 'Pousada' },
+      FEES
+    );
+    expect(booking.pickupAddress).toBeUndefined();
+  });
+
+  it('ausência só 30 min depois do "Cheguei" (D20)', async () => {
+    const { service, port, setNow } = setup();
+    const booking = await service.createPendingBooking(BUYER, INPUT, FEES);
+    await service.confirmBookingPayment(booking.id, 'pi_1');
+    const partner = { uid: 'partner-1', admin: false };
+    setNow('2026-11-10T11:10:00.000Z');
+    await expect(service.markBookingNoShow(partner, booking.id)).rejects.toMatchObject({
+      code: 'NO_SHOW_TOO_EARLY',
+    });
+    await port.updateBooking(
+      booking.id,
+      (current) => ({
+        ...current,
+        arrival: { at: '2026-11-10T11:05:00.000Z', byUid: 'partner-1' },
+      }),
+      { actorUid: 'partner-1', reason: 'provider_arrived' }
+    );
+    setNow('2026-11-10T11:34:00.000Z');
+    await expect(service.markBookingNoShow(partner, booking.id)).rejects.toMatchObject({
+      code: 'NO_SHOW_TOO_EARLY',
+    });
+    setNow('2026-11-10T11:35:00.000Z');
+    await expect(service.markBookingNoShow(partner, booking.id)).resolves.toMatchObject({
+      status: 'no_show',
+    });
+  });
+
+  it('conclusão com check-in por código não pergunta ao comprador', async () => {
+    const { service, port, setNow } = setup();
+    const booking = await service.createPendingBooking(BUYER, INPUT, FEES);
+    await service.confirmBookingPayment(booking.id, 'pi_1');
+    await port.recordCheckIns(booking.id, [
+      { unit: 0, at: '2026-11-10T11:02:00.000Z', byUid: 'partner-1', method: 'code' },
+    ]);
+    setNow('2026-11-10T13:00:00.000Z');
+    const result = await service.completeFinishedBookings();
+    expect(result).toMatchObject({ completed: 1, askedToConfirm: [] });
+    // Serviço com prova: convite para avaliar (D25).
+    expect(result.reviewInvites.map((b) => b.id)).toEqual([booking.id]);
+    expect(port.bookings.get(booking.id)?.serviceConfirmation).toBeUndefined();
+  });
+
+  it('entrada de atração não usada até o fechamento vira ausência, sem pergunta (D20, A)', async () => {
+    const { service, port, setNow } = setup({ offer: { kind: 'private_entry' } });
+    const slot = port.slots.get('slot-1');
+    if (slot) port.slots.set('slot-1', { ...slot, endsAt: '2026-11-10T20:00:00.000Z' });
+    const booking = await service.createPendingBooking(BUYER, INPUT, FEES);
+    await service.confirmBookingPayment(booking.id, 'pi_1');
+    setNow('2026-11-10T19:00:00.000Z');
+    expect((await service.completeFinishedBookings()).completed).toBe(0);
+    setNow('2026-11-10T20:01:00.000Z');
+    const result = await service.completeFinishedBookings();
+    expect(result).toMatchObject({ completed: 1, askedToConfirm: [] });
+    expect(port.bookings.get(booking.id)?.status).toBe('no_show');
+  });
+
+  it('a reserva guarda o nome do estabelecimento e a unidade de venda (D20)', async () => {
+    const { service } = setup({
+      offer: { businessName: 'Buggy do Zé', sellingUnit: 'group', groupMaxPeople: 4 },
+    });
+    const booking = await service.createPendingBooking(BUYER, INPUT, FEES);
+    expect(booking.offerSnapshot).toMatchObject({
+      businessName: 'Buggy do Zé',
+      sellingUnit: 'group',
+      groupMaxPeople: 4,
+    });
+  });
+
+  it('venda por grupo não grava nomes, mesmo com a opção ligada', async () => {
+    const { service, port } = setup({
+      offer: { sellingUnit: 'group', groupMaxPeople: 4, requiresParticipantNames: true },
+    });
+    const booking = await service.createPendingBooking(
+      BUYER,
+      { ...INPUT, participants: [{ name: 'Ana' }, { name: 'Bia' }] },
+      FEES
+    );
+    expect(port.participants.get(booking.id) ?? []).toEqual([]);
+    expect(booking.offerSnapshot.requiresParticipantNames).toBeUndefined();
+  });
+
+  it('entrada nominal aceita comprar sem os nomes, para informar depois', async () => {
+    const { service } = setup({ offer: { requiresParticipantNames: true } });
+    const booking = await service.createPendingBooking(BUYER, INPUT, FEES);
+    expect(booking.offerSnapshot.requiresParticipantNames).toBe(true);
   });
 });

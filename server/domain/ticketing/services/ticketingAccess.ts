@@ -5,6 +5,8 @@ export interface TicketingActorContext {
   uid: string;
   admin?: boolean;
   role?: string;
+  /** Do token verificado; só a compra exige (AGENTS.md §7.10, A07). */
+  emailVerified?: boolean;
 }
 
 export function isActorAdmin(actor: TicketingActorContext): boolean {

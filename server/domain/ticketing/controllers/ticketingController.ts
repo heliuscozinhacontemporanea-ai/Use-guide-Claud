@@ -4,7 +4,6 @@ import { confirmTicketOrderPaymentClientReturnApplicationUseCase } from '../../.
 import { createTicketOrderPaymentIntentApplicationUseCase } from '../../../application/usecases/createTicketOrderPaymentIntentApplicationUseCase';
 import { processTicketRefundApplicationUseCase } from '../../../application/usecases/processTicketRefundApplicationUseCase';
 import { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
-import { hashTicketIdForOfflineManifest } from '../adapters/rsaPssTicketQrTokenAdapter';
 import { TicketingDomainError } from '../errors/ticketingDomainError';
 import {
   checkInTicketSchema,
@@ -16,7 +15,6 @@ import {
   payTicketOrderSchema,
   requestTicketRefundSchema,
   syncOfflineCheckInsSchema,
-  transferTicketSchema,
   updateTicketTypeSchema,
 } from '../schemas/ticketingSchema';
 import { archiveTicketTypeUseCase } from '../usecases/archiveTicketTypeUseCase';
@@ -25,7 +23,6 @@ import { createEventPromoCodeUseCase } from '../usecases/createEventPromoCodeUse
 import { createOfflineCheckInSessionUseCase } from '../usecases/createOfflineCheckInSessionUseCase';
 import { createTicketOrderUseCase } from '../usecases/createTicketOrderUseCase';
 import { createTicketTypeUseCase } from '../usecases/createTicketTypeUseCase';
-import { expireAllOverdueOrdersUseCase } from '../usecases/expireAllOverdueOrdersUseCase';
 import { expireTicketOrderUseCase } from '../usecases/expireTicketOrderUseCase';
 import { getEventSalesAnalyticsUseCase } from '../usecases/getEventSalesAnalyticsUseCase';
 import { getTicketOrderUseCase } from '../usecases/getTicketOrderUseCase';
@@ -34,20 +31,22 @@ import { joinEventWaitlistUseCase } from '../usecases/joinEventWaitlistUseCase';
 import { listEventCheckInsForPartnerOrAdminUseCase } from '../usecases/listEventCheckInsForPartnerOrAdminUseCase';
 import { listEventOrdersForPartnerOrAdminUseCase } from '../usecases/listEventOrdersForPartnerOrAdminUseCase';
 import { listEventRefundsForPartnerOrAdminUseCase } from '../usecases/listEventRefundsForPartnerOrAdminUseCase';
+import { listOfflineCheckInChangesUseCase } from '../usecases/listOfflineCheckInChangesUseCase';
 import { listPublicTicketTypesByOccurrenceUseCase } from '../usecases/listPublicTicketTypesByOccurrenceUseCase';
 import { listTicketTypesForManagementUseCase } from '../usecases/listTicketTypesForManagementUseCase';
 import { listUserTicketOrdersUseCase } from '../usecases/listUserTicketOrdersUseCase';
 import { listUserTicketsUseCase } from '../usecases/listUserTicketsUseCase';
-import { reissueTicketQrTokenUseCase } from '../usecases/reissueTicketQrTokenUseCase';
+import { swapTicketQrUseCase } from '../usecases/swapTicketQrUseCase';
 import { syncOfflineCheckInsUseCase } from '../usecases/syncOfflineCheckInsUseCase';
-import { transferTicketUseCase } from '../usecases/transferTicketUseCase';
 import { updateTicketTypeUseCase } from '../usecases/updateTicketTypeUseCase';
+import { hashTicketIdForOfflineManifest } from '../utils/offlineManifest';
 
 function getActor(req: AuthenticatedRequest) {
   return {
     uid: req.user?.uid || '',
     admin: req.user?.admin === true,
     role: req.user?.admin === true ? 'admin' : 'user',
+    emailVerified: req.user?.emailVerified === true,
   };
 }
 
@@ -64,6 +63,17 @@ function handleTicketingError(res: Response, error: unknown): Response {
         return res.status(409).json({ error: error.message });
       case 'UNPROCESSABLE_ENTITY':
         return res.status(422).json({ error: error.message });
+      case 'TOO_MANY_REQUESTS':
+        return res.status(429).json({ error: error.message });
+      case 'TRANSFER_ONLY_TO_BUYER':
+      case 'TRANSFER_LINK_OWN':
+        return res.status(422).json({ error: error.message });
+      case 'TRANSFER_LINK_INVALID':
+        return res.status(404).json({ error: error.message });
+      case 'TRANSFER_LINK_EXPIRED':
+        return res.status(410).json({ error: error.message });
+      case 'EMAIL_NOT_VERIFIED':
+        return res.status(403).json({ error: { code: error.code, message: error.message } });
       case 'SERVICE_UNAVAILABLE':
         return res.status(503).json({ error: error.message });
     }
@@ -217,16 +227,6 @@ export class TicketingController {
     }
   }
 
-  // A chave do job é verificada antes, pelo middleware verifyInternalJobKey.
-  static async expireOrdersInternalJob(_req: Request, res: Response) {
-    try {
-      const result = await expireAllOverdueOrdersUseCase();
-      return res.status(200).json({ status: 'success', ...result });
-    } catch (error) {
-      return handleTicketingError(res, error);
-    }
-  }
-
   static async listUserOrders(req: AuthenticatedRequest, res: Response) {
     try {
       if (!req.user) return res.status(401).json({ error: 'Não autenticado.' });
@@ -279,18 +279,30 @@ export class TicketingController {
     }
   }
 
-  static async reissueTicketQrToken(req: AuthenticatedRequest, res: Response) {
+  static async swapTicketQr(req: AuthenticatedRequest, res: Response) {
     try {
       if (!req.user) return res.status(401).json({ error: 'Não autenticado.' });
-      const ticketId = String(req.params.id || '');
-      const result = await reissueTicketQrTokenUseCase(getActor(req), ticketId);
-      return res.status(200).json({
-        status: 'success',
-        ticketId: result.ticketId,
-        token: result.token,
-        expiresAt: result.expiresAt,
-        data: result,
+      const result = await swapTicketQrUseCase(getActor(req), String(req.params.id || ''));
+      return res.status(200).json({ status: 'success', data: result });
+    } catch (error) {
+      return handleTicketingError(res, error);
+    }
+  }
+
+  static async listOfflineCheckInChanges(req: AuthenticatedRequest, res: Response) {
+    try {
+      if (!req.user) return res.status(401).json({ error: 'Não autenticado.' });
+      const since = typeof req.query.since === 'string' ? req.query.since : '';
+      if (Number.isNaN(new Date(since).getTime())) {
+        return res.status(400).json({ error: 'Parâmetro since inválido.' });
+      }
+      const result = await listOfflineCheckInChangesUseCase(getActor(req), {
+        sessionId: String(req.params.sessionId || ''),
+        since: new Date(since).toISOString(),
       });
+      // A lista muda a cada entrada: sem cache de proxy nem do navegador.
+      res.setHeader('Cache-Control', 'no-store');
+      return res.status(200).json({ status: 'success', data: result });
     } catch (error) {
       return handleTicketingError(res, error);
     }
@@ -312,24 +324,6 @@ export class TicketingController {
         status: 'success',
         data: result.refund,
       });
-    } catch (error) {
-      return handleTicketingError(res, error);
-    }
-  }
-
-  static async transferTicket(req: AuthenticatedRequest, res: Response) {
-    try {
-      if (!req.user) return res.status(401).json({ error: 'Não autenticado.' });
-      const parsed = transferTicketSchema.safeParse(req.body);
-      if (!parsed.success) {
-        return res.status(400).json({ error: 'Dados inválidos.', details: parsed.error.flatten() });
-      }
-      const ticketId = String(req.params.id || '');
-      const result = await transferTicketUseCase(getActor(req), {
-        ticketId,
-        ...parsed.data,
-      });
-      return res.status(200).json({ status: 'success', data: result });
     } catch (error) {
       return handleTicketingError(res, error);
     }

@@ -2,7 +2,7 @@ import QRCode from 'qrcode';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { createTicketOrderPaymentIntentUseCase } from '../application/usecases/createTicketOrderPaymentIntentUseCase';
-import type { Ticket, TicketOrder } from '../types/ticketing';
+import type { Ticket, TicketOrder, TicketQrPass } from '../types/ticketing';
 import type { useUserTicketsAndOrders } from './useUserTickets';
 
 type WalletData = ReturnType<typeof useUserTicketsAndOrders>;
@@ -10,6 +10,14 @@ type WalletData = ReturnType<typeof useUserTicketsAndOrders>;
 export interface WalletFeedback {
   type: 'success' | 'error';
   message: string;
+}
+
+/** QR e código de 8 caracteres de um ingresso aberto na carteira (D20). */
+export interface TicketQrPreview {
+  ticketId: string;
+  dataUrl: string;
+  code: string | null;
+  codeVisibleFrom: string | null;
 }
 
 export interface ResumingOrder {
@@ -23,7 +31,7 @@ export function useTicketWalletActions(wallet: WalletData) {
   const { t } = useTranslation();
   const [busy, setBusy] = useState(false);
   const [feedback, setFeedback] = useState<WalletFeedback | null>(null);
-  const [qrPreview, setQrPreview] = useState<{ ticketId: string; dataUrl: string } | null>(null);
+  const [qrPreview, setQrPreview] = useState<TicketQrPreview | null>(null);
   const [resumingOrder, setResumingOrder] = useState<ResumingOrder | null>(null);
   const [transferTicket, setTransferTicket] = useState<Ticket | null>(null);
 
@@ -39,31 +47,52 @@ export function useTicketWalletActions(wallet: WalletData) {
     }
   };
 
-  const previewQr = async (ticketId: string, rawQrToken: string) => {
-    const dataUrl = await QRCode.toDataURL(rawQrToken, { width: 240, margin: 1 });
-    setQrPreview({ ticketId, dataUrl });
+  // Correção média (M): o QR assinado é longo e precisa continuar legível com o brilho baixo.
+  const previewQr = async (pass: TicketQrPass) => {
+    const dataUrl = await QRCode.toDataURL(pass.token, {
+      errorCorrectionLevel: 'M',
+      width: 480,
+      margin: 1,
+    });
+    setQrPreview({
+      ticketId: pass.ticketId,
+      dataUrl,
+      code: pass.code,
+      codeVisibleFrom: pass.codeVisibleFrom,
+    });
   };
 
   const showQr = (ticket: Ticket) =>
     run(async () => {
-      const { rawQrToken } = await wallet.getSignedQrToken(ticket.id);
-      await previewQr(ticket.id, rawQrToken);
+      await previewQr(await wallet.getSignedQrToken(ticket.id));
     }, 'ticketWallet.errors.qr');
 
-  const reissueQr = (ticket: Ticket) =>
+  const swapQr = (ticket: Ticket) =>
     run(async () => {
-      const { rawQrToken } = await wallet.reissueSignedQrToken(ticket.id);
-      await previewQr(ticket.id, rawQrToken);
-      setFeedback({ type: 'success', message: t('ticketWallet.feedback.qrReissued') });
-    }, 'ticketWallet.errors.qrReissue');
+      await previewQr(await wallet.swapSignedQrToken(ticket.id));
+      setFeedback({ type: 'success', message: t('ticketWallet.feedback.qrSwapped') });
+    }, 'ticketWallet.errors.qrSwap');
 
-  const submitTransfer = (recipient: { email: string; name?: string }) =>
-    run(async () => {
-      if (!transferTicket) return;
-      await wallet.transferTicket(transferTicket.id, recipient.email, recipient.name);
-      setTransferTicket(null);
-      setFeedback({ type: 'success', message: t('ticketWallet.feedback.transferred') });
-    }, 'ticketWallet.errors.transfer');
+  // Erros com código ficam no formulário, que mostra o motivo traduzido junto do @.
+  const submitTransfer = async (username: string) => {
+    if (!transferTicket) return;
+    await wallet.transferTicket(transferTicket.id, username);
+    setTransferTicket(null);
+    setFeedback({ type: 'success', message: t('username.transfer.done', { username }) });
+  };
+
+  const submitReturn = async () => {
+    if (!transferTicket) return;
+    const sender = transferTicket.receivedFrom;
+    await wallet.returnToBuyer(transferTicket.id);
+    setTransferTicket(null);
+    setFeedback({
+      type: 'success',
+      message: t('username.transfer.returned', {
+        name: sender?.username ? `@${sender.username}` : (sender?.displayName ?? ''),
+      }),
+    });
+  };
 
   const requestRefund = (order: TicketOrder) =>
     run(async () => {
@@ -94,10 +123,12 @@ export function useTicketWalletActions(wallet: WalletData) {
     setFeedback,
     qrPreview,
     showQr,
-    reissueQr,
+    swapQr,
     transferTicket,
     setTransferTicket,
     submitTransfer,
+    submitReturn,
+    reloadWallet: wallet.reload,
     requestRefund,
     resumingOrder,
     setResumingOrder,

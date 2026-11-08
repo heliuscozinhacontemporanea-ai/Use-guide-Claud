@@ -1,23 +1,19 @@
-import { ArrowLeft, Plus } from 'lucide-react';
+import { ChevronLeft, Plus } from 'lucide-react';
 import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ConfirmDialog, type ConfirmDialogData } from '../../../../ui/components/ConfirmDialog';
 import { GlassCard } from '../../../../ui/components/GlassCard';
+import { ListEmpty, ListError, ListLoading } from '../../../../ui/components/ListState';
+import { BUTTON_SECONDARY } from '../../../../ui/styles/controls';
 import { usePartnerOffers } from '../../hooks/usePartnerOffers';
 import type { BookableGuideItem, OfferStatus, PartnerOffer } from '../../types/bookings';
 import { getBookingErrorMessage } from '../../utils/bookingErrorMessage';
 import { emptyOfferFormValues, offerToFormValues } from '../../utils/offerFormMapping';
-import { BUTTON_SECONDARY, ListEmpty, ListError, ListLoading } from '../shared/ListState';
+import { isBookableCategory, offerKindForCategory } from '../../utils/offerKindByCategory';
 import { PartnerBookingsList } from './PartnerBookingsList';
 import { PartnerOfferEditor } from './PartnerOfferEditor';
 import { PartnerOfferRow } from './PartnerOfferRow';
 import { PartnerSlotsManager } from './PartnerSlotsManager';
-
-// Fase 1 (decisão D3): passeio vende horários; atração vende entradas.
-const KIND_BY_CATEGORY: Record<string, PartnerOffer['kind']> = {
-  tour: 'tour',
-  sight: 'private_entry',
-};
 
 type View =
   | { type: 'list' }
@@ -28,8 +24,8 @@ interface PartnerOffersManagerProps {
   items: BookableGuideItem[];
   /** Aviso montado pela composição quando a conta financeira ainda não está habilitada. */
   accountNotice?: ReactNode;
-  /** Publicar só com a conta financeira pronta; o servidor confere de novo. */
-  canPublish: boolean;
+  /** Publicar só com a conta do CNPJ do estabelecimento pronta (D14); o servidor confere de novo. */
+  canPublish: (guideItemId: string) => boolean;
 }
 
 export function PartnerOffersManager({
@@ -43,7 +39,7 @@ export function PartnerOffersManager({
   const [busyId, setBusyId] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [confirm, setConfirm] = useState<ConfirmDialogData | null>(null);
-  const eligible = items.filter((item) => KIND_BY_CATEGORY[item.category]);
+  const eligible = items.filter((item) => isBookableCategory(item.category));
 
   const changeStatus = async (offer: PartnerOffer, status: Exclude<OfferStatus, 'draft'>) => {
     setBusyId(offer.id);
@@ -79,7 +75,7 @@ export function PartnerOffersManager({
       aria-label={t('bookings.editor.cancel')}
       className={`${BUTTON_SECONDARY} w-11`}
     >
-      <ArrowLeft size={16} aria-hidden="true" />
+      <ChevronLeft size={16} aria-hidden="true" />
     </button>
   );
 
@@ -105,7 +101,7 @@ export function PartnerOffersManager({
           defaultValues={
             view.offer
               ? offerToFormValues(view.offer)
-              : emptyOfferFormValues(KIND_BY_CATEGORY[view.item.category] ?? 'tour')
+              : emptyOfferFormValues(offerKindForCategory(view.item.category) ?? 'tour')
           }
           onCancel={() => setView({ type: 'list' })}
           onSubmit={async (fields, kind) => {
@@ -123,7 +119,7 @@ export function PartnerOffersManager({
             <p className="text-sm font-bold text-white">{view.offer.title['pt-BR']}</p>
           </div>
           {view.type === 'slots' ? (
-            <PartnerSlotsManager offerId={view.offer.id} />
+            <PartnerSlotsManager offerId={view.offer.id} kind={view.offer.kind} />
           ) : (
             <PartnerBookingsList offerId={view.offer.id} />
           )}
@@ -165,7 +161,7 @@ export function PartnerOffersManager({
                           key={offer.id}
                           offer={offer}
                           busy={busyId === offer.id}
-                          canPublish={canPublish}
+                          canPublish={canPublish(item.id)}
                           onEdit={() => setView({ type: 'editor', item, offer })}
                           onSlots={() => setView({ type: 'slots', offer })}
                           onBookings={() => setView({ type: 'bookings', offer })}

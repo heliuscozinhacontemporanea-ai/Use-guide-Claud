@@ -1,6 +1,7 @@
 import { getApps, initializeApp, cert, applicationDefault, type App } from 'firebase-admin/app';
 import { getAuth, type Auth } from 'firebase-admin/auth';
 import { getFirestore, type Firestore } from 'firebase-admin/firestore';
+import { getMessaging, type Messaging } from 'firebase-admin/messaging';
 import { getStorage, type Storage } from 'firebase-admin/storage';
 
 function requiredEnv(name: string): string {
@@ -52,3 +53,4 @@ export const adminDb: Firestore = lazyInstance(() =>
 );
 export const adminAuth: Auth = lazyInstance(() => getAuth(getFirebaseAdminApp()));
 export const adminStorage: Storage = lazyInstance(() => getStorage(getFirebaseAdminApp()));
+export const adminMessaging: Messaging = lazyInstance(() => getMessaging(getFirebaseAdminApp()));

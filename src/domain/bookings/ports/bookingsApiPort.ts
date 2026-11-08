@@ -1,17 +1,24 @@
 import type {
+  ArrivalLocation,
   BookingDetails,
   BookingSummary,
   CancelBookingResponse,
+  CheckInCodeView,
+  CodeCheckInPayload,
   CreateBookingPayload,
   CreateBookingResponse,
   CreateOfferPayload,
   CreateSlotsPayload,
+  EntryCheckInPayload,
+  EntryPassView,
+  NoCodeReason,
   OfferFields,
   OfferStatus,
   Page,
   PartnerOffer,
   PartnerSlot,
   PublicSlot,
+  UnitCheckInResult,
 } from '../types/bookings';
 
 export interface BookingsApiPort {
@@ -22,6 +29,11 @@ export interface BookingsApiPort {
   listPartnerSlots(offerId: string, fromIso: string, toIso: string): Promise<PartnerSlot[]>;
   createSlots(offerId: string, payload: CreateSlotsPayload): Promise<PartnerSlot[]>;
   cancelSlot(offerId: string, slotId: string): Promise<{ canceledBookings: number }>;
+  rescheduleSlot(
+    offerId: string,
+    slotId: string,
+    change: { startsAt: string; reason: string }
+  ): Promise<{ rescheduledBookings: number }>;
   listOfferBookings(offerId: string, cursor?: string | null): Promise<Page<BookingSummary>>;
   markNoShow(bookingId: string): Promise<BookingSummary>;
 
@@ -30,4 +42,43 @@ export interface BookingsApiPort {
   getBooking(bookingId: string): Promise<BookingDetails>;
   listMyBookings(cursor?: string | null): Promise<Page<BookingSummary>>;
   cancelBooking(bookingId: string): Promise<CancelBookingResponse>;
+
+  // Prova do serviço (D20).
+  getCheckInCode(bookingId: string): Promise<CheckInCodeView>;
+  getEntryPass(bookingId: string): Promise<EntryPassView>;
+  reportProviderAbsent(bookingId: string): Promise<BookingSummary>;
+  answerServiceConfirmation(bookingId: string, answer: 'yes' | 'no'): Promise<BookingSummary>;
+  checkInByCode(
+    offerId: string,
+    slotId: string,
+    payload: CodeCheckInPayload
+  ): Promise<UnitCheckInResult>;
+  checkInEntry(
+    offerId: string,
+    slotId: string,
+    payload: EntryCheckInPayload
+  ): Promise<UnitCheckInResult>;
+  getEntryVerificationKeys(
+    offerId: string
+  ): Promise<Array<{ kid: string; publicKeyJwk: JsonWebKey }>>;
+  recordArrival(
+    offerId: string,
+    bookingId: string,
+    location?: ArrivalLocation
+  ): Promise<BookingSummary>;
+  checkInWithoutCode(
+    offerId: string,
+    bookingId: string,
+    payload: { reason: NoCodeReason }
+  ): Promise<BookingSummary>;
+  setParticipantName(
+    bookingId: string,
+    unit: number,
+    name: string
+  ): Promise<{ unit: number; name: string; changed: boolean }>;
+  answerProviderAbsence(
+    offerId: string,
+    bookingId: string,
+    answer: 'was_there' | 'admitted'
+  ): Promise<BookingSummary>;
 }

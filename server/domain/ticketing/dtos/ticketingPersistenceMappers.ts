@@ -151,6 +151,7 @@ export class TicketOrderPersistenceMapper {
       expiresAt: typeof raw.expiresAt === 'string' ? raw.expiresAt : undefined,
       createdAt: toIso(raw.createdAt, now),
       paidAt: typeof raw.paidAt === 'string' ? raw.paidAt : undefined,
+      rescheduledAt: typeof raw.rescheduledAt === 'string' ? raw.rescheduledAt : undefined,
       canceledAt: typeof raw.canceledAt === 'string' ? raw.canceledAt : undefined,
       expiredAt: typeof raw.expiredAt === 'string' ? raw.expiredAt : undefined,
       updatedAt: toIso(raw.updatedAt, now),
@@ -209,6 +210,25 @@ export class TicketPersistenceMapper {
       qrTokenHash: String(raw.qrTokenHash || ''),
       qrVersion:
         typeof raw.qrVersion === 'number' && raw.qrVersion >= 1 ? Math.trunc(raw.qrVersion) : 1,
+      ...(typeof raw.qrSwappedAt === 'string' ? { qrSwappedAt: raw.qrSwappedAt } : {}),
+      ...(typeof raw.transferLinkExpiresAt === 'string'
+        ? { transferLinkExpiresAt: raw.transferLinkExpiresAt }
+        : {}),
+      ...(raw.receivedFrom && typeof raw.receivedFrom === 'object'
+        ? {
+            receivedFrom: {
+              username:
+                typeof (raw.receivedFrom as { username?: unknown }).username === 'string'
+                  ? String((raw.receivedFrom as { username: string }).username)
+                  : null,
+              displayName:
+                typeof (raw.receivedFrom as { displayName?: unknown }).displayName === 'string'
+                  ? String((raw.receivedFrom as { displayName: string }).displayName)
+                  : null,
+            },
+          }
+        : {}),
+      ...(typeof raw.updatedAt === 'string' ? { updatedAt: raw.updatedAt } : {}),
       status:
         raw.status === 'reserved' ||
         raw.status === 'checked_in' ||
@@ -265,6 +285,8 @@ export class RefundPersistenceMapper {
       orderId: String(raw.orderId || ''),
       ticketId: typeof raw.ticketId === 'string' ? raw.ticketId : undefined,
       amountMinor: typeof raw.amountMinor === 'number' ? Math.trunc(raw.amountMinor) : 0,
+      serviceFeeMinor:
+        typeof raw.serviceFeeMinor === 'number' ? Math.trunc(raw.serviceFeeMinor) : 0,
       requestedBy:
         raw.requestedBy === 'partner' || raw.requestedBy === 'admin' || raw.requestedBy === 'system'
           ? raw.requestedBy

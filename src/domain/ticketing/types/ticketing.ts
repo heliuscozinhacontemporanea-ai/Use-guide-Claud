@@ -122,6 +122,7 @@ export interface TicketOrder {
   };
   salesPolicySnapshot: TicketOrderSalesPolicySnapshot;
   paidAt?: string;
+  rescheduledAt?: string;
   expiresAt?: string;
   idempotencyKey: string;
   createdAt: string;
@@ -159,6 +160,12 @@ export interface Ticket {
   holderEmail: string;
   qrTokenHash: string;
   qrVersion: number;
+  /** O titular já usou "Problema com o QR Code?" (só uma vez por ingresso, D21). */
+  qrSwappedAt?: string;
+  /** Recebido por transferência: de quem veio. Só pode voltar para essa pessoa (D21). */
+  receivedFrom?: { username: string | null; displayName: string | null };
+  /** Link de transferência pendente: até quando vale (D21). */
+  transferLinkExpiresAt?: string;
   status: TicketStatus;
   ticketTypeSnapshot?: {
     name: string;
@@ -226,6 +233,31 @@ export interface EventSalesAnalytics {
   ordersPending: number;
 }
 
+/** QR assinado do ingresso e código de 8 caracteres, que só aparece no dia da sessão (D20). */
+/** Link de transferência criado agora; o código só existe nesta resposta (D21). */
+export interface TicketTransferLinkCreated {
+  linkId: string;
+  token: string;
+  expiresAt: string;
+}
+
+/** O que o link entrega, mostrado a quem recebeu antes de aceitar. */
+export interface TicketTransferLinkPreview {
+  eventTitle: string | null;
+  startsAt: string | null;
+  ticketType: string | null;
+  from: { username: string | null; displayName: string | null };
+  expiresAt: string;
+}
+
+export interface TicketQrPass {
+  ticketId: string;
+  token: string;
+  expiresAt: string;
+  code: string | null;
+  codeVisibleFrom: string | null;
+}
+
 export interface OfflineCheckInSessionResponse {
   session: {
     id: string;
@@ -239,12 +271,21 @@ export interface OfflineCheckInSessionResponse {
     status: 'active' | 'expired' | 'revoked';
     keyId: string;
   };
-  publicKeyPem: string;
-  manifest: Array<{
-    ticketIdHash: string;
-    qrVersion: number;
-    status: 'issued' | 'checked_in';
-  }>;
+  manifest: {
+    sessionId: string;
+    occurrenceId: string;
+    expiresAt: string;
+    /** Chave atual e, na rotação, a anterior: o aparelho confere o QR sem internet. */
+    keys: Array<{ kid: string; publicKeyJwk: JsonWebKey }>;
+    tickets: Array<{ ticketIdHash: string; qrVersion: number }>;
+  };
+}
+
+/** Mudanças da lista sem internet desde a última atualização (D21). */
+export interface OfflineCheckInChanges {
+  serverTime: string;
+  hasMore: boolean;
+  tickets: Array<{ ticketIdHash: string; qrVersion: number; usable: boolean }>;
 }
 
 export interface OfflineCheckInSyncResult {

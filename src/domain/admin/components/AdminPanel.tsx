@@ -1,14 +1,14 @@
+import { RefreshCw } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
 import { type ReactNode, useMemo, useState } from 'react';
-import { UserRole } from '../../auth/types/auth';
-import { motion, AnimatePresence } from 'motion/react';
-import { useAuthContext } from '../../auth/context/AuthContext';
-import { ChevronLeft, RefreshCw, X } from 'lucide-react';
-import { useUI } from '../../../shared/stores/useUIStore';
-import { useLocalizedRouting } from '../../../shared/hooks/useLocalizedRouting';
-
-import { BackgroundBlobs } from '../../../ui/components/BackgroundBlobs';
-import { ErrorState } from '../../../ui/components/ErrorState';
+import { useTranslation } from 'react-i18next';
 import { CATEGORIES } from '../../../shared/constants/categories';
+import { useLocalizedRouting } from '../../../shared/hooks/useLocalizedRouting';
+import { useUI } from '../../../shared/stores/useUIStore';
+import { BackButton } from '../../../ui/components/BackButton';
+import { ErrorState } from '../../../ui/components/ErrorState';
+import { useAuthContext } from '../../auth/context/AuthContext';
+import { UserRole } from '../../auth/types/auth';
 import {
   createAdminEventListingUseCase,
   deleteAdminEventListingUseCase,
@@ -18,8 +18,8 @@ import {
 import {
   createGuideItemUseCase,
   deleteGuideItemUseCase,
-  updateGuideItemUseCase,
   type GuideItem,
+  updateGuideItemUseCase,
 } from '../../guide';
 import {
   toGuideEventInput,
@@ -28,18 +28,18 @@ import {
   toGuideItemUpdateInput,
 } from '../application/mappers/adminGuideEditorMapper';
 import { useAdminGuideCatalog } from '../hooks/useAdminGuideCatalog';
-import { useAdminPartners } from '../hooks/useAdminPartners';
 import { useAdminPartnerActions } from '../hooks/useAdminPartnerActions';
+import { useAdminPartners } from '../hooks/useAdminPartners';
 import { useAdminStats } from '../hooks/useAdminStats';
-
-import { AdminNavigation, type AdminTabId } from './subcomponents/AdminNavigation';
-import { AdminStatsView } from './subcomponents/AdminStatsView';
-import { AdminPartnersView } from './subcomponents/AdminPartnersView';
-import { AdminGuideView } from './subcomponents/AdminGuideView';
-import { AdminEditorModal, type AdminEditorSaveData } from './subcomponents/AdminEditorModal';
+import { AdminAccessDenied } from './subcomponents/AdminAccessDenied';
 import type { AdminEventSlots } from './subcomponents/AdminEditorEventFields';
-import { AdminPlansView } from './subcomponents/AdminPlansView';
+import { AdminEditorModal, type AdminEditorSaveData } from './subcomponents/AdminEditorModal';
+import { AdminGuideView } from './subcomponents/AdminGuideView';
+import { AdminNavigation, type AdminTabId } from './subcomponents/AdminNavigation';
 import { AdminNotificationsView } from './subcomponents/AdminNotificationsView';
+import { AdminPartnersView } from './subcomponents/AdminPartnersView';
+import { AdminPlansView } from './subcomponents/AdminPlansView';
+import { AdminStatsView } from './subcomponents/AdminStatsView';
 
 function newRecord(category: 'tips' | 'event'): GuideItem {
   return {
@@ -69,15 +69,22 @@ export interface AdminPanelProps extends AdminEventSlots {
   renderVerificationQueue?: () => ReactNode;
   /** Selo de cada estabelecimento (D11, domínio partners), montado pela composição. */
   renderListingSeal?: (item: GuideItem) => ReactNode;
+  /** Filas financeiras (D16, domínio payment), montadas pela composição. */
+  renderFinanceQueues?: () => ReactNode;
+  /** Fila de denúncias de respostas (D19, domínio reviews), montada pela composição. */
+  renderModerationQueue?: () => ReactNode;
 }
 
 export function AdminPanel({
   renderListingEditor,
   renderVerificationQueue,
   renderListingSeal,
+  renderFinanceQueues,
+  renderModerationQueue,
   renderSessionsField,
   renderTicketingManager,
 }: AdminPanelProps = {}) {
+  const { t } = useTranslation();
   const { goTo } = useLocalizedRouting();
   const { user, loading: userLoading } = useAuthContext();
   const { showToast, confirmAction } = useUI();
@@ -213,67 +220,26 @@ export function AdminPanel({
   }
 
   if (!user || !isAdminUser) {
-    return (
-      <div
-        className="min-h-screen flex flex-col items-center justify-center bg-slate-950 p-6 text-center"
-        id="denied-access-screen"
-      >
-        <div className="w-20 h-20 rounded-full bg-rose-500/10 flex items-center justify-center text-rose-500 mb-6 border border-rose-500/20">
-          <X size={40} />
-        </div>
-        <h2 className="text-2xl font-display font-extrabold mb-2">Acesso Restrito</h2>
-        <p className="text-white/50 mb-8 max-w-xs text-sm">
-          Você precisa estar autenticado com uma conta de administrador.
-        </p>
-        <button
-          type="button"
-          onClick={() => goTo('explore')}
-          className="min-h-[44px] px-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-white/10 transition-all focus-visible:ring-2 focus-visible:ring-teal-400/50"
-        >
-          Voltar para o Início
-        </button>
-      </div>
-    );
+    return <AdminAccessDenied onBack={() => goTo('explore')} />;
   }
 
   return (
     <div
-      className="min-h-screen pt-12 pb-40 px-4 bg-[#020508] font-sans selection:bg-teal-500/30 relative overflow-hidden"
+      className="min-h-screen pt-[max(1rem,env(safe-area-inset-top))] pb-40 px-4 bg-app font-sans selection:bg-teal-500/30 relative"
       id="admin-panel-viewport"
     >
-      <BackgroundBlobs />
-
-      <div className="max-w-4xl mx-auto space-y-8 relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-center gap-5"
-        >
-          <button
-            type="button"
-            aria-label="Voltar para Home"
-            onClick={() => goTo('explore')}
-            className="w-11 h-11 flex items-center justify-center rounded-2xl bg-white/5 border border-white/10 text-white/50 hover:text-white hover:bg-white/10 transition-all active:scale-90 focus-visible:ring-2 focus-visible:ring-teal-400/50"
-          >
-            <ChevronLeft size={22} />
-          </button>
-          <div>
-            <h1 className="text-3xl font-display font-extrabold tracking-tight bg-gradient-to-r from-white to-white/50 bg-clip-text text-transparent">
-              CMS Dashboard
-            </h1>
-            <div className="flex items-center gap-2 mt-1">
-              <div className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse" />
-              <p className="text-[10px] text-white/50 uppercase font-black tracking-[0.2em]">
-                Gestão de Conteúdo
-              </p>
-            </div>
-          </div>
-        </motion.div>
+      <div className="max-w-4xl mx-auto space-y-6 relative">
+        <div className="flex items-center gap-2">
+          <BackButton label={t('adminPanel.back')} onClick={() => goTo('explore')} />
+          <h1 className="text-[22px] font-display font-bold text-ink">{t('adminPanel.title')}</h1>
+        </div>
 
         <AdminNavigation
           activeTab={activeTab}
           onSelectTab={setActiveTab}
           showVerifications={Boolean(renderVerificationQueue)}
+          showFinance={Boolean(renderFinanceQueues)}
+          showModeration={Boolean(renderModerationQueue)}
         />
 
         <AnimatePresence mode="wait">
@@ -308,6 +274,10 @@ export function AdminPanel({
               )
             ) : activeTab === 'verifications' ? (
               renderVerificationQueue?.()
+            ) : activeTab === 'finance' ? (
+              renderFinanceQueues?.()
+            ) : activeTab === 'moderation' ? (
+              renderModerationQueue?.()
             ) : activeTab === 'plans' ? (
               <AdminPlansView />
             ) : activeTab === 'notifications' ? (

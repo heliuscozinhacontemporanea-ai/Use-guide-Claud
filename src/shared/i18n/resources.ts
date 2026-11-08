@@ -1,9 +1,46 @@
 import {
+  type AdminFinanceTranslation,
+  adminFinanceEn,
+  adminFinanceFr,
+  adminFinancePtBR,
+} from './adminFinanceResources';
+import {
+  type AdminPanelTranslation,
+  adminPanelEn,
+  adminPanelFr,
+  adminPanelPtBR,
+} from './adminPanelResources';
+import {
+  type AppAboutTranslation,
+  appAboutEn,
+  appAboutFr,
+  appAboutPtBR,
+} from './appAboutResources';
+import {
   type BookingsTranslation,
   bookingsEn,
   bookingsFr,
   bookingsPtBR,
 } from './bookingsResources';
+import {
+  type EmailVerificationTranslation,
+  emailVerificationEn,
+  emailVerificationFr,
+  emailVerificationPtBR,
+} from './emailVerificationResources';
+import {
+  type EventSessionsTranslation,
+  eventSessionsEn,
+  eventSessionsFr,
+  eventSessionsPtBR,
+} from './eventSessionsResources';
+import {
+  type GateModeTranslation,
+  gateModeEn,
+  gateModeFr,
+  gateModePtBR,
+} from './gateModeResources';
+import { type HelpTranslation, helpEn, helpFr, helpPtBR } from './helpResources';
 import {
   type InsightsTranslation,
   insightsEn,
@@ -17,6 +54,7 @@ import {
   listingPlanFr,
   listingPlanPtBR,
 } from './listingPlanResources';
+import { type NotifyTranslation, notifyEn, notifyFr, notifyPtBR } from './notifyResources';
 import {
   type PartnersTranslation,
   partnersEn,
@@ -30,11 +68,51 @@ import {
   paymentAccountsPtBR,
 } from './paymentAccountsResources';
 import {
+  type MyReviewsTranslation,
+  myReviewsEn,
+  myReviewsFr,
+  myReviewsPtBR,
+  type ProfileTranslation,
+  profileEn,
+  profileFr,
+  profilePtBR,
+} from './profileResources';
+import {
+  type PurchasesTranslation,
+  purchasesEn,
+  purchasesFr,
+  purchasesPtBR,
+} from './purchasesResources';
+import {
+  type ReceivablesTranslation,
+  receivablesEn,
+  receivablesFr,
+  receivablesPtBR,
+} from './receivablesResources';
+import {
+  type ReviewReportsTranslation,
+  reviewReportsEn,
+  reviewReportsFr,
+  reviewReportsPtBR,
+} from './reviewReportsResources';
+import {
+  type SaleClaimsTranslation,
+  saleClaimsEn,
+  saleClaimsFr,
+  saleClaimsPtBR,
+} from './saleClaimsResources';
+import {
   type SalesPolicyTranslation,
   salesPolicyEn,
   salesPolicyFr,
   salesPolicyPtBR,
 } from './salesPolicyResources';
+import {
+  type ServiceProofTranslation,
+  serviceProofEn,
+  serviceProofFr,
+  serviceProofPtBR,
+} from './serviceProofResources';
 import {
   type TicketCheckoutTranslation,
   ticketCheckoutEn,
@@ -42,11 +120,29 @@ import {
   ticketCheckoutPtBR,
 } from './ticketCheckoutResources';
 import {
+  type TicketGateTranslation,
+  ticketGateEn,
+  ticketGateFr,
+  ticketGatePtBR,
+} from './ticketGateResources';
+import {
+  type TicketSessionsTranslation,
+  ticketSessionsEn,
+  ticketSessionsFr,
+  ticketSessionsPtBR,
+} from './ticketSessionsResources';
+import {
   type TicketWalletTranslation,
   ticketWalletEn,
   ticketWalletFr,
   ticketWalletPtBR,
 } from './ticketWalletResources';
+import {
+  type UsernameTranslation,
+  usernameEn,
+  usernameFr,
+  usernamePtBR,
+} from './usernameResources';
 import {
   type VerificationTranslation,
   verificationEn,
@@ -60,15 +156,35 @@ export interface TranslationResource {
   listingPlan: ListingPlanTranslation;
   partners: PartnersTranslation;
   paymentAccounts: PaymentAccountsTranslation;
+  receivables: ReceivablesTranslation;
+  saleClaims: SaleClaimsTranslation;
+  purchases: PurchasesTranslation;
+  profile: ProfileTranslation;
+  myReviews: MyReviewsTranslation;
+  reviewReports: ReviewReportsTranslation;
+  adminPanel: AdminPanelTranslation;
+  serviceProof: ServiceProofTranslation;
+  adminFinance: AdminFinanceTranslation;
+  ticketSessions: TicketSessionsTranslation;
   salesPolicy: SalesPolicyTranslation;
   ticketCheckout: TicketCheckoutTranslation;
   ticketWallet: TicketWalletTranslation;
+  ticketGate: TicketGateTranslation;
+  username: UsernameTranslation;
+  appAbout: AppAboutTranslation;
+  notify: NotifyTranslation;
+  help: HelpTranslation;
+  eventSessions: EventSessionsTranslation;
+  gateMode: GateModeTranslation;
   legal: LegalTranslation;
   verification: VerificationTranslation;
+  emailVerification: EmailVerificationTranslation;
   common: {
     language: string;
     cancel: string;
     confirm: string;
+    close: string;
+    retry: string;
     /** Selo "Use Guide Verificado" explicado ao toque (D11). */
     seal: {
       label: string;
@@ -104,26 +220,16 @@ export interface TranslationResource {
     };
   };
   menu: {
-    mainTitle: string;
-    subtitle: string;
     closeMenu: string;
     changeProfilePhoto: string;
     userFallback: string;
     signInOrRegister: string;
-    yourArea: string;
-    account: string;
-    favorites: string;
-    tickets: string;
     emailPassword: string;
     orUse: string;
     continueGoogle: string;
     managementPanel: string;
     myPanel: string;
-    servicesInfo: string;
-    partnerProgram: string;
-    support: string;
-    aboutApp: string;
-    logout: string;
+    authErrors: { popupBlocked: string; unauthorizedDomain: string; generic: string };
   };
   navigation: {
     explore: string;
@@ -137,6 +243,7 @@ export interface TranslationResource {
     tips: string;
   };
   errors: {
+    appCheck: { APP_CHECK_REQUIRED: string; APP_CHECK_INVALID: string };
     media: {
       IMAGE_TOO_LARGE: string;
       INVALID_IMAGE: string;
@@ -238,10 +345,13 @@ export interface TranslationResource {
   pages: {
     notFoundTitle: string;
     notFoundDescription: string;
+    itemUnavailable: string;
     backHome: string;
     checkoutResultMissing: string;
     planPaymentTitle: string;
     planPaymentDescription: string;
+    debtPaymentTitle: string;
+    debtPaymentDescription: string;
     openPartnerArea: string;
     partnerAreaTitle: string;
     partnerLoginRequired: string;
@@ -266,6 +376,8 @@ export interface TranslationResource {
     appearanceSubtitle: string;
     language: string;
     languageSubtitle: string;
+    support: string;
+    about: string;
     theme: { light: string; dark: string; system: string };
     themeDescription: { light: string; dark: string; system: string };
   };
@@ -284,15 +396,35 @@ const ptBR: TranslationResource = {
   listingPlan: listingPlanPtBR,
   partners: partnersPtBR,
   paymentAccounts: paymentAccountsPtBR,
+  receivables: receivablesPtBR,
+  saleClaims: saleClaimsPtBR,
+  purchases: purchasesPtBR,
+  profile: profilePtBR,
+  myReviews: myReviewsPtBR,
+  reviewReports: reviewReportsPtBR,
+  adminPanel: adminPanelPtBR,
+  serviceProof: serviceProofPtBR,
+  adminFinance: adminFinancePtBR,
+  ticketSessions: ticketSessionsPtBR,
   salesPolicy: salesPolicyPtBR,
   ticketCheckout: ticketCheckoutPtBR,
   ticketWallet: ticketWalletPtBR,
+  ticketGate: ticketGatePtBR,
+  username: usernamePtBR,
+  appAbout: appAboutPtBR,
+  notify: notifyPtBR,
+  help: helpPtBR,
+  eventSessions: eventSessionsPtBR,
+  gateMode: gateModePtBR,
   legal: legalPtBR,
   verification: verificationPtBR,
+  emailVerification: emailVerificationPtBR,
   common: {
     language: 'Idioma',
     cancel: 'Cancelar',
+    retry: 'Tentar novamente',
     confirm: 'Confirmar',
+    close: 'Fechar',
     seal: {
       label: 'Ver o que significa o selo Use Guide Verificado',
       title: 'Use Guide Verificado',
@@ -327,26 +459,21 @@ const ptBR: TranslationResource = {
     },
   },
   menu: {
-    mainTitle: 'Menu Principal',
-    subtitle: 'Gerencie sua experiência',
     closeMenu: 'Fechar menu',
     changeProfilePhoto: 'Alterar foto de perfil',
     userFallback: 'Usuário',
-    signInOrRegister: 'Entrar ou cadastre-se',
-    yourArea: 'Sua área',
-    account: 'Conta',
-    favorites: 'Meus Favoritos',
-    tickets: 'Meus Ingressos',
-    emailPassword: 'E-mail e Senha',
-    orUse: 'Ou use',
+    signInOrRegister: 'Entrar ou cadastrar',
+    emailPassword: 'E-mail e senha',
+    orUse: 'ou',
     continueGoogle: 'Continuar com Google',
-    managementPanel: 'Painel de Gestão',
-    myPanel: 'Meu Painel',
-    servicesInfo: 'Serviços & Info',
-    partnerProgram: 'Programa de Parceiros',
-    support: 'Suporte / Ajuda',
-    aboutApp: 'Sobre o App',
-    logout: 'Sair',
+    managementPanel: 'Painel de gestão',
+    myPanel: 'Meu painel',
+    authErrors: {
+      popupBlocked: 'O navegador bloqueou a janela de login. Libere pop-ups e tente de novo.',
+      unauthorizedDomain:
+        'Este endereço não está autorizado para login. Recarregue a página e tente de novo.',
+      generic: 'Não foi possível entrar com o Google.',
+    },
   },
   navigation: {
     explore: 'Explorar',
@@ -360,6 +487,11 @@ const ptBR: TranslationResource = {
     tips: 'Dicas',
   },
   errors: {
+    appCheck: {
+      APP_CHECK_REQUIRED:
+        'O servidor recusou o acesso porque este aparelho não foi validado pelo App Check. Recarregue a página; se continuar, o App Check precisa ser configurado.',
+      APP_CHECK_INVALID: 'A validação do App Check falhou. Recarregue a página e tente de novo.',
+    },
     media: {
       IMAGE_TOO_LARGE: 'A imagem passa de 6 MB. Escolha uma imagem menor.',
       INVALID_IMAGE: 'Formato não suportado. Envie uma imagem JPEG, PNG ou WebP.',
@@ -506,10 +638,14 @@ const ptBR: TranslationResource = {
   pages: {
     notFoundTitle: 'Página não encontrada',
     notFoundDescription: 'O endereço que você abriu não existe ou foi alterado.',
+    itemUnavailable: 'Este item não está mais disponível.',
     backHome: 'Voltar ao início',
     checkoutResultMissing: 'Não encontramos o pedido deste pagamento.',
     planPaymentTitle: 'Pagamento do plano em processamento',
     planPaymentDescription: 'Assim que o Stripe confirmar, o selo aparece na sua área de parceiro.',
+    debtPaymentTitle: 'Pagamento da dívida em processamento',
+    debtPaymentDescription:
+      'Assim que o Stripe confirmar, a dívida aparece como paga em Recebimentos e as vendas voltam.',
     openPartnerArea: 'Abrir área do parceiro',
     partnerAreaTitle: 'Área do parceiro',
     partnerLoginRequired: 'Entre na sua conta de parceiro para abrir o painel.',
@@ -535,6 +671,8 @@ const ptBR: TranslationResource = {
     appearanceSubtitle: 'Selecione o modo',
     language: 'Idioma do Guide',
     languageSubtitle: 'Selecione o idioma',
+    support: 'Suporte',
+    about: 'Sobre o app',
     theme: { light: 'Claro', dark: 'Escuro', system: 'Sistema' },
     themeDescription: {
       light: 'Tema com tonalidade clara',
@@ -558,15 +696,35 @@ const en: TranslationResource = {
   listingPlan: listingPlanEn,
   partners: partnersEn,
   paymentAccounts: paymentAccountsEn,
+  receivables: receivablesEn,
+  saleClaims: saleClaimsEn,
+  purchases: purchasesEn,
+  profile: profileEn,
+  myReviews: myReviewsEn,
+  reviewReports: reviewReportsEn,
+  adminPanel: adminPanelEn,
+  serviceProof: serviceProofEn,
+  adminFinance: adminFinanceEn,
+  ticketSessions: ticketSessionsEn,
   salesPolicy: salesPolicyEn,
   ticketCheckout: ticketCheckoutEn,
   ticketWallet: ticketWalletEn,
+  ticketGate: ticketGateEn,
+  username: usernameEn,
+  appAbout: appAboutEn,
+  notify: notifyEn,
+  help: helpEn,
+  eventSessions: eventSessionsEn,
+  gateMode: gateModeEn,
   legal: legalEn,
   verification: verificationEn,
+  emailVerification: emailVerificationEn,
   common: {
     language: 'Language',
     cancel: 'Cancel',
+    retry: 'Try again',
     confirm: 'Confirm',
+    close: 'Close',
     seal: {
       label: 'See what the Use Guide Verified badge means',
       title: 'Use Guide Verified',
@@ -600,26 +758,21 @@ const en: TranslationResource = {
     },
   },
   menu: {
-    mainTitle: 'Main Menu',
-    subtitle: 'Manage your experience',
     closeMenu: 'Close menu',
     changeProfilePhoto: 'Change profile photo',
     userFallback: 'User',
-    signInOrRegister: 'Sign in or register',
-    yourArea: 'Your area',
-    account: 'Account',
-    favorites: 'My Favorites',
-    tickets: 'My Tickets',
-    emailPassword: 'Email & Password',
-    orUse: 'Or use',
+    signInOrRegister: 'Sign in or sign up',
+    emailPassword: 'Email and password',
+    orUse: 'or',
     continueGoogle: 'Continue with Google',
-    managementPanel: 'Management Panel',
-    myPanel: 'My Panel',
-    servicesInfo: 'Services & Info',
-    partnerProgram: 'Partner Program',
-    support: 'Support / Help',
-    aboutApp: 'About the App',
-    logout: 'Sign out',
+    managementPanel: 'Management panel',
+    myPanel: 'My panel',
+    authErrors: {
+      popupBlocked: 'The browser blocked the sign-in window. Allow pop-ups and try again.',
+      unauthorizedDomain:
+        'This address is not authorized for sign-in. Reload the page and try again.',
+      generic: 'Could not sign in with Google.',
+    },
   },
   navigation: {
     explore: 'Explore',
@@ -633,6 +786,11 @@ const en: TranslationResource = {
     tips: 'Tips',
   },
   errors: {
+    appCheck: {
+      APP_CHECK_REQUIRED:
+        'The server refused access because this device was not validated by App Check. Reload the page; if it continues, App Check needs to be configured.',
+      APP_CHECK_INVALID: 'App Check validation failed. Reload the page and try again.',
+    },
     media: {
       IMAGE_TOO_LARGE: 'The image is larger than 6 MB. Choose a smaller image.',
       INVALID_IMAGE: 'Unsupported format. Upload a JPEG, PNG or WebP image.',
@@ -774,10 +932,14 @@ const en: TranslationResource = {
   pages: {
     notFoundTitle: 'Page not found',
     notFoundDescription: 'The address you opened does not exist or has changed.',
+    itemUnavailable: 'This item is no longer available.',
     backHome: 'Back to home',
     checkoutResultMissing: 'We could not find the order for this payment.',
     planPaymentTitle: 'Plan payment processing',
     planPaymentDescription: 'As soon as Stripe confirms, the badge appears in your partner area.',
+    debtPaymentTitle: 'Debt payment processing',
+    debtPaymentDescription:
+      'As soon as Stripe confirms, the debt shows as paid under Payouts and sales resume.',
     openPartnerArea: 'Open partner area',
     partnerAreaTitle: 'Partner area',
     partnerLoginRequired: 'Sign in to your partner account to open the dashboard.',
@@ -803,6 +965,8 @@ const en: TranslationResource = {
     appearanceSubtitle: 'Choose a mode',
     language: 'Guide language',
     languageSubtitle: 'Choose a language',
+    support: 'Support',
+    about: 'About the app',
     theme: { light: 'Light', dark: 'Dark', system: 'System' },
     themeDescription: {
       light: 'Light-toned theme',
@@ -826,15 +990,35 @@ const fr: TranslationResource = {
   listingPlan: listingPlanFr,
   partners: partnersFr,
   paymentAccounts: paymentAccountsFr,
+  receivables: receivablesFr,
+  saleClaims: saleClaimsFr,
+  purchases: purchasesFr,
+  profile: profileFr,
+  myReviews: myReviewsFr,
+  reviewReports: reviewReportsFr,
+  adminPanel: adminPanelFr,
+  serviceProof: serviceProofFr,
+  adminFinance: adminFinanceFr,
+  ticketSessions: ticketSessionsFr,
   salesPolicy: salesPolicyFr,
   ticketCheckout: ticketCheckoutFr,
   ticketWallet: ticketWalletFr,
+  ticketGate: ticketGateFr,
+  username: usernameFr,
+  appAbout: appAboutFr,
+  notify: notifyFr,
+  help: helpFr,
+  eventSessions: eventSessionsFr,
+  gateMode: gateModeFr,
   legal: legalFr,
   verification: verificationFr,
+  emailVerification: emailVerificationFr,
   common: {
     language: 'Langue',
     cancel: 'Annuler',
+    retry: 'Réessayer',
     confirm: 'Confirmer',
+    close: 'Fermer',
     seal: {
       label: 'Voir ce que signifie le badge Use Guide Vérifié',
       title: 'Use Guide Vérifié',
@@ -868,26 +1052,22 @@ const fr: TranslationResource = {
     },
   },
   menu: {
-    mainTitle: 'Menu principal',
-    subtitle: 'Gérez votre expérience',
     closeMenu: 'Fermer le menu',
     changeProfilePhoto: 'Changer la photo de profil',
     userFallback: 'Utilisateur',
-    signInOrRegister: 'Connexion ou inscription',
-    yourArea: 'Votre espace',
-    account: 'Compte',
-    favorites: 'Mes favoris',
-    tickets: 'Mes billets',
+    signInOrRegister: 'Se connecter ou s’inscrire',
     emailPassword: 'E-mail et mot de passe',
-    orUse: 'Ou utiliser',
+    orUse: 'ou',
     continueGoogle: 'Continuer avec Google',
     managementPanel: 'Panneau de gestion',
-    myPanel: 'Mon espace',
-    servicesInfo: 'Services et infos',
-    partnerProgram: 'Programme partenaires',
-    support: 'Support / Aide',
-    aboutApp: 'À propos de l’app',
-    logout: 'Se déconnecter',
+    myPanel: 'Mon panneau',
+    authErrors: {
+      popupBlocked:
+        'Le navigateur a bloqué la fenêtre de connexion. Autorisez les pop-ups et réessayez.',
+      unauthorizedDomain:
+        'Cette adresse n’est pas autorisée pour la connexion. Rechargez la page et réessayez.',
+      generic: 'Impossible de se connecter avec Google.',
+    },
   },
   navigation: {
     explore: 'Explorer',
@@ -901,6 +1081,11 @@ const fr: TranslationResource = {
     tips: 'Conseils',
   },
   errors: {
+    appCheck: {
+      APP_CHECK_REQUIRED:
+        'Le serveur a refusé l’accès car cet appareil n’a pas été validé par App Check. Rechargez la page ; si cela continue, App Check doit être configuré.',
+      APP_CHECK_INVALID: 'La validation App Check a échoué. Rechargez la page et réessayez.',
+    },
     media: {
       IMAGE_TOO_LARGE: "L'image dépasse 6 Mo. Choisissez une image plus légère.",
       INVALID_IMAGE: 'Format non pris en charge. Envoyez une image JPEG, PNG ou WebP.',
@@ -1048,12 +1233,16 @@ const fr: TranslationResource = {
   pages: {
     notFoundTitle: 'Page introuvable',
     notFoundDescription: 'L’adresse que vous avez ouverte n’existe pas ou a changé.',
+    itemUnavailable: 'Cet élément n’est plus disponible.',
     backHome: 'Retour à l’accueil',
     checkoutResultMissing: 'Nous n’avons pas trouvé la commande de ce paiement.',
     planPaymentTitle: 'Paiement du forfait en cours',
     planPaymentDescription:
       'Dès que Stripe confirme, le badge apparaît dans votre espace partenaire.',
     openPartnerArea: 'Ouvrir l’espace partenaire',
+    debtPaymentTitle: 'Paiement de la dette en cours',
+    debtPaymentDescription:
+      'Dès que Stripe confirme, la dette apparaît comme payée dans Versements et les ventes reprennent.',
     partnerAreaTitle: 'Espace partenaire',
     partnerLoginRequired:
       'Connectez-vous à votre compte partenaire pour ouvrir le tableau de bord.',
@@ -1079,6 +1268,8 @@ const fr: TranslationResource = {
     appearanceSubtitle: 'Choisissez un mode',
     language: 'Langue du guide',
     languageSubtitle: 'Choisissez une langue',
+    support: 'Assistance',
+    about: 'À propos de l’app',
     theme: { light: 'Clair', dark: 'Sombre', system: 'Système' },
     themeDescription: {
       light: 'Thème aux tons clairs',

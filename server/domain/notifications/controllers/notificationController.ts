@@ -1,148 +1,97 @@
-import { Request, Response } from 'express';
-import { notificationService } from '../factory';
-import { SendAdminMessageDTO } from '../dtos/SendAdminMessageDTO';
-import { UpdateNotificationSettingsDTO } from '../dtos/UpdateNotificationSettingsDTO';
-import { AuthenticatedRequest } from '../../../infrastructure/auth/authMiddleware';
+import type { Response } from 'express';
+import type { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
+import { NotificationDomainError } from '../errors/notificationErrors';
 import {
-  NotificationNotFoundError,
-  NotificationForbiddenError,
-} from '../errors/notificationErrors';
-import {
-  sendAdminMessageSchema,
-  updateNotificationSettingsSchema,
+  notificationIdParamsSchema,
+  notificationPreferencesPatchSchema,
+  pushDeviceSchema,
 } from '../schemas/notificationSchema';
+import { getNotificationPreferencesUseCase } from '../usecases/getNotificationPreferencesUseCase';
+import { markAllNotificationsAsReadUseCase } from '../usecases/markAllNotificationsAsReadUseCase';
+import { markNotificationAsReadUseCase } from '../usecases/markNotificationAsReadUseCase';
+import { registerPushDeviceUseCase } from '../usecases/registerPushDeviceUseCase';
+import { unregisterPushDeviceUseCase } from '../usecases/unregisterPushDeviceUseCase';
+import { updateNotificationPreferencesUseCase } from '../usecases/updateNotificationPreferencesUseCase';
+
+function sendError(res: Response, status: number, code: string, message: string): Response {
+  return res.status(status).json({ error: { code, message } });
+}
+
+function handleError(res: Response, error: unknown, operation: string): Response {
+  if (error instanceof NotificationDomainError) {
+    return sendError(res, error.statusCode, error.code, error.message);
+  }
+  console.error(`[NotificationController.${operation}]`, {
+    name: error instanceof Error ? error.name : 'UnknownError',
+  });
+  return sendError(res, 500, 'INTERNAL_ERROR', 'Erro interno do servidor.');
+}
 
 export class NotificationController {
-  static async markAsRead(req: AuthenticatedRequest, res: Response): Promise<void> {
+  static async markAsRead(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    if (!req.user?.uid) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
+    const params = notificationIdParamsSchema.safeParse(req.params);
+    if (!params.success) return sendError(res, 400, 'VALIDATION_ERROR', 'Aviso inválido.');
     try {
-      const uid = req.user?.uid;
-      if (!uid) {
-        res.status(401).json({ error: 'Não autenticado' });
-        return;
-      }
-
-      const rawNotificationId = req.params.id;
-      const notificationId = Array.isArray(rawNotificationId)
-        ? rawNotificationId[0]
-        : rawNotificationId;
-      if (!notificationId) {
-        res.status(400).json({ error: 'ID da notificação é obrigatório' });
-        return;
-      }
-
-      await notificationService.markAsRead(notificationId, uid);
-      res.status(200).json({ success: true, message: 'Notificação marcada como lida.' });
-    } catch (error: unknown) {
-      if (error instanceof NotificationNotFoundError) {
-        res.status(404).json({ error: error.message });
-        return;
-      }
-      if (error instanceof NotificationForbiddenError) {
-        res.status(403).json({ error: error.message });
-        return;
-      }
-      const msg = error instanceof Error ? error.message : 'Erro ao atualizar notificação';
-      if (msg === 'Notificação não encontrada') {
-        res.status(404).json({ error: msg });
-        return;
-      }
-      if (msg === 'Não autorizado a alterar esta notificação') {
-        res.status(403).json({ error: msg });
-        return;
-      }
-      console.error('[NotificationController.markAsRead Error]:', error);
-      res.status(500).json({ error: msg });
-    }
-  }
-
-  static async markAllAsRead(req: AuthenticatedRequest, res: Response): Promise<void> {
-    try {
-      const uid = req.user?.uid;
-      if (!uid) {
-        res.status(401).json({ error: 'Não autenticado' });
-        return;
-      }
-
-      await notificationService.markAllAsRead(uid);
-      res
-        .status(200)
-        .json({ success: true, message: 'Todas as notificações foram marcadas como lidas.' });
-    } catch (error: unknown) {
-      const msg = error instanceof Error ? error.message : 'Erro ao atualizar notificações';
-      console.error('[NotificationController.markAllAsRead Error]:', error);
-      res.status(500).json({ error: msg });
-    }
-  }
-
-  static async sendAdminMessage(req: Request, res: Response): Promise<void> {
-    try {
-      // 1. Camada 2: Validação de Entrada no Backend (Zod safeParse)
-      const parseResult = sendAdminMessageSchema.safeParse(req.body);
-      if (!parseResult.success) {
-        res.status(400).json({
-          error: 'Erro de validação no payload de mensagem administrativa',
-          details: parseResult.error.issues,
-        });
-        return;
-      }
-
-      // 2. Camada 3: Mapeamento e Higienização via DTO
-      const dto = SendAdminMessageDTO.fromRaw(parseResult.data);
-
-      await notificationService.sendAdminMessage(dto.recipientIds, dto.title, dto.message);
-
-      res
-        .status(200)
-        .json({ success: true, message: 'Mensagem do administrador enviada com sucesso.' });
+      await markNotificationAsReadUseCase(params.data.id, req.user.uid);
+      return res.status(204).send();
     } catch (error) {
-      console.error('[Send Admin Message Controller Error]:', error);
-      res.status(500).json({ error: 'Erro interno ao enviar mensagem do administrador.' });
+      return handleError(res, error, 'markAsRead');
     }
   }
 
-  static async getSettings(req: AuthenticatedRequest, res: Response): Promise<void> {
+  static async markAllAsRead(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    if (!req.user?.uid) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
     try {
-      const uid = req.user?.uid;
-      if (!uid) {
-        res.status(401).json({ error: 'Não autenticado' });
-        return;
-      }
-      const settings = await notificationService.getSettings(uid);
-      res.status(200).json(settings);
-    } catch (error: unknown) {
-      const msg = error instanceof Error ? error.message : 'Erro ao buscar configurações';
-      console.error('[NotificationController.getSettings Error]:', error);
-      res.status(500).json({ error: msg });
+      await markAllNotificationsAsReadUseCase(req.user.uid);
+      return res.status(204).send();
+    } catch (error) {
+      return handleError(res, error, 'markAllAsRead');
     }
   }
 
-  static async updateSettings(req: AuthenticatedRequest, res: Response): Promise<void> {
+  static async getPreferences(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    if (!req.user?.uid) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
     try {
-      const uid = req.user?.uid;
-      if (!uid) {
-        res.status(401).json({ error: 'Não autenticado' });
-        return;
-      }
+      return res.status(200).json({ data: await getNotificationPreferencesUseCase(req.user.uid) });
+    } catch (error) {
+      return handleError(res, error, 'getPreferences');
+    }
+  }
 
-      // 1. Camada 2: Validação Zod com strict
-      const parseResult = updateNotificationSettingsSchema.safeParse(req.body);
-      if (!parseResult.success) {
-        res.status(400).json({
-          error: 'Erro de validação nas configurações de notificação',
-          details: parseResult.error.issues,
-        });
-        return;
-      }
+  static async updatePreferences(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    if (!req.user?.uid) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
+    const body = notificationPreferencesPatchSchema.safeParse(req.body);
+    if (!body.success) return sendError(res, 400, 'VALIDATION_ERROR', 'Escolha inválida.');
+    try {
+      const data = await updateNotificationPreferencesUseCase(req.user.uid, body.data);
+      return res.status(200).json({ data });
+    } catch (error) {
+      return handleError(res, error, 'updatePreferences');
+    }
+  }
 
-      // 2. Camada 3: Mapeamento e Higienização via DTO
-      const dto = UpdateNotificationSettingsDTO.fromRaw(parseResult.data);
+  static async registerDevice(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    if (!req.user?.uid) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
+    const body = pushDeviceSchema.safeParse(req.body);
+    if (!body.success) return sendError(res, 400, 'VALIDATION_ERROR', 'Aparelho inválido.');
+    try {
+      await registerPushDeviceUseCase(req.user.uid, body.data.token, body.data.locale ?? '');
+      return res.status(204).send();
+    } catch (error) {
+      return handleError(res, error, 'registerDevice');
+    }
+  }
 
-      await notificationService.updateSettings(uid, dto);
-      res.status(200).json({ success: true, message: 'Configurações atualizadas com sucesso.' });
-    } catch (error: unknown) {
-      const msg = error instanceof Error ? error.message : 'Erro ao salvar configurações';
-      console.error('[NotificationController.updateSettings Error]:', error);
-      res.status(500).json({ error: msg });
+  static async unregisterDevice(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    if (!req.user?.uid) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
+    const body = pushDeviceSchema.safeParse(req.body);
+    if (!body.success) return sendError(res, 400, 'VALIDATION_ERROR', 'Aparelho inválido.');
+    try {
+      await unregisterPushDeviceUseCase(req.user.uid, body.data.token);
+      return res.status(204).send();
+    } catch (error) {
+      return handleError(res, error, 'unregisterDevice');
     }
   }
 }

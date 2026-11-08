@@ -1,5 +1,7 @@
-import { deleteResourcesByOwnerUseCase } from '../../domain/guide';
+import { anonymizeBuyerBookingsUseCase } from '../../domain/bookings';
 import { deleteEventsByOwnerUseCase } from '../../domain/events';
+import { deleteResourcesByOwnerUseCase } from '../../domain/guide';
+import { deleteUserNotificationsUseCase } from '../../domain/notifications';
 import {
   deleteOwnerListingPlansUseCase,
   deleteOwnerListingVerificationsUseCase,
@@ -7,7 +9,8 @@ import {
 } from '../../domain/partners';
 import { cancelPartnerPlanSubscriptionsUseCase } from '../../domain/payment';
 import { deleteReviewsByUserUseCase } from '../../domain/reviews';
-import { deleteUserAccountUseCase } from '../../domain/users';
+import { anonymizeTicketingUserUseCase } from '../../domain/ticketing';
+import { deleteUserAccountUseCase, releaseUsernamesUseCase } from '../../domain/users';
 import { deleteVerificationFiles } from './listingVerification/deleteVerificationFiles';
 
 export interface UserDeletionCoordinatorDependencies {
@@ -19,6 +22,14 @@ export interface UserDeletionCoordinatorDependencies {
   deleteListingVerifications?: (uid: string) => Promise<void>;
   /** Planos dos estabelecimentos (D11): cancela as assinaturas no Stripe e apaga os planos. */
   deleteListingPlans?: (uid: string) => Promise<void>;
+  /** Reservas do comprador: tira endereço e nomes e mantém o registro financeiro (§7.5, D20). */
+  anonymizeBuyerBookings?: (uid: string) => Promise<void>;
+  /** Pedidos, ingressos, transferências e lista de espera: sai nome e e-mail, fica o registro (§7.5). */
+  anonymizeTicketing?: (uid: string) => Promise<void>;
+  /** Avisos e escolhas de notificação (D25, §7.5). */
+  deleteNotifications?: (uid: string) => Promise<void>;
+  /** O @ fica reservado por 14 dias e depois é liberado (D21). */
+  releaseUsernames?: (uid: string) => Promise<void>;
   deleteUserAccount: (uid: string) => Promise<void>;
 }
 
@@ -35,6 +46,14 @@ export async function deleteUserAccountApplicationUseCase(
       await cancelPartnerPlanSubscriptionsUseCase(id);
       await deleteOwnerListingPlansUseCase(id);
     },
+    anonymizeBuyerBookings: async (id) => {
+      await anonymizeBuyerBookingsUseCase(id);
+    },
+    anonymizeTicketing: async (id) => {
+      await anonymizeTicketingUserUseCase(id);
+    },
+    deleteNotifications: (id) => deleteUserNotificationsUseCase(id),
+    releaseUsernames: (id) => releaseUsernamesUseCase(id),
     deleteUserAccount: (id) => deleteUserAccountUseCase(id),
   }
 ): Promise<void> {
@@ -52,6 +71,18 @@ export async function deleteUserAccountApplicationUseCase(
   }
   if (deps.deleteListingPlans) {
     await deps.deleteListingPlans(uid);
+  }
+  if (deps.anonymizeBuyerBookings) {
+    await deps.anonymizeBuyerBookings(uid);
+  }
+  if (deps.anonymizeTicketing) {
+    await deps.anonymizeTicketing(uid);
+  }
+  if (deps.deleteNotifications) {
+    await deps.deleteNotifications(uid);
+  }
+  if (deps.releaseUsernames) {
+    await deps.releaseUsernames(uid);
   }
   await deps.deletePartnerProfile(uid);
   await deps.deleteUserAccount(uid);

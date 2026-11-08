@@ -1,5 +1,6 @@
-import { auth } from './firebaseAuth';
+import { noticeAppCheckFailure } from './appCheckFailureNotice';
 import { getFirebaseAppCheckToken } from './firebaseAppCheck';
+import { auth } from './firebaseAuth';
 
 export interface FirebaseApiFetchOptions {
   requireAuth?: boolean;
@@ -43,8 +44,10 @@ export async function firebaseApiFetch(
     }
   }
 
-  return fetch(input, {
+  const response = await fetch(input, {
     ...init,
     headers,
   });
+  await noticeAppCheckFailure(response);
+  return response;
 }

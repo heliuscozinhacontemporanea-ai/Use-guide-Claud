@@ -63,3 +63,10 @@ export function validateOccurrenceTiming(input: {
     }
   }
 }
+
+/** Fim das vendas pelo app sugerido (D21): 2 h antes do início, quando o parceiro não escolhe outro. */
+export const DEFAULT_SALES_END_BEFORE_START_MS = 2 * 60 * 60 * 1000;
+
+export function defaultSalesEndsAt(startsAt: string): string {
+  return new Date(new Date(startsAt).getTime() - DEFAULT_SALES_END_BEFORE_START_MS).toISOString();
+}

@@ -1,14 +1,19 @@
-import { calculateBuyerRefund } from '../../../shared/utils/cancellationPolicy';
+import { type BuyerRefund, calculateBuyerRefund } from '../../../shared/utils/cancellationPolicy';
 import type { BookingSummary } from '../types/bookings';
 
 /**
- * Mesma regra do backend (arrependimento e política gravada na compra), só para mostrar o valor antes de
+ * Mesma regra do backend (arrependimento, reagendamento e política gravada na compra), só para mostrar o valor antes de
  * cancelar. Quem decide o reembolso é o backend.
  */
 export function previewRefund(
-  booking: Pick<BookingSummary, 'kind' | 'offer' | 'totalMinor' | 'createdAt'>,
+  booking: Pick<BookingSummary, 'kind' | 'offer' | 'totalMinor' | 'createdAt' | 'rescheduledAt'>,
   now: Date
-): { refundPercent: number; refundAmountMinor: number } {
+): {
+  refundPercent: number;
+  refundAmountMinor: number;
+  reason: BuyerRefund['reason'];
+  until: string | null;
+} {
   const refund = calculateBuyerRefund({
     family: (booking.kind as string) === 'transfer' ? 'transfer' : 'booking',
     policy: booking.offer.cancellationPolicy,
@@ -17,6 +22,12 @@ export function previewRefund(
     now,
     paidMinor: booking.totalMinor,
     serviceFeeMinor: 0,
+    rescheduledAt: booking.rescheduledAt ?? undefined,
   });
-  return { refundPercent: refund.percent, refundAmountMinor: refund.refundMinor };
+  return {
+    refundPercent: refund.percent,
+    refundAmountMinor: refund.refundMinor,
+    reason: refund.reason,
+    until: refund.until,
+  };
 }

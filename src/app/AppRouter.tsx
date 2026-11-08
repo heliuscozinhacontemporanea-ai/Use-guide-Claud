@@ -1,7 +1,6 @@
 import { AnimatePresence, motion } from 'motion/react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
-import { AdminPanelComposition } from './compositions/AdminPanelComposition';
 import { LoginModal } from '../domain/auth/components/LoginModal';
 import { useAuthContext } from '../domain/auth/context/AuthContext';
 import { UserRole } from '../domain/auth/types/auth';
@@ -13,22 +12,26 @@ import { RestaurantDetailModal } from '../domain/guide/components/RestaurantDeta
 import { StayDetailModal } from '../domain/guide/components/StayDetailModal';
 import { TipDetailModal } from '../domain/guide/components/TipDetailModal';
 import { TourDetailModal } from '../domain/guide/components/TourDetailModal';
+import { NotificationBell } from '../domain/notifications';
 import { PartnersModal } from '../domain/partners';
 import { SearchOverlay } from '../domain/search';
-import { useScrollLock } from '../shared/hooks/useScrollLock';
+import { ACCOUNT_ACTION_PATH } from '../shared/constants/accountActionPath';
 import { useLocalizedRouting, useSyncLocaleWithUrl } from '../shared/hooks/useLocalizedRouting';
+import { useScrollLock } from '../shared/hooks/useScrollLock';
 import { useSEO } from '../shared/hooks/useSEO';
 import { useUI, useUIStore } from '../shared/stores/useUIStore';
 import { cn } from '../shared/utils/cn';
-import { BackgroundBlobs } from '../ui/components/BackgroundBlobs';
 import { BottomNav } from '../ui/components/BottomNav';
 import { Header } from '../ui/layouts/Header';
-
-import { PartnerPortalComposition } from './compositions/PartnerPortalComposition';
+import { AdminPanelComposition } from './compositions/AdminPanelComposition';
 import { ItemBookingComposition } from './compositions/ItemBookingComposition';
+import { PartnerPortalComposition } from './compositions/PartnerPortalComposition';
 import { SideMenu } from './menu/SideMenu';
 import { useSideMenu } from './menu/useSideMenu';
 import { AppRoutes } from './routes/AppRoutes';
+import { useMissingItemNotice } from './useMissingItemNotice';
+import { useNotificationNavigation } from './useNotificationNavigation';
+import { useScrollContainer } from './useScrollContainer';
 
 export function AppRouter() {
   const { user, refreshProfile } = useAuthContext();
@@ -104,10 +107,11 @@ export function AppRouter() {
     );
   };
 
-  const { items, events } = useGuideCatalog();
+  const { items, events, loading: catalogLoading, error: catalogError } = useGuideCatalog();
 
   const isSearchOpen = searchParams.get('search') === '1';
   const { isOpen: isMenuOpen, openMenu, closeMenu } = useSideMenu();
+  const openNotificationLink = useNotificationNavigation(openMenu);
   const isPartnersOpen = searchParams.get('partners') === '1';
 
   const itemIdParam = searchParams.get('item');
@@ -162,6 +166,11 @@ export function AppRouter() {
   }, [selectedItem, searchParams, isPartnersOpen]);
 
   useSEO(dynamicSEO);
+  useMissingItemNotice({
+    itemId: itemIdParam,
+    found: selectedItem !== null,
+    catalogReady: !catalogLoading && !catalogError,
+  });
 
   const setSelectedItem = (item: GuideItem | null) => {
     setSearchParams((prev) => {
@@ -210,47 +219,7 @@ export function AppRouter() {
   useScrollLock(!!selectedItem);
   useScrollLock(isLoginModalOpen && !isMenuOpen);
 
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const scrollPositions = useRef<Record<string, number>>({});
-  const lastPathname = useRef(location.pathname);
-
-  useEffect(() => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
-
-    if (lastPathname.current !== location.pathname) {
-      scrollPositions.current[lastPathname.current] = container.scrollTop;
-    }
-
-    const savedPosition = scrollPositions.current[location.pathname] || 0;
-
-    let attempts = 0;
-    const maxAttempts = 15;
-    const scrollInterval = setInterval(() => {
-      if (!container) {
-        clearInterval(scrollInterval);
-        return;
-      }
-
-      const currentMaxScroll = container.scrollHeight - container.clientHeight;
-      const canReachSaved = currentMaxScroll >= savedPosition;
-
-      if (canReachSaved || attempts >= maxAttempts) {
-        container.scrollTo({
-          top: Math.min(savedPosition, currentMaxScroll),
-          behavior: 'auto',
-        });
-        clearInterval(scrollInterval);
-      }
-      attempts++;
-    }, 100);
-
-    lastPathname.current = location.pathname;
-
-    return () => clearInterval(scrollInterval);
-  }, [location.pathname]);
-
-  const [isScrolled, setIsScrolled] = useState(false);
+  const { scrollContainerRef, isScrolled } = useScrollContainer(location.pathname);
   const [isSearchSticky, setIsSearchSticky] = useState(false);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: a busca fixa volta ao normal a cada troca de rota.
@@ -258,32 +227,15 @@ export function AppRouter() {
     setIsSearchSticky(false);
   }, [location.pathname]);
 
-  useEffect(() => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
-
-    const handleScroll = () => {
-      setIsScrolled(container.scrollTop > 10);
-    };
-
-    container.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
-
-    return () => {
-      container.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
-
-  const isResetPasswordPage = location.pathname === '/reset-password';
+  const isAccountActionPage = location.pathname === ACCOUNT_ACTION_PATH;
   const isAdminOpen = searchParams.get('admin') === '1';
   const isHideGlobalUI =
-    isResetPasswordPage || isAdminOpen || isPartnerPortalOpen || location.pathname === '/admin';
+    isAccountActionPage || isAdminOpen || isPartnerPortalOpen || location.pathname === '/admin';
 
   const isRetracted = isLoginModalOpen && !isMenuOpen && !isLoginClosingBySwipe;
 
   return (
-    <div className="relative h-screen bg-transparent text-white selection:bg-teal-500/30">
-      <BackgroundBlobs />
+    <div className="relative h-screen bg-app text-ink selection:bg-teal-500/30">
       <motion.div
         ref={scrollContainerRef}
         animate={{
@@ -314,6 +266,15 @@ export function AppRouter() {
             isAdmin={isAdmin}
             isPartner={isPartner}
             user={user}
+            notificationSlot={
+              user ? (
+                <NotificationBell
+                  uid={user.uid}
+                  onNavigate={openNotificationLink}
+                  onOpenSettings={() => openMenu('notifications')}
+                />
+              ) : null
+            }
           />
         )}
 
@@ -327,7 +288,7 @@ export function AppRouter() {
               key={location.pathname}
               className={cn(
                 'min-h-full max-w-2xl mx-auto w-full',
-                isExplorePage ? 'pt-[70px]' : isResetPasswordPage ? 'pt-0' : 'pt-28'
+                isExplorePage ? 'pt-[70px]' : isAccountActionPage ? 'pt-0' : 'pt-28'
               )}
             >
               <AppRoutes

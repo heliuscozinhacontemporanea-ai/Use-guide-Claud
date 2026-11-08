@@ -18,6 +18,7 @@ export class ApiPartnerAdapter implements PartnerPort {
 
     if (!res.ok) {
       const errorData = await res.json().catch(() => ({}));
+      if (errorData?.error?.code === 'EMAIL_NOT_VERIFIED') throw new Error('EMAIL_NOT_VERIFIED');
       throw new Error(errorData.error || 'Erro ao realizar upgrade para parceiro no backend');
     }
   }

@@ -1,29 +1,35 @@
+import { AnimatePresence, motion } from 'motion/react';
 import React from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { hasPasswordSignInUseCase, logoutUseCase } from '../../domain/auth';
+import { hasPasswordSignInUseCase } from '../../domain/auth';
+import { signOut } from '../signOut';
 import { useAuthContext } from '../../domain/auth/context/AuthContext';
 import { UserRole } from '../../domain/auth/types/auth';
 import { MyBookingsView } from '../../domain/bookings';
-import { AboutView, SupportView } from '../../domain/content';
+import { AboutLicensesView, AboutTermsView, AboutView, SupportView } from '../../domain/content';
 import { FavoritesList } from '../../domain/favorites';
+import { NotificationSettingsView } from '../../domain/notifications';
 import { UserTicketsHistoryView } from '../../domain/ticketing';
 import {
-  useUserProfile,
-  useUserPhoto,
+  AccountView,
+  AppearanceSettingsView,
   ChangePasswordView,
   ImageCropperView,
-  MainMenuView,
-  AccountView,
-  SettingsView,
   LanguageSettingsView,
-  AppearanceSettingsView,
+  MainMenuView,
+  SettingsView,
+  UsernameSettingsView,
+  useUserPhoto,
+  useUserProfile,
 } from '../../domain/user';
 import { Z_INDEX } from '../../shared/constants/zIndex';
+import { useLocalizedRouting } from '../../shared/hooks/useLocalizedRouting';
 import { cn } from '../../shared/utils/cn';
 import { SidebarLayout } from '../../ui/layouts/SidebarLayout';
+import { BuyerPurchasesComposition } from '../compositions/BuyerPurchasesComposition';
+import { MyReviewsComposition } from '../compositions/MyReviewsComposition';
+import { ProfileHighlightsComposition } from '../compositions/ProfileHighlightsComposition';
 import { type MenuView, parentMenuView, visibleMenuView } from './menuViews';
 import { useSideMenu } from './useSideMenu';
-import { useLocalizedRouting } from '../../shared/hooks/useLocalizedRouting';
 
 interface SideMenuProps {
   onPartnersOpen: () => void;
@@ -33,15 +39,32 @@ interface SideMenuProps {
 /** Telas que ocupam a altura toda do menu e rolam por dentro. */
 const FULL_HEIGHT_VIEWS: readonly MenuView[] = [
   'settings',
+  'username',
   'language',
   'appearance',
   'support',
   'about',
+  'terms',
+  'partner-terms',
+  'licenses',
+  'notifications',
 ];
 
-const SETTINGS_VIEWS: readonly MenuView[] = ['settings', 'language', 'appearance'];
+const SETTINGS_VIEWS: readonly MenuView[] = [
+  'settings',
+  'purchases',
+  'username',
+  'language',
+  'appearance',
+  'support',
+  'about',
+  'terms',
+  'partner-terms',
+  'licenses',
+  'notifications',
+];
 
-/** Compõe as telas de vários domínios (usuário, ingressos, reservas, favoritos, conteúdo) no menu. */
+/** Compõe as telas de vários domínios (perfil, ingressos, reservas, compras, favoritos, avaliações, conteúdo) no menu. */
 export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
   const { user } = useAuthContext();
   const { goTo } = useLocalizedRouting();
@@ -71,6 +94,7 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
   const {
     userData,
     setUserData,
+    memberSince,
     passwordData,
     setPasswordData,
     showPasswords,
@@ -122,7 +146,7 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
   };
 
   const handleLogout = async () => {
-    await logoutUseCase();
+    await signOut();
     closeMenu();
   };
 
@@ -138,6 +162,23 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
             onBack={goBack}
             onOpenLanguage={() => showView('language')}
             onOpenAppearance={() => showView('appearance')}
+            onOpenSupport={() => showView('support')}
+            onOpenAbout={() => showView('about')}
+            onOpenPurchases={user ? () => showView('purchases') : undefined}
+            onOpenUsername={user ? () => showView('username') : undefined}
+            onOpenNotifications={user ? () => showView('notifications') : undefined}
+          />
+        );
+      case 'notifications':
+        return <NotificationSettingsView isPartner={isPartner} onBack={goBack} />;
+      case 'username':
+        return <UsernameSettingsView onBack={goBack} />;
+      case 'purchases':
+        return (
+          <BuyerPurchasesComposition
+            onBack={goBack}
+            onOpenTickets={() => showView('tickets')}
+            onOpenBookings={() => showView('bookings')}
           />
         );
       case 'password':
@@ -154,13 +195,35 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
           />
         );
       case 'about':
-        return <AboutView onBack={goBack} />;
+        return (
+          <AboutView
+            onBack={goBack}
+            onOpenTerms={() => showView('terms')}
+            onOpenPartnerTerms={() => showView('partner-terms')}
+            onOpenLicenses={() => showView('licenses')}
+          />
+        );
+      case 'terms':
+        return <AboutTermsView document="terms" onBack={goBack} />;
+      case 'partner-terms':
+        return <AboutTermsView document="partner" onBack={goBack} />;
+      case 'licenses':
+        return <AboutLicensesView onBack={goBack} />;
       case 'support':
-        return <SupportView onBack={goBack} userEmail={user?.email} />;
+        return (
+          <SupportView
+            onBack={goBack}
+            onOpenPurchases={user ? () => showView('purchases') : undefined}
+            onOpenTickets={user ? () => showView('tickets') : undefined}
+            onOpenBookings={user ? () => showView('bookings') : undefined}
+          />
+        );
       case 'tickets':
         return <UserTicketsHistoryView onBack={goBack} />;
       case 'bookings':
         return <MyBookingsView onBack={goBack} />;
+      case 'reviews':
+        return <MyReviewsComposition onBack={goBack} />;
       case 'favorites':
         return <FavoritesList onBack={goBack} onSelectItem={closeMenuAndOpenItem} />;
       case 'account':
@@ -195,21 +258,27 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
             <MainMenuView
               user={menuUser}
               userData={userData}
+              memberSince={memberSince}
               isAdmin={isAdmin}
               isPartner={isPartner}
               isUploading={isUploading}
+              photoURL={photoURL}
               onClose={closeMenu}
               onAccountOpen={() => showView('account')}
-              onFavoritesOpen={() => showView('favorites')}
-              onTicketsOpen={() => showView('tickets')}
-              onBookingsOpen={() => showView('bookings')}
               onPartnersOpen={onPartnersOpen}
-              onAboutOpen={() => showView('about')}
-              onSupportOpen={() => showView('support')}
               onAdminOpen={onAdminOpen}
               onLogout={handleLogout}
               onPhotoClick={() => fileInputRef.current?.click()}
-              photoURL={photoURL}
+              highlights={
+                menuUser && (
+                  <ProfileHighlightsComposition
+                    onOpenTickets={() => showView('tickets')}
+                    onOpenBookings={() => showView('bookings')}
+                    onOpenFavorites={() => showView('favorites')}
+                    onOpenReviews={() => showView('reviews')}
+                  />
+                )
+              }
             />
             <input
               type="file"

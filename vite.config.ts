@@ -4,12 +4,15 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
+import pkg from './package.json';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export default defineConfig(() => {
   return {
+    // Versão do app (package.json, alterada à mão a cada lançamento) gravada no build.
+    define: { __APP_VERSION__: JSON.stringify(pkg.version) },
     plugins: [
       react(),
       tailwindcss(),
@@ -62,6 +65,8 @@ export default defineConfig(() => {
           ],
         },
         workbox: {
+          // Push (D25): trata `push` e o toque na notificação (public/push-sw.js).
+          importScripts: ['/push-sw.js'],
           globPatterns: ['**/*.{js,css,html,ico,png,svg,webp}'],
           maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
           navigateFallbackDenylist: [/^\/__/, /^\/api/],
@@ -109,7 +114,8 @@ export default defineConfig(() => {
               },
             },
             {
-              urlPattern: /^https:\/\/(images\.unsplash\.com|firebasestorage\.googleapis\.com)\/.*/i,
+              urlPattern:
+                /^https:\/\/(images\.unsplash\.com|firebasestorage\.googleapis\.com)\/.*/i,
               handler: 'StaleWhileRevalidate',
               options: {
                 cacheName: 'external-images-cache',

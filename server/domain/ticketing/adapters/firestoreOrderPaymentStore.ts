@@ -114,6 +114,7 @@ export class FirestoreOrderPaymentStore {
           qrVersion: 1,
           status: 'issued',
           issuedAt: nowIso,
+          updatedAt: nowIso,
           ticketTypeSnapshot: tInput.ticketTypeSnapshot,
           ...(order.eventSnapshot ? { eventSnapshot: order.eventSnapshot } : {}),
         };

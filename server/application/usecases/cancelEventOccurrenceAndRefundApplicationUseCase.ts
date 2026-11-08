@@ -5,6 +5,7 @@ import {
   type Refund,
   type TicketingActorContext,
 } from '../../domain/ticketing';
+import { chargeCancellationPenaltyApplicationUseCase } from './payouts/chargeCancellationPenaltyApplicationUseCase';
 import { processTicketRefundApplicationUseCase } from './processTicketRefundApplicationUseCase';
 
 export async function cancelEventOccurrenceAndRefundApplicationUseCase(
@@ -23,6 +24,19 @@ export async function cancelEventOccurrenceAndRefundApplicationUseCase(
       (order.status === 'paid' || order.status === 'partially_refunded')
   );
 
+  // Cancelamento pelo proprietário paga multa (D14); antes dos reembolsos, que reduzem o valor vendido.
+  // Admin cancelando (ex.: fraude) não gera multa automática.
+  if (actor.admin !== true && eligibleOrders.length > 0) {
+    await chargeCancellationPenaltyApplicationUseCase({
+      referenceType: 'event_occurrence',
+      referenceId: occurrenceId,
+      sales: eligibleOrders.map((order) => ({
+        referenceType: 'ticket_order',
+        referenceId: order.id,
+      })),
+    });
+  }
+
   const refundsInitiated: Refund[] = [];
   for (const order of eligibleOrders) {
     try {
@@ -35,12 +49,11 @@ export async function cancelEventOccurrenceAndRefundApplicationUseCase(
       refundsInitiated.push(refund);
 
       await createNotificationUseCase({
-        recipientPartnerId: order.buyerId,
-        type: 'admin_message',
-        title: 'Sessão de evento cancelada',
-        message: `A sessão do evento "${order.eventSnapshot?.title || 'Evento'}" foi cancelada. Seu reembolso foi iniciado.`,
-        relatedItemId: occurrence.eventListingId,
-        relatedItemCollection: 'events',
+        recipientUid: order.buyerId,
+        type: 'event_canceled',
+        params: { event: order.eventSnapshot?.title || '' },
+        link: { screen: 'purchases' },
+        dedupeKey: `event_canceled_${occurrence.id}_${order.id}`,
       }).catch(() => {});
     } catch {
       // Continua processando demais pedidos elegíveis

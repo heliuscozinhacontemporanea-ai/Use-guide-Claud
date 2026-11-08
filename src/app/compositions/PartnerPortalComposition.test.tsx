@@ -27,7 +27,9 @@ vi.mock('../../domain/payment', () => ({
   PlanSubscriptionCard: () => null,
 }));
 vi.mock('../../domain/notifications', () => ({ NotificationBell: () => null }));
-vi.mock('../../domain/ticketing', () => ({ PartnerEventTicketingManager: () => null }));
+vi.mock('./PartnerEventTicketingComposition', () => ({
+  PartnerEventTicketingComposition: () => null,
+}));
 vi.mock('./PartnerBookingsComposition', () => ({ PartnerBookingsComposition: () => null }));
 
 function renderPortal() {

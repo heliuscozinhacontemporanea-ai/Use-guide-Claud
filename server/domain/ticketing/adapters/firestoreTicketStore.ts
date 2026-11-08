@@ -74,6 +74,8 @@ export class FirestoreTicketStore {
     const payload: Record<string, unknown> = {
       ...(extra || {}),
       status,
+      // A lista sem internet da portaria baixa só o que mudou desde a última vez (D21).
+      updatedAt: new Date().toISOString(),
     };
     delete payload.id;
     await ref.update(payload);
@@ -91,6 +93,7 @@ export class FirestoreTicketStore {
     recipientEmail: string;
     recipientName?: string;
     newQrTokenHash: string;
+    receivedFrom?: Ticket['receivedFrom'];
   }): Promise<{
     oldTicket: Ticket;
     newTicket: Ticket;
@@ -129,6 +132,7 @@ export class FirestoreTicketStore {
         status: 'transferred',
         transferredAt: nowIso,
         qrVersion: nextQrVersion,
+        updatedAt: nowIso,
       });
 
       const newTicketRef = adminDb.collection('tickets').doc();
@@ -144,10 +148,12 @@ export class FirestoreTicketStore {
         qrVersion: nextQrVersion,
         status: 'issued',
         issuedAt: nowIso,
+        updatedAt: nowIso,
         ...(oldTicket.ticketTypeSnapshot
           ? { ticketTypeSnapshot: oldTicket.ticketTypeSnapshot }
           : {}),
         ...(oldTicket.eventSnapshot ? { eventSnapshot: oldTicket.eventSnapshot } : {}),
+        ...(params.receivedFrom ? { receivedFrom: params.receivedFrom } : {}),
       };
       tx.set(newTicketRef, newTicketDoc);
 
@@ -202,9 +208,14 @@ export class FirestoreTicketStore {
           orderDoc.id,
           (orderDoc.data() || {}) as Record<string, unknown>
         );
-        if (order.status === 'paid' || order.status === 'pending_payment') {
+        if (
+          order.status === 'paid' ||
+          order.status === 'partially_refunded' ||
+          order.status === 'pending_payment'
+        ) {
           tx.update(orderDoc.ref, {
             occurrenceId: params.toOccurrenceId,
+            rescheduledAt: nowIso,
             ...(order.eventSnapshot
               ? {
                   eventSnapshot: {
@@ -228,6 +239,7 @@ export class FirestoreTicketStore {
         if (ticket.status === 'issued' || ticket.status === 'reserved') {
           tx.update(ticketDoc.ref, {
             occurrenceId: params.toOccurrenceId,
+            updatedAt: nowIso,
             ...(ticket.eventSnapshot
               ? {
                   eventSnapshot: {
@@ -243,6 +255,74 @@ export class FirestoreTicketStore {
       }
 
       return { movedOrdersCount, movedTicketsCount };
+    });
+  }
+
+  async listTicketsByEventTime(query: {
+    status: TicketStatus;
+    field: 'startsAt' | 'endsAt';
+    fromIso: string;
+    toIso: string;
+    limit: number;
+  }): Promise<Ticket[]> {
+    const path = `eventSnapshot.${query.field}`;
+    const snap = await adminDb
+      .collection('tickets')
+      .where('status', '==', query.status)
+      .where(path, '>=', query.fromIso)
+      .where(path, '<', query.toIso)
+      .orderBy(path)
+      .limit(query.limit)
+      .get();
+    return snap.docs.map((doc) =>
+      TicketPersistenceMapper.toDomain(doc.id, (doc.data() || {}) as Record<string, unknown>)
+    );
+  }
+
+  async listTicketsChangedSince(
+    occurrenceId: string,
+    sinceIso: string,
+    limit: number
+  ): Promise<Ticket[]> {
+    const snap = await adminDb
+      .collection('tickets')
+      .where('occurrenceId', '==', occurrenceId)
+      .where('updatedAt', '>', sinceIso)
+      .orderBy('updatedAt')
+      .limit(limit)
+      .get();
+    return snap.docs.map((doc) =>
+      TicketPersistenceMapper.toDomain(doc.id, (doc.data() || {}) as Record<string, unknown>)
+    );
+  }
+
+  async swapTicketQr(ticketId: string, ownerUid: string, nowIso: string): Promise<Ticket> {
+    return adminDb.runTransaction(async (tx) => {
+      const ref = adminDb.collection('tickets').doc(ticketId);
+      const snap = await tx.get(ref);
+      if (!snap.exists) throw new TicketingDomainError('NOT_FOUND', 'Ingresso não encontrado.');
+      const ticket = TicketPersistenceMapper.toDomain(
+        snap.id,
+        (snap.data() || {}) as Record<string, unknown>
+      );
+      if (ticket.ownerUserId !== ownerUid) {
+        throw new TicketingDomainError('FORBIDDEN', 'Apenas o titular pode trocar o QR Code.');
+      }
+      if (ticket.status !== 'issued') {
+        throw new TicketingDomainError(
+          'UNPROCESSABLE_ENTITY',
+          'Só é possível trocar o QR Code de um ingresso que ainda não foi usado.'
+        );
+      }
+      if (ticket.qrSwappedAt) {
+        throw new TicketingDomainError(
+          'UNPROCESSABLE_ENTITY',
+          'O QR Code deste ingresso já foi trocado uma vez.'
+        );
+      }
+      const qrVersion = (ticket.qrVersion || 1) + 1;
+      tx.update(ref, { qrVersion, qrSwappedAt: nowIso, updatedAt: nowIso });
+      return { ...ticket, qrVersion, qrSwappedAt: nowIso, updatedAt: nowIso };
     });
   }
 }

@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next';
+import { ListEmpty, ListError, ListLoading } from '../../../../ui/components/ListState';
 import { usePublicSlots } from '../../hooks/usePublicSlots';
 import type { PublicSlot } from '../../types/bookings';
 import { formatDayLabel, formatSlotTime, fortalezaDateKey } from '../../utils/dates';
-import { ListEmpty, ListError, ListLoading } from '../shared/ListState';
 
 interface SlotPickerProps {
   offerId: string;

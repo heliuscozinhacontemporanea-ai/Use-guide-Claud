@@ -15,7 +15,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Use Guide" />
-    <meta name="theme-color" content="#060b1e" />
+    <meta name="theme-color" content="#0d0e10" />
     <script>
       // Aplica o tema antes da primeira pintura (sem piscar escuro no tema claro). Mesma regra do ThemeContext.
       (function () {
@@ -27,7 +27,7 @@
         var dark =
           theme === 'system' ? window.matchMedia('(prefers-color-scheme: dark)').matches : theme === 'dark';
         document.documentElement.classList.add(dark ? 'dark' : 'light');
-        document.querySelector('meta[name="theme-color"]').setAttribute('content', dark ? '#060b1e' : '#f3eee4');
+        document.querySelector('meta[name="theme-color"]').setAttribute('content', dark ? '#0d0e10' : '#f3eee4');
       })();
     </script>
     <link rel="canonical" href="https://useguide.com.br" />

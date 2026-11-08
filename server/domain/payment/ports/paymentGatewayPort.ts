@@ -26,7 +26,8 @@ export interface PaymentTransaction {
   referenceId: string;
   provider: 'stripe';
   providerPaymentId: string;
-  connectedAccountId?: string;
+  /** Índice cego do CNPJ que recebe o repasse (D14). */
+  accountKey?: string;
   amountMinor: number;
   platformFeeMinor: number;
   currency: 'BRL';
@@ -40,8 +41,9 @@ export interface CreatePaymentIntentInput {
   amountMinor: number;
   currency: 'BRL';
   description: string;
-  connectedAccountId?: string;
-  applicationFeeMinor: number;
+  /** Liga a cobrança às transferências do repasse (separate charges and transfers, D14). */
+  transferGroup?: string;
+  /** Métodos aceitos; sem Pix quando o serviço passa de 80 dias (D14). */
   paymentMethodTypes: PaymentMethod[];
   metadata: Record<string, string>;
   idempotencyKey: string;
@@ -56,8 +58,6 @@ export interface CreatePaymentIntentResult {
 export interface RefundPaymentInput {
   paymentIntentId: string;
   amountMinor?: number;
-  reverseTransfer: boolean;
-  refundApplicationFee: boolean;
   idempotencyKey: string;
   metadata?: Record<string, string>;
 }
@@ -76,9 +76,7 @@ export interface VerifiedWebhookEvent {
 }
 
 export interface PaymentGatewayPort {
-  createPaymentIntent(
-    input: CreatePaymentIntentInput
-  ): Promise<CreatePaymentIntentResult>;
+  createPaymentIntent(input: CreatePaymentIntentInput): Promise<CreatePaymentIntentResult>;
   refundPayment(input: RefundPaymentInput): Promise<RefundPaymentResult>;
   retrievePaymentIntent(paymentIntentId: string): Promise<{
     id: string;
@@ -86,8 +84,5 @@ export interface PaymentGatewayPort {
     amountMinor: number;
     metadata: Record<string, string>;
   }>;
-  constructWebhookEvent(
-    payload: string | Buffer,
-    signature: string
-  ): VerifiedWebhookEvent;
+  constructWebhookEvent(payload: string | Buffer, signature: string): VerifiedWebhookEvent;
 }

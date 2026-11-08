@@ -27,9 +27,7 @@ export class StripePaymentGatewayAdapter implements PaymentGatewayPort {
     return this.stripeClient;
   }
 
-  async createPaymentIntent(
-    input: CreatePaymentIntentInput
-  ): Promise<CreatePaymentIntentResult> {
+  async createPaymentIntent(input: CreatePaymentIntentInput): Promise<CreatePaymentIntentResult> {
     const params: Stripe.PaymentIntentCreateParams = {
       amount: input.amountMinor,
       currency: 'brl',
@@ -38,18 +36,12 @@ export class StripePaymentGatewayAdapter implements PaymentGatewayPort {
       },
       description: input.description,
       metadata: input.metadata,
-      ...(input.connectedAccountId
-        ? {
-            transfer_data: {
-              destination: input.connectedAccountId,
-            },
-          }
-        : {}),
+      ...(input.transferGroup ? { transfer_group: input.transferGroup } : {}),
+      // Mantém os métodos dinâmicos (AGENTS.md §8.3) e só tira o Pix quando ele não é aceito.
+      ...(input.paymentMethodTypes.includes('pix')
+        ? {}
+        : { excluded_payment_method_types: ['pix'] }),
     };
-
-    if (input.connectedAccountId && input.applicationFeeMinor > 0) {
-      params.application_fee_amount = input.applicationFeeMinor;
-    }
 
     const paymentIntent = await this.stripe.paymentIntents.create(params, {
       idempotencyKey: input.idempotencyKey,
@@ -67,8 +59,7 @@ export class StripePaymentGatewayAdapter implements PaymentGatewayPort {
   }
 
   async retrievePaymentIntent(paymentIntentId: string) {
-    const paymentIntent =
-      await this.stripe.paymentIntents.retrieve(paymentIntentId);
+    const paymentIntent = await this.stripe.paymentIntents.retrieve(paymentIntentId);
     return {
       id: paymentIntent.id,
       status: paymentIntent.status,
@@ -87,8 +78,6 @@ export class StripePaymentGatewayAdapter implements PaymentGatewayPort {
               amount: input.amountMinor,
             }
           : {}),
-        reverse_transfer: input.reverseTransfer,
-        refund_application_fee: input.refundApplicationFee,
       },
       {
         idempotencyKey: input.idempotencyKey,
@@ -101,28 +90,20 @@ export class StripePaymentGatewayAdapter implements PaymentGatewayPort {
     };
   }
 
-  constructWebhookEvent(
-    payload: string | Buffer,
-    signature: string
-  ): VerifiedWebhookEvent {
+  constructWebhookEvent(payload: string | Buffer, signature: string): VerifiedWebhookEvent {
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
     if (!webhookSecret) {
       throw new Error('STRIPE_WEBHOOK_SECRET não configurada.');
     }
 
-    const event = this.stripe.webhooks.constructEvent(
-      payload,
-      signature,
-      webhookSecret
-    );
+    const event = this.stripe.webhooks.constructEvent(payload, signature, webhookSecret);
 
     return {
       id: event.id,
       type: event.type,
       account: event.account,
       created: event.created,
-      dataObject:
-        (event.data?.object as unknown as Record<string, unknown>) || {},
+      dataObject: (event.data?.object as unknown as Record<string, unknown>) || {},
     };
   }
 

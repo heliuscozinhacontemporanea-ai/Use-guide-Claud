@@ -1,4 +1,4 @@
-import { ArrowLeft, Lock } from 'lucide-react';
+import { ChevronLeft, Lock } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -68,7 +68,7 @@ export function ReportsView({ items, events }: ReportsViewProps) {
             aria-label={t('insights.reports.seeAllLabel')}
             className="p-3 min-w-[44px] min-h-[44px] rounded-2xl bg-white/5 border border-white/10 text-white/60 hover:text-white transition-all flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-teal-400/50"
           >
-            <ArrowLeft size={18} aria-hidden="true" />
+            <ChevronLeft size={18} aria-hidden="true" />
             <span className="text-[10px] font-semibold tracking-wide">
               {t('insights.reports.seeAll')}
             </span>

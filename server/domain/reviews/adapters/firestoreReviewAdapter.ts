@@ -1,18 +1,15 @@
 import { AggregateField, FieldValue } from 'firebase-admin/firestore';
 import { adminDb } from '../../../infrastructure/firebase/adminClient';
+import { getEventListingByIdUseCase, updateEventRatingSummaryUseCase } from '../../events';
+import {
+  getItemByIdUseCase,
+  getResourceOwnerIdUseCase,
+  updateReviewAggregateUseCase,
+} from '../../guide';
+import { getUserPublicProfileUseCase } from '../../users';
 import { CreateReviewDTO } from '../dtos/CreateReviewDTO';
 import { ReviewPort, SubmitReviewResult } from '../ports/reviewPort';
 import { buildReviewId } from '../utils/buildReviewId';
-import { getUserPublicProfileUseCase } from '../../users';
-import {
-  getResourceOwnerIdUseCase,
-  getItemByIdUseCase,
-  updateReviewAggregateUseCase,
-} from '../../guide';
-import {
-  getEventListingByIdUseCase,
-  updateEventRatingSummaryUseCase,
-} from '../../events';
 
 export class FirestoreReviewAdapter implements ReviewPort {
   async submitReviewAndRecalculateRating(dto: CreateReviewDTO): Promise<SubmitReviewResult> {
@@ -64,7 +61,11 @@ export class FirestoreReviewAdapter implements ReviewPort {
         userPhoto,
         partnerId: resourceOwnerId ?? null,
         ...(dto.occurrenceId ? { occurrenceId: dto.occurrenceId } : {}),
-        ...(dto.ticketId ? { ticketId: dto.ticketId, verifiedAttendance: isVerifiedAttendance } : {}),
+        ...(dto.ticketId
+          ? { ticketId: dto.ticketId, verifiedAttendance: isVerifiedAttendance }
+          : {}),
+        // Reserva já conferida no serviço; o ID dela não vai para a avaliação, que é pública (§7.5).
+        ...(dto.bookingId ? { verifiedAttendance: true } : {}),
         updatedAt: FieldValue.serverTimestamp(),
       });
     } else {
@@ -78,7 +79,11 @@ export class FirestoreReviewAdapter implements ReviewPort {
         comment: dto.comment,
         partnerId: resourceOwnerId ?? null,
         ...(dto.occurrenceId ? { occurrenceId: dto.occurrenceId } : {}),
-        ...(dto.ticketId ? { ticketId: dto.ticketId, verifiedAttendance: isVerifiedAttendance } : {}),
+        ...(dto.ticketId
+          ? { ticketId: dto.ticketId, verifiedAttendance: isVerifiedAttendance }
+          : {}),
+        // Reserva já conferida no serviço; o ID dela não vai para a avaliação, que é pública (§7.5).
+        ...(dto.bookingId ? { verifiedAttendance: true } : {}),
         createdAt: FieldValue.serverTimestamp(),
         updatedAt: FieldValue.serverTimestamp(),
       });
@@ -140,7 +145,7 @@ export class FirestoreReviewAdapter implements ReviewPort {
     response: string,
     responderId: string,
     isAdmin = false
-  ): Promise<void> {
+  ): Promise<{ authorId: string; itemName: string }> {
     const reviewRef = adminDb.collection('reviews').doc(reviewId);
 
     const reviewSnap = await reviewRef.get();
@@ -173,6 +178,15 @@ export class FirestoreReviewAdapter implements ReviewPort {
       responderId,
       updatedAt: FieldValue.serverTimestamp(),
     });
+    const saved = reviewSnap.data() ?? {};
+    const savedItemId = typeof saved.itemId === 'string' ? saved.itemId : '';
+    // Nome do lugar para o aviso a quem avaliou; sem nome, o texto do aviso diz "o estabelecimento".
+    const itemName = !savedItemId
+      ? ''
+      : saved.itemCollection === 'events'
+        ? ((await getEventListingByIdUseCase(savedItemId))?.title ?? '')
+        : ((await getItemByIdUseCase(savedItemId))?.name ?? '');
+    return { authorId: typeof saved.userId === 'string' ? saved.userId : '', itemName };
   }
 
   async deleteReview(reviewId: string, requesterId: string, isAdmin = false): Promise<void> {
@@ -303,12 +317,7 @@ export class FirestoreReviewAdapter implements ReviewPort {
             count: remainingCount,
           });
         } else {
-          await updateReviewAggregateUseCase(
-            'items',
-            target.itemId,
-            newRating,
-            remainingCount
-          );
+          await updateReviewAggregateUseCase('items', target.itemId, newRating, remainingCount);
         }
       } catch (error) {
         console.error(

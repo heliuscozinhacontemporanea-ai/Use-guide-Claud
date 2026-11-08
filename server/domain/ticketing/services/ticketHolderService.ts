@@ -1,29 +1,63 @@
-import {
-  createEventAuditLogUseCase,
-  getEventListingByIdUseCase,
-  getEventOccurrenceByIdUseCase,
-} from '../../events';
+import { createEventAuditLogUseCase, getEventOccurrenceByIdUseCase } from '../../events';
 import { TicketingDomainError } from '../errors/ticketingDomainError';
 import type { TicketingPort } from '../ports/ticketingPort';
-import { type EventWaitlistEntry, type Ticket, type TicketTransfer } from '../types/ticketingTypes';
+import type {
+  EventWaitlistEntry,
+  Ticket,
+  TicketOrder,
+  TicketTransfer,
+} from '../types/ticketingTypes';
 import { generateOpaqueTicketQrToken } from '../utils/qrToken';
 import {
   assertCanManageOccurrence,
   getAuditActorType,
   type TicketingActorContext,
 } from './ticketingAccess';
+import { loadTransferContext } from './transferEligibility';
 
 /** Titularidade do ingresso: transferência, troca de sessão e lista de espera. */
 export class TicketHolderService {
   constructor(private readonly port: TicketingPort) {}
 
+  /** Ingressos válidos cujo evento começa no intervalo (lembretes, D25). */
+  listIssuedTicketsStartingBetween(fromIso: string, toIso: string, limit = 500): Promise<Ticket[]> {
+    return this.port.listTicketsByEventTime({
+      status: 'issued',
+      field: 'startsAt',
+      fromIso,
+      toIso,
+      limit,
+    });
+  }
+
+  /** Ingressos usados na portaria cujo evento terminou no intervalo (convite para avaliar, D25). */
+  listCheckedInTicketsEndedBetween(fromIso: string, toIso: string, limit = 500): Promise<Ticket[]> {
+    return this.port.listTicketsByEventTime({
+      status: 'checked_in',
+      field: 'endsAt',
+      fromIso,
+      toIso,
+      limit,
+    });
+  }
+
+  /** Exclusão de conta (§7.5): quantos registros perderam o dado pessoal. */
+  async anonymizeUser(uid: string): Promise<number> {
+    const result = await this.port.anonymizeUser(uid);
+    return result.orders + result.tickets + result.transfers + result.waitlist;
+  }
+
   async transferTicket(
     actor: TicketingActorContext,
     params: {
       ticketId: string;
-      recipientEmail: string;
+      recipientEmail?: string;
       recipientName?: string;
       toUserId?: string;
+      /** De quem o destinatário recebeu, para ele saber a quem devolver (D21). */
+      receivedFrom?: Ticket['receivedFrom'];
+      /** Devolução: o ingresso recebido volta para quem comprou (D21). */
+      returnToBuyer?: boolean;
     }
   ): Promise<{
     oldTicket: Ticket;
@@ -36,55 +70,17 @@ export class TicketHolderService {
       throw new TicketingDomainError('NOT_FOUND', 'Ingresso não encontrado.');
     }
 
-    const [order, listing, occurrence] = await Promise.all([
-      this.port.getOrderById(ticket.orderId),
-      getEventListingByIdUseCase(ticket.eventListingId),
-      getEventOccurrenceByIdUseCase(ticket.occurrenceId),
-    ]);
-
-    const allowTransfer =
-      order?.salesPolicySnapshot.allowTicketTransfer ??
-      listing?.salesPolicy.allowTicketTransfer ??
-      true;
-
-    if (!allowTransfer) {
-      throw new TicketingDomainError(
-        'UNPROCESSABLE_ENTITY',
-        'A política deste evento não permite transferência de titularidade.'
-      );
-    }
-
-    if (occurrence) {
-      if (occurrence.status !== 'scheduled') {
-        throw new TicketingDomainError(
-          'UNPROCESSABLE_ENTITY',
-          'Não é possível transferir ingressos de uma sessão encerrada ou cancelada.'
-        );
-      }
-
-      const startsAtMs = new Date(occurrence.startsAt).getTime();
-      const nowMs = Date.now();
-      const cutoffHours =
-        order?.salesPolicySnapshot.ticketTransferCutoffHours ??
-        listing?.salesPolicy.ticketTransferCutoffHours ??
-        4;
-      const hoursUntilStart = (startsAtMs - nowMs) / (1000 * 60 * 60);
-      if (hoursUntilStart < cutoffHours) {
-        throw new TicketingDomainError(
-          'UNPROCESSABLE_ENTITY',
-          `O prazo limite para transferência de titularidade encerrou (${cutoffHours}h antes do início do evento).`
-        );
-      }
-    }
-
+    const { order } = await loadTransferContext(this.port, ticket);
+    const recipient = this.resolveRecipient(ticket, order, params);
     const { rawQrToken, qrTokenHash } = generateOpaqueTicketQrToken();
     const res = await this.port.transferTicketAtomic({
       ticketId: params.ticketId,
       fromUserId: actor.uid,
-      toUserId: params.toUserId,
-      recipientEmail: params.recipientEmail.trim(),
-      recipientName: params.recipientName?.trim(),
+      toUserId: recipient.toUserId,
+      recipientEmail: recipient.email,
+      recipientName: recipient.name,
       newQrTokenHash: qrTokenHash,
+      ...(recipient.receivedFrom ? { receivedFrom: recipient.receivedFrom } : {}),
     });
 
     await createEventAuditLogUseCase({
@@ -96,7 +92,7 @@ export class TicketHolderService {
       before: { oldTicketId: res.oldTicket.id, fromUserId: actor.uid },
       after: {
         newTicketId: res.newTicket.id,
-        recipientEmail: params.recipientEmail,
+        toUserId: recipient.toUserId,
       },
     });
 
@@ -162,5 +158,51 @@ export class TicketHolderService {
       ticketTypeId: input.ticketTypeId,
       quantity: input.quantity,
     });
+  }
+
+  /**
+   * Ingresso comprado vai para quem o comprador escolher; ingresso recebido só volta para quem
+   * comprou (D21), com o e-mail e o nome do pedido, sem o "recebido de".
+   */
+  private resolveRecipient(
+    ticket: Ticket,
+    order: TicketOrder | null,
+    params: {
+      toUserId?: string;
+      recipientEmail?: string;
+      recipientName?: string;
+      receivedFrom?: Ticket['receivedFrom'];
+      returnToBuyer?: boolean;
+    }
+  ): { toUserId: string; email: string; name?: string; receivedFrom?: Ticket['receivedFrom'] } {
+    const received = !!order && ticket.ownerUserId !== order.buyerId;
+    if (params.returnToBuyer) {
+      if (!received || !order?.buyerSnapshot.email) {
+        throw new TicketingDomainError(
+          'UNPROCESSABLE_ENTITY',
+          'Este ingresso não foi recebido por transferência.'
+        );
+      }
+      return {
+        toUserId: order.buyerId,
+        email: order.buyerSnapshot.email,
+        name: order.buyerSnapshot.name || undefined,
+      };
+    }
+    if (received) {
+      throw new TicketingDomainError(
+        'TRANSFER_ONLY_TO_BUYER',
+        'Ingresso recebido só pode ser devolvido para quem comprou.'
+      );
+    }
+    if (!params.toUserId || !params.recipientEmail?.trim()) {
+      throw new TicketingDomainError('INVALID_ARGUMENT', 'Destinatário obrigatório.');
+    }
+    return {
+      toUserId: params.toUserId,
+      email: params.recipientEmail.trim(),
+      name: params.recipientName?.trim(),
+      receivedFrom: params.receivedFrom,
+    };
   }
 }

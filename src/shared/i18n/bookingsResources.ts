@@ -7,6 +7,13 @@ export interface BookingsTranslation {
     retry: string;
     duration: string;
     meetingPoint: string;
+    rescheduledNotice: string;
+    tabsLabel: string;
+    upcomingTab: string;
+    pastTab: string;
+    emptyUpcoming: string;
+    emptyPast: string;
+    refundedAmount: string;
     chooseSlot: string;
     noSlots: string;
     spotsLeft_one: string;
@@ -34,14 +41,6 @@ export interface BookingsTranslation {
     viewMyBookings: string;
     menuItem: string;
     myBookingsTitle: string;
-    upcoming: string;
-    past: string;
-    emptyBookings: string;
-    cancelBooking: string;
-    confirmCancelRefund: string;
-    confirmCancelNoRefund: string;
-    canceledWithRefund: string;
-    canceledNoRefund: string;
     loadMore: string;
     resultTitle: string;
     resultLoading: string;
@@ -65,6 +64,7 @@ export interface BookingsTranslation {
     actionFailed: string;
     stripeRequired: string;
     publishNeedsStripe: string;
+    stripeRequiredSome: string;
     accountStatusError: string;
     fromPrice: string;
   };
@@ -125,12 +125,30 @@ export interface BookingsTranslation {
     created_other: string;
     createFailed: string;
     cancelSlot: string;
-    confirmCancelSlot: string;
     canceled_one: string;
     canceled_other: string;
     statusClosed: string;
     statusCanceled: string;
     timezoneNotice: string;
+    reschedule: string;
+    rescheduleTitle: string;
+    rescheduleDescription: string;
+    newDateTime: string;
+    rescheduleReason: string;
+    rescheduleReasonHint: string;
+    rescheduleSubmit: string;
+    rescheduled_one: string;
+    rescheduled_other: string;
+    rescheduleInvalid: string;
+    cancelTitle: string;
+    cancelNoSales: string;
+    cancelWithSales_one: string;
+    cancelWithSales_other: string;
+    cancelPenalty: string;
+    cancelForceMajeure: string;
+    rescheduleInstead: string;
+    cancelAnyway: string;
+    back: string;
   };
   weekdays: {
     '0': string;
@@ -173,6 +191,16 @@ export interface BookingsTranslation {
     CANCELLATION_NOT_ALLOWED: string;
     TERMS_NOT_ACCEPTED: string;
     SELLER_ACCOUNT_NOT_ELIGIBLE: string;
+    CHECK_IN_NOT_APPLICABLE: string;
+    CHECK_IN_WINDOW_CLOSED: string;
+    INVALID_CHECK_IN_CODE: string;
+    CHECK_IN_LOCKED: string;
+    NO_SHOW_TOO_EARLY: string;
+    ABSENCE_REPORT_NOT_ALLOWED: string;
+    NOTHING_TO_ANSWER: string;
+    INVALID_ENTRY_PASS: string;
+    NAME_CHANGE_NOT_ALLOWED: string;
+    CLAIM_ALREADY_EXISTS: string;
     INTERNAL_ERROR: string;
   };
 }
@@ -185,6 +213,13 @@ export const bookingsPtBR: BookingsTranslation = {
     retry: 'Tentar novamente',
     duration: 'Duração: {{minutes}} min',
     meetingPoint: 'Ponto de encontro: {{address}}',
+    rescheduledNotice: 'Nova data. Cancelamento com reembolso total até {{date}}',
+    tabsLabel: 'Reservas',
+    upcomingTab: 'Próximas ({{count}})',
+    pastTab: 'Anteriores ({{count}})',
+    emptyUpcoming: 'Nenhuma reserva por vir.',
+    emptyPast: 'Nenhuma reserva anterior.',
+    refundedAmount: 'Reembolsado {{amount}}',
     chooseSlot: 'Escolha o horário',
     noSlots: 'Nenhum horário disponível nos próximos 30 dias.',
     spotsLeft_one: '{{count}} vaga',
@@ -214,15 +249,6 @@ export const bookingsPtBR: BookingsTranslation = {
     viewMyBookings: 'Ver minhas reservas',
     menuItem: 'Minhas reservas',
     myBookingsTitle: 'Minhas reservas',
-    upcoming: 'Próximas',
-    past: 'Anteriores',
-    emptyBookings: 'Você ainda não tem reservas.',
-    cancelBooking: 'Cancelar reserva',
-    confirmCancelRefund: 'Cancelar esta reserva? Você receberá {{amount}} de volta.',
-    confirmCancelNoRefund:
-      'Cancelar esta reserva? Pela política de cancelamento, não há reembolso.',
-    canceledWithRefund: 'Reserva cancelada. O reembolso de {{amount}} foi solicitado.',
-    canceledNoRefund: 'Reserva cancelada.',
     loadMore: 'Carregar mais',
     resultTitle: 'Pagamento da reserva',
     resultLoading: 'Verificando o pagamento…',
@@ -245,7 +271,10 @@ export const bookingsPtBR: BookingsTranslation = {
     confirmArchive: 'Arquivar esta oferta? Ela sai do site e não pode ser reaberta.',
     actionFailed: 'Não foi possível concluir a ação.',
     stripeRequired: 'Para vender reservas, conclua a configuração financeira da sua conta.',
-    publishNeedsStripe: 'Conclua a configuração financeira para publicar.',
+    publishNeedsStripe:
+      'Conclua a configuração financeira do CNPJ deste estabelecimento para publicar.',
+    stripeRequiredSome:
+      'Alguns estabelecimentos ainda não podem vender: conclua a configuração financeira do CNPJ de cada um em Recebimentos.',
     accountStatusError: 'Não foi possível verificar sua conta financeira agora.',
     fromPrice: 'a partir de {{amount}}',
   },
@@ -274,7 +303,7 @@ export const bookingsPtBR: BookingsTranslation = {
     durationLabel: 'Duração (minutos)',
     meetingPointLabel: 'Ponto de encontro',
     maxParticipantsLabel: 'Máximo de participantes por reserva',
-    requireNamesLabel: 'Pedir o nome de cada participante',
+    requireNamesLabel: 'Pedir o nome de cada pessoa',
     save: 'Salvar',
     cancel: 'Cancelar',
     saveFailed: 'Não foi possível salvar a oferta.',
@@ -306,13 +335,36 @@ export const bookingsPtBR: BookingsTranslation = {
     created_other: '{{count}} horários criados.',
     createFailed: 'Não foi possível criar os horários.',
     cancelSlot: 'Cancelar horário',
-    confirmCancelSlot:
-      'Cancelar este horário? Todas as reservas pagas serão reembolsadas integralmente.',
     canceled_one: 'Horário cancelado. {{count}} reserva reembolsada.',
     canceled_other: 'Horário cancelado. {{count}} reservas reembolsadas.',
     statusClosed: 'Fechado',
     statusCanceled: 'Cancelado',
     timezoneNotice: 'Horários no fuso de Fortaleza (UTC−3).',
+    reschedule: 'Remarcar',
+    rescheduleTitle: 'Remarcar horário',
+    rescheduleDescription:
+      'As reservas valem na nova data, sem multa para você. Cada comprador é avisado e tem 7 dias para cancelar com reembolso integral.',
+    newDateTime: 'Nova data e hora',
+    rescheduleReason: 'Motivo',
+    rescheduleReasonHint: 'Aparece para os compradores. De 3 a 300 caracteres.',
+    rescheduleSubmit: 'Remarcar horário',
+    rescheduled_one: 'Horário remarcado. {{count}} reserva vale na nova data.',
+    rescheduled_other: 'Horário remarcado. {{count}} reservas valem na nova data.',
+    rescheduleInvalid: 'Informe uma data futura e o motivo.',
+    cancelTitle: 'Cancelar horário',
+    cancelNoSales:
+      'Este horário não tem reservas pagas. Cancelar fecha o horário para novas reservas.',
+    cancelWithSales_one:
+      'Este horário tem {{count}} vaga vendida. A reserva paga será reembolsada por inteiro.',
+    cancelWithSales_other:
+      'Este horário tem {{count}} vagas vendidas. As reservas pagas serão reembolsadas por inteiro.',
+    cancelPenalty:
+      'Seu CNPJ paga multa de 20% do valor vendido, com 24 h para pagar em Recebimentos › Dívidas. Depois disso, a multa é descontada dos repasses e as vendas do CNPJ ficam pausadas.',
+    cancelForceMajeure:
+      'Foi por força maior (ex.: vento ou mar acima do limite)? Declare em Recebimentos › Dívidas antes do vencimento: a multa fica suspensa até a análise.',
+    rescheduleInstead: 'Remarcar em vez de cancelar',
+    cancelAnyway: 'Cancelar horário',
+    back: 'Voltar',
   },
   weekdays: {
     '0': 'Dom',
@@ -355,6 +407,18 @@ export const bookingsPtBR: BookingsTranslation = {
     CANCELLATION_NOT_ALLOWED: 'Esta reserva não pode ser cancelada.',
     TERMS_NOT_ACCEPTED: 'Aceite os termos para continuar.',
     SELLER_ACCOUNT_NOT_ELIGIBLE: 'O parceiro ainda não pode receber pagamentos online.',
+    CHECK_IN_NOT_APPLICABLE: 'Esta reserva não usa este tipo de check-in.',
+    CHECK_IN_WINDOW_CLOSED: 'O check-in deste horário não está aberto agora.',
+    INVALID_CHECK_IN_CODE: 'Código incorreto. Confira com o comprador.',
+    CHECK_IN_LOCKED: 'Muitos códigos errados. Tente de novo em 15 minutos.',
+    NO_SHOW_TOO_EARLY: 'Toque em "Cheguei" e espere 30 min antes de marcar a ausência.',
+    ABSENCE_REPORT_NOT_ALLOWED:
+      'Só é possível relatar 30 min depois do horário, se o check-in não foi feito.',
+    NOTHING_TO_ANSWER: 'Não há nada para responder nesta reserva.',
+    INVALID_ENTRY_PASS: 'QR Code inválido para este horário.',
+    NAME_CHANGE_NOT_ALLOWED:
+      'O nome desta entrada já foi trocado ou a troca fechou (até 24 h antes).',
+    CLAIM_ALREADY_EXISTS: 'Já existe uma reclamação para esta compra.',
     INTERNAL_ERROR: 'Algo deu errado. Tente novamente em instantes.',
   },
 };
@@ -367,6 +431,13 @@ export const bookingsEn: BookingsTranslation = {
     retry: 'Try again',
     duration: 'Duration: {{minutes}} min',
     meetingPoint: 'Meeting point: {{address}}',
+    rescheduledNotice: 'New date. Full refund if you cancel by {{date}}',
+    tabsLabel: 'Bookings',
+    upcomingTab: 'Upcoming ({{count}})',
+    pastTab: 'Past ({{count}})',
+    emptyUpcoming: 'No upcoming bookings.',
+    emptyPast: 'No past bookings.',
+    refundedAmount: 'Refunded {{amount}}',
     chooseSlot: 'Choose a time',
     noSlots: 'No time slots available in the next 30 days.',
     spotsLeft_one: '{{count}} spot',
@@ -395,14 +466,6 @@ export const bookingsEn: BookingsTranslation = {
     viewMyBookings: 'View my bookings',
     menuItem: 'My bookings',
     myBookingsTitle: 'My bookings',
-    upcoming: 'Upcoming',
-    past: 'Past',
-    emptyBookings: 'You have no bookings yet.',
-    cancelBooking: 'Cancel booking',
-    confirmCancelRefund: 'Cancel this booking? You will get {{amount}} back.',
-    confirmCancelNoRefund: 'Cancel this booking? Under the cancellation policy there is no refund.',
-    canceledWithRefund: 'Booking canceled. A refund of {{amount}} was requested.',
-    canceledNoRefund: 'Booking canceled.',
     loadMore: 'Load more',
     resultTitle: 'Booking payment',
     resultLoading: 'Checking the payment…',
@@ -425,7 +488,9 @@ export const bookingsEn: BookingsTranslation = {
     confirmArchive: 'Archive this offer? It leaves the site and cannot be reopened.',
     actionFailed: 'The action could not be completed.',
     stripeRequired: 'To sell bookings, finish your account payment setup.',
-    publishNeedsStripe: 'Finish your payment setup to publish.',
+    publishNeedsStripe: 'Finish the payment setup for this place’s CNPJ to publish.',
+    stripeRequiredSome:
+      'Some places can’t sell yet: finish the payment setup for each one’s CNPJ under Payouts.',
     accountStatusError: 'We couldn’t check your payment account right now.',
     fromPrice: 'from {{amount}}',
   },
@@ -454,7 +519,7 @@ export const bookingsEn: BookingsTranslation = {
     durationLabel: 'Duration (minutes)',
     meetingPointLabel: 'Meeting point',
     maxParticipantsLabel: 'Maximum participants per booking',
-    requireNamesLabel: 'Ask for each participant’s name',
+    requireNamesLabel: 'Ask for each person’s name',
     save: 'Save',
     cancel: 'Cancel',
     saveFailed: 'The offer could not be saved.',
@@ -486,12 +551,35 @@ export const bookingsEn: BookingsTranslation = {
     created_other: '{{count}} time slots created.',
     createFailed: 'The time slots could not be created.',
     cancelSlot: 'Cancel time slot',
-    confirmCancelSlot: 'Cancel this time slot? Every paid booking will be fully refunded.',
     canceled_one: 'Time slot canceled. {{count}} booking refunded.',
     canceled_other: 'Time slot canceled. {{count}} bookings refunded.',
     statusClosed: 'Closed',
     statusCanceled: 'Canceled',
     timezoneNotice: 'Times in Fortaleza time (UTC−3).',
+    reschedule: 'Reschedule',
+    rescheduleTitle: 'Reschedule time slot',
+    rescheduleDescription:
+      'Bookings stay valid on the new date, with no penalty for you. Each buyer is notified and has 7 days to cancel for a full refund.',
+    newDateTime: 'New date and time',
+    rescheduleReason: 'Reason',
+    rescheduleReasonHint: 'Shown to buyers. 3 to 300 characters.',
+    rescheduleSubmit: 'Reschedule time slot',
+    rescheduled_one: 'Time slot rescheduled. {{count}} booking stays valid on the new date.',
+    rescheduled_other: 'Time slot rescheduled. {{count}} bookings stay valid on the new date.',
+    rescheduleInvalid: 'Enter a future date and the reason.',
+    cancelTitle: 'Cancel time slot',
+    cancelNoSales: 'This time slot has no paid bookings. Canceling closes it to new bookings.',
+    cancelWithSales_one:
+      'This time slot has {{count}} sold spot. The paid booking will be fully refunded.',
+    cancelWithSales_other:
+      'This time slot has {{count}} sold spots. Paid bookings will be fully refunded.',
+    cancelPenalty:
+      'Your CNPJ pays a penalty of 20% of the amount sold, with 24 h to pay under Payouts › Debts. After that, the penalty is deducted from payouts and the CNPJ’s sales are paused.',
+    cancelForceMajeure:
+      'Was it force majeure (e.g. wind or sea above the limit)? Declare it under Payouts › Debts before the due date: the penalty is suspended until the review.',
+    rescheduleInstead: 'Reschedule instead',
+    cancelAnyway: 'Cancel time slot',
+    back: 'Back',
   },
   weekdays: {
     '0': 'Sun',
@@ -534,6 +622,18 @@ export const bookingsEn: BookingsTranslation = {
     CANCELLATION_NOT_ALLOWED: 'This booking cannot be canceled.',
     TERMS_NOT_ACCEPTED: 'Accept the terms to continue.',
     SELLER_ACCOUNT_NOT_ELIGIBLE: 'This partner cannot receive online payments yet.',
+    CHECK_IN_NOT_APPLICABLE: 'This booking does not use this kind of check-in.',
+    CHECK_IN_WINDOW_CLOSED: 'Check-in for this time slot is not open now.',
+    INVALID_CHECK_IN_CODE: 'Wrong code. Check it with the buyer.',
+    CHECK_IN_LOCKED: 'Too many wrong codes. Try again in 15 minutes.',
+    NO_SHOW_TOO_EARLY: 'Tap "I’m here" and wait 30 min before marking a no-show.',
+    ABSENCE_REPORT_NOT_ALLOWED:
+      'You can report it 30 min after the start time, if no check-in was done.',
+    NOTHING_TO_ANSWER: 'There is nothing to answer in this booking.',
+    INVALID_ENTRY_PASS: 'This QR code is not valid for this time slot.',
+    NAME_CHANGE_NOT_ALLOWED:
+      'The name on this entry was already changed or changes are closed (up to 24 h before).',
+    CLAIM_ALREADY_EXISTS: 'There is already a claim for this purchase.',
     INTERNAL_ERROR: 'Something went wrong. Please try again shortly.',
   },
 };
@@ -546,6 +646,14 @@ export const bookingsFr: BookingsTranslation = {
     retry: 'Réessayer',
     duration: 'Durée : {{minutes}} min',
     meetingPoint: 'Point de rendez-vous : {{address}}',
+    rescheduledNotice:
+      'Nouvelle date. Remboursement intégral en cas d’annulation avant le {{date}}',
+    tabsLabel: 'Réservations',
+    upcomingTab: 'À venir ({{count}})',
+    pastTab: 'Passées ({{count}})',
+    emptyUpcoming: 'Aucune réservation à venir.',
+    emptyPast: 'Aucune réservation passée.',
+    refundedAmount: 'Remboursé {{amount}}',
     chooseSlot: 'Choisissez un créneau',
     noSlots: 'Aucun créneau disponible dans les 30 prochains jours.',
     spotsLeft_one: '{{count}} place',
@@ -575,15 +683,6 @@ export const bookingsFr: BookingsTranslation = {
     viewMyBookings: 'Voir mes réservations',
     menuItem: 'Mes réservations',
     myBookingsTitle: 'Mes réservations',
-    upcoming: 'À venir',
-    past: 'Passées',
-    emptyBookings: 'Vous n’avez pas encore de réservation.',
-    cancelBooking: 'Annuler la réservation',
-    confirmCancelRefund: 'Annuler cette réservation ? Vous serez remboursé de {{amount}}.',
-    confirmCancelNoRefund:
-      'Annuler cette réservation ? Selon la politique d’annulation, aucun remboursement n’est prévu.',
-    canceledWithRefund: 'Réservation annulée. Le remboursement de {{amount}} a été demandé.',
-    canceledNoRefund: 'Réservation annulée.',
     loadMore: 'Charger plus',
     resultTitle: 'Paiement de la réservation',
     resultLoading: 'Vérification du paiement…',
@@ -608,7 +707,10 @@ export const bookingsFr: BookingsTranslation = {
     actionFailed: 'L’action n’a pas pu aboutir.',
     stripeRequired:
       'Pour vendre des réservations, terminez la configuration financière de votre compte.',
-    publishNeedsStripe: 'Terminez la configuration financière pour publier.',
+    publishNeedsStripe:
+      'Terminez la configuration financière du CNPJ de cet établissement pour publier.',
+    stripeRequiredSome:
+      'Certains établissements ne peuvent pas encore vendre : terminez la configuration financière du CNPJ de chacun dans Versements.',
     accountStatusError: 'Impossible de vérifier votre compte financier pour le moment.',
     fromPrice: 'à partir de {{amount}}',
   },
@@ -637,7 +739,7 @@ export const bookingsFr: BookingsTranslation = {
     durationLabel: 'Durée (minutes)',
     meetingPointLabel: 'Point de rendez-vous',
     maxParticipantsLabel: 'Nombre maximum de participants par réservation',
-    requireNamesLabel: 'Demander le nom de chaque participant',
+    requireNamesLabel: 'Demander le nom de chaque personne',
     save: 'Enregistrer',
     cancel: 'Annuler',
     saveFailed: 'Impossible d’enregistrer l’offre.',
@@ -669,13 +771,37 @@ export const bookingsFr: BookingsTranslation = {
     created_other: '{{count}} créneaux créés.',
     createFailed: 'Impossible de créer les créneaux.',
     cancelSlot: 'Annuler le créneau',
-    confirmCancelSlot:
-      'Annuler ce créneau ? Toutes les réservations payées seront intégralement remboursées.',
     canceled_one: 'Créneau annulé. {{count}} réservation remboursée.',
     canceled_other: 'Créneau annulé. {{count}} réservations remboursées.',
     statusClosed: 'Fermé',
     statusCanceled: 'Annulé',
     timezoneNotice: 'Horaires à l’heure de Fortaleza (UTC−3).',
+    reschedule: 'Reprogrammer',
+    rescheduleTitle: 'Reprogrammer le créneau',
+    rescheduleDescription:
+      'Les réservations restent valables à la nouvelle date, sans pénalité pour vous. Chaque acheteur est prévenu et a 7 jours pour annuler avec un remboursement intégral.',
+    newDateTime: 'Nouvelle date et heure',
+    rescheduleReason: 'Motif',
+    rescheduleReasonHint: 'Visible par les acheteurs. De 3 à 300 caractères.',
+    rescheduleSubmit: 'Reprogrammer le créneau',
+    rescheduled_one: 'Créneau reprogrammé. {{count}} réservation reste valable à la nouvelle date.',
+    rescheduled_other:
+      'Créneau reprogrammé. {{count}} réservations restent valables à la nouvelle date.',
+    rescheduleInvalid: 'Indiquez une date future et le motif.',
+    cancelTitle: 'Annuler le créneau',
+    cancelNoSales:
+      'Ce créneau n’a aucune réservation payée. L’annuler le ferme aux nouvelles réservations.',
+    cancelWithSales_one:
+      'Ce créneau a {{count}} place vendue. La réservation payée sera remboursée intégralement.',
+    cancelWithSales_other:
+      'Ce créneau a {{count}} places vendues. Les réservations payées seront remboursées intégralement.',
+    cancelPenalty:
+      'Votre CNPJ paie une pénalité de 20 % du montant vendu, avec 24 h pour payer dans Versements › Dettes. Ensuite, la pénalité est déduite des versements et les ventes du CNPJ sont suspendues.',
+    cancelForceMajeure:
+      'C’était un cas de force majeure (ex. : vent ou mer au-dessus de la limite) ? Déclarez-le dans Versements › Dettes avant l’échéance : la pénalité est suspendue jusqu’à l’examen.',
+    rescheduleInstead: 'Reprogrammer plutôt',
+    cancelAnyway: 'Annuler le créneau',
+    back: 'Retour',
   },
   weekdays: {
     '0': 'Dim',
@@ -718,6 +844,18 @@ export const bookingsFr: BookingsTranslation = {
     CANCELLATION_NOT_ALLOWED: 'Cette réservation ne peut pas être annulée.',
     TERMS_NOT_ACCEPTED: 'Acceptez les conditions pour continuer.',
     SELLER_ACCOUNT_NOT_ELIGIBLE: 'Ce partenaire ne peut pas encore recevoir de paiements en ligne.',
+    CHECK_IN_NOT_APPLICABLE: 'Cette réservation n’utilise pas ce type d’enregistrement.',
+    CHECK_IN_WINDOW_CLOSED: 'L’enregistrement de ce créneau n’est pas ouvert maintenant.',
+    INVALID_CHECK_IN_CODE: 'Code incorrect. Vérifiez avec l’acheteur.',
+    CHECK_IN_LOCKED: 'Trop de codes erronés. Réessayez dans 15 minutes.',
+    NO_SHOW_TOO_EARLY: 'Touchez « Je suis arrivé » et attendez 30 min avant de marquer l’absence.',
+    ABSENCE_REPORT_NOT_ALLOWED:
+      'Le signalement est possible 30 min après l’horaire, sans enregistrement fait.',
+    NOTHING_TO_ANSWER: 'Il n’y a rien à répondre pour cette réservation.',
+    INVALID_ENTRY_PASS: 'Ce QR code n’est pas valable pour ce créneau.',
+    NAME_CHANGE_NOT_ALLOWED:
+      'Le nom de cette entrée a déjà été changé ou le délai est passé (jusqu’à 24 h avant).',
+    CLAIM_ALREADY_EXISTS: 'Une réclamation existe déjà pour cet achat.',
     INTERNAL_ERROR: 'Un problème est survenu. Réessayez dans un instant.',
   },
 };

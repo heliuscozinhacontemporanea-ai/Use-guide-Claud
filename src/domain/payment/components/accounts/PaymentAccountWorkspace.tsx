@@ -1,4 +1,4 @@
-import { ArrowLeft } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../../shared/context/ThemeContext';
@@ -37,7 +37,7 @@ export function PaymentAccountWorkspace({
           onClick={onBack}
           className="press min-h-11 px-3 rounded-xl border border-line text-xs font-bold text-ink flex items-center gap-2 hover:bg-accent-soft focus-visible:ring-2 focus-visible:ring-teal-400/50"
         >
-          <ArrowLeft size={15} aria-hidden="true" />
+          <ChevronLeft size={15} aria-hidden="true" />
           {t('paymentAccounts.actions.back')}
         </button>
         <p className="text-sm font-bold text-ink font-mono break-all">{entry.maskedDocument}</p>

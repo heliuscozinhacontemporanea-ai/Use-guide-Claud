@@ -1,6 +1,7 @@
 import type {
   EventCheckIn,
   EventSalesAnalytics,
+  OfflineCheckInChanges,
   OfflineCheckInSessionResponse,
   OfflineCheckInSyncResult,
   PublicTicketTypeProjection,
@@ -8,6 +9,9 @@ import type {
   Ticket,
   TicketOrder,
   TicketOrderItem,
+  TicketQrPass,
+  TicketTransferLinkCreated,
+  TicketTransferLinkPreview,
   TicketType,
 } from '../types/ticketing';
 
@@ -95,30 +99,32 @@ export interface TicketingPort {
     serverNow?: string;
   }>;
   listUserTickets(): Promise<Ticket[]>;
-  getTicketQrToken(ticketId: string): Promise<{
-    ticket: Ticket;
-    rawQrToken: string;
-  }>;
-  reissueTicketQrToken(ticketId: string): Promise<{
-    ticket: Ticket;
-    rawQrToken: string;
-  }>;
+  getTicketQrToken(ticketId: string): Promise<TicketQrPass>;
+  /** Troca única do QR pelo titular (D21). */
+  swapTicketQr(ticketId: string): Promise<TicketQrPass>;
+  listOfflineCheckInChanges(sessionId: string, since: string): Promise<OfflineCheckInChanges>;
   requestRefund(
     orderId: string,
     input: { ticketId?: string; reason: string; idempotencyKey: string }
   ): Promise<Refund>;
+  /** Transfere para a conta dona do @ (D21); erro vira `Error(code)`. */
   transferTicket(
     ticketId: string,
-    input: { recipientEmail: string; recipientName?: string }
-  ): Promise<{
-    oldTicket: Ticket;
-    newTicket: Ticket;
-    newRawQrToken: string;
-  }>;
+    username: string
+  ): Promise<{ ticketId: string; recipient: { username: string; displayName: string | null } }>;
+  /** Devolve o ingresso recebido para quem comprou (D21). */
+  returnTicketToBuyer(ticketId: string): Promise<{ ticketId: string }>;
+  /** Link para quem ainda não tem conta (D21): 30 min, uso único. */
+  createTransferLink(ticketId: string): Promise<TicketTransferLinkCreated>;
+  cancelTransferLink(ticketId: string): Promise<void>;
+  previewTransferLink(linkId: string, token: string): Promise<TicketTransferLinkPreview>;
+  acceptTransferLink(linkId: string, token: string): Promise<{ ticketId: string }>;
   checkInTicket(input: {
     occurrenceId: string;
     ticketId?: string;
     qrToken?: string;
+    /** Código de 8 caracteres do ingresso, quando o QR não lê (D20). */
+    code?: string;
   }): Promise<{ ticket: Ticket; checkIn: EventCheckIn }>;
   createOfflineCheckInSession(input: {
     occurrenceId: string;
@@ -133,6 +139,7 @@ export interface TicketingPort {
       clientEventId: string;
       ticketId: string;
       qrToken: string;
+      qrVersion: number;
       checkedInAt: string;
     }>;
   }): Promise<{ results: OfflineCheckInSyncResult[] }>;

@@ -1,8 +1,9 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { prepareImageForStorageUseCase } from '../../media';
 import { UserService } from './userService';
 
 vi.mock('../../media', () => ({ prepareImageForStorageUseCase: vi.fn() }));
+
 import { UserPort } from '../ports/userPort';
 import { UserRole } from '../types/userTypes';
 
@@ -35,6 +36,8 @@ describe('UserService', () => {
         phone: '11999999999',
         role: 'user' as UserRole,
         preferredLocale: null,
+        username: null,
+        usernameChangedAt: null,
       };
       vi.mocked(userPortMock.getUserProfile).mockResolvedValueOnce(mockProfile);
 
@@ -59,6 +62,8 @@ describe('UserService', () => {
         phone: '11988888888',
         role: 'user' as UserRole,
         preferredLocale: null,
+        username: null,
+        usernameChangedAt: null,
       };
       vi.mocked(userPortMock.updateUserProfile).mockResolvedValueOnce(updatedProfile);
 

@@ -1,5 +1,5 @@
-import { getAppCheck } from 'firebase-admin/app-check';
 import type { NextFunction, Request, Response } from 'express';
+import { getAppCheck } from 'firebase-admin/app-check';
 
 // Fail-closed em produção: só desliga com APP_CHECK_REQUIRED=false explícito.
 export function isAppCheckRequired(env: NodeJS.ProcessEnv = process.env): boolean {
@@ -12,23 +12,25 @@ export async function verifyAppCheck(
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<void | Response> {
+): Promise<undefined | Response> {
   const token = req.header('X-Firebase-AppCheck');
   if (!token) {
     if (isAppCheckRequired()) {
       return res.status(401).json({
-        error: 'App Check obrigatório',
+        error: { code: 'APP_CHECK_REQUIRED', message: 'App Check obrigatório.' },
       });
     }
-    return next();
+    next();
+    return undefined;
   }
   try {
     const claims = await getAppCheck().verifyToken(token);
     (req as Request & { appCheck?: unknown }).appCheck = claims;
-    return next();
+    next();
+    return undefined;
   } catch {
     return res.status(401).json({
-      error: 'App Check inválido',
+      error: { code: 'APP_CHECK_INVALID', message: 'App Check inválido.' },
     });
   }
 }

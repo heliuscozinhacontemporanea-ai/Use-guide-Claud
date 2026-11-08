@@ -1,25 +1,21 @@
-import { NotificationSettingsPatch } from '../dtos/UpdateNotificationSettingsDTO';
-
-export interface CreateNotificationInput {
-  id?: string;
-  recipientPartnerId: string;
-  type: 'review' | 'admin_message' | 'plan_expiring';
-  title: string;
-  message: string;
-  relatedItemId?: string;
-  relatedItemCollection?: 'items' | 'events';
-  itemCollection?: 'items' | 'events';
-}
+import type { NewNotification, NotificationPreferences } from '../types/notificationTypes';
 
 export interface NotificationRepositoryPort {
-  createNotification(input: CreateNotificationInput): Promise<boolean>;
-  createBulkNotifications(
-    recipientPartnerIds: string[],
-    data: Omit<CreateNotificationInput, 'recipientPartnerId'>
+  /** Grava o aviso e a entrada do push juntos. Falso quando o `dedupeKey` já existe. */
+  create(notification: NewNotification, expiresAt: Date): Promise<boolean>;
+  createMany(
+    recipientUids: string[],
+    data: Omit<NewNotification, 'recipientUid' | 'dedupeKey'>,
+    expiresAt: Date
   ): Promise<void>;
-  markAsRead(notificationId: string, recipientId: string): Promise<void>;
-  markAllAsRead(recipientId: string): Promise<void>;
-  isNotificationTypeEnabled(partnerId: string, type: 'review' | 'plan_expiring'): Promise<boolean>;
-  getSettings(partnerId: string): Promise<Record<string, unknown>>;
-  updateSettings(partnerId: string, settings: NotificationSettingsPatch): Promise<void>;
+  /** Falso quando o aviso não existe ou é de outra pessoa. */
+  markAsRead(notificationId: string, recipientUid: string): Promise<boolean>;
+  markAllAsRead(recipientUid: string): Promise<void>;
+  getPreferences(uid: string): Promise<Partial<NotificationPreferences> | null>;
+  savePreferences(uid: string, preferences: NotificationPreferences): Promise<void>;
+  deleteAllForUser(uid: string): Promise<void>;
+  /** Parceiros que escolheram o resumo no fim do dia. */
+  listDailySalesRecipients(): Promise<string[]>;
+  /** Avisos de venda e reserva gravados desde `since` (para o resumo do dia). */
+  countSalesSince(uid: string, since: Date): Promise<number>;
 }

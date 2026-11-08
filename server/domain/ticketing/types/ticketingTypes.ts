@@ -126,6 +126,8 @@ export interface TicketOrder {
   expiresAt?: string;
   createdAt: string;
   paidAt?: string;
+  /** Aviso da nova data: até 7 dias depois, o comprador cancela com reembolso integral (D16, 4A). */
+  rescheduledAt?: string;
   canceledAt?: string;
   expiredAt?: string;
   updatedAt?: string;
@@ -174,6 +176,14 @@ export interface Ticket {
   issuedAt: string;
   checkedInAt?: string;
   checkedInBy?: string;
+  /** "Problema com o QR Code?": o titular trocou o QR, que só pode ser trocado uma vez (D21). */
+  qrSwappedAt?: string;
+  /** Ingresso recebido por transferência: de quem veio (@ e nome públicos). Só volta para quem comprou (D21). */
+  receivedFrom?: { username: string | null; displayName: string | null };
+  /** Link de transferência pendente (D21): até quando vale. */
+  transferLinkExpiresAt?: string;
+  /** Última mudança: a lista sem internet da portaria baixa só o que mudou (D21). */
+  updatedAt?: string;
   transferredAt?: string;
   ticketTypeSnapshot?: {
     name: string;
@@ -196,6 +206,8 @@ export interface Refund {
   orderId: string;
   ticketId?: string;
   amountMinor: MoneyMinor;
+  /** Parte do reembolso que é taxa de serviço; o resto sai do valor do proprietário (D14). */
+  serviceFeeMinor: MoneyMinor;
   requestedBy: 'buyer' | 'partner' | 'admin' | 'system';
   reason: string;
   status: RefundStatus;
@@ -204,6 +216,21 @@ export interface Refund {
   idempotencyKey: string;
   createdAt: string;
   completedAt?: string;
+}
+
+/** Link de transferência para quem ainda não tem conta (D21): 30 min, uso único. */
+export interface TicketTransferLink {
+  id: string;
+  ticketId: string;
+  fromUserId: string;
+  /** HMAC do código do link; o código em si nunca é gravado (§7.7). */
+  tokenHash: string;
+  status: 'pending' | 'accepted' | 'canceled';
+  expiresAt: string;
+  createdAt: string;
+  receivedFrom: { username: string | null; displayName: string | null };
+  acceptedBy?: string;
+  acceptedAt?: string;
 }
 
 export interface TicketTransfer {
@@ -265,7 +292,8 @@ export interface OfflineCheckInManifest {
   issuedAt: string;
   expiresAt: string;
   keyId: string;
-  publicKeyJwk: JsonWebKey;
+  /** Chave atual e, na rotação, a anterior: o aparelho confere o QR sem internet. */
+  keys: Array<{ kid: string; publicKeyJwk: JsonWebKey }>;
   tickets: Array<{
     ticketIdHash: string;
     qrVersion: number;

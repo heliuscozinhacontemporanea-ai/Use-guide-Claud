@@ -122,12 +122,12 @@ describe('Firestore Rules — Security Suite', () => {
       });
 
       await db.doc('notifications/notif-1').set({
-        recipientPartnerId: 'user-1',
-        title: 'Nova notificação',
+        recipientUid: 'user-1',
+        type: 'admin_message',
       });
 
-      await db.doc('partnerNotificationSettings/user-1').set({
-        reviewNotifications: true,
+      await db.doc('notificationPreferences/user-1').set({
+        news: false,
       });
 
       await db.doc('transactions/tx-1').set({
@@ -331,11 +331,11 @@ describe('Firestore Rules — Security Suite', () => {
       await assertFails(deleteDoc(doc(db, 'notifications/notif-1')));
     });
 
-    it('client → partnerNotificationSettings write negado', async () => {
+    it('client → notificationPreferences write negado', async () => {
       const db = testEnv.authenticatedContext('user-1').firestore();
-      await assertFails(setDoc(doc(db, 'partnerNotificationSettings/user-1'), { reviewNotifications: false }));
-      await assertFails(updateDoc(doc(db, 'partnerNotificationSettings/user-1'), { reviewNotifications: false }));
-      await assertFails(deleteDoc(doc(db, 'partnerNotificationSettings/user-1')));
+      await assertFails(setDoc(doc(db, 'notificationPreferences/user-1'), { news: true }));
+      await assertFails(updateDoc(doc(db, 'notificationPreferences/user-1'), { news: true }));
+      await assertFails(deleteDoc(doc(db, 'notificationPreferences/user-1')));
     });
 
     it('client → transactions write negado', async () => {
@@ -361,6 +361,42 @@ describe('Firestore Rules — Security Suite', () => {
       for (const db of [adminDb, ownerDb]) {
         await assertFails(getDoc(doc(db, 'paymentAccounts/idx-1')));
         await assertFails(setDoc(doc(db, 'paymentAccounts/idx-1'), { ownerUid: 'partner-1' }));
+      }
+    });
+
+    it('repasse (D14): payoutEntries negado até para o dono e admin', async () => {
+      const adminDb = testEnv.authenticatedContext('admin-user', { admin: true }).firestore();
+      const ownerDb = testEnv.authenticatedContext('partner-1').firestore();
+      for (const db of [adminDb, ownerDb]) {
+        await assertFails(getDoc(doc(db, 'payoutEntries/po_booking_bk-1')));
+        await assertFails(setDoc(doc(db, 'payoutEntries/po_booking_bk-1'), { status: 'released' }));
+      }
+    });
+
+    it('dívida (D16): accountDebts negado até para o dono e admin', async () => {
+      const adminDb = testEnv.authenticatedContext('admin-user', { admin: true }).firestore();
+      const ownerDb = testEnv.authenticatedContext('partner-1').firestore();
+      for (const db of [adminDb, ownerDb]) {
+        await assertFails(getDoc(doc(db, 'accountDebts/debt-1')));
+        await assertFails(setDoc(doc(db, 'accountDebts/debt-1'), { status: 'waived' }));
+      }
+    });
+
+    it('reclamação (D16): saleClaims negado até para o comprador e admin', async () => {
+      const adminDb = testEnv.authenticatedContext('admin-user', { admin: true }).firestore();
+      const buyerDb = testEnv.authenticatedContext('buyer-1').firestore();
+      for (const db of [adminDb, buyerDb]) {
+        await assertFails(getDoc(doc(db, 'saleClaims/claim_booking_bk-1')));
+        await assertFails(setDoc(doc(db, 'saleClaims/claim_booking_bk-1'), { buyerUid: 'buyer-1' }));
+      }
+    });
+
+    it('denúncia de resposta (D19): reviewReports negado até para o autor e admin', async () => {
+      const adminDb = testEnv.authenticatedContext('admin-user', { admin: true }).firestore();
+      const authorDb = testEnv.authenticatedContext('user-1').firestore();
+      for (const db of [adminDb, authorDb]) {
+        await assertFails(getDoc(doc(db, 'reviewReports/items_x_user-1__abc')));
+        await assertFails(setDoc(doc(db, 'reviewReports/items_x_user-1__abc'), { reporterUid: 'user-1' }));
       }
     });
 

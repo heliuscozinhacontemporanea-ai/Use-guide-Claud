@@ -23,6 +23,7 @@ export function useUserProfile(onAccountDeleted?: () => void) {
     new: false,
     confirm: false,
   });
+  const [memberSince, setMemberSince] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -41,6 +42,10 @@ export function useUserProfile(onAccountDeleted?: () => void) {
               lastName: userDoc.lastName || '',
               phone: userDoc.phone || '',
             });
+            const created = userDoc.createdAt ? new Date(userDoc.createdAt) : null;
+            setMemberSince(
+              created && !Number.isNaN(created.getTime()) ? created.toISOString() : null
+            );
           }
         } catch (err: unknown) {
           const errMsg = err instanceof Error ? err.message : 'Não foi possível carregar o perfil.';
@@ -85,7 +90,7 @@ export function useUserProfile(onAccountDeleted?: () => void) {
   };
 
   const updatePassword = async (): Promise<boolean> => {
-    if (!user || !user.email) return false;
+    if (!user?.email) return false;
 
     setIsLoading(true);
     setMessage(null);
@@ -115,7 +120,7 @@ export function useUserProfile(onAccountDeleted?: () => void) {
   };
 
   const deleteAccount = async (password?: string) => {
-    if (!user || !user.email) return;
+    if (!user?.email) return;
     setIsLoading(true);
     setMessage(null);
     setError(null);
@@ -152,6 +157,7 @@ export function useUserProfile(onAccountDeleted?: () => void) {
     user,
     userData,
     setUserData,
+    memberSince,
     passwordData,
     setPasswordData,
     showPasswords,

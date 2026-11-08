@@ -1,6 +1,7 @@
 import { notificationService } from '../factory';
-import { CreateNotificationInput } from '../ports/notificationRepositoryPort';
+import type { NewNotification } from '../types/notificationTypes';
 
-export async function createNotificationUseCase(input: CreateNotificationInput): Promise<boolean> {
-  return notificationService.createNotification(input);
+/** Grava um aviso. Falso quando o mesmo aviso (`dedupeKey`) já existe. */
+export function createNotificationUseCase(notification: NewNotification): Promise<boolean> {
+  return notificationService.create(notification);
 }

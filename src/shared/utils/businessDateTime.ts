@@ -24,3 +24,36 @@ export function isoToBusinessDateTime(value?: string): string {
   }
   return new Date(time - BUSINESS_OFFSET_MS).toISOString().slice(0, 16);
 }
+
+const BUSINESS_TIME_ZONE = 'America/Fortaleza';
+
+/** Data no fuso do negócio (AGENTS.md §12.4), com o formato que a tela pedir. */
+export function formatBusinessDate(
+  iso: string,
+  locale: string,
+  options: Intl.DateTimeFormatOptions
+): string {
+  return new Intl.DateTimeFormat(locale, { timeZone: BUSINESS_TIME_ZONE, ...options }).format(
+    new Date(iso)
+  );
+}
+
+/** "28 de out." — linhas curtas de status e prazo. */
+export function formatBusinessDay(iso: string, locale: string): string {
+  return formatBusinessDate(iso, locale, { day: 'numeric', month: 'short' });
+}
+
+/** "seg., 26 de out." — data de uma compra ou serviço. */
+export function formatBusinessWeekday(iso: string, locale: string): string {
+  return formatBusinessDate(iso, locale, { weekday: 'short', day: 'numeric', month: 'short' });
+}
+
+/** "26 de out., 14:30" — data e hora de um registro. */
+export function formatBusinessDateTime(iso: string, locale: string): string {
+  return formatBusinessDate(iso, locale, {
+    day: '2-digit',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}

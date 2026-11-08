@@ -5,6 +5,7 @@ import type {
 import type { PaymentAccountRepositoryPort } from '../ports/paymentAccountRepositoryPort';
 import type { PaymentAccountRecord, PaymentAccountView } from '../types/paymentAccount';
 import { isSellerAccountReady } from '../utils/sellerReadiness';
+import type { DebtService } from './debtService';
 import { PaymentDomainError } from './stripePaymentService';
 
 export interface EnsurePaymentAccountInput {
@@ -19,6 +20,7 @@ export class PaymentAccountService {
   constructor(
     private readonly repository: PaymentAccountRepositoryPort,
     private readonly marketplace: MarketplaceAccountPort,
+    private readonly debts: Pick<DebtService, 'hasOverdueDebt'>,
     private readonly now: () => Date = () => new Date()
   ) {}
 
@@ -34,6 +36,16 @@ export class PaymentAccountService {
     return synced.map(toView);
   }
 
+  /** Dono de cada conta, para o admin identificar o vendedor; contas sem cadastro ficam de fora. */
+  async getOwners(accountKeys: string[]): Promise<Record<string, string>> {
+    const records = await Promise.all(
+      [...new Set(accountKeys)].map((key) => this.repository.get(key))
+    );
+    return Object.fromEntries(
+      records.flatMap((record) => (record ? [[record.accountKey, record.ownerUid]] : []))
+    );
+  }
+
   async assertReady(accountKey: string): Promise<PaymentAccountRecord> {
     const existing = await this.repository.get(accountKey);
     const record = existing ? await this.sync(existing) : null;
@@ -44,7 +56,22 @@ export class PaymentAccountService {
         422
       );
     }
+    // Dívida vencida bloqueia novas vendas de todos os estabelecimentos do CNPJ (D16, 6A).
+    if (await this.debts.hasOverdueDebt(accountKey)) {
+      throw new PaymentDomainError(
+        'SELLER_ACCOUNT_BLOCKED',
+        'Vendas pausadas: este CNPJ tem uma dívida vencida com a plataforma.',
+        422
+      );
+    }
     return record;
+  }
+
+  /** Conta Stripe que recebe o repasse, ou `null` enquanto o CNPJ não pode receber (D14). */
+  async getPayoutDestination(accountKey: string): Promise<string | null> {
+    // Sem consultar o Stripe a cada entrada: `account.updated` mantém o registro atualizado.
+    const record = await this.repository.get(accountKey);
+    return record?.payoutsEnabled ? record.stripeAccountId : null;
   }
 
   async syncFromWebhook(stripeAccountId: string): Promise<void> {

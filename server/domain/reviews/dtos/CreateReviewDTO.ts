@@ -8,6 +8,8 @@ export interface CreateReviewDTOData {
   comment: string;
   occurrenceId?: string;
   ticketId?: string;
+  /** Reserva usada, para o selo verificado em passeio, aluguel e translado (D20). */
+  bookingId?: string;
 }
 
 export class CreateReviewDTO {
@@ -18,6 +20,7 @@ export class CreateReviewDTO {
   readonly comment: string;
   readonly occurrenceId?: string;
   readonly ticketId?: string;
+  readonly bookingId?: string;
 
   constructor(data: CreateReviewDTOData) {
     this.itemId = data.itemId.trim();
@@ -27,6 +30,7 @@ export class CreateReviewDTO {
     this.comment = data.comment.trim();
     this.occurrenceId = data.occurrenceId?.trim() || undefined;
     this.ticketId = data.ticketId?.trim() || undefined;
+    this.bookingId = data.bookingId?.trim() || undefined;
   }
 
   static fromRaw(data: CreateReviewDTOData): CreateReviewDTO {

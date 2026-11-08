@@ -2,8 +2,9 @@ import { useCallback, useEffect, useState } from 'react';
 import { getTicketQrTokenUseCase } from '../application/usecases/getTicketQrTokenUseCase';
 import { listUserOrdersUseCase } from '../application/usecases/listUserOrdersUseCase';
 import { listUserTicketsUseCase } from '../application/usecases/listUserTicketsUseCase';
-import { reissueTicketQrTokenUseCase } from '../application/usecases/reissueTicketQrTokenUseCase';
+import { returnTicketToBuyerUseCase } from '../application/usecases/returnTicketToBuyerUseCase';
 import { requestTicketRefundUseCase } from '../application/usecases/requestTicketRefundUseCase';
+import { swapTicketQrUseCase } from '../application/usecases/swapTicketQrUseCase';
 import { transferTicketUseCase } from '../application/usecases/transferTicketUseCase';
 import type { Ticket, TicketOrder } from '../types/ticketing';
 
@@ -30,9 +31,7 @@ export function useUserTicketsAndOrders(enabled = true) {
       setOrders(loadedOrders);
     } catch (err) {
       console.error('[useUserTicketsAndOrders]', err);
-      setError(
-        err instanceof Error ? err.message : 'Não foi possível carregar seus ingressos.'
-      );
+      setError(err instanceof Error ? err.message : 'Não foi possível carregar seus ingressos.');
     } finally {
       setLoading(false);
     }
@@ -43,9 +42,19 @@ export function useUserTicketsAndOrders(enabled = true) {
   }, [reload]);
 
   const transferTicket = useCallback(
-    async (ticketId: string, recipientEmail: string, recipientName?: string) => {
+    async (ticketId: string, username: string) => {
       setError(null);
-      const res = await transferTicketUseCase(ticketId, { recipientEmail, recipientName });
+      const res = await transferTicketUseCase(ticketId, username);
+      await reload();
+      return res;
+    },
+    [reload]
+  );
+
+  const returnToBuyer = useCallback(
+    async (ticketId: string) => {
+      setError(null);
+      const res = await returnTicketToBuyerUseCase(ticketId);
       await reload();
       return res;
     },
@@ -71,9 +80,9 @@ export function useUserTicketsAndOrders(enabled = true) {
     return getTicketQrTokenUseCase(ticketId);
   }, []);
 
-  const reissueSignedQrToken = useCallback(
+  const swapSignedQrToken = useCallback(
     async (ticketId: string) => {
-      const res = await reissueTicketQrTokenUseCase(ticketId);
+      const res = await swapTicketQrUseCase(ticketId);
       await reload();
       return res;
     },
@@ -87,8 +96,9 @@ export function useUserTicketsAndOrders(enabled = true) {
     error,
     reload,
     transferTicket,
+    returnToBuyer,
     requestRefund,
     getSignedQrToken,
-    reissueSignedQrToken,
+    swapSignedQrToken,
   };
 }

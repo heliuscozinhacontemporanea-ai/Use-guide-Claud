@@ -36,11 +36,14 @@ describe('Auth Use Cases (DIP & Injected AuthPort)', () => {
       reauthenticateWithGoogle: vi.fn(),
       hasPasswordSignIn: vi.fn(),
       changePassword: vi.fn(),
+      sendEmailVerification: vi.fn(),
+      refreshEmailVerified: vi.fn(),
+      applyEmailVerificationCode: vi.fn(),
     };
   });
 
   it('createLoginWithEmailUseCase invokes injected AuthPort.loginWithEmail', async () => {
-    vi.mocked(mockPort.loginWithEmail).mockResolvedValueOnce({ uid: 'u123' } as any);
+    vi.mocked(mockPort.loginWithEmail).mockResolvedValueOnce({ uid: 'u123' } as never);
     const loginWithEmailUseCase = createLoginWithEmailUseCase(mockPort);
     const result = await loginWithEmailUseCase('test@example.com', 'password123');
     expect(mockPort.loginWithEmail).toHaveBeenCalledWith('test@example.com', 'password123');
@@ -48,7 +51,7 @@ describe('Auth Use Cases (DIP & Injected AuthPort)', () => {
   });
 
   it('createRegisterWithEmailUseCase invokes injected AuthPort.registerWithEmail', async () => {
-    vi.mocked(mockPort.registerWithEmail).mockResolvedValueOnce({ uid: 'u123' } as any);
+    vi.mocked(mockPort.registerWithEmail).mockResolvedValueOnce({ uid: 'u123' } as never);
     const registerWithEmailUseCase = createRegisterWithEmailUseCase(mockPort);
     const result = await registerWithEmailUseCase('test@example.com', 'password123');
     expect(mockPort.registerWithEmail).toHaveBeenCalledWith('test@example.com', 'password123');
@@ -56,7 +59,7 @@ describe('Auth Use Cases (DIP & Injected AuthPort)', () => {
   });
 
   it('createLoginWithGoogleUseCase invokes injected AuthPort.loginWithSocialGoogle', async () => {
-    vi.mocked(mockPort.loginWithSocialGoogle).mockResolvedValueOnce({ uid: 'u123' } as any);
+    vi.mocked(mockPort.loginWithSocialGoogle).mockResolvedValueOnce({ uid: 'u123' } as never);
     const loginWithGoogleUseCase = createLoginWithGoogleUseCase(mockPort);
     const result = await loginWithGoogleUseCase();
     expect(mockPort.loginWithSocialGoogle).toHaveBeenCalledTimes(1);
@@ -79,7 +82,7 @@ describe('Auth Use Cases (DIP & Injected AuthPort)', () => {
   });
 
   it('createGetCurrentAuthUserUseCase invokes injected AuthPort.getCurrentUser', () => {
-    vi.mocked(mockPort.getCurrentUser).mockReturnValueOnce({ uid: 'u123' } as any);
+    vi.mocked(mockPort.getCurrentUser).mockReturnValueOnce({ uid: 'u123' } as never);
     const getCurrentAuthUserUseCase = createGetCurrentAuthUserUseCase(mockPort);
     const user = getCurrentAuthUserUseCase();
     expect(mockPort.getCurrentUser).toHaveBeenCalledTimes(1);
