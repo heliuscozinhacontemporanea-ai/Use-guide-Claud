@@ -96,8 +96,13 @@ jobs:
         # (§7.9). São públicas, então o arquivo é montado aqui e não fica no git.
         run: |
           npm ci --prefix functions --no-audit --no-fund
-          BASE="$(gcloud run services describe "$SERVICE" --region "$REGION" --format='value(status.url)')"
+          # Mesmo formato já em uso nas Functions: https://<serviço>-<número do projeto>.<região>.run.app.
+          BASE="$(gcloud run services describe "$SERVICE" --region "$REGION" --format=json \
+            | jq -r --arg r ".$REGION.run.app" '.metadata.annotations["run.googleapis.com/urls"] // "[]"
+              | fromjson | map(select(endswith($r))) | .[0] // empty')"
+          [ -n "$BASE" ] || BASE="$(gcloud run services describe "$SERVICE" --region "$REGION" --format='value(status.url)')"
           test -n "$BASE"
+          echo "Jobs em $BASE"
           cat > "functions/.env.${{ vars.GCP_PROJECT_ID }}" <<EOF
           TICKETING_EXPIRATION_JOB_URL=$BASE/internal/ticketing/expire-orders
           BOOKINGS_EXPIRATION_JOB_URL=$BASE/internal/bookings/expire
