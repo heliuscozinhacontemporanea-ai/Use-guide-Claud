@@ -28,6 +28,7 @@ import ticketingRouter, {
 import userRouter from './server/domain/users/routes/userRoutes';
 import { verifyAppCheck } from './server/infrastructure/auth/appCheckMiddleware';
 import { verifyInternalJobKey } from './server/infrastructure/auth/internalJobAuth';
+import { isDirectCloudRunHost } from './server/infrastructure/config/canonicalHost';
 import { resolveTrustProxyHops } from './server/infrastructure/config/trustProxy';
 import billingRouter from './server/interfaces/http/billing/billingRoutes';
 import {
@@ -44,12 +45,12 @@ import { adminMessageRouter } from './server/interfaces/http/notifications/admin
 import { InternalNotificationsController } from './server/interfaces/http/notifications/internalNotificationsController';
 import { InternalTermsController } from './server/interfaces/http/notifications/internalTermsController';
 import partnerHomeRouter from './server/interfaces/http/partnerHome/partnerHomeRoutes';
-import promoCodesRouter from './server/interfaces/http/promoCodes/promoCodesRoutes';
 import { InternalPartnersController } from './server/interfaces/http/partners/internalPartnersController';
 import paymentAccountRouter, {
   adminAccountDebtRouter,
 } from './server/interfaces/http/paymentAccounts/paymentAccountRoutes';
 import { InternalPayoutsController } from './server/interfaces/http/payouts/internalPayoutsController';
+import promoCodesRouter from './server/interfaces/http/promoCodes/promoCodesRoutes';
 import { promoterRouter } from './server/interfaces/http/promoters/promoterRoutes';
 import {
   adminSaleClaimRouter,
@@ -211,9 +212,7 @@ async function startServer() {
       return next();
     }
     const host = (req.headers['x-forwarded-host'] || req.headers.host || '') as string;
-    const isAiStudioDev =
-      host.includes('ais-') || host.includes('localhost') || host.includes('127.0.0.1');
-    if (!isAiStudioDev && host.endsWith('.run.app')) {
+    if (isDirectCloudRunHost(host)) {
       return res.redirect(301, `https://useguide.com.br${req.originalUrl || '/'}`);
     }
     next();

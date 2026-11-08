@@ -1,5 +1,7 @@
 # Sair do Google AI Studio — execução da D23 (2026-11-08)
 
+> **Executada em 2026-11-08.** Primeiro deploy pelo GitHub Actions publicado (Cloud Run revisão `use-guide-00056-ljz` e Hosting). Ajustes do caminho na seção 10.
+
 O responsável do produto pediu para abandonar o AI Studio de vez. O plano já foi aprovado em 2026-11-02 (**D23**, `decisoes.md`) e só estava adiado enquanto o plano pago do AI Studio estivesse em vigor. Esta página traz a D23 para a prática: o que muda, o que configurar e em que ordem.
 
 ## 1. O que a D23 já decidiu (não muda)
@@ -49,7 +51,8 @@ gcloud artifacts repositories create use-guide --repository-format=docker \
 # Conta de publicação (só publica; não lê dados)
 gcloud iam service-accounts create github-deployer --project=$PROJECT_ID \
   --display-name="Publicação pelo GitHub Actions"
-for ROLE in roles/run.admin roles/artifactregistry.writer roles/firebasehosting.admin; do
+for ROLE in roles/run.admin roles/artifactregistry.writer roles/firebasehosting.admin \
+  roles/serviceusage.serviceUsageViewer roles/serviceusage.apiKeysViewer; do
   gcloud projects add-iam-policy-binding $PROJECT_ID \
     --member="serviceAccount:github-deployer@$PROJECT_ID.iam.gserviceaccount.com" --role=$ROLE
 done
@@ -110,4 +113,12 @@ Rules, índices e Functions pelo Actions, alertas de erro e backup: `publicacao-
 * O `firebase.json` não muda. Por isso o deploy do Hosting roda de novo o `predeploy` (`npm run build`), com as mesmas variáveis do primeiro build: o resultado é o mesmo `dist`.
 * `npm audit fix` (sem mudar versão principal) e um `overrides` para o `@grpc/grpc-js` do SDK web do Firebase (1.9.16 → 1.14.x, só usado no Node pelos testes das rules) zeraram as vulnerabilidades altas; o CI passa a exigir isso (§7.4). Os 67 testes das rules passam com a versão nova.
 * O servidor foi testado como no container: só `dist` e dependências de produção, `NODE_ENV=production`, responde `200` em `/api/health`.
+
+## 10. O que o primeiro deploy pediu (2026-11-08)
+
+| Tentativa | Erro | Correção |
+|---|---|---|
+| 1 ([run](https://github.com/heliuscozinhacontemporanea-ai/Use-guide-Claud/actions/runs/42497401067)) | `run.googleapis.com/sources`: o serviço publicado pelo AI Studio "a partir do código-fonte" guardava anotações de build | PR #2: o deploy lê o serviço, tira as anotações e aplica com `gcloud run services replace` (`scripts/ops/prepareCloudRunService.py`) |
+| 2 ([run](https://github.com/heliuscozinhacontemporanea-ai/Use-guide-Claud/actions/runs/42498116405)) | `runtimeClassName: run.googleapis.com/linux-base-image-update` (atualização automática da imagem base do AI Studio) | PR #3: o script tira esse campo e escreve no log só os nomes de campos e anotações do serviço |
+| 3 ([run](https://github.com/heliuscozinhacontemporanea-ai/Use-guide-Claud/actions/runs/42498952702)) | Hosting: `Permission denied to get service [firebasehosting.googleapis.com]` | Papéis só de leitura `roles/serviceusage.serviceUsageViewer` e `roles/serviceusage.apiKeysViewer` na `github-deployer` (já no comando da seção 4); nova tentativa publicou |
 

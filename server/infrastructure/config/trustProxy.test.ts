@@ -7,8 +7,8 @@ describe('resolveTrustProxyHops', () => {
     expect(resolveTrustProxyHops(' 0 ', false)).toBe(0);
   });
 
-  it('em desenvolvimento, sem valor, confia no proxy do AI Studio', () => {
-    expect(resolveTrustProxyHops(undefined, false)).toBe(1);
+  it('em desenvolvimento local, sem valor, não confia em proxy nenhum', () => {
+    expect(resolveTrustProxyHops(undefined, false)).toBe(0);
   });
 
   it('em produção, exige o valor', () => {

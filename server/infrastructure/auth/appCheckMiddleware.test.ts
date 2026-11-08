@@ -6,7 +6,7 @@ describe('isAppCheckRequired', () => {
     expect(isAppCheckRequired({ NODE_ENV: 'production' })).toBe(true);
   });
 
-  it('não exige em desenvolvimento/AI Studio quando a variável não foi definida', () => {
+  it('não exige em desenvolvimento local quando a variável não foi definida', () => {
     expect(isAppCheckRequired({ NODE_ENV: 'development' })).toBe(false);
     expect(isAppCheckRequired({})).toBe(false);
   });

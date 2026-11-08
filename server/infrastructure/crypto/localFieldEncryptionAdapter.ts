@@ -8,7 +8,7 @@ import { aesGcmDecrypt, aesGcmEncrypt, encryptionAad } from './aesGcm';
 
 const DEV_KID = 'dev-1';
 
-/** Chave de teste do painel Secrets do AI Studio; recusa produção (AGENTS.md §7.7 item 7). */
+/** Chave de teste do desenvolvimento local (`.env`, fora do git); recusa produção (AGENTS.md §7.7 item 7). */
 export class LocalFieldEncryptionAdapter implements FieldEncryptionPort {
   constructor(private readonly env: NodeJS.ProcessEnv = process.env) {}
 
