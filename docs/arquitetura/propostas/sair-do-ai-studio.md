@@ -122,3 +122,9 @@ Rules, índices e Functions pelo Actions, alertas de erro e backup: `publicacao-
 | 2 ([run](https://github.com/heliuscozinhacontemporanea-ai/Use-guide-Claud/actions/runs/42498116405)) | `runtimeClassName: run.googleapis.com/linux-base-image-update` (atualização automática da imagem base do AI Studio) | PR #3: o script tira esse campo e escreve no log só os nomes de campos e anotações do serviço |
 | 3 ([run](https://github.com/heliuscozinhacontemporanea-ai/Use-guide-Claud/actions/runs/42498952702)) | Hosting: `Permission denied to get service [firebasehosting.googleapis.com]` | Papéis só de leitura `roles/serviceusage.serviceUsageViewer` e `roles/serviceusage.apiKeysViewer` na `github-deployer` (já no comando da seção 4); nova tentativa publicou |
 
+## 11. Depois da saída (2026-11-08)
+
+* **CSP:** o teste no navegador do site no ar mostrou bloqueios que já existiam na versão do AI Studio (reCAPTCHA do App Check, Google Analytics e CSS do Leaflet). Corrigido no PR #9; nenhum bloqueio de CSP depois do deploy. O responsável conferiu no celular: o cartão de vento e maré carrega em produção, então o App Check funciona. O 403 do navegador automático na troca do token é o reCAPTCHA recusando robôs.
+* **Node 26 e dependências:** D29 e PR #6, publicados.
+* **Branches:** D31 (`main`, `claude/agents/useguide`, `claude/agents/documentacao`); as demais foram apagadas pelo responsável.
+
