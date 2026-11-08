@@ -60,9 +60,20 @@ jobs:
           docker build -t "$IMAGE" .
           docker push "$IMAGE"
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install --quiet pyyaml
+
       # Troca só a imagem: variáveis, segredos, conta de serviço e escala continuam como estão no serviço.
+      # O `replace` (e não `deploy --image`) tira as anotações de build que o AI Studio deixou no
+      # serviço; com elas, o Cloud Run recusa uma imagem pronta (scripts/ops/prepareCloudRunService.py).
       - name: Cloud Run
-        run: gcloud run deploy "$SERVICE" --image "$IMAGE" --region "$REGION" --project "${{ vars.GCP_PROJECT_ID }}" --quiet
+        run: |
+          gcloud run services describe "$SERVICE" --region "$REGION" --project "${{ vars.GCP_PROJECT_ID }}" --format export > service.yaml
+          python scripts/ops/prepareCloudRunService.py "$IMAGE" < service.yaml > service.next.yaml
+          gcloud run services replace service.next.yaml --region "$REGION" --project "${{ vars.GCP_PROJECT_ID }}" --quiet
+          gcloud run services update-traffic "$SERVICE" --to-latest --region "$REGION" --project "${{ vars.GCP_PROJECT_ID }}" --quiet
 
       # Por último, para o site novo só chamar um servidor que já está no ar.
       - name: Hosting
