@@ -5,6 +5,7 @@ import { LoginModal } from '../domain/auth/components/LoginModal';
 import { useAuthContext } from '../domain/auth/context/AuthContext';
 import { UserRole } from '../domain/auth/types/auth';
 import { GuideItem, useGuideCatalog } from '../domain/guide';
+import { NotificationBell } from '../domain/notifications';
 import { AttractionDetailModal } from '../domain/guide/components/AttractionDetailModal';
 import { EventDetailModal } from '../domain/guide/components/EventDetailModal';
 import { ItemDetailModal } from '../domain/guide/components/ItemDetailModal';
@@ -12,7 +13,6 @@ import { RestaurantDetailModal } from '../domain/guide/components/RestaurantDeta
 import { StayDetailModal } from '../domain/guide/components/StayDetailModal';
 import { TipDetailModal } from '../domain/guide/components/TipDetailModal';
 import { TourDetailModal } from '../domain/guide/components/TourDetailModal';
-import { NotificationBell } from '../domain/notifications';
 import { PartnersModal } from '../domain/partners';
 import { SearchOverlay } from '../domain/search';
 import { ACCOUNT_ACTION_PATH } from '../shared/constants/accountActionPath';

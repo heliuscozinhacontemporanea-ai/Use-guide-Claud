@@ -33,7 +33,7 @@ export interface SaveEventSessionsContext {
 
 export interface UsePartnerContentActionsProps {
   user: UserSession | null;
-  activeTab: 'items' | 'events' | 'reports';
+  activeTab: 'items' | 'events';
   isEditing: PartnerContentEditorState | null;
   setIsEditing: (item: PartnerContentEditorState | null) => void;
   setShowDeleteConfirm: (val: boolean) => void;

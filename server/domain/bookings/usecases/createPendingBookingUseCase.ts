@@ -1,6 +1,6 @@
 import type { PlatformFeeConfig } from '../../../shared/kernel/platformFees';
 import { getBookingService } from '../factory';
-import type { CreatePendingBookingInput } from '../services/bookingService';
+import type { CreatePendingBookingInput } from '../services/bookingCreationService';
 import type { Booking, BookingActor } from '../types/bookingTypes';
 
 /** Reserva as vagas por 15 min. A mesma chave de idempotência devolve a mesma reserva. */

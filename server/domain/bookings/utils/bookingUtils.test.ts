@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { canTransitionBooking } from '../types/bookingTypes';
 import { priceBookingLines } from './bookingPricing';
 import { buildBookingId, buildSlotId } from './buildBookingId';
-import { expandSlotRecurrence, fortalezaLocalToUtcIso } from './slotRecurrence';
+import { expandSlotRecurrence, placeLocalToUtcIso } from './slotRecurrence';
 
 const FEES = {
   bookingsBps: 1000,
@@ -82,8 +82,16 @@ describe('canTransitionBooking', () => {
 
 describe('recorrência e IDs', () => {
   it('08:00 em Fortaleza = 11:00Z', () => {
-    expect(fortalezaLocalToUtcIso('2026-11-02', '08:00')).toBe('2026-11-02T11:00:00.000Z');
-    expect(fortalezaLocalToUtcIso('2026-11-02', '22:30')).toBe('2026-11-03T01:30:00.000Z');
+    expect(placeLocalToUtcIso('2026-11-02', '08:00', 'America/Fortaleza')).toBe(
+      '2026-11-02T11:00:00.000Z'
+    );
+    expect(placeLocalToUtcIso('2026-11-02', '22:30', 'America/Fortaleza')).toBe(
+      '2026-11-03T01:30:00.000Z'
+    );
+    // Manaus é UTC−4: 08:00 lá é 12:00 UTC.
+    expect(placeLocalToUtcIso('2026-11-02', '08:00', 'America/Manaus')).toBe(
+      '2026-11-02T12:00:00.000Z'
+    );
   });
 
   it('gera só os dias da semana pedidos', () => {
@@ -102,6 +110,14 @@ describe('recorrência e IDs', () => {
     ]);
   });
 
+  it('gera os horários no fuso da oferta', () => {
+    const slots = expandSlotRecurrence(
+      { startDate: '2026-11-02', endDate: '2026-11-02', weekdays: [1], times: ['08:00'] },
+      'America/Rio_Branco'
+    );
+    expect(slots).toEqual(['2026-11-02T13:00:00.000Z']);
+  });
+
   it('recusa período invertido e horário inválido', () => {
     expect(() =>
       expandSlotRecurrence({
@@ -111,7 +127,7 @@ describe('recorrência e IDs', () => {
         times: ['08:00'],
       })
     ).toThrow();
-    expect(() => fortalezaLocalToUtcIso('2026-11-02', '25:00')).toThrow();
+    expect(() => placeLocalToUtcIso('2026-11-02', '25:00', 'America/Fortaleza')).toThrow();
   });
 
   it('IDs determinísticos', () => {

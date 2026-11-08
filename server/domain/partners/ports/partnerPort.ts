@@ -1,3 +1,4 @@
+import type { PanelTourAction, PanelTourState } from '../types/panelTour';
 import type { TermsAcceptance } from '../../../shared/kernel/legalTerms';
 import type {
   PartnerBusiness,
@@ -20,4 +21,11 @@ export interface PartnerPort {
   getTermsAcceptance(partnerId: string): Promise<TermsAcceptance | null>;
   /** Lança `NOT_FOUND` quando o parceiro não tem perfil. */
   recordTermsAcceptance(partnerId: string, acceptance: TermsAcceptance): Promise<void>;
+  /** Cartões escolhidos para o Início; `null` quando o parceiro nunca personalizou. */
+  getHomeCards(partnerId: string): Promise<string[] | null>;
+  /** Lança `NOT_FOUND` quando o parceiro não tem perfil. */
+  setHomeCards(partnerId: string, cards: string[]): Promise<void>;
+  /** Estado do tour do painel; sem registro, o estado vazio. */
+  getPanelTour(partnerId: string): Promise<PanelTourState>;
+  recordPanelTour(partnerId: string, action: PanelTourAction, atIso: string): Promise<void>;
 }

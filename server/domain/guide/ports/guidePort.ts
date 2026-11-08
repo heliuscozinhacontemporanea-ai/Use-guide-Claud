@@ -32,4 +32,6 @@ export interface GuidePort {
   ): Promise<void>;
   deleteResourcesByOwner(ownerId: string): Promise<void>;
   getAllItems(): Promise<GuideItemRecord[]>;
+  /** Estabelecimentos e itens de um dono (painel do parceiro, D27). */
+  listItemsByOwner(ownerId: string): Promise<GuideItemRecord[]>;
 }

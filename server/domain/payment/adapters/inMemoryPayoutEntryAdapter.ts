@@ -16,6 +16,29 @@ export class InMemoryPayoutEntryAdapter implements PayoutEntryRepositoryPort {
     return this.rows.get(id) ?? null;
   }
 
+  async getMany(ids: string[]): Promise<PayoutEntry[]> {
+    return ids.flatMap((id) => {
+      const entry = this.rows.get(id);
+      return entry ? [entry] : [];
+    });
+  }
+
+  async listReleasedSince(
+    accountKeys: string[],
+    sinceIso: string,
+    limit: number
+  ): Promise<PayoutEntry[]> {
+    return [...this.rows.values()]
+      .filter(
+        (entry) =>
+          accountKeys.includes(entry.accountKey) &&
+          entry.status === 'released' &&
+          (entry.releasedAt ?? '') >= sinceIso
+      )
+      .sort((a, b) => (b.releasedAt ?? '').localeCompare(a.releasedAt ?? ''))
+      .slice(0, limit);
+  }
+
   async getByPaymentIntentId(paymentIntentId: string): Promise<PayoutEntry | null> {
     return (
       [...this.rows.values()].find((entry) => entry.paymentIntentId === paymentIntentId) ?? null
@@ -25,6 +48,17 @@ export class InMemoryPayoutEntryAdapter implements PayoutEntryRepositoryPort {
   async listDue(nowIso: string, limit: number): Promise<PayoutEntry[]> {
     return [...this.rows.values()]
       .filter((entry) => entry.status === 'pending' && entry.releaseAt <= nowIso)
+      .sort((a, b) => a.releaseAt.localeCompare(b.releaseAt))
+      .slice(0, limit);
+  }
+
+  async listOpenByAccountKeys(accountKeys: string[], limit: number): Promise<PayoutEntry[]> {
+    return [...this.rows.values()]
+      .filter(
+        (entry) =>
+          accountKeys.includes(entry.accountKey) &&
+          (entry.status === 'pending' || entry.status === 'on_hold')
+      )
       .sort((a, b) => a.releaseAt.localeCompare(b.releaseAt))
       .slice(0, limit);
   }

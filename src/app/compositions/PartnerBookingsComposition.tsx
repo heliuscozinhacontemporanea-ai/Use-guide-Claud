@@ -13,7 +13,17 @@ type AccountState =
   | { status: 'loaded'; readyItemIds: Set<string> };
 
 /** Junta o gerenciador de reservas (bookings) e o onboarding financeiro (payment) na área do parceiro. */
-export function PartnerBookingsComposition({ items }: { items: BookableGuideItem[] }) {
+export function PartnerBookingsComposition({
+  items,
+  creating,
+  onCreatingChange,
+  onOpenCoupons,
+}: {
+  items: BookableGuideItem[];
+  creating?: boolean;
+  onCreatingChange?: (creating: boolean) => void;
+  onOpenCoupons?: (offerId: string) => void;
+}) {
   const { t } = useTranslation();
   const [account, setAccount] = useState<AccountState>({ status: 'loading' });
 
@@ -49,6 +59,9 @@ export function PartnerBookingsComposition({ items }: { items: BookableGuideItem
     <PartnerOffersManager
       items={items}
       canPublish={isReady}
+      creating={creating}
+      onCreatingChange={onCreatingChange}
+      onOpenCoupons={onOpenCoupons}
       accountNotice={
         notReady.length > 0 ? (
           <PaymentAccountNotice

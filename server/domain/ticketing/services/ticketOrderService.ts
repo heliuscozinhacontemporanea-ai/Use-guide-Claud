@@ -12,14 +12,12 @@ import {
   type Ticket,
   type TicketOrder,
   type TicketOrderItem,
+  type TicketPaymentMethod,
   type TicketType,
 } from '../types/ticketingTypes';
 import { generateOpaqueTicketQrToken } from '../utils/qrToken';
-import {
-  assertBuyerWithinTicketLimit,
-  loadActivePromo,
-  loadOccurrenceOnSale,
-} from './orders/orderSaleGuards';
+import { assertBuyerWithinTicketLimit, loadOccurrenceOnSale } from './orders/orderSaleGuards';
+import { loadCheckoutPromo, releaseOrderPromo, withPromoUse } from './orders/orderPromo';
 import { prepareOrderItems } from './orders/prepareOrderItems';
 import { isActorAdmin, type TicketingActorContext } from './ticketingAccess';
 
@@ -37,8 +35,18 @@ function loadFeeConfig() {
 }
 
 /** Pedidos de ingresso: criação com reserva de estoque, pagamento e expiração. */
+export type PromoterResolver = (
+  eventListingId: string,
+  rawParam: string | undefined,
+  buyerUid: string
+) => Promise<string | null>;
+
 export class TicketOrderService {
-  constructor(private readonly port: TicketingPort) {}
+  constructor(
+    private readonly port: TicketingPort,
+    /** Divulgador do link (D27); sem ele a compra fica sem atribuição. */
+    private readonly resolvePromoter: PromoterResolver = async () => null
+  ) {}
 
   async createTicketOrder(
     actor: TicketingActorContext,
@@ -90,9 +98,7 @@ export class TicketOrderService {
     const typeMap = new Map(allTypes.map((t) => [t.id, t]));
     const totalCommitted = allTypes.reduce((sum, t) => sum + t.soldCount + t.reservedCount, 0);
 
-    const promo = input.promoCode
-      ? await loadActivePromo(this.port, listing.id, input.promoCode, nowMs)
-      : null;
+    const promo = await loadCheckoutPromo(input.promoCode, listing.id, actor.uid);
 
     const {
       subtotalMinor,
@@ -114,43 +120,50 @@ export class TicketOrderService {
       serviceFeeMode: listing.salesPolicy.serviceFeeMode,
     });
 
+    // Código inválido, de divulgador encerrado ou a própria compra do divulgador: sem atribuição.
+    const promoterId = await this.resolvePromoter(listing.id, input.promoterCode, actor.uid).catch(
+      () => null
+    );
     const expiresAt = new Date(nowMs + CHECKOUT_RESERVATION_MINUTES * 60 * 1000).toISOString();
     const issueImmediately = totalMinor === 0;
+    const promoId = promo && discountMinor > 0 && !existingReplayOrder ? promo.promo.id : null;
 
-    const result = await this.port.reserveInventoryAndCreateOrderAtomic({
-      occurrenceId: occurrence.id,
-      occurrenceCapacity: occurrence.capacity,
-      eventListingId: listing.id,
-      buyerId: actor.uid,
-      idempotencyKey: input.idempotencyKey,
-      currency: 'BRL',
-      subtotalMinor,
-      discountMinor,
-      platformFeeMinor,
-      paymentFeeMinor,
-      serviceFeeMinor,
-      totalMinor,
-      promoCodeId: promo?.id,
-      promoterCode: input.promoterCode,
-      buyerSnapshot: {
-        name: input.buyer.name.trim(),
-        email: input.buyer.email.trim(),
-      },
-      eventSnapshot: {
-        title: listing.title,
-        startsAt: occurrence.startsAt,
-        endsAt: occurrence.endsAt,
-        locationName: occurrence.locationOverride?.name || listing.location.name,
-      },
-      salesPolicySnapshot: { ...listing.salesPolicy },
-      termsAcceptance: {
-        version: input.acceptedTermsVersion,
-        acceptedAt: new Date(nowMs).toISOString(),
-      },
-      expiresAt,
-      items: preparedItems,
-      issueImmediately,
-    });
+    const result = await withPromoUse({ promoId, buyerUid: actor.uid }, (promoUse) =>
+      this.port.reserveInventoryAndCreateOrderAtomic({
+        occurrenceId: occurrence.id,
+        occurrenceCapacity: occurrence.capacity,
+        eventListingId: listing.id,
+        buyerId: actor.uid,
+        idempotencyKey: input.idempotencyKey,
+        currency: 'BRL',
+        subtotalMinor,
+        discountMinor,
+        platformFeeMinor,
+        paymentFeeMinor,
+        serviceFeeMinor,
+        totalMinor,
+        ...promoUse,
+        promoterId: promoterId ?? undefined,
+        buyerSnapshot: {
+          name: input.buyer.name.trim(),
+          email: input.buyer.email.trim(),
+        },
+        eventSnapshot: {
+          title: listing.title,
+          startsAt: occurrence.startsAt,
+          endsAt: occurrence.endsAt,
+          locationName: occurrence.locationOverride?.name || listing.location.name,
+        },
+        salesPolicySnapshot: { ...listing.salesPolicy },
+        termsAcceptance: {
+          version: input.acceptedTermsVersion,
+          acceptedAt: new Date(nowMs).toISOString(),
+        },
+        expiresAt,
+        items: preparedItems,
+        issueImmediately,
+      })
+    );
 
     if (!result.isIdempotentReplay) {
       await createEventAuditLogUseCase({
@@ -182,6 +195,7 @@ export class TicketOrderService {
     orderId: string;
     paymentId?: string;
     paymentIntentId?: string;
+    paymentMethod?: TicketPaymentMethod;
   }): Promise<{
     order: TicketOrder;
     tickets: Ticket[];
@@ -234,6 +248,12 @@ export class TicketOrderService {
       paymentIntentId: params.paymentIntentId,
       ticketsToIssue,
     });
+
+    if (!confirmed.alreadyPaid && params.paymentMethod) {
+      confirmed.order = await this.port.updateOrderStatus(order.id, 'paid', {
+        paymentMethod: params.paymentMethod,
+      });
+    }
 
     if (!confirmed.alreadyPaid) {
       await createEventAuditLogUseCase({
@@ -296,7 +316,13 @@ export class TicketOrderService {
         };
       }
     }
-    return this.port.expireOrderAndReleaseInventoryAtomic(orderId);
+    return this.expireAndReleasePromo(orderId);
+  }
+
+  private async expireAndReleasePromo(orderId: string) {
+    const res = await this.port.expireOrderAndReleaseInventoryAtomic(orderId);
+    if (!res.alreadyReleased) await releaseOrderPromo(res.order);
+    return res;
   }
 
   /** Expira os pedidos não pagos no prazo e devolve os que expiraram agora (para avisar o comprador). */
@@ -304,7 +330,7 @@ export class TicketOrderService {
     const expiredOrders = await this.port.listExpiredPendingOrders(nowIso);
     const expired: TicketOrder[] = [];
     for (const order of expiredOrders) {
-      const res = await this.port.expireOrderAndReleaseInventoryAtomic(order.id);
+      const res = await this.expireAndReleasePromo(order.id);
       if (!res.alreadyReleased) expired.push(order);
     }
     return expired;

@@ -9,10 +9,13 @@ import type { ManagerFeedback } from '../components/manager/managerFeedback';
 /** Formulário e ações dos lotes de uma sessão (painel de ingressos do parceiro). */
 export function useTicketLotForm({
   selectedOccurrenceId,
+  timeZone,
   reloadLots,
   setFeedback,
 }: {
   selectedOccurrenceId: string;
+  /** Fuso do evento: a janela de vendas é digitada na hora do lugar (D28). */
+  timeZone?: string;
   reloadLots: () => Promise<void> | void;
   setFeedback: (feedback: ManagerFeedback | null) => void;
 }) {
@@ -53,8 +56,10 @@ export function useTicketLotForm({
         quantity,
         minPerOrder,
         maxPerOrder,
-        ...(newSalesStartsAt ? { salesStartsAt: businessDateTimeToIso(newSalesStartsAt) } : {}),
-        ...(newSalesEndsAt ? { salesEndsAt: businessDateTimeToIso(newSalesEndsAt) } : {}),
+        ...(newSalesStartsAt
+          ? { salesStartsAt: businessDateTimeToIso(newSalesStartsAt, timeZone) }
+          : {}),
+        ...(newSalesEndsAt ? { salesEndsAt: businessDateTimeToIso(newSalesEndsAt, timeZone) } : {}),
         visibility: newVisibility,
         requiresEligibilityProof: newRequiresEligibility,
         sortOrder,

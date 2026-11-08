@@ -1,12 +1,15 @@
 import { Calendar, MapPin, MessageCircle, Star, X } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CATEGORIES } from '../../../shared/constants/categories';
 import { LOCATIONS } from '../../../shared/constants/locations';
 import { useUI } from '../../../shared/stores/useUIStore';
+import { formatSessionLabel } from '../../../shared/utils/businessDateTime';
 import { cn } from '../../../shared/utils/cn';
 import { optimizeImage } from '../../../shared/utils/formatters';
 import { whatsAppUrl } from '../../../shared/utils/phone';
+import { placeTimeSuffix } from '../../../shared/utils/placeTime';
 import { GlassCard } from '../../../ui/components/GlassCard';
 import { ShareButton } from '../../../ui/components/ShareButton';
 import { VerifiedSealButton } from '../../../ui/components/VerifiedSealButton';
@@ -28,6 +31,7 @@ export function EventDetailModal({ item, onClose }: EventDetailModalProps) {
   const [activeImage, setActiveImage] = useState(0);
   const { containerRef, borderRadius, scrollY } = useScrollBorderRadius();
   const { user } = useAuthContext();
+  const { t, i18n } = useTranslation();
   const { openLoginModal } = useUI();
 
   useEffect(() => {
@@ -188,12 +192,8 @@ export function EventDetailModal({ item, onClose }: EventDetailModalProps) {
                 Data
               </p>
               <p className="text-sm font-bold mt-1 text-white">
-                {new Date(item.date).toLocaleDateString('pt-BR', {
-                  day: '2-digit',
-                  month: 'short',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                })}
+                {formatSessionLabel(item.date, i18n.language, item.timeZone)}
+                {placeTimeSuffix(t, item, item.date)}
               </p>
             </GlassCard>
           )}
@@ -224,6 +224,7 @@ export function EventDetailModal({ item, onClose }: EventDetailModalProps) {
         <EventTicketingPurchasePanel
           eventId={item.id}
           eventTitle={item.name}
+          place={{ timeZone: item.timeZone, city: item.city }}
           userEmail={user?.email || undefined}
           userName={user?.displayName || undefined}
           onRequireLogin={openLoginModal}

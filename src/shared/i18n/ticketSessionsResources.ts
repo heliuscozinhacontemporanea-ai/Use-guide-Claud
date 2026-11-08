@@ -1,10 +1,34 @@
 /** Textos das ações de sessão do evento no painel do parceiro (D14, D16). pt-BR é a fonte. */
 export interface TicketSessionsTranslation {
+  sheet: {
+    sold: string;
+    soldTickets: string;
+    entered: string;
+    enteredOf: string;
+    openGate: string;
+    postpone: string;
+    cancel: string;
+    gateTitle: string;
+    openGateMode: string;
+    offlineHint: string;
+    error: string;
+  };
   postpone: string;
   cancel: string;
   statusPostponed: string;
   statusCanceled: string;
   accountNotice: string;
+  entries: {
+    title: string;
+    open: string;
+    count_one: string;
+    count_other: string;
+    empty: string;
+    error: string;
+    buyer: string;
+    guest: string;
+    offline: string;
+  };
   postponeDialog: {
     title: string;
     description: string;
@@ -36,18 +60,43 @@ export interface TicketSessionsTranslation {
 }
 
 export const ticketSessionsPtBR: TicketSessionsTranslation = {
+  sheet: {
+    sold: 'Vendidos',
+    soldTickets: 'Ingressos vendidos',
+    entered: 'Entraram',
+    enteredOf: '{{entered}} de {{total}}',
+    openGate: 'Abrir portaria',
+    postpone: 'Adiar sessão',
+    cancel: 'Cancelar sessão',
+    gateTitle: 'Portaria',
+    openGateMode: 'Abrir modo portaria',
+    offlineHint:
+      'Sem internet, a portaria continua conferindo os QR Codes e envia as entradas quando a conexão voltar.',
+    error: 'Não foi possível carregar a sessão.',
+  },
   postpone: 'Adiar sessão',
   cancel: 'Cancelar sessão',
   statusPostponed: 'Sessão adiada',
   statusCanceled: 'Sessão cancelada',
   accountNotice:
     'Venda de ingressos pagos indisponível: conclua a configuração financeira do CNPJ do estabelecimento deste evento. Inscrições gratuitas funcionam normalmente.',
+  entries: {
+    title: 'Entradas',
+    open: 'Ver quem entrou',
+    count_one: '{{count}} entrada',
+    count_other: '{{count}} entradas',
+    empty: 'Ninguém entrou ainda.',
+    error: 'Não foi possível carregar as entradas.',
+    buyer: 'Comprador',
+    guest: 'Convidado',
+    offline: 'registrada sem internet',
+  },
   postponeDialog: {
     title: 'Adiar sessão',
     description:
       'Os ingressos valem na nova data, sem multa para você. Cada comprador é avisado e tem 7 dias para pedir reembolso integral, com a taxa de serviço.',
     newStart: 'Nova data e hora de início',
-    durationKept: 'A duração da sessão continua a mesma. Horário de Fortaleza (UTC−3).',
+    durationKept: 'A duração da sessão continua a mesma.',
     reason: 'Motivo',
     reasonHint: 'Aparece no aviso aos compradores. De 3 a 300 caracteres.',
     submit: 'Adiar sessão',
@@ -78,18 +127,43 @@ export const ticketSessionsPtBR: TicketSessionsTranslation = {
 };
 
 export const ticketSessionsEn: TicketSessionsTranslation = {
+  sheet: {
+    sold: 'Sold',
+    soldTickets: 'Tickets sold',
+    entered: 'Entered',
+    enteredOf: '{{entered}} of {{total}}',
+    openGate: 'Open entrance',
+    postpone: 'Postpone session',
+    cancel: 'Cancel session',
+    gateTitle: 'Entrance',
+    openGateMode: 'Open entrance mode',
+    offlineHint:
+      'Without internet, the entrance keeps checking QR codes and sends the entries when the connection is back.',
+    error: 'The session could not be loaded.',
+  },
   postpone: 'Postpone session',
   cancel: 'Cancel session',
   statusPostponed: 'Session postponed',
   statusCanceled: 'Session canceled',
   accountNotice:
     'Paid ticket sales unavailable: finish the payment setup for the CNPJ of this event’s place. Free registrations work normally.',
+  entries: {
+    title: 'Entries',
+    open: 'See who came in',
+    count_one: '{{count}} entry',
+    count_other: '{{count}} entries',
+    empty: 'Nobody has come in yet.',
+    error: "Couldn't load the entries.",
+    buyer: 'Buyer',
+    guest: 'Guest',
+    offline: 'recorded offline',
+  },
   postponeDialog: {
     title: 'Postpone session',
     description:
       'Tickets stay valid on the new date, with no penalty for you. Each buyer is notified and has 7 days to ask for a full refund, service fee included.',
     newStart: 'New start date and time',
-    durationKept: 'The session keeps the same duration. Fortaleza time (UTC−3).',
+    durationKept: 'The session keeps the same duration.',
     reason: 'Reason',
     reasonHint: 'Shown in the notice to buyers. 3 to 300 characters.',
     submit: 'Postpone session',
@@ -120,18 +194,43 @@ export const ticketSessionsEn: TicketSessionsTranslation = {
 };
 
 export const ticketSessionsFr: TicketSessionsTranslation = {
+  sheet: {
+    sold: 'Vendus',
+    soldTickets: 'Billets vendus',
+    entered: 'Entrés',
+    enteredOf: '{{entered}} sur {{total}}',
+    openGate: 'Ouvrir l’accueil',
+    postpone: 'Reporter la séance',
+    cancel: 'Annuler la séance',
+    gateTitle: 'Accueil',
+    openGateMode: 'Ouvrir le mode accueil',
+    offlineHint:
+      'Sans internet, l’accueil continue de vérifier les QR codes et envoie les entrées au retour de la connexion.',
+    error: 'Impossible de charger la séance.',
+  },
   postpone: 'Reporter la séance',
   cancel: 'Annuler la séance',
   statusPostponed: 'Séance reportée',
   statusCanceled: 'Séance annulée',
   accountNotice:
     'Vente de billets payants indisponible : terminez la configuration financière du CNPJ de l’établissement de cet événement. Les inscriptions gratuites fonctionnent normalement.',
+  entries: {
+    title: 'Entrées',
+    open: 'Voir qui est entré',
+    count_one: '{{count}} entrée',
+    count_other: '{{count}} entrées',
+    empty: "Personne n'est encore entré.",
+    error: 'Impossible de charger les entrées.',
+    buyer: 'Acheteur',
+    guest: 'Invité',
+    offline: 'enregistrée hors ligne',
+  },
   postponeDialog: {
     title: 'Reporter la séance',
     description:
       'Les billets restent valables à la nouvelle date, sans pénalité pour vous. Chaque acheteur est prévenu et a 7 jours pour demander un remboursement intégral, frais de service compris.',
     newStart: 'Nouvelle date et heure de début',
-    durationKept: 'La séance garde la même durée. Heure de Fortaleza (UTC−3).',
+    durationKept: 'La séance garde la même durée.',
     reason: 'Motif',
     reasonHint: 'Visible dans l’avis aux acheteurs. De 3 à 300 caractères.',
     submit: 'Reporter la séance',

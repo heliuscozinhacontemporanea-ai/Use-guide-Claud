@@ -114,14 +114,14 @@ export class FirestoreCheckInStore {
     return snapshot.docs.map((doc) => BookingPersistenceMapper.toDomain(doc.id, doc.data()));
   }
 
-  async listBookingsWithPickupAddressEraseBefore(
+  async listBookingsWithPersonalDataEraseBefore(
     nowIsoValue: string,
     limit: number
   ): Promise<Booking[]> {
     const snapshot = await adminDb
       .collection(BOOKINGS)
-      .where('pickupAddressEraseAt', '<=', nowIsoValue)
-      .orderBy('pickupAddressEraseAt', 'asc')
+      .where('personalDataEraseAt', '<=', nowIsoValue)
+      .orderBy('personalDataEraseAt', 'asc')
       .limit(limit)
       .get();
     return snapshot.docs.map((doc) => BookingPersistenceMapper.toDomain(doc.id, doc.data()));

@@ -18,6 +18,8 @@ export function toBuyerBooking(booking: Booking) {
     status: booking.status as BookingStatus,
     lines: booking.lines,
     participantsCount: booking.participantsCount,
+    subtotalMinor: booking.subtotalMinor,
+    discountMinor: booking.discountMinor ?? 0,
     totalMinor: booking.totalMinor,
     expiresAt: booking.expiresAt,
     offer: {
@@ -48,6 +50,8 @@ export function toBuyerBooking(booking: Booking) {
     groupMaxPeople: booking.offerSnapshot.groupMaxPeople ?? null,
     requiresParticipantNames: booking.offerSnapshot.requiresParticipantNames ?? false,
     arrivedAt: booking.arrival?.at ?? null,
+    // "Estou chegando" ou "Não vou mais" ao aviso "chegou" (D27).
+    arrivalResponse: booking.arrivalResponse ?? null,
     providerAbsence: booking.providerAbsence
       ? {
           reportedAt: booking.providerAbsence.reportedAt,

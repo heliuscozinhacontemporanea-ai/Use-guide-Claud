@@ -11,6 +11,8 @@ export const INITIAL_FORM_DATA: FormState = {
   bookingLinks: '',
   googleMaps: '',
   address: '',
+  state: '',
+  city: '',
   region: '',
   servesBreakfast: null,
   breakfastIncluded: null,

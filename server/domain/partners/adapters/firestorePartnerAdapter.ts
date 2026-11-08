@@ -1,5 +1,6 @@
 import { FieldValue } from 'firebase-admin/firestore';
 import { adminDb } from '../../../infrastructure/firebase/adminClient';
+import { EMPTY_PANEL_TOUR, type PanelTourAction, type PanelTourState } from '../types/panelTour';
 import type { TermsAcceptance } from '../../../shared/kernel/legalTerms';
 import { PartnerDomainError } from '../errors/partnerDomainError';
 import {
@@ -59,6 +60,49 @@ export class FirestorePartnerAdapter implements PartnerPort {
     const raw = docSnap.data()?.termsAcceptance as Record<string, unknown> | undefined;
     if (typeof raw?.version !== 'string' || typeof raw.acceptedAt !== 'string') return null;
     return { version: raw.version, acceptedAt: raw.acceptedAt };
+  }
+
+  async getHomeCards(partnerId: string): Promise<string[] | null> {
+    const docSnap = await adminDb.collection('partners').doc(partnerId).get();
+    const raw = docSnap.data()?.homeCards;
+    return Array.isArray(raw)
+      ? raw.filter((value): value is string => typeof value === 'string')
+      : null;
+  }
+
+  async setHomeCards(partnerId: string, cards: string[]): Promise<void> {
+    const partnerRef = adminDb.collection('partners').doc(partnerId);
+    await adminDb.runTransaction(async (transaction) => {
+      const snapshot = await transaction.get(partnerRef);
+      if (!snapshot.exists) {
+        throw new PartnerDomainError('NOT_FOUND', 'Perfil de parceiro não encontrado');
+      }
+      transaction.update(partnerRef, { homeCards: cards, updatedAt: FieldValue.serverTimestamp() });
+    });
+  }
+
+  async getPanelTour(partnerId: string): Promise<PanelTourState> {
+    const raw = (await adminDb.collection('partners').doc(partnerId).get()).data()?.panelTour;
+    if (!raw || typeof raw !== 'object') return EMPTY_PANEL_TOUR;
+    return {
+      doneAt: typeof raw.doneAt === 'string' ? raw.doneAt : null,
+      shown: typeof raw.shown === 'number' ? raw.shown : 0,
+      tipsOff: raw.tipsOff === true,
+    };
+  }
+
+  async recordPanelTour(partnerId: string, action: PanelTourAction, atIso: string): Promise<void> {
+    // Interno (só o dono lê pela regra que já existe); não vai para a projeção pública.
+    const change =
+      action === 'shown'
+        ? { 'panelTour.shown': FieldValue.increment(1) }
+        : action === 'done'
+          ? { 'panelTour.doneAt': atIso }
+          : { 'panelTour.tipsOff': true, 'panelTour.doneAt': atIso };
+    await adminDb
+      .collection('partners')
+      .doc(partnerId)
+      .update({ ...change, updatedAt: FieldValue.serverTimestamp() });
   }
 
   async recordTermsAcceptance(partnerId: string, acceptance: TermsAcceptance): Promise<void> {

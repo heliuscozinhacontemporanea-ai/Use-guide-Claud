@@ -12,6 +12,7 @@ const STATS: ItemStats = {
   share: 0,
   favorite: 3,
   history: [],
+  month: { currentViews: 0, previousViews: 0 },
 };
 
 describe('ReportsStatsGrid', () => {

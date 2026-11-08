@@ -59,12 +59,17 @@ export class StripePaymentGatewayAdapter implements PaymentGatewayPort {
   }
 
   async retrievePaymentIntent(paymentIntentId: string) {
-    const paymentIntent = await this.stripe.paymentIntents.retrieve(paymentIntentId);
+    // O PaymentIntent só traz o ID do meio de pagamento; expandir evita uma segunda chamada.
+    const paymentIntent = await this.stripe.paymentIntents.retrieve(paymentIntentId, {
+      expand: ['payment_method'],
+    });
+    const method = paymentIntent.payment_method;
     return {
       id: paymentIntent.id,
       status: paymentIntent.status,
       amountMinor: paymentIntent.amount,
       metadata: paymentIntent.metadata,
+      paymentMethodType: method && typeof method !== 'string' ? method.type : null,
     };
   }
 

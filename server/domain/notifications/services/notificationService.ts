@@ -38,6 +38,20 @@ export class NotificationService {
     );
   }
 
+  /** Mesmo aviso traduzido para muitas contas (ex.: termos mudaram), com push pela outbox. */
+  async broadcast(
+    recipientUids: string[],
+    data: Pick<NewNotification, 'type' | 'params' | 'link'>
+  ): Promise<number> {
+    const unique = [...new Set(recipientUids.filter(Boolean))];
+    if (unique.length === 0) return 0;
+    if (!(data.type in NOTIFICATION_TYPES)) {
+      throw new NotificationDomainError('VALIDATION_ERROR', 'Aviso inválido.');
+    }
+    await this.repo.createMany(unique, data, this.expiresAt());
+    return unique.length;
+  }
+
   async markAsRead(notificationId: string, recipientUid: string): Promise<void> {
     const updated = await this.repo.markAsRead(notificationId, recipientUid);
     if (!updated) {

@@ -10,11 +10,11 @@ import {
 } from 'lucide-react';
 import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
-import { cn } from '../../../shared/utils/cn';
 import { BackButton } from '../../../ui/components/BackButton';
 import { StatusText } from '../../../ui/components/StatusText';
 import { Switch } from '../../../ui/components/Switch';
 import { TextButton } from '../../../ui/components/TextButton';
+import { cn } from '../../../shared/utils/cn';
 import { useNotificationPreferences } from '../hooks/useNotificationPreferences';
 import type { NotificationPreferences } from '../types/notificationCategories';
 import { NotificationDeviceCard } from './NotificationDeviceCard';

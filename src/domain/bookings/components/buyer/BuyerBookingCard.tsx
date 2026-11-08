@@ -5,7 +5,7 @@ import { formatBusinessWeekday } from '../../../../shared/utils/businessDateTime
 import { rescheduleRefundDeadline } from '../../../../shared/utils/rescheduleRefundDeadline';
 import { StatusText, type StatusTone } from '../../../../ui/components/StatusText';
 import type { BookingStatus, BookingSummary } from '../../types/bookings';
-import { formatSlotDateTime, fortalezaDateKey } from '../../utils/dates';
+import { formatSlotDateTime, placeDateKey } from '../../utils/dates';
 import { formatMinor } from '../../utils/money';
 import { BookingCheckInPass } from './BookingCheckInPass';
 
@@ -93,8 +93,7 @@ export function BuyerBookingCard({
       {booking.status === 'confirmed' &&
         booking.checkIns.length < booking.participantsCount &&
         (upcoming ||
-          fortalezaDateKey(booking.offer.startsAt) ===
-            fortalezaDateKey(new Date().toISOString())) && (
+          placeDateKey(booking.offer.startsAt) === placeDateKey(new Date().toISOString())) && (
           <div className="mt-3 pt-3 border-t border-line">
             <BookingCheckInPass booking={booking} />
           </div>

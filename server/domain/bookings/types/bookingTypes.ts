@@ -61,6 +61,10 @@ export interface BookableOffer {
   groupMaxPeople?: number;
   /** Nome do estabelecimento, copiado do item do guia: é como o cliente reconhece quem presta (D20). */
   businessName?: string;
+  /** Fuso do estabelecimento (D28), copiado ao criar e ao editar a oferta. */
+  timeZone?: string;
+  /** Cidade do estabelecimento, mostrada ao lado da hora para quem está em outro fuso. */
+  city?: string;
   cancellationPolicy: BookingCancellationPolicy;
   maxParticipantsPerBooking: number;
   requiresParticipantNames: boolean;
@@ -188,6 +192,11 @@ export interface Booking {
   lines: BookingLine[];
   participantsCount: number;
   subtotalMinor: number;
+  /** Desconto do cupom (B1c); `totalMinor` já vem com ele. */
+  discountMinor?: number;
+  promoCodeId?: string;
+  /** Uso do cupom guardado para a reserva; devolvido se ela expirar sem pagamento. */
+  promoRedemptionId?: string;
   platformFeeMinor: number;
   totalMinor: number;
   expiresAt: string | null;
@@ -212,8 +221,15 @@ export interface Booking {
   termsAcceptance?: TermsAcceptance;
   /** Onde o comprador está (hospedagem ou endereço), quando a oferta busca no endereço. PII (§7.6). */
   pickupAddress?: string;
-  /** Quando o endereço de busca é apagado: 7 dias depois do fim do serviço (D20, §7.5). */
-  pickupAddressEraseAt?: string;
+  /**
+   * Telefone do cliente (E.164), pedido na compra de passeio, aluguel e translado (D27). Confidencial
+   * (§7.6): o parceiro vê só depois do "Cheguei" e só enquanto o cliente não usou o código.
+   */
+  contactPhone?: string;
+  /** Quando endereço de busca e telefone são apagados: 7 dias depois do fim do serviço (D20, D27, §7.5). */
+  personalDataEraseAt?: string;
+  /** Resposta do cliente ao aviso "chegou" (D27): "Estou chegando" ou "Não vou mais". */
+  arrivalResponse?: { response: 'coming' | 'not_going'; at: string };
   /** Uma entrada por unidade usada; repetir o check-in da mesma unidade não cria outra. */
   checkIns?: BookingCheckIn[];
   arrival?: BookingArrival;

@@ -11,6 +11,8 @@ const DAY_MS = 24 * 60 * 60_000;
 const SUGGESTION_ATTEMPTS = 8;
 
 /** Perfil público do @, sem e-mail: é o que a tela mostra para confirmar a transferência. */
+const USERNAME_SEARCH_LIMIT = 8;
+
 export interface UsernameProfile {
   username: string;
   displayName: string | null;
@@ -73,6 +75,16 @@ export class UsernameService {
   async findProfile(rawUsername: string): Promise<UsernameProfile> {
     const { username, displayName, photoURL } = await this.findOwner(rawUsername);
     return { username, displayName, photoURL };
+  }
+
+  /**
+   * Busca pelo começo do @, como no Instagram (D27): a partir de 2 caracteres válidos, no máximo
+   * 8 contas, só com @, nome e foto públicos.
+   */
+  async searchProfiles(rawPrefix: string): Promise<UsernameProfile[]> {
+    const prefix = rawPrefix.trim().replace(/^@/, '').toLowerCase();
+    if (!/^[a-z0-9._]{2,30}$/.test(prefix)) return [];
+    return this.port.searchByPrefix(prefix, USERNAME_SEARCH_LIMIT);
   }
 
   async findOwner(rawUsername: string): Promise<UsernameOwner> {

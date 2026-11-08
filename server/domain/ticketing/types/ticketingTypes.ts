@@ -72,6 +72,8 @@ export interface InventoryReservation {
   releasedAt?: string;
 }
 
+export type TicketPaymentMethod = 'card' | 'pix' | 'other';
+
 export type TicketOrderStatus =
   | 'pending_payment'
   | 'payment_processing'
@@ -107,8 +109,13 @@ export interface TicketOrder {
   totalMinor: MoneyMinor;
   paymentId?: string;
   paymentIntentId?: string;
+  /** Meio de pagamento (classe Interna, §7.6); dados do cartão ficam só no Stripe. */
+  paymentMethod?: TicketPaymentMethod;
   promoCodeId?: string;
-  promoterCode?: string;
+  /** Uso do cupom guardado para o pedido; devolvido se o pedido expirar sem pagamento. */
+  promoRedemptionId?: string;
+  /** Divulgador do link usado na compra (D27), conferido no servidor. */
+  promoterId?: string;
   buyerSnapshot: {
     name: string;
     email: string;
@@ -182,6 +189,8 @@ export interface Ticket {
   receivedFrom?: { username: string | null; displayName: string | null };
   /** Link de transferência pendente (D21): até quando vale. */
   transferLinkExpiresAt?: string;
+  /** Cortesia do organizador (D27): sem pedido, sem reembolso e sem transferência. */
+  courtesyId?: string;
   /** Última mudança: a lista sem internet da portaria baixa só o que mudou (D21). */
   updatedAt?: string;
   transferredAt?: string;
@@ -313,23 +322,6 @@ export interface OfflineCheckInEvent {
 export interface OfflineCheckInSyncResultItem {
   clientEventId: string;
   status: 'accepted' | 'already_checked_in' | 'invalid' | 'expired' | 'wrong_occurrence';
-}
-
-export interface EventPromoCode {
-  id: string;
-  eventListingId: string;
-  code: string;
-  type: 'percentage' | 'fixed';
-  valueMinor?: MoneyMinor;
-  percentage?: number;
-  maxUses?: number;
-  usedCount: number;
-  startsAt?: string;
-  endsAt?: string;
-  ticketTypeIds?: string[];
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
 }
 
 export interface PlatformFeePolicy {

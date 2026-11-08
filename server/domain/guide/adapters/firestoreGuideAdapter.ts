@@ -89,6 +89,14 @@ export class FirestoreGuideAdapter implements GuidePort {
     await batch.commit();
   }
 
+  async listItemsByOwner(ownerId: string): Promise<GuideItemRecord[]> {
+    const snapshot = await adminDb.collection('items').where('ownerId', '==', ownerId).get();
+    return snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...(doc.data() as Omit<GuideItemRecord, 'id'>),
+    }));
+  }
+
   async getAllItems(): Promise<GuideItemRecord[]> {
     const snapshot = await adminDb.collection('items').get();
     return snapshot.docs.map((doc) => ({

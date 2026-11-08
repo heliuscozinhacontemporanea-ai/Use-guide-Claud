@@ -19,19 +19,19 @@ export function EventPhotosSection({
   const images = item.images ?? [];
 
   return (
-    <div className="space-y-6 pt-4 border-t border-white/5">
+    <div className="space-y-6 pt-4 border-t border-line">
       <div className="flex items-center gap-2">
-        <span className="p-2 rounded-xl bg-white/5 border border-white/10 text-indigo-400">
+        <span className="p-2 rounded-xl bg-surface border border-line text-accent">
           <Camera size={18} aria-hidden="true" />
         </span>
-        <h3 className="text-sm font-black text-white uppercase tracking-widest">Fotos do Evento</h3>
+        <h3 className="text-sm font-black text-ink uppercase tracking-widest">Fotos do Evento</h3>
       </div>
 
       <div className="grid grid-cols-3 gap-3">
         {images.map((img, index) => (
           <div
             key={img}
-            className="group relative aspect-square rounded-2xl overflow-hidden border border-white/10 shadow-lg"
+            className="group relative aspect-square rounded-2xl overflow-hidden border border-line shadow-lg"
           >
             <img
               src={img}
@@ -46,8 +46,8 @@ export function EventPhotosSection({
                 className={cn(
                   'w-11 h-11 flex items-center justify-center rounded-lg transition-all focus-visible:ring-2 focus-visible:ring-teal-400/50',
                   item.image === img
-                    ? 'bg-emerald-500 text-white'
-                    : 'bg-white/20 text-white hover:bg-white/40'
+                    ? 'bg-emerald-500 text-ink'
+                    : 'bg-ink/10 text-ink hover:bg-ink/20'
                 )}
               >
                 <CheckCircle2 size={14} aria-hidden="true" />
@@ -63,13 +63,13 @@ export function EventPhotosSection({
                     image: item.image === img ? remaining[0] || '' : item.image,
                   });
                 }}
-                className="w-11 h-11 flex items-center justify-center bg-red-500/80 rounded-lg text-white hover:bg-red-500 transition-all focus-visible:ring-2 focus-visible:ring-teal-400/50"
+                className="w-11 h-11 flex items-center justify-center bg-red-500/80 rounded-lg text-ink hover:bg-red-500 transition-all focus-visible:ring-2 focus-visible:ring-teal-400/50"
               >
                 <Trash2 size={14} aria-hidden="true" />
               </button>
             </div>
             {item.image === img && (
-              <div className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-emerald-500 text-white text-[8px] font-black uppercase tracking-widest shadow-xl">
+              <div className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-emerald-500 text-ink text-[8px] font-black uppercase tracking-widest shadow-xl">
                 Principal
               </div>
             )}
@@ -80,8 +80,8 @@ export function EventPhotosSection({
             className={cn(
               'aspect-square rounded-2xl border-2 border-dashed flex flex-col items-center justify-center cursor-pointer transition-all gap-2 focus-within:ring-2 focus-within:ring-teal-400/50',
               isUploading
-                ? 'border-indigo-500/20 bg-indigo-500/5 animate-pulse'
-                : 'border-white/5 hover:border-indigo-500/30 hover:bg-white/5'
+                ? 'border-accent-line bg-accent-soft animate-pulse'
+                : 'border-line hover:border-accent-line hover:bg-surface'
             )}
           >
             <input
@@ -91,14 +91,14 @@ export function EventPhotosSection({
               onChange={onImageUpload}
               multiple
             />
-            <span className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center text-white/50">
+            <span className="w-8 h-8 rounded-xl bg-surface flex items-center justify-center text-ink/70">
               {isUploading ? (
                 <RefreshCw className="animate-spin" size={16} aria-hidden="true" />
               ) : (
                 <Upload size={16} aria-hidden="true" />
               )}
             </span>
-            <span className="text-[8px] font-black uppercase tracking-widest text-white/50">
+            <span className="text-[8px] font-black uppercase tracking-widest text-ink/70">
               Add Fotos
             </span>
           </label>

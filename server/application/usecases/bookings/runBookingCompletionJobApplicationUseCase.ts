@@ -4,7 +4,7 @@ import {
   bookingServiceEndsAt,
   clearBookingDeadlineUseCase,
   completeFinishedBookingsUseCase,
-  eraseExpiredPickupAddressesUseCase,
+  eraseExpiredBookingContactsUseCase,
   listBookingsWithDueDeadlineUseCase,
   resolveServiceConfirmationUseCase,
 } from '../../../domain/bookings';
@@ -20,7 +20,7 @@ export interface BookingCompletionJobResult {
   completed: number;
   askedToConfirm: number;
   deadlinesProcessed: number;
-  pickupAddressesErased: number;
+  bookingContactsErased: number;
 }
 
 /** 72 h sem resposta a "O serviço aconteceu?": reembolso integral ao comprador (D20). */
@@ -107,11 +107,11 @@ export async function runBookingCompletionJobApplicationUseCase(
       });
     }
   }
-  const pickupAddressesErased = await eraseExpiredPickupAddressesUseCase(limit);
+  const bookingContactsErased = await eraseExpiredBookingContactsUseCase(limit);
   return {
     completed,
     askedToConfirm: askedToConfirm.length,
     deadlinesProcessed,
-    pickupAddressesErased,
+    bookingContactsErased,
   };
 }

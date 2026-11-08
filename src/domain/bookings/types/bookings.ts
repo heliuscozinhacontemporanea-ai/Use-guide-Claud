@@ -39,6 +39,9 @@ export interface PartnerOffer extends OfferFields {
   guideItemId: string;
   kind: OfferKind;
   status: OfferStatus;
+  /** Fuso e cidade do estabelecimento (D28), postos pelo servidor. */
+  timeZone?: string;
+  city?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -97,6 +100,9 @@ export interface BookingSummary {
   status: BookingStatus;
   lines: Array<{ priceOptionId: string; quantity: number; unitAmountMinor: number }>;
   participantsCount: number;
+  /** Antes do cupom; `totalMinor` já vem com o desconto (B1c). */
+  subtotalMinor?: number;
+  discountMinor?: number;
   totalMinor: number;
   expiresAt: string | null;
   offer: {
@@ -124,6 +130,8 @@ export interface BookingSummary {
   requiresParticipantNames: boolean;
   /** "Cheguei" do prestador (D20). */
   arrivedAt: string | null;
+  /** Resposta do cliente ao aviso "chegou" (D27). */
+  arrivalResponse: { response: ArrivalResponse; at: string } | null;
   providerAbsence: {
     reportedAt: string;
     respondBy: string;
@@ -160,6 +168,8 @@ export interface PublicOffer extends OfferFields {
   guideItemId: string;
   kind: OfferKind;
   status: 'published';
+  timeZone?: string;
+  city?: string;
   updatedAt: string;
 }
 
@@ -169,6 +179,10 @@ export interface CreateBookingPayload {
   lines: Array<{ priceOptionId: string; quantity: number }>;
   participants: Array<{ name: string }>;
   pickupAddress?: string;
+  /** Telefone em E.164; o servidor exige em passeio, aluguel e translado (D27). */
+  contactPhone?: string;
+  /** Cupom digitado pelo comprador; o servidor confere e calcula (B1c). */
+  promoCode?: string;
   idempotencyKey: string;
   locale: 'pt-BR' | 'en' | 'fr';
   acceptedTermsVersion: string;
@@ -247,8 +261,36 @@ export interface UnitCheckInResult {
   checkedInAt: string;
 }
 
+/** Código do cartão "Inserir código" (D27, p41): o servidor procura em todos os horários abertos. */
+export interface EstablishmentCheckInResult extends UnitCheckInResult {
+  buyerName: string | null;
+  offer: { id: string; title: string; kind: string };
+  slot: { id: string; startsAt: string };
+  delivered: { checkedIn: number; total: number };
+}
+
+/** Cliente que ainda não chegou, com o telefone liberado depois do "Cheguei" (D27, p42). */
+export interface SlotContact {
+  bookingId: string;
+  buyerName: string | null;
+  units: number;
+  /** E.164. */
+  phone: string;
+  response: { response: ArrivalResponse; at: string } | null;
+  arrivedAt: string | null;
+}
+
+export type ArrivalResponse = 'coming' | 'not_going';
+
 export interface ArrivalLocation {
   lat: number;
   lng: number;
   accuracyM?: number;
+}
+
+/** Folha do horário no painel (p06): reservas com o nome público do cliente. */
+export interface PartnerSlotDetail {
+  slot: PartnerSlot;
+  offer: { id: string; title: string; kind: OfferKind; meetingPoint: string | null };
+  bookings: Array<{ id: string; buyerName: string | null; units: number; checkedInUnits: number }>;
 }

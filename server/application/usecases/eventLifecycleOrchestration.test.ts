@@ -37,6 +37,8 @@ vi.mock('../../domain/ticketing', () => ({
   listEventCheckInsForPartnerOrAdminUseCase: vi.fn().mockResolvedValue([]),
   listTicketTypesForManagementUseCase: vi.fn().mockResolvedValue([]),
   moveOrderToOccurrenceUseCase: vi.fn(),
+  cancelOccurrenceCourtesiesUseCase: vi.fn().mockResolvedValue([]),
+  countOccurrenceCourtesiesUseCase: vi.fn().mockResolvedValue(0),
 }));
 
 vi.mock('../../domain/payment', () => ({

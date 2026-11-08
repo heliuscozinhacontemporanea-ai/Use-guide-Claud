@@ -6,17 +6,16 @@ import {
 } from '../../events';
 import { TicketingDomainError } from '../errors/ticketingDomainError';
 import type { TicketingPort } from '../ports/ticketingPort';
+import { isCourtesyTicketTypeId } from '../types/courtesyTypes';
 import {
   assertMoneyMinor,
   deriveTicketTypeSaleStatus,
-  type EventPromoCode,
   type PublicTicketTypeProjection,
   type TicketType,
 } from '../types/ticketingTypes';
 import {
   assertCanManageOccurrence,
   getAuditActorType,
-  isActorAdmin,
   type TicketingActorContext,
 } from './ticketingAccess';
 
@@ -136,7 +135,8 @@ export class TicketTypeService {
     >
   ): Promise<TicketType> {
     const existing = await this.port.getTicketTypeById(ticketTypeId);
-    if (!existing) {
+    // O lote das cortesias é do sistema (D27): o organizador não edita nem arquiva.
+    if (!existing || isCourtesyTicketTypeId(existing.id)) {
       throw new TicketingDomainError('NOT_FOUND', 'Lote de ingresso não encontrado.');
     }
 
@@ -198,7 +198,8 @@ export class TicketTypeService {
     ticketTypeId: string
   ): Promise<{ mode: 'deleted' | 'archived' }> {
     const existing = await this.port.getTicketTypeById(ticketTypeId);
-    if (!existing) {
+    // O lote das cortesias é do sistema (D27): o organizador não edita nem arquiva.
+    if (!existing || isCourtesyTicketTypeId(existing.id)) {
       throw new TicketingDomainError('NOT_FOUND', 'Lote de ingresso não encontrado.');
     }
     const { occurrence, listing } = await assertCanManageOccurrence(actor, existing.occurrenceId);
@@ -263,43 +264,7 @@ export class TicketTypeService {
     occurrenceId: string
   ): Promise<TicketType[]> {
     await assertCanManageOccurrence(actor, occurrenceId);
-    return this.port.listTicketTypesByOccurrenceId(occurrenceId);
-  }
-
-  async createPromoCode(
-    actor: TicketingActorContext,
-    input: {
-      eventListingId: string;
-      code: string;
-      type: 'percentage' | 'fixed';
-      valueMinor?: number;
-      percentage?: number;
-      maxUses?: number;
-      startsAt?: string;
-      endsAt?: string;
-      ticketTypeIds?: string[];
-      isActive?: boolean;
-    }
-  ): Promise<EventPromoCode> {
-    const listing = await getEventListingByIdUseCase(input.eventListingId);
-    if (!listing) {
-      throw new TicketingDomainError('NOT_FOUND', 'Evento não encontrado.');
-    }
-    if (!isActorAdmin(actor) && listing.ownerId !== actor.uid) {
-      throw new TicketingDomainError('FORBIDDEN', 'Sem permissão para criar cupons neste evento.');
-    }
-
-    return this.port.createPromoCode({
-      eventListingId: input.eventListingId,
-      code: input.code,
-      type: input.type,
-      valueMinor: input.valueMinor,
-      percentage: input.percentage,
-      maxUses: input.maxUses,
-      startsAt: input.startsAt,
-      endsAt: input.endsAt,
-      ticketTypeIds: input.ticketTypeIds,
-      isActive: input.isActive ?? true,
-    });
+    const types = await this.port.listTicketTypesByOccurrenceId(occurrenceId);
+    return types.filter((type) => !isCourtesyTicketTypeId(type.id));
   }
 }

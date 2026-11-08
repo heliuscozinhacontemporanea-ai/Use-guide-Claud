@@ -24,6 +24,11 @@ const KNOWN_CODES = [
   'CLAIM_ALREADY_EXISTS',
   'NAME_CHANGE_NOT_ALLOWED',
   'INTERNAL_ERROR',
+  'PROMO_INVALID',
+  'PROMO_NOT_STARTED',
+  'PROMO_EXPIRED',
+  'PROMO_EXHAUSTED',
+  'PROMO_ALREADY_USED',
 ] as const;
 
 /** Traduz o `code` estável do backend (AGENTS.md §12.5). */

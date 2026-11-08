@@ -1,3 +1,4 @@
+import { placeTimeOf } from '../../../shared/kernel/timeZones';
 import { getItemByIdUseCase } from '../../guide';
 import type { BookableItem, BookableItemLookupPort } from '../ports/bookableItemLookupPort';
 
@@ -12,6 +13,7 @@ export class GuideBookableItemLookupAdapter implements BookableItemLookupPort {
         typeof item.partnerId === 'string' && item.partnerId ? item.partnerId : item.ownerId,
       category: String(item.category ?? ''),
       name: typeof item.name === 'string' ? item.name : '',
+      ...placeTimeOf(item),
     };
   }
 }

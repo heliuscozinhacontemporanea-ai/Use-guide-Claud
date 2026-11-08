@@ -1,0 +1,5 @@
+# Só o necessário para a imagem: o resto (código-fonte, .env, docs, testes) nunca entra.
+*
+!package.json
+!package-lock.json
+!dist

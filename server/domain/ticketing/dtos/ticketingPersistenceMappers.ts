@@ -2,7 +2,6 @@ import { isCancellationPolicyAllowed } from '../../../shared/kernel/cancellation
 import type { TermsAcceptance } from '../../../shared/kernel/legalTerms';
 import type {
   EventCheckIn,
-  EventPromoCode,
   EventWaitlistEntry,
   InventoryReservation,
   OfflineCheckInSession,
@@ -131,7 +130,9 @@ export class TicketOrderPersistenceMapper {
       paymentId: typeof raw.paymentId === 'string' ? raw.paymentId : undefined,
       paymentIntentId: typeof raw.paymentIntentId === 'string' ? raw.paymentIntentId : undefined,
       promoCodeId: typeof raw.promoCodeId === 'string' ? raw.promoCodeId : undefined,
-      promoterCode: typeof raw.promoterCode === 'string' ? raw.promoterCode : undefined,
+      promoRedemptionId:
+        typeof raw.promoRedemptionId === 'string' ? raw.promoRedemptionId : undefined,
+      promoterId: typeof raw.promoterId === 'string' ? raw.promoterId : undefined,
       buyerSnapshot: {
         name: String(rawBuyer.name || ''),
         email: String(rawBuyer.email || ''),
@@ -229,6 +230,7 @@ export class TicketPersistenceMapper {
           }
         : {}),
       ...(typeof raw.updatedAt === 'string' ? { updatedAt: raw.updatedAt } : {}),
+      ...(typeof raw.courtesyId === 'string' ? { courtesyId: raw.courtesyId } : {}),
       status:
         raw.status === 'reserved' ||
         raw.status === 'checked_in' ||
@@ -406,30 +408,6 @@ export class OfflineCheckInSessionPersistenceMapper {
       manifestHash: String(raw.manifestHash || ''),
       status: raw.status === 'expired' || raw.status === 'revoked' ? raw.status : 'active',
       keyId: String(raw.keyId || 'use-guide-rsa-pss-v1'),
-    };
-  }
-}
-
-export class EventPromoCodePersistenceMapper {
-  static toDomain(id: string, raw: Record<string, unknown>): EventPromoCode {
-    const now = new Date().toISOString();
-    return {
-      id,
-      eventListingId: String(raw.eventListingId || ''),
-      code: String(raw.code || '').toUpperCase(),
-      type: raw.type === 'fixed' ? 'fixed' : 'percentage',
-      valueMinor: typeof raw.valueMinor === 'number' ? Math.trunc(raw.valueMinor) : undefined,
-      percentage: typeof raw.percentage === 'number' ? Math.trunc(raw.percentage) : undefined,
-      maxUses: typeof raw.maxUses === 'number' ? Math.trunc(raw.maxUses) : undefined,
-      usedCount: typeof raw.usedCount === 'number' ? Math.trunc(raw.usedCount) : 0,
-      startsAt: typeof raw.startsAt === 'string' ? raw.startsAt : undefined,
-      endsAt: typeof raw.endsAt === 'string' ? raw.endsAt : undefined,
-      ticketTypeIds: Array.isArray(raw.ticketTypeIds)
-        ? raw.ticketTypeIds.filter((i): i is string => typeof i === 'string')
-        : undefined,
-      isActive: raw.isActive !== false,
-      createdAt: toIso(raw.createdAt, now),
-      updatedAt: toIso(raw.updatedAt, now),
     };
   }
 }

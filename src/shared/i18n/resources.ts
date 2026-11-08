@@ -17,11 +17,23 @@ import {
   appAboutPtBR,
 } from './appAboutResources';
 import {
+  type ArrivalNoticeTranslation,
+  arrivalNoticeEn,
+  arrivalNoticeFr,
+  arrivalNoticePtBR,
+} from './arrivalNoticeResources';
+import {
   type BookingsTranslation,
   bookingsEn,
   bookingsFr,
   bookingsPtBR,
 } from './bookingsResources';
+import {
+  type CourtesyTranslation,
+  courtesyEn,
+  courtesyFr,
+  courtesyPtBR,
+} from './courtesyResources';
 import {
   type EmailVerificationTranslation,
   emailVerificationEn,
@@ -56,17 +68,53 @@ import {
 } from './listingPlanResources';
 import { type NotifyTranslation, notifyEn, notifyFr, notifyPtBR } from './notifyResources';
 import {
+  type PartnerAgoraTranslation,
+  partnerAgoraEn,
+  partnerAgoraFr,
+  partnerAgoraPtBR,
+} from './partnerAgoraResources';
+import {
+  type PartnerCatalogTranslation,
+  partnerCatalogEn,
+  partnerCatalogFr,
+  partnerCatalogPtBR,
+} from './partnerCatalogResources';
+import {
+  type PartnerEarningsTranslation,
+  partnerEarningsEn,
+  partnerEarningsFr,
+  partnerEarningsPtBR,
+} from './partnerEarningsResources';
+import {
+  type PartnerPanelTranslation,
+  partnerPanelEn,
+  partnerPanelFr,
+  partnerPanelPtBR,
+} from './partnerPanelResources';
+import {
   type PartnersTranslation,
   partnersEn,
   partnersFr,
   partnersPtBR,
 } from './partnersResources';
 import {
+  type PartnerTourTranslation,
+  partnerTourEn,
+  partnerTourFr,
+  partnerTourPtBR,
+} from './partnerTourResources';
+import {
   type PaymentAccountsTranslation,
   paymentAccountsEn,
   paymentAccountsFr,
   paymentAccountsPtBR,
 } from './paymentAccountsResources';
+import {
+  type PlaceTimeTranslation,
+  placeTimeEn,
+  placeTimeFr,
+  placeTimePtBR,
+} from './placeTimeResources';
 import {
   type MyReviewsTranslation,
   myReviewsEn,
@@ -77,6 +125,18 @@ import {
   profileFr,
   profilePtBR,
 } from './profileResources';
+import {
+  type PromoCodeTranslation,
+  promoCodeEn,
+  promoCodeFr,
+  promoCodePtBR,
+} from './promoCodeResources';
+import {
+  type PromoterTranslation,
+  promoterEn,
+  promoterFr,
+  promoterPtBR,
+} from './promoterResources';
 import {
   type PurchasesTranslation,
   purchasesEn,
@@ -175,7 +235,17 @@ export interface TranslationResource {
   notify: NotifyTranslation;
   help: HelpTranslation;
   eventSessions: EventSessionsTranslation;
+  placeTime: PlaceTimeTranslation;
   gateMode: GateModeTranslation;
+  partnerPanel: PartnerPanelTranslation;
+  partnerCatalog: PartnerCatalogTranslation;
+  partnerEarnings: PartnerEarningsTranslation;
+  partnerAgora: PartnerAgoraTranslation;
+  courtesy: CourtesyTranslation;
+  promoters: PromoterTranslation;
+  promoCodes: PromoCodeTranslation;
+  partnerTour: PartnerTourTranslation;
+  arrivalNotice: ArrivalNoticeTranslation;
   legal: LegalTranslation;
   verification: VerificationTranslation;
   emailVerification: EmailVerificationTranslation;
@@ -415,7 +485,17 @@ const ptBR: TranslationResource = {
   notify: notifyPtBR,
   help: helpPtBR,
   eventSessions: eventSessionsPtBR,
+  placeTime: placeTimePtBR,
   gateMode: gateModePtBR,
+  partnerPanel: partnerPanelPtBR,
+  partnerCatalog: partnerCatalogPtBR,
+  partnerEarnings: partnerEarningsPtBR,
+  partnerAgora: partnerAgoraPtBR,
+  courtesy: courtesyPtBR,
+  promoters: promoterPtBR,
+  promoCodes: promoCodePtBR,
+  partnerTour: partnerTourPtBR,
+  arrivalNotice: arrivalNoticePtBR,
   legal: legalPtBR,
   verification: verificationPtBR,
   emailVerification: emailVerificationPtBR,
@@ -715,7 +795,17 @@ const en: TranslationResource = {
   notify: notifyEn,
   help: helpEn,
   eventSessions: eventSessionsEn,
+  placeTime: placeTimeEn,
   gateMode: gateModeEn,
+  partnerPanel: partnerPanelEn,
+  partnerCatalog: partnerCatalogEn,
+  partnerEarnings: partnerEarningsEn,
+  partnerAgora: partnerAgoraEn,
+  courtesy: courtesyEn,
+  promoters: promoterEn,
+  promoCodes: promoCodeEn,
+  partnerTour: partnerTourEn,
+  arrivalNotice: arrivalNoticeEn,
   legal: legalEn,
   verification: verificationEn,
   emailVerification: emailVerificationEn,
@@ -1009,7 +1099,17 @@ const fr: TranslationResource = {
   notify: notifyFr,
   help: helpFr,
   eventSessions: eventSessionsFr,
+  placeTime: placeTimeFr,
   gateMode: gateModeFr,
+  partnerPanel: partnerPanelFr,
+  partnerCatalog: partnerCatalogFr,
+  partnerEarnings: partnerEarningsFr,
+  partnerAgora: partnerAgoraFr,
+  courtesy: courtesyFr,
+  promoters: promoterFr,
+  promoCodes: promoCodeFr,
+  partnerTour: partnerTourFr,
+  arrivalNotice: arrivalNoticeFr,
   legal: legalFr,
   verification: verificationFr,
   emailVerification: emailVerificationFr,

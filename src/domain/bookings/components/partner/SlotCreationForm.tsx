@@ -2,28 +2,33 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BUTTON_PRIMARY, BUTTON_SECONDARY, INPUT } from '../../../../ui/styles/controls';
 import type { CreateSlotsPayload } from '../../types/bookings';
-import { fortalezaInputToIso } from '../../utils/dates';
+import { placeInputToIso } from '../../utils/dates';
 
 const WEEKDAYS = [0, 1, 2, 3, 4, 5, 6] as const;
 
 interface SlotCreationFormProps {
   onCreate: (payload: CreateSlotsPayload) => Promise<void>;
+  /** Fuso da oferta; a recorrência é expandida no servidor com o mesmo fuso (D28). */
+  timeZone?: string;
 }
 
-/** Monta o pedido de criação; datas e horas digitadas são do fuso de Fortaleza. */
-export function buildSlotsPayload(state: {
-  mode: 'recurrence' | 'list';
-  capacity: string;
-  startDate: string;
-  endDate: string;
-  weekdays: number[];
-  times: string;
-  single: string;
-}): CreateSlotsPayload | null {
+/** Monta o pedido de criação; datas e horas digitadas são da hora do lugar. */
+export function buildSlotsPayload(
+  state: {
+    mode: 'recurrence' | 'list';
+    capacity: string;
+    startDate: string;
+    endDate: string;
+    weekdays: number[];
+    times: string;
+    single: string;
+  },
+  timeZone?: string
+): CreateSlotsPayload | null {
   const capacity = Number(state.capacity);
   if (!Number.isInteger(capacity) || capacity < 1) return null;
   if (state.mode === 'list') {
-    const startsAt = fortalezaInputToIso(state.single);
+    const startsAt = placeInputToIso(state.single, timeZone);
     return startsAt ? { mode: 'list', capacity, slots: [{ startsAt }] } : null;
   }
   const times = state.times
@@ -43,7 +48,7 @@ export function buildSlotsPayload(state: {
   };
 }
 
-export function SlotCreationForm({ onCreate }: SlotCreationFormProps) {
+export function SlotCreationForm({ onCreate, timeZone }: SlotCreationFormProps) {
   const { t } = useTranslation();
   const [state, setState] = useState({
     mode: 'recurrence' as 'recurrence' | 'list',
@@ -55,7 +60,7 @@ export function SlotCreationForm({ onCreate }: SlotCreationFormProps) {
     single: '',
   });
   const [submitting, setSubmitting] = useState(false);
-  const payload = buildSlotsPayload(state);
+  const payload = buildSlotsPayload(state, timeZone);
 
   const toggleWeekday = (day: number) =>
     setState((current) => ({
@@ -169,7 +174,6 @@ export function SlotCreationForm({ onCreate }: SlotCreationFormProps) {
           className={INPUT}
         />
       </label>
-      <p className="text-xs text-white/60">{t('bookings.slots.timezoneNotice')}</p>
       <button type="submit" disabled={!payload || submitting} className={BUTTON_PRIMARY}>
         {t('bookings.slots.create')}
       </button>

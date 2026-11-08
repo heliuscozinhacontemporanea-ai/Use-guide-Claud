@@ -9,4 +9,6 @@ export interface UserPort {
   suggestUsername(name: string): Promise<string>;
   claimUsername(username: string): Promise<string>;
   findByUsername(username: string): Promise<UsernameProfile>;
+  /** Contas pelo começo do @ (até 8), como no Instagram. */
+  searchUsernames(prefix: string): Promise<UsernameProfile[]>;
 }

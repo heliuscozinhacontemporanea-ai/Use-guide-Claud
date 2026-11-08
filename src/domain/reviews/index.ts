@@ -1,5 +1,4 @@
 export { deleteReviewUseCase } from './application/usecases/deleteReviewUseCase';
-export { getAllReviewsUseCase } from './application/usecases/getAllReviewsUseCase';
 export { getReviewsUseCase } from './application/usecases/getReviewsUseCase';
 export { getUserReviewUseCase } from './application/usecases/getUserReviewUseCase';
 export { listMyReviewsUseCase } from './application/usecases/listMyReviewsUseCase';
@@ -9,6 +8,7 @@ export { subscribeToReviewsUseCase } from './application/usecases/subscribeToRev
 // Componente público apenas para src/app/compositions (AGENTS.md §5.2 item 5).
 export { MyReviewsView } from './components/mine/MyReviewsView';
 export { ReviewModerationQueue } from './components/moderation/ReviewModerationQueue';
+export { RecentItemReviews } from './components/partner/RecentItemReviews';
 export { ReviewCard } from './components/ReviewCard';
 export { ReviewForm } from './components/ReviewForm';
 export { ReviewList } from './components/ReviewList';

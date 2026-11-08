@@ -1,15 +1,15 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { UserRole } from '../../domain/auth/types/auth';
 import { i18n } from '../../shared/i18n';
 import { SideMenu } from './SideMenu';
-import { UserRole } from '../../domain/auth/types/auth';
 
 const authContextState = vi.hoisted(() => ({
-  user: null as any,
+  user: null as unknown,
   loading: false,
   photoURL: null as string | null,
-  profile: null as any,
+  profile: null as unknown,
 }));
 
 vi.mock('../../domain/auth/context/AuthContext', () => ({
@@ -46,6 +46,8 @@ vi.mock('../../domain/ticketing', () => ({
       <button onClick={onBack}>voltar-tickets</button>
     </div>
   ),
+  MyPromotionsView: () => <span>my-promotions-view</span>,
+  useMyPromotions: () => ({ data: [], loading: false, error: false, reload: vi.fn() }),
 }));
 
 vi.mock('../../domain/content', () => ({
@@ -64,7 +66,7 @@ vi.mock('../../domain/content', () => ({
 }));
 
 vi.mock('../../domain/user', () => ({
-  useUserProfile: (onDelete: () => void) => ({
+  useUserProfile: () => ({
     userData: { firstName: 'Maria', lastName: 'Silva', phone: '11999999999' },
     setUserData: vi.fn(),
     passwordData: { current: '', new: '', confirm: '' },
@@ -78,7 +80,7 @@ vi.mock('../../domain/user', () => ({
     updatePassword: vi.fn(),
     deleteAccount: vi.fn(),
   }),
-  useUserPhoto: (onMsg: (m: any) => void) => ({
+  useUserPhoto: () => ({
     photoURL: null,
     isUploading: false,
     imageToCrop: null,
@@ -96,12 +98,7 @@ vi.mock('../../domain/user', () => ({
   }),
   ChangePasswordView: () => <div>change-password-view</div>,
   ImageCropperView: () => <div>cropper-view</div>,
-  MainMenuView: ({
-    onFavoritesOpen,
-    onSettingsClick,
-    onAboutOpen,
-    onSupportOpen,
-  }: any) => (
+  MainMenuView: ({ onFavoritesOpen, onAboutOpen, onSupportOpen }: Record<string, () => void>) => (
     <div>
       <span>main-menu-view</span>
       <button onClick={onFavoritesOpen}>open-favorites</button>
@@ -115,7 +112,7 @@ vi.mock('../../domain/user', () => ({
       <button onClick={onBack}>voltar-account</button>
     </div>
   ),
-  SettingsView: ({ onBack, onOpenLanguage, onOpenAppearance }: any) => (
+  SettingsView: ({ onBack, onOpenLanguage, onOpenAppearance }: Record<string, () => void>) => (
     <div>
       <span>settings-view</span>
       <button onClick={onBack}>voltar-settings</button>

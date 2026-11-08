@@ -56,7 +56,14 @@ service cloud.firestore {
     match /ticketTransfers/{transferId} {
       allow read, write: if false;
     }
-    match /eventPromoCodes/{promoCodeId} {
+    // Cupons (domínio promotions, B1): só backend; o dono lê pela API.
+    match /promoCodes/{promoCodeId} {
+      allow read, write: if false;
+    }
+    match /promoRedemptions/{redemptionId} {
+      allow read, write: if false;
+    }
+    match /promoBuyers/{buyerKey} {
       allow read, write: if false;
     }
     match /eventWaitlistEntries/{entryId} {
@@ -104,6 +111,21 @@ service cloud.firestore {
       allow read, write: if false;
     }
     match /ticketTransferLinks/{linkId} {
+      allow read, write: if false;
+    }
+    // Cortesias e a trava de uma por pessoa (D27): só o backend; o organizador lê pela API.
+    match /eventCourtesies/{courtesyId} {
+      allow read, write: if false;
+    }
+    match /eventCourtesyGuests/{lockId} {
+      allow read, write: if false;
+    }
+    // Divulgadores (D27): só o backend; organizador e divulgador leem pela API.
+    match /eventPromoters/{promoterId} {
+      allow read, write: if false;
+    }
+    // Controle de envio de avisos em massa (termos mudaram): só o backend.
+    match /notificationCampaigns/{campaignId} {
       allow read, write: if false;
     }
     match /bookingAuditLogs/{logId} {

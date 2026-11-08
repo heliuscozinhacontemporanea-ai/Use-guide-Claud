@@ -244,6 +244,33 @@ describe('Firestore Rules — Security Suite', () => {
       await assertFails(getDoc(doc(db, 'transactions/tx-2')));
     });
 
+    it('cortesias e divulgadores (D27): eventCourtesies, eventCourtesyGuests e eventPromoters negados até para o dono e admin', async () => {
+      const adminDb = testEnv.authenticatedContext('admin-user', { admin: true }).firestore();
+      const ownerDb = testEnv.authenticatedContext('partner-1').firestore();
+      for (const db of [adminDb, ownerDb]) {
+        await assertFails(getDoc(doc(db, 'eventCourtesies/c-1')));
+        await assertFails(setDoc(doc(db, 'eventCourtesies/c-2'), { status: 'issued' }));
+        await assertFails(getDoc(doc(db, 'eventCourtesyGuests/ev-1__user-1')));
+        await assertFails(setDoc(doc(db, 'eventCourtesyGuests/ev-1__user-2'), { courtesyId: 'x' }));
+        await assertFails(getDoc(doc(db, 'eventPromoters/p-1')));
+        await assertFails(setDoc(doc(db, 'eventPromoters/p-2'), { status: 'active' }));
+        await assertFails(getDoc(doc(db, 'notificationCampaigns/terms_partner_v1')));
+      }
+    });
+
+    it('cupons (B1): promoCodes, promoRedemptions e promoBuyers negados até para o dono e admin', async () => {
+      const adminDb = testEnv.authenticatedContext('admin-user', { admin: true }).firestore();
+      const ownerDb = testEnv.authenticatedContext('partner-1').firestore();
+      for (const db of [adminDb, ownerDb]) {
+        await assertFails(getDoc(doc(db, 'promoCodes/pc-1')));
+        await assertFails(setDoc(doc(db, 'promoCodes/pc-2'), { ownerId: 'partner-1', usedCount: 0 }));
+        await assertFails(getDoc(doc(db, 'promoRedemptions/r-1')));
+        await assertFails(setDoc(doc(db, 'promoRedemptions/r-2'), { status: 'reserved' }));
+        await assertFails(getDoc(doc(db, 'promoBuyers/pc-1__user-1')));
+        await assertFails(setDoc(doc(db, 'promoBuyers/pc-1__user-2'), { redemptionId: 'x' }));
+      }
+    });
+
     it('partner → planSubscriptions do próprio estabelecimento negado (só backend, D11)', async () => {
       const db = testEnv.authenticatedContext('partner-1').firestore();
       await assertFails(getDoc(doc(db, 'planSubscriptions/item-1')));

@@ -4,3 +4,12 @@ export function formatMoneyMinor(amountMinor: number, locale: string): string {
     amountMinor / 100
   );
 }
+
+/** Como `formatMoneyMinor`, mas sem ",00" quando o valor é inteiro em reais (cartões do painel, D27). */
+export function formatMoneyMinorCompact(amountMinor: number, locale: string): string {
+  return new Intl.NumberFormat(locale, {
+    style: 'currency',
+    currency: 'BRL',
+    minimumFractionDigits: amountMinor % 100 === 0 ? 0 : 2,
+  }).format(amountMinor / 100);
+}

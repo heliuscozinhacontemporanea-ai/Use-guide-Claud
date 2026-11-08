@@ -13,8 +13,6 @@ import { itemRouter } from './server/domain/guide/routes/guideRoutes';
 import insightsRouter from './server/domain/insights/routes/insightsRoutes';
 import mediaRouter from './server/domain/media/routes/mediaRoutes';
 import notificationRouter from './server/domain/notifications/routes/notificationRoutes';
-import { usernameClaimRouter } from './server/interfaces/http/users/usernameClaimRoutes';
-import { InternalTicketingController } from './server/interfaces/http/ticketing/internalTicketingController';
 import partnerRouter from './server/domain/partners/routes/partnerRoutes';
 import { PaymentController } from './server/domain/payment/controllers/paymentController';
 import paymentRouter from './server/domain/payment/routes/paymentRoutes';
@@ -34,24 +32,32 @@ import { resolveTrustProxyHops } from './server/infrastructure/config/trustProxy
 import billingRouter from './server/interfaces/http/billing/billingRoutes';
 import {
   bookingsRouter,
+  partnerEstablishmentsRouter,
   partnerOffersRouter,
 } from './server/interfaces/http/bookings/bookingsRoutes';
 import { InternalBookingsController } from './server/interfaces/http/bookings/internalBookingsController';
+import { courtesyRouter } from './server/interfaces/http/courtesies/courtesyRoutes';
 import listingStatsRouter from './server/interfaces/http/insights/listingStatsRoutes';
 import listingPlanRouter from './server/interfaces/http/listingPlans/listingPlanRoutes';
 import listingVerificationRouter from './server/interfaces/http/listingVerifications/listingVerificationRoutes';
 import { adminMessageRouter } from './server/interfaces/http/notifications/adminMessageRoutes';
 import { InternalNotificationsController } from './server/interfaces/http/notifications/internalNotificationsController';
+import { InternalTermsController } from './server/interfaces/http/notifications/internalTermsController';
+import partnerHomeRouter from './server/interfaces/http/partnerHome/partnerHomeRoutes';
+import promoCodesRouter from './server/interfaces/http/promoCodes/promoCodesRoutes';
 import { InternalPartnersController } from './server/interfaces/http/partners/internalPartnersController';
 import paymentAccountRouter, {
   adminAccountDebtRouter,
 } from './server/interfaces/http/paymentAccounts/paymentAccountRoutes';
 import { InternalPayoutsController } from './server/interfaces/http/payouts/internalPayoutsController';
+import { promoterRouter } from './server/interfaces/http/promoters/promoterRoutes';
 import {
   adminSaleClaimRouter,
   saleClaimRouter,
 } from './server/interfaces/http/saleClaims/saleClaimRoutes';
+import { InternalTicketingController } from './server/interfaces/http/ticketing/internalTicketingController';
 import { ticketTransferRouter } from './server/interfaces/http/ticketTransfers/ticketTransferRoutes';
+import { usernameClaimRouter } from './server/interfaces/http/users/usernameClaimRoutes';
 
 async function startServer() {
   const app = express();
@@ -149,6 +155,11 @@ async function startServer() {
     InternalTicketingController.expireOrders
   );
   app.post('/internal/bookings/expire', verifyInternalJobKey, InternalBookingsController.expire);
+  app.post(
+    '/internal/notifications/terms-announcements',
+    verifyInternalJobKey,
+    InternalTermsController.announce
+  );
   app.post('/internal/payouts/release', verifyInternalJobKey, InternalPayoutsController.release);
   app.post(
     '/internal/bookings/complete',
@@ -212,8 +223,12 @@ async function startServer() {
   app.use('/api/bookings', bookingsRouter);
   app.use('/api/payment/plans', billingRouter);
   app.use('/api/payment-accounts', paymentAccountRouter);
+  app.use('/api/partner-home', partnerHomeRouter);
+  app.use('/api/promo-codes', promoCodesRouter);
   app.use('/api/sale-claims', saleClaimRouter);
   app.use('/api/ticket-transfers', ticketTransferRouter);
+  app.use('/api/courtesies', courtesyRouter);
+  app.use('/api/promoters', promoterRouter);
   app.use('/api/admin/sale-claims', adminSaleClaimRouter);
   app.use('/api/admin/account-debts', adminAccountDebtRouter);
   app.use('/api/payment', paymentRouter);
@@ -225,6 +240,7 @@ async function startServer() {
   app.use('/api/listing-verifications', listingVerificationRouter);
   app.use('/api/listing-plans', listingPlanRouter);
   app.use('/api/partners/offers', partnerOffersRouter);
+  app.use('/api/partners/establishments', partnerEstablishmentsRouter);
   app.use('/api/partners', partnerRouter);
   app.use('/api/items', itemRouter);
   app.use('/api/events', publicEventsRouter);

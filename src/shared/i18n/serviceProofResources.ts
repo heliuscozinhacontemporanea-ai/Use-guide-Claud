@@ -57,6 +57,8 @@ export interface ServiceProofTranslation {
   checkout: {
     pickupLabel: string;
     pickupHint: string;
+    phoneLabel: string;
+    phoneHint: string;
     pickupPlaceholder: string;
     namesLater: string;
     namesHint: string;
@@ -197,6 +199,8 @@ export const serviceProofPtBR: ServiceProofTranslation = {
   checkout: {
     pickupLabel: 'Onde você está hospedado?',
     pickupHint: 'Só quem vai buscar você vê este endereço, e ele é apagado depois do serviço.',
+    phoneLabel: 'Seu telefone (WhatsApp)',
+    phoneHint: 'Mostraremos seu contato só no dia do serviço.',
     pickupPlaceholder: 'Nome da pousada ou endereço',
     namesLater: 'Informar depois',
     namesHint: 'Você pode informar os nomes depois, em Compras, até o dia.',
@@ -352,6 +356,8 @@ export const serviceProofEn: ServiceProofTranslation = {
   checkout: {
     pickupLabel: 'Where are you staying?',
     pickupHint: 'Only whoever picks you up sees this address, and it is deleted after the service.',
+    phoneLabel: 'Your phone (WhatsApp)',
+    phoneHint: 'We will only show your contact on the day of the service.',
     pickupPlaceholder: 'Name of the guesthouse or address',
     namesLater: 'Add later',
     namesHint: 'You can add the names later, in Purchases, until the day.',
@@ -509,6 +515,8 @@ export const serviceProofFr: ServiceProofTranslation = {
     pickupLabel: 'Où logez-vous ?',
     pickupHint:
       'Seule la personne qui vient vous chercher voit cette adresse, supprimée après le service.',
+    phoneLabel: 'Votre téléphone (WhatsApp)',
+    phoneHint: 'Nous ne montrerons votre contact que le jour du service.',
     pickupPlaceholder: 'Nom de la pousada ou adresse',
     namesLater: 'Plus tard',
     namesHint: 'Vous pouvez indiquer les noms plus tard, dans Achats, jusqu’au jour même.',

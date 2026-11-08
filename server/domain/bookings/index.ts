@@ -1,8 +1,11 @@
 export { BookingDomainError, type BookingErrorCode } from './errors/bookingDomainError';
 export type { PageRequest } from './ports/bookingsPort';
+export type { SlotContact } from './services/bookingArrivalService';
 export type {
   CheckInByCodeInput,
   CheckInCodeView,
+  EstablishmentCheckInInput,
+  EstablishmentCheckInResult,
   UnitCheckInResult,
   UnitCode,
 } from './services/bookingCheckInService';
@@ -14,6 +17,7 @@ export type {
 } from './services/bookingService';
 export type { CheckInWithoutCodeInput } from './services/bookingServiceProofService';
 export type { CreateSlotsInput, OfferInput } from './services/offerService';
+export type { OwnerOpenAbsence, OwnerSlotSummary } from './services/ownerAgendaService';
 export {
   type AvailabilitySlot,
   type BookableOffer,
@@ -39,6 +43,7 @@ export { cancelBookingForCanceledSlotUseCase } from './usecases/cancelBookingFor
 export { cancelPendingBookingUseCase } from './usecases/cancelPendingBookingUseCase';
 export { cancelSlotByPartnerUseCase } from './usecases/cancelSlotByPartnerUseCase';
 export { checkInBookingByCodeUseCase } from './usecases/checkInBookingByCodeUseCase';
+export { checkInByEstablishmentCodeUseCase } from './usecases/checkInByEstablishmentCodeUseCase';
 export { checkInEntryUseCase } from './usecases/checkInEntryUseCase';
 export { checkInWithoutCodeUseCase } from './usecases/checkInWithoutCodeUseCase';
 export { clearBookingDeadlineUseCase } from './usecases/clearBookingDeadlineUseCase';
@@ -47,7 +52,7 @@ export { confirmBookingPaymentUseCase } from './usecases/confirmBookingPaymentUs
 export { createAvailabilitySlotsUseCase } from './usecases/createAvailabilitySlotsUseCase';
 export { createBookableOfferUseCase } from './usecases/createBookableOfferUseCase';
 export { createPendingBookingUseCase } from './usecases/createPendingBookingUseCase';
-export { eraseExpiredPickupAddressesUseCase } from './usecases/eraseExpiredPickupAddressesUseCase';
+export { eraseExpiredBookingContactsUseCase } from './usecases/eraseExpiredBookingContactsUseCase';
 export { expireOverdueBookingsUseCase } from './usecases/expireOverdueBookingsUseCase';
 export { getBookingCheckInCodeUseCase } from './usecases/getBookingCheckInCodeUseCase';
 export { getBookingForAbsenceReportUseCase } from './usecases/getBookingForAbsenceReportUseCase';
@@ -61,24 +66,31 @@ export { getPublicOfferSummaryUseCase } from './usecases/getPublicOfferSummaryUs
 export { getVerifiedServiceForReviewUseCase } from './usecases/getVerifiedServiceForReviewUseCase';
 export { hasCheckedInBookingUseCase } from './usecases/hasCheckedInBookingUseCase';
 export { listAvailableSlotsUseCase } from './usecases/listAvailableSlotsUseCase';
-export { listConfirmedBookingsStartingBetweenUseCase } from './usecases/listConfirmedBookingsStartingBetweenUseCase';
 export { listBookingsWithDueDeadlineUseCase } from './usecases/listBookingsWithDueDeadlineUseCase';
+export { listConfirmedBookingsStartingBetweenUseCase } from './usecases/listConfirmedBookingsStartingBetweenUseCase';
 export { listMyBookingsUseCase } from './usecases/listMyBookingsUseCase';
 export { listOfferBookingsForPartnerUseCase } from './usecases/listOfferBookingsForPartnerUseCase';
 export { listOfferSlotsForPartnerUseCase } from './usecases/listOfferSlotsForPartnerUseCase';
+export { listOwnerAgendaUseCase } from './usecases/listOwnerAgendaUseCase';
 export { listPartnerOffersUseCase } from './usecases/listPartnerOffersUseCase';
+export { listSlotBookingsForOwnerUseCase } from './usecases/listSlotBookingsForOwnerUseCase';
+export { listSlotContactsUseCase } from './usecases/listSlotContactsUseCase';
 export { markBookingDisputedUseCase } from './usecases/markBookingDisputedUseCase';
 export { markBookingNoShowUseCase } from './usecases/markBookingNoShowUseCase';
 export { markBookingPaymentFailedUseCase } from './usecases/markBookingPaymentFailedUseCase';
 export { markBookingRefundedUseCase } from './usecases/markBookingRefundedUseCase';
 export { recordProviderAbsenceUseCase } from './usecases/recordProviderAbsenceUseCase';
 export { recordProviderArrivalUseCase } from './usecases/recordProviderArrivalUseCase';
+export { recordSlotArrivalUseCase } from './usecases/recordSlotArrivalUseCase';
 export { requestCancellationByBuyerUseCase } from './usecases/requestCancellationByBuyerUseCase';
 export { rescheduleSlotByPartnerUseCase } from './usecases/rescheduleSlotByPartnerUseCase';
 export { resolveProviderAbsenceUseCase } from './usecases/resolveProviderAbsenceUseCase';
 export { resolveServiceConfirmationUseCase } from './usecases/resolveServiceConfirmationUseCase';
+export { respondToArrivalUseCase } from './usecases/respondToArrivalUseCase';
 export { setBookableOfferStatusUseCase } from './usecases/setBookableOfferStatusUseCase';
 export { setParticipantNameUseCase } from './usecases/setParticipantNameUseCase';
+export { summarizeBookingUnitsUseCase } from './usecases/summarizeBookingUnitsUseCase';
+export { syncOffersPlaceFromItemUseCase } from './usecases/syncOffersPlaceFromItemUseCase';
 export { updateBookableOfferUseCase } from './usecases/updateBookableOfferUseCase';
 export { priceBookingLines } from './utils/bookingPricing';
 export { hasServiceProof, requiresServiceProof } from './utils/serviceProof';

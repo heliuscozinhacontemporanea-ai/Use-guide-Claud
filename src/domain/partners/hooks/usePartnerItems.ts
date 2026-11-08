@@ -6,7 +6,7 @@ import { usePartnerContentMedia } from './usePartnerContentMedia';
 
 export interface UsePartnerItemsProps {
   user: UserSession | null;
-  activeTab: 'items' | 'events' | 'reports';
+  activeTab: 'items' | 'events';
   isEditing: PartnerContentEditorState | null;
   setIsEditing: (item: PartnerContentEditorState | null) => void;
   setShowDeleteConfirm: (val: boolean) => void;

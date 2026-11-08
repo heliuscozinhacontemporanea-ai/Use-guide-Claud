@@ -42,6 +42,7 @@ export const legalPtBR: LegalTranslation = {
       'É proibido usar o aplicativo para atividades ilegais, copiar ou distribuir o conteúdo sem autorização e tentar acessar áreas restritas.',
       'As informações de rotas, trilhas e condições do tempo são orientativas. Avalie os riscos antes de seguir uma rota sugerida.',
       'O aplicativo usa serviços de terceiros, como Google Maps, Firebase e Stripe, sujeitos às regras desses serviços.',
+      'Mudanças nestes termos: quando a mudança for importante, avisamos pelo aplicativo com 15 dias de antecedência. Continuar usando o Use Guide depois da data de vigência vale como aceite da versão nova.',
       'Estes termos podem mudar. Compras e vendas novas pedem o aceite da versão atual; o seu pedido segue a versão que você aceitou.',
       'Dúvidas: ajuda@useguide.com.br.',
     ],
@@ -76,6 +77,10 @@ export const legalPtBR: LegalTranslation = {
       'Cancelamento pelo proprietário: os compradores recebem reembolso integral, inclusive a taxa de serviço, pago pela plataforma antes do repasse. Você paga multa de 20% sobre o valor vendido (sem as taxas de serviço), no cartão ou por Pix, em até 24 horas. Sem pagamento, a multa é descontada dos repasses pendentes e futuros do CNPJ, que fica bloqueado para novas vendas até quitar.',
       'Força maior comprovada: a primeira solução é remarcar. Quem não aceitar a nova data recebe reembolso integral, sem multa para você.',
       'Contestação no cartão: com prova de uso (check-in), a plataforma contesta e arca com o resultado. Sem prova, o valor contestado vira dívida do CNPJ.',
+      'Cortesias: você pode enviar cortesias pelo @ ou por link pessoal, uma por pessoa por evento. A cortesia ocupa um lugar na sessão, não tem preço, taxa nem repasse, e não pode ser reembolsada, transferida nem vendida. Não é permitido dar cortesia a quem comprou, cancelou ou teve reembolso de ingresso do mesmo evento.',
+      'Divulgadores: o combinado com cada divulgador (comissão, valor por ingresso ou cachê fixo) é pago por você, diretamente, depois do evento. O Use Guide calcula e mostra os valores, mas não faz nem garante esse pagamento.',
+      'Venda fora da plataforma: é proibido vender ou cobrar fora do Use Guide por ingresso, cortesia, link de convite, reserva ou serviço anunciado aqui, e pedir ao cliente que cancele a compra para pagar por fora. A quebra desta regra leva à suspensão das vendas do CNPJ e pode levar ao encerramento da conta de parceiro.',
+      'Mudanças nestes termos: quando a mudança for importante, avisamos pelo aplicativo com 15 dias de antecedência. Continuar vendendo depois da data de vigência vale como aceite da versão nova; o aceite também pode ser registrado em Ganhos › Contas de recebimento.',
     ],
     feesWithValues:
       'Taxa da plataforma: {{bookings}} nas reservas (passeios, aluguéis, translados e entradas). Nos ingressos, {{tickets}} mais a taxa de serviço de {{serviceFee}} por ingresso pago, cobrada do comprador; ou {{absorbed}} quando você absorve a taxa de serviço.',
@@ -102,7 +107,7 @@ export const legalPtBR: LegalTranslation = {
   partnerTerms: {
     title: 'Termos do parceiro',
     description:
-      'Antes de cadastrar a conta de recebimento, leia e aceite as regras de taxa, repasse, cancelamento e multa.',
+      'Leia e aceite as regras de taxa, repasse, cancelamento, multa, cortesias, divulgadores e venda fora da plataforma.',
     button: 'Aceitar termos',
     accepted: 'Termos do parceiro aceitos em {{date}}.',
     error: 'Não foi possível registrar o aceite. Tente de novo.',
@@ -129,6 +134,7 @@ export const legalEn: LegalTranslation = {
       'You may not use the app for illegal activities, copy or distribute its content without permission, or try to access restricted areas.',
       'Route, trail and weather information is for guidance only. Assess the risks before following a suggested route.',
       'The app uses third-party services such as Google Maps, Firebase and Stripe, subject to their own rules.',
+      'Changes to these terms: when the change is important, we notify you in the app 15 days in advance. Continuing to use Use Guide after the effective date counts as acceptance of the new version.',
       'These terms may change. New purchases and sales require accepting the current version; your order follows the version you accepted.',
       'Questions: ajuda@useguide.com.br.',
     ],
@@ -163,6 +169,10 @@ export const legalEn: LegalTranslation = {
       'Cancellation by the owner: buyers get a full refund, service fee included, paid by the platform before the payout. You pay a penalty of 20% of the amount sold (excluding service fees), by card or Pix, within 24 hours. If unpaid, the penalty is deducted from the CNPJ’s pending and future payouts, and the CNPJ is blocked from new sales until it is settled.',
       'Proven force majeure: the first solution is rescheduling. Buyers who do not accept the new date get a full refund, with no penalty for you.',
       'Card disputes: with proof of use (check-in), the platform contests and bears the outcome. Without proof, the disputed amount becomes a debt of the CNPJ.',
+      'Complimentary tickets: you can send complimentary tickets by @ or by personal link, one per person per event. A complimentary ticket takes a spot in the session, has no price, fee or payout, and cannot be refunded, transferred or sold. You may not give a complimentary ticket to anyone who bought, canceled or was refunded a ticket for the same event.',
+      'Promoters: the deal with each promoter (commission, amount per ticket or flat fee) is paid by you, directly, after the event. Use Guide calculates and shows the amounts, but does not make or guarantee this payment.',
+      'Selling outside the platform: you may not sell or charge outside Use Guide for a ticket, complimentary ticket, invite link, booking or service listed here, nor ask a customer to cancel a purchase to pay outside. Breaking this rule suspends the sales of the CNPJ and may lead to the closing of the partner account.',
+      'Changes to these terms: when the change is important, we notify you in the app 15 days in advance. Continuing to sell after the effective date counts as acceptance of the new version; acceptance can also be recorded in Earnings › Payout accounts.',
     ],
     feesWithValues:
       'Platform fee: {{bookings}} on bookings (tours, rentals, transfers and entries). On tickets, {{tickets}} plus a service fee of {{serviceFee}} per paid ticket, charged to the buyer; or {{absorbed}} when you absorb the service fee.',
@@ -189,7 +199,7 @@ export const legalEn: LegalTranslation = {
   partnerTerms: {
     title: 'Partner terms',
     description:
-      'Before setting up your payout account, read and accept the rules on fees, payouts, cancellations and penalties.',
+      'Read and accept the rules on fees, payouts, cancellations, penalties, complimentary tickets, promoters and selling outside the platform.',
     button: 'Accept terms',
     accepted: 'Partner terms accepted on {{date}}.',
     error: 'Could not record your acceptance. Try again.',
@@ -216,6 +226,7 @@ export const legalFr: LegalTranslation = {
       'Il est interdit d’utiliser l’application pour des activités illégales, de copier ou diffuser son contenu sans autorisation et de tenter d’accéder à des zones restreintes.',
       'Les informations sur les itinéraires, les sentiers et la météo sont indicatives. Évaluez les risques avant de suivre un itinéraire proposé.',
       'L’application utilise des services tiers, comme Google Maps, Firebase et Stripe, soumis à leurs propres règles.',
+      'Changements de ces conditions : quand le changement est important, nous prévenons dans l’application 15 jours à l’avance. Continuer à utiliser Use Guide après la date d’entrée en vigueur vaut acceptation de la nouvelle version.',
       'Ces conditions peuvent changer. Les nouveaux achats et ventes demandent l’acceptation de la version actuelle ; votre commande suit la version que vous avez acceptée.',
       'Questions : ajuda@useguide.com.br.',
     ],
@@ -250,6 +261,10 @@ export const legalFr: LegalTranslation = {
       'Annulation par le propriétaire : les acheteurs sont remboursés intégralement, frais de service compris, par la plateforme avant le versement. Vous payez une pénalité de 20 % du montant vendu (hors frais de service), par carte ou Pix, sous 24 heures. À défaut, la pénalité est déduite des versements en attente et futurs du CNPJ, qui est bloqué pour de nouvelles ventes jusqu’au paiement.',
       'Force majeure prouvée : la première solution est le report. Les acheteurs qui n’acceptent pas la nouvelle date sont remboursés intégralement, sans pénalité pour vous.',
       'Contestations de carte : avec une preuve d’utilisation (check-in), la plateforme conteste et assume le résultat. Sans preuve, le montant contesté devient une dette du CNPJ.',
+      'Billets offerts : vous pouvez envoyer des billets offerts par @ ou par lien personnel, un par personne et par événement. Le billet offert occupe une place dans la séance, n’a ni prix, ni frais, ni reversement, et ne peut être ni remboursé, ni transféré, ni vendu. Il est interdit d’offrir un billet à une personne qui a acheté, annulé ou été remboursée d’un billet du même événement.',
+      'Promoteurs : l’accord avec chaque promoteur (commission, montant par billet ou forfait) est payé par vous, directement, après l’événement. Use Guide calcule et affiche les montants, mais n’effectue ni ne garantit ce paiement.',
+      'Vente hors de la plateforme : il est interdit de vendre ou de faire payer hors d’Use Guide un billet, un billet offert, un lien d’invitation, une réservation ou un service proposé ici, ainsi que de demander à un client d’annuler son achat pour payer en dehors. Le non-respect de cette règle suspend les ventes du CNPJ et peut entraîner la fermeture du compte partenaire.',
+      'Changements de ces conditions : quand le changement est important, nous prévenons dans l’application 15 jours à l’avance. Continuer à vendre après la date d’entrée en vigueur vaut acceptation de la nouvelle version ; l’acceptation peut aussi être enregistrée dans Gains › Comptes de versement.',
     ],
     feesWithValues:
       'Commission de la plateforme : {{bookings}} sur les réservations (excursions, locations, transferts et entrées). Sur les billets, {{tickets}} plus des frais de service de {{serviceFee}} par billet payant, facturés à l’acheteur ; ou {{absorbed}} lorsque vous prenez les frais de service en charge.',
@@ -276,7 +291,7 @@ export const legalFr: LegalTranslation = {
   partnerTerms: {
     title: 'Conditions du partenaire',
     description:
-      'Avant de configurer votre compte de versement, lisez et acceptez les règles sur les commissions, versements, annulations et pénalités.',
+      'Lisez et acceptez les règles sur les commissions, versements, annulations, pénalités, billets offerts, promoteurs et ventes hors de la plateforme.',
     button: 'Accepter les conditions',
     accepted: 'Conditions du partenaire acceptées le {{date}}.',
     error: 'Impossible d’enregistrer votre acceptation. Réessayez.',

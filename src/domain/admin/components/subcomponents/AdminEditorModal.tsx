@@ -1,28 +1,28 @@
-import React, { useEffect, useRef, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { FormProvider, useForm, type Resolver } from 'react-hook-form';
-import { motion, AnimatePresence } from 'motion/react';
-import { X, Trash2, RefreshCw } from 'lucide-react';
+import { RefreshCw, Trash2, X } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import React, { useEffect, useRef, useState } from 'react';
+import { FormProvider, type Resolver, useForm } from 'react-hook-form';
 import { CATEGORIES } from '../../../../shared/constants/categories';
-import { useUI } from '../../../../shared/stores/useUIStore';
 import { Z_INDEX } from '../../../../shared/constants/zIndex';
+import { useUI } from '../../../../shared/stores/useUIStore';
 import {
+  type EventSessionsLoadState,
   eventDateRangeFromSessions,
   listEventOccurrencesUseCase,
   validateEventSessions,
-  type EventSessionsLoadState,
 } from '../../../events';
 import type { GuideItem } from '../../../guide';
 import { getImageUploadErrorMessage, uploadImageUseCase } from '../../../media';
 import {
-  adminGuideEditorFormSchema,
   type AdminGuideEditorSchemaValues,
+  adminGuideEditorFormSchema,
 } from '../../schemas/adminGuideEditorFormSchema';
+import { AdminEditorActions } from './AdminEditorActions';
 import { AdminEditorBasicInfo } from './AdminEditorBasicInfo';
+import { AdminEditorEventFields, type AdminEventSlots } from './AdminEditorEventFields';
 import { AdminEditorGallery } from './AdminEditorGallery';
 import { AdminEditorLocation } from './AdminEditorLocation';
-import { AdminEditorEventFields, type AdminEventSlots } from './AdminEditorEventFields';
-import { AdminEditorActions } from './AdminEditorActions';
 
 // Atrações e passeios usam o editor de cadastro do parceiro (decisão D9); aqui ficam as dicas.
 export const ADMIN_CREATABLE_ITEM_CATEGORIES = ['tips'] as const;
@@ -351,6 +351,7 @@ export function AdminEditorModal({
                     <AdminEditorEventFields
                       eventListingId={isEditing.id || undefined}
                       occurrencesState={occurrencesState}
+                      place={{ timeZone: isEditing.timeZone, city: isEditing.city }}
                       renderSessionsField={renderSessionsField}
                       renderTicketingManager={renderTicketingManager}
                     />

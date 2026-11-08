@@ -13,14 +13,6 @@ export { updatePartnerStatusUseCase } from './application/usecases/updatePartner
 export { ListingEditor, type ListingEditorProps } from './components/ListingEditor';
 export { AdminListingSealControl } from './components/plan/AdminListingSealControl';
 export { ListingVerificationQueue } from './components/verification/ListingVerificationQueue';
-export { PartnerEventForm } from './components/PartnerEventForm';
-export {
-  LanguagesForm,
-  OperatingHoursForm,
-  RestaurantForm,
-  SightForm,
-  StayForm,
-} from './components/PartnerItemForms';
 export { PartnerPanel } from './components/PartnerPanel';
 export { PartnersModal } from './components/PartnersModal';
 export { mapPartnerRegistrationPayload, usePartnerForm } from './hooks/usePartnerForm';

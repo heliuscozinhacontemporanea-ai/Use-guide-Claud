@@ -227,3 +227,4 @@
 
 > * Referência de tamanho (vale só para código: componentes, hooks, services, controllers, adapters): arquivo acima de **~200 linhas** DEVE ser avaliado para divisão. Acima de **400 linhas**, DEVE ser dividido ao tocar quando tiver mais de uma responsabilidade; se tiver uma só, PODE ficar, e a entrega registra em uma linha qual é a responsabilidade e por que não divide.
 > * Conteúdo não tem limite de linhas: traduções (`src/shared/i18n/`), textos legais e institucionais (termos, políticas, Sobre), testes, schemas e mappers declarativos. Textos legais e institucionais DEVEM ficar como conteúdo nos arquivos de tradução, por idioma, e não escritos dentro de componentes.
+

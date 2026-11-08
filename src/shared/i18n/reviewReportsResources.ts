@@ -2,6 +2,15 @@
 type Reasons = { offensive: string; fraud: string; personal_data: string; other: string };
 
 export interface ReviewReportsTranslation {
+  /** Avaliações recentes na página do estabelecimento (p19). */
+  recent: {
+    loading: string;
+    noReply: string;
+    replied: string;
+    empty: string;
+    error: string;
+    seeAll: string;
+  };
   action: string;
   sheet: {
     title: string;
@@ -42,6 +51,14 @@ export interface ReviewReportsTranslation {
 }
 
 export const reviewReportsPtBR: ReviewReportsTranslation = {
+  recent: {
+    loading: 'Carregando avaliações',
+    noReply: 'Sem resposta',
+    replied: 'Respondida',
+    empty: 'Nenhuma avaliação ainda.',
+    error: 'Não foi possível carregar as avaliações.',
+    seeAll: 'Ver todas e responder',
+  },
   action: 'Denunciar resposta',
   sheet: {
     title: 'Denunciar resposta',
@@ -96,6 +113,14 @@ export const reviewReportsPtBR: ReviewReportsTranslation = {
 };
 
 export const reviewReportsEn: ReviewReportsTranslation = {
+  recent: {
+    loading: 'Loading reviews',
+    noReply: 'No reply',
+    replied: 'Replied',
+    empty: 'No reviews yet.',
+    error: "Couldn't load the reviews.",
+    seeAll: 'See all and reply',
+  },
   action: 'Report response',
   sheet: {
     title: 'Report response',
@@ -150,6 +175,14 @@ export const reviewReportsEn: ReviewReportsTranslation = {
 };
 
 export const reviewReportsFr: ReviewReportsTranslation = {
+  recent: {
+    loading: 'Chargement des avis',
+    noReply: 'Sans réponse',
+    replied: 'Répondu',
+    empty: "Aucun avis pour l'instant.",
+    error: 'Impossible de charger les avis.',
+    seeAll: 'Tout voir et répondre',
+  },
   action: 'Signaler la réponse',
   sheet: {
     title: 'Signaler la réponse',

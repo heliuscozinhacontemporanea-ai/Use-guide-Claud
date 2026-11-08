@@ -116,11 +116,21 @@ export function BookingPurchaseDetails({
   if (booking) {
     const upcoming = new Date(booking.offer.startsAt).getTime() > now.getTime();
     const refund = booking.cancellation?.refundAmountMinor ?? 0;
+    const discount = booking.discountMinor ?? 0;
     const lines: ReceiptLine[] = [
       {
         label: t('purchases.receipt.participants', { count: booking.participantsCount }),
-        value: money(booking.totalMinor),
+        value: money(booking.subtotalMinor ?? booking.totalMinor),
       },
+      ...(discount > 0
+        ? [
+            {
+              label: t('purchases.receipt.discount'),
+              value: `− ${money(discount)}`,
+              emphasis: 'credit' as const,
+            },
+          ]
+        : []),
       { label: t('purchases.receipt.total'), value: money(booking.totalMinor), emphasis: 'total' },
     ];
     if (refund > 0) {

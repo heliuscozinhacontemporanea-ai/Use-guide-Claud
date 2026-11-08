@@ -2,6 +2,7 @@ import { AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
 import { type ReactNode, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatBusinessDateTime } from '../../../shared/utils/businessDateTime';
+import type { PlaceTime } from '../../../shared/utils/placeTime';
 import { type EventOccurrence, useEventOccurrences } from '../../events';
 import { usePartnerEventSales } from '../hooks/usePartnerEventSales';
 import { useTicketLotForm } from '../hooks/useTicketLotForm';
@@ -23,6 +24,13 @@ interface PartnerEventTicketingManagerProps {
   accountNotice?: ReactNode;
   /** Recebimentos, montado pela composição; sem ele a aba Financeiro não aparece. */
   financePanel?: ReactNode;
+  /**
+   * Só ingressos e lotes (Editar evento do parceiro, p18): vendas, pedidos e portaria ficam na
+   * página do evento e a sessão é adiada ou cancelada pela folha da sessão (D27).
+   */
+  lotsOnly?: boolean;
+  /** Fuso e cidade do evento (D28): sessões e janelas de venda na hora do lugar. */
+  place?: PlaceTime;
 }
 
 export function PartnerEventTicketingManager({
@@ -30,14 +38,18 @@ export function PartnerEventTicketingManager({
   asAdmin = false,
   accountNotice,
   financePanel,
+  lotsOnly = false,
+  place,
 }: PartnerEventTicketingManagerProps) {
+  const tz = place?.timeZone;
   const {
     occurrences,
     loading: occLoading,
     reload: reloadOccurrences,
   } = useEventOccurrences(eventListingId);
   const [selectedOccurrenceId, setSelectedOccurrenceId] = useState<string>('');
-  const [activeTab, setActiveTab] = useState<ManagerTab>('lots');
+  const [chosenTab, setActiveTab] = useState<ManagerTab>('lots');
+  const activeTab: ManagerTab = lotsOnly ? 'lots' : chosenTab;
 
   useEffect(() => {
     if (!selectedOccurrenceId && occurrences.length > 0 && occurrences[0]) {
@@ -59,11 +71,20 @@ export function PartnerEventTicketingManager({
     loading: salesLoading,
     reload: reloadSales,
     performCheckIn,
-  } = usePartnerEventSales(eventListingId, selectedOccurrenceId || undefined, asAdmin);
+  } = usePartnerEventSales(
+    lotsOnly ? undefined : eventListingId,
+    selectedOccurrenceId || undefined,
+    asAdmin
+  );
 
   const [feedback, setFeedback] = useState<ManagerFeedback | null>(null);
 
-  const lotForm = useTicketLotForm({ selectedOccurrenceId, reloadLots, setFeedback });
+  const lotForm = useTicketLotForm({
+    selectedOccurrenceId,
+    timeZone: tz,
+    reloadLots,
+    setFeedback,
+  });
 
   const { i18n } = useTranslation();
   const selectedOccurrence = occurrences.find((occ) => occ.id === selectedOccurrenceId);
@@ -90,41 +111,39 @@ export function PartnerEventTicketingManager({
                   : 'bg-surface border border-line text-ink/80 hover:bg-accent-soft'
               }`}
             >
-              {new Date(occ.startsAt).toLocaleDateString('pt-BR', {
-                day: '2-digit',
-                month: 'short',
-                hour: '2-digit',
-                minute: '2-digit',
-                timeZone: 'America/Fortaleza',
-              })}{' '}
-              • Cap: {occ.capacity}
+              {formatBusinessDateTime(occ.startsAt, i18n.language, tz)} • Cap: {occ.capacity}
             </button>
           ))}
         </div>
       )}
 
-      <SessionActions
-        eventListingId={eventListingId}
-        occurrence={selectedOccurrence}
-        paidOrders={paidOrders}
-        onChanged={(message) => {
-          setFeedback({ type: 'success', message });
-          void reloadOccurrences();
-          void reloadSales();
-        }}
-      />
+      {!lotsOnly && (
+        <SessionActions
+          eventListingId={eventListingId}
+          occurrence={selectedOccurrence}
+          paidOrders={paidOrders}
+          place={place}
+          onChanged={(message) => {
+            setFeedback({ type: 'success', message });
+            void reloadOccurrences();
+            void reloadSales();
+          }}
+        />
+      )}
 
-      <ManagerTabBar
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        showFinance={financePanel !== undefined}
-        counts={{
-          lots: ticketTypes.length,
-          attendees: orders.length,
-          checkIns: checkIns.length,
-          refunds: refunds.length,
-        }}
-      />
+      {!lotsOnly && (
+        <ManagerTabBar
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          showFinance={financePanel !== undefined}
+          counts={{
+            lots: ticketTypes.length,
+            attendees: orders.length,
+            checkIns: checkIns.length,
+            refunds: refunds.length,
+          }}
+        />
+      )}
 
       {feedback && (
         <div
@@ -154,6 +173,7 @@ export function PartnerEventTicketingManager({
           form={lotForm}
           ticketTypes={ticketTypes}
           selectedOccurrenceId={selectedOccurrenceId}
+          timeZone={tz}
         />
       ) : activeTab === 'sales' ? (
         <SalesTab analytics={analytics} />
@@ -164,7 +184,7 @@ export function PartnerEventTicketingManager({
           occurrenceId={selectedOccurrenceId}
           sessionLabel={
             selectedOccurrence
-              ? formatBusinessDateTime(selectedOccurrence.startsAt, i18n.language)
+              ? formatBusinessDateTime(selectedOccurrence.startsAt, i18n.language, tz)
               : ''
           }
           checkIns={checkIns}

@@ -6,7 +6,6 @@ export interface VerificationTranslation {
     approved: string;
     rejected: string;
   };
-  chipLabel: string;
   dialog: {
     title: string;
     intro: string;
@@ -116,7 +115,6 @@ export const verificationPtBR: VerificationTranslation = {
     approved: 'Verificado pelo Use Guide',
     rejected: 'Verificação recusada',
   },
-  chipLabel: 'Verificação de {{name}}: {{status}}',
   dialog: {
     title: 'Verificação do estabelecimento',
     intro:
@@ -232,7 +230,6 @@ export const verificationEn: VerificationTranslation = {
     approved: 'Verified by Use Guide',
     rejected: 'Verification declined',
   },
-  chipLabel: 'Verification of {{name}}: {{status}}',
   dialog: {
     title: 'Business verification',
     intro:
@@ -347,7 +344,6 @@ export const verificationFr: VerificationTranslation = {
     approved: 'Vérifié par Use Guide',
     rejected: 'Vérification refusée',
   },
-  chipLabel: 'Vérification de {{name}} : {{status}}',
   dialog: {
     title: 'Vérification de l’établissement',
     intro:

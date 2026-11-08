@@ -35,6 +35,13 @@ export interface TicketCheckoutTranslation {
     buyerRequired: string;
     createFailed: string;
     awaitingStripe: string;
+    promo: {
+      PROMO_INVALID: string;
+      PROMO_NOT_STARTED: string;
+      PROMO_EXPIRED: string;
+      PROMO_EXHAUSTED: string;
+      PROMO_ALREADY_USED: string;
+    };
   };
   issued: {
     freeTitle: string;
@@ -106,6 +113,13 @@ export const ticketCheckoutPtBR: TicketCheckoutTranslation = {
     buyerRequired: 'Preencha o nome e o e-mail do comprador.',
     createFailed: 'Não foi possível criar o pedido de ingressos.',
     awaitingStripe: 'Pagamento enviado. Aguardando a confirmação final do Stripe.',
+    promo: {
+      PROMO_INVALID: 'Cupom inválido para este evento.',
+      PROMO_NOT_STARTED: 'Este cupom ainda não está valendo.',
+      PROMO_EXPIRED: 'Este cupom já encerrou.',
+      PROMO_EXHAUSTED: 'Este cupom esgotou.',
+      PROMO_ALREADY_USED: 'Você já usou este cupom.',
+    },
   },
   issued: {
     freeTitle: 'Inscrição confirmada!',
@@ -177,6 +191,13 @@ export const ticketCheckoutEn: TicketCheckoutTranslation = {
     buyerRequired: 'Fill in the buyer name and email.',
     createFailed: 'Could not create the ticket order.',
     awaitingStripe: 'Payment sent. Waiting for Stripe’s final confirmation.',
+    promo: {
+      PROMO_INVALID: 'Invalid promo code for this event.',
+      PROMO_NOT_STARTED: 'This promo code is not valid yet.',
+      PROMO_EXPIRED: 'This promo code has ended.',
+      PROMO_EXHAUSTED: 'This promo code has run out.',
+      PROMO_ALREADY_USED: 'You have already used this promo code.',
+    },
   },
   issued: {
     freeTitle: 'Registration confirmed!',
@@ -248,6 +269,13 @@ export const ticketCheckoutFr: TicketCheckoutTranslation = {
     buyerRequired: 'Renseignez le nom et l’e-mail de l’acheteur.',
     createFailed: 'Impossible de créer la commande de billets.',
     awaitingStripe: 'Paiement envoyé. En attente de la confirmation finale de Stripe.',
+    promo: {
+      PROMO_INVALID: 'Code promo invalide pour cet événement.',
+      PROMO_NOT_STARTED: 'Ce code promo n’est pas encore valable.',
+      PROMO_EXPIRED: 'Ce code promo a expiré.',
+      PROMO_EXHAUSTED: 'Ce code promo est épuisé.',
+      PROMO_ALREADY_USED: 'Vous avez déjà utilisé ce code promo.',
+    },
   },
   issued: {
     freeTitle: 'Inscription confirmée !',

@@ -1,3 +1,4 @@
+import { computePromoDiscount, type PromoCode } from '../../../promotions';
 import {
   type PlatformFeeConfig,
   type ServiceFeeMode,
@@ -8,11 +9,8 @@ import {
   TicketingDomainError,
   TicketTypeUnavailableError,
 } from '../../errors/ticketingDomainError';
-import {
-  deriveTicketTypeSaleStatus,
-  type EventPromoCode,
-  type TicketType,
-} from '../../types/ticketingTypes';
+import { isCourtesyTicketTypeId } from '../../types/courtesyTypes';
+import { deriveTicketTypeSaleStatus, type TicketType } from '../../types/ticketingTypes';
 import { generateOpaqueTicketQrToken } from '../../utils/qrToken';
 
 export interface OrderItemRequest {
@@ -31,7 +29,8 @@ export function prepareOrderItems(params: {
   occurrenceCapacity: number;
   totalCommitted: number;
   nowMs: number;
-  promo: EventPromoCode | null;
+  /** Cupom que vale para o evento e os lotes que levam desconto (B1). */
+  promo: { promo: PromoCode; optionIds: string[] | null } | null;
   buyer: { name: string; email: string };
   feeConfig: PlatformFeeConfig;
   serviceFeeMode: ServiceFeeMode;
@@ -56,7 +55,8 @@ export function prepareOrderItems(params: {
 
   for (const reqItem of params.items) {
     const ticketType = params.typeMap.get(reqItem.ticketTypeId);
-    if (!ticketType) {
+    // O lote das cortesias nunca é vendido, mesmo que alguém mande o ID dele (D27).
+    if (!ticketType || isCourtesyTicketTypeId(ticketType.id)) {
       throw new TicketingDomainError('NOT_FOUND', 'Lote de ingresso não encontrado.');
     }
 
@@ -91,20 +91,7 @@ export function prepareOrderItems(params: {
 
     const unitPriceMinor = ticketType.priceMinor;
     const lineSubtotal = unitPriceMinor * reqItem.quantity;
-    let lineDiscount = 0;
-
-    const promo = params.promo;
-    if (promo && (!promo.ticketTypeIds || promo.ticketTypeIds.includes(ticketType.id))) {
-      if (promo.type === 'percentage' && promo.percentage) {
-        lineDiscount = Math.floor((lineSubtotal * promo.percentage) / 100);
-      } else if (promo.type === 'fixed' && promo.valueMinor) {
-        lineDiscount = Math.min(lineSubtotal, promo.valueMinor);
-      }
-    }
-
-    const lineNetAfterDiscount = Math.max(0, lineSubtotal - lineDiscount);
     subtotalMinor += lineSubtotal;
-    discountMinor += lineDiscount;
 
     const holders: Array<{
       name: string;
@@ -129,9 +116,28 @@ export function prepareOrderItems(params: {
       quantity: reqItem.quantity,
       unitPriceMinor,
       lineSubtotal,
-      lineDiscount,
-      lineNetAfterDiscount,
+      lineDiscount: 0,
+      lineNetAfterDiscount: lineSubtotal,
       holders,
+    });
+  }
+
+  // O desconto depende do pedido inteiro (valor fixo por pedido, máximo de ingressos com desconto).
+  if (params.promo) {
+    const discounts = computePromoDiscount(
+      params.promo.promo,
+      params.promo.optionIds,
+      rawItemsPrepared.map((item) => ({
+        optionId: item.ticketType.id,
+        unitPriceMinor: item.unitPriceMinor,
+        quantity: item.quantity,
+      }))
+    );
+    rawItemsPrepared.forEach((item, index) => {
+      const lineDiscount = Math.min(item.lineSubtotal, discounts[index] ?? 0);
+      item.lineDiscount = lineDiscount;
+      item.lineNetAfterDiscount = item.lineSubtotal - lineDiscount;
+      discountMinor += lineDiscount;
     });
   }
 

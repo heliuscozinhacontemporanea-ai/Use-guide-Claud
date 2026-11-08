@@ -33,24 +33,26 @@ function booking(id: string, overrides: Partial<Booking> = {}): Booking {
 }
 
 describe('BookingPrivacyService (§7.5, D20)', () => {
-  it('apaga o endereço de busca 7 dias depois do serviço e mantém a reserva', async () => {
+  it('apaga endereço de busca e telefone 7 dias depois do serviço e mantém a reserva', async () => {
     const port = new InMemoryBookingsAdapter();
     port.bookings.set(
       'bk_1',
       booking('bk_1', {
         pickupAddress: 'Pousada Vila Jeri',
-        pickupAddressEraseAt: '2026-11-17T13:00:00.000Z',
+        contactPhone: '+5588998123456',
+        personalDataEraseAt: '2026-11-17T13:00:00.000Z',
       })
     );
     port.bookings.set(
       'bk_2',
-      booking('bk_2', { pickupAddress: 'Hotel', pickupAddressEraseAt: '2026-11-20T13:00:00.000Z' })
+      booking('bk_2', { pickupAddress: 'Hotel', personalDataEraseAt: '2026-11-20T13:00:00.000Z' })
     );
     const service = new BookingPrivacyService(port, () => new Date('2026-11-18T00:00:00.000Z'));
-    expect(await service.eraseExpiredPickupAddresses()).toBe(1);
+    expect(await service.eraseExpiredContacts()).toBe(1);
     const erased = port.bookings.get('bk_1');
     expect(erased?.pickupAddress).toBeUndefined();
-    expect(erased?.pickupAddressEraseAt).toBeUndefined();
+    expect(erased?.contactPhone).toBeUndefined();
+    expect(erased?.personalDataEraseAt).toBeUndefined();
     expect(erased?.totalMinor).toBe(20000);
     expect(port.bookings.get('bk_2')?.pickupAddress).toBe('Hotel');
   });

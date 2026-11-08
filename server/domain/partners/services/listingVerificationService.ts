@@ -162,6 +162,16 @@ export class ListingVerificationService {
     return { accountKey: record.documentIndex };
   }
 
+  /** Situação da verificação de cada cadastro do dono (painel do parceiro, D27). */
+  async listOwnerStatuses(
+    ownerId: string
+  ): Promise<Array<{ itemId: string; status: ListingVerificationStatus }>> {
+    const records = await Promise.all(
+      (await this.repository.listByOwner(ownerId)).map((record) => this.resolve(record))
+    );
+    return records.map((record) => ({ itemId: record.itemId, status: record.status }));
+  }
+
   /** CNPJs aprovados da conta, cada um com os cadastros (e perfis de produtor) que vendem por ele. */
   async listSalesDocuments(ownerId: string): Promise<OwnerSalesDocument[]> {
     const records = await Promise.all(

@@ -4,7 +4,13 @@ import {
   type TermsAcceptance,
 } from '../../../shared/kernel/legalTerms';
 import { PartnerDomainError } from '../errors/partnerDomainError';
+import type { PanelTourAction, PanelTourState } from '../types/panelTour';
 import { PartnerPort } from '../ports/partnerPort';
+import {
+  DEFAULT_PARTNER_HOME_CARDS,
+  isPartnerHomeCardId,
+  type PartnerHomeCardId,
+} from '../types/partnerHomeCards';
 import type {
   PartnerBusiness,
   PartnerProfileDocument,
@@ -62,6 +68,30 @@ export class PartnerService {
     const acceptance = { version, acceptedAt: now.toISOString() };
     await this.partnerPort.recordTermsAcceptance(partnerId, acceptance);
     return { currentVersion: PARTNER_TERMS_VERSION, accepted: true, acceptance };
+  }
+
+  getPanelTour(partnerId: string): Promise<PanelTourState> {
+    return this.partnerPort.getPanelTour(partnerId);
+  }
+
+  recordPanelTour(partnerId: string, action: PanelTourAction, now = new Date()): Promise<void> {
+    return this.partnerPort.recordPanelTour(partnerId, action, now.toISOString());
+  }
+
+  /** Cartões do Início na ordem escolhida; sem escolha, o padrão. Cartão que saiu da lista é ignorado. */
+  async getHomeCards(partnerId: string): Promise<PartnerHomeCardId[]> {
+    const stored = await this.partnerPort.getHomeCards(partnerId);
+    if (stored === null) return [...DEFAULT_PARTNER_HOME_CARDS];
+    return [...new Set(stored)].filter(isPartnerHomeCardId);
+  }
+
+  async setHomeCards(partnerId: string, cards: string[]): Promise<PartnerHomeCardId[]> {
+    const unique = [...new Set(cards)];
+    if (unique.length !== cards.length || !unique.every(isPartnerHomeCardId)) {
+      throw new PartnerDomainError('INVALID_ARGUMENT', 'Cartões inválidos.');
+    }
+    await this.partnerPort.setHomeCards(partnerId, unique);
+    return unique;
   }
 
   async assertTermsAccepted(partnerId: string): Promise<void> {

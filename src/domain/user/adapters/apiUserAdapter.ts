@@ -97,6 +97,15 @@ export class ApiUserAdapter implements UserPort {
     return (await readJson<{ username: string }>(response)).username;
   }
 
+  async searchUsernames(prefix: string): Promise<UsernameProfile[]> {
+    const response = await firebaseApiFetch(
+      `/api/users/usernames?prefix=${encodeURIComponent(prefix.replace(/^@/, '').toLowerCase())}`,
+      {},
+      { requireAuth: true }
+    );
+    return (await readJson<{ data: UsernameProfile[] }>(response)).data ?? [];
+  }
+
   async findByUsername(username: string): Promise<UsernameProfile> {
     const response = await firebaseApiFetch(
       `/api/users/by-username/${encodeURIComponent(username.replace(/^@/, '').toLowerCase())}`,

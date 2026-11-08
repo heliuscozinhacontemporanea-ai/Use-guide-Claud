@@ -4,19 +4,35 @@ import { useTranslation } from 'react-i18next';
 import { getActiveSubscriptionPlansUseCase } from '../../domain/admin';
 import { useAuthContext } from '../../domain/auth/context/AuthContext';
 import { UserRole } from '../../domain/auth/types/auth';
+import {
+  EstablishmentCodeSheet,
+  isBookableCategory,
+  PartnerSlotSheet,
+  SlotContactsList,
+  useSlotArrival,
+} from '../../domain/bookings';
+import { AboutTermsView, SupportView } from '../../domain/content';
 import { EventSessionsField } from '../../domain/events';
-import { ReportsView } from '../../domain/insights';
+import { MonthVisitsTile, ReportsView } from '../../domain/insights';
+import { NotificationSettingsView, SalesAlertsSummary } from '../../domain/notifications';
 import type { PartnerProfile, SubscriptionPlan } from '../../domain/partners';
 import { getPartnerProfileUseCase, PartnerPanel } from '../../domain/partners';
+import { PromoCodesPage } from '../../domain/promotions';
 import {
   CheckoutModal,
   isPaidPlanId,
+  PartnerDebtsPanel,
+  PartnerPaymentAccountsPage,
+  PartnerStatementPanel,
   type PlanPeriodOption,
   PlanSubscriptionCard,
 } from '../../domain/payment';
+import { RecentItemReviews } from '../../domain/reviews';
+import { EventGuestsPanel, EventPromotersPanel, PartnerSessionSheet } from '../../domain/ticketing';
 import { useLocalizedRouting } from '../../shared/hooks/useLocalizedRouting';
 import { useUI } from '../../shared/stores/useUIStore';
 import { MessagePage } from '../../ui/components/MessagePage';
+import { EventPaymentAccountCard } from './EventPaymentAccountCard';
 import { PartnerBookingsComposition } from './PartnerBookingsComposition';
 import { PartnerEventTicketingComposition } from './PartnerEventTicketingComposition';
 
@@ -25,6 +41,7 @@ export function PartnerPortalComposition() {
   const { user, loading } = useAuthContext();
   const { openLoginModal } = useUI();
   const { goTo } = useLocalizedRouting();
+  const arriveAtSlot = useSlotArrival();
 
   const [profile, setProfile] = useState<PartnerProfile | null>(null);
   const [profileLoading, setProfileLoading] = useState(true);
@@ -128,6 +145,11 @@ export function PartnerPortalComposition() {
     );
   }
 
+  // Nome do estabelecimento de um CNPJ, para Contas de recebimento (p22).
+  const establishmentNameFor = (itemIds: string[]) =>
+    profile?.businesses?.find((business) => itemIds.includes(business.businessId))?.businessName ??
+    null;
+
   if (profile?.status === 'suspended') {
     return (
       <MessagePage
@@ -159,8 +181,13 @@ export function PartnerPortalComposition() {
       profile={profile}
       onPlanPurchased={() => setProfileVersion((version) => version + 1)}
       subscriptionPlans={plans}
-      renderReports={({ partnerId, items, events }) => (
-        <ReportsView partnerId={partnerId} items={items} events={events} />
+      renderReports={({ partnerId, items, events, unansweredReviews }) => (
+        <ReportsView
+          partnerId={partnerId}
+          items={items}
+          events={events}
+          unansweredByItem={unansweredReviews}
+        />
       )}
       renderCheckoutModal={({
         isOpen,
@@ -186,11 +213,98 @@ export function PartnerPortalComposition() {
       renderPlanSubscription={(itemId, onLiveChange) => (
         <PlanSubscriptionCard itemId={itemId} plans={periodOptions} onLiveChange={onLiveChange} />
       )}
-      renderBookableOffersManager={(items) => <PartnerBookingsComposition items={items} />}
+      renderCatalog={{
+        renderOffers: ({ items, creating, onCreatingChange, inPage, onOpenCoupons }) =>
+          inPage && !items.some((item) => isBookableCategory(item.category)) ? null : (
+            <PartnerBookingsComposition
+              items={items}
+              creating={creating}
+              onCreatingChange={onCreatingChange}
+              onOpenCoupons={onOpenCoupons}
+            />
+          ),
+        renderVisits: (itemId, onOpenPlan) => (
+          <MonthVisitsTile itemId={itemId} onOpenPlan={onOpenPlan} />
+        ),
+        renderReviews: (itemId, onOpen) => <RecentItemReviews itemId={itemId} onOpen={onOpen} />,
+        renderGuests: ({ eventId, eventTitle, openSessions, allSessions, onChanged }) => (
+          <EventGuestsPanel
+            eventListingId={eventId}
+            eventTitle={eventTitle}
+            sessions={openSessions}
+            allSessions={allSessions}
+            onChanged={onChanged}
+          />
+        ),
+        renderPromoters: (eventId) => <EventPromotersPanel eventListingId={eventId} />,
+      }}
       renderEventTicketingManager={(eventListingId) => (
-        <PartnerEventTicketingComposition eventListingId={eventListingId} />
+        <PartnerEventTicketingComposition eventListingId={eventListingId} lotsOnly />
+      )}
+      renderNotificationsHint={() => <SalesAlertsSummary />}
+      renderCoupons={({ scope, backLabel, onBack }) => (
+        <PromoCodesPage scope={scope} backLabel={backLabel} onBack={onBack} />
+      )}
+      renderEventAccountCard={(establishmentId, establishmentName) => (
+        <EventPaymentAccountCard
+          establishmentId={establishmentId}
+          establishmentName={establishmentName}
+        />
       )}
       renderEventSessionsField={(props) => <EventSessionsField {...props} />}
+      renderEarnings={{
+        renderStatement: () => <PartnerStatementPanel />,
+        renderDebts: () => <PartnerDebtsPanel />,
+        renderAccounts: (onBack) => (
+          <PartnerPaymentAccountsPage onBack={onBack} nameFor={establishmentNameFor} />
+        ),
+      }}
+      renderAgora={{
+        arrive: (item) => arriveAtSlot(item.parentId, item.id),
+        renderCodeSheet: ({ item, noShowAllowed, onClose, onChanged }) => (
+          <EstablishmentCodeSheet
+            guideItemId={item.establishmentIds[0] ?? ''}
+            offerId={item.parentId}
+            slotId={item.id}
+            noShowAllowed={noShowAllowed}
+            onClose={onClose}
+            onChanged={onChanged}
+          />
+        ),
+        renderContacts: (item, version) => (
+          <SlotContactsList offerId={item.parentId} slotId={item.id} version={version} />
+        ),
+      }}
+      renderSlotSheet={({ item, gate, onClose, onChanged }) => (
+        <PartnerSlotSheet
+          offerId={item.parentId}
+          slotId={item.id}
+          startAtCheckIn={gate}
+          onClose={onClose}
+          onChanged={onChanged}
+        />
+      )}
+      renderSessionSheet={({ item, gate, onClose, onChanged }) => (
+        <PartnerSessionSheet
+          eventListingId={item.parentId}
+          occurrenceId={item.id}
+          title={item.title}
+          sold={item.sold}
+          courtesies={item.courtesies ?? 0}
+          startAtGate={gate}
+          onClose={onClose}
+          onChanged={onChanged}
+        />
+      )}
+      renderAccountView={(view, onBack) =>
+        view === 'notifications' ? (
+          <NotificationSettingsView isPartner onBack={onBack} />
+        ) : view === 'terms' ? (
+          <AboutTermsView document="partner" onBack={onBack} />
+        ) : (
+          <SupportView onBack={onBack} />
+        )
+      }
     />
   );
 }

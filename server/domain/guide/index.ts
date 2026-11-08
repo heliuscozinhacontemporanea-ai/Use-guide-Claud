@@ -24,6 +24,10 @@ export {
 } from './usecases/getItemByIdUseCase';
 export { getPublicGuideItemUseCase } from './usecases/getPublicGuideItemUseCase';
 export { getResourceOwnerIdUseCase } from './usecases/getResourceOwnerIdUseCase';
+export {
+  listOwnerGuideItemsUseCase,
+  type OwnerGuideItemSummary,
+} from './usecases/listOwnerGuideItemsUseCase';
 export { listPublicGuideItemsUseCase } from './usecases/listPublicGuideItemsUseCase';
 export { saveFeaturedListingsUseCase } from './usecases/saveFeaturedListingsUseCase';
 export { updateGuideItemUseCase } from './usecases/updateGuideItemUseCase';

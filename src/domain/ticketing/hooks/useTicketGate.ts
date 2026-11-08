@@ -61,7 +61,10 @@ export function useTicketGate({
       try {
         const { ticket } = await performCheckIn(occurrenceId, input);
         const name = ticket.holderName || t('ticketGate.holderFallback');
-        const type = ticket.ticketTypeSnapshot?.name || t('ticketCheckout.issued.defaultType');
+        // Na portaria a cortesia aparece como "Convidado" junto do nome (D27).
+        const type = ticket.courtesyId
+          ? t('courtesy.gate.guest')
+          : ticket.ticketTypeSnapshot?.name || t('ticketCheckout.issued.defaultType');
         return {
           tone: 'success',
           message: t('ticketGate.success', { name, type }),

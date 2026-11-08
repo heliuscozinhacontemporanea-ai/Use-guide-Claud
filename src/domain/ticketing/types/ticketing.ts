@@ -109,7 +109,8 @@ export interface TicketOrder {
   paymentChargeId?: string;
   paymentTransferId?: string;
   promoCodeId?: string;
-  buyerSnapshot: {
+  /** Só para o admin: o parceiro não recebe os dados pessoais do comprador (§7.9). */
+  buyerSnapshot?: {
     name: string;
     email: string;
     document?: string;
@@ -166,6 +167,8 @@ export interface Ticket {
   receivedFrom?: { username: string | null; displayName: string | null };
   /** Link de transferência pendente: até quando vale (D21). */
   transferLinkExpiresAt?: string;
+  /** Cortesia do organizador (D27): nominal, sem transferência nem reembolso. */
+  courtesyId?: string;
   status: TicketStatus;
   ticketTypeSnapshot?: {
     name: string;
@@ -198,6 +201,16 @@ export interface EventCheckIn {
   stationId?: string;
   clientEventId?: string;
   syncedAt?: string;
+}
+
+/** Entrada na portaria para o dono do evento (A2): nome público, lote e horário. */
+export interface SessionEntry {
+  id: string;
+  name: string | null;
+  ticketType: string | null;
+  courtesy: boolean;
+  at: string;
+  source: 'online' | 'offline';
 }
 
 export interface Refund {

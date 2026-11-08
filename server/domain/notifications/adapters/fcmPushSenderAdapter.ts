@@ -13,6 +13,9 @@ const PATHS: Record<NotificationLink['screen'], string> = {
   partner: '/?partner=1',
   item: '/?partner=1',
   event: '/?partner=1',
+  promotions: '/?menu=promotions',
+  terms: '/?menu=terms',
+  partner_terms: '/?menu=partner-terms',
 };
 
 // Erros do FCM que significam "este aparelho não recebe mais": o token sai da lista.

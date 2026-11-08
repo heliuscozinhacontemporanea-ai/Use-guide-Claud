@@ -2,6 +2,7 @@ import { firebaseApiFetch } from '../../../shared/infrastructure/firebase/fireba
 import type { BookingsApiPort } from '../ports/bookingsApiPort';
 import type {
   ArrivalLocation,
+  ArrivalResponse,
   BookingDetails,
   BookingSummary,
   CancelBookingResponse,
@@ -13,13 +14,16 @@ import type {
   CreateSlotsPayload,
   EntryCheckInPayload,
   EntryPassView,
+  EstablishmentCheckInResult,
   NoCodeReason,
   OfferFields,
   OfferStatus,
   Page,
   PartnerOffer,
   PartnerSlot,
+  PartnerSlotDetail,
   PublicSlot,
+  SlotContact,
   UnitCheckInResult,
 } from '../types/bookings';
 
@@ -73,6 +77,14 @@ export class HttpBookingsAdapter implements BookingsApiPort {
   async listPartnerSlots(offerId: string, fromIso: string, toIso: string): Promise<PartnerSlot[]> {
     const query = new URLSearchParams({ from: fromIso, to: toIso });
     return (await call<{ data: PartnerSlot[] }>(`${offerPath(offerId)}/slots?${query}`)).data;
+  }
+
+  async getPartnerSlotDetail(offerId: string, slotId: string): Promise<PartnerSlotDetail> {
+    return (
+      await call<{ data: PartnerSlotDetail }>(
+        `${offerPath(offerId)}/slots/${encodeURIComponent(slotId)}/bookings`
+      )
+    ).data;
   }
 
   async createSlots(offerId: string, payload: CreateSlotsPayload): Promise<PartnerSlot[]> {
@@ -192,6 +204,32 @@ export class HttpBookingsAdapter implements BookingsApiPort {
       `${offerBookingPath(offerId, bookingId)}/arrival`,
       json('POST', location ? { location } : {})
     );
+  }
+
+  async checkInByEstablishmentCode(
+    guideItemId: string,
+    payload: CodeCheckInPayload
+  ): Promise<EstablishmentCheckInResult> {
+    return call(
+      `/api/partners/establishments/${encodeURIComponent(guideItemId)}/check-ins`,
+      json('POST', payload)
+    );
+  }
+
+  async recordSlotArrival(
+    offerId: string,
+    slotId: string,
+    location?: ArrivalLocation
+  ): Promise<{ arrivedAt: string | null; waiting: number }> {
+    return call(`${slotPath(offerId, slotId)}/arrival`, json('POST', location ? { location } : {}));
+  }
+
+  async listSlotContacts(offerId: string, slotId: string): Promise<SlotContact[]> {
+    return (await call<{ data: SlotContact[] }>(`${slotPath(offerId, slotId)}/contacts`)).data;
+  }
+
+  async respondToArrival(bookingId: string, response: ArrivalResponse): Promise<BookingSummary> {
+    return call(`${bookingPath(bookingId)}/arrival-response`, json('POST', { response }));
   }
 
   async checkInWithoutCode(

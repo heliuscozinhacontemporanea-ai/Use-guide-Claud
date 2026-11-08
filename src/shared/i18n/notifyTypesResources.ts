@@ -2,6 +2,44 @@
 export type NotificationTypeTexts = Record<string, Record<string, string>>;
 
 export const notifyTypesPtBR: NotificationTypeTexts = {
+  terms_updated_partner: {
+    title: 'Os termos do parceiro mudaram',
+    body: 'As mudanças passam a valer 15 dias depois deste aviso. Toque para ler e aceitar a versão nova.',
+  },
+  terms_updated_buyer: {
+    title: 'Os termos de uso mudaram',
+    body: 'As mudanças passam a valer 15 dias depois deste aviso. Toque para ler.',
+  },
+  promoter_invited: {
+    title: 'Convite para divulgar',
+    body: '{{business}} quer que você divulgue {{event}}. Veja quanto você ganha.',
+    bodyGeneric: 'Você recebeu um convite para divulgar um evento.',
+  },
+  promoter_accepted: {
+    title: 'Divulgador aceitou',
+    body: '{{username}} aceitou divulgar {{event}}.',
+    bodyGeneric: 'Um divulgador aceitou o seu convite.',
+  },
+  promoter_declined: {
+    title: 'Convite recusado',
+    body: '{{username}} recusou divulgar {{event}}.',
+    bodyGeneric: 'Um convite para divulgar foi recusado.',
+  },
+  courtesy_received: {
+    title: 'Você ganhou um ingresso',
+    body: '{{business}} convidou você para {{event}}. O ingresso está na sua carteira.',
+    bodyGeneric: 'Uma cortesia está na sua carteira.',
+  },
+  courtesy_canceled: {
+    title: 'Cortesia cancelada',
+    body: 'A cortesia para {{event}} foi cancelada pelo organizador.',
+    bodyGeneric: 'Uma cortesia sua foi cancelada pelo organizador.',
+  },
+  courtesy_link_accepted: {
+    title: 'Convite aceito',
+    body: '{{username}} recebeu a cortesia do seu link de convite.',
+    bodyGeneric: 'A cortesia do seu link de convite foi recebida.',
+  },
   ticket_received: {
     title: 'Você recebeu um ingresso',
     body: 'Um ingresso para {{event}} está na sua carteira.',
@@ -169,6 +207,44 @@ export const notifyTypesPtBR: NotificationTypeTexts = {
 };
 
 export const notifyTypesEn: NotificationTypeTexts = {
+  terms_updated_partner: {
+    title: 'The partner terms have changed',
+    body: 'The changes take effect 15 days after this notice. Tap to read and accept the new version.',
+  },
+  terms_updated_buyer: {
+    title: 'The terms of use have changed',
+    body: 'The changes take effect 15 days after this notice. Tap to read.',
+  },
+  promoter_invited: {
+    title: 'Invitation to promote',
+    body: '{{business}} wants you to promote {{event}}. See how much you earn.',
+    bodyGeneric: 'You got an invitation to promote an event.',
+  },
+  promoter_accepted: {
+    title: 'Promoter accepted',
+    body: '{{username}} agreed to promote {{event}}.',
+    bodyGeneric: 'A promoter accepted your invitation.',
+  },
+  promoter_declined: {
+    title: 'Invitation declined',
+    body: '{{username}} declined to promote {{event}}.',
+    bodyGeneric: 'An invitation to promote was declined.',
+  },
+  courtesy_received: {
+    title: 'You got a ticket',
+    body: '{{business}} invited you to {{event}}. The ticket is in your wallet.',
+    bodyGeneric: 'A complimentary ticket is in your wallet.',
+  },
+  courtesy_canceled: {
+    title: 'Complimentary ticket canceled',
+    body: 'The complimentary ticket for {{event}} was canceled by the organizer.',
+    bodyGeneric: 'A complimentary ticket of yours was canceled by the organizer.',
+  },
+  courtesy_link_accepted: {
+    title: 'Invite accepted',
+    body: '{{username}} got the complimentary ticket from your invite link.',
+    bodyGeneric: 'The complimentary ticket from your invite link was received.',
+  },
   ticket_received: {
     title: 'You got a ticket',
     body: 'A ticket for {{event}} is in your wallet.',
@@ -336,6 +412,44 @@ export const notifyTypesEn: NotificationTypeTexts = {
 };
 
 export const notifyTypesFr: NotificationTypeTexts = {
+  terms_updated_partner: {
+    title: 'Les conditions du partenaire ont changé',
+    body: 'Les changements s’appliquent 15 jours après cet avis. Touchez pour lire et accepter la nouvelle version.',
+  },
+  terms_updated_buyer: {
+    title: 'Les conditions d’utilisation ont changé',
+    body: 'Les changements s’appliquent 15 jours après cet avis. Touchez pour lire.',
+  },
+  promoter_invited: {
+    title: 'Invitation à promouvoir',
+    body: '{{business}} veut que vous fassiez la promotion de {{event}}. Voyez combien vous gagnez.',
+    bodyGeneric: 'Vous avez reçu une invitation à promouvoir un événement.',
+  },
+  promoter_accepted: {
+    title: 'Promoteur accepté',
+    body: '{{username}} a accepté de promouvoir {{event}}.',
+    bodyGeneric: 'Un promoteur a accepté votre invitation.',
+  },
+  promoter_declined: {
+    title: 'Invitation refusée',
+    body: '{{username}} a refusé de promouvoir {{event}}.',
+    bodyGeneric: 'Une invitation à promouvoir a été refusée.',
+  },
+  courtesy_received: {
+    title: 'Vous avez reçu un billet',
+    body: '{{business}} vous a invité à {{event}}. Le billet est dans votre portefeuille.',
+    bodyGeneric: 'Un billet offert est dans votre portefeuille.',
+  },
+  courtesy_canceled: {
+    title: 'Billet offert annulé',
+    body: 'Le billet offert pour {{event}} a été annulé par l’organisateur.',
+    bodyGeneric: 'Un de vos billets offerts a été annulé par l’organisateur.',
+  },
+  courtesy_link_accepted: {
+    title: 'Invitation acceptée',
+    body: '{{username}} a reçu le billet offert de votre lien d’invitation.',
+    bodyGeneric: 'Le billet offert de votre lien d’invitation a été reçu.',
+  },
   ticket_received: {
     title: 'Vous avez reçu un billet',
     body: 'Un billet pour {{event}} est dans votre portefeuille.',

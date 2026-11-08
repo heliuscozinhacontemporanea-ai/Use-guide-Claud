@@ -22,6 +22,9 @@ export interface FormState {
   googleMaps: string;
   address: string;
   region: string;
+  /** Estado (UF) e cidade: dão o fuso dos horários (D28). */
+  state: string;
+  city: string;
   servesBreakfast: boolean | null;
   breakfastIncluded: boolean | null;
   breakfastPrice: string;

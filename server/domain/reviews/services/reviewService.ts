@@ -110,6 +110,10 @@ export class ReviewService {
     await this.reviewPort.deleteReviewsByUser(userId);
   }
 
+  async countUnansweredByItems(itemIds: string[]): Promise<Record<string, number>> {
+    return itemIds.length === 0 ? {} : this.reviewPort.countUnansweredByItems(itemIds);
+  }
+
   async getReviewsStats(): Promise<{ totalReviews: number; avgRating: number }> {
     return this.reviewPort.getReviewsStats();
   }

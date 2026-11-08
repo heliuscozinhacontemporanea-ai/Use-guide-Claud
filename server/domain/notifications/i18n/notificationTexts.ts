@@ -5,6 +5,44 @@
 export type NotificationTypeTexts = Record<string, Record<string, string>>;
 
 export const NOTIFICATION_TEXTS_PT_BR: NotificationTypeTexts = {
+  terms_updated_partner: {
+    title: 'Os termos do parceiro mudaram',
+    body: 'As mudanças passam a valer 15 dias depois deste aviso. Toque para ler e aceitar a versão nova.',
+  },
+  terms_updated_buyer: {
+    title: 'Os termos de uso mudaram',
+    body: 'As mudanças passam a valer 15 dias depois deste aviso. Toque para ler.',
+  },
+  promoter_invited: {
+    title: 'Convite para divulgar',
+    body: '{{business}} quer que você divulgue {{event}}. Veja quanto você ganha.',
+    bodyGeneric: 'Você recebeu um convite para divulgar um evento.',
+  },
+  promoter_accepted: {
+    title: 'Divulgador aceitou',
+    body: '{{username}} aceitou divulgar {{event}}.',
+    bodyGeneric: 'Um divulgador aceitou o seu convite.',
+  },
+  promoter_declined: {
+    title: 'Convite recusado',
+    body: '{{username}} recusou divulgar {{event}}.',
+    bodyGeneric: 'Um convite para divulgar foi recusado.',
+  },
+  courtesy_received: {
+    title: 'Você ganhou um ingresso',
+    body: '{{business}} convidou você para {{event}}. O ingresso está na sua carteira.',
+    bodyGeneric: 'Uma cortesia está na sua carteira.',
+  },
+  courtesy_canceled: {
+    title: 'Cortesia cancelada',
+    body: 'A cortesia para {{event}} foi cancelada pelo organizador.',
+    bodyGeneric: 'Uma cortesia sua foi cancelada pelo organizador.',
+  },
+  courtesy_link_accepted: {
+    title: 'Convite aceito',
+    body: '{{username}} recebeu a cortesia do seu link de convite.',
+    bodyGeneric: 'A cortesia do seu link de convite foi recebida.',
+  },
   ticket_received: {
     title: 'Você recebeu um ingresso',
     body: 'Um ingresso para {{event}} está na sua carteira.',
@@ -32,7 +70,8 @@ export const NOTIFICATION_TEXTS_PT_BR: NotificationTypeTexts = {
   event_postponed: {
     title: 'Evento com nova data',
     body: '{{event}} passou para {{date}}. Seu ingresso vale na nova data. Se não puder ir, peça o reembolso em até 7 dias.',
-    bodyGeneric: 'Um evento seu passou para {{date}}. Seu ingresso vale na nova data. Se não puder ir, peça o reembolso em até 7 dias.',
+    bodyGeneric:
+      'Um evento seu passou para {{date}}. Seu ingresso vale na nova data. Se não puder ir, peça o reembolso em até 7 dias.',
   },
   booking_provider_arrived: {
     title: '{{business}} chegou',
@@ -42,7 +81,8 @@ export const NOTIFICATION_TEXTS_PT_BR: NotificationTypeTexts = {
   booking_no_show_marked: {
     title: 'Ausência registrada',
     body: '{{business}} registrou que você não foi. Se você estava lá, conte pra gente em Compras.',
-    bodyGeneric: 'O prestador registrou que você não foi. Se você estava lá, conte pra gente em Compras.',
+    bodyGeneric:
+      'O prestador registrou que você não foi. Se você estava lá, conte pra gente em Compras.',
   },
   booking_absence_in_review: {
     title: 'Estamos analisando',
@@ -170,6 +210,44 @@ export const NOTIFICATION_TEXTS_PT_BR: NotificationTypeTexts = {
 };
 
 export const NOTIFICATION_TEXTS_EN: NotificationTypeTexts = {
+  terms_updated_partner: {
+    title: 'The partner terms have changed',
+    body: 'The changes take effect 15 days after this notice. Tap to read and accept the new version.',
+  },
+  terms_updated_buyer: {
+    title: 'The terms of use have changed',
+    body: 'The changes take effect 15 days after this notice. Tap to read.',
+  },
+  promoter_invited: {
+    title: 'Invitation to promote',
+    body: '{{business}} wants you to promote {{event}}. See how much you earn.',
+    bodyGeneric: 'You got an invitation to promote an event.',
+  },
+  promoter_accepted: {
+    title: 'Promoter accepted',
+    body: '{{username}} agreed to promote {{event}}.',
+    bodyGeneric: 'A promoter accepted your invitation.',
+  },
+  promoter_declined: {
+    title: 'Invitation declined',
+    body: '{{username}} declined to promote {{event}}.',
+    bodyGeneric: 'An invitation to promote was declined.',
+  },
+  courtesy_received: {
+    title: 'You got a ticket',
+    body: '{{business}} invited you to {{event}}. The ticket is in your wallet.',
+    bodyGeneric: 'A complimentary ticket is in your wallet.',
+  },
+  courtesy_canceled: {
+    title: 'Complimentary ticket canceled',
+    body: 'The complimentary ticket for {{event}} was canceled by the organizer.',
+    bodyGeneric: 'A complimentary ticket of yours was canceled by the organizer.',
+  },
+  courtesy_link_accepted: {
+    title: 'Invite accepted',
+    body: '{{username}} got the complimentary ticket from your invite link.',
+    bodyGeneric: 'The complimentary ticket from your invite link was received.',
+  },
   ticket_received: {
     title: 'You got a ticket',
     body: 'A ticket for {{event}} is in your wallet.',
@@ -197,7 +275,8 @@ export const NOTIFICATION_TEXTS_EN: NotificationTypeTexts = {
   event_postponed: {
     title: 'Event has a new date',
     body: '{{event}} moved to {{date}}. Your ticket is valid on the new date. If you can’t go, ask for a refund within 7 days.',
-    bodyGeneric: 'One of your events moved to {{date}}. Your ticket is valid on the new date. If you can’t go, ask for a refund within 7 days.',
+    bodyGeneric:
+      'One of your events moved to {{date}}. Your ticket is valid on the new date. If you can’t go, ask for a refund within 7 days.',
   },
   booking_provider_arrived: {
     title: '{{business}} has arrived',
@@ -207,7 +286,8 @@ export const NOTIFICATION_TEXTS_EN: NotificationTypeTexts = {
   booking_no_show_marked: {
     title: 'Marked as no-show',
     body: '{{business}} marked that you didn’t show up. If you were there, tell us in Purchases.',
-    bodyGeneric: 'The provider marked that you didn’t show up. If you were there, tell us in Purchases.',
+    bodyGeneric:
+      'The provider marked that you didn’t show up. If you were there, tell us in Purchases.',
   },
   booking_absence_in_review: {
     title: 'We’re looking into it',
@@ -335,6 +415,44 @@ export const NOTIFICATION_TEXTS_EN: NotificationTypeTexts = {
 };
 
 export const NOTIFICATION_TEXTS_FR: NotificationTypeTexts = {
+  terms_updated_partner: {
+    title: 'Les conditions du partenaire ont changé',
+    body: 'Les changements s’appliquent 15 jours après cet avis. Touchez pour lire et accepter la nouvelle version.',
+  },
+  terms_updated_buyer: {
+    title: 'Les conditions d’utilisation ont changé',
+    body: 'Les changements s’appliquent 15 jours après cet avis. Touchez pour lire.',
+  },
+  promoter_invited: {
+    title: 'Invitation à promouvoir',
+    body: '{{business}} veut que vous fassiez la promotion de {{event}}. Voyez combien vous gagnez.',
+    bodyGeneric: 'Vous avez reçu une invitation à promouvoir un événement.',
+  },
+  promoter_accepted: {
+    title: 'Promoteur accepté',
+    body: '{{username}} a accepté de promouvoir {{event}}.',
+    bodyGeneric: 'Un promoteur a accepté votre invitation.',
+  },
+  promoter_declined: {
+    title: 'Invitation refusée',
+    body: '{{username}} a refusé de promouvoir {{event}}.',
+    bodyGeneric: 'Une invitation à promouvoir a été refusée.',
+  },
+  courtesy_received: {
+    title: 'Vous avez reçu un billet',
+    body: '{{business}} vous a invité à {{event}}. Le billet est dans votre portefeuille.',
+    bodyGeneric: 'Un billet offert est dans votre portefeuille.',
+  },
+  courtesy_canceled: {
+    title: 'Billet offert annulé',
+    body: 'Le billet offert pour {{event}} a été annulé par l’organisateur.',
+    bodyGeneric: 'Un de vos billets offerts a été annulé par l’organisateur.',
+  },
+  courtesy_link_accepted: {
+    title: 'Invitation acceptée',
+    body: '{{username}} a reçu le billet offert de votre lien d’invitation.',
+    bodyGeneric: 'Le billet offert de votre lien d’invitation a été reçu.',
+  },
   ticket_received: {
     title: 'Vous avez reçu un billet',
     body: 'Un billet pour {{event}} est dans votre portefeuille.',
@@ -362,7 +480,8 @@ export const NOTIFICATION_TEXTS_FR: NotificationTypeTexts = {
   event_postponed: {
     title: 'Nouvelle date pour l’événement',
     body: '{{event}} est reporté au {{date}}. Votre billet est valable à la nouvelle date. Si vous ne pouvez pas venir, demandez le remboursement sous 7 jours.',
-    bodyGeneric: 'Un de vos événements est reporté au {{date}}. Votre billet est valable à la nouvelle date. Si vous ne pouvez pas venir, demandez le remboursement sous 7 jours.',
+    bodyGeneric:
+      'Un de vos événements est reporté au {{date}}. Votre billet est valable à la nouvelle date. Si vous ne pouvez pas venir, demandez le remboursement sous 7 jours.',
   },
   booking_provider_arrived: {
     title: '{{business}} est arrivé',
@@ -372,7 +491,8 @@ export const NOTIFICATION_TEXTS_FR: NotificationTypeTexts = {
   booking_no_show_marked: {
     title: 'Absence enregistrée',
     body: '{{business}} a indiqué que vous n’êtes pas venu. Si vous étiez là, dites-le-nous dans Achats.',
-    bodyGeneric: 'Le prestataire a indiqué que vous n’êtes pas venu. Si vous étiez là, dites-le-nous dans Achats.',
+    bodyGeneric:
+      'Le prestataire a indiqué que vous n’êtes pas venu. Si vous étiez là, dites-le-nous dans Achats.',
   },
   booking_absence_in_review: {
     title: 'Nous examinons la situation',
@@ -433,8 +553,10 @@ export const NOTIFICATION_TEXTS_FR: NotificationTypeTexts = {
   },
   plan_expiring: {
     title: 'Votre formule se termine bientôt',
-    body_one: 'La formule de {{listing}} se termine dans {{count}} jour. Renouvelez-la pour garder le badge.',
-    body_other: 'La formule de {{listing}} se termine dans {{count}} jours. Renouvelez-la pour garder le badge.',
+    body_one:
+      'La formule de {{listing}} se termine dans {{count}} jour. Renouvelez-la pour garder le badge.',
+    body_other:
+      'La formule de {{listing}} se termine dans {{count}} jours. Renouvelez-la pour garder le badge.',
   },
   plan_renewal_failed: {
     title: 'Impossible de renouveler votre formule',

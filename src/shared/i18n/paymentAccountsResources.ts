@@ -7,6 +7,7 @@ export interface PaymentAccountsTranslation {
   refresh: string;
   retry: string;
   missingKey: string;
+  page: { title: string; intro: string; items_one: string; items_other: string };
   listings_one: string;
   listings_other: string;
   requirements_one: string;
@@ -51,6 +52,13 @@ export const paymentAccountsPtBR: PaymentAccountsTranslation = {
   retry: 'Tentar de novo',
   missingKey:
     'Pagamentos indisponíveis no momento: a chave pública do Stripe não está configurada.',
+  page: {
+    title: 'Contas de recebimento',
+    intro:
+      'Cada CNPJ recebe numa conta própria. Cada item do catálogo recebe na conta do CNPJ do seu estabelecimento.',
+    items_one: '{{count}} item',
+    items_other: '{{count}} itens',
+  },
   listings_one: '{{count}} cadastro vende por este CNPJ',
   listings_other: '{{count}} cadastros vendem por este CNPJ',
   requirements_one: '{{count}} pendência no Stripe',
@@ -94,6 +102,13 @@ export const paymentAccountsEn: PaymentAccountsTranslation = {
   refresh: 'Refresh payout accounts',
   retry: 'Try again',
   missingKey: 'Payments are unavailable right now: the Stripe publishable key is not set.',
+  page: {
+    title: 'Payout accounts',
+    intro:
+      'Each CNPJ is paid into its own account. Each catalog item is paid into the account of its business CNPJ.',
+    items_one: '{{count}} item',
+    items_other: '{{count}} items',
+  },
   listings_one: '{{count}} listing sells under this CNPJ',
   listings_other: '{{count}} listings sell under this CNPJ',
   requirements_one: '{{count}} pending item on Stripe',
@@ -138,6 +153,13 @@ export const paymentAccountsFr: PaymentAccountsTranslation = {
   retry: 'Réessayer',
   missingKey:
     "Paiements indisponibles pour le moment : la clé publique Stripe n'est pas configurée.",
+  page: {
+    title: 'Comptes de versement',
+    intro:
+      'Chaque CNPJ est versé sur son propre compte. Chaque élément du catalogue est versé sur le compte du CNPJ de son établissement.',
+    items_one: '{{count}} élément',
+    items_other: '{{count}} éléments',
+  },
   listings_one: '{{count}} fiche vend avec ce CNPJ',
   listings_other: '{{count}} fiches vendent avec ce CNPJ',
   requirements_one: '{{count}} élément en attente sur Stripe',

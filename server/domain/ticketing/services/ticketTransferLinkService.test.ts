@@ -88,4 +88,18 @@ describe('link de transferência (D21)', () => {
       code: 'NOT_FOUND',
     });
   });
+
+  it('cortesia não gera link de transferência (D27)', async () => {
+    const { service, port } = setup();
+    vi.mocked(port.getTicketById).mockResolvedValueOnce({
+      id: 'tkt_1',
+      orderId: 'c1',
+      courtesyId: 'c1',
+      ownerUserId: 'buyer',
+      status: 'issued',
+    } as never);
+    await expect(service.create({ uid: 'buyer' }, 'tkt_1', FROM)).rejects.toMatchObject({
+      code: 'COURTESY_NOT_TRANSFERABLE',
+    });
+  });
 });

@@ -1,8 +1,8 @@
+import { FieldPath, FieldValue } from 'firebase-admin/firestore';
+import { adminAuth, adminDb, adminStorage } from '../../../infrastructure/firebase/adminClient';
+import { toUserProfileDto, UserProfileDto } from '../dtos/userDto';
 import { UserPort } from '../ports/userPort';
-import { UserProfileDto, toUserProfileDto } from '../dtos/userDto';
 import { UpdateUserPreferencesInput, UpdateUserProfileInput } from '../schemas/userSchema';
-import { adminDb, adminAuth, adminStorage } from '../../../infrastructure/firebase/adminClient';
-import { FieldValue } from 'firebase-admin/firestore';
 
 export class FirestoreUserAdapter implements UserPort {
   async getUserProfile(uid: string): Promise<UserProfileDto | null> {
@@ -133,6 +133,17 @@ export class FirestoreUserAdapter implements UserPort {
       role: 'partner',
       updatedAt: FieldValue.serverTimestamp(),
     });
+  }
+
+  async listUserIdsPage(
+    cursor: string | null,
+    limit: number
+  ): Promise<{ ids: string[]; nextCursor: string | null }> {
+    let query = adminDb.collection('users').orderBy(FieldPath.documentId()).limit(limit);
+    if (cursor) query = query.startAfter(cursor);
+    const snap = await query.select().get();
+    const ids = snap.docs.map((doc) => doc.id);
+    return { ids, nextCursor: ids.length === limit ? (ids.at(-1) ?? null) : null };
   }
 
   async getUsersCount(): Promise<number> {

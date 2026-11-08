@@ -8,7 +8,6 @@ import { TicketingDomainError } from '../errors/ticketingDomainError';
 import {
   checkInTicketSchema,
   createOfflineCheckInSessionSchema,
-  createPromoCodeSchema,
   createTicketOrderSchema,
   createTicketTypeSchema,
   joinWaitlistSchema,
@@ -17,9 +16,10 @@ import {
   syncOfflineCheckInsSchema,
   updateTicketTypeSchema,
 } from '../schemas/ticketingSchema';
+import { PromotionsDomainError } from '../../promotions';
+import type { TicketOrder } from '../types/ticketingTypes';
 import { archiveTicketTypeUseCase } from '../usecases/archiveTicketTypeUseCase';
 import { checkInTicketUseCase } from '../usecases/checkInTicketUseCase';
-import { createEventPromoCodeUseCase } from '../usecases/createEventPromoCodeUseCase';
 import { createOfflineCheckInSessionUseCase } from '../usecases/createOfflineCheckInSessionUseCase';
 import { createTicketOrderUseCase } from '../usecases/createTicketOrderUseCase';
 import { createTicketTypeUseCase } from '../usecases/createTicketTypeUseCase';
@@ -41,6 +41,27 @@ import { syncOfflineCheckInsUseCase } from '../usecases/syncOfflineCheckInsUseCa
 import { updateTicketTypeUseCase } from '../usecases/updateTicketTypeUseCase';
 import { hashTicketIdForOfflineManifest } from '../utils/offlineManifest';
 
+/** Pedido para o dono do evento: dados da venda, sem os dados pessoais do comprador. */
+function toPartnerOrderDto(order: TicketOrder) {
+  return {
+    id: order.id,
+    eventListingId: order.eventListingId,
+    occurrenceId: order.occurrenceId,
+    status: order.status,
+    currency: order.currency,
+    subtotalMinor: order.subtotalMinor,
+    discountMinor: order.discountMinor,
+    platformFeeMinor: order.platformFeeMinor,
+    paymentFeeMinor: order.paymentFeeMinor,
+    serviceFeeMinor: order.serviceFeeMinor,
+    totalMinor: order.totalMinor,
+    paymentMethod: order.paymentMethod,
+    paidAt: order.paidAt,
+    createdAt: order.createdAt,
+    updatedAt: order.updatedAt,
+  };
+}
+
 function getActor(req: AuthenticatedRequest) {
   return {
     uid: req.user?.uid || '',
@@ -51,6 +72,10 @@ function getActor(req: AuthenticatedRequest) {
 }
 
 function handleTicketingError(res: Response, error: unknown): Response {
+  // Cupom recusado na compra: a tela traduz pelo código (inválido, encerrado, esgotado, já usado).
+  if (error instanceof PromotionsDomainError) {
+    return res.status(422).json({ error: { code: error.code, message: error.message } });
+  }
   if (error instanceof TicketingDomainError) {
     switch (error.code) {
       case 'INVALID_ARGUMENT':
@@ -67,6 +92,7 @@ function handleTicketingError(res: Response, error: unknown): Response {
         return res.status(429).json({ error: error.message });
       case 'TRANSFER_ONLY_TO_BUYER':
       case 'TRANSFER_LINK_OWN':
+      case 'COURTESY_NOT_TRANSFERABLE':
         return res.status(422).json({ error: error.message });
       case 'TRANSFER_LINK_INVALID':
         return res.status(404).json({ error: error.message });
@@ -416,8 +442,12 @@ export class TicketingController {
     try {
       if (!req.user) return res.status(401).json({ error: 'Não autenticado.' });
       const eventListingId = String(req.params.id || '');
-      const orders = await listEventOrdersForPartnerOrAdminUseCase(getActor(req), eventListingId);
-      return res.status(200).json({ status: 'success', data: orders });
+      const actor = getActor(req);
+      const orders = await listEventOrdersForPartnerOrAdminUseCase(actor, eventListingId);
+      // Parceiro não recebe e-mail nem documento do comprador (AGENTS.md §7.9 regra 4, D27).
+      return res
+        .status(200)
+        .json({ status: 'success', data: actor.admin ? orders : orders.map(toPartnerOrderDto) });
     } catch (error) {
       return handleTicketingError(res, error);
     }
@@ -443,20 +473,6 @@ export class TicketingController {
       const eventListingId = String(req.params.id || '');
       const refunds = await listEventRefundsForPartnerOrAdminUseCase(getActor(req), eventListingId);
       return res.status(200).json({ status: 'success', data: refunds });
-    } catch (error) {
-      return handleTicketingError(res, error);
-    }
-  }
-
-  static async createPromoCode(req: AuthenticatedRequest, res: Response) {
-    try {
-      if (!req.user) return res.status(401).json({ error: 'Não autenticado.' });
-      const parsed = createPromoCodeSchema.safeParse(req.body);
-      if (!parsed.success) {
-        return res.status(400).json({ error: 'Dados inválidos.', details: parsed.error.flatten() });
-      }
-      const created = await createEventPromoCodeUseCase(getActor(req), parsed.data);
-      return res.status(201).json({ status: 'success', data: created });
     } catch (error) {
       return handleTicketingError(res, error);
     }

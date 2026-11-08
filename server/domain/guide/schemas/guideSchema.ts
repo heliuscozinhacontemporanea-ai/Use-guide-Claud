@@ -1,3 +1,4 @@
+import { BR_STATES } from '../../../shared/kernel/timeZones';
 import { z } from 'zod';
 import { E164_MESSAGE, E164_PATTERN } from '../../../shared/kernel/phone';
 
@@ -97,6 +98,9 @@ const commonFields = {
   googleMapsLink: optionalUrl,
   phone: z.string().trim().regex(E164_PATTERN, E164_MESSAGE).optional(),
   address: z.string().trim().max(500).optional(),
+  // O fuso (D28) não vem do cliente: o servidor calcula pelo estado e pela cidade.
+  state: z.enum(BR_STATES).optional(),
+  city: z.string().trim().min(2).max(100).optional(),
   tags: z.array(z.string().trim().min(1).max(100)).max(50).optional(),
   operationalInfo: operationalInfoSchema.optional(),
   isActive: z.boolean().optional(),

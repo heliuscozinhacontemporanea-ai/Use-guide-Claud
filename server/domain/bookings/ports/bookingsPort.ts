@@ -98,11 +98,13 @@ export interface BookingsPort {
   listBookingsWithDeadlineBefore(nowIso: string, limit: number): Promise<Booking[]>;
 
   /** Reservas com endereço de busca a apagar até `nowIso` (D20, §7.5). */
-  listBookingsWithPickupAddressEraseBefore(nowIso: string, limit: number): Promise<Booking[]>;
+  listBookingsWithPersonalDataEraseBefore(nowIso: string, limit: number): Promise<Booking[]>;
   /** Apaga os nomes dos participantes da reserva (exclusão de conta, §7.5). */
   deleteParticipants(bookingId: string): Promise<void>;
 
   getBooking(bookingId: string): Promise<Booking | null>;
+  /** Várias reservas de uma vez (relatórios); as que não existem ficam de fora. */
+  getBookings(bookingIds: string[]): Promise<Booking[]>;
   getParticipants(bookingId: string): Promise<BookingParticipant[]>;
   listBookingsByBuyer(buyerId: string, page: PageRequest): Promise<Page<Booking>>;
   listBookingsByOffer(offerId: string, page: PageRequest): Promise<Page<Booking>>;

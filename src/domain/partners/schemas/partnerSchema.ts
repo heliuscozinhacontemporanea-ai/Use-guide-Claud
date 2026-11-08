@@ -1,3 +1,4 @@
+import { isBrState } from '../../../shared/utils/timeZones';
 import { z } from 'zod';
 import type { UserSession } from '../../auth';
 
@@ -57,8 +58,17 @@ export const step2Schema = z
     googleMaps: z.string().optional().default(''),
     address: z.string().optional().default(''),
     region: z.string().optional().default(''),
+    state: z.string().optional().default(''),
+    city: z.string().optional().default(''),
   })
   .superRefine((data, ctx) => {
+    // Estado e cidade dão o fuso dos horários (D28): obrigatórios em todo estabelecimento.
+    if (!isBrState(data.state)) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['state'], message: 'Selecione o estado' });
+    }
+    if (data.city.trim().length < 2) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['city'], message: 'Informe a cidade' });
+    }
     if (data.category === 'hotel' && (!data.bookingLinks || data.bookingLinks.trim() === '')) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -304,6 +314,8 @@ export const partnerSubmissionSchema = z.object({
   category: partnerCategorySchema,
   description: z.string().optional().default(''),
   region: z.string().optional().default(''),
+  state: z.string().optional().default(''),
+  city: z.string().optional().default(''),
   instagram: z.string().optional().default(''),
   website: z.string().optional().default(''),
   bookingLinks: z.string().optional().default(''),

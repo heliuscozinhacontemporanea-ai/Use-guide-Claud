@@ -18,12 +18,12 @@ export function EventEntrySection({
   const isPaid = item.entryType === 'pago';
 
   return (
-    <div className="space-y-6 pt-4 border-t border-white/5">
+    <div className="space-y-6 pt-4 border-t border-line">
       <div className="flex items-center gap-2">
-        <span className="p-2 rounded-xl bg-white/5 border border-white/10 text-indigo-400">
+        <span className="p-2 rounded-xl bg-surface border border-line text-accent">
           <Ticket size={18} aria-hidden="true" />
         </span>
-        <h3 className="text-sm font-black text-white uppercase tracking-widest">
+        <h3 className="text-sm font-black text-ink uppercase tracking-widest">
           Entradas / Ingressos
         </h3>
       </div>
@@ -37,8 +37,8 @@ export function EventEntrySection({
           className={cn(
             OPTION_CLASS,
             isPaid
-              ? 'bg-indigo-500/80 border-indigo-500/20 text-white shadow-[0_0_20px_rgba(99,102,241,0.2)]'
-              : 'bg-white/5 border-white/10 text-white/50 hover:bg-white/10 hover:text-white'
+              ? 'bg-accent-soft border-accent-line text-accent'
+              : 'bg-surface border-line text-ink/70 hover:bg-ink/[0.06] hover:text-ink'
           )}
         >
           Pago
@@ -51,8 +51,8 @@ export function EventEntrySection({
           className={cn(
             OPTION_CLASS,
             !isPaid
-              ? 'bg-indigo-500/50 border-indigo-500/20 text-white shadow-[0_0_20px_rgba(99,102,241,0.2)]'
-              : 'bg-white/5 border-white/10 text-white/50 hover:bg-white/10 hover:text-white'
+              ? 'bg-accent-soft border-accent-line text-accent'
+              : 'bg-surface border-line text-ink/70 hover:bg-ink/[0.06] hover:text-ink'
           )}
         >
           Entrada gratuita

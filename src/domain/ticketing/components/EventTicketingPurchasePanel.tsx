@@ -2,6 +2,7 @@ import { AlertCircle, Loader2, Sparkles, Ticket as TicketIcon } from 'lucide-rea
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatMoneyMinor } from '../../../shared/utils/money';
+import type { PlaceTime } from '../../../shared/utils/placeTime';
 import { GlassCard } from '../../../ui/components/GlassCard';
 import { TermsAcceptanceField } from '../../../ui/legal/TermsAcceptanceField';
 import { useEventOccurrences } from '../../events';
@@ -24,6 +25,8 @@ interface EventTicketingPurchasePanelProps {
   onRequireLogin?: () => void;
   maxTicketsPerUser?: number;
   onOrderCompleted?: (orderId: string) => void;
+  /** Fuso e cidade do evento: as sessões aparecem na hora do lugar (D28). */
+  place?: PlaceTime;
 }
 
 export function EventTicketingPurchasePanel({
@@ -35,6 +38,7 @@ export function EventTicketingPurchasePanel({
   onRequireLogin,
   maxTicketsPerUser = 5,
   onOrderCompleted,
+  place,
 }: EventTicketingPurchasePanelProps) {
   const { t, i18n } = useTranslation();
   const { occurrences, loading: occurrencesLoading } = useEventOccurrences(
@@ -119,6 +123,7 @@ export function EventTicketingPurchasePanel({
         <OccurrencePicker
           occurrences={occurrences}
           selectedId={selectedOccurrenceId}
+          place={place}
           onSelect={(id) => {
             setSelectedOccurrenceId(id);
             checkout.clearQuantities();

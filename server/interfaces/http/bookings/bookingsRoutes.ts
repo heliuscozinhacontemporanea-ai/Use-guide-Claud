@@ -23,6 +23,12 @@ bookingsRouter.put(
 );
 bookingsRouter.post('/:bookingId/cancel', verifyAuthTokenStrict, BookingsController.cancel);
 bookingsRouter.post('/:bookingId/no-show', verifyAuthToken, BookingsController.markNoShow);
+// "Não vou mais" é ausência sem reembolso (D27): token revogado não serve.
+bookingsRouter.post(
+  '/:bookingId/arrival-response',
+  verifyAuthTokenStrict,
+  BookingsController.respondToArrival
+);
 // Relato e resposta mexem no reembolso (D20): token revogado não serve.
 bookingsRouter.post(
   '/:bookingId/provider-absent',
@@ -54,11 +60,24 @@ partnerOffersRouter.post(
   PartnerOffersController.rescheduleSlot
 );
 partnerOffersRouter.get('/:offerId/bookings', PartnerOffersController.listBookings);
+partnerOffersRouter.get(
+  '/:offerId/slots/:slotId/bookings',
+  PartnerOffersController.listSlotBookings
+);
 // Check-in libera o repasse (D20): token revogado não serve.
 partnerOffersRouter.post(
   '/:offerId/slots/:slotId/check-ins',
   verifyAuthTokenStrict,
   PartnerOffersController.checkIn
+);
+partnerOffersRouter.post(
+  '/:offerId/slots/:slotId/arrival',
+  verifyAuthToken,
+  PartnerOffersController.recordSlotArrival
+);
+partnerOffersRouter.get(
+  '/:offerId/slots/:slotId/contacts',
+  PartnerOffersController.listSlotContacts
 );
 partnerOffersRouter.post(
   '/:offerId/bookings/:bookingId/arrival',
@@ -83,4 +102,14 @@ partnerOffersRouter.post(
   '/:offerId/slots/:slotId/entry-check-ins',
   verifyAuthTokenStrict,
   PartnerOffersController.checkInEntry
+);
+
+/** Ações do estabelecimento que valem para todas as ofertas dele (D27). */
+export const partnerEstablishmentsRouter = Router();
+partnerEstablishmentsRouter.use(verifyAuthToken);
+// Check-in libera o repasse (D20): token revogado não serve.
+partnerEstablishmentsRouter.post(
+  '/:guideItemId/check-ins',
+  verifyAuthTokenStrict,
+  PartnerOffersController.checkInByEstablishment
 );

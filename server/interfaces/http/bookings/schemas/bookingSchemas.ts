@@ -121,6 +121,14 @@ export const CreateBookingSchema = z
     locale,
     acceptedTermsVersion: z.string().trim().min(1).max(40),
     pickupAddress: z.string().trim().min(3).max(300).optional(),
+    // O serviço exige em passeio, aluguel e translado (D27); aqui só o formato E.164.
+    contactPhone: z
+      .string()
+      .trim()
+      .regex(/^\+[1-9]\d{7,14}$/)
+      .optional(),
+    // Cupom (B1c): o servidor confere e calcula o desconto; aqui só o formato.
+    promoCode: z.string().trim().min(3).max(20).optional(),
   })
   .strict();
 
@@ -203,3 +211,8 @@ export const PageQuerySchema = z
 
 export const IdempotencyKeyHeaderSchema = idempotencyKey;
 export const DocumentIdSchema = documentId;
+
+/** Resposta do cliente ao aviso "chegou" (D27). */
+export const ArrivalResponseSchema = z
+  .object({ response: z.enum(['coming', 'not_going']) })
+  .strict();

@@ -12,17 +12,23 @@ export interface AdminEventSlots {
   /** Campo de sessões do domínio events, montado pela composição do app. */
   renderSessionsField?: (props: EventSessionsFieldProps) => ReactNode;
   /** Gerenciador de ingressos do domínio ticketing, montado pela composição do app. */
-  renderTicketingManager?: (eventListingId: string) => ReactNode;
+  renderTicketingManager?: (
+    eventListingId: string,
+    place?: EventSessionsFieldProps['place']
+  ) => ReactNode;
 }
 
 interface AdminEditorEventFieldsProps extends AdminEventSlots {
   eventListingId?: string;
   occurrencesState: EventSessionsLoadState;
+  /** Fuso e cidade do evento (D28): as sessões são editadas na hora do lugar. */
+  place?: EventSessionsFieldProps['place'];
 }
 
 export function AdminEditorEventFields({
   eventListingId,
   occurrencesState,
+  place,
   renderSessionsField,
   renderTicketingManager,
 }: AdminEditorEventFieldsProps) {
@@ -81,11 +87,12 @@ export function AdminEditorEventFields({
         onChange: (sessions) =>
           setValue('occurrences', sessions, { shouldDirty: true, shouldValidate: true }),
         loadState: occurrencesState === 'idle' ? 'ready' : occurrencesState,
+        place,
       })}
 
       {eventListingId && renderTicketingManager && (
         <div className="pt-4 border-t border-white/10">
-          {renderTicketingManager(eventListingId)}
+          {renderTicketingManager(eventListingId, place)}
         </div>
       )}
     </div>

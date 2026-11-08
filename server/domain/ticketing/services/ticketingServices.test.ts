@@ -22,7 +22,20 @@ vi.mock('../../events', () => ({
   updateEventListingPricingSummaryUseCase: vi.fn().mockResolvedValue(undefined),
 }));
 
+vi.mock('../../promotions', () => ({
+  computePromoDiscount: vi.fn(),
+  getPromoCodeForCheckoutUseCase: vi.fn(),
+  reservePromoUseUseCase: vi.fn(),
+  releasePromoUseUseCase: vi.fn().mockResolvedValue(undefined),
+}));
+
 import { getEventListingByIdUseCase, getEventOccurrenceByIdUseCase } from '../../events';
+import {
+  computePromoDiscount,
+  getPromoCodeForCheckoutUseCase,
+  releasePromoUseUseCase,
+  reservePromoUseUseCase,
+} from '../../promotions';
 
 function createMockTicketType(overrides: Partial<TicketType> = {}): TicketType {
   return {
@@ -170,8 +183,6 @@ describe('serviços de ticketing', () => {
       listRefundsByEventListingId: vi.fn().mockResolvedValue([]),
       transferTicketAtomic: vi.fn(),
       moveOrdersAndTicketsToOccurrenceAtomic: vi.fn(),
-      createPromoCode: vi.fn(),
-      getPromoCodeByCode: vi.fn().mockResolvedValue(null),
       createWaitlistEntry: vi.fn(),
       listWaitlistByOccurrenceId: vi.fn().mockResolvedValue([]),
       createOfflineCheckInSession: vi.fn(),
@@ -203,6 +214,38 @@ describe('serviços de ticketing', () => {
       checkIn: new CheckInService(mockPort, mockQrTokenPort),
       reports: new TicketingReportService(mockPort),
     };
+  });
+
+  it('grava o meio de pagamento só na primeira confirmação do pedido', async () => {
+    const order = { id: 'ord-pm', buyerId: 'buyer-1', buyerSnapshot: { name: 'A', email: 'a@x' } };
+    vi.mocked(mockPort.getOrderById).mockResolvedValue(order as never);
+    vi.mocked(mockPort.listOrderItemsByOrderId).mockResolvedValue([]);
+    vi.mocked(mockPort.updateOrderStatus).mockResolvedValue({
+      ...order,
+      paymentMethod: 'pix',
+    } as never);
+    vi.mocked(mockPort.confirmOrderPaymentAndIssueTicketsAtomic).mockResolvedValueOnce({
+      order,
+      tickets: [],
+      alreadyPaid: false,
+    } as never);
+    const first = await services.orders.confirmTicketOrderPayment({
+      orderId: 'ord-pm',
+      paymentMethod: 'pix',
+    });
+    expect(mockPort.updateOrderStatus).toHaveBeenCalledWith('ord-pm', 'paid', {
+      paymentMethod: 'pix',
+    });
+    expect(first.order.paymentMethod).toBe('pix');
+
+    vi.mocked(mockPort.updateOrderStatus).mockClear();
+    vi.mocked(mockPort.confirmOrderPaymentAndIssueTicketsAtomic).mockResolvedValueOnce({
+      order,
+      tickets: [],
+      alreadyPaid: true,
+    } as never);
+    await services.orders.confirmTicketOrderPayment({ orderId: 'ord-pm', paymentMethod: 'card' });
+    expect(mockPort.updateOrderStatus).not.toHaveBeenCalled();
   });
 
   it('prevents changing priceMinor on a ticketType with existing sales or reservations', async () => {
@@ -250,6 +293,60 @@ describe('serviços de ticketing', () => {
     ).toMatchObject({ version: BUYER_TERMS_VERSION });
     expect(res.order.totalMinor).toBe(10600);
     expect(res.order.status).toBe('pending_payment');
+  });
+
+  it('cupom: desconto calculado no servidor, uso guardado antes do pedido e devolvido se o pedido falhar', async () => {
+    const promo = { id: 'pc1', type: 'fixed', valueMinor: 2000 };
+    vi.mocked(getPromoCodeForCheckoutUseCase).mockResolvedValue({
+      promo: promo as never,
+      optionIds: null,
+    });
+    vi.mocked(computePromoDiscount).mockReturnValue([2000]);
+    vi.mocked(reservePromoUseUseCase).mockResolvedValue('red_1');
+    const input = {
+      occurrenceId: 'occ_1',
+      items: [{ ticketTypeId: 'tt_1', quantity: 2 }],
+      buyer: { name: 'Maria', email: 'maria@example.com' },
+      promoCode: 'verao10',
+      idempotencyKey: 'idem_promo_1',
+      acceptedTermsVersion: BUYER_TERMS_VERSION,
+    };
+
+    const res = await services.orders.createTicketOrder({ uid: 'buyer_1' }, input);
+    expect(getPromoCodeForCheckoutUseCase).toHaveBeenCalledWith({
+      code: 'verao10',
+      target: { kind: 'event', id: 'evt_1' },
+      buyerUid: 'buyer_1',
+    });
+    expect(res.order.discountMinor).toBe(2000);
+    // Taxa da plataforma sobre o valor com desconto (10% de R$ 80,00).
+    expect(res.order.platformFeeMinor).toBe(800);
+    expect(reservePromoUseUseCase).toHaveBeenCalledWith('pc1', 'buyer_1');
+    expect(
+      vi.mocked(mockPort.reserveInventoryAndCreateOrderAtomic).mock.calls[0]?.[0]
+    ).toMatchObject({ promoCodeId: 'pc1', promoRedemptionId: 'red_1' });
+
+    vi.mocked(mockPort.reserveInventoryAndCreateOrderAtomic).mockRejectedValueOnce(
+      new Error('esgotou')
+    );
+    await expect(
+      services.orders.createTicketOrder(
+        { uid: 'buyer_1' },
+        { ...input, idempotencyKey: 'idem_promo_2' }
+      )
+    ).rejects.toThrow('esgotou');
+    expect(releasePromoUseUseCase).toHaveBeenCalledWith('red_1');
+  });
+
+  it('pedido que expira sem pagar devolve o uso do cupom', async () => {
+    vi.mocked(mockPort.listExpiredPendingOrders).mockResolvedValue([{ id: 'o1' } as never]);
+    vi.mocked(mockPort.expireOrderAndReleaseInventoryAtomic).mockResolvedValue({
+      order: { id: 'o1', promoRedemptionId: 'red_9' } as never,
+      releasedQuantity: 2,
+      alreadyReleased: false,
+    });
+    await services.orders.expireAllOverdueOrders();
+    expect(releasePromoUseUseCase).toHaveBeenCalledWith('red_9');
   });
 
   it('validates verified attendance for review only when ticket is checked_in and occurrence completed', async () => {

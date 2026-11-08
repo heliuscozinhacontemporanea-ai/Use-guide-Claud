@@ -26,7 +26,6 @@ export interface ReviewPort {
     occurrenceId?: string
   ): Promise<FirestoreReview | null>;
 
-  getAllReviews(): Promise<FirestoreReview[]>;
 
   submitReview(
     itemId: string,

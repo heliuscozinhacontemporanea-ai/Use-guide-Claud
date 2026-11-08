@@ -6,7 +6,7 @@ vi.mock('../../../domain/bookings', async () => ({
   checkInBookingByCodeUseCase: vi.fn(),
   clearBookingDeadlineUseCase: vi.fn(),
   completeFinishedBookingsUseCase: vi.fn(),
-  eraseExpiredPickupAddressesUseCase: vi.fn().mockResolvedValue(0),
+  eraseExpiredBookingContactsUseCase: vi.fn().mockResolvedValue(0),
   getBookingForAbsenceReportUseCase: vi.fn(),
   getOpenProviderAbsenceUseCase: vi.fn(),
   getPendingServiceConfirmationUseCase: vi.fn(),
@@ -242,7 +242,7 @@ describe('prova do serviço na camada application (D20)', () => {
       completed: 2,
       askedToConfirm: 1,
       deadlinesProcessed: 2,
-      pickupAddressesErased: 0,
+      bookingContactsErased: 0,
     });
     expect(createNotificationUseCase).toHaveBeenCalledWith(
       notified('buyer-1', 'booking_confirmation_asked')

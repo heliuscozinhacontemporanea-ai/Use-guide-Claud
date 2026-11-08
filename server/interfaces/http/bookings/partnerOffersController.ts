@@ -2,7 +2,11 @@ import type { Response } from 'express';
 import { answerProviderAbsenceApplicationUseCase } from '../../../application/usecases/bookings/answerProviderAbsenceApplicationUseCase';
 import { cancelSlotByPartnerApplicationUseCase } from '../../../application/usecases/bookings/cancelSlotByPartnerApplicationUseCase';
 import { checkInBookingApplicationUseCase } from '../../../application/usecases/bookings/checkInBookingApplicationUseCase';
+import { checkInByEstablishmentCodeApplicationUseCase } from '../../../application/usecases/bookings/checkInByEstablishmentCodeApplicationUseCase';
+import { listSlotContactsApplicationUseCase } from '../../../application/usecases/bookings/listSlotContactsApplicationUseCase';
+import { recordSlotArrivalApplicationUseCase } from '../../../application/usecases/bookings/recordSlotArrivalApplicationUseCase';
 import { checkInWithoutCodeApplicationUseCase } from '../../../application/usecases/bookings/checkInWithoutCodeApplicationUseCase';
+import { listSlotBookingsForPartnerApplicationUseCase } from '../../../application/usecases/bookings/listSlotBookingsForPartnerApplicationUseCase';
 import { recordProviderArrivalApplicationUseCase } from '../../../application/usecases/bookings/recordProviderArrivalApplicationUseCase';
 import { rescheduleSlotByPartnerApplicationUseCase } from '../../../application/usecases/bookings/rescheduleSlotByPartnerApplicationUseCase';
 import { setBookableOfferStatusApplicationUseCase } from '../../../application/usecases/bookings/setBookableOfferStatusApplicationUseCase';
@@ -177,6 +181,27 @@ export class PartnerOffersController {
     }
   }
 
+  /** Folha do horário (p06): reservas do horário com o nome público do cliente. */
+  static async listSlotBookings(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    const actor = actorOf(req);
+    if (!actor) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
+    const offerId = DocumentIdSchema.safeParse(req.params.offerId);
+    const slotId = DocumentIdSchema.safeParse(req.params.slotId);
+    if (!offerId.success || !slotId.success) {
+      return sendError(res, 400, 'VALIDATION_ERROR', 'Parâmetros inválidos.');
+    }
+    try {
+      const data = await listSlotBookingsForPartnerApplicationUseCase(
+        actor,
+        offerId.data,
+        slotId.data
+      );
+      return res.status(200).json({ data });
+    } catch (error) {
+      return handleBookingError(res, 'listSlotBookings', error);
+    }
+  }
+
   static async listBookings(req: AuthenticatedRequest, res: Response): Promise<Response> {
     const actor = actorOf(req);
     if (!actor) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
@@ -213,6 +238,76 @@ export class PartnerOffersController {
       return res.status(200).json(toUnitCheckIn(result));
     } catch (error) {
       return handleBookingError(res, 'checkIn', error);
+    }
+  }
+
+  /** "Inserir código" do estabelecimento (D27): sem escolher oferta nem horário. */
+  static async checkInByEstablishment(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    const actor = actorOf(req);
+    if (!actor) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
+    const guideItemId = DocumentIdSchema.safeParse(req.params.guideItemId);
+    const body = CheckInByCodeSchema.safeParse(req.body);
+    if (!guideItemId.success || !body.success) {
+      return sendError(res, 400, 'VALIDATION_ERROR', 'Dados do check-in inválidos.');
+    }
+    try {
+      const result = await checkInByEstablishmentCodeApplicationUseCase(actor, {
+        guideItemId: guideItemId.data,
+        ...body.data,
+      });
+      return res.status(200).json({
+        ...toUnitCheckIn(result),
+        buyerName: result.buyerName,
+        offer: result.offer,
+        slot: result.slot,
+        delivered: result.delivered,
+      });
+    } catch (error) {
+      return handleBookingError(res, 'checkInByEstablishment', error);
+    }
+  }
+
+  /** "Cheguei" do horário inteiro (D27, p42). */
+  static async recordSlotArrival(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    const actor = actorOf(req);
+    if (!actor) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
+    const offerId = DocumentIdSchema.safeParse(req.params.offerId);
+    const slotId = DocumentIdSchema.safeParse(req.params.slotId);
+    const body = ProviderArrivalSchema.safeParse(req.body ?? {});
+    if (!offerId.success || !slotId.success || !body.success) {
+      return sendError(res, 400, 'VALIDATION_ERROR', 'Dados da chegada inválidos.');
+    }
+    try {
+      const bookings = await recordSlotArrivalApplicationUseCase(
+        actor,
+        offerId.data,
+        slotId.data,
+        body.data.location
+      );
+      return res.status(200).json({
+        arrivedAt: bookings.map((booking) => booking.arrival?.at).find(Boolean) ?? null,
+        waiting: bookings.length,
+      });
+    } catch (error) {
+      return handleBookingError(res, 'recordSlotArrival', error);
+    }
+  }
+
+  /** Telefones de quem ainda não chegou, só depois do "Cheguei" (D27). Sem cache: é PII. */
+  static async listSlotContacts(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    const actor = actorOf(req);
+    if (!actor) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
+    const offerId = DocumentIdSchema.safeParse(req.params.offerId);
+    const slotId = DocumentIdSchema.safeParse(req.params.slotId);
+    if (!offerId.success || !slotId.success) {
+      return sendError(res, 404, 'NOT_FOUND', 'Horário não encontrado.');
+    }
+    try {
+      const data = await listSlotContactsApplicationUseCase(actor, offerId.data, slotId.data);
+      res.setHeader('Cache-Control', 'no-store');
+      return res.status(200).json({ data });
+    } catch (error) {
+      return handleBookingError(res, 'listSlotContacts', error);
     }
   }
 

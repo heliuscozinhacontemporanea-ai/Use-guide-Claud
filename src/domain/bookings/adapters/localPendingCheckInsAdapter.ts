@@ -3,7 +3,9 @@ export interface PendingCheckIn {
   id: string;
   offerId: string;
   slotId: string;
-  kind: 'code' | 'entry';
+  /** `establishment`: código do cartão "Inserir código", procurado em todos os horários (D27). */
+  kind: 'code' | 'entry' | 'establishment';
+  guideItemId?: string;
   /** O QR lido ou o código digitado, com a hora do aparelho. */
   payload: { code?: string; qrToken?: string; capturedAt: string };
 }

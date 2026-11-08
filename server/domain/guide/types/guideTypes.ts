@@ -1,3 +1,4 @@
+import type { BrState } from '../../../shared/kernel/timeZones';
 export type GuideVerificationType = 'trial' | 'monthly' | 'semi-annual' | 'annual' | 'admin' | null;
 
 /** `producer`: perfil de produtor de eventos, sem endereço fixo; não aparece nas listagens do guia. */
@@ -80,6 +81,11 @@ export interface GuideCatalogFields {
   phone?: string;
   googleMapsLink?: string;
   address?: string;
+  /** Estado (UF) e cidade do lugar; dão o fuso (D28). */
+  state?: BrState;
+  city?: string;
+  /** Fuso do lugar (IANA), calculado no servidor pelo estado e pela cidade (D28). */
+  timeZone?: string;
   tags?: string[];
   operationalInfo?: GuideOperationalInfo;
   isActive: boolean;
@@ -127,6 +133,11 @@ export interface GuideCreateItemInput {
   phone?: string;
   googleMapsLink?: string;
   address?: string;
+  /** Estado (UF) e cidade do lugar; dão o fuso (D28). */
+  state?: BrState;
+  city?: string;
+  /** Fuso do lugar (IANA), calculado no servidor pelo estado e pela cidade (D28). */
+  timeZone?: string;
   tags?: string[];
   operationalInfo?: GuideOperationalInfo;
   isActive?: boolean;
@@ -147,6 +158,11 @@ export interface GuideUpdateItemInput {
   phone?: string;
   googleMapsLink?: string;
   address?: string;
+  /** Estado (UF) e cidade do lugar; dão o fuso (D28). */
+  state?: BrState;
+  city?: string;
+  /** Fuso do lugar (IANA), calculado no servidor pelo estado e pela cidade (D28). */
+  timeZone?: string;
   tags?: string[];
   operationalInfo?: GuideOperationalInfo;
   isActive?: boolean;

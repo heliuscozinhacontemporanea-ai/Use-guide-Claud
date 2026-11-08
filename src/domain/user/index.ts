@@ -1,5 +1,6 @@
 export { deleteCurrentUserUseCase } from './application/usecases/deleteCurrentUserUseCase';
 export { findUserByUsernameUseCase } from './application/usecases/findUserByUsernameUseCase';
+export { searchUsernamesUseCase } from './application/usecases/searchUsernamesUseCase';
 export { getCurrentUserUseCase } from './application/usecases/getCurrentUserUseCase';
 export { updateCurrentUserUseCase } from './application/usecases/updateCurrentUserUseCase';
 export { updatePasswordUseCase } from './application/usecases/updatePasswordUseCase';

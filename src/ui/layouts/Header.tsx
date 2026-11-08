@@ -1,12 +1,12 @@
-import { Handshake, Search, User as UserIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
+import { useLocalizedRouting } from '../../shared/hooks/useLocalizedRouting';
+import { Search, Handshake, User as UserIcon } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useAuthContext } from '../../domain/auth/context/AuthContext';
 import { UserSession } from '../../domain/auth/types/auth';
-import { Z_INDEX } from '../../shared/constants/zIndex';
-import { useLocalizedRouting } from '../../shared/hooks/useLocalizedRouting';
 import { cn } from '../../shared/utils/cn';
+import { Z_INDEX } from '../../shared/constants/zIndex';
 import { getUserInitials } from '../../shared/utils/formatters';
 
 interface HeaderProps {

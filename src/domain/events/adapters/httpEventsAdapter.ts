@@ -50,51 +50,6 @@ export class HttpEventsAdapter implements EventsPort {
       .sort((a, b) => new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime());
   }
 
-  async createPartnerEventListing(
-    input: CreateEventListingInput
-  ): Promise<{ id: string; listing?: EventListing; occurrences?: EventOccurrence[] }> {
-    const response = await firebaseApiFetch(
-      '/api/partners/events',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(input),
-      },
-      { requireAuth: true, requireAppCheck: true }
-    );
-    const result = await parseJsonOrThrow<{
-      id: string;
-      data?: { listing: EventListing; occurrences: EventOccurrence[] };
-    }>(response, 'Erro ao criar evento.');
-    return {
-      id: result.id,
-      listing: result.data?.listing,
-      occurrences: result.data?.occurrences,
-    };
-  }
-
-  async updatePartnerEventListing(id: string, input: UpdateEventListingInput): Promise<void> {
-    const response = await firebaseApiFetch(
-      `/api/partners/events/${encodeURIComponent(id)}`,
-      {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(input),
-      },
-      { requireAuth: true, requireAppCheck: true }
-    );
-    await parseJsonOrThrow(response, 'Erro ao atualizar evento.');
-  }
-
-  async deletePartnerEventListing(id: string): Promise<void> {
-    const response = await firebaseApiFetch(
-      `/api/partners/events/${encodeURIComponent(id)}`,
-      { method: 'DELETE' },
-      { requireAuth: true, requireAppCheck: true }
-    );
-    await parseJsonOrThrow(response, 'Erro ao excluir evento.');
-  }
-
   async createPartnerEventOccurrence(
     eventListingId: string,
     input: CreateEventOccurrenceInput
@@ -222,24 +177,6 @@ export class HttpEventsAdapter implements EventsPort {
       { requireAuth: true, requireAppCheck: true }
     );
     await parseJsonOrThrow(response, 'Erro ao remover evento administrativo.');
-  }
-
-  async archiveAdminEventListing(id: string): Promise<void> {
-    const response = await firebaseApiFetch(
-      `/api/admin/events/${encodeURIComponent(id)}/archive`,
-      { method: 'POST' },
-      { requireAuth: true, requireAppCheck: true }
-    );
-    await parseJsonOrThrow(response, 'Erro ao arquivar evento.');
-  }
-
-  async cancelAdminEventListing(id: string): Promise<void> {
-    const response = await firebaseApiFetch(
-      `/api/admin/events/${encodeURIComponent(id)}/cancel`,
-      { method: 'POST' },
-      { requireAuth: true, requireAppCheck: true }
-    );
-    await parseJsonOrThrow(response, 'Erro ao cancelar evento.');
   }
 
   async createAdminEventOccurrence(

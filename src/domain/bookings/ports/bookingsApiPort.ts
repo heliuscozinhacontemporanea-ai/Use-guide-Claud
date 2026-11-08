@@ -1,5 +1,6 @@
 import type {
   ArrivalLocation,
+  ArrivalResponse,
   BookingDetails,
   BookingSummary,
   CancelBookingResponse,
@@ -11,13 +12,16 @@ import type {
   CreateSlotsPayload,
   EntryCheckInPayload,
   EntryPassView,
+  EstablishmentCheckInResult,
   NoCodeReason,
   OfferFields,
   OfferStatus,
   Page,
   PartnerOffer,
   PartnerSlot,
+  PartnerSlotDetail,
   PublicSlot,
+  SlotContact,
   UnitCheckInResult,
 } from '../types/bookings';
 
@@ -27,6 +31,7 @@ export interface BookingsApiPort {
   updateOffer(offerId: string, payload: Partial<OfferFields>): Promise<PartnerOffer>;
   setOfferStatus(offerId: string, status: Exclude<OfferStatus, 'draft'>): Promise<PartnerOffer>;
   listPartnerSlots(offerId: string, fromIso: string, toIso: string): Promise<PartnerSlot[]>;
+  getPartnerSlotDetail(offerId: string, slotId: string): Promise<PartnerSlotDetail>;
   createSlots(offerId: string, payload: CreateSlotsPayload): Promise<PartnerSlot[]>;
   cancelSlot(offerId: string, slotId: string): Promise<{ canceledBookings: number }>;
   rescheduleSlot(
@@ -66,6 +71,19 @@ export interface BookingsApiPort {
     bookingId: string,
     location?: ArrivalLocation
   ): Promise<BookingSummary>;
+  /** "Inserir código" do estabelecimento (D27): qualquer horário aberto do dono no item. */
+  checkInByEstablishmentCode(
+    guideItemId: string,
+    payload: CodeCheckInPayload
+  ): Promise<EstablishmentCheckInResult>;
+  /** "Cheguei" do horário inteiro (D27). */
+  recordSlotArrival(
+    offerId: string,
+    slotId: string,
+    location?: ArrivalLocation
+  ): Promise<{ arrivedAt: string | null; waiting: number }>;
+  listSlotContacts(offerId: string, slotId: string): Promise<SlotContact[]>;
+  respondToArrival(bookingId: string, response: ArrivalResponse): Promise<BookingSummary>;
   checkInWithoutCode(
     offerId: string,
     bookingId: string,

@@ -1,10 +1,12 @@
-import type { AuthenticatedUserContext } from '../security/authenticatedUserContext';
 import {
   getEventListingByIdUseCase,
-  updateEventListingUseCase,
   type UpdateEventListingInput,
+  updateEventListingUseCase,
 } from '../../domain/events';
+import { getItemByIdUseCase } from '../../domain/guide';
 import { updateBusinessUseCase } from '../../domain/partners';
+import { placeTimeOf } from '../../shared/kernel/timeZones';
+import type { AuthenticatedUserContext } from '../security/authenticatedUserContext';
 import { updateEventListingSafelyApplicationUseCase } from './updateEventListingSafelyApplicationUseCase';
 
 export async function updatePartnerEventApplicationUseCase(
@@ -22,10 +24,16 @@ export async function updatePartnerEventApplicationUseCase(
     throw new Error('Proprietário do evento não encontrado.');
   }
 
+  // O fuso segue o do estabelecimento do evento, que pode ter mudado de cidade (D28).
+  const establishment = previous.establishmentId
+    ? await getItemByIdUseCase(previous.establishmentId)
+    : null;
+  const { timeZone: _ignoredZone, city: _ignoredCity, ...fromClient } = data;
   const updatePayload: UpdateEventListingInput = {
-    ...data,
+    ...fromClient,
     title: data.name,
     coverImage: data.image,
+    ...(establishment ? placeTimeOf(establishment) : {}),
   };
 
   await updateEventListingSafelyApplicationUseCase(user, id, updatePayload);

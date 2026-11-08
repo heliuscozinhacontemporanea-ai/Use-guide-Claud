@@ -1,5 +1,6 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { PARTNER_TERMS_VERSION } from '../../../shared/constants/legalTerms';
 import { i18n } from '../../../shared/i18n';
 
 const m = vi.hoisted(() => ({
@@ -61,7 +62,7 @@ const NOT_STARTED = {
 };
 
 const PENDING_TERMS = {
-  currentVersion: '2026-10-25',
+  currentVersion: PARTNER_TERMS_VERSION,
   accepted: false,
   acceptedAt: null,
   fees: {
@@ -131,7 +132,7 @@ describe('PartnerStripeConnectPortal (D14)', () => {
     expect((acceptButton as HTMLButtonElement).disabled).toBe(true);
     fireEvent.click(screen.getByRole('checkbox'));
     fireEvent.click(acceptButton);
-    await waitFor(() => expect(m.accept).toHaveBeenCalledWith('2026-10-25'));
+    await waitFor(() => expect(m.accept).toHaveBeenCalledWith(PARTNER_TERMS_VERSION));
     expect(await screen.findByText(/Termos do parceiro aceitos em/)).toBeTruthy();
     expect((start as HTMLButtonElement).disabled).toBe(false);
   });

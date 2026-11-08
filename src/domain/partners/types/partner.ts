@@ -35,6 +35,9 @@ export interface PartnerSubmissionData {
   /** Categoria do cadastro (validada na conversão para item do guia). */
   category: string;
   region: string;
+  /** Estado (UF) e cidade: dão o fuso dos horários (D28). */
+  state?: string;
+  city?: string;
   instagram: string;
   website: string;
   bookingLinks: string;

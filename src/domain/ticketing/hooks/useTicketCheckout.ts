@@ -9,6 +9,7 @@ import { createTicketOrderUseCase } from '../application/usecases/createTicketOr
 import { expireTicketOrderUseCase } from '../application/usecases/expireTicketOrderUseCase';
 import { getTicketOrderUseCase } from '../application/usecases/getTicketOrderUseCase';
 import type { PublicTicketTypeProjection, Ticket, TicketOrder } from '../types/ticketing';
+import { readPromoterLink } from '../utils/promoterLinkStorage';
 import { useCheckoutCountdown } from './useCheckoutCountdown';
 
 export interface IssuedTicketView {
@@ -51,6 +52,17 @@ async function withQrCodes(
 }
 
 /** Seleção, reserva, pagamento e emissão de ingressos de uma sessão. */
+const PROMO_ERRORS = [
+  'PROMO_INVALID',
+  'PROMO_NOT_STARTED',
+  'PROMO_EXPIRED',
+  'PROMO_EXHAUSTED',
+  'PROMO_ALREADY_USED',
+] as const;
+type PromoError = (typeof PROMO_ERRORS)[number];
+const isPromoError = (code: string): code is PromoError =>
+  (PROMO_ERRORS as readonly string[]).includes(code);
+
 export function useTicketCheckout({
   occurrenceId,
   ticketTypes,
@@ -167,6 +179,7 @@ export function useTicketCheckout({
     setSubmitting(true);
     setError(null);
     try {
+      const promoterLink = readPromoterLink();
       const result = await createTicketOrderUseCase({
         occurrenceId,
         items: selectedItems.map(({ ticketType, quantity }) => ({
@@ -182,6 +195,7 @@ export function useTicketCheckout({
         })),
         buyer: { name: buyerName.trim(), email: buyerEmail.trim() },
         ...(promoCode.trim() ? { promoCode: promoCode.trim().toUpperCase() } : {}),
+        ...(promoterLink ? { promoterCode: promoterLink } : {}),
         idempotencyKey: `ord_${occurrenceId}_${user.uid}_${crypto.randomUUID()}`,
         acceptedTermsVersion: BUYER_TERMS_VERSION,
       });
@@ -211,6 +225,8 @@ export function useTicketCheckout({
       if (err instanceof Error && err.message === 'EMAIL_NOT_VERIFIED') {
         setError(t('ticketCheckout.errors.emailNotVerified'));
         openEmailVerificationPromptUseCase();
+      } else if (err instanceof Error && isPromoError(err.message)) {
+        setError(t(`ticketCheckout.errors.promo.${err.message}`));
       } else {
         setError(err instanceof Error ? err.message : t('ticketCheckout.errors.createFailed'));
       }

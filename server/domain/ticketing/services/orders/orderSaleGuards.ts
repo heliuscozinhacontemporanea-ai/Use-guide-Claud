@@ -4,7 +4,6 @@ import {
   TicketingDomainError,
 } from '../../errors/ticketingDomainError';
 import type { TicketingPort } from '../../ports/ticketingPort';
-import type { EventPromoCode } from '../../types/ticketingTypes';
 
 /** Sessão aberta para venda: evento publicado e dentro da janela de vendas. */
 export async function loadOccurrenceOnSale(occurrenceId: string, nowMs: number) {
@@ -61,30 +60,4 @@ export async function assertBuyerWithinTicketLimit(
       `Limite máximo de ${params.max} ingressos por usuário nesta ocorrência excedido.`
     );
   }
-}
-
-/** Cupom ativo, vigente e com usos disponíveis. */
-export async function loadActivePromo(
-  port: TicketingPort,
-  listingId: string,
-  code: string,
-  nowMs: number
-): Promise<EventPromoCode> {
-  const promo = await port.getPromoCodeByCode(listingId, code);
-  if (!promo?.isActive) {
-    throw new TicketingDomainError('INVALID_ARGUMENT', 'Cupom promocional inválido ou inativo.');
-  }
-  if (promo.startsAt && nowMs < new Date(promo.startsAt).getTime()) {
-    throw new TicketingDomainError(
-      'UNPROCESSABLE_ENTITY',
-      'Cupom promocional ainda não está vigente.'
-    );
-  }
-  if (promo.endsAt && nowMs > new Date(promo.endsAt).getTime()) {
-    throw new TicketingDomainError('UNPROCESSABLE_ENTITY', 'Cupom promocional expirado.');
-  }
-  if (promo.maxUses !== undefined && promo.usedCount >= promo.maxUses) {
-    throw new TicketingDomainError('UNPROCESSABLE_ENTITY', 'Limite de uso deste cupom atingido.');
-  }
-  return promo;
 }

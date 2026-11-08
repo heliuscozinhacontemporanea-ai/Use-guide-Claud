@@ -83,6 +83,7 @@ describe('Security Audit - Mass Assignment and Cross-Owner Defenses', () => {
         updateReviewAggregate: vi.fn(),
         deleteResourcesByOwner: vi.fn(),
         getAllItems: vi.fn(),
+        listItemsByOwner: vi.fn(),
       };
 
       const guideService = new GuideService(mockPort);
@@ -112,6 +113,7 @@ describe('Security Audit - Mass Assignment and Cross-Owner Defenses', () => {
         updateReviewAggregate: vi.fn(),
         deleteResourcesByOwner: vi.fn(),
         getAllItems: vi.fn(),
+        listItemsByOwner: vi.fn(),
       };
 
       const guideService = new GuideService(mockPort);
@@ -150,6 +152,7 @@ describe('Security Audit - Mass Assignment and Cross-Owner Defenses', () => {
         share: 5,
         favorite: 10,
         history: [],
+        month: { currentViews: 0, previousViews: 0 },
       };
 
       const mockRepo: InsightsRepositoryPort = {
@@ -178,6 +181,7 @@ describe('Security Audit - Mass Assignment and Cross-Owner Defenses', () => {
         share: 2,
         favorite: 3,
         history: [],
+        month: { currentViews: 0, previousViews: 0 },
       };
 
       const mockRepo: InsightsRepositoryPort = {

@@ -11,3 +11,4 @@ export { useItemStats } from './hooks/useItemStats';
 
 // Componentes públicos do domínio de Insights
 export { ReportsView } from './components/ReportsView';
+export { MonthVisitsTile } from './components/partner/MonthVisitsTile';

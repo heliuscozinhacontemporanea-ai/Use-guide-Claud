@@ -1,6 +1,11 @@
-import { cancelEventOccurrenceUseCase, type EventOccurrence } from '../../domain/events';
+import {
+  cancelEventOccurrenceUseCase,
+  type EventOccurrence,
+  getEventListingByIdUseCase,
+} from '../../domain/events';
 import { createNotificationUseCase } from '../../domain/notifications';
 import {
+  cancelOccurrenceCourtesiesUseCase,
   listEventOrdersForPartnerOrAdminUseCase,
   type Refund,
   type TicketingActorContext,
@@ -58,6 +63,24 @@ export async function cancelEventOccurrenceAndRefundApplicationUseCase(
     } catch {
       // Continua processando demais pedidos elegíveis
     }
+  }
+
+  // Cortesias não têm reembolso: a pessoa só é avisada de que o convite caiu (D27).
+  const courtesies = await cancelOccurrenceCourtesiesUseCase(actor, occurrenceId).catch(() => []);
+  const title =
+    courtesies.length > 0
+      ? ((await getEventListingByIdUseCase(occurrence.eventListingId).catch(() => null))?.title ??
+        '')
+      : '';
+  for (const courtesy of courtesies) {
+    if (!courtesy.guest) continue;
+    await createNotificationUseCase({
+      recipientUid: courtesy.guest.uid,
+      type: 'courtesy_canceled',
+      params: { event: title },
+      link: { screen: 'tickets' },
+      dedupeKey: `courtesy_canceled_${courtesy.id}`,
+    }).catch(() => {});
   }
 
   return { occurrence, refundsInitiated };

@@ -27,6 +27,7 @@ export interface BookingsTranslation {
     participantsLegend: string;
     participantName: string;
     continue: string;
+    promoCode: string;
     back: string;
     loginRequired: string;
     login: string;
@@ -60,6 +61,7 @@ export interface BookingsTranslation {
     edit: string;
     manageSlots: string;
     viewBookings: string;
+    coupons: string;
     confirmArchive: string;
     actionFailed: string;
     stripeRequired: string;
@@ -67,6 +69,14 @@ export interface BookingsTranslation {
     stripeRequiredSome: string;
     accountStatusError: string;
     fromPrice: string;
+    /** Catálogo do painel (p09, p19): linha da oferta e folha de ações. */
+    perPerson: string;
+    perGroup: string;
+    fromPerPerson: string;
+    fromPerGroup: string;
+    emptyCatalog: string;
+    pickItem: string;
+    sheetActions: string;
   };
   status: {
     draft: string;
@@ -105,6 +115,24 @@ export interface BookingsTranslation {
     integer: string;
     atLeastOnePrice: string;
   };
+  slotSheet: {
+    when: string;
+    meetingPoint: string;
+    bookings: string;
+    people: string;
+    peopleOf: string;
+    arrived: string;
+    statusArrived: string;
+    statusWaiting: string;
+    noName: string;
+    units_one: string;
+    units_other: string;
+    confirmCode: string;
+    reschedule: string;
+    cancel: string;
+    error: string;
+    empty: string;
+  };
   slots: {
     title: string;
     previousWeek: string;
@@ -129,7 +157,6 @@ export interface BookingsTranslation {
     canceled_other: string;
     statusClosed: string;
     statusCanceled: string;
-    timezoneNotice: string;
     reschedule: string;
     rescheduleTitle: string;
     rescheduleDescription: string;
@@ -202,6 +229,11 @@ export interface BookingsTranslation {
     NAME_CHANGE_NOT_ALLOWED: string;
     CLAIM_ALREADY_EXISTS: string;
     INTERNAL_ERROR: string;
+    PROMO_INVALID: string;
+    PROMO_NOT_STARTED: string;
+    PROMO_EXPIRED: string;
+    PROMO_EXHAUSTED: string;
+    PROMO_ALREADY_USED: string;
   };
 }
 
@@ -233,6 +265,7 @@ export const bookingsPtBR: BookingsTranslation = {
     participantsLegend: 'Nome dos participantes',
     participantName: 'Participante {{index}}',
     continue: 'Continuar',
+    promoCode: 'Cupom de desconto (opcional)',
     back: 'Voltar',
     loginRequired: 'Entre na sua conta para reservar.',
     login: 'Entrar',
@@ -268,6 +301,7 @@ export const bookingsPtBR: BookingsTranslation = {
     edit: 'Editar',
     manageSlots: 'Horários',
     viewBookings: 'Reservas',
+    coupons: 'Cupons',
     confirmArchive: 'Arquivar esta oferta? Ela sai do site e não pode ser reaberta.',
     actionFailed: 'Não foi possível concluir a ação.',
     stripeRequired: 'Para vender reservas, conclua a configuração financeira da sua conta.',
@@ -277,12 +311,19 @@ export const bookingsPtBR: BookingsTranslation = {
       'Alguns estabelecimentos ainda não podem vender: conclua a configuração financeira do CNPJ de cada um em Recebimentos.',
     accountStatusError: 'Não foi possível verificar sua conta financeira agora.',
     fromPrice: 'a partir de {{amount}}',
+    perPerson: '{{amount}} por pessoa',
+    perGroup: '{{amount}} por grupo',
+    fromPerPerson: 'a partir de {{amount}} por pessoa',
+    fromPerGroup: 'a partir de {{amount}} por grupo',
+    emptyCatalog: 'Nenhum passeio ou aluguel ainda.',
+    pickItem: 'Em qual estabelecimento?',
+    sheetActions: 'O que deseja fazer?',
   },
   status: {
     draft: 'Rascunho',
-    published: 'Publicada',
-    paused: 'Pausada',
-    archived: 'Arquivada',
+    published: 'À venda',
+    paused: 'Pausado',
+    archived: 'Arquivado',
   },
   kind: {
     tour: 'Passeio',
@@ -315,6 +356,24 @@ export const bookingsPtBR: BookingsTranslation = {
     integer: 'Informe um número inteiro.',
     atLeastOnePrice: 'Informe ao menos uma opção de preço.',
   },
+  slotSheet: {
+    when: '{{date}} · {{time}}',
+    meetingPoint: 'ponto de encontro: {{place}}',
+    bookings: 'Reservas',
+    people: 'Pessoas',
+    peopleOf: '{{sold}} de {{capacity}}',
+    arrived: 'Chegaram',
+    statusArrived: 'Chegou',
+    statusWaiting: 'Aguardando',
+    noName: 'Cliente',
+    units_one: '{{count}} pessoa',
+    units_other: '{{count}} pessoas',
+    confirmCode: 'Confirmar chegada com código',
+    reschedule: 'Mudar horário',
+    cancel: 'Cancelar horário',
+    error: 'Não foi possível carregar as reservas do horário.',
+    empty: 'Nenhuma reserva neste horário.',
+  },
   slots: {
     title: 'Horários',
     previousWeek: 'Semana anterior',
@@ -339,7 +398,6 @@ export const bookingsPtBR: BookingsTranslation = {
     canceled_other: 'Horário cancelado. {{count}} reservas reembolsadas.',
     statusClosed: 'Fechado',
     statusCanceled: 'Cancelado',
-    timezoneNotice: 'Horários no fuso de Fortaleza (UTC−3).',
     reschedule: 'Remarcar',
     rescheduleTitle: 'Remarcar horário',
     rescheduleDescription:
@@ -420,6 +478,11 @@ export const bookingsPtBR: BookingsTranslation = {
       'O nome desta entrada já foi trocado ou a troca fechou (até 24 h antes).',
     CLAIM_ALREADY_EXISTS: 'Já existe uma reclamação para esta compra.',
     INTERNAL_ERROR: 'Algo deu errado. Tente novamente em instantes.',
+    PROMO_INVALID: 'Cupom inválido para esta oferta.',
+    PROMO_NOT_STARTED: 'Este cupom ainda não está valendo.',
+    PROMO_EXPIRED: 'Este cupom já encerrou.',
+    PROMO_EXHAUSTED: 'Este cupom esgotou.',
+    PROMO_ALREADY_USED: 'Você já usou este cupom.',
   },
 };
 
@@ -451,6 +514,7 @@ export const bookingsEn: BookingsTranslation = {
     participantsLegend: 'Participant names',
     participantName: 'Participant {{index}}',
     continue: 'Continue',
+    promoCode: 'Promo code (optional)',
     back: 'Back',
     loginRequired: 'Sign in to book.',
     login: 'Sign in',
@@ -485,6 +549,7 @@ export const bookingsEn: BookingsTranslation = {
     edit: 'Edit',
     manageSlots: 'Time slots',
     viewBookings: 'Bookings',
+    coupons: 'Promo codes',
     confirmArchive: 'Archive this offer? It leaves the site and cannot be reopened.',
     actionFailed: 'The action could not be completed.',
     stripeRequired: 'To sell bookings, finish your account payment setup.',
@@ -493,10 +558,17 @@ export const bookingsEn: BookingsTranslation = {
       'Some places can’t sell yet: finish the payment setup for each one’s CNPJ under Payouts.',
     accountStatusError: 'We couldn’t check your payment account right now.',
     fromPrice: 'from {{amount}}',
+    perPerson: '{{amount}} per person',
+    perGroup: '{{amount}} per group',
+    fromPerPerson: 'from {{amount}} per person',
+    fromPerGroup: 'from {{amount}} per group',
+    emptyCatalog: 'No tours or rentals yet.',
+    pickItem: 'For which business?',
+    sheetActions: 'What would you like to do?',
   },
   status: {
     draft: 'Draft',
-    published: 'Published',
+    published: 'On sale',
     paused: 'Paused',
     archived: 'Archived',
   },
@@ -531,6 +603,24 @@ export const bookingsEn: BookingsTranslation = {
     integer: 'Enter a whole number.',
     atLeastOnePrice: 'Add at least one price option.',
   },
+  slotSheet: {
+    when: '{{date}} · {{time}}',
+    meetingPoint: 'meeting point: {{place}}',
+    bookings: 'Bookings',
+    people: 'People',
+    peopleOf: '{{sold}} of {{capacity}}',
+    arrived: 'Arrived',
+    statusArrived: 'Arrived',
+    statusWaiting: 'Waiting',
+    noName: 'Customer',
+    units_one: '{{count}} person',
+    units_other: '{{count}} people',
+    confirmCode: 'Confirm arrival with code',
+    reschedule: 'Change time',
+    cancel: 'Cancel time slot',
+    error: 'The bookings for this time slot could not be loaded.',
+    empty: 'No bookings in this time slot.',
+  },
   slots: {
     title: 'Time slots',
     previousWeek: 'Previous week',
@@ -555,7 +645,6 @@ export const bookingsEn: BookingsTranslation = {
     canceled_other: 'Time slot canceled. {{count}} bookings refunded.',
     statusClosed: 'Closed',
     statusCanceled: 'Canceled',
-    timezoneNotice: 'Times in Fortaleza time (UTC−3).',
     reschedule: 'Reschedule',
     rescheduleTitle: 'Reschedule time slot',
     rescheduleDescription:
@@ -635,6 +724,11 @@ export const bookingsEn: BookingsTranslation = {
       'The name on this entry was already changed or changes are closed (up to 24 h before).',
     CLAIM_ALREADY_EXISTS: 'There is already a claim for this purchase.',
     INTERNAL_ERROR: 'Something went wrong. Please try again shortly.',
+    PROMO_INVALID: 'Invalid promo code for this offer.',
+    PROMO_NOT_STARTED: 'This promo code is not valid yet.',
+    PROMO_EXPIRED: 'This promo code has ended.',
+    PROMO_EXHAUSTED: 'This promo code has run out.',
+    PROMO_ALREADY_USED: 'You have already used this promo code.',
   },
 };
 
@@ -667,6 +761,7 @@ export const bookingsFr: BookingsTranslation = {
     participantsLegend: 'Nom des participants',
     participantName: 'Participant {{index}}',
     continue: 'Continuer',
+    promoCode: 'Code promo (facultatif)',
     back: 'Retour',
     loginRequired: 'Connectez-vous pour réserver.',
     login: 'Se connecter',
@@ -703,6 +798,7 @@ export const bookingsFr: BookingsTranslation = {
     edit: 'Modifier',
     manageSlots: 'Créneaux',
     viewBookings: 'Réservations',
+    coupons: 'Codes promo',
     confirmArchive: 'Archiver cette offre ? Elle quitte le site et ne pourra pas être rouverte.',
     actionFailed: 'L’action n’a pas pu aboutir.',
     stripeRequired:
@@ -713,12 +809,19 @@ export const bookingsFr: BookingsTranslation = {
       'Certains établissements ne peuvent pas encore vendre : terminez la configuration financière du CNPJ de chacun dans Versements.',
     accountStatusError: 'Impossible de vérifier votre compte financier pour le moment.',
     fromPrice: 'à partir de {{amount}}',
+    perPerson: '{{amount}} par personne',
+    perGroup: '{{amount}} par groupe',
+    fromPerPerson: 'à partir de {{amount}} par personne',
+    fromPerGroup: 'à partir de {{amount}} par groupe',
+    emptyCatalog: 'Aucune excursion ni location pour le moment.',
+    pickItem: 'Pour quel établissement ?',
+    sheetActions: 'Que voulez-vous faire ?',
   },
   status: {
     draft: 'Brouillon',
-    published: 'Publiée',
+    published: 'En vente',
     paused: 'En pause',
-    archived: 'Archivée',
+    archived: 'Archivé',
   },
   kind: {
     tour: 'Excursion',
@@ -751,6 +854,24 @@ export const bookingsFr: BookingsTranslation = {
     integer: 'Indiquez un nombre entier.',
     atLeastOnePrice: 'Ajoutez au moins une option de tarif.',
   },
+  slotSheet: {
+    when: '{{date}} · {{time}}',
+    meetingPoint: 'point de rendez-vous : {{place}}',
+    bookings: 'Réservations',
+    people: 'Personnes',
+    peopleOf: '{{sold}} sur {{capacity}}',
+    arrived: 'Arrivés',
+    statusArrived: 'Arrivé',
+    statusWaiting: 'En attente',
+    noName: 'Client',
+    units_one: '{{count}} personne',
+    units_other: '{{count}} personnes',
+    confirmCode: 'Confirmer l’arrivée avec le code',
+    reschedule: 'Changer l’horaire',
+    cancel: 'Annuler le créneau',
+    error: 'Impossible de charger les réservations de ce créneau.',
+    empty: 'Aucune réservation sur ce créneau.',
+  },
   slots: {
     title: 'Créneaux',
     previousWeek: 'Semaine précédente',
@@ -775,7 +896,6 @@ export const bookingsFr: BookingsTranslation = {
     canceled_other: 'Créneau annulé. {{count}} réservations remboursées.',
     statusClosed: 'Fermé',
     statusCanceled: 'Annulé',
-    timezoneNotice: 'Horaires à l’heure de Fortaleza (UTC−3).',
     reschedule: 'Reprogrammer',
     rescheduleTitle: 'Reprogrammer le créneau',
     rescheduleDescription:
@@ -857,5 +977,10 @@ export const bookingsFr: BookingsTranslation = {
       'Le nom de cette entrée a déjà été changé ou le délai est passé (jusqu’à 24 h avant).',
     CLAIM_ALREADY_EXISTS: 'Une réclamation existe déjà pour cet achat.',
     INTERNAL_ERROR: 'Un problème est survenu. Réessayez dans un instant.',
+    PROMO_INVALID: 'Code promo invalide pour cette offre.',
+    PROMO_NOT_STARTED: 'Ce code promo n’est pas encore valable.',
+    PROMO_EXPIRED: 'Ce code promo a expiré.',
+    PROMO_EXHAUSTED: 'Ce code promo est épuisé.',
+    PROMO_ALREADY_USED: 'Vous avez déjà utilisé ce code promo.',
   },
 };

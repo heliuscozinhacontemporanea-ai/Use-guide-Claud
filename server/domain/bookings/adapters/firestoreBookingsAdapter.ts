@@ -115,8 +115,8 @@ export class FirestoreBookingsAdapter implements BookingsPort {
   readonly listBookingsWithDeadlineBefore = this.checkIns.listBookingsWithDeadlineBefore.bind(
     this.checkIns
   );
-  readonly listBookingsWithPickupAddressEraseBefore =
-    this.checkIns.listBookingsWithPickupAddressEraseBefore.bind(this.checkIns);
+  readonly listBookingsWithPersonalDataEraseBefore =
+    this.checkIns.listBookingsWithPersonalDataEraseBefore.bind(this.checkIns);
   readonly deleteParticipants = this.checkIns.deleteParticipants.bind(this.checkIns);
 
   async reserveCapacityAndCreateBooking(
@@ -313,6 +313,20 @@ export class FirestoreBookingsAdapter implements BookingsPort {
     return snapshot.exists
       ? BookingPersistenceMapper.toDomain(snapshot.id, snapshot.data() ?? {})
       : null;
+  }
+
+  async getBookings(bookingIds: string[]): Promise<Booking[]> {
+    const out: Booking[] = [];
+    for (let i = 0; i < bookingIds.length; i += 100) {
+      const refs = bookingIds.slice(i, i + 100).map((id) => adminDb.collection(BOOKINGS).doc(id));
+      if (refs.length === 0) continue;
+      for (const snapshot of await adminDb.getAll(...refs)) {
+        if (snapshot.exists) {
+          out.push(BookingPersistenceMapper.toDomain(snapshot.id, snapshot.data() ?? {}));
+        }
+      }
+    }
+    return out;
   }
 
   async getParticipants(bookingId: string): Promise<BookingParticipant[]> {

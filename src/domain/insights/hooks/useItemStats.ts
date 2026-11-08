@@ -18,8 +18,8 @@ export function useItemStats(itemId: string | null, itemCollection: 'items' | 'e
       const data = await getItemStatsUseCase(itemId, itemCollection);
       setStats(data);
     } catch (err) {
-      console.error('[useItemStats Error]:', err);
-      setError('Não foi possível carregar as estatísticas.');
+      // Guarda o `code` estável (§10.2); quem mostra traduz (ex.: LISTING_PLAN_REQUIRED).
+      setError(err instanceof Error ? err.message : 'INTERNAL_ERROR');
     } finally {
       setLoading(false);
     }

@@ -17,6 +17,7 @@ import type {
   TicketOrderItem,
   TicketQrPass,
   TicketTransferLinkCreated,
+  SessionEntry,
   TicketTransferLinkPreview,
   TicketType,
 } from '../types/ticketing';
@@ -130,7 +131,8 @@ export class HttpTicketingAdapter implements TicketingPort {
     );
     const body = await res.json().catch(() => ({}));
     if (!res.ok) {
-      if (body?.error?.code === 'EMAIL_NOT_VERIFIED') throw new Error('EMAIL_NOT_VERIFIED');
+      const code = typeof body?.error?.code === 'string' ? body.error.code : null;
+      if (code === 'EMAIL_NOT_VERIFIED' || code?.startsWith('PROMO_')) throw new Error(code);
       throw new Error(body?.error || body?.message || 'Não foi possível reservar os ingressos.');
     }
     const payload = (body?.data ?? body) as CreateOrderResult;
@@ -450,6 +452,19 @@ export class HttpTicketingAdapter implements TicketingPort {
       res,
       'Não foi possível carregar os check-ins do evento.'
     );
+  }
+
+  async listSessionEntries(eventListingId: string, occurrenceId: string): Promise<SessionEntry[]> {
+    const res = await firebaseApiFetch(
+      `/api/partner-home/events/${encodeURIComponent(eventListingId)}/sessions/${encodeURIComponent(occurrenceId)}/entries`,
+      { method: 'GET' },
+      { requireAuth: true, requireAppCheck: true }
+    );
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(typeof body?.error?.code === 'string' ? body.error.code : 'INTERNAL_ERROR');
+    }
+    return (body as { data: SessionEntry[] }).data;
   }
 
   async listEventRefunds(eventListingId: string, asAdmin = false): Promise<Refund[]> {

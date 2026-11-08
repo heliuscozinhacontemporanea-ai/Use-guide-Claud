@@ -19,6 +19,11 @@ export interface UsernamePort {
    */
   claim(uid: string, username: string, nowIso: string, releaseAtIso: string): Promise<void>;
   findOwner(username: string): Promise<UsernameOwner | null>;
+  /** Contas ativas cujo @ começa com `prefix`, em ordem alfabética: @, nome e foto públicos. */
+  searchByPrefix(
+    prefix: string,
+    limit: number
+  ): Promise<Array<{ username: string; displayName: string | null; photoURL: string | null }>>;
   /** Exclusão de conta: o @ fica reservado até `releaseAtIso`, sem dono. */
   releaseAll(uid: string, releaseAtIso: string): Promise<void>;
 }

@@ -2,6 +2,7 @@ import type { Response } from 'express';
 import { answerServiceConfirmationApplicationUseCase } from '../../../application/usecases/bookings/answerServiceConfirmationApplicationUseCase';
 import { cancelBookingByBuyerApplicationUseCase } from '../../../application/usecases/bookings/cancelBookingByBuyerApplicationUseCase';
 import { createBookingApplicationUseCase } from '../../../application/usecases/bookings/createBookingApplicationUseCase';
+import { respondToArrivalApplicationUseCase } from '../../../application/usecases/bookings/respondToArrivalApplicationUseCase';
 import { markBookingNoShowApplicationUseCase } from '../../../application/usecases/bookings/markBookingNoShowApplicationUseCase';
 import { reportProviderAbsentApplicationUseCase } from '../../../application/usecases/bookings/reportProviderAbsentApplicationUseCase';
 import {
@@ -18,6 +19,7 @@ import { toBookingDetails, toBuyerBooking, toSellerBooking } from './bookingResp
 import {
   CancelBookingSchema,
   CreateBookingSchema,
+  ArrivalResponseSchema,
   DocumentIdSchema,
   IdempotencyKeyHeaderSchema,
   PageQuerySchema,
@@ -183,6 +185,26 @@ export class BookingsController {
       return res.status(200).json(toSellerBooking(booking));
     } catch (error) {
       return handleBookingError(res, 'markNoShow', error);
+    }
+  }
+
+  /** "Estou chegando" ou "Não vou mais" (D27, p45). */
+  static async respondToArrival(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    const actor = actorOf(req);
+    if (!actor) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
+    const bookingId = DocumentIdSchema.safeParse(req.params.bookingId);
+    const body = ArrivalResponseSchema.safeParse(req.body);
+    if (!bookingId.success) return sendError(res, 404, 'NOT_FOUND', 'Reserva não encontrada.');
+    if (!body.success) return sendError(res, 400, 'VALIDATION_ERROR', 'Resposta inválida.');
+    try {
+      const booking = await respondToArrivalApplicationUseCase(
+        actor,
+        bookingId.data,
+        body.data.response
+      );
+      return res.status(200).json(toBuyerBooking(booking));
+    } catch (error) {
+      return handleBookingError(res, 'respondToArrival', error);
     }
   }
 

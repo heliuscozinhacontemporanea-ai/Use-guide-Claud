@@ -14,6 +14,8 @@ export interface ItemStats {
   share: number;
   favorite: number;
   history: InteractionHistoryItem[];
+  /** Visitas do mês atual e do anterior, no fuso do negócio (p19). */
+  month: { currentViews: number; previousViews: number };
 }
 
 /** Contadores gravados por item e por dia; nenhum identifica quem visitou. */

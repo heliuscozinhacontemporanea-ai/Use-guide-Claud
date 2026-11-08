@@ -5,7 +5,6 @@ import {
   type DatabasePage,
   getDocumentUseCase,
   queryDocumentsPageUseCase,
-  queryDocumentsUseCase,
   subscribeToCollectionUseCase,
 } from '../../database';
 import { ReviewPort } from '../ports/reviewPort';
@@ -96,10 +95,6 @@ export class FirestoreReviewAdapter implements ReviewPort {
   ): Promise<FirestoreReview | null> {
     const deterministicId = buildReviewId(itemCollection, itemId, userId, occurrenceId);
     return getDocumentUseCase<FirestoreReview>('reviews', deterministicId);
-  }
-
-  async getAllReviews(): Promise<FirestoreReview[]> {
-    return queryDocumentsUseCase<FirestoreReview>('reviews');
   }
 
   async submitReview(

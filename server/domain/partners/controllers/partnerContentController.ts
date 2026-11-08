@@ -11,7 +11,7 @@ import { updateEventOccurrenceSafelyApplicationUseCase } from '../../../applicat
 import { updatePartnerEventApplicationUseCase } from '../../../application/usecases/updatePartnerEventApplicationUseCase';
 import { updatePartnerItemApplicationUseCase } from '../../../application/usecases/updatePartnerItemApplicationUseCase';
 import type { AuthenticatedRequest } from '../../../infrastructure/auth/authMiddleware';
-import { createEventOccurrenceUseCase } from '../../events';
+import { createEventOccurrenceUseCase, EventHasSalesError } from '../../events';
 import {
   getEventSalesAnalyticsUseCase,
   listEventCheckInsForPartnerOrAdminUseCase,
@@ -53,6 +53,9 @@ function sendControllerError(res: Response, error: unknown, fallbackMessage: str
     return res.status(404).json({
       error: error instanceof Error ? error.message : 'Recurso não encontrado',
     });
+  }
+  if (error instanceof EventHasSalesError) {
+    return res.status(409).json({ error: { code: error.reason, message: error.message } });
   }
   if (code === 'UNPROCESSABLE_ENTITY') {
     return res.status(422).json({

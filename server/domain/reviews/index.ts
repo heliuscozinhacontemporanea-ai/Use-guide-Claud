@@ -7,3 +7,4 @@ export { getReviewsStatsUseCase } from './usecases/getReviewsStatsUseCase';
 export { listMyReviewReportsUseCase } from './usecases/listMyReviewReportsUseCase';
 export { listOpenReviewReportsUseCase } from './usecases/listOpenReviewReportsUseCase';
 export { reportReviewResponseUseCase } from './usecases/reportReviewResponseUseCase';
+export { countUnansweredReviewsUseCase } from './usecases/countUnansweredReviewsUseCase';

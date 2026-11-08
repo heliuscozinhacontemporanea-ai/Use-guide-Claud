@@ -7,7 +7,6 @@ export interface ListingPlanTranslation {
     suspended: string;
     pendingSeal: string;
     none: string;
-    label: string;
   };
   planNames: {
     trial: string;
@@ -86,7 +85,6 @@ export const listingPlanPtBR: ListingPlanTranslation = {
     suspended: 'Selo suspenso',
     pendingSeal: 'Plano ativo, selo após a verificação',
     none: 'Ativar selo',
-    label: 'Plano de {{name}}: {{status}}',
   },
   planNames: {
     trial: 'Teste grátis',
@@ -170,7 +168,6 @@ export const listingPlanEn: ListingPlanTranslation = {
     suspended: 'Badge suspended',
     pendingSeal: 'Plan active, badge after verification',
     none: 'Get the badge',
-    label: 'Plan for {{name}}: {{status}}',
   },
   planNames: {
     trial: 'Free trial',
@@ -252,7 +249,6 @@ export const listingPlanFr: ListingPlanTranslation = {
     suspended: 'Badge suspendu',
     pendingSeal: 'Offre active, badge après la vérification',
     none: 'Obtenir le badge',
-    label: 'Offre de {{name}} : {{status}}',
   },
   planNames: {
     trial: 'Essai gratuit',

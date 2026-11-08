@@ -35,3 +35,12 @@ export class EventOwnershipError extends EventDomainError {
     this.name = 'EventOwnershipError';
   }
 }
+
+/** Evento com vendas não é excluído pelo parceiro: as sessões são canceladas uma a uma (D27). */
+export class EventHasSalesError extends EventDomainError {
+  readonly reason = 'EVENT_HAS_SALES';
+  constructor(message = 'Este evento tem vendas. Para cancelar, use cada sessão.') {
+    super('CONFLICT', message);
+    this.name = 'EventHasSalesError';
+  }
+}
