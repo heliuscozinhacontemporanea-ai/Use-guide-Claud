@@ -1,10 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
-import { WindPoint } from '../types/climaWind';
-import { cn } from '../../../shared/utils/cn';
+import React, { useEffect, useRef, useState } from 'react';
+import 'leaflet/dist/leaflet.css';
 import { Navigation } from 'lucide-react';
-import { getWindColor } from '../../../shared/lib/weatherUtils';
 import { createPortal } from 'react-dom';
+import { getWindColor } from '../../../shared/lib/weatherUtils';
+import { cn } from '../../../shared/utils/cn';
+import { WindPoint } from '../types/climaWind';
 
 // Coordenadas centrais de Jericoacoara — ponto de referência do mapa
 const JERI_LAT = -2.81;
@@ -20,6 +21,14 @@ interface Particle {
   age: number;
 }
 
+function createParticle(width: number, height: number): Particle {
+  return {
+    x: Math.random() * width,
+    y: Math.random() * height,
+    age: Math.floor(Math.random() * 100),
+  };
+}
+
 export function WindMapLeaflet({ points }: WindMapLeafletProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const leafletMap = useRef<L.Map | null>(null);
@@ -28,12 +37,6 @@ export function WindMapLeaflet({ points }: WindMapLeafletProps) {
   const animationFrame = useRef<number | null>(null);
   const [mapReady, setMapReady] = useState(false);
   const [mapInstance, setMapInstance] = useState<L.Map | null>(null);
-
-  const createParticle = (width: number, height: number): Particle => ({
-    x: Math.random() * width,
-    y: Math.random() * height,
-    age: Math.floor(Math.random() * 100),
-  });
 
   useEffect(() => {
     if (!mapRef.current) return;
@@ -57,7 +60,7 @@ export function WindMapLeaflet({ points }: WindMapLeafletProps) {
     };
 
     const CustomLayer = (L.Layer as unknown as LeafletLayerFactory).extend({
-      onAdd: function (map: L.Map) {
+      onAdd: (map: L.Map) => {
         const canvas = L.DomUtil.create('canvas', 'leaflet-canvas-layer') as HTMLCanvasElement;
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
@@ -69,8 +72,8 @@ export function WindMapLeaflet({ points }: WindMapLeafletProps) {
           const size = map.getSize();
           canvas.width = size.x;
           canvas.height = size.y;
-          canvas.style.width = size.x + 'px';
-          canvas.style.height = size.y + 'px';
+          canvas.style.width = `${size.x}px`;
+          canvas.style.height = `${size.y}px`;
           const topLeft = map.containerPointToLayerPoint([0, 0]);
           L.DomUtil.setPosition(canvas, topLeft);
 
@@ -81,7 +84,7 @@ export function WindMapLeaflet({ points }: WindMapLeafletProps) {
         map.on('moveend zoomend viewreset', reset);
         reset();
       },
-      onRemove: function () {
+      onRemove: () => {
         if (canvasRef.current) {
           L.DomUtil.remove(canvasRef.current);
           canvasRef.current = null;
