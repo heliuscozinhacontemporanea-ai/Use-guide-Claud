@@ -21,6 +21,18 @@ Para o lançamento em todo o Brasil. Hoje o app inteiro usa um fuso só, `Americ
 
 Guardar o nome IANA, e não um número fixo como "−3", deixa o código pronto se o horário de verão voltar.
 
+## O caso do viajante (definido em 2026-11-08)
+
+Quem mora em Manaus ou em outro país e planeja a viagem para Jericoacoara vê **o horário de Jericoacoara**: o luau "às 20:00" é 20:00 no relógio de quem estiver lá. O responsável do produto confirmou essa regra, que é também a do mercado:
+
+* **Klook** diz na central de ajuda que todos os horários mostrados estão no fuso local de onde a atividade acontece ([Klook](https://www-verify.klook.cn/en-IN/faq/category-61-question-937)).
+* **Airbnb:** check-in e check-out são na hora local do anúncio ([Airbnb](https://www.airbnb.com/help/article/2060)); a Guesty mostra a confusão que surge quando uma ferramenta usa a hora do computador ([Guesty](https://help.guesty.com/hc/en-gb/articles/9370043683613-Changing-a-listing-s-check-in-and-check-out-times)).
+* **Google Maps:** o horário de funcionamento é guardado com o fuso do lugar (`utc_offset_minutes`), e o fuso sai da posição no mapa ([Google Places](https://developers.google.com/maps/documentation/javascript/place_field_js_migration?authuser=0); [Time Zone API](https://developers.google.com/maps/documentation/timezone/overview?hl=pt-br)).
+* **Eventbrite:** relatos de usuários dizem que o único fuso que importa é o do local do evento ([The Events Calendar](https://theeventscalendar.com/support/forums/topic/eventbrite-ticket-time-zones/)).
+* **Shopify** é o contrário: a loja escolhe o fuso à mão ([Supermetrics](https://docs.supermetrics.com/v1/docs/about-timezone-setting-discrepancies-in-shopify-data)). Isso serve para loja online, não para serviço com local.
+
+Para o viajante não se confundir, quando o aparelho dele está em outro fuso, a hora vem com o lugar: "20:00 (horário de Jericoacoara)". Quem está no mesmo fuso não vê nada a mais.
+
 ## Referências
 
 * **Eventbrite:** cada evento tem o próprio fuso, e os e-mails seguem o fuso do evento, não o do aparelho ([Zoom Community](https://community.zoom.com/t5/Zoom-Events-and-Webinars/Webinar-sent-out-wrong-time/m-p/139483); [The Events Calendar](https://theeventscalendar.com/support/forums/topic/eventbrite-ticket-time-zones/)).
