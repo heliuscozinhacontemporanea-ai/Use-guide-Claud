@@ -1,8 +1,26 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { BUYER_TERMS_VERSION } from '../../../shared/kernel/legalTerms';
 import { InMemoryBookingsAdapter } from '../adapters/inMemoryBookingsAdapter';
 import type { BookableOffer } from '../types/bookingTypes';
 import { BookingService, type CreatePendingBookingInput } from './bookingService';
+
+vi.mock('../../promotions', async () => {
+  const { computePromoDiscount } = await vi.importActual<
+    typeof import('../../promotions/utils/computePromoDiscount')
+  >('../../promotions/utils/computePromoDiscount');
+  return {
+    computePromoDiscount,
+    getPromoCodeForCheckoutUseCase: vi.fn(),
+    reservePromoUseUseCase: vi.fn(),
+    releasePromoUseUseCase: vi.fn().mockResolvedValue(undefined),
+  };
+});
+
+import {
+  getPromoCodeForCheckoutUseCase,
+  releasePromoUseUseCase,
+  reservePromoUseUseCase,
+} from '../../promotions';
 
 const BUYER = { uid: 'buyer-1', admin: false };
 const FEES = {
@@ -73,6 +91,47 @@ const INPUT: CreatePendingBookingInput = {
 };
 
 describe('BookingService', () => {
+  it('cupom (B1c): desconto no preço e na taxa, uso guardado uma vez e devolvido quando expira', async () => {
+    const { service, port, setNow } = setup();
+    vi.mocked(getPromoCodeForCheckoutUseCase).mockResolvedValue({
+      promo: {
+        id: 'pc1',
+        type: 'percentage',
+        percentage: 10,
+        valueMinor: null,
+        maxTicketsPerOrder: null,
+      },
+      optionIds: null,
+    } as never);
+    vi.mocked(reservePromoUseUseCase).mockResolvedValue('red_1');
+    const booking = await service.createPendingBooking(
+      BUYER,
+      { ...INPUT, promoCode: 'verao10' },
+      FEES
+    );
+    expect(getPromoCodeForCheckoutUseCase).toHaveBeenCalledWith({
+      code: 'verao10',
+      target: { kind: 'offer', id: 'offer-1' },
+      buyerUid: 'buyer-1',
+    });
+    expect(booking).toMatchObject({
+      subtotalMinor: 20000,
+      discountMinor: 2000,
+      totalMinor: 18000,
+      platformFeeMinor: 1800,
+      promoCodeId: 'pc1',
+      promoRedemptionId: 'red_1',
+    });
+    // Repetir com a mesma chave devolve a mesma reserva, sem gastar outro uso.
+    await service.createPendingBooking(BUYER, { ...INPUT, promoCode: 'verao10' }, FEES);
+    expect(reservePromoUseUseCase).toHaveBeenCalledTimes(1);
+
+    setNow('2026-11-01T12:20:00.000Z');
+    await service.expireOverdueBookings();
+    expect(releasePromoUseUseCase).toHaveBeenCalledWith('red_1');
+    expect(port.slots.get('slot-1')?.capacityReserved).toBe(0);
+  });
+
   it('telefone na compra de passeio (D27): obrigatório, em E.164, apagado com o endereço', async () => {
     const { service } = setup();
     await expect(

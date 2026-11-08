@@ -2,10 +2,12 @@
 export type PromoStatus = 'active' | 'paused' | 'scheduled' | 'ended' | 'exhausted';
 export type PromoDiscountType = 'percentage' | 'fixed';
 
+export type PromoTargetKind = 'event' | 'offer';
+
 export interface PromoTargetInput {
-  kind: 'event';
+  kind: PromoTargetKind;
   id: string;
-  /** Lotes com desconto; `null` é todos. */
+  /** Lotes do evento ou opções de preço da oferta com desconto; `null` é todos. */
   optionIds: string[] | null;
 }
 
@@ -28,18 +30,24 @@ export interface PartnerPromoCode {
   createdAt: string;
 }
 
-/** Evento onde o parceiro pode criar cupom, com os lotes de cada sessão. */
-export interface PromoEventTarget {
+/** Evento (lotes por sessão) ou oferta de reserva (opções de preço) onde o parceiro cria cupom. */
+export interface PromoListingTarget {
+  kind: PromoTargetKind;
   id: string;
   title: string;
   status: string;
-  options: Array<{ id: string; name: string; sessionStartsAt: string }>;
+  /** Passeio, aluguel, translado ou entrada; só na oferta. */
+  offerKind: string | null;
+  options: Array<{ id: string; name: string; sessionStartsAt: string | null }>;
 }
 
 export interface PromoCodesData {
   promoCodes: PartnerPromoCode[];
-  events: PromoEventTarget[];
+  targets: PromoListingTarget[];
 }
+
+export const promoTargetKey = (target: { kind: PromoTargetKind; id: string }) =>
+  `${target.kind}:${target.id}`;
 
 export interface PromoCodeInput {
   code: string;

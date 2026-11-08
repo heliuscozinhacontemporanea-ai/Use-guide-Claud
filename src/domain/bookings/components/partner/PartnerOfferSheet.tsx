@@ -1,4 +1,4 @@
-import { CalendarClock, Pencil, Users } from 'lucide-react';
+import { CalendarClock, Pencil, TicketPercent, Users } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Dialog } from '../../../../ui/components/Dialog';
 import { ListCard, ListRowButton } from '../../../../ui/components/ListRows';
@@ -15,6 +15,8 @@ interface PartnerOfferSheetProps {
   onSlots: () => void;
   onBookings: () => void;
   onStatus: (status: Exclude<OfferStatus, 'draft'>) => void;
+  /** Área Cupons já com a oferta escolhida (B1c), montada pelo painel. */
+  onCoupons?: () => void;
 }
 
 /** Folha da oferta no Catálogo: as ações que já existiam, num toque na linha. */
@@ -28,6 +30,7 @@ export function PartnerOfferSheet({
   onSlots,
   onBookings,
   onStatus,
+  onCoupons,
 }: PartnerOfferSheetProps) {
   const { t } = useTranslation();
   if (!offer) return null;
@@ -59,6 +62,13 @@ export function PartnerOfferSheet({
               aside={<Users size={16} className="text-ink/60" aria-hidden="true" />}
               onClick={onBookings}
             />
+            {onCoupons && (
+              <ListRowButton
+                title={t('bookings.partner.coupons')}
+                aside={<TicketPercent size={16} className="text-ink/60" aria-hidden="true" />}
+                onClick={onCoupons}
+              />
+            )}
           </ListCard>
           <div className="grid grid-cols-2 gap-2">
             {offer.status === 'published' ? (

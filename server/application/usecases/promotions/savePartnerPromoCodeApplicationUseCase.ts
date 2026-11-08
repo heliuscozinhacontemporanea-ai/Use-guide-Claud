@@ -5,11 +5,11 @@ import {
   replacePromoCodeUseCase,
 } from '../../../domain/promotions';
 import { type PartnerPromoCodeView, toPartnerPromoCodeView } from './partnerPromoCodeView';
-import { loadOwnerEventTargets } from './promoTargets';
+import { loadOwnerPromoTargets } from './promoTargets';
 
 /**
- * Cria o cupom (sem `id`) ou troca tudo antes do primeiro uso. Só vale para eventos do próprio dono
- * e lotes desses eventos: o ID de anúncio de outro dono é recusado como inexistente (A01).
+ * Cria o cupom (sem `id`) ou troca tudo antes do primeiro uso. Só vale para eventos e ofertas do
+ * próprio dono, com os lotes ou opções deles: anúncio de outro dono é recusado como inexistente (A01).
  */
 export async function savePartnerPromoCodeApplicationUseCase(
   ownerUid: string,
@@ -17,17 +17,17 @@ export async function savePartnerPromoCodeApplicationUseCase(
   id?: string,
   now: Date = new Date()
 ): Promise<PartnerPromoCodeView> {
-  const events = await loadOwnerEventTargets(ownerUid);
-  const byId = new Map(events.map((event) => [event.id, event]));
+  const listings = await loadOwnerPromoTargets(ownerUid);
+  const byKey = new Map(listings.map((listing) => [`${listing.kind}:${listing.id}`, listing]));
   for (const target of input.targets) {
-    const event = byId.get(target.id);
-    const options = new Set(event?.options.map((option) => option.id) ?? []);
-    if (!event || (target.optionIds ?? []).some((optionId) => !options.has(optionId))) {
+    const listing = byKey.get(`${target.kind}:${target.id}`);
+    const options = new Set(listing?.options.map((option) => option.id) ?? []);
+    if (!listing || (target.optionIds ?? []).some((optionId) => !options.has(optionId))) {
       throw new PromotionsDomainError('PROMO_TARGET_INVALID', 'Anúncio ou lote não encontrado.');
     }
   }
   const promo = id
     ? await replacePromoCodeUseCase(ownerUid, id, input)
     : await createPromoCodeUseCase(ownerUid, input);
-  return toPartnerPromoCodeView(promo, events, now.toISOString());
+  return toPartnerPromoCodeView(promo, listings, now.toISOString());
 }

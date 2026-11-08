@@ -11,7 +11,7 @@ import { updatePromoCodeLimitsUseCase } from '../application/usecases/updateProm
 import {
   PROMO_MAX_PERCENT,
   type PartnerPromoCode,
-  type PromoEventTarget,
+  type PromoListingTarget,
 } from '../types/promoCode';
 import { promoCodeErrorKey } from '../utils/promoCodeErrorKey';
 import { draftFromPromo, inputFromDraft, type PromoFormDraft } from '../utils/promoForm';
@@ -68,21 +68,22 @@ function Toggle({
 export function PromoCodeFormSheet({
   open,
   promo,
-  events,
-  defaultEventId,
+  targets,
+  defaultTargetKey,
   onClose,
   onSaved,
 }: {
   open: boolean;
   promo: PartnerPromoCode | null;
-  events: PromoEventTarget[];
-  defaultEventId: string | null;
+  targets: PromoListingTarget[];
+  /** `kind:id` do anúncio de onde a área foi aberta: já vem marcado. */
+  defaultTargetKey: string | null;
   onClose: () => void;
   onSaved: () => void;
 }) {
   const { t, i18n } = useTranslation();
   const ids = { code: useId(), value: useId(), start: useId(), end: useId() };
-  const [draft, setDraft] = useState<PromoFormDraft>(() => draftFromPromo(promo, defaultEventId));
+  const [draft, setDraft] = useState<PromoFormDraft>(() => draftFromPromo(promo, defaultTargetKey));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const locked = promo?.locked ?? false;
@@ -90,10 +91,10 @@ export function PromoCodeFormSheet({
 
   useEffect(() => {
     if (open) {
-      setDraft(draftFromPromo(promo, defaultEventId));
+      setDraft(draftFromPromo(promo, defaultTargetKey));
       setError(null);
     }
-  }, [open, promo, defaultEventId]);
+  }, [open, promo, defaultTargetKey]);
 
   const save = async () => {
     const built = inputFromDraft(draft, promo?.usedCount ?? 0);
@@ -214,7 +215,7 @@ export function PromoCodeFormSheet({
         </fieldset>
 
         <PromoTargetsField
-          events={events}
+          targets={targets}
           value={draft.targets}
           onChange={(targets) => set({ targets })}
           disabled={locked}

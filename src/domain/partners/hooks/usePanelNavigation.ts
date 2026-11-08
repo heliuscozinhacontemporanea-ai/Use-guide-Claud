@@ -2,6 +2,8 @@ import { useCallback, useState } from 'react';
 import type { PartnerMoreView } from '../components/panel/PartnerMoreSection';
 import type { PartnerPanelTab } from '../components/panel/partnerPanelTabs';
 
+export type CouponsScope = { kind: 'event' | 'offer'; id: string };
+
 /** Aba do painel e o que está aberto dentro dela (página do evento, relatórios, cupons…). */
 export function usePanelNavigation() {
   const [panelTab, setPanelTab] = useState<PartnerPanelTab>('home');
@@ -10,8 +12,8 @@ export function usePanelNavigation() {
   const [placeId, setPlaceId] = useState<string | null>(null);
   const [eventId, setEventId] = useState<string | null>(null);
   const [moreView, setMoreView] = useState<PartnerMoreView>('list');
-  // Cupons abertos pela página de um evento: voltar leva de novo a ela.
-  const [couponsFrom, setCouponsFrom] = useState<string | null>(null);
+  // Cupons abertos por um evento ou uma oferta: voltar leva de novo ao Catálogo.
+  const [couponsFrom, setCouponsFrom] = useState<CouponsScope | null>(null);
 
   // Abrir uma aba fecha o que estava aberto dentro de outra.
   const openTab = useCallback((tab: PartnerPanelTab) => {
@@ -24,20 +26,20 @@ export function usePanelNavigation() {
     setCouponsFrom(null);
   }, []);
 
-  const openCoupons = useCallback((fromEventId: string) => {
-    setCouponsFrom(fromEventId);
+  const openCoupons = useCallback((from: CouponsScope) => {
+    setCouponsFrom(from);
     setEventId(null);
     setMoreView('coupons');
     setPanelTab('more');
   }, []);
 
+  /** Devolve de onde os cupons foram abertos, para o painel voltar ao lugar certo. */
   const closeCoupons = useCallback(() => {
-    if (couponsFrom) {
-      setPanelTab('catalog');
-      setEventId(couponsFrom);
-    }
+    if (couponsFrom) setPanelTab('catalog');
+    if (couponsFrom?.kind === 'event') setEventId(couponsFrom.id);
     setCouponsFrom(null);
     setMoreView('list');
+    return couponsFrom;
   }, [couponsFrom]);
 
   return {

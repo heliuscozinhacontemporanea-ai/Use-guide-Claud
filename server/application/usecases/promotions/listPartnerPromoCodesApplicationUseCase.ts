@@ -1,19 +1,19 @@
 import { listOwnerPromoCodesUseCase } from '../../../domain/promotions';
 import { type PartnerPromoCodeView, toPartnerPromoCodeView } from './partnerPromoCodeView';
-import { loadOwnerEventTargets, type PromoEventTarget } from './promoTargets';
+import { loadOwnerPromoTargets, type PromoListingTarget } from './promoTargets';
 
-/** Área Cupons (B1): os cupons do dono e os anúncios onde ele pode criar um. */
+/** Área Cupons (B1): os cupons do dono e os eventos e ofertas onde ele pode criar um. */
 export async function listPartnerPromoCodesApplicationUseCase(
   ownerUid: string,
   now: Date = new Date()
-): Promise<{ promoCodes: PartnerPromoCodeView[]; events: PromoEventTarget[] }> {
-  const [promoCodes, events] = await Promise.all([
+): Promise<{ promoCodes: PartnerPromoCodeView[]; targets: PromoListingTarget[] }> {
+  const [promoCodes, targets] = await Promise.all([
     listOwnerPromoCodesUseCase(ownerUid),
-    loadOwnerEventTargets(ownerUid),
+    loadOwnerPromoTargets(ownerUid),
   ]);
   const nowIso = now.toISOString();
   return {
-    promoCodes: promoCodes.map((promo) => toPartnerPromoCodeView(promo, events, nowIso)),
-    events,
+    promoCodes: promoCodes.map((promo) => toPartnerPromoCodeView(promo, targets, nowIso)),
+    targets,
   };
 }

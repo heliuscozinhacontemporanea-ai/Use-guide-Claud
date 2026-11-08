@@ -86,7 +86,13 @@ export function PromoCodeSheet({
                 .map((target) =>
                   [
                     target.title ?? t('promoCodes.unknownTarget'),
-                    target.optionIds ? target.optionNames.join(', ') : t('promoCodes.allOptions'),
+                    target.optionIds
+                      ? target.optionNames.join(', ')
+                      : t(
+                          target.kind === 'event'
+                            ? 'promoCodes.allOptions'
+                            : 'promoCodes.allPriceOptions'
+                        ),
                   ].join(' · ')
                 )
                 .join('\n')}

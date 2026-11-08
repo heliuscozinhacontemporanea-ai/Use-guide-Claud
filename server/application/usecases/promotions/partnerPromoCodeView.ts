@@ -4,7 +4,7 @@ import {
   type PromoStatus,
   promoStatus,
 } from '../../../domain/promotions';
-import type { PromoEventTarget } from './promoTargets';
+import type { PromoListingTarget } from './promoTargets';
 
 /** Cupom como o painel recebe: só o dono vê; sem os IDs de quem usou (§7.9 regra 4). */
 export interface PartnerPromoCodeView {
@@ -14,7 +14,7 @@ export interface PartnerPromoCodeView {
   percentage: number | null;
   valueMinor: number | null;
   targets: Array<{
-    kind: 'event';
+    kind: 'event' | 'offer';
     id: string;
     title: string | null;
     optionIds: string[] | null;
@@ -34,10 +34,10 @@ export interface PartnerPromoCodeView {
 
 export function toPartnerPromoCodeView(
   promo: PromoCode,
-  events: PromoEventTarget[],
+  listings: PromoListingTarget[],
   nowIso: string
 ): PartnerPromoCodeView {
-  const byId = new Map(events.map((event) => [event.id, event]));
+  const byKey = new Map(listings.map((listing) => [`${listing.kind}:${listing.id}`, listing]));
   return {
     id: promo.id,
     code: promo.code,
@@ -45,12 +45,12 @@ export function toPartnerPromoCodeView(
     percentage: promo.percentage,
     valueMinor: promo.valueMinor,
     targets: promo.targets.map((target) => {
-      const event = byId.get(target.id);
-      const names = new Map(event?.options.map((option) => [option.id, option.name]) ?? []);
+      const listing = byKey.get(`${target.kind}:${target.id}`);
+      const names = new Map(listing?.options.map((option) => [option.id, option.name]) ?? []);
       return {
         kind: target.kind,
         id: target.id,
-        title: event?.title ?? null,
+        title: listing?.title ?? null,
         optionIds: target.optionIds,
         // O mesmo lote costuma repetir em cada sessão; o nome aparece uma vez.
         optionNames: [

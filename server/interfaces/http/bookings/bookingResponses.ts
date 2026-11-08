@@ -18,6 +18,8 @@ export function toBuyerBooking(booking: Booking) {
     status: booking.status as BookingStatus,
     lines: booking.lines,
     participantsCount: booking.participantsCount,
+    subtotalMinor: booking.subtotalMinor,
+    discountMinor: booking.discountMinor ?? 0,
     totalMinor: booking.totalMinor,
     expiresAt: booking.expiresAt,
     offer: {

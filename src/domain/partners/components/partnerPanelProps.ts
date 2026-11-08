@@ -48,9 +48,9 @@ export interface PartnerPanelProps {
   onPlanPurchased?: () => void;
   /** Ganhos (domínio payment), montado pela composição. */
   renderEarnings?: PartnerEarningsRenders;
-  /** Área Cupons (promotions, B1); `eventId` abre só os cupons daquele evento. */
+  /** Área Cupons (promotions, B1); `scope` abre só os cupons daquele evento ou oferta. */
   renderCoupons?: (props: {
-    eventId: string | null;
+    scope: { kind: 'event' | 'offer'; id: string } | null;
     backLabel: string;
     onBack: () => void;
   }) => ReactNode;

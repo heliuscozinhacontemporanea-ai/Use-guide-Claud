@@ -30,11 +30,13 @@ function toTargets(raw: unknown): PromoTarget[] {
   return raw.flatMap((item) => {
     if (!item || typeof item !== 'object') return [];
     const target = item as Record<string, unknown>;
-    if (target.kind !== 'event' || typeof target.id !== 'string') return [];
+    if ((target.kind !== 'event' && target.kind !== 'offer') || typeof target.id !== 'string') {
+      return [];
+    }
     const optionIds = Array.isArray(target.optionIds)
       ? target.optionIds.filter((id): id is string => typeof id === 'string')
       : null;
-    return [{ kind: 'event' as const, id: target.id, optionIds }];
+    return [{ kind: target.kind, id: target.id, optionIds }];
   });
 }
 

@@ -8,6 +8,8 @@ import {
   PROMO_MAX_PERCENT,
   type PromoCodeInput,
   type PromoDiscountType,
+  type PromoTargetKind,
+  promoTargetKey,
 } from '../types/promoCode';
 
 /** Campos do formulário como a pessoa digita; datas em `datetime-local` no fuso do negócio. */
@@ -16,6 +18,7 @@ export interface PromoFormDraft {
   type: PromoDiscountType;
   percent: string;
   valueMinor: number;
+  /** Por `kind:id` do anúncio: lotes ou opções escolhidos, ou `null` para todos. */
   targets: Record<string, string[] | null>;
   limitUses: boolean;
   maxUses: string;
@@ -28,7 +31,8 @@ export interface PromoFormDraft {
 
 export function draftFromPromo(
   promo: PartnerPromoCode | null,
-  eventId: string | null
+  /** `kind:id` do anúncio que já vem marcado. */
+  targetKey: string | null
 ): PromoFormDraft {
   if (!promo) {
     return {
@@ -36,7 +40,7 @@ export function draftFromPromo(
       type: 'percentage',
       percent: '10',
       valueMinor: 0,
-      targets: eventId ? { [eventId]: null } : {},
+      targets: targetKey ? { [targetKey]: null } : {},
       limitUses: false,
       maxUses: '100',
       onePerAccount: true,
@@ -51,7 +55,9 @@ export function draftFromPromo(
     type: promo.type,
     percent: String(promo.percentage ?? 10),
     valueMinor: promo.valueMinor ?? 0,
-    targets: Object.fromEntries(promo.targets.map((target) => [target.id, target.optionIds])),
+    targets: Object.fromEntries(
+      promo.targets.map((target) => [promoTargetKey(target), target.optionIds])
+    ),
     limitUses: promo.maxUses !== null,
     maxUses: String(promo.maxUses ?? 100),
     onePerAccount: promo.onePerAccount,
@@ -79,11 +85,10 @@ export function inputFromDraft(
     return { error: 'percent' };
   }
   if (draft.type === 'fixed' && draft.valueMinor < 1) return { error: 'value' };
-  const targets = Object.entries(draft.targets).map(([id, optionIds]) => ({
-    kind: 'event' as const,
-    id,
-    optionIds,
-  }));
+  const targets = Object.entries(draft.targets).map(([key, optionIds]) => {
+    const [kind, ...rest] = key.split(':');
+    return { kind: kind as PromoTargetKind, id: rest.join(':'), optionIds };
+  });
   if (targets.length === 0) return { error: 'targets' };
   if (targets.some((target) => target.optionIds !== null && target.optionIds.length === 0)) {
     return { error: 'options' };

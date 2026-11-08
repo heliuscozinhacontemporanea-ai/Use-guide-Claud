@@ -16,6 +16,8 @@ export interface PartnerCatalogRenders {
     onCreatingChange: (creating: boolean) => void;
     /** Na página do estabelecimento: nulo quando ele não vende passeios nem aluguéis. */
     inPage: boolean;
+    /** Cupons da oferta, na área Cupons (B1c). */
+    onOpenCoupons?: (offerId: string) => void;
   }) => ReactNode;
   /** Visitas do mês (insights). */
   renderVisits?: (itemId: string, onOpenPlan: () => void) => ReactNode;
@@ -97,12 +99,15 @@ export function PartnerCatalogSection({
   planVersion: number;
   onOpenReviews: () => void;
   renders: PartnerCatalogRenders;
-  /** Área Cupons já com o evento escolhido (B1). */
-  onOpenCoupons?: (eventId: string) => void;
+  /** Área Cupons já com o evento ou a oferta escolhidos (B1). */
+  onOpenCoupons?: (target: { kind: 'event' | 'offer'; id: string }) => void;
 }) {
   const catalogEvents = usePartnerCatalogEvents(eventsVersion);
   const [creatingOffer, setCreatingOffer] = useState(false);
   const places = items.filter((item) => item.category !== 'producer' && belongs([item.id], filter));
+  const openOfferCoupons = onOpenCoupons
+    ? (id: string) => onOpenCoupons({ kind: 'offer', id })
+    : undefined;
   const toOfferItem = (item: PartnerContentRecord) => ({
     id: item.id,
     name: item.name,
@@ -120,7 +125,9 @@ export function PartnerCatalogSection({
         onOpenSession={onOpenSession}
         renderGuests={renders.renderGuests}
         renderPromoters={renders.renderPromoters}
-        onOpenCoupons={onOpenCoupons ? () => onOpenCoupons(eventId) : undefined}
+        onOpenCoupons={
+          onOpenCoupons ? () => onOpenCoupons({ kind: 'event', id: eventId }) : undefined
+        }
       />
     );
   }
@@ -144,6 +151,7 @@ export function PartnerCatalogSection({
             creating: false,
             onCreatingChange: () => {},
             inPage: true,
+            onOpenCoupons: openOfferCoupons,
           }) ?? null
         }
         reviews={renders.renderReviews?.(place.id, onOpenReviews)}
@@ -181,6 +189,7 @@ export function PartnerCatalogSection({
         creating: creatingOffer,
         onCreatingChange: setCreatingOffer,
         inPage: false,
+        onOpenCoupons: openOfferCoupons,
       })}
     />
   );

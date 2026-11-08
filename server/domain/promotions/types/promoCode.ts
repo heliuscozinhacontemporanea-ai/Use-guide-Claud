@@ -2,12 +2,13 @@
  * Cupom de desconto do parceiro (B1, aprovado em 2026-11-07). Classe Interna: só o dono lê, pela API;
  * o comprador só informa o código na compra. Vale para um ou mais anúncios do mesmo dono.
  */
-export type PromoTargetKind = 'event';
+/** Evento (lotes de ingresso) ou oferta de reserva: passeio, aluguel, translado, entrada (B1c). */
+export type PromoTargetKind = 'event' | 'offer';
 
 export interface PromoTarget {
   kind: PromoTargetKind;
   id: string;
-  /** Lotes (ingressos) com desconto; sem a lista, todos. */
+  /** Lotes do evento ou opções de preço da oferta com desconto; sem a lista, todos. */
   optionIds: string[] | null;
 }
 

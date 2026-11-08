@@ -97,6 +97,9 @@ export interface BookingSummary {
   status: BookingStatus;
   lines: Array<{ priceOptionId: string; quantity: number; unitAmountMinor: number }>;
   participantsCount: number;
+  /** Antes do cupom; `totalMinor` já vem com o desconto (B1c). */
+  subtotalMinor?: number;
+  discountMinor?: number;
   totalMinor: number;
   expiresAt: string | null;
   offer: {
@@ -173,6 +176,8 @@ export interface CreateBookingPayload {
   pickupAddress?: string;
   /** Telefone em E.164; o servidor exige em passeio, aluguel e translado (D27). */
   contactPhone?: string;
+  /** Cupom digitado pelo comprador; o servidor confere e calcula (B1c). */
+  promoCode?: string;
   idempotencyKey: string;
   locale: 'pt-BR' | 'en' | 'fr';
   acceptedTermsVersion: string;

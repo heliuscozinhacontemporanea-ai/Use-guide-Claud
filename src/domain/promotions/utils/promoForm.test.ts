@@ -4,7 +4,7 @@ import { draftFromPromo, inputFromDraft } from './promoForm';
 describe('promoForm', () => {
   it('monta o cupom com datas em hora de Fortaleza e só os campos do tipo escolhido', () => {
     const draft = {
-      ...draftFromPromo(null, 'ev1'),
+      ...draftFromPromo(null, 'event:ev1'),
       code: 'verao10',
       percent: '15',
       limitUses: true,
@@ -34,13 +34,13 @@ describe('promoForm', () => {
   });
 
   it('aponta o primeiro problema', () => {
-    const base = { ...draftFromPromo(null, 'ev1'), code: 'VERAO10' };
+    const base = { ...draftFromPromo(null, 'event:ev1'), code: 'VERAO10' };
     const cases: Array<[Partial<typeof base>, string]> = [
       [{ code: 'AB' }, 'code'],
       [{ percent: '91' }, 'percent'],
       [{ type: 'fixed', valueMinor: 0 }, 'value'],
       [{ targets: {} }, 'targets'],
-      [{ targets: { ev1: [] } }, 'options'],
+      [{ targets: { 'event:ev1': [] } }, 'options'],
       [{ limitUses: true, maxUses: '0' }, 'maxUses'],
       [{ startsAt: '2026-12-02T10:00', endsAt: '2026-12-01T10:00' }, 'period'],
     ];

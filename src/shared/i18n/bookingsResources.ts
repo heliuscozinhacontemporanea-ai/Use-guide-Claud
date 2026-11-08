@@ -27,6 +27,7 @@ export interface BookingsTranslation {
     participantsLegend: string;
     participantName: string;
     continue: string;
+    promoCode: string;
     back: string;
     loginRequired: string;
     login: string;
@@ -60,6 +61,7 @@ export interface BookingsTranslation {
     edit: string;
     manageSlots: string;
     viewBookings: string;
+    coupons: string;
     confirmArchive: string;
     actionFailed: string;
     stripeRequired: string;
@@ -228,6 +230,11 @@ export interface BookingsTranslation {
     NAME_CHANGE_NOT_ALLOWED: string;
     CLAIM_ALREADY_EXISTS: string;
     INTERNAL_ERROR: string;
+    PROMO_INVALID: string;
+    PROMO_NOT_STARTED: string;
+    PROMO_EXPIRED: string;
+    PROMO_EXHAUSTED: string;
+    PROMO_ALREADY_USED: string;
   };
 }
 
@@ -259,6 +266,7 @@ export const bookingsPtBR: BookingsTranslation = {
     participantsLegend: 'Nome dos participantes',
     participantName: 'Participante {{index}}',
     continue: 'Continuar',
+    promoCode: 'Cupom de desconto (opcional)',
     back: 'Voltar',
     loginRequired: 'Entre na sua conta para reservar.',
     login: 'Entrar',
@@ -294,6 +302,7 @@ export const bookingsPtBR: BookingsTranslation = {
     edit: 'Editar',
     manageSlots: 'Horários',
     viewBookings: 'Reservas',
+    coupons: 'Cupons',
     confirmArchive: 'Arquivar esta oferta? Ela sai do site e não pode ser reaberta.',
     actionFailed: 'Não foi possível concluir a ação.',
     stripeRequired: 'Para vender reservas, conclua a configuração financeira da sua conta.',
@@ -471,6 +480,11 @@ export const bookingsPtBR: BookingsTranslation = {
       'O nome desta entrada já foi trocado ou a troca fechou (até 24 h antes).',
     CLAIM_ALREADY_EXISTS: 'Já existe uma reclamação para esta compra.',
     INTERNAL_ERROR: 'Algo deu errado. Tente novamente em instantes.',
+    PROMO_INVALID: 'Cupom inválido para esta oferta.',
+    PROMO_NOT_STARTED: 'Este cupom ainda não está valendo.',
+    PROMO_EXPIRED: 'Este cupom já encerrou.',
+    PROMO_EXHAUSTED: 'Este cupom esgotou.',
+    PROMO_ALREADY_USED: 'Você já usou este cupom.',
   },
 };
 
@@ -502,6 +516,7 @@ export const bookingsEn: BookingsTranslation = {
     participantsLegend: 'Participant names',
     participantName: 'Participant {{index}}',
     continue: 'Continue',
+    promoCode: 'Promo code (optional)',
     back: 'Back',
     loginRequired: 'Sign in to book.',
     login: 'Sign in',
@@ -536,6 +551,7 @@ export const bookingsEn: BookingsTranslation = {
     edit: 'Edit',
     manageSlots: 'Time slots',
     viewBookings: 'Bookings',
+    coupons: 'Promo codes',
     confirmArchive: 'Archive this offer? It leaves the site and cannot be reopened.',
     actionFailed: 'The action could not be completed.',
     stripeRequired: 'To sell bookings, finish your account payment setup.',
@@ -711,6 +727,11 @@ export const bookingsEn: BookingsTranslation = {
       'The name on this entry was already changed or changes are closed (up to 24 h before).',
     CLAIM_ALREADY_EXISTS: 'There is already a claim for this purchase.',
     INTERNAL_ERROR: 'Something went wrong. Please try again shortly.',
+    PROMO_INVALID: 'Invalid promo code for this offer.',
+    PROMO_NOT_STARTED: 'This promo code is not valid yet.',
+    PROMO_EXPIRED: 'This promo code has ended.',
+    PROMO_EXHAUSTED: 'This promo code has run out.',
+    PROMO_ALREADY_USED: 'You have already used this promo code.',
   },
 };
 
@@ -743,6 +764,7 @@ export const bookingsFr: BookingsTranslation = {
     participantsLegend: 'Nom des participants',
     participantName: 'Participant {{index}}',
     continue: 'Continuer',
+    promoCode: 'Code promo (facultatif)',
     back: 'Retour',
     loginRequired: 'Connectez-vous pour réserver.',
     login: 'Se connecter',
@@ -779,6 +801,7 @@ export const bookingsFr: BookingsTranslation = {
     edit: 'Modifier',
     manageSlots: 'Créneaux',
     viewBookings: 'Réservations',
+    coupons: 'Codes promo',
     confirmArchive: 'Archiver cette offre ? Elle quitte le site et ne pourra pas être rouverte.',
     actionFailed: 'L’action n’a pas pu aboutir.',
     stripeRequired:
@@ -958,5 +981,10 @@ export const bookingsFr: BookingsTranslation = {
       'Le nom de cette entrée a déjà été changé ou le délai est passé (jusqu’à 24 h avant).',
     CLAIM_ALREADY_EXISTS: 'Une réclamation existe déjà pour cet achat.',
     INTERNAL_ERROR: 'Un problème est survenu. Réessayez dans un instant.',
+    PROMO_INVALID: 'Code promo invalide pour cette offre.',
+    PROMO_NOT_STARTED: 'Ce code promo n’est pas encore valable.',
+    PROMO_EXPIRED: 'Ce code promo a expiré.',
+    PROMO_EXHAUSTED: 'Ce code promo est épuisé.',
+    PROMO_ALREADY_USED: 'Vous avez déjà utilisé ce code promo.',
   },
 };

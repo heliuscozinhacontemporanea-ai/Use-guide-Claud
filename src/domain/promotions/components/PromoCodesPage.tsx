@@ -6,7 +6,7 @@ import { ListCard, ListRowButton } from '../../../ui/components/ListRows';
 import { ListEmpty, ListError, ListLoading } from '../../../ui/components/ListState';
 import { TextButton } from '../../../ui/components/TextButton';
 import { usePromoCodes } from '../hooks/usePromoCodes';
-import type { PartnerPromoCode } from '../types/promoCode';
+import { type PartnerPromoCode, type PromoTargetKind, promoTargetKey } from '../types/promoCode';
 import { PROMO_TONE, promoDiscountText, promoTargetsText, promoUsesText } from '../utils/promoText';
 import { PromoCodeFormSheet } from './PromoCodeFormSheet';
 import { PromoCodeSheet } from './PromoCodeSheet';
@@ -16,23 +16,26 @@ import { PromoCodeSheet } from './PromoCodeSheet';
  * os cupons dele e cria um novo já com ele marcado.
  */
 export function PromoCodesPage({
-  eventId = null,
+  scope: initialScope = null,
   backLabel,
   onBack,
 }: {
-  eventId?: string | null;
+  /** Aberta por um evento ou uma oferta: só os cupons dele. */
+  scope?: { kind: PromoTargetKind; id: string } | null;
   backLabel: string;
   onBack: () => void;
 }) {
   const { t, i18n } = useTranslation();
   const { data, loading, error, reload } = usePromoCodes();
-  const [scope, setScope] = useState<string | null>(eventId);
+  const [scope, setScope] = useState<string | null>(
+    initialScope ? promoTargetKey(initialScope) : null
+  );
   const [open, setOpen] = useState<PartnerPromoCode | null>(null);
   const [editing, setEditing] = useState<PartnerPromoCode | 'new' | null>(null);
-  const event = data?.events.find((item) => item.id === scope) ?? null;
+  const listing = data?.targets.find((item) => promoTargetKey(item) === scope) ?? null;
   const rows =
     data?.promoCodes.filter(
-      (promo) => !scope || promo.targets.some((target) => target.id === scope)
+      (promo) => !scope || promo.targets.some((target) => promoTargetKey(target) === scope)
     ) ?? [];
 
   return (
@@ -46,7 +49,7 @@ export function PromoCodesPage({
           >
             {t('promoCodes.title')}
           </h2>
-          {data && data.events.length > 0 && (
+          {data && data.targets.length > 0 && (
             <TextButton tone="accent" onClick={() => setEditing('new')}>
               <Plus size={18} aria-hidden="true" />
               {t('promoCodes.create')}
@@ -54,9 +57,9 @@ export function PromoCodesPage({
           )}
         </div>
         <p className="px-1 text-[14px] text-ink/70">
-          {event ? t('promoCodes.forEvent', { title: event.title }) : t('promoCodes.subtitle')}
+          {listing ? t('promoCodes.forEvent', { title: listing.title }) : t('promoCodes.subtitle')}
         </p>
-        {event && (
+        {listing && (
           <TextButton tone="accent" className="mx-1" onClick={() => setScope(null)}>
             {t('promoCodes.showAll')}
           </TextButton>
@@ -67,7 +70,7 @@ export function PromoCodesPage({
         <ListLoading label={t('promoCodes.title')} />
       ) : error || !data ? (
         <ListError message={t('promoCodes.loadError')} onRetry={() => void reload()} />
-      ) : data.events.length === 0 ? (
+      ) : data.targets.length === 0 ? (
         <ListEmpty message={t('promoCodes.noEvents')} />
       ) : rows.length === 0 ? (
         <ListEmpty message={t(scope ? 'promoCodes.emptyEvent' : 'promoCodes.empty')} />
@@ -104,8 +107,8 @@ export function PromoCodesPage({
         <PromoCodeFormSheet
           open={editing !== null}
           promo={editing === 'new' ? null : editing}
-          events={data.events}
-          defaultEventId={scope}
+          targets={data.targets}
+          defaultTargetKey={scope}
           onClose={() => setEditing(null)}
           onSaved={() => {
             setEditing(null);

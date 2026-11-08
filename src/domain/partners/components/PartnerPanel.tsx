@@ -272,11 +272,13 @@ export function PartnerPanel({
               renderCoupons
                 ? () =>
                     renderCoupons({
-                      eventId: nav.couponsFrom,
+                      scope: nav.couponsFrom,
                       backLabel: t(
                         nav.couponsFrom ? 'partnerPanel.tabs.catalog' : 'partnerPanel.more.title'
                       ),
-                      onBack: nav.closeCoupons,
+                      onBack: () => {
+                        if (nav.closeCoupons()?.kind === 'offer') setCatalogSegment('offers');
+                      },
                     })
                 : undefined
             }

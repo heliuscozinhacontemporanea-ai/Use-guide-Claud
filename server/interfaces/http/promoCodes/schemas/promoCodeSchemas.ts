@@ -20,7 +20,7 @@ export const PromoCodeInputSchema = z
       .array(
         z
           .object({
-            kind: z.literal('event'),
+            kind: z.enum(['event', 'offer']),
             id,
             optionIds: z.array(id).min(1).max(100).nullable(),
           })

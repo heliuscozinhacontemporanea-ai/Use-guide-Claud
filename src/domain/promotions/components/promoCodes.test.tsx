@@ -56,14 +56,34 @@ const DATA: PromoCodesData = {
       locked: false,
     }),
   ],
-  events: [
+  targets: [
     {
+      kind: 'event',
       id: 'ev1',
       title: 'Luau na Duna',
       status: 'published',
+      offerKind: null,
       options: [{ id: 'vip', name: 'VIP', sessionStartsAt: '2026-12-20T23:00:00.000Z' }],
     },
-    { id: 'ev2', title: 'Festival de Forró', status: 'published', options: [] },
+    {
+      kind: 'event',
+      id: 'ev2',
+      title: 'Festival de Forró',
+      status: 'published',
+      offerKind: null,
+      options: [],
+    },
+    {
+      kind: 'offer',
+      id: 'of1',
+      title: 'Buggy ao Preá',
+      status: 'published',
+      offerKind: 'tour',
+      options: [
+        { id: 'adulto', name: 'Adulto', sessionStartsAt: null },
+        { id: 'crianca', name: 'Criança', sessionStartsAt: null },
+      ],
+    },
   ],
 };
 
@@ -79,13 +99,15 @@ describe('Área Cupons (B1)', () => {
 
   it('lista os cupons com desconto, anúncios, usos e situação; aberta pelo evento, só os dele', async () => {
     const { unmount } = render(<PromoCodesPage backLabel="Mais" onBack={vi.fn()} />);
-    expect(await screen.findByRole('button', { name: /VERAO10 · 10% por ingresso/ })).toBeTruthy();
+    expect(await screen.findByRole('button', { name: /VERAO10 · 10% de desconto/ })).toBeTruthy();
     expect(screen.getByText('Luau na Duna · 3 de 100 usos')).toBeTruthy();
     expect(screen.getByRole('button', { name: /FORRO20 · R\$\s20,00 por compra/ })).toBeTruthy();
     expect(screen.getByText('Pausado')).toBeTruthy();
     unmount();
 
-    render(<PromoCodesPage eventId="ev2" backLabel="Catálogo" onBack={vi.fn()} />);
+    render(
+      <PromoCodesPage scope={{ kind: 'event', id: 'ev2' }} backLabel="Catálogo" onBack={vi.fn()} />
+    );
     expect(await screen.findByText('Cupons que valem para Festival de Forró.')).toBeTruthy();
     expect(screen.queryByRole('button', { name: /VERAO10/ })).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Ver todos os cupons' }));
@@ -93,7 +115,9 @@ describe('Área Cupons (B1)', () => {
   });
 
   it('cria cupom já com o evento de onde veio', async () => {
-    render(<PromoCodesPage eventId="ev1" backLabel="Catálogo" onBack={vi.fn()} />);
+    render(
+      <PromoCodesPage scope={{ kind: 'event', id: 'ev1' }} backLabel="Catálogo" onBack={vi.fn()} />
+    );
     fireEvent.click(await screen.findByRole('button', { name: 'Criar' }));
     const sheet = await screen.findByRole('dialog');
     fireEvent.change(within(sheet).getByLabelText('Código'), { target: { value: 'luau 15!' } });
@@ -109,6 +133,27 @@ describe('Área Cupons (B1)', () => {
           targets: [{ kind: 'event', id: 'ev1', optionIds: null }],
           onePerAccount: true,
           maxUses: null,
+        }),
+        undefined
+      )
+    );
+  });
+
+  it('vale para oferta com só algumas opções de preço', async () => {
+    render(<PromoCodesPage backLabel="Mais" onBack={vi.fn()} />);
+    fireEvent.click(await screen.findByRole('button', { name: 'Criar' }));
+    const sheet = await screen.findByRole('dialog');
+    expect(within(sheet).getByText('Passeios, aluguéis, translados e entradas')).toBeTruthy();
+    fireEvent.change(within(sheet).getByLabelText('Código'), { target: { value: 'BUGGY' } });
+    fireEvent.click(within(sheet).getByRole('checkbox', { name: 'Buggy ao Preá' }));
+    fireEvent.click(within(sheet).getByRole('radio', { name: 'Escolher opções de preço' }));
+    fireEvent.click(within(sheet).getByRole('checkbox', { name: 'Adulto' }));
+    fireEvent.click(within(sheet).getByRole('button', { name: 'Criar cupom' }));
+    await waitFor(() =>
+      expect(m.save).toHaveBeenCalledWith(
+        expect.objectContaining({
+          code: 'BUGGY',
+          targets: [{ kind: 'offer', id: 'of1', optionIds: ['adulto'] }],
         }),
         undefined
       )

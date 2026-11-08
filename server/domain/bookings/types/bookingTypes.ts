@@ -188,6 +188,11 @@ export interface Booking {
   lines: BookingLine[];
   participantsCount: number;
   subtotalMinor: number;
+  /** Desconto do cupom (B1c); `totalMinor` já vem com ele. */
+  discountMinor?: number;
+  promoCodeId?: string;
+  /** Uso do cupom guardado para a reserva; devolvido se ela expirar sem pagamento. */
+  promoRedemptionId?: string;
   platformFeeMinor: number;
   totalMinor: number;
   expiresAt: string | null;

@@ -38,6 +38,8 @@ interface PartnerOffersManagerProps {
   /** "Criar" do Catálogo: abre o editor (ou a escolha do estabelecimento). */
   creating?: boolean;
   onCreatingChange?: (creating: boolean) => void;
+  /** Cupons da oferta, na área Cupons do painel (B1c). */
+  onOpenCoupons?: (offerId: string) => void;
 }
 
 /** Passeios e aluguéis do Catálogo (p09) e da página do estabelecimento (p19). */
@@ -47,6 +49,7 @@ export function PartnerOffersManager({
   canPublish,
   creating = false,
   onCreatingChange,
+  onOpenCoupons,
 }: PartnerOffersManagerProps) {
   const { t, i18n } = useTranslation();
   const offers = usePartnerOffers();
@@ -220,6 +223,14 @@ export function PartnerOffersManager({
         onSlots={() => selected && open({ type: 'slots', offer: selected })}
         onBookings={() => selected && open({ type: 'bookings', offer: selected })}
         onStatus={(status) => selected && requestStatus(selected, status)}
+        onCoupons={
+          onOpenCoupons && selected
+            ? () => {
+                setSelected(null);
+                onOpenCoupons(selected.id);
+              }
+            : undefined
+        }
       />
 
       <Dialog

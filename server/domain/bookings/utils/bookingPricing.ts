@@ -9,6 +9,7 @@ export interface PricedBooking {
   lines: BookingLine[];
   participantsCount: number;
   subtotalMinor: number;
+  discountMinor?: number;
   platformFeeMinor: number;
   totalMinor: number;
 }

@@ -32,6 +32,7 @@ export function BookingFlow({
   const { t } = useTranslation();
   const pickupId = useId();
   const phoneId = useId();
+  const promoId = useId();
   const [step, setStep] = useState<Step>('select');
   const [slot, setSlot] = useState<PublicSlot | null>(null);
   const [quantities, setQuantities] = useState<Record<string, number>>({});
@@ -39,6 +40,7 @@ export function BookingFlow({
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [pickupAddress, setPickupAddress] = useState('');
   const [contactPhone, setContactPhone] = useState<string | undefined>(undefined);
+  const [promoCode, setPromoCode] = useState('');
   // Telefone para o dia do serviço (D27); a entrada de atração usa QR e não precisa.
   const needsPhone = offer.kind !== 'private_entry';
   const phoneReady = !needsPhone || /^\+[1-9]\d{7,14}$/.test(contactPhone ?? '');
@@ -58,9 +60,20 @@ export function BookingFlow({
       participants: names.map((name) => ({ name })),
       ...(needsPickup ? { pickupAddress: pickupAddress.trim() } : {}),
       ...(needsPhone && contactPhone ? { contactPhone } : {}),
+      ...(promoCode.length >= 3 ? { promoCode } : {}),
       acceptedTermsVersion: BUYER_TERMS_VERSION,
     }),
-    [offer.id, slot?.id, quantities, names, needsPickup, pickupAddress, needsPhone, contactPhone]
+    [
+      offer.id,
+      slot?.id,
+      quantities,
+      names,
+      needsPickup,
+      pickupAddress,
+      needsPhone,
+      contactPhone,
+      promoCode,
+    ]
   );
 
   const proceed = () => {
@@ -154,6 +167,29 @@ export function BookingFlow({
           </label>
           <E164PhoneField id={phoneId} value={contactPhone} onChange={setContactPhone} />
           <p className="text-[12px] text-ink/70">{t('serviceProof.checkout.phoneHint')}</p>
+        </div>
+      )}
+      {slot && participants > 0 && (
+        <div className="space-y-1.5">
+          <label htmlFor={promoId} className="text-[13px] font-semibold text-ink/80">
+            {t('bookings.buyer.promoCode')}
+          </label>
+          <input
+            id={promoId}
+            value={promoCode}
+            onChange={(event) =>
+              setPromoCode(
+                event.target.value
+                  .toUpperCase()
+                  .replace(/[^A-Z0-9]/g, '')
+                  .slice(0, 20)
+              )
+            }
+            autoCapitalize="characters"
+            autoCorrect="off"
+            spellCheck={false}
+            className={INPUT}
+          />
         </div>
       )}
       {slot && participants > 0 && !isAuthenticated && (

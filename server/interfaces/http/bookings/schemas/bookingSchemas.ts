@@ -127,6 +127,8 @@ export const CreateBookingSchema = z
       .trim()
       .regex(/^\+[1-9]\d{7,14}$/)
       .optional(),
+    // Cupom (B1c): o servidor confere e calcula o desconto; aqui só o formato.
+    promoCode: z.string().trim().min(3).max(20).optional(),
   })
   .strict();
 

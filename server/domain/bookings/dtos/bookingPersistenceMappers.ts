@@ -67,6 +67,7 @@ export const BookingPersistenceMapper = {
       id,
       participantsCount: int(data.participantsCount),
       subtotalMinor: int(data.subtotalMinor),
+      ...(typeof data.discountMinor === 'number' ? { discountMinor: int(data.discountMinor) } : {}),
       platformFeeMinor: int(data.platformFeeMinor),
       totalMinor: int(data.totalMinor),
       expiresAt: data.expiresAt ? iso(data.expiresAt) : null,

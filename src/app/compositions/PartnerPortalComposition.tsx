@@ -214,12 +214,13 @@ export function PartnerPortalComposition() {
         <PlanSubscriptionCard itemId={itemId} plans={periodOptions} onLiveChange={onLiveChange} />
       )}
       renderCatalog={{
-        renderOffers: ({ items, creating, onCreatingChange, inPage }) =>
+        renderOffers: ({ items, creating, onCreatingChange, inPage, onOpenCoupons }) =>
           inPage && !items.some((item) => isBookableCategory(item.category)) ? null : (
             <PartnerBookingsComposition
               items={items}
               creating={creating}
               onCreatingChange={onCreatingChange}
+              onOpenCoupons={onOpenCoupons}
             />
           ),
         renderVisits: (itemId, onOpenPlan) => (
@@ -241,8 +242,8 @@ export function PartnerPortalComposition() {
         <PartnerEventTicketingComposition eventListingId={eventListingId} lotsOnly />
       )}
       renderNotificationsHint={() => <SalesAlertsSummary />}
-      renderCoupons={({ eventId, backLabel, onBack }) => (
-        <PromoCodesPage eventId={eventId} backLabel={backLabel} onBack={onBack} />
+      renderCoupons={({ scope, backLabel, onBack }) => (
+        <PromoCodesPage scope={scope} backLabel={backLabel} onBack={onBack} />
       )}
       renderEventAccountCard={(establishmentId, establishmentName) => (
         <EventPaymentAccountCard
