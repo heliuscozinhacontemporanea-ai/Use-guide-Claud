@@ -14,7 +14,7 @@ O responsável do produto pediu para abandonar o AI Studio de vez. O plano já f
 ## 2. O que muda com o abandono
 
 * **A `main` deixa de ser o espelho do AI Studio** (`docs/PROCESSO.md`) e passa a ser o código publicado. Prompts e zips acabam.
-* **A branch `claude/agents-md-v2` é a referência:** tudo que o AI Studio fez certo já foi adotado nela, na conferência de cada zip. O que ficou só no AI Studio é descartado: o C18 (sem zip) e o lote 19 (não enviado).
+* **A branch `claude/agents-md-v2` é a referência:** tudo que o AI Studio fez certo já foi adotado nela, na conferência de cada zip. O responsável aplicou o C18 e o lote 19 no AI Studio (2026-11-08); o último zip entra na `main` como importação final e é conferido com a referência, como os anteriores.
 * **A `main` tem 4 importações de zip** que não estão na branch (2026-10-22 a 10-25). Elas entram por um merge que mantém a versão da referência, como já foi feito no lote 12 (`2de5e07`).
 * **O site no ar hoje** roda o código publicado pelo AI Studio, que está atrás da referência. O primeiro deploy pelo Actions publica de uma vez tudo o que ainda não estava lá (lotes 18 e 19, painel, cupons, fuso). Com o Stripe em modo teste, isso não afeta dinheiro real.
 
@@ -101,7 +101,6 @@ Mais um passo: a conta de publicação precisa "agir como" a conta que o Cloud R
 * **§2, texto proposto:** "Ambientes: desenvolvimento local e produção". Desenvolvimento com `npm run dev`, emuladores do Firebase e Stripe teste; produção publicada pelo GitHub Actions no merge para `main` (D23). Credencial sempre ADC, sem chave JSON. Segredos no Secret Manager e `.env` local fora do git. As menções ao AI Studio passam a dizer "desenvolvimento local".
 * **Motivo:** o AI Studio deixa de existir no processo, e a regra "funciona nos dois ambientes" passaria a exigir um ambiente que ninguém usa.
 
-## 7. Depois (fora da D23, propostas à parte)
+## 7. Depois
 
-* Publicar também rules, índices e Functions pelo Actions (hoje é à mão).
-* Alertas de erro, logs estruturados com `requestId`, backup e teste de restauração do Firestore.
+Rules, índices e Functions pelo Actions, alertas de erro e backup: `publicacao-alertas-backup.md`.
