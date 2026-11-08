@@ -92,8 +92,28 @@ jobs:
       # Sem --force: se o deploy fosse apagar uma Function que saiu do código, ele para e mostra qual.
       - name: Cloud Functions
         if: steps.changes.outputs.functions == 'true'
+        # As URLs dos jobs (parâmetros das Functions) apontam para o *.run.app, nunca para o Hosting
+        # (§7.9). São públicas, então o arquivo é montado aqui e não fica no git.
         run: |
           npm ci --prefix functions --no-audit --no-fund
+          # Mesmo formato já em uso nas Functions: https://<serviço>-<número do projeto>.<região>.run.app.
+          BASE="$(gcloud run services describe "$SERVICE" --region "$REGION" --format=json \
+            | jq -r --arg r ".$REGION.run.app" '.metadata.annotations["run.googleapis.com/urls"] // "[]"
+              | fromjson | map(select(endswith($r))) | .[0] // empty')"
+          [ -n "$BASE" ] || BASE="$(gcloud run services describe "$SERVICE" --region "$REGION" --format='value(status.url)')"
+          test -n "$BASE"
+          echo "Jobs em $BASE"
+          cat > "functions/.env.${{ vars.GCP_PROJECT_ID }}" <<EOF
+          TICKETING_EXPIRATION_JOB_URL=$BASE/internal/ticketing/expire-orders
+          BOOKINGS_EXPIRATION_JOB_URL=$BASE/internal/bookings/expire
+          BOOKINGS_COMPLETION_JOB_URL=$BASE/internal/bookings/complete
+          PARTNERS_EXPIRING_PLANS_JOB_URL=$BASE/internal/partners/check-expiring-plans
+          PAYOUTS_RELEASE_JOB_URL=$BASE/internal/payouts/release
+          NOTIFICATIONS_DISPATCH_JOB_URL=$BASE/internal/notifications/dispatch
+          NOTIFICATIONS_DAILY_DIGEST_JOB_URL=$BASE/internal/notifications/daily-digest
+          NOTIFICATIONS_REMINDERS_JOB_URL=$BASE/internal/notifications/reminders
+          TERMS_ANNOUNCEMENTS_JOB_URL=$BASE/internal/notifications/terms-announcements
+          EOF
           npx firebase deploy --only functions --project "${{ vars.GCP_PROJECT_ID }}" --non-interactive
 
       - uses: actions/setup-node@v7
