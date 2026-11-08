@@ -35,7 +35,9 @@ Editar evento usa só a aba de lotes (`lotsOnly`); as outras cinco continuam só
 | C6 | Endereço curto do link do divulgador (`/e/<nome>`) | O link usa a página do evento com `?d=` |
 | C7 | Cartão "Convidados": quem já entrou no próximo evento | Mostra a contagem de cortesias, não as entradas |
 
-## D. Código sem uso (candidatos a remoção, sem efeito para o usuário)
+## D. Código sem uso (removido em 2026-11-08)
+
+> Todos os itens abaixo saíram, junto com o que só eles usavam: os métodos de port e adapter de eventos (`createPartnerEventListing`, `updatePartnerEventListing`, `deletePartnerEventListing`, `archiveAdminEventListing`, `cancelAdminEventListing`) e de avaliações (`getAllReviews`), e o adapter de busca (`searchAdapter`, `SearchPort`, `LocalSearchAdapter`). As rotas do servidor continuam.
 
 | Arquivo | Observação |
 |---|---|

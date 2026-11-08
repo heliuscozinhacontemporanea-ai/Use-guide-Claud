@@ -1,5 +1,4 @@
 export { deleteReviewUseCase } from './application/usecases/deleteReviewUseCase';
-export { getAllReviewsUseCase } from './application/usecases/getAllReviewsUseCase';
 export { getReviewsUseCase } from './application/usecases/getReviewsUseCase';
 export { getUserReviewUseCase } from './application/usecases/getUserReviewUseCase';
 export { listMyReviewsUseCase } from './application/usecases/listMyReviewsUseCase';
