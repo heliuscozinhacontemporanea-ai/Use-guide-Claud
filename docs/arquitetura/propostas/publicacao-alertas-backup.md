@@ -1,5 +1,7 @@
 # Publicação completa, alertas de erro e backup — proposta (2026-11-08)
 
+> **Implementada em 2026-11-08** na `claude/agents/useguide` (seção 6). Falta o responsável dar os papéis, ligar a variável e rodar o script.
+
 Continua a D23 (`sair-do-ai-studio.md`). A D23 publica o Cloud Run e o Hosting no merge para `main`. Esta proposta acrescenta as rules, os índices e as Functions ao mesmo workflow, os alertas de erro e o backup do Firestore.
 
 ## 1. Publicar rules, índices e Functions pelo Actions
@@ -81,3 +83,28 @@ O primeiro deploy confirma a lista: se faltar algum papel, o erro do Actions diz
 1. Depois do primeiro deploy da D23 (o PR da `claude/agents-md-v2`), um PR com: os passos 1 a 3 no `deploy.yml`, o logger estruturado e o `setup-monitoring.sh`.
 2. O responsável dá os papéis da seção 1 à `github-deployer` e roda o `setup-monitoring.sh` no Cloud Shell.
 3. Primeiro teste de restauração, registrado.
+
+## 6. Implementação (2026-11-08)
+
+* **Logs:** `server/infrastructure/logging/structuredLog.ts`. Em produção, cada `console.*` vira uma linha JSON com `severity`, `requestId` e `logging.googleapis.com/trace`; `ERROR` leva o tipo `ReportedErrorEvent` e a pilha, então o Error Reporting agrupa os 85 `console.error` existentes sem mudar cada chamada.
+* **Alertas sem depender de texto de log:** as métricas de webhook, checkout e 401/403/429 contam as respostas do registro de requisições do Cloud Run (`run.googleapis.com/requests`), por rota e status.
+* **Deploy:** passos "Mudanças", "Índices do Firestore", "Rules" e "Cloud Functions" no `deploy.yml`, desligados até `DEPLOY_FIREBASE_BACKEND=true`. Com o disparo manual (Actions → deploy → Run workflow), sobem os três de uma vez: é o jeito de publicar o que hoje está pendente à mão.
+* **Script:** `scripts/ops/setup-monitoring.sh` (testado com um `gcloud` simulado; o primeiro uso real pode pedir ajuste).
+
+### Passos do responsável
+
+1. Papéis na `github-deployer` (Cloud Shell):
+```bash
+P=gen-lang-client-0788355965; SA=github-deployer@$P.iam.gserviceaccount.com
+for R in roles/firebaserules.admin roles/datastore.indexAdmin roles/cloudfunctions.developer \
+         roles/cloudscheduler.admin roles/secretmanager.viewer; do
+  gcloud projects add-iam-policy-binding $P --member=serviceAccount:$SA --role=$R --condition=None
+done
+gcloud iam service-accounts add-iam-policy-binding 377157973786-compute@developer.gserviceaccount.com \
+  --member=serviceAccount:$SA --role=roles/iam.serviceAccountUser
+```
+2. GitHub → Settings → Secrets and variables → Actions → Variables: `DEPLOY_FIREBASE_BACKEND` = `true`.
+3. Actions → deploy → Run workflow (publica índices, rules e Functions pendentes).
+4. Cloud Shell, na pasta do repositório: `ALERT_EMAIL=<seu e-mail> bash scripts/ops/setup-monitoring.sh` (opcional: `BILLING_ACCOUNT=… BUDGET_BRL=…`).
+5. Console → Error Reporting → Configure notifications → canal "Use Guide - alertas".
+
