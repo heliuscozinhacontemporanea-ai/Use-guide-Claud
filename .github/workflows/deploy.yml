@@ -41,6 +41,9 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
+        with:
+          # Histórico completo, para comparar com o commit publicado antes (passo "Mudanças").
+          fetch-depth: 0
       - uses: actions/setup-node@v7
         with:
           node-version: 26
@@ -53,6 +56,50 @@ jobs:
           workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
           service_account: ${{ vars.GCP_DEPLOYER_SA }}
       - uses: google-github-actions/setup-gcloud@v3
+
+      # Índices, rules e Functions só sobem quando o arquivo deles mudou desde o último deploy. Ficam
+      # desligados até a variável DEPLOY_FIREBASE_BACKEND = true (papéis da conta de publicação no
+      # Google Cloud: docs/arquitetura/propostas/publicacao-alertas-backup.md, branch de documentação).
+      - name: Mudanças
+        id: changes
+        if: vars.DEPLOY_FIREBASE_BACKEND == 'true'
+        env:
+          BEFORE: ${{ github.event.before }}
+        run: |
+          if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ] || ! git cat-file -e "$BEFORE" 2>/dev/null; then
+            files=$(printf '%s\n' firestore.indexes.json firestore.rules storage.rules functions/)
+          else
+            files=$(git diff --name-only "$BEFORE" "$GITHUB_SHA")
+          fi
+          echo "$files"
+          echo "indexes=$(echo "$files" | grep -qx 'firestore.indexes.json' && echo true || echo false)" >> "$GITHUB_OUTPUT"
+          echo "rules=$(echo "$files" | grep -qE '^(firestore|storage)\.rules$' && echo true || echo false)" >> "$GITHUB_OUTPUT"
+          echo "functions=$(echo "$files" | grep -q '^functions/' && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
+      # Antes do servidor: o código novo pode depender de índice ou regra novos.
+      - name: Índices do Firestore
+        if: steps.changes.outputs.indexes == 'true'
+        run: npx firebase deploy --only firestore:indexes --project "${{ vars.GCP_PROJECT_ID }}" --non-interactive
+
+      - name: Rules (Firestore e Storage)
+        if: steps.changes.outputs.rules == 'true'
+        run: npx firebase deploy --only firestore:rules,storage --project "${{ vars.GCP_PROJECT_ID }}" --non-interactive
+
+      - uses: actions/setup-node@v7
+        if: steps.changes.outputs.functions == 'true'
+        with:
+          node-version: 24
+      # Sem --force: se o deploy fosse apagar uma Function que saiu do código, ele para e mostra qual.
+      - name: Cloud Functions
+        if: steps.changes.outputs.functions == 'true'
+        run: |
+          npm ci --prefix functions --no-audit --no-fund
+          npx firebase deploy --only functions --project "${{ vars.GCP_PROJECT_ID }}" --non-interactive
+
+      - uses: actions/setup-node@v7
+        if: steps.changes.outputs.functions == 'true'
+        with:
+          node-version: 26
 
       - name: Imagem do servidor
         run: |
