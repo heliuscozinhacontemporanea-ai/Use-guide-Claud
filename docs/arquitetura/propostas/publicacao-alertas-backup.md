@@ -1,0 +1,83 @@
+# Publicação completa, alertas de erro e backup — proposta (2026-11-08)
+
+Continua a D23 (`sair-do-ai-studio.md`). A D23 publica o Cloud Run e o Hosting no merge para `main`. Esta proposta acrescenta as rules, os índices e as Functions ao mesmo workflow, os alertas de erro e o backup do Firestore.
+
+## 1. Publicar rules, índices e Functions pelo Actions
+
+Hoje essas publicações são à mão (`npm run deploy:*`). Há regras e índices de cupons, cortesias e repasses, e a função `announceTermsUpdates`, esperando publicação.
+
+### Ordem no `deploy.yml`, depois do merge
+
+| # | O quê | Quando roda | Por que nessa ordem |
+|---|---|---|---|
+| 1 | Índices (`firestore:indexes`) | só se `firestore.indexes.json` mudou | o código novo pode fazer consultas que precisam do índice |
+| 2 | Rules (`firestore:rules`, `storage`) | só se `firestore.rules` ou `storage.rules` mudou | o app novo pode ler coleções que só a regra nova libera; os testes das rules já passaram no PR |
+| 3 | Functions | só se `functions/` mudou | os jobs chamam rotas do servidor, que precisam existir |
+| 4 | Cloud Run | sempre | servidor |
+| 5 | Hosting | sempre | por último, para o site novo só chamar um servidor que já está no ar |
+
+* Cada passo só roda se o anterior deu certo. Se um falhar, o site continua na versão anterior e o Actions mostra o erro.
+* O índice novo leva alguns minutos para ficar pronto depois de publicado. Antes da liberação isso é aceitável; depois dela, a D23 prevê rever o modelo.
+* O índice que existe no console mas não no arquivo **não é apagado** pelo deploy automático (o Firebase só apaga com confirmação). Limpeza de índice fica manual.
+* O `firebase.json` não muda: o Actions usa os mesmos alvos (`--only ...`) dos scripts `deploy:*` do `package.json`.
+
+### Papéis a mais para a conta `github-deployer`
+
+| Papel | Para quê |
+|---|---|
+| `roles/firebaserules.admin` | publicar as rules |
+| `roles/datastore.indexAdmin` | publicar os índices |
+| `roles/cloudfunctions.developer` | publicar as Functions |
+| `roles/cloudscheduler.admin` | as Functions agendadas criam os próprios agendamentos |
+| `roles/secretmanager.viewer` | as Functions declaram os segredos que usam; o deploy confere se existem (não lê os valores) |
+| `roles/iam.serviceAccountUser` **só na conta que roda as Functions** | publicar a função com a identidade dela |
+
+O primeiro deploy confirma a lista: se faltar algum papel, o erro do Actions diz qual é, e a correção vai no passo a passo.
+
+## 2. Alertas de erro
+
+### O que avisa e como
+
+| Alerta | Fonte | Disparo |
+|---|---|---|
+| **Erro novo no servidor ou nas Functions** | Error Reporting (agrupa erros iguais) | e-mail no primeiro erro de cada tipo novo e quando um erro antigo volta |
+| **Muitos erros 5xx** | métrica do Cloud Run | mais de 5% das requisições com 5xx em 5 minutos |
+| **Falha no webhook do Stripe** | métrica de log `stripe_webhook_failed` | 1 ou mais em 10 minutos (o Stripe vai reenviar, mas alguém precisa saber) |
+| **Falha ao criar pagamento** | métrica de log `checkout_failed` | 3 ou mais em 10 minutos |
+| **Pico de 401/403/429** | métrica do Cloud Run | 5× acima do normal em 15 minutos (§7.10 A09: tentativa de invasão ou bug de login) |
+| **Job agendado falhando** | erros das Functions | qualquer falha |
+| **Site fora do ar** | verificação de disponibilidade em `https://useguide.com.br` e `/api/health` | 2 falhas seguidas, de 3 regiões |
+| **Gasto** | orçamento do faturamento | 50%, 90% e 100% do valor definido |
+
+* Os avisos vão por e-mail e para o app **Google Cloud** no celular (notificação push).
+* O código ganha um logger estruturado em `server/infrastructure/logging` (§10.3). Ele grava em JSON com `severity`, `requestId`, `domain`, `operation` e o trace, sem PII, e o erro com a pilha de chamadas, que é o que o Error Reporting precisa para agrupar. Os `console.error` do webhook e do checkout passam a gravar `operation: 'stripe_webhook'` e `outcome: 'failed'`, que é o que as métricas de log contam. Isso resolve o débito do §10.3 e o do handler global, que devolve `err.message` ao cliente (§7.10 A05).
+* Os alertas ficam num script versionado (`scripts/ops/setup-monitoring.sh`), rodado uma vez no Cloud Shell e de novo quando mudar. Nada de clicar no console sem registro.
+
+## 3. Backup e restauração
+
+| O quê | Como | Retenção |
+|---|---|---|
+| Firestore: voltar no tempo | **PITR** (recuperação a qualquer minuto) ligado | 7 dias |
+| Firestore: cópia diária | **backup agendado** do Firestore | 7 dias |
+| Firestore: cópia semanal | backup agendado | 8 semanas |
+| Storage (fotos e documentos) | **exclusão reversível** (soft delete) do bucket | 7 dias |
+| Teste de restauração | restaurar o backup num banco novo e conferir; repetir a cada 3 meses (§7.10) | registro em `docs/arquitetura/restauracoes.md` |
+
+* Os backups ficam no mesmo projeto, sem acesso pelo app. Os documentos de verificação ficam cifrados (§7.7) também no backup.
+* Os comandos também ficam no `setup-monitoring.sh`.
+
+## 4. Custos
+
+| Item | Custo |
+|---|---|
+| GitHub Actions | **grátis:** o repositório é público, e repositório público não paga minutos nos runners padrão do GitHub |
+| Error Reporting e verificação de disponibilidade | grátis na cota do Google Cloud |
+| Políticas de alerta | cobradas por condição (por volta de US$ 0,10 a US$ 0,35 por mês cada; conferir a tabela atual). Com as 7 da tabela, menos de US$ 3 por mês |
+| PITR e backups do Firestore | cobrados pelo tamanho guardado; com o banco de hoje (dados de teste), centavos por mês |
+| Logs | 50 GiB por mês grátis; o volume atual fica bem abaixo |
+
+## 5. Ordem de execução
+
+1. Depois do primeiro deploy da D23 (o PR da `claude/agents-md-v2`), um PR com: os passos 1 a 3 no `deploy.yml`, o logger estruturado e o `setup-monitoring.sh`.
+2. O responsável dá os papéis da seção 1 à `github-deployer` e roda o `setup-monitoring.sh` no Cloud Shell.
+3. Primeiro teste de restauração, registrado.
