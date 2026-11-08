@@ -140,19 +140,21 @@ O PR `claude/agents-md-v2 → main` mostra tudo o que ainda falta o AI Studio im
 | 21.7c | Modo portaria com economia de bateria e devolução de ingresso | `ec9e4e2..f29204b` | ✅ zip 2026-11-01 | ✅ igual à referência |
 | 21.7d | @ obrigatório depois do cadastro e link de transferência (30 min, uso único) | `f29204b..fef8a57` | ✅ zip 2026-11-01 | ✅ igual à referência |
 | 21.8 | Confirmação de e-mail com link nativo (D22) | `fd42053..734ae3e` | ✅ zip 2026-11-01 | ⚠️ `firebaseAuthAdapter.ts` reescrito (papel por `claims.role`: painel admin sumiu), 7 testes de auth apagados, rollback do parceiro mudado, pasta `app/` criada na raiz e `package-lock.json` sem o zxing-wasm → prompt C18 |
-| C18 | Correção do lote 18 | — | ✅ enviado (aguarda o zip) | — |
-| A8 | AGENTS.md §11.1 e decisões D23 a D26 | `08221c2..e95c5c9` (só AGENTS e docs) | ⏳ enviar (lote 19) | — |
-| 22.1 | Página não encontrada nos dois temas, status 404 no servidor e aviso de item indisponível | `a692a83..b850241` | ⏳ enviar (lote 19) | — |
-| 22.2 | 404 em tela cheia com o hamster na roda | `b850241..98511bd` | ⏳ enviar (lote 19) | — |
-| 22.6 | Sobre o app, Termos do parceiro, Licenças e créditos (`npm run licenses`), Notificações em Configurações | `98511bd..cd37326` | ⏳ enviar (lote 19) | — |
-| 23.0 | Versão 1.0.0, termos sem região (versão 2026-11-03) e e-mail ajuda@ | `cd37326..00f530e` | ⏳ enviar (lote 19) | — |
-| 23.1 | Telas de Notificações, central e Suporte (aprovadas) | `00f530e..8834efd` | ⏳ enviar (lote 19) | — |
-| 23.2a | Avisos como tipo + dados, escolhas por conta, notifications folha (backend, rules e índice) | `8834efd..6739469` (server) | ⏳ enviar (lote 19) | — |
-| 23.2b | Sininho para todas as contas e central em tempo real (app) | `8834efd..6739469` (src) | ⏳ enviar (lote 19) | — |
-| 23.2c | Push pelo Firebase Cloud Messaging, fila de envio e resumo diário (Functions novas) | `6739469..ef3d953` | ⏳ enviar (lote 19) | — |
-| 23.3 | Avisos novos: compra confirmada e não concluída, lembretes, convite para avaliar, resposta, denúncia, troca do @; silêncio 23h30–5h30 | `ef3d953..23f936b` | ⏳ enviar (lote 19) | — |
-| 23.4 | Folhas no tema claro e título do Suporte | `7788a52..1bf7dc1` | ⏳ enviar (lote 19) | — |
-| 23.5 | Verde de ação, interruptor, filtros da central e mensagem do push | `3a7e901..bc78a72` | ⏳ enviar (lote 19) | — |
+| C18 | Correção do lote 18 | — | ✅ zip 2026-11-08 | ✅ igual à referência |
+| A8 | AGENTS.md §11.1 e decisões D23 a D26 | `08221c2..e95c5c9` (só AGENTS e docs) | ✅ zip 2026-11-08 | ✅ igual à referência (só ordem de imports e quebra de linha) |
+| 22.1 | Página não encontrada nos dois temas, status 404 no servidor e aviso de item indisponível | `a692a83..b850241` | ✅ zip 2026-11-08 | ✅ igual à referência (só ordem de imports e quebra de linha) |
+| 22.2 | 404 em tela cheia com o hamster na roda | `b850241..98511bd` | ✅ zip 2026-11-08 | ✅ igual à referência (só ordem de imports e quebra de linha) |
+| 22.6 | Sobre o app, Termos do parceiro, Licenças e créditos (`npm run licenses`), Notificações em Configurações | `98511bd..cd37326` | ✅ zip 2026-11-08 | ✅ igual à referência (só ordem de imports e quebra de linha) |
+| 23.0 | Versão 1.0.0, termos sem região (versão 2026-11-03) e e-mail ajuda@ | `cd37326..00f530e` | ✅ zip 2026-11-08 | ✅ igual à referência (só ordem de imports e quebra de linha) |
+| 23.1 | Telas de Notificações, central e Suporte (aprovadas) | `00f530e..8834efd` | ✅ zip 2026-11-08 | ✅ igual à referência (só ordem de imports e quebra de linha) |
+| 23.2a | Avisos como tipo + dados, escolhas por conta, notifications folha (backend, rules e índice) | `8834efd..6739469` (server) | ✅ zip 2026-11-08 | ✅ igual à referência (só ordem de imports e quebra de linha) |
+| 23.2b | Sininho para todas as contas e central em tempo real (app) | `8834efd..6739469` (src) | ✅ zip 2026-11-08 | ✅ igual à referência (só ordem de imports e quebra de linha) |
+| 23.2c | Push pelo Firebase Cloud Messaging, fila de envio e resumo diário (Functions novas) | `6739469..ef3d953` | ✅ zip 2026-11-08 | ✅ igual à referência (só ordem de imports e quebra de linha) |
+| 23.3 | Avisos novos: compra confirmada e não concluída, lembretes, convite para avaliar, resposta, denúncia, troca do @; silêncio 23h30–5h30 | `ef3d953..23f936b` | ✅ zip 2026-11-08 | ✅ igual à referência (só ordem de imports e quebra de linha) |
+| 23.4 | Folhas no tema claro e título do Suporte | `7788a52..1bf7dc1` | ✅ zip 2026-11-08 | ✅ igual à referência (só ordem de imports e quebra de linha) |
+| 23.5 | Verde de ação, interruptor, filtros da central e mensagem do push | `3a7e901..bc78a72` | ✅ zip 2026-11-08 | ✅ igual à referência (só ordem de imports e quebra de linha) |
+
+**Zip de 2026-11-08 (último, D23):** C18 e lote 19 aplicados; igual à referência `bc78a72` no código. Diferenças só no `package.json`: o AI Studio tirou `@google/genai` (sem uso; sai também da referência na limpeza da D23) e `firebase-tools` (fica na referência: os scripts `deploy:*` e `test:rules` e o Actions usam; dependência de desenvolvimento não entra na imagem do Cloud Run), e o build sem `--sourcemap` (fica na referência: o mapa deixa legível a pilha de erro nos alertas). O zip exportado pela função do AI Studio é igual ao do projeto, salvo o `bun.lock`. Este zip não foi importado na `main`: pela D23, a `main` passa a receber o código pelo PR da referência.
 
 ### Revisões futuras (aprovadas para depois)
 
