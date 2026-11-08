@@ -6,6 +6,7 @@ import type {
   OfflineCheckInSyncResult,
   PublicTicketTypeProjection,
   Refund,
+  SessionEntry,
   Ticket,
   TicketOrder,
   TicketOrderItem,
@@ -152,5 +153,7 @@ export interface TicketingPort {
   ): Promise<EventSalesAnalytics>;
   listEventOrders(eventListingId: string, asAdmin?: boolean): Promise<TicketOrder[]>;
   listEventCheckIns(eventListingId: string, asAdmin?: boolean): Promise<EventCheckIn[]>;
+  /** Quem entrou na sessão e quando, do mais recente ao mais antigo (A2). */
+  listSessionEntries(eventListingId: string, occurrenceId: string): Promise<SessionEntry[]>;
   listEventRefunds(eventListingId: string, asAdmin?: boolean): Promise<Refund[]>;
 }

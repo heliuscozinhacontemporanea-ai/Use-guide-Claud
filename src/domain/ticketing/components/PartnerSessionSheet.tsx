@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { formatBusinessDate } from '../../../shared/utils/businessDateTime';
 import { capitalizeFirst } from '../../../shared/utils/formatters';
 import { Dialog } from '../../../ui/components/Dialog';
+import { ListCard, ListRowButton } from '../../../ui/components/ListRows';
 import { ListError, ListLoading } from '../../../ui/components/ListState';
 import { BUTTON_PRIMARY } from '../../../ui/styles/controls';
 import { type EventOccurrence, useEventOccurrences } from '../../events';
@@ -10,6 +11,7 @@ import { usePartnerEventSales } from '../hooks/usePartnerEventSales';
 import { OccurrenceCancelDialog } from './manager/OccurrenceCancelDialog';
 import { OccurrencePostponeDialog } from './manager/OccurrencePostponeDialog';
 import { OfflineSessionCard } from './manager/OfflineSessionCard';
+import { SessionEntriesSheet } from './manager/SessionEntriesSheet';
 import { SessionGateScreen, useSessionGate } from './manager/SessionGate';
 
 const BLOCK = 'rounded-2xl bg-sheet-card border border-sheet-card-line';
@@ -126,7 +128,7 @@ export function PartnerSessionSheet({
   const { t, i18n } = useTranslation();
   const occurrences = useEventOccurrences(eventListingId);
   const sales = usePartnerEventSales(eventListingId, occurrenceId);
-  const [view, setView] = useState<'session' | 'gate' | 'postpone' | 'cancel'>(
+  const [view, setView] = useState<'session' | 'gate' | 'postpone' | 'cancel' | 'entries'>(
     startAtGate ? 'gate' : 'session'
   );
   const occurrence: EventOccurrence | undefined = occurrences.occurrences.find(
@@ -193,9 +195,20 @@ export function PartnerSessionSheet({
                 ...(courtesies > 0
                   ? [[t('courtesy.tabs.guests'), String(courtesies)] as [string, string]]
                   : []),
-                [t('ticketSessions.sheet.entered'), String(sales.checkIns.length)],
               ]}
             />
+            <ListCard>
+              <ListRowButton
+                title={t('ticketSessions.entries.title')}
+                sub={t('ticketSessions.entries.open')}
+                aside={
+                  <span className="shrink-0 text-[15px] font-semibold text-ink tabular-nums">
+                    {sales.checkIns.length}
+                  </span>
+                }
+                onClick={() => setView('entries')}
+              />
+            </ListCard>
             {occurrence.status === 'scheduled' && (
               <>
                 <button
@@ -226,6 +239,13 @@ export function PartnerSessionSheet({
           </div>
         )}
       </Dialog>
+      <SessionEntriesSheet
+        open={view === 'entries'}
+        eventListingId={eventListingId}
+        occurrenceId={occurrenceId}
+        description={`${title} · ${description}`}
+        onClose={() => setView('session')}
+      />
       <OccurrencePostponeDialog
         eventListingId={eventListingId}
         occurrence={view === 'postpone' ? (occurrence ?? null) : null}

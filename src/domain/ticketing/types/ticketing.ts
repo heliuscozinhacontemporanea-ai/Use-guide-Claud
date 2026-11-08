@@ -203,6 +203,16 @@ export interface EventCheckIn {
   syncedAt?: string;
 }
 
+/** Entrada na portaria para o dono do evento (A2): nome público, lote e horário. */
+export interface SessionEntry {
+  id: string;
+  name: string | null;
+  ticketType: string | null;
+  courtesy: boolean;
+  at: string;
+  source: 'online' | 'offline';
+}
+
 export interface Refund {
   id: string;
   orderId: string;

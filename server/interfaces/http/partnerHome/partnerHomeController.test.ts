@@ -10,6 +10,7 @@ const m = vi.hoisted(() => ({
   sales: vi.fn(),
   orders: vi.fn(),
   tour: vi.fn(),
+  entries: vi.fn(),
   earnings: vi.fn(),
   reports: vi.fn(),
 }));
@@ -31,6 +32,10 @@ vi.mock(
   () => ({
     listPartnerEventOrdersApplicationUseCase: m.orders,
   })
+);
+vi.mock(
+  '../../../application/usecases/partnerHome/listPartnerSessionEntriesApplicationUseCase',
+  () => ({ listPartnerSessionEntriesApplicationUseCase: m.entries })
 );
 vi.mock('../../../application/usecases/partnerHome/getPartnerEarningsApplicationUseCase', () => ({
   getPartnerEarningsApplicationUseCase: m.earnings,
@@ -255,6 +260,35 @@ describe('PartnerHomeController', () => {
       expect(bad.status).toHaveBeenCalledWith(400);
     }
     expect(m.tour).toHaveBeenCalledTimes(1);
+  });
+
+  it('entradas da sessão: lê do uid logado; evento de outro dono responde 404 (IDOR)', async () => {
+    const { TicketingDomainError } = await import(
+      '../../../domain/ticketing/errors/ticketingDomainError'
+    );
+    m.entries.mockResolvedValueOnce([]);
+    const ok = response();
+    await PartnerHomeController.listSessionEntries(
+      { params: { eventId: 'ev1', occurrenceId: 's1' }, user: { uid: 'owner-1' } } as never,
+      ok as unknown as Response
+    );
+    expect(m.entries).toHaveBeenCalledWith('owner-1', 'ev1', 's1');
+    expect(ok.status).toHaveBeenCalledWith(200);
+
+    m.entries.mockRejectedValueOnce(new TicketingDomainError('FORBIDDEN', 'x'));
+    const other = response();
+    await PartnerHomeController.listSessionEntries(
+      { params: { eventId: 'ev-x', occurrenceId: 's1' }, user: { uid: 'owner-1' } } as never,
+      other as unknown as Response
+    );
+    expect(other.status).toHaveBeenCalledWith(404);
+
+    const bad = response();
+    await PartnerHomeController.listSessionEntries(
+      { params: { eventId: 'ev1', occurrenceId: '../x' }, user: { uid: 'owner-1' } } as never,
+      bad as unknown as Response
+    );
+    expect(bad.status).toHaveBeenCalledWith(400);
   });
 
   it('ganhos: lê só do uid logado e responde 503 sem detalhe interno', async () => {

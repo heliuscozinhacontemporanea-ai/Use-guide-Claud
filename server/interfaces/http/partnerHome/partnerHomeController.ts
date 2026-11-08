@@ -5,6 +5,7 @@ import { getPartnerEarningsApplicationUseCase } from '../../../application/useca
 import { getPartnerEventSalesApplicationUseCase } from '../../../application/usecases/partnerHome/getPartnerEventSalesApplicationUseCase';
 import { getPartnerHomeApplicationUseCase } from '../../../application/usecases/partnerHome/getPartnerHomeApplicationUseCase';
 import { getPartnerReportsApplicationUseCase } from '../../../application/usecases/partnerHome/getPartnerReportsApplicationUseCase';
+import { listPartnerSessionEntriesApplicationUseCase } from '../../../application/usecases/partnerHome/listPartnerSessionEntriesApplicationUseCase';
 import { listPartnerEventOrdersApplicationUseCase } from '../../../application/usecases/partnerHome/listPartnerEventOrdersApplicationUseCase';
 import {
   PartnerDomainError,
@@ -19,6 +20,7 @@ import {
   PartnerEventOrdersQuerySchema,
   PartnerEventParamsSchema,
   PartnerReportsQuerySchema,
+  PartnerSessionParamsSchema,
   SavePartnerHomeCardsSchema,
 } from './schemas/partnerHomeSchemas';
 
@@ -181,6 +183,37 @@ export class PartnerHomeController {
         503,
         'PARTNER_HOME_UNAVAILABLE',
         'Não foi possível carregar os pedidos.'
+      );
+    }
+  }
+
+  static async listSessionEntries(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    if (!req.user?.uid) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
+    const params = PartnerSessionParamsSchema.safeParse(req.params);
+    if (!params.success) return sendError(res, 400, 'VALIDATION_ERROR', 'Sessão inválida.');
+    try {
+      const data = await listPartnerSessionEntriesApplicationUseCase(
+        req.user.uid,
+        params.data.eventId,
+        params.data.occurrenceId
+      );
+      return res.status(200).json({ data });
+    } catch (error) {
+      // Evento de outro dono responde igual a inexistente (A01).
+      if (
+        error instanceof TicketingDomainError &&
+        (error.code === 'FORBIDDEN' || error.code === 'NOT_FOUND')
+      ) {
+        return sendError(res, 404, 'EVENT_NOT_FOUND', 'Evento não encontrado.');
+      }
+      console.error('[PartnerHomeController.listSessionEntries]', {
+        name: error instanceof Error ? error.name : 'UnknownError',
+      });
+      return sendError(
+        res,
+        503,
+        'PARTNER_HOME_UNAVAILABLE',
+        'Não foi possível carregar as entradas.'
       );
     }
   }

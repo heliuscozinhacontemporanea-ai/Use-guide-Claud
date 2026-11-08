@@ -13,5 +13,10 @@ router.get('/earnings', verifyAuthToken, PartnerHomeController.getEarnings);
 router.get('/reports', verifyAuthToken, PartnerHomeController.getReports);
 router.get('/events/:eventId/sales', verifyAuthToken, PartnerHomeController.getEventSales);
 router.get('/events/:eventId/orders', verifyAuthToken, PartnerHomeController.listEventOrders);
+router.get(
+  '/events/:eventId/sessions/:occurrenceId/entries',
+  verifyAuthToken,
+  PartnerHomeController.listSessionEntries
+);
 
 export default router;

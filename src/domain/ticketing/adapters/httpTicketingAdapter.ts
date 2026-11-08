@@ -17,6 +17,7 @@ import type {
   TicketOrderItem,
   TicketQrPass,
   TicketTransferLinkCreated,
+  SessionEntry,
   TicketTransferLinkPreview,
   TicketType,
 } from '../types/ticketing';
@@ -451,6 +452,19 @@ export class HttpTicketingAdapter implements TicketingPort {
       res,
       'Não foi possível carregar os check-ins do evento.'
     );
+  }
+
+  async listSessionEntries(eventListingId: string, occurrenceId: string): Promise<SessionEntry[]> {
+    const res = await firebaseApiFetch(
+      `/api/partner-home/events/${encodeURIComponent(eventListingId)}/sessions/${encodeURIComponent(occurrenceId)}/entries`,
+      { method: 'GET' },
+      { requireAuth: true, requireAppCheck: true }
+    );
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(typeof body?.error?.code === 'string' ? body.error.code : 'INTERNAL_ERROR');
+    }
+    return (body as { data: SessionEntry[] }).data;
   }
 
   async listEventRefunds(eventListingId: string, asAdmin = false): Promise<Refund[]> {

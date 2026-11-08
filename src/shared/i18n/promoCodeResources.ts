@@ -166,7 +166,7 @@ export const promoCodePtBR: PromoCodeTranslation = {
     maxTicketsLabel: 'Ingressos com desconto por compra',
     startsAt: 'Começa em',
     endsAt: 'Termina em',
-    periodHint: 'Horário de Fortaleza. Sem datas, vale enquanto houver ingressos.',
+    periodHint: 'Sem datas, vale enquanto houver ingressos.',
     save: 'Salvar',
     create: 'Criar cupom',
     errors: {
@@ -267,7 +267,7 @@ export const promoCodeEn: PromoCodeTranslation = {
     maxTicketsLabel: 'Discounted tickets per purchase',
     startsAt: 'Starts on',
     endsAt: 'Ends on',
-    periodHint: 'Fortaleza time. Without dates, it is valid while tickets are available.',
+    periodHint: 'Without dates, it is valid while tickets are available.',
     save: 'Save',
     create: 'Create promo code',
     errors: {
@@ -368,7 +368,7 @@ export const promoCodeFr: PromoCodeTranslation = {
     maxTicketsLabel: 'Billets réduits par achat',
     startsAt: 'Commence le',
     endsAt: 'Se termine le',
-    periodHint: 'Heure de Fortaleza. Sans dates, valable tant qu’il reste des billets.',
+    periodHint: 'Sans dates, valable tant qu’il reste des billets.',
     save: 'Enregistrer',
     create: 'Créer le code promo',
     errors: {

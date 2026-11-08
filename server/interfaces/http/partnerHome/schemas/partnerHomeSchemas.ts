@@ -39,3 +39,10 @@ export const PartnerEventOrdersQuerySchema = z
   .strict();
 
 export const PanelTourActionSchema = z.object({ action: z.enum(PANEL_TOUR_ACTIONS) }).strict();
+
+export const PartnerSessionParamsSchema = z
+  .object({
+    eventId: z.string().regex(/^[A-Za-z0-9_-]{1,128}$/),
+    occurrenceId: z.string().regex(/^[A-Za-z0-9_-]{1,128}$/),
+  })
+  .strict();

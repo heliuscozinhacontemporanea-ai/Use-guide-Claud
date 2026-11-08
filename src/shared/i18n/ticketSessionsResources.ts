@@ -18,6 +18,17 @@ export interface TicketSessionsTranslation {
   statusPostponed: string;
   statusCanceled: string;
   accountNotice: string;
+  entries: {
+    title: string;
+    open: string;
+    count_one: string;
+    count_other: string;
+    empty: string;
+    error: string;
+    buyer: string;
+    guest: string;
+    offline: string;
+  };
   postponeDialog: {
     title: string;
     description: string;
@@ -69,6 +80,17 @@ export const ticketSessionsPtBR: TicketSessionsTranslation = {
   statusCanceled: 'Sessão cancelada',
   accountNotice:
     'Venda de ingressos pagos indisponível: conclua a configuração financeira do CNPJ do estabelecimento deste evento. Inscrições gratuitas funcionam normalmente.',
+  entries: {
+    title: 'Entradas',
+    open: 'Ver quem entrou',
+    count_one: '{{count}} entrada',
+    count_other: '{{count}} entradas',
+    empty: 'Ninguém entrou ainda.',
+    error: 'Não foi possível carregar as entradas.',
+    buyer: 'Comprador',
+    guest: 'Convidado',
+    offline: 'registrada sem internet',
+  },
   postponeDialog: {
     title: 'Adiar sessão',
     description:
@@ -125,6 +147,17 @@ export const ticketSessionsEn: TicketSessionsTranslation = {
   statusCanceled: 'Session canceled',
   accountNotice:
     'Paid ticket sales unavailable: finish the payment setup for the CNPJ of this event’s place. Free registrations work normally.',
+  entries: {
+    title: 'Entries',
+    open: 'See who came in',
+    count_one: '{{count}} entry',
+    count_other: '{{count}} entries',
+    empty: 'Nobody has come in yet.',
+    error: "Couldn't load the entries.",
+    buyer: 'Buyer',
+    guest: 'Guest',
+    offline: 'recorded offline',
+  },
   postponeDialog: {
     title: 'Postpone session',
     description:
@@ -181,6 +214,17 @@ export const ticketSessionsFr: TicketSessionsTranslation = {
   statusCanceled: 'Séance annulée',
   accountNotice:
     'Vente de billets payants indisponible : terminez la configuration financière du CNPJ de l’établissement de cet événement. Les inscriptions gratuites fonctionnent normalement.',
+  entries: {
+    title: 'Entrées',
+    open: 'Voir qui est entré',
+    count_one: '{{count}} entrée',
+    count_other: '{{count}} entrées',
+    empty: "Personne n'est encore entré.",
+    error: 'Impossible de charger les entrées.',
+    buyer: 'Acheteur',
+    guest: 'Invité',
+    offline: 'enregistrée hors ligne',
+  },
   postponeDialog: {
     title: 'Reporter la séance',
     description:
