@@ -97,7 +97,7 @@ O primeiro deploy confirma a lista: se faltar algum papel, o erro do Actions diz
 ```bash
 P=gen-lang-client-0788355965; SA=github-deployer@$P.iam.gserviceaccount.com
 for R in roles/firebaserules.admin roles/datastore.indexAdmin roles/cloudfunctions.developer \
-         roles/cloudscheduler.admin roles/secretmanager.viewer; do
+         roles/cloudscheduler.admin roles/secretmanager.viewer roles/firebasestorage.viewer; do
   gcloud projects add-iam-policy-binding $P --member=serviceAccount:$SA --role=$R --condition=None
 done
 gcloud iam service-accounts add-iam-policy-binding 377157973786-compute@developer.gserviceaccount.com \
