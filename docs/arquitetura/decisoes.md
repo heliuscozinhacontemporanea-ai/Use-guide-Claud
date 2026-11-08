@@ -439,3 +439,14 @@ Aprovada pelo responsável do produto em 2026-11-08, depois da saída do AI Stud
 * **Cloud Functions:** Node.js **24**, a versão estável mais nova do Google; o 26 ainda está em prévia lá. Passar para 26 quando o Google publicar como estável.
 * **Ações do GitHub** nas versões maiores atuais (Node 24 nos runners), sem o aviso de Node 20 descontinuado.
 
+## D30 — Duas branches: `main` só com o código, `claude/agents-md-v2` com código e documentação (2026-11-08)
+
+Combinado pelo responsável do produto e confirmado em 2026-11-08. Ajusta o fluxo da D23.
+
+* **`claude/agents-md-v2` (branch de trabalho):** o Claude faz aqui todas as mudanças de código e mantém a documentação: decisões, débitos, propostas, processo e anotações (`docs/`).
+* **`main`:** só o que o projeto precisa para rodar, testar e publicar (código, configurações, `README.md`, `AGENTS.md`). A `main` não tem `docs/`.
+* **Subida aprovada:** a cada aprovação do responsável, o Claude abre um PR de subida para a `main` com o estado do código da branch de trabalho, sem a documentação. A branch do PR é temporária (`claude/subida-AAAA-MM-DD`) e é apagada no merge (opção "Automatically delete head branches" do repositório). O merge é a aprovação e publica (D23).
+* **Depois do merge:** o Claude junta a `main` de volta na branch de trabalho mantendo a branch (`git merge -s ours`), só para o próximo PR mostrar apenas o que mudou.
+* **Branches no GitHub:** a `main` e a `claude/agents-md-v2`; a temporária só existe enquanto o PR de subida está aberto.
+* O texto da D23 sobre "uma branch por tarefa" deixa de valer; o resto da D23 (CI, publicação no merge, Workload Identity Federation) continua.
+

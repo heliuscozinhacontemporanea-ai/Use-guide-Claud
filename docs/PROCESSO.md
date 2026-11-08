@@ -1,6 +1,13 @@
 # Processo de trabalho
 
-> **Desde 2026-11-08 (D23):** o AI Studio saiu do processo. A `main` é o código publicado; o Claude trabalha numa branch por tarefa (`claude/<tema>`) e abre PR para a `main`; o `ci` roda os gates; o responsável faz o merge, e o merge publica (`.github/workflows/deploy.yml`). Não há mais prompts nem zips. O que segue é o histórico do processo antigo, mantido como registro.
+> **Desde 2026-11-08 (D23 e D30):** o AI Studio saiu do processo e não há mais prompts nem zips.
+>
+> 1. O Claude trabalha na `claude/agents-md-v2`: código e documentação (`docs/`).
+> 2. A cada aprovação do responsável, abre um PR de subida (`claude/subida-AAAA-MM-DD`) com o código da branch de trabalho, **sem `docs/`**, para a `main`.
+> 3. O `ci` roda os gates; o responsável faz o merge, e o merge publica (`.github/workflows/deploy.yml`). A branch de subida é apagada no merge.
+> 4. O Claude junta a `main` de volta na branch de trabalho com `git merge -s ours`.
+>
+> O que segue é o histórico do processo antigo, mantido como registro. Os prompts do AI Studio (`docs/arquitetura/prompts/`, `03-prompts-ai-studio.md` e `05-prompts-decisoes.md`) saíram em 2026-11-08 e continuam no histórico do git.
 
 # Histórico: Referência (Claude) × AI Studio (Gemini), até 2026-11-08
 
