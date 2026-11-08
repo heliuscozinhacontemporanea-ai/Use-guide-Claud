@@ -86,6 +86,9 @@ async function startServer() {
               'https://connect-js.stripe.com',
               'https://www.google.com',
               'https://www.gstatic.com',
+              'https://www.recaptcha.net',
+              // Google Analytics 4 (index.html).
+              'https://www.googletagmanager.com',
             ],
             styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
             fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
@@ -108,6 +111,14 @@ async function startServer() {
               'https://connect-js.stripe.com',
               'https://*.stripe.com',
               'https://api.open-meteo.com',
+              // App Check (reCAPTCHA Enterprise): o script do reCAPTCHA chama estes caminhos.
+              'https://www.google.com/recaptcha/',
+              'https://www.gstatic.com/recaptcha/',
+              'https://www.recaptcha.net/recaptcha/',
+              // Google Analytics 4: envio das visitas.
+              'https://www.googletagmanager.com',
+              'https://*.google-analytics.com',
+              'https://*.analytics.google.com',
               'wss:',
             ],
             frameSrc: [
