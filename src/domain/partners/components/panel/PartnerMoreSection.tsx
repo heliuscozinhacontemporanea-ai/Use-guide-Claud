@@ -1,3 +1,4 @@
+import { Plus } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BackButton } from '../../../../ui/components/BackButton';
@@ -24,6 +25,7 @@ export function PartnerMoreSection({
   renderCoupons,
   showProducer = true,
   sells = true,
+  onAddSegment,
 }: {
   view: PartnerMoreView;
   onViewChange: (view: PartnerMoreView) => void;
@@ -45,6 +47,8 @@ export function PartnerMoreSection({
   showProducer?: boolean;
   /** Vende pelo app: contas de recebimento e cupons; a vitrine (hospedagem, restaurante) não. */
   sells?: boolean;
+  /** "Também trabalha com…?" (S3): abre a folha de segmentos. */
+  onAddSegment?: () => void;
 }) {
   const { t } = useTranslation();
   const back = () => onViewChange('list');
@@ -126,6 +130,17 @@ export function PartnerMoreSection({
           },
         ]
       : [];
+  const addSegment: PartnerMoreEntry[] = onAddSegment
+    ? [
+        {
+          id: 'add-segment',
+          title: t('partnerAddSegment.entry'),
+          icon: <Plus size={18} aria-hidden="true" />,
+          partner: true,
+          onOpen: onAddSegment,
+        },
+      ]
+    : [];
   const help: PartnerMoreEntry[] = renderAccountView
     ? [
         {
@@ -151,7 +166,7 @@ export function PartnerMoreSection({
   return (
     <PartnerMoreTab
       title={t('partnerPanel.more.title')}
-      groups={[account, sales, help]}
+      groups={[account, sales, addSegment, help]}
       tourTarget="more-list"
     />
   );

@@ -88,3 +88,38 @@ export function offersLabel(segments: readonly PartnerSegment[]): PartnerSegment
   const booking = segments.filter((segment) => BOOKING.has(segment));
   return booking.length === 1 ? (booking[0] as PartnerSegment) : 'services';
 }
+
+/** Linha da folha "Também trabalha com…?" (S3): hospedagem e restaurante dividem uma ("vitrine"). */
+export type AddSegmentOption =
+  | 'tours'
+  | 'rentals'
+  | 'transfers'
+  | 'attraction'
+  | 'events'
+  | 'showcase';
+
+const ADD_OPTIONS: ReadonlyArray<{
+  id: AddSegmentOption;
+  covers: readonly PartnerSegment[];
+  categories: readonly string[];
+}> = [
+  { id: 'tours', covers: ['tours'], categories: ['tour'] },
+  { id: 'rentals', covers: ['rentals'], categories: ['rental'] },
+  { id: 'transfers', covers: ['transfers'], categories: ['transfer'] },
+  { id: 'attraction', covers: ['attraction'], categories: ['sight'] },
+  { id: 'events', covers: ['events'], categories: ['producer'] },
+  { id: 'showcase', covers: ['lodging', 'restaurant'], categories: ['hotel', 'restaurant'] },
+];
+
+/**
+ * Linhas da folha, com o que o parceiro já tem marcado. A vitrine só conta como "já tem" com
+ * hospedagem e restaurante; com uma só, a linha abre o cadastro da outra.
+ */
+export function addSegmentOptions(segments: readonly PartnerSegment[]) {
+  return ADD_OPTIONS.map((option) => {
+    const missing = option.categories.filter(
+      (category) => !segments.includes(BY_CATEGORY[category] as PartnerSegment)
+    );
+    return { id: option.id, has: missing.length === 0, categories: missing };
+  });
+}

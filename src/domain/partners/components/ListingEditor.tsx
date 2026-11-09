@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { RefreshCw, Trash2, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
-import { FormProvider, useForm, type Resolver } from 'react-hook-form';
+import { FormProvider, type Resolver, useForm } from 'react-hook-form';
 import { Z_INDEX } from '../../../shared/constants/zIndex';
 import { useUI } from '../../../shared/stores/useUIStore';
 import type { PhoneInputFieldRef } from '../../../ui/components/PhoneInputField';
@@ -47,8 +47,11 @@ export function ListingEditor({
   onClose,
 }: ListingEditorProps) {
   const { showToast } = useUI();
+  // Cadastro novo com uma categoria só (ex.: "Também trabalha com…?") já vem com ela escolhida.
   const [formData, setFormData] = useState<FormState>(() =>
-    item ? mapItemToFormData(item) : getEmptyFormData('')
+    item
+      ? mapItemToFormData(item)
+      : getEmptyFormData(allowedCategoryIds?.length === 1 ? allowedCategoryIds[0] : '')
   );
   const [isSaving, setIsSaving] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);

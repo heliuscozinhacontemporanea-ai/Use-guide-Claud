@@ -1,16 +1,4 @@
 import {
-  type PartnerSignupTranslation,
-  partnerSignupEn,
-  partnerSignupFr,
-  partnerSignupPtBR,
-} from './partnerSignupResources';
-import {
-  type PartnerFirstStepsTranslation,
-  partnerFirstStepsEn,
-  partnerFirstStepsFr,
-  partnerFirstStepsPtBR,
-} from './partnerFirstStepsResources';
-import {
   type AdminFinanceTranslation,
   adminFinanceEn,
   adminFinanceFr,
@@ -80,6 +68,12 @@ import {
 } from './listingPlanResources';
 import { type NotifyTranslation, notifyEn, notifyFr, notifyPtBR } from './notifyResources';
 import {
+  type PartnerAddSegmentTranslation,
+  partnerAddSegmentEn,
+  partnerAddSegmentFr,
+  partnerAddSegmentPtBR,
+} from './partnerAddSegmentResources';
+import {
   type PartnerAgoraTranslation,
   partnerAgoraEn,
   partnerAgoraFr,
@@ -98,11 +92,23 @@ import {
   partnerEarningsPtBR,
 } from './partnerEarningsResources';
 import {
+  type PartnerFirstStepsTranslation,
+  partnerFirstStepsEn,
+  partnerFirstStepsFr,
+  partnerFirstStepsPtBR,
+} from './partnerFirstStepsResources';
+import {
   type PartnerPanelTranslation,
   partnerPanelEn,
   partnerPanelFr,
   partnerPanelPtBR,
 } from './partnerPanelResources';
+import {
+  type PartnerSignupTranslation,
+  partnerSignupEn,
+  partnerSignupFr,
+  partnerSignupPtBR,
+} from './partnerSignupResources';
 import {
   type PartnersTranslation,
   partnersEn,
@@ -253,6 +259,7 @@ export interface TranslationResource {
   partnerCatalog: PartnerCatalogTranslation;
   partnerEarnings: PartnerEarningsTranslation;
   partnerFirstSteps: PartnerFirstStepsTranslation;
+  partnerAddSegment: PartnerAddSegmentTranslation;
   partnerSignup: PartnerSignupTranslation;
   partnerAgora: PartnerAgoraTranslation;
   courtesy: CourtesyTranslation;
@@ -505,6 +512,7 @@ const ptBR: TranslationResource = {
   partnerCatalog: partnerCatalogPtBR,
   partnerEarnings: partnerEarningsPtBR,
   partnerFirstSteps: partnerFirstStepsPtBR,
+  partnerAddSegment: partnerAddSegmentPtBR,
   partnerSignup: partnerSignupPtBR,
   partnerAgora: partnerAgoraPtBR,
   courtesy: courtesyPtBR,
@@ -817,6 +825,7 @@ const en: TranslationResource = {
   partnerCatalog: partnerCatalogEn,
   partnerEarnings: partnerEarningsEn,
   partnerFirstSteps: partnerFirstStepsEn,
+  partnerAddSegment: partnerAddSegmentEn,
   partnerSignup: partnerSignupEn,
   partnerAgora: partnerAgoraEn,
   courtesy: courtesyEn,
@@ -1123,6 +1132,7 @@ const fr: TranslationResource = {
   partnerCatalog: partnerCatalogFr,
   partnerEarnings: partnerEarningsFr,
   partnerFirstSteps: partnerFirstStepsFr,
+  partnerAddSegment: partnerAddSegmentFr,
   partnerSignup: partnerSignupFr,
   partnerAgora: partnerAgoraFr,
   courtesy: courtesyFr,

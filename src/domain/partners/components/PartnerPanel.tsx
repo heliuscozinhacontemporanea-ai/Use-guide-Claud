@@ -7,12 +7,12 @@ import { MessagePage } from '../../../ui/components/MessagePage';
 import { createPartnerContentItemUseCase } from '../application/usecases/createPartnerContentItemUseCase';
 import { deletePartnerContentItemUseCase } from '../application/usecases/deletePartnerContentItemUseCase';
 import { updatePartnerContentItemUseCase } from '../application/usecases/updatePartnerContentItemUseCase';
+import { PanelTimeZoneProvider } from '../hooks/panelTimeZone';
 import { useEditorScrollLock } from '../hooks/useEditorScrollLock';
 import { usePanelNavigation } from '../hooks/usePanelNavigation';
 import { usePanelTour } from '../hooks/usePanelTour';
 import { usePartnerEventSessions } from '../hooks/usePartnerEventSessions';
 import { usePartnerPanelActions } from '../hooks/usePartnerPanelActions';
-import { PanelTimeZoneProvider } from '../hooks/panelTimeZone';
 import { usePartnerPanelHome } from '../hooks/usePartnerPanelHome';
 import { usePartnerSegments } from '../hooks/usePartnerSegments';
 import { usePlanCheckout } from '../hooks/usePlanCheckout';
@@ -27,6 +27,7 @@ import type { PartnerPanelProps } from './partnerPanelProps';
 export type { AgendaSheetProps, PartnerPanelProps } from './partnerPanelProps';
 
 import { belongs } from '../utils/partnerHomeFilter';
+import { AddSegmentSheet } from './panel/AddSegmentSheet';
 import { EstablishmentFilterSheet } from './panel/EstablishmentFilterSheet';
 import { PanelTourChooser } from './panel/PanelTourChooser';
 import { PartnerAgendaTab } from './panel/PartnerAgendaTab';
@@ -115,6 +116,9 @@ export function PartnerPanel({
   const [editingListing, setEditingListing] = React.useState<
     PartnerContentRecord | null | undefined
   >(undefined);
+  // Categorias aceitas no cadastro novo aberto pelo "Também trabalha com…?" (S3).
+  const [newListingCategories, setNewListingCategories] = React.useState<string[] | undefined>();
+  const [addSegmentOpen, setAddSegmentOpen] = React.useState(false);
   useEditorScrollLock(Boolean(isEditing));
   const editingEventId = isEditing?.category === 'event' ? isEditing.id || undefined : undefined;
   const eventSessions = usePartnerEventSessions(editingEventId, (details) =>
@@ -292,6 +296,7 @@ export function PartnerPanel({
             <PartnerMoreSection
               showProducer={segments.segments.length === 0 || segments.segments.includes('events')}
               sells={segments.tabs.includes('earnings')}
+              onAddSegment={() => setAddSegmentOpen(true)}
               view={nav.moreView}
               onViewChange={nav.setMoreView}
               establishments={itemsList}
@@ -363,6 +368,7 @@ export function PartnerPanel({
           {editingListing !== undefined && (
             <ListingEditor
               item={editingListing}
+              allowedCategoryIds={editingListing ? undefined : newListingCategories}
               currentUser={user}
               onSave={async (input, itemId) => {
                 if (itemId) {
@@ -372,10 +378,23 @@ export function PartnerPanel({
                 }
               }}
               onDelete={deletePartnerContentItemUseCase}
-              onClose={() => setEditingListing(undefined)}
+              onClose={() => {
+                setEditingListing(undefined);
+                setNewListingCategories(undefined);
+              }}
             />
           )}
         </AnimatePresence>
+
+        <AddSegmentSheet
+          open={addSegmentOpen}
+          onOpenChange={setAddSegmentOpen}
+          segments={segments.segments}
+          onChoose={(categories) => {
+            setNewListingCategories(categories);
+            setEditingListing(null);
+          }}
+        />
 
         <ListingPlanFlow
           items={itemsList}
