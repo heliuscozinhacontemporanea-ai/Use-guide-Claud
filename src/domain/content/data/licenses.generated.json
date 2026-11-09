@@ -81,7 +81,7 @@
   },
   {
     "name": "@vitejs/plugin-react",
-    "version": "6.1.1",
+    "version": "6.2.1",
     "license": "MIT",
     "author": "Evan You",
     "url": "https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#readme",
