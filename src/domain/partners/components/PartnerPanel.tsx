@@ -19,6 +19,7 @@ import { usePlanCheckout } from '../hooks/usePlanCheckout';
 import type { PartnerContentRecord } from '../types/partnerContent';
 import type { PartnerTodayItem } from '../types/partnerHome';
 import { newPartnerEventDraft } from '../utils/newPartnerEventDraft';
+import { startingHomeCards } from '../utils/partnerSegments';
 import { ListingEditor } from './ListingEditor';
 import { PartnerEventEditor } from './PartnerEventEditor';
 import { ListingPlanFlow } from './panel/ListingPlanFlow';
@@ -117,12 +118,19 @@ export function PartnerPanel({
   const homeCards = React.useMemo(() => {
     const allowed = segments.homeCards;
     if (!allowed) return home.cards;
+    const ids = startingHomeCards(segments.segments, home.cards.cards).filter((id) =>
+      allowed.includes(id)
+    );
     return {
       ...home.cards,
-      visible: home.cards.visible.filter((card) => allowed.includes(card.id)),
+      visible: ids
+        .map(home.cards.dataOf)
+        .filter((card): card is NonNullable<typeof card> => card !== null),
       available: home.cards.available.filter((id) => allowed.includes(id)),
+      // "Personalizar início" parte do que está na tela.
+      startEditing: () => home.cards.setDraft(ids),
     };
-  }, [home.cards, segments.homeCards]);
+  }, [home.cards, segments.homeCards, segments.segments]);
   // Vitrine (sem venda pelo app): visitas do mês do estabelecimento em vista, como no print aprovado.
   const shownPlace =
     itemsList.find((entry) => entry.id === home.filter) ??

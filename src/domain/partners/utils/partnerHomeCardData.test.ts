@@ -79,6 +79,14 @@ describe('dados dos cartões do Início', () => {
     });
     expect(partnerCardData('plan_seal', VIEW, [], null)).toMatchObject({ name: 'Pousada' });
   });
+
+  it('sem plano ativo, o cartão de plano convida a conhecer os planos', () => {
+    expect(partnerCardData('plan_seal', { ...VIEW, plans: [] }, [], 'a')).toEqual({
+      id: 'plan_seal',
+      name: 'Buggy',
+      until: null,
+    });
+  });
 });
 
 describe('cartão Cupons', () => {

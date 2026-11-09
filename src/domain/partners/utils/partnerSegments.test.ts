@@ -7,6 +7,7 @@ import {
   offersLabel,
   panelTabsFor,
   partnerSegments,
+  startingHomeCards,
 } from './partnerSegments';
 
 describe('partnerSegments', () => {
@@ -96,5 +97,28 @@ describe('homeCardsFor', () => {
 
   it('sem cadastro: todos', () => {
     expect(homeCardsFor([])).toBeNull();
+  });
+});
+
+describe('startingHomeCards', () => {
+  const defaults = [
+    'today',
+    'sales_today',
+    'next_payout',
+    'next_event',
+    'reviews',
+    'week_bookings',
+  ] as const;
+
+  it('vitrine sem personalizar começa com avaliações e plano e selo', () => {
+    expect(startingHomeCards(['restaurant'], defaults)).toEqual(['reviews', 'plan_seal']);
+  });
+
+  it('o que o parceiro escolheu fica', () => {
+    expect(startingHomeCards(['restaurant'], ['reviews'])).toEqual(['reviews']);
+  });
+
+  it('quem vende fica com o padrão', () => {
+    expect(startingHomeCards(['tours'], defaults)).toEqual(defaults);
   });
 });

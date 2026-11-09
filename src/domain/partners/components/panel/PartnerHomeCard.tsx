@@ -1,9 +1,9 @@
-import { usePanelItemTime, usePanelTimeZone } from '../../hooks/panelTimeZone';
 import { ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { formatBusinessDate, formatBusinessDay } from '../../../../shared/utils/businessDateTime';
 import { cn } from '../../../../shared/utils/cn';
 import { formatMoneyMinorCompact } from '../../../../shared/utils/money';
+import { usePanelItemTime, usePanelTimeZone } from '../../hooks/panelTimeZone';
 import type { PartnerTodayItem } from '../../types/partnerHome';
 import type { PartnerCardData } from '../../utils/partnerHomeCardData';
 
@@ -168,9 +168,11 @@ function Body({
         <>
           <p className="text-[15px] font-semibold text-ink truncate">{data.name}</p>
           <p className={SUB}>
-            {t('partnerPanel.cards.plan_seal.until', {
-              date: formatBusinessDay(data.until, lang, timeZone),
-            })}
+            {data.until
+              ? t('partnerPanel.cards.plan_seal.until', {
+                  date: formatBusinessDay(data.until, lang, timeZone),
+                })
+              : t('partnerPanel.cards.plan_seal.none')}
           </p>
         </>
       );

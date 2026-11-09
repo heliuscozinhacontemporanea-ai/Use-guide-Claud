@@ -18,7 +18,7 @@ export type PartnerCardData =
   | { id: 'week_bookings'; sold: number; capacity: number }
   | { id: 'guests'; session: PartnerUpcomingSession }
   | { id: 'promoters'; promoters: PartnerHomePromoters }
-  | { id: 'plan_seal'; name: string; until: string }
+  | { id: 'plan_seal'; name: string; until: string | null }
   | { id: 'week_occupancy'; days: Array<{ date: string; sold: number; capacity: number }> }
   | { id: 'month_sales'; currentMinor: number; previousMinor: number }
   | { id: 'promo_codes'; summary: PartnerHomePromoCodes };
@@ -95,7 +95,12 @@ export function partnerCardData(
           Boolean(plan.until && names.has(plan.itemId))
         )
         .sort((a, b) => a.until.localeCompare(b.until))[0];
-      return next ? { id, name: names.get(next.itemId) ?? '', until: next.until } : null;
+      if (next) return { id, name: names.get(next.itemId) ?? '', until: next.until };
+      // Sem plano ativo: o cartão convida a conhecer os planos (vitrine começa com ele).
+      const first = establishments[0];
+      return first
+        ? { id, name: establishments.length === 1 ? first.name : '', until: null }
+        : null;
     }
     case 'week_occupancy': {
       const days = weekDays(week);

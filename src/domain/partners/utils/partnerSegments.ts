@@ -1,6 +1,6 @@
 import type { CatalogSegment } from '../components/panel/PartnerCatalogTab';
 import type { PartnerPanelTab } from '../components/panel/partnerPanelTabs';
-import type { PartnerHomeCardId } from '../types/partnerHomeCards';
+import { PARTNER_HOME_CARD_IDS, type PartnerHomeCardId } from '../types/partnerHomeCards';
 
 /**
  * Segmentos do parceiro (painel por segmento, 2026-11-09): o painel mostra só o que ele vende ou
@@ -149,4 +149,23 @@ export function couponsLabel(
   return selling.length === 1
     ? (selling[0] as Exclude<PartnerSegment, 'lodging' | 'restaurant'>)
     : null;
+}
+
+// Os seis primeiros da galeria: o que o servidor devolve a quem nunca personalizou (D27).
+const DEFAULT_CARDS = PARTNER_HOME_CARD_IDS.slice(0, 6);
+
+/**
+ * Cartões do Início antes de o parceiro personalizar: a vitrine começa com avaliações e plano e
+ * selo (aprovado em 2026-11-09); os outros segmentos, com o padrão salvo.
+ */
+export function startingHomeCards(
+  segments: readonly PartnerSegment[],
+  saved: readonly PartnerHomeCardId[]
+): readonly PartnerHomeCardId[] {
+  const untouched =
+    saved.length === DEFAULT_CARDS.length && saved.every((id, i) => id === DEFAULT_CARDS[i]);
+  if (untouched && segments.length > 0 && !sellsThroughApp(segments)) {
+    return ['reviews', 'plan_seal'];
+  }
+  return saved;
 }

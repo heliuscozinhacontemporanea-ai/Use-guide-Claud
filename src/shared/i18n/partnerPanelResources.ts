@@ -95,7 +95,7 @@ export interface PartnerPanelTranslation {
     week_bookings: CardTexts & { occupancy: string };
     guests: CardTexts;
     promoters: CardTexts & { owed: string };
-    plan_seal: CardTexts & { until: string };
+    plan_seal: CardTexts & { until: string; none: string };
     week_occupancy: CardTexts;
     month_sales: CardTexts & { compare: string; noCompare: string };
     promo_codes: CardTexts & {
@@ -314,6 +314,7 @@ export const partnerPanelPtBR: PartnerPanelTranslation = {
       title: 'Plano e selo',
       description: 'Quando vence o plano de cada estabelecimento',
       until: 'Plano até {{date}}',
+      none: 'Sem plano · conheça os planos',
     },
     week_occupancy: { title: 'Ocupação da semana', description: 'Lugares vendidos por dia' },
     month_sales: {
@@ -544,6 +545,7 @@ export const partnerPanelEn: PartnerPanelTranslation = {
       title: 'Plan and badge',
       description: "When each business's plan ends",
       until: 'Plan until {{date}}',
+      none: 'No plan · see the plans',
     },
     week_occupancy: { title: 'Weekly occupancy', description: 'Spots sold per day' },
     month_sales: {
@@ -775,6 +777,7 @@ export const partnerPanelFr: PartnerPanelTranslation = {
       title: 'Formule et badge',
       description: 'Quand la formule de chaque établissement expire',
       until: 'Formule jusqu’au {{date}}',
+      none: 'Sans formule · voir les formules',
     },
     week_occupancy: { title: 'Occupation de la semaine', description: 'Places vendues par jour' },
     month_sales: {
