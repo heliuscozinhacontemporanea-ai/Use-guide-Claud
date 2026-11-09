@@ -1,23 +1,20 @@
-import { motion } from 'motion/react';
-import { Rocket } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
+/** Enquanto o cadastro sobe: um giro discreto em roxo, a cor da área de parceiro (§11.1). */
 export function SignupProcessingState() {
+  const { t } = useTranslation();
   return (
     <>
-      <div className="relative">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ repeat: Infinity, duration: 4, ease: 'linear' }}
-          className="w-24 h-24 rounded-[2rem] border-2 border-indigo-500/20 border-t-indigo-500"
-        />
-        <div className="absolute inset-0 flex items-center justify-center text-indigo-400">
-          <Rocket size={40} className="animate-pulse" aria-hidden="true" />
-        </div>
-      </div>
+      <span className="w-16 h-16 rounded-2xl bg-partner-soft border border-partner-line text-partner flex items-center justify-center">
+        <Loader2 size={28} aria-hidden="true" className="animate-spin motion-reduce:animate-none" />
+      </span>
       <div className="space-y-2" role="status">
-        <h3 className="text-xl font-black text-white uppercase">Processando...</h3>
-        <p className="text-white/50 text-sm max-w-[280px]">
-          Estamos preparando seu perfil e subindo as informações. Quase lá!
+        <h3 className="text-[19px] font-semibold text-ink">
+          {t('partnerSignup.processing.title')}
+        </h3>
+        <p className="text-[15px] text-ink/70 max-w-[300px]">
+          {t('partnerSignup.processing.text')}
         </p>
       </div>
     </>

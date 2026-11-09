@@ -1,57 +1,60 @@
-import { ChipGroup, TextField } from './DetailFields';
+import { useTranslation } from 'react-i18next';
+import { ChipGroup, type DetailOptions, TextField } from './DetailFields';
+import type { FieldKey, PlaceholderKey } from './detailKeys';
 import { type DetailsSectionProps, useDetailsForm } from './useDetailsForm';
 
-const TOUR_INCLUDES_OPTIONS = [
-  'Guia credenciado',
-  'Transporte',
-  'Água e lanche',
-  'Almoço',
-  'Ingressos das paradas',
-  'Equipamentos',
-  'Fotos',
-  'Seguro',
-] as const;
+const TOUR_INCLUDES: DetailOptions = {
+  licensedGuide: 'Guia credenciado',
+  transport: 'Transporte',
+  waterSnack: 'Água e lanche',
+  lunch: 'Almoço',
+  stopTickets: 'Ingressos das paradas',
+  equipment: 'Equipamentos',
+  photos: 'Fotos',
+  insurance: 'Seguro',
+};
 
 /** Campos da inscrição de passeio: atividade guiada com roteiro (decisão D9). */
 export function TourDetails(props: DetailsSectionProps) {
+  const { t } = useTranslation();
   const { formData, getFieldError, updateFieldValue, toggleInList } = useDetailsForm(props);
+  const f = (key: FieldKey) => t(`partnerSignup.details.fields.${key}`);
+  const p = (key: PlaceholderKey) => t(`partnerSignup.details.placeholders.${key}`);
 
   return (
-    <div className="space-y-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="space-y-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <TextField
           id="tour-duration"
-          label="Duração (horas)"
+          label={f('tourDuration')}
           inputMode="decimal"
           value={formData.tourDurationHours}
           onChange={(value) => updateFieldValue('tourDurationHours', value)}
-          placeholder="Ex: 4"
-          required
+          placeholder={p('tourDuration')}
           error={getFieldError('tourDurationHours')}
         />
         <TextField
           id="tour-meeting-point"
-          label="Ponto de encontro"
+          label={f('meetingPoint')}
           value={formData.meetingPoint}
           onChange={(value) => updateFieldValue('meetingPoint', value)}
-          placeholder="Ex: Em frente à Igreja de Jeri"
-          required
+          placeholder={p('meetingPoint')}
           error={getFieldError('meetingPoint')}
         />
       </div>
       <TextField
         id="tour-itinerary"
-        label="Roteiro"
+        label={f('itinerary')}
         multiline
         maxLength={2000}
         value={formData.itinerary}
         onChange={(value) => updateFieldValue('itinerary', value)}
-        placeholder="Paradas, horários e o que o turista vai ver"
+        placeholder={p('itinerary')}
         error={getFieldError('itinerary')}
       />
       <ChipGroup
-        label="O que está incluído"
-        options={TOUR_INCLUDES_OPTIONS}
+        label={f('includes')}
+        options={TOUR_INCLUDES}
         selected={formData.tourIncludes}
         onToggle={(value) => toggleInList('tourIncludes', value)}
       />

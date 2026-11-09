@@ -1,5 +1,5 @@
 import type React from 'react';
-import { Sparkles } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { FormState } from '../../types/partsForm';
 import { HotelDetails } from './details/HotelDetails';
 import { RentalDetails } from './details/RentalDetails';
@@ -28,19 +28,19 @@ const DETAILS_BY_CATEGORY: Record<string, (props: DetailsSectionProps) => React.
 
 /** Passo 3 da inscrição e do editor: campos próprios de cada categoria. */
 export function Step3Details({ categories, ...props }: Step3DetailsProps) {
+  const { t } = useTranslation();
   const Details = DETAILS_BY_CATEGORY[props.formData.category];
-  const label = categories.find((c) => c.id === props.formData.category)?.label;
+  const label = props.formData.category
+    ? t(`partnerSignup.categories.${props.formData.category}`, {
+        defaultValue: categories.find((c) => c.id === props.formData.category)?.label ?? '',
+      })
+    : '';
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-2">
-        <span className="p-2 rounded-xl bg-white/5 border border-white/10 text-indigo-400">
-          <Sparkles size={18} aria-hidden="true" />
-        </span>
-        <h3 className="text-sm font-black text-white uppercase tracking-widest">
-          {label ? `Detalhes · ${label}` : 'Serviços e Comodidades'}
-        </h3>
-      </div>
+    <div className="space-y-5">
+      <h3 className="px-1 text-[17px] font-semibold text-ink">
+        {label ? `${t('partnerSignup.detailsTitle')} · ${label}` : t('partnerSignup.detailsTitle')}
+      </h3>
       {Details ? <Details {...props} /> : null}
     </div>
   );

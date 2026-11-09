@@ -1,6 +1,18 @@
 // Apresentação e cadastro de parceiro (V1/V2, aprovados em 2026-11-09). Tom neutro: taxas, prazos e
 // planos ficam nos termos do parceiro.
+import {
+  type PartnerSignupDetailsTranslation,
+  partnerSignupDetailsEn,
+  partnerSignupDetailsFr,
+  partnerSignupDetailsPtBR,
+} from './partnerSignupDetailsResources';
+
 export interface PartnerSignupTranslation {
+  details: PartnerSignupDetailsTranslation;
+  processing: { title: string; text: string };
+  yes: string;
+  no: string;
+  detailsTitle: string;
   presentation: {
     title: string;
     subtitle: string;
@@ -87,6 +99,14 @@ export interface PartnerSignupTranslation {
 }
 
 export const partnerSignupPtBR: PartnerSignupTranslation = {
+  details: partnerSignupDetailsPtBR,
+  processing: {
+    title: 'Enviando seu cadastro',
+    text: 'Estamos guardando as informações e as fotos. Isso leva alguns segundos.',
+  },
+  yes: 'Sim',
+  no: 'Não',
+  detailsTitle: 'Detalhes',
   presentation: {
     title: 'Seu negócio no Use Guide',
     subtitle:
@@ -184,6 +204,14 @@ export const partnerSignupPtBR: PartnerSignupTranslation = {
 };
 
 export const partnerSignupEn: PartnerSignupTranslation = {
+  details: partnerSignupDetailsEn,
+  processing: {
+    title: 'Sending your sign-up',
+    text: 'We are saving your details and photos. This takes a few seconds.',
+  },
+  yes: 'Yes',
+  no: 'No',
+  detailsTitle: 'Details',
   presentation: {
     title: 'Your business on Use Guide',
     subtitle:
@@ -282,6 +310,14 @@ export const partnerSignupEn: PartnerSignupTranslation = {
 };
 
 export const partnerSignupFr: PartnerSignupTranslation = {
+  details: partnerSignupDetailsFr,
+  processing: {
+    title: 'Envoi de votre inscription',
+    text: 'Nous enregistrons vos informations et vos photos. Cela prend quelques secondes.',
+  },
+  yes: 'Oui',
+  no: 'Non',
+  detailsTitle: 'Détails',
   presentation: {
     title: 'Votre activité sur Use Guide',
     subtitle:

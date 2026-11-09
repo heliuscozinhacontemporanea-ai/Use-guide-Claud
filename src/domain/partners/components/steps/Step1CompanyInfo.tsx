@@ -1,7 +1,7 @@
-import React from 'react';
 import { motion } from 'motion/react';
-import { useTranslation } from 'react-i18next';
+import React from 'react';
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { cn } from '../../../../shared/utils/cn';
 import type { FormState } from '../../types/partsForm';
 import {
