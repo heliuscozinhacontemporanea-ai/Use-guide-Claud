@@ -171,7 +171,12 @@ export function PartnerMoreSection({
   return (
     <PartnerMoreTab
       title={t('partnerPanel.more.title')}
-      groups={[account, sales, addSegment, help]}
+      groups={[[...account, ...sales], addSegment, help]}
+      groupTitles={[
+        t('partnerPanel.more.groupBusiness'),
+        undefined,
+        t('partnerPanel.more.groupHelp'),
+      ]}
       tourTarget="more-list"
     />
   );

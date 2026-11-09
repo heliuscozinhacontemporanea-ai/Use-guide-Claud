@@ -144,6 +144,8 @@ export interface PartnerPanelTranslation {
     title: string;
     reports: string;
     reportsHint: string;
+    groupBusiness: string;
+    groupHelp: string;
     producer: string;
     producerHint: string;
     coupons: string;
@@ -368,6 +370,8 @@ export const partnerPanelPtBR: PartnerPanelTranslation = {
     title: 'Mais',
     reports: 'Relatórios',
     reportsHint: 'Vendas por item e por mês',
+    groupBusiness: 'Seu negócio',
+    groupHelp: 'Ajuda e conta',
     producer: 'Perfil de produtor',
     producerHint: 'Nome, foto e descrição que o público vê',
     coupons: 'Cupons',
@@ -596,6 +600,8 @@ export const partnerPanelEn: PartnerPanelTranslation = {
     title: 'More',
     reports: 'Reports',
     reportsHint: 'Sales per listing and per month',
+    groupBusiness: 'Your business',
+    groupHelp: 'Help and account',
     producer: 'Producer profile',
     producerHint: 'Name, photo and description the public sees',
     coupons: 'Promo codes',
@@ -825,6 +831,8 @@ export const partnerPanelFr: PartnerPanelTranslation = {
     title: 'Plus',
     reports: 'Rapports',
     reportsHint: 'Ventes par fiche et par mois',
+    groupBusiness: 'Votre activité',
+    groupHelp: 'Aide et compte',
     producer: 'Profil d’organisateur',
     producerHint: 'Nom, photo et description visibles par le public',
     coupons: 'Codes promo',
