@@ -1,4 +1,10 @@
 import {
+  type PartnerFirstStepsTranslation,
+  partnerFirstStepsEn,
+  partnerFirstStepsFr,
+  partnerFirstStepsPtBR,
+} from './partnerFirstStepsResources';
+import {
   type AdminFinanceTranslation,
   adminFinanceEn,
   adminFinanceFr,
@@ -240,6 +246,7 @@ export interface TranslationResource {
   partnerPanel: PartnerPanelTranslation;
   partnerCatalog: PartnerCatalogTranslation;
   partnerEarnings: PartnerEarningsTranslation;
+  partnerFirstSteps: PartnerFirstStepsTranslation;
   partnerAgora: PartnerAgoraTranslation;
   courtesy: CourtesyTranslation;
   promoters: PromoterTranslation;
@@ -490,6 +497,7 @@ const ptBR: TranslationResource = {
   partnerPanel: partnerPanelPtBR,
   partnerCatalog: partnerCatalogPtBR,
   partnerEarnings: partnerEarningsPtBR,
+  partnerFirstSteps: partnerFirstStepsPtBR,
   partnerAgora: partnerAgoraPtBR,
   courtesy: courtesyPtBR,
   promoters: promoterPtBR,
@@ -800,6 +808,7 @@ const en: TranslationResource = {
   partnerPanel: partnerPanelEn,
   partnerCatalog: partnerCatalogEn,
   partnerEarnings: partnerEarningsEn,
+  partnerFirstSteps: partnerFirstStepsEn,
   partnerAgora: partnerAgoraEn,
   courtesy: courtesyEn,
   promoters: promoterEn,
@@ -1104,6 +1113,7 @@ const fr: TranslationResource = {
   partnerPanel: partnerPanelFr,
   partnerCatalog: partnerCatalogFr,
   partnerEarnings: partnerEarningsFr,
+  partnerFirstSteps: partnerFirstStepsFr,
   partnerAgora: partnerAgoraFr,
   courtesy: courtesyFr,
   promoters: promoterFr,

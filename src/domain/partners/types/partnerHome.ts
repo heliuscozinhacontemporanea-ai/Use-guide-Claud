@@ -78,12 +78,36 @@ export interface PartnerWeekDay {
   capacity: number;
 }
 
+export type FirstStepSegment =
+  | 'tours'
+  | 'rentals'
+  | 'transfers'
+  | 'events'
+  | 'attraction'
+  | 'lodging'
+  | 'restaurant';
+
+export interface PartnerFirstStep {
+  id: 'verify' | 'account' | 'offer' | 'event';
+  done: boolean;
+  state?: 'pending' | 'locked';
+  itemId: string;
+}
+
+/** O que falta para vender (painel por segmento), como `/api/partner-home` devolve. */
+export interface PartnerFirstSteps {
+  segment: FirstStepSegment;
+  title: 'prepare' | 'start' | 'complete';
+  steps: PartnerFirstStep[];
+}
+
 export interface PartnerHomeView {
   cards: string[];
   /** Fuso do painel (D28): o do primeiro estabelecimento, ou o da plataforma. */
   timeZone: string;
   establishments: PartnerEstablishment[];
   attention: PartnerAttentionItem[];
+  firstSteps?: PartnerFirstSteps | null;
   today: PartnerTodayItem[];
   /** Horários de ontem a amanhã e sessões até amanhã; o aparelho escolhe os cartões de "Agora". */
   agora: PartnerTodayItem[];

@@ -1,3 +1,4 @@
+import type { PartnerFirstSteps } from './buildFirstSteps';
 import type { PromoCodesSummary } from '../../../domain/promotions';
 /** Leitura do Início do painel do parceiro (D27). Textos ficam no app; aqui só tipo, ids e valores. */
 export type PartnerAttentionKind =
@@ -89,6 +90,8 @@ export interface PartnerHomeView {
     timeZone?: string;
   }>;
   attention: PartnerAttentionItem[];
+  /** O que falta para vender (painel por segmento); `null` quando está tudo pronto. */
+  firstSteps?: PartnerFirstSteps | null;
   today: PartnerTodayItem[];
   /** Horários de ontem a amanhã e sessões até amanhã, para os cartões de "Agora" (D27). */
   agora: PartnerTodayItem[];

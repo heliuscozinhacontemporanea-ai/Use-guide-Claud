@@ -181,6 +181,21 @@ export function PartnerPanel({
               cards={home.cards}
               labelFor={home.labelFor}
               onOpenAttention={(item) => setPanelTab(ATTENTION_TAB[item.kind])}
+              onOpenStep={(step) => {
+                const item = itemsList.find((entry) => entry.id === step.itemId);
+                if (step.id === 'verify' && item) {
+                  setVerifyingListing({ id: item.id, name: item.name, category: item.category });
+                } else if (step.id === 'account') {
+                  setPanelTab('earnings');
+                  nav.setOpenAccounts(true);
+                } else if (step.id === 'offer') {
+                  setPanelTab('catalog');
+                  nav.setPlaceId(step.itemId);
+                } else if (step.id === 'event') {
+                  setEditingHasSales(false);
+                  setIsEditing(newPartnerEventDraft(user?.uid ?? ''));
+                }
+              }}
               onOpenTab={setPanelTab}
               onOpenCoupons={renderCoupons ? () => nav.openCoupons('home') : undefined}
               agora={
