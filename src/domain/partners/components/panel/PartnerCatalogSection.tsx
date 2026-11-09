@@ -1,3 +1,4 @@
+import { PLATFORM_TIME_ZONE } from '../../../../shared/utils/timeZones';
 import { type ReactNode, useState } from 'react';
 import { usePartnerCatalogEvents } from '../../hooks/usePartnerCatalogEvents';
 import type { PartnerContentRecord } from '../../types/partnerContent';
@@ -123,6 +124,7 @@ export function PartnerCatalogSection({
         onBack={() => onEventChange(null)}
         onEdit={(hasSales) => record && onOpenEvent(record, hasSales)}
         onOpenSession={onOpenSession}
+        timeZone={record?.timeZone ?? PLATFORM_TIME_ZONE}
         renderGuests={renders.renderGuests}
         renderPromoters={renders.renderPromoters}
         onOpenCoupons={

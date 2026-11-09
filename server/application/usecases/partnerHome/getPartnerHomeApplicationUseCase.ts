@@ -22,6 +22,7 @@ import { businessDayStartMs } from '../../../shared/kernel/businessDay';
 import { hasCurrentPartnerTerms } from '../partnerTermsStatus';
 import { listPartnerPaymentAccountsApplicationUseCase } from '../paymentAccounts/listPartnerPaymentAccountsApplicationUseCase';
 import { buildPartnerHome, type PartnerSessionInput, UPCOMING_SESSIONS } from './buildPartnerHome';
+import { panelTimeZone } from './panelTimeZone';
 import { businessMonthStarts } from './partnerHomeCardsData';
 import type { PartnerHomePromoters, PartnerHomeView } from './partnerHomeTypes';
 import { listOwnerOccurrences, type OwnerEvent, toSessionInput } from './partnerSessions';
@@ -41,7 +42,9 @@ export async function getPartnerHomeApplicationUseCase(
   now: Date = new Date()
 ): Promise<PartnerHomeView> {
   const nowIso = now.toISOString();
-  const dayStart = businessDayStartMs(nowIso);
+  // O fuso do painel só se sabe com os estabelecimentos: a agenda é lida com folga de um dia para
+  // cobrir de UTC−2 a UTC−5, e o recorte de "Hoje" é feito no buildPartnerHome.
+  const platformDayStart = businessDayStartMs(nowIso);
   const actor = { uid: ownerUid, admin: false };
 
   const [establishments, documents, agenda, events, accounts, verifications, cards] =
@@ -50,9 +53,9 @@ export async function getPartnerHomeApplicationUseCase(
       listOwnerSalesDocumentsUseCase(ownerUid),
       listOwnerAgendaUseCase(
         actor,
-        new Date(dayStart - ABSENCE_LOOKBACK_MS).toISOString(),
-        new Date(dayStart + WEEK_MS).toISOString(),
-        new Date(dayStart + DAY_MS).toISOString()
+        new Date(platformDayStart - ABSENCE_LOOKBACK_MS - DAY_MS).toISOString(),
+        new Date(platformDayStart + WEEK_MS + DAY_MS).toISOString(),
+        new Date(platformDayStart + 2 * DAY_MS).toISOString()
       ),
       listOwnerEventListingsUseCase(ownerUid),
       listPartnerPaymentAccountsApplicationUseCase(ownerUid),
@@ -60,11 +63,13 @@ export async function getPartnerHomeApplicationUseCase(
       getPartnerHomeCardsUseCase(ownerUid),
     ]);
   const accountKeys = documents.map((document) => document.accountKey);
+  const timeZone = panelTimeZone(establishments);
+  const dayStart = businessDayStartMs(nowIso, timeZone);
 
   const [debts, recentEntries, openEntries, planUntil, sessions, unansweredReviews] =
     await Promise.all([
       listAccountDebtsUseCase(accountKeys),
-      loadTwoMonthsOfEntries(accountKeys, businessMonthStarts(nowIso).previous),
+      loadTwoMonthsOfEntries(accountKeys, businessMonthStarts(nowIso, timeZone).previous),
       listOpenPayoutEntriesUseCase(accountKeys, OPEN_ENTRIES),
       Promise.all(
         establishments.map(async (item) => ({
@@ -79,6 +84,7 @@ export async function getPartnerHomeApplicationUseCase(
 
   const view = buildPartnerHome({
     nowIso,
+    timeZone,
     cards,
     establishments,
     unansweredReviews,

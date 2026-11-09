@@ -1,3 +1,4 @@
+import { PLATFORM_TIME_ZONE } from '../../../shared/utils/timeZones';
 import { BellCheck, CheckCheck, Ellipsis, SlidersHorizontal } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -7,7 +8,7 @@ import { DropdownMenu } from '../../../ui/components/DropdownMenu';
 import { TextButton } from '../../../ui/components/TextButton';
 import type { NotificationCenterItem } from '../types/notificationCategories';
 
-const TIME_ZONE = 'America/Fortaleza';
+const TIME_ZONE = PLATFORM_TIME_ZONE;
 
 function dayKey(date: Date): string {
   return new Intl.DateTimeFormat('en-CA', { timeZone: TIME_ZONE }).format(date);

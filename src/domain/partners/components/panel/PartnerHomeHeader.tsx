@@ -1,3 +1,4 @@
+import { usePanelTimeZone } from '../../hooks/panelTimeZone';
 import { useTranslation } from 'react-i18next';
 import { formatBusinessDate } from '../../../../shared/utils/businessDateTime';
 import { BackButton } from '../../../../ui/components/BackButton';
@@ -19,6 +20,7 @@ export function PartnerHomeHeader({
   onBack: () => void;
 }) {
   const { t, i18n } = useTranslation();
+  const { timeZone } = usePanelTimeZone();
   const name =
     filterName ??
     (establishments.length === 1 ? (establishments[0]?.name ?? '') : t('partnerPanel.filter.all'));
@@ -35,11 +37,16 @@ export function PartnerHomeHeader({
         />
       </div>
       <p className="pl-10 text-[13px] text-ink/70 first-letter:uppercase">
-        {formatBusinessDate(new Date().toISOString(), i18n.language, {
-          weekday: 'long',
-          day: 'numeric',
-          month: 'long',
-        })}
+        {formatBusinessDate(
+          new Date().toISOString(),
+          i18n.language,
+          {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long',
+          },
+          timeZone
+        )}
       </p>
     </div>
   );

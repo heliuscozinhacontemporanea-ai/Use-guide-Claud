@@ -31,6 +31,7 @@ function entry(overrides: Partial<PayoutEntryView>): PayoutEntryView {
 
 function input(overrides: Partial<PartnerHomeInput> = {}): PartnerHomeInput {
   return {
+    timeZone: 'America/Fortaleza',
     nowIso: NOW,
     cards: ['today'],
     unansweredReviews: { buggy: 2 },

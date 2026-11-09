@@ -5,6 +5,7 @@ import {
 } from '../../../domain/payment';
 import { listPartnerPaymentAccountsApplicationUseCase } from '../paymentAccounts/listPartnerPaymentAccountsApplicationUseCase';
 import { buildPartnerEarnings, type PartnerEarningsView } from './buildPartnerEarnings';
+import { panelTimeZone } from './panelTimeZone';
 import { businessMonthStarts } from './partnerHomeCardsData';
 
 const OPEN_LIMIT = 200;
@@ -16,11 +17,12 @@ export async function getPartnerEarningsApplicationUseCase(
   now: Date = new Date()
 ): Promise<PartnerEarningsView> {
   const nowIso = now.toISOString();
-  const months = businessMonthStarts(nowIso);
   const [accounts, establishments] = await Promise.all([
     listPartnerPaymentAccountsApplicationUseCase(ownerUid),
     listOwnerGuideItemsUseCase(ownerUid),
   ]);
+  const timeZone = panelTimeZone(establishments);
+  const months = businessMonthStarts(nowIso, timeZone);
   const keys = accounts.map((account) => account.accountKey);
   const [open, released] = await Promise.all([
     listOpenPayoutEntriesUseCase(keys, OPEN_LIMIT),
@@ -29,6 +31,7 @@ export async function getPartnerEarningsApplicationUseCase(
   ]);
   return buildPartnerEarnings({
     nowIso,
+    timeZone,
     monthStartIso: new Date(months.current).toISOString(),
     open,
     released,

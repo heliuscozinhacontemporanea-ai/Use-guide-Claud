@@ -8,7 +8,7 @@ const jobUrl = defineString('TERMS_ANNOUNCEMENTS_JOB_URL');
 export const announceTermsUpdates = onSchedule(
   {
     schedule: '17 * * * *',
-    timeZone: 'America/Fortaleza',
+    timeZone: 'America/Sao_Paulo',
     secrets: [internalJobKey],
   },
   async () => {

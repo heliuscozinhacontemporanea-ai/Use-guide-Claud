@@ -41,6 +41,7 @@ export function PartnerEventPage({
   renderGuests,
   renderPromoters,
   onOpenCoupons,
+  timeZone,
 }: {
   eventId: string;
   reloadKey: number;
@@ -52,6 +53,8 @@ export function PartnerEventPage({
   renderPromoters?: (eventId: string) => ReactNode;
   /** Cupons deste evento, na área Cupons (B1). */
   onOpenCoupons?: () => void;
+  /** Fuso do evento (D28): "hoje", "ontem" e as horas das sessões. */
+  timeZone: string;
 }) {
   const { t, i18n } = useTranslation();
   const locale = i18n.language;
@@ -66,16 +69,21 @@ export function PartnerEventPage({
     data?.sessions.find((session) => new Date(session.startsAt) > now) ?? data?.sessions[0];
 
   const when = (iso: string) => {
-    const time = formatBusinessDate(iso, locale, { hour: '2-digit', minute: '2-digit' });
-    if (sameBusinessDay(iso, now)) return t('partnerCatalog.event.today', { time });
-    if (sameBusinessDay(iso, addBusinessDays(businessDay(now), -1)))
+    const time = formatBusinessDate(iso, locale, { hour: '2-digit', minute: '2-digit' }, timeZone);
+    if (sameBusinessDay(iso, now, timeZone)) return t('partnerCatalog.event.today', { time });
+    if (sameBusinessDay(iso, addBusinessDays(businessDay(now, timeZone), -1, timeZone), timeZone))
       return t('partnerCatalog.event.yesterday', { time });
-    return formatBusinessDate(iso, locale, {
-      day: 'numeric',
-      month: 'short',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+    return formatBusinessDate(
+      iso,
+      locale,
+      {
+        day: 'numeric',
+        month: 'short',
+        hour: '2-digit',
+        minute: '2-digit',
+      },
+      timeZone
+    );
   };
 
   return (
@@ -178,7 +186,7 @@ export function PartnerEventPage({
                       .filter(Boolean)
                       .join(' · ')}
                     aside={
-                      sameBusinessDay(session.startsAt, now) ? (
+                      sameBusinessDay(session.startsAt, now, timeZone) ? (
                         <span className="shrink-0 text-[13px] font-semibold text-accent">
                           {t('partnerPanel.home.gate')}
                         </span>

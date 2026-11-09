@@ -1,6 +1,9 @@
-const BUSINESS_TIME_ZONE = 'America/Fortaleza';
+import { PLATFORM_TIME_ZONE } from '../../../shared/kernel/timeZones';
 
-/** Dia do rodízio no fuso do negócio, para que a troca aconteça à meia-noite de Jericoacoara. */
+// Contas da plataforma em Brasília (D28).
+const BUSINESS_TIME_ZONE = PLATFORM_TIME_ZONE;
+
+/** Dia do rodízio no fuso da plataforma, para que a troca aconteça à meia-noite de Brasília. */
 export function featuredRotationDay(now: Date): string {
   return new Intl.DateTimeFormat('en-CA', {
     timeZone: BUSINESS_TIME_ZONE,

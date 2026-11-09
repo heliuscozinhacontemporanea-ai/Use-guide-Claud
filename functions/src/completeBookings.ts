@@ -8,7 +8,7 @@ const jobUrl = defineString('BOOKINGS_COMPLETION_JOB_URL');
 export const completeBookings = onSchedule(
   {
     schedule: '0 3 * * *',
-    timeZone: 'America/Fortaleza',
+    timeZone: 'America/Sao_Paulo',
     secrets: [internalJobKey],
   },
   async () => {

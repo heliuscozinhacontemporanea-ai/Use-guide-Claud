@@ -8,7 +8,7 @@ const jobUrl = defineString('PARTNERS_EXPIRING_PLANS_JOB_URL');
 export const checkExpiringPlans = onSchedule(
   {
     schedule: '0 6 * * *',
-    timeZone: 'America/Fortaleza',
+    timeZone: 'America/Sao_Paulo',
     secrets: [internalJobKey],
   },
   async () => {

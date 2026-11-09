@@ -1,3 +1,4 @@
+import { usePanelTimeZone } from '../../hooks/panelTimeZone';
 import { Download, KeyRound, type LucideIcon, MapPin, Play, ScanLine } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -73,8 +74,11 @@ export function AgoraCardItem({
 }) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
+  const { zoneOf } = usePanelTimeZone();
+  // Tudo neste cartão é do mesmo item: as horas saem no fuso do lugar dele (D28).
+  const timeZone = zoneOf(card.item);
   const time = (iso: string) =>
-    formatBusinessDate(iso, lang, { hour: '2-digit', minute: '2-digit' });
+    formatBusinessDate(iso, lang, { hour: '2-digit', minute: '2-digit' }, timeZone);
   const titleAt = (item: PartnerTodayItem) =>
     t('partnerAgora.titleAt', { title: item.title, time: time(item.startsAt) });
   const withCode = (item: PartnerTodayItem) => {
@@ -192,8 +196,8 @@ export function AgoraCardItem({
     }
     case 'offline': {
       const sameDay =
-        formatBusinessDate(item.startsAt, 'en-CA', { dateStyle: 'short' }) ===
-        formatBusinessDate(new Date(now).toISOString(), 'en-CA', { dateStyle: 'short' });
+        formatBusinessDate(item.startsAt, 'en-CA', { dateStyle: 'short' }, timeZone) ===
+        formatBusinessDate(new Date(now).toISOString(), 'en-CA', { dateStyle: 'short' }, timeZone);
       return (
         <CardShell
           type="offline"

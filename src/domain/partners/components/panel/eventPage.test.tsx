@@ -61,6 +61,7 @@ describe('Página do evento (p10–p12) e Editar evento (p18)', () => {
       <PartnerEventPage
         eventId="ev1"
         reloadKey={0}
+        timeZone="America/Fortaleza"
         onBack={vi.fn()}
         onEdit={vi.fn()}
         onOpenSession={onOpenSession}
@@ -83,6 +84,7 @@ describe('Página do evento (p10–p12) e Editar evento (p18)', () => {
       <PartnerEventPage
         eventId="ev1"
         reloadKey={0}
+        timeZone="America/Fortaleza"
         onBack={vi.fn()}
         onEdit={vi.fn()}
         onOpenSession={vi.fn()}
@@ -98,6 +100,7 @@ describe('Página do evento (p10–p12) e Editar evento (p18)', () => {
       <PartnerEventPage
         eventId="ev1"
         reloadKey={0}
+        timeZone="America/Fortaleza"
         onBack={vi.fn()}
         onEdit={vi.fn()}
         onOpenSession={vi.fn()}
@@ -120,6 +123,7 @@ describe('Página do evento (p10–p12) e Editar evento (p18)', () => {
       <PartnerEventPage
         eventId="ev1"
         reloadKey={0}
+        timeZone="America/Fortaleza"
         onBack={vi.fn()}
         onEdit={vi.fn()}
         onOpenSession={vi.fn()}

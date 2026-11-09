@@ -1,3 +1,4 @@
+import { usePanelTimeZone } from '../../hooks/panelTimeZone';
 import { ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { formatBusinessDate, formatBusinessDay } from '../../../../shared/utils/businessDateTime';
@@ -19,11 +20,17 @@ export const ATTENTION_TAB: Record<PartnerAttentionKind, PartnerPanelTab> = {
 
 function useDetail() {
   const { t, i18n } = useTranslation();
+  const { timeZone } = usePanelTimeZone();
   return (item: PartnerAttentionItem) => {
     const time = item.deadline
-      ? formatBusinessDate(item.deadline, i18n.language, { hour: '2-digit', minute: '2-digit' })
+      ? formatBusinessDate(
+          item.deadline,
+          i18n.language,
+          { hour: '2-digit', minute: '2-digit' },
+          timeZone
+        )
       : '';
-    const date = item.deadline ? formatBusinessDay(item.deadline, i18n.language) : '';
+    const date = item.deadline ? formatBusinessDay(item.deadline, i18n.language, timeZone) : '';
     return t(`partnerPanel.attention.${item.kind}.detail`, { time, date });
   };
 }

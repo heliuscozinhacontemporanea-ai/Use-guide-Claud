@@ -28,6 +28,7 @@ function entry(overrides: Partial<PayoutEntryView>): PayoutEntryView {
 
 function input(overrides: Partial<EarningsInput> = {}): EarningsInput {
   return {
+    timeZone: 'America/Fortaleza',
     nowIso: '2026-11-08T13:00:00.000Z',
     monthStartIso: '2026-11-01T03:00:00.000Z',
     open: [],

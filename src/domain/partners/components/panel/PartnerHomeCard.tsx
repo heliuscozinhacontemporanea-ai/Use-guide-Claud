@@ -1,3 +1,4 @@
+import { usePanelItemTime, usePanelTimeZone } from '../../hooks/panelTimeZone';
 import { ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { formatBusinessDate, formatBusinessDay } from '../../../../shared/utils/businessDateTime';
@@ -24,8 +25,8 @@ function Body({
 }) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
-  const time = (iso: string) =>
-    formatBusinessDate(iso, lang, { hour: '2-digit', minute: '2-digit' });
+  const { timeZone } = usePanelTimeZone();
+  const itemTime = usePanelItemTime(lang);
   switch (data.id) {
     case 'today':
       return data.items.length === 0 ? (
@@ -37,7 +38,7 @@ function Body({
             return (
               <li key={`${item.kind}-${item.id}`} className="text-[14px]">
                 <span className="block text-ink font-semibold truncate">
-                  {time(item.startsAt)} · {item.title}
+                  {itemTime(item, item.startsAt)} · {item.title}
                 </span>
                 <span className="flex items-center justify-between gap-3">
                   <TodayStatus item={item} />
@@ -71,7 +72,7 @@ function Body({
             {data.payout.accounts > 1
               ? t('partnerPanel.cards.next_payout.inAccounts', { count: data.payout.accounts })
               : t('partnerPanel.home.nextPayoutOn', {
-                  date: formatBusinessDay(data.payout.releaseAt, lang),
+                  date: formatBusinessDay(data.payout.releaseAt, lang, timeZone),
                 })}
           </p>
         </>
@@ -167,7 +168,9 @@ function Body({
         <>
           <p className="text-[15px] font-semibold text-ink truncate">{data.name}</p>
           <p className={SUB}>
-            {t('partnerPanel.cards.plan_seal.until', { date: formatBusinessDay(data.until, lang) })}
+            {t('partnerPanel.cards.plan_seal.until', {
+              date: formatBusinessDay(data.until, lang, timeZone),
+            })}
           </p>
         </>
       );
@@ -183,7 +186,7 @@ function Body({
                 />
               </div>
               <span className="text-[11px] text-ink/70">
-                {formatBusinessDate(day.date, lang, { weekday: 'narrow' })}
+                {formatBusinessDate(day.date, lang, { weekday: 'narrow' }, timeZone)}
               </span>
             </div>
           ))}
@@ -229,7 +232,7 @@ function Body({
               {alert.kind === 'ending'
                 ? t('partnerPanel.cards.promo_codes.ending', {
                     code: alert.code,
-                    when: formatBusinessDay(alert.endsAt, lang),
+                    when: formatBusinessDay(alert.endsAt, lang, timeZone),
                   })
                 : t('partnerPanel.cards.promo_codes.runningOut', alert)}
             </p>

@@ -1,3 +1,4 @@
+import { PLATFORM_TIME_ZONE } from '../../../shared/utils/timeZones';
 import { useCallback, useMemo, useState } from 'react';
 import { PARTNER_HOME_CARD_IDS } from '../types/partnerHomeCards';
 import type { PartnerTodayItem } from '../types/partnerHome';
@@ -66,6 +67,11 @@ export function usePartnerPanelHome() {
     filter,
     setFilter,
     filterName: filter ? (names.get(filter) ?? null) : null,
+    /** Fuso de "Hoje" e da Agenda (D28): o do estabelecimento filtrado; em "Todos", o do painel. */
+    timeZone:
+      (filter ? establishments.find((item) => item.id === filter)?.timeZone : undefined) ??
+      home.data?.timeZone ??
+      PLATFORM_TIME_ZONE,
     sheetOpen,
     setSheetOpen,
     attention: filtered.attention,

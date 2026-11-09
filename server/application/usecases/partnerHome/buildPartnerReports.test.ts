@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import type { PayoutEntryView } from '../../../domain/payment';
 import { buildPartnerReports, reportBuckets } from './buildPartnerReports';
 
+const TZ = 'America/Fortaleza';
+
 const NOW = '2026-11-08T13:00:00.000Z';
 
 function entry(overrides: Partial<PayoutEntryView>): PayoutEntryView {
@@ -29,21 +31,26 @@ function entry(overrides: Partial<PayoutEntryView>): PayoutEntryView {
 }
 
 describe('buildPartnerReports', () => {
-  it('um total por dia no fuso de Fortaleza: 7 dias, 30 dias e 12 meses', () => {
-    const week = reportBuckets('7d', NOW);
+  it('um total por dia no fuso do painel: 7 dias, 30 dias e 12 meses', () => {
+    const week = reportBuckets('7d', NOW, TZ);
     expect(week).toHaveLength(7);
     expect(week.at(-1)).toBe('2026-11-08T03:00:00.000Z');
-    expect(reportBuckets('30d', NOW)).toHaveLength(30);
-    const year = reportBuckets('12m', NOW);
+    expect(reportBuckets('30d', NOW, TZ)).toHaveLength(30);
+    const year = reportBuckets('12m', NOW, TZ);
     expect(year[0]).toBe('2025-12-01T03:00:00.000Z');
     expect(year.at(-1)).toBe('2026-11-08T03:00:00.000Z');
     expect(year).toHaveLength(343);
+  });
+
+  it('no fuso do painel de outro estado, os dias começam na hora de lá', () => {
+    expect(reportBuckets('7d', NOW, 'America/Manaus').at(-1)).toBe('2026-11-08T04:00:00.000Z');
   });
 
   it('soma por barra e por item, sem taxa de serviço, reembolso nem venda cancelada', () => {
     const report = buildPartnerReports(
       '7d',
       NOW,
+      TZ,
       [
         entry({ id: 'a' }),
         entry({ id: 'b', createdAt: '2026-11-07T02:00:00.000Z' }),
@@ -74,6 +81,7 @@ describe('buildPartnerReports', () => {
     const report = buildPartnerReports(
       '7d',
       NOW,
+      TZ,
       [
         entry({ id: 'a', referenceId: 'bk1' }),
         entry({ id: 'b', referenceId: 'bk2' }),

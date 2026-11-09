@@ -8,7 +8,7 @@ const jobUrl = defineString('NOTIFICATIONS_REMINDERS_JOB_URL');
 export const sendServiceReminders = onSchedule(
   {
     schedule: '*/15 * * * *',
-    timeZone: 'America/Fortaleza',
+    timeZone: 'America/Sao_Paulo',
     secrets: [internalJobKey],
   },
   async () => {

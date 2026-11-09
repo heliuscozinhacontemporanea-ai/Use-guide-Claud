@@ -1,3 +1,4 @@
+import { PLATFORM_TIME_ZONE } from '../../../../shared/utils/timeZones';
 import { CheckCircle2, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -21,7 +22,7 @@ export function PartnerTermsCard({ terms, onAccepted }: PartnerTermsCardProps) {
   if (terms.accepted && terms.acceptedAt) {
     const date = new Intl.DateTimeFormat(i18n.language, {
       dateStyle: 'medium',
-      timeZone: 'America/Fortaleza',
+      timeZone: PLATFORM_TIME_ZONE,
     }).format(new Date(terms.acceptedAt));
     return (
       <p className="flex items-center gap-2 text-xs text-ink/70">

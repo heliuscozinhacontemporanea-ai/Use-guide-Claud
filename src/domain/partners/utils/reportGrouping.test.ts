@@ -13,16 +13,16 @@ describe('groupReportBuckets', () => {
   ];
 
   it('semana de segunda a domingo e mês no fuso de Fortaleza', () => {
-    expect(groupReportBuckets(days, 'week')).toEqual([
+    expect(groupReportBuckets(days, 'week', 'America/Fortaleza')).toEqual([
       day('2026-10-26T03:00:00.000Z', 100),
       day('2026-11-02T03:00:00.000Z', 500),
       day('2026-11-09T03:00:00.000Z', 400),
       day('2026-11-30T03:00:00.000Z', 500),
     ]);
-    expect(groupReportBuckets(days, 'month')).toEqual([
+    expect(groupReportBuckets(days, 'month', 'America/Fortaleza')).toEqual([
       day('2026-11-01T03:00:00.000Z', 1000),
       day('2026-12-01T03:00:00.000Z', 500),
     ]);
-    expect(groupReportBuckets(days, 'day')).toBe(days);
+    expect(groupReportBuckets(days, 'day', 'America/Fortaleza')).toBe(days);
   });
 });

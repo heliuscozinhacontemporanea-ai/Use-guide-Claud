@@ -21,6 +21,7 @@ const today = (id: string, establishmentIds: string[]) => ({
 });
 
 const VIEW: PartnerHomeView = {
+  timeZone: 'America/Fortaleza',
   cards: [],
   establishments: [],
   attention: [

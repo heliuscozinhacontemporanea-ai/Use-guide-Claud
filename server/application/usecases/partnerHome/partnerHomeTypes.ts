@@ -75,6 +75,8 @@ export interface PartnerWeekDay {
 export interface PartnerHomeView {
   /** Cartões do Início, na ordem que o parceiro escolheu (ou o padrão). */
   cards: string[];
+  /** Fuso do painel (D28): o do primeiro estabelecimento, ou o da plataforma. */
+  timeZone: string;
   establishments: Array<{
     id: string;
     name: string;
@@ -84,6 +86,7 @@ export interface PartnerHomeView {
     reviewCount: number;
     /** Avaliações ainda sem resposta do estabelecimento. */
     unansweredReviews: number;
+    timeZone?: string;
   }>;
   attention: PartnerAttentionItem[];
   today: PartnerTodayItem[];

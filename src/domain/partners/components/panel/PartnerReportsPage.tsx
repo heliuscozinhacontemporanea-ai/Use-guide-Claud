@@ -16,17 +16,20 @@ function Bars({
   buckets,
   unit,
   locale,
+  timeZone,
 }: {
   buckets: Array<{ start: string; soldMinor: number }>;
   unit: ReportUnit;
   locale: string;
+  timeZone: string;
 }) {
   const max = Math.max(1, ...buckets.map((bucket) => bucket.soldMinor));
   const label = (iso: string) =>
     formatBusinessDate(
       iso,
       locale,
-      unit === 'month' ? { month: 'short', year: 'numeric' } : { day: 'numeric', month: 'short' }
+      unit === 'month' ? { month: 'short', year: 'numeric' } : { day: 'numeric', month: 'short' },
+      timeZone
     );
   return (
     <ul className={`h-36 flex items-end ${buckets.length > 40 ? 'gap-px' : 'gap-1'}`}>
@@ -157,7 +160,12 @@ export function PartnerReportsPage({
                 }))}
               />
             </div>
-            <Bars buckets={groupReportBuckets(data.buckets, unit)} unit={unit} locale={locale} />
+            <Bars
+              buckets={groupReportBuckets(data.buckets, unit, data.timeZone)}
+              unit={unit}
+              locale={locale}
+              timeZone={data.timeZone}
+            />
           </section>
           {data.truncated && (
             <p className="px-1 text-[13px] text-warn">{t('partnerEarnings.reports.truncated')}</p>

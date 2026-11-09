@@ -28,6 +28,8 @@ export interface PartnerSessionInput {
 
 export interface PartnerHomeInput {
   nowIso: string;
+  /** Fuso do painel (D28): "Hoje", vendas do dia, semana e mês. */
+  timeZone: string;
   cards: string[];
   establishments: OwnerGuideItemSummary[];
   unansweredReviews: Record<string, number>;
@@ -48,7 +50,7 @@ export interface PartnerHomeInput {
 /** Monta o Início a partir do que cada domínio devolveu; sem I/O, para testar as regras. */
 export function buildPartnerHome(input: PartnerHomeInput): PartnerHomeView {
   const now = new Date(input.nowIso).getTime();
-  const dayStart = businessDayStartMs(input.nowIso);
+  const dayStart = businessDayStartMs(input.nowIso, input.timeZone);
   const dayEnd = dayStart + DAY_MS;
   const names = new Map(input.establishments.map((item) => [item.id, item.name]));
   const itemsOf = (accountKey: string) =>
@@ -158,8 +160,9 @@ export function buildPartnerHome(input: PartnerHomeInput): PartnerHomeView {
   );
   const pending = input.openEntries.filter((entry) => entry.status === 'pending');
   const first = pending[0];
-  const nextDay = first ? businessDayStartMs(first.releaseAt) : null;
-  const sameDay = pending.filter((entry) => businessDayStartMs(entry.releaseAt) === nextDay);
+  const dayOf = (iso: string) => businessDayStartMs(iso, input.timeZone);
+  const nextDay = first ? dayOf(first.releaseAt) : null;
+  const sameDay = pending.filter((entry) => dayOf(entry.releaseAt) === nextDay);
 
   const upcomingSessions = input.sessions
     .filter((session) => new Date(session.startsAt).getTime() >= now)
@@ -178,8 +181,9 @@ export function buildPartnerHome(input: PartnerHomeInput): PartnerHomeView {
 
   return {
     cards: input.cards,
+    timeZone: input.timeZone,
     establishments: input.establishments.map(
-      ({ id, name, category, location, rating, reviewCount }) => ({
+      ({ id, name, category, location, rating, reviewCount, timeZone }) => ({
         id,
         name,
         category,
@@ -187,6 +191,7 @@ export function buildPartnerHome(input: PartnerHomeInput): PartnerHomeView {
         rating,
         reviewCount,
         unansweredReviews: input.unansweredReviews[id] ?? 0,
+        ...(timeZone ? { timeZone } : {}),
       })
     ),
     attention,
@@ -203,14 +208,14 @@ export function buildPartnerHome(input: PartnerHomeInput): PartnerHomeView {
             accounts: new Set(sameDay.map((entry) => entry.accountKey)).size,
           }
         : null,
-      month: sumMonthSales(input.recentEntries, input.nowIso),
+      month: sumMonthSales(input.recentEntries, input.nowIso, input.timeZone),
     },
     upcomingSessions,
     // Preenchido pelo caso de uso, que lê os divulgadores (ticketing).
     promoters: null,
     tour: { show: false, tipsOff: false },
     promoCodes: null,
-    week: summarizeWeek(input.slots, input.nowIso),
+    week: summarizeWeek(input.slots, input.nowIso, input.timeZone),
     plans: input.planUntil,
     summary: {
       documents: input.documents.length,

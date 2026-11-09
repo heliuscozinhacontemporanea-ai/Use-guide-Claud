@@ -1,3 +1,4 @@
+import { usePanelTimeZone } from '../../hooks/panelTimeZone';
 import type { ReactNode } from 'react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -48,6 +49,7 @@ export function PartnerEarningsTab({
   onShowAccountsChange: (open: boolean) => void;
 }) {
   const { t, i18n } = useTranslation();
+  const { timeZone } = usePanelTimeZone();
   const locale = i18n.language;
   const { data, loading, error, reload } = usePartnerEarnings();
   const [segment, setSegment] = useState<EarningsSegment>('payouts');
@@ -66,7 +68,7 @@ export function PartnerEarningsTab({
   if (showAccounts) return <>{renders.renderAccounts?.(() => setShowAccounts(false))}</>;
 
   const toReceiveCount = data?.payouts.filter((group) => group.status !== 'paid').length ?? 0;
-  const month = formatBusinessDate(new Date().toISOString(), locale, { month: 'long' });
+  const month = formatBusinessDate(new Date().toISOString(), locale, { month: 'long' }, timeZone);
 
   return (
     <section aria-labelledby="partner-earnings-title" className="space-y-5">

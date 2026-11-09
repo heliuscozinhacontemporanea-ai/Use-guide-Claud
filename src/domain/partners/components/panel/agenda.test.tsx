@@ -72,6 +72,7 @@ describe('Agenda (p05)', () => {
         labelFor={() => null}
         onOpenItem={vi.fn()}
         reloadKey={0}
+        timeZone="America/Fortaleza"
       />
     );
     await waitFor(() => expect(m.agenda).toHaveBeenCalledTimes(1));

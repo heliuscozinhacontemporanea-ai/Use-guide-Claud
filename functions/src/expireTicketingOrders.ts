@@ -8,7 +8,7 @@ const jobUrl = defineString('TICKETING_EXPIRATION_JOB_URL');
 export const expireTicketingOrders = onSchedule(
   {
     schedule: '*/5 * * * *',
-    timeZone: 'America/Fortaleza',
+    timeZone: 'America/Sao_Paulo',
     secrets: [internalJobKey],
   },
   async () => {
