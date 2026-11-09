@@ -122,6 +122,10 @@
   --color-danger-line: var(--ug-danger-line);
   --color-seal: var(--ug-seal);
   --color-seal-soft: var(--ug-seal-soft);
+  --color-partner: var(--ug-partner);
+  --color-partner-soft: var(--ug-partner-soft);
+  --color-partner-line: var(--ug-partner-line);
+  --color-partner-fill: var(--ug-partner-fill);
   /* Texto sobre botão ou etiqueta colorida: claro nos dois temas, sem branco puro. */
   --color-on-fill: #fff8f0;
 }
@@ -230,6 +234,12 @@
   --ug-danger-line: rgba(244, 63, 94, 0.25);
   --ug-seal: #93c5fd;
   --ug-seal-soft: rgba(59, 130, 246, 0.12);
+  /* Roxo da área de parceiro (AGENTS.md §11.1): texto 5,5:1 sobre a superfície; fundo do botão com
+     texto claro 6:1. */
+  --ug-partner: #818cf8;
+  --ug-partner-soft: rgba(99, 102, 241, 0.14);
+  --ug-partner-line: rgba(129, 140, 248, 0.35);
+  --ug-partner-fill: #4f46e5;
 }
 
 /* Modo portaria (D21): sempre escuro, mesmo no tema claro, para gastar menos bateria em telas OLED. */
@@ -285,6 +295,10 @@
   --ug-danger-line: rgba(225, 29, 72, 0.3);
   --ug-seal: #1d4ed8;
   --ug-seal-soft: rgba(37, 99, 235, 0.12);
+  --ug-partner: #4338ca;
+  --ug-partner-soft: rgba(79, 70, 229, 0.1);
+  --ug-partner-line: rgba(79, 70, 229, 0.3);
+  --ug-partner-fill: #4f46e5;
 }
 
 :root.light body {
