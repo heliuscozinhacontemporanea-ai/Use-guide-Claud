@@ -3,6 +3,7 @@ import {
   addSegmentOptions,
   catalogSegmentsFor,
   catalogTabLabel,
+  homeCardsFor,
   offersLabel,
   panelTabsFor,
   partnerSegments,
@@ -78,5 +79,22 @@ describe('addSegmentOptions', () => {
     expect(addSegmentOptions([]).find((row) => row.id === 'events')?.categories).toEqual([
       'producer',
     ]);
+  });
+});
+
+describe('homeCardsFor', () => {
+  it('vitrine: só avaliações e plano', () => {
+    expect(homeCardsFor(['restaurant'])).toEqual(['reviews', 'plan_seal']);
+  });
+
+  it('passeio: vendas e agenda, sem cartões de evento', () => {
+    const cards = homeCardsFor(['tours']) ?? [];
+    expect(cards).toContain('sales_today');
+    expect(cards).toContain('week_bookings');
+    expect(cards).not.toContain('next_event');
+  });
+
+  it('sem cadastro: todos', () => {
+    expect(homeCardsFor([])).toBeNull();
   });
 });

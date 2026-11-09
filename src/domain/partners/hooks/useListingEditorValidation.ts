@@ -1,66 +1,38 @@
 import { useCallback, useState } from 'react';
-import { useUI } from '../../../shared/stores/useUIStore';
 import { step1Schema, step2Schema, step3Schema, step4Schema } from '../schemas/partnerSchema';
 import type { FormState } from '../types/partsForm';
 
 export type ListingEditorErrors = { [key: string]: string };
 
-type SectionSchema = typeof step2Schema | typeof step3Schema | typeof step4Schema;
+const SECTIONS = [step1Schema, step2Schema, step3Schema, step4Schema] as const;
 
-function collectErrors(schema: SectionSchema, formData: FormState): ListingEditorErrors | null {
-  const parsed = schema.safeParse(formData);
-  if (parsed.success) return null;
-  const errors: ListingEditorErrors = {};
-  for (const issue of parsed.error.issues) {
-    const field = issue.path[0]?.toString();
-    if (field) errors[field] = issue.message;
-  }
-  return errors;
-}
-
-function isIdentityValid(formData: FormState): boolean {
-  return step1Schema.safeParse(formData).success;
-}
-
-/** Validação do editor de cadastro: as mesmas regras da inscrição, seção por seção. */
+/**
+ * Validação do editor de cadastro: as mesmas regras da inscrição, todas de uma vez, para o
+ * editor mostrar cada erro no seu campo. As mensagens são chaves de tradução (§12.5).
+ */
 export function useListingEditorValidation(formData: FormState) {
-  const { showToast } = useUI();
   const [errors, setErrors] = useState<ListingEditorErrors>({});
 
-  const validateSection = useCallback(
-    (schema: SectionSchema): boolean => {
-      const found = collectErrors(schema, formData);
-      setErrors(found ?? {});
-      return found === null;
-    },
-    [formData]
-  );
-
   const validateAll = useCallback(
-    (phoneIsValid: boolean): boolean => {
-      if (!isIdentityValid(formData)) {
-        showToast('Preencha o nome e a descrição do cadastro.', 'error');
-        return false;
-      }
-      if (!phoneIsValid || !validateSection(step2Schema)) {
-        showToast('Verifique o telefone e os links em Contato e Localização.', 'error');
-        return false;
-      }
-      if (!validateSection(step3Schema)) {
-        showToast('Preencha as informações obrigatórias da categoria.', 'error');
-        return false;
-      }
-      if (!validateSection(step4Schema)) {
-        showToast('Preencha as regras em Operação e Regras.', 'error');
-        return false;
+    (phoneIsValid: boolean): ListingEditorErrors | null => {
+      const found: ListingEditorErrors = {};
+      for (const schema of SECTIONS) {
+        const parsed = schema.safeParse(formData);
+        if (parsed.success) continue;
+        for (const issue of parsed.error.issues) {
+          const field = issue.path[0]?.toString();
+          if (field && !found[field]) found[field] = issue.message;
+        }
       }
       if (formData.category !== 'producer' && formData.images.length === 0) {
-        showToast('Adicione pelo menos uma foto.', 'error');
-        return false;
+        found.images = 'partnerSignup.errors.photosRequired';
       }
-      return true;
+      // Formato inválido: o próprio campo de telefone mostra a mensagem.
+      if (!phoneIsValid && !found.phone) found.phone = '';
+      setErrors(found);
+      return Object.keys(found).length > 0 || !phoneIsValid ? found : null;
     },
-    [formData, showToast, validateSection]
+    [formData]
   );
 
   return { errors, setErrors, validateAll };

@@ -40,6 +40,7 @@ import { PartnerHomeTab } from './panel/PartnerHomeTab';
 import { PartnerMoreSection } from './panel/PartnerMoreSection';
 import { PartnerPanelTop } from './panel/PartnerPanelTop';
 import { PartnerPanelTour } from './panel/PartnerPanelTour';
+import type { PartnerPanelTab } from './panel/partnerPanelTabs';
 import type { VerificationListingOption } from './verification/verificationListingOption';
 
 export function PartnerPanel({
@@ -112,6 +113,31 @@ export function PartnerPanel({
     if (!segments.tabs.includes(panelTab)) setPanelTab('home');
   }, [segments.tabs, panelTab, setPanelTab]);
 
+  // Início por segmento (S4): só os cartões que fazem sentido para o que o parceiro faz.
+  const homeCards = React.useMemo(() => {
+    const allowed = segments.homeCards;
+    if (!allowed) return home.cards;
+    return {
+      ...home.cards,
+      visible: home.cards.visible.filter((card) => allowed.includes(card.id)),
+      available: home.cards.available.filter((id) => allowed.includes(id)),
+    };
+  }, [home.cards, segments.homeCards]);
+  // Vitrine (sem venda pelo app): visitas do mês do estabelecimento em vista, como no print aprovado.
+  const shownPlace =
+    itemsList.find((entry) => entry.id === home.filter) ??
+    (itemsList.length === 1 ? itemsList[0] : undefined);
+  const visitsCard =
+    !segments.tabs.includes('earnings') && shownPlace
+      ? renderCatalog?.renderVisits?.(shownPlace.id, () =>
+          setPlanListing({ id: shownPlace.id, name: shownPlace.name })
+        )
+      : undefined;
+  const chapterLabel = (tab: PartnerPanelTab) =>
+    tab === 'catalog' && segments.catalogLabel !== 'catalog'
+      ? t(`partnerPanel.catalogTab.${segments.catalogLabel}`)
+      : t(`partnerTour.chapters.${tab}`);
+
   // `null` abre o editor para um cadastro novo; `undefined` mantém fechado.
   const [editingListing, setEditingListing] = React.useState<
     PartnerContentRecord | null | undefined
@@ -182,7 +208,8 @@ export function PartnerPanel({
               onRetry={() => void home.reload()}
               view={home.data}
               attention={home.attention}
-              cards={home.cards}
+              cards={homeCards}
+              leadingCard={visitsCard}
               labelFor={home.labelFor}
               onOpenAttention={(item) => setPanelTab(ATTENTION_TAB[item.kind])}
               onOpenStep={(step) => {
@@ -297,6 +324,7 @@ export function PartnerPanel({
               showProducer={segments.segments.length === 0 || segments.segments.includes('events')}
               sells={segments.tabs.includes('earnings')}
               onAddSegment={() => setAddSegmentOpen(true)}
+              couponsSegment={segments.couponsLabel}
               view={nav.moreView}
               onViewChange={nav.setMoreView}
               establishments={itemsList}
@@ -434,6 +462,8 @@ export function PartnerPanel({
 
         {tour.open && (
           <PartnerPanelTour
+            tabs={segments.tabs}
+            chapterLabel={chapterLabel}
             startChapter={tour.startChapter}
             onTabChange={nav.openTab}
             onClose={tour.close}
@@ -443,6 +473,8 @@ export function PartnerPanel({
           open={tour.chooserOpen}
           onOpenChange={tour.setChooserOpen}
           onStart={tour.replay}
+          tabs={segments.tabs}
+          chapterLabel={chapterLabel}
         />
 
         {renderCheckoutModal?.({

@@ -1,5 +1,6 @@
 import type { CatalogSegment } from '../components/panel/PartnerCatalogTab';
 import type { PartnerPanelTab } from '../components/panel/partnerPanelTabs';
+import type { PartnerHomeCardId } from '../types/partnerHomeCards';
 
 /**
  * Segmentos do parceiro (painel por segmento, 2026-11-09): o painel mostra só o que ele vende ou
@@ -122,4 +123,30 @@ export function addSegmentOptions(segments: readonly PartnerSegment[]) {
     );
     return { id: option.id, has: missing.length === 0, categories: missing };
   });
+}
+
+/**
+ * Cartões do Início que fazem sentido para os segmentos (S4); `null` = todos (sem cadastro ainda).
+ * Vitrine (hospedagem, restaurante) fica com avaliações, plano e selo, sem venda nem agenda.
+ */
+export function homeCardsFor(segments: readonly PartnerSegment[]): PartnerHomeCardId[] | null {
+  if (segments.length === 0) return null;
+  const cards: PartnerHomeCardId[] = ['reviews', 'plan_seal'];
+  if (sellsThroughApp(segments)) {
+    cards.push('today', 'sales_today', 'next_payout', 'month_sales', 'promo_codes');
+  }
+  if (segments.includes('events')) cards.push('next_event', 'guests', 'promoters');
+  if (segments.some((segment) => BOOKING.has(segment)))
+    cards.push('week_bookings', 'week_occupancy');
+  return cards;
+}
+
+/** Nome dos cupons no Mais: o do único segmento que vende, ou o genérico com vários (S4). */
+export function couponsLabel(
+  segments: readonly PartnerSegment[]
+): Exclude<PartnerSegment, 'lodging' | 'restaurant'> | null {
+  const selling = segments.filter((segment) => SELLING.has(segment));
+  return selling.length === 1
+    ? (selling[0] as Exclude<PartnerSegment, 'lodging' | 'restaurant'>)
+    : null;
 }

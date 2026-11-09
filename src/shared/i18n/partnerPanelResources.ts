@@ -148,6 +148,13 @@ export interface PartnerPanelTranslation {
     producerHint: string;
     coupons: string;
     couponsHint: string;
+    couponsBy: {
+      tours: string;
+      rentals: string;
+      transfers: string;
+      attraction: string;
+      events: string;
+    };
     establishments: string;
     documents_one: string;
     documents_other: string;
@@ -365,6 +372,13 @@ export const partnerPanelPtBR: PartnerPanelTranslation = {
     producerHint: 'Nome, foto e descrição que o público vê',
     coupons: 'Cupons',
     couponsHint: 'Descontos para seus anúncios',
+    couponsBy: {
+      tours: 'Cupons dos seus passeios',
+      rentals: 'Cupons dos seus aluguéis',
+      transfers: 'Cupons dos seus translados',
+      attraction: 'Cupons das suas entradas',
+      events: 'Cupons dos seus eventos',
+    },
     establishments: 'Estabelecimentos',
     documents_one: '{{count}} CNPJ',
     documents_other: '{{count}} CNPJs',
@@ -586,6 +600,13 @@ export const partnerPanelEn: PartnerPanelTranslation = {
     producerHint: 'Name, photo and description the public sees',
     coupons: 'Promo codes',
     couponsHint: 'Discounts for your listings',
+    couponsBy: {
+      tours: 'Promo codes for your tours',
+      rentals: 'Promo codes for your rentals',
+      transfers: 'Promo codes for your transfers',
+      attraction: 'Promo codes for your tickets',
+      events: 'Promo codes for your events',
+    },
     establishments: 'Businesses',
     documents_one: '{{count}} CNPJ',
     documents_other: '{{count}} CNPJs',
@@ -808,6 +829,13 @@ export const partnerPanelFr: PartnerPanelTranslation = {
     producerHint: 'Nom, photo et description visibles par le public',
     coupons: 'Codes promo',
     couponsHint: 'Réductions pour vos annonces',
+    couponsBy: {
+      tours: 'Codes promo de vos excursions',
+      rentals: 'Codes promo de vos locations',
+      transfers: 'Codes promo de vos transferts',
+      attraction: 'Codes promo de vos entrées',
+      events: 'Codes promo de vos événements',
+    },
     establishments: 'Établissements',
     documents_one: '{{count}} CNPJ',
     documents_other: '{{count}} CNPJ',

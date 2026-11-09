@@ -26,7 +26,10 @@ export function PartnerMoreSection({
   showProducer = true,
   sells = true,
   onAddSegment,
+  couponsSegment = null,
 }: {
+  /** Segmento que dá nome aos cupons ("Cupons dos seus passeios"); `null` = genérico. */
+  couponsSegment?: 'tours' | 'rentals' | 'transfers' | 'attraction' | 'events' | null;
   view: PartnerMoreView;
   onViewChange: (view: PartnerMoreView) => void;
   establishments: Array<{ id: string; name: string }>;
@@ -124,8 +127,10 @@ export function PartnerMoreSection({
       ? [
           {
             id: 'coupons',
-            title: t('partnerPanel.more.coupons'),
-            hint: t('partnerPanel.more.couponsHint'),
+            title: couponsSegment
+              ? t(`partnerPanel.more.couponsBy.${couponsSegment}`)
+              : t('partnerPanel.more.coupons'),
+            hint: couponsSegment ? undefined : t('partnerPanel.more.couponsHint'),
             onOpen: () => onViewChange('coupons'),
           },
         ]

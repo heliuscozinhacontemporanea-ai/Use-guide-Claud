@@ -16,7 +16,7 @@ interface Step5MediaProps {
   categories: { id: string; label: string }[];
   setCurrentStep: (step: number) => void;
   fileInputRef: React.RefObject<HTMLInputElement | null>;
-  /** No editor de anúncio: só fotos e termos, sem a revisão. */
+  /** No editor de cadastro (já logado e com termos aceitos): só as fotos. */
   hideReview?: boolean;
 }
 
@@ -51,18 +51,20 @@ export function Step5Media({
           error={errorOf('images')}
         />
       )}
-      {!currentUser && (
+      {!hideReview && !currentUser && (
         <SignupAccount
           values={formData}
           onChange={(field, value) => update(field, value)}
           errorOf={errorOf}
         />
       )}
-      <SignupTerms
-        accepted={formData.termsAccepted === true}
-        onChange={(accepted) => update('termsAccepted', accepted)}
-        error={errorOf('termsAccepted')}
-      />
+      {!hideReview && (
+        <SignupTerms
+          accepted={formData.termsAccepted === true}
+          onChange={(accepted) => update('termsAccepted', accepted)}
+          error={errorOf('termsAccepted')}
+        />
+      )}
     </div>
   );
 }
