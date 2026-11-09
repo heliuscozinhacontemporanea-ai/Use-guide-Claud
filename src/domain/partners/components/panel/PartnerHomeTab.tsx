@@ -6,9 +6,11 @@ import type {
   PartnerAttentionItem,
   PartnerHomeView,
   PartnerTodayItem,
+  PartnerFirstStep,
 } from '../../types/partnerHome';
 import type { PartnerCardData } from '../../utils/partnerHomeCardData';
 import { PartnerAttentionList } from './PartnerAttentionList';
+import { PartnerFirstStepsCard } from './PartnerFirstStepsCard';
 import { PartnerCardsEditor } from './PartnerCardsEditor';
 import { PartnerHomeCards } from './PartnerHomeCards';
 import type { PartnerPanelTab } from './partnerPanelTabs';
@@ -40,6 +42,7 @@ export function PartnerHomeTab({
   onOpenAttention,
   onOpenTab,
   onOpenCoupons,
+  onOpenStep,
   agora,
 }: {
   loading: boolean;
@@ -53,6 +56,8 @@ export function PartnerHomeTab({
   onOpenTab: (tab: PartnerPanelTab) => void;
   /** Toque no cartão "Cupons". */
   onOpenCoupons?: () => void;
+  /** Toque num dos primeiros passos (painel por segmento). */
+  onOpenStep?: (step: PartnerFirstStep) => void;
   /** Seção "Agora", acima de "Resolva agora": na hora do serviço é o que importa primeiro. */
   agora?: ReactNode;
 }) {
@@ -78,7 +83,15 @@ export function PartnerHomeTab({
   return (
     <div className="space-y-7">
       {agora}
-      <PartnerAttentionList items={attention} onOpen={onOpenAttention} />
+      <PartnerAttentionList
+        items={attention}
+        onOpen={onOpenAttention}
+        firstSteps={
+          view.firstSteps && onOpenStep ? (
+            <PartnerFirstStepsCard data={view.firstSteps} onOpen={onOpenStep} />
+          ) : null
+        }
+      />
       <PartnerHomeCards
         cards={cards.visible}
         manyEstablishments={view.establishments.length > 1}

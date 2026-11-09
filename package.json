@@ -8,6 +8,8 @@
   },
   "scripts": {
     "dev": "tsx server.ts",
+    "dev:emulators": "node scripts/dev/emulators.mjs",
+    "dev:seed": "node scripts/dev/seed.mjs",
     "build": "NODE_ENV=production vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
     "start": "node dist/server.cjs",
     "preview": "vite preview",

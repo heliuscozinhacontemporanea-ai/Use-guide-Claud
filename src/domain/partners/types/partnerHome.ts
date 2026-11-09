@@ -70,12 +70,35 @@ export interface PartnerHomePromoters {
   top: Array<{ username: string | null; tickets: number; owedMinor: number }>;
 }
 
-/** Vagas de reserva de um dia (00:00 em Fortaleza) de um estabelecimento. */
+/** Vagas de reserva de um dia (00:00 no fuso do painel, D28) de um estabelecimento. */
 export interface PartnerWeekDay {
   date: string;
   establishmentIds: string[];
   sold: number;
   capacity: number;
+}
+
+export type FirstStepSegment =
+  | 'tours'
+  | 'rentals'
+  | 'transfers'
+  | 'events'
+  | 'attraction'
+  | 'lodging'
+  | 'restaurant';
+
+export interface PartnerFirstStep {
+  id: 'verify' | 'account' | 'offer' | 'event';
+  done: boolean;
+  state?: 'pending' | 'locked';
+  itemId: string;
+}
+
+/** O que falta para vender (painel por segmento), como `/api/partner-home` devolve. */
+export interface PartnerFirstSteps {
+  segment: FirstStepSegment;
+  title: 'prepare' | 'start' | 'complete';
+  steps: PartnerFirstStep[];
 }
 
 export interface PartnerHomeView {
@@ -84,6 +107,7 @@ export interface PartnerHomeView {
   timeZone: string;
   establishments: PartnerEstablishment[];
   attention: PartnerAttentionItem[];
+  firstSteps?: PartnerFirstSteps | null;
   today: PartnerTodayItem[];
   /** Horários de ontem a amanhã e sessões até amanhã; o aparelho escolhe os cartões de "Agora". */
   agora: PartnerTodayItem[];

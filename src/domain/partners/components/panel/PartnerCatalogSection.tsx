@@ -42,6 +42,9 @@ export interface EventGuestsRenderProps {
 /** Catálogo (p09) e página do estabelecimento (p19), com o filtro de estabelecimento (11.3). */
 export function PartnerCatalogSection({
   segment,
+  parts,
+  offersLabel,
+  title,
   onSegmentChange,
   placeId,
   onPlaceChange: setPlaceId,
@@ -69,6 +72,12 @@ export function PartnerCatalogSection({
   onOpenCoupons,
 }: {
   segment: CatalogSegment;
+  /** Partes do catálogo que os segmentos do parceiro usam. */
+  parts?: CatalogSegment[];
+  /** Nome da parte de reservas: o do segmento ("Passeios") ou "Serviços". */
+  offersLabel?: string;
+  /** Título da tela, o mesmo da aba ("Passeios", "Ofertas"). */
+  title?: string;
   onSegmentChange: (segment: CatalogSegment) => void;
   /** Estabelecimento aberto (p19); o painel esconde os atalhos enquanto ele está aberto. */
   placeId: string | null;
@@ -164,6 +173,9 @@ export function PartnerCatalogSection({
   return (
     <PartnerCatalogTab
       segment={segment}
+      parts={parts}
+      offersLabel={offersLabel}
+      title={title}
       onSegmentChange={onSegmentChange}
       places={places}
       placesLoading={loading}

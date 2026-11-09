@@ -22,6 +22,8 @@ export function PartnerMoreSection({
   notificationsHint,
   onReplayTour,
   renderCoupons,
+  showProducer = true,
+  sells = true,
 }: {
   view: PartnerMoreView;
   onViewChange: (view: PartnerMoreView) => void;
@@ -39,6 +41,10 @@ export function PartnerMoreSection({
   onReplayTour?: () => void;
   /** Área Cupons, montada pela composição (promotions). */
   renderCoupons?: () => ReactNode;
+  /** Só com o segmento Eventos (painel por segmento). */
+  showProducer?: boolean;
+  /** Vende pelo app: contas de recebimento e cupons; a vitrine (hospedagem, restaurante) não. */
+  sells?: boolean;
 }) {
   const { t } = useTranslation();
   const back = () => onViewChange('list');
@@ -73,12 +79,16 @@ export function PartnerMoreSection({
         .join(' · ')
     : undefined;
   const account: PartnerMoreEntry[] = [
-    {
-      id: 'producer',
-      title: t('partnerPanel.more.producer'),
-      hint: t('partnerPanel.more.producerHint'),
-      onOpen: onOpenProducer,
-    },
+    ...(showProducer
+      ? [
+          {
+            id: 'producer',
+            title: t('partnerPanel.more.producer'),
+            hint: t('partnerPanel.more.producerHint'),
+            onOpen: onOpenProducer,
+          },
+        ]
+      : []),
     {
       id: 'establishments',
       title: t('partnerPanel.more.establishments'),
@@ -94,23 +104,28 @@ export function PartnerMoreSection({
           : t('partnerPanel.more.plansHint'),
       onOpen: () => onViewChange('plans'),
     },
-    {
-      id: 'accounts',
-      title: t('partnerPanel.more.accounts'),
-      hint: t('partnerPanel.more.accountsHint'),
-      onOpen: onOpenEarnings,
-    },
+    ...(sells
+      ? [
+          {
+            id: 'accounts',
+            title: t('partnerPanel.more.accounts'),
+            hint: t('partnerPanel.more.accountsHint'),
+            onOpen: onOpenEarnings,
+          },
+        ]
+      : []),
   ];
-  const sales: PartnerMoreEntry[] = renderCoupons
-    ? [
-        {
-          id: 'coupons',
-          title: t('partnerPanel.more.coupons'),
-          hint: t('partnerPanel.more.couponsHint'),
-          onOpen: () => onViewChange('coupons'),
-        },
-      ]
-    : [];
+  const sales: PartnerMoreEntry[] =
+    renderCoupons && sells
+      ? [
+          {
+            id: 'coupons',
+            title: t('partnerPanel.more.coupons'),
+            hint: t('partnerPanel.more.couponsHint'),
+            onOpen: () => onViewChange('coupons'),
+          },
+        ]
+      : [];
   const help: PartnerMoreEntry[] = renderAccountView
     ? [
         {

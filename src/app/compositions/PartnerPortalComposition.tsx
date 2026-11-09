@@ -302,7 +302,7 @@ export function PartnerPortalComposition() {
         ) : view === 'terms' ? (
           <AboutTermsView document="partner" onBack={onBack} />
         ) : (
-          <SupportView onBack={onBack} />
+          <SupportView onBack={onBack} initialTopic="partners" />
         )
       }
     />

@@ -52,6 +52,8 @@ interface SupportViewProps {
   onOpenPurchases?: () => void;
   onOpenTickets?: () => void;
   onOpenBookings?: () => void;
+  /** Abre direto num assunto (ex.: "Ajuda para parceiros" abre em Para parceiros). */
+  initialTopic?: HelpTopic;
 }
 
 function normalize(text: string): string {
@@ -70,10 +72,11 @@ export function SupportView({
   onOpenPurchases,
   onOpenTickets,
   onOpenBookings,
+  initialTopic,
 }: SupportViewProps) {
   const { t } = useTranslation();
   const [query, setQuery] = useState('');
-  const [topic, setTopic] = useState<HelpTopic | null>(null);
+  const [topic, setTopic] = useState<HelpTopic | null>(initialTopic ?? null);
   const [copied, setCopied] = useState(false);
   const faq = t('help.faq', { returnObjects: true }) as HelpEntry[];
   const term = normalize(query.trim());

@@ -1,53 +1,54 @@
-import { CheckCircle2, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '../../../../shared/utils/cn';
+import { BUTTON_SECONDARY } from '../../../../ui/styles/controls';
 
 interface SignupStepActionsProps {
   onBack: () => void;
   onNext: () => void;
-  nextDisabled: boolean;
   /** Última etapa: o botão envia a inscrição em vez de avançar. */
   isFinal?: boolean;
   isSubmitting?: boolean;
   className?: string;
 }
 
+/**
+ * Voltar e Continuar (ou Enviar) do cadastro; o avanço é a ação principal, no roxo do parceiro.
+ * O Continuar fica sempre ativo: com campo faltando, o passo mostra os erros (decisão de 2026-11-09).
+ */
 export function SignupStepActions({
   onBack,
   onNext,
-  nextDisabled,
   isFinal = false,
   isSubmitting = false,
-  className = 'pb-10',
+  className = 'pb-2',
 }: SignupStepActionsProps) {
+  const { t } = useTranslation();
   return (
-    <div className={cn('flex items-center gap-4 pt-4', className)}>
+    <div className={cn('flex items-center gap-3 pt-5', className)}>
       <button
         type="button"
         onClick={onBack}
-        className="flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl border border-white/10 text-white font-black uppercase tracking-widest text-[10px] hover:bg-white/5 active:scale-95 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-teal-400/50"
+        className={cn(BUTTON_SECONDARY, 'flex-1 min-h-[52px] text-[15px]')}
       >
-        <ChevronLeft size={14} aria-hidden="true" />
-        Voltar
+        {t('partnerSignup.form.back')}
       </button>
       <button
         type="button"
-        disabled={nextDisabled}
+        disabled={isSubmitting}
         onClick={onNext}
-        className={cn(
-          'flex-[2] flex items-center justify-center gap-2 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] active:scale-95 transition-all shadow-xl focus-visible:ring-2 focus-visible:ring-teal-400/50',
-          nextDisabled
-            ? 'bg-white/5 text-white/50 cursor-not-allowed'
-            : 'bg-indigo-500 text-white shadow-indigo-500/20 hover:scale-[1.02] cursor-pointer'
-        )}
+        className="press flex-[2] min-h-[52px] rounded-2xl bg-partner-fill text-on-fill text-[16px] font-semibold flex items-center justify-center gap-2 disabled:opacity-45 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none"
       >
-        {isFinal ? 'Finalizar Cadastro' : 'Avançar'}
-        {!isFinal && <ChevronRight size={14} aria-hidden="true" />}
-        {isFinal &&
-          (isSubmitting ? (
-            <Loader2 size={14} className="animate-spin" aria-hidden="true" />
-          ) : (
-            <CheckCircle2 size={14} aria-hidden="true" />
-          ))}
+        {isSubmitting && (
+          <Loader2
+            size={16}
+            className="animate-spin motion-reduce:animate-none"
+            aria-hidden="true"
+          />
+        )}
+        {isFinal
+          ? t(isSubmitting ? 'partnerSignup.form.sending' : 'partnerSignup.form.submit')
+          : t('partnerSignup.form.next')}
       </button>
     </div>
   );

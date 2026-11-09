@@ -1,15 +1,16 @@
+import { PLATFORM_TIME_ZONE, zonedDayKey } from '../../../../shared/utils/timeZones';
 import { useTranslation } from 'react-i18next';
 import { formatBusinessDate } from '../../../../shared/utils/businessDateTime';
 import { StatTile } from '../../../../ui/components/StatTile';
 import { TextButton } from '../../../../ui/components/TextButton';
 import { useItemStats } from '../../hooks/useItemStats';
 
-const FORTALEZA_OFFSET_MS = 3 * 60 * 60_000;
-
-/** Meio do mês anterior no fuso do negócio, só para escrever o nome do mês. */
+/** Meio do mês anterior no fuso da plataforma (as visitas são contadas no dia de Brasília, D28). */
 function previousMonthIso(now: Date): string {
-  const local = new Date(now.getTime() - FORTALEZA_OFFSET_MS);
-  return new Date(Date.UTC(local.getUTCFullYear(), local.getUTCMonth() - 1, 15, 12)).toISOString();
+  const [year, month] = zonedDayKey(now.toISOString(), PLATFORM_TIME_ZONE)
+    .split('-')
+    .map(Number) as [number, number];
+  return new Date(Date.UTC(year, month - 2, 15, 12)).toISOString();
 }
 
 /** Visitas do mês com a comparação ao mês anterior (p19). Exige plano (D11). */

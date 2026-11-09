@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { usePanelTimeZone } from '../../hooks/panelTimeZone';
 import { ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -39,9 +40,12 @@ function useDetail() {
 export function PartnerAttentionList({
   items,
   onOpen,
+  firstSteps,
 }: {
   items: PartnerAttentionItem[];
   onOpen: (item: PartnerAttentionItem) => void;
+  /** Primeiros passos (painel por segmento), abaixo dos itens com prazo. */
+  firstSteps?: ReactNode;
 }) {
   const { t } = useTranslation();
   const detail = useDetail();
@@ -54,7 +58,7 @@ export function PartnerAttentionList({
         {t('partnerPanel.home.attentionTitle')}
       </h2>
       {items.length === 0 ? (
-        <ListEmpty message={t('partnerPanel.home.attentionEmpty')} />
+        !firstSteps && <ListEmpty message={t('partnerPanel.home.attentionEmpty')} />
       ) : (
         <ul className="rounded-[20px] bg-surface border border-line divide-y divide-line overflow-hidden">
           {items.map((item) => (
@@ -81,6 +85,7 @@ export function PartnerAttentionList({
           ))}
         </ul>
       )}
+      {firstSteps && <div className={items.length > 0 ? 'mt-3' : undefined}>{firstSteps}</div>}
     </section>
   );
 }

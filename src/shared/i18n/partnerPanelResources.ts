@@ -10,6 +10,18 @@ export interface PartnerPanelTranslation {
     string
   >;
   tabs: { home: string; agenda: string; catalog: string; earnings: string; more: string };
+  /** Nome da aba do catálogo conforme os segmentos do parceiro. */
+  catalogTab: {
+    offers: string;
+    place: string;
+    tours: string;
+    rentals: string;
+    transfers: string;
+    attraction: string;
+    events: string;
+    lodging: string;
+    restaurant: string;
+  };
   filter: {
     all: string;
     open: string;
@@ -112,7 +124,22 @@ export interface PartnerPanelTranslation {
     ongoing: string;
     error: string;
   };
-  catalog: { title: string; places: string; events: string; offers: string };
+  catalog: {
+    title: string;
+    places: string;
+    events: string;
+    offers: string;
+    offersBy: {
+      tours: string;
+      rentals: string;
+      transfers: string;
+      attraction: string;
+      events: string;
+      lodging: string;
+      restaurant: string;
+      services: string;
+    };
+  };
   more: {
     title: string;
     reports: string;
@@ -152,6 +179,18 @@ export const partnerPanelPtBR: PartnerPanelTranslation = {
     producer: 'Produtor de eventos',
   },
   tabs: { home: 'Início', agenda: 'Agenda', catalog: 'Catálogo', earnings: 'Ganhos', more: 'Mais' },
+  catalogTab: {
+    offers: 'Ofertas',
+    // Hífen opcional (U+00AD): o atalho tem a largura de cinco lado a lado.
+    place: 'Estabele\u00ADcimento',
+    tours: 'Passeios',
+    rentals: 'Aluguéis',
+    transfers: 'Translados',
+    attraction: 'Entradas',
+    events: 'Eventos',
+    lodging: 'Hospedagem',
+    restaurant: 'Restaurante',
+  },
   filter: {
     all: 'Todos os estabelecimentos',
     open: 'Escolher o que mostrar no painel',
@@ -302,7 +341,22 @@ export const partnerPanelPtBR: PartnerPanelTranslation = {
     ongoing: 'Em andamento',
     error: 'Não foi possível carregar a agenda.',
   },
-  catalog: { title: 'Catálogo', places: 'Lugares', events: 'Eventos', offers: 'Passeios' },
+  catalog: {
+    title: 'Catálogo',
+    places: 'Lugares',
+    events: 'Eventos',
+    offers: 'Passeios',
+    offersBy: {
+      tours: 'Passeios',
+      rentals: 'Aluguéis',
+      transfers: 'Translados',
+      attraction: 'Entradas',
+      events: 'Eventos',
+      lodging: 'Hospedagem',
+      restaurant: 'Restaurante',
+      services: 'Serviços',
+    },
+  },
   more: {
     title: 'Mais',
     reports: 'Relatórios',
@@ -311,7 +365,7 @@ export const partnerPanelPtBR: PartnerPanelTranslation = {
     producerHint: 'Nome, foto e descrição que o público vê',
     coupons: 'Cupons',
     couponsHint: 'Descontos para seus anúncios',
-    establishments: 'Estabelecimentos e documentos',
+    establishments: 'Estabelecimentos',
     documents_one: '{{count}} CNPJ',
     documents_other: '{{count}} CNPJs',
     pendingVerifications_one: '{{count}} verificação pendente',
@@ -347,6 +401,17 @@ export const partnerPanelEn: PartnerPanelTranslation = {
     catalog: 'Catalog',
     earnings: 'Earnings',
     more: 'More',
+  },
+  catalogTab: {
+    offers: 'Offers',
+    place: 'Business',
+    tours: 'Tours',
+    rentals: 'Rentals',
+    transfers: 'Transfers',
+    attraction: 'Tickets',
+    events: 'Events',
+    lodging: 'Lodging',
+    restaurant: 'Restaurant',
   },
   filter: {
     all: 'All businesses',
@@ -497,7 +562,22 @@ export const partnerPanelEn: PartnerPanelTranslation = {
     ongoing: 'In progress',
     error: 'The schedule could not be loaded.',
   },
-  catalog: { title: 'Catalog', places: 'Places', events: 'Events', offers: 'Tours' },
+  catalog: {
+    title: 'Catalog',
+    places: 'Places',
+    events: 'Events',
+    offers: 'Tours',
+    offersBy: {
+      tours: 'Tours',
+      rentals: 'Rentals',
+      transfers: 'Transfers',
+      attraction: 'Tickets',
+      events: 'Events',
+      lodging: 'Lodging',
+      restaurant: 'Restaurant',
+      services: 'Services',
+    },
+  },
   more: {
     title: 'More',
     reports: 'Reports',
@@ -506,7 +586,7 @@ export const partnerPanelEn: PartnerPanelTranslation = {
     producerHint: 'Name, photo and description the public sees',
     coupons: 'Promo codes',
     couponsHint: 'Discounts for your listings',
-    establishments: 'Businesses and documents',
+    establishments: 'Businesses',
     documents_one: '{{count}} CNPJ',
     documents_other: '{{count}} CNPJs',
     pendingVerifications_one: '{{count}} verification pending',
@@ -542,6 +622,17 @@ export const partnerPanelFr: PartnerPanelTranslation = {
     catalog: 'Catalogue',
     earnings: 'Gains',
     more: 'Plus',
+  },
+  catalogTab: {
+    offers: 'Offres',
+    place: 'Établis\u00ADsement',
+    tours: 'Excursions',
+    rentals: 'Locations',
+    transfers: 'Transferts',
+    attraction: 'Entrées',
+    events: 'Événements',
+    lodging: 'Hébergement',
+    restaurant: 'Restaurant',
   },
   filter: {
     all: 'Tous les établissements',
@@ -693,7 +784,22 @@ export const partnerPanelFr: PartnerPanelTranslation = {
     ongoing: 'En cours',
     error: 'Impossible de charger l’agenda.',
   },
-  catalog: { title: 'Catalogue', places: 'Lieux', events: 'Événements', offers: 'Excursions' },
+  catalog: {
+    title: 'Catalogue',
+    places: 'Lieux',
+    events: 'Événements',
+    offers: 'Excursions',
+    offersBy: {
+      tours: 'Excursions',
+      rentals: 'Locations',
+      transfers: 'Transferts',
+      attraction: 'Entrées',
+      events: 'Événements',
+      lodging: 'Hébergement',
+      restaurant: 'Restaurant',
+      services: 'Services',
+    },
+  },
   more: {
     title: 'Plus',
     reports: 'Rapports',
@@ -702,7 +808,7 @@ export const partnerPanelFr: PartnerPanelTranslation = {
     producerHint: 'Nom, photo et description visibles par le public',
     coupons: 'Codes promo',
     couponsHint: 'Réductions pour vos annonces',
-    establishments: 'Établissements et documents',
+    establishments: 'Établissements',
     documents_one: '{{count}} CNPJ',
     documents_other: '{{count}} CNPJ',
     pendingVerifications_one: '{{count}} vérification en attente',

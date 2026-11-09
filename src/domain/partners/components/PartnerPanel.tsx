@@ -14,6 +14,7 @@ import { usePartnerEventSessions } from '../hooks/usePartnerEventSessions';
 import { usePartnerPanelActions } from '../hooks/usePartnerPanelActions';
 import { PanelTimeZoneProvider } from '../hooks/panelTimeZone';
 import { usePartnerPanelHome } from '../hooks/usePartnerPanelHome';
+import { usePartnerSegments } from '../hooks/usePartnerSegments';
 import { usePlanCheckout } from '../hooks/usePlanCheckout';
 import type { PartnerContentRecord } from '../types/partnerContent';
 import type { PartnerTodayItem } from '../types/partnerHome';
@@ -101,6 +102,14 @@ export function PartnerPanel({
     handleImageUpload,
     handleSaveEvent,
   } = usePartnerPanelActions(profile);
+  const segments = usePartnerSegments(itemsList, eventsList);
+  const catalogPart = segments.catalogParts.includes(catalogSegment)
+    ? catalogSegment
+    : (segments.catalogParts[0] ?? 'places');
+  // Aba guardada que não existe nos segmentos (ex.: Agenda num restaurante) volta ao Início.
+  React.useEffect(() => {
+    if (!segments.tabs.includes(panelTab)) setPanelTab('home');
+  }, [segments.tabs, panelTab, setPanelTab]);
 
   // `null` abre o editor para um cadastro novo; `undefined` mantém fechado.
   const [editingListing, setEditingListing] = React.useState<
@@ -157,6 +166,8 @@ export function PartnerPanel({
               tab={panelTab}
               onTabChange={nav.openTab}
               onBack={() => goTo('explore')}
+              tabs={segments.tabs}
+              catalogLabel={segments.catalogLabel}
             />
           )}
 
@@ -170,6 +181,21 @@ export function PartnerPanel({
               cards={home.cards}
               labelFor={home.labelFor}
               onOpenAttention={(item) => setPanelTab(ATTENTION_TAB[item.kind])}
+              onOpenStep={(step) => {
+                const item = itemsList.find((entry) => entry.id === step.itemId);
+                if (step.id === 'verify' && item) {
+                  setVerifyingListing({ id: item.id, name: item.name, category: item.category });
+                } else if (step.id === 'account') {
+                  setPanelTab('earnings');
+                  nav.setOpenAccounts(true);
+                } else if (step.id === 'offer') {
+                  setPanelTab('catalog');
+                  nav.setPlaceId(step.itemId);
+                } else if (step.id === 'event') {
+                  setEditingHasSales(false);
+                  setIsEditing(newPartnerEventDraft(user?.uid ?? ''));
+                }
+              }}
               onOpenTab={setPanelTab}
               onOpenCoupons={renderCoupons ? () => nav.openCoupons('home') : undefined}
               agora={
@@ -198,7 +224,14 @@ export function PartnerPanel({
             />
           ) : panelTab === 'catalog' ? (
             <PartnerCatalogSection
-              segment={catalogSegment}
+              segment={catalogPart}
+              parts={segments.catalogParts}
+              offersLabel={segments.offersLabel}
+              title={
+                segments.catalogLabel === 'catalog'
+                  ? undefined
+                  : t(`partnerPanel.catalogTab.${segments.catalogLabel}`)
+              }
               onSegmentChange={(segment) => {
                 setCatalogSegment(segment);
                 setActiveTab(segment === 'events' ? 'events' : 'items');
@@ -257,6 +290,8 @@ export function PartnerPanel({
             />
           ) : (
             <PartnerMoreSection
+              showProducer={segments.segments.length === 0 || segments.segments.includes('events')}
+              sells={segments.tabs.includes('earnings')}
               view={nav.moreView}
               onViewChange={nav.setMoreView}
               establishments={itemsList}

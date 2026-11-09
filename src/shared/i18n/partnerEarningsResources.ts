@@ -15,6 +15,7 @@ export interface PartnerEarningsTranslation {
   many_one: string;
   many_other: string;
   accounts: string;
+  accountsReady_zero: string;
   accountsReady_one: string;
   accountsReady_other: string;
   accountsPartial: string;
@@ -75,6 +76,7 @@ export const partnerEarningsPtBR: PartnerEarningsTranslation = {
   many_one: '{{count}} venda de {{dates}}',
   many_other: '{{count}} vendas de {{dates}}',
   accounts: 'Contas de recebimento',
+  accountsReady_zero: 'Nenhuma conta ainda',
   accountsReady_one: '{{count}} CNPJ · tudo certo',
   accountsReady_other: '{{count}} CNPJs · tudo certo',
   accountsPartial: '{{ready}} de {{count}} prontas para receber',
@@ -135,6 +137,7 @@ export const partnerEarningsEn: PartnerEarningsTranslation = {
   many_one: '{{count}} sale on {{dates}}',
   many_other: '{{count}} sales on {{dates}}',
   accounts: 'Payout accounts',
+  accountsReady_zero: 'No account yet',
   accountsReady_one: '{{count}} CNPJ · all set',
   accountsReady_other: '{{count}} CNPJs · all set',
   accountsPartial: '{{ready}} of {{count}} ready to receive',
@@ -196,6 +199,7 @@ export const partnerEarningsFr: PartnerEarningsTranslation = {
   many_one: '{{count}} vente du {{dates}}',
   many_other: '{{count}} ventes du {{dates}}',
   accounts: 'Comptes de versement',
+  accountsReady_zero: 'Aucun compte pour l’instant',
   accountsReady_one: '{{count}} CNPJ · tout est en ordre',
   accountsReady_other: '{{count}} CNPJ · tout est en ordre',
   accountsPartial: '{{ready}} sur {{count}} prêts à recevoir',

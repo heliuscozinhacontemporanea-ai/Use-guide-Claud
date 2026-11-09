@@ -1,22 +1,31 @@
 import { Plus, Trash2 } from 'lucide-react';
-import { ChipGroup, TextField } from './DetailFields';
+import { useTranslation } from 'react-i18next';
+import { BUTTON_SECONDARY } from '../../../../../ui/styles/controls';
+import { RequiredMark, SignupError } from '../../sections/SignupFieldParts';
+import { SIGNUP_LABEL } from '../../sections/signupStyles';
+import { ChipGroup, type DetailOptions, TextField } from './DetailFields';
+import type { FieldKey, PlaceholderKey } from './detailKeys';
 import { type DetailsSectionProps, useDetailsForm } from './useDetailsForm';
 
-const TRANSFER_VEHICLE_OPTIONS = [
-  'Carro',
-  'Caminhonete 4x4',
-  'Van',
-  'Micro-ônibus',
-  'Jardineira',
-  'Buggy',
-] as const;
+const TRANSFER_VEHICLES: DetailOptions = {
+  car: 'Carro',
+  pickup4x4: 'Caminhonete 4x4',
+  van: 'Van',
+  minibus: 'Micro-ônibus',
+  jardineira: 'Jardineira',
+  buggy: 'Buggy',
+};
 
 const MAX_ROUTES = 30;
 
 /** Campos da inscrição de translado: trechos, veículos e capacidade (decisão D9). */
 export function TransferDetails(props: DetailsSectionProps) {
+  const { t } = useTranslation();
   const { formData, getFieldError, updateFieldValue, toggleInList } = useDetailsForm(props);
+  const f = (key: FieldKey) => t(`partnerSignup.details.fields.${key}`);
+  const p = (key: PlaceholderKey) => t(`partnerSignup.details.placeholders.${key}`);
   const routes = formData.transferRoutes;
+  const routesError = getFieldError('transferRoutes');
 
   const setRoute = (index: number, field: 'from' | 'to', value: string) => {
     updateFieldValue(
@@ -26,41 +35,46 @@ export function TransferDetails(props: DetailsSectionProps) {
   };
 
   return (
-    <div className="space-y-8">
-      <fieldset className="space-y-4">
-        <legend className="text-[10px] font-black uppercase tracking-widest text-indigo-400 block ml-1">
-          Trechos atendidos <span className="text-red-500">*</span>
+    <div className="space-y-5">
+      <fieldset className="space-y-3">
+        <legend className={SIGNUP_LABEL}>
+          {f('routes')}
+          <RequiredMark />
         </legend>
         {routes.map((route, index) => (
-          <div key={index} className="grid grid-cols-[1fr_1fr_auto] gap-2 items-end">
+          <div
+            // Trechos não têm id; a posição é a identidade enquanto o formulário está aberto.
+            key={index}
+            className="grid grid-cols-[1fr_1fr_auto] gap-2 items-end"
+          >
             <TextField
               id={`transfer-from-${index}`}
-              label="Origem"
+              label={f('from')}
               value={route.from}
               maxLength={100}
               onChange={(value) => setRoute(index, 'from', value)}
-              placeholder="Ex: Aeroporto de Fortaleza"
+              placeholder={p('from')}
             />
             <TextField
               id={`transfer-to-${index}`}
-              label="Destino"
+              label={f('to')}
               value={route.to}
               maxLength={100}
               onChange={(value) => setRoute(index, 'to', value)}
-              placeholder="Ex: Jericoacoara"
+              placeholder={p('to')}
             />
             <button
               type="button"
-              aria-label={`Remover trecho ${index + 1}`}
+              aria-label={t('partnerSignup.details.fields.removeRoute', { n: index + 1 })}
               onClick={() =>
                 updateFieldValue(
                   'transferRoutes',
                   routes.filter((_, i) => i !== index)
                 )
               }
-              className="w-11 h-11 mb-1 flex items-center justify-center rounded-xl bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 focus-visible:ring-2 focus-visible:ring-teal-400/50"
+              className="press w-12 h-12 flex items-center justify-center rounded-xl border border-line bg-surface text-danger focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none"
             >
-              <Trash2 size={14} aria-hidden="true" />
+              <Trash2 size={16} aria-hidden="true" />
             </button>
           </div>
         ))}
@@ -68,45 +82,41 @@ export function TransferDetails(props: DetailsSectionProps) {
           <button
             type="button"
             onClick={() => updateFieldValue('transferRoutes', [...routes, { from: '', to: '' }])}
-            className="min-h-[44px] px-4 rounded-xl bg-indigo-500/10 text-indigo-300 text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-indigo-500/20 focus-visible:ring-2 focus-visible:ring-teal-400/50"
+            className={`${BUTTON_SECONDARY} inline-flex items-center gap-2`}
           >
-            <Plus size={14} aria-hidden="true" /> Adicionar trecho
+            <Plus size={16} aria-hidden="true" /> {f('addRoute')}
           </button>
         )}
-        {getFieldError('transferRoutes') && (
-          <p className="text-[10px] font-bold text-red-400 uppercase tracking-widest ml-1">
-            {getFieldError('transferRoutes')}
-          </p>
-        )}
+        <SignupError message={routesError} />
       </fieldset>
 
       <ChipGroup
-        label="Veículos"
-        options={TRANSFER_VEHICLE_OPTIONS}
+        label={f('vehicles')}
+        options={TRANSFER_VEHICLES}
         selected={formData.transferVehicles}
         onToggle={(value) => toggleInList('transferVehicles', value)}
         required
         error={getFieldError('transferVehicles')}
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <TextField
           id="transfer-max-passengers"
-          label="Passageiros por veículo (máximo)"
+          label={f('maxPassengers')}
           inputMode="numeric"
           value={formData.maxPassengers}
           onChange={(value) => updateFieldValue('maxPassengers', value.replace(/\D/g, ''))}
-          placeholder="Ex: 4"
+          placeholder={p('maxPassengers')}
           required
           error={getFieldError('maxPassengers')}
         />
         <TextField
           id="transfer-luggage"
-          label="Bagagem"
+          label={f('luggage')}
           value={formData.luggageInfo}
           maxLength={500}
           onChange={(value) => updateFieldValue('luggageInfo', value)}
-          placeholder="Ex: 1 mala grande e 1 de mão por pessoa"
+          placeholder={p('luggage')}
         />
       </div>
     </div>

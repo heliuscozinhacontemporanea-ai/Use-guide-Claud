@@ -1,5 +1,5 @@
 import { summarizeOwnerPromoCodesUseCase } from '../../../domain/promotions';
-import { listOwnerAgendaUseCase } from '../../../domain/bookings';
+import { listOwnerAgendaUseCase, listPartnerOffersUseCase } from '../../../domain/bookings';
 import { listOwnerEventListingsUseCase } from '../../../domain/events';
 import { listOwnerGuideItemsUseCase } from '../../../domain/guide';
 import {
@@ -22,6 +22,7 @@ import { businessDayStartMs } from '../../../shared/kernel/businessDay';
 import { hasCurrentPartnerTerms } from '../partnerTermsStatus';
 import { listPartnerPaymentAccountsApplicationUseCase } from '../paymentAccounts/listPartnerPaymentAccountsApplicationUseCase';
 import { buildPartnerHome, type PartnerSessionInput, UPCOMING_SESSIONS } from './buildPartnerHome';
+import { buildFirstSteps } from './buildFirstSteps';
 import { panelTimeZone } from './panelTimeZone';
 import { businessMonthStarts } from './partnerHomeCardsData';
 import type { PartnerHomePromoters, PartnerHomeView } from './partnerHomeTypes';
@@ -99,13 +100,21 @@ export async function getPartnerHomeApplicationUseCase(
     recentEntries,
     openEntries,
   });
-  const [promoters, termsOk, tour, promoCodes] = await Promise.all([
+  const [promoters, termsOk, tour, promoCodes, offers] = await Promise.all([
     loadNextPromoters(ownerUid, view.upcomingSessions),
     hasCurrentPartnerTerms(ownerUid),
     getPartnerPanelTourUseCase(ownerUid).catch(() => null),
     // O cartão é opcional: sem leitura dos cupons, ele só não aparece.
     summarizeOwnerPromoCodesUseCase(ownerUid).catch(() => null),
+    listPartnerOffersUseCase(actor),
   ]);
+  const firstSteps = buildFirstSteps({
+    establishments,
+    verifications,
+    accounts,
+    offers,
+    events: events.filter((event) => event.status !== 'archived'),
+  });
   // Termos novos sem aceite: pedido no topo de "Resolva agora", sem parar as vendas.
   const attention =
     termsOk || accounts.length === 0
@@ -123,6 +132,7 @@ export async function getPartnerHomeApplicationUseCase(
   return {
     ...view,
     attention,
+    firstSteps,
     promoters,
     promoCodes,
     // Sem leitura do estado, o tour não abre: melhor não mostrar que mostrar de novo a quem já viu.

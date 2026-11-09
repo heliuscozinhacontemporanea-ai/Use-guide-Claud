@@ -27,6 +27,9 @@ const EVENT_TONE: Record<PartnerCatalogEvent['status'], StatusTone> = {
 /** Catálogo (p09): lugares, eventos e passeios, cada linha com o status. */
 export function PartnerCatalogTab({
   segment,
+  parts = ['places', 'events', 'offers'],
+  offersLabel = 'tours',
+  title,
   onSegmentChange,
   places,
   placesLoading,
@@ -38,6 +41,11 @@ export function PartnerCatalogTab({
   offers,
 }: {
   segment: CatalogSegment;
+  /** Partes que os segmentos do parceiro usam; com uma só, o seletor some. */
+  parts?: CatalogSegment[];
+  /** Chave em `partnerPanel.catalog.offersBy`. */
+  offersLabel?: string;
+  title?: string;
   onSegmentChange: (segment: CatalogSegment) => void;
   places: PartnerContentRecord[];
   placesLoading: boolean;
@@ -148,25 +156,29 @@ export function PartnerCatalogTab({
     <section aria-labelledby="partner-catalog-title" className="space-y-5">
       <div className="flex items-center justify-between gap-3 px-1">
         <h2 id="partner-catalog-title" className="text-[22px] font-display font-bold text-ink">
-          {t('partnerPanel.catalog.title')}
+          {title ?? t('partnerPanel.catalog.title')}
         </h2>
         <TextButton tone="accent" onClick={onCreate} data-tour="catalog-create">
           <Plus size={18} aria-hidden="true" />
           {t('partnerCatalog.create')}
         </TextButton>
       </div>
-      <div data-tour="catalog-kinds">
-        <SegmentedControl<CatalogSegment>
-          label={t('partnerPanel.catalog.title')}
-          value={segment}
-          onChange={onSegmentChange}
-          options={[
-            { value: 'places', label: t('partnerPanel.catalog.places') },
-            { value: 'events', label: t('partnerPanel.catalog.events') },
-            { value: 'offers', label: t('partnerPanel.catalog.offers') },
-          ]}
-        />
-      </div>
+      {parts.length > 1 && (
+        <div data-tour="catalog-kinds">
+          <SegmentedControl<CatalogSegment>
+            label={t('partnerPanel.catalog.title')}
+            value={segment}
+            onChange={onSegmentChange}
+            options={parts.map((part) => ({
+              value: part,
+              label:
+                part === 'offers'
+                  ? t(`partnerPanel.catalog.offersBy.${offersLabel}`)
+                  : t(`partnerPanel.catalog.${part}`),
+            }))}
+          />
+        </div>
+      )}
       <div data-tour="catalog-list">
         {segment === 'places' ? (
           placesLoading ? (
