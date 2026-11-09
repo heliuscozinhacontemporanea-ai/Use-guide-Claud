@@ -7,7 +7,7 @@ import type { CreateSlotsPayload, PartnerSlot } from '../types/bookings';
 import { getBookingErrorMessage } from '../utils/bookingErrorMessage';
 import { addDays } from '../utils/dates';
 
-/** Horários de uma semana (início em `weekStart`, domingo 00:00 em Fortaleza). */
+/** Horários de uma semana (início em `weekStart`, 00:00 na hora do lugar, D28). */
 export function usePartnerSlots(offerId: string, weekStart: Date) {
   const [data, setData] = useState<PartnerSlot[]>([]);
   const [loading, setLoading] = useState(true);

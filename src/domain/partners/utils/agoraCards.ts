@@ -1,10 +1,9 @@
+import { PLATFORM_TIME_ZONE } from '../../../shared/utils/timeZones';
+import { addBusinessDays, businessDay } from './agendaCalendar';
 import type { PartnerTodayItem } from '../types/partnerHome';
 
 const MIN = 60_000;
 const HOUR = 60 * MIN;
-const DAY = 24 * HOUR;
-// Fortaleza é UTC−3 fixo (AGENTS.md §1): a véspera começa às 00:00 do dia anterior lá.
-const BUSINESS_OFFSET = 3 * HOUR;
 
 const CODE_KINDS = ['tour', 'rental', 'transfer'];
 // Aluguel com entrega ainda não existe: o "Cheguei" fica no passeio e no translado (D27).
@@ -20,16 +19,22 @@ export type AgoraCard =
   | { type: 'offline'; item: PartnerTodayItem };
 
 const ms = (iso: string) => new Date(iso).getTime();
-const eveStart = (startMs: number) =>
-  Math.floor((startMs - BUSINESS_OFFSET) / DAY) * DAY + BUSINESS_OFFSET - DAY;
+// A véspera começa às 00:00 do dia anterior na hora do lugar do serviço (D28).
+const eveStart = (startMs: number, timeZone: string) =>
+  addBusinessDays(businessDay(new Date(startMs), timeZone), -1, timeZone).getTime();
 
-function slotCard(item: PartnerTodayItem, now: number, started: boolean): AgoraCard | null {
+function slotCard(
+  item: PartnerTodayItem,
+  now: number,
+  started: boolean,
+  timeZone: string
+): AgoraCard | null {
   const start = ms(item.startsAt);
   const end = ms(item.serviceEndsAt ?? item.endsAt ?? item.startsAt);
   if (item.offerKind === 'private_entry') {
     // Portaria de 1 h antes da abertura ao fechamento; a lista sai na véspera (D27).
     if (now >= start - HOUR && now <= end) return { type: 'gate', item };
-    if (now >= eveStart(start) && now < start - HOUR) return { type: 'offline', item };
+    if (now >= eveStart(start, timeZone) && now < start - HOUR) return { type: 'offline', item };
     return null;
   }
   if (!CODE_KINDS.includes(item.offerKind ?? '') || (item.bookings ?? item.sold) === 0) return null;
@@ -54,11 +59,11 @@ function slotCard(item: PartnerTodayItem, now: number, started: boolean): AgoraC
   };
 }
 
-function sessionCard(item: PartnerTodayItem, now: number): AgoraCard | null {
+function sessionCard(item: PartnerTodayItem, now: number, timeZone: string): AgoraCard | null {
   const start = ms(item.startsAt);
   const end = item.endsAt ? ms(item.endsAt) : start + SESSION_WITHOUT_END;
   if (now >= start - 2 * HOUR && now <= end) return { type: 'gate', item };
-  if (now >= eveStart(start) && now < start - 2 * HOUR) return { type: 'offline', item };
+  if (now >= eveStart(start, timeZone) && now < start - 2 * HOUR) return { type: 'offline', item };
   return null;
 }
 
@@ -69,11 +74,14 @@ function sessionCard(item: PartnerTodayItem, now: number): AgoraCard | null {
 export function agoraCards(
   items: PartnerTodayItem[],
   nowMs: number,
-  started: ReadonlySet<string> = new Set()
+  started: ReadonlySet<string> = new Set(),
+  zoneOf: (item: PartnerTodayItem) => string = () => PLATFORM_TIME_ZONE
 ): AgoraCard[] {
   return items
     .map((item) =>
-      item.kind === 'slot' ? slotCard(item, nowMs, started.has(item.id)) : sessionCard(item, nowMs)
+      item.kind === 'slot'
+        ? slotCard(item, nowMs, started.has(item.id), zoneOf(item))
+        : sessionCard(item, nowMs, zoneOf(item))
     )
     .filter((card): card is AgoraCard => card !== null);
 }

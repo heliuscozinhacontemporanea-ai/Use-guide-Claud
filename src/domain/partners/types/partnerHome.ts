@@ -70,7 +70,7 @@ export interface PartnerHomePromoters {
   top: Array<{ username: string | null; tickets: number; owedMinor: number }>;
 }
 
-/** Vagas de reserva de um dia (00:00 em Fortaleza) de um estabelecimento. */
+/** Vagas de reserva de um dia (00:00 no fuso do painel, D28) de um estabelecimento. */
 export interface PartnerWeekDay {
   date: string;
   establishmentIds: string[];
