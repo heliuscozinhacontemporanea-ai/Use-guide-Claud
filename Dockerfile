@@ -4,6 +4,10 @@ FROM node:26-slim AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev --no-audit --no-fund
+# Só as bibliotecas que o servidor carrega (B41): as do navegador já estão dentro do dist.
+COPY dist/server.cjs ./dist/server.cjs
+COPY scripts/ops/keepServerDependencies.mjs ./
+RUN node keepServerDependencies.mjs && npm prune --omit=dev --no-audit --no-fund
 
 FROM node:26-slim
 ENV NODE_ENV=production
