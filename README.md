@@ -95,6 +95,12 @@ Para iniciar o projeto em seu ambiente local de desenvolvimento, certifique-se d
    npm run dev
    ```
    *Nota: o servidor roda em `http://localhost:3000` (ou na porta de `PORT`). O Firebase Admin usa as credenciais do `gcloud auth application-default login` ou os emuladores (`npm run test:rules` usa o do Firestore).*
+3. Ou, sem tocar no projeto real, rode tudo contra os emuladores do Firebase (Auth, Firestore e Storage; precisa de Java):
+   ```bash
+   npm run dev:emulators   # app em http://localhost:3000 ligado aos emuladores
+   npm run dev:seed        # em outro terminal: contas de teste (senha useguide-dev)
+   ```
+   *Os dados e as chaves de teste ficam em `.emulator-data/` (fora do git) e voltam na próxima vez. Sem `STRIPE_SECRET_KEY` de teste no ambiente, as rotas de pagamento respondem 503.*
 
 ---
 
