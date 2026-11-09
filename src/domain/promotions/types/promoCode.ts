@@ -38,6 +38,9 @@ export interface PromoListingTarget {
   status: string;
   /** Passeio, aluguel, translado ou entrada; só na oferta. */
   offerKind: string | null;
+  /** Fuso e cidade do anúncio (D28), para a data da sessão em "Vale para". */
+  timeZone?: string;
+  city?: string;
   options: Array<{ id: string; name: string; sessionStartsAt: string | null }>;
 }
 

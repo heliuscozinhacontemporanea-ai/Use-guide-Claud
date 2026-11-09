@@ -3,6 +3,7 @@ import type { PartnerHomeView } from '../types/partnerHome';
 import { partnerCardData } from './partnerHomeCardData';
 
 const VIEW: PartnerHomeView = {
+  timeZone: 'America/Fortaleza',
   cards: [],
   establishments: [
     {

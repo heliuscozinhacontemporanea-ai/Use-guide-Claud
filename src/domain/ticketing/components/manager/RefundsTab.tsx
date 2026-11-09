@@ -1,3 +1,4 @@
+import { PLATFORM_TIME_ZONE } from '../../../../shared/utils/timeZones';
 import { formatMoneyMinorBrl, type Refund } from '../../types/ticketing';
 
 export function RefundsTab({ refunds }: { refunds: Refund[] }) {
@@ -20,7 +21,7 @@ export function RefundsTab({ refunds }: { refunds: Refund[] }) {
               <div className="text-white/60">{ref.reason}</div>
               <div className="text-[11px] text-white/50">
                 {new Date(ref.createdAt).toLocaleString('pt-BR', {
-                  timeZone: 'America/Fortaleza',
+                  timeZone: PLATFORM_TIME_ZONE,
                 })}
               </div>
             </div>

@@ -43,6 +43,8 @@ export interface PartnerEarningsView {
 
 export interface EarningsInput {
   nowIso: string;
+  /** Fuso do painel (D28), para agrupar por dia. */
+  timeZone: string;
   monthStartIso: string;
   open: PayoutEntryView[];
   released: PayoutEntryView[];
@@ -88,7 +90,7 @@ export function buildPartnerEarnings(input: EarningsInput): PartnerEarningsView 
   ) => {
     const groups = new Map<string, PartnerPayoutGroup>();
     for (const entry of entries) {
-      const day = new Date(businessDayStartMs(dateOf(entry))).toISOString();
+      const day = new Date(businessDayStartMs(dateOf(entry), input.timeZone)).toISOString();
       const id = `${status}_${entry.accountKey}_${day}`;
       const group = groups.get(id) ?? {
         id,

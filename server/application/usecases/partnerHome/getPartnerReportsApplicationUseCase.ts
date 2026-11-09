@@ -1,4 +1,5 @@
 import { summarizeBookingUnitsUseCase } from '../../../domain/bookings';
+import { listOwnerGuideItemsUseCase } from '../../../domain/guide';
 import { listPayoutEntriesUseCase, type PayoutEntryView } from '../../../domain/payment';
 import { summarizeOrderTicketsUseCase } from '../../../domain/ticketing';
 import { listPartnerPaymentAccountsApplicationUseCase } from '../paymentAccounts/listPartnerPaymentAccountsApplicationUseCase';
@@ -9,6 +10,7 @@ import {
   type ReportSaleUnits,
   reportBuckets,
 } from './buildPartnerReports';
+import { panelTimeZone } from './panelTimeZone';
 
 const PAGE = 100;
 // Teto de leitura por pedido; acima disso o relatório avisa que está incompleto.
@@ -21,8 +23,12 @@ export async function getPartnerReportsApplicationUseCase(
   now: Date = new Date()
 ): Promise<PartnerReportsView> {
   const nowIso = now.toISOString();
-  const since = reportBuckets(period, nowIso)[0] ?? nowIso;
-  const accounts = await listPartnerPaymentAccountsApplicationUseCase(ownerUid);
+  const [accounts, establishments] = await Promise.all([
+    listPartnerPaymentAccountsApplicationUseCase(ownerUid),
+    listOwnerGuideItemsUseCase(ownerUid),
+  ]);
+  const timeZone = panelTimeZone(establishments);
+  const since = reportBuckets(period, nowIso, timeZone)[0] ?? nowIso;
   const keys = accounts.map((account) => account.accountKey);
   const entries: PayoutEntryView[] = [];
   let cursor: string | undefined;
@@ -41,6 +47,7 @@ export async function getPartnerReportsApplicationUseCase(
   return buildPartnerReports(
     period,
     nowIso,
+    timeZone,
     entries,
     truncated,
     await loadUnits(ownerUid, entries, since)

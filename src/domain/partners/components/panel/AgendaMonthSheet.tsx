@@ -24,6 +24,7 @@ export function AgendaMonthSheet({
   selected,
   visible,
   onSelect,
+  timeZone,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -31,29 +32,38 @@ export function AgendaMonthSheet({
   /** O que mostrar com o filtro de estabelecimento. */
   visible: (item: PartnerTodayItem) => boolean;
   onSelect: (day: Date) => void;
+  timeZone: string;
 }) {
   const { t, i18n } = useTranslation();
   const [anchor, setAnchor] = useState(selected);
-  const grid = useMemo(() => monthGrid(anchor), [anchor]);
+  const grid = useMemo(() => monthGrid(anchor, timeZone), [anchor, timeZone]);
   const last = grid.days[grid.days.length - 1] ?? grid.month;
   const agenda = usePartnerAgenda(
     open ? (grid.days[0] ?? null) : null,
-    open ? addBusinessDays(last, 1) : null
+    open ? addBusinessDays(last, 1, timeZone) : null
   );
   const busy = agenda.data.filter(visible);
-  const shiftMonth = (step: number) => setAnchor(addBusinessDays(grid.month, step > 0 ? 40 : -10));
+  const shiftMonth = (step: number) =>
+    setAnchor(addBusinessDays(grid.month, step > 0 ? 40 : -10, timeZone));
   const weekdays = grid.days
     .slice(0, 7)
-    .map((day) => formatBusinessDate(day.toISOString(), i18n.language, { weekday: 'narrow' }));
+    .map((day) =>
+      formatBusinessDate(day.toISOString(), i18n.language, { weekday: 'narrow' }, timeZone)
+    );
   return (
     <Dialog
       open={open}
       onOpenChange={onOpenChange}
       title={capitalizeFirst(
-        formatBusinessDate(grid.month.toISOString(), i18n.language, {
-          month: 'long',
-          year: 'numeric',
-        }),
+        formatBusinessDate(
+          grid.month.toISOString(),
+          i18n.language,
+          {
+            month: 'long',
+            year: 'numeric',
+          },
+          timeZone
+        ),
         i18n.language
       )}
     >
@@ -86,19 +96,24 @@ export function AgendaMonthSheet({
         <div className="grid grid-cols-7 gap-1">
           {grid.days.map((day) => {
             const iso = day.toISOString();
-            const isSelected = sameBusinessDay(day, selected);
-            const outside = businessMonth(day) !== businessMonth(grid.month);
-            const hasItems = busy.some((item) => sameBusinessDay(item.startsAt, day));
+            const isSelected = sameBusinessDay(day, selected, timeZone);
+            const outside = businessMonth(day, timeZone) !== businessMonth(grid.month, timeZone);
+            const hasItems = busy.some((item) => sameBusinessDay(item.startsAt, day, timeZone));
             return (
               <button
                 key={iso}
                 type="button"
                 aria-pressed={isSelected}
-                aria-label={formatBusinessDate(iso, i18n.language, {
-                  weekday: 'long',
-                  day: 'numeric',
-                  month: 'long',
-                })}
+                aria-label={formatBusinessDate(
+                  iso,
+                  i18n.language,
+                  {
+                    weekday: 'long',
+                    day: 'numeric',
+                    month: 'long',
+                  },
+                  timeZone
+                )}
                 onClick={() => {
                   onSelect(day);
                   onOpenChange(false);
@@ -109,7 +124,7 @@ export function AgendaMonthSheet({
                 )}
               >
                 <span className="text-[15px] font-semibold">
-                  {formatBusinessDate(iso, i18n.language, { day: 'numeric' })}
+                  {formatBusinessDate(iso, i18n.language, { day: 'numeric' }, timeZone)}
                 </span>
                 <span
                   className={cn(

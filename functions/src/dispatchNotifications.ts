@@ -8,7 +8,7 @@ const jobUrl = defineString('NOTIFICATIONS_DISPATCH_JOB_URL');
 export const dispatchNotifications = onSchedule(
   {
     schedule: '* * * * *',
-    timeZone: 'America/Fortaleza',
+    timeZone: 'America/Sao_Paulo',
     secrets: [internalJobKey],
   },
   async () => {

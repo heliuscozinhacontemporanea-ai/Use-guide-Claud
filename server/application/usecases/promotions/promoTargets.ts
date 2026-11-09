@@ -1,6 +1,7 @@
 import { listPartnerOffersUseCase } from '../../../domain/bookings';
 import { listEventOccurrencesUseCase, listOwnerEventListingsUseCase } from '../../../domain/events';
 import { listTicketTypesForManagementUseCase } from '../../../domain/ticketing';
+import { placeTimeOf } from '../../../shared/kernel/timeZones';
 
 /** Anúncio que pode receber cupom: evento (lotes por sessão) ou oferta de reserva (opções de preço). */
 export interface PromoTargetOption {
@@ -17,6 +18,9 @@ export interface PromoListingTarget {
   status: string;
   /** Passeio, aluguel, translado ou entrada; só na oferta. */
   offerKind: string | null;
+  /** Fuso e cidade do anúncio (D28), para a data da sessão em "Vale para". */
+  timeZone?: string;
+  city?: string;
   options: PromoTargetOption[];
 }
 
@@ -45,6 +49,7 @@ async function ownerEvents(ownerUid: string): Promise<PromoListingTarget[]> {
           title: event.title || event.name,
           status: event.status,
           offerKind: null,
+          ...placeTimeOf(event),
           options: options
             .flat()
             .sort((a, b) => a.sessionStartsAt.localeCompare(b.sessionStartsAt)),

@@ -1,3 +1,4 @@
+import { PLATFORM_TIME_ZONE } from '../../shared/utils/timeZones';
 import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BUYER_TERMS_VERSION } from '../../shared/constants/legalTerms';
@@ -49,7 +50,7 @@ export function LegalTermsDocument({
     t(`legal.${key}.paragraphs`, { returnObjects: true }) as unknown as string[];
   const date = new Intl.DateTimeFormat(i18n.language, {
     dateStyle: 'long',
-    timeZone: 'America/Fortaleza',
+    timeZone: PLATFORM_TIME_ZONE,
   }).format(new Date(`${version}T12:00:00-03:00`));
 
   return (

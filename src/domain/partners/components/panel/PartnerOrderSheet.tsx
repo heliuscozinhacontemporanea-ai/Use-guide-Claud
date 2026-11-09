@@ -1,3 +1,4 @@
+import { usePanelTimeZone } from '../../hooks/panelTimeZone';
 import { useTranslation } from 'react-i18next';
 import { formatBusinessDate } from '../../../../shared/utils/businessDateTime';
 import { formatMoneyMinor } from '../../../../shared/utils/money';
@@ -19,15 +20,21 @@ export function PartnerOrderSheet({
   onClose: () => void;
 }) {
   const { t, i18n } = useTranslation();
+  const { timeZone } = usePanelTimeZone();
   if (!order) return null;
   const locale = i18n.language;
   const money = (minor: number) => formatMoneyMinor(minor, locale);
   const date = (iso: string, withTime = true) =>
-    formatBusinessDate(iso, locale, {
-      day: 'numeric',
-      month: 'short',
-      ...(withTime ? { hour: '2-digit', minute: '2-digit' } : {}),
-    });
+    formatBusinessDate(
+      iso,
+      locale,
+      {
+        day: 'numeric',
+        month: 'short',
+        ...(withTime ? { hour: '2-digit', minute: '2-digit' } : {}),
+      },
+      timeZone
+    );
   const refund = order.refund;
   const refundText = refund
     ? t(

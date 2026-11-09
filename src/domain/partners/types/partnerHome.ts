@@ -47,6 +47,7 @@ export interface PartnerEstablishment {
   rating: number;
   reviewCount: number;
   unansweredReviews: number;
+  timeZone?: string;
 }
 
 export interface PartnerUpcomingSession {
@@ -79,6 +80,8 @@ export interface PartnerWeekDay {
 
 export interface PartnerHomeView {
   cards: string[];
+  /** Fuso do painel (D28): o do primeiro estabelecimento, ou o da plataforma. */
+  timeZone: string;
   establishments: PartnerEstablishment[];
   attention: PartnerAttentionItem[];
   today: PartnerTodayItem[];
@@ -228,6 +231,8 @@ export type PartnerReportPeriod = '7d' | '30d' | '12m';
 export interface PartnerReports {
   period: PartnerReportPeriod;
   soldMinor: number;
+  /** Fuso do painel (D28), em que os dias foram contados. */
+  timeZone: string;
   buckets: Array<{ start: string; soldMinor: number }>;
   items: Array<{
     key: string;

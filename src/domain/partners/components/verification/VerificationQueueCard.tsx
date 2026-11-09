@@ -1,3 +1,4 @@
+import { PLATFORM_TIME_ZONE } from '../../../../shared/utils/timeZones';
 import { Check, FileText, X } from 'lucide-react';
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -29,7 +30,7 @@ export function VerificationQueueCard({ entry, onReview, onOpenFile }: Verificat
     new Intl.DateTimeFormat(i18n.language, {
       dateStyle: 'short',
       timeStyle: 'short',
-      timeZone: 'America/Fortaleza',
+      timeZone: PLATFORM_TIME_ZONE,
     }).format(new Date(iso));
 
   const review = async (decision: 'approve' | 'reject') => {

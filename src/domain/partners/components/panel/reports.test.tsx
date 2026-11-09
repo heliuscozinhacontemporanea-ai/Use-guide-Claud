@@ -16,6 +16,7 @@ describe('Relatórios (p23)', () => {
     m.reports.mockImplementation(async (period: string) => ({
       period,
       soldMinor: period === '7d' ? 500000 : 4138000,
+      timeZone: 'America/Fortaleza',
       buckets: [
         { start: '2026-11-07T03:00:00.000Z', soldMinor: 1000 },
         { start: '2026-11-08T03:00:00.000Z', soldMinor: 2000 },

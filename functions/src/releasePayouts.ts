@@ -8,7 +8,7 @@ const jobUrl = defineString('PAYOUTS_RELEASE_JOB_URL');
 export const releasePayouts = onSchedule(
   {
     schedule: '0 * * * *',
-    timeZone: 'America/Fortaleza',
+    timeZone: 'America/Sao_Paulo',
     secrets: [internalJobKey],
   },
   async () => {

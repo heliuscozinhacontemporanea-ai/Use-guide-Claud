@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { formatSessionLabel } from '../../../shared/utils/businessDateTime';
+import { placeTimeSuffix } from '../../../shared/utils/placeTime';
 import { type PromoListingTarget, promoTargetKey } from '../types/promoCode';
 
 /** Escolhidos por `kind:id`: lotes ou opções, ou `null` para todos. */
@@ -96,7 +97,11 @@ export function PromoTargetsField({
                     {option.name}
                     {option.sessionStartsAt && (
                       <span className="block text-[13px] text-ink/70">
-                        {formatSessionLabel(option.sessionStartsAt, i18n.language)}
+                        {formatSessionLabel(
+                          option.sessionStartsAt,
+                          i18n.language,
+                          target.timeZone
+                        ) + placeTimeSuffix(t, target, option.sessionStartsAt)}
                       </span>
                     )}
                   </span>

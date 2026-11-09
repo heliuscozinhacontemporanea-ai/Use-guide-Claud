@@ -1,3 +1,4 @@
+import { businessDayStartMs, businessMonthStartMs } from '../../../shared/kernel/businessDay';
 import type { PayoutEntryView } from '../../../domain/payment';
 
 export type ReportPeriod = '7d' | '30d' | '12m';
@@ -5,7 +6,9 @@ export type ReportPeriod = '7d' | '30d' | '12m';
 export interface PartnerReportsView {
   period: ReportPeriod;
   soldMinor: number;
-  /** Um total por dia (fuso de Fortaleza), do mais antigo ao atual; a tela agrupa em semana ou mês. */
+  /** Fuso do painel (D28), em que os dias foram contados; a tela agrupa semanas e meses nele. */
+  timeZone: string;
+  /** Um total por dia, do mais antigo ao atual; a tela agrupa em semana ou mês. */
   buckets: Array<{ start: string; soldMinor: number }>;
   items: Array<{
     key: string;
@@ -24,21 +27,17 @@ export interface PartnerReportsView {
   truncated: boolean;
 }
 
-const OFFSET_MS = 3 * 60 * 60_000;
 const DAY_MS = 24 * 60 * 60_000;
 
 /**
- * Início de cada dia do período no fuso de Fortaleza, em UTC: 7 e 30 dias até hoje; 12 meses desde
- * o dia 1 do mês de 11 meses atrás.
+ * Início de cada dia do período no fuso do painel (D28), em UTC: 7 e 30 dias até hoje; 12 meses
+ * desde o dia 1 do mês de 11 meses atrás. O Brasil não tem horário de verão, então os dias têm 24 h.
  */
-export function reportBuckets(period: ReportPeriod, nowIso: string): string[] {
-  const local = new Date(new Date(nowIso).getTime() - OFFSET_MS);
-  const y = local.getUTCFullYear();
-  const m = local.getUTCMonth();
-  const today = Date.UTC(y, m, local.getUTCDate()) + OFFSET_MS;
+export function reportBuckets(period: ReportPeriod, nowIso: string, timeZone: string): string[] {
+  const today = businessDayStartMs(nowIso, timeZone);
   const first =
     period === '12m'
-      ? Date.UTC(y, m - 11, 1) + OFFSET_MS
+      ? businessMonthStartMs(nowIso, timeZone, 11)
       : today - ((period === '7d' ? 7 : 30) - 1) * DAY_MS;
   const days = Math.round((today - first) / DAY_MS) + 1;
   return Array.from({ length: days }, (_, i) => new Date(first + i * DAY_MS).toISOString());
@@ -60,11 +59,12 @@ export interface ReportSaleUnits {
 export function buildPartnerReports(
   period: ReportPeriod,
   nowIso: string,
+  timeZone: string,
   entries: PayoutEntryView[],
   truncated: boolean,
   units: Map<string, ReportSaleUnits> = new Map()
 ): PartnerReportsView {
-  const starts = reportBuckets(period, nowIso);
+  const starts = reportBuckets(period, nowIso, timeZone);
   const from = starts[0] ?? nowIso;
   const inPeriod = entries.filter(
     (entry) => entry.status !== 'canceled' && entry.createdAt >= from && entry.createdAt <= nowIso
@@ -103,6 +103,7 @@ export function buildPartnerReports(
     items.set(key, item);
   }
   return {
+    timeZone,
     period,
     soldMinor: buckets.reduce((sum, bucket) => sum + bucket.soldMinor, 0),
     buckets,

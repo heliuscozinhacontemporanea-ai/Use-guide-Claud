@@ -1,3 +1,4 @@
+import { PLATFORM_TIME_ZONE } from '../../../shared/utils/timeZones';
 import type { ListingPlanView } from '../types/listingPlan';
 
 export type ListingPlanChipStatus =
@@ -21,7 +22,7 @@ export function listingPlanChipStatus(view: ListingPlanView): ListingPlanChipSta
 /** Data do plano no fuso do negócio (AGENTS.md §1, §12.4). */
 export function formatPlanDate(iso: string, locale: string): string {
   return new Intl.DateTimeFormat(locale, {
-    timeZone: 'America/Fortaleza',
+    timeZone: PLATFORM_TIME_ZONE,
     day: '2-digit',
     month: 'short',
     year: 'numeric',

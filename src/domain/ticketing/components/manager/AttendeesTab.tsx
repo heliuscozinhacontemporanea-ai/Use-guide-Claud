@@ -1,3 +1,4 @@
+import { PLATFORM_TIME_ZONE } from '../../../../shared/utils/timeZones';
 import { formatMoneyMinorBrl, type TicketOrder } from '../../types/ticketing';
 
 export function AttendeesTab({ orders }: { orders: TicketOrder[] }) {
@@ -22,7 +23,7 @@ export function AttendeesTab({ orders }: { orders: TicketOrder[] }) {
               <div className="text-white/50">
                 Pedido #{ord.id.slice(0, 8)} •{' '}
                 {new Date(ord.createdAt).toLocaleString('pt-BR', {
-                  timeZone: 'America/Fortaleza',
+                  timeZone: PLATFORM_TIME_ZONE,
                 })}
               </div>
             </div>

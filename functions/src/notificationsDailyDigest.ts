@@ -8,7 +8,7 @@ const jobUrl = defineString('NOTIFICATIONS_DAILY_DIGEST_JOB_URL');
 export const notificationsDailyDigest = onSchedule(
   {
     schedule: '0 20 * * *',
-    timeZone: 'America/Fortaleza',
+    timeZone: 'America/Sao_Paulo',
     secrets: [internalJobKey],
   },
   async () => {

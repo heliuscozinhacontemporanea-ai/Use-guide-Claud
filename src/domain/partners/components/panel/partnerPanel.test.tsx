@@ -10,6 +10,7 @@ import { type PartnerCardData, partnerCardData } from '../../utils/partnerHomeCa
 import { PartnerShortcuts } from './PartnerShortcuts';
 
 const VIEW: PartnerHomeView = {
+  timeZone: 'America/Fortaleza',
   cards: ['today', 'sales_today', 'reviews'],
   establishments: [
     {

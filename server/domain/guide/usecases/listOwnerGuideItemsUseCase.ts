@@ -9,6 +9,8 @@ export interface OwnerGuideItemSummary {
   location: string;
   rating: number;
   reviewCount: number;
+  /** Fuso do estabelecimento (D28); ausente em dado de teste antigo. */
+  timeZone?: string;
 }
 
 export async function listOwnerGuideItemsUseCase(
@@ -22,5 +24,6 @@ export async function listOwnerGuideItemsUseCase(
     location: typeof item.location === 'string' ? item.location : '',
     rating: item.rating ?? 0,
     reviewCount: item.reviewCount ?? 0,
+    ...(item.timeZone ? { timeZone: item.timeZone } : {}),
   }));
 }

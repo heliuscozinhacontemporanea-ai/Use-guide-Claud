@@ -1,4 +1,7 @@
-const BUSINESS_TIME_ZONE = 'America/Fortaleza';
+import { PLATFORM_TIME_ZONE } from '../../../shared/kernel/timeZones';
+
+// Contas da plataforma em Brasília (D28).
+const BUSINESS_TIME_ZONE = PLATFORM_TIME_ZONE;
 
 /** Dia (AAAA-MM-DD) no fuso do negócio, para o contador diário não depender do fuso do servidor. */
 export function businessDayKey(date: Date): string {

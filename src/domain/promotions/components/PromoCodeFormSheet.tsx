@@ -1,3 +1,5 @@
+import { placeTimeFormNote } from '../../../shared/utils/placeTime';
+import { PLATFORM_TIME_ZONE } from '../../../shared/utils/timeZones';
 import { type ReactNode, useEffect, useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatMoneyMinor } from '../../../shared/utils/money';
@@ -82,6 +84,7 @@ export function PromoCodeFormSheet({
   onSaved: () => void;
 }) {
   const { t, i18n } = useTranslation();
+  const periodNote = placeTimeFormNote(t, { timeZone: PLATFORM_TIME_ZONE, city: 'Brasília' });
   const ids = { code: useId(), value: useId(), start: useId(), end: useId() };
   const [draft, setDraft] = useState<PromoFormDraft>(() => draftFromPromo(promo, defaultTargetKey));
   const [busy, setBusy] = useState(false);
@@ -297,6 +300,8 @@ export function PromoCodeFormSheet({
           </div>
         </div>
         <p className="px-1 text-[14px] text-ink/70">{t('promoCodes.form.periodHint')}</p>
+        {/* O cupom vale para anúncios de vários lugares: o período é no fuso da plataforma (D28). */}
+        {periodNote && <p className="px-1 text-[14px] text-ink/70">{periodNote}</p>}
 
         {error && (
           <p role="alert">

@@ -1,6 +1,6 @@
+import { usePanelItemTime } from '../../hooks/panelTimeZone';
 import { ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { formatBusinessDate } from '../../../../shared/utils/businessDateTime';
 import { ListEmpty } from '../../../../ui/components/ListState';
 import { StatusText } from '../../../../ui/components/StatusText';
 import type { PartnerTodayItem } from '../../types/partnerHome';
@@ -26,8 +26,7 @@ export function AgendaDayList({
 }) {
   const { t, i18n } = useTranslation();
   const now = Date.now();
-  const time = (iso: string) =>
-    formatBusinessDate(iso, i18n.language, { hour: '2-digit', minute: '2-digit' });
+  const itemTime = usePanelItemTime(i18n.language);
   return (
     <section aria-label={title}>
       <h2 className="px-1 mb-2 text-[18px] font-display font-bold text-ink first-letter:uppercase">
@@ -62,7 +61,7 @@ export function AgendaDayList({
                 >
                   <span className="flex-1 min-w-0">
                     <span className="block text-[15px] font-semibold text-ink truncate">
-                      {time(item.startsAt)} · {item.title}
+                      {itemTime(item, item.startsAt)} · {item.title}
                     </span>
                     <span className="block text-[13px] text-ink/70">{sub}</span>
                     {(ongoing(item, now) || label) && (

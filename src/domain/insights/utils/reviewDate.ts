@@ -1,3 +1,4 @@
+import { PLATFORM_TIME_ZONE } from '../../../shared/utils/timeZones';
 import type { ReviewDateValue } from '../../reviews';
 
 type ReviewDateInput = ReviewDateValue | { toDate?: () => Date };
@@ -9,5 +10,5 @@ export function formatReviewDate(value: ReviewDateInput, locale: string): string
   else if (typeof value === 'string' || typeof value === 'number') date = new Date(value);
   else if (value && typeof value.toDate === 'function') date = value.toDate();
   if (!date || Number.isNaN(date.getTime())) return '';
-  return new Intl.DateTimeFormat(locale, { timeZone: 'America/Fortaleza' }).format(date);
+  return new Intl.DateTimeFormat(locale, { timeZone: PLATFORM_TIME_ZONE }).format(date);
 }

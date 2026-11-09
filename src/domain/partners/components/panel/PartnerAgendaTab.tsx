@@ -29,6 +29,7 @@ export function PartnerAgendaTab({
   labelFor,
   onOpenItem,
   reloadKey,
+  timeZone,
 }: {
   /** Filtro de estabelecimento da casca. */
   visible: (item: PartnerTodayItem) => boolean;
@@ -36,13 +37,15 @@ export function PartnerAgendaTab({
   onOpenItem: (item: PartnerTodayItem) => void;
   /** Muda quando uma folha altera a agenda (check-in, remarcação, cancelamento). */
   reloadKey: number;
+  /** Fuso dos dias da Agenda (D28): o do estabelecimento filtrado, ou o do painel. */
+  timeZone: string;
 }) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
-  const [selected, setSelected] = useState(() => businessDay(new Date()));
+  const [selected, setSelected] = useState(() => businessDay(new Date(), timeZone));
   const [monthOpen, setMonthOpen] = useState(false);
-  const start = weekStart(selected);
-  const agenda = usePartnerAgenda(start, addBusinessDays(start, 7));
+  const start = weekStart(selected, timeZone);
+  const agenda = usePartnerAgenda(start, addBusinessDays(start, 7, timeZone));
   const swipeFrom = useRef<number | null>(null);
   const reloadRef = useRef(agenda.reload);
   reloadRef.current = agenda.reload;
@@ -55,10 +58,10 @@ export function PartnerAgendaTab({
   }, [reloadKey]);
 
   const items = agenda.data.filter(visible);
-  const days = Array.from({ length: 7 }, (_, index) => addBusinessDays(start, index));
-  const dayItems = items.filter((item) => sameBusinessDay(item.startsAt, selected));
-  const shiftWeek = (step: number) => setSelected(addBusinessDays(selected, step * 7));
-  const isToday = sameBusinessDay(selected, new Date());
+  const days = Array.from({ length: 7 }, (_, index) => addBusinessDays(start, index, timeZone));
+  const dayItems = items.filter((item) => sameBusinessDay(item.startsAt, selected, timeZone));
+  const shiftWeek = (step: number) => setSelected(addBusinessDays(selected, step * 7, timeZone));
+  const isToday = sameBusinessDay(selected, new Date(), timeZone);
 
   return (
     <section className="space-y-6" aria-label={t('partnerPanel.agenda.title')}>
@@ -79,7 +82,7 @@ export function PartnerAgendaTab({
             aria-label={t('partnerPanel.agenda.openMonth')}
             className="press min-h-11 px-1 rounded-xl text-[22px] font-display font-bold text-ink first-letter:uppercase truncate focus-visible:ring-2 focus-visible:ring-teal-400/50"
           >
-            {formatBusinessDate(selected.toISOString(), lang, { month: 'long' })}
+            {formatBusinessDate(selected.toISOString(), lang, { month: 'long' }, timeZone)}
           </button>
           <button
             type="button"
@@ -92,7 +95,7 @@ export function PartnerAgendaTab({
         </div>
         <button
           type="button"
-          onClick={() => setSelected(businessDay(new Date()))}
+          onClick={() => setSelected(businessDay(new Date(), timeZone))}
           className="press min-h-11 px-2 rounded-xl text-[14px] font-semibold text-accent focus-visible:ring-2 focus-visible:ring-teal-400/50"
         >
           {t('partnerPanel.agenda.today')}
@@ -114,18 +117,23 @@ export function PartnerAgendaTab({
       >
         {days.map((day) => {
           const iso = day.toISOString();
-          const active = sameBusinessDay(day, selected);
-          const busy = items.some((item) => sameBusinessDay(item.startsAt, day));
+          const active = sameBusinessDay(day, selected, timeZone);
+          const busy = items.some((item) => sameBusinessDay(item.startsAt, day, timeZone));
           return (
             <button
               key={iso}
               type="button"
               aria-pressed={active}
-              aria-label={formatBusinessDate(iso, lang, {
-                weekday: 'long',
-                day: 'numeric',
-                month: 'long',
-              })}
+              aria-label={formatBusinessDate(
+                iso,
+                lang,
+                {
+                  weekday: 'long',
+                  day: 'numeric',
+                  month: 'long',
+                },
+                timeZone
+              )}
               onClick={() => setSelected(day)}
               className={cn(
                 'press min-h-16 rounded-2xl flex flex-col items-center justify-center focus-visible:ring-2 focus-visible:ring-teal-400/50',
@@ -133,10 +141,10 @@ export function PartnerAgendaTab({
               )}
             >
               <span className={cn('text-[11px]', active ? 'text-app/80' : 'text-ink/60')}>
-                {formatBusinessDate(iso, lang, { weekday: 'short' }).replace('.', '')}
+                {formatBusinessDate(iso, lang, { weekday: 'short' }, timeZone).replace('.', '')}
               </span>
               <span className="text-[17px] font-bold">
-                {formatBusinessDate(iso, lang, { day: 'numeric' })}
+                {formatBusinessDate(iso, lang, { day: 'numeric' }, timeZone)}
               </span>
               <span
                 className={cn(
@@ -156,11 +164,16 @@ export function PartnerAgendaTab({
       ) : (
         <div data-tour="agenda-day">
           <AgendaDayList
-            title={formatBusinessDate(selected.toISOString(), lang, {
-              weekday: 'long',
-              day: 'numeric',
-              month: 'long',
-            })}
+            title={formatBusinessDate(
+              selected.toISOString(),
+              lang,
+              {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+              },
+              timeZone
+            )}
             items={dayItems}
             isToday={isToday}
             labelFor={labelFor}
@@ -176,6 +189,7 @@ export function PartnerAgendaTab({
           selected={selected}
           visible={visible}
           onSelect={setSelected}
+          timeZone={timeZone}
         />
       )}
     </section>
