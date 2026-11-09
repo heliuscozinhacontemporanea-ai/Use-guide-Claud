@@ -359,7 +359,9 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
             transition={{ duration: 0.2 }}
             className={cn(
               'w-full',
-              FULL_HEIGHT_VIEWS.includes(view) && 'h-full flex flex-col overflow-hidden'
+              // Ocupa a altura da tela (o rodapé com mt-auto fica embaixo) e cresce com o conteúdo, para a
+              // folha rolar quando ele passa da tela.
+              FULL_HEIGHT_VIEWS.includes(view) && 'flex-1 flex flex-col *:flex-1'
             )}
           >
             {renderView()}
