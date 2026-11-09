@@ -6,6 +6,7 @@ import { ListError, ListLoading } from '../../../../ui/components/ListState';
 import { StatusText } from '../../../../ui/components/StatusText';
 import { listSlotContactsUseCase } from '../../application/usecases/listSlotContactsUseCase';
 import type { SlotContact } from '../../types/bookings';
+import { bookingReference } from '../../utils/bookingReference';
 import { formatSlotTime } from '../../utils/dates';
 
 const ICON_BUTTON =
@@ -56,7 +57,11 @@ export function SlotContactsList({
     <ul className="rounded-2xl bg-ink/[0.04] border border-line divide-y divide-line overflow-hidden">
       {contacts.map((contact) => {
         const name = contact.buyerName ?? t('partnerAgora.contacts.noName');
-        const whatsapp = whatsAppUrl(contact.phone);
+        // Mensagem pronta com o número da reserva (C2/B37); o telefone não aparece escrito.
+        const whatsapp = whatsAppUrl(
+          contact.phone,
+          t('bookings.contact.arrived', { name, code: bookingReference(contact.bookingId) })
+        );
         const response = contact.response;
         return (
           <li key={contact.bookingId} className="px-4 py-3.5 space-y-2">

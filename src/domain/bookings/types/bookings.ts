@@ -297,3 +297,9 @@ export interface PartnerSlotDetail {
   offer: { id: string; title: string; kind: OfferKind; meetingPoint: string | null };
   bookings: Array<{ id: string; buyerName: string | null; units: number; checkedInUnits: number }>;
 }
+
+/** Contato depois da compra (C2/B37): o telefone do outro lado, para o WhatsApp com mensagem pronta. */
+export interface BookingContactView {
+  counterpart: 'partner' | 'buyer';
+  phone: string | null;
+}

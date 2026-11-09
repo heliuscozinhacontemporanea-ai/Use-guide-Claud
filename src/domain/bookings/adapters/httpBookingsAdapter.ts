@@ -3,6 +3,7 @@ import type { BookingsApiPort } from '../ports/bookingsApiPort';
 import type {
   ArrivalLocation,
   ArrivalResponse,
+  BookingContactView,
   BookingDetails,
   BookingSummary,
   CancelBookingResponse,
@@ -152,6 +153,10 @@ export class HttpBookingsAdapter implements BookingsApiPort {
 
   async getCheckInCode(bookingId: string): Promise<CheckInCodeView> {
     return call(`${bookingPath(bookingId)}/check-in-code`);
+  }
+
+  async getBookingContact(bookingId: string): Promise<BookingContactView> {
+    return call(`${bookingPath(bookingId)}/contact`);
   }
 
   async getEntryPass(bookingId: string): Promise<EntryPassView> {

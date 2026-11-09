@@ -10,7 +10,12 @@ export class ApiPartnerContentAdapter implements PartnerContentPort {
     });
     if (!response.ok) {
       const body = await response.json().catch(() => null);
-      throw new Error(body?.error || 'Erro na operação do conteúdo do parceiro');
+      // Erro tipado (`{ code, message }`) vira o código, que a tela traduz (§10.2, §12.5).
+      const error = body?.error;
+      throw new Error(
+        (typeof error === 'string' ? error : error?.code) ||
+          'Erro na operação do conteúdo do parceiro'
+      );
     }
     if (response.status === 204) {
       return undefined;
@@ -44,6 +49,14 @@ export class ApiPartnerContentAdapter implements PartnerContentPort {
       },
       body: JSON.stringify(data),
     });
+  }
+
+  async getItemContact(id: string): Promise<{ phone: string | null }> {
+    const result = await this.request<{ phone: string | null }>(
+      `/api/partners/items/${encodeURIComponent(id)}/contact`,
+      { method: 'GET' }
+    );
+    return { phone: result?.phone ?? null };
   }
 
   async deleteItem(id: string): Promise<void> {

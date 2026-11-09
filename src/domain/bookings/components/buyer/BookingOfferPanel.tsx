@@ -54,6 +54,10 @@ export function BookingOfferPanel({ guideItemId, ...flowProps }: BookingOfferPan
           </GlassCard>
         );
       })}
+      {/* C2/B37: o anúncio que vende não tem contato; ele vem com o pedido. */}
+      <p className="px-1 text-center text-[13px] text-white/70">
+        {t('bookings.contact.afterBooking')}
+      </p>
     </div>
   );
 }

@@ -117,6 +117,7 @@ export function TransferDetails(props: DetailsSectionProps) {
           maxLength={500}
           onChange={(value) => updateFieldValue('luggageInfo', value)}
           placeholder={p('luggage')}
+          error={getFieldError('luggageInfo')}
         />
       </div>
     </div>

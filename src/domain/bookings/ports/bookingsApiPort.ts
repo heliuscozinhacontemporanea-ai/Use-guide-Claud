@@ -1,6 +1,7 @@
 import type {
   ArrivalLocation,
   ArrivalResponse,
+  BookingContactView,
   BookingDetails,
   BookingSummary,
   CancelBookingResponse,
@@ -50,6 +51,8 @@ export interface BookingsApiPort {
 
   // Prova do serviço (D20).
   getCheckInCode(bookingId: string): Promise<CheckInCodeView>;
+  /** C2/B37: telefone do outro lado, só com a reserva confirmada e até o fim do serviço. */
+  getBookingContact(bookingId: string): Promise<BookingContactView>;
   getEntryPass(bookingId: string): Promise<EntryPassView>;
   reportProviderAbsent(bookingId: string): Promise<BookingSummary>;
   answerServiceConfirmation(bookingId: string, answer: 'yes' | 'no'): Promise<BookingSummary>;

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { FormProvider, type Path, type Resolver, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useUI } from '../../../shared/stores/useUIStore';
+import { splitE164 } from '../../../shared/utils/phone';
 import { ConfirmDialog } from '../../../ui/components/ConfirmDialog';
 import { Dialog } from '../../../ui/components/Dialog';
 import type { PhoneInputFieldRef } from '../../../ui/components/PhoneInputField';
@@ -12,12 +13,14 @@ import type { UserSession } from '../../auth';
 import { getImageUploadErrorMessage, uploadImageUseCase } from '../../media';
 import { getEmptyFormData, mapItemToFormData } from '../application/mappers/partnerFormMapper';
 import { mapPartnerSubmissionToGuideItem } from '../application/mappers/partnerSubmissionToGuide';
+import { getPartnerItemContactUseCase } from '../application/usecases/getPartnerItemContactUseCase';
 import { INITIAL_FORM_DATA } from '../constants/formDefaults';
 import { LISTING_CATEGORIES } from '../constants/listingCategories';
 import { useListingEditorValidation } from '../hooks/useListingEditorValidation';
 import { partnerSubmissionSchema } from '../schemas/partnerSchema';
 import type { PartnerContentItemInput, PartnerContentRecord } from '../types/partnerContent';
 import type { FormState } from '../types/partsForm';
+import { listingSellsThroughApp } from '../utils/listingSells';
 import { revealFirstSignupError } from '../utils/revealFirstSignupError';
 import { Step1CompanyInfo } from './steps/Step1CompanyInfo';
 import { Step2ContactInfo } from './steps/Step2ContactInfo';
@@ -83,6 +86,28 @@ export function ListingEditor({
     methods.reset(formData, { keepDefaultValues: true });
   }, [formData, methods]);
 
+  // Anúncio que vende pelo app não publica o telefone (C2/B37): o editor busca o do próprio dono.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: só ao abrir o anúncio.
+  useEffect(() => {
+    if (
+      !item?.id ||
+      !listingSellsThroughApp(item.category, mapItemToFormData(item).sightAccessType)
+    ) {
+      return;
+    }
+    let active = true;
+    getPartnerItemContactUseCase(item.id)
+      .then(({ phone }) => {
+        if (!active || !phone) return;
+        const { ddi, nationalNumber } = splitE164(phone);
+        setFormData((current) => ({ ...current, phone: nationalNumber, phoneDdi: ddi }));
+      })
+      .catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, [item?.id]);
+
   const close = () => {
     setOpen(false);
     window.setTimeout(onClose, CLOSE_MS);
@@ -119,10 +144,11 @@ export function ListingEditor({
       close();
     } catch (error: unknown) {
       console.error('[ListingEditor.save]', error);
+      const message = error instanceof Error ? error.message : '';
       showToast(
-        error instanceof Error && error.message
-          ? error.message
-          : t('partnerSignup.editor.saveFailed'),
+        message === 'CONTACT_IN_TEXT'
+          ? t('partnerSignup.errors.contactInText')
+          : message || t('partnerSignup.editor.saveFailed'),
         'error'
       );
     } finally {

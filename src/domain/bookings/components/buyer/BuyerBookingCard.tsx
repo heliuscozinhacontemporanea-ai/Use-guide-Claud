@@ -1,13 +1,15 @@
 import { CalendarClock, Compass, MapPin, Ticket } from 'lucide-react';
-import type { ReactNode } from 'react';
+import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatBusinessWeekday } from '../../../../shared/utils/businessDateTime';
 import { placeTimeSuffix } from '../../../../shared/utils/placeTime';
 import { rescheduleRefundDeadline } from '../../../../shared/utils/rescheduleRefundDeadline';
 import { StatusText, type StatusTone } from '../../../../ui/components/StatusText';
 import type { BookingStatus, BookingSummary } from '../../types/bookings';
+import { bookingReference } from '../../utils/bookingReference';
 import { formatSlotDateTime, placeDateKey } from '../../utils/dates';
 import { formatMinor } from '../../utils/money';
+import { BookingWhatsAppButton } from '../BookingWhatsAppButton';
 import { BookingCheckInPass } from './BookingCheckInPass';
 
 const STATUS_TONE: Partial<Record<BookingStatus, StatusTone>> = {
@@ -42,6 +44,11 @@ export function BuyerBookingCard({
   const price = formatMinor(booking.totalMinor, i18n.language);
   const statusTone = STATUS_TONE[booking.status];
   const refund = booking.cancellation?.refundAmountMinor ?? 0;
+  const [contactError, setContactError] = useState<string | null>(null);
+  // C2/B37: da compra até o fim do serviço; o servidor confere de novo a cada toque.
+  const serviceEndMs =
+    new Date(booking.offer.startsAt).getTime() + (booking.offer.durationMinutes ?? 0) * 60_000;
+  const canContact = booking.status === 'confirmed' && Date.now() <= serviceEndMs;
 
   const footer: ReactNode = statusTone ? (
     <StatusText tone={statusTone}>
@@ -103,6 +110,22 @@ export function BuyerBookingCard({
             <BookingCheckInPass booking={booking} />
           </div>
         )}
+      {canContact && (
+        <div className="mt-3 pt-3 border-t border-line space-y-2">
+          <BookingWhatsAppButton
+            bookingId={booking.id}
+            label={t('bookings.contact.partnerButton')}
+            message={t('bookings.contact.toPartner', {
+              code: bookingReference(booking.id),
+              title: booking.offer.title,
+              when: formatSlotDateTime(booking.offer.startsAt, i18n.language, tz),
+            })}
+            onError={setContactError}
+          />
+          <p className="text-[13px] text-ink/70">{t('bookings.contact.partnerHint')}</p>
+          {contactError && <StatusText tone="warn">{contactError}</StatusText>}
+        </div>
+      )}
       {footer && <div className="mt-3 pt-3 border-t border-line">{footer}</div>}
     </li>
   );

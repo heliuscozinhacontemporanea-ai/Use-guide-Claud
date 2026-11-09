@@ -8,6 +8,7 @@ export interface ServiceProofTranslation {
     codeHint: string;
     entryHint: string;
     warning: string;
+    entryWarning: string;
     notYet: string;
     checkedIn: string;
     loadError: string;
@@ -148,7 +149,9 @@ export const serviceProofPtBR: ServiceProofTranslation = {
     codeHint: 'Informe este código pessoalmente, na hora do serviço.',
     entryHint: 'Mostre o QR Code na portaria. Se a leitura falhar, informe o código.',
     warning:
-      'Nunca informe o código por telefone ou mensagem. Ninguém do Use Guide pede este código.',
+      'Este código é a sua entrada. Mostre só pessoalmente, na hora do serviço: não envie por mensagem, foto ou ligação. O Use Guide nunca pede o seu código.',
+    entryWarning:
+      'Este código é a sua entrada. Mostre só pessoalmente, na portaria: não envie por mensagem, foto ou ligação. O Use Guide nunca pede o seu código.',
     notYet: 'Seu código aparece no dia do serviço, a partir de {{date}}.',
     checkedIn: 'Check-in feito em {{date}}.',
     loadError: 'Não foi possível carregar o código.',
@@ -304,7 +307,10 @@ export const serviceProofEn: ServiceProofTranslation = {
     entryTitle: 'Your entry',
     codeHint: 'Tell this code in person, when the service starts.',
     entryHint: 'Show the QR code at the entrance. If it cannot be read, tell them the code.',
-    warning: 'Never share the code by phone or message. No one at Use Guide asks for this code.',
+    warning:
+      'This code is your entry. Show it only in person, at the time of the service: never send it by message, photo or call. Use Guide never asks for your code.',
+    entryWarning:
+      'This code is your entry. Show it only in person, at the entrance: never send it by message, photo or call. Use Guide never asks for your code.',
     notYet: 'Your code appears on the day of the service, from {{date}}.',
     checkedIn: 'Checked in on {{date}}.',
     loadError: 'Could not load the code.',
@@ -462,7 +468,9 @@ export const serviceProofFr: ServiceProofTranslation = {
     codeHint: 'Donnez ce code en personne, au moment du service.',
     entryHint: 'Montrez le QR code à l’entrée. Si la lecture échoue, donnez le code.',
     warning:
-      'Ne communiquez jamais le code par téléphone ou par message. Personne chez Use Guide ne vous le demande.',
+      'Ce code est votre entrée. Montrez-le uniquement en personne, au moment de la prestation : ne l’envoyez jamais par message, photo ou appel. Use Guide ne demande jamais votre code.',
+    entryWarning:
+      'Ce code est votre entrée. Montrez-le uniquement en personne, à l’entrée : ne l’envoyez jamais par message, photo ou appel. Use Guide ne demande jamais votre code.',
     notYet: 'Votre code apparaît le jour du service, à partir de {{date}}.',
     checkedIn: 'Enregistrement fait le {{date}}.',
     loadError: 'Impossible de charger le code.',

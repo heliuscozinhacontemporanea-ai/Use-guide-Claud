@@ -1,5 +1,17 @@
 /** Textos do domínio bookings (pt-BR é a fonte; en e fr têm as mesmas chaves, garantidas pelo tipo). */
 export interface BookingsTranslation {
+  contact: {
+    partnerButton: string;
+    partnerHint: string;
+    buyerButton: string;
+    buyerAria: string;
+    noPhone: string;
+    toBuyer: string;
+    toBuyerNoName: string;
+    toPartner: string;
+    arrived: string;
+    afterBooking: string;
+  };
   buyer: {
     panelTitle: string;
     loading: string;
@@ -228,6 +240,8 @@ export interface BookingsTranslation {
     INVALID_ENTRY_PASS: string;
     NAME_CHANGE_NOT_ALLOWED: string;
     CLAIM_ALREADY_EXISTS: string;
+    CONTACT_UNAVAILABLE: string;
+    CONTACT_IN_TEXT: string;
     INTERNAL_ERROR: string;
     PROMO_INVALID: string;
     PROMO_NOT_STARTED: string;
@@ -238,6 +252,21 @@ export interface BookingsTranslation {
 }
 
 export const bookingsPtBR: BookingsTranslation = {
+  contact: {
+    partnerButton: 'Falar com o parceiro',
+    partnerHint:
+      'Abre o WhatsApp com uma mensagem pronta com o número da reserva. Disponível até o fim do serviço.',
+    buyerButton: 'WhatsApp do cliente',
+    buyerAria: 'WhatsApp de {{name}}',
+    noPhone: 'Não há telefone para esta reserva.',
+    toBuyer:
+      'Olá, {{name}}! Aqui é do {{title}}, sobre a sua reserva {{code}} no Use Guide para {{when}}.',
+    toBuyerNoName:
+      'Olá! Aqui é do {{title}}, sobre a sua reserva {{code}} no Use Guide para {{when}}.',
+    toPartner: 'Olá! Tenho a reserva {{code}} no Use Guide: {{title}}, {{when}}.',
+    arrived: 'Olá, {{name}}! Já cheguei ao ponto de encontro. Reserva {{code}} no Use Guide.',
+    afterBooking: 'Depois da reserva, você fala com o parceiro pelo seu pedido.',
+  },
   buyer: {
     panelTitle: 'Reservar',
     loading: 'Carregando disponibilidade…',
@@ -477,6 +506,10 @@ export const bookingsPtBR: BookingsTranslation = {
     NAME_CHANGE_NOT_ALLOWED:
       'O nome desta entrada já foi trocado ou a troca fechou (até 24 h antes).',
     CLAIM_ALREADY_EXISTS: 'Já existe uma reclamação para esta compra.',
+    CONTACT_UNAVAILABLE:
+      'O contato fica disponível só com a reserva confirmada, até o fim do serviço.',
+    CONTACT_IN_TEXT:
+      'Tire telefone, e-mail, links, @ e chave Pix do texto. O contato com o cliente acontece depois da compra, pelo pedido.',
     INTERNAL_ERROR: 'Algo deu errado. Tente novamente em instantes.',
     PROMO_INVALID: 'Cupom inválido para esta oferta.',
     PROMO_NOT_STARTED: 'Este cupom ainda não está valendo.',
@@ -487,6 +520,20 @@ export const bookingsPtBR: BookingsTranslation = {
 };
 
 export const bookingsEn: BookingsTranslation = {
+  contact: {
+    partnerButton: 'Message the partner',
+    partnerHint:
+      'Opens WhatsApp with a ready message quoting your booking number. Available until the service ends.',
+    buyerButton: "Customer's WhatsApp",
+    buyerAria: 'WhatsApp {{name}}',
+    noPhone: 'There is no phone for this booking.',
+    toBuyer:
+      'Hi, {{name}}! This is {{title}}, about your booking {{code}} on Use Guide for {{when}}.',
+    toBuyerNoName: 'Hi! This is {{title}}, about your booking {{code}} on Use Guide for {{when}}.',
+    toPartner: 'Hi! I have booking {{code}} on Use Guide: {{title}}, {{when}}.',
+    arrived: "Hi, {{name}}! I'm at the meeting point. Booking {{code}} on Use Guide.",
+    afterBooking: 'After booking, you can contact the partner from your order.',
+  },
   buyer: {
     panelTitle: 'Book',
     loading: 'Loading availability…',
@@ -723,6 +770,10 @@ export const bookingsEn: BookingsTranslation = {
     NAME_CHANGE_NOT_ALLOWED:
       'The name on this entry was already changed or changes are closed (up to 24 h before).',
     CLAIM_ALREADY_EXISTS: 'There is already a claim for this purchase.',
+    CONTACT_UNAVAILABLE:
+      'Contact is only available for confirmed bookings, until the service ends.',
+    CONTACT_IN_TEXT:
+      'Remove phone numbers, emails, links, @ handles and Pix keys from the text. You talk to customers after the purchase, through the order.',
     INTERNAL_ERROR: 'Something went wrong. Please try again shortly.',
     PROMO_INVALID: 'Invalid promo code for this offer.',
     PROMO_NOT_STARTED: 'This promo code is not valid yet.',
@@ -733,6 +784,22 @@ export const bookingsEn: BookingsTranslation = {
 };
 
 export const bookingsFr: BookingsTranslation = {
+  contact: {
+    partnerButton: 'Écrire au partenaire',
+    partnerHint:
+      'Ouvre WhatsApp avec un message prêt indiquant le numéro de réservation. Disponible jusqu’à la fin de la prestation.',
+    buyerButton: 'WhatsApp du client',
+    buyerAria: 'WhatsApp de {{name}}',
+    noPhone: 'Aucun téléphone pour cette réservation.',
+    toBuyer:
+      'Bonjour {{name}} ! Ici {{title}}, au sujet de votre réservation {{code}} sur Use Guide pour le {{when}}.',
+    toBuyerNoName:
+      'Bonjour ! Ici {{title}}, au sujet de votre réservation {{code}} sur Use Guide pour le {{when}}.',
+    toPartner: 'Bonjour ! J’ai la réservation {{code}} sur Use Guide : {{title}}, {{when}}.',
+    arrived:
+      'Bonjour {{name}} ! Je suis au point de rendez-vous. Réservation {{code}} sur Use Guide.',
+    afterBooking: 'Après la réservation, vous contactez le partenaire depuis votre commande.',
+  },
   buyer: {
     panelTitle: 'Réserver',
     loading: 'Chargement des disponibilités…',
@@ -976,6 +1043,10 @@ export const bookingsFr: BookingsTranslation = {
     NAME_CHANGE_NOT_ALLOWED:
       'Le nom de cette entrée a déjà été changé ou le délai est passé (jusqu’à 24 h avant).',
     CLAIM_ALREADY_EXISTS: 'Une réclamation existe déjà pour cet achat.',
+    CONTACT_UNAVAILABLE:
+      'Le contact n’est disponible que pour une réservation confirmée, jusqu’à la fin de la prestation.',
+    CONTACT_IN_TEXT:
+      'Retirez téléphone, e-mail, liens, @ et clé Pix du texte. Le contact avec le client se fait après l’achat, via la commande.',
     INTERNAL_ERROR: 'Un problème est survenu. Réessayez dans un instant.',
     PROMO_INVALID: 'Code promo invalide pour cette offre.',
     PROMO_NOT_STARTED: 'Ce code promo n’est pas encore valable.',

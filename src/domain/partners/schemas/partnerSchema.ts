@@ -1,6 +1,8 @@
 import { z } from 'zod';
+import { findContactsInText } from '../../../shared/utils/contactInText';
 import { isBrState } from '../../../shared/utils/timeZones';
 import type { UserSession } from '../../auth';
+import { listingSellsThroughApp } from '../utils/listingSells';
 
 // Categoria do primeiro cadastro na inscrição; `producer` cria o perfil de produtor de eventos.
 const partnerCategorySchema = z.enum([
@@ -14,6 +16,13 @@ const partnerCategorySchema = z.enum([
 ]);
 
 // Mensagens são chaves de tradução (§12.5); o formulário mostra `t(message)`.
+
+const CONTACT_IN_TEXT = 'partnerSignup.errors.contactInText';
+
+/** C2/B37: anúncio que vende pelo app não aceita contato nem chave Pix no texto (o servidor também confere). */
+function hasContact(category: string, text: string | undefined, sightAccess?: string): boolean {
+  return listingSellsThroughApp(category, sightAccess) && findContactsInText(text ?? '').length > 0;
+}
 export const step1Schema = z
   .object({
     category: z.string().min(1, 'partnerSignup.errors.categoryRequired'),
@@ -37,6 +46,12 @@ export const step1Schema = z
           code: z.ZodIssueCode.custom,
           path: ['description'],
           message: 'partnerSignup.errors.descriptionRequired',
+        });
+      } else if (hasContact(data.category, data.description)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['description'],
+          message: CONTACT_IN_TEXT,
         });
       } else if (data.description.length > 400) {
         ctx.addIssue({
@@ -124,6 +139,8 @@ export const step3Schema = z
     sightActivities: z.array(z.string()).optional().default([]),
     tourDurationHours: z.string().optional().default(''),
     meetingPoint: z.string().optional().default(''),
+    itinerary: z.string().optional().default(''),
+    luggageInfo: z.string().optional().default(''),
     transferRoutes: z
       .array(z.object({ from: z.string(), to: z.string() }))
       .optional()
@@ -137,6 +154,11 @@ export const step3Schema = z
     const require = (ok: boolean, path: string, message: string) => {
       if (!ok) ctx.addIssue({ code: z.ZodIssueCode.custom, path: [path], message });
     };
+    for (const field of ['itinerary', 'meetingPoint', 'luggageInfo'] as const) {
+      if (hasContact(data.category, data[field])) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: [field], message: CONTACT_IN_TEXT });
+      }
+    }
     if (data.category === 'tour') {
       const hours = Number(data.tourDurationHours.replace(',', '.'));
       require(Number.isFinite(hours) &&

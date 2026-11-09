@@ -11,6 +11,8 @@ import { getPartnerSlotDetailUseCase } from '../../application/usecases/getPartn
 import { rescheduleSlotUseCase } from '../../application/usecases/rescheduleSlotUseCase';
 import type { PartnerSlot, PartnerSlotDetail } from '../../types/bookings';
 import { getBookingErrorMessage } from '../../utils/bookingErrorMessage';
+import { bookingReference } from '../../utils/bookingReference';
+import { BookingWhatsAppButton } from '../BookingWhatsAppButton';
 import { SlotCancelDialog } from './SlotCancelDialog';
 import { SlotCheckInSheet } from './SlotCheckInSheet';
 import { SlotRescheduleDialog } from './SlotRescheduleDialog';
@@ -42,6 +44,7 @@ export function PartnerSlotSheet({
   const [checkingIn, setCheckingIn] = useState(startAtCheckIn);
   const [rescheduling, setRescheduling] = useState<PartnerSlot | null>(null);
   const [canceling, setCanceling] = useState<PartnerSlot | null>(null);
+  const [contactError, setContactError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setError(false);
@@ -111,8 +114,11 @@ export function PartnerSlotSheet({
             {detail.bookings.length > 0 && (
               <ul className={`${BLOCK} divide-y divide-line overflow-hidden`}>
                 {detail.bookings.map((booking) => (
-                  <li key={booking.id} className="px-4 py-3 flex justify-between gap-3 text-[14px]">
-                    <span className="min-w-0 text-ink font-semibold truncate">
+                  <li
+                    key={booking.id}
+                    className="px-4 py-2.5 flex items-center justify-between gap-3 text-[14px]"
+                  >
+                    <span className="flex-1 min-w-0 text-ink font-semibold truncate">
                       {booking.buyerName ?? t('bookings.slotSheet.noName')} ·{' '}
                       {t('bookings.slotSheet.units', { count: booking.units })}
                     </span>
@@ -123,10 +129,36 @@ export function PartnerSlotSheet({
                     ) : (
                       <StatusText tone="muted">{t('bookings.slotSheet.statusWaiting')}</StatusText>
                     )}
+                    {slot.status === 'open' && (
+                      <BookingWhatsAppButton
+                        iconOnly
+                        bookingId={booking.id}
+                        label={t('bookings.contact.buyerButton')}
+                        ariaLabel={t('bookings.contact.buyerAria', {
+                          name: booking.buyerName ?? t('bookings.slotSheet.noName'),
+                        })}
+                        message={
+                          booking.buyerName
+                            ? t('bookings.contact.toBuyer', {
+                                name: booking.buyerName,
+                                title: detail.offer.title,
+                                code: bookingReference(booking.id),
+                                when,
+                              })
+                            : t('bookings.contact.toBuyerNoName', {
+                                title: detail.offer.title,
+                                code: bookingReference(booking.id),
+                                when,
+                              })
+                        }
+                        onError={setContactError}
+                      />
+                    )}
                   </li>
                 ))}
               </ul>
             )}
+            {contactError && <StatusText tone="warn">{contactError}</StatusText>}
             {slot.status === 'open' && (
               <>
                 <button

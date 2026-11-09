@@ -98,6 +98,7 @@ export interface PartnerSignupTranslation {
   };
   success: { title: string; text: string; openPanel: string; later: string };
   step2: {
+    phonePrivate: string;
     phone: string;
     instagram: string;
     instagramPlaceholder: string;
@@ -176,6 +177,7 @@ export const partnerSignupPtBR: PartnerSignupTranslation = {
     producer: 'Eventos',
   },
   step2: {
+    phonePrivate: 'Fica só com a plataforma: o cliente recebe depois da compra, pelo pedido.',
     phone: 'Telefone ou WhatsApp',
     instagram: 'Instagram',
     instagramPlaceholder: '@seunegocio',
@@ -297,6 +299,7 @@ export const partnerSignupEn: PartnerSignupTranslation = {
     producer: 'Events',
   },
   step2: {
+    phonePrivate: 'Kept by the platform only: customers get it after booking, through the order.',
     phone: 'Phone or WhatsApp',
     instagram: 'Instagram',
     instagramPlaceholder: '@yourbusiness',
@@ -420,6 +423,7 @@ export const partnerSignupFr: PartnerSignupTranslation = {
     producer: 'Événements',
   },
   step2: {
+    phonePrivate: 'Gardé par la plateforme : le client le reçoit après l’achat, via la commande.',
     phone: 'Téléphone ou WhatsApp',
     instagram: 'Instagram',
     instagramPlaceholder: '@votreactivite',

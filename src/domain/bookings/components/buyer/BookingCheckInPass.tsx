@@ -115,7 +115,7 @@ export function BookingCheckInPass({ booking }: { booking: BookingSummary }) {
           </p>
           <p className="flex items-start gap-2 text-[13px] text-warn">
             <ShieldAlert size={16} className="shrink-0 mt-px" aria-hidden="true" />
-            {t('serviceProof.pass.warning')}
+            {t(entry ? 'serviceProof.pass.entryWarning' : 'serviceProof.pass.warning')}
           </p>
         </>
       )}
