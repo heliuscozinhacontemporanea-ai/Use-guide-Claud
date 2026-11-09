@@ -238,6 +238,16 @@ describe('Firestore Rules — Security Suite', () => {
       await assertFails(getDoc(doc(db, 'notifications/notif-1')));
     });
 
+    it('itemContacts (C2/B37): telefone privado negado até para o dono e admin', async () => {
+      const adminDb = testEnv.authenticatedContext('admin-user', { admin: true }).firestore();
+      const ownerDb = testEnv.authenticatedContext('partner-1').firestore();
+      const anonDb = testEnv.unauthenticatedContext().firestore();
+      for (const db of [adminDb, ownerDb, anonDb]) {
+        await assertFails(getDoc(doc(db, 'itemContacts/item-1')));
+        await assertFails(setDoc(doc(db, 'itemContacts/item-2'), { phone: '+5588999990000' }));
+      }
+    });
+
     it('client → transactions read denied (server-only)', async () => {
       const db = testEnv.authenticatedContext('user-1').firestore();
       await assertFails(getDoc(doc(db, 'transactions/tx-1')));

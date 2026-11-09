@@ -1,13 +1,10 @@
 import { Response } from 'express';
 import { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
-import { guideService } from '../factory';
-import { GuideDomainError } from '../errors/guideDomainError';
-import {
-  createItemSchema,
-  updateItemSchema,
-} from '../schemas/guideSchema';
 import { CreateGuideItemDTO } from '../dtos/createGuideItemDTO';
 import { UpdateGuideItemDTO } from '../dtos/updateGuideItemDTO';
+import { GuideDomainError } from '../errors/guideDomainError';
+import { guideService } from '../factory';
+import { createItemSchema, updateItemSchema } from '../schemas/guideSchema';
 
 function handleError(res: Response, error: unknown): Response {
   if (error instanceof GuideDomainError) {
@@ -24,6 +21,10 @@ function handleError(res: Response, error: unknown): Response {
       case 'NOT_FOUND':
         return res.status(404).json({
           error: error.message,
+        });
+      case 'CONTACT_IN_TEXT':
+        return res.status(422).json({
+          error: { code: error.code, message: error.message, ...error.details },
         });
     }
   }

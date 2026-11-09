@@ -1,8 +1,19 @@
+import { findContactsInText } from '../../../shared/kernel/contactInText';
 import { getVerifiedServiceForReviewUseCase } from '../../bookings';
 import { getVerifiedAttendanceForReviewUseCase } from '../../ticketing';
 import { CreateReviewDTO } from '../dtos/CreateReviewDTO';
 import { ReviewNotificationPort } from '../ports/reviewNotificationPort';
 import { ReviewPort } from '../ports/reviewPort';
+
+/** Resposta do parceiro com contato escrito (C2/B37): o controller devolve 422 com este código. */
+export class ReviewContactInTextError extends Error {
+  readonly code = 'CONTACT_IN_TEXT';
+
+  constructor() {
+    super('Tire telefone, e-mail, links, @ e chave Pix da resposta.');
+    this.name = 'ReviewContactInTextError';
+  }
+}
 
 export class ReviewService {
   constructor(
@@ -82,6 +93,10 @@ export class ReviewService {
     }
     if (!response.trim()) {
       throw new Error('Conteúdo da resposta é obrigatório');
+    }
+    // A resposta é pública: sem telefone, e-mail, link, @ nem chave Pix (C2/B37).
+    if (findContactsInText(response).length > 0) {
+      throw new ReviewContactInTextError();
     }
 
     const { authorId, itemName } = await this.reviewPort.respondToReview(

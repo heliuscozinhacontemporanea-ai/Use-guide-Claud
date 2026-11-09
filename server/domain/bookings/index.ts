@@ -11,6 +11,7 @@ export type {
 } from './services/bookingCheckInService';
 export type { EntryCheckInInput, EntryPass, EntryPassView } from './services/bookingEntryService';
 export type {
+  BookingContactTarget,
   BookingDetails,
   BuyerCancellationResult,
   CreatePendingBookingInput,
@@ -79,6 +80,7 @@ export { markBookingDisputedUseCase } from './usecases/markBookingDisputedUseCas
 export { markBookingNoShowUseCase } from './usecases/markBookingNoShowUseCase';
 export { markBookingPaymentFailedUseCase } from './usecases/markBookingPaymentFailedUseCase';
 export { markBookingRefundedUseCase } from './usecases/markBookingRefundedUseCase';
+export { openBookingContactUseCase } from './usecases/openBookingContactUseCase';
 export { recordProviderAbsenceUseCase } from './usecases/recordProviderAbsenceUseCase';
 export { recordProviderArrivalUseCase } from './usecases/recordProviderArrivalUseCase';
 export { recordSlotArrivalUseCase } from './usecases/recordSlotArrivalUseCase';

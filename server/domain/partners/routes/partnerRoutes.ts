@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { PartnerContentController } from '../controllers/partnerContentController';
 import { verifyAdminToken, verifyAuthToken } from '../../../infrastructure/auth/authMiddleware';
 import { resolveGuideContext } from '../../../infrastructure/auth/guideContextMiddleware';
+import { PartnerContentController } from '../controllers/partnerContentController';
 import { PartnerController } from '../controllers/partnerController';
 
 const router = Router();
@@ -13,6 +13,12 @@ router.patch('/status', verifyAdminToken, PartnerController.updateStatus);
 
 router.post('/items', verifyAuthToken, resolveGuideContext, PartnerContentController.createItem);
 router.put('/items/:id', verifyAuthToken, resolveGuideContext, PartnerContentController.updateItem);
+router.get(
+  '/items/:id/contact',
+  verifyAuthToken,
+  resolveGuideContext,
+  PartnerContentController.getItemContact
+);
 router.delete(
   '/items/:id',
   verifyAuthToken,

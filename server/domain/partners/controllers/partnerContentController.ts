@@ -12,6 +12,7 @@ import { updatePartnerEventApplicationUseCase } from '../../../application/useca
 import { updatePartnerItemApplicationUseCase } from '../../../application/usecases/updatePartnerItemApplicationUseCase';
 import type { AuthenticatedRequest } from '../../../infrastructure/auth/authMiddleware';
 import { createEventOccurrenceUseCase, EventHasSalesError } from '../../events';
+import { getOwnGuideItemContactUseCase } from '../../guide';
 import {
   getEventSalesAnalyticsUseCase,
   listEventCheckInsForPartnerOrAdminUseCase,
@@ -52,6 +53,17 @@ function sendControllerError(res: Response, error: unknown, fallbackMessage: str
   if (code === 'NOT_FOUND') {
     return res.status(404).json({
       error: error instanceof Error ? error.message : 'Recurso não encontrado',
+    });
+  }
+  if (code === 'CONTACT_IN_TEXT') {
+    // Campo e trechos achados, para o formulário marcar o campo (C2/B37).
+    const details = (error as { details?: { field: string; found: string[] } }).details;
+    return res.status(422).json({
+      error: {
+        code,
+        message: error instanceof Error ? error.message : 'Contato no texto',
+        ...details,
+      },
     });
   }
   if (error instanceof EventHasSalesError) {
@@ -109,6 +121,19 @@ export class PartnerContentController {
       return res.status(200).json({ status: 'success', message: 'Item atualizado com sucesso' });
     } catch (error: unknown) {
       return sendControllerError(res, error, 'Erro ao atualizar item do parceiro');
+    }
+  }
+
+  static async getItemContact(req: AuthenticatedRequest, res: Response) {
+    try {
+      const user = requireGuideContext(req);
+      const rawId = req.params.id;
+      const id = Array.isArray(rawId) ? rawId[0] : rawId;
+      if (!id) return res.status(400).json({ error: 'ID é obrigatório' });
+      const contact = await getOwnGuideItemContactUseCase(user, id);
+      return res.status(200).json({ phone: contact.phone ?? null });
+    } catch (error: unknown) {
+      return sendControllerError(res, error, 'Erro ao ler o contato do item');
     }
   }
 

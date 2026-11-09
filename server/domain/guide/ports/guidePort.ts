@@ -12,6 +12,11 @@ export interface GuideVerificationUpdate {
   isVerificationSuspended: boolean;
 }
 
+/** Contato privado do anúncio que vende pelo app (C2/B37): só o servidor lê. */
+export interface GuideItemContact {
+  phone?: string;
+}
+
 export interface GuidePort {
   createItem(
     data: GuideCreateItemInput & {
@@ -34,4 +39,7 @@ export interface GuidePort {
   getAllItems(): Promise<GuideItemRecord[]>;
   /** Estabelecimentos e itens de um dono (painel do parceiro, D27). */
   listItemsByOwner(ownerId: string): Promise<GuideItemRecord[]>;
+  getItemContact(itemId: string): Promise<GuideItemContact | null>;
+  setItemContact(itemId: string, contact: GuideItemContact): Promise<void>;
+  deleteItemContact(itemId: string): Promise<void>;
 }

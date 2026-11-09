@@ -353,6 +353,13 @@ describe('ReviewService', () => {
       );
     });
 
+    it('recusa resposta com contato ou chave Pix (C2/B37)', async () => {
+      await expect(
+        service.respondToReview('review-1', 'Fale com a gente: @buggydoprea', 'partner-1')
+      ).rejects.toMatchObject({ code: 'CONTACT_IN_TEXT' });
+      expect(reviewPort.respondToReview).not.toHaveBeenCalled();
+    });
+
     it('deve chamar reviewPort com parâmetros normalizados', async () => {
       await service.respondToReview('review-1', '  Obrigado pelo feedback!  ', 'partner-1', false);
 

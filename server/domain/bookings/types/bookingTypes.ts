@@ -226,7 +226,8 @@ export interface Booking {
   pickupAddress?: string;
   /**
    * Telefone do cliente (E.164), pedido na compra de passeio, aluguel e translado (D27). Confidencial
-   * (§7.6): o parceiro vê só depois do "Cheguei" e só enquanto o cliente não usou o código.
+   * (§7.6): o parceiro abre no "Cheguei" ou pelo WhatsApp da ficha da reserva (C2/B37), só com a
+   * reserva confirmada e até o fim do serviço, sempre com auditoria; nunca aparece escrito na tela.
    */
   contactPhone?: string;
   /** Quando endereço de busca e telefone são apagados: 7 dias depois do fim do serviço (D20, D27, §7.5). */

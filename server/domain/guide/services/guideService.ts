@@ -1,7 +1,8 @@
+import { AuthenticatedUserContext } from '../../../application/security/authenticatedUserContext';
+import { findContactsInText } from '../../../shared/kernel/contactInText';
 import { type BrState, timeZoneForBrazilianCity } from '../../../shared/kernel/timeZones';
 import { GuideDomainError } from '../errors/guideDomainError';
-import { GuidePort, GuideVerificationUpdate } from '../ports/guidePort';
-import { AuthenticatedUserContext } from '../../../application/security/authenticatedUserContext';
+import { GuideItemContact, GuidePort, GuideVerificationUpdate } from '../ports/guidePort';
 import { GuideCreateItemInput, GuideUpdateItemInput } from '../types/guideTypes';
 
 const ADMIN_CREATABLE_ITEM_CATEGORIES = ['sight', 'tour', 'tips'] as const;
@@ -69,6 +70,53 @@ function ensureOwnership(user: AuthenticatedUserContext, ownerId: string): void 
   }
 }
 
+/**
+ * Anúncios que vendem pelo app (C2/B37, aprovado em 2026-11-09): o telefone fica num documento só do
+ * servidor, sem Instagram, site nem link de reserva, e o texto não pode trazer contato. A vitrine
+ * (hospedagem, restaurante, atração sem venda) continua com o contato no anúncio.
+ */
+const SELLING_CATEGORIES = ['tour', 'transfer', 'rental', 'producer'] as const;
+
+/** Atração com entrada paga vende pelo app (entrada privada, D9); a gratuita é vitrine. */
+export function sellsThroughApp(category: string | undefined, access?: string): boolean {
+  return (
+    SELLING_CATEGORIES.includes(category as never) || (category === 'sight' && access === 'pago')
+  );
+}
+
+type ContactFields = Pick<
+  GuideCreateItemInput,
+  'phone' | 'instagramLink' | 'websiteLink' | 'bookingLink'
+>;
+
+/** Separa o que vai para o anúncio público do que fica no contato privado. */
+function splitContact<T extends ContactFields>(data: T): { item: T; contact: GuideItemContact } {
+  const { phone, instagramLink: _i, websiteLink: _w, bookingLink: _b, ...item } = data;
+  return { item: item as T, contact: phone === undefined ? {} : { phone } };
+}
+
+function ensureNoContactInText(data: {
+  description?: string;
+  operationalInfo?: GuideCreateItemInput['operationalInfo'];
+}): void {
+  const fields: Array<[string, string | undefined]> = [
+    ['description', data.description],
+    ['itinerary', data.operationalInfo?.itinerary],
+    ['meetingPoint', data.operationalInfo?.meetingPoint],
+    ['luggageInfo', data.operationalInfo?.luggageInfo],
+  ];
+  for (const [field, text] of fields) {
+    const found = findContactsInText(text ?? '');
+    if (found.length > 0) {
+      throw new GuideDomainError(
+        'CONTACT_IN_TEXT',
+        'Tire telefone, e-mail, links, @ e chave Pix do texto.',
+        { field, found }
+      );
+    }
+  }
+}
+
 /** Fuso do lugar (D28): só com estado e cidade; o cliente nunca manda o fuso. */
 function placeTimeZone(place: { state?: BrState; city?: string }): { timeZone?: string } {
   return place.state && place.city?.trim()
@@ -85,12 +133,24 @@ export class GuideService {
   ): Promise<string> {
     ensureCanManageGuide(user);
     ensureCreateItemCategory(user, data.category);
-    return this.guidePort.createItem({
-      ...data,
+    if (!sellsThroughApp(data.category, data.operationalInfo?.access)) {
+      return this.guidePort.createItem({
+        ...data,
+        ...placeTimeZone(data),
+        ownerId: user.uid,
+        isActive: data.isActive ?? true,
+      });
+    }
+    ensureNoContactInText(data);
+    const { item, contact } = splitContact(data);
+    const id = await this.guidePort.createItem({
+      ...item,
       ...placeTimeZone(data),
       ownerId: user.uid,
       isActive: data.isActive ?? true,
     });
+    if (contact.phone) await this.guidePort.setItemContact(id, contact);
+    return id;
   }
 
   async updateItem(
@@ -109,7 +169,37 @@ export class GuideService {
       data.state !== undefined || data.city !== undefined
         ? placeTimeZone({ state: data.state ?? existing.state, city: data.city ?? existing.city })
         : {};
-    await this.guidePort.updateItem(id, { ...data, ...place });
+    const access = (data.operationalInfo ?? existing.operationalInfo)?.access;
+    if (!sellsThroughApp(data.category ?? existing.category, access)) {
+      await this.guidePort.updateItem(id, { ...data, ...place });
+      return;
+    }
+    ensureNoContactInText(data);
+    const { item, contact } = splitContact(data);
+    await this.guidePort.updateItem(id, { ...item, ...place });
+    if (data.phone !== undefined) await this.guidePort.setItemContact(id, contact);
+  }
+
+  /**
+   * Telefone do anúncio para o próprio dono (editor) ou para quem o servidor já autorizou (pedido
+   * pago, C2). Anúncio de vitrine devolve o telefone público.
+   */
+  async getItemContact(id: string): Promise<GuideItemContact | null> {
+    ensureValidId(id);
+    const item = await this.guidePort.getItemById(id);
+    if (!item) return null;
+    if (!sellsThroughApp(item.category, item.operationalInfo?.access)) {
+      return item.phone ? { phone: item.phone } : {};
+    }
+    return (await this.guidePort.getItemContact(id)) ?? {};
+  }
+
+  async getOwnItemContact(user: AuthenticatedUserContext, id: string): Promise<GuideItemContact> {
+    ensureValidId(id);
+    const item = await this.guidePort.getItemById(id);
+    if (!item) throw new GuideDomainError('NOT_FOUND', 'Item não encontrado');
+    ensureOwnership(user, item.ownerId);
+    return (await this.getItemContact(id)) ?? {};
   }
 
   async deleteItem(user: AuthenticatedUserContext, id: string): Promise<void> {

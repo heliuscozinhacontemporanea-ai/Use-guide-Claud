@@ -440,4 +440,50 @@ describe('BookingService', () => {
     const booking = await service.createPendingBooking(BUYER, INPUT, FEES);
     expect(booking.offerSnapshot.requiresParticipantNames).toBe(true);
   });
+
+  describe('contato depois da compra (C2/B37)', () => {
+    const SELLER = { uid: 'partner-1', admin: false };
+
+    async function paid() {
+      const ctx = setup();
+      const booking = await ctx.service.createPendingBooking(BUYER, INPUT, FEES);
+      await ctx.service.confirmBookingPayment(booking.id, 'pi_1');
+      return { ...ctx, booking };
+    }
+
+    it('comprador abre o contato do parceiro e parceiro o do comprador, com auditoria', async () => {
+      const { service, port, booking } = await paid();
+      await expect(service.openContact(BUYER, booking.id)).resolves.toEqual({
+        counterpart: 'partner',
+        guideItemId: booking.guideItemId,
+      });
+      await expect(service.openContact(SELLER, booking.id)).resolves.toEqual({
+        counterpart: 'buyer',
+        phone: '+5588998123456',
+      });
+      expect(port.audit.map((entry) => entry.reason)).toEqual(
+        expect.arrayContaining(['partner_contact_opened', 'buyer_contact_opened'])
+      );
+    });
+
+    it('sem pagamento confirmado ou depois do serviço, não há contato', async () => {
+      const ctx = setup();
+      const pending = await ctx.service.createPendingBooking(BUYER, INPUT, FEES);
+      await expect(ctx.service.openContact(BUYER, pending.id)).rejects.toMatchObject({
+        code: 'CONTACT_UNAVAILABLE',
+      });
+      const { service, booking, setNow } = await paid();
+      setNow('2026-11-11T00:00:00.000Z');
+      await expect(service.openContact(BUYER, booking.id)).rejects.toMatchObject({
+        code: 'CONTACT_UNAVAILABLE',
+      });
+    });
+
+    it('outra pessoa não acha a reserva (IDOR)', async () => {
+      const { service, booking } = await paid();
+      await expect(
+        service.openContact({ uid: 'intruso', admin: false }, booking.id)
+      ).rejects.toMatchObject({ code: 'NOT_FOUND' });
+    });
+  });
 });

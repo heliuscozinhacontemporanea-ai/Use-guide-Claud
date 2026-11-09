@@ -16,6 +16,7 @@ bookingsRouter.get('/me', verifyAuthToken, BookingsController.listMine);
 bookingsRouter.get('/:bookingId', verifyAuthToken, BookingsController.get);
 bookingsRouter.get('/:bookingId/check-in-code', verifyAuthToken, BookingsController.getCheckInCode);
 bookingsRouter.get('/:bookingId/entry-pass', verifyAuthToken, BookingsController.getEntryPass);
+bookingsRouter.get('/:bookingId/contact', verifyAuthToken, BookingsController.getContact);
 bookingsRouter.put(
   '/:bookingId/participants/:unit',
   verifyAuthToken,

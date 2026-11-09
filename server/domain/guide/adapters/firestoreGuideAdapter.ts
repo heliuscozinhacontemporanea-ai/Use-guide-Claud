@@ -1,7 +1,10 @@
 import { FieldValue } from 'firebase-admin/firestore';
 import { adminDb } from '../../../infrastructure/firebase/adminClient';
-import { GuidePort, GuideVerificationUpdate } from '../ports/guidePort';
+import { GuideItemContact, GuidePort, GuideVerificationUpdate } from '../ports/guidePort';
 import { GuideCreateItemInput, GuideItemRecord, GuideUpdateItemInput } from '../types/guideTypes';
+
+// Só o servidor lê (rules `if false`): telefone de anúncio que vende pelo app (C2/B37).
+const CONTACTS = 'itemContacts';
 
 export class FirestoreGuideAdapter implements GuidePort {
   async createItem(
@@ -49,6 +52,7 @@ export class FirestoreGuideAdapter implements GuidePort {
 
   async deleteItem(id: string): Promise<void> {
     await adminDb.collection('items').doc(id).delete();
+    await adminDb.collection(CONTACTS).doc(id).delete();
   }
 
   async updateItemVerification(
@@ -83,8 +87,25 @@ export class FirestoreGuideAdapter implements GuidePort {
     const batch = adminDb.batch();
     itemsSnapshot.forEach((doc) => {
       batch.delete(doc.ref);
+      batch.delete(adminDb.collection(CONTACTS).doc(doc.id));
     });
     await batch.commit();
+  }
+
+  async getItemContact(itemId: string): Promise<GuideItemContact | null> {
+    const snapshot = await adminDb.collection(CONTACTS).doc(itemId).get();
+    return snapshot.exists ? (snapshot.data() as GuideItemContact) : null;
+  }
+
+  async setItemContact(itemId: string, contact: GuideItemContact): Promise<void> {
+    await adminDb
+      .collection(CONTACTS)
+      .doc(itemId)
+      .set({ ...contact, updatedAt: FieldValue.serverTimestamp() });
+  }
+
+  async deleteItemContact(itemId: string): Promise<void> {
+    await adminDb.collection(CONTACTS).doc(itemId).delete();
   }
 
   async listItemsByOwner(ownerId: string): Promise<GuideItemRecord[]> {

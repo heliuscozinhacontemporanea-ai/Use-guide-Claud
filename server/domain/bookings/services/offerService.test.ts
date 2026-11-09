@@ -47,6 +47,18 @@ function setup(item: Partial<BookableItem> | null = {}) {
 }
 
 describe('OfferService', () => {
+  it('recusa contato ou chave Pix nos textos da oferta (C2/B37)', async () => {
+    const { service } = setup();
+    await expect(
+      service.createOffer(OWNER, {
+        ...INPUT,
+        description: { 'pt-BR': 'Reserve pelo zap (88) 99999-0000' },
+        guideItemId: 'item-1',
+        kind: 'tour',
+      })
+    ).rejects.toMatchObject({ code: 'CONTACT_IN_TEXT' });
+  });
+
   it('cria oferta em rascunho com dono e parceiro vindos do item', async () => {
     const { service } = setup();
     const offer = await service.createOffer(OWNER, {
