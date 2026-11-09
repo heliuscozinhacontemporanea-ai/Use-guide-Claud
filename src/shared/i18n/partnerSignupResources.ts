@@ -15,7 +15,33 @@ export interface PartnerSignupTranslation {
     start: string;
     footnote: string;
   };
-  form: { title: string };
+  form: {
+    title: string;
+    step: string;
+    back: string;
+    next: string;
+    submit: string;
+    sending: string;
+  };
+  categories: {
+    hotel: string;
+    restaurant: string;
+    sight: string;
+    tour: string;
+    transfer: string;
+    rental: string;
+    producer: string;
+  };
+  step1: {
+    question: string;
+    lockedCategory: string;
+    nameLabel: string;
+    nameLabelProducer: string;
+    namePlaceholder: string;
+    descriptionLabel: string;
+    descriptionPlaceholder: string;
+    chooseFirst: string;
+  };
 }
 
 export const partnerSignupPtBR: PartnerSignupTranslation = {
@@ -34,7 +60,33 @@ export const partnerSignupPtBR: PartnerSignupTranslation = {
     start: 'Começar cadastro',
     footnote: 'O cadastro é rápido, e o painel mostra cada passo até você começar a vender.',
   },
-  form: { title: 'Cadastro de parceiro' },
+  form: {
+    title: 'Cadastro de parceiro',
+    step: '{{current}} de {{total}}',
+    back: 'Voltar',
+    next: 'Continuar',
+    submit: 'Enviar cadastro',
+    sending: 'Enviando…',
+  },
+  categories: {
+    hotel: 'Hospedagem',
+    restaurant: 'Restaurante',
+    sight: 'Atração',
+    tour: 'Passeios',
+    transfer: 'Translados',
+    rental: 'Aluguéis',
+    producer: 'Eventos',
+  },
+  step1: {
+    question: 'O que você oferece?',
+    lockedCategory: 'A categoria não muda depois do cadastro.',
+    nameLabel: 'Nome do negócio',
+    nameLabelProducer: 'Nome do produtor',
+    namePlaceholder: 'Ex.: Pousada Mar Azul',
+    descriptionLabel: 'Descrição',
+    descriptionPlaceholder: 'Conte o que torna seu negócio especial.',
+    chooseFirst: 'Escolha uma opção acima para continuar.',
+  },
 };
 
 export const partnerSignupEn: PartnerSignupTranslation = {
@@ -54,7 +106,33 @@ export const partnerSignupEn: PartnerSignupTranslation = {
     start: 'Start sign-up',
     footnote: 'Sign-up is quick, and the dashboard shows every step until you start selling.',
   },
-  form: { title: 'Partner sign-up' },
+  form: {
+    title: 'Partner sign-up',
+    step: '{{current}} of {{total}}',
+    back: 'Back',
+    next: 'Continue',
+    submit: 'Send sign-up',
+    sending: 'Sending…',
+  },
+  categories: {
+    hotel: 'Lodging',
+    restaurant: 'Restaurant',
+    sight: 'Attraction',
+    tour: 'Tours',
+    transfer: 'Transfers',
+    rental: 'Rentals',
+    producer: 'Events',
+  },
+  step1: {
+    question: 'What do you offer?',
+    lockedCategory: 'The category cannot change after sign-up.',
+    nameLabel: 'Business name',
+    nameLabelProducer: 'Producer name',
+    namePlaceholder: 'E.g. Pousada Mar Azul',
+    descriptionLabel: 'Description',
+    descriptionPlaceholder: 'Tell what makes your business special.',
+    chooseFirst: 'Choose an option above to continue.',
+  },
 };
 
 export const partnerSignupFr: PartnerSignupTranslation = {
@@ -76,5 +154,31 @@ export const partnerSignupFr: PartnerSignupTranslation = {
     footnote:
       'L’inscription est rapide, et le tableau de bord montre chaque étape jusqu’à vos premières ventes.',
   },
-  form: { title: 'Inscription partenaire' },
+  form: {
+    title: 'Inscription partenaire',
+    step: '{{current}} sur {{total}}',
+    back: 'Retour',
+    next: 'Continuer',
+    submit: 'Envoyer l’inscription',
+    sending: 'Envoi…',
+  },
+  categories: {
+    hotel: 'Hébergement',
+    restaurant: 'Restaurant',
+    sight: 'Attraction',
+    tour: 'Excursions',
+    transfer: 'Transferts',
+    rental: 'Locations',
+    producer: 'Événements',
+  },
+  step1: {
+    question: 'Que proposez-vous ?',
+    lockedCategory: 'La catégorie ne change plus après l’inscription.',
+    nameLabel: 'Nom de l’activité',
+    nameLabelProducer: 'Nom du producteur',
+    namePlaceholder: 'Ex. : Pousada Mar Azul',
+    descriptionLabel: 'Description',
+    descriptionPlaceholder: 'Dites ce qui rend votre activité spéciale.',
+    chooseFirst: 'Choisissez une option ci-dessus pour continuer.',
+  },
 };

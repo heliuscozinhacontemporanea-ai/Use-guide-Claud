@@ -1,9 +1,19 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Building2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useFormContext } from 'react-hook-form';
 import { cn } from '../../../../shared/utils/cn';
 import type { FormState } from '../../types/partsForm';
+import {
+  SIGNUP_CHOICE,
+  SIGNUP_CHOICE_OFF,
+  SIGNUP_CHOICE_ON,
+  SIGNUP_ERROR,
+  SIGNUP_HINT,
+  SIGNUP_INPUT,
+  SIGNUP_LABEL,
+  SIGNUP_TEXTAREA,
+} from '../sections/signupStyles';
 
 interface Category {
   id: string;
@@ -25,6 +35,7 @@ export function Step1CompanyInfo({
   categories,
   lockCategory = false,
 }: Step1CompanyInfoProps) {
+  const { t } = useTranslation();
   const formContext = useFormContext();
 
   const formData = formContext ? formContext.watch() : propFormData;
@@ -54,139 +65,101 @@ export function Step1CompanyInfo({
   };
 
   const isEventProducer = formData.category === 'producer';
+  const descriptionLength = (formData.description || '').length;
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-2">
-        <span className="p-2 rounded-xl bg-white/5 border border-white/10 text-indigo-400">
-          <Building2 size={18} />
-        </span>
-        <h3 className="text-sm font-black text-white uppercase tracking-widest">
-          Informações da Empresa
-        </h3>
-      </div>
-
-      <div className="space-y-6">
-        {/* Categoria - Apresentada primeiro */}
-        <div className="space-y-3">
-          <label className="text-[10px] font-black uppercase tracking-widest text-white/50 ml-1">
-            Selecione a Categoria de Cadastro <span className="text-red-500">*</span>
-          </label>
-          <div className="grid grid-cols-2 gap-2">
-            {categories.map((cat) => (
+    <div className="space-y-5">
+      <fieldset>
+        <legend className={SIGNUP_LABEL}>{t('partnerSignup.step1.question')}</legend>
+        <div className="grid grid-cols-2 gap-2">
+          {categories.map((cat) => {
+            const selected = formData.category === cat.id;
+            return (
               <button
                 key={cat.id}
                 type="button"
                 onClick={() => handleCategoryChange(cat.id)}
-                disabled={lockCategory && formData.category !== cat.id}
-                aria-pressed={formData.category === cat.id}
-                className={cn(
-                  'flex items-center gap-3 p-4 rounded-2xl border transition-all active:scale-95 cursor-pointer disabled:cursor-not-allowed disabled:opacity-40 disabled:active:scale-100',
-                  formData.category === cat.id
-                    ? 'bg-indigo-500/20 border-indigo-500 text-indigo-400 shadow-lg shadow-indigo-500/10'
-                    : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10 hover:border-white/20'
-                )}
+                disabled={lockCategory && !selected}
+                aria-pressed={selected}
+                className={cn(SIGNUP_CHOICE, selected ? SIGNUP_CHOICE_ON : SIGNUP_CHOICE_OFF)}
               >
-                <div
-                  className={cn(
-                    'w-8 h-8 rounded-xl flex items-center justify-center transition-colors',
-                    formData.category === cat.id ? 'bg-indigo-500/20' : 'bg-white/5'
-                  )}
-                >
-                  {cat.icon}
-                </div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-left leading-tight">
-                  {cat.label}
+                <span className={selected ? 'text-partner' : 'text-ink/70'}>{cat.icon}</span>
+                <span className="leading-tight">
+                  {t(`partnerSignup.categories.${cat.id}`, { defaultValue: cat.label })}
                 </span>
               </button>
-            ))}
-          </div>
-          {lockCategory && (
-            <p className="text-xs text-white/50 font-medium ml-1">
-              A categoria não pode ser alterada depois do cadastro.
-            </p>
-          )}
-          {formErrors.category && (
-            <p className="text-xs text-red-400 font-medium ml-1">
-              {formErrors.category.message?.toString()}
-            </p>
-          )}
+            );
+          })}
         </div>
+        {lockCategory && <p className={SIGNUP_HINT}>{t('partnerSignup.step1.lockedCategory')}</p>}
+        {formErrors.category && (
+          <p className={SIGNUP_ERROR}>{formErrors.category.message?.toString()}</p>
+        )}
+      </fieldset>
 
-        {/* Informações liberadas após selecionar a categoria */}
-        {formData.category ? (
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className="space-y-6 pt-2 border-t border-white/5"
-          >
-            {/* Nome da Empresa */}
-            <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-widest text-white/50 ml-1">
-                {isEventProducer ? 'Nome do Produtor' : 'Nome da Empresa'}{' '}
-                <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                value={formData.businessName || ''}
-                onChange={(e) => handleBusinessNameChange(e.target.value)}
-                placeholder="Ex: Pousada Mar Azul ou Produções Ceará"
-                maxLength={100}
-                className={cn(
-                  'w-full bg-white/5 border rounded-2xl px-5 py-4 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all placeholder:text-white/50',
-                  formErrors.businessName ? 'border-red-500/50' : 'border-white/10'
-                )}
+      {formData.category ? (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2 }}
+          className="space-y-4"
+        >
+          <div>
+            <label htmlFor="signup-business-name" className={SIGNUP_LABEL}>
+              {t(
+                isEventProducer
+                  ? 'partnerSignup.step1.nameLabelProducer'
+                  : 'partnerSignup.step1.nameLabel'
+              )}
+            </label>
+            <input
+              id="signup-business-name"
+              type="text"
+              value={formData.businessName || ''}
+              onChange={(e) => handleBusinessNameChange(e.target.value)}
+              placeholder={t('partnerSignup.step1.namePlaceholder')}
+              maxLength={100}
+              aria-invalid={Boolean(formErrors.businessName)}
+              className={cn(SIGNUP_INPUT, formErrors.businessName && 'border-danger-line')}
+            />
+            {formErrors.businessName && (
+              <p className={SIGNUP_ERROR}>{formErrors.businessName.message?.toString()}</p>
+            )}
+          </div>
+
+          {!isEventProducer && (
+            <div>
+              <div className="flex items-baseline justify-between">
+                <label htmlFor="signup-description" className={SIGNUP_LABEL}>
+                  {t('partnerSignup.step1.descriptionLabel')}
+                </label>
+                <span
+                  className={cn(
+                    'px-1 text-[13px] tabular-nums',
+                    descriptionLength > 380 ? 'text-danger' : 'text-ink/60'
+                  )}
+                >
+                  {descriptionLength}/400
+                </span>
+              </div>
+              <textarea
+                id="signup-description"
+                value={formData.description || ''}
+                onChange={(e) => handleDescriptionChange(e.target.value)}
+                placeholder={t('partnerSignup.step1.descriptionPlaceholder')}
+                rows={4}
+                aria-invalid={Boolean(formErrors.description)}
+                className={cn(SIGNUP_TEXTAREA, formErrors.description && 'border-danger-line')}
               />
-              {formErrors.businessName && (
-                <p className="text-xs text-red-400 font-medium ml-1">
-                  {formErrors.businessName.message?.toString()}
-                </p>
+              {formErrors.description && (
+                <p className={SIGNUP_ERROR}>{formErrors.description.message?.toString()}</p>
               )}
             </div>
-
-            {/* Descrição - Removida para produtor de eventos */}
-            {!isEventProducer && (
-              <div className="space-y-2">
-                <div className="flex justify-between items-center px-1">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-white/50">
-                    Descrição da Empresa <span className="text-red-500">*</span>
-                  </label>
-                  <span
-                    className={cn(
-                      'text-[10px] font-bold',
-                      (formData.description || '').length > 380 ? 'text-red-400' : 'text-white/50'
-                    )}
-                  >
-                    {(formData.description || '').length}/400
-                  </span>
-                </div>
-                <textarea
-                  value={formData.description || ''}
-                  onChange={(e) => handleDescriptionChange(e.target.value)}
-                  placeholder="Conte um pouco sobre os diferenciais do seu negócio..."
-                  rows={4}
-                  className={cn(
-                    'w-full bg-white/5 border rounded-2xl px-5 py-4 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all placeholder:text-white/50 resize-none no-scrollbar font-medium',
-                    formErrors.description ? 'border-red-500/50' : 'border-white/10'
-                  )}
-                />
-                {formErrors.description && (
-                  <p className="text-xs text-red-400 font-medium ml-1">
-                    {formErrors.description.message?.toString()}
-                  </p>
-                )}
-              </div>
-            )}
-          </motion.div>
-        ) : (
-          <div className="text-center py-6 px-4 rounded-[2rem] bg-white/[0.01] border border-dashed border-white/5">
-            <p className="text-[10px] text-white/50 font-black uppercase tracking-widest">
-              Selecione acima para liberar os campos de preenchimento
-            </p>
-          </div>
-        )}
-      </div>
+          )}
+        </motion.div>
+      ) : (
+        <p className={SIGNUP_HINT}>{t('partnerSignup.step1.chooseFirst')}</p>
+      )}
     </div>
   );
 }
