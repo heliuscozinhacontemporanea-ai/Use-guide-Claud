@@ -7,6 +7,8 @@ export interface PartnersTranslation {
     cityPlaceholder: string;
     region: string;
     regionPlaceholder: string;
+    address: string;
+    addressPlaceholder: string;
     required: string;
   };
   items: {
@@ -22,6 +24,8 @@ export const partnersPtBR: PartnersTranslation = {
     cityPlaceholder: 'Ex.: Jijoca de Jericoacoara',
     region: 'Região / Bairro',
     regionPlaceholder: 'Bairro, praia ou região',
+    address: 'Endereço',
+    addressPlaceholder: 'CEP, rua e número',
     required: 'Informe o estado e a cidade',
   },
   items: {
@@ -37,6 +41,8 @@ export const partnersEn: PartnersTranslation = {
     cityPlaceholder: 'E.g. Jijoca de Jericoacoara',
     region: 'Area / Neighborhood',
     regionPlaceholder: 'Neighborhood, beach or area',
+    address: 'Address',
+    addressPlaceholder: 'Postal code, street and number',
     required: 'Enter the state and the city',
   },
   items: {
@@ -52,6 +58,8 @@ export const partnersFr: PartnersTranslation = {
     cityPlaceholder: 'Ex. : Jijoca de Jericoacoara',
     region: 'Région / Quartier',
     regionPlaceholder: 'Quartier, plage ou région',
+    address: 'Adresse',
+    addressPlaceholder: 'Code postal, rue et numéro',
     required: "Indiquez l'État et la ville",
   },
   items: {

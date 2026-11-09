@@ -64,6 +64,16 @@ export interface PartnerSignupTranslation {
     termsHint: string;
   };
   success: { title: string; text: string; openPanel: string; later: string };
+  step2: {
+    phone: string;
+    instagram: string;
+    instagramPlaceholder: string;
+    website: string;
+    booking: string;
+    bookingPlaceholder: string;
+    maps: string;
+    mapsPlaceholder: string;
+  };
   step1: {
     question: string;
     lockedCategory: string;
@@ -108,6 +118,16 @@ export const partnerSignupPtBR: PartnerSignupTranslation = {
     transfer: 'Translados',
     rental: 'Aluguéis',
     producer: 'Eventos',
+  },
+  step2: {
+    phone: 'Telefone ou WhatsApp',
+    instagram: 'Instagram',
+    instagramPlaceholder: '@seunegocio',
+    website: 'Site',
+    booking: 'Link de reserva',
+    bookingPlaceholder: 'Seu anúncio em sites de reserva',
+    maps: 'Localização no Google Maps',
+    mapsPlaceholder: 'Cole o link do Google Maps',
   },
   success: {
     title: 'Cadastro enviado',
@@ -196,6 +216,16 @@ export const partnerSignupEn: PartnerSignupTranslation = {
     transfer: 'Transfers',
     rental: 'Rentals',
     producer: 'Events',
+  },
+  step2: {
+    phone: 'Phone or WhatsApp',
+    instagram: 'Instagram',
+    instagramPlaceholder: '@yourbusiness',
+    website: 'Website',
+    booking: 'Booking link',
+    bookingPlaceholder: 'Your listing on booking sites',
+    maps: 'Location on Google Maps',
+    mapsPlaceholder: 'Paste the Google Maps link',
   },
   success: {
     title: 'Sign-up sent',
@@ -286,6 +316,16 @@ export const partnerSignupFr: PartnerSignupTranslation = {
     transfer: 'Transferts',
     rental: 'Locations',
     producer: 'Événements',
+  },
+  step2: {
+    phone: 'Téléphone ou WhatsApp',
+    instagram: 'Instagram',
+    instagramPlaceholder: '@votreactivite',
+    website: 'Site',
+    booking: 'Lien de réservation',
+    bookingPlaceholder: 'Votre annonce sur les sites de réservation',
+    maps: 'Emplacement sur Google Maps',
+    mapsPlaceholder: 'Collez le lien Google Maps',
   },
   success: {
     title: 'Inscription envoyée',
