@@ -1,7 +1,8 @@
 // Contas de teste nos emuladores (só desenvolvimento local, AGENTS.md §2.2 item 6). Rode com o app de
-// pé (`npm run dev:emulators`). Pode rodar de novo: conta que já existe é mantida.
+// pé (`npm run dev:emulators`): o perfil é criado pela API, como no cadastro do app. Pode rodar de novo: conta que já existe é mantida.
 // Uso: npm run dev:seed
 const AUTH = 'http://127.0.0.1:9099';
+const APP = process.env.APP_URL || 'http://localhost:3000';
 const PROJECT = 'demo-useguide';
 const PASSWORD = 'useguide-dev';
 
@@ -25,6 +26,17 @@ async function call(path, body, owner = false) {
   return json;
 }
 
+// O app cria o perfil (users/{uid}) logo depois do cadastro (useAuth); o seed faz o mesmo pela API.
+async function ensureProfile(idToken, name) {
+  const [firstName, ...rest] = name.split(' ');
+  const response = await fetch(`${APP}/api/users/me`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${idToken}` },
+    body: JSON.stringify({ firstName, lastName: rest.join(' ') || 'Teste', phone: '' }),
+  });
+  if (!response.ok) throw new Error(`Perfil: HTTP ${response.status} ${await response.text()}`);
+}
+
 async function ensureAccount({ email, name }) {
   let account;
   try {
@@ -42,7 +54,19 @@ async function ensureAccount({ email, name }) {
     { localId: account.localId, emailVerified: true, displayName: name },
     true
   );
+  // Token novo, já com o e-mail confirmado.
+  const session = await call('accounts:signInWithPassword', {
+    email,
+    password: PASSWORD,
+    returnSecureToken: true,
+  });
+  await ensureProfile(session.idToken, name);
   return account.localId;
+}
+
+// Contas extras: `npm run dev:seed -- outra@useguide.test` (para repetir um fluxo do zero).
+for (const email of process.argv.slice(2)) {
+  ACCOUNTS.push({ email, name: email.split('@')[0], note: 'conta extra' });
 }
 
 for (const account of ACCOUNTS) {

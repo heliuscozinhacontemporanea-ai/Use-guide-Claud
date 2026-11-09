@@ -10,12 +10,10 @@ export class FirestoreGuideAdapter implements GuidePort {
       id?: string;
     }
   ): Promise<string> {
-    const reference = data.id
-      ? adminDb.collection('items').doc(data.id)
-      : adminDb.collection('items').doc();
+    const { id, ...fields } = data;
+    const reference = id ? adminDb.collection('items').doc(id) : adminDb.collection('items').doc();
     await reference.set({
-      ...data,
-      id: undefined,
+      ...fields,
       rating: 0,
       reviewCount: 0,
       isVerified: false,
