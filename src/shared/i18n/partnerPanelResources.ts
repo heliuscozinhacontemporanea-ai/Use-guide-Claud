@@ -181,7 +181,8 @@ export const partnerPanelPtBR: PartnerPanelTranslation = {
   tabs: { home: 'Início', agenda: 'Agenda', catalog: 'Catálogo', earnings: 'Ganhos', more: 'Mais' },
   catalogTab: {
     offers: 'Ofertas',
-    place: 'Estabelecimento',
+    // Hífen opcional (U+00AD): o atalho tem a largura de cinco lado a lado.
+    place: 'Estabele\u00ADcimento',
     tours: 'Passeios',
     rentals: 'Aluguéis',
     transfers: 'Translados',
@@ -624,7 +625,7 @@ export const partnerPanelFr: PartnerPanelTranslation = {
   },
   catalogTab: {
     offers: 'Offres',
-    place: 'Établissement',
+    place: 'Établis\u00ADsement',
     tours: 'Excursions',
     rentals: 'Locations',
     transfers: 'Transferts',
