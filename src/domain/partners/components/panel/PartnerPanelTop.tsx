@@ -9,11 +9,15 @@ export function PartnerPanelTop({
   tab,
   onTabChange,
   onBack,
+  tabs,
+  catalogLabel,
 }: {
   home: ReturnType<typeof usePartnerPanelHome>;
   tab: PartnerPanelTab;
   onTabChange: (tab: PartnerPanelTab) => void;
   onBack: () => void;
+  tabs: readonly PartnerPanelTab[];
+  catalogLabel: string;
 }) {
   if (home.cards.editing) return null;
   return (
@@ -27,7 +31,12 @@ export function PartnerPanelTop({
           onBack={onBack}
         />
       )}
-      <PartnerShortcuts value={tab} onChange={onTabChange} />
+      <PartnerShortcuts
+        value={tab}
+        onChange={onTabChange}
+        tabs={tabs}
+        catalogLabel={catalogLabel}
+      />
     </>
   );
 }
