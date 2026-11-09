@@ -9,3 +9,4 @@ coverage/
 !.env.example
 functions/lib/
 dev-dist/
+.emulator-data/

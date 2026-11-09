@@ -1,9 +1,11 @@
 import {
+  connectFirestoreEmulator,
   initializeFirestore,
   memoryLocalCache,
   persistentLocalCache,
   persistentMultipleTabManager,
 } from 'firebase/firestore';
+import { EMULATOR_HOST, EMULATOR_PORTS, useEmulators } from './emulators';
 import { firebaseApp } from './firebaseApp';
 
 function requiredEnv(name: string): string {
@@ -26,3 +28,4 @@ export const db = initializeFirestore(
   },
   requiredEnv('VITE_FIREBASE_FIRESTORE_DATABASE_ID')
 );
+if (useEmulators) connectFirestoreEmulator(db, EMULATOR_HOST, EMULATOR_PORTS.firestore);
