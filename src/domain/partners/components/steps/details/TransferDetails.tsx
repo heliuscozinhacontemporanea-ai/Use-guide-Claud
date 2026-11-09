@@ -1,7 +1,8 @@
 import { Plus, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { BUTTON_SECONDARY } from '../../../../../ui/styles/controls';
-import { SIGNUP_ERROR, SIGNUP_LABEL } from '../../sections/signupStyles';
+import { RequiredMark, SignupError } from '../../sections/SignupFieldParts';
+import { SIGNUP_LABEL } from '../../sections/signupStyles';
 import { ChipGroup, type DetailOptions, TextField } from './DetailFields';
 import type { FieldKey, PlaceholderKey } from './detailKeys';
 import { type DetailsSectionProps, useDetailsForm } from './useDetailsForm';
@@ -36,7 +37,10 @@ export function TransferDetails(props: DetailsSectionProps) {
   return (
     <div className="space-y-5">
       <fieldset className="space-y-3">
-        <legend className={SIGNUP_LABEL}>{f('routes')}</legend>
+        <legend className={SIGNUP_LABEL}>
+          {f('routes')}
+          <RequiredMark />
+        </legend>
         {routes.map((route, index) => (
           <div
             // Trechos não têm id; a posição é a identidade enquanto o formulário está aberto.
@@ -83,7 +87,7 @@ export function TransferDetails(props: DetailsSectionProps) {
             <Plus size={16} aria-hidden="true" /> {f('addRoute')}
           </button>
         )}
-        {routesError ? <p className={SIGNUP_ERROR}>{routesError}</p> : null}
+        <SignupError message={routesError} />
       </fieldset>
 
       <ChipGroup
@@ -91,6 +95,7 @@ export function TransferDetails(props: DetailsSectionProps) {
         options={TRANSFER_VEHICLES}
         selected={formData.transferVehicles}
         onToggle={(value) => toggleInList('transferVehicles', value)}
+        required
         error={getFieldError('transferVehicles')}
       />
 
@@ -102,6 +107,7 @@ export function TransferDetails(props: DetailsSectionProps) {
           value={formData.maxPassengers}
           onChange={(value) => updateFieldValue('maxPassengers', value.replace(/\D/g, ''))}
           placeholder={p('maxPassengers')}
+          required
           error={getFieldError('maxPassengers')}
         />
         <TextField

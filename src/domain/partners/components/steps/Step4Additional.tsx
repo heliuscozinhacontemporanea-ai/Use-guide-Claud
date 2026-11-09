@@ -11,7 +11,7 @@ const WITH_HOURS = ['restaurant', 'sight', 'rental'];
 /** Passo 4 da inscrição e do editor: idiomas, regras da hospedagem e horário de funcionamento. */
 export function Step4Additional(props: DetailsSectionProps & { categories?: unknown }) {
   const { t } = useTranslation();
-  const { formData, updateFieldValue, toggleInList } = useDetailsForm(props);
+  const { formData, getFieldError, updateFieldValue, toggleInList } = useDetailsForm(props);
   const category = formData.category;
 
   return (
@@ -26,7 +26,7 @@ export function Step4Additional(props: DetailsSectionProps & { categories?: unkn
             onToggle={(value) => toggleInList('languages', value)}
           />
           {category === 'hotel' ? (
-            <HotelRules formData={formData} update={updateFieldValue} />
+            <HotelRules formData={formData} update={updateFieldValue} errorOf={getFieldError} />
           ) : null}
           {WITH_HOURS.includes(category) ? (
             <OperatingHoursField

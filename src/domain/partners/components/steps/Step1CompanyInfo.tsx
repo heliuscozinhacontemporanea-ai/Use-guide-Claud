@@ -4,11 +4,11 @@ import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { cn } from '../../../../shared/utils/cn';
 import type { FormState } from '../../types/partsForm';
+import { RequiredMark, SignupError } from '../sections/SignupFieldParts';
 import {
   SIGNUP_CHOICE,
   SIGNUP_CHOICE_OFF,
   SIGNUP_CHOICE_ON,
-  SIGNUP_ERROR,
   SIGNUP_HINT,
   SIGNUP_INPUT,
   SIGNUP_LABEL,
@@ -70,7 +70,10 @@ export function Step1CompanyInfo({
   return (
     <div className="space-y-5">
       <fieldset>
-        <legend className={SIGNUP_LABEL}>{t('partnerSignup.step1.question')}</legend>
+        <legend className={SIGNUP_LABEL}>
+          {t('partnerSignup.step1.question')}
+          <RequiredMark />
+        </legend>
         <div className="grid grid-cols-2 gap-2">
           {categories.map((cat) => {
             const selected = formData.category === cat.id;
@@ -92,9 +95,7 @@ export function Step1CompanyInfo({
           })}
         </div>
         {lockCategory && <p className={SIGNUP_HINT}>{t('partnerSignup.step1.lockedCategory')}</p>}
-        {formErrors.category && (
-          <p className={SIGNUP_ERROR}>{formErrors.category.message?.toString()}</p>
-        )}
+        <SignupError message={formErrors.category?.message?.toString()} />
       </fieldset>
 
       {formData.category ? (
@@ -111,6 +112,7 @@ export function Step1CompanyInfo({
                   ? 'partnerSignup.step1.nameLabelProducer'
                   : 'partnerSignup.step1.nameLabel'
               )}
+              <RequiredMark />
             </label>
             <input
               id="signup-business-name"
@@ -119,12 +121,11 @@ export function Step1CompanyInfo({
               onChange={(e) => handleBusinessNameChange(e.target.value)}
               placeholder={t('partnerSignup.step1.namePlaceholder')}
               maxLength={100}
+              aria-required
               aria-invalid={Boolean(formErrors.businessName)}
               className={cn(SIGNUP_INPUT, formErrors.businessName && 'border-danger-line')}
             />
-            {formErrors.businessName && (
-              <p className={SIGNUP_ERROR}>{formErrors.businessName.message?.toString()}</p>
-            )}
+            <SignupError message={formErrors.businessName?.message?.toString()} />
           </div>
 
           {!isEventProducer && (
@@ -132,6 +133,7 @@ export function Step1CompanyInfo({
               <div className="flex items-baseline justify-between">
                 <label htmlFor="signup-description" className={SIGNUP_LABEL}>
                   {t('partnerSignup.step1.descriptionLabel')}
+                  <RequiredMark />
                 </label>
                 <span
                   className={cn(
@@ -148,16 +150,15 @@ export function Step1CompanyInfo({
                 onChange={(e) => handleDescriptionChange(e.target.value)}
                 placeholder={t('partnerSignup.step1.descriptionPlaceholder')}
                 rows={4}
+                aria-required
                 aria-invalid={Boolean(formErrors.description)}
                 className={cn(SIGNUP_TEXTAREA, formErrors.description && 'border-danger-line')}
               />
-              {formErrors.description && (
-                <p className={SIGNUP_ERROR}>{formErrors.description.message?.toString()}</p>
-              )}
+              <SignupError message={formErrors.description?.message?.toString()} />
             </div>
           )}
         </motion.div>
-      ) : (
+      ) : formErrors.category ? null : (
         <p className={SIGNUP_HINT}>{t('partnerSignup.step1.chooseFirst')}</p>
       )}
     </div>

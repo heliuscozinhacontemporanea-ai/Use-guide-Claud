@@ -1,22 +1,13 @@
 import { useTranslation } from 'react-i18next';
 import type { DetailOptionKey } from '../../../../../shared/i18n/partnerSignupDetailsResources';
 import { cn } from '../../../../../shared/utils/cn';
-import {
-  SIGNUP_ERROR,
-  SIGNUP_INPUT,
-  SIGNUP_LABEL,
-  SIGNUP_TEXTAREA,
-} from '../../sections/signupStyles';
+import { RequiredMark, SignupError } from '../../sections/SignupFieldParts';
+import { SIGNUP_INPUT, SIGNUP_LABEL, SIGNUP_TEXTAREA } from '../../sections/signupStyles';
 
 const CHOICE =
   'press min-h-11 rounded-xl border font-medium flex items-center focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none';
 const CHOICE_ON = 'bg-partner-soft border-partner text-ink';
 const CHOICE_OFF = 'bg-surface border-line text-ink/80';
-
-function FieldError({ message }: { message?: string }) {
-  if (!message) return null;
-  return <p className={SIGNUP_ERROR}>{message}</p>;
-}
 
 interface TextFieldProps {
   id: string;
@@ -33,7 +24,7 @@ interface TextFieldProps {
   prefix?: string;
 }
 
-/** Campo de texto dos detalhes do cadastro (V2). `required` só valida; o rótulo não leva asterisco. */
+/** Campo de texto dos detalhes do cadastro (V2); `required` põe o "*" no rótulo. */
 export function TextField({
   id,
   label,
@@ -43,6 +34,7 @@ export function TextField({
   inputMode = 'text',
   multiline,
   maxLength = 300,
+  required,
   error,
   prefix,
 }: TextFieldProps) {
@@ -55,6 +47,7 @@ export function TextField({
     <div>
       <label htmlFor={id} className={SIGNUP_LABEL}>
         {label}
+        <RequiredMark show={Boolean(required)} />
       </label>
       {multiline ? (
         <textarea
@@ -64,6 +57,7 @@ export function TextField({
           placeholder={placeholder}
           maxLength={maxLength}
           rows={4}
+          aria-required={required || undefined}
           aria-invalid={Boolean(error)}
           className={className}
         />
@@ -85,12 +79,13 @@ export function TextField({
             onChange={(e) => onChange(e.target.value)}
             placeholder={placeholder}
             maxLength={maxLength}
+            aria-required={required || undefined}
             aria-invalid={Boolean(error)}
             className={className}
           />
         </div>
       )}
-      <FieldError message={error} />
+      <SignupError message={error} />
     </div>
   );
 }
@@ -109,11 +104,22 @@ interface ChipGroupProps {
 }
 
 /** Opções que se marcam tocando (comodidades, o que está incluído). */
-export function ChipGroup({ label, options, selected, onToggle, hint, error }: ChipGroupProps) {
+export function ChipGroup({
+  label,
+  options,
+  selected,
+  onToggle,
+  hint,
+  required,
+  error,
+}: ChipGroupProps) {
   const { t } = useTranslation();
   return (
     <fieldset>
-      <legend className={SIGNUP_LABEL}>{label}</legend>
+      <legend className={SIGNUP_LABEL}>
+        {label}
+        <RequiredMark show={Boolean(required)} />
+      </legend>
       {hint ? <p className="-mt-0.5 mb-2 px-1 text-[13px] text-ink/70">{hint}</p> : null}
       <div className="flex flex-wrap gap-2">
         {(Object.entries(options) as [DetailOptionKey, string][]).map(([key, value]) => {
@@ -131,7 +137,7 @@ export function ChipGroup({ label, options, selected, onToggle, hint, error }: C
           );
         })}
       </div>
-      <FieldError message={error} />
+      <SignupError message={error} />
     </fieldset>
   );
 }
@@ -144,6 +150,7 @@ interface YesNoFieldProps {
   noLabel?: string;
   /** Respostas longas ficam uma embaixo da outra. */
   stacked?: boolean;
+  required?: boolean;
   error?: string;
 }
 
@@ -154,6 +161,7 @@ export function YesNoField({
   yesLabel,
   noLabel,
   stacked,
+  required,
   error,
 }: YesNoFieldProps) {
   const { t } = useTranslation();
@@ -163,7 +171,10 @@ export function YesNoField({
   ];
   return (
     <fieldset>
-      <legend className={SIGNUP_LABEL}>{label}</legend>
+      <legend className={SIGNUP_LABEL}>
+        {label}
+        <RequiredMark show={Boolean(required)} />
+      </legend>
       <div className={cn('flex gap-2', stacked && 'flex-col')}>
         {answers.map(({ option, text }) => (
           <button
@@ -182,7 +193,7 @@ export function YesNoField({
           </button>
         ))}
       </div>
-      <FieldError message={error} />
+      <SignupError message={error} />
     </fieldset>
   );
 }

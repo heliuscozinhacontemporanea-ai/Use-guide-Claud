@@ -35,6 +35,7 @@ export function RentalDetails(props: DetailsSectionProps) {
         options={RENTAL_VEHICLES}
         selected={formData.rentalVehicles}
         onToggle={(value) => toggleInList('rentalVehicles', value)}
+        required
         error={getFieldError('rentalVehicles')}
       />
       <TextField
@@ -44,6 +45,7 @@ export function RentalDetails(props: DetailsSectionProps) {
         value={formData.minRentalHours}
         onChange={(value) => updateFieldValue('minRentalHours', value.replace(/\D/g, ''))}
         placeholder={t('partnerSignup.details.placeholders.minHours')}
+        required
         error={getFieldError('minRentalHours')}
       />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">

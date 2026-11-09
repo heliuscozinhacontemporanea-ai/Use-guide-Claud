@@ -49,6 +49,7 @@ export function SightDetails(props: DetailsSectionProps) {
         }}
         yesLabel={f('paid')}
         noLabel={f('free')}
+        required
         error={getFieldError('sightAccessType')}
       />
       {access === 'pago' ? (
@@ -60,6 +61,7 @@ export function SightDetails(props: DetailsSectionProps) {
           value={formData.sightPrice || ''}
           onChange={(value) => updateFieldValue('sightPrice', value)}
           placeholder="0,00"
+          required
           error={getFieldError('sightPrice')}
         />
       ) : null}

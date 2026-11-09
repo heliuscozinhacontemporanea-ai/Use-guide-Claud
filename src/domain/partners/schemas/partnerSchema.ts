@@ -1,5 +1,5 @@
-import { isBrState } from '../../../shared/utils/timeZones';
 import { z } from 'zod';
+import { isBrState } from '../../../shared/utils/timeZones';
 import type { UserSession } from '../../auth';
 
 // Categoria do primeiro cadastro na inscrição; `producer` cria o perfil de produtor de eventos.
@@ -13,9 +13,10 @@ const partnerCategorySchema = z.enum([
   'producer',
 ]);
 
+// Mensagens são chaves de tradução (§12.5); o formulário mostra `t(message)`.
 export const step1Schema = z
   .object({
-    category: z.string().min(1, 'Selecione uma categoria'),
+    category: z.string().min(1, 'partnerSignup.errors.categoryRequired'),
     businessName: z.string().default(''),
     description: z.string().default(''),
   })
@@ -26,8 +27,8 @@ export const step1Schema = z
         path: ['businessName'],
         message:
           data.category === 'producer'
-            ? 'Nome do produtor é obrigatório'
-            : 'Nome do estabelecimento é obrigatório',
+            ? 'partnerSignup.errors.producerNameRequired'
+            : 'partnerSignup.errors.nameRequired',
       });
     }
     if (data.category !== 'producer') {
@@ -35,13 +36,13 @@ export const step1Schema = z
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ['description'],
-          message: 'Descrição é obrigatória',
+          message: 'partnerSignup.errors.descriptionRequired',
         });
       } else if (data.description.length > 400) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ['description'],
-          message: 'A descrição não pode ter mais de 400 caracteres',
+          message: 'partnerSignup.errors.descriptionTooLong',
         });
       }
     }
@@ -50,7 +51,7 @@ export const step1Schema = z
 export const step2Schema = z
   .object({
     category: z.string().default(''),
-    phone: z.string().min(1, 'Telefone/WhatsApp é obrigatório'),
+    phone: z.string().min(1, 'partnerSignup.errors.phoneRequired'),
     phoneDdi: z.string().optional().default('+55'),
     instagram: z.string().optional().default(''),
     website: z.string().optional().default(''),
@@ -64,16 +65,24 @@ export const step2Schema = z
   .superRefine((data, ctx) => {
     // Estado e cidade dão o fuso dos horários (D28): obrigatórios em todo estabelecimento.
     if (!isBrState(data.state)) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['state'], message: 'Selecione o estado' });
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['state'],
+        message: 'partnerSignup.errors.stateRequired',
+      });
     }
     if (data.city.trim().length < 2) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['city'], message: 'Informe a cidade' });
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['city'],
+        message: 'partnerSignup.errors.cityRequired',
+      });
     }
     if (data.category === 'hotel' && (!data.bookingLinks || data.bookingLinks.trim() === '')) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['bookingLinks'],
-        message: 'Link para reserva é obrigatório',
+        message: 'partnerSignup.errors.bookingRequired',
       });
     }
     if (data.category !== 'producer') {
@@ -81,14 +90,14 @@ export const step2Schema = z
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ['googleMaps'],
-          message: 'Link do Google Maps é obrigatório',
+          message: 'partnerSignup.errors.mapsRequired',
         });
       }
       if (!data.region || data.region.trim() === '') {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ['region'],
-          message: 'Região é obrigatória',
+          message: 'partnerSignup.errors.regionRequired',
         });
       }
     }
@@ -130,39 +139,44 @@ export const step3Schema = z
     };
     if (data.category === 'tour') {
       const hours = Number(data.tourDurationHours.replace(',', '.'));
-      require(Number.isFinite(hours) && hours > 0, 'tourDurationHours', 'Informe a duração');
-      require(data.meetingPoint.trim() !== '', 'meetingPoint', 'Informe o ponto de encontro');
+      require(Number.isFinite(hours) &&
+        hours > 0, 'tourDurationHours', 'partnerSignup.errors.durationRequired');
+      require(data.meetingPoint.trim() !==
+        '', 'meetingPoint', 'partnerSignup.errors.meetingPointRequired');
     } else if (data.category === 'transfer') {
       require(data.transferRoutes.some(
         (route) => route.from.trim() && route.to.trim()
-      ), 'transferRoutes', 'Informe ao menos um trecho com origem e destino');
-      require(data.transferVehicles.length > 0, 'transferVehicles', 'Escolha ao menos um veículo');
-      require(Number.parseInt(data.maxPassengers, 10) > 0, 'maxPassengers', 'Informe a capacidade');
+      ), 'transferRoutes', 'partnerSignup.errors.routesRequired');
+      require(data.transferVehicles.length >
+        0, 'transferVehicles', 'partnerSignup.errors.vehiclesRequired');
+      require(Number.parseInt(data.maxPassengers, 10) >
+        0, 'maxPassengers', 'partnerSignup.errors.capacityRequired');
     } else if (data.category === 'rental') {
-      require(data.rentalVehicles.length > 0, 'rentalVehicles', 'Escolha o que é alugado');
+      require(data.rentalVehicles.length >
+        0, 'rentalVehicles', 'partnerSignup.errors.rentalWhatRequired');
       require(Number.parseInt(data.minRentalHours, 10) >
-        0, 'minRentalHours', 'Informe o período mínimo');
+        0, 'minRentalHours', 'partnerSignup.errors.minHoursRequired');
     }
     if (data.category === 'hotel') {
       if (data.servesBreakfast === null || data.servesBreakfast === undefined) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ['servesBreakfast'],
-          message: 'Informe se serve café da manhã',
+          message: 'partnerSignup.errors.breakfastRequired',
         });
       } else if (data.servesBreakfast === true) {
         if (data.breakfastIncluded === null || data.breakfastIncluded === undefined) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             path: ['breakfastIncluded'],
-            message: 'Informe se o café está incluso',
+            message: 'partnerSignup.errors.breakfastIncludedRequired',
           });
         } else if (data.breakfastIncluded === false) {
           if (!data.breakfastPrice || data.breakfastPrice.trim() === '') {
             ctx.addIssue({
               code: z.ZodIssueCode.custom,
               path: ['breakfastPrice'],
-              message: 'Informe o preço do café da manhã',
+              message: 'partnerSignup.errors.breakfastPriceRequired',
             });
           }
         }
@@ -172,7 +186,7 @@ export const step3Schema = z
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ['subcategory'],
-          message: 'Subcategoria é obrigatória',
+          message: 'partnerSignup.errors.subcategoryRequired',
         });
       }
     } else if (data.category === 'sight') {
@@ -180,14 +194,14 @@ export const step3Schema = z
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ['sightAccessType'],
-          message: 'Informe o tipo de acesso',
+          message: 'partnerSignup.errors.accessRequired',
         });
       } else if (data.sightAccessType === 'pago') {
         if (!data.sightPrice || data.sightPrice.trim() === '') {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             path: ['sightPrice'],
-            message: 'Informe o valor de acesso',
+            message: 'partnerSignup.errors.accessPriceRequired',
           });
         }
       }
@@ -222,28 +236,28 @@ export const step4Schema = z
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ['checkInFrom'],
-          message: 'Informe os horários de check-in e check-out',
+          message: 'partnerSignup.errors.checkTimesRequired',
         });
       }
       if (data.childrenAllowed === null || data.childrenAllowed === undefined) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ['childrenAllowed'],
-          message: 'Informe se aceita crianças',
+          message: 'partnerSignup.errors.childrenRequired',
         });
       }
       if (!data.petsPolicy || data.petsPolicy.trim() === '') {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ['petsPolicy'],
-          message: 'Informe a política para pets',
+          message: 'partnerSignup.errors.petsRequired',
         });
       } else if (data.petsPolicy === 'Sim' || data.petsPolicy === 'Mediante pedido') {
         if (!data.petsExtraCost || data.petsExtraCost.trim() === '') {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             path: ['petsExtraCost'],
-            message: 'Informe se há custo extra para pets',
+            message: 'partnerSignup.errors.petsCostRequired',
           });
         }
       }
@@ -260,14 +274,14 @@ export const step5SchemaContext = (options: { currentUser?: UserSession | null }
       email: z.string().optional().default(''),
       password: z.string().optional().default(''),
       confirmPassword: z.string().optional().default(''),
-      termsAccepted: z.literal(true),
+      termsAccepted: z.literal(true, { message: 'partnerSignup.errors.termsRequired' }),
     })
     .superRefine((data, ctx) => {
       if (data.category !== 'producer' && data.images.length === 0) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ['images'],
-          message: 'Selecione pelo menos uma foto do estabelecimento',
+          message: 'partnerSignup.errors.photosRequired',
         });
       }
 
@@ -276,14 +290,14 @@ export const step5SchemaContext = (options: { currentUser?: UserSession | null }
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             path: ['firstName'],
-            message: 'Nome é obrigatório',
+            message: 'partnerSignup.errors.firstNameRequired',
           });
         }
         if (!data.email || !z.string().email().safeParse(data.email).success) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             path: ['email'],
-            message: 'E-mail é obrigatório e deve ser válido',
+            message: 'partnerSignup.errors.emailInvalid',
           });
         }
         const pass = data.password || '';
@@ -295,15 +309,14 @@ export const step5SchemaContext = (options: { currentUser?: UserSession | null }
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             path: ['password'],
-            message:
-              'A senha deve ter entre 8 e 20 caracteres, com letras maiúsculas, minúsculas e números.',
+            message: 'partnerSignup.errors.passwordWeak',
           });
         }
         if (data.password !== data.confirmPassword) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             path: ['confirmPassword'],
-            message: 'As senhas não coincidem',
+            message: 'partnerSignup.errors.passwordMismatch',
           });
         }
       }
@@ -319,7 +332,7 @@ export const partnerSubmissionSchema = z.object({
   instagram: z.string().optional().default(''),
   website: z.string().optional().default(''),
   bookingLinks: z.string().optional().default(''),
-  phone: z.string().min(1, 'Telefone é obrigatório'),
+  phone: z.string().min(1, 'partnerSignup.errors.phoneRequired'),
   phoneDdi: z.string().optional().default('+55'),
   googleMaps: z.string().optional().default(''),
   address: z.string().optional().default(''),

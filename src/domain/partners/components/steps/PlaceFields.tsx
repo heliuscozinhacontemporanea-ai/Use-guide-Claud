@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { REGIONS } from '../../../../shared/constants/regions';
 import { cn } from '../../../../shared/utils/cn';
 import { BR_STATES } from '../../../../shared/utils/timeZones';
-import { SIGNUP_ERROR, SIGNUP_INPUT, SIGNUP_LABEL } from '../sections/signupStyles';
+import { RequiredMark, SignupError } from '../sections/SignupFieldParts';
+import { SIGNUP_INPUT, SIGNUP_LABEL } from '../sections/signupStyles';
 
 /**
  * Região ou bairro em texto livre, para o país inteiro; as regiões já usadas pela busca aparecem como
@@ -55,26 +56,29 @@ export function PlaceFields({
   formData,
   updateFieldValue,
   getFieldError,
+  regionRequired = true,
 }: {
+  regionRequired?: boolean;
   formData: { address?: string; region?: string; state?: string; city?: string };
   updateFieldValue: (field: string, value: string) => void;
   getFieldError: (field: string) => string | undefined;
 }) {
   const { t } = useTranslation();
   const ids = { state: useId(), city: useId(), address: useId(), region: useId() };
-  const error = (field: string) =>
-    getFieldError(field) && <p className={SIGNUP_ERROR}>{getFieldError(field)}</p>;
+  const error = (field: string) => <SignupError message={getFieldError(field)} />;
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-[7.5rem_1fr] gap-3">
         <div>
           <label htmlFor={ids.state} className={SIGNUP_LABEL}>
             {t('partners.place.state')}
+            <RequiredMark />
           </label>
           <select
             id={ids.state}
             value={formData.state || ''}
             onChange={(event) => updateFieldValue('state', event.target.value)}
+            aria-required
             aria-invalid={Boolean(getFieldError('state'))}
             className={cn(SIGNUP_INPUT, 'px-3', getFieldError('state') && 'border-danger-line')}
           >
@@ -89,6 +93,7 @@ export function PlaceFields({
         <div>
           <label htmlFor={ids.city} className={SIGNUP_LABEL}>
             {t('partners.place.city')}
+            <RequiredMark />
           </label>
           <input
             id={ids.city}
@@ -98,6 +103,7 @@ export function PlaceFields({
             placeholder={t('partners.place.cityPlaceholder')}
             maxLength={100}
             autoComplete="address-level2"
+            aria-required
             aria-invalid={Boolean(getFieldError('city'))}
             className={cn(SIGNUP_INPUT, getFieldError('city') && 'border-danger-line')}
           />
@@ -108,6 +114,7 @@ export function PlaceFields({
       <div>
         <label htmlFor={ids.region} className={SIGNUP_LABEL}>
           {t('partners.place.region')}
+          <RequiredMark show={regionRequired} />
         </label>
         <RegionInput
           id={ids.region}

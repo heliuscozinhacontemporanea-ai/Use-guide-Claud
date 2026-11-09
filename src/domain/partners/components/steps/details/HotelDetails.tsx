@@ -46,6 +46,7 @@ export function HotelDetails(props: DetailsSectionProps) {
         label={f('servesBreakfast')}
         value={formData.servesBreakfast}
         onChange={(value) => updateFieldValue('servesBreakfast', value)}
+        required
         error={getFieldError('servesBreakfast')}
       />
       {formData.servesBreakfast ? (
@@ -57,6 +58,7 @@ export function HotelDetails(props: DetailsSectionProps) {
             yesLabel={f('breakfastIncludedYes')}
             noLabel={f('breakfastIncludedNo')}
             stacked
+            required
             error={getFieldError('breakfastIncluded')}
           />
           {formData.breakfastIncluded === false ? (
@@ -68,6 +70,7 @@ export function HotelDetails(props: DetailsSectionProps) {
               value={formData.breakfastPrice || ''}
               onChange={(value) => updateFieldValue('breakfastPrice', value)}
               placeholder="0,00"
+              required
               error={getFieldError('breakfastPrice')}
             />
           ) : null}

@@ -31,6 +31,7 @@ export function TourDetails(props: DetailsSectionProps) {
           value={formData.tourDurationHours}
           onChange={(value) => updateFieldValue('tourDurationHours', value)}
           placeholder={p('tourDuration')}
+          required
           error={getFieldError('tourDurationHours')}
         />
         <TextField
@@ -39,6 +40,7 @@ export function TourDetails(props: DetailsSectionProps) {
           value={formData.meetingPoint}
           onChange={(value) => updateFieldValue('meetingPoint', value)}
           placeholder={p('meetingPoint')}
+          required
           error={getFieldError('meetingPoint')}
         />
       </div>

@@ -2,7 +2,8 @@ import { AlertTriangle, Plus, X } from 'lucide-react';
 import type { RefObject } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useUI } from '../../../../../shared/stores/useUIStore';
-import { SIGNUP_ERROR, SIGNUP_HINT, SIGNUP_LABEL } from '../../sections/signupStyles';
+import { RequiredMark, SignupError } from '../../sections/SignupFieldParts';
+import { SIGNUP_HINT, SIGNUP_LABEL } from '../../sections/signupStyles';
 
 export interface SignupImage {
   id: string;
@@ -50,6 +51,7 @@ export function SignupPhotos({
     <section aria-labelledby="signup-photos-title">
       <h3 id="signup-photos-title" className={SIGNUP_LABEL}>
         {t('partnerSignup.step5.photos')}
+        <RequiredMark />
       </h3>
       <div className="flex flex-wrap gap-2">
         {images.map((image, index) => (
@@ -99,7 +101,7 @@ export function SignupPhotos({
           event.target.value = '';
         }}
       />
-      {images.length === 0 ? (
+      {error ? null : images.length === 0 ? (
         <p className="mt-2 px-1 flex items-center gap-2 text-[14px] text-warn" role="status">
           <AlertTriangle size={16} aria-hidden="true" />
           {t('partnerSignup.step5.photosRequired')}
@@ -107,7 +109,7 @@ export function SignupPhotos({
       ) : (
         <p className={SIGNUP_HINT}>{t('partnerSignup.step5.photosHint')}</p>
       )}
-      {error && <p className={SIGNUP_ERROR}>{error}</p>}
+      <SignupError message={error} />
     </section>
   );
 }

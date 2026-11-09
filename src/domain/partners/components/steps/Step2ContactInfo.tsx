@@ -7,7 +7,8 @@ import {
   type PhoneInputFieldRef,
 } from '../../../../ui/components/PhoneInputField';
 import type { FormState } from '../../types/partsForm';
-import { SIGNUP_ERROR, SIGNUP_INPUT, SIGNUP_LABEL } from '../sections/signupStyles';
+import { RequiredMark, SignupError } from '../sections/SignupFieldParts';
+import { SIGNUP_INPUT, SIGNUP_LABEL } from '../sections/signupStyles';
 import { PlaceFields } from './PlaceFields';
 
 interface Step2ContactInfoProps {
@@ -53,13 +54,21 @@ export function Step2ContactInfo({
   const producer = formData.category === 'producer';
   const hotel = formData.category === 'hotel';
 
-  const text = (field: TextField, label: string, placeholder: string, type = 'text') => (
+  const text = (
+    field: TextField,
+    label: string,
+    placeholder: string,
+    type = 'text',
+    required = false
+  ) => (
     <div>
       <label htmlFor={`signup-${field}`} className={SIGNUP_LABEL}>
         {label}
+        <RequiredMark show={Boolean(required)} />
       </label>
       <input
         id={`signup-${field}`}
+        aria-required={required || undefined}
         type={type}
         value={(formData[field] as string) || ''}
         onChange={(event) => updateFieldValue(field, event.target.value)}
@@ -68,7 +77,7 @@ export function Step2ContactInfo({
         aria-invalid={Boolean(getFieldError(field))}
         className={cn(SIGNUP_INPUT, getFieldError(field) && 'border-danger-line')}
       />
-      {getFieldError(field) && <p className={SIGNUP_ERROR}>{getFieldError(field)}</p>}
+      <SignupError message={getFieldError(field)} />
     </div>
   );
 
@@ -77,6 +86,7 @@ export function Step2ContactInfo({
       <div>
         <label htmlFor="partner-phone-main" className={SIGNUP_LABEL}>
           {t('partnerSignup.step2.phone')}
+          <RequiredMark />
         </label>
         <PhoneInputField
           ref={phoneRef}
@@ -87,7 +97,7 @@ export function Step2ContactInfo({
           onDdiChange={(value) => updateFieldValue('phoneDdi', value)}
           required
         />
-        {getFieldError('phone') && <p className={SIGNUP_ERROR}>{getFieldError('phone')}</p>}
+        <SignupError message={getFieldError('phone')} />
       </div>
       <div className={cn('grid gap-3', producer ? 'grid-cols-1' : 'grid-cols-2')}>
         {text(
@@ -102,19 +112,22 @@ export function Step2ContactInfo({
           'bookingLinks',
           t('partnerSignup.step2.booking'),
           t('partnerSignup.step2.bookingPlaceholder'),
-          'url'
+          'url',
+          true
         )}
       {!producer &&
         text(
           'googleMaps',
           t('partnerSignup.step2.maps'),
           t('partnerSignup.step2.mapsPlaceholder'),
-          'url'
+          'url',
+          true
         )}
       <PlaceFields
         formData={formData}
         updateFieldValue={updateFieldValue}
         getFieldError={getFieldError}
+        regionRequired={!producer}
       />
     </div>
   );

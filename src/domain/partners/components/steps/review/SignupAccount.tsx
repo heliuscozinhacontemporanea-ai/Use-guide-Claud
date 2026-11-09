@@ -2,6 +2,7 @@ import { Check, Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '../../../../../shared/utils/cn';
+import { RequiredMark, SignupError } from '../../sections/SignupFieldParts';
 import { SIGNUP_ERROR, SIGNUP_HINT, SIGNUP_INPUT, SIGNUP_LABEL } from '../../sections/signupStyles';
 
 type AccountField = 'firstName' | 'lastName' | 'email' | 'password' | 'confirmPassword';
@@ -29,6 +30,7 @@ export function SignupAccount({
     <div>
       <label htmlFor={`signup-${name}`} className={SIGNUP_LABEL}>
         {t(`partnerSignup.step5.${name}`)}
+        <RequiredMark show={name !== 'lastName'} />
       </label>
       <div className="relative">
         <input
@@ -37,6 +39,7 @@ export function SignupAccount({
           autoComplete={autoComplete}
           value={values[name] ?? ''}
           onChange={(event) => onChange(name, event.target.value)}
+          aria-required={name !== 'lastName' || undefined}
           aria-invalid={Boolean(errorOf(name))}
           className={cn(SIGNUP_INPUT, type !== 'email' && type !== 'text' && 'pr-12')}
         />
@@ -57,7 +60,7 @@ export function SignupAccount({
           </button>
         )}
       </div>
-      {errorOf(name) && <p className={SIGNUP_ERROR}>{errorOf(name)}</p>}
+      <SignupError message={errorOf(name)} />
     </div>
   );
   const passwordType = visible ? 'text' : 'password';
@@ -87,9 +90,12 @@ export function SignupAccount({
         ))}
       </ul>
       {field('confirmPassword', passwordType, 'new-password')}
-      {values.password && values.confirmPassword && values.password !== values.confirmPassword && (
-        <p className={SIGNUP_ERROR}>{t('partnerSignup.step5.passwordMismatch')}</p>
-      )}
+      {!errorOf('confirmPassword') &&
+        values.password &&
+        values.confirmPassword &&
+        values.password !== values.confirmPassword && (
+          <p className={SIGNUP_ERROR}>{t('partnerSignup.step5.passwordMismatch')}</p>
+        )}
       <p className={SIGNUP_HINT}>{t('partnerSignup.step5.passwordHint')}</p>
     </section>
   );

@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { cn } from '../../../../../shared/utils/cn';
 import type { FormState } from '../../../types/partsForm';
+import { RequiredMark, SignupError } from '../../sections/SignupFieldParts';
 import { SIGNUP_LABEL } from '../../sections/signupStyles';
 import { YesNoField } from '../details/DetailFields';
 import { TimeRangeField } from './TimeRangeField';
@@ -36,7 +37,9 @@ function Choice({
   value,
   onChange,
   stacked,
+  error,
 }: {
+  error?: string;
   label: string;
   options: { value: string; text: string }[];
   value: string;
@@ -45,7 +48,10 @@ function Choice({
 }) {
   return (
     <fieldset>
-      <legend className={SIGNUP_LABEL}>{label}</legend>
+      <legend className={SIGNUP_LABEL}>
+        {label}
+        <RequiredMark />
+      </legend>
       <div className={cn('flex gap-2', stacked && 'flex-col')}>
         {options.map((option) => (
           <button
@@ -65,6 +71,7 @@ function Choice({
           </button>
         ))}
       </div>
+      <SignupError message={error} />
     </fieldset>
   );
 }
@@ -73,7 +80,9 @@ function Choice({
 export function HotelRules({
   formData,
   update,
+  errorOf,
 }: {
+  errorOf: (field: string) => string | undefined;
   formData: FormState;
   update: (field: keyof FormState, value: unknown) => void;
 }) {
@@ -92,6 +101,8 @@ export function HotelRules({
         to={formData.checkInTo || ''}
         onFrom={(value) => update('checkInFrom', value)}
         onTo={(value) => update('checkInTo', value)}
+        required
+        error={errorOf('checkInFrom')}
       />
       <TimeRangeField
         id="check-out"
@@ -102,17 +113,21 @@ export function HotelRules({
         to={formData.checkOutTo || ''}
         onFrom={(value) => update('checkOutFrom', value)}
         onTo={(value) => update('checkOutTo', value)}
+        required
       />
       <YesNoField
         label={a('children')}
         value={formData.childrenAllowed}
         onChange={(value) => update('childrenAllowed', value)}
+        required
+        error={errorOf('childrenAllowed')}
       />
       <Choice
         label={a('pets')}
         stacked
         options={PETS.map(({ value, key }) => ({ value, text: a(key) }))}
         value={formData.petsPolicy}
+        error={errorOf('petsPolicy')}
         onChange={(value) => {
           update('petsPolicy', value);
           if (value === 'Não') update('petsExtraCost', '');
@@ -123,6 +138,7 @@ export function HotelRules({
           label={a('petsCost')}
           options={PET_COST.map(({ value, key }) => ({ value, text: a(key) }))}
           value={formData.petsExtraCost}
+          error={errorOf('petsExtraCost')}
           onChange={(value) => update('petsExtraCost', value)}
         />
       ) : null}

@@ -3,18 +3,12 @@ import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
 import { FormProvider } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { Dialog } from '../../../ui/components/Dialog';
 import { ErrorState } from '../../../ui/components/ErrorState';
 import type { PhoneInputFieldRef } from '../../../ui/components/PhoneInputField';
-import { Dialog } from '../../../ui/components/Dialog';
 import { LISTING_CATEGORIES } from '../constants/listingCategories';
 import { usePartnerForm } from '../hooks/usePartnerForm';
-import {
-  isSignupStep1Incomplete,
-  isSignupStep2Incomplete,
-  isSignupStep3Incomplete,
-  isSignupStep4Incomplete,
-  isSignupStep5Incomplete,
-} from '../utils/signupStepGates';
+import { revealFirstSignupError } from '../utils/revealFirstSignupError';
 import { PartnerPresentation } from './sections/PartnerPresentation';
 import { SignupProcessingState } from './sections/SignupProcessingState';
 import { SignupStepActions } from './sections/SignupStepActions';
@@ -71,6 +65,12 @@ export function PartnersModal({ isOpen, onClose, onOpenPartnerPanel }: PartnersM
       ?.scrollTo({ top: 0, behavior: 'smooth' });
   }, [showForm, currentStep, isOpen]);
 
+  // Passo com campo faltando: depois de desenhar os erros, leva a pessoa ao primeiro.
+  const check = (valid: boolean) => {
+    if (!valid) revealFirstSignupError(scrollContainerRef.current?.closest('[role="dialog"]'));
+    return valid;
+  };
+
   const handleClose = () => {
     onClose();
     setTimeout(() => {
@@ -119,6 +119,11 @@ export function PartnersModal({ isOpen, onClose, onOpenPartnerPanel }: PartnersM
                     )}
                   </div>
                 </div>
+                {currentStep <= 5 && (
+                  <p className="px-1 text-[13px] text-ink/70">
+                    {t('partnerSignup.errors.requiredNote')}
+                  </p>
+                )}
               </div>
 
               <AnimatePresence mode="wait">
@@ -132,9 +137,8 @@ export function PartnersModal({ isOpen, onClose, onOpenPartnerPanel }: PartnersM
                     <SignupStepActions
                       className=""
                       onBack={() => setShowForm(false)}
-                      nextDisabled={isSignupStep1Incomplete(formData)}
                       onNext={() => {
-                        if (isStep1Valid()) setCurrentStep(2);
+                        if (check(isStep1Valid())) setCurrentStep(2);
                       }}
                     />
                   </SignupStepPanel>
@@ -151,9 +155,8 @@ export function PartnersModal({ isOpen, onClose, onOpenPartnerPanel }: PartnersM
                     />
                     <SignupStepActions
                       onBack={() => setCurrentStep(1)}
-                      nextDisabled={isSignupStep2Incomplete(formData)}
                       onNext={() => {
-                        if (validateStep2()) {
+                        if (check(validateStep2())) {
                           setCurrentStep(formData.category === 'producer' ? 5 : 3);
                         }
                       }}
@@ -171,9 +174,8 @@ export function PartnersModal({ isOpen, onClose, onOpenPartnerPanel }: PartnersM
                     />
                     <SignupStepActions
                       onBack={() => setCurrentStep(2)}
-                      nextDisabled={isSignupStep3Incomplete(formData)}
                       onNext={() => {
-                        if (validateStep3()) setCurrentStep(4);
+                        if (check(validateStep3())) setCurrentStep(4);
                       }}
                     />
                   </SignupStepPanel>
@@ -189,9 +191,8 @@ export function PartnersModal({ isOpen, onClose, onOpenPartnerPanel }: PartnersM
                     />
                     <SignupStepActions
                       onBack={() => setCurrentStep(3)}
-                      nextDisabled={isSignupStep4Incomplete(formData)}
                       onNext={() => {
-                        if (validateStep4()) setCurrentStep(5);
+                        if (check(validateStep4())) setCurrentStep(5);
                       }}
                     />
                   </SignupStepPanel>
@@ -210,9 +211,8 @@ export function PartnersModal({ isOpen, onClose, onOpenPartnerPanel }: PartnersM
                       isFinal
                       isSubmitting={isSubmitting}
                       onBack={() => setCurrentStep(formData.category === 'producer' ? 2 : 4)}
-                      nextDisabled={isSignupStep5Incomplete(formData, Boolean(currentUser))}
                       onNext={() => {
-                        if (validateStep5()) handleSubmit();
+                        if (check(validateStep5())) handleSubmit();
                       }}
                     />
                   </SignupStepPanel>

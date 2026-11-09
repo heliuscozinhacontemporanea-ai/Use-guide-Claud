@@ -6,9 +6,16 @@ import {
   partnerSignupDetailsFr,
   partnerSignupDetailsPtBR,
 } from './partnerSignupDetailsResources';
+import {
+  type PartnerSignupErrorsTranslation,
+  partnerSignupErrorsEn,
+  partnerSignupErrorsFr,
+  partnerSignupErrorsPtBR,
+} from './partnerSignupErrorResources';
 
 export interface PartnerSignupTranslation {
   details: PartnerSignupDetailsTranslation;
+  errors: PartnerSignupErrorsTranslation;
   processing: { title: string; text: string };
   yes: string;
   no: string;
@@ -100,6 +107,7 @@ export interface PartnerSignupTranslation {
 
 export const partnerSignupPtBR: PartnerSignupTranslation = {
   details: partnerSignupDetailsPtBR,
+  errors: partnerSignupErrorsPtBR,
   processing: {
     title: 'Enviando seu cadastro',
     text: 'Estamos guardando as informações e as fotos. Isso leva alguns segundos.',
@@ -205,6 +213,7 @@ export const partnerSignupPtBR: PartnerSignupTranslation = {
 
 export const partnerSignupEn: PartnerSignupTranslation = {
   details: partnerSignupDetailsEn,
+  errors: partnerSignupErrorsEn,
   processing: {
     title: 'Sending your sign-up',
     text: 'We are saving your details and photos. This takes a few seconds.',
@@ -311,6 +320,7 @@ export const partnerSignupEn: PartnerSignupTranslation = {
 
 export const partnerSignupFr: PartnerSignupTranslation = {
   details: partnerSignupDetailsFr,
+  errors: partnerSignupErrorsFr,
   processing: {
     title: 'Envoi de votre inscription',
     text: 'Nous enregistrons vos informations et vos photos. Cela prend quelques secondes.',

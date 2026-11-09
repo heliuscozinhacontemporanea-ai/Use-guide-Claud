@@ -55,6 +55,7 @@ export function RestaurantDetails(props: DetailsSectionProps) {
           value={formData.subcategory || ''}
           onChange={(value) => updateFieldValue('subcategory', value)}
           placeholder={p('subcategory')}
+          required
           error={getFieldError('subcategory')}
         />
         <TextField

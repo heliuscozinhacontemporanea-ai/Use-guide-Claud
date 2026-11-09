@@ -1,7 +1,7 @@
 import { Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '../../../../../shared/utils/cn';
-import { SIGNUP_ERROR } from '../../sections/signupStyles';
+import { RequiredMark, SignupError } from '../../sections/SignupFieldParts';
 
 /** Aceite dos termos do parceiro no fim do cadastro. */
 export function SignupTerms({
@@ -35,13 +35,14 @@ export function SignupTerms({
         <span>
           <span className="block text-[15px] font-semibold text-ink">
             {t('partnerSignup.step5.terms')}
+            <RequiredMark />
           </span>
           <span className="block text-[13px] text-ink/70">
             {t('partnerSignup.step5.termsHint')}
           </span>
         </span>
       </button>
-      {error && <p className={SIGNUP_ERROR}>{error}</p>}
+      <SignupError message={error} />
     </div>
   );
 }

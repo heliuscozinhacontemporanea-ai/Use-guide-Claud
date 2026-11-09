@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useCallback, useState } from 'react';
-import { useForm, type Path, type Resolver, type UseFormReturn } from 'react-hook-form';
+import { type Path, type Resolver, type UseFormReturn, useForm } from 'react-hook-form';
 import type { UserSession } from '../../auth';
 import { INITIAL_FORM_DATA } from '../constants/formDefaults';
 import {
@@ -13,16 +13,16 @@ import {
 } from '../schemas/partnerSchema';
 import type { FormState } from '../types/partsForm';
 
-function setFieldError(
-  methods: UseFormReturn<FormState>,
-  field: string,
-  message: string
-): void {
+function setFieldError(methods: UseFormReturn<FormState>, field: string, message: string): void {
   methods.setError(field as Path<FormState>, {
     type: 'manual',
     message,
   });
 }
+
+type StepParse =
+  | { success: true }
+  | { success: false; error: { issues: { path: PropertyKey[]; message: string }[] } };
 
 export interface UsePartnerRegistrationValidationProps {
   currentUser: UserSession | null;
@@ -50,101 +50,36 @@ export function usePartnerRegistrationValidation({
     [methods]
   );
 
-  const isStep1Valid = useCallback(() => {
-    const currentValues = methods.getValues();
-    const parsed = step1Schema.safeParse(currentValues);
-    if (!parsed.success) {
+  // Mostra os erros do passo (chaves de tradução, §12.5) no estado local e no React Hook Form.
+  const validate = useCallback(
+    (schema: { safeParse: (values: FormState) => StepParse }) => {
+      const parsed = schema.safeParse(methods.getValues());
+      if (parsed.success) {
+        setErrors({});
+        return true;
+      }
       const newErrors: { [key: string]: string } = {};
-      parsed.error.issues.forEach((issue) => {
+      for (const issue of parsed.error.issues) {
         const field = issue.path[0]?.toString();
-        if (field) {
+        if (field && !newErrors[field]) {
           newErrors[field] = issue.message;
           setFieldError(methods, field, issue.message);
         }
-      });
+      }
       setErrors(newErrors);
       return false;
-    }
-    setErrors({});
-    return true;
-  }, [methods]);
+    },
+    [methods]
+  );
 
-  const validateStep2 = useCallback(() => {
-    const currentValues = methods.getValues();
-    const parsed = step2Schema.safeParse(currentValues);
-    if (!parsed.success) {
-      const newErrors: { [key: string]: string } = {};
-      parsed.error.issues.forEach((issue) => {
-        const field = issue.path[0]?.toString();
-        if (field) {
-          newErrors[field] = issue.message;
-          setFieldError(methods, field, issue.message);
-        }
-      });
-      setErrors(newErrors);
-      return false;
-    }
-    setErrors({});
-    return true;
-  }, [methods]);
-
-  const validateStep3 = useCallback(() => {
-    const currentValues = methods.getValues();
-    const parsed = step3Schema.safeParse(currentValues);
-    if (!parsed.success) {
-      const newErrors: { [key: string]: string } = {};
-      parsed.error.issues.forEach((issue) => {
-        const field = issue.path[0]?.toString();
-        if (field) {
-          newErrors[field] = issue.message;
-          setFieldError(methods, field, issue.message);
-        }
-      });
-      setErrors(newErrors);
-      return false;
-    }
-    setErrors({});
-    return true;
-  }, [methods]);
-
-  const validateStep4 = useCallback(() => {
-    const currentValues = methods.getValues();
-    const parsed = step4Schema.safeParse(currentValues);
-    if (!parsed.success) {
-      const newErrors: { [key: string]: string } = {};
-      parsed.error.issues.forEach((issue) => {
-        const field = issue.path[0]?.toString();
-        if (field) {
-          newErrors[field] = issue.message;
-          setFieldError(methods, field, issue.message);
-        }
-      });
-      setErrors(newErrors);
-      return false;
-    }
-    setErrors({});
-    return true;
-  }, [methods]);
-
-  const validateStep5 = useCallback(() => {
-    const currentValues = methods.getValues();
-    const schema = step5SchemaContext({ currentUser });
-    const parsed = schema.safeParse(currentValues);
-    if (!parsed.success) {
-      const newErrors: { [key: string]: string } = {};
-      parsed.error.issues.forEach((issue) => {
-        const field = issue.path[0]?.toString();
-        if (field) {
-          newErrors[field] = issue.message;
-          setFieldError(methods, field, issue.message);
-        }
-      });
-      setErrors(newErrors);
-      return false;
-    }
-    setErrors({});
-    return true;
-  }, [methods, currentUser]);
+  const isStep1Valid = useCallback(() => validate(step1Schema), [validate]);
+  const validateStep2 = useCallback(() => validate(step2Schema), [validate]);
+  const validateStep3 = useCallback(() => validate(step3Schema), [validate]);
+  const validateStep4 = useCallback(() => validate(step4Schema), [validate]);
+  const validateStep5 = useCallback(
+    () => validate(step5SchemaContext({ currentUser })),
+    [validate, currentUser]
+  );
 
   const resetValidation = useCallback(() => {
     methods.reset(INITIAL_FORM_DATA);
