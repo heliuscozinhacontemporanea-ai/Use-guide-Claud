@@ -114,7 +114,9 @@ export function PartnersModal({ isOpen, onClose, onOpenPartnerPanel }: PartnersM
                     <h2 className="text-[20px] font-display font-bold text-ink">
                       {t('partnerSignup.form.title')}
                     </h2>
-                    <StepNavigation category={formData.category} currentStep={currentStep} />
+                    {currentStep <= 5 && (
+                      <StepNavigation category={formData.category} currentStep={currentStep} />
+                    )}
                   </div>
                 </div>
               </div>

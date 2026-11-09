@@ -32,6 +32,38 @@ export interface PartnerSignupTranslation {
     rental: string;
     producer: string;
   };
+  step5: {
+    title: string;
+    edit: string;
+    business: string;
+    contact: string;
+    details: string;
+    detailsHint: string;
+    extras: string;
+    extrasHint: string;
+    photos: string;
+    photosHint: string;
+    addPhoto: string;
+    removePhoto: string;
+    photoAlt: string;
+    photosRequired: string;
+    tooManyPhotos: string;
+    photoTooBig: string;
+    account: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+    passwordHint: string;
+    confirmPassword: string;
+    showPassword: string;
+    hidePassword: string;
+    passwordMismatch: string;
+    rules: { length: string; upper: string; lower: string; number: string };
+    terms: string;
+    termsHint: string;
+  };
+  success: { title: string; text: string; openPanel: string; later: string };
   step1: {
     question: string;
     lockedCategory: string;
@@ -76,6 +108,48 @@ export const partnerSignupPtBR: PartnerSignupTranslation = {
     transfer: 'Translados',
     rental: 'Aluguéis',
     producer: 'Eventos',
+  },
+  success: {
+    title: 'Cadastro enviado',
+    text: '{{name}} já está no seu painel. Lá você vê os próximos passos para começar a vender.',
+    openPanel: 'Abrir meu painel',
+    later: 'Agora não',
+  },
+  step5: {
+    title: 'Revisar e enviar',
+    edit: 'Editar',
+    business: 'Seu negócio',
+    contact: 'Contato e local',
+    details: 'Detalhes',
+    detailsHint: 'Horários, estrutura e o que está incluído',
+    extras: 'Informações extras',
+    extrasHint: 'Idiomas e serviços',
+    photos: 'Fotos',
+    photosHint: 'Até 5 fotos de até 3 MB.',
+    addPhoto: 'Adicionar foto',
+    removePhoto: 'Remover foto',
+    photoAlt: 'Foto {{index}}',
+    photosRequired: 'Adicione ao menos 1 foto para enviar.',
+    tooManyPhotos: 'Você pode escolher no máximo 5 fotos.',
+    photoTooBig: 'A foto {{name}} passa de 3 MB.',
+    account: 'Sua conta',
+    firstName: 'Nome',
+    lastName: 'Sobrenome',
+    email: 'E-mail',
+    password: 'Senha',
+    passwordHint: '8 a 20 caracteres, com maiúscula, minúscula e número.',
+    confirmPassword: 'Confirme a senha',
+    showPassword: 'Mostrar senha',
+    hidePassword: 'Esconder senha',
+    passwordMismatch: 'As senhas não são iguais.',
+    rules: {
+      length: '8 a 20 caracteres',
+      upper: 'Letra maiúscula',
+      lower: 'Letra minúscula',
+      number: 'Número',
+    },
+    terms: 'Li e aceito os Termos do parceiro.',
+    termsHint: 'Confirmo que as informações são verdadeiras.',
   },
   step1: {
     question: 'O que você oferece?',
@@ -122,6 +196,48 @@ export const partnerSignupEn: PartnerSignupTranslation = {
     transfer: 'Transfers',
     rental: 'Rentals',
     producer: 'Events',
+  },
+  success: {
+    title: 'Sign-up sent',
+    text: '{{name}} is now in your dashboard, where you will see the next steps to start selling.',
+    openPanel: 'Open my dashboard',
+    later: 'Not now',
+  },
+  step5: {
+    title: 'Review and send',
+    edit: 'Edit',
+    business: 'Your business',
+    contact: 'Contact and location',
+    details: 'Details',
+    detailsHint: 'Hours, facilities and what is included',
+    extras: 'Extra information',
+    extrasHint: 'Languages and services',
+    photos: 'Photos',
+    photosHint: 'Up to 5 photos of up to 3 MB.',
+    addPhoto: 'Add photo',
+    removePhoto: 'Remove photo',
+    photoAlt: 'Photo {{index}}',
+    photosRequired: 'Add at least 1 photo to send.',
+    tooManyPhotos: 'You can choose up to 5 photos.',
+    photoTooBig: 'Photo {{name}} is over 3 MB.',
+    account: 'Your account',
+    firstName: 'First name',
+    lastName: 'Last name',
+    email: 'Email',
+    password: 'Password',
+    passwordHint: '8 to 20 characters, with uppercase, lowercase and a number.',
+    confirmPassword: 'Confirm password',
+    showPassword: 'Show password',
+    hidePassword: 'Hide password',
+    passwordMismatch: 'The passwords do not match.',
+    rules: {
+      length: '8 to 20 characters',
+      upper: 'Uppercase letter',
+      lower: 'Lowercase letter',
+      number: 'Number',
+    },
+    terms: 'I have read and accept the Partner terms.',
+    termsHint: 'I confirm the information is true.',
   },
   step1: {
     question: 'What do you offer?',
@@ -170,6 +286,48 @@ export const partnerSignupFr: PartnerSignupTranslation = {
     transfer: 'Transferts',
     rental: 'Locations',
     producer: 'Événements',
+  },
+  success: {
+    title: 'Inscription envoyée',
+    text: '{{name}} est dans votre tableau de bord, avec les prochaines étapes pour commencer à vendre.',
+    openPanel: 'Ouvrir mon tableau de bord',
+    later: 'Plus tard',
+  },
+  step5: {
+    title: 'Vérifier et envoyer',
+    edit: 'Modifier',
+    business: 'Votre activité',
+    contact: 'Contact et lieu',
+    details: 'Détails',
+    detailsHint: 'Horaires, équipements et ce qui est inclus',
+    extras: 'Informations supplémentaires',
+    extrasHint: 'Langues et services',
+    photos: 'Photos',
+    photosHint: 'Jusqu’à 5 photos de 3 Mo maximum.',
+    addPhoto: 'Ajouter une photo',
+    removePhoto: 'Retirer la photo',
+    photoAlt: 'Photo {{index}}',
+    photosRequired: 'Ajoutez au moins 1 photo pour envoyer.',
+    tooManyPhotos: 'Vous pouvez choisir 5 photos au maximum.',
+    photoTooBig: 'La photo {{name}} dépasse 3 Mo.',
+    account: 'Votre compte',
+    firstName: 'Prénom',
+    lastName: 'Nom',
+    email: 'E-mail',
+    password: 'Mot de passe',
+    passwordHint: '8 à 20 caractères, avec majuscule, minuscule et chiffre.',
+    confirmPassword: 'Confirmez le mot de passe',
+    showPassword: 'Afficher le mot de passe',
+    hidePassword: 'Masquer le mot de passe',
+    passwordMismatch: 'Les mots de passe ne sont pas identiques.',
+    rules: {
+      length: '8 à 20 caractères',
+      upper: 'Majuscule',
+      lower: 'Minuscule',
+      number: 'Chiffre',
+    },
+    terms: 'J’ai lu et j’accepte les Conditions partenaire.',
+    termsHint: 'Je confirme que les informations sont exactes.',
   },
   step1: {
     question: 'Que proposez-vous ?',
