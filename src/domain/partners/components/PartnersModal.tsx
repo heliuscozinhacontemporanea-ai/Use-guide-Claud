@@ -1,12 +1,11 @@
-import { Handshake, X } from 'lucide-react';
+import { Handshake } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
 import { FormProvider } from 'react-hook-form';
-import { Z_INDEX } from '../../../shared/constants/zIndex';
-import { useScrollLock } from '../../../shared/hooks/useScrollLock';
+import { useTranslation } from 'react-i18next';
 import { ErrorState } from '../../../ui/components/ErrorState';
 import type { PhoneInputFieldRef } from '../../../ui/components/PhoneInputField';
-import { ModalLayout } from '../../../ui/layouts/ModalLayout';
+import { Dialog } from '../../../ui/components/Dialog';
 import { LISTING_CATEGORIES } from '../constants/listingCategories';
 import { usePartnerForm } from '../hooks/usePartnerForm';
 import {
@@ -39,6 +38,7 @@ const CATEGORIES = LISTING_CATEGORIES;
 const CATEGORY_IDS = CATEGORIES.map((c) => c.id);
 
 export function PartnersModal({ isOpen, onClose, onOpenPartnerPanel }: PartnersModalProps) {
+  const { t } = useTranslation();
   const [showForm, setShowForm] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -63,13 +63,12 @@ export function PartnersModal({ isOpen, onClose, onOpenPartnerPanel }: PartnersM
     resetForm,
   } = usePartnerForm(CATEGORY_IDS, setCurrentStep);
 
-  useScrollLock(isOpen);
-
   // biome-ignore lint/correctness/useExhaustiveDependencies: as dependências são os gatilhos para voltar ao topo, não valores lidos no efeito.
   useEffect(() => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    // A folha (Dialog) é quem rola; o passo novo começa do topo.
+    scrollContainerRef.current
+      ?.closest('[role="dialog"]')
+      ?.scrollTo({ top: 0, behavior: 'smooth' });
   }, [showForm, currentStep, isOpen]);
 
   const handleClose = () => {
@@ -82,49 +81,38 @@ export function PartnersModal({ isOpen, onClose, onOpenPartnerPanel }: PartnersM
   };
 
   return (
-    <ModalLayout
-      isOpen={isOpen}
-      onClose={handleClose}
-      overlayClassName="bg-black/80 backdrop-blur-2xl"
-      containerClassName="glassmorphism-vibrant rounded-[3rem]"
-      zIndex={Z_INDEX.modal}
-      scrollRef={scrollContainerRef}
-    >
-      <div style={{ zIndex: Z_INDEX.header }} className="absolute top-6 right-6">
-        <button
-          type="button"
-          onClick={handleClose}
-          aria-label="Fechar"
-          className="p-3 rounded-full glassmorphism-vibrant border border-white/20 active:scale-90 transition-transform backdrop-blur-xl shadow-2xl shadow-black/80 group/close"
-        >
-          <X
-            size={20}
-            className="text-white group-hover/close:rotate-90 transition-transform duration-300"
-            strokeWidth={3}
-          />
-        </button>
-      </div>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()} className="sm:max-w-lg">
+      <div ref={scrollContainerRef} />
 
       <AnimatePresence mode="wait">
         {!showForm ? (
-          <PartnerPresentation onStart={() => setShowForm(true)} />
+          <motion.div
+            key="presentation"
+            initial={false}
+            exit={{ opacity: 0, x: -48 }}
+            transition={{ duration: 0.28, ease: [0.32, 0.72, 0, 1] }}
+          >
+            <PartnerPresentation onStart={() => setShowForm(true)} />
+          </motion.div>
         ) : (
           <FormProvider {...methods}>
             <motion.div
               key="form"
-              initial={{ opacity: 0, x: 20 }}
+              // Página que entra da direita (regra de movimento aprovada em 2026-11-09).
+              initial={{ opacity: 0, x: 48 }}
               animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              className="w-full min-h-full flex flex-col p-8"
+              exit={{ opacity: 0, x: -48 }}
+              transition={{ duration: 0.28, ease: [0.32, 0.72, 0, 1] }}
+              className="w-full flex flex-col"
             >
-              <div className="pt-12 pb-6 space-y-2">
+              <div className="pb-4 pr-10 space-y-2">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-indigo-500/20 flex items-center justify-center text-indigo-400">
-                    <Handshake size={20} />
+                  <div className="w-10 h-10 shrink-0 rounded-2xl bg-partner-soft border border-partner-line flex items-center justify-center text-partner">
+                    <Handshake size={20} aria-hidden="true" />
                   </div>
                   <div>
-                    <h2 className="text-xl font-display font-black text-white uppercase tracking-tight">
-                      Cadastro de Parceiro
+                    <h2 className="text-[20px] font-display font-bold text-ink">
+                      {t('partnerSignup.form.title')}
                     </h2>
                     <StepNavigation category={formData.category} currentStep={currentStep} />
                   </div>
@@ -253,6 +241,6 @@ export function PartnersModal({ isOpen, onClose, onOpenPartnerPanel }: PartnersM
           </FormProvider>
         )}
       </AnimatePresence>
-    </ModalLayout>
+    </Dialog>
   );
 }
