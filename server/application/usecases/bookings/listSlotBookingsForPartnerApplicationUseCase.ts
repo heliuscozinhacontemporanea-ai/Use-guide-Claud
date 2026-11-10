@@ -8,6 +8,10 @@ export interface PartnerSlotBookingView {
   buyerName: string | null;
   units: number;
   checkedInUnits: number;
+  /** Situação e valor pago, para a ficha da reserva no painel (print de 2026-11-10). */
+  status: string;
+  totalMinor: number;
+  sellingUnit: 'person' | 'group';
 }
 
 export interface PartnerSlotDetailView {
@@ -63,6 +67,9 @@ export async function listSlotBookingsForPartnerApplicationUseCase(
       buyerName: names.get(booking.buyerId) ?? null,
       units: booking.participantsCount,
       checkedInUnits: booking.checkIns?.length ?? 0,
+      status: booking.status,
+      totalMinor: booking.totalMinor,
+      sellingUnit: booking.offerSnapshot.sellingUnit === 'group' ? 'group' : 'person',
     })),
   };
 }

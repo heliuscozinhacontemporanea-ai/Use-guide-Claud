@@ -32,8 +32,24 @@ describe('folha do horário (p06)', () => {
         meetingPoint: 'Praça Principal',
       },
       bookings: [
-        { id: 'b1', buyerName: 'Ana Souza', units: 2, checkedInUnits: 2 },
-        { id: 'b2', buyerName: null, units: 2, checkedInUnits: 0 },
+        {
+          id: 'b1',
+          buyerName: 'Ana Souza',
+          units: 2,
+          checkedInUnits: 2,
+          status: 'confirmed',
+          totalMinor: 36000,
+          sellingUnit: 'person',
+        },
+        {
+          id: 'b2',
+          buyerName: null,
+          units: 2,
+          checkedInUnits: 0,
+          status: 'confirmed',
+          totalMinor: 36000,
+          sellingUnit: 'person',
+        },
       ],
     });
     render(<PartnerSlotSheet offerId="o1" slotId="s1" onClose={vi.fn()} onChanged={vi.fn()} />);

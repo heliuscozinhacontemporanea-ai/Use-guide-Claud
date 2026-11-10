@@ -3,6 +3,10 @@ export interface BookingsTranslation {
   contact: {
     partnerButton: string;
     partnerHint: string;
+    buyerHint: string;
+    bookingRef: string;
+    situation: string;
+    paid: string;
     buyerButton: string;
     buyerAria: string;
     noPhone: string;
@@ -64,6 +68,14 @@ export interface BookingsTranslation {
     viewMyBookings: string;
     menuItem: string;
     myBookingsTitle: string;
+    detail: {
+      bookingTitle: string;
+      whenLabel: string;
+      bookingLabel: string;
+      meetingLabel: string;
+      today: string;
+      openDetails: string;
+    };
     loadMore: string;
     resultTitle: string;
     resultLoading: string;
@@ -266,6 +278,11 @@ export const bookingsPtBR: BookingsTranslation = {
     partnerButton: 'Falar com o parceiro',
     partnerHint:
       'Abre o WhatsApp com uma mensagem pronta com o número da reserva. Disponível até o fim do serviço.',
+    buyerHint:
+      'Mensagem pronta com o número da reserva, para avisar mudança de ponto, atraso ou clima. Fica registrado; some depois do serviço.',
+    bookingRef: 'Reserva',
+    situation: 'Situação',
+    paid: 'Pago',
     buyerButton: 'WhatsApp do cliente',
     buyerAria: 'WhatsApp de {{name}}',
     noPhone: 'Não há telefone para esta reserva.',
@@ -331,6 +348,14 @@ export const bookingsPtBR: BookingsTranslation = {
     viewMyBookings: 'Ver minhas reservas',
     menuItem: 'Minhas reservas',
     myBookingsTitle: 'Minhas reservas',
+    detail: {
+      bookingTitle: 'Minha reserva',
+      whenLabel: 'Quando',
+      bookingLabel: 'Reserva',
+      meetingLabel: 'Ponto de encontro',
+      today: 'hoje',
+      openDetails: 'Abrir a reserva {{title}}',
+    },
     loadMore: 'Carregar mais',
     resultTitle: 'Pagamento da reserva',
     resultLoading: 'Verificando o pagamento…',
@@ -544,6 +569,11 @@ export const bookingsEn: BookingsTranslation = {
     partnerButton: 'Message the partner',
     partnerHint:
       'Opens WhatsApp with a ready message quoting your booking number. Available until the service ends.',
+    buyerHint:
+      'Ready message with the booking number, to let them know about a new meeting point, a delay or the weather. It is logged and disappears after the service.',
+    bookingRef: 'Booking',
+    situation: 'Status',
+    paid: 'Paid',
     buyerButton: "Customer's WhatsApp",
     buyerAria: 'WhatsApp {{name}}',
     noPhone: 'There is no phone for this booking.',
@@ -607,6 +637,14 @@ export const bookingsEn: BookingsTranslation = {
     viewMyBookings: 'View my bookings',
     menuItem: 'My bookings',
     myBookingsTitle: 'My bookings',
+    detail: {
+      bookingTitle: 'My booking',
+      whenLabel: 'When',
+      bookingLabel: 'Booking',
+      meetingLabel: 'Meeting point',
+      today: 'today',
+      openDetails: 'Open booking {{title}}',
+    },
     loadMore: 'Load more',
     resultTitle: 'Booking payment',
     resultLoading: 'Checking the payment…',
@@ -818,6 +856,11 @@ export const bookingsFr: BookingsTranslation = {
     partnerButton: 'Écrire au partenaire',
     partnerHint:
       'Ouvre WhatsApp avec un message prêt indiquant le numéro de réservation. Disponible jusqu’à la fin de la prestation.',
+    buyerHint:
+      'Message prêt avec le numéro de réservation, pour prévenir d’un changement de lieu, d’un retard ou de la météo. C’est enregistré et disparaît après la prestation.',
+    bookingRef: 'Réservation',
+    situation: 'Statut',
+    paid: 'Payé',
     buyerButton: 'WhatsApp du client',
     buyerAria: 'WhatsApp de {{name}}',
     noPhone: 'Aucun téléphone pour cette réservation.',
@@ -885,6 +928,14 @@ export const bookingsFr: BookingsTranslation = {
     viewMyBookings: 'Voir mes réservations',
     menuItem: 'Mes réservations',
     myBookingsTitle: 'Mes réservations',
+    detail: {
+      bookingTitle: 'Ma réservation',
+      whenLabel: 'Quand',
+      bookingLabel: 'Réservation',
+      meetingLabel: 'Point de rendez-vous',
+      today: 'aujourd’hui',
+      openDetails: 'Ouvrir la réservation {{title}}',
+    },
     loadMore: 'Charger plus',
     resultTitle: 'Paiement de la réservation',
     resultLoading: 'Vérification du paiement…',

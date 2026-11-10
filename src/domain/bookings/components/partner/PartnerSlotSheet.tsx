@@ -1,3 +1,4 @@
+import { ChevronRight } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatBusinessDate } from '../../../../shared/utils/businessDateTime';
@@ -11,8 +12,7 @@ import { getPartnerSlotDetailUseCase } from '../../application/usecases/getPartn
 import { rescheduleSlotUseCase } from '../../application/usecases/rescheduleSlotUseCase';
 import type { PartnerSlot, PartnerSlotDetail } from '../../types/bookings';
 import { getBookingErrorMessage } from '../../utils/bookingErrorMessage';
-import { bookingReference } from '../../utils/bookingReference';
-import { BookingWhatsAppButton } from '../BookingWhatsAppButton';
+import { PartnerBookingSheet } from './PartnerBookingSheet';
 import { SlotCancelDialog } from './SlotCancelDialog';
 import { SlotCheckInSheet } from './SlotCheckInSheet';
 import { SlotRescheduleDialog } from './SlotRescheduleDialog';
@@ -44,7 +44,7 @@ export function PartnerSlotSheet({
   const [checkingIn, setCheckingIn] = useState(startAtCheckIn);
   const [rescheduling, setRescheduling] = useState<PartnerSlot | null>(null);
   const [canceling, setCanceling] = useState<PartnerSlot | null>(null);
-  const [contactError, setContactError] = useState<string | null>(null);
+  const [openedBooking, setOpenedBooking] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setError(false);
@@ -85,7 +85,7 @@ export function PartnerSlotSheet({
   return (
     <>
       <Dialog
-        open={!checkingIn && !rescheduling && !canceling}
+        open={!checkingIn && !rescheduling && !canceling && !openedBooking}
         onOpenChange={(open) => !open && onClose()}
         title={detail?.offer.title ?? t('bookings.slots.title')}
         description={description}
@@ -114,51 +114,31 @@ export function PartnerSlotSheet({
             {detail.bookings.length > 0 && (
               <ul className={`${BLOCK} divide-y divide-line overflow-hidden`}>
                 {detail.bookings.map((booking) => (
-                  <li
-                    key={booking.id}
-                    className="px-4 py-2.5 flex items-center justify-between gap-3 text-[14px]"
-                  >
-                    <span className="flex-1 min-w-0 text-ink font-semibold truncate">
-                      {booking.buyerName ?? t('bookings.slotSheet.noName')} ·{' '}
-                      {t('bookings.slotSheet.units', { count: booking.units })}
-                    </span>
-                    {booking.checkedInUnits > 0 ? (
-                      <StatusText tone="success">
-                        {t('bookings.slotSheet.statusArrived')}
-                      </StatusText>
-                    ) : (
-                      <StatusText tone="muted">{t('bookings.slotSheet.statusWaiting')}</StatusText>
-                    )}
-                    {slot.status === 'open' && (
-                      <BookingWhatsAppButton
-                        iconOnly
-                        bookingId={booking.id}
-                        label={t('bookings.contact.buyerButton')}
-                        ariaLabel={t('bookings.contact.buyerAria', {
-                          name: booking.buyerName ?? t('bookings.slotSheet.noName'),
-                        })}
-                        message={
-                          booking.buyerName
-                            ? t('bookings.contact.toBuyer', {
-                                name: booking.buyerName,
-                                title: detail.offer.title,
-                                code: bookingReference(booking.id),
-                                when,
-                              })
-                            : t('bookings.contact.toBuyerNoName', {
-                                title: detail.offer.title,
-                                code: bookingReference(booking.id),
-                                when,
-                              })
-                        }
-                        onError={setContactError}
-                      />
-                    )}
+                  <li key={booking.id}>
+                    <button
+                      type="button"
+                      onClick={() => setOpenedBooking(booking.id)}
+                      className="press w-full px-4 py-3 min-h-14 flex items-center justify-between gap-3 text-left text-[14px] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-400/50 focus-visible:outline-none"
+                    >
+                      <span className="flex-1 min-w-0 text-ink font-semibold truncate">
+                        {booking.buyerName ?? t('bookings.slotSheet.noName')} ·{' '}
+                        {t('bookings.slotSheet.units', { count: booking.units })}
+                      </span>
+                      {booking.checkedInUnits > 0 ? (
+                        <StatusText tone="success">
+                          {t('bookings.slotSheet.statusArrived')}
+                        </StatusText>
+                      ) : (
+                        <StatusText tone="muted">
+                          {t('bookings.slotSheet.statusWaiting')}
+                        </StatusText>
+                      )}
+                      <ChevronRight size={18} className="shrink-0 text-ink/50" aria-hidden="true" />
+                    </button>
                   </li>
                 ))}
               </ul>
             )}
-            {contactError && <StatusText tone="warn">{contactError}</StatusText>}
             {slot.status === 'open' && (
               <>
                 <button
@@ -189,6 +169,15 @@ export function PartnerSlotSheet({
           </div>
         )}
       </Dialog>
+      {detail && slot && (
+        <PartnerBookingSheet
+          booking={detail.bookings.find((booking) => booking.id === openedBooking) ?? null}
+          offerTitle={detail.offer.title}
+          when={capitalizeFirst(when ?? '', lang)}
+          canContact={slot.status === 'open'}
+          onClose={() => setOpenedBooking(null)}
+        />
+      )}
       {checkingIn && detail && slot && (
         <SlotCheckInSheet
           offerId={offerId}
