@@ -18,6 +18,16 @@ export interface BookingsTranslation {
     loadError: string;
     retry: string;
     duration: string;
+    choose: string;
+    today: string;
+    tomorrow: string;
+    reserve: string;
+    perGroup: string;
+    perPersonRange: string;
+    perPerson: string;
+    cancellationTitle: string;
+    durationHours: string;
+    durationMinutes: string;
     meetingPoint: string;
     rescheduledNotice: string;
     tabsLabel: string;
@@ -273,6 +283,16 @@ export const bookingsPtBR: BookingsTranslation = {
     loadError: 'Não foi possível carregar a disponibilidade.',
     retry: 'Tentar novamente',
     duration: 'Duração: {{minutes}} min',
+    choose: 'Escolha',
+    today: 'Hoje',
+    tomorrow: 'Amanhã',
+    reserve: 'Reservar',
+    perGroup: 'por grupo, até {{count}} pessoas',
+    perPersonRange: 'de {{min}} a {{max}} pessoas',
+    perPerson: 'por pessoa',
+    cancellationTitle: 'Cancelamento',
+    durationHours: '{{hours}} h',
+    durationMinutes: '{{minutes}} min',
     meetingPoint: 'Ponto de encontro: {{address}}',
     rescheduledNotice: 'Nova data. Cancelamento com reembolso total até {{date}}',
     tabsLabel: 'Reservas',
@@ -540,6 +560,16 @@ export const bookingsEn: BookingsTranslation = {
     loadError: 'Availability could not be loaded.',
     retry: 'Try again',
     duration: 'Duration: {{minutes}} min',
+    choose: 'Choose',
+    today: 'Today',
+    tomorrow: 'Tomorrow',
+    reserve: 'Book',
+    perGroup: 'per group, up to {{count}} people',
+    perPersonRange: '{{min}} to {{max}} people',
+    perPerson: 'per person',
+    cancellationTitle: 'Cancellation',
+    durationHours: '{{hours}} h',
+    durationMinutes: '{{minutes}} min',
     meetingPoint: 'Meeting point: {{address}}',
     rescheduledNotice: 'New date. Full refund if you cancel by {{date}}',
     tabsLabel: 'Bookings',
@@ -806,6 +836,16 @@ export const bookingsFr: BookingsTranslation = {
     loadError: 'Impossible de charger les disponibilités.',
     retry: 'Réessayer',
     duration: 'Durée : {{minutes}} min',
+    choose: 'Choisissez',
+    today: 'Aujourd’hui',
+    tomorrow: 'Demain',
+    reserve: 'Réserver',
+    perGroup: 'par groupe, jusqu’à {{count}} personnes',
+    perPersonRange: 'de {{min}} à {{max}} personnes',
+    perPerson: 'par personne',
+    cancellationTitle: 'Annulation',
+    durationHours: '{{hours}} h',
+    durationMinutes: '{{minutes}} min',
     meetingPoint: 'Point de rendez-vous : {{address}}',
     rescheduledNotice:
       'Nouvelle date. Remboursement intégral en cas d’annulation avant le {{date}}',

@@ -61,6 +61,12 @@ import {
 } from './insightsResources';
 import { type LegalTranslation, legalEn, legalFr, legalPtBR } from './legalResources';
 import {
+  type ListingDetailTranslation,
+  listingDetailEn,
+  listingDetailFr,
+  listingDetailPtBR,
+} from './listingDetailResources';
+import {
   type ListingPlanTranslation,
   listingPlanEn,
   listingPlanFr,
@@ -174,6 +180,12 @@ import {
   reviewReportsPtBR,
 } from './reviewReportsResources';
 import {
+  type ReviewsUiTranslation,
+  reviewsUiEn,
+  reviewsUiFr,
+  reviewsUiPtBR,
+} from './reviewsUiResources';
+import {
   type SaleClaimsTranslation,
   saleClaimsEn,
   saleClaimsFr,
@@ -260,6 +272,8 @@ export interface TranslationResource {
   partnerEarnings: PartnerEarningsTranslation;
   partnerFirstSteps: PartnerFirstStepsTranslation;
   partnerAddSegment: PartnerAddSegmentTranslation;
+  listingDetail: ListingDetailTranslation;
+  reviewsUi: ReviewsUiTranslation;
   partnerSignup: PartnerSignupTranslation;
   partnerAgora: PartnerAgoraTranslation;
   courtesy: CourtesyTranslation;
@@ -513,6 +527,8 @@ const ptBR: TranslationResource = {
   partnerEarnings: partnerEarningsPtBR,
   partnerFirstSteps: partnerFirstStepsPtBR,
   partnerAddSegment: partnerAddSegmentPtBR,
+  listingDetail: listingDetailPtBR,
+  reviewsUi: reviewsUiPtBR,
   partnerSignup: partnerSignupPtBR,
   partnerAgora: partnerAgoraPtBR,
   courtesy: courtesyPtBR,
@@ -826,6 +842,8 @@ const en: TranslationResource = {
   partnerEarnings: partnerEarningsEn,
   partnerFirstSteps: partnerFirstStepsEn,
   partnerAddSegment: partnerAddSegmentEn,
+  listingDetail: listingDetailEn,
+  reviewsUi: reviewsUiEn,
   partnerSignup: partnerSignupEn,
   partnerAgora: partnerAgoraEn,
   courtesy: courtesyEn,
@@ -1133,6 +1151,8 @@ const fr: TranslationResource = {
   partnerEarnings: partnerEarningsFr,
   partnerFirstSteps: partnerFirstStepsFr,
   partnerAddSegment: partnerAddSegmentFr,
+  listingDetail: listingDetailFr,
+  reviewsUi: reviewsUiFr,
   partnerSignup: partnerSignupFr,
   partnerAgora: partnerAgoraFr,
   courtesy: courtesyFr,

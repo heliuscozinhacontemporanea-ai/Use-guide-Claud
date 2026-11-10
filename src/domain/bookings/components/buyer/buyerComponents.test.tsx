@@ -42,9 +42,9 @@ describe('componentes de compra', () => {
     render(<SlotPicker offerId="offer-1" selectedId={null} onSelect={vi.fn()} />);
     const soldOut = await screen.findByRole('button', { name: /Esgotado/ });
     expect((soldOut as HTMLButtonElement).disabled).toBe(true);
-    expect((screen.getByRole('button', { name: /3 vagas/ }) as HTMLButtonElement).disabled).toBe(
-      false
-    );
+    // O horário com vaga fica ativo; a lista mostra só o dia e a hora (print de 2026-11-10).
+    const open = screen.getAllByRole('button').find((button) => !button.hasAttribute('aria-label'));
+    expect((open as HTMLButtonElement).disabled).toBe(false);
   });
 
   it('QuantitySelector respeita o limite total e o máximo da opção', () => {
@@ -120,7 +120,8 @@ describe('componentes de compra', () => {
         renderPaymentElement={() => null}
       />
     );
-    expect(await screen.findByText('Buggy tour')).toBeTruthy();
+    // Uma oferta só: o cartão abre com "Choose" e a duração, sem repetir o nome do anúncio.
+    expect(await screen.findByText('Cancellation')).toBeTruthy();
     expect(
       screen.getByText(/Full refund up to 5 days before the start; 50% up to 24 h before/)
     ).toBeTruthy();
