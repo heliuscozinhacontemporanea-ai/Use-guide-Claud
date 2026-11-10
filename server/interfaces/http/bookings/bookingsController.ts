@@ -2,9 +2,10 @@ import type { Response } from 'express';
 import { answerServiceConfirmationApplicationUseCase } from '../../../application/usecases/bookings/answerServiceConfirmationApplicationUseCase';
 import { cancelBookingByBuyerApplicationUseCase } from '../../../application/usecases/bookings/cancelBookingByBuyerApplicationUseCase';
 import { createBookingApplicationUseCase } from '../../../application/usecases/bookings/createBookingApplicationUseCase';
-import { respondToArrivalApplicationUseCase } from '../../../application/usecases/bookings/respondToArrivalApplicationUseCase';
+import { getBookingContactApplicationUseCase } from '../../../application/usecases/bookings/getBookingContactApplicationUseCase';
 import { markBookingNoShowApplicationUseCase } from '../../../application/usecases/bookings/markBookingNoShowApplicationUseCase';
 import { reportProviderAbsentApplicationUseCase } from '../../../application/usecases/bookings/reportProviderAbsentApplicationUseCase';
+import { respondToArrivalApplicationUseCase } from '../../../application/usecases/bookings/respondToArrivalApplicationUseCase';
 import {
   getBookingCheckInCodeUseCase,
   getBookingForActorUseCase,
@@ -17,9 +18,9 @@ import type { AuthenticatedRequest } from '../../../infrastructure/auth/authenti
 import { handleBookingError, sendError } from './bookingHttpErrors';
 import { toBookingDetails, toBuyerBooking, toSellerBooking } from './bookingResponses';
 import {
+  ArrivalResponseSchema,
   CancelBookingSchema,
   CreateBookingSchema,
-  ArrivalResponseSchema,
   DocumentIdSchema,
   IdempotencyKeyHeaderSchema,
   PageQuerySchema,
@@ -113,6 +114,21 @@ export class BookingsController {
       return res.status(200).json(view);
     } catch (error) {
       return handleBookingError(res, 'getCheckInCode', error);
+    }
+  }
+
+  /** C2/B37: telefone do outro lado, para o WhatsApp com mensagem pronta; nunca em cache. */
+  static async getContact(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    const actor = actorOf(req);
+    if (!actor) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
+    const bookingId = DocumentIdSchema.safeParse(req.params.bookingId);
+    if (!bookingId.success) return sendError(res, 404, 'NOT_FOUND', 'Reserva não encontrada.');
+    try {
+      const view = await getBookingContactApplicationUseCase(actor, bookingId.data);
+      res.setHeader('Cache-Control', 'no-store');
+      return res.status(200).json(view);
+    } catch (error) {
+      return handleBookingError(res, 'getContact', error);
     }
   }
 

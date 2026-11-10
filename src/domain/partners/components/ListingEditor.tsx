@@ -1,22 +1,27 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { RefreshCw, Trash2, X } from 'lucide-react';
-import { AnimatePresence, motion } from 'motion/react';
+import { Loader2, Trash2 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { FormProvider, useForm, type Resolver } from 'react-hook-form';
-import { Z_INDEX } from '../../../shared/constants/zIndex';
+import { FormProvider, type Path, type Resolver, useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { useUI } from '../../../shared/stores/useUIStore';
+import { splitE164 } from '../../../shared/utils/phone';
+import { ConfirmDialog } from '../../../ui/components/ConfirmDialog';
+import { Dialog } from '../../../ui/components/Dialog';
 import type { PhoneInputFieldRef } from '../../../ui/components/PhoneInputField';
+import { BUTTON_DANGER, BUTTON_PRIMARY } from '../../../ui/styles/controls';
 import type { UserSession } from '../../auth';
 import { getImageUploadErrorMessage, uploadImageUseCase } from '../../media';
 import { getEmptyFormData, mapItemToFormData } from '../application/mappers/partnerFormMapper';
 import { mapPartnerSubmissionToGuideItem } from '../application/mappers/partnerSubmissionToGuide';
+import { getPartnerItemContactUseCase } from '../application/usecases/getPartnerItemContactUseCase';
 import { INITIAL_FORM_DATA } from '../constants/formDefaults';
 import { LISTING_CATEGORIES } from '../constants/listingCategories';
-import { useEditorScrollLock } from '../hooks/useEditorScrollLock';
 import { useListingEditorValidation } from '../hooks/useListingEditorValidation';
 import { partnerSubmissionSchema } from '../schemas/partnerSchema';
 import type { PartnerContentItemInput, PartnerContentRecord } from '../types/partnerContent';
 import type { FormState } from '../types/partsForm';
+import { listingSellsThroughApp } from '../utils/listingSells';
+import { revealFirstSignupError } from '../utils/revealFirstSignupError';
 import { Step1CompanyInfo } from './steps/Step1CompanyInfo';
 import { Step2ContactInfo } from './steps/Step2ContactInfo';
 import { Step3Details } from './steps/Step3Details';
@@ -34,9 +39,14 @@ export interface ListingEditorProps {
   onClose: () => void;
 }
 
+// Erros que o passo 1 lê do React Hook Form (os outros passos leem do estado local).
+const IDENTITY_FIELDS = ['category', 'businessName', 'description'];
+// Duração da saída da folha (Dialog) antes de desmontar o editor.
+const CLOSE_MS = 220;
+
 /**
- * Editor único de cadastro (decisão D9): mesmos campos e regras da inscrição, usado pelo painel do
- * parceiro e pelo painel admin. Quem chama decide onde gravar.
+ * Editor único de cadastro (decisão D9): mesmos campos e regras da inscrição, numa folha, usado pelo
+ * painel do parceiro e pelo painel admin. Quem chama decide onde gravar.
  */
 export function ListingEditor({
   item,
@@ -46,15 +56,21 @@ export function ListingEditor({
   onDelete,
   onClose,
 }: ListingEditorProps) {
+  const { t } = useTranslation();
   const { showToast } = useUI();
+  // Cadastro novo com uma categoria só (ex.: "Também trabalha com…?") já vem com ela escolhida.
   const [formData, setFormData] = useState<FormState>(() =>
-    item ? mapItemToFormData(item) : getEmptyFormData('')
+    item
+      ? mapItemToFormData(item)
+      : getEmptyFormData(allowedCategoryIds?.length === 1 ? allowedCategoryIds[0] : '')
   );
+  const [open, setOpen] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const { errors, setErrors, validateAll } = useListingEditorValidation(formData);
   const phoneRef = useRef<PhoneInputFieldRef | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const bodyRef = useRef<HTMLDivElement>(null);
 
   const categories = LISTING_CATEGORIES.filter(
     (category) => Boolean(item) || !allowedCategoryIds || allowedCategoryIds.includes(category.id)
@@ -70,10 +86,45 @@ export function ListingEditor({
     methods.reset(formData, { keepDefaultValues: true });
   }, [formData, methods]);
 
-  useEditorScrollLock(true);
+  // Anúncio que vende pelo app não publica o telefone (C2/B37): o editor busca o do próprio dono.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: só ao abrir o anúncio.
+  useEffect(() => {
+    if (
+      !item?.id ||
+      !listingSellsThroughApp(item.category, mapItemToFormData(item).sightAccessType)
+    ) {
+      return;
+    }
+    let active = true;
+    getPartnerItemContactUseCase(item.id)
+      .then(({ phone }) => {
+        if (!active || !phone) return;
+        const { ddi, nationalNumber } = splitE164(phone);
+        setFormData((current) => ({ ...current, phone: nationalNumber, phoneDdi: ddi }));
+      })
+      .catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, [item?.id]);
+
+  const close = () => {
+    setOpen(false);
+    window.setTimeout(onClose, CLOSE_MS);
+  };
 
   const handleSave = async () => {
-    if (!validateAll(phoneRef.current?.validate() ?? true)) return;
+    // Telefone vazio já tem a mensagem do schema; o campo só confere o formato do que foi digitado.
+    const phoneOk = !formData.phone || (phoneRef.current?.validate() ?? true);
+    const found = validateAll(phoneOk);
+    if (found) {
+      for (const field of IDENTITY_FIELDS) {
+        const message = found[field];
+        if (message) methods.setError(field as Path<FormState>, { type: 'manual', message });
+      }
+      revealFirstSignupError(bodyRef.current?.closest('[role="dialog"]'));
+      return;
+    }
     setIsSaving(true);
     try {
       const imageUrls = await Promise.all(
@@ -89,12 +140,15 @@ export function ListingEditor({
         imageUrls.filter((url): url is string => Boolean(url))
       );
       await onSave(input, item?.id || null);
-      showToast('Cadastro salvo.', 'success');
-      onClose();
+      showToast(t('partnerSignup.editor.saved'), 'success');
+      close();
     } catch (error: unknown) {
       console.error('[ListingEditor.save]', error);
+      const message = error instanceof Error ? error.message : '';
       showToast(
-        error instanceof Error && error.message ? error.message : 'Não foi possível salvar.',
+        message === 'CONTACT_IN_TEXT'
+          ? t('partnerSignup.errors.contactInText')
+          : message || t('partnerSignup.editor.saveFailed'),
         'error'
       );
     } finally {
@@ -104,95 +158,59 @@ export function ListingEditor({
 
   const handleDelete = async () => {
     if (!item?.id || !onDelete) return;
+    setConfirmDelete(false);
     setIsSaving(true);
     try {
       await onDelete(item.id);
-      showToast('Cadastro excluído.', 'success');
-      onClose();
+      showToast(t('partnerSignup.editor.deleted'), 'success');
+      close();
     } catch (error: unknown) {
       console.error('[ListingEditor.delete]', error);
-      showToast('Não foi possível excluir o cadastro.', 'error');
+      showToast(t('partnerSignup.editor.deleteFailed'), 'error');
     } finally {
       setIsSaving(false);
-      setShowDeleteConfirm(false);
     }
   };
 
-  const categoryLabel =
-    LISTING_CATEGORIES.find((category) => category.id === formData.category)?.label ||
-    'Selecione uma categoria';
+  const category = categories.find((option) => option.id === formData.category);
+  const sectionTitle = 'px-1 text-[17px] font-semibold text-ink';
 
   return (
     <>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        style={{ zIndex: Z_INDEX.modal }}
-        className="fixed inset-0 flex overflow-y-auto no-scrollbar justify-center items-start pt-[7.5vh] pb-[7.5vh] px-4 bg-black/5 backdrop-blur-xl"
+      <Dialog
+        open={open}
+        onOpenChange={(next) => !next && !isSaving && close()}
+        title={t(item?.id ? 'partnerSignup.editor.editTitle' : 'partnerSignup.editor.newTitle')}
+        description={
+          category
+            ? t(`partnerSignup.categories.${category.id}`, { defaultValue: category.label })
+            : undefined
+        }
+        className="sm:max-w-lg"
       >
-        <motion.div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="listing-editor-title"
-          initial={{ scale: 0.95, y: 15, opacity: 0 }}
-          animate={{ scale: 1, y: 0, opacity: 1 }}
-          exit={{ scale: 0.95, y: 15, opacity: 0 }}
-          transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-          style={{ height: 'calc(85vh - env(safe-area-inset-bottom))' }}
-          className="w-full max-w-2xl glassmorphism-vibrant bg-white/10 backdrop-blur-3xl rounded-[2.5rem] border border-white/10 overflow-hidden flex flex-col shadow-2xl relative z-10"
-        >
-          <div className="p-8 pb-4 flex items-center justify-between flex-shrink-0">
-            <div>
-              <h3
-                id="listing-editor-title"
-                className="text-xl font-display font-black text-white tracking-tight"
-              >
-                {item?.id ? 'Editar cadastro' : 'Novo cadastro'}
-              </h3>
-              <p className="text-[10px] text-white/50 font-medium tracking-wide uppercase mt-0.5">
-                Ficha única de cadastro • {categoryLabel}
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label="Fechar editor"
-              className="w-11 h-11 flex items-center justify-center bg-white/5 rounded-2xl text-white/50 hover:bg-white/10 transition-colors focus-visible:ring-2 focus-visible:ring-teal-400/50"
-            >
-              <X size={24} aria-hidden="true" />
-            </button>
-          </div>
-
-          <FormProvider {...methods}>
-            <div className="flex-1 overflow-y-auto px-8 py-10 space-y-12 no-scrollbar scroll-smooth">
-              <div className="space-y-6">
-                <Step1CompanyInfo
-                  formData={formData}
-                  setFormData={setFormData}
-                  categories={categories}
-                  lockCategory={Boolean(item?.id)}
-                />
-              </div>
-
-              {formData.category && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4 }}
-                  className="space-y-12"
-                >
-                  <div className="space-y-6">
-                    <Step2ContactInfo
-                      formData={formData}
-                      setFormData={setFormData}
-                      errors={errors}
-                      setErrors={setErrors}
-                      phoneRef={phoneRef}
-                      categories={categories}
-                    />
-                  </div>
-                  <div className="space-y-6">
+        <FormProvider {...methods}>
+          <div ref={bodyRef} className="space-y-8 pt-2">
+            <Step1CompanyInfo
+              formData={formData}
+              setFormData={setFormData}
+              categories={categories}
+              lockCategory={Boolean(item?.id)}
+            />
+            {formData.category && (
+              <>
+                <section className="space-y-4">
+                  <h3 className={sectionTitle}>{t('partnerSignup.editor.contactTitle')}</h3>
+                  <Step2ContactInfo
+                    formData={formData}
+                    setFormData={setFormData}
+                    errors={errors}
+                    setErrors={setErrors}
+                    phoneRef={phoneRef}
+                    categories={categories}
+                  />
+                </section>
+                {formData.category !== 'producer' && (
+                  <>
                     <Step3Details
                       formData={formData}
                       setFormData={setFormData}
@@ -200,114 +218,77 @@ export function ListingEditor({
                       setErrors={setErrors}
                       categories={categories}
                     />
-                  </div>
-                  <div className="space-y-6">
                     <Step4Additional
                       formData={formData}
                       setFormData={setFormData}
                       errors={errors}
                       setErrors={setErrors}
-                      categories={categories}
                     />
-                  </div>
-                  <div className="space-y-6">
-                    <Step5Media
-                      formData={formData}
-                      setFormData={setFormData}
-                      currentUser={currentUser}
-                      categories={categories}
-                      setCurrentStep={() => {}}
-                      fileInputRef={fileInputRef}
-                      hideReview={true}
-                    />
-                  </div>
-                </motion.div>
-              )}
-            </div>
-          </FormProvider>
+                  </>
+                )}
+                <Step5Media
+                  formData={formData}
+                  setFormData={setFormData}
+                  errors={errors}
+                  currentUser={currentUser}
+                  categories={categories}
+                  setCurrentStep={() => {}}
+                  fileInputRef={fileInputRef}
+                  hideReview
+                />
+              </>
+            )}
+          </div>
+        </FormProvider>
 
-          {formData.category && (
-            <div className="p-8 border-t border-white/5 flex flex-row items-center gap-4 w-full flex-shrink-0">
+        {formData.category && (
+          // Ações presas ao pé da folha, por cima do formulário que rola.
+          <div className="sticky -bottom-6 -mx-6 mt-6 px-6 pt-3 pb-6 bg-sheet border-t border-line flex items-center gap-3">
+            {item?.id && onDelete && (
               <button
                 type="button"
+                onClick={() => setConfirmDelete(true)}
                 disabled={isSaving}
-                onClick={handleSave}
-                className="flex-1 min-h-[44px] py-4 rounded-2xl font-semibold tracking-wide text-[12px] active:scale-95 transition-all shadow-xl flex items-center justify-center gap-2 bg-teal-500 text-black shadow-teal-500/20 disabled:cursor-not-allowed disabled:opacity-80 focus-visible:ring-2 focus-visible:ring-teal-400/50"
+                aria-label={t('partnerSignup.editor.delete')}
+                className={`${BUTTON_DANGER} w-12 min-h-12 px-0 flex items-center justify-center`}
               >
-                {isSaving && <RefreshCw className="animate-spin" size={16} aria-hidden="true" />}
-                Salvar
+                <Trash2 size={18} aria-hidden="true" />
               </button>
-              {item?.id && onDelete && (
-                <button
-                  type="button"
-                  onClick={() => setShowDeleteConfirm(true)}
-                  disabled={isSaving}
-                  aria-label="Excluir cadastro"
-                  className="w-12 h-12 bg-rose-500/10 text-rose-500 border border-rose-500/20 rounded-2xl flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all flex-shrink-0 focus-visible:ring-2 focus-visible:ring-teal-400/50"
-                >
-                  <Trash2 size={16} aria-hidden="true" />
-                </button>
-              )}
-            </div>
-          )}
-        </motion.div>
-      </motion.div>
-
-      <AnimatePresence>
-        {showDeleteConfirm && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            style={{ zIndex: Z_INDEX.modalNested }}
-            className="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center p-6"
-          >
-            <div
-              role="alertdialog"
-              aria-modal="true"
-              aria-labelledby="listing-delete-title"
-              className="w-full max-w-xs bg-[#0A0C10] rounded-[2.5rem] border border-white/10 p-8 text-center space-y-6"
+            )}
+            <button
+              type="button"
+              disabled={isSaving}
+              onClick={handleSave}
+              className={`${BUTTON_PRIMARY} flex-1 min-h-12 text-[16px] flex items-center justify-center gap-2`}
             >
-              <div className="w-16 h-16 rounded-2xl bg-rose-500/10 flex items-center justify-center text-rose-500 mx-auto">
-                <Trash2 size={32} aria-hidden="true" />
-              </div>
-              <div>
-                <h3
-                  id="listing-delete-title"
-                  className="text-lg font-display font-black text-white"
-                >
-                  Excluir {formData.businessName || 'cadastro'}?
-                </h3>
-                <p className="text-white/50 text-xs mt-2 leading-relaxed">
-                  Esta ação não pode ser desfeita.
-                </p>
-              </div>
-              <div className="flex flex-col gap-3">
-                <button
-                  type="button"
-                  onClick={handleDelete}
-                  disabled={isSaving}
-                  className="w-full min-h-[44px] bg-rose-500 text-white py-4 rounded-2xl font-bold uppercase tracking-widest text-[10px] hover:bg-rose-400 active:scale-95 flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-teal-400/50"
-                >
-                  {isSaving ? (
-                    <RefreshCw className="animate-spin" size={14} aria-hidden="true" />
-                  ) : (
-                    <Trash2 size={14} aria-hidden="true" />
-                  )}
-                  Excluir
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowDeleteConfirm(false)}
-                  className="w-full min-h-[44px] bg-white/5 text-white/50 py-4 rounded-2xl font-bold uppercase tracking-widest text-[10px] hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-teal-400/50"
-                >
-                  Cancelar
-                </button>
-              </div>
-            </div>
-          </motion.div>
+              {isSaving && (
+                <Loader2
+                  size={16}
+                  className="animate-spin motion-reduce:animate-none"
+                  aria-hidden="true"
+                />
+              )}
+              {t(isSaving ? 'partnerSignup.editor.saving' : 'partnerSignup.editor.save')}
+            </button>
+          </div>
         )}
-      </AnimatePresence>
+      </Dialog>
+
+      <ConfirmDialog
+        data={
+          confirmDelete
+            ? {
+                title: t('partnerSignup.editor.deleteTitle', {
+                  name: formData.businessName || t('partnerSignup.editor.editTitle'),
+                }),
+                message: t('partnerSignup.editor.deleteText'),
+                confirmLabel: t('partnerSignup.editor.delete'),
+                onConfirm: handleDelete,
+                onCancel: () => setConfirmDelete(false),
+              }
+            : null
+        }
+      />
     </>
   );
 }

@@ -95,7 +95,7 @@ export interface PartnerPanelTranslation {
     week_bookings: CardTexts & { occupancy: string };
     guests: CardTexts;
     promoters: CardTexts & { owed: string };
-    plan_seal: CardTexts & { until: string };
+    plan_seal: CardTexts & { until: string; none: string };
     week_occupancy: CardTexts;
     month_sales: CardTexts & { compare: string; noCompare: string };
     promo_codes: CardTexts & {
@@ -144,10 +144,19 @@ export interface PartnerPanelTranslation {
     title: string;
     reports: string;
     reportsHint: string;
+    groupBusiness: string;
+    groupHelp: string;
     producer: string;
     producerHint: string;
     coupons: string;
     couponsHint: string;
+    couponsBy: {
+      tours: string;
+      rentals: string;
+      transfers: string;
+      attraction: string;
+      events: string;
+    };
     establishments: string;
     documents_one: string;
     documents_other: string;
@@ -305,6 +314,7 @@ export const partnerPanelPtBR: PartnerPanelTranslation = {
       title: 'Plano e selo',
       description: 'Quando vence o plano de cada estabelecimento',
       until: 'Plano até {{date}}',
+      none: 'Sem plano · conheça os planos',
     },
     week_occupancy: { title: 'Ocupação da semana', description: 'Lugares vendidos por dia' },
     month_sales: {
@@ -361,10 +371,19 @@ export const partnerPanelPtBR: PartnerPanelTranslation = {
     title: 'Mais',
     reports: 'Relatórios',
     reportsHint: 'Vendas por item e por mês',
+    groupBusiness: 'Seu negócio',
+    groupHelp: 'Ajuda e conta',
     producer: 'Perfil de produtor',
     producerHint: 'Nome, foto e descrição que o público vê',
     coupons: 'Cupons',
     couponsHint: 'Descontos para seus anúncios',
+    couponsBy: {
+      tours: 'Cupons dos seus passeios',
+      rentals: 'Cupons dos seus aluguéis',
+      transfers: 'Cupons dos seus translados',
+      attraction: 'Cupons das suas entradas',
+      events: 'Cupons dos seus eventos',
+    },
     establishments: 'Estabelecimentos',
     documents_one: '{{count}} CNPJ',
     documents_other: '{{count}} CNPJs',
@@ -526,6 +545,7 @@ export const partnerPanelEn: PartnerPanelTranslation = {
       title: 'Plan and badge',
       description: "When each business's plan ends",
       until: 'Plan until {{date}}',
+      none: 'No plan · see the plans',
     },
     week_occupancy: { title: 'Weekly occupancy', description: 'Spots sold per day' },
     month_sales: {
@@ -582,10 +602,19 @@ export const partnerPanelEn: PartnerPanelTranslation = {
     title: 'More',
     reports: 'Reports',
     reportsHint: 'Sales per listing and per month',
+    groupBusiness: 'Your business',
+    groupHelp: 'Help and account',
     producer: 'Producer profile',
     producerHint: 'Name, photo and description the public sees',
     coupons: 'Promo codes',
     couponsHint: 'Discounts for your listings',
+    couponsBy: {
+      tours: 'Promo codes for your tours',
+      rentals: 'Promo codes for your rentals',
+      transfers: 'Promo codes for your transfers',
+      attraction: 'Promo codes for your tickets',
+      events: 'Promo codes for your events',
+    },
     establishments: 'Businesses',
     documents_one: '{{count}} CNPJ',
     documents_other: '{{count}} CNPJs',
@@ -748,6 +777,7 @@ export const partnerPanelFr: PartnerPanelTranslation = {
       title: 'Formule et badge',
       description: 'Quand la formule de chaque établissement expire',
       until: 'Formule jusqu’au {{date}}',
+      none: 'Sans formule · voir les formules',
     },
     week_occupancy: { title: 'Occupation de la semaine', description: 'Places vendues par jour' },
     month_sales: {
@@ -804,10 +834,19 @@ export const partnerPanelFr: PartnerPanelTranslation = {
     title: 'Plus',
     reports: 'Rapports',
     reportsHint: 'Ventes par fiche et par mois',
+    groupBusiness: 'Votre activité',
+    groupHelp: 'Aide et compte',
     producer: 'Profil d’organisateur',
     producerHint: 'Nom, photo et description visibles par le public',
     coupons: 'Codes promo',
     couponsHint: 'Réductions pour vos annonces',
+    couponsBy: {
+      tours: 'Codes promo de vos excursions',
+      rentals: 'Codes promo de vos locations',
+      transfers: 'Codes promo de vos transferts',
+      attraction: 'Codes promo de vos entrées',
+      events: 'Codes promo de vos événements',
+    },
     establishments: 'Établissements',
     documents_one: '{{count}} CNPJ',
     documents_other: '{{count}} CNPJ',

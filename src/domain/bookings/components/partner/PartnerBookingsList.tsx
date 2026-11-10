@@ -4,8 +4,10 @@ import { useTranslation } from 'react-i18next';
 import { ListEmpty, ListError, ListLoading } from '../../../../ui/components/ListState';
 import { BUTTON_SECONDARY } from '../../../../ui/styles/controls';
 import { useOfferBookings } from '../../hooks/useOfferBookings';
+import { bookingReference } from '../../utils/bookingReference';
 import { formatSlotDateTime, placeDateKey } from '../../utils/dates';
 import { formatMinor } from '../../utils/money';
+import { BookingWhatsAppButton } from '../BookingWhatsAppButton';
 import { BookingServiceControls } from './BookingServiceControls';
 
 /** Reservas da oferta; no dia do serviço, cada uma mostra as ações do prestador (D20). */
@@ -51,6 +53,21 @@ export function PartnerBookingsList({ offerId }: { offerId: string }) {
                   {t('serviceProof.partner.pickupAt', { address: booking.pickupAddress })}
                 </p>
               )}
+              {booking.status === 'confirmed' &&
+                Date.now() <=
+                  new Date(booking.offer.startsAt).getTime() +
+                    (booking.offer.durationMinutes ?? 0) * 60_000 && (
+                  <BookingWhatsAppButton
+                    bookingId={booking.id}
+                    label={t('bookings.contact.buyerButton')}
+                    message={t('bookings.contact.toBuyerNoName', {
+                      title: booking.offer.title,
+                      code: bookingReference(booking.id),
+                      when: formatSlotDateTime(booking.offer.startsAt, i18n.language),
+                    })}
+                    onError={setNotice}
+                  />
+                )}
               {(serviceDay || booking.checkIns.length > 0) && (
                 <BookingServiceControls booking={booking} actions={bookings} onNotice={setNotice} />
               )}

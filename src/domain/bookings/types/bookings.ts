@@ -295,5 +295,19 @@ export interface ArrivalLocation {
 export interface PartnerSlotDetail {
   slot: PartnerSlot;
   offer: { id: string; title: string; kind: OfferKind; meetingPoint: string | null };
-  bookings: Array<{ id: string; buyerName: string | null; units: number; checkedInUnits: number }>;
+  bookings: Array<{
+    id: string;
+    buyerName: string | null;
+    units: number;
+    checkedInUnits: number;
+    status: BookingStatus;
+    totalMinor: number;
+    sellingUnit: SellingUnit;
+  }>;
+}
+
+/** Contato depois da compra (C2/B37): o telefone do outro lado, para o WhatsApp com mensagem pronta. */
+export interface BookingContactView {
+  counterpart: 'partner' | 'buyer';
+  phone: string | null;
 }

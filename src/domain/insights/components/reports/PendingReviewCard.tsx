@@ -32,8 +32,13 @@ export function PendingReviewCard({ review, onReplied }: PendingReviewCardProps)
       await respondToReviewUseCase(review.id, response);
       onReplied(review.id, response);
       cancel();
-    } catch {
-      showToast(t('insights.reviews.replyError'), 'error');
+    } catch (error: unknown) {
+      // C2/B37: a resposta é pública e não aceita contato nem chave Pix.
+      const contact = error instanceof Error && error.message === 'CONTACT_IN_TEXT';
+      showToast(
+        t(contact ? 'partnerSignup.errors.contactInText' : 'insights.reviews.replyError'),
+        'error'
+      );
     } finally {
       setSending(false);
     }

@@ -2,6 +2,7 @@ import { ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Dialog } from '../../../../ui/components/Dialog';
 import { PANEL_TOUR_CHAPTERS } from '../../utils/panelTourSteps';
+import type { PartnerPanelTab } from './partnerPanelTabs';
 
 const ROW =
   'press w-full px-4 py-3 min-h-14 flex items-center gap-3 text-left text-[15px] font-semibold text-ink focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-400/50';
@@ -11,7 +12,12 @@ export function PanelTourChooser({
   open,
   onOpenChange,
   onStart,
+  tabs,
+  chapterLabel,
 }: {
+  /** Só os capítulos das abas que o parceiro tem (painel por segmento). */
+  tabs?: readonly PartnerPanelTab[];
+  chapterLabel?: (tab: PartnerPanelTab) => string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onStart: (chapter: number) => void;
@@ -21,9 +27,9 @@ export function PanelTourChooser({
     { id: 'start', label: t('partnerTour.fromStart'), chapter: 0 },
     ...PANEL_TOUR_CHAPTERS.map((chapter, index) => ({
       id: chapter.tab,
-      label: t(`partnerTour.chapters.${chapter.tab}`),
+      label: chapterLabel?.(chapter.tab) ?? t(`partnerTour.chapters.${chapter.tab}`),
       chapter: index,
-    })),
+    })).filter((row) => !tabs || tabs.includes(row.id)),
   ];
   return (
     <Dialog

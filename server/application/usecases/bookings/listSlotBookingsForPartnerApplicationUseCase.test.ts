@@ -26,8 +26,24 @@ describe('folha do horário no painel', () => {
         capacitySold: 4,
       },
       bookings: [
-        { id: 'b1', buyerId: 'u1', participantsCount: 2, checkIns: [{}], pickupAddress: 'Rua X' },
-        { id: 'b2', buyerId: 'u2', participantsCount: 2 },
+        {
+          id: 'b1',
+          buyerId: 'u1',
+          participantsCount: 2,
+          checkIns: [{}],
+          pickupAddress: 'Rua X',
+          status: 'confirmed',
+          totalMinor: 36000,
+          offerSnapshot: { sellingUnit: 'person' },
+        },
+        {
+          id: 'b2',
+          buyerId: 'u2',
+          participantsCount: 2,
+          status: 'confirmed',
+          totalMinor: 60000,
+          offerSnapshot: { sellingUnit: 'group' },
+        },
       ],
     });
     m.profile.mockImplementation(async (uid: string) =>
@@ -39,8 +55,24 @@ describe('folha do horário no painel', () => {
       's1'
     );
     expect(view.bookings).toEqual([
-      { id: 'b1', buyerName: 'Ana Souza', units: 2, checkedInUnits: 1 },
-      { id: 'b2', buyerName: null, units: 2, checkedInUnits: 0 },
+      {
+        id: 'b1',
+        buyerName: 'Ana Souza',
+        units: 2,
+        checkedInUnits: 1,
+        status: 'confirmed',
+        totalMinor: 36000,
+        sellingUnit: 'person',
+      },
+      {
+        id: 'b2',
+        buyerName: null,
+        units: 2,
+        checkedInUnits: 0,
+        status: 'confirmed',
+        totalMinor: 60000,
+        sellingUnit: 'group',
+      },
     ]);
     expect(JSON.stringify(view)).not.toContain('Rua X');
     expect(JSON.stringify(view)).not.toContain('u1');

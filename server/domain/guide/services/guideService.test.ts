@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { AuthenticatedUserContext } from '../../../application/security/authenticatedUserContext';
 import { GuideDomainError } from '../errors/guideDomainError';
 import { GuidePort } from '../ports/guidePort';
-import { AuthenticatedUserContext } from '../../../application/security/authenticatedUserContext';
 import { GuideService } from './guideService';
 
 function createGuidePortMock(): GuidePort {
@@ -15,6 +15,9 @@ function createGuidePortMock(): GuidePort {
     deleteResourcesByOwner: vi.fn(),
     getAllItems: vi.fn(),
     listItemsByOwner: vi.fn(),
+    getItemContact: vi.fn(),
+    setItemContact: vi.fn(),
+    deleteItemContact: vi.fn(),
   };
 }
 
@@ -310,6 +313,50 @@ describe('GuideService', () => {
         code: 'INVALID_ID',
       });
       expect(port.updateItemVerification).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('anúncio que vende pelo app (C2/B37)', () => {
+    const tour = {
+      name: 'Buggy do Preá',
+      description: 'Volta pelas dunas.',
+      category: 'tour' as const,
+      image: '',
+      images: [],
+      location: 'Preá',
+      phone: '+5588999990000',
+      instagramLink: 'https://instagram.com/buggy',
+      websiteLink: 'https://buggy.com.br',
+    };
+
+    it('guarda o telefone no contato privado e não publica redes nem site', async () => {
+      vi.mocked(port.createItem).mockResolvedValue('item-1');
+      await service.createItem(partnerUser, tour);
+      const published = vi.mocked(port.createItem).mock.calls[0]?.[0];
+      expect(published).not.toHaveProperty('phone');
+      expect(published).not.toHaveProperty('instagramLink');
+      expect(published).not.toHaveProperty('websiteLink');
+      expect(port.setItemContact).toHaveBeenCalledWith('item-1', { phone: '+5588999990000' });
+    });
+
+    it('recusa contato escrito na descrição, apontando o campo', async () => {
+      await expect(
+        service.createItem(partnerUser, { ...tour, description: 'Chame no (88) 99999-0000' })
+      ).rejects.toMatchObject({
+        code: 'CONTACT_IN_TEXT',
+        details: { field: 'description', found: ['(88) 99999-0000'] },
+      });
+      expect(port.createItem).not.toHaveBeenCalled();
+    });
+
+    it('vitrine continua com o contato no anúncio', async () => {
+      vi.mocked(port.createItem).mockResolvedValue('item-2');
+      await service.createItem(partnerUser, { ...tour, category: 'restaurant' });
+      expect(vi.mocked(port.createItem).mock.calls[0]?.[0]).toMatchObject({
+        phone: '+5588999990000',
+        instagramLink: 'https://instagram.com/buggy',
+      });
+      expect(port.setItemContact).not.toHaveBeenCalled();
     });
   });
 });

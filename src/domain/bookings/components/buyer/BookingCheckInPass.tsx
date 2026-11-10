@@ -50,6 +50,9 @@ export function BookingCheckInPass({ booking }: { booking: BookingSummary }) {
   const total = data.passes.length;
   const label = unitLabel(t, booking, pass.unit, pass.name);
   const editable = canEditUnitName(booking, pass, new Date());
+  const title = `${t(entry ? 'serviceProof.pass.entryTitle' : 'serviceProof.pass.codeTitle')}${
+    total > 1 ? ` · ${t('serviceProof.pass.unitOf', { n: pass.unit + 1, total })}` : ''
+  }`;
 
   return (
     <div className="space-y-3">
@@ -64,17 +67,11 @@ export function BookingCheckInPass({ booking }: { booking: BookingSummary }) {
           onSelect={setSelected}
         />
       )}
-      <div className="flex items-baseline justify-between gap-2">
-        <p className="text-[13px] font-semibold text-ink/80">
-          {t(entry ? 'serviceProof.pass.entryTitle' : 'serviceProof.pass.codeTitle')}
-          {total > 1 && ` · ${t('serviceProof.pass.unitOf', { n: pass.unit + 1, total })}`}
+      {booking.sellingUnit === 'group' && booking.groupMaxPeople && (
+        <p className="px-1 text-[13px] text-ink/70">
+          {t('serviceProof.units.group', { max: booking.groupMaxPeople })}
         </p>
-        {booking.sellingUnit === 'group' && booking.groupMaxPeople && (
-          <p className="text-[12px] text-ink/70">
-            {t('serviceProof.units.group', { max: booking.groupMaxPeople })}
-          </p>
-        )}
-      </div>
+      )}
 
       {booking.requiresParticipantNames && (
         <div className="flex items-center justify-between gap-2 min-h-11">
@@ -96,26 +93,32 @@ export function BookingCheckInPass({ booking }: { booking: BookingSummary }) {
           {t('serviceProof.pass.checkedIn', { date: date(pass.checkedInAt) })}
         </p>
       ) : !pass.code ? (
-        <p className="text-[13px] text-ink/70">
-          {t('serviceProof.pass.notYet', { date: date(data.visibleFrom) })}
-        </p>
+        <div className="rounded-[20px] bg-surface border border-line p-4 space-y-1">
+          <p className="text-[15px] font-semibold text-ink">{title}</p>
+          <p className="text-[14px] text-ink/70">
+            {t('serviceProof.pass.notYet', { date: date(data.visibleFrom) })}
+          </p>
+        </div>
       ) : (
         <>
           {entry && pass.qrToken && (
             <EntryQrImage value={pass.qrToken} alt={t('serviceProof.pass.qrAlt')} />
           )}
-          <p
-            className="text-center font-display text-[28px] font-bold tracking-[0.14em] tabular-nums text-ink select-all break-all"
-            aria-label={t('serviceProof.pass.copyLabel', { code: pass.code.split('').join(' ') })}
-          >
-            {checkInPrefix(booking.kind)}:{pass.code}
-          </p>
-          <p className="text-[13px] text-ink/70 text-center">
-            {t(entry ? 'serviceProof.pass.entryHint' : 'serviceProof.pass.codeHint')}
-          </p>
-          <p className="flex items-start gap-2 text-[13px] text-warn">
-            <ShieldAlert size={16} className="shrink-0 mt-px" aria-hidden="true" />
-            {t('serviceProof.pass.warning')}
+          <div className="rounded-[20px] bg-surface border border-line p-4 text-center space-y-1">
+            <p className="text-[13px] text-ink/70">{title}</p>
+            <p
+              className="font-display text-[30px] font-bold tracking-[0.14em] tabular-nums text-ink select-all break-all"
+              aria-label={t('serviceProof.pass.copyLabel', { code: pass.code.split('').join(' ') })}
+            >
+              {checkInPrefix(booking.kind)}:{pass.code}
+            </p>
+            <p className="text-[13px] text-ink/70">
+              {t(entry ? 'serviceProof.pass.entryHint' : 'serviceProof.pass.codeHint')}
+            </p>
+          </div>
+          <p className="flex items-start gap-2 rounded-2xl border border-warn-line bg-warn-soft p-3 text-[13px] leading-relaxed text-warn">
+            <ShieldAlert size={16} className="shrink-0 mt-0.5" aria-hidden="true" />
+            {t(entry ? 'serviceProof.pass.entryWarning' : 'serviceProof.pass.warning')}
           </p>
         </>
       )}

@@ -1,48 +1,35 @@
-import { Clock, TrendingDown, TrendingUp } from 'lucide-react';
-import { ReviewSortOption } from '../types/review';
+import { useTranslation } from 'react-i18next';
+import { cn } from '../../../shared/utils/cn';
+import type { ReviewSortOption } from '../types/review';
 
-interface ReviewSortProps {
+const OPTIONS: ReviewSortOption[] = ['recent', 'highest', 'lowest'];
+
+export function ReviewSort({
+  value,
+  onChange,
+}: {
   value: ReviewSortOption;
   onChange: (value: ReviewSortOption) => void;
-}
-
-export function ReviewSort({ value, onChange }: ReviewSortProps) {
-  const options = [
-    {
-      value: 'recent' as const,
-      label: 'Mais recentes',
-      icon: Clock,
-    },
-    {
-      value: 'highest' as const,
-      label: 'Melhor avaliadas',
-      icon: TrendingUp,
-    },
-    {
-      value: 'lowest' as const,
-      label: 'Menores notas',
-      icon: TrendingDown,
-    },
-  ];
-
+}) {
+  const { t } = useTranslation();
   return (
-    <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
-      {options.map(({ value: optionValue, label, icon: Icon }) => {
-        const active = value === optionValue;
+    <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
+      {OPTIONS.map((option) => {
+        const active = value === option;
         return (
           <button
-            key={optionValue}
+            key={option}
             type="button"
-            onClick={() => onChange(optionValue)}
+            onClick={() => onChange(option)}
             aria-pressed={active}
-            className={`min-h-[44px] px-4 py-2 rounded-xl text-xs font-medium border transition-all shrink-0 flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-teal-400/50 ${
+            className={cn(
+              'press shrink-0 min-h-11 px-4 rounded-xl border text-[14px] font-medium focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none',
               active
-                ? 'bg-teal-500/20 text-teal-300 border-teal-500/30'
-                : 'bg-white/5 text-white/60 hover:text-white hover:bg-white/10 border-white/10'
-            }`}
+                ? 'bg-accent-soft border-teal-400 text-accent'
+                : 'bg-surface border-line text-ink/80'
+            )}
           >
-            <Icon size={14} />
-            <span>{label}</span>
+            {t(`reviewsUi.sort.${option}`)}
           </button>
         );
       })}

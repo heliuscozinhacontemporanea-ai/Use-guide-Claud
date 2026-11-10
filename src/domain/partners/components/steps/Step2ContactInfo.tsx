@@ -7,8 +7,9 @@ import {
   type PhoneInputFieldRef,
 } from '../../../../ui/components/PhoneInputField';
 import type { FormState } from '../../types/partsForm';
+import { listingSellsThroughApp } from '../../utils/listingSells';
 import { RequiredMark, SignupError } from '../sections/SignupFieldParts';
-import { SIGNUP_INPUT, SIGNUP_LABEL } from '../sections/signupStyles';
+import { SIGNUP_HINT, SIGNUP_INPUT, SIGNUP_LABEL } from '../sections/signupStyles';
 import { PlaceFields } from './PlaceFields';
 
 interface Step2ContactInfoProps {
@@ -53,6 +54,8 @@ export function Step2ContactInfo({
 
   const producer = formData.category === 'producer';
   const hotel = formData.category === 'hotel';
+  // C2/B37: quem vende pelo app não publica redes nem site; o telefone fica com a plataforma.
+  const sells = listingSellsThroughApp(formData.category, formData.sightAccessType);
 
   const text = (
     field: TextField,
@@ -97,16 +100,19 @@ export function Step2ContactInfo({
           onDdiChange={(value) => updateFieldValue('phoneDdi', value)}
           required
         />
+        {sells && <p className={SIGNUP_HINT}>{t('partnerSignup.step2.phonePrivate')}</p>}
         <SignupError message={getFieldError('phone')} />
       </div>
-      <div className={cn('grid gap-3', producer ? 'grid-cols-1' : 'grid-cols-2')}>
-        {text(
-          'instagram',
-          t('partnerSignup.step2.instagram'),
-          t('partnerSignup.step2.instagramPlaceholder')
-        )}
-        {!producer && text('website', t('partnerSignup.step2.website'), 'https://', 'url')}
-      </div>
+      {!sells && (
+        <div className={cn('grid gap-3', producer ? 'grid-cols-1' : 'grid-cols-2')}>
+          {text(
+            'instagram',
+            t('partnerSignup.step2.instagram'),
+            t('partnerSignup.step2.instagramPlaceholder')
+          )}
+          {!producer && text('website', t('partnerSignup.step2.website'), 'https://', 'url')}
+        </div>
+      )}
       {hotel &&
         text(
           'bookingLinks',

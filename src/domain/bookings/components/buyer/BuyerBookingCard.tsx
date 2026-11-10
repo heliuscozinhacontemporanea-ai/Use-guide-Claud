@@ -6,9 +6,8 @@ import { placeTimeSuffix } from '../../../../shared/utils/placeTime';
 import { rescheduleRefundDeadline } from '../../../../shared/utils/rescheduleRefundDeadline';
 import { StatusText, type StatusTone } from '../../../../ui/components/StatusText';
 import type { BookingStatus, BookingSummary } from '../../types/bookings';
-import { formatSlotDateTime, placeDateKey } from '../../utils/dates';
+import { formatSlotDateTime } from '../../utils/dates';
 import { formatMinor } from '../../utils/money';
-import { BookingCheckInPass } from './BookingCheckInPass';
 
 const STATUS_TONE: Partial<Record<BookingStatus, StatusTone>> = {
   pending_payment: 'warn',
@@ -26,9 +25,12 @@ const STATUS_TONE: Partial<Record<BookingStatus, StatusTone>> = {
 export function BuyerBookingCard({
   booking,
   upcoming,
+  onOpen,
 }: {
   booking: BookingSummary;
   upcoming: boolean;
+  /** Abre "Minha reserva" (código, contato e detalhes). */
+  onOpen: () => void;
 }) {
   const { t, i18n } = useTranslation();
   // Hora do lugar da oferta, gravada na compra (D28).
@@ -61,49 +63,46 @@ export function BuyerBookingCard({
   );
 
   return (
-    <li className="p-4 rounded-[20px] bg-surface border border-line">
-      <div className="flex gap-3">
-        <div className="w-12 h-12 shrink-0 rounded-2xl bg-accent-soft text-accent flex items-center justify-center">
-          <Icon size={22} aria-hidden="true" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-[15px] font-semibold text-ink leading-snug break-words">
-            {booking.offer.title}
-          </p>
-          {booking.businessName && (
-            <p className="text-[13px] text-ink/70 truncate">{booking.businessName}</p>
-          )}
-          <p className="text-sm text-ink/70 mt-0.5">
-            {upcoming
-              ? `${formatSlotDateTime(booking.offer.startsAt, i18n.language, tz)}${placeTimeSuffix(t, place, booking.offer.startsAt)} · ${t(
-                  booking.sellingUnit === 'group'
-                    ? 'serviceProof.units.groups'
-                    : 'bookings.bookingsList.participants',
-                  { count: booking.participantsCount }
-                )}`
-              : `${formatBusinessWeekday(booking.offer.startsAt, i18n.language, tz)} · ${price}`}
-          </p>
-        </div>
-      </div>
-      {refundUntil && (
-        <p className="mt-3 flex items-start gap-2 text-[13px] text-info">
-          <CalendarClock size={16} className="shrink-0 mt-px" aria-hidden="true" />
-          {t('bookings.buyer.rescheduledNotice', {
-            date: formatBusinessWeekday(refundUntil, i18n.language, tz),
-          })}
-        </p>
-      )}
-      {/* Códigos ou entradas da reserva paga, até o check-in de todas, também durante o serviço (D20). */}
-      {booking.status === 'confirmed' &&
-        booking.checkIns.length < booking.participantsCount &&
-        (upcoming ||
-          placeDateKey(booking.offer.startsAt, tz) ===
-            placeDateKey(new Date().toISOString(), tz)) && (
-          <div className="mt-3 pt-3 border-t border-line">
-            <BookingCheckInPass booking={booking} />
+    <li>
+      <button
+        type="button"
+        onClick={onOpen}
+        aria-label={t('bookings.buyer.detail.openDetails', { title: booking.offer.title })}
+        className="press w-full text-left p-4 rounded-[20px] bg-surface border border-line focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none"
+      >
+        <div className="flex gap-3">
+          <div className="w-12 h-12 shrink-0 rounded-2xl bg-accent-soft text-accent flex items-center justify-center">
+            <Icon size={22} aria-hidden="true" />
           </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-[15px] font-semibold text-ink leading-snug break-words">
+              {booking.offer.title}
+            </p>
+            {booking.businessName && (
+              <p className="text-[13px] text-ink/70 truncate">{booking.businessName}</p>
+            )}
+            <p className="text-sm text-ink/70 mt-0.5">
+              {upcoming
+                ? `${formatSlotDateTime(booking.offer.startsAt, i18n.language, tz)}${placeTimeSuffix(t, place, booking.offer.startsAt)} · ${t(
+                    booking.sellingUnit === 'group'
+                      ? 'serviceProof.units.groups'
+                      : 'bookings.bookingsList.participants',
+                    { count: booking.participantsCount }
+                  )}`
+                : `${formatBusinessWeekday(booking.offer.startsAt, i18n.language, tz)} · ${price}`}
+            </p>
+          </div>
+        </div>
+        {refundUntil && (
+          <p className="mt-3 flex items-start gap-2 text-[13px] text-info">
+            <CalendarClock size={16} className="shrink-0 mt-px" aria-hidden="true" />
+            {t('bookings.buyer.rescheduledNotice', {
+              date: formatBusinessWeekday(refundUntil, i18n.language, tz),
+            })}
+          </p>
         )}
-      {footer && <div className="mt-3 pt-3 border-t border-line">{footer}</div>}
+        {footer && <div className="mt-3 pt-3 border-t border-line">{footer}</div>}
+      </button>
     </li>
   );
 }

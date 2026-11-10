@@ -16,6 +16,10 @@ service cloud.firestore {
       allow read: if true;
       allow write: if false;
     }
+    // Telefone do anúncio que vende pelo app (C2/B37): só o servidor lê, depois da compra.
+    match /itemContacts/{itemId} {
+      allow read, write: if false;
+    }
     match /events/{eventId} {
       allow read: if
         (resource.data.status == 'published' &&

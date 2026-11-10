@@ -1,10 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import {
+  addSegmentOptions,
   catalogSegmentsFor,
   catalogTabLabel,
+  homeCardsFor,
   offersLabel,
   panelTabsFor,
   partnerSegments,
+  startingHomeCards,
 } from './partnerSegments';
 
 describe('partnerSegments', () => {
@@ -49,5 +52,73 @@ describe('partnerSegments', () => {
     const segments = partnerSegments({ categories: [], hasEvents: false });
     expect(panelTabsFor(segments)).toHaveLength(5);
     expect(catalogTabLabel(segments)).toBe('catalog');
+  });
+});
+
+describe('addSegmentOptions', () => {
+  it('marca o que o parceiro já tem e abre o cadastro do resto', () => {
+    const rows = addSegmentOptions(['tours', 'lodging']);
+    expect(rows.find((row) => row.id === 'tours')).toEqual({
+      id: 'tours',
+      has: true,
+      categories: [],
+    });
+    expect(rows.find((row) => row.id === 'rentals')).toEqual({
+      id: 'rentals',
+      has: false,
+      categories: ['rental'],
+    });
+    // Com hospedagem, a vitrine ainda oferece o restaurante.
+    expect(rows.find((row) => row.id === 'showcase')).toEqual({
+      id: 'showcase',
+      has: false,
+      categories: ['restaurant'],
+    });
+  });
+
+  it('eventos abrem o perfil de produtor', () => {
+    expect(addSegmentOptions([]).find((row) => row.id === 'events')?.categories).toEqual([
+      'producer',
+    ]);
+  });
+});
+
+describe('homeCardsFor', () => {
+  it('vitrine: só avaliações e plano', () => {
+    expect(homeCardsFor(['restaurant'])).toEqual(['reviews', 'plan_seal']);
+  });
+
+  it('passeio: vendas e agenda, sem cartões de evento', () => {
+    const cards = homeCardsFor(['tours']) ?? [];
+    expect(cards).toContain('sales_today');
+    expect(cards).toContain('week_bookings');
+    expect(cards).not.toContain('next_event');
+  });
+
+  it('sem cadastro: todos', () => {
+    expect(homeCardsFor([])).toBeNull();
+  });
+});
+
+describe('startingHomeCards', () => {
+  const defaults = [
+    'today',
+    'sales_today',
+    'next_payout',
+    'next_event',
+    'reviews',
+    'week_bookings',
+  ] as const;
+
+  it('vitrine sem personalizar começa com avaliações e plano e selo', () => {
+    expect(startingHomeCards(['restaurant'], defaults)).toEqual(['reviews', 'plan_seal']);
+  });
+
+  it('o que o parceiro escolheu fica', () => {
+    expect(startingHomeCards(['restaurant'], ['reviews'])).toEqual(['reviews']);
+  });
+
+  it('quem vende fica com o padrão', () => {
+    expect(startingHomeCards(['tours'], defaults)).toEqual(defaults);
   });
 });

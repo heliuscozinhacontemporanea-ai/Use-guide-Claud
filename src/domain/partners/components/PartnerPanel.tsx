@@ -7,18 +7,19 @@ import { MessagePage } from '../../../ui/components/MessagePage';
 import { createPartnerContentItemUseCase } from '../application/usecases/createPartnerContentItemUseCase';
 import { deletePartnerContentItemUseCase } from '../application/usecases/deletePartnerContentItemUseCase';
 import { updatePartnerContentItemUseCase } from '../application/usecases/updatePartnerContentItemUseCase';
+import { PanelTimeZoneProvider } from '../hooks/panelTimeZone';
 import { useEditorScrollLock } from '../hooks/useEditorScrollLock';
 import { usePanelNavigation } from '../hooks/usePanelNavigation';
 import { usePanelTour } from '../hooks/usePanelTour';
 import { usePartnerEventSessions } from '../hooks/usePartnerEventSessions';
 import { usePartnerPanelActions } from '../hooks/usePartnerPanelActions';
-import { PanelTimeZoneProvider } from '../hooks/panelTimeZone';
 import { usePartnerPanelHome } from '../hooks/usePartnerPanelHome';
 import { usePartnerSegments } from '../hooks/usePartnerSegments';
 import { usePlanCheckout } from '../hooks/usePlanCheckout';
 import type { PartnerContentRecord } from '../types/partnerContent';
 import type { PartnerTodayItem } from '../types/partnerHome';
 import { newPartnerEventDraft } from '../utils/newPartnerEventDraft';
+import { startingHomeCards } from '../utils/partnerSegments';
 import { ListingEditor } from './ListingEditor';
 import { PartnerEventEditor } from './PartnerEventEditor';
 import { ListingPlanFlow } from './panel/ListingPlanFlow';
@@ -27,6 +28,7 @@ import type { PartnerPanelProps } from './partnerPanelProps';
 export type { AgendaSheetProps, PartnerPanelProps } from './partnerPanelProps';
 
 import { belongs } from '../utils/partnerHomeFilter';
+import { AddSegmentSheet } from './panel/AddSegmentSheet';
 import { EstablishmentFilterSheet } from './panel/EstablishmentFilterSheet';
 import { PanelTourChooser } from './panel/PanelTourChooser';
 import { PartnerAgendaTab } from './panel/PartnerAgendaTab';
@@ -39,6 +41,7 @@ import { PartnerHomeTab } from './panel/PartnerHomeTab';
 import { PartnerMoreSection } from './panel/PartnerMoreSection';
 import { PartnerPanelTop } from './panel/PartnerPanelTop';
 import { PartnerPanelTour } from './panel/PartnerPanelTour';
+import type { PartnerPanelTab } from './panel/partnerPanelTabs';
 import type { VerificationListingOption } from './verification/verificationListingOption';
 
 export function PartnerPanel({
@@ -111,10 +114,45 @@ export function PartnerPanel({
     if (!segments.tabs.includes(panelTab)) setPanelTab('home');
   }, [segments.tabs, panelTab, setPanelTab]);
 
+  // Início por segmento (S4): só os cartões que fazem sentido para o que o parceiro faz.
+  const homeCards = React.useMemo(() => {
+    const allowed = segments.homeCards;
+    if (!allowed) return home.cards;
+    const ids = startingHomeCards(segments.segments, home.cards.cards).filter((id) =>
+      allowed.includes(id)
+    );
+    return {
+      ...home.cards,
+      visible: ids
+        .map(home.cards.dataOf)
+        .filter((card): card is NonNullable<typeof card> => card !== null),
+      available: home.cards.available.filter((id) => allowed.includes(id)),
+      // "Personalizar início" parte do que está na tela.
+      startEditing: () => home.cards.setDraft(ids),
+    };
+  }, [home.cards, segments.homeCards, segments.segments]);
+  // Vitrine (sem venda pelo app): visitas do mês do estabelecimento em vista, como no print aprovado.
+  const shownPlace =
+    itemsList.find((entry) => entry.id === home.filter) ??
+    (itemsList.length === 1 ? itemsList[0] : undefined);
+  const visitsCard =
+    !segments.tabs.includes('earnings') && shownPlace
+      ? renderCatalog?.renderVisits?.(shownPlace.id, () =>
+          setPlanListing({ id: shownPlace.id, name: shownPlace.name })
+        )
+      : undefined;
+  const chapterLabel = (tab: PartnerPanelTab) =>
+    tab === 'catalog' && segments.catalogLabel !== 'catalog'
+      ? t(`partnerPanel.catalogTab.${segments.catalogLabel}`)
+      : t(`partnerTour.chapters.${tab}`);
+
   // `null` abre o editor para um cadastro novo; `undefined` mantém fechado.
   const [editingListing, setEditingListing] = React.useState<
     PartnerContentRecord | null | undefined
   >(undefined);
+  // Categorias aceitas no cadastro novo aberto pelo "Também trabalha com…?" (S3).
+  const [newListingCategories, setNewListingCategories] = React.useState<string[] | undefined>();
+  const [addSegmentOpen, setAddSegmentOpen] = React.useState(false);
   useEditorScrollLock(Boolean(isEditing));
   const editingEventId = isEditing?.category === 'event' ? isEditing.id || undefined : undefined;
   const eventSessions = usePartnerEventSessions(editingEventId, (details) =>
@@ -178,7 +216,8 @@ export function PartnerPanel({
               onRetry={() => void home.reload()}
               view={home.data}
               attention={home.attention}
-              cards={home.cards}
+              cards={homeCards}
+              leadingCard={visitsCard}
               labelFor={home.labelFor}
               onOpenAttention={(item) => setPanelTab(ATTENTION_TAB[item.kind])}
               onOpenStep={(step) => {
@@ -292,6 +331,8 @@ export function PartnerPanel({
             <PartnerMoreSection
               showProducer={segments.segments.length === 0 || segments.segments.includes('events')}
               sells={segments.tabs.includes('earnings')}
+              onAddSegment={() => setAddSegmentOpen(true)}
+              couponsSegment={segments.couponsLabel}
               view={nav.moreView}
               onViewChange={nav.setMoreView}
               establishments={itemsList}
@@ -363,6 +404,7 @@ export function PartnerPanel({
           {editingListing !== undefined && (
             <ListingEditor
               item={editingListing}
+              allowedCategoryIds={editingListing ? undefined : newListingCategories}
               currentUser={user}
               onSave={async (input, itemId) => {
                 if (itemId) {
@@ -372,10 +414,23 @@ export function PartnerPanel({
                 }
               }}
               onDelete={deletePartnerContentItemUseCase}
-              onClose={() => setEditingListing(undefined)}
+              onClose={() => {
+                setEditingListing(undefined);
+                setNewListingCategories(undefined);
+              }}
             />
           )}
         </AnimatePresence>
+
+        <AddSegmentSheet
+          open={addSegmentOpen}
+          onOpenChange={setAddSegmentOpen}
+          segments={segments.segments}
+          onChoose={(categories) => {
+            setNewListingCategories(categories);
+            setEditingListing(null);
+          }}
+        />
 
         <ListingPlanFlow
           items={itemsList}
@@ -415,6 +470,8 @@ export function PartnerPanel({
 
         {tour.open && (
           <PartnerPanelTour
+            tabs={segments.tabs}
+            chapterLabel={chapterLabel}
             startChapter={tour.startChapter}
             onTabChange={nav.openTab}
             onClose={tour.close}
@@ -424,6 +481,8 @@ export function PartnerPanel({
           open={tour.chooserOpen}
           onOpenChange={tour.setChooserOpen}
           onStart={tour.replay}
+          tabs={segments.tabs}
+          chapterLabel={chapterLabel}
         />
 
         {renderCheckoutModal?.({

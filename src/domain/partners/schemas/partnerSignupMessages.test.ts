@@ -38,4 +38,24 @@ describe('mensagens do cadastro de parceiro', () => {
       : parsed.error.issues.find((item) => item.path[0] === 'bookingLinks');
     expect(issue?.message).toBe('partnerSignup.errors.bookingRequired');
   });
+
+  it('anúncio que vende recusa contato no texto; vitrine aceita (C2/B37)', () => {
+    const tour = step1Schema.safeParse({
+      ...INITIAL_FORM_DATA,
+      category: 'tour',
+      businessName: 'Buggy',
+      description: 'Reserve pelo (88) 99999-0000',
+    });
+    expect(tour.success ? [] : tour.error.issues.map((issue) => issue.message)).toEqual([
+      'partnerSignup.errors.contactInText',
+    ]);
+    const restaurant = step1Schema.safeParse({
+      ...INITIAL_FORM_DATA,
+      category: 'restaurant',
+      businessName: 'Cantinho',
+      description: 'Reserve pelo (88) 99999-0000',
+    });
+    expect(restaurant.success).toBe(true);
+    expect(partnerSignupErrorsPtBR).toHaveProperty('contactInText');
+  });
 });

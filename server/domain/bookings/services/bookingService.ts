@@ -5,6 +5,7 @@ import type { BookingsPort, PageRequest } from '../ports/bookingsPort';
 import { BookingCreationService, type CreatePendingBookingInput } from './bookingCreationService';
 
 export type { CreatePendingBookingInput } from './bookingCreationService';
+
 import {
   type Booking,
   type BookingActor,
@@ -35,6 +36,11 @@ export interface BookingDetails {
 // Reserva que virou venda e não voltou ao comprador (Relatórios, p23).
 const SOLD_STATUSES = new Set(['confirmed', 'completed', 'no_show', 'disputed']);
 
+/** Quem o ator procura: o parceiro (pelo anúncio, para o telefone) ou o comprador. */
+export type BookingContactTarget =
+  | { counterpart: 'partner'; guideItemId: string }
+  | { counterpart: 'buyer'; phone: string | null };
+
 export class BookingService {
   constructor(
     private readonly port: BookingsPort,
@@ -60,6 +66,34 @@ export class BookingService {
       throw new BookingDomainError('NOT_FOUND', 'Reserva não encontrada.');
     }
     return { booking, participants: await this.port.getParticipants(bookingId) };
+  }
+
+  /**
+   * Contato depois da compra (C2/B37, aprovado em 2026-11-09): só reserva confirmada, da compra até
+   * o fim do serviço; cada abertura fica na auditoria da reserva.
+   */
+  async openContact(actor: BookingActor, bookingId: string): Promise<BookingContactTarget> {
+    const { booking } = await this.getBookingForActor(actor, bookingId);
+    const { startsAt, durationMinutes } = booking.offerSnapshot;
+    if (
+      booking.status !== 'confirmed' ||
+      this.now().getTime() > serviceEndsAtMs(startsAt, durationMinutes)
+    ) {
+      throw new BookingDomainError(
+        'CONTACT_UNAVAILABLE',
+        'Contato indisponível para esta reserva.'
+      );
+    }
+    if (booking.buyerId === actor.uid) {
+      await this.port.recordBookingAudit(booking.id, actor.uid, 'partner_contact_opened');
+      return { counterpart: 'partner', guideItemId: booking.guideItemId };
+    }
+    if (booking.sellerPartnerId === actor.uid) {
+      await this.port.recordBookingAudit(booking.id, actor.uid, 'buyer_contact_opened');
+      return { counterpart: 'buyer', phone: booking.contactPhone ?? null };
+    }
+    // Admin vê a reserva, mas não abre conversa em nome de ninguém.
+    throw new BookingDomainError('FORBIDDEN', 'Só o comprador ou o parceiro abre o contato.');
   }
 
   async getBooking(bookingId: string): Promise<Booking | null> {

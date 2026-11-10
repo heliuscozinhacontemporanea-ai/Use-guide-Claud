@@ -1,14 +1,14 @@
-import { describe, it, expect, vi } from 'vitest';
-import { createItemSchema, updateItemSchema } from '../domain/guide/schemas/guideSchema';
-import { updateUserProfileSchema } from '../domain/users/schemas/userSchema';
-import { CreatePlanPaymentIntentSchema } from '../domain/payment/schemas/paymentSchema';
-import { GuideService } from '../domain/guide/services/guideService';
-import { GuidePort } from '../domain/guide/ports/guidePort';
+import { describe, expect, it, vi } from 'vitest';
 import { GuideDomainError } from '../domain/guide/errors/guideDomainError';
-import { InsightsService } from '../domain/insights/services/insightsService';
-import { InsightsRepositoryPort } from '../domain/insights/ports/insightsRepositoryPort';
-import { InsightsAccessError } from '../domain/insights/errors/insightsErrors';
+import { GuidePort } from '../domain/guide/ports/guidePort';
+import { createItemSchema, updateItemSchema } from '../domain/guide/schemas/guideSchema';
+import { GuideService } from '../domain/guide/services/guideService';
 import { getResourceOwnerIdUseCase } from '../domain/guide/usecases/getResourceOwnerIdUseCase';
+import { InsightsAccessError } from '../domain/insights/errors/insightsErrors';
+import { InsightsRepositoryPort } from '../domain/insights/ports/insightsRepositoryPort';
+import { InsightsService } from '../domain/insights/services/insightsService';
+import { CreatePlanPaymentIntentSchema } from '../domain/payment/schemas/paymentSchema';
+import { updateUserProfileSchema } from '../domain/users/schemas/userSchema';
 
 vi.mock('../domain/guide/usecases/getResourceOwnerIdUseCase', () => ({
   getResourceOwnerIdUseCase: vi.fn(),
@@ -84,6 +84,9 @@ describe('Security Audit - Mass Assignment and Cross-Owner Defenses', () => {
         deleteResourcesByOwner: vi.fn(),
         getAllItems: vi.fn(),
         listItemsByOwner: vi.fn(),
+        getItemContact: vi.fn(),
+        setItemContact: vi.fn(),
+        deleteItemContact: vi.fn(),
       };
 
       const guideService = new GuideService(mockPort);
@@ -114,6 +117,9 @@ describe('Security Audit - Mass Assignment and Cross-Owner Defenses', () => {
         deleteResourcesByOwner: vi.fn(),
         getAllItems: vi.fn(),
         listItemsByOwner: vi.fn(),
+        getItemContact: vi.fn(),
+        setItemContact: vi.fn(),
+        deleteItemContact: vi.fn(),
       };
 
       const guideService = new GuideService(mockPort);

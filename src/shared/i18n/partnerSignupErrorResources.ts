@@ -35,9 +35,12 @@ export interface PartnerSignupErrorsTranslation {
   passwordWeak: string;
   passwordMismatch: string;
   termsRequired: string;
+  contactInText: string;
 }
 
 export const partnerSignupErrorsPtBR: PartnerSignupErrorsTranslation = {
+  contactInText:
+    'Tire telefone, e-mail, links, @ e chave Pix do texto. O contato com o cliente acontece depois da compra, pelo pedido.',
   requiredNote: 'Campos com * são obrigatórios.',
   categoryRequired: 'Escolha uma categoria.',
   producerNameRequired: 'Informe o nome do produtor.',
@@ -76,6 +79,8 @@ export const partnerSignupErrorsPtBR: PartnerSignupErrorsTranslation = {
 };
 
 export const partnerSignupErrorsEn: PartnerSignupErrorsTranslation = {
+  contactInText:
+    'Remove phone numbers, emails, links, @ handles and Pix keys from the text. You talk to customers after the purchase, through the order.',
   requiredNote: 'Fields marked * are required.',
   categoryRequired: 'Choose a category.',
   producerNameRequired: "Enter the producer's name.",
@@ -114,6 +119,8 @@ export const partnerSignupErrorsEn: PartnerSignupErrorsTranslation = {
 };
 
 export const partnerSignupErrorsFr: PartnerSignupErrorsTranslation = {
+  contactInText:
+    'Retirez téléphone, e-mail, liens, @ et clé Pix du texte. Le contact avec le client se fait après l’achat, via la commande.',
   requiredNote: 'Les champs marqués * sont obligatoires.',
   categoryRequired: 'Choisissez une catégorie.',
   producerNameRequired: 'Indiquez le nom du producteur.',

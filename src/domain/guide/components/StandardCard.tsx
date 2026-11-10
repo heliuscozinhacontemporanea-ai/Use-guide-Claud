@@ -1,12 +1,14 @@
+import { Bike, Calendar, Compass, Home, Info, MapPin, Star, Utensils } from 'lucide-react';
+import { motion } from 'motion/react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { isListingSealVisible } from '../utils/listingSeal';
-import { Bike, Star, Utensils, MapPin, Compass, Home, Info, Calendar } from 'lucide-react';
-import { GlassCard } from '../../../ui/components/GlassCard';
 import { CATEGORIES } from '../../../shared/constants/categories';
-import { GuideItem } from '../types/guide';
 import { cn } from '../../../shared/utils/cn';
 import { optimizeImage } from '../../../shared/utils/formatters';
+import { GlassCard } from '../../../ui/components/GlassCard';
+import { GuideItem } from '../types/guide';
+import { listingHeroLayoutId } from '../utils/listingHero';
+import { isListingSealVisible } from '../utils/listingSeal';
 
 interface StandardCardProps {
   key?: string | number;
@@ -69,7 +71,10 @@ export function StandardCard({
         )}
       >
         {/* Image / Placeholder */}
-        <div
+        {/* Mesma chave da foto do anúncio aberto: ela cresce daqui até a tela cheia e volta. */}
+        <motion.div
+          layoutId={listingHeroLayoutId(item.id)}
+          transition={{ duration: 0.38, ease: [0.32, 0.72, 0, 1] }}
           className={cn(
             'relative bg-slate-900 overflow-hidden',
             isHorizontal ? 'w-1/3 h-full' : 'absolute inset-0'
@@ -93,16 +98,17 @@ export function StandardCard({
               </span>
             </div>
           ) : (
-            <img
+            <motion.img
+              layout
               src={optimizeImage(item.image, 800)}
-              className="absolute inset-0 w-full h-full object-cover transition-all duration-1000 group-hover:scale-110 group-hover:rotate-1"
+              className="absolute inset-0 w-full h-full object-cover"
               alt={item.name}
               loading="lazy"
               decoding="async"
               onError={() => setImageError(true)}
             />
           )}
-        </div>
+        </motion.div>
 
         {/* Overlays */}
         {!isHorizontal && (

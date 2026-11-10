@@ -5,16 +5,11 @@ import { LoginModal } from '../domain/auth/components/LoginModal';
 import { useAuthContext } from '../domain/auth/context/AuthContext';
 import { UserRole } from '../domain/auth/types/auth';
 import { GuideItem, useGuideCatalog } from '../domain/guide';
+import { ListingDetail } from '../domain/guide/components/detail/ListingDetail';
 import { NotificationBell } from '../domain/notifications';
-import { AttractionDetailModal } from '../domain/guide/components/AttractionDetailModal';
-import { EventDetailModal } from '../domain/guide/components/EventDetailModal';
-import { ItemDetailModal } from '../domain/guide/components/ItemDetailModal';
-import { RestaurantDetailModal } from '../domain/guide/components/RestaurantDetailModal';
-import { StayDetailModal } from '../domain/guide/components/StayDetailModal';
-import { TipDetailModal } from '../domain/guide/components/TipDetailModal';
-import { TourDetailModal } from '../domain/guide/components/TourDetailModal';
 import { PartnersModal } from '../domain/partners';
 import { SearchOverlay } from '../domain/search';
+import { EventTicketingPurchasePanel } from '../domain/ticketing';
 import { ACCOUNT_ACTION_PATH } from '../shared/constants/accountActionPath';
 import { useLocalizedRouting, useSyncLocaleWithUrl } from '../shared/hooks/useLocalizedRouting';
 import { useScrollLock } from '../shared/hooks/useScrollLock';
@@ -25,6 +20,10 @@ import { BottomNav } from '../ui/components/BottomNav';
 import { Header } from '../ui/layouts/Header';
 import { AdminPanelComposition } from './compositions/AdminPanelComposition';
 import { ItemBookingComposition } from './compositions/ItemBookingComposition';
+
+// Categorias com reserva pelo app (passeio, translado, aluguel e entrada de atração).
+const BOOKABLE_CATEGORIES = ['tour', 'transfer', 'rental', 'sight'];
+
 import { PartnerPortalComposition } from './compositions/PartnerPortalComposition';
 import { SideMenu } from './menu/SideMenu';
 import { useSideMenu } from './menu/useSideMenu';
@@ -344,38 +343,35 @@ export function AppRouter() {
           )}
         </AnimatePresence>
 
-        {selectedItem?.category === 'event' && (
-          <EventDetailModal item={selectedItem} onClose={() => setSelectedItem(null)} />
-        )}
-        {(selectedItem?.category === 'tour' ||
-          selectedItem?.category === 'transfer' ||
-          selectedItem?.category === 'rental') && (
-          <TourDetailModal
-            item={selectedItem}
-            onClose={() => setSelectedItem(null)}
-            bookingPanel={<ItemBookingComposition guideItemId={selectedItem.id} />}
-          />
-        )}
-        {selectedItem?.category === 'hotel' && (
-          <StayDetailModal item={selectedItem} onClose={() => setSelectedItem(null)} />
-        )}
-        {selectedItem?.category === 'restaurant' && (
-          <RestaurantDetailModal item={selectedItem} onClose={() => setSelectedItem(null)} />
-        )}
-        {selectedItem?.category === 'sight' && (
-          <AttractionDetailModal
-            item={selectedItem}
-            onClose={() => setSelectedItem(null)}
-            bookingPanel={<ItemBookingComposition guideItemId={selectedItem.id} />}
-          />
-        )}
-        {selectedItem?.category === 'tips' && (
-          <TipDetailModal item={selectedItem} onClose={() => setSelectedItem(null)} />
-        )}
-        {selectedItem &&
-          !['event', 'tour', 'transfer', 'rental', 'hotel', 'restaurant', 'sight', 'tips'].includes(
-            selectedItem.category
-          ) && <ItemDetailModal item={selectedItem} onClose={() => setSelectedItem(null)} />}
+        {/* Anúncio em tela cheia (2026-11-10): a foto cresce do cartão e volta ao fechar. */}
+        <AnimatePresence>
+          {selectedItem && (
+            <ListingDetail
+              key={selectedItem.id}
+              item={selectedItem}
+              onClose={() => setSelectedItem(null)}
+              renderBooking={
+                BOOKABLE_CATEGORIES.includes(selectedItem.category)
+                  ? (included) => (
+                      <ItemBookingComposition guideItemId={selectedItem.id} between={included} />
+                    )
+                  : undefined
+              }
+              ticketPanel={
+                selectedItem.category === 'event' ? (
+                  <EventTicketingPurchasePanel
+                    eventId={selectedItem.id}
+                    eventTitle={selectedItem.name}
+                    place={{ timeZone: selectedItem.timeZone, city: selectedItem.city }}
+                    userEmail={user?.email || undefined}
+                    userName={user?.displayName || undefined}
+                    onRequireLogin={openLoginModal}
+                  />
+                ) : undefined
+              }
+            />
+          )}
+        </AnimatePresence>
 
         <LoginModal
           isOpen={isLoginModalOpen}

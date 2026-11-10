@@ -17,6 +17,20 @@ export interface PartnerSignupTranslation {
   details: PartnerSignupDetailsTranslation;
   errors: PartnerSignupErrorsTranslation;
   processing: { title: string; text: string };
+  editor: {
+    newTitle: string;
+    editTitle: string;
+    contactTitle: string;
+    save: string;
+    saving: string;
+    saved: string;
+    saveFailed: string;
+    delete: string;
+    deleteTitle: string;
+    deleteText: string;
+    deleted: string;
+    deleteFailed: string;
+  };
   yes: string;
   no: string;
   detailsTitle: string;
@@ -84,6 +98,7 @@ export interface PartnerSignupTranslation {
   };
   success: { title: string; text: string; openPanel: string; later: string };
   step2: {
+    phonePrivate: string;
     phone: string;
     instagram: string;
     instagramPlaceholder: string;
@@ -108,6 +123,20 @@ export interface PartnerSignupTranslation {
 export const partnerSignupPtBR: PartnerSignupTranslation = {
   details: partnerSignupDetailsPtBR,
   errors: partnerSignupErrorsPtBR,
+  editor: {
+    newTitle: 'Novo cadastro',
+    editTitle: 'Editar cadastro',
+    contactTitle: 'Contato e local',
+    save: 'Salvar',
+    saving: 'Salvando…',
+    saved: 'Cadastro salvo.',
+    saveFailed: 'Não foi possível salvar. Tente de novo.',
+    delete: 'Excluir cadastro',
+    deleteTitle: 'Excluir {{name}}?',
+    deleteText: 'O cadastro sai do guia e não pode ser recuperado.',
+    deleted: 'Cadastro excluído.',
+    deleteFailed: 'Não foi possível excluir. Tente de novo.',
+  },
   processing: {
     title: 'Enviando seu cadastro',
     text: 'Estamos guardando as informações e as fotos. Isso leva alguns segundos.',
@@ -148,6 +177,7 @@ export const partnerSignupPtBR: PartnerSignupTranslation = {
     producer: 'Eventos',
   },
   step2: {
+    phonePrivate: 'Fica só com a plataforma: o cliente recebe depois da compra, pelo pedido.',
     phone: 'Telefone ou WhatsApp',
     instagram: 'Instagram',
     instagramPlaceholder: '@seunegocio',
@@ -214,6 +244,20 @@ export const partnerSignupPtBR: PartnerSignupTranslation = {
 export const partnerSignupEn: PartnerSignupTranslation = {
   details: partnerSignupDetailsEn,
   errors: partnerSignupErrorsEn,
+  editor: {
+    newTitle: 'New listing',
+    editTitle: 'Edit listing',
+    contactTitle: 'Contact and location',
+    save: 'Save',
+    saving: 'Saving…',
+    saved: 'Listing saved.',
+    saveFailed: "Couldn't save. Try again.",
+    delete: 'Delete listing',
+    deleteTitle: 'Delete {{name}}?',
+    deleteText: "The listing leaves the guide and can't be restored.",
+    deleted: 'Listing deleted.',
+    deleteFailed: "Couldn't delete. Try again.",
+  },
   processing: {
     title: 'Sending your sign-up',
     text: 'We are saving your details and photos. This takes a few seconds.',
@@ -255,6 +299,7 @@ export const partnerSignupEn: PartnerSignupTranslation = {
     producer: 'Events',
   },
   step2: {
+    phonePrivate: 'Kept by the platform only: customers get it after booking, through the order.',
     phone: 'Phone or WhatsApp',
     instagram: 'Instagram',
     instagramPlaceholder: '@yourbusiness',
@@ -321,6 +366,20 @@ export const partnerSignupEn: PartnerSignupTranslation = {
 export const partnerSignupFr: PartnerSignupTranslation = {
   details: partnerSignupDetailsFr,
   errors: partnerSignupErrorsFr,
+  editor: {
+    newTitle: 'Nouvelle fiche',
+    editTitle: 'Modifier la fiche',
+    contactTitle: 'Contact et lieu',
+    save: 'Enregistrer',
+    saving: 'Enregistrement…',
+    saved: 'Fiche enregistrée.',
+    saveFailed: "Impossible d'enregistrer. Réessayez.",
+    delete: 'Supprimer la fiche',
+    deleteTitle: 'Supprimer {{name}} ?',
+    deleteText: 'La fiche quitte le guide et ne peut pas être restaurée.',
+    deleted: 'Fiche supprimée.',
+    deleteFailed: 'Impossible de supprimer. Réessayez.',
+  },
   processing: {
     title: 'Envoi de votre inscription',
     text: 'Nous enregistrons vos informations et vos photos. Cela prend quelques secondes.',
@@ -364,6 +423,7 @@ export const partnerSignupFr: PartnerSignupTranslation = {
     producer: 'Événements',
   },
   step2: {
+    phonePrivate: 'Gardé par la plateforme : le client le reçoit après l’achat, via la commande.',
     phone: 'Téléphone ou WhatsApp',
     instagram: 'Instagram',
     instagramPlaceholder: '@votreactivite',

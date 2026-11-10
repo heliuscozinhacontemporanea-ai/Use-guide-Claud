@@ -1,4 +1,5 @@
 import { canChangeCancellationPolicy } from '../../../shared/kernel/cancellationPolicy';
+import { findContactsInText } from '../../../shared/kernel/contactInText';
 import { placeTimeOf } from '../../../shared/kernel/timeZones';
 import { BookingDomainError } from '../errors/bookingDomainError';
 import type { BookableItemLookupPort } from '../ports/bookableItemLookupPort';
@@ -58,6 +59,26 @@ export function toPublicOffer(offer: BookableOffer): PublicBookableOffer {
   return publicFields;
 }
 
+/** Textos da oferta sem contato nem chave Pix (C2/B37): o contato vem com o pedido. */
+function assertNoContactInOffer(input: Partial<OfferInput>): void {
+  const texts = [
+    input.title,
+    input.description,
+    input.meetingPoint?.instructions,
+    ...(input.pricing?.priceOptions ?? []).map((option) => option.label),
+  ];
+  for (const text of texts) {
+    for (const value of Object.values(text ?? {})) {
+      if (typeof value === 'string' && findContactsInText(value).length > 0) {
+        throw new BookingDomainError(
+          'CONTACT_IN_TEXT',
+          'Tire telefone, e-mail, links, @ e chave Pix dos textos da oferta.'
+        );
+      }
+    }
+  }
+}
+
 export class OfferService {
   constructor(
     private readonly port: BookingsPort,
@@ -87,6 +108,7 @@ export class OfferService {
       throw new BookingDomainError('VALIDATION_ERROR', 'Tipo de oferta incompatível com o item.');
     }
     assertValidPricing(input.pricing);
+    assertNoContactInOffer(input);
     assertPolicyForKind(input.kind, input.cancellationPolicy);
     assertSellingUnit(input.kind, input.sellingUnit, input.groupMaxPeople);
 
@@ -116,6 +138,7 @@ export class OfferService {
       throw new BookingDomainError('INVALID_TRANSITION', 'Oferta arquivada não pode ser editada.');
     }
     if (input.pricing) assertValidPricing(input.pricing);
+    assertNoContactInOffer(input);
     assertSellingUnit(
       offer.kind,
       input.sellingUnit ?? offer.sellingUnit,

@@ -22,7 +22,9 @@ export type BookingErrorCode =
   | 'NOTHING_TO_ANSWER'
   | 'SERVICE_NOT_VERIFIED'
   | 'INVALID_ENTRY_PASS'
-  | 'NAME_CHANGE_NOT_ALLOWED';
+  | 'NAME_CHANGE_NOT_ALLOWED'
+  | 'CONTACT_UNAVAILABLE'
+  | 'CONTACT_IN_TEXT';
 
 const STATUS_BY_CODE: Record<BookingErrorCode, number> = {
   VALIDATION_ERROR: 400,
@@ -49,6 +51,8 @@ const STATUS_BY_CODE: Record<BookingErrorCode, number> = {
   SERVICE_NOT_VERIFIED: 422,
   INVALID_ENTRY_PASS: 422,
   NAME_CHANGE_NOT_ALLOWED: 422,
+  CONTACT_UNAVAILABLE: 422,
+  CONTACT_IN_TEXT: 422,
 };
 
 export class BookingDomainError extends Error {

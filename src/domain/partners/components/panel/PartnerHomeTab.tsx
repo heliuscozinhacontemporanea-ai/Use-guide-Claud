@@ -1,17 +1,17 @@
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ListError, ListLoading } from '../../../../ui/components/ListState';
-import type { PartnerHomeCardId } from '../../types/partnerHomeCards';
 import type {
   PartnerAttentionItem,
+  PartnerFirstStep,
   PartnerHomeView,
   PartnerTodayItem,
-  PartnerFirstStep,
 } from '../../types/partnerHome';
+import type { PartnerHomeCardId } from '../../types/partnerHomeCards';
 import type { PartnerCardData } from '../../utils/partnerHomeCardData';
 import { PartnerAttentionList } from './PartnerAttentionList';
-import { PartnerFirstStepsCard } from './PartnerFirstStepsCard';
 import { PartnerCardsEditor } from './PartnerCardsEditor';
+import { PartnerFirstStepsCard } from './PartnerFirstStepsCard';
 import { PartnerHomeCards } from './PartnerHomeCards';
 import type { PartnerPanelTab } from './partnerPanelTabs';
 
@@ -44,6 +44,7 @@ export function PartnerHomeTab({
   onOpenCoupons,
   onOpenStep,
   agora,
+  leadingCard,
 }: {
   loading: boolean;
   error: string | null;
@@ -60,6 +61,8 @@ export function PartnerHomeTab({
   onOpenStep?: (step: PartnerFirstStep) => void;
   /** Seção "Agora", acima de "Resolva agora": na hora do serviço é o que importa primeiro. */
   agora?: ReactNode;
+  /** Cartão extra no começo da grade (visitas do mês na vitrine, S4). */
+  leadingCard?: ReactNode;
 }) {
   const { t } = useTranslation();
   if (loading && !view) return <ListLoading label={t('partnerPanel.tabs.home')} />;
@@ -99,6 +102,7 @@ export function PartnerHomeTab({
         onOpenTab={onOpenTab}
         onOpenCoupons={onOpenCoupons}
         onCustomize={cards.startEditing}
+        leading={leadingCard}
       />
     </div>
   );

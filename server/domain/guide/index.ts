@@ -1,4 +1,5 @@
-export type { GuideVerificationUpdate } from './ports/guidePort';
+export type { GuideItemContact, GuideVerificationUpdate } from './ports/guidePort';
+export { sellsThroughApp } from './services/guideService';
 export {
   FEATURED_LISTS,
   type FeaturedList,
@@ -17,11 +18,13 @@ export type {
 export { createGuideItemUseCase } from './usecases/createGuideItemUseCase';
 export { deleteGuideItemUseCase } from './usecases/deleteGuideItemUseCase';
 export { deleteResourcesByOwnerUseCase } from './usecases/deleteResourcesByOwnerUseCase';
+export { getGuideItemContactUseCase } from './usecases/getGuideItemContactUseCase';
 export { getGuideStatsUseCase } from './usecases/getGuideStatsUseCase';
 export {
   getItemByIdUseCase,
   type PublicResourceDTO,
 } from './usecases/getItemByIdUseCase';
+export { getOwnGuideItemContactUseCase } from './usecases/getOwnGuideItemContactUseCase';
 export { getPublicGuideItemUseCase } from './usecases/getPublicGuideItemUseCase';
 export { getResourceOwnerIdUseCase } from './usecases/getResourceOwnerIdUseCase';
 export {

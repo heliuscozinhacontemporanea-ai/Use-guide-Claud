@@ -3,6 +3,8 @@ import type { PartnerContentRecord } from '../types/partnerContent';
 import {
   catalogSegmentsFor,
   catalogTabLabel,
+  couponsLabel,
+  homeCardsFor,
   offersLabel,
   panelTabsFor,
   partnerSegments,
@@ -24,6 +26,8 @@ export function usePartnerSegments(
       catalogLabel: catalogTabLabel(segments),
       catalogParts: catalogSegmentsFor(segments),
       offersLabel: offersLabel(segments),
+      homeCards: homeCardsFor(segments),
+      couponsLabel: couponsLabel(segments),
     };
   }, [items, events]);
 }

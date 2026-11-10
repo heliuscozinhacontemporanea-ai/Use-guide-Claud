@@ -24,7 +24,7 @@ function validate(formData: FormState): boolean {
   const { result } = renderHook(() => useListingEditorValidation(formData));
   let valid = false;
   act(() => {
-    valid = result.current.validateAll(true);
+    valid = result.current.validateAll(true) === null;
   });
   return valid;
 }
@@ -55,10 +55,25 @@ describe('useListingEditorValidation', () => {
 
   it('recusa quando o telefone é inválido', () => {
     const { result } = renderHook(() => useListingEditorValidation(validTour()));
-    let valid = true;
+    let found: ReturnType<typeof result.current.validateAll> = null;
     act(() => {
-      valid = result.current.validateAll(false);
+      found = result.current.validateAll(false);
     });
-    expect(valid).toBe(false);
+    expect(found).toEqual({ phone: '' });
+  });
+
+  it('devolve todos os erros de uma vez, por campo', () => {
+    const { result } = renderHook(() =>
+      useListingEditorValidation({ ...validTour(), businessName: '', meetingPoint: '', images: [] })
+    );
+    let found: ReturnType<typeof result.current.validateAll> = null;
+    act(() => {
+      found = result.current.validateAll(true);
+    });
+    expect(found).toEqual({
+      businessName: 'partnerSignup.errors.nameRequired',
+      meetingPoint: 'partnerSignup.errors.meetingPointRequired',
+      images: 'partnerSignup.errors.photosRequired',
+    });
   });
 });

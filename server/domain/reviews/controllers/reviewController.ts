@@ -4,6 +4,7 @@ import { BookingDomainError } from '../../bookings';
 import { CreateReviewDTO } from '../dtos/CreateReviewDTO';
 import { reviewService } from '../factory';
 import { respondReviewSchema, submitReviewSchema } from '../schemas/reviewSchema';
+import { ReviewContactInTextError } from '../services/reviewService';
 
 export class ReviewController {
   static async submitReview(req: AuthenticatedRequest, res: Response): Promise<void> {
@@ -101,6 +102,10 @@ export class ReviewController {
         message: 'Resposta registrada com sucesso',
       });
     } catch (error: unknown) {
+      if (error instanceof ReviewContactInTextError) {
+        res.status(422).json({ error: { code: error.code, message: error.message } });
+        return;
+      }
       const message = error instanceof Error ? error.message : '';
       console.error('[ReviewController.respondToReview Error]:', error);
 

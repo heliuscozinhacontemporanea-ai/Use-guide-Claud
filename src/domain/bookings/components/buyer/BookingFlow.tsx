@@ -7,6 +7,7 @@ import { TermsAcceptanceField } from '../../../../ui/legal/TermsAcceptanceField'
 import { BUTTON_PRIMARY, BUTTON_SECONDARY, INPUT } from '../../../../ui/styles/controls';
 import type { PublicOffer, PublicSlot } from '../../types/bookings';
 import { BookingCheckout } from './BookingCheckout';
+import { OfferPriceOptions } from './OfferPriceOptions';
 import { ParticipantsForm } from './ParticipantsForm';
 import { QuantitySelector } from './QuantitySelector';
 import { SlotPicker } from './SlotPicker';
@@ -20,7 +21,7 @@ export interface BookingFlowProps {
   renderPaymentElement: RenderPaymentElement;
 }
 
-type Step = 'select' | 'participants' | 'checkout';
+type Step = 'select' | 'details' | 'participants' | 'checkout';
 
 export function BookingFlow({
   offer,
@@ -106,7 +107,7 @@ export function BookingFlow({
   if (step === 'participants') {
     return (
       <div className="space-y-3">
-        <button type="button" onClick={() => setStep('select')} className={BUTTON_SECONDARY}>
+        <button type="button" onClick={() => setStep('details')} className={BUTTON_SECONDARY}>
           <ChevronLeft size={13} className="inline mr-1" aria-hidden="true" />
           {t('bookings.buyer.back')}
         </button>
@@ -121,17 +122,37 @@ export function BookingFlow({
     );
   }
 
+  if (step === 'select') {
+    return (
+      <div className="space-y-3">
+        <OfferPriceOptions offer={offer} />
+        <SlotPicker
+          offerId={offer.id}
+          place={{ timeZone: offer.timeZone, city: offer.city }}
+          selectedId={slot?.id ?? null}
+          onSelect={(selected) => {
+            setSlot(selected);
+            setQuantities({});
+          }}
+        />
+        <button
+          type="button"
+          disabled={!slot}
+          onClick={() => (isAuthenticated ? setStep('details') : onRequireLogin())}
+          className={`${BUTTON_PRIMARY} w-full min-h-[52px] text-[16px]`}
+        >
+          {t('bookings.buyer.reserve')}
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
-      <SlotPicker
-        offerId={offer.id}
-        place={{ timeZone: offer.timeZone, city: offer.city }}
-        selectedId={slot?.id ?? null}
-        onSelect={(selected) => {
-          setSlot(selected);
-          setQuantities({});
-        }}
-      />
+      <button type="button" onClick={() => setStep('select')} className={BUTTON_SECONDARY}>
+        <ChevronLeft size={13} className="inline mr-1" aria-hidden="true" />
+        {t('bookings.buyer.back')}
+      </button>
       {slot && (
         <QuantitySelector
           options={offer.pricing.priceOptions}

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '../../../../shared/utils/cn';
 import type { PartnerTodayItem } from '../../types/partnerHome';
@@ -30,7 +31,10 @@ export function PartnerHomeCards({
   onOpenTab,
   onCustomize,
   onOpenCoupons,
+  leading,
 }: {
+  /** Cartão pequeno montado pela composição antes dos outros (ex.: visitas do mês na vitrine). */
+  leading?: ReactNode;
   cards: PartnerCardData[];
   manyEstablishments: boolean;
   labelFor: (item: PartnerTodayItem) => string | null;
@@ -43,6 +47,7 @@ export function PartnerHomeCards({
   return (
     <section aria-label={t('partnerPanel.cards.label')} data-tour="cards" className="space-y-7">
       <div className="grid grid-cols-2 gap-3">
+        {leading ? <div className="flex *:flex-1">{leading}</div> : null}
         {cards.map((data) => {
           const large = PARTNER_HOME_CARD_SIZE[data.id] === 'large';
           return (

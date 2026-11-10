@@ -112,6 +112,8 @@ export function usePartnerRegistrationSubmission({
       ) {
         errorMessage =
           'Este e-mail já está sendo utilizado por outro parceiro. Por favor, use um e-mail diferente ou faça login.';
+      } else if (error instanceof Error && error.message === 'CONTACT_IN_TEXT') {
+        errorMessage = i18n.t('partnerSignup.errors.contactInText');
       } else if (error instanceof Error && error.message) {
         errorMessage = error.message;
       }

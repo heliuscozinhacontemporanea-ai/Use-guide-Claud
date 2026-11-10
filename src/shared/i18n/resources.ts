@@ -1,16 +1,4 @@
 import {
-  type PartnerSignupTranslation,
-  partnerSignupEn,
-  partnerSignupFr,
-  partnerSignupPtBR,
-} from './partnerSignupResources';
-import {
-  type PartnerFirstStepsTranslation,
-  partnerFirstStepsEn,
-  partnerFirstStepsFr,
-  partnerFirstStepsPtBR,
-} from './partnerFirstStepsResources';
-import {
   type AdminFinanceTranslation,
   adminFinanceEn,
   adminFinanceFr,
@@ -73,12 +61,24 @@ import {
 } from './insightsResources';
 import { type LegalTranslation, legalEn, legalFr, legalPtBR } from './legalResources';
 import {
+  type ListingDetailTranslation,
+  listingDetailEn,
+  listingDetailFr,
+  listingDetailPtBR,
+} from './listingDetailResources';
+import {
   type ListingPlanTranslation,
   listingPlanEn,
   listingPlanFr,
   listingPlanPtBR,
 } from './listingPlanResources';
 import { type NotifyTranslation, notifyEn, notifyFr, notifyPtBR } from './notifyResources';
+import {
+  type PartnerAddSegmentTranslation,
+  partnerAddSegmentEn,
+  partnerAddSegmentFr,
+  partnerAddSegmentPtBR,
+} from './partnerAddSegmentResources';
 import {
   type PartnerAgoraTranslation,
   partnerAgoraEn,
@@ -98,11 +98,23 @@ import {
   partnerEarningsPtBR,
 } from './partnerEarningsResources';
 import {
+  type PartnerFirstStepsTranslation,
+  partnerFirstStepsEn,
+  partnerFirstStepsFr,
+  partnerFirstStepsPtBR,
+} from './partnerFirstStepsResources';
+import {
   type PartnerPanelTranslation,
   partnerPanelEn,
   partnerPanelFr,
   partnerPanelPtBR,
 } from './partnerPanelResources';
+import {
+  type PartnerSignupTranslation,
+  partnerSignupEn,
+  partnerSignupFr,
+  partnerSignupPtBR,
+} from './partnerSignupResources';
 import {
   type PartnersTranslation,
   partnersEn,
@@ -167,6 +179,12 @@ import {
   reviewReportsFr,
   reviewReportsPtBR,
 } from './reviewReportsResources';
+import {
+  type ReviewsUiTranslation,
+  reviewsUiEn,
+  reviewsUiFr,
+  reviewsUiPtBR,
+} from './reviewsUiResources';
 import {
   type SaleClaimsTranslation,
   saleClaimsEn,
@@ -253,6 +271,9 @@ export interface TranslationResource {
   partnerCatalog: PartnerCatalogTranslation;
   partnerEarnings: PartnerEarningsTranslation;
   partnerFirstSteps: PartnerFirstStepsTranslation;
+  partnerAddSegment: PartnerAddSegmentTranslation;
+  listingDetail: ListingDetailTranslation;
+  reviewsUi: ReviewsUiTranslation;
   partnerSignup: PartnerSignupTranslation;
   partnerAgora: PartnerAgoraTranslation;
   courtesy: CourtesyTranslation;
@@ -505,6 +526,9 @@ const ptBR: TranslationResource = {
   partnerCatalog: partnerCatalogPtBR,
   partnerEarnings: partnerEarningsPtBR,
   partnerFirstSteps: partnerFirstStepsPtBR,
+  partnerAddSegment: partnerAddSegmentPtBR,
+  listingDetail: listingDetailPtBR,
+  reviewsUi: reviewsUiPtBR,
   partnerSignup: partnerSignupPtBR,
   partnerAgora: partnerAgoraPtBR,
   courtesy: courtesyPtBR,
@@ -817,6 +841,9 @@ const en: TranslationResource = {
   partnerCatalog: partnerCatalogEn,
   partnerEarnings: partnerEarningsEn,
   partnerFirstSteps: partnerFirstStepsEn,
+  partnerAddSegment: partnerAddSegmentEn,
+  listingDetail: listingDetailEn,
+  reviewsUi: reviewsUiEn,
   partnerSignup: partnerSignupEn,
   partnerAgora: partnerAgoraEn,
   courtesy: courtesyEn,
@@ -1123,6 +1150,9 @@ const fr: TranslationResource = {
   partnerCatalog: partnerCatalogFr,
   partnerEarnings: partnerEarningsFr,
   partnerFirstSteps: partnerFirstStepsFr,
+  partnerAddSegment: partnerAddSegmentFr,
+  listingDetail: listingDetailFr,
+  reviewsUi: reviewsUiFr,
   partnerSignup: partnerSignupFr,
   partnerAgora: partnerAgoraFr,
   courtesy: courtesyFr,

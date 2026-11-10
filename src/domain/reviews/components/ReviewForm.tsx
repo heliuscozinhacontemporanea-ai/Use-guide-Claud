@@ -1,11 +1,12 @@
-import { useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Loader2 } from 'lucide-react';
+import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
-import { Loader2, Send } from 'lucide-react';
-import { GlassCard } from '../../../ui/components/GlassCard';
-import { StarRating } from './StarRating';
+import { BUTTON_PRIMARY, INPUT } from '../../../ui/styles/controls';
 import { FirestoreReview } from '../types/review';
+import { StarRating } from './StarRating';
 
 const reviewFormSchema = z.object({
   rating: z.number().int().min(1, 'Selecione uma nota'),
@@ -25,6 +26,7 @@ interface ReviewFormProps {
 }
 
 export function ReviewForm({ existingReview, isSubmitting, onSubmit }: ReviewFormProps) {
+  const { t } = useTranslation();
   const {
     control,
     register,
@@ -57,65 +59,58 @@ export function ReviewForm({ existingReview, isSubmitting, onSubmit }: ReviewFor
   };
 
   return (
-    <GlassCard className="p-4 bg-white/5 border-white/10">
-      <form onSubmit={handleSubmit(submit)} className="space-y-4">
-        {existingReview && (
-          <div className="flex items-center justify-between p-3 rounded-xl bg-teal-950/30 border border-teal-500/20 text-xs">
-            <span className="text-teal-300 font-medium">Você já avaliou este local</span>
-            <span className="text-white/50 text-[11px]">Editando sua avaliação</span>
-          </div>
-        )}
-        <div className="flex items-center justify-between">
-          <span className="text-xs text-white/70 font-medium">Sua nota:</span>
-          <Controller
-            name="rating"
-            control={control}
-            render={({ field }) => (
-              <StarRating
-                rating={field.value}
-                size={22}
-                interactive
-                onRatingChange={field.onChange}
-              />
-            )}
-          />
-        </div>
-        {errors.rating && <p className="text-xs text-red-300">{errors.rating.message}</p>}
-        <div className="relative">
-          <textarea
-            {...register('comment')}
-            maxLength={500}
-            placeholder="Conte-nos sua experiência sincera..."
-            className="w-full bg-black/20 border border-white/10 rounded-2xl p-4 pr-16 text-sm focus:outline-none focus:border-teal-500/50 transition-colors min-h-[100px] text-white placeholder:text-white/50"
-          />
-          <span className="absolute bottom-3 right-4 text-[10px] text-white/50">
-            {comment.length}/500
-          </span>
-        </div>
-        {errors.comment && <p className="text-xs text-red-300">{errors.comment.message}</p>}
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="w-full min-h-[44px] py-3.5 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-teal-400/50"
-        >
-          {isSubmitting ? (
-            <>
-              <Loader2 size={16} className="animate-spin" />
-              <span>{existingReview ? 'Atualizando...' : 'Publicando...'}</span>
-            </>
-          ) : existingReview ? (
-            <>
-              Atualizar Avaliação
-              <Send size={15} />
-            </>
-          ) : (
-            <>
-              Publicar Avaliação
-              <Send size={15} />
-            </>
+    <form
+      onSubmit={handleSubmit(submit)}
+      className="rounded-[20px] bg-surface border border-line p-4 space-y-3"
+    >
+      {existingReview && (
+        <p className="text-[13px] text-ink/70">
+          {t('reviewsUi.alreadyReviewed')} · {t('reviewsUi.editing')}
+        </p>
+      )}
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-[15px] font-semibold text-ink">{t('reviewsUi.yourRating')}</span>
+        <Controller
+          name="rating"
+          control={control}
+          render={({ field }) => (
+            <StarRating
+              rating={field.value}
+              size={26}
+              interactive
+              onRatingChange={field.onChange}
+            />
           )}
-        </button>
-      </form>
-    </GlassCard>
+        />
+      </div>
+      {errors.rating && <p className="text-[13px] text-danger">{errors.rating.message}</p>}
+      <div className="relative">
+        <textarea
+          {...register('comment')}
+          maxLength={500}
+          aria-label={t('reviewsUi.placeholder')}
+          placeholder={t('reviewsUi.placeholder')}
+          className={`${INPUT} min-h-[110px] py-3 pr-14 resize-none text-[15px]`}
+        />
+        <span className="absolute bottom-3 right-4 text-[12px] text-ink/60 tabular-nums">
+          {comment.length}/500
+        </span>
+      </div>
+      {errors.comment && <p className="text-[13px] text-danger">{errors.comment.message}</p>}
+      <button
+        type="submit"
+        disabled={isSubmitting}
+        className={`${BUTTON_PRIMARY} w-full min-h-12 inline-flex items-center justify-center gap-2`}
+      >
+        {isSubmitting && (
+          <Loader2
+            size={16}
+            className="animate-spin motion-reduce:animate-none"
+            aria-hidden="true"
+          />
+        )}
+        {t(existingReview ? 'reviewsUi.update' : 'reviewsUi.submit')}
+      </button>
+    </form>
   );
 }

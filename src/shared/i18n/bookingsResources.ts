@@ -1,11 +1,37 @@
 /** Textos do domínio bookings (pt-BR é a fonte; en e fr têm as mesmas chaves, garantidas pelo tipo). */
 export interface BookingsTranslation {
+  contact: {
+    partnerButton: string;
+    partnerHint: string;
+    buyerHint: string;
+    bookingRef: string;
+    situation: string;
+    paid: string;
+    buyerButton: string;
+    buyerAria: string;
+    noPhone: string;
+    toBuyer: string;
+    toBuyerNoName: string;
+    toPartner: string;
+    arrived: string;
+    afterBooking: string;
+  };
   buyer: {
     panelTitle: string;
     loading: string;
     loadError: string;
     retry: string;
     duration: string;
+    choose: string;
+    today: string;
+    tomorrow: string;
+    reserve: string;
+    perGroup: string;
+    perPersonRange: string;
+    perPerson: string;
+    cancellationTitle: string;
+    durationHours: string;
+    durationMinutes: string;
     meetingPoint: string;
     rescheduledNotice: string;
     tabsLabel: string;
@@ -42,6 +68,14 @@ export interface BookingsTranslation {
     viewMyBookings: string;
     menuItem: string;
     myBookingsTitle: string;
+    detail: {
+      bookingTitle: string;
+      whenLabel: string;
+      bookingLabel: string;
+      meetingLabel: string;
+      today: string;
+      openDetails: string;
+    };
     loadMore: string;
     resultTitle: string;
     resultLoading: string;
@@ -228,6 +262,8 @@ export interface BookingsTranslation {
     INVALID_ENTRY_PASS: string;
     NAME_CHANGE_NOT_ALLOWED: string;
     CLAIM_ALREADY_EXISTS: string;
+    CONTACT_UNAVAILABLE: string;
+    CONTACT_IN_TEXT: string;
     INTERNAL_ERROR: string;
     PROMO_INVALID: string;
     PROMO_NOT_STARTED: string;
@@ -238,12 +274,42 @@ export interface BookingsTranslation {
 }
 
 export const bookingsPtBR: BookingsTranslation = {
+  contact: {
+    partnerButton: 'Falar com o parceiro',
+    partnerHint:
+      'Abre o WhatsApp com uma mensagem pronta com o número da reserva. Disponível até o fim do serviço.',
+    buyerHint:
+      'Mensagem pronta com o número da reserva, para avisar mudança de ponto, atraso ou clima. Fica registrado; some depois do serviço.',
+    bookingRef: 'Reserva',
+    situation: 'Situação',
+    paid: 'Pago',
+    buyerButton: 'WhatsApp do cliente',
+    buyerAria: 'WhatsApp de {{name}}',
+    noPhone: 'Não há telefone para esta reserva.',
+    toBuyer:
+      'Olá, {{name}}! Aqui é do {{title}}, sobre a sua reserva {{code}} no Use Guide para {{when}}.',
+    toBuyerNoName:
+      'Olá! Aqui é do {{title}}, sobre a sua reserva {{code}} no Use Guide para {{when}}.',
+    toPartner: 'Olá! Tenho a reserva {{code}} no Use Guide: {{title}}, {{when}}.',
+    arrived: 'Olá, {{name}}! Já cheguei ao ponto de encontro. Reserva {{code}} no Use Guide.',
+    afterBooking: 'Depois da reserva, você fala com o parceiro pelo seu pedido.',
+  },
   buyer: {
     panelTitle: 'Reservar',
     loading: 'Carregando disponibilidade…',
     loadError: 'Não foi possível carregar a disponibilidade.',
     retry: 'Tentar novamente',
     duration: 'Duração: {{minutes}} min',
+    choose: 'Escolha',
+    today: 'Hoje',
+    tomorrow: 'Amanhã',
+    reserve: 'Reservar',
+    perGroup: 'por grupo, até {{count}} pessoas',
+    perPersonRange: 'de {{min}} a {{max}} pessoas',
+    perPerson: 'por pessoa',
+    cancellationTitle: 'Cancelamento',
+    durationHours: '{{hours}} h',
+    durationMinutes: '{{minutes}} min',
     meetingPoint: 'Ponto de encontro: {{address}}',
     rescheduledNotice: 'Nova data. Cancelamento com reembolso total até {{date}}',
     tabsLabel: 'Reservas',
@@ -282,6 +348,14 @@ export const bookingsPtBR: BookingsTranslation = {
     viewMyBookings: 'Ver minhas reservas',
     menuItem: 'Minhas reservas',
     myBookingsTitle: 'Minhas reservas',
+    detail: {
+      bookingTitle: 'Minha reserva',
+      whenLabel: 'Quando',
+      bookingLabel: 'Reserva',
+      meetingLabel: 'Ponto de encontro',
+      today: 'hoje',
+      openDetails: 'Abrir a reserva {{title}}',
+    },
     loadMore: 'Carregar mais',
     resultTitle: 'Pagamento da reserva',
     resultLoading: 'Verificando o pagamento…',
@@ -477,6 +551,10 @@ export const bookingsPtBR: BookingsTranslation = {
     NAME_CHANGE_NOT_ALLOWED:
       'O nome desta entrada já foi trocado ou a troca fechou (até 24 h antes).',
     CLAIM_ALREADY_EXISTS: 'Já existe uma reclamação para esta compra.',
+    CONTACT_UNAVAILABLE:
+      'O contato fica disponível só com a reserva confirmada, até o fim do serviço.',
+    CONTACT_IN_TEXT:
+      'Tire telefone, e-mail, links, @ e chave Pix do texto. O contato com o cliente acontece depois da compra, pelo pedido.',
     INTERNAL_ERROR: 'Algo deu errado. Tente novamente em instantes.',
     PROMO_INVALID: 'Cupom inválido para esta oferta.',
     PROMO_NOT_STARTED: 'Este cupom ainda não está valendo.',
@@ -487,12 +565,41 @@ export const bookingsPtBR: BookingsTranslation = {
 };
 
 export const bookingsEn: BookingsTranslation = {
+  contact: {
+    partnerButton: 'Message the partner',
+    partnerHint:
+      'Opens WhatsApp with a ready message quoting your booking number. Available until the service ends.',
+    buyerHint:
+      'Ready message with the booking number, to let them know about a new meeting point, a delay or the weather. It is logged and disappears after the service.',
+    bookingRef: 'Booking',
+    situation: 'Status',
+    paid: 'Paid',
+    buyerButton: "Customer's WhatsApp",
+    buyerAria: 'WhatsApp {{name}}',
+    noPhone: 'There is no phone for this booking.',
+    toBuyer:
+      'Hi, {{name}}! This is {{title}}, about your booking {{code}} on Use Guide for {{when}}.',
+    toBuyerNoName: 'Hi! This is {{title}}, about your booking {{code}} on Use Guide for {{when}}.',
+    toPartner: 'Hi! I have booking {{code}} on Use Guide: {{title}}, {{when}}.',
+    arrived: "Hi, {{name}}! I'm at the meeting point. Booking {{code}} on Use Guide.",
+    afterBooking: 'After booking, you can contact the partner from your order.',
+  },
   buyer: {
     panelTitle: 'Book',
     loading: 'Loading availability…',
     loadError: 'Availability could not be loaded.',
     retry: 'Try again',
     duration: 'Duration: {{minutes}} min',
+    choose: 'Choose',
+    today: 'Today',
+    tomorrow: 'Tomorrow',
+    reserve: 'Book',
+    perGroup: 'per group, up to {{count}} people',
+    perPersonRange: '{{min}} to {{max}} people',
+    perPerson: 'per person',
+    cancellationTitle: 'Cancellation',
+    durationHours: '{{hours}} h',
+    durationMinutes: '{{minutes}} min',
     meetingPoint: 'Meeting point: {{address}}',
     rescheduledNotice: 'New date. Full refund if you cancel by {{date}}',
     tabsLabel: 'Bookings',
@@ -530,6 +637,14 @@ export const bookingsEn: BookingsTranslation = {
     viewMyBookings: 'View my bookings',
     menuItem: 'My bookings',
     myBookingsTitle: 'My bookings',
+    detail: {
+      bookingTitle: 'My booking',
+      whenLabel: 'When',
+      bookingLabel: 'Booking',
+      meetingLabel: 'Meeting point',
+      today: 'today',
+      openDetails: 'Open booking {{title}}',
+    },
     loadMore: 'Load more',
     resultTitle: 'Booking payment',
     resultLoading: 'Checking the payment…',
@@ -723,6 +838,10 @@ export const bookingsEn: BookingsTranslation = {
     NAME_CHANGE_NOT_ALLOWED:
       'The name on this entry was already changed or changes are closed (up to 24 h before).',
     CLAIM_ALREADY_EXISTS: 'There is already a claim for this purchase.',
+    CONTACT_UNAVAILABLE:
+      'Contact is only available for confirmed bookings, until the service ends.',
+    CONTACT_IN_TEXT:
+      'Remove phone numbers, emails, links, @ handles and Pix keys from the text. You talk to customers after the purchase, through the order.',
     INTERNAL_ERROR: 'Something went wrong. Please try again shortly.',
     PROMO_INVALID: 'Invalid promo code for this offer.',
     PROMO_NOT_STARTED: 'This promo code is not valid yet.',
@@ -733,12 +852,43 @@ export const bookingsEn: BookingsTranslation = {
 };
 
 export const bookingsFr: BookingsTranslation = {
+  contact: {
+    partnerButton: 'Écrire au partenaire',
+    partnerHint:
+      'Ouvre WhatsApp avec un message prêt indiquant le numéro de réservation. Disponible jusqu’à la fin de la prestation.',
+    buyerHint:
+      'Message prêt avec le numéro de réservation, pour prévenir d’un changement de lieu, d’un retard ou de la météo. C’est enregistré et disparaît après la prestation.',
+    bookingRef: 'Réservation',
+    situation: 'Statut',
+    paid: 'Payé',
+    buyerButton: 'WhatsApp du client',
+    buyerAria: 'WhatsApp de {{name}}',
+    noPhone: 'Aucun téléphone pour cette réservation.',
+    toBuyer:
+      'Bonjour {{name}} ! Ici {{title}}, au sujet de votre réservation {{code}} sur Use Guide pour le {{when}}.',
+    toBuyerNoName:
+      'Bonjour ! Ici {{title}}, au sujet de votre réservation {{code}} sur Use Guide pour le {{when}}.',
+    toPartner: 'Bonjour ! J’ai la réservation {{code}} sur Use Guide : {{title}}, {{when}}.',
+    arrived:
+      'Bonjour {{name}} ! Je suis au point de rendez-vous. Réservation {{code}} sur Use Guide.',
+    afterBooking: 'Après la réservation, vous contactez le partenaire depuis votre commande.',
+  },
   buyer: {
     panelTitle: 'Réserver',
     loading: 'Chargement des disponibilités…',
     loadError: 'Impossible de charger les disponibilités.',
     retry: 'Réessayer',
     duration: 'Durée : {{minutes}} min',
+    choose: 'Choisissez',
+    today: 'Aujourd’hui',
+    tomorrow: 'Demain',
+    reserve: 'Réserver',
+    perGroup: 'par groupe, jusqu’à {{count}} personnes',
+    perPersonRange: 'de {{min}} à {{max}} personnes',
+    perPerson: 'par personne',
+    cancellationTitle: 'Annulation',
+    durationHours: '{{hours}} h',
+    durationMinutes: '{{minutes}} min',
     meetingPoint: 'Point de rendez-vous : {{address}}',
     rescheduledNotice:
       'Nouvelle date. Remboursement intégral en cas d’annulation avant le {{date}}',
@@ -778,6 +928,14 @@ export const bookingsFr: BookingsTranslation = {
     viewMyBookings: 'Voir mes réservations',
     menuItem: 'Mes réservations',
     myBookingsTitle: 'Mes réservations',
+    detail: {
+      bookingTitle: 'Ma réservation',
+      whenLabel: 'Quand',
+      bookingLabel: 'Réservation',
+      meetingLabel: 'Point de rendez-vous',
+      today: 'aujourd’hui',
+      openDetails: 'Ouvrir la réservation {{title}}',
+    },
     loadMore: 'Charger plus',
     resultTitle: 'Paiement de la réservation',
     resultLoading: 'Vérification du paiement…',
@@ -976,6 +1134,10 @@ export const bookingsFr: BookingsTranslation = {
     NAME_CHANGE_NOT_ALLOWED:
       'Le nom de cette entrée a déjà été changé ou le délai est passé (jusqu’à 24 h avant).',
     CLAIM_ALREADY_EXISTS: 'Une réclamation existe déjà pour cet achat.',
+    CONTACT_UNAVAILABLE:
+      'Le contact n’est disponible que pour une réservation confirmée, jusqu’à la fin de la prestation.',
+    CONTACT_IN_TEXT:
+      'Retirez téléphone, e-mail, liens, @ et clé Pix du texte. Le contact avec le client se fait après l’achat, via la commande.',
     INTERNAL_ERROR: 'Un problème est survenu. Réessayez dans un instant.',
     PROMO_INVALID: 'Code promo invalide pour cette offre.',
     PROMO_NOT_STARTED: 'Ce code promo n’est pas encore valable.',

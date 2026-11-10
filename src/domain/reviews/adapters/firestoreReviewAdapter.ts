@@ -146,7 +146,12 @@ export class FirestoreReviewAdapter implements ReviewPort {
 
     if (!response.ok) {
       const errorBody = await response.json().catch(() => ({}));
-      throw new Error(errorBody.error || 'Erro ao registrar resposta no servidor');
+      // Erro tipado (`{ code, message }`) vira o código, que a tela traduz (§12.5).
+      const error = errorBody.error;
+      throw new Error(
+        (typeof error === 'string' ? error : error?.code) ||
+          'Erro ao registrar resposta no servidor'
+      );
     }
   }
 

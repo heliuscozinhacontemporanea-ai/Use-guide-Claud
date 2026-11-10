@@ -33,7 +33,13 @@ export function PartnerPanelTour({
   startChapter = 0,
   onTabChange,
   onClose,
+  tabs,
+  chapterLabel,
 }: {
+  /** Abas do painel do parceiro (por segmento); capítulo de aba que ele não tem é pulado. */
+  tabs?: readonly PartnerPanelTab[];
+  /** Nome do capítulo como a aba aparece (ex.: "Passeios" no lugar de "Catálogo"). */
+  chapterLabel?: (tab: PartnerPanelTab) => string;
   startChapter?: number;
   onTabChange: (tab: PartnerPanelTab) => void;
   onClose: (result: PanelTourResult) => void;
@@ -62,6 +68,12 @@ export function PartnerPanelTour({
     }
     setSteps(null);
     setRect(null);
+    if (tabs && !tabs.includes(chapter.tab)) {
+      const next = position.fromEnd ? position.chapter - 1 : position.chapter + 1;
+      if (next < startChapter) onClose('skip');
+      else setPosition({ chapter: next, fromEnd: position.fromEnd });
+      return;
+    }
     onTabChange(chapter.tab);
     const started = Date.now();
     const timer = window.setInterval(() => {
@@ -160,7 +172,7 @@ export function PartnerPanelTour({
         >
           <p className="text-[13px] font-semibold text-ink/70">
             {t('partnerTour.progress', {
-              chapter: t(`partnerTour.chapters.${chapter.tab}`),
+              chapter: chapterLabel?.(chapter.tab) ?? t(`partnerTour.chapters.${chapter.tab}`),
               current: index + 1,
               total: steps.length,
             })}

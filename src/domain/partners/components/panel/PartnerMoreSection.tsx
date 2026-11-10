@@ -1,3 +1,4 @@
+import { Plus } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BackButton } from '../../../../ui/components/BackButton';
@@ -24,7 +25,11 @@ export function PartnerMoreSection({
   renderCoupons,
   showProducer = true,
   sells = true,
+  onAddSegment,
+  couponsSegment = null,
 }: {
+  /** Segmento que dá nome aos cupons ("Cupons dos seus passeios"); `null` = genérico. */
+  couponsSegment?: 'tours' | 'rentals' | 'transfers' | 'attraction' | 'events' | null;
   view: PartnerMoreView;
   onViewChange: (view: PartnerMoreView) => void;
   establishments: Array<{ id: string; name: string }>;
@@ -45,6 +50,8 @@ export function PartnerMoreSection({
   showProducer?: boolean;
   /** Vende pelo app: contas de recebimento e cupons; a vitrine (hospedagem, restaurante) não. */
   sells?: boolean;
+  /** "Também trabalha com…?" (S3): abre a folha de segmentos. */
+  onAddSegment?: () => void;
 }) {
   const { t } = useTranslation();
   const back = () => onViewChange('list');
@@ -120,12 +127,25 @@ export function PartnerMoreSection({
       ? [
           {
             id: 'coupons',
-            title: t('partnerPanel.more.coupons'),
-            hint: t('partnerPanel.more.couponsHint'),
+            title: couponsSegment
+              ? t(`partnerPanel.more.couponsBy.${couponsSegment}`)
+              : t('partnerPanel.more.coupons'),
+            hint: couponsSegment ? undefined : t('partnerPanel.more.couponsHint'),
             onOpen: () => onViewChange('coupons'),
           },
         ]
       : [];
+  const addSegment: PartnerMoreEntry[] = onAddSegment
+    ? [
+        {
+          id: 'add-segment',
+          title: t('partnerAddSegment.entry'),
+          icon: <Plus size={18} aria-hidden="true" />,
+          partner: true,
+          onOpen: onAddSegment,
+        },
+      ]
+    : [];
   const help: PartnerMoreEntry[] = renderAccountView
     ? [
         {
@@ -151,7 +171,12 @@ export function PartnerMoreSection({
   return (
     <PartnerMoreTab
       title={t('partnerPanel.more.title')}
-      groups={[account, sales, help]}
+      groups={[[...account, ...sales], addSegment, help]}
+      groupTitles={[
+        t('partnerPanel.more.groupBusiness'),
+        undefined,
+        t('partnerPanel.more.groupHelp'),
+      ]}
       tourTarget="more-list"
     />
   );
