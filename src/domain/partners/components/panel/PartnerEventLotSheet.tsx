@@ -7,7 +7,7 @@ import { zonedDayKey } from '../../../../shared/utils/timeZones';
 import { Dialog } from '../../../../ui/components/Dialog';
 import { TextButton } from '../../../../ui/components/TextButton';
 import type { PartnerEventLot } from '../../types/partnerHome';
-import { dayToDate, lotWindow } from '../../utils/eventLots';
+import { dayToDate, lotPeriod, lotWindow } from '../../utils/eventLots';
 
 const BLOCK = 'rounded-2xl bg-sheet-card border border-sheet-card-line';
 const ARROW =
@@ -46,7 +46,8 @@ export function PartnerEventLotSheet({
       dayToDate(day)
     );
   const today = zonedDayKey(new Date().toISOString(), timeZone);
-  const window = lotWindow(lot.days, today, index);
+  const window = lotWindow(lot.days, lotPeriod(lot, today, timeZone), index);
+  const notStarted = lot.status === 'not_started';
   const peak = Math.max(1, ...window.bars.map((bar) => bar.count));
   const first = window.bars[0]?.day ?? today;
   const last = window.bars[window.bars.length - 1]?.day ?? today;
@@ -94,57 +95,76 @@ export function PartnerEventLotSheet({
           </div>
         </dl>
 
-        <section className={`${BLOCK} px-4 py-3`} aria-label={t('partnerCatalog.lots.perDay')}>
-          <div className="flex items-center justify-between gap-2">
-            <h3 className="text-[15px] font-semibold text-ink">
-              {t('partnerCatalog.lots.perDay')}
-            </h3>
-            <span className="text-[13px] text-ink/70">
-              {t('partnerCatalog.lots.windowTotal', { count: window.total })}
-            </span>
-          </div>
-          <div className="mt-3 flex items-end gap-1.5 h-24" role="img" aria-label={range}>
-            {window.bars.map((bar) => (
-              <span
-                key={bar.day}
-                title={`${dayLabel(bar.day)}: ${bar.count}`}
-                className={`flex-1 rounded-t ${bar.count > 0 ? 'bg-accent' : 'bg-ink/10'}`}
-                style={{ height: bar.count > 0 ? `${Math.max(6, (bar.count / peak) * 100)}%` : 3 }}
-              />
-            ))}
-          </div>
-          <div className="mt-1 flex items-center justify-between gap-2">
-            <button
-              type="button"
-              className={ARROW}
-              disabled={!window.hasOlder}
-              onClick={() => setIndex((value) => value + 1)}
-              aria-label={t('partnerCatalog.lots.older')}
-            >
-              <ChevronLeft size={20} aria-hidden="true" />
-            </button>
-            <span className="text-[13px] font-semibold text-ink" aria-live="polite">
-              {range}
-            </span>
-            <button
-              type="button"
-              className={ARROW}
-              disabled={!window.hasNewer}
-              onClick={() => setIndex((value) => Math.max(0, value - 1))}
-              aria-label={t('partnerCatalog.lots.newer')}
-            >
-              <ChevronRight size={20} aria-hidden="true" />
-            </button>
-          </div>
-          <p className="text-[13px] text-ink/70">
-            {window.best
-              ? t('partnerCatalog.lots.bestDay', {
-                  date: dayLabel(window.best.day),
-                  count: window.best.count,
+        {notStarted ? (
+          <p className={`${BLOCK} px-4 py-3 text-[14px] text-ink/70`}>
+            {lot.salesStartsAt
+              ? t('partnerCatalog.lots.opensNotice', {
+                  date: formatBusinessDate(
+                    lot.salesStartsAt,
+                    locale,
+                    { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' },
+                    timeZone
+                  ),
                 })
-              : t('partnerCatalog.lots.noSalesInWindow')}
+              : t('partnerCatalog.lots.status.not_started')}
           </p>
-        </section>
+        ) : (
+          <section className={`${BLOCK} px-4 py-3`} aria-label={t('partnerCatalog.lots.perDay')}>
+            <div className="flex items-center justify-between gap-2">
+              <h3 className="text-[15px] font-semibold text-ink">
+                {t('partnerCatalog.lots.perDay')}
+              </h3>
+              <span className="text-[13px] text-ink/70">
+                {t('partnerCatalog.lots.windowTotal', { count: window.total })}
+              </span>
+            </div>
+            <div className="mt-3 flex items-end gap-1.5 h-24" role="img" aria-label={range}>
+              {window.bars.map((bar) => (
+                <span
+                  key={bar.day}
+                  title={`${dayLabel(bar.day)}: ${bar.count}`}
+                  className={`flex-1 rounded-t ${
+                    bar.count > 0 ? 'bg-accent' : bar.inPeriod ? 'bg-ink/10' : 'bg-transparent'
+                  }`}
+                  style={{
+                    height: bar.count > 0 ? `${Math.max(6, (bar.count / peak) * 100)}%` : 3,
+                  }}
+                />
+              ))}
+            </div>
+            <div className="mt-1 flex items-center justify-between gap-2">
+              <button
+                type="button"
+                className={ARROW}
+                disabled={!window.hasOlder}
+                onClick={() => setIndex((value) => value + 1)}
+                aria-label={t('partnerCatalog.lots.older')}
+              >
+                <ChevronLeft size={20} aria-hidden="true" />
+              </button>
+              <span className="text-[13px] font-semibold text-ink" aria-live="polite">
+                {range}
+              </span>
+              <button
+                type="button"
+                className={ARROW}
+                disabled={!window.hasNewer}
+                onClick={() => setIndex((value) => Math.max(0, value - 1))}
+                aria-label={t('partnerCatalog.lots.newer')}
+              >
+                <ChevronRight size={20} aria-hidden="true" />
+              </button>
+            </div>
+            <p className="text-[13px] text-ink/70">
+              {window.best
+                ? t('partnerCatalog.lots.bestDay', {
+                    date: dayLabel(window.best.day),
+                    count: window.best.count,
+                  })
+                : t('partnerCatalog.lots.noSalesInWindow')}
+            </p>
+          </section>
+        )}
 
         <div className="flex justify-center">
           <TextButton tone="accent" onClick={onEdit}>

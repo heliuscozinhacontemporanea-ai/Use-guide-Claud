@@ -116,7 +116,16 @@ export function useTicketLotForm({
     }
   };
 
+  const handleSaveLotDates = async (
+    lotId: string,
+    dates: { salesStartsAt: string | null; salesEndsAt: string | null }
+  ) => {
+    await updateTicketTypeUseCase(lotId, dates);
+    await reloadLots();
+  };
+
   return {
+    handleSaveLotDates,
     newName,
     setNewName,
     newDescription,

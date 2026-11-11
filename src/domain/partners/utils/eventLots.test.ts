@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { PartnerEventLot } from '../types/partnerHome';
-import { lotsFor, lotWindow } from './eventLots';
+import { lotPeriod, lotsFor, lotWindow } from './eventLots';
 
 const lot = (overrides: Partial<PartnerEventLot>): PartnerEventLot => ({
   id: 'l1',
@@ -44,25 +44,52 @@ describe('eventLots (A5)', () => {
     expect(lotsFor(lots, 'o2').map((item) => item.id)).toEqual(['l2']);
   });
 
-  it('janela de 14 dias termina hoje e volta até a primeira venda', () => {
-    const days = [
-      { day: '2026-11-20', count: 4 },
-      { day: '2026-12-09', count: 11 },
-      { day: '2026-12-12', count: 2 },
-    ];
-    const now = lotWindow(days, '2026-12-12', 0);
+  it('janela de 14 dias termina hoje no lote à venda e volta até a abertura das vendas', () => {
+    const open = lot({
+      status: 'on_sale',
+      salesStartsAt: '2026-11-18T12:00:00.000Z',
+      days: [
+        { day: '2026-11-20', count: 4 },
+        { day: '2026-12-09', count: 11 },
+        { day: '2026-12-12', count: 2 },
+      ],
+    });
+    const period = lotPeriod(open, '2026-12-12', 'America/Fortaleza');
+    expect(period).toEqual({ from: '2026-11-18', to: '2026-12-12' });
+    const now = lotWindow(open.days, period, 0);
     expect(now.bars).toHaveLength(14);
     expect(now.bars[0]?.day).toBe('2026-11-29');
-    expect(now.bars[13]).toEqual({ day: '2026-12-12', count: 2 });
+    expect(now.bars[13]).toEqual({ day: '2026-12-12', count: 2, inPeriod: true });
     expect(now).toMatchObject({
       total: 13,
       best: { day: '2026-12-09', count: 11 },
       hasOlder: true,
       hasNewer: false,
     });
-    const before = lotWindow(days, '2026-12-12', 1);
-    expect(before.bars[0]?.day).toBe('2026-11-15');
+    const before = lotWindow(open.days, period, 1);
+    expect(before.bars[0]).toMatchObject({ day: '2026-11-15', inPeriod: false });
+    expect(before.bars[3]).toMatchObject({ day: '2026-11-18', inPeriod: true });
     expect(before).toMatchObject({ total: 4, hasOlder: false, hasNewer: true });
-    expect(lotWindow([], '2026-12-12', 0)).toMatchObject({ total: 0, best: null, hasOlder: false });
+  });
+
+  it('lote encerrado ou esgotado mostra até a última venda; sem venda, até o fim das vendas', () => {
+    const soldOut = lot({
+      status: 'sold_out',
+      days: [
+        { day: '2026-11-20', count: 4 },
+        { day: '2026-11-25', count: 6 },
+      ],
+    });
+    const period = lotPeriod(soldOut, '2026-12-12', 'America/Fortaleza');
+    expect(period).toEqual({ from: '2026-11-20', to: '2026-11-25' });
+    const window = lotWindow(soldOut.days, period, 0);
+    expect(window.bars[13]).toEqual({ day: '2026-11-25', count: 6, inPeriod: true });
+    expect(window.bars[7]).toMatchObject({ day: '2026-11-19', inPeriod: false });
+    expect(window).toMatchObject({ total: 10, hasOlder: false, hasNewer: false });
+    const empty = lot({ status: 'ended', salesEndsAt: '2026-12-01T12:00:00.000Z', days: [] });
+    expect(lotPeriod(empty, '2026-12-12', 'America/Fortaleza')).toEqual({
+      from: null,
+      to: '2026-12-01',
+    });
   });
 });

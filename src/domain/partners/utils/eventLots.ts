@@ -1,3 +1,4 @@
+import { zonedDayKey } from '../../../shared/utils/timeZones';
 import type { PartnerEventLot } from '../types/partnerHome';
 
 export const LOT_WINDOW_DAYS = 14;
@@ -54,9 +55,35 @@ export function lotsFor(lots: PartnerEventLot[], occurrenceId: string | null): P
   return [...merged.values()];
 }
 
+/** Período em que o gráfico do lote faz sentido, em dias do fuso do evento. */
+export interface LotPeriod {
+  /** Abertura das vendas ou, sem data cadastrada, a primeira venda; `null` sem nenhuma das duas. */
+  from: string | null;
+  /** Último dia mostrado: hoje no lote à venda, a última venda no lote encerrado ou esgotado. */
+  to: string;
+}
+
+const CLOSED: PartnerEventLot['status'][] = ['ended', 'sold_out'];
+
+/**
+ * Período do gráfico (A5): começa na abertura das vendas e, no lote que já encerrou ou esgotou,
+ * acaba na última venda (sem venda, no fim das vendas); no lote aberto, acaba hoje.
+ */
+export function lotPeriod(lot: PartnerEventLot, today: string, timeZone: string): LotPeriod {
+  const firstSale = lot.days[0]?.day ?? null;
+  const lastSale = lot.days[lot.days.length - 1]?.day ?? null;
+  const start = lot.salesStartsAt ? zonedDayKey(lot.salesStartsAt, timeZone) : null;
+  const end = lot.salesEndsAt ? zonedDayKey(lot.salesEndsAt, timeZone) : null;
+  const closedOn = CLOSED.includes(lot.status) ? (lastSale ?? end ?? today) : today;
+  return {
+    from: [start, firstSale].filter((day): day is string => Boolean(day)).sort()[0] ?? null,
+    to: closedOn < today ? closedOn : today,
+  };
+}
+
 export interface LotWindow {
-  /** Os 14 dias da janela, do mais antigo ao mais novo, com zero onde não houve venda. */
-  bars: Array<{ day: string; count: number }>;
+  /** Os 14 dias da janela, do mais antigo ao mais novo; `inPeriod` falso fica sem barra. */
+  bars: Array<{ day: string; count: number; inPeriod: boolean }>;
   total: number;
   best: { day: string; count: number } | null;
   hasOlder: boolean;
@@ -64,26 +91,33 @@ export interface LotWindow {
 }
 
 /**
- * Janela de 14 dias do gráfico do lote (A5). `index` 0 termina hoje; cada passo volta 14 dias, até
- * a janela que contém a primeira venda.
+ * Janela de 14 dias do gráfico do lote (A5). `index` 0 termina no fim do período; cada passo volta
+ * 14 dias, até a janela que contém o início do período.
  */
-export function lotWindow(days: PartnerEventLot['days'], today: string, index: number): LotWindow {
+export function lotWindow(
+  days: PartnerEventLot['days'],
+  period: LotPeriod,
+  index: number
+): LotWindow {
   const counts = new Map(days.map((entry) => [entry.day, entry.count]));
-  const end = toMs(today) - index * LOT_WINDOW_DAYS * DAY_MS;
+  const end = toMs(period.to) - index * LOT_WINDOW_DAYS * DAY_MS;
   const bars = Array.from({ length: LOT_WINDOW_DAYS }, (_, position) => {
     const day = toDay(end - (LOT_WINDOW_DAYS - 1 - position) * DAY_MS);
-    return { day, count: counts.get(day) ?? 0 };
+    return {
+      day,
+      count: counts.get(day) ?? 0,
+      inPeriod: (!period.from || day >= period.from) && day <= period.to,
+    };
   });
-  const first = days[0]?.day;
   const best = bars.reduce<LotWindow['best']>(
-    (top, bar) => (bar.count > (top?.count ?? 0) ? bar : top),
+    (top, bar) => (bar.count > (top?.count ?? 0) ? { day: bar.day, count: bar.count } : top),
     null
   );
   return {
     bars,
     total: bars.reduce((sum, bar) => sum + bar.count, 0),
     best,
-    hasOlder: Boolean(first) && toMs(first as string) < toMs(bars[0]?.day ?? today),
+    hasOlder: Boolean(period.from) && (period.from as string) < (bars[0]?.day ?? period.to),
     hasNewer: index > 0,
   };
 }

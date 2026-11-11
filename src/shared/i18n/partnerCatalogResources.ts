@@ -40,6 +40,7 @@ export interface PartnerCatalogTranslation {
     allSessionsLower: string;
     emptySession: string;
     opensOn: string;
+    opensNotice: string;
     status: {
       on_sale: string;
       sold_out: string;
@@ -206,6 +207,7 @@ export const partnerCatalogPtBR: PartnerCatalogTranslation = {
     allSessionsLower: 'todas as sessões',
     emptySession: 'Esta sessão ainda não tem lotes.',
     opensOn: 'Abre em {{date}}',
+    opensNotice: 'As vendas abrem em {{date}}. O gráfico aparece a partir da primeira venda.',
     status: {
       on_sale: 'À venda',
       sold_out: 'Esgotado',
@@ -376,6 +378,7 @@ export const partnerCatalogEn: PartnerCatalogTranslation = {
     allSessionsLower: 'all sessions',
     emptySession: 'This session has no tiers yet.',
     opensOn: 'Opens {{date}}',
+    opensNotice: 'Sales open on {{date}}. The chart appears from the first sale.',
     status: {
       on_sale: 'On sale',
       sold_out: 'Sold out',
@@ -546,6 +549,7 @@ export const partnerCatalogFr: PartnerCatalogTranslation = {
     allSessionsLower: 'toutes les séances',
     emptySession: "Cette séance n'a pas encore de lots.",
     opensOn: 'Ouvre le {{date}}',
+    opensNotice: 'Les ventes ouvrent le {{date}}. Le graphique apparaît dès la première vente.',
     status: {
       on_sale: 'En vente',
       sold_out: 'Épuisé',

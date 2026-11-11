@@ -62,8 +62,9 @@ export const updateTicketTypeSchema = z
     quantity: z.number().int().positive().max(100000).optional(),
     minPerOrder: z.number().int().positive().max(50).optional(),
     maxPerOrder: z.number().int().positive().max(50).optional(),
-    salesStartsAt: z.string().datetime({ offset: true }).optional(),
-    salesEndsAt: z.string().datetime({ offset: true }).optional(),
+    // `null` tira a data: sem início, vende desde já; sem fim, até a sessão.
+    salesStartsAt: z.string().datetime({ offset: true }).nullable().optional(),
+    salesEndsAt: z.string().datetime({ offset: true }).nullable().optional(),
     status: ticketTypeStatusSchema.optional(),
     visibility: z.enum(['public', 'hidden', 'restricted']).optional(),
     requiresEligibilityProof: z.boolean().optional(),

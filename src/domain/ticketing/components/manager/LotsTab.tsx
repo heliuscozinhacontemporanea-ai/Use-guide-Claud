@@ -1,7 +1,11 @@
 import { Plus, Trash2 } from 'lucide-react';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { formatBusinessDateTime } from '../../../../shared/utils/businessDateTime';
 import { PLATFORM_TIME_ZONE } from '../../../../shared/utils/timeZones';
 import type { TicketLotForm } from '../../hooks/useTicketLotForm';
 import { formatMoneyMinorBrl, type TicketType } from '../../types/ticketing';
+import { LotSalesWindowDialog } from './LotSalesWindowDialog';
 
 export function LotsTab({
   form,
@@ -44,7 +48,11 @@ export function LotsTab({
     handleCreateLot,
     handleDeleteLot,
     handleToggleLotPause,
+    handleSaveLotDates,
   } = form;
+  const { t, i18n } = useTranslation();
+  const [datesFor, setDatesFor] = useState<TicketType | null>(null);
+  const dateTime = (iso: string) => formatBusinessDateTime(iso, i18n.language, timeZone);
 
   return (
     <div className="space-y-4">
@@ -199,21 +207,27 @@ export function LotsTab({
                 Vendidos: {tt.soldCount} / {tt.quantity} • Reservados: {tt.reservedCount} • Mín{' '}
                 {tt.minPerOrder} / Máx {tt.maxPerOrder}
               </div>
-              {(tt.salesStartsAt || tt.salesEndsAt) && (
-                <div className="text-[11px] text-ink/70">
-                  Janela:{' '}
-                  {tt.salesStartsAt
-                    ? new Date(tt.salesStartsAt).toLocaleString('pt-BR', { timeZone })
-                    : 'Imediato'}{' '}
-                  até{' '}
-                  {tt.salesEndsAt
-                    ? new Date(tt.salesEndsAt).toLocaleString('pt-BR', { timeZone })
-                    : 'Início da sessão'}
-                </div>
-              )}
+              <div className="text-[11px] text-ink/70">
+                {t('eventSessions.lotDates.summary', {
+                  from: tt.salesStartsAt
+                    ? dateTime(tt.salesStartsAt)
+                    : t('eventSessions.lotDates.fromNow'),
+                  to: tt.salesEndsAt
+                    ? dateTime(tt.salesEndsAt)
+                    : t('eventSessions.lotDates.untilSession'),
+                })}
+              </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              <button
+                type="button"
+                onClick={() => setDatesFor(tt)}
+                aria-label={t('eventSessions.lotDates.buttonAria', { name: tt.name })}
+                className="press min-h-11 px-3 rounded-xl bg-surface border border-line hover:bg-accent-soft text-xs font-bold text-ink cursor-pointer focus-visible:ring-2 focus-visible:ring-teal-400/50"
+              >
+                {t('eventSessions.lotDates.button')}
+              </button>
               <button
                 type="button"
                 onClick={() => void handleToggleLotPause(tt.id, tt.status)}
@@ -233,6 +247,12 @@ export function LotsTab({
           </div>
         ))}
       </div>
+      <LotSalesWindowDialog
+        lot={datesFor}
+        timeZone={timeZone}
+        onClose={() => setDatesFor(null)}
+        onSave={handleSaveLotDates}
+      />
     </div>
   );
 }
