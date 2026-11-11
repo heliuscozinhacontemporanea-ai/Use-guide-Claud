@@ -186,6 +186,23 @@ export interface PartnerHomePromoCodes {
 }
 
 /** Página do evento · Vendas, como `/api/partner-home/events/:id/sales` devolve. */
+/** Vendas de um lote na página do evento (A5): sem cortesias e sem o que já foi reembolsado. */
+export interface PartnerEventLot {
+  id: string;
+  occurrenceId: string;
+  name: string;
+  priceMinor: number;
+  quantity: number;
+  sold: number;
+  /** Preço dos ingressos vendidos, antes dos cupons. */
+  soldMinor: number;
+  status: 'on_sale' | 'sold_out' | 'not_started' | 'paused' | 'ended';
+  salesStartsAt: string | null;
+  salesEndsAt: string | null;
+  /** Ingressos por dia (`YYYY-MM-DD` no fuso do evento); só os dias com venda. */
+  days: Array<{ day: string; count: number }>;
+}
+
 export interface PartnerEventSales {
   event: { id: string; title: string; status: PartnerCatalogEventStatus; sessions: number };
   soldMinor: number;
@@ -203,6 +220,9 @@ export interface PartnerEventSales {
   };
   /** CNPJ mascarado da conta que recebe; `null` enquanto não há venda. */
   payoutDocument: string | null;
+  lots: PartnerEventLot[];
+  /** Fuso do evento: os dias dos lotes estão nele. */
+  timeZone: string;
   sessions: Array<{
     id: string;
     startsAt: string;

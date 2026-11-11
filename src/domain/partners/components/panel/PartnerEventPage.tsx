@@ -13,6 +13,7 @@ import type { PartnerEventSales, PartnerTodayItem } from '../../types/partnerHom
 import { addBusinessDays, businessDay, sameBusinessDay } from '../../utils/agendaCalendar';
 import { sessionLabel } from '../../utils/eventSalesFormat';
 import type { EventGuestsRenderProps } from './PartnerCatalogSection';
+import { PartnerEventLots } from './PartnerEventLots';
 import { PartnerEventOrders } from './PartnerEventOrders';
 import { PartnerEventReceiveSheet } from './PartnerEventReceiveSheet';
 
@@ -212,6 +213,8 @@ export function PartnerEventPage({
               </ListCard>
             </section>
           )}
+
+          <PartnerEventLots sales={data} onEdit={() => onEdit(data.ordersTotal > 0)} />
 
           {onOpenCoupons && (
             <ListCard>

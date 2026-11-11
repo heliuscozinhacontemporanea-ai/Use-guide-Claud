@@ -33,6 +33,36 @@ export interface PartnerCatalogTranslation {
     offers: string;
     reviewsTitle: string;
   };
+  lots: {
+    title: string;
+    filter: string;
+    allSessions: string;
+    allSessionsLower: string;
+    emptySession: string;
+    opensOn: string;
+    status: {
+      on_sale: string;
+      sold_out: string;
+      not_started: string;
+      paused: string;
+      ended: string;
+    };
+    couponsNote: string;
+    statusLabel: string;
+    price: string;
+    soldLabel: string;
+    salesUntil: string;
+    perDay: string;
+    windowTotal_one: string;
+    windowTotal_other: string;
+    range: string;
+    older: string;
+    newer: string;
+    bestDay_one: string;
+    bestDay_other: string;
+    noSalesInWindow: string;
+    edit: string;
+  };
   receive: {
     title: string;
     tickets: string;
@@ -168,6 +198,37 @@ export const partnerCatalogPtBR: PartnerCatalogTranslation = {
     reviews_other: '{{count}} avaliações',
     offers: 'Passeios e aluguéis',
     reviewsTitle: 'Avaliações',
+  },
+  lots: {
+    title: 'Vendas por lote',
+    filter: 'Sessão',
+    allSessions: 'Todas',
+    allSessionsLower: 'todas as sessões',
+    emptySession: 'Esta sessão ainda não tem lotes.',
+    opensOn: 'Abre em {{date}}',
+    status: {
+      on_sale: 'À venda',
+      sold_out: 'Esgotado',
+      not_started: 'Ainda não abriu',
+      paused: 'Pausado',
+      ended: 'Encerrado',
+    },
+    couponsNote:
+      'Cupons de desconto: − {{amount}}. O desconto é do pedido, por isso não aparece em cada lote.',
+    statusLabel: 'Situação',
+    price: 'Preço',
+    soldLabel: 'Vendidos',
+    salesUntil: 'Vendas até',
+    perDay: 'Ingressos por dia',
+    windowTotal_one: '{{count}} no período',
+    windowTotal_other: '{{count}} no período',
+    range: '{{from}} a {{to}}',
+    older: '14 dias anteriores',
+    newer: '14 dias seguintes',
+    bestDay_one: 'Melhor dia: {{date}}, com {{count}} ingresso.',
+    bestDay_other: 'Melhor dia: {{date}}, com {{count}} ingressos.',
+    noSalesInWindow: 'Nenhum ingresso vendido neste período.',
+    edit: 'Editar ingressos e lotes',
   },
   receive: {
     title: 'Como chegamos a esse valor',
@@ -308,6 +369,37 @@ export const partnerCatalogEn: PartnerCatalogTranslation = {
     offers: 'Tours and rentals',
     reviewsTitle: 'Reviews',
   },
+  lots: {
+    title: 'Sales by ticket tier',
+    filter: 'Session',
+    allSessions: 'All',
+    allSessionsLower: 'all sessions',
+    emptySession: 'This session has no tiers yet.',
+    opensOn: 'Opens {{date}}',
+    status: {
+      on_sale: 'On sale',
+      sold_out: 'Sold out',
+      not_started: 'Not open yet',
+      paused: 'Paused',
+      ended: 'Closed',
+    },
+    couponsNote:
+      'Discount codes: − {{amount}}. The discount applies to the order, so it is not shown per tier.',
+    statusLabel: 'Status',
+    price: 'Price',
+    soldLabel: 'Sold',
+    salesUntil: 'On sale until',
+    perDay: 'Tickets per day',
+    windowTotal_one: '{{count}} in this period',
+    windowTotal_other: '{{count}} in this period',
+    range: '{{from}} to {{to}}',
+    older: 'Previous 14 days',
+    newer: 'Next 14 days',
+    bestDay_one: 'Best day: {{date}}, with {{count}} ticket.',
+    bestDay_other: 'Best day: {{date}}, with {{count}} tickets.',
+    noSalesInWindow: 'No tickets sold in this period.',
+    edit: 'Edit tickets and tiers',
+  },
   receive: {
     title: 'How we got to this amount',
     tickets: 'Tickets',
@@ -446,6 +538,37 @@ export const partnerCatalogFr: PartnerCatalogTranslation = {
     reviews_other: '{{count}} avis',
     offers: 'Excursions et locations',
     reviewsTitle: 'Avis',
+  },
+  lots: {
+    title: 'Ventes par lot',
+    filter: 'Séance',
+    allSessions: 'Toutes',
+    allSessionsLower: 'toutes les séances',
+    emptySession: "Cette séance n'a pas encore de lots.",
+    opensOn: 'Ouvre le {{date}}',
+    status: {
+      on_sale: 'En vente',
+      sold_out: 'Épuisé',
+      not_started: 'Pas encore ouvert',
+      paused: 'En pause',
+      ended: 'Terminé',
+    },
+    couponsNote:
+      "Codes de réduction : − {{amount}}. La réduction porte sur la commande, elle n'apparaît donc pas par lot.",
+    statusLabel: 'Statut',
+    price: 'Prix',
+    soldLabel: 'Vendus',
+    salesUntil: "En vente jusqu'au",
+    perDay: 'Billets par jour',
+    windowTotal_one: '{{count}} sur la période',
+    windowTotal_other: '{{count}} sur la période',
+    range: '{{from}} au {{to}}',
+    older: '14 jours précédents',
+    newer: '14 jours suivants',
+    bestDay_one: 'Meilleur jour : {{date}}, avec {{count}} billet.',
+    bestDay_other: 'Meilleur jour : {{date}}, avec {{count}} billets.',
+    noSalesInWindow: 'Aucun billet vendu sur cette période.',
+    edit: 'Modifier les billets et les lots',
   },
   receive: {
     title: 'Comment ce montant est calculé',
