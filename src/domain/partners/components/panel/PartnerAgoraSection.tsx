@@ -1,6 +1,7 @@
 import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useUI } from '../../../../shared/stores/useUIStore';
+import { usePanelItemTime } from '../../hooks/panelTimeZone';
 import { usePartnerAgora } from '../../hooks/usePartnerAgora';
 import type { PartnerTodayItem } from '../../types/partnerHome';
 import { AgoraCardItem } from './AgoraCardItem';
@@ -9,6 +10,8 @@ import { AgoraCardItem } from './AgoraCardItem';
 export interface PartnerAgoraRenders {
   /** "Cheguei" do horário; devolve se a localização foi junto. */
   arrive: (item: PartnerTodayItem) => Promise<{ located: boolean }>;
+  /** "Iniciar serviço" (C4): grava no servidor e devolve a hora do início. */
+  start: (item: PartnerTodayItem) => Promise<string | null>;
   renderCodeSheet: (props: {
     item: PartnerTodayItem;
     noShowAllowed: boolean;
@@ -38,10 +41,12 @@ export function PartnerAgoraSection({
   onOpenGate: (item: PartnerTodayItem) => void;
   onChanged: () => void;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { showToast } = useUI();
-  const { cards, now, start } = usePartnerAgora(items);
+  const { cards, now } = usePartnerAgora(items);
+  const itemTime = usePanelItemTime(i18n.language);
   const [arriving, setArriving] = useState<string | null>(null);
+  const [starting, setStarting] = useState<string | null>(null);
   const [codeFor, setCodeFor] = useState<{ item: PartnerTodayItem; noShow: boolean } | null>(null);
   // A folha do código fica aberta mesmo que o último cartão saia depois de um check-in.
   if (cards.length === 0 && !codeFor) return null;
@@ -56,6 +61,24 @@ export function PartnerAgoraSection({
       showToast(t('partnerAgora.arrive.error'), 'error');
     } finally {
       setArriving(null);
+    }
+  };
+
+  const start = async (item: PartnerTodayItem) => {
+    setStarting(item.id);
+    try {
+      const startedAt = await renders.start(item);
+      showToast(
+        t('partnerAgora.start.done', {
+          time: itemTime(item, startedAt ?? new Date().toISOString()),
+        }),
+        'success'
+      );
+      onChanged();
+    } catch {
+      showToast(t('partnerAgora.start.error'), 'error');
+    } finally {
+      setStarting(null);
     }
   };
 
@@ -79,10 +102,8 @@ export function PartnerAgoraSection({
             }
             onArrive={() => void arrive(card.item)}
             onOpenCode={(noShow) => setCodeFor({ item: card.item, noShow })}
-            onStart={() => {
-              start(card.item.id);
-              showToast(t('partnerAgora.start.done'), 'success');
-            }}
+            starting={starting === card.item.id}
+            onStart={() => void start(card.item)}
             onOpenGate={() => onOpenGate(card.item)}
           />
         ))}

@@ -9,6 +9,7 @@ import { respondToArrivalApplicationUseCase } from '../../../application/usecase
 import {
   getBookingCheckInCodeUseCase,
   getBookingForActorUseCase,
+  getBookingServiceStartsUseCase,
   getEntryPassUseCase,
   listAvailableSlotsUseCase,
   listMyBookingsUseCase,
@@ -81,9 +82,11 @@ export class BookingsController {
     if (!page.success) return sendError(res, 400, 'VALIDATION_ERROR', 'Parâmetros inválidos.');
     try {
       const result = await listMyBookingsUseCase(actor, page.data);
-      return res
-        .status(200)
-        .json({ data: result.data.map(toBuyerBooking), nextCursor: result.nextCursor });
+      const starts = await getBookingServiceStartsUseCase(result.data);
+      return res.status(200).json({
+        data: result.data.map((booking) => toBuyerBooking(booking, starts.get(booking.id) ?? null)),
+        nextCursor: result.nextCursor,
+      });
     } catch (error) {
       return handleBookingError(res, 'listMine', error);
     }
@@ -96,7 +99,12 @@ export class BookingsController {
     if (!bookingId.success) return sendError(res, 404, 'NOT_FOUND', 'Reserva não encontrada.');
     try {
       const details = await getBookingForActorUseCase(actor, bookingId.data);
-      return res.status(200).json(toBookingDetails(details, actor.uid, actor.admin));
+      const starts = await getBookingServiceStartsUseCase([details.booking]);
+      return res
+        .status(200)
+        .json(
+          toBookingDetails(details, actor.uid, actor.admin, starts.get(details.booking.id) ?? null)
+        );
     } catch (error) {
       return handleBookingError(res, 'get', error);
     }

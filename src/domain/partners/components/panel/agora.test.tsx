@@ -32,6 +32,7 @@ function slot(overrides: Partial<PartnerTodayItem>): PartnerTodayItem {
 function renders() {
   return {
     arrive: vi.fn(async () => ({ located: true })),
+    start: vi.fn(async () => new Date().toISOString()),
     renderCodeSheet: vi.fn(() => <p>folha do código</p>),
     renderContacts: vi.fn(() => <p>contatos</p>),
   };
@@ -80,7 +81,29 @@ describe('Agora (p40 a p43)', () => {
     expect(screen.getByText('folha do código')).toBeTruthy();
   });
 
-  it('"Iniciar serviço" some depois do toque e a portaria abre a folha', () => {
+  it('"Iniciar serviço" grava no servidor, recarrega e some quando o horário volta iniciado', async () => {
+    const r = renders();
+    const onChanged = vi.fn();
+    const ready = slot({ startsAt: rel(2), checkedIn: 6, waitingBookings: 0 });
+    const view = (items: PartnerTodayItem[]) => (
+      <PartnerAgoraSection
+        items={items}
+        nameOf={() => 'Buggy do Preá'}
+        renders={r}
+        version={0}
+        onOpenGate={vi.fn()}
+        onChanged={onChanged}
+      />
+    );
+    const { rerender } = render(view([ready]));
+    fireEvent.click(screen.getByRole('button', { name: 'Iniciar serviço' }));
+    await waitFor(() => expect(onChanged).toHaveBeenCalled());
+    expect(r.start).toHaveBeenCalledWith(expect.objectContaining({ id: 'h1' }));
+    rerender(view([{ ...ready, startedAt: rel(0) }]));
+    expect(screen.queryByRole('button', { name: 'Iniciar serviço' })).toBeNull();
+  });
+
+  it('a portaria abre a folha', () => {
     const onOpenGate = vi.fn();
     render(
       <PartnerAgoraSection
@@ -95,8 +118,6 @@ describe('Agora (p40 a p43)', () => {
         onChanged={vi.fn()}
       />
     );
-    fireEvent.click(screen.getByRole('button', { name: 'Iniciar serviço' }));
-    expect(screen.queryByRole('button', { name: 'Iniciar serviço' })).toBeNull();
     expect(screen.getByText('Portaria · Dunas Park')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Abrir portaria' }));
     expect(onOpenGate).toHaveBeenCalledWith(expect.objectContaining({ id: 'e1' }));

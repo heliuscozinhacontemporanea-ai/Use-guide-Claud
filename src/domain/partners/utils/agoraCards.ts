@@ -11,6 +11,12 @@ const ARRIVE_KINDS = ['tour', 'transfer'];
 // Sessão sem fim informado: a portaria fica aberta como o código do ingresso, 6 h (D20).
 const SESSION_WITHOUT_END = 6 * HOUR;
 
+/** Serviço iniciado pelo prestador e ainda dentro do horário (C4): "Em andamento". */
+export function serviceInProgress(item: PartnerTodayItem, nowMs: number): boolean {
+  if (!item.startedAt) return false;
+  return nowMs < ms(item.serviceEndsAt ?? item.endsAt ?? item.startsAt);
+}
+
 export type AgoraCard =
   | { type: 'arrive'; item: PartnerTodayItem }
   | { type: 'code'; item: PartnerTodayItem; arrived: boolean; noShowAt: string | null }
@@ -23,12 +29,7 @@ const ms = (iso: string) => new Date(iso).getTime();
 const eveStart = (startMs: number, timeZone: string) =>
   addBusinessDays(businessDay(new Date(startMs), timeZone), -1, timeZone).getTime();
 
-function slotCard(
-  item: PartnerTodayItem,
-  now: number,
-  started: boolean,
-  timeZone: string
-): AgoraCard | null {
+function slotCard(item: PartnerTodayItem, now: number, timeZone: string): AgoraCard | null {
   const start = ms(item.startsAt);
   const end = ms(item.serviceEndsAt ?? item.endsAt ?? item.startsAt);
   if (item.offerKind === 'private_entry') {
@@ -42,7 +43,7 @@ function slotCard(
   const codeOpen = now >= start - 2 * HOUR && now <= end + 12 * HOUR;
   if (waiting === 0) {
     // "Iniciar serviço" só depois do check-in (D20) e até o fim do serviço.
-    return codeOpen && !started && (item.checkedIn ?? 0) > 0 && now < end
+    return codeOpen && !item.startedAt && (item.checkedIn ?? 0) > 0 && now < end
       ? { type: 'start', item }
       : null;
   }
@@ -68,19 +69,18 @@ function sessionCard(item: PartnerTodayItem, now: number, timeZone: string): Ago
 }
 
 /**
- * Cartões de "Agora" (D27): cada um aparece e some sozinho pela janela do horário. `started` são
- * os horários em que o prestador já tocou "Iniciar serviço" neste aparelho.
+ * Cartões de "Agora" (D27): cada um aparece e some sozinho pela janela do horário. "Iniciar
+ * serviço" some quando o servidor já tem o início do horário (C4), em qualquer aparelho.
  */
 export function agoraCards(
   items: PartnerTodayItem[],
   nowMs: number,
-  started: ReadonlySet<string> = new Set(),
   zoneOf: (item: PartnerTodayItem) => string = () => PLATFORM_TIME_ZONE
 ): AgoraCard[] {
   return items
     .map((item) =>
       item.kind === 'slot'
-        ? slotCard(item, nowMs, started.has(item.id), zoneOf(item))
+        ? slotCard(item, nowMs, zoneOf(item))
         : sessionCard(item, nowMs, zoneOf(item))
     )
     .filter((card): card is AgoraCard => card !== null);

@@ -25,6 +25,9 @@ vi.mock('../../../domain/bookings', async () => {
     BookingDomainError,
     getBookingCheckInCodeUseCase: vi.fn(),
     getBookingForActorUseCase: vi.fn(),
+    getBookingServiceStartsUseCase: vi.fn(
+      async () => new Map([['bk_1', '2026-11-08T12:04:00.000Z']])
+    ),
     listAvailableSlotsUseCase: vi.fn(),
     listMyBookingsUseCase: vi.fn(),
     markBookingNoShowUseCase: vi.fn(),
@@ -178,7 +181,11 @@ describe('BookingsController', () => {
       { uid: 'buyer-1', admin: false },
       { limit: 10 }
     );
-    expect(json.mock.calls[0]?.[0]).toMatchObject({ nextCursor: 'bk_1' });
+    expect(json.mock.calls[0]?.[0]).toMatchObject({
+      nextCursor: 'bk_1',
+      // "Em andamento" para o comprador (C4).
+      data: [{ id: 'bk_1', serviceStartedAt: '2026-11-08T12:04:00.000Z' }],
+    });
   });
 
   it('janela de horários acima de 62 dias é recusada', async () => {

@@ -24,9 +24,11 @@ const waiting = (booking: Booking) =>
   // Já reembolsada porque o parceiro não veio (D20): não há mais quem esperar.
   booking.providerAbsence?.resolution !== 'refunded';
 
+const START_OPENS_BEFORE_MS = 2 * 60 * 60 * 1000;
+
 /**
- * "Cheguei" do horário inteiro, contatos dos clientes que ainda não chegaram e as respostas
- * "Estou chegando" e "Não vou mais" (D27).
+ * O dia do serviço no horário inteiro: "Cheguei", contatos dos clientes que ainda não chegaram, as
+ * respostas "Estou chegando" e "Não vou mais" (D27) e "Iniciar serviço" (C4).
  */
 export class BookingArrivalService {
   constructor(
@@ -74,6 +76,78 @@ export class BookingArrivalService {
         )
       )
     );
+  }
+
+  /**
+   * "Iniciar serviço" (C4): só depois de algum check-in (D20), de 2 h antes do início até o fim do
+   * serviço. O primeiro toque vale; os seguintes devolvem o mesmo horário, sem regravar.
+   */
+  async startSlotService(
+    actor: BookingActor,
+    offerId: string,
+    slotId: string
+  ): Promise<AvailabilitySlot> {
+    const { offer, slot } = await this.ownedSlot(actor, offerId, slotId);
+    if (slot.startedAt) return slot;
+    const now = this.now();
+    const startMs = new Date(slot.startsAt).getTime();
+    const endMs = slot.endsAt
+      ? new Date(slot.endsAt).getTime()
+      : serviceEndsAtMs(slot.startsAt, offer.durationMinutes);
+    if (
+      slot.status === 'canceled' ||
+      now.getTime() < startMs - START_OPENS_BEFORE_MS ||
+      now.getTime() >= endMs
+    ) {
+      throw new BookingDomainError('INVALID_TRANSITION', 'O serviço não pode ser iniciado agora.');
+    }
+    const checkedIn = (await this.port.listBookingsBySlot(slotId)).filter(
+      (booking) =>
+        (booking.status === 'confirmed' || booking.status === 'completed') && hasAnyCheckIn(booking)
+    );
+    if (checkedIn.length === 0) {
+      throw new BookingDomainError('INVALID_TRANSITION', 'Faça o check-in antes de iniciar.');
+    }
+    const started = await this.port.startSlot(slotId, now.toISOString(), actor.uid);
+    // Outro aparelho pode ter iniciado no mesmo instante: só quem gravou registra a auditoria.
+    if (started.startedByUid === actor.uid && started.startedAt === now.toISOString()) {
+      await Promise.all(
+        checkedIn.map((booking) =>
+          this.port.recordBookingAudit(booking.id, actor.uid, 'service_started')
+        )
+      );
+    }
+    return started;
+  }
+
+  /**
+   * Início do serviço de cada reserva, para o comprador ver "Em andamento" (C4). Só lê o horário das
+   * reservas confirmadas que estão na janela do serviço; as outras não custam leitura.
+   */
+  async serviceStartsFor(bookings: Booking[]): Promise<Map<string, string>> {
+    const nowMs = this.now().getTime();
+    const live = bookings.filter((booking) => {
+      const startMs = new Date(booking.offerSnapshot.startsAt).getTime();
+      const endMs = serviceEndsAtMs(
+        booking.offerSnapshot.startsAt,
+        booking.offerSnapshot.durationMinutes
+      );
+      return (
+        booking.status === 'confirmed' && nowMs >= startMs - START_OPENS_BEFORE_MS && nowMs < endMs
+      );
+    });
+    const slotIds = [...new Set(live.map((booking) => booking.slotId))];
+    const slots = new Map(
+      await Promise.all(
+        slotIds.map(async (id) => [id, (await this.port.getSlot(id))?.startedAt] as const)
+      )
+    );
+    const starts = new Map<string, string>();
+    for (const booking of live) {
+      const startedAt = slots.get(booking.slotId);
+      if (startedAt) starts.set(booking.id, startedAt);
+    }
+    return starts;
   }
 
   /**

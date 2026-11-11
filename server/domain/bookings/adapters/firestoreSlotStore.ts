@@ -46,6 +46,19 @@ export class FirestoreSlotStore {
     await adminDb.collection(SLOTS).doc(slotId).update({ status, updatedAt: nowIso() });
   }
 
+  async startSlot(slotId: string, startedAt: string, actorUid: string): Promise<AvailabilitySlot> {
+    const ref = adminDb.collection(SLOTS).doc(slotId);
+    return adminDb.runTransaction(async (tx) => {
+      const snapshot = await tx.get(ref);
+      if (!snapshot.exists) throw new BookingDomainError('NOT_FOUND', 'Horário não encontrado.');
+      const slot = SlotPersistenceMapper.toDomain(snapshot.id, snapshot.data() ?? {});
+      if (slot.startedAt) return slot;
+      const updatedAt = nowIso();
+      tx.update(ref, { startedAt, startedByUid: actorUid, updatedAt });
+      return { ...slot, startedAt, startedByUid: actorUid, updatedAt };
+    });
+  }
+
   async rescheduleSlot(params: {
     slotId: string;
     startsAt: string;

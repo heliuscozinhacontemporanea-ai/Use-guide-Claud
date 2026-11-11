@@ -7,6 +7,7 @@ vi.mock('../../../domain/bookings', async () => {
     BookingDomainError,
     checkInEntryUseCase: vi.fn(),
     getEntryVerificationKeysUseCase: vi.fn(),
+    startSlotServiceUseCase: vi.fn(),
   };
 });
 vi.mock('../../../application/usecases/bookings/checkInBookingApplicationUseCase', () => ({
@@ -36,6 +37,7 @@ import {
   BookingDomainError,
   checkInEntryUseCase,
   getEntryVerificationKeysUseCase,
+  startSlotServiceUseCase,
 } from '../../../domain/bookings';
 import type { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
 import { PartnerOffersController } from './partnerOffersController';
@@ -235,5 +237,44 @@ describe('PartnerOffersController.checkInByEstablishment (D27)', () => {
     const bad = response();
     await PartnerOffersController.checkInByEstablishment(req({ code: '' }), bad.res);
     expect(bad.status).toHaveBeenCalledWith(400);
+  });
+});
+
+describe('PartnerOffersController.startSlotService (C4)', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('401 sem autenticação; devolve só a hora do início', async () => {
+    const anonymous = response();
+    await PartnerOffersController.startSlotService(request({}, null), anonymous.res);
+    expect(anonymous.status).toHaveBeenCalledWith(401);
+    vi.mocked(startSlotServiceUseCase).mockResolvedValue({
+      id: 'slot-1',
+      startedAt: '2026-11-10T12:04:00.000Z',
+      startedByUid: 'partner-1',
+    } as never);
+    const { res, status, json } = response();
+    await PartnerOffersController.startSlotService(request({}), res);
+    expect(startSlotServiceUseCase).toHaveBeenCalledWith(
+      expect.objectContaining({ uid: 'partner-1' }),
+      'offer-1',
+      'slot-1'
+    );
+    expect(status).toHaveBeenCalledWith(200);
+    expect(json.mock.calls[0]?.[0]).toEqual({ startedAt: '2026-11-10T12:04:00.000Z' });
+  });
+
+  it('horário de outro dono: 404; fora da janela ou sem check-in: 409', async () => {
+    vi.mocked(startSlotServiceUseCase).mockRejectedValueOnce(
+      new BookingDomainError('NOT_FOUND', 'Oferta não encontrada.')
+    );
+    const notFound = response();
+    await PartnerOffersController.startSlotService(request({}, 'partner-2'), notFound.res);
+    expect(notFound.status).toHaveBeenCalledWith(404);
+    vi.mocked(startSlotServiceUseCase).mockRejectedValueOnce(
+      new BookingDomainError('INVALID_TRANSITION', 'Faça o check-in antes de iniciar.')
+    );
+    const early = response();
+    await PartnerOffersController.startSlotService(request({}), early.res);
+    expect(early.status).toHaveBeenCalledWith(409);
   });
 });

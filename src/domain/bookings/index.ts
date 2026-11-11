@@ -16,6 +16,7 @@ export { EstablishmentCodeSheet } from './components/partner/EstablishmentCodeSh
 export { PartnerOffersManager } from './components/partner/PartnerOffersManager';
 export { PartnerSlotSheet } from './components/partner/PartnerSlotSheet';
 export { SlotContactsList } from './components/partner/SlotContactsList';
+export { startSlotServiceUseCase } from './application/usecases/startSlotServiceUseCase';
 export { useBookingPurchases } from './hooks/useBookingPurchases';
 export { useMyBookings } from './hooks/useMyBookings';
 export { useSlotArrival } from './hooks/useSlotArrival';

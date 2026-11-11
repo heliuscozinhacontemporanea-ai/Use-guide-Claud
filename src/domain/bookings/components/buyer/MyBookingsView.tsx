@@ -22,8 +22,13 @@ export function MyBookingsView({ onBack }: { onBack: () => void }) {
   const [openId, setOpenId] = useState<string | null>(null);
   const opened = data.find((booking) => booking.id === openId) ?? null;
   const now = new Date();
-  const upcoming = data.filter((booking) => new Date(booking.offer.startsAt) > now);
-  const past = data.filter((booking) => new Date(booking.offer.startsAt) <= now);
+  // Até o serviço acabar a reserva fica em "Próximas": é onde estão o código, o contato e o
+  // "Em andamento" (C4).
+  const endsAfterNow = (booking: (typeof data)[number]) =>
+    new Date(booking.offer.startsAt).getTime() + (booking.offer.durationMinutes ?? 0) * 60_000 >
+    now.getTime();
+  const upcoming = data.filter(endsAfterNow);
+  const past = data.filter((booking) => !endsAfterNow(booking));
   const shown = tab === 'upcoming' ? upcoming : past;
   // O aviso "chegou" fica acima das abas: o serviço pode já ter começado (D27).
   const arrived = data.filter((booking) => showsArrivalNotice(booking, now));

@@ -58,9 +58,12 @@ export function SlotContactsList({
       {contacts.map((contact) => {
         const name = contact.buyerName ?? t('partnerAgora.contacts.noName');
         // Mensagem pronta com o número da reserva (C2/B37); o telefone não aparece escrito.
+        const code = bookingReference(contact.bookingId);
         const whatsapp = whatsAppUrl(
           contact.phone,
-          t('bookings.contact.arrived', { name, code: bookingReference(contact.bookingId) })
+          contact.buyerUsername
+            ? t('bookings.contact.arrived', { name: contact.buyerUsername, code })
+            : t('bookings.contact.arrivedNoName', { code })
         );
         const response = contact.response;
         return (

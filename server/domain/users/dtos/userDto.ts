@@ -22,6 +22,8 @@ export type UserProfileDto = PrivateUserProfileDto;
 export interface PublicUserProfileDto {
   uid: string;
   displayName: string | null;
+  /** @ público, sem o "@"; `null` quando a pessoa ainda não escolheu. */
+  username: string | null;
   photoURL?: string | null;
 }
 
@@ -61,6 +63,7 @@ export function toPublicUserProfileDto(raw: unknown, uid: string): PublicUserPro
   return {
     uid,
     displayName,
+    username: typeof data.username === 'string' && data.username ? data.username : null,
     photoURL: typeof data.photoURL === 'string' ? data.photoURL : null,
   };
 }

@@ -9,6 +9,7 @@ import {
   isBookableCategory,
   PartnerSlotSheet,
   SlotContactsList,
+  startSlotServiceUseCase,
   useSlotArrival,
 } from '../../domain/bookings';
 import { AboutTermsView, SupportView } from '../../domain/content';
@@ -261,6 +262,7 @@ export function PartnerPortalComposition() {
       }}
       renderAgora={{
         arrive: (item) => arriveAtSlot(item.parentId, item.id),
+        start: (item) => startSlotServiceUseCase(item.parentId, item.id),
         renderCodeSheet: ({ item, noShowAllowed, onClose, onChanged }) => (
           <EstablishmentCodeSheet
             guideItemId={item.establishmentIds[0] ?? ''}

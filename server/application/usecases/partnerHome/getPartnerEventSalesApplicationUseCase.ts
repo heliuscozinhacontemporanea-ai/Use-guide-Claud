@@ -6,7 +6,8 @@ import {
   listEventTicketsForPartnerOrAdminUseCase,
 } from '../../../domain/ticketing';
 import { buildCatalogEvents, type PartnerCatalogEvent } from './buildCatalogEvents';
-import { buildEventSales } from './buildEventSales';
+import { listPartnerPaymentAccountsApplicationUseCase } from '../paymentAccounts/listPartnerPaymentAccountsApplicationUseCase';
+import { buildEventSales, type EventSalesBreakdown } from './buildEventSales';
 import { toSessionInput } from './partnerSessions';
 
 export interface PartnerEventSalesView {
@@ -14,6 +15,10 @@ export interface PartnerEventSalesView {
   soldMinor: number;
   ticketsSold: number;
   receiveMinor: number;
+  /** A conta de "Você recebe" (A4). */
+  breakdown: EventSalesBreakdown;
+  /** CNPJ mascarado da conta que recebe o repasse; `null` enquanto não há venda. */
+  payoutDocument: string | null;
   sessions: Array<{
     id: string;
     startsAt: string;
@@ -53,6 +58,12 @@ export async function getPartnerEventSalesApplicationUseCase(
   const sessions = await Promise.all(
     live.map((occurrence) => toSessionInput(ownerUid, { event, occurrence }))
   );
+  const accountKey = entries[0]?.accountKey;
+  const payoutDocument = accountKey
+    ? ((await listPartnerPaymentAccountsApplicationUseCase(ownerUid)).find(
+        (account) => account.accountKey === accountKey
+      )?.maskedDocument ?? null)
+    : null;
   const [summary] = buildCatalogEvents([{ event, occurrences, sold: 0 }], now.toISOString());
 
   return {
@@ -72,5 +83,6 @@ export async function getPartnerEventSalesApplicationUseCase(
       }))
       .sort((a, b) => a.startsAt.localeCompare(b.startsAt)),
     ...buildEventSales({ orders, tickets, refunds, entries }),
+    payoutDocument,
   };
 }

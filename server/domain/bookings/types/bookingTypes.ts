@@ -86,6 +86,9 @@ export interface AvailabilitySlot {
   capacityReserved: number;
   capacitySold: number;
   status: AvailabilitySlotStatus;
+  /** "Iniciar serviço" do prestador (C4): o primeiro toque vale, em qualquer aparelho. */
+  startedAt?: string;
+  startedByUid?: string;
   createdAt: string;
   updatedAt: string;
 }

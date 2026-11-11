@@ -33,6 +33,20 @@ export interface PartnerCatalogTranslation {
     offers: string;
     reviewsTitle: string;
   };
+  receive: {
+    title: string;
+    tickets: string;
+    discounts: string;
+    refunds: string;
+    fee: string;
+    feeNoPercent: string;
+    adjustments: string;
+    noteServiceFee: string;
+    noteProcessing: string;
+    notePayout: string;
+    notePayoutTo: string;
+    openEarnings: string;
+  };
   event: {
     sessions_one: string;
     sessions_other: string;
@@ -154,6 +168,20 @@ export const partnerCatalogPtBR: PartnerCatalogTranslation = {
     reviews_other: '{{count}} avaliações',
     offers: 'Passeios e aluguéis',
     reviewsTitle: 'Avaliações',
+  },
+  receive: {
+    title: 'Como chegamos a esse valor',
+    tickets: 'Ingressos',
+    discounts: 'Cupons de desconto',
+    refunds: 'Reembolsos',
+    fee: 'Taxa Use Guide ({{percent}})',
+    feeNoPercent: 'Taxa Use Guide',
+    adjustments: 'Multas e ajustes',
+    noteServiceFee: 'Taxa de serviço paga pelos compradores: {{amount}}. Não sai do seu valor.',
+    noteProcessing: 'Tarifas do cartão e do Pix: por conta da Use Guide.',
+    notePayout: 'Cada sessão é repassada 2 dias depois de acabar.',
+    notePayoutTo: 'Cada sessão é repassada 2 dias depois de acabar, na conta do CNPJ {{document}}.',
+    openEarnings: 'Ver repasses em Ganhos',
   },
   event: {
     sessions_one: '{{count}} sessão',
@@ -280,6 +308,21 @@ export const partnerCatalogEn: PartnerCatalogTranslation = {
     offers: 'Tours and rentals',
     reviewsTitle: 'Reviews',
   },
+  receive: {
+    title: 'How we got to this amount',
+    tickets: 'Tickets',
+    discounts: 'Discount codes',
+    refunds: 'Refunds',
+    fee: 'Use Guide fee ({{percent}})',
+    feeNoPercent: 'Use Guide fee',
+    adjustments: 'Penalties and adjustments',
+    noteServiceFee: 'Service fee paid by buyers: {{amount}}. It does not come out of your amount.',
+    noteProcessing: 'Card and Pix processing fees: covered by Use Guide.',
+    notePayout: 'Each session is paid out 2 days after it ends.',
+    notePayoutTo:
+      'Each session is paid out 2 days after it ends, to the account of CNPJ {{document}}.',
+    openEarnings: 'See payouts in Earnings',
+  },
   event: {
     sessions_one: '{{count}} session',
     sessions_other: '{{count}} sessions',
@@ -403,6 +446,22 @@ export const partnerCatalogFr: PartnerCatalogTranslation = {
     reviews_other: '{{count}} avis',
     offers: 'Excursions et locations',
     reviewsTitle: 'Avis',
+  },
+  receive: {
+    title: 'Comment ce montant est calculé',
+    tickets: 'Billets',
+    discounts: 'Codes de réduction',
+    refunds: 'Remboursements',
+    fee: 'Commission Use Guide ({{percent}})',
+    feeNoPercent: 'Commission Use Guide',
+    adjustments: 'Pénalités et ajustements',
+    noteServiceFee:
+      'Frais de service payés par les acheteurs : {{amount}}. Ils ne sont pas déduits de votre montant.',
+    noteProcessing: 'Frais de carte et de Pix : à la charge de Use Guide.',
+    notePayout: 'Chaque séance est versée 2 jours après sa fin.',
+    notePayoutTo:
+      'Chaque séance est versée 2 jours après sa fin, sur le compte du CNPJ {{document}}.',
+    openEarnings: 'Voir les versements dans Revenus',
   },
   event: {
     sessions_one: '{{count}} séance',

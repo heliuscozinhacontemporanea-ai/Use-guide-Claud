@@ -30,6 +30,8 @@ export interface PartnerTodayItem {
   capacity: number;
   checkedIn: number | null;
   arrivedAt: string | null;
+  /** Só nos horários de reserva: quando o prestador tocou "Iniciar serviço" (C4). */
+  startedAt?: string | null;
   /** Só nas sessões: cortesias que ocupam lugar (D27). */
   courtesies?: number;
   /** Só nos horários de reserva, para os cartões de "Agora" (D27). */
@@ -189,6 +191,18 @@ export interface PartnerEventSales {
   soldMinor: number;
   ticketsSold: number;
   receiveMinor: number;
+  /** A conta de "Você recebe" (A4): ingressos − cupons − reembolsos − taxa − ajustes. */
+  breakdown: {
+    ticketsMinor: number;
+    discountMinor: number;
+    refundedMinor: number;
+    platformFeeMinor: number;
+    feeBaseMinor: number;
+    adjustmentsMinor: number;
+    buyerServiceFeeMinor: number;
+  };
+  /** CNPJ mascarado da conta que recebe; `null` enquanto não há venda. */
+  payoutDocument: string | null;
   sessions: Array<{
     id: string;
     startsAt: string;

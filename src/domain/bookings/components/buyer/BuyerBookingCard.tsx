@@ -8,6 +8,7 @@ import { StatusText, type StatusTone } from '../../../../ui/components/StatusTex
 import type { BookingStatus, BookingSummary } from '../../types/bookings';
 import { formatSlotDateTime } from '../../utils/dates';
 import { formatMinor } from '../../utils/money';
+import { serviceInProgress } from '../../utils/serviceInProgress';
 
 const STATUS_TONE: Partial<Record<BookingStatus, StatusTone>> = {
   pending_payment: 'warn',
@@ -51,6 +52,8 @@ export function BuyerBookingCard({
         ? t('bookings.buyer.refundedAmount', { amount: formatMinor(refund, i18n.language) })
         : t(`bookings.bookingStatus.${booking.status}`)}
     </StatusText>
+  ) : serviceInProgress(booking, Date.now()) ? (
+    <StatusText tone="success">{t('bookings.buyer.detail.inProgress')}</StatusText>
   ) : upcoming ? (
     booking.offer.meetingPoint && (
       <span className="min-w-0 inline-flex items-center gap-1.5 text-[13px] text-ink/70">

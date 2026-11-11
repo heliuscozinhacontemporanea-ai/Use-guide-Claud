@@ -76,6 +76,11 @@ partnerOffersRouter.post(
   verifyAuthToken,
   PartnerOffersController.recordSlotArrival
 );
+partnerOffersRouter.post(
+  '/:offerId/slots/:slotId/start',
+  verifyAuthToken,
+  PartnerOffersController.startSlotService
+);
 partnerOffersRouter.get(
   '/:offerId/slots/:slotId/contacts',
   PartnerOffersController.listSlotContacts

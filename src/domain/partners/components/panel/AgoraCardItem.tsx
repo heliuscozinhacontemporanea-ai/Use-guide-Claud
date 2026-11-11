@@ -54,6 +54,7 @@ export function AgoraCardItem({
   card,
   now,
   arriving,
+  starting,
   nameOf,
   contacts,
   onArrive,
@@ -64,6 +65,7 @@ export function AgoraCardItem({
   card: AgoraCard;
   now: number;
   arriving: boolean;
+  starting: boolean;
   nameOf: (item: PartnerTodayItem) => string;
   /** Lista de contatos depois do "Cheguei" (bookings), montada pela composição. */
   contacts: ReactNode;
@@ -162,8 +164,13 @@ export function AgoraCardItem({
           title={titleAt(item)}
           sub={t('partnerAgora.start.sub', { done: item.bookings ?? 0, total: item.bookings ?? 0 })}
         >
-          <button type="button" onClick={onStart} className={`${BUTTON_PRIMARY} w-full`}>
-            {t('partnerAgora.start.button')}
+          <button
+            type="button"
+            onClick={onStart}
+            disabled={starting}
+            className={`${BUTTON_PRIMARY} w-full`}
+          >
+            {t(starting ? 'partnerAgora.start.sending' : 'partnerAgora.start.button')}
           </button>
         </CardShell>
       );

@@ -20,7 +20,7 @@ export interface PartnerAgoraTranslation {
     noShowAt: string;
     noShow: string;
   };
-  start: { button: string; sub: string; done: string };
+  start: { button: string; sending: string; sub: string; done: string; error: string };
   gate: {
     title: string;
     opensAt: string;
@@ -89,8 +89,10 @@ export const partnerAgoraPtBR: PartnerAgoraTranslation = {
   },
   start: {
     button: 'Iniciar serviço',
+    sending: 'Iniciando…',
     sub: '{{done}} de {{total}} com código · todos aqui',
-    done: 'Bom serviço!',
+    done: 'Serviço iniciado às {{time}}. Vale em todos os aparelhos da equipe.',
+    error: 'Não foi possível iniciar o serviço. Tente de novo.',
   },
   gate: {
     title: 'Portaria · {{name}}',
@@ -167,8 +169,10 @@ export const partnerAgoraEn: PartnerAgoraTranslation = {
   },
   start: {
     button: 'Start service',
+    sending: 'Starting…',
     sub: '{{done}} of {{total}} with code · everyone here',
-    done: 'Have a great service!',
+    done: "Service started at {{time}}. It shows on all your team's devices.",
+    error: 'Could not start the service. Try again.',
   },
   gate: {
     title: 'Gate · {{name}}',
@@ -245,8 +249,10 @@ export const partnerAgoraFr: PartnerAgoraTranslation = {
   },
   start: {
     button: 'Démarrer le service',
+    sending: 'Démarrage…',
     sub: '{{done}} sur {{total}} avec code · tout le monde est là',
-    done: 'Bon service !',
+    done: 'Service démarré à {{time}}. Visible sur tous les appareils de l’équipe.',
+    error: 'Impossible de démarrer le service. Réessayez.',
   },
   gate: {
     title: 'Accueil · {{name}}',

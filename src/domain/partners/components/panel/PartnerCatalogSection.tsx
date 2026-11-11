@@ -70,6 +70,7 @@ export function PartnerCatalogSection({
   onOpenReviews,
   renders,
   onOpenCoupons,
+  onOpenEarnings,
 }: {
   segment: CatalogSegment;
   /** Partes do catálogo que os segmentos do parceiro usam. */
@@ -111,6 +112,8 @@ export function PartnerCatalogSection({
   renders: PartnerCatalogRenders;
   /** Área Cupons já com o evento ou a oferta escolhidos (B1). */
   onOpenCoupons?: (target: { kind: 'event' | 'offer'; id: string }) => void;
+  /** Aba Ganhos, a partir da conta de "Você recebe" do evento (A4). */
+  onOpenEarnings?: () => void;
 }) {
   const catalogEvents = usePartnerCatalogEvents(eventsVersion);
   const [creatingOffer, setCreatingOffer] = useState(false);
@@ -139,6 +142,7 @@ export function PartnerCatalogSection({
         onOpenCoupons={
           onOpenCoupons ? () => onOpenCoupons({ kind: 'event', id: eventId }) : undefined
         }
+        onOpenEarnings={onOpenEarnings}
       />
     );
   }

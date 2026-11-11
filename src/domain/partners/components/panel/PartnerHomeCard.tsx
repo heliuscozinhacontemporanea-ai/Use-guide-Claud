@@ -5,6 +5,7 @@ import { cn } from '../../../../shared/utils/cn';
 import { formatMoneyMinorCompact } from '../../../../shared/utils/money';
 import { usePanelItemTime, usePanelTimeZone } from '../../hooks/panelTimeZone';
 import type { PartnerTodayItem } from '../../types/partnerHome';
+import { serviceInProgress } from '../../utils/agoraCards';
 import type { PartnerCardData } from '../../utils/partnerHomeCardData';
 
 const VALUE = 'text-[22px] font-bold text-ink truncate';
@@ -261,6 +262,12 @@ function TodayStatus({ item }: { item: PartnerTodayItem }) {
       {item.checkedIn
         ? t('partnerPanel.home.arrived', { checkedIn: item.checkedIn, sold: item.sold })
         : t('partnerPanel.home.people', { count: item.sold })}
+      {serviceInProgress(item, Date.now()) && (
+        <>
+          {' · '}
+          <span className="font-semibold text-success">{t('partnerPanel.agenda.ongoing')}</span>
+        </>
+      )}
     </span>
   );
 }

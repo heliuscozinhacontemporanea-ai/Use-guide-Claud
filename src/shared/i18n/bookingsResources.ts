@@ -14,6 +14,7 @@ export interface BookingsTranslation {
     toBuyerNoName: string;
     toPartner: string;
     arrived: string;
+    arrivedNoName: string;
     afterBooking: string;
   };
   buyer: {
@@ -74,6 +75,8 @@ export interface BookingsTranslation {
       bookingLabel: string;
       meetingLabel: string;
       today: string;
+      inProgress: string;
+      inProgressSince: string;
       openDetails: string;
     };
     loadMore: string;
@@ -157,6 +160,9 @@ export interface BookingsTranslation {
     peopleOf: string;
     arrived: string;
     statusArrived: string;
+    checkedInAt: string;
+    startedAt: string;
+    withCode: string;
     statusWaiting: string;
     noName: string;
     units_one: string;
@@ -292,6 +298,7 @@ export const bookingsPtBR: BookingsTranslation = {
       'Olá! Aqui é do {{title}}, sobre a sua reserva {{code}} no Use Guide para {{when}}.',
     toPartner: 'Olá! Tenho a reserva {{code}} no Use Guide: {{title}}, {{when}}.',
     arrived: 'Olá, {{name}}! Já cheguei ao ponto de encontro. Reserva {{code}} no Use Guide.',
+    arrivedNoName: 'Olá! Já cheguei ao ponto de encontro. Reserva {{code}} no Use Guide.',
     afterBooking: 'Depois da reserva, você fala com o parceiro pelo seu pedido.',
   },
   buyer: {
@@ -354,6 +361,8 @@ export const bookingsPtBR: BookingsTranslation = {
       bookingLabel: 'Reserva',
       meetingLabel: 'Ponto de encontro',
       today: 'hoje',
+      inProgress: 'Em andamento',
+      inProgressSince: 'Em andamento · começou às {{time}}',
       openDetails: 'Abrir a reserva {{title}}',
     },
     loadMore: 'Carregar mais',
@@ -438,6 +447,9 @@ export const bookingsPtBR: BookingsTranslation = {
     peopleOf: '{{sold}} de {{capacity}}',
     arrived: 'Chegaram',
     statusArrived: 'Chegou',
+    checkedInAt: 'Check-in {{time}}',
+    startedAt: 'Iniciado às {{time}}',
+    withCode: '{{done}} de {{total}} com código',
     statusWaiting: 'Aguardando',
     noName: 'Cliente',
     units_one: '{{count}} pessoa',
@@ -582,6 +594,7 @@ export const bookingsEn: BookingsTranslation = {
     toBuyerNoName: 'Hi! This is {{title}}, about your booking {{code}} on Use Guide for {{when}}.',
     toPartner: 'Hi! I have booking {{code}} on Use Guide: {{title}}, {{when}}.',
     arrived: "Hi, {{name}}! I'm at the meeting point. Booking {{code}} on Use Guide.",
+    arrivedNoName: "Hi! I'm at the meeting point. Booking {{code}} on Use Guide.",
     afterBooking: 'After booking, you can contact the partner from your order.',
   },
   buyer: {
@@ -643,6 +656,8 @@ export const bookingsEn: BookingsTranslation = {
       bookingLabel: 'Booking',
       meetingLabel: 'Meeting point',
       today: 'today',
+      inProgress: 'In progress',
+      inProgressSince: 'In progress · started at {{time}}',
       openDetails: 'Open booking {{title}}',
     },
     loadMore: 'Load more',
@@ -726,6 +741,9 @@ export const bookingsEn: BookingsTranslation = {
     peopleOf: '{{sold}} of {{capacity}}',
     arrived: 'Arrived',
     statusArrived: 'Arrived',
+    checkedInAt: 'Check-in {{time}}',
+    startedAt: 'Started at {{time}}',
+    withCode: '{{done}} of {{total}} with code',
     statusWaiting: 'Waiting',
     noName: 'Customer',
     units_one: '{{count}} person',
@@ -871,6 +889,7 @@ export const bookingsFr: BookingsTranslation = {
     toPartner: 'Bonjour ! J’ai la réservation {{code}} sur Use Guide : {{title}}, {{when}}.',
     arrived:
       'Bonjour {{name}} ! Je suis au point de rendez-vous. Réservation {{code}} sur Use Guide.',
+    arrivedNoName: 'Bonjour ! Je suis au point de rendez-vous. Réservation {{code}} sur Use Guide.',
     afterBooking: 'Après la réservation, vous contactez le partenaire depuis votre commande.',
   },
   buyer: {
@@ -934,6 +953,8 @@ export const bookingsFr: BookingsTranslation = {
       bookingLabel: 'Réservation',
       meetingLabel: 'Point de rendez-vous',
       today: 'aujourd’hui',
+      inProgress: 'En cours',
+      inProgressSince: 'En cours · commencé à {{time}}',
       openDetails: 'Ouvrir la réservation {{title}}',
     },
     loadMore: 'Charger plus',
@@ -1020,6 +1041,9 @@ export const bookingsFr: BookingsTranslation = {
     peopleOf: '{{sold}} sur {{capacity}}',
     arrived: 'Arrivés',
     statusArrived: 'Arrivé',
+    checkedInAt: 'Check-in {{time}}',
+    startedAt: 'Démarré à {{time}}',
+    withCode: '{{done}} sur {{total}} avec code',
     statusWaiting: 'En attente',
     noName: 'Client',
     units_one: '{{count}} personne',

@@ -36,6 +36,7 @@ function booking(overrides: Partial<BookingSummary> = {}): BookingSummary {
     groupMaxPeople: null,
     requiresParticipantNames: false,
     arrivedAt: null,
+    serviceStartedAt: null,
     arrivalResponse: null,
     providerAbsence: null,
     serviceConfirmation: null,

@@ -17,6 +17,7 @@ export function slotToAgendaItem(slot: OwnerSlotSummary): PartnerTodayItem {
     capacity: slot.capacityTotal,
     checkedIn: slot.checkedInUnits,
     arrivedAt: slot.arrivedAt ?? null,
+    startedAt: slot.startedAt ?? null,
     bookings: slot.bookingsCount,
     waitingBookings: slot.waitingBookings,
     meetingPoint: slot.meetingPoint,

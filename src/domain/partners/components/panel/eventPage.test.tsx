@@ -20,6 +20,16 @@ const SALES: PartnerEventSales = {
   soldMinor: 1280000,
   ticketsSold: 128,
   receiveMinor: 1152000,
+  breakdown: {
+    ticketsMinor: 1330000,
+    discountMinor: 30000,
+    refundedMinor: 20000,
+    platformFeeMinor: 128000,
+    feeBaseMinor: 1280000,
+    adjustmentsMinor: 0,
+    buyerServiceFeeMinor: 38400,
+  },
+  payoutDocument: '**.***.***/0001-12',
   sessions: [
     { id: 's1', startsAt: '2026-12-20T23:00:00.000Z', sold: 128, capacity: 300, courtesies: 12 },
     { id: 's2', startsAt: '2026-12-21T23:00:00.000Z', sold: 40, capacity: 300, courtesies: 0 },
@@ -76,6 +86,31 @@ describe('Página do evento (p10–p12) e Editar evento (p18)', () => {
     expect(onOpenSession).toHaveBeenCalledWith(
       expect.objectContaining({ kind: 'session', id: 's1', parentId: 'ev1', sold: 128 })
     );
+  });
+
+  it('"Você recebe" abre a conta, sem a linha de multas quando não há valor (A4)', async () => {
+    const onOpenEarnings = vi.fn();
+    render(
+      <PartnerEventPage
+        eventId="ev1"
+        reloadKey={0}
+        timeZone="America/Fortaleza"
+        onBack={vi.fn()}
+        onEdit={vi.fn()}
+        onOpenSession={vi.fn()}
+        onOpenEarnings={onOpenEarnings}
+      />
+    );
+    fireEvent.click(await screen.findByRole('button', { name: /Como chegamos a esse valor/ }));
+    expect(await screen.findByText('Ingressos')).toBeTruthy();
+    expect(screen.getByText(/^R\$\s13\.300,00$/)).toBeTruthy();
+    expect(screen.getByText('Taxa Use Guide (10%)')).toBeTruthy();
+    expect(screen.getByText(/^−\sR\$\s1\.280,00$/)).toBeTruthy();
+    expect(screen.queryByText('Multas e ajustes')).toBeNull();
+    expect(screen.getByText(/R\$\s384,00\. Não sai do seu valor/)).toBeTruthy();
+    expect(screen.getByText(/CNPJ \*\*\.\*\*\*\.\*\*\*\/0001-12/)).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Ver repasses em Ganhos' }));
+    expect(onOpenEarnings).toHaveBeenCalled();
   });
 
   it('atalho Cupons leva à área Cupons do evento', async () => {
