@@ -37,6 +37,7 @@ const VIEW: PartnerHomeView = {
   promoters: null,
   tour: { show: false, tipsOff: false },
   promoCodes: null,
+  guestSessions: [],
   upcomingSessions: [
     {
       id: 's',

@@ -37,6 +37,10 @@ export {
 export { UserTicketsHistoryView } from './components/UserTicketsHistoryView';
 export { TransferLinkReceiverDialog } from './components/wallet/TransferLinkReceiverDialog';
 export { useCheckoutCountdown } from './hooks/useCheckoutCountdown';
+export {
+  SessionOfflineList,
+  type SessionOfflineListState,
+} from './components/SessionOfflineList';
 export { useMyPromotions } from './hooks/useMyPromotions';
 export { usePartnerEventSales } from './hooks/usePartnerEventSales';
 export { useTicketPurchases } from './hooks/useTicketPurchases';

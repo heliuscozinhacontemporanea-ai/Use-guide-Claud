@@ -1,5 +1,6 @@
 import type React from 'react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { businessDateTimeToIso } from '../../../shared/utils/businessDateTime';
 import { createTicketTypeUseCase } from '../application/usecases/createTicketTypeUseCase';
 import { deleteOrArchiveTicketTypeUseCase } from '../application/usecases/deleteOrArchiveTicketTypeUseCase';
@@ -19,6 +20,7 @@ export function useTicketLotForm({
   reloadLots: () => Promise<void> | void;
   setFeedback: (feedback: ManagerFeedback | null) => void;
 }) {
+  const { t } = useTranslation();
   const [newName, setNewName] = useState('');
   const [newDescription, setNewDescription] = useState('');
   const [newKind, setNewKind] = useState<'paid' | 'free'>('paid');
@@ -68,11 +70,11 @@ export function useTicketLotForm({
       setNewName('');
       setNewDescription('');
       await reloadLots();
-      setFeedback({ type: 'success', message: 'Lote de ingresso criado com sucesso!' });
+      setFeedback({ type: 'success', message: t('ticketLots.created') });
     } catch (err) {
       setFeedback({
         type: 'error',
-        message: err instanceof Error ? err.message : 'Erro ao criar lote.',
+        message: err instanceof Error && err.message ? err.message : t('ticketLots.createError'),
       });
     } finally {
       setCreatingLot(false);
@@ -85,15 +87,12 @@ export function useTicketLotForm({
       await reloadLots();
       setFeedback({
         type: 'success',
-        message:
-          res.mode === 'archived'
-            ? 'Lote arquivado (possui vendas registradas).'
-            : 'Lote removido.',
+        message: res.mode === 'archived' ? t('ticketLots.archived') : t('ticketLots.removed'),
       });
     } catch (err) {
       setFeedback({
         type: 'error',
-        message: err instanceof Error ? err.message : 'Não foi possível remover o lote.',
+        message: err instanceof Error && err.message ? err.message : t('ticketLots.removeError'),
       });
     }
   };
@@ -105,13 +104,12 @@ export function useTicketLotForm({
       await reloadLots();
       setFeedback({
         type: 'success',
-        message:
-          nextStatus === 'paused' ? 'Vendas do lote pausadas.' : 'Lote reativado para venda.',
+        message: nextStatus === 'paused' ? t('ticketLots.paused') : t('ticketLots.resumed'),
       });
     } catch (err) {
       setFeedback({
         type: 'error',
-        message: err instanceof Error ? err.message : 'Não foi possível atualizar o lote.',
+        message: err instanceof Error && err.message ? err.message : t('ticketLots.updateError'),
       });
     }
   };

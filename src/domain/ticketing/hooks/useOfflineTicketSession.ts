@@ -132,6 +132,8 @@ export function useOfflineTicketSession(
   const sessionId = bundle?.sessionId;
   useEffect(() => {
     if (!sessionId) return;
+    // Ao abrir com a lista já guardada, busca logo o que mudou, sem esperar o primeiro intervalo.
+    void pullChanges().catch(() => undefined);
     const timer = window.setInterval(
       () => void pullChanges().catch(() => undefined),
       CHANGES_INTERVAL_MS

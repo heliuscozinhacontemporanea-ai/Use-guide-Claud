@@ -31,7 +31,29 @@ export interface PartnerAgoraTranslation {
     sold_other: string;
     button: string;
   };
-  offline: { title: string; today: string; tomorrow: string; button: string };
+  offline: {
+    title: string;
+    today: string;
+    tomorrow: string;
+    button: string;
+    downloading: string;
+    missing: string;
+    ready_one: string;
+    ready_other: string;
+    refresh: string;
+    readyNoConnection: string;
+    noConnection: string;
+    failed: string;
+  };
+  offlineKeys: {
+    title: string;
+    button: string;
+    downloading: string;
+    missing: string;
+    ready: string;
+    noConnection: string;
+    failed: string;
+  };
   contacts: {
     loading: string;
     error: string;
@@ -109,6 +131,23 @@ export const partnerAgoraPtBR: PartnerAgoraTranslation = {
     today: 'Hoje, {{time}}',
     tomorrow: 'Amanhã, {{time}}',
     button: 'Baixar lista',
+    downloading: 'Baixando…',
+    missing: 'ainda não baixada neste aparelho',
+    ready_one: '{{count}} ingresso · atualizada em {{date}}',
+    ready_other: '{{count}} ingressos · atualizada em {{date}}',
+    refresh: 'Atualizar lista',
+    readyNoConnection: 'Sem internet agora: vale a lista que está neste aparelho.',
+    noConnection: 'conecte-se à internet para baixar',
+    failed: 'Não foi possível baixar a lista. Tente de novo.',
+  },
+  offlineKeys: {
+    title: 'Portaria sem internet · {{name}}',
+    button: 'Preparar portaria',
+    downloading: 'Preparando…',
+    missing: 'ainda não preparada neste aparelho',
+    ready: 'pronta para funcionar sem internet',
+    noConnection: 'conecte-se à internet para preparar',
+    failed: 'Não foi possível preparar a portaria. Tente de novo.',
   },
   contacts: {
     loading: 'Carregando contatos',
@@ -189,6 +228,23 @@ export const partnerAgoraEn: PartnerAgoraTranslation = {
     today: 'Today, {{time}}',
     tomorrow: 'Tomorrow, {{time}}',
     button: 'Download list',
+    downloading: 'Downloading…',
+    missing: 'not downloaded on this device yet',
+    ready_one: '{{count}} ticket · updated {{date}}',
+    ready_other: '{{count}} tickets · updated {{date}}',
+    refresh: 'Update list',
+    readyNoConnection: 'No internet right now: the list on this device still works.',
+    noConnection: 'connect to the internet to download',
+    failed: 'Could not download the list. Try again.',
+  },
+  offlineKeys: {
+    title: 'Offline gate · {{name}}',
+    button: 'Prepare gate',
+    downloading: 'Preparing…',
+    missing: 'not prepared on this device yet',
+    ready: 'ready to work without internet',
+    noConnection: 'connect to the internet to prepare',
+    failed: 'Could not prepare the gate. Try again.',
   },
   contacts: {
     loading: 'Loading contacts',
@@ -269,6 +325,23 @@ export const partnerAgoraFr: PartnerAgoraTranslation = {
     today: "Aujourd'hui, {{time}}",
     tomorrow: 'Demain, {{time}}',
     button: 'Télécharger la liste',
+    downloading: 'Téléchargement…',
+    missing: 'pas encore téléchargée sur cet appareil',
+    ready_one: '{{count}} billet · mise à jour le {{date}}',
+    ready_other: '{{count}} billets · mise à jour le {{date}}',
+    refresh: 'Mettre à jour la liste',
+    readyNoConnection: 'Pas d’internet pour l’instant : la liste de cet appareil reste valable.',
+    noConnection: 'connectez-vous à internet pour télécharger',
+    failed: 'Impossible de télécharger la liste. Réessayez.',
+  },
+  offlineKeys: {
+    title: 'Accueil hors ligne · {{name}}',
+    button: 'Préparer l’accueil',
+    downloading: 'Préparation…',
+    missing: 'pas encore préparé sur cet appareil',
+    ready: 'prêt à fonctionner sans internet',
+    noConnection: 'connectez-vous à internet pour préparer',
+    failed: 'Impossible de préparer l’accueil. Réessayez.',
   },
   contacts: {
     loading: 'Chargement des contacts',

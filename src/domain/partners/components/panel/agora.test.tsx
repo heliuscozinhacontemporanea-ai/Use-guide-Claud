@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { i18n } from '../../../../shared/i18n';
 import type { PartnerTodayItem } from '../../types/partnerHome';
-import { PartnerAgoraSection } from './PartnerAgoraSection';
+import { type AgoraOfflineState, PartnerAgoraSection } from './PartnerAgoraSection';
 
 const MIN = 60_000;
 const rel = (minutes: number) => new Date(Date.now() + minutes * MIN).toISOString();
@@ -121,5 +121,43 @@ describe('Agora (p40 a p43)', () => {
     expect(screen.getByText('Portaria · Dunas Park')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Abrir portaria' }));
     expect(onOpenGate).toHaveBeenCalledWith(expect.objectContaining({ id: 'e1' }));
+  });
+
+  it('lista sem internet: diz se está no aparelho e baixa com um toque (C5)', () => {
+    const download = vi.fn();
+    const state = (overrides: Partial<AgoraOfflineState>): AgoraOfflineState => ({
+      kind: 'list',
+      status: 'missing',
+      count: null,
+      updatedAt: null,
+      online: true,
+      busy: false,
+      failed: false,
+      download,
+      ...overrides,
+    });
+    const view = (offline: AgoraOfflineState) => (
+      <PartnerAgoraSection
+        items={[slot({ kind: 'session', id: 'o1', title: 'Luau na Duna', startsAt: rel(600) })]}
+        nameOf={() => 'Dunas Park'}
+        renders={{ ...renders(), renderOffline: (_item, render) => render(offline) }}
+        version={0}
+        onOpenGate={vi.fn()}
+        onChanged={vi.fn()}
+      />
+    );
+    const { rerender } = render(view(state({})));
+    expect(screen.getByText(/ainda não baixada neste aparelho/)).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Baixar lista' }));
+    expect(download).toHaveBeenCalledTimes(1);
+    rerender(view(state({ status: 'ready', count: 128, updatedAt: rel(-5) })));
+    expect(screen.getByText(/128 ingressos · atualizada em/)).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Atualizar lista' })).toBeTruthy();
+    rerender(view(state({ status: 'no_connection', online: false })));
+    expect(screen.getByText(/conecte-se à internet para baixar/)).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Baixar lista' })).toHaveProperty('disabled', true);
+    rerender(view(state({ kind: 'keys', status: 'ready' })));
+    expect(screen.getByText(/pronta para funcionar sem internet/)).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /Baixar|Preparar|Atualizar/ })).toBeNull();
   });
 });

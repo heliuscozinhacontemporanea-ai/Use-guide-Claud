@@ -72,6 +72,7 @@ function setup(opts: { orders?: unknown[]; tickets?: unknown[] } = {}) {
     get: vi.fn(async (id: string) => courtesies.get(id) ?? null),
     listByEvent: vi.fn(async () => [...courtesies.values()]),
     countHeldByOccurrence: vi.fn(async () => courtesies.size),
+    countEnteredByOccurrence: vi.fn(async () => 0),
     anonymizeGuest: vi.fn(async () => 0),
   };
   const port = {

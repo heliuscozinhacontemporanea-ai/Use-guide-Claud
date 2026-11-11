@@ -93,7 +93,7 @@ export interface PartnerPanelTranslation {
       unanswered_other: string;
     };
     week_bookings: CardTexts & { occupancy: string };
-    guests: CardTexts;
+    guests: CardTexts & { enteredOf: string; enteredNow: string; enteredAfter: string };
     promoters: CardTexts & { owed: string };
     plan_seal: CardTexts & { until: string; none: string };
     week_occupancy: CardTexts;
@@ -304,6 +304,9 @@ export const partnerPanelPtBR: PartnerPanelTranslation = {
     guests: {
       title: 'Convidados',
       description: 'Cortesias enviadas para o próximo evento',
+      enteredOf: '{{entered}} de {{total}}',
+      enteredNow: 'já entraram',
+      enteredAfter: 'entraram · {{title}}',
     },
     promoters: {
       title: 'Divulgadores',
@@ -535,6 +538,9 @@ export const partnerPanelEn: PartnerPanelTranslation = {
     guests: {
       title: 'Guests',
       description: 'Complimentary tickets sent for the next event',
+      enteredOf: '{{entered}} of {{total}}',
+      enteredNow: 'already in',
+      enteredAfter: 'checked in · {{title}}',
     },
     promoters: {
       title: 'Promoters',
@@ -767,6 +773,9 @@ export const partnerPanelFr: PartnerPanelTranslation = {
     guests: {
       title: 'Invités',
       description: 'Billets offerts envoyés pour le prochain événement',
+      enteredOf: '{{entered}} sur {{total}}',
+      enteredNow: 'déjà entrés',
+      enteredAfter: 'entrés · {{title}}',
     },
     promoters: {
       title: 'Promoteurs',

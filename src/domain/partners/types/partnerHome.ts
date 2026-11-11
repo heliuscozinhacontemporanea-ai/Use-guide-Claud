@@ -63,6 +63,19 @@ export interface PartnerUpcomingSession {
   courtesies: number;
 }
 
+/** Sessão com convidados, para o cartão Convidados (C7). */
+export interface PartnerGuestSession {
+  id: string;
+  eventId: string;
+  title: string;
+  establishmentIds: string[];
+  startsAt: string;
+  endsAt: string | null;
+  courtesies: number;
+  /** Convidados que já passaram pela portaria; zero antes de ela abrir. */
+  entered: number;
+}
+
 /** Divulgadores do próximo evento que tem algum (D27). */
 export interface PartnerHomePromoters {
   eventId: string;
@@ -120,6 +133,8 @@ export interface PartnerHomeView {
     month: { currentMinor: number; previousMinor: number };
   };
   upcomingSessions: PartnerUpcomingSession[];
+  /** Sessões com cortesia, de ontem em diante, em ordem de início. */
+  guestSessions: PartnerGuestSession[];
   promoters: PartnerHomePromoters | null;
   /** Cartão "Cupons": `null` sem cupom ativo nem uso na semana. */
   promoCodes: PartnerHomePromoCodes | null;

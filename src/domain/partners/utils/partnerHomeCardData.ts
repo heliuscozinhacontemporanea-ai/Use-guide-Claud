@@ -1,4 +1,5 @@
 import type {
+  PartnerGuestSession,
   PartnerHomePromoCodes,
   PartnerHomePromoters,
   PartnerHomeView,
@@ -7,6 +8,7 @@ import type {
   PartnerWeekDay,
 } from '../types/partnerHome';
 import type { PartnerHomeCardId } from '../types/partnerHomeCards';
+import { type GuestsPhase, pickGuestSession } from './guestsCard';
 import type { EstablishmentFilter } from './partnerHomeFilter';
 
 export type PartnerCardData =
@@ -16,7 +18,7 @@ export type PartnerCardData =
   | { id: 'next_event'; session: PartnerUpcomingSession }
   | { id: 'reviews'; rating: number; count: number; unanswered: number }
   | { id: 'week_bookings'; sold: number; capacity: number }
-  | { id: 'guests'; session: PartnerUpcomingSession }
+  | { id: 'guests'; session: PartnerGuestSession; phase: GuestsPhase }
   | { id: 'promoters'; promoters: PartnerHomePromoters }
   | { id: 'plan_seal'; name: string; until: string | null }
   | { id: 'week_occupancy'; days: Array<{ date: string; sold: number; capacity: number }> }
@@ -45,7 +47,8 @@ export function partnerCardData(
   id: PartnerHomeCardId,
   view: PartnerHomeView,
   today: PartnerTodayItem[],
-  filter: EstablishmentFilter
+  filter: EstablishmentFilter,
+  nowMs: number = Date.now()
 ): PartnerCardData | null {
   const establishments = view.establishments.filter((item) => inFilter([item.id], filter));
   const week = view.week.filter((row) => inFilter(row.establishmentIds, filter));
@@ -66,11 +69,13 @@ export function partnerCardData(
       return session ? { id, session } : null;
     }
     case 'guests': {
-      // Próxima sessão com cortesias (D27); sem convidado, o cartão não aparece.
-      const session = view.upcomingSessions.find(
-        (item) => item.courtesies > 0 && inFilter(item.establishmentIds, filter)
+      // Sessão com cortesias (D27) escolhida pela hora (C7); sem convidado, o cartão não aparece.
+      const picked = pickGuestSession(
+        view.guestSessions.filter((item) => inFilter(item.establishmentIds, filter)),
+        nowMs,
+        view.timeZone
       );
-      return session ? { id, session } : null;
+      return picked ? { id, ...picked } : null;
     }
     case 'promoters': {
       const promoters = view.promoters;

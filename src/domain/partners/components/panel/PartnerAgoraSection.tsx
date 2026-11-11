@@ -1,4 +1,4 @@
-import { type ReactNode, useState } from 'react';
+import { Fragment, type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useUI } from '../../../../shared/stores/useUIStore';
 import { usePanelItemTime } from '../../hooks/panelTimeZone';
@@ -6,7 +6,20 @@ import { usePartnerAgora } from '../../hooks/usePartnerAgora';
 import type { PartnerTodayItem } from '../../types/partnerHome';
 import { AgoraCardItem } from './AgoraCardItem';
 
-/** O que a composição monta para "Agora" (domínio bookings). */
+/** A lista sem internet (evento) ou a portaria (atração) neste aparelho (C5), em termos neutros. */
+export interface AgoraOfflineState {
+  kind: 'list' | 'keys';
+  status: 'missing' | 'ready' | 'no_connection';
+  /** Só na lista: ingressos guardados e quando foi a última atualização. */
+  count: number | null;
+  updatedAt: string | null;
+  online: boolean;
+  busy: boolean;
+  failed: boolean;
+  download: () => void;
+}
+
+/** O que a composição monta para "Agora" (domínios bookings e ticketing). */
 export interface PartnerAgoraRenders {
   /** "Cheguei" do horário; devolve se a localização foi junto. */
   arrive: (item: PartnerTodayItem) => Promise<{ located: boolean }>;
@@ -19,6 +32,11 @@ export interface PartnerAgoraRenders {
     onChanged: (message?: string) => void;
   }) => ReactNode;
   renderContacts: (item: PartnerTodayItem, version: number) => ReactNode;
+  /** Lê no aparelho a situação da lista sem internet e entrega ao cartão (C5). */
+  renderOffline?: (
+    item: PartnerTodayItem,
+    render: (state: AgoraOfflineState) => ReactNode
+  ) => ReactNode;
 }
 
 /**
@@ -88,25 +106,35 @@ export function PartnerAgoraSection({
         {t('partnerAgora.title')}
       </h2>
       <ul className="space-y-3">
-        {cards.map((card) => (
-          <AgoraCardItem
-            key={`${card.type}-${card.item.id}`}
-            card={card}
-            now={now}
-            arriving={arriving === card.item.id}
-            nameOf={nameOf}
-            contacts={
-              card.type === 'code' && card.arrived
-                ? renders.renderContacts(card.item, version)
-                : null
-            }
-            onArrive={() => void arrive(card.item)}
-            onOpenCode={(noShow) => setCodeFor({ item: card.item, noShow })}
-            starting={starting === card.item.id}
-            onStart={() => void start(card.item)}
-            onOpenGate={() => onOpenGate(card.item)}
-          />
-        ))}
+        {cards.map((card) => {
+          const cardOf = (offline: AgoraOfflineState | null) => (
+            <AgoraCardItem
+              offline={offline}
+              key={`${card.type}-${card.item.id}`}
+              card={card}
+              now={now}
+              arriving={arriving === card.item.id}
+              nameOf={nameOf}
+              contacts={
+                card.type === 'code' && card.arrived
+                  ? renders.renderContacts(card.item, version)
+                  : null
+              }
+              onArrive={() => void arrive(card.item)}
+              onOpenCode={(noShow) => setCodeFor({ item: card.item, noShow })}
+              starting={starting === card.item.id}
+              onStart={() => void start(card.item)}
+              onOpenGate={() => onOpenGate(card.item)}
+            />
+          );
+          return card.type === 'offline' && renders.renderOffline ? (
+            <Fragment key={`${card.type}-${card.item.id}`}>
+              {renders.renderOffline(card.item, cardOf)}
+            </Fragment>
+          ) : (
+            cardOf(null)
+          );
+        })}
       </ul>
       {codeFor &&
         renders.renderCodeSheet({

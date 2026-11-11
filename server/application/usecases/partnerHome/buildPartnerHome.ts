@@ -24,6 +24,8 @@ export interface PartnerSessionInput {
   sold: number;
   /** Cortesias que ocupam lugar (D27); fora do "vendidos". */
   courtesies: number;
+  /** Convidados que já entraram (C7); zero antes de a portaria abrir. */
+  courtesiesEntered: number;
 }
 
 export interface PartnerHomeInput {
@@ -179,7 +181,23 @@ export function buildPartnerHome(input: PartnerHomeInput): PartnerHomeView {
       courtesies: session.courtesies,
     }));
 
+  // Cartão Convidados (C7): sessões com cortesia, de ontem em diante; o aparelho escolhe pela hora.
+  const guestSessions = input.sessions
+    .filter((session) => session.courtesies > 0)
+    .sort((a, b) => a.startsAt.localeCompare(b.startsAt))
+    .map((session) => ({
+      id: session.id,
+      eventId: session.eventId,
+      title: session.eventTitle,
+      establishmentIds: session.establishmentId ? [session.establishmentId] : [],
+      startsAt: session.startsAt,
+      endsAt: session.endsAt,
+      courtesies: session.courtesies,
+      entered: session.courtesiesEntered,
+    }));
+
   return {
+    guestSessions,
     cards: input.cards,
     timeZone: input.timeZone,
     establishments: input.establishments.map(
