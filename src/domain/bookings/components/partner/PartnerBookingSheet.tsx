@@ -65,9 +65,9 @@ export function PartnerBookingSheet({
               bookingId={booking.id}
               label={t('bookings.contact.buyerButton')}
               message={
-                booking.buyerName
+                booking.buyerUsername
                   ? t('bookings.contact.toBuyer', {
-                      name: booking.buyerName,
+                      name: booking.buyerUsername,
                       title: offerTitle,
                       code,
                       when,

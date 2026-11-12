@@ -229,6 +229,10 @@ export class HttpBookingsAdapter implements BookingsApiPort {
     return call(`${slotPath(offerId, slotId)}/arrival`, json('POST', location ? { location } : {}));
   }
 
+  async startSlotService(offerId: string, slotId: string): Promise<{ startedAt: string | null }> {
+    return call(`${slotPath(offerId, slotId)}/start`, json('POST', {}));
+  }
+
   async listSlotContacts(offerId: string, slotId: string): Promise<SlotContact[]> {
     return (await call<{ data: SlotContact[] }>(`${slotPath(offerId, slotId)}/contacts`)).data;
   }

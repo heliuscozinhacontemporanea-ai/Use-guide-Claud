@@ -8,7 +8,7 @@ import type {
 } from '../../../domain/bookings';
 
 /** Saída por allowlist (AGENTS.md §7.9 regra 4): nunca o documento inteiro. */
-export function toBuyerBooking(booking: Booking) {
+export function toBuyerBooking(booking: Booking, serviceStartedAt: string | null = null) {
   return {
     id: booking.id,
     offerId: booking.offerId,
@@ -52,6 +52,8 @@ export function toBuyerBooking(booking: Booking) {
     groupMaxPeople: booking.offerSnapshot.groupMaxPeople ?? null,
     requiresParticipantNames: booking.offerSnapshot.requiresParticipantNames ?? false,
     arrivedAt: booking.arrival?.at ?? null,
+    // "Iniciar serviço" do prestador (C4); só vem nas leituras da reserva.
+    serviceStartedAt,
     // "Estou chegando" ou "Não vou mais" ao aviso "chegou" (D27).
     arrivalResponse: booking.arrivalResponse ?? null,
     providerAbsence: booking.providerAbsence
@@ -75,9 +77,9 @@ export function toBuyerBooking(booking: Booking) {
 }
 
 /** O parceiro vê também a taxa (para conferir o repasse), mas não o comprador além do ID. */
-export function toSellerBooking(booking: Booking) {
+export function toSellerBooking(booking: Booking, serviceStartedAt: string | null = null) {
   return {
-    ...toBuyerBooking(booking),
+    ...toBuyerBooking(booking, serviceStartedAt),
     buyerId: booking.buyerId,
     platformFeeMinor: booking.platformFeeMinor,
   };
@@ -86,13 +88,14 @@ export function toSellerBooking(booking: Booking) {
 export function toBookingDetails(
   details: BookingDetails,
   viewerUid: string,
-  viewerIsAdmin: boolean
+  viewerIsAdmin: boolean,
+  serviceStartedAt: string | null = null
 ) {
   const isSeller = details.booking.sellerPartnerId === viewerUid;
   return {
     ...(isSeller || viewerIsAdmin
-      ? toSellerBooking(details.booking)
-      : toBuyerBooking(details.booking)),
+      ? toSellerBooking(details.booking, serviceStartedAt)
+      : toBuyerBooking(details.booking, serviceStartedAt)),
     participants: details.participants.map((participant) => ({
       name: participant.name,
       isLeadContact: participant.isLeadContact,

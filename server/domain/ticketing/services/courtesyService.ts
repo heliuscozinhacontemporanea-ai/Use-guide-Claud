@@ -220,6 +220,10 @@ export class CourtesyService {
     return this.store.countHeldByOccurrence(occurrenceId);
   }
 
+  countEntered(occurrenceId: string): Promise<number> {
+    return this.store.countEnteredByOccurrence(occurrenceId);
+  }
+
   anonymizeGuest(uid: string): Promise<number> {
     return this.store.anonymizeGuest(uid);
   }

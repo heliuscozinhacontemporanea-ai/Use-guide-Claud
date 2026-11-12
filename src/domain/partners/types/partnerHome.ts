@@ -30,6 +30,10 @@ export interface PartnerTodayItem {
   capacity: number;
   checkedIn: number | null;
   arrivedAt: string | null;
+  /** Só nos horários de reserva: quando o prestador tocou "Iniciar serviço" (C4). */
+  startedAt?: string | null;
+  /** Só nas sessões: fim das vendas pelo app, quando a lista sem internet fica disponível (D21). */
+  salesEndsAt?: string;
   /** Só nas sessões: cortesias que ocupam lugar (D27). */
   courtesies?: number;
   /** Só nos horários de reserva, para os cartões de "Agora" (D27). */
@@ -59,6 +63,19 @@ export interface PartnerUpcomingSession {
   sold: number;
   capacity: number;
   courtesies: number;
+}
+
+/** Sessão com convidados, para o cartão Convidados (C7). */
+export interface PartnerGuestSession {
+  id: string;
+  eventId: string;
+  title: string;
+  establishmentIds: string[];
+  startsAt: string;
+  endsAt: string | null;
+  courtesies: number;
+  /** Convidados que já passaram pela portaria; zero antes de ela abrir. */
+  entered: number;
 }
 
 /** Divulgadores do próximo evento que tem algum (D27). */
@@ -118,6 +135,8 @@ export interface PartnerHomeView {
     month: { currentMinor: number; previousMinor: number };
   };
   upcomingSessions: PartnerUpcomingSession[];
+  /** Sessões com cortesia, de ontem em diante, em ordem de início. */
+  guestSessions: PartnerGuestSession[];
   promoters: PartnerHomePromoters | null;
   /** Cartão "Cupons": `null` sem cupom ativo nem uso na semana. */
   promoCodes: PartnerHomePromoCodes | null;
@@ -184,11 +203,43 @@ export interface PartnerHomePromoCodes {
 }
 
 /** Página do evento · Vendas, como `/api/partner-home/events/:id/sales` devolve. */
+/** Vendas de um lote na página do evento (A5): sem cortesias e sem o que já foi reembolsado. */
+export interface PartnerEventLot {
+  id: string;
+  occurrenceId: string;
+  name: string;
+  priceMinor: number;
+  quantity: number;
+  sold: number;
+  /** Preço dos ingressos vendidos, antes dos cupons. */
+  soldMinor: number;
+  status: 'on_sale' | 'sold_out' | 'not_started' | 'paused' | 'ended';
+  salesStartsAt: string | null;
+  salesEndsAt: string | null;
+  /** Ingressos por dia (`YYYY-MM-DD` no fuso do evento); só os dias com venda. */
+  days: Array<{ day: string; count: number }>;
+}
+
 export interface PartnerEventSales {
   event: { id: string; title: string; status: PartnerCatalogEventStatus; sessions: number };
   soldMinor: number;
   ticketsSold: number;
   receiveMinor: number;
+  /** A conta de "Você recebe" (A4): ingressos − cupons − reembolsos − taxa − ajustes. */
+  breakdown: {
+    ticketsMinor: number;
+    discountMinor: number;
+    refundedMinor: number;
+    platformFeeMinor: number;
+    feeBaseMinor: number;
+    adjustmentsMinor: number;
+    buyerServiceFeeMinor: number;
+  };
+  /** CNPJ mascarado da conta que recebe; `null` enquanto não há venda. */
+  payoutDocument: string | null;
+  lots: PartnerEventLot[];
+  /** Fuso do evento: os dias dos lotes estão nele. */
+  timeZone: string;
   sessions: Array<{
     id: string;
     startsAt: string;

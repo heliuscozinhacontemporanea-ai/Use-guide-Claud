@@ -106,6 +106,7 @@ export class FirestoreBookingsAdapter implements BookingsPort {
   readonly listSlots = this.slots.listSlots.bind(this.slots);
   readonly setSlotStatus = this.slots.setSlotStatus.bind(this.slots);
   readonly rescheduleSlot = this.slots.rescheduleSlot.bind(this.slots);
+  readonly startSlot = this.slots.startSlot.bind(this.slots);
 
   readonly recordCheckIns = this.checkIns.recordCheckIns.bind(this.checkIns);
   readonly setParticipant = this.checkIns.setParticipant.bind(this.checkIns);

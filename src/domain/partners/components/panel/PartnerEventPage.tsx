@@ -13,7 +13,9 @@ import type { PartnerEventSales, PartnerTodayItem } from '../../types/partnerHom
 import { addBusinessDays, businessDay, sameBusinessDay } from '../../utils/agendaCalendar';
 import { sessionLabel } from '../../utils/eventSalesFormat';
 import type { EventGuestsRenderProps } from './PartnerCatalogSection';
+import { PartnerEventLots } from './PartnerEventLots';
 import { PartnerEventOrders } from './PartnerEventOrders';
+import { PartnerEventReceiveSheet } from './PartnerEventReceiveSheet';
 
 function sessionItem(sales: PartnerEventSales, session: PartnerEventSales['sessions'][number]) {
   return {
@@ -41,6 +43,7 @@ export function PartnerEventPage({
   renderGuests,
   renderPromoters,
   onOpenCoupons,
+  onOpenEarnings,
   timeZone,
 }: {
   eventId: string;
@@ -53,6 +56,8 @@ export function PartnerEventPage({
   renderPromoters?: (eventId: string) => ReactNode;
   /** Cupons deste evento, na área Cupons (B1). */
   onOpenCoupons?: () => void;
+  /** "Ver repasses em Ganhos", na folha da conta de "Você recebe" (A4). */
+  onOpenEarnings?: () => void;
   /** Fuso do evento (D28): "hoje", "ontem" e as horas das sessões. */
   timeZone: string;
 }) {
@@ -60,6 +65,7 @@ export function PartnerEventPage({
   const locale = i18n.language;
   const { data, loading, error, reload } = usePartnerEventSalesPage(eventId, reloadKey);
   const [tab, setTab] = useState<'sales' | 'guests' | 'promoters'>('sales');
+  const [showReceive, setShowReceive] = useState(false);
   const now = new Date();
   const guests = tab === 'guests' && renderGuests;
   const promoters = tab === 'promoters' && renderPromoters;
@@ -162,8 +168,17 @@ export function PartnerEventPage({
               label={t('partnerCatalog.event.receive')}
               value={formatMoneyMinorCompact(data.receiveMinor, locale)}
               hint={t('partnerCatalog.event.receiveHint')}
+              action={{
+                label: t('partnerCatalog.receive.title'),
+                onClick: () => setShowReceive(true),
+              }}
             />
           </div>
+          <PartnerEventReceiveSheet
+            sales={showReceive ? data : null}
+            onClose={() => setShowReceive(false)}
+            onOpenEarnings={onOpenEarnings}
+          />
 
           {data.sessions.length > 0 && (
             <section className="space-y-3">
@@ -198,6 +213,8 @@ export function PartnerEventPage({
               </ListCard>
             </section>
           )}
+
+          <PartnerEventLots sales={data} onEdit={() => onEdit(data.ordersTotal > 0)} />
 
           {onOpenCoupons && (
             <ListCard>

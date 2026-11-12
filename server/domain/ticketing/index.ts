@@ -62,6 +62,7 @@ export { checkInTicketUseCase } from './usecases/checkInTicketUseCase';
 export { claimCourtesyLinkUseCase } from './usecases/claimCourtesyLinkUseCase';
 export { claimTicketTransferLinkUseCase } from './usecases/claimTicketTransferLinkUseCase';
 export { confirmTicketOrderPaymentUseCase } from './usecases/confirmTicketOrderPaymentUseCase';
+export { countOccurrenceCourtesiesEnteredUseCase } from './usecases/countOccurrenceCourtesiesEnteredUseCase';
 export { countOccurrenceCourtesiesUseCase } from './usecases/countOccurrenceCourtesiesUseCase';
 export { createCourtesyLinkUseCase } from './usecases/createCourtesyLinkUseCase';
 export { createOfflineCheckInSessionUseCase } from './usecases/createOfflineCheckInSessionUseCase';

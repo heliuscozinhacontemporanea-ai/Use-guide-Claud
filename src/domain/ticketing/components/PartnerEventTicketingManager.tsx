@@ -86,7 +86,7 @@ export function PartnerEventTicketingManager({
     setFeedback,
   });
 
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const selectedOccurrence = occurrences.find((occ) => occ.id === selectedOccurrenceId);
   const paidOrders = orders.filter(
     (order) =>
@@ -166,7 +166,7 @@ export function PartnerEventTicketingManager({
       {occLoading || lotsLoading || salesLoading ? (
         <div className="p-6 flex items-center justify-center gap-2 text-xs text-ink/70">
           <Loader2 size={16} className="animate-spin text-teal-400" />
-          <span>Carregando dados operacionais...</span>
+          <span>{t('ticketLots.loading')}</span>
         </div>
       ) : activeTab === 'lots' ? (
         <LotsTab

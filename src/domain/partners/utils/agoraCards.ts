@@ -11,30 +11,33 @@ const ARRIVE_KINDS = ['tour', 'transfer'];
 // Sessão sem fim informado: a portaria fica aberta como o código do ingresso, 6 h (D20).
 const SESSION_WITHOUT_END = 6 * HOUR;
 
+/** Serviço iniciado pelo prestador e ainda dentro do horário (C4): "Em andamento". */
+export function serviceInProgress(item: PartnerTodayItem, nowMs: number): boolean {
+  if (!item.startedAt) return false;
+  return nowMs < ms(item.serviceEndsAt ?? item.endsAt ?? item.startsAt);
+}
+
 export type AgoraCard =
   | { type: 'arrive'; item: PartnerTodayItem }
   | { type: 'code'; item: PartnerTodayItem; arrived: boolean; noShowAt: string | null }
   | { type: 'start'; item: PartnerTodayItem }
-  | { type: 'gate'; item: PartnerTodayItem }
-  | { type: 'offline'; item: PartnerTodayItem };
+  | { type: 'gate'; item: PartnerTodayItem; listAt: string | null }
+  | { type: 'offline'; item: PartnerTodayItem; listAt: string | null };
 
 const ms = (iso: string) => new Date(iso).getTime();
 // A véspera começa às 00:00 do dia anterior na hora do lugar do serviço (D28).
 const eveStart = (startMs: number, timeZone: string) =>
   addBusinessDays(businessDay(new Date(startMs), timeZone), -1, timeZone).getTime();
 
-function slotCard(
-  item: PartnerTodayItem,
-  now: number,
-  started: boolean,
-  timeZone: string
-): AgoraCard | null {
+function slotCard(item: PartnerTodayItem, now: number, timeZone: string): AgoraCard | null {
   const start = ms(item.startsAt);
   const end = ms(item.serviceEndsAt ?? item.endsAt ?? item.startsAt);
   if (item.offerKind === 'private_entry') {
     // Portaria de 1 h antes da abertura ao fechamento; a lista sai na véspera (D27).
-    if (now >= start - HOUR && now <= end) return { type: 'gate', item };
-    if (now >= eveStart(start, timeZone) && now < start - HOUR) return { type: 'offline', item };
+    // Na atração não há lista: as chaves do QR podem ser guardadas a qualquer hora.
+    if (now >= start - HOUR && now <= end) return { type: 'gate', item, listAt: null };
+    if (now >= eveStart(start, timeZone) && now < start - HOUR)
+      return { type: 'offline', item, listAt: null };
     return null;
   }
   if (!CODE_KINDS.includes(item.offerKind ?? '') || (item.bookings ?? item.sold) === 0) return null;
@@ -42,7 +45,7 @@ function slotCard(
   const codeOpen = now >= start - 2 * HOUR && now <= end + 12 * HOUR;
   if (waiting === 0) {
     // "Iniciar serviço" só depois do check-in (D20) e até o fim do serviço.
-    return codeOpen && !started && (item.checkedIn ?? 0) > 0 && now < end
+    return codeOpen && !item.startedAt && (item.checkedIn ?? 0) > 0 && now < end
       ? { type: 'start', item }
       : null;
   }
@@ -62,25 +65,28 @@ function slotCard(
 function sessionCard(item: PartnerTodayItem, now: number, timeZone: string): AgoraCard | null {
   const start = ms(item.startsAt);
   const end = item.endsAt ? ms(item.endsAt) : start + SESSION_WITHOUT_END;
-  if (now >= start - 2 * HOUR && now <= end) return { type: 'gate', item };
-  if (now >= eveStart(start, timeZone) && now < start - 2 * HOUR) return { type: 'offline', item };
+  // A lista sem internet só sai depois do fim das vendas pelo app (D21); até lá, o cartão avisa a hora.
+  const salesEnd = item.salesEndsAt ? ms(item.salesEndsAt) : start;
+  const listAt = now < salesEnd ? new Date(salesEnd).toISOString() : null;
+  if (now >= start - 2 * HOUR && now <= end) return { type: 'gate', item, listAt };
+  if (now >= eveStart(start, timeZone) && now < start - 2 * HOUR)
+    return { type: 'offline', item, listAt };
   return null;
 }
 
 /**
- * Cartões de "Agora" (D27): cada um aparece e some sozinho pela janela do horário. `started` são
- * os horários em que o prestador já tocou "Iniciar serviço" neste aparelho.
+ * Cartões de "Agora" (D27): cada um aparece e some sozinho pela janela do horário. "Iniciar
+ * serviço" some quando o servidor já tem o início do horário (C4), em qualquer aparelho.
  */
 export function agoraCards(
   items: PartnerTodayItem[],
   nowMs: number,
-  started: ReadonlySet<string> = new Set(),
   zoneOf: (item: PartnerTodayItem) => string = () => PLATFORM_TIME_ZONE
 ): AgoraCard[] {
   return items
     .map((item) =>
       item.kind === 'slot'
-        ? slotCard(item, nowMs, started.has(item.id), zoneOf(item))
+        ? slotCard(item, nowMs, zoneOf(item))
         : sessionCard(item, nowMs, zoneOf(item))
     )
     .filter((card): card is AgoraCard => card !== null);

@@ -20,6 +20,45 @@ const SALES: PartnerEventSales = {
   soldMinor: 1280000,
   ticketsSold: 128,
   receiveMinor: 1152000,
+  breakdown: {
+    ticketsMinor: 1330000,
+    discountMinor: 30000,
+    refundedMinor: 20000,
+    platformFeeMinor: 128000,
+    feeBaseMinor: 1280000,
+    adjustmentsMinor: 0,
+    buyerServiceFeeMinor: 38400,
+  },
+  payoutDocument: '**.***.***/0001-12',
+  timeZone: 'America/Fortaleza',
+  lots: [
+    {
+      id: 'l1',
+      occurrenceId: 's1',
+      name: '2º lote',
+      priceMinor: 10000,
+      quantity: 140,
+      sold: 56,
+      soldMinor: 560000,
+      status: 'on_sale',
+      salesStartsAt: null,
+      salesEndsAt: null,
+      days: [{ day: '2020-01-01', count: 56 }],
+    },
+    {
+      id: 'l2',
+      occurrenceId: 's2',
+      name: 'Camarote',
+      priceMinor: 20000,
+      quantity: 40,
+      sold: 0,
+      soldMinor: 0,
+      status: 'not_started',
+      salesStartsAt: '2026-12-10T12:00:00.000Z',
+      salesEndsAt: null,
+      days: [],
+    },
+  ],
   sessions: [
     { id: 's1', startsAt: '2026-12-20T23:00:00.000Z', sold: 128, capacity: 300, courtesies: 12 },
     { id: 's2', startsAt: '2026-12-21T23:00:00.000Z', sold: 40, capacity: 300, courtesies: 0 },
@@ -76,6 +115,58 @@ describe('Página do evento (p10–p12) e Editar evento (p18)', () => {
     expect(onOpenSession).toHaveBeenCalledWith(
       expect.objectContaining({ kind: 'session', id: 's1', parentId: 'ev1', sold: 128 })
     );
+  });
+
+  it('"Você recebe" abre a conta, sem a linha de multas quando não há valor (A4)', async () => {
+    const onOpenEarnings = vi.fn();
+    render(
+      <PartnerEventPage
+        eventId="ev1"
+        reloadKey={0}
+        timeZone="America/Fortaleza"
+        onBack={vi.fn()}
+        onEdit={vi.fn()}
+        onOpenSession={vi.fn()}
+        onOpenEarnings={onOpenEarnings}
+      />
+    );
+    fireEvent.click(await screen.findByRole('button', { name: /Como chegamos a esse valor/ }));
+    expect(await screen.findByText('Ingressos')).toBeTruthy();
+    expect(screen.getByText(/^R\$\s13\.300,00$/)).toBeTruthy();
+    expect(screen.getByText('Taxa Use Guide (10%)')).toBeTruthy();
+    expect(screen.getByText(/^−\sR\$\s1\.280,00$/)).toBeTruthy();
+    expect(screen.queryByText('Multas e ajustes')).toBeNull();
+    expect(screen.getByText(/R\$\s384,00\. Não sai do seu valor/)).toBeTruthy();
+    expect(screen.getByText(/CNPJ \*\*\.\*\*\*\.\*\*\*\/0001-12/)).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Ver repasses em Ganhos' }));
+    expect(onOpenEarnings).toHaveBeenCalled();
+  });
+
+  it('vendas por lote: filtro por sessão e folha do lote com as janelas de 14 dias (A5)', async () => {
+    render(
+      <PartnerEventPage
+        eventId="ev1"
+        reloadKey={0}
+        timeZone="America/Fortaleza"
+        onBack={vi.fn()}
+        onEdit={vi.fn()}
+        onOpenSession={vi.fn()}
+      />
+    );
+    expect(await screen.findByText('Vendas por lote')).toBeTruthy();
+    expect(screen.getByText(/56 de 140/)).toBeTruthy();
+    expect(screen.getByText('Abre em 10 de dez.')).toBeTruthy();
+    expect(screen.getByText(/Cupons de desconto: −\sR\$\s300,00/)).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: /^seg\., 21$/i }));
+    expect(screen.queryByText(/56 de 140/)).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Todas' }));
+    fireEvent.click(screen.getByRole('button', { name: /2º lote/ }));
+    expect(await screen.findByText('Ingressos por dia')).toBeTruthy();
+    expect(screen.getByText('Nenhum ingresso vendido neste período.')).toBeTruthy();
+    const newer = screen.getByRole('button', { name: '14 dias seguintes' });
+    expect(newer).toHaveProperty('disabled', true);
+    fireEvent.click(screen.getByRole('button', { name: '14 dias anteriores' }));
+    expect(newer).toHaveProperty('disabled', false);
   });
 
   it('atalho Cupons leva à área Cupons do evento', async () => {

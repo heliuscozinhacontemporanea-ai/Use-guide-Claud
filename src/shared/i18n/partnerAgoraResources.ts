@@ -20,7 +20,7 @@ export interface PartnerAgoraTranslation {
     noShowAt: string;
     noShow: string;
   };
-  start: { button: string; sub: string; done: string };
+  start: { button: string; sending: string; sub: string; done: string; error: string };
   gate: {
     title: string;
     opensAt: string;
@@ -31,7 +31,34 @@ export interface PartnerAgoraTranslation {
     sold_other: string;
     button: string;
   };
-  offline: { title: string; today: string; tomorrow: string; button: string };
+  offline: {
+    title: string;
+    today: string;
+    tomorrow: string;
+    button: string;
+    downloading: string;
+    missing: string;
+    ready_one: string;
+    ready_other: string;
+    refresh: string;
+    readyNoConnection: string;
+    noConnection: string;
+    failed: string;
+    noticeToday: string;
+    noticeTomorrow: string;
+    gateAt: string;
+    gateLine: string;
+  };
+  offlineKeys: {
+    title: string;
+    button: string;
+    downloading: string;
+    missing: string;
+    ready: string;
+    noConnection: string;
+    failed: string;
+    gateLine: string;
+  };
   contacts: {
     loading: string;
     error: string;
@@ -89,8 +116,10 @@ export const partnerAgoraPtBR: PartnerAgoraTranslation = {
   },
   start: {
     button: 'Iniciar serviço',
+    sending: 'Iniciando…',
     sub: '{{done}} de {{total}} com código · todos aqui',
-    done: 'Bom serviço!',
+    done: 'Serviço iniciado às {{time}}. Vale em todos os aparelhos da equipe.',
+    error: 'Não foi possível iniciar o serviço. Tente de novo.',
   },
   gate: {
     title: 'Portaria · {{name}}',
@@ -107,6 +136,30 @@ export const partnerAgoraPtBR: PartnerAgoraTranslation = {
     today: 'Hoje, {{time}}',
     tomorrow: 'Amanhã, {{time}}',
     button: 'Baixar lista',
+    downloading: 'Baixando…',
+    missing: 'ainda não baixada neste aparelho',
+    ready_one: '{{count}} ingresso · atualizada em {{date}}',
+    ready_other: '{{count}} ingressos · atualizada em {{date}}',
+    refresh: 'Atualizar lista',
+    readyNoConnection: 'Sem internet agora: vale a lista que está neste aparelho.',
+    noConnection: 'conecte-se à internet para baixar',
+    failed: 'Não foi possível baixar a lista. Tente de novo.',
+    noticeToday:
+      'Prepare-se: seu evento começa hoje, às {{starts}}. As vendas pelo app encerram às {{salesEnd}}; a partir desse horário, a lista sem internet fica disponível para baixar aqui no Início.',
+    noticeTomorrow:
+      'Prepare-se: seu evento começa amanhã, às {{starts}}. As vendas pelo app encerram às {{salesEnd}}; a partir desse horário, a lista sem internet fica disponível para baixar aqui no Início.',
+    gateAt: 'A lista sem internet fica disponível às {{time}}, quando as vendas pelo app encerram.',
+    gateLine: 'Lista sem internet: {{detail}}',
+  },
+  offlineKeys: {
+    title: 'Portaria sem internet · {{name}}',
+    button: 'Preparar portaria',
+    downloading: 'Preparando…',
+    missing: 'ainda não preparada neste aparelho',
+    ready: 'pronta para funcionar sem internet',
+    noConnection: 'conecte-se à internet para preparar',
+    failed: 'Não foi possível preparar a portaria. Tente de novo.',
+    gateLine: 'Sem internet: {{detail}}',
   },
   contacts: {
     loading: 'Carregando contatos',
@@ -167,8 +220,10 @@ export const partnerAgoraEn: PartnerAgoraTranslation = {
   },
   start: {
     button: 'Start service',
+    sending: 'Starting…',
     sub: '{{done}} of {{total}} with code · everyone here',
-    done: 'Have a great service!',
+    done: "Service started at {{time}}. It shows on all your team's devices.",
+    error: 'Could not start the service. Try again.',
   },
   gate: {
     title: 'Gate · {{name}}',
@@ -185,6 +240,30 @@ export const partnerAgoraEn: PartnerAgoraTranslation = {
     today: 'Today, {{time}}',
     tomorrow: 'Tomorrow, {{time}}',
     button: 'Download list',
+    downloading: 'Downloading…',
+    missing: 'not downloaded on this device yet',
+    ready_one: '{{count}} ticket · updated {{date}}',
+    ready_other: '{{count}} tickets · updated {{date}}',
+    refresh: 'Update list',
+    readyNoConnection: 'No internet right now: the list on this device still works.',
+    noConnection: 'connect to the internet to download',
+    failed: 'Could not download the list. Try again.',
+    noticeToday:
+      'Get ready: your event starts today at {{starts}}. App sales close at {{salesEnd}}; from then on, the offline list will be available to download here on Home.',
+    noticeTomorrow:
+      'Get ready: your event starts tomorrow at {{starts}}. App sales close at {{salesEnd}}; from then on, the offline list will be available to download here on Home.',
+    gateAt: 'The offline list will be available at {{time}}, when app sales close.',
+    gateLine: 'Offline list: {{detail}}',
+  },
+  offlineKeys: {
+    title: 'Offline gate · {{name}}',
+    button: 'Prepare gate',
+    downloading: 'Preparing…',
+    missing: 'not prepared on this device yet',
+    ready: 'ready to work without internet',
+    noConnection: 'connect to the internet to prepare',
+    failed: 'Could not prepare the gate. Try again.',
+    gateLine: 'Offline: {{detail}}',
   },
   contacts: {
     loading: 'Loading contacts',
@@ -245,8 +324,10 @@ export const partnerAgoraFr: PartnerAgoraTranslation = {
   },
   start: {
     button: 'Démarrer le service',
+    sending: 'Démarrage…',
     sub: '{{done}} sur {{total}} avec code · tout le monde est là',
-    done: 'Bon service !',
+    done: 'Service démarré à {{time}}. Visible sur tous les appareils de l’équipe.',
+    error: 'Impossible de démarrer le service. Réessayez.',
   },
   gate: {
     title: 'Accueil · {{name}}',
@@ -263,6 +344,30 @@ export const partnerAgoraFr: PartnerAgoraTranslation = {
     today: "Aujourd'hui, {{time}}",
     tomorrow: 'Demain, {{time}}',
     button: 'Télécharger la liste',
+    downloading: 'Téléchargement…',
+    missing: 'pas encore téléchargée sur cet appareil',
+    ready_one: '{{count}} billet · mise à jour le {{date}}',
+    ready_other: '{{count}} billets · mise à jour le {{date}}',
+    refresh: 'Mettre à jour la liste',
+    readyNoConnection: 'Pas d’internet pour l’instant : la liste de cet appareil reste valable.',
+    noConnection: 'connectez-vous à internet pour télécharger',
+    failed: 'Impossible de télécharger la liste. Réessayez.',
+    noticeToday:
+      'Préparez-vous : votre événement commence aujourd’hui à {{starts}}. Les ventes dans l’app ferment à {{salesEnd}} ; à partir de cette heure, la liste hors ligne pourra être téléchargée ici, sur l’Accueil.',
+    noticeTomorrow:
+      'Préparez-vous : votre événement commence demain à {{starts}}. Les ventes dans l’app ferment à {{salesEnd}} ; à partir de cette heure, la liste hors ligne pourra être téléchargée ici, sur l’Accueil.',
+    gateAt: 'La liste hors ligne sera disponible à {{time}}, à la fermeture des ventes dans l’app.',
+    gateLine: 'Liste hors ligne : {{detail}}',
+  },
+  offlineKeys: {
+    title: 'Accueil hors ligne · {{name}}',
+    button: 'Préparer l’accueil',
+    downloading: 'Préparation…',
+    missing: 'pas encore préparé sur cet appareil',
+    ready: 'prêt à fonctionner sans internet',
+    noConnection: 'connectez-vous à internet pour préparer',
+    failed: 'Impossible de préparer l’accueil. Réessayez.',
+    gateLine: 'Hors ligne : {{detail}}',
   },
   contacts: {
     loading: 'Chargement des contacts',

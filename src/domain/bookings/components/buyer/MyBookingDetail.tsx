@@ -10,6 +10,7 @@ import type { BookingSummary } from '../../types/bookings';
 import { bookingReference } from '../../utils/bookingReference';
 import { formatSlotDateTime, placeDateKey } from '../../utils/dates';
 import { formatMinor } from '../../utils/money';
+import { serviceInProgress } from '../../utils/serviceInProgress';
 import { BookingWhatsAppButton } from '../BookingWhatsAppButton';
 import { BookingCheckInPass } from './BookingCheckInPass';
 
@@ -35,6 +36,14 @@ export function MyBookingDetail({
   const serviceEndMs =
     new Date(booking.offer.startsAt).getTime() + (booking.offer.durationMinutes ?? 0) * 60_000;
   const confirmed = booking.status === 'confirmed';
+  const inProgress = serviceInProgress(booking, now.getTime());
+  const startedTime = booking.serviceStartedAt
+    ? new Intl.DateTimeFormat(i18n.language, {
+        timeZone: tz,
+        hour: '2-digit',
+        minute: '2-digit',
+      }).format(new Date(booking.serviceStartedAt))
+    : '';
   const canContact = confirmed && now.getTime() <= serviceEndMs;
   const showPass =
     confirmed &&
@@ -81,8 +90,10 @@ export function MyBookingDetail({
           }
         >
           {confirmed && <span aria-hidden="true">●</span>}
-          {t(`bookings.bookingStatus.${booking.status}`)}
-          {confirmed && today && ` · ${t('bookings.buyer.detail.today')}`}
+          {inProgress
+            ? t('bookings.buyer.detail.inProgressSince', { time: startedTime })
+            : t(`bookings.bookingStatus.${booking.status}`)}
+          {confirmed && today && !inProgress && ` · ${t('bookings.buyer.detail.today')}`}
         </span>
         <h3 className="font-display text-[24px] font-bold text-ink leading-tight break-words">
           {booking.offer.title}

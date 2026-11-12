@@ -5,6 +5,7 @@ import { cn } from '../../../../shared/utils/cn';
 import { formatMoneyMinorCompact } from '../../../../shared/utils/money';
 import { usePanelItemTime, usePanelTimeZone } from '../../hooks/panelTimeZone';
 import type { PartnerTodayItem } from '../../types/partnerHome';
+import { serviceInProgress } from '../../utils/agoraCards';
 import type { PartnerCardData } from '../../utils/partnerHomeCardData';
 
 const VALUE = 'text-[22px] font-bold text-ink truncate';
@@ -132,13 +133,56 @@ function Body({
           </p>
         </>
       );
-    case 'guests':
+    case 'guests': {
+      const { session, phase } = data;
+      if (phase === 'before') {
+        return (
+          <>
+            <p className={VALUE}>{session.courtesies}</p>
+            <p className={SUB}>
+              {session.title} ·{' '}
+              {formatBusinessDate(
+                session.startsAt,
+                lang,
+                { weekday: 'short', hour: '2-digit', minute: '2-digit' },
+                timeZone
+              )}
+            </p>
+          </>
+        );
+      }
       return (
         <>
-          <p className={VALUE}>{data.session.courtesies}</p>
-          <p className={cn(SUB, 'truncate')}>{data.session.title}</p>
+          <p className={VALUE}>
+            {t('partnerPanel.cards.guests.enteredOf', {
+              entered: session.entered,
+              total: session.courtesies,
+            })}
+          </p>
+          {phase === 'open' ? (
+            <>
+              <p className="text-[13px] font-semibold text-success">
+                {t('partnerPanel.cards.guests.enteredNow')}
+              </p>
+              <span
+                className="block h-1.5 rounded-full bg-ink/10 overflow-hidden"
+                aria-hidden="true"
+              >
+                <span
+                  className="block h-full rounded-full bg-accent"
+                  style={{ width: `${percent(session.entered, session.courtesies)}%` }}
+                />
+              </span>
+              <p className={cn(SUB, 'truncate')}>{session.title}</p>
+            </>
+          ) : (
+            <p className={SUB}>
+              {t('partnerPanel.cards.guests.enteredAfter', { title: session.title })}
+            </p>
+          )}
         </>
       );
+    }
     case 'reviews':
       return (
         <>
@@ -261,6 +305,12 @@ function TodayStatus({ item }: { item: PartnerTodayItem }) {
       {item.checkedIn
         ? t('partnerPanel.home.arrived', { checkedIn: item.checkedIn, sold: item.sold })
         : t('partnerPanel.home.people', { count: item.sold })}
+      {serviceInProgress(item, Date.now()) && (
+        <>
+          {' · '}
+          <span className="font-semibold text-success">{t('partnerPanel.agenda.ongoing')}</span>
+        </>
+      )}
     </span>
   );
 }

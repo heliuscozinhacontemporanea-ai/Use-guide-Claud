@@ -3,9 +3,15 @@ import {
   listEventOccurrencesUseCase,
   listOwnerEventListingsUseCase,
 } from '../../../domain/events';
-import { countOccurrenceCourtesiesUseCase } from '../../../domain/ticketing';
+import {
+  countOccurrenceCourtesiesEnteredUseCase,
+  countOccurrenceCourtesiesUseCase,
+} from '../../../domain/ticketing';
 import { getSoldTicketsCountForOccurrenceApplicationUseCase } from '../getSoldTicketsCountForOccurrenceApplicationUseCase';
 import type { PartnerSessionInput } from './buildPartnerHome';
+
+// A portaria do evento abre 2 h antes do início (D27).
+const GATE_OPENS_BEFORE_MS = 2 * 60 * 60 * 1000;
 
 export type OwnerEvent = Awaited<ReturnType<typeof listOwnerEventListingsUseCase>>[number];
 
@@ -29,8 +35,13 @@ export async function listOwnerOccurrences(
 /** Sessão com o vendido (ingressos pagos e reservados) lido da gestão de ingressos. */
 export async function toSessionInput(
   ownerUid: string,
-  { event, occurrence }: { event: OwnerEvent; occurrence: EventOccurrence }
+  { event, occurrence }: { event: OwnerEvent; occurrence: EventOccurrence },
+  /** Com a hora atual, conta também os convidados que já entraram (C7), só com a portaria aberta. */
+  nowMs?: number
 ): Promise<PartnerSessionInput> {
+  const courtesies = await countOccurrenceCourtesiesUseCase(occurrence.id).catch(() => 0);
+  const gateOpened =
+    nowMs !== undefined && nowMs >= new Date(occurrence.startsAt).getTime() - GATE_OPENS_BEFORE_MS;
   return {
     id: occurrence.id,
     eventId: event.id,
@@ -38,11 +49,16 @@ export async function toSessionInput(
     establishmentId: event.establishmentId ?? null,
     startsAt: occurrence.startsAt,
     endsAt: occurrence.endsAt ?? null,
+    salesEndsAt: occurrence.salesEndsAt || occurrence.startsAt,
     capacity: occurrence.capacity,
     sold: await getSoldTicketsCountForOccurrenceApplicationUseCase(
       { uid: ownerUid, admin: false, role: 'partner' },
       occurrence.id
     ),
-    courtesies: await countOccurrenceCourtesiesUseCase(occurrence.id).catch(() => 0),
+    courtesies,
+    courtesiesEntered:
+      courtesies > 0 && gateOpened
+        ? await countOccurrenceCourtesiesEnteredUseCase(occurrence.id).catch(() => 0)
+        : 0,
   };
 }

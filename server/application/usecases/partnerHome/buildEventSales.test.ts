@@ -42,6 +42,19 @@ function refund(orderId: string, overrides: Partial<Refund>): Refund {
   } as unknown as Refund;
 }
 
+function entry(overrides: Partial<PayoutEntryView>): PayoutEntryView {
+  return {
+    grossMinor: 20600,
+    serviceFeeMinor: 600,
+    refundedMinor: 0,
+    platformFeeMinor: 2000,
+    partnerAmountMinor: 18000,
+    offsetMinor: 0,
+    status: 'pending',
+    ...overrides,
+  } as PayoutEntryView;
+}
+
 function both(input: Parameters<typeof buildEventSales>[0]) {
   return {
     ...buildEventSales(input),
@@ -69,10 +82,7 @@ describe('buildEventSales', () => {
         ticket('ccc', 'transferred'),
       ],
       refunds: [refund('bb', {}), refund('ccc', { status: 'approved' })],
-      entries: [
-        { partnerAmountMinor: 18000, status: 'pending' },
-        { partnerAmountMinor: 5000, status: 'canceled' },
-      ] as PayoutEntryView[],
+      entries: [entry({}), entry({ partnerAmountMinor: 5000, status: 'canceled' })],
     });
 
     expect(result.orders.map((row) => [row.code, row.status])).toEqual([
@@ -120,5 +130,43 @@ describe('buildEventSales', () => {
       entries: [],
     });
     expect(result.orders[0]?.status).toBe('disputed');
+  });
+
+  it('abre a conta de "Você recebe" e ela fecha com cupom, reembolso parcial e multa (A4)', () => {
+    const result = buildEventSales({
+      orders: [
+        order('a', { discountMinor: 2000, totalMinor: 18600 }),
+        order('bb', { status: 'partially_refunded' }),
+      ],
+      tickets: [ticket('a'), ticket('a'), ticket('bb'), ticket('bb', 'refunded')],
+      refunds: [refund('bb', { status: 'approved', amountMinor: 10300, serviceFeeMinor: 300 })],
+      entries: [
+        entry({ grossMinor: 18600, platformFeeMinor: 1800, partnerAmountMinor: 16200 }),
+        entry({
+          serviceFeeMinor: 300,
+          refundedMinor: 10300,
+          platformFeeMinor: 1000,
+          partnerAmountMinor: 9000,
+          offsetMinor: 500,
+        }),
+      ],
+    });
+    const { breakdown } = result;
+    expect(breakdown).toEqual({
+      ticketsMinor: 40000,
+      discountMinor: 2000,
+      refundedMinor: 10000,
+      platformFeeMinor: 2800,
+      feeBaseMinor: 28000,
+      adjustmentsMinor: 500,
+      buyerServiceFeeMinor: 900,
+    });
+    expect(breakdown.ticketsMinor - breakdown.discountMinor - breakdown.refundedMinor).toBe(
+      result.soldMinor
+    );
+    expect(result.soldMinor - breakdown.platformFeeMinor - breakdown.adjustmentsMinor).toBe(
+      result.receiveMinor
+    );
+    expect(result.receiveMinor).toBe(24700);
   });
 });

@@ -258,6 +258,25 @@ describe('serviços de ticketing', () => {
     ).rejects.toThrow(/Não é permitido alterar o preço/);
   });
 
+  it('datas de venda do lote: o fim precisa vir depois do início; `null` tira a data', async () => {
+    vi.mocked(mockPort.getTicketTypeById).mockResolvedValue(
+      createMockTicketType({ salesStartsAt: '2026-12-10T12:00:00.000Z' })
+    );
+    await expect(
+      services.types.updateTicketType({ uid: 'partner_1' }, 'tt_1', {
+        salesEndsAt: '2026-12-09T12:00:00.000Z',
+      })
+    ).rejects.toThrow(/fim das vendas/);
+    await services.types.updateTicketType({ uid: 'partner_1' }, 'tt_1', {
+      salesStartsAt: null,
+      salesEndsAt: '2026-12-09T12:00:00.000Z',
+    });
+    expect(mockPort.updateTicketType).toHaveBeenLastCalledWith('tt_1', {
+      salesStartsAt: null,
+      salesEndsAt: '2026-12-09T12:00:00.000Z',
+    });
+  });
+
   it('recusa a compra sem o aceite da versão atual dos termos (D15)', async () => {
     await expect(
       services.orders.createTicketOrder(

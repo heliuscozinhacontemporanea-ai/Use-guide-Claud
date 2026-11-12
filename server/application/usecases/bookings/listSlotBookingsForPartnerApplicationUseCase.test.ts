@@ -30,7 +30,7 @@ describe('folha do horário no painel', () => {
           id: 'b1',
           buyerId: 'u1',
           participantsCount: 2,
-          checkIns: [{}],
+          checkIns: [{ at: '2026-11-04T11:52:00.000Z' }],
           pickupAddress: 'Rua X',
           status: 'confirmed',
           totalMinor: 36000,
@@ -47,7 +47,7 @@ describe('folha do horário no painel', () => {
       ],
     });
     m.profile.mockImplementation(async (uid: string) =>
-      uid === 'u1' ? { uid, displayName: 'Ana Souza' } : null
+      uid === 'u1' ? { uid, displayName: 'Ana Souza', username: 'anasouza' } : null
     );
     const view = await listSlotBookingsForPartnerApplicationUseCase(
       { uid: 'owner', admin: false },
@@ -58,8 +58,10 @@ describe('folha do horário no painel', () => {
       {
         id: 'b1',
         buyerName: 'Ana Souza',
+        buyerUsername: 'anasouza',
         units: 2,
         checkedInUnits: 1,
+        checkedInAt: '2026-11-04T11:52:00.000Z',
         status: 'confirmed',
         totalMinor: 36000,
         sellingUnit: 'person',
@@ -67,8 +69,10 @@ describe('folha do horário no painel', () => {
       {
         id: 'b2',
         buyerName: null,
+        buyerUsername: null,
         units: 2,
         checkedInUnits: 0,
+        checkedInAt: null,
         status: 'confirmed',
         totalMinor: 60000,
         sellingUnit: 'group',

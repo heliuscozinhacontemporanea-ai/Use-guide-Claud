@@ -85,6 +85,8 @@ export interface BookingsApiPort {
     slotId: string,
     location?: ArrivalLocation
   ): Promise<{ arrivedAt: string | null; waiting: number }>;
+  /** "Iniciar serviço" do horário (C4): o servidor guarda o primeiro toque. */
+  startSlotService(offerId: string, slotId: string): Promise<{ startedAt: string | null }>;
   listSlotContacts(offerId: string, slotId: string): Promise<SlotContact[]>;
   respondToArrival(bookingId: string, response: ArrivalResponse): Promise<BookingSummary>;
   checkInWithoutCode(

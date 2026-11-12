@@ -1,4 +1,4 @@
-import { Calendar, ExternalLink, MessageCircle, ShieldCheck, Utensils } from 'lucide-react';
+import { Calendar, MessageCircle, Utensils } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LOCATIONS } from '../../../../shared/constants/locations';
@@ -9,6 +9,15 @@ import { trackInteractionUseCase as trackInteraction } from '../../../insights';
 import { ReviewSection } from '../../../reviews';
 import type { GuideItem } from '../../types/guide';
 import { ListingDetailPage } from './ListingDetailPage';
+import {
+  DirectionsRow,
+  EventReviewsCard,
+  OpeningHoursRow,
+  StayTimesRow,
+} from './ListingPlaceSections';
+
+// Horário de funcionamento vem do cadastro destas categorias (passeio e translado têm horários por saída).
+const HOURS_CATEGORIES = ['restaurant', 'sight', 'rental'];
 
 const CARD = 'rounded-[20px] bg-surface border border-line';
 const ROW =
@@ -137,6 +146,9 @@ export function ListingDetail({
           value={item.operationalInfo.cuisineType}
         />
       )}
+      {HOURS_CATEGORIES.includes(item.category) && <OpeningHoursRow item={item} />}
+      {item.category === 'hotel' && <StayTimesRow item={item} />}
+      <DirectionsRow item={item} />
       <WhatsAppRow
         item={item}
         hint={t(
@@ -145,35 +157,10 @@ export function ListingDetail({
             : 'listingDetail.whatsappHint.default'
         )}
       />
-      {item.category === 'sight' && item.mapLink && (
-        <button
-          type="button"
-          onClick={() => window.open(item.mapLink, '_blank', 'noopener,noreferrer')}
-          className={`${CARD} ${ROW}`}
-        >
-          <span className="size-11 shrink-0 rounded-xl bg-accent-soft text-accent flex items-center justify-center">
-            <ExternalLink size={20} aria-hidden="true" />
-          </span>
-          <span className="flex-1 min-w-0">
-            <span className="block text-[13px] text-ink/70">
-              {t('listingDetail.directionsHint')}
-            </span>
-            <span className="block text-[15px] font-semibold text-ink">
-              {t('listingDetail.directions')}
-            </span>
-          </span>
-        </button>
-      )}
       {ticketPanel}
       {renderBooking ? renderBooking(included) : included}
       {event ? (
-        <section className={`${CARD} p-4 space-y-1.5`}>
-          <h2 className="flex items-center gap-2 text-[16px] font-semibold text-ink">
-            <ShieldCheck size={18} className="text-accent" aria-hidden="true" />
-            {t('listingDetail.verifiedReviewsTitle')}
-          </h2>
-          <p className="text-[14px] text-ink/75">{t('listingDetail.verifiedReviewsText')}</p>
-        </section>
+        <EventReviewsCard item={item} />
       ) : (
         <ReviewSection
           itemId={item.id}

@@ -310,6 +310,9 @@ export function PartnerPanel({
               }}
               renders={renderCatalog ?? {}}
               onOpenCoupons={renderCoupons ? nav.openCoupons : undefined}
+              onOpenEarnings={
+                segments.tabs.includes('earnings') ? () => setPanelTab('earnings') : undefined
+              }
             />
           ) : panelTab === 'earnings' ? (
             <PartnerEarningsTab

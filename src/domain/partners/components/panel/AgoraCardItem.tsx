@@ -1,11 +1,23 @@
 import { usePanelTimeZone } from '../../hooks/panelTimeZone';
-import { Download, KeyRound, type LucideIcon, MapPin, Play, ScanLine } from 'lucide-react';
+import {
+  CalendarClock,
+  Check,
+  Download,
+  KeyRound,
+  type LucideIcon,
+  MapPin,
+  Play,
+  ScanLine,
+} from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatBusinessDate } from '../../../../shared/utils/businessDateTime';
+import { cn } from '../../../../shared/utils/cn';
 import { BUTTON_PRIMARY, BUTTON_SECONDARY } from '../../../../ui/styles/controls';
 import type { PartnerTodayItem } from '../../types/partnerHome';
+import { StatusText } from '../../../../ui/components/StatusText';
 import type { AgoraCard } from '../../utils/agoraCards';
+import type { AgoraOfflineState } from './PartnerAgoraSection';
 
 const ICON: Record<AgoraCard['type'], LucideIcon> = {
   arrive: MapPin,
@@ -21,11 +33,14 @@ const LINK =
 function CardShell({
   type,
   icon,
+  tone,
   title,
   sub,
   children,
 }: {
   type: AgoraCard['type'];
+  /** Aviso (ex.: sem internet e sem lista, C5): borda, ícone e linha de apoio em amarelo. */
+  tone?: 'warn';
   /** Troca o ícone do tipo (ex.: o pino depois do "Cheguei", p42). */
   icon?: LucideIcon;
   title: string;
@@ -34,18 +49,143 @@ function CardShell({
 }) {
   const Icon = icon ?? ICON[type];
   return (
-    <li className="rounded-[20px] bg-surface border border-teal-400/30 p-4 space-y-4">
+    <li
+      className={cn(
+        'rounded-[20px] bg-surface border p-4 space-y-4',
+        tone === 'warn' ? 'border-warn-line' : 'border-teal-400/30'
+      )}
+    >
       <div className="flex items-start gap-3.5">
-        <span className="shrink-0 size-12 rounded-2xl bg-teal-400/10 text-accent flex items-center justify-center">
+        <span
+          className={cn(
+            'shrink-0 size-12 rounded-2xl flex items-center justify-center',
+            tone === 'warn' ? 'bg-warn-soft text-warn' : 'bg-teal-400/10 text-accent'
+          )}
+        >
           <Icon size={24} aria-hidden="true" />
         </span>
         <div className="min-w-0 pt-0.5">
           <h3 className="text-[17px] leading-snug font-semibold text-ink break-words">{title}</h3>
-          <p className="text-[14px] text-ink/70 break-words">{sub}</p>
+          <p
+            className={cn('text-[14px] break-words', tone === 'warn' ? 'text-warn' : 'text-ink/70')}
+          >
+            {sub}
+          </p>
         </div>
       </div>
       {children}
     </li>
+  );
+}
+
+/**
+ * Cartão da lista sem internet (C5): diz se a lista já está neste aparelho e baixa com um toque. Na
+ * atração não há lista, só as chaves que conferem o QR, guardadas sozinhas quando há internet.
+ */
+function OfflineCard({
+  state,
+  name,
+  when,
+  timeZone,
+}: {
+  state: AgoraOfflineState;
+  name: string;
+  when: string;
+  timeZone: string;
+}) {
+  const { t, i18n } = useTranslation();
+  const list = state.kind === 'list';
+  const key = list ? 'partnerAgora.offline' : 'partnerAgora.offlineKeys';
+  const ready = state.status === 'ready';
+  const blocked = state.status === 'no_connection';
+  const detail = ready
+    ? list
+      ? t('partnerAgora.offline.ready', {
+          count: state.count ?? 0,
+          date: state.updatedAt
+            ? formatBusinessDate(
+                state.updatedAt,
+                i18n.language,
+                { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' },
+                timeZone
+              )
+            : '',
+        })
+      : t('partnerAgora.offlineKeys.ready')
+    : t(blocked ? `${key}.noConnection` : `${key}.missing`);
+  return (
+    <CardShell
+      type="offline"
+      icon={ready ? Check : undefined}
+      tone={blocked ? 'warn' : undefined}
+      title={t(`${key}.title`, { name })}
+      sub={`${when} · ${detail}`}
+    >
+      {ready ? (
+        list &&
+        (state.online ? (
+          <button type="button" onClick={state.download} disabled={state.busy} className={LINK}>
+            {t(state.busy ? 'partnerAgora.offline.downloading' : 'partnerAgora.offline.refresh')}
+          </button>
+        ) : (
+          <p className="text-[13px] text-ink/70">{t('partnerAgora.offline.readyNoConnection')}</p>
+        ))
+      ) : (
+        <button
+          type="button"
+          onClick={state.download}
+          disabled={blocked || state.busy}
+          className={`${BUTTON_SECONDARY} w-full`}
+        >
+          {t(state.busy ? `${key}.downloading` : `${key}.button`)}
+        </button>
+      )}
+      {state.failed && <StatusText tone="warn">{t(`${key}.failed`)}</StatusText>}
+    </CardShell>
+  );
+}
+
+/** Linha da lista sem internet dentro do cartão da portaria (C5): situação no aparelho e o download. */
+function GateOfflineLine({ state, timeZone }: { state: AgoraOfflineState; timeZone: string }) {
+  const { t, i18n } = useTranslation();
+  const list = state.kind === 'list';
+  const key = list ? 'partnerAgora.offline' : 'partnerAgora.offlineKeys';
+  const ready = state.status === 'ready';
+  const blocked = state.status === 'no_connection';
+  const detail = ready
+    ? list
+      ? t('partnerAgora.offline.ready', {
+          count: state.count ?? 0,
+          date: state.updatedAt
+            ? formatBusinessDate(
+                state.updatedAt,
+                i18n.language,
+                { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' },
+                timeZone
+              )
+            : '',
+        })
+      : t('partnerAgora.offlineKeys.ready')
+    : t(blocked ? `${key}.noConnection` : `${key}.missing`);
+  const canAct = !blocked && state.online && (list || !ready);
+  return (
+    <div className="space-y-1">
+      <p className={cn('text-[13px]', ready ? 'text-ink/70' : 'text-warn')}>
+        {t(`${key}.gateLine`, { detail })}
+      </p>
+      {canAct && (
+        <button type="button" onClick={state.download} disabled={state.busy} className={LINK}>
+          {t(
+            state.busy
+              ? `${key}.downloading`
+              : ready
+                ? 'partnerAgora.offline.refresh'
+                : `${key}.button`
+          )}
+        </button>
+      )}
+      {state.failed && <StatusText tone="warn">{t(`${key}.failed`)}</StatusText>}
+    </div>
   );
 }
 
@@ -54,6 +194,8 @@ export function AgoraCardItem({
   card,
   now,
   arriving,
+  starting,
+  offline,
   nameOf,
   contacts,
   onArrive,
@@ -64,6 +206,9 @@ export function AgoraCardItem({
   card: AgoraCard;
   now: number;
   arriving: boolean;
+  starting: boolean;
+  /** Situação da lista sem internet neste aparelho (C5); `null` quando a composição não informa. */
+  offline: AgoraOfflineState | null;
   nameOf: (item: PartnerTodayItem) => string;
   /** Lista de contatos depois do "Cheguei" (bookings), montada pela composição. */
   contacts: ReactNode;
@@ -162,8 +307,13 @@ export function AgoraCardItem({
           title={titleAt(item)}
           sub={t('partnerAgora.start.sub', { done: item.bookings ?? 0, total: item.bookings ?? 0 })}
         >
-          <button type="button" onClick={onStart} className={`${BUTTON_PRIMARY} w-full`}>
-            {t('partnerAgora.start.button')}
+          <button
+            type="button"
+            onClick={onStart}
+            disabled={starting}
+            className={`${BUTTON_PRIMARY} w-full`}
+          >
+            {t(starting ? 'partnerAgora.start.sending' : 'partnerAgora.start.button')}
           </button>
         </CardShell>
       );
@@ -191,6 +341,13 @@ export function AgoraCardItem({
           <button type="button" onClick={onOpenGate} className={`${BUTTON_SECONDARY} w-full`}>
             {t('partnerAgora.gate.button')}
           </button>
+          {card.listAt ? (
+            <p className="text-[13px] text-ink/70">
+              {t('partnerAgora.offline.gateAt', { time: time(card.listAt) })}
+            </p>
+          ) : (
+            offline && <GateOfflineLine state={offline} timeZone={timeZone} />
+          )}
         </CardShell>
       );
     }
@@ -198,21 +355,36 @@ export function AgoraCardItem({
       const sameDay =
         formatBusinessDate(item.startsAt, 'en-CA', { dateStyle: 'short' }, timeZone) ===
         formatBusinessDate(new Date(now).toISOString(), 'en-CA', { dateStyle: 'short' }, timeZone);
-      return (
-        <CardShell
-          type="offline"
-          title={t('partnerAgora.offline.title', {
-            name: item.kind === 'slot' ? nameOf(item) : item.title,
-          })}
-          sub={t(sameDay ? 'partnerAgora.offline.today' : 'partnerAgora.offline.tomorrow', {
-            time: time(item.startsAt),
-          })}
-        >
-          <button type="button" onClick={onOpenGate} className={`${BUTTON_SECONDARY} w-full`}>
-            {t('partnerAgora.offline.button')}
-          </button>
-        </CardShell>
-      );
+      const when = t(sameDay ? 'partnerAgora.offline.today' : 'partnerAgora.offline.tomorrow', {
+        time: time(item.startsAt),
+      });
+      const name = item.kind === 'slot' ? nameOf(item) : item.title;
+      if (card.listAt) {
+        // Antes do fim das vendas pelo app a lista ainda não existe (D21): o cartão só avisa a hora.
+        return (
+          <CardShell
+            type="offline"
+            icon={CalendarClock}
+            title={t('partnerAgora.offline.title', { name })}
+            sub={t(
+              sameDay ? 'partnerAgora.offline.noticeToday' : 'partnerAgora.offline.noticeTomorrow',
+              { starts: time(item.startsAt), salesEnd: time(card.listAt) }
+            )}
+          >
+            {null}
+          </CardShell>
+        );
+      }
+      if (!offline) {
+        return (
+          <CardShell type="offline" title={t('partnerAgora.offline.title', { name })} sub={when}>
+            <button type="button" onClick={onOpenGate} className={`${BUTTON_SECONDARY} w-full`}>
+              {t('partnerAgora.offline.button')}
+            </button>
+          </CardShell>
+        );
+      }
+      return <OfflineCard state={offline} name={name} when={when} timeZone={timeZone} />;
     }
   }
 }

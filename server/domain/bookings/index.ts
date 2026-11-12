@@ -58,6 +58,7 @@ export { expireOverdueBookingsUseCase } from './usecases/expireOverdueBookingsUs
 export { getBookingCheckInCodeUseCase } from './usecases/getBookingCheckInCodeUseCase';
 export { getBookingForAbsenceReportUseCase } from './usecases/getBookingForAbsenceReportUseCase';
 export { getBookingForActorUseCase } from './usecases/getBookingForActorUseCase';
+export { getBookingServiceStartsUseCase } from './usecases/getBookingServiceStartsUseCase';
 export { getBookingUseCase } from './usecases/getBookingUseCase';
 export { getEntryPassUseCase } from './usecases/getEntryPassUseCase';
 export { getEntryVerificationKeysUseCase } from './usecases/getEntryVerificationKeysUseCase';
@@ -84,6 +85,7 @@ export { openBookingContactUseCase } from './usecases/openBookingContactUseCase'
 export { recordProviderAbsenceUseCase } from './usecases/recordProviderAbsenceUseCase';
 export { recordProviderArrivalUseCase } from './usecases/recordProviderArrivalUseCase';
 export { recordSlotArrivalUseCase } from './usecases/recordSlotArrivalUseCase';
+export { startSlotServiceUseCase } from './usecases/startSlotServiceUseCase';
 export { requestCancellationByBuyerUseCase } from './usecases/requestCancellationByBuyerUseCase';
 export { rescheduleSlotByPartnerUseCase } from './usecases/rescheduleSlotByPartnerUseCase';
 export { resolveProviderAbsenceUseCase } from './usecases/resolveProviderAbsenceUseCase';

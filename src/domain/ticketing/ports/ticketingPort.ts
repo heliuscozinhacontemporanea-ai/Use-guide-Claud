@@ -61,14 +61,16 @@ export interface TicketingPort {
         | 'quantity'
         | 'minPerOrder'
         | 'maxPerOrder'
-        | 'salesStartsAt'
-        | 'salesEndsAt'
         | 'status'
         | 'visibility'
         | 'requiresEligibilityProof'
         | 'sortOrder'
       >
-    >
+    > & {
+      /** `null` tira a data de início ou de fim das vendas. */
+      salesStartsAt?: string | null;
+      salesEndsAt?: string | null;
+    }
   ): Promise<TicketType>;
   deleteOrArchiveTicketType(ticketTypeId: string): Promise<{ mode: 'deleted' | 'archived' }>;
   createOrder(input: {

@@ -27,6 +27,11 @@ export function saveEntryKeys(
   }
 }
 
+/** O aparelho já guarda as chaves desta oferta: a portaria confere o QR sem internet. */
+export function hasEntryKeys(offerId: string): boolean {
+  return loadEntryKeys(offerId).length > 0;
+}
+
 function loadEntryKeys(offerId: string): Array<{ kid: string; publicKeyJwk: JsonWebKey }> {
   try {
     const raw = localStorage.getItem(`${KEY_PREFIX}${offerId}`);

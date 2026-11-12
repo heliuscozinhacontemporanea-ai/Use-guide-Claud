@@ -42,6 +42,7 @@ function booking(overrides: Partial<BookingSummary> = {}): BookingSummary {
     groupMaxPeople: null,
     requiresParticipantNames: false,
     arrivedAt: '2026-11-08T11:52:00.000Z',
+    serviceStartedAt: null,
     arrivalResponse: null,
     providerAbsence: null,
     serviceConfirmation: null,

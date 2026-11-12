@@ -4,9 +4,13 @@ import {
   listEventOrdersForPartnerOrAdminUseCase,
   listEventRefundsForPartnerOrAdminUseCase,
   listEventTicketsForPartnerOrAdminUseCase,
+  listTicketTypesForManagementUseCase,
 } from '../../../domain/ticketing';
+import { PLATFORM_TIME_ZONE } from '../../../shared/kernel/timeZones';
+import { buildEventLots, type EventLotView } from './buildEventLots';
 import { buildCatalogEvents, type PartnerCatalogEvent } from './buildCatalogEvents';
-import { buildEventSales } from './buildEventSales';
+import { listPartnerPaymentAccountsApplicationUseCase } from '../paymentAccounts/listPartnerPaymentAccountsApplicationUseCase';
+import { buildEventSales, type EventSalesBreakdown } from './buildEventSales';
 import { toSessionInput } from './partnerSessions';
 
 export interface PartnerEventSalesView {
@@ -14,6 +18,14 @@ export interface PartnerEventSalesView {
   soldMinor: number;
   ticketsSold: number;
   receiveMinor: number;
+  /** A conta de "Você recebe" (A4). */
+  breakdown: EventSalesBreakdown;
+  /** CNPJ mascarado da conta que recebe o repasse; `null` enquanto não há venda. */
+  payoutDocument: string | null;
+  /** Vendas por lote (A5), de todas as sessões que não foram canceladas. */
+  lots: EventLotView[];
+  /** Fuso do evento: os dias de `lots[].days` estão nele. */
+  timeZone: string;
   sessions: Array<{
     id: string;
     startsAt: string;
@@ -50,9 +62,19 @@ export async function getPartnerEventSalesApplicationUseCase(
   if (!event) throw new Error('EVENT_NOT_FOUND');
 
   const live = occurrences.filter((occurrence) => occurrence.status !== 'canceled');
-  const sessions = await Promise.all(
-    live.map((occurrence) => toSessionInput(ownerUid, { event, occurrence }))
-  );
+  const [sessions, ticketTypes] = await Promise.all([
+    Promise.all(live.map((occurrence) => toSessionInput(ownerUid, { event, occurrence }))),
+    Promise.all(
+      live.map((occurrence) => listTicketTypesForManagementUseCase(actor, occurrence.id))
+    ),
+  ]);
+  const timeZone = event.timeZone ?? PLATFORM_TIME_ZONE;
+  const accountKey = entries[0]?.accountKey;
+  const payoutDocument = accountKey
+    ? ((await listPartnerPaymentAccountsApplicationUseCase(ownerUid)).find(
+        (account) => account.accountKey === accountKey
+      )?.maskedDocument ?? null)
+    : null;
   const [summary] = buildCatalogEvents([{ event, occurrences, sold: 0 }], now.toISOString());
 
   return {
@@ -72,5 +94,13 @@ export async function getPartnerEventSalesApplicationUseCase(
       }))
       .sort((a, b) => a.startsAt.localeCompare(b.startsAt)),
     ...buildEventSales({ orders, tickets, refunds, entries }),
+    payoutDocument,
+    lots: buildEventLots({
+      ticketTypes: ticketTypes.flat(),
+      tickets,
+      timeZone,
+      nowIso: now.toISOString(),
+    }),
+    timeZone,
   };
 }

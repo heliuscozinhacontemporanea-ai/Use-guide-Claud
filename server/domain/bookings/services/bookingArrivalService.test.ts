@@ -133,4 +133,29 @@ describe('BookingArrivalService (D27)', () => {
       service.respondToArrival({ uid: 'buyer-a', admin: false }, 'bb', 'coming')
     ).rejects.toMatchObject({ code: 'NOT_FOUND' });
   });
+
+  it('"Iniciar serviço" grava o primeiro toque, registra a auditoria e não regrava (C4)', async () => {
+    const { service, port, setNow } = setup('2026-11-10T12:04:00.000Z');
+    const started = await service.startSlotService(PARTNER, 'offer-1', 'slot-1');
+    expect(started.startedAt).toBe('2026-11-10T12:04:00.000Z');
+    expect(port.slots.get('slot-1')?.startedByUid).toBe('partner-1');
+    setNow('2026-11-10T12:30:00.000Z');
+    const again = await service.startSlotService(PARTNER, 'offer-1', 'slot-1');
+    expect(again.startedAt).toBe('2026-11-10T12:04:00.000Z');
+  });
+
+  it('"Iniciar serviço" exige check-in, a janela do horário e o dono (C4)', async () => {
+    const { service, port, setNow } = setup('2026-11-10T09:59:00.000Z');
+    const start = () => service.startSlotService(PARTNER, 'offer-1', 'slot-1');
+    await expect(start()).rejects.toMatchObject({ code: 'INVALID_TRANSITION' });
+    setNow('2026-11-10T14:00:00.000Z');
+    await expect(start()).rejects.toMatchObject({ code: 'INVALID_TRANSITION' });
+    setNow('2026-11-10T12:04:00.000Z');
+    await expect(
+      service.startSlotService({ uid: 'partner-2', admin: false }, 'offer-1', 'slot-1')
+    ).rejects.toMatchObject({ code: 'NOT_FOUND' });
+    port.bookings.set('ccc', booking('ccc'));
+    await expect(start()).rejects.toMatchObject({ code: 'INVALID_TRANSITION' });
+    expect(port.slots.get('slot-1')?.startedAt).toBeUndefined();
+  });
 });

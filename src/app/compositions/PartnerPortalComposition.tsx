@@ -5,10 +5,12 @@ import { getActiveSubscriptionPlansUseCase } from '../../domain/admin';
 import { useAuthContext } from '../../domain/auth/context/AuthContext';
 import { UserRole } from '../../domain/auth/types/auth';
 import {
+  EntryOfflineKeys,
   EstablishmentCodeSheet,
   isBookableCategory,
   PartnerSlotSheet,
   SlotContactsList,
+  startSlotServiceUseCase,
   useSlotArrival,
 } from '../../domain/bookings';
 import { AboutTermsView, SupportView } from '../../domain/content';
@@ -28,7 +30,12 @@ import {
   PlanSubscriptionCard,
 } from '../../domain/payment';
 import { RecentItemReviews } from '../../domain/reviews';
-import { EventGuestsPanel, EventPromotersPanel, PartnerSessionSheet } from '../../domain/ticketing';
+import {
+  EventGuestsPanel,
+  EventPromotersPanel,
+  PartnerSessionSheet,
+  SessionOfflineList,
+} from '../../domain/ticketing';
 import { useLocalizedRouting } from '../../shared/hooks/useLocalizedRouting';
 import { useUI } from '../../shared/stores/useUIStore';
 import { MessagePage } from '../../ui/components/MessagePage';
@@ -261,6 +268,7 @@ export function PartnerPortalComposition() {
       }}
       renderAgora={{
         arrive: (item) => arriveAtSlot(item.parentId, item.id),
+        start: (item) => startSlotServiceUseCase(item.parentId, item.id),
         renderCodeSheet: ({ item, noShowAllowed, onClose, onChanged }) => (
           <EstablishmentCodeSheet
             guideItemId={item.establishmentIds[0] ?? ''}
@@ -274,6 +282,17 @@ export function PartnerPortalComposition() {
         renderContacts: (item, version) => (
           <SlotContactsList offerId={item.parentId} slotId={item.id} version={version} />
         ),
+        // Evento guarda a lista de ingressos; atração, só as chaves que conferem o QR (C5).
+        renderOffline: (item, render) =>
+          item.kind === 'session' ? (
+            <SessionOfflineList occurrenceId={item.id}>
+              {(state) => render({ kind: 'list', ...state })}
+            </SessionOfflineList>
+          ) : (
+            <EntryOfflineKeys offerId={item.parentId}>
+              {(state) => render({ kind: 'keys', count: null, updatedAt: null, ...state })}
+            </EntryOfflineKeys>
+          ),
       }}
       renderSlotSheet={({ item, gate, onClose, onChanged }) => (
         <PartnerSlotSheet

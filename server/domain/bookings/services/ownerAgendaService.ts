@@ -30,6 +30,8 @@ export interface OwnerSlotSummary {
   checkedInUnits: number;
   /** Primeiro "Cheguei" registrado no horário. */
   arrivedAt?: string;
+  /** "Iniciar serviço" já tocado neste horário (C4). */
+  startedAt?: string;
   /** Fim do serviço: o fim do horário ou o início mais a duração (cartões de "Agora", D27). */
   serviceEndsAt: string;
   meetingPoint: string | null;
@@ -160,9 +162,10 @@ export class OwnerAgendaService {
 
 function extras(
   offer: { meetingPoint?: { address: string }; durationMinutes?: number },
-  slot: { startsAt: string; endsAt?: string }
-): { serviceEndsAt: string; meetingPoint: string | null } {
+  slot: { startsAt: string; endsAt?: string; startedAt?: string }
+): { serviceEndsAt: string; meetingPoint: string | null; startedAt?: string } {
   return {
+    ...(slot.startedAt ? { startedAt: slot.startedAt } : {}),
     serviceEndsAt:
       slot.endsAt ?? new Date(serviceEndsAtMs(slot.startsAt, offer.durationMinutes)).toISOString(),
     meetingPoint: offer.meetingPoint?.address ?? null,

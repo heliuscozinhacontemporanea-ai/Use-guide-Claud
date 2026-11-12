@@ -176,25 +176,65 @@ export function buildEventOrderRows(input: EventOrderRowsInput): EventOrderRow[]
     );
 }
 
+/**
+ * A conta de "Você recebe" (A4), linha a linha. Fecha sempre:
+ * ingressos − cupons − reembolsos = vendido; vendido − taxa − ajustes = você recebe.
+ */
+export interface EventSalesBreakdown {
+  /** Preço dos ingressos dos pedidos que contam, antes dos cupons. */
+  ticketsMinor: number;
+  discountMinor: number;
+  /** Valor de ingresso que já voltou ao comprador (sem a taxa de serviço). */
+  refundedMinor: number;
+  platformFeeMinor: number;
+  /** Valor sobre o qual a taxa da plataforma incidiu, para mostrar o percentual. */
+  feeBaseMinor: number;
+  /** Multas descontadas do repasse e vendas que saíram dele (contestação perdida). */
+  adjustmentsMinor: number;
+  /** Taxa de serviço paga pelos compradores; não sai do valor do proprietário. */
+  buyerServiceFeeMinor: number;
+}
+
 /** Totais da página do evento; quem chama já conferiu que o evento é do parceiro. */
 export function buildEventSales(input: EventSalesInput) {
   const refundsByOrder = groupBy(input.refunds);
   const shown = shownOrders(input.orders, refundsByOrder);
 
   // Vendido: valor dos ingressos, sem a taxa de serviço, menos o que já voltou ao comprador.
-  const soldMinor = shown.reduce((sum, order) => {
+  let soldMinor = 0;
+  let ticketsMinor = 0;
+  let discountMinor = 0;
+  for (const order of shown) {
     const refund = summarize(refundsByOrder.get(order.id) ?? []);
-    if (statusOf(order, refund) === 'refunded') return sum;
-    const tickets = order.subtotalMinor - order.discountMinor;
-    return sum + Math.max(0, tickets - (refund?.doneTicketsMinor ?? 0));
-  }, 0);
+    if (statusOf(order, refund) === 'refunded') continue;
+    ticketsMinor += order.subtotalMinor;
+    discountMinor += order.discountMinor;
+    soldMinor += Math.max(
+      0,
+      order.subtotalMinor - order.discountMinor - (refund?.doneTicketsMinor ?? 0)
+    );
+  }
+
+  const entries = input.entries.filter((entry) => entry.status !== 'canceled');
+  const sum = (pick: (entry: PayoutEntryView) => number) =>
+    entries.reduce((total, entry) => total + pick(entry), 0);
+  // O mesmo líquido de Ganhos: a parte do proprietário menos a multa descontada do repasse.
+  const receiveMinor = sum((entry) => Math.max(0, entry.partnerAmountMinor - entry.offsetMinor));
+  const platformFeeMinor = sum((entry) => entry.platformFeeMinor);
 
   return {
     soldMinor,
     ticketsSold: input.tickets.filter((ticket) => SOLD_TICKETS.has(ticket.status)).length,
-    receiveMinor: input.entries
-      .filter((entry) => entry.status !== 'canceled')
-      .reduce((sum, entry) => sum + entry.partnerAmountMinor, 0),
+    receiveMinor,
     ordersTotal: shown.length,
+    breakdown: {
+      ticketsMinor,
+      discountMinor,
+      refundedMinor: ticketsMinor - discountMinor - soldMinor,
+      platformFeeMinor,
+      feeBaseMinor: sum((entry) => entry.grossMinor - entry.serviceFeeMinor - entry.refundedMinor),
+      adjustmentsMinor: soldMinor - platformFeeMinor - receiveMinor,
+      buyerServiceFeeMinor: sum((entry) => entry.serviceFeeMinor),
+    } satisfies EventSalesBreakdown,
   };
 }

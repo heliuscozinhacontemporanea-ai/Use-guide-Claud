@@ -18,6 +18,7 @@ import {
   listOfferBookingsForPartnerUseCase,
   listOfferSlotsForPartnerUseCase,
   listPartnerOffersUseCase,
+  startSlotServiceUseCase,
   updateBookableOfferUseCase,
 } from '../../../domain/bookings';
 import type { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
@@ -212,9 +213,10 @@ export class PartnerOffersController {
     }
     try {
       const result = await listOfferBookingsForPartnerUseCase(actor, offerId.data, page.data);
-      return res
-        .status(200)
-        .json({ data: result.data.map(toSellerBooking), nextCursor: result.nextCursor });
+      return res.status(200).json({
+        data: result.data.map((booking) => toSellerBooking(booking)),
+        nextCursor: result.nextCursor,
+      });
     } catch (error) {
       return handleBookingError(res, 'listOfferBookings', error);
     }
@@ -290,6 +292,23 @@ export class PartnerOffersController {
       });
     } catch (error) {
       return handleBookingError(res, 'recordSlotArrival', error);
+    }
+  }
+
+  /** "Iniciar serviço" (C4): o início fica no horário e vale em todos os aparelhos. */
+  static async startSlotService(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    const actor = actorOf(req);
+    if (!actor) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
+    const offerId = DocumentIdSchema.safeParse(req.params.offerId);
+    const slotId = DocumentIdSchema.safeParse(req.params.slotId);
+    if (!offerId.success || !slotId.success) {
+      return sendError(res, 404, 'NOT_FOUND', 'Horário não encontrado.');
+    }
+    try {
+      const slot = await startSlotServiceUseCase(actor, offerId.data, slotId.data);
+      return res.status(200).json({ startedAt: slot.startedAt ?? null });
+    } catch (error) {
+      return handleBookingError(res, 'startSlotService', error);
     }
   }
 

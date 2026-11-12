@@ -125,14 +125,16 @@ export class TicketTypeService {
         | 'quantity'
         | 'minPerOrder'
         | 'maxPerOrder'
-        | 'salesStartsAt'
-        | 'salesEndsAt'
         | 'status'
         | 'visibility'
         | 'requiresEligibilityProof'
         | 'sortOrder'
       >
-    >
+    > & {
+      /** `null` tira a data de início ou de fim das vendas. */
+      salesStartsAt?: string | null;
+      salesEndsAt?: string | null;
+    }
   ): Promise<TicketType> {
     const existing = await this.port.getTicketTypeById(ticketTypeId);
     // O lote das cortesias é do sistema (D27): o organizador não edita nem arquiva.
@@ -169,7 +171,18 @@ export class TicketTypeService {
       );
     }
 
-    const updated = await this.port.updateTicketType(ticketTypeId, patch);
+    const startsAt =
+      patch.salesStartsAt === undefined ? existing.salesStartsAt : patch.salesStartsAt;
+    const endsAt = patch.salesEndsAt === undefined ? existing.salesEndsAt : patch.salesEndsAt;
+    if (startsAt && endsAt && new Date(endsAt).getTime() <= new Date(startsAt).getTime()) {
+      throw new TicketingDomainError(
+        'UNPROCESSABLE_ENTITY',
+        'O fim das vendas precisa ser depois do início.'
+      );
+    }
+
+    // O `null` vai gravado: a leitura só aceita texto, então a data some do lote.
+    const updated = await this.port.updateTicketType(ticketTypeId, patch as Partial<TicketType>);
     await this.refreshListingPricingSummary(listing.id, occurrence.id);
 
     await createEventAuditLogUseCase({

@@ -61,6 +61,8 @@ export interface PartnerSlot {
   capacityReserved: number;
   capacitySold: number;
   status: SlotStatus;
+  /** "Iniciar serviço" já tocado (C4); só vem na folha do horário. */
+  startedAt?: string | null;
 }
 
 export interface PublicSlot {
@@ -133,6 +135,8 @@ export interface BookingSummary {
   requiresParticipantNames: boolean;
   /** "Cheguei" do prestador (D20). */
   arrivedAt: string | null;
+  /** "Iniciar serviço" do prestador (C4): o serviço está em andamento. */
+  serviceStartedAt: string | null;
   /** Resposta do cliente ao aviso "chegou" (D27). */
   arrivalResponse: { response: ArrivalResponse; at: string } | null;
   providerAbsence: {
@@ -276,6 +280,8 @@ export interface EstablishmentCheckInResult extends UnitCheckInResult {
 export interface SlotContact {
   bookingId: string;
   buyerName: string | null;
+  /** @ público do cliente, sem o "@": o nome da mensagem pronta (C2). */
+  buyerUsername: string | null;
   units: number;
   /** E.164. */
   phone: string;
@@ -298,8 +304,11 @@ export interface PartnerSlotDetail {
   bookings: Array<{
     id: string;
     buyerName: string | null;
+    /** @ público do cliente, sem o "@": o nome da mensagem pronta (C2). */
+    buyerUsername: string | null;
     units: number;
     checkedInUnits: number;
+    checkedInAt: string | null;
     status: BookingStatus;
     totalMinor: number;
     sellingUnit: SellingUnit;

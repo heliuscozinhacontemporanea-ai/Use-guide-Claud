@@ -272,6 +272,18 @@ export class FirestoreCourtesyStore implements CourtesyStorePort {
     return snap.exists ? Number(snap.data()?.soldCount ?? 0) : 0;
   }
 
+  async countEnteredByOccurrence(occurrenceId: string): Promise<number> {
+    // Só igualdades: a consulta usa os índices de campo único, sem índice composto.
+    const snap = await adminDb
+      .collection('tickets')
+      .where('occurrenceId', '==', occurrenceId)
+      .where('ticketTypeId', '==', courtesyTicketTypeId(occurrenceId))
+      .where('status', '==', 'checked_in')
+      .count()
+      .get();
+    return snap.data().count;
+  }
+
   async anonymizeGuest(uid: string): Promise<number> {
     const snap = await adminDb.collection(COURTESIES).where('guest.uid', '==', uid).get();
     if (snap.empty) return 0;

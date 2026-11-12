@@ -4,8 +4,11 @@ import { useTranslation } from 'react-i18next';
 import { ListEmpty } from '../../../../ui/components/ListState';
 import { StatusText } from '../../../../ui/components/StatusText';
 import type { PartnerTodayItem } from '../../types/partnerHome';
+import { serviceInProgress } from '../../utils/agoraCards';
 
 function ongoing(item: PartnerTodayItem, now: number) {
+  // Horário que o prestador iniciou (C4) vale mesmo sem hora de fim cadastrada.
+  if (serviceInProgress(item, now)) return true;
   const start = new Date(item.startsAt).getTime();
   return item.endsAt ? now >= start && now < new Date(item.endsAt).getTime() : false;
 }

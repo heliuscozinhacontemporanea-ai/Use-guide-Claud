@@ -188,7 +188,7 @@ async function loadTwoMonthsOfEntries(
   return entries;
 }
 
-/** Sessões de hoje e as próximas, com o vendido lido só delas. */
+/** Sessões de ontem (resumo dos convidados, C7), de hoje e as próximas, com o vendido lido só delas. */
 async function loadSessions(
   ownerUid: string,
   events: OwnerEvent[],
@@ -198,12 +198,12 @@ async function loadSessions(
   const all = await listOwnerOccurrences(events);
   const today = all.filter(({ occurrence }) => {
     const ms = new Date(occurrence.startsAt).getTime();
-    return ms >= dayStart && ms < dayStart + DAY_MS;
+    return ms >= dayStart - DAY_MS && ms < dayStart + DAY_MS;
   });
   const upcoming = all
     .filter(({ occurrence }) => new Date(occurrence.startsAt).getTime() >= nowMs)
     .sort((a, b) => a.occurrence.startsAt.localeCompare(b.occurrence.startsAt))
     .slice(0, UPCOMING_SESSIONS);
   const chosen = new Map([...today, ...upcoming].map((row) => [row.occurrence.id, row]));
-  return Promise.all([...chosen.values()].map((row) => toSessionInput(ownerUid, row)));
+  return Promise.all([...chosen.values()].map((row) => toSessionInput(ownerUid, row, nowMs)));
 }

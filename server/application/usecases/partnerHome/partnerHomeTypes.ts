@@ -35,6 +35,10 @@ export interface PartnerTodayItem {
   /** Só nos horários de reserva; nas sessões a portaria tem a própria contagem. */
   checkedIn: number | null;
   arrivedAt: string | null;
+  /** Só nos horários de reserva: "Iniciar serviço" já tocado (C4). */
+  startedAt?: string | null;
+  /** Só nas sessões: fim das vendas pelo app, quando a lista sem internet fica disponível (D21). */
+  salesEndsAt?: string;
   /** Só nas sessões: cortesias que ocupam lugar (D27). */
   courtesies?: number;
   /** Só nos horários de reserva, para os cartões de "Agora" (D27). */
@@ -54,6 +58,19 @@ export interface PartnerUpcomingSession {
   sold: number;
   capacity: number;
   courtesies: number;
+}
+
+/** Sessão com convidados, para o cartão Convidados (C7). */
+export interface PartnerGuestSession {
+  id: string;
+  eventId: string;
+  title: string;
+  establishmentIds: string[];
+  startsAt: string;
+  endsAt: string | null;
+  courtesies: number;
+  /** Convidados que já passaram pela portaria; zero antes de ela abrir. */
+  entered: number;
 }
 
 export interface PartnerHomePromoters {
@@ -104,6 +121,8 @@ export interface PartnerHomeView {
     month: { currentMinor: number; previousMinor: number };
   };
   upcomingSessions: PartnerUpcomingSession[];
+  /** Sessões com cortesia, de ontem em diante, em ordem de início. */
+  guestSessions: PartnerGuestSession[];
   /** Divulgadores do próximo evento que tem algum (cartão "Divulgadores", D27). */
   promoters: PartnerHomePromoters | null;
   /** Cartão "Cupons": `null` sem cupom ativo nem uso na semana. */

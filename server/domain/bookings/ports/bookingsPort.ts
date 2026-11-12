@@ -34,6 +34,8 @@ export interface BookingsPort {
   getSlot(slotId: string): Promise<AvailabilitySlot | null>;
   listSlots(offerId: string, fromIso: string, toIso: string): Promise<AvailabilitySlot[]>;
   setSlotStatus(slotId: string, status: AvailabilitySlotStatus): Promise<void>;
+  /** Grava o início do serviço se ainda não houver; devolve o horário como ficou (C4). */
+  startSlot(slotId: string, startedAt: string, actorUid: string): Promise<AvailabilitySlot>;
   /** Muda o horário e leva as reservas ativas junto, na mesma transação; devolve as reservas movidas. */
   rescheduleSlot(params: {
     slotId: string;

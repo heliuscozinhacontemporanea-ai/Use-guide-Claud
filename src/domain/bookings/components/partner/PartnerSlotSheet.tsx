@@ -1,4 +1,4 @@
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Play } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatBusinessDate } from '../../../../shared/utils/businessDateTime';
@@ -79,6 +79,9 @@ export function PartnerSlotSheet({
         lang
       )
     : undefined;
+  const timeOf = (iso: string) =>
+    formatBusinessDate(iso, lang, { hour: '2-digit', minute: '2-digit' });
+  const withCode = detail?.bookings.filter((booking) => booking.checkedInUnits > 0).length ?? 0;
   const units = detail?.bookings.reduce((sum, booking) => sum + booking.units, 0) ?? 0;
   const arrived = detail?.bookings.reduce((sum, booking) => sum + booking.checkedInUnits, 0) ?? 0;
 
@@ -111,6 +114,24 @@ export function PartnerSlotSheet({
                 </div>
               ))}
             </dl>
+            {slot.startedAt && (
+              <div className={`${BLOCK} px-4 py-3 flex items-center gap-3`}>
+                <span className="shrink-0 size-11 rounded-xl bg-accent/15 text-accent flex items-center justify-center">
+                  <Play size={20} aria-hidden="true" />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-[15px] font-semibold text-ink">
+                    {t('bookings.slotSheet.startedAt', { time: timeOf(slot.startedAt) })}
+                  </p>
+                  <p className="text-[13px] text-ink/70">
+                    {t('bookings.slotSheet.withCode', {
+                      done: withCode,
+                      total: detail.bookings.length,
+                    })}
+                  </p>
+                </div>
+              </div>
+            )}
             {detail.bookings.length > 0 && (
               <ul className={`${BLOCK} divide-y divide-line overflow-hidden`}>
                 {detail.bookings.map((booking) => (
@@ -126,7 +147,11 @@ export function PartnerSlotSheet({
                       </span>
                       {booking.checkedInUnits > 0 ? (
                         <StatusText tone="success">
-                          {t('bookings.slotSheet.statusArrived')}
+                          {booking.checkedInAt
+                            ? t('bookings.slotSheet.checkedInAt', {
+                                time: timeOf(booking.checkedInAt),
+                              })
+                            : t('bookings.slotSheet.statusArrived')}
                         </StatusText>
                       ) : (
                         <StatusText tone="muted">

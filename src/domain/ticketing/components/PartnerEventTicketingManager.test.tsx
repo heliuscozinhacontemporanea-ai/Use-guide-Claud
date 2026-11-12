@@ -36,7 +36,7 @@ import { PartnerEventTicketingManager } from './PartnerEventTicketingManager';
 describe('PartnerEventTicketingManager (divisão em abas, sem mudar comportamento)', () => {
   it('cada aba mostra o próprio conteúdo', async () => {
     render(<PartnerEventTicketingManager eventListingId="ev-1" financePanel={<div>portal</div>} />);
-    expect(await screen.findByText('Novo Lote / Tipo de Ingresso')).toBeTruthy();
+    expect(await screen.findByText(/Novo lote|New tier/)).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: /Vendas/ }));
     expect(screen.getByText('Ingressos Pagos')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: /Participantes/ }));
