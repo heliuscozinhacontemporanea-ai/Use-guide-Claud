@@ -226,4 +226,49 @@ describe('BookingEntryService (D20)', () => {
       syncedAt: '2026-11-10T21:00:00.000Z',
     });
   });
+
+  it('equipe da portaria do lugar libera entradas e vê os horários; outra conta, não (C1)', async () => {
+    const { port } = setup();
+    const staff = async (guideItemId: string, uid: string, atIso?: string) =>
+      guideItemId === port.offers.get('offer-1')?.guideItemId &&
+      (atIso ? uid === 'ex-equipe' && atIso <= '2026-11-10T14:30:00.000Z' : uid === 'equipe');
+    const service = new BookingEntryService(
+      port,
+      new FakeSigner(),
+      () => new Date('2026-11-10T14:00:00.000Z'),
+      staff
+    );
+    const pass = await service.getEntryPass({ uid: 'buyer-1', admin: false }, 'bk_1');
+    const qrToken = pass.passes[0]?.qrToken ?? '';
+    const team = { uid: 'equipe', admin: false };
+    expect((await service.checkIn(team, entry({ qrToken }))).alreadyCheckedIn).toBe(false);
+    expect(await service.getVerificationKeys(team, 'offer-1')).toHaveLength(1);
+    // Passeio do mesmo lugar não é portaria: a equipe não alcança.
+    await expect(service.getVerificationKeys(team, 'offer-2')).rejects.toMatchObject({
+      code: 'NOT_FOUND',
+    });
+    const intruder = { uid: 'intruso', admin: false };
+    await expect(service.checkIn(intruder, entry({ qrToken }))).rejects.toMatchObject({
+      code: 'NOT_FOUND',
+    });
+    await expect(
+      service.listGateSlots(
+        intruder,
+        'item-1',
+        '2026-11-10T00:00:00.000Z',
+        '2026-11-11T00:00:00.000Z'
+      )
+    ).rejects.toMatchObject({ code: 'NOT_FOUND' });
+    // Quem saiu da equipe só entrega o que leu sem internet enquanto fazia parte dela.
+    const former = { uid: 'ex-equipe', admin: false };
+    const other = pass.passes[1]?.qrToken ?? '';
+    await expect(service.checkIn(former, entry({ qrToken: other }))).rejects.toMatchObject({
+      code: 'NOT_FOUND',
+    });
+    const synced = await service.checkIn(
+      former,
+      entry({ qrToken: other, capturedAt: '2026-11-10T13:50:00.000Z' })
+    );
+    expect(synced.alreadyCheckedIn).toBe(false);
+  });
 });

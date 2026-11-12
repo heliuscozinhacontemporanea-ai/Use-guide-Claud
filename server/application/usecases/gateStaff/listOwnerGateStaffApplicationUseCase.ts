@@ -1,12 +1,14 @@
 import { listOwnerEventListingsUseCase } from '../../../domain/events';
-import { listOwnerGateStaffUseCase } from '../../../domain/gateStaff';
+import { type GateScopeType, listOwnerGateStaffUseCase } from '../../../domain/gateStaff';
 import { listEventCheckInsForPartnerOrAdminUseCase } from '../../../domain/ticketing';
+import { ownerGatePlaces } from './ownerGatePlaces';
 
 export interface OwnerGateStaffView {
-  /** Eventos do dono que podem receber equipe (os não arquivados). */
-  events: Array<{ id: string; title: string }>;
+  /** Eventos (não arquivados) e atrações com entrada do dono: onde dá para montar equipe. */
+  targets: Array<{ type: GateScopeType; id: string; title: string }>;
   groups: Array<{
-    eventId: string;
+    type: GateScopeType;
+    id: string;
     title: string;
     members: Array<{
       id: string;
@@ -14,60 +16,62 @@ export interface OwnerGateStaffView {
       displayName: string | null;
       status: 'invited' | 'active';
       acceptedAt: string | null;
-      /** Entradas que a pessoa liberou neste evento e a hora da última. */
-      entries: number;
+      /** Entradas que a pessoa liberou (só no evento) e a hora da última; `null` na atração. */
+      entries: number | null;
       lastEntryAt: string | null;
     }>;
   }>;
 }
 
-/** Equipe da portaria do dono (C1), por evento, com quantas entradas cada pessoa liberou. */
+/** Equipe da portaria do dono (C1), por evento e por atração. */
 export async function listOwnerGateStaffApplicationUseCase(
   ownerUid: string
 ): Promise<OwnerGateStaffView> {
-  const [members, listings] = await Promise.all([
+  const [members, listings, places] = await Promise.all([
     listOwnerGateStaffUseCase(ownerUid),
     listOwnerEventListingsUseCase(ownerUid),
+    ownerGatePlaces(ownerUid),
   ]);
-  const events = listings
-    .filter((event) => event.status !== 'archived')
-    .map((event) => ({ id: event.id, title: event.title || event.name || '' }));
-  const titles = new Map(events.map((event) => [event.id, event.title]));
-  const eventIds = [
-    ...new Set(
-      members.filter((member) => member.scope.type === 'event').map((member) => member.scope.id)
-    ),
+  const targets = [
+    ...listings
+      .filter((event) => event.status !== 'archived')
+      .map((event) => ({
+        type: 'event' as const,
+        id: event.id,
+        title: event.title || event.name || '',
+      })),
+    ...places.map((place) => ({ type: 'place' as const, ...place })),
   ];
   const actor = { uid: ownerUid, admin: false, role: 'partner' as const };
   const groups = await Promise.all(
-    eventIds
-      .filter((eventId) => titles.has(eventId))
-      .map(async (eventId) => {
-        const checkIns = await listEventCheckInsForPartnerOrAdminUseCase(actor, eventId).catch(
-          () => []
-        );
-        return {
-          eventId,
-          title: titles.get(eventId) ?? '',
-          members: members
-            .filter((member) => member.scope.type === 'event' && member.scope.id === eventId)
-            .map((member) => {
-              const own = checkIns
-                .filter((checkIn) => checkIn.checkedInBy === member.staffUid)
-                .map((checkIn) => checkIn.checkedInAt)
-                .sort();
-              return {
-                id: member.id,
-                username: member.staff.username,
-                displayName: member.staff.displayName,
-                status: member.status === 'active' ? ('active' as const) : ('invited' as const),
-                acceptedAt: member.acceptedAt,
-                entries: own.length,
-                lastEntryAt: own[own.length - 1] ?? null,
-              };
-            }),
-        };
-      })
+    targets.map(async (target) => {
+      const own = members.filter(
+        (member) => member.scope.type === target.type && member.scope.id === target.id
+      );
+      if (own.length === 0) return null;
+      const checkIns =
+        target.type === 'event'
+          ? await listEventCheckInsForPartnerOrAdminUseCase(actor, target.id).catch(() => [])
+          : null;
+      return {
+        ...target,
+        members: own.map((member) => {
+          const mine = checkIns
+            ?.filter((checkIn) => checkIn.checkedInBy === member.staffUid)
+            .map((checkIn) => checkIn.checkedInAt)
+            .sort();
+          return {
+            id: member.id,
+            username: member.staff.username,
+            displayName: member.staff.displayName,
+            status: member.status === 'active' ? ('active' as const) : ('invited' as const),
+            acceptedAt: member.acceptedAt,
+            entries: mine ? mine.length : null,
+            lastEntryAt: mine?.[mine.length - 1] ?? null,
+          };
+        }),
+      };
+    })
   );
-  return { events, groups };
+  return { targets, groups: groups.filter((group) => group !== null) };
 }

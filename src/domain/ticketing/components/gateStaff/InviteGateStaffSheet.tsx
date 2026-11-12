@@ -7,6 +7,7 @@ import { StatusText } from '../../../../ui/components/StatusText';
 import { BUTTON_PRIMARY } from '../../../../ui/styles/controls';
 import type { UsernameProfile } from '../../../user';
 import { inviteGateStaffUseCase } from '../../application/usecases/inviteGateStaffUseCase';
+import type { GateTarget } from '../../types/gateStaff';
 import { gateStaffErrorKey } from '../../utils/gateStaffErrorKey';
 import { UsernamePicker } from '../shared/UsernamePicker';
 
@@ -16,17 +17,17 @@ const CANNOT = ['cannotSee', 'cannotEdit'] as const;
 /** Folha "Convidar para a portaria" (C1): em qual evento, quem (pelo @) e o que a pessoa pode fazer. */
 export function InviteGateStaffSheet({
   open,
-  events,
+  targets,
   onClose,
   onInvited,
 }: {
   open: boolean;
-  events: Array<{ id: string; title: string }>;
+  targets: GateTarget[];
   onClose: () => void;
   onInvited: () => void;
 }) {
   const { t } = useTranslation();
-  const [eventId, setEventId] = useState('');
+  const [key, setKey] = useState('');
   const [found, setFound] = useState<UsernameProfile | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -35,21 +36,23 @@ export function InviteGateStaffSheet({
     setError(null);
   }, []);
   const searchFailed = useCallback((err: unknown) => setError(t(gateStaffErrorKey(err))), [t]);
-  const firstEvent = events[0]?.id ?? '';
+  const keyOf = (target: GateTarget) => `${target.type}:${target.id}`;
+  const firstKey = targets[0] ? keyOf(targets[0]) : '';
+  const chosen = targets.find((target) => keyOf(target) === key);
 
   useEffect(() => {
     if (!open) return;
-    setEventId(firstEvent);
+    setKey(firstKey);
     setFound(null);
     setError(null);
-  }, [open, firstEvent]);
+  }, [open, firstKey]);
 
   const send = async () => {
-    if (!found || !eventId) return;
+    if (!found || !chosen) return;
     setBusy(true);
     setError(null);
     try {
-      await inviteGateStaffUseCase(eventId, found.username);
+      await inviteGateStaffUseCase({ type: chosen.type, id: chosen.id }, found.username);
       onInvited();
     } catch (err: unknown) {
       setError(t(gateStaffErrorKey(err)));
@@ -65,16 +68,18 @@ export function InviteGateStaffSheet({
       title={t('gateStaff.sheet.title')}
     >
       <div className="space-y-4">
-        {events.length > 1 && (
+        {targets.length > 1 && (
           <RadioCardGroup
             name="gate-staff-event"
             legend={t('gateStaff.sheet.where')}
-            value={eventId}
-            onChange={setEventId}
-            options={events.map((event) => ({
-              value: event.id,
-              title: event.title,
-              description: t('gateStaff.sheet.eventHint'),
+            value={key}
+            onChange={setKey}
+            options={targets.map((target) => ({
+              value: keyOf(target),
+              title: target.title,
+              description: t(
+                target.type === 'event' ? 'gateStaff.sheet.eventHint' : 'gateStaff.sheet.placeHint'
+              ),
             }))}
           />
         )}
@@ -109,7 +114,7 @@ export function InviteGateStaffSheet({
         )}
         <button
           type="button"
-          disabled={!found || !eventId || busy}
+          disabled={!found || !chosen || busy}
           onClick={() => void send()}
           className={`${BUTTON_PRIMARY} w-full`}
         >

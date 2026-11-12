@@ -3,7 +3,7 @@ import React from 'react';
 import { hasPasswordSignInUseCase } from '../../domain/auth';
 import { useAuthContext } from '../../domain/auth/context/AuthContext';
 import { UserRole } from '../../domain/auth/types/auth';
-import { MyBookingsView } from '../../domain/bookings';
+import { MyBookingsView, SlotCheckInSheet } from '../../domain/bookings';
 import { AboutLicensesView, AboutTermsView, AboutView, SupportView } from '../../domain/content';
 import { FavoritesList } from '../../domain/favorites';
 import { NotificationSettingsView } from '../../domain/notifications';
@@ -233,7 +233,28 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
       case 'promotions':
         return <MyPromotionsView onBack={goBack} />;
       case 'gate':
-        return <MyGatesView onBack={goBack} />;
+        return (
+          <MyGatesView
+            onBack={goBack}
+            renderPlaceGate={({ offerId, slotId, startsAt, timeZone, onClose }) => (
+              <SlotCheckInSheet
+                offerId={offerId}
+                kind="private_entry"
+                slot={{
+                  id: slotId,
+                  startsAt,
+                  endsAt: null,
+                  capacityTotal: 0,
+                  capacityReserved: 0,
+                  capacitySold: 0,
+                  status: 'open',
+                }}
+                timeZone={timeZone}
+                onClose={onClose}
+              />
+            )}
+          />
+        );
       case 'tickets':
         return <UserTicketsHistoryView onBack={goBack} />;
       case 'bookings':

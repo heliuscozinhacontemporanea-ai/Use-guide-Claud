@@ -24,6 +24,7 @@ export function PartnerMoreSection({
   onReplayTour,
   renderCoupons,
   renderGateStaff,
+  showGateStaff = true,
   showProducer = true,
   sells = true,
   onAddSegment,
@@ -49,6 +50,8 @@ export function PartnerMoreSection({
   renderCoupons?: () => ReactNode;
   /** Equipe da portaria (C1), montada pela composição (ticketing); só com o segmento Eventos. */
   renderGateStaff?: (onBack: () => void) => ReactNode;
+  /** Só com portaria: segmentos Eventos ou Atração. */
+  showGateStaff?: boolean;
   /** Só com o segmento Eventos (painel por segmento). */
   showProducer?: boolean;
   /** Vende pelo app: contas de recebimento e cupons; a vitrine (hospedagem, restaurante) não. */
@@ -139,7 +142,7 @@ export function PartnerMoreSection({
           },
         ]
       : [];
-  if (renderGateStaff && showProducer) {
+  if (renderGateStaff && showGateStaff) {
     sales.push({
       id: 'gate-staff',
       title: t('gateStaff.owner.title'),

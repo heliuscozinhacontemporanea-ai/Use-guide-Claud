@@ -6,12 +6,14 @@ export interface GateStaffTranslation {
     intro: string;
     back: string;
     eventGroup: string;
+    placeGroup: string;
     active: string;
     invited: string;
     noName: string;
     invite: string;
     empty: string;
     noEvents: string;
+    placeEntries: string;
     loadError: string;
     invitedNotice: string;
     removedNotice: string;
@@ -20,6 +22,7 @@ export interface GateStaffTranslation {
     title: string;
     where: string;
     eventHint: string;
+    placeHint: string;
     who: string;
     searchPlaceholder: string;
     canScan: string;
@@ -49,6 +52,8 @@ export interface GateStaffTranslation {
     sessionAt: string;
     opensAt: string;
     opensOn: string;
+    placeAllTimes: string;
+    noSlots: string;
     entered: string;
     open: string;
     leave: string;
@@ -95,12 +100,14 @@ export const gateStaffPtBR: GateStaffTranslation = {
     intro: 'Pessoas que podem liberar entradas no seu lugar. Elas não veem vendas nem valores.',
     back: 'Voltar',
     eventGroup: '{{title}} · evento',
+    placeGroup: '{{title}} · atração',
     active: 'Ativa',
     invited: 'Convite enviado',
     noName: 'Sem nome',
     invite: 'Convidar pessoa',
     empty: 'Ninguém na equipe ainda. Convide quem vai ajudar na portaria.',
-    noEvents: 'Crie um evento para montar a equipe da portaria.',
+    noEvents: 'Crie um evento ou uma atração com entrada para montar a equipe da portaria.',
+    placeEntries: 'Entradas',
     loadError: 'Não foi possível carregar a equipe.',
     invitedNotice: 'Convite enviado. A pessoa entra na equipe quando aceitar.',
     removedNotice: 'Pessoa removida da equipe.',
@@ -109,6 +116,7 @@ export const gateStaffPtBR: GateStaffTranslation = {
     title: 'Convidar para a portaria',
     where: 'Onde',
     eventHint: 'Evento · todas as sessões',
+    placeHint: 'Atração · todos os horários de entrada',
     who: 'Quem',
     searchPlaceholder: 'Nome de usuário',
     canScan: 'Ler o QR Code e inserir o código do ingresso',
@@ -134,11 +142,13 @@ export const gateStaffPtBR: GateStaffTranslation = {
   },
   mine: {
     title: 'Portaria',
-    intro: 'Eventos em que você faz parte da equipe.',
+    intro: 'Eventos e lugares em que você faz parte da equipe.',
     empty: 'Você não está na equipe de nenhum evento.',
     loadError: 'Não foi possível carregar as portarias.',
     sessionAt: '{{business}}{{when}}',
     opensAt: 'A portaria abre às {{time}}.',
+    placeAllTimes: 'Entradas da atração, em todos os horários.',
+    noSlots: 'Nenhum horário de entrada nos próximos 7 dias.',
     opensOn: 'A portaria abre em {{date}}.',
     entered: '{{entered}} de {{total}} entraram',
     open: 'Abrir portaria',
@@ -149,7 +159,7 @@ export const gateStaffPtBR: GateStaffTranslation = {
     inviteFrom: '{{business}} convidou você para liberar as entradas de {{event}}.',
     inviteGeneric: 'Você foi convidado para liberar as entradas de {{event}}.',
     inviteScan: 'Você vai ler o QR Code ou inserir o código dos ingressos.',
-    inviteWhen: 'A portaria abre 2 h antes de cada sessão, aqui no app, em Portaria.',
+    inviteWhen: 'A portaria abre antes de cada sessão ou horário, aqui no app, em Portaria.',
     inviteLog: 'Cada entrada que você liberar fica registrada com o seu @.',
     sessions_one: '{{first}}',
     sessions_other: '{{first}} e mais {{count}}',
@@ -186,12 +196,14 @@ export const gateStaffEn: GateStaffTranslation = {
     intro: 'People who can check guests in for you. They do not see sales or amounts.',
     back: 'Back',
     eventGroup: '{{title}} · event',
+    placeGroup: '{{title}} · attraction',
     active: 'Active',
     invited: 'Invite sent',
     noName: 'No name',
     invite: 'Invite someone',
     empty: 'No one on the team yet. Invite whoever will help at the gate.',
-    noEvents: 'Create an event to set up the gate team.',
+    noEvents: 'Create an event or an attraction with entries to set up the gate team.',
+    placeEntries: 'Entries',
     loadError: 'Could not load the team.',
     invitedNotice: 'Invite sent. The person joins the team once they accept.',
     removedNotice: 'Person removed from the team.',
@@ -200,6 +212,7 @@ export const gateStaffEn: GateStaffTranslation = {
     title: 'Invite to the gate',
     where: 'Where',
     eventHint: 'Event · all sessions',
+    placeHint: 'Attraction · all entry times',
     who: 'Who',
     searchPlaceholder: 'Username',
     canScan: 'Scan the QR code and enter the ticket code',
@@ -225,11 +238,13 @@ export const gateStaffEn: GateStaffTranslation = {
   },
   mine: {
     title: 'Gate',
-    intro: 'Events where you are on the team.',
+    intro: 'Events and places where you are on the team.',
     empty: 'You are not on any event team.',
     loadError: 'Could not load your gates.',
     sessionAt: '{{business}}{{when}}',
     opensAt: 'The gate opens at {{time}}.',
+    placeAllTimes: 'Attraction entries, at every time slot.',
+    noSlots: 'No entry times in the next 7 days.',
     opensOn: 'The gate opens on {{date}}.',
     entered: '{{entered}} of {{total}} checked in',
     open: 'Open gate',
@@ -240,7 +255,7 @@ export const gateStaffEn: GateStaffTranslation = {
     inviteFrom: '{{business}} invited you to check people in at {{event}}.',
     inviteGeneric: 'You were invited to check people in at {{event}}.',
     inviteScan: 'You will scan the QR code or enter the ticket code.',
-    inviteWhen: 'The gate opens 2 h before each session, here in the app, under Gate.',
+    inviteWhen: 'The gate opens before each session or time slot, here in the app, under Gate.',
     inviteLog: 'Every entry you check in is logged with your @.',
     sessions_one: '{{first}}',
     sessions_other: '{{first}} and {{count}} more',
@@ -278,12 +293,15 @@ export const gateStaffFr: GateStaffTranslation = {
       'Des personnes qui valident les entrées à votre place. Elles ne voient ni ventes ni montants.',
     back: 'Retour',
     eventGroup: '{{title}} · événement',
+    placeGroup: '{{title}} · attraction',
     active: 'Active',
     invited: 'Invitation envoyée',
     noName: 'Sans nom',
     invite: 'Inviter une personne',
     empty: 'Personne dans l’équipe pour l’instant. Invitez les personnes qui aideront à l’accueil.',
-    noEvents: 'Créez un événement pour constituer l’équipe d’accueil.',
+    noEvents:
+      'Créez un événement ou une attraction avec entrée pour constituer l’équipe d’accueil.',
+    placeEntries: 'Entrées',
     loadError: 'Impossible de charger l’équipe.',
     invitedNotice: 'Invitation envoyée. La personne rejoint l’équipe quand elle accepte.',
     removedNotice: 'Personne retirée de l’équipe.',
@@ -292,6 +310,7 @@ export const gateStaffFr: GateStaffTranslation = {
     title: 'Inviter à l’accueil',
     where: 'Où',
     eventHint: 'Événement · toutes les séances',
+    placeHint: 'Attraction · tous les créneaux d’entrée',
     who: 'Qui',
     searchPlaceholder: 'Nom d’utilisateur',
     canScan: 'Scanner le QR code et saisir le code du billet',
@@ -317,11 +336,13 @@ export const gateStaffFr: GateStaffTranslation = {
   },
   mine: {
     title: 'Accueil',
-    intro: 'Événements où vous faites partie de l’équipe.',
+    intro: 'Événements et lieux où vous faites partie de l’équipe.',
     empty: 'Vous ne faites partie d’aucune équipe.',
     loadError: 'Impossible de charger vos accueils.',
     sessionAt: '{{business}}{{when}}',
     opensAt: 'L’accueil ouvre à {{time}}.',
+    placeAllTimes: 'Entrées de l’attraction, à tous les créneaux.',
+    noSlots: 'Aucun créneau d’entrée dans les 7 prochains jours.',
     opensOn: 'L’accueil ouvre le {{date}}.',
     entered: '{{entered}} sur {{total}} sont entrés',
     open: 'Ouvrir l’accueil',
@@ -332,7 +353,7 @@ export const gateStaffFr: GateStaffTranslation = {
     inviteFrom: '{{business}} vous invite à valider les entrées de {{event}}.',
     inviteGeneric: 'Vous êtes invité à valider les entrées de {{event}}.',
     inviteScan: 'Vous scannerez le QR code ou saisirez le code des billets.',
-    inviteWhen: 'L’accueil ouvre 2 h avant chaque séance, ici dans l’app, dans Accueil.',
+    inviteWhen: 'L’accueil ouvre avant chaque séance ou créneau, ici dans l’app, dans Accueil.',
     inviteLog: 'Chaque entrée que vous validez est enregistrée avec votre @.',
     sessions_one: '{{first}}',
     sessions_other: '{{first}} et {{count}} de plus',

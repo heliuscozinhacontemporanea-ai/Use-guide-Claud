@@ -174,6 +174,32 @@ describe('PartnerOffersController — entrada de atração (D20)', () => {
     expect(status).toHaveBeenCalledWith(200);
   });
 
+  it('equipe da portaria recebe só o que a portaria mostra, sem valores nem comprador (C1)', async () => {
+    vi.mocked(checkInEntryUseCase).mockResolvedValue({
+      unit: 0,
+      name: null,
+      alreadyCheckedIn: false,
+      checkedInAt: 't',
+      booking: {
+        id: 'bk_1',
+        sellerPartnerId: 'dono',
+        buyerId: 'comprador-1',
+        participantsCount: 2,
+        totalMinor: 6000,
+        platformFeeMinor: 900,
+        contactPhone: '+5588998123456',
+        lines: [{ priceOptionId: 'inteira', quantity: 2, unitAmountMinor: 3000 }],
+        offerSnapshot: { title: 'Lagoa', startsAt: '', cancellationPolicy: 'flexible' },
+        checkIns: [{ unit: 0, at: 't', byUid: 'partner-1', method: 'code' }],
+      },
+    } as never);
+    const { res, json } = response();
+    await PartnerOffersController.checkInEntry(request({ code: 'K7M4QXAB' }), res);
+    const body = JSON.stringify(json.mock.calls[0]?.[0]);
+    expect(body).toContain('"participantsCount":2');
+    expect(body).not.toMatch(/comprador-1|6000|900|3000|5588998123456|partner-1/);
+  });
+
   it('QR e código juntos é 400; chaves públicas saem em { data }', async () => {
     const bad = response();
     await PartnerOffersController.checkInEntry(

@@ -1,9 +1,9 @@
-import type { GateCounts, MyGate, OwnerGateStaff } from '../types/gateStaff';
+import type { GateCounts, GateScopeType, MyGate, OwnerGateStaff } from '../types/gateStaff';
 
 /** Equipe da portaria (C1): o dono convida e remove; a pessoa responde, vê as portarias e sai. */
 export interface GateStaffPort {
   listOwnerGateStaff(): Promise<OwnerGateStaff>;
-  inviteGateStaff(eventListingId: string, username: string): Promise<void>;
+  inviteGateStaff(target: { type: GateScopeType; id: string }, username: string): Promise<void>;
   removeGateStaff(memberId: string): Promise<void>;
   listMyGates(): Promise<MyGate[]>;
   respondGateInvite(memberId: string, accept: boolean): Promise<void>;

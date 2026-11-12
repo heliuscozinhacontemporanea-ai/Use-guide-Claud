@@ -42,7 +42,7 @@ export function GateStaffMemberSheet({
           ],
         ]
       : []),
-    ...(active
+    ...(active && member.entries !== null
       ? [[t('gateStaff.member.entries'), String(member.entries)] as [string, string]]
       : []),
     ...(member.lastEntryAt

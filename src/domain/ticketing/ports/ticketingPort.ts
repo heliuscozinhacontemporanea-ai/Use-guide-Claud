@@ -1,6 +1,7 @@
 import type {
   EventCheckIn,
   EventSalesAnalytics,
+  GateCheckInResult,
   OfflineCheckInChanges,
   OfflineCheckInSessionResponse,
   OfflineCheckInSyncResult,
@@ -130,7 +131,7 @@ export interface TicketingPort {
     qrToken?: string;
     /** Código de 8 caracteres do ingresso, quando o QR não lê (D20). */
     code?: string;
-  }): Promise<{ ticket: Ticket; checkIn: EventCheckIn }>;
+  }): Promise<GateCheckInResult>;
   createOfflineCheckInSession(input: {
     occurrenceId: string;
     stationId: string;

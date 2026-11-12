@@ -1,6 +1,6 @@
 import { firebaseApiFetch } from '../../../shared/infrastructure/firebase/firebaseApiFetch';
 import type { GateStaffPort } from '../ports/gateStaffPort';
-import type { GateCounts, MyGate, OwnerGateStaff } from '../types/gateStaff';
+import type { GateCounts, GateScopeType, MyGate, OwnerGateStaff } from '../types/gateStaff';
 
 const BASE = '/api/gate-staff';
 
@@ -31,8 +31,11 @@ export class HttpGateStaffAdapter implements GateStaffPort {
     return call('', 'GET');
   }
 
-  async inviteGateStaff(eventListingId: string, username: string): Promise<void> {
-    await call('', 'POST', { eventListingId, username });
+  async inviteGateStaff(
+    target: { type: GateScopeType; id: string },
+    username: string
+  ): Promise<void> {
+    await call('', 'POST', { scopeType: target.type, scopeId: target.id, username });
   }
 
   async removeGateStaff(memberId: string): Promise<void> {

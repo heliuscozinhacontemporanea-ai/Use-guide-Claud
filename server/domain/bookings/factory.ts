@@ -1,3 +1,4 @@
+import { isActiveGateStaffUseCase, wasGateStaffAtUseCase } from '../gateStaff';
 import { Ed25519EntryPassAdapter } from './adapters/ed25519EntryPassAdapter';
 import { FirestoreBookingsAdapter } from './adapters/firestoreBookingsAdapter';
 import { GuideBookableItemLookupAdapter } from './adapters/guideBookableItemLookupAdapter';
@@ -61,7 +62,17 @@ export function getBookingPrivacyService(): BookingPrivacyService {
 
 export function getBookingEntryService(): BookingEntryService {
   // A chave só é lida na primeira assinatura ou conferência (AGENTS.md §2.2 item 4).
-  entryService ??= new BookingEntryService(getPort(), new Ed25519EntryPassAdapter());
+  entryService ??= new BookingEntryService(
+    getPort(),
+    new Ed25519EntryPassAdapter(),
+    undefined,
+    (guideItemId, uid, atIso) => {
+      const scope = { type: 'place' as const, id: guideItemId };
+      return atIso
+        ? wasGateStaffAtUseCase(scope, uid, atIso)
+        : isActiveGateStaffUseCase(scope, uid);
+    }
+  );
   return entryService;
 }
 

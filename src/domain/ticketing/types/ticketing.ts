@@ -326,3 +326,22 @@ export function formatMoneyMinorBrl(minor: MoneyMinor): string {
     currency: 'BRL',
   });
 }
+
+/** Resposta da portaria ao liberar um ingresso: só o que a tela mostra (§7.9 regra 4). */
+export interface GateCheckInResult {
+  ticket: {
+    id: string;
+    status: string;
+    holderName: string;
+    courtesyId: string | null;
+    ticketTypeSnapshot: { name: string } | null;
+    checkedInAt: string | null;
+  };
+  checkIn: {
+    id: string;
+    ticketId: string;
+    occurrenceId: string;
+    source: 'online' | 'offline';
+    checkedInAt: string;
+  };
+}

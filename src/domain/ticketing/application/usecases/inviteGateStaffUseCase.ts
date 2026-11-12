@@ -1,5 +1,9 @@
 import { gateStaffAdapter } from '../../factory';
+import type { GateScopeType } from '../../types/gateStaff';
 
-export function inviteGateStaffUseCase(eventListingId: string, username: string): Promise<void> {
-  return gateStaffAdapter.inviteGateStaff(eventListingId, username);
+export function inviteGateStaffUseCase(
+  target: { type: GateScopeType; id: string },
+  username: string
+): Promise<void> {
+  return gateStaffAdapter.inviteGateStaff(target, username);
 }

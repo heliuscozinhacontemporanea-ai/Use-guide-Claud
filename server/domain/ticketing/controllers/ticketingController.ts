@@ -363,8 +363,31 @@ export class TicketingController {
       if (!parsed.success) {
         return sendError(res, 400, 'VALIDATION_ERROR', 'Dados inválidos.');
       }
-      const result = await checkInTicketUseCase(getActor(req), parsed.data);
-      return res.status(200).json({ status: 'success', data: result });
+      const { ticket, checkIn } = await checkInTicketUseCase(getActor(req), parsed.data);
+      // Saída por allowlist (§7.9 regra 4): a portaria, inclusive a equipe (C1), vê só o nome do
+      // titular, o lote e se é convidado; nunca o e-mail, o comprador nem o hash do QR.
+      return res.status(200).json({
+        status: 'success',
+        data: {
+          ticket: {
+            id: ticket.id,
+            status: ticket.status,
+            holderName: ticket.holderName,
+            courtesyId: ticket.courtesyId ?? null,
+            ticketTypeSnapshot: ticket.ticketTypeSnapshot
+              ? { name: ticket.ticketTypeSnapshot.name }
+              : null,
+            checkedInAt: ticket.checkedInAt ?? null,
+          },
+          checkIn: {
+            id: checkIn.id,
+            ticketId: checkIn.ticketId,
+            occurrenceId: checkIn.occurrenceId,
+            source: checkIn.source,
+            checkedInAt: checkIn.checkedInAt,
+          },
+        },
+      });
     } catch (error) {
       return handleTicketingError(res, error);
     }

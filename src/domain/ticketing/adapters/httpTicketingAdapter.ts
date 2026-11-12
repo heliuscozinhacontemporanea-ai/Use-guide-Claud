@@ -7,17 +7,18 @@ import type {
 import type {
   EventCheckIn,
   EventSalesAnalytics,
+  GateCheckInResult,
   OfflineCheckInChanges,
   OfflineCheckInSessionResponse,
   OfflineCheckInSyncResult,
   PublicTicketTypeProjection,
   Refund,
+  SessionEntry,
   Ticket,
   TicketOrder,
   TicketOrderItem,
   TicketQrPass,
   TicketTransferLinkCreated,
-  SessionEntry,
   TicketTransferLinkPreview,
   TicketType,
 } from '../types/ticketing';
@@ -362,7 +363,7 @@ export class HttpTicketingAdapter implements TicketingPort {
     qrToken?: string;
     /** Código de 8 caracteres do ingresso, quando o QR não lê (D20). */
     code?: string;
-  }): Promise<{ ticket: Ticket; checkIn: EventCheckIn }> {
+  }): Promise<GateCheckInResult> {
     const res = await firebaseApiFetch(
       '/api/ticketing/check-in',
       {
@@ -372,10 +373,7 @@ export class HttpTicketingAdapter implements TicketingPort {
       },
       { requireAuth: true }
     );
-    return parseJsonOrThrow<{ ticket: Ticket; checkIn: EventCheckIn }>(
-      res,
-      'Falha ao validar check-in do ingresso.'
-    );
+    return parseJsonOrThrow<GateCheckInResult>(res, 'Falha ao validar check-in do ingresso.');
   }
 
   async createOfflineCheckInSession(input: {

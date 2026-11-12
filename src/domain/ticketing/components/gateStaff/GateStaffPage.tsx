@@ -21,7 +21,7 @@ export function GateStaffPage({ onBack }: { onBack: () => void }) {
   const [opened, setOpened] = useState<{ member: GateStaffMemberView; title: string } | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const groups = data?.groups.filter((group) => group.members.length > 0) ?? [];
-  const events = data?.events ?? [];
+  const targets = data?.targets ?? [];
 
   return (
     <section className="w-full space-y-5">
@@ -43,15 +43,20 @@ export function GateStaffPage({ onBack }: { onBack: () => void }) {
         <ListLoading label={t('gateStaff.owner.title')} />
       ) : error || !data ? (
         <ListError message={t('gateStaff.owner.loadError')} onRetry={() => void reload()} />
-      ) : events.length === 0 ? (
+      ) : targets.length === 0 ? (
         <ListEmpty message={t('gateStaff.owner.noEvents')} />
       ) : (
         <>
           {groups.length === 0 && <ListEmpty message={t('gateStaff.owner.empty')} />}
           {groups.map((group) => (
-            <section key={group.eventId} className="space-y-2">
+            <section key={`${group.type}-${group.id}`} className="space-y-2">
               <h3 className="px-1 text-[13px] font-semibold uppercase tracking-wide text-ink/70">
-                {t('gateStaff.owner.eventGroup', { title: group.title })}
+                {t(
+                  group.type === 'event'
+                    ? 'gateStaff.owner.eventGroup'
+                    : 'gateStaff.owner.placeGroup',
+                  { title: group.title }
+                )}
               </h3>
               <ul className="rounded-[20px] bg-surface border border-line divide-y divide-line overflow-hidden">
                 {group.members.map((member) => (
@@ -106,7 +111,7 @@ export function GateStaffPage({ onBack }: { onBack: () => void }) {
       )}
       <InviteGateStaffSheet
         open={inviting}
-        events={events}
+        targets={targets}
         onClose={() => setInviting(false)}
         onInvited={() => {
           setInviting(false);

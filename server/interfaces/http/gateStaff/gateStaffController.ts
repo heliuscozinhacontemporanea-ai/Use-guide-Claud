@@ -82,7 +82,11 @@ export const GateStaffController = {
 
   invite: handle('invite', 201, (uid, req) => {
     const body = parse(gateStaffInviteSchema, req.body);
-    return inviteGateStaffApplicationUseCase(uid, body.eventListingId, body.username);
+    return inviteGateStaffApplicationUseCase(
+      uid,
+      { type: body.scopeType, id: body.scopeId },
+      body.username
+    );
   }),
 
   remove: handle('remove', 200, async (uid, req) => {

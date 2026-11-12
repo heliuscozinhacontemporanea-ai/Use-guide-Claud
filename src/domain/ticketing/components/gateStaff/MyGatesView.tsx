@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMinuteClock } from '../../../../shared/hooks/useMinuteClock';
 import { formatBusinessDate } from '../../../../shared/utils/businessDateTime';
@@ -18,14 +18,31 @@ import { GateInviteSheet } from './GateInviteSheet';
 import { StaffGateSheet } from './StaffGateSheet';
 
 const HOUR = 3_600_000;
-// A portaria do evento abre 2 h antes do início e vale até 6 h depois do fim (D20, D27).
-const OPENS_BEFORE = 2 * HOUR;
-const GRACE = 6 * HOUR;
+// Evento: a portaria abre 2 h antes do início e vale até 6 h depois do fim (D20, D27).
+// Atração: de 1 h antes da abertura até o fechamento do horário (D27).
+const OPENS_BEFORE = { event: 2 * HOUR, place: HOUR };
+const GRACE = { event: 6 * HOUR, place: 0 };
 
 type Session = MyGate['sessions'][number];
 
-/** Menu › Portaria (C1): convites e os eventos em que a pessoa está na equipe. */
-export function MyGatesView({ onBack }: { onBack: () => void }) {
+/** O que a composição monta para abrir a portaria de um horário de atração (domínio bookings). */
+export interface PlaceGateRenderProps {
+  offerId: string;
+  slotId: string;
+  startsAt: string;
+  timeZone: string;
+  onClose: () => void;
+}
+
+/** Menu › Portaria (C1): convites e os eventos e lugares em que a pessoa está na equipe. */
+export function MyGatesView({
+  onBack,
+  renderPlaceGate,
+}: {
+  onBack: () => void;
+  /** Portaria da atração (bookings), montada pela composição. */
+  renderPlaceGate?: (props: PlaceGateRenderProps) => ReactNode;
+}) {
   const { t, i18n } = useTranslation();
   const locale = i18n.language;
   const now = useMinuteClock();
@@ -44,13 +61,15 @@ export function MyGatesView({ onBack }: { onBack: () => void }) {
     );
   const timeOf = (gate: MyGate, iso: string) =>
     formatBusinessDate(iso, locale, { hour: '2-digit', minute: '2-digit' }, gate.timeZone);
-  const isOpen = (session: Session) => {
+  const isOpen = (gate: MyGate, session: Session) => {
     const start = new Date(session.startsAt).getTime();
     const end = new Date(session.endsAt ?? session.startsAt).getTime();
-    return now >= start - OPENS_BEFORE && now <= end + GRACE;
+    return now >= start - OPENS_BEFORE[gate.type] && now <= end + GRACE[gate.type];
   };
   const opensText = (gate: MyGate, session: Session) => {
-    const opensAt = new Date(new Date(session.startsAt).getTime() - OPENS_BEFORE).toISOString();
+    const opensAt = new Date(
+      new Date(session.startsAt).getTime() - OPENS_BEFORE[gate.type]
+    ).toISOString();
     const sameDay =
       zonedDayKey(opensAt, gate.timeZone) ===
       zonedDayKey(new Date(now).toISOString(), gate.timeZone);
@@ -66,6 +85,7 @@ export function MyGatesView({ onBack }: { onBack: () => void }) {
         });
   };
   const inviteWhen = (gate: MyGate) => {
+    if (gate.type === 'place') return t('gateStaff.mine.placeAllTimes');
     const first = gate.sessions[0];
     if (!first) return '';
     const rest = gate.sessions.length - 1;
@@ -141,13 +161,16 @@ export function MyGatesView({ onBack }: { onBack: () => void }) {
                 </>
               ) : (
                 <>
+                  {gate.sessions.length === 0 && (
+                    <p className="text-[14px] text-ink/70">{t('gateStaff.mine.noSlots')}</p>
+                  )}
                   <ul className="space-y-3">
                     {gate.sessions.map((session) => (
                       <li key={session.id} className="space-y-2">
                         <p className="text-[14px] text-ink first-letter:uppercase">
                           {whenOf(gate, session)}
                         </p>
-                        {isOpen(session) ? (
+                        {isOpen(gate, session) ? (
                           <button
                             type="button"
                             onClick={() => setOpened({ gate, session })}
@@ -185,7 +208,16 @@ export function MyGatesView({ onBack }: { onBack: () => void }) {
           void reload();
         }}
       />
-      {opened && (
+      {opened?.gate.type === 'place' &&
+        opened.session.offerId &&
+        renderPlaceGate?.({
+          offerId: opened.session.offerId,
+          slotId: opened.session.id,
+          startsAt: opened.session.startsAt,
+          timeZone: opened.gate.timeZone,
+          onClose: () => setOpened(null),
+        })}
+      {opened?.gate.type === 'event' && (
         <StaffGateSheet
           occurrenceId={opened.session.id}
           title={opened.gate.title}

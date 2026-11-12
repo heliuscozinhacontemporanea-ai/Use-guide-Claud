@@ -16,6 +16,7 @@ export { EntryOfflineKeys } from './components/partner/EntryOfflineKeys';
 export { EstablishmentCodeSheet } from './components/partner/EstablishmentCodeSheet';
 export { PartnerOffersManager } from './components/partner/PartnerOffersManager';
 export { PartnerSlotSheet } from './components/partner/PartnerSlotSheet';
+export { SlotCheckInSheet } from './components/partner/SlotCheckInSheet';
 export { SlotContactsList } from './components/partner/SlotContactsList';
 export { startSlotServiceUseCase } from './application/usecases/startSlotServiceUseCase';
 export { useBookingPurchases } from './hooks/useBookingPurchases';

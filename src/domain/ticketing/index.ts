@@ -38,7 +38,7 @@ export { UserTicketsHistoryView } from './components/UserTicketsHistoryView';
 export { TransferLinkReceiverDialog } from './components/wallet/TransferLinkReceiverDialog';
 export { useCheckoutCountdown } from './hooks/useCheckoutCountdown';
 export { GateStaffPage } from './components/gateStaff/GateStaffPage';
-export { MyGatesView } from './components/gateStaff/MyGatesView';
+export { MyGatesView, type PlaceGateRenderProps } from './components/gateStaff/MyGatesView';
 export {
   SessionOfflineList,
   type SessionOfflineListState,
