@@ -22,10 +22,16 @@ import type {
   TicketType,
 } from '../types/ticketing';
 
+/** Mensagem do erro no formato único da API (`{ error: { code, message } }`, §10.2). */
+function errorText(body: unknown): string | null {
+  const error = (body as { error?: { message?: unknown } } | null)?.error;
+  return typeof error?.message === 'string' ? error.message : null;
+}
+
 async function parseJsonOrThrow<T>(response: Response, fallbackError: string): Promise<T> {
   const body = await response.json().catch(() => ({}));
   if (!response.ok) {
-    throw new Error(body?.error || body?.message || fallbackError);
+    throw new Error(errorText(body) || fallbackError);
   }
   return (body?.data ?? body) as T;
 }
@@ -133,7 +139,7 @@ export class HttpTicketingAdapter implements TicketingPort {
     if (!res.ok) {
       const code = typeof body?.error?.code === 'string' ? body.error.code : null;
       if (code === 'EMAIL_NOT_VERIFIED' || code?.startsWith('PROMO_')) throw new Error(code);
-      throw new Error(body?.error || body?.message || 'Não foi possível reservar os ingressos.');
+      throw new Error(errorText(body) || 'Não foi possível reservar os ingressos.');
     }
     const payload = (body?.data ?? body) as CreateOrderResult;
     return {
@@ -218,7 +224,7 @@ export class HttpTicketingAdapter implements TicketingPort {
     );
     const body = await res.json().catch(() => ({}));
     if (!res.ok) {
-      throw new Error(body?.error || body?.message || 'Não foi possível consultar o pedido.');
+      throw new Error(errorText(body) || 'Não foi possível consultar o pedido.');
     }
     const data = body?.data ?? body;
     return {
