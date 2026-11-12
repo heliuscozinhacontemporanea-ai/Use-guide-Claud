@@ -35,6 +35,7 @@ export function sessionToAgendaItem(session: PartnerSessionInput): PartnerTodayI
     title: session.eventTitle,
     startsAt: session.startsAt,
     endsAt: session.endsAt,
+    salesEndsAt: session.salesEndsAt,
     sold: session.sold,
     capacity: session.capacity,
     courtesies: session.courtesies,

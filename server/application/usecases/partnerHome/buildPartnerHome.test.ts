@@ -181,6 +181,7 @@ describe('buildPartnerHome', () => {
             sold: 128,
             courtesies: 0,
             courtesiesEntered: 0,
+            salesEndsAt: '2026-01-01T00:00:00.000Z',
           },
         ],
       })
@@ -262,6 +263,7 @@ describe('buildPartnerHome', () => {
             sold: 10,
             courtesies: 0,
             courtesiesEntered: 0,
+            salesEndsAt: '2026-01-01T00:00:00.000Z',
           },
           {
             id: 'proxima',
@@ -274,6 +276,7 @@ describe('buildPartnerHome', () => {
             sold: 128,
             courtesies: 0,
             courtesiesEntered: 0,
+            salesEndsAt: '2026-01-01T00:00:00.000Z',
           },
         ],
         recentEntries: [

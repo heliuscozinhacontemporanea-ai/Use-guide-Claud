@@ -44,6 +44,10 @@ export interface PartnerAgoraTranslation {
     readyNoConnection: string;
     noConnection: string;
     failed: string;
+    noticeToday: string;
+    noticeTomorrow: string;
+    gateAt: string;
+    gateLine: string;
   };
   offlineKeys: {
     title: string;
@@ -53,6 +57,7 @@ export interface PartnerAgoraTranslation {
     ready: string;
     noConnection: string;
     failed: string;
+    gateLine: string;
   };
   contacts: {
     loading: string;
@@ -139,6 +144,12 @@ export const partnerAgoraPtBR: PartnerAgoraTranslation = {
     readyNoConnection: 'Sem internet agora: vale a lista que está neste aparelho.',
     noConnection: 'conecte-se à internet para baixar',
     failed: 'Não foi possível baixar a lista. Tente de novo.',
+    noticeToday:
+      'Prepare-se: seu evento começa hoje, às {{starts}}. As vendas pelo app encerram às {{salesEnd}}; a partir desse horário, a lista sem internet fica disponível para baixar aqui no Início.',
+    noticeTomorrow:
+      'Prepare-se: seu evento começa amanhã, às {{starts}}. As vendas pelo app encerram às {{salesEnd}}; a partir desse horário, a lista sem internet fica disponível para baixar aqui no Início.',
+    gateAt: 'A lista sem internet fica disponível às {{time}}, quando as vendas pelo app encerram.',
+    gateLine: 'Lista sem internet: {{detail}}',
   },
   offlineKeys: {
     title: 'Portaria sem internet · {{name}}',
@@ -148,6 +159,7 @@ export const partnerAgoraPtBR: PartnerAgoraTranslation = {
     ready: 'pronta para funcionar sem internet',
     noConnection: 'conecte-se à internet para preparar',
     failed: 'Não foi possível preparar a portaria. Tente de novo.',
+    gateLine: 'Sem internet: {{detail}}',
   },
   contacts: {
     loading: 'Carregando contatos',
@@ -236,6 +248,12 @@ export const partnerAgoraEn: PartnerAgoraTranslation = {
     readyNoConnection: 'No internet right now: the list on this device still works.',
     noConnection: 'connect to the internet to download',
     failed: 'Could not download the list. Try again.',
+    noticeToday:
+      'Get ready: your event starts today at {{starts}}. App sales close at {{salesEnd}}; from then on, the offline list will be available to download here on Home.',
+    noticeTomorrow:
+      'Get ready: your event starts tomorrow at {{starts}}. App sales close at {{salesEnd}}; from then on, the offline list will be available to download here on Home.',
+    gateAt: 'The offline list will be available at {{time}}, when app sales close.',
+    gateLine: 'Offline list: {{detail}}',
   },
   offlineKeys: {
     title: 'Offline gate · {{name}}',
@@ -245,6 +263,7 @@ export const partnerAgoraEn: PartnerAgoraTranslation = {
     ready: 'ready to work without internet',
     noConnection: 'connect to the internet to prepare',
     failed: 'Could not prepare the gate. Try again.',
+    gateLine: 'Offline: {{detail}}',
   },
   contacts: {
     loading: 'Loading contacts',
@@ -333,6 +352,12 @@ export const partnerAgoraFr: PartnerAgoraTranslation = {
     readyNoConnection: 'Pas d’internet pour l’instant : la liste de cet appareil reste valable.',
     noConnection: 'connectez-vous à internet pour télécharger',
     failed: 'Impossible de télécharger la liste. Réessayez.',
+    noticeToday:
+      'Préparez-vous : votre événement commence aujourd’hui à {{starts}}. Les ventes dans l’app ferment à {{salesEnd}} ; à partir de cette heure, la liste hors ligne pourra être téléchargée ici, sur l’Accueil.',
+    noticeTomorrow:
+      'Préparez-vous : votre événement commence demain à {{starts}}. Les ventes dans l’app ferment à {{salesEnd}} ; à partir de cette heure, la liste hors ligne pourra être téléchargée ici, sur l’Accueil.',
+    gateAt: 'La liste hors ligne sera disponible à {{time}}, à la fermeture des ventes dans l’app.',
+    gateLine: 'Liste hors ligne : {{detail}}',
   },
   offlineKeys: {
     title: 'Accueil hors ligne · {{name}}',
@@ -342,6 +367,7 @@ export const partnerAgoraFr: PartnerAgoraTranslation = {
     ready: 'prêt à fonctionner sans internet',
     noConnection: 'connectez-vous à internet pour préparer',
     failed: 'Impossible de préparer l’accueil. Réessayez.',
+    gateLine: 'Hors ligne : {{detail}}',
   },
   contacts: {
     loading: 'Chargement des contacts',

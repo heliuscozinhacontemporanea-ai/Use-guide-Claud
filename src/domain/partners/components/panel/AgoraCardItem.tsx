@@ -1,5 +1,14 @@
 import { usePanelTimeZone } from '../../hooks/panelTimeZone';
-import { Check, Download, KeyRound, type LucideIcon, MapPin, Play, ScanLine } from 'lucide-react';
+import {
+  CalendarClock,
+  Check,
+  Download,
+  KeyRound,
+  type LucideIcon,
+  MapPin,
+  Play,
+  ScanLine,
+} from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatBusinessDate } from '../../../../shared/utils/businessDateTime';
@@ -133,6 +142,50 @@ function OfflineCard({
       )}
       {state.failed && <StatusText tone="warn">{t(`${key}.failed`)}</StatusText>}
     </CardShell>
+  );
+}
+
+/** Linha da lista sem internet dentro do cartão da portaria (C5): situação no aparelho e o download. */
+function GateOfflineLine({ state, timeZone }: { state: AgoraOfflineState; timeZone: string }) {
+  const { t, i18n } = useTranslation();
+  const list = state.kind === 'list';
+  const key = list ? 'partnerAgora.offline' : 'partnerAgora.offlineKeys';
+  const ready = state.status === 'ready';
+  const blocked = state.status === 'no_connection';
+  const detail = ready
+    ? list
+      ? t('partnerAgora.offline.ready', {
+          count: state.count ?? 0,
+          date: state.updatedAt
+            ? formatBusinessDate(
+                state.updatedAt,
+                i18n.language,
+                { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' },
+                timeZone
+              )
+            : '',
+        })
+      : t('partnerAgora.offlineKeys.ready')
+    : t(blocked ? `${key}.noConnection` : `${key}.missing`);
+  const canAct = !blocked && state.online && (list || !ready);
+  return (
+    <div className="space-y-1">
+      <p className={cn('text-[13px]', ready ? 'text-ink/70' : 'text-warn')}>
+        {t(`${key}.gateLine`, { detail })}
+      </p>
+      {canAct && (
+        <button type="button" onClick={state.download} disabled={state.busy} className={LINK}>
+          {t(
+            state.busy
+              ? `${key}.downloading`
+              : ready
+                ? 'partnerAgora.offline.refresh'
+                : `${key}.button`
+          )}
+        </button>
+      )}
+      {state.failed && <StatusText tone="warn">{t(`${key}.failed`)}</StatusText>}
+    </div>
   );
 }
 
@@ -288,6 +341,13 @@ export function AgoraCardItem({
           <button type="button" onClick={onOpenGate} className={`${BUTTON_SECONDARY} w-full`}>
             {t('partnerAgora.gate.button')}
           </button>
+          {card.listAt ? (
+            <p className="text-[13px] text-ink/70">
+              {t('partnerAgora.offline.gateAt', { time: time(card.listAt) })}
+            </p>
+          ) : (
+            offline && <GateOfflineLine state={offline} timeZone={timeZone} />
+          )}
         </CardShell>
       );
     }
@@ -299,6 +359,22 @@ export function AgoraCardItem({
         time: time(item.startsAt),
       });
       const name = item.kind === 'slot' ? nameOf(item) : item.title;
+      if (card.listAt) {
+        // Antes do fim das vendas pelo app a lista ainda não existe (D21): o cartão só avisa a hora.
+        return (
+          <CardShell
+            type="offline"
+            icon={CalendarClock}
+            title={t('partnerAgora.offline.title', { name })}
+            sub={t(
+              sameDay ? 'partnerAgora.offline.noticeToday' : 'partnerAgora.offline.noticeTomorrow',
+              { starts: time(item.startsAt), salesEnd: time(card.listAt) }
+            )}
+          >
+            {null}
+          </CardShell>
+        );
+      }
       if (!offline) {
         return (
           <CardShell type="offline" title={t('partnerAgora.offline.title', { name })} sub={when}>

@@ -127,7 +127,9 @@ export function PartnerAgoraSection({
               onOpenGate={() => onOpenGate(card.item)}
             />
           );
-          return card.type === 'offline' && renders.renderOffline ? (
+          // A situação no aparelho só importa quando a lista já pode ser baixada (D21).
+          const readsDevice = (card.type === 'offline' || card.type === 'gate') && !card.listAt;
+          return readsDevice && renders.renderOffline ? (
             <Fragment key={`${card.type}-${card.item.id}`}>
               {renders.renderOffline(card.item, cardOf)}
             </Fragment>

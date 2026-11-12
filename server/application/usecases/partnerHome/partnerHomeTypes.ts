@@ -37,6 +37,8 @@ export interface PartnerTodayItem {
   arrivedAt: string | null;
   /** Só nos horários de reserva: "Iniciar serviço" já tocado (C4). */
   startedAt?: string | null;
+  /** Só nas sessões: fim das vendas pelo app, quando a lista sem internet fica disponível (D21). */
+  salesEndsAt?: string;
   /** Só nas sessões: cortesias que ocupam lugar (D27). */
   courtesies?: number;
   /** Só nos horários de reserva, para os cartões de "Agora" (D27). */

@@ -49,6 +49,7 @@ export async function toSessionInput(
     establishmentId: event.establishmentId ?? null,
     startsAt: occurrence.startsAt,
     endsAt: occurrence.endsAt ?? null,
+    salesEndsAt: occurrence.salesEndsAt || occurrence.startsAt,
     capacity: occurrence.capacity,
     sold: await getSoldTicketsCountForOccurrenceApplicationUseCase(
       { uid: ownerUid, admin: false, role: 'partner' },

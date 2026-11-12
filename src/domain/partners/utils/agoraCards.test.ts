@@ -93,6 +93,19 @@ describe('agoraCards', () => {
     expect(types([session], '2026-11-08T21:00:00.000Z')).toEqual(['gate']);
     expect(types([session], '2026-11-09T05:00:00.000Z')).toEqual(['gate']);
     expect(types([session], '2026-11-09T05:01:00.000Z')).toEqual([]);
+    // A lista só sai depois do fim das vendas pelo app (D21): até lá, o cartão leva a hora.
+    const selling = { ...session, salesEndsAt: '2026-11-08T21:00:00.000Z' };
+    const cardAt = (iso: string) => agoraCards([selling], at(iso))[0];
+    expect(cardAt('2026-11-08T12:00:00.000Z')).toMatchObject({
+      type: 'offline',
+      listAt: '2026-11-08T21:00:00.000Z',
+    });
+    expect(cardAt('2026-11-08T21:00:00.000Z')).toMatchObject({ type: 'gate', listAt: null });
+    const early = { ...session, salesEndsAt: '2026-11-08T15:00:00.000Z' };
+    expect(agoraCards([early], at('2026-11-08T16:00:00.000Z'))[0]).toMatchObject({
+      type: 'offline',
+      listAt: null,
+    });
     const ended = { ...session, endsAt: '2026-11-09T02:00:00.000Z' };
     expect(types([ended], '2026-11-09T02:01:00.000Z')).toEqual([]);
   });

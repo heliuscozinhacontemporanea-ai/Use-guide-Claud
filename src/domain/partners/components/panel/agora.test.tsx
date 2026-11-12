@@ -123,6 +123,38 @@ describe('Agora (p40 a p43)', () => {
     expect(onOpenGate).toHaveBeenCalledWith(expect.objectContaining({ id: 'e1' }));
   });
 
+  it('antes do fim das vendas o cartão avisa a hora; depois, a portaria baixa a lista (C5)', () => {
+    const download = vi.fn();
+    const offline: AgoraOfflineState = {
+      kind: 'list',
+      status: 'missing',
+      count: null,
+      updatedAt: null,
+      online: true,
+      busy: false,
+      failed: false,
+      download,
+    };
+    const view = (item: PartnerTodayItem) => (
+      <PartnerAgoraSection
+        items={[item]}
+        nameOf={() => 'Dunas Park'}
+        renders={{ ...renders(), renderOffline: (_item, render) => render(offline) }}
+        version={0}
+        onOpenGate={vi.fn()}
+        onChanged={vi.fn()}
+      />
+    );
+    const event = slot({ kind: 'session', id: 'o1', title: 'Luau na Duna', offerKind: undefined });
+    const { rerender } = render(view({ ...event, startsAt: rel(600), salesEndsAt: rel(480) }));
+    expect(screen.getByText(/Prepare-se: seu evento começa/)).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Baixar lista' })).toBeNull();
+    rerender(view({ ...event, startsAt: rel(60), salesEndsAt: rel(-60) }));
+    expect(screen.getByText(/Lista sem internet: ainda não baixada neste aparelho/)).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Baixar lista' }));
+    expect(download).toHaveBeenCalledTimes(1);
+  });
+
   it('lista sem internet: diz se está no aparelho e baixa com um toque (C5)', () => {
     const download = vi.fn();
     const state = (overrides: Partial<AgoraOfflineState>): AgoraOfflineState => ({
@@ -138,7 +170,15 @@ describe('Agora (p40 a p43)', () => {
     });
     const view = (offline: AgoraOfflineState) => (
       <PartnerAgoraSection
-        items={[slot({ kind: 'session', id: 'o1', title: 'Luau na Duna', startsAt: rel(600) })]}
+        items={[
+          slot({
+            kind: 'session',
+            id: 'o1',
+            title: 'Luau na Duna',
+            startsAt: rel(600),
+            salesEndsAt: rel(-60),
+          }),
+        ]}
         nameOf={() => 'Dunas Park'}
         renders={{ ...renders(), renderOffline: (_item, render) => render(offline) }}
         version={0}

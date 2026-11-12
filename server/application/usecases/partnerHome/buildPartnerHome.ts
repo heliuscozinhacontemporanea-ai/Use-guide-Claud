@@ -20,6 +20,8 @@ export interface PartnerSessionInput {
   establishmentId: string | null;
   startsAt: string;
   endsAt: string | null;
+  /** Fim das vendas pelo app: só depois dele a lista sem internet pode ser baixada (D21). */
+  salesEndsAt: string;
   capacity: number;
   sold: number;
   /** Cortesias que ocupam lugar (D27); fora do "vendidos". */

@@ -21,8 +21,8 @@ export type AgoraCard =
   | { type: 'arrive'; item: PartnerTodayItem }
   | { type: 'code'; item: PartnerTodayItem; arrived: boolean; noShowAt: string | null }
   | { type: 'start'; item: PartnerTodayItem }
-  | { type: 'gate'; item: PartnerTodayItem }
-  | { type: 'offline'; item: PartnerTodayItem };
+  | { type: 'gate'; item: PartnerTodayItem; listAt: string | null }
+  | { type: 'offline'; item: PartnerTodayItem; listAt: string | null };
 
 const ms = (iso: string) => new Date(iso).getTime();
 // A véspera começa às 00:00 do dia anterior na hora do lugar do serviço (D28).
@@ -34,8 +34,10 @@ function slotCard(item: PartnerTodayItem, now: number, timeZone: string): AgoraC
   const end = ms(item.serviceEndsAt ?? item.endsAt ?? item.startsAt);
   if (item.offerKind === 'private_entry') {
     // Portaria de 1 h antes da abertura ao fechamento; a lista sai na véspera (D27).
-    if (now >= start - HOUR && now <= end) return { type: 'gate', item };
-    if (now >= eveStart(start, timeZone) && now < start - HOUR) return { type: 'offline', item };
+    // Na atração não há lista: as chaves do QR podem ser guardadas a qualquer hora.
+    if (now >= start - HOUR && now <= end) return { type: 'gate', item, listAt: null };
+    if (now >= eveStart(start, timeZone) && now < start - HOUR)
+      return { type: 'offline', item, listAt: null };
     return null;
   }
   if (!CODE_KINDS.includes(item.offerKind ?? '') || (item.bookings ?? item.sold) === 0) return null;
@@ -63,8 +65,12 @@ function slotCard(item: PartnerTodayItem, now: number, timeZone: string): AgoraC
 function sessionCard(item: PartnerTodayItem, now: number, timeZone: string): AgoraCard | null {
   const start = ms(item.startsAt);
   const end = item.endsAt ? ms(item.endsAt) : start + SESSION_WITHOUT_END;
-  if (now >= start - 2 * HOUR && now <= end) return { type: 'gate', item };
-  if (now >= eveStart(start, timeZone) && now < start - 2 * HOUR) return { type: 'offline', item };
+  // A lista sem internet só sai depois do fim das vendas pelo app (D21); até lá, o cartão avisa a hora.
+  const salesEnd = item.salesEndsAt ? ms(item.salesEndsAt) : start;
+  const listAt = now < salesEnd ? new Date(salesEnd).toISOString() : null;
+  if (now >= start - 2 * HOUR && now <= end) return { type: 'gate', item, listAt };
+  if (now >= eveStart(start, timeZone) && now < start - 2 * HOUR)
+    return { type: 'offline', item, listAt };
   return null;
 }
 
