@@ -1,8 +1,6 @@
 import { Copy, Share2 } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { normalizeLocale } from '../../../../shared/i18n/locale';
-import { localizedPath } from '../../../../shared/i18n/localizedRoutes';
 import { formatBusinessWeekday } from '../../../../shared/utils/businessDateTime';
 import { formatMoneyMinorCompact } from '../../../../shared/utils/money';
 import { StatusText } from '../../../../ui/components/StatusText';
@@ -26,13 +24,7 @@ export function PromotionCard({
   const [copied, setCopied] = useState(false);
   const earning = promoterEarningText(t, promotion.earning, locale);
   const amount = formatMoneyMinorCompact(promotion.owedMinor, locale);
-  const url = buildPromoterLinkUrl(
-    window.location.origin,
-    localizedPath('events', normalizeLocale(locale) ?? 'pt-BR'),
-    promotion.eventListingId,
-    promotion.username,
-    promotion.code
-  );
+  const url = buildPromoterLinkUrl(window.location.origin, promotion.username, promotion.code);
 
   const copy = async () => {
     await navigator.clipboard
@@ -91,7 +83,7 @@ export function PromotionCard({
           {promotion.status === 'active' && (
             <>
               <div className="flex items-center gap-2 min-h-12 pl-4 pr-1 rounded-2xl bg-ink/[0.04]">
-                <p className="flex-1 min-w-0 text-[15px] text-ink truncate select-all">
+                <p className="flex-1 min-w-0 text-[15px] text-ink break-all select-all">
                   {url.replace(/^https?:\/\//, '')}
                 </p>
                 <button

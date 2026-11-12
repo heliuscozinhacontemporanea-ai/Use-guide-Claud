@@ -106,6 +106,24 @@ export class PromoterService {
     return promoter.id;
   }
 
+  /**
+   * Evento do link curto `/e/<@>-<código>` (C6): só de divulgação ativa e de evento publicado. Com o
+   * mesmo código em dois eventos, vale o do @ que veio no link.
+   */
+  async eventForLink(rawParam: string): Promise<string | null> {
+    const code = promoterCodeFromParam(rawParam);
+    if (!code) return null;
+    const active = (await this.store.listByCode(code)).filter(
+      (promoter) => promoter.status === 'active'
+    );
+    const username = rawParam.trim().slice(0, -(code.length + 1));
+    const promoter =
+      active.find((item) => item.promoter.username === username) ?? active[0] ?? null;
+    if (!promoter) return null;
+    const listing = await getEventListingByIdUseCase(promoter.eventListingId);
+    return listing?.status === 'published' ? listing.id : null;
+  }
+
   async eventSummary(
     actor: TicketingActorContext,
     eventListingId: string

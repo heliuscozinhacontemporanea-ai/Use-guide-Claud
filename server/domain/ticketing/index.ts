@@ -73,6 +73,7 @@ export { endPromoterUseCase } from './usecases/endPromoterUseCase';
 export { expireAllOverdueOrdersUseCase } from './usecases/expireAllOverdueOrdersUseCase';
 export { expireTicketOrderUseCase } from './usecases/expireTicketOrderUseCase';
 export { finalizeTicketRefundStatusUseCase } from './usecases/finalizeTicketRefundStatusUseCase';
+export { getPromoterLinkEventUseCase } from './usecases/getPromoterLinkEventUseCase';
 export { getEventPromotersUseCase } from './usecases/getEventPromotersUseCase';
 export { getEventSalesAnalyticsUseCase } from './usecases/getEventSalesAnalyticsUseCase';
 export { getTicketOrderUseCase } from './usecases/getTicketOrderUseCase';

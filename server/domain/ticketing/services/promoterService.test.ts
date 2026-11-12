@@ -58,6 +58,9 @@ function setup() {
       async (_event: string, code: string) =>
         [...promoters.values()].find((promoter) => promoter.code === code) ?? null
     ),
+    listByCode: vi.fn(async (code: string) =>
+      [...promoters.values()].filter((promoter) => promoter.code === code)
+    ),
     anonymizePromoter: vi.fn(async () => 0),
   };
   const port = {
@@ -136,6 +139,24 @@ describe('divulgadores (D27)', () => {
     expect(await service.resolveForOrder('ev1', 'joao.promo-k7Qm2a', 'joao')).toBeNull();
     await service.end({ uid: 'partner' }, 'p1');
     expect(await service.resolveForOrder('ev1', 'k7Qm2a', 'ana')).toBeNull();
+  });
+
+  it('link curto: só leva ao evento com a divulgação ativa e o evento publicado (C6)', async () => {
+    const { service } = setup();
+    await service.invite({ uid: 'partner' }, 'ev1', JOAO, {
+      type: 'commission',
+      basisPoints: 1000,
+    });
+    expect(await service.eventForLink('joao.promo-k7Qm2a')).toBeNull();
+    await service.respond('joao', 'p1', true);
+    expect(await service.eventForLink('joao.promo-k7Qm2a')).toBe('ev1');
+    // O @ é só visual: trocar de @ não quebra o link já enviado.
+    expect(await service.eventForLink('outro.nome-k7Qm2a')).toBe('ev1');
+    expect(await service.eventForLink('k7Qm2a')).toBe('ev1');
+    expect(await service.eventForLink('joao.promo-AAAAAA')).toBeNull();
+    expect(await service.eventForLink('joao.promo')).toBeNull();
+    await service.end({ uid: 'partner' }, 'p1');
+    expect(await service.eventForLink('joao.promo-k7Qm2a')).toBeNull();
   });
 
   it('conta: valor pago sem taxa e sem o reembolsado; só ingressos que valem; convite aberto não deve', async () => {

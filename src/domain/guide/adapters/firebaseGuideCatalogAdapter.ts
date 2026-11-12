@@ -115,7 +115,12 @@ export class FirebaseGuideCatalogAdapter implements GuideCatalogPort {
     let events: GuideItem[] = [];
     let featured: FeaturedListings = {};
 
+    // Só avisa quando itens e eventos já chegaram uma vez: com a lista de eventos ainda vazia, um
+    // link direto para um evento seria dado como "não encontrado" e perderia o endereço.
+    let itemsReady = false;
+    let eventsReady = false;
     const emit = () => {
+      if (!itemsReady || !eventsReady) return;
       onUpdate({
         items,
         events,
@@ -130,6 +135,7 @@ export class FirebaseGuideCatalogAdapter implements GuideCatalogPort {
         items = records
           .map(mapGuideItem)
           .filter((item) => item.isActive !== false && item.category !== 'producer');
+        itemsReady = true;
         emit();
       },
       onError
@@ -151,6 +157,7 @@ export class FirebaseGuideCatalogAdapter implements GuideCatalogPort {
             const bTime = b.date ? new Date(b.date).getTime() : Number.MAX_SAFE_INTEGER;
             return aTime - bTime;
           });
+        eventsReady = true;
         emit();
       },
       onError,

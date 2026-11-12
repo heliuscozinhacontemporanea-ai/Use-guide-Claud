@@ -135,6 +135,12 @@ export class FirestorePromoterStore implements PromoterStorePort {
     return doc ? toPromoter(doc.id, doc.data()) : null;
   }
 
+  async listByCode(code: string): Promise<EventPromoter[]> {
+    // O código tem 6 caracteres ao acaso: repetir entre eventos é raro, mas não impossível.
+    const snap = await adminDb.collection(PROMOTERS).where('code', '==', code).limit(5).get();
+    return snap.docs.map((doc) => toPromoter(doc.id, doc.data()));
+  }
+
   async anonymizePromoter(uid: string): Promise<number> {
     const snap = await adminDb.collection(PROMOTERS).where('promoterUid', '==', uid).get();
     if (snap.empty) return 0;

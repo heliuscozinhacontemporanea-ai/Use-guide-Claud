@@ -56,6 +56,7 @@ import paymentAccountRouter, {
 } from './server/interfaces/http/paymentAccounts/paymentAccountRoutes';
 import { InternalPayoutsController } from './server/interfaces/http/payouts/internalPayoutsController';
 import promoCodesRouter from './server/interfaces/http/promoCodes/promoCodesRoutes';
+import { promoterLinkRouter } from './server/interfaces/http/promoters/promoterLinkRoute';
 import { promoterRouter } from './server/interfaces/http/promoters/promoterRoutes';
 import {
   adminSaleClaimRouter,
@@ -255,6 +256,7 @@ async function startServer() {
   app.use('/api/ticket-transfers', ticketTransferRouter);
   app.use('/api/courtesies', courtesyRouter);
   app.use('/api/promoters', promoterRouter);
+  app.use('/e', promoterLinkRouter);
   app.use('/api/admin/sale-claims', adminSaleClaimRouter);
   app.use('/api/admin/account-debts', adminAccountDebtRouter);
   app.use('/api/payment', paymentRouter);
