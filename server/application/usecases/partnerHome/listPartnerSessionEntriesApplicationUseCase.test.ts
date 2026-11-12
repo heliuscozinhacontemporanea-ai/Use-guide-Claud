@@ -18,6 +18,7 @@ describe('listPartnerSessionEntriesApplicationUseCase', () => {
         ticketId: 't1',
         occurrenceId: 's1',
         checkedInAt: '2026-12-20T23:10:00.000Z',
+        checkedInBy: 'owner',
         source: 'online',
       },
       {
@@ -25,6 +26,7 @@ describe('listPartnerSessionEntriesApplicationUseCase', () => {
         ticketId: 't2',
         occurrenceId: 's1',
         checkedInAt: '2026-12-20T23:40:00.000Z',
+        checkedInBy: 'equipe',
         source: 'offline',
       },
       {
@@ -47,6 +49,7 @@ describe('listPartnerSessionEntriesApplicationUseCase', () => {
     ]);
     m.profile.mockImplementation(async (uid: string) => ({
       displayName: uid === 'u1' ? 'Ana Souza' : null,
+      username: uid === 'equipe' ? 'bia.portaria' : null,
     }));
   });
 
@@ -60,6 +63,8 @@ describe('listPartnerSessionEntriesApplicationUseCase', () => {
         courtesy: true,
         at: '2026-12-20T23:40:00.000Z',
         source: 'offline',
+        releasedByOwner: false,
+        releasedByUsername: 'bia.portaria',
       },
       {
         id: 'c1',
@@ -68,6 +73,8 @@ describe('listPartnerSessionEntriesApplicationUseCase', () => {
         courtesy: false,
         at: '2026-12-20T23:10:00.000Z',
         source: 'online',
+        releasedByOwner: true,
+        releasedByUsername: null,
       },
     ]);
     expect(JSON.stringify(entries)).not.toMatch(/segredo|Nome Completo/);

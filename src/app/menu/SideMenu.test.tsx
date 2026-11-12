@@ -48,6 +48,8 @@ vi.mock('../../domain/ticketing', () => ({
   ),
   MyPromotionsView: () => <span>my-promotions-view</span>,
   useMyPromotions: () => ({ data: [], loading: false, error: false, reload: vi.fn() }),
+  MyGatesView: () => <span>my-gates-view</span>,
+  useMyGates: () => ({ data: [], loading: false, error: false, reload: vi.fn() }),
 }));
 
 vi.mock('../../domain/content', () => ({

@@ -47,6 +47,12 @@ import {
   eventSessionsPtBR,
 } from './eventSessionsResources';
 import {
+  type GateStaffTranslation,
+  gateStaffEn,
+  gateStaffFr,
+  gateStaffPtBR,
+} from './gateStaffResources';
+import {
   type TicketLotsTranslation,
   ticketLotsEn,
   ticketLotsFr,
@@ -271,6 +277,7 @@ export interface TranslationResource {
   notify: NotifyTranslation;
   help: HelpTranslation;
   eventSessions: EventSessionsTranslation;
+  gateStaff: GateStaffTranslation;
   ticketLots: TicketLotsTranslation;
   placeTime: PlaceTimeTranslation;
   gateMode: GateModeTranslation;
@@ -527,6 +534,7 @@ const ptBR: TranslationResource = {
   notify: notifyPtBR,
   help: helpPtBR,
   eventSessions: eventSessionsPtBR,
+  gateStaff: gateStaffPtBR,
   ticketLots: ticketLotsPtBR,
   placeTime: placeTimePtBR,
   gateMode: gateModePtBR,
@@ -843,6 +851,7 @@ const en: TranslationResource = {
   notify: notifyEn,
   help: helpEn,
   eventSessions: eventSessionsEn,
+  gateStaff: gateStaffEn,
   ticketLots: ticketLotsEn,
   placeTime: placeTimeEn,
   gateMode: gateModeEn,
@@ -1153,6 +1162,7 @@ const fr: TranslationResource = {
   notify: notifyFr,
   help: helpFr,
   eventSessions: eventSessionsFr,
+  gateStaff: gateStaffFr,
   ticketLots: ticketLotsFr,
   placeTime: placeTimeFr,
   gateMode: gateModeFr,

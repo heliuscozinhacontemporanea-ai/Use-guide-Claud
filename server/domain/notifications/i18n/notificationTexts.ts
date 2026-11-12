@@ -13,6 +13,11 @@ export const NOTIFICATION_TEXTS_PT_BR: NotificationTypeTexts = {
     title: 'Os termos de uso mudaram',
     body: 'As mudanças passam a valer 15 dias depois deste aviso. Toque para ler.',
   },
+  gate_staff_invited: {
+    title: 'Convite para a portaria',
+    body: '{{business}} convidou você para liberar as entradas de {{event}}.',
+    bodyGeneric: 'Você recebeu um convite para a portaria de um evento.',
+  },
   promoter_invited: {
     title: 'Convite para divulgar',
     body: '{{business}} quer que você divulgue {{event}}. Veja quanto você ganha.',
@@ -218,6 +223,11 @@ export const NOTIFICATION_TEXTS_EN: NotificationTypeTexts = {
     title: 'The terms of use have changed',
     body: 'The changes take effect 15 days after this notice. Tap to read.',
   },
+  gate_staff_invited: {
+    title: 'Invitation to the gate',
+    body: '{{business}} invited you to check people in at {{event}}.',
+    bodyGeneric: 'You got an invitation to work the gate of an event.',
+  },
   promoter_invited: {
     title: 'Invitation to promote',
     body: '{{business}} wants you to promote {{event}}. See how much you earn.',
@@ -422,6 +432,11 @@ export const NOTIFICATION_TEXTS_FR: NotificationTypeTexts = {
   terms_updated_buyer: {
     title: 'Les conditions d’utilisation ont changé',
     body: 'Les changements s’appliquent 15 jours après cet avis. Touchez pour lire.',
+  },
+  gate_staff_invited: {
+    title: 'Invitation à l’accueil',
+    body: '{{business}} vous invite à valider les entrées de {{event}}.',
+    bodyGeneric: 'Vous avez reçu une invitation pour l’accueil d’un événement.',
   },
   promoter_invited: {
     title: 'Invitation à promouvoir',

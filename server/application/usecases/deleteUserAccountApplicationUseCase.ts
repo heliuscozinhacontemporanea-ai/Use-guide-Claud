@@ -8,6 +8,7 @@ import {
   deletePartnerProfileUseCase,
 } from '../../domain/partners';
 import { cancelPartnerPlanSubscriptionsUseCase } from '../../domain/payment';
+import { anonymizeGateStaffUseCase } from '../../domain/gateStaff';
 import { deleteReviewsByUserUseCase } from '../../domain/reviews';
 import {
   anonymizeCourtesyGuestUseCase,
@@ -58,6 +59,8 @@ export async function deleteUserAccountApplicationUseCase(
       // A lista de convidados do organizador guarda @ e nome públicos (D27).
       await anonymizeCourtesyGuestUseCase(id);
       await anonymizePromoterUseCase(id);
+      // A equipe da portaria guarda @ e nome públicos de quem foi convidado (C1).
+      await anonymizeGateStaffUseCase(id);
     },
     deleteNotifications: (id) => deleteUserNotificationsUseCase(id),
     releaseUsernames: (id) => releaseUsernamesUseCase(id),

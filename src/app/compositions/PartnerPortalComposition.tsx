@@ -33,6 +33,7 @@ import { RecentItemReviews } from '../../domain/reviews';
 import {
   EventGuestsPanel,
   EventPromotersPanel,
+  GateStaffPage,
   PartnerSessionSheet,
   SessionOfflineList,
 } from '../../domain/ticketing';
@@ -249,6 +250,7 @@ export function PartnerPortalComposition() {
         <PartnerEventTicketingComposition eventListingId={eventListingId} lotsOnly />
       )}
       renderNotificationsHint={() => <SalesAlertsSummary />}
+      renderGateStaff={(onBack) => <GateStaffPage onBack={onBack} />}
       renderCoupons={({ scope, backLabel, onBack }) => (
         <PromoCodesPage scope={scope} backLabel={backLabel} onBack={onBack} />
       )}

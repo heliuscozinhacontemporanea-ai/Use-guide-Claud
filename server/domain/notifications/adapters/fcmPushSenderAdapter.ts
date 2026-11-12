@@ -14,6 +14,7 @@ const PATHS: Record<NotificationLink['screen'], string> = {
   item: '/?partner=1',
   event: '/?partner=1',
   promotions: '/?menu=promotions',
+  gate: '/?menu=gate',
   terms: '/?menu=terms',
   partner_terms: '/?menu=partner-terms',
 };

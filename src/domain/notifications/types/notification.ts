@@ -18,6 +18,7 @@ export interface NotificationLink {
     | 'item'
     | 'event'
     | 'promotions'
+    | 'gate'
     | 'terms'
     | 'partner_terms';
   id?: string;

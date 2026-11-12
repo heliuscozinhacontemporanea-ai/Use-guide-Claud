@@ -63,6 +63,11 @@ export function SessionEntriesSheet({
                 sub={[
                   entry.ticketType,
                   entry.courtesy && entry.name ? t('ticketSessions.entries.guest') : null,
+                  entry.releasedByOwner
+                    ? t('gateStaff.entries.releasedByYou')
+                    : entry.releasedByUsername
+                      ? t('gateStaff.entries.releasedBy', { username: entry.releasedByUsername })
+                      : t('gateStaff.entries.releasedByTeam'),
                   entry.source === 'offline' ? t('ticketSessions.entries.offline') : null,
                 ]
                   .filter(Boolean)

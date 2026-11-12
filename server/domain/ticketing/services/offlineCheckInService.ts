@@ -11,7 +11,9 @@ import {
 } from '../types/ticketingTypes';
 import { hashTicketIdForOfflineManifest } from '../utils/offlineManifest';
 import {
-  assertCanManageOccurrence,
+  assertCanOperateGate,
+  gateForbidden,
+  resolveGateSync,
   getAuditActorType,
   type TicketingActorContext,
 } from './ticketingAccess';
@@ -35,7 +37,7 @@ export class OfflineCheckInService {
     session: OfflineCheckInSession;
     manifest: OfflineCheckInManifest;
   }> {
-    const { occurrence, listing } = await assertCanManageOccurrence(actor, params.occurrenceId);
+    const { occurrence, listing } = await assertCanOperateGate(actor, params.occurrenceId);
 
     const nowMs = Date.now();
     const startsAtMs = new Date(occurrence.startsAt).getTime();
@@ -153,7 +155,22 @@ export class OfflineCheckInService {
       throw new TicketingDomainError('NOT_FOUND', 'Sessão de check-in offline não encontrada.');
     }
 
-    const { listing } = await assertCanManageOccurrence(actor, session.occurrenceId);
+    const gate = await resolveGateSync(actor, session.occurrenceId);
+    const { listing } = gate;
+    // Equipe da portaria (C1): só entram as leituras feitas enquanto a pessoa fazia parte dela.
+    const allowed = gate.staff
+      ? (
+          await Promise.all(
+            params.events.map(async (event) =>
+              (await gate.accepts(event.scannedAt)) ? event : null
+            )
+          )
+        ).filter((event): event is OfflineCheckInEvent => event !== null)
+      : params.events;
+    if (gate.staff && allowed.length === 0) throw gateForbidden();
+    const refused: OfflineCheckInSyncResultItem[] = params.events
+      .filter((event) => !allowed.includes(event))
+      .map((event) => ({ clientEventId: event.clientEventId, status: 'invalid' }));
 
     if (session.status !== 'active') {
       throw new TicketingDomainError(
@@ -172,11 +189,14 @@ export class OfflineCheckInService {
       };
     }
 
-    const results = await this.port.syncOfflineCheckInsAtomic({
-      session,
-      checkedInBy: actor.uid,
-      events: params.events,
-    });
+    const results = [
+      ...(await this.port.syncOfflineCheckInsAtomic({
+        session,
+        checkedInBy: actor.uid,
+        events: allowed,
+      })),
+      ...refused,
+    ];
 
     await createEventAuditLogUseCase({
       actorId: actor.uid,
@@ -212,7 +232,7 @@ export class OfflineCheckInService {
     if (!session) {
       throw new TicketingDomainError('NOT_FOUND', 'Sessão de check-in offline não encontrada.');
     }
-    await assertCanManageOccurrence(actor, session.occurrenceId);
+    await assertCanOperateGate(actor, session.occurrenceId);
     const serverTime = new Date().toISOString();
     const changed = await this.port.listTicketsChangedSince(
       session.occurrenceId,

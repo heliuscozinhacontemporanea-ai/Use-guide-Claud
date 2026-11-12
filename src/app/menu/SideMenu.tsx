@@ -7,7 +7,13 @@ import { MyBookingsView } from '../../domain/bookings';
 import { AboutLicensesView, AboutTermsView, AboutView, SupportView } from '../../domain/content';
 import { FavoritesList } from '../../domain/favorites';
 import { NotificationSettingsView } from '../../domain/notifications';
-import { MyPromotionsView, UserTicketsHistoryView, useMyPromotions } from '../../domain/ticketing';
+import {
+  MyGatesView,
+  MyPromotionsView,
+  UserTicketsHistoryView,
+  useMyGates,
+  useMyPromotions,
+} from '../../domain/ticketing';
 import {
   AccountView,
   AppearanceSettingsView,
@@ -70,6 +76,9 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
   // A linha Divulgação só aparece para quem divulga ou tem convite (D27).
   const promotions = useMyPromotions(Boolean(user && !user.isAnonymous));
   const hasPromotions = promotions.data.length > 0;
+  // A linha Portaria só aparece para quem está na equipe de algum evento ou tem convite (C1).
+  const gates = useMyGates(Boolean(user && !user.isAnonymous));
+  const hasGates = gates.data.length > 0;
   const { goTo } = useLocalizedRouting();
   const {
     view: requestedView,
@@ -223,6 +232,8 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
         );
       case 'promotions':
         return <MyPromotionsView onBack={goBack} />;
+      case 'gate':
+        return <MyGatesView onBack={goBack} />;
       case 'tickets':
         return <UserTicketsHistoryView onBack={goBack} />;
       case 'bookings':
@@ -275,6 +286,7 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
               onLogout={handleLogout}
               onPhotoClick={() => fileInputRef.current?.click()}
               onPromotionsOpen={hasPromotions ? () => showView('promotions') : undefined}
+              onGateOpen={hasGates ? () => showView('gate') : undefined}
               highlights={
                 menuUser && (
                   <ProfileHighlightsComposition

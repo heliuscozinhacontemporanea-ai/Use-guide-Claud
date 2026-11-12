@@ -62,6 +62,7 @@ export function PartnerPanel({
   renderEventAccountCard,
   renderNotificationsHint,
   renderCoupons,
+  renderGateStaff,
 }: PartnerPanelProps) {
   const { goTo } = useLocalizedRouting();
   const { t } = useTranslation();
@@ -352,6 +353,7 @@ export function PartnerPanel({
               onOpenPlan={(item) => setPlanListing({ id: item.id, name: item.name })}
               onOpenEarnings={() => setPanelTab('earnings')}
               renderAccountView={renderAccountView}
+              renderGateStaff={renderGateStaff}
               onReplayTour={() => tour.setChooserOpen(true)}
               renderCoupons={
                 renderCoupons
