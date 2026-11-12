@@ -28,6 +28,7 @@ describe('listPartnerSessionEntriesApplicationUseCase', () => {
         checkedInAt: '2026-12-20T23:40:00.000Z',
         checkedInBy: 'equipe',
         source: 'offline',
+        method: 'qr',
       },
       {
         id: 'c3',
@@ -63,6 +64,7 @@ describe('listPartnerSessionEntriesApplicationUseCase', () => {
         courtesy: true,
         at: '2026-12-20T23:40:00.000Z',
         source: 'offline',
+        method: 'qr',
         releasedByOwner: false,
         releasedByUsername: 'bia.portaria',
       },
@@ -73,6 +75,7 @@ describe('listPartnerSessionEntriesApplicationUseCase', () => {
         courtesy: false,
         at: '2026-12-20T23:10:00.000Z',
         source: 'online',
+        method: null,
         releasedByOwner: true,
         releasedByUsername: null,
       },

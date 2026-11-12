@@ -13,6 +13,8 @@ export interface PartnerSessionEntryView {
   at: string;
   /** Registrada com internet ou enviada depois pela lista sem internet. */
   source: 'online' | 'offline';
+  /** QR lido ou código digitado; `null` quando a entrada não registrou (ID direto). */
+  method: 'qr' | 'code' | null;
   /** Quem liberou a entrada (C1): o próprio dono ou o @ de alguém da equipe da portaria. */
   releasedByOwner: boolean;
   releasedByUsername: string | null;
@@ -59,6 +61,7 @@ export async function listPartnerSessionEntriesApplicationUseCase(
         courtesy: Boolean(ticket?.courtesyId),
         at: checkIn.checkedInAt,
         source: checkIn.source,
+        method: checkIn.method ?? null,
         releasedByOwner: checkIn.checkedInBy === ownerUid,
         releasedByUsername:
           checkIn.checkedInBy === ownerUid

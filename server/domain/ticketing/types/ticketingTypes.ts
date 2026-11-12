@@ -278,6 +278,8 @@ export interface EventCheckIn {
   occurrenceId: string;
   checkedInBy: string;
   source: 'online' | 'offline';
+  /** Como a entrada foi conferida: leitura do QR ou código digitado (tela Entradas). */
+  method?: 'qr' | 'code';
   offlineSessionId?: string;
   stationId?: string;
   clientEventId?: string;

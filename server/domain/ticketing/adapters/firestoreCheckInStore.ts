@@ -23,6 +23,7 @@ export class FirestoreCheckInStore {
     occurrenceId: string;
     checkedInBy: string;
     source?: 'online' | 'offline';
+    method?: 'qr' | 'code';
     offlineSessionId?: string;
     stationId?: string;
     clientEventId?: string;
@@ -71,6 +72,7 @@ export class FirestoreCheckInStore {
         eventListingId: ticket.eventListingId,
         checkedInBy: params.checkedInBy,
         source,
+        ...(params.method ? { method: params.method } : {}),
         ...(params.offlineSessionId ? { offlineSessionId: params.offlineSessionId } : {}),
         ...(params.stationId ? { stationId: params.stationId } : {}),
         ...(params.clientEventId ? { clientEventId: params.clientEventId } : {}),
@@ -217,6 +219,8 @@ export class FirestoreCheckInStore {
             eventListingId: params.session.eventListingId,
             checkedInBy: params.checkedInBy,
             source: 'offline',
+            // Sem internet só o QR é conferido no aparelho; o código precisa do servidor (D21).
+            method: 'qr',
             offlineSessionId: params.session.id,
             stationId: params.session.stationId,
             clientEventId: ev.clientEventId,

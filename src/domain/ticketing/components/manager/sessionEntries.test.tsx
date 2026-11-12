@@ -24,6 +24,7 @@ describe('Entradas da sessão (A2)', () => {
         courtesy: true,
         at: '2026-12-21T02:40:00.000Z',
         source: 'offline',
+        method: 'qr',
         releasedByOwner: false,
         releasedByUsername: 'bia.portaria',
       },
@@ -34,6 +35,7 @@ describe('Entradas da sessão (A2)', () => {
         courtesy: false,
         at: '2026-12-21T02:10:00.000Z',
         source: 'online',
+        method: 'code',
         releasedByOwner: true,
         releasedByUsername: null,
       },
@@ -50,11 +52,11 @@ describe('Entradas da sessão (A2)', () => {
     const sheet = await screen.findByRole('dialog');
     expect(await within(sheet).findByText('2 entradas')).toBeTruthy();
     expect(within(sheet).getByText('Ana Souza')).toBeTruthy();
-    expect(within(sheet).getByText('23:10')).toBeTruthy();
-    expect(within(sheet).getByText('Convidado')).toBeTruthy();
-    expect(within(sheet).getByText('Pista · liberado por você')).toBeTruthy();
+    expect(within(sheet).getByText(/^23:10 · Pista · liberado por você$/)).toBeTruthy();
+    expect(within(sheet).getByText('Código')).toBeTruthy();
+    expect(within(sheet).getByText('QR')).toBeTruthy();
     expect(
-      within(sheet).getByText('Cortesia · liberado por @bia.portaria · registrada sem internet')
+      within(sheet).getByText(/liberado por @bia\.portaria · registrada sem internet$/)
     ).toBeTruthy();
     expect(m.list).toHaveBeenCalledWith('ev1', 's1');
   });

@@ -210,6 +210,11 @@ export class CheckInService {
       occurrenceId: params.occurrenceId,
       checkedInBy: actor.uid,
       source: 'online',
+      ...(params.code
+        ? { method: 'code' as const }
+        : params.qrToken
+          ? { method: 'qr' as const }
+          : {}),
     });
 
     await createEventAuditLogUseCase({

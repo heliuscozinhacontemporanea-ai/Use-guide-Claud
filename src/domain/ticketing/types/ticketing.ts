@@ -217,6 +217,8 @@ export interface SessionEntry {
   courtesy: boolean;
   at: string;
   source: 'online' | 'offline';
+  /** QR lido ou código digitado; `null` quando a entrada não registrou. */
+  method: 'qr' | 'code' | null;
   /** Quem liberou a entrada (C1): o dono ou o @ de alguém da equipe da portaria. */
   releasedByOwner: boolean;
   releasedByUsername: string | null;

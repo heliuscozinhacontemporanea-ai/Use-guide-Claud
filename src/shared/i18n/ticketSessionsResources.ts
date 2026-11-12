@@ -27,7 +27,9 @@ export interface TicketSessionsTranslation {
     error: string;
     buyer: string;
     guest: string;
+    guestTag: string;
     offline: string;
+    method: { qr: string; code: string };
   };
   postponeDialog: {
     title: string;
@@ -89,7 +91,9 @@ export const ticketSessionsPtBR: TicketSessionsTranslation = {
     error: 'Não foi possível carregar as entradas.',
     buyer: 'Comprador',
     guest: 'Convidado',
+    guestTag: 'convidado',
     offline: 'registrada sem internet',
+    method: { qr: 'QR', code: 'Código' },
   },
   postponeDialog: {
     title: 'Adiar sessão',
@@ -156,7 +160,9 @@ export const ticketSessionsEn: TicketSessionsTranslation = {
     error: "Couldn't load the entries.",
     buyer: 'Buyer',
     guest: 'Guest',
+    guestTag: 'guest',
     offline: 'recorded offline',
+    method: { qr: 'QR', code: 'Code' },
   },
   postponeDialog: {
     title: 'Postpone session',
@@ -223,7 +229,9 @@ export const ticketSessionsFr: TicketSessionsTranslation = {
     error: 'Impossible de charger les entrées.',
     buyer: 'Acheteur',
     guest: 'Invité',
+    guestTag: 'invité',
     offline: 'enregistrée hors ligne',
+    method: { qr: 'QR', code: 'Code' },
   },
   postponeDialog: {
     title: 'Reporter la séance',

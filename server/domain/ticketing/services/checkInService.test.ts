@@ -113,7 +113,7 @@ describe('check-in do ingresso: QR Ed25519 e código INGR (D20, B36)', () => {
     expect(pass.code).toBe(deriveTicketCheckInCode('tkt_1', 1));
     await day.service.checkInTicket(PARTNER, { occurrenceId: 'occ_1', qrToken: early.token });
     expect(day.port.checkInTicketAtomic).toHaveBeenCalledWith(
-      expect.objectContaining({ ticketId: 'tkt_1' })
+      expect.objectContaining({ ticketId: 'tkt_1', method: 'qr' })
     );
   });
 
@@ -124,7 +124,7 @@ describe('check-in do ingresso: QR Ed25519 e código INGR (D20, B36)', () => {
       code: `INGR:${deriveTicketCheckInCode('tkt_2', 2)}`,
     });
     expect(port.checkInTicketAtomic).toHaveBeenCalledWith(
-      expect.objectContaining({ ticketId: 'tkt_2' })
+      expect.objectContaining({ ticketId: 'tkt_2', method: 'code' })
     );
     await expect(
       service.checkInTicket(PARTNER, {
