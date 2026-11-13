@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { UserRole } from '../../domain/auth/types/auth';
 import { i18n } from '../../shared/i18n';
 import { SideMenu } from './SideMenu';
@@ -145,6 +145,17 @@ function renderSideMenu(initialUrl = '/?menu=1') {
 }
 
 describe('SideMenu', () => {
+  // Sub-telas sob demanda: carregadas antes, para o teste não depender da velocidade da máquina.
+  beforeAll(async () => {
+    await Promise.all([
+      import('../lazy/entries/contentViews'),
+      import('../lazy/entries/bookingMenuViews'),
+      import('../lazy/entries/ticketMenuViews'),
+      import('../lazy/entries/favoritesList'),
+      import('../lazy/entries/userViews'),
+    ]);
+  });
+
   beforeEach(async () => {
     await i18n.changeLanguage('pt-BR');
     authContextState.user = {

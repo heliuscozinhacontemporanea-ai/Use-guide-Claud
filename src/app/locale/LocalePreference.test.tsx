@@ -1,6 +1,6 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { i18n, LOCALE_STORAGE_KEY } from '../../shared/i18n';
 import { LocalePreference } from './LocalePreference';
 
@@ -40,6 +40,10 @@ function setBrowserLanguages(languages: string[]) {
 }
 
 describe('LocalePreference (decisão D10)', () => {
+  // en e fr chegam sob demanda: carregados antes para o teste não depender da velocidade da máquina.
+  // A espera do aviso pelo idioma é coberta em shared/i18n/config.test.ts.
+  beforeAll(() => i18n.loadLanguages(['en', 'fr']));
+
   beforeEach(() => {
     window.localStorage.clear();
     auth.value = { user: null, profile: null };

@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, useLocation } from 'react-router-dom';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { useSyncLocaleWithUrl } from '../../shared/hooks/useLocalizedRouting';
 import { i18n } from '../../shared/i18n';
 import { AppRoutes } from './AppRoutes';
@@ -36,6 +36,16 @@ function renderAt(path: string) {
 }
 
 describe('AppRoutes', () => {
+  // Páginas sob demanda: carregadas antes, como faz o pré-carregamento do app, para o teste não
+  // depender de quanto a máquina demora para preparar o módulo na primeira vez.
+  beforeAll(async () => {
+    await Promise.all([
+      import('../compositions/CheckoutResultComposition'),
+      import('../compositions/AdminPanelComposition'),
+      import('../lazy/entries/accountActionPage'),
+    ]);
+  });
+
   afterEach(async () => {
     await i18n.changeLanguage('pt-BR');
   });
