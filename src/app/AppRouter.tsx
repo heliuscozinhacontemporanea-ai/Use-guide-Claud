@@ -1,15 +1,10 @@
 import { AnimatePresence, motion } from 'motion/react';
-import { useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
-import { LoginModal } from '../domain/auth/components/LoginModal';
 import { useAuthContext } from '../domain/auth/context/AuthContext';
 import { UserRole } from '../domain/auth/types/auth';
 import { GuideItem, useGuideCatalog } from '../domain/guide';
-import { ListingDetail } from '../domain/guide/components/detail/ListingDetail';
 import { NotificationBell } from '../domain/notifications';
-import { PartnersModal } from '../domain/partners';
-import { SearchOverlay } from '../domain/search';
-import { EventTicketingPurchasePanel } from '../domain/ticketing';
 import { ACCOUNT_ACTION_PATH } from '../shared/constants/accountActionPath';
 import { useLocalizedRouting, useSyncLocaleWithUrl } from '../shared/hooks/useLocalizedRouting';
 import { useScrollLock } from '../shared/hooks/useScrollLock';
@@ -17,14 +12,27 @@ import { useSEO } from '../shared/hooks/useSEO';
 import { useUI, useUIStore } from '../shared/stores/useUIStore';
 import { cn } from '../shared/utils/cn';
 import { BottomNav } from '../ui/components/BottomNav';
+import { DelayedFallback, ScreenFallback } from '../ui/lazy/DelayedFallback';
 import { Header } from '../ui/layouts/Header';
-import { AdminPanelComposition } from './compositions/AdminPanelComposition';
-import { ItemBookingComposition } from './compositions/ItemBookingComposition';
+import { prefetchWhenIdle } from './lazy/prefetchWhenIdle';
+import {
+  AdminPanelComposition,
+  COMMON_SCREENS,
+  EventTicketingPurchasePanel,
+  ItemBookingComposition,
+  ListingDetail,
+  LoginModal,
+  loadAdminPanel,
+  loadPartnerPortal,
+  PartnerPortalComposition,
+  PartnersModal,
+  SearchOverlay,
+} from './lazy/screens';
+import { useOpenedOnce } from './lazy/useOpenedOnce';
 
 // Categorias com reserva pelo app (passeio, translado, aluguel e entrada de atração).
 const BOOKABLE_CATEGORIES = ['tour', 'transfer', 'rental', 'sight'];
 
-import { PartnerPortalComposition } from './compositions/PartnerPortalComposition';
 import { SideMenu } from './menu/SideMenu';
 import { useSideMenu } from './menu/useSideMenu';
 import { AppRoutes } from './routes/AppRoutes';
@@ -44,6 +52,12 @@ export function AppRouter() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { isLoginModalOpen, isLoginClosingBySwipe, closeLoginModal, openLoginModal } = useUI();
   const loginModalTab = useUIStore((state) => state.loginModalTab);
+
+  useEffect(() => prefetchWhenIdle(COMMON_SCREENS), []);
+  useEffect(() => {
+    if (isPartner) return prefetchWhenIdle([loadPartnerPortal]);
+    if (isAdmin) return prefetchWhenIdle([loadAdminPanel]);
+  }, [isPartner, isAdmin]);
 
   useEffect(() => {
     if (searchParams.get('login') === '1') {
@@ -232,6 +246,8 @@ export function AppRouter() {
     isAccountActionPage || isAdminOpen || isPartnerPortalOpen || location.pathname === '/admin';
 
   const isRetracted = isLoginModalOpen && !isMenuOpen && !isLoginClosingBySwipe;
+  const loginMounted = useOpenedOnce(isLoginModalOpen);
+  const partnersMounted = useOpenedOnce(isPartnersOpen);
 
   return (
     <div className="relative h-screen bg-app text-ink selection:bg-teal-500/30">
@@ -278,9 +294,13 @@ export function AppRouter() {
         )}
 
         {isAdminOpen ? (
-          <AdminPanelComposition />
+          <Suspense fallback={<ScreenFallback className="min-h-dvh bg-app p-6" />}>
+            <AdminPanelComposition />
+          </Suspense>
         ) : isPartnerPortalOpen ? (
-          <PartnerPortalComposition />
+          <Suspense fallback={<ScreenFallback className="min-h-dvh bg-app p-6" />}>
+            <PartnerPortalComposition />
+          </Suspense>
         ) : (
           <AnimatePresence mode="wait">
             <motion.div
@@ -327,58 +347,85 @@ export function AppRouter() {
           onAdminOpen={handleAdminOpen}
         />
 
-        <PartnersModal
-          isOpen={isPartnersOpen}
-          onClose={() => setIsPartnersOpen(false)}
-          onOpenPartnerPanel={() => void openPartnerPortalAfterSignup()}
-        />
+        {partnersMounted && (
+          <Suspense fallback={null}>
+            <PartnersModal
+              isOpen={isPartnersOpen}
+              onClose={() => setIsPartnersOpen(false)}
+              onOpenPartnerPanel={() => void openPartnerPortalAfterSignup()}
+            />
+          </Suspense>
+        )}
 
         <AnimatePresence>
           {isSearchOpen && (
-            <SearchOverlay
-              isOpen={isSearchOpen}
-              onClose={() => setIsSearchOpen(false)}
-              onSelectItem={setSelectedItem}
-            />
+            <Suspense key="search" fallback={null}>
+              <SearchOverlay
+                isOpen={isSearchOpen}
+                onClose={() => setIsSearchOpen(false)}
+                onSelectItem={setSelectedItem}
+              />
+            </Suspense>
           )}
         </AnimatePresence>
 
         {/* Anúncio em tela cheia (2026-11-10): a foto cresce do cartão e volta ao fechar. */}
         <AnimatePresence>
           {selectedItem && (
-            <ListingDetail
-              key={selectedItem.id}
-              item={selectedItem}
-              onClose={() => setSelectedItem(null)}
-              renderBooking={
-                BOOKABLE_CATEGORIES.includes(selectedItem.category)
-                  ? (included) => (
-                      <ItemBookingComposition guideItemId={selectedItem.id} between={included} />
-                    )
-                  : undefined
-              }
-              ticketPanel={
-                selectedItem.category === 'event' ? (
-                  <EventTicketingPurchasePanel
-                    eventId={selectedItem.id}
-                    eventTitle={selectedItem.name}
-                    place={{ timeZone: selectedItem.timeZone, city: selectedItem.city }}
-                    userEmail={user?.email || undefined}
-                    userName={user?.displayName || undefined}
-                    onRequireLogin={openLoginModal}
-                  />
-                ) : undefined
-              }
-            />
+            <Suspense key={selectedItem.id} fallback={null}>
+              <ListingDetail
+                item={selectedItem}
+                onClose={() => setSelectedItem(null)}
+                renderBooking={
+                  BOOKABLE_CATEGORIES.includes(selectedItem.category)
+                    ? (included) => (
+                        <Suspense fallback={<BlockFallback />}>
+                          <ItemBookingComposition
+                            guideItemId={selectedItem.id}
+                            between={included}
+                          />
+                        </Suspense>
+                      )
+                    : undefined
+                }
+                ticketPanel={
+                  selectedItem.category === 'event' ? (
+                    <Suspense fallback={<BlockFallback />}>
+                      <EventTicketingPurchasePanel
+                        eventId={selectedItem.id}
+                        eventTitle={selectedItem.name}
+                        place={{ timeZone: selectedItem.timeZone, city: selectedItem.city }}
+                        userEmail={user?.email || undefined}
+                        userName={user?.displayName || undefined}
+                        onRequireLogin={openLoginModal}
+                      />
+                    </Suspense>
+                  ) : undefined
+                }
+              />
+            </Suspense>
           )}
         </AnimatePresence>
 
-        <LoginModal
-          isOpen={isLoginModalOpen}
-          onClose={closeLoginModal}
-          initialTab={loginModalTab}
-        />
+        {loginMounted && (
+          <Suspense fallback={null}>
+            <LoginModal
+              isOpen={isLoginModalOpen}
+              onClose={closeLoginModal}
+              initialTab={loginModalTab}
+            />
+          </Suspense>
+        )}
       </motion.div>
     </div>
+  );
+}
+
+/** Espaço do bloco de compra enquanto o código dele chega (DESIGN.md P15). */
+function BlockFallback() {
+  return (
+    <DelayedFallback>
+      <div className="h-24 rounded-[20px] bg-surface border border-line animate-pulse-slow" />
+    </DelayedFallback>
   );
 }

@@ -1,37 +1,39 @@
 import { AnimatePresence, motion } from 'motion/react';
-import React from 'react';
+import React, { Suspense } from 'react';
 import { hasPasswordSignInUseCase } from '../../domain/auth';
 import { useAuthContext } from '../../domain/auth/context/AuthContext';
 import { UserRole } from '../../domain/auth/types/auth';
-import { MyBookingsView, SlotCheckInSheet } from '../../domain/bookings';
-import { AboutLicensesView, AboutTermsView, AboutView, SupportView } from '../../domain/content';
-import { FavoritesList } from '../../domain/favorites';
-import { NotificationSettingsView } from '../../domain/notifications';
-import {
-  MyGatesView,
-  MyPromotionsView,
-  UserTicketsHistoryView,
-  useMyGates,
-  useMyPromotions,
-} from '../../domain/ticketing';
-import {
-  AccountView,
-  AppearanceSettingsView,
-  ChangePasswordView,
-  ImageCropperView,
-  LanguageSettingsView,
-  MainMenuView,
-  SettingsView,
-  UsernameSettingsView,
-  useUserPhoto,
-  useUserProfile,
-} from '../../domain/user';
+import { useMyGates, useMyPromotions } from '../../domain/ticketing';
+import { MainMenuView, useUserPhoto, useUserProfile } from '../../domain/user';
 import { Z_INDEX } from '../../shared/constants/zIndex';
 import { useLocalizedRouting } from '../../shared/hooks/useLocalizedRouting';
 import { cn } from '../../shared/utils/cn';
+import { ScreenFallback } from '../../ui/lazy/DelayedFallback';
 import { SidebarLayout } from '../../ui/layouts/SidebarLayout';
-import { BuyerPurchasesComposition } from '../compositions/BuyerPurchasesComposition';
-import { MyReviewsComposition } from '../compositions/MyReviewsComposition';
+import {
+  AboutLicensesView,
+  AboutTermsView,
+  AboutView,
+  AccountView,
+  AppearanceSettingsView,
+  BuyerPurchasesComposition,
+  ChangePasswordView,
+  FavoritesList,
+  ImageCropperView,
+  LanguageSettingsView,
+  MENU_SCREENS,
+  MyBookingsView,
+  MyGatesView,
+  MyPromotionsView,
+  MyReviewsComposition,
+  NotificationSettingsView,
+  SettingsView,
+  SlotCheckInSheet,
+  SupportView,
+  UserTicketsHistoryView,
+  UsernameSettingsView,
+} from '../lazy/menuScreens';
+import { prefetchWhenIdle } from '../lazy/prefetchWhenIdle';
 import { ProfileHighlightsComposition } from '../compositions/ProfileHighlightsComposition';
 import { signOut } from '../signOut';
 import { type MenuView, parentMenuView, visibleMenuView } from './menuViews';
@@ -96,6 +98,10 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
 
   const showView = (target: MenuView) => openMenu(target);
   const goBack = () => backTo(parentMenuView(view));
+
+  React.useEffect(() => {
+    if (isOpen) return prefetchWhenIdle(MENU_SCREENS);
+  }, [isOpen]);
 
   React.useEffect(() => {
     if (view !== 'account') {
@@ -371,17 +377,19 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
             transition={{ duration: 0.2 }}
             className="w-full h-full flex flex-col"
           >
-            <ImageCropperView
-              imageToCrop={imageToCrop}
-              crop={crop}
-              zoom={zoom}
-              onCropChange={onCropChange}
-              onCropComplete={onCropComplete}
-              onZoomChange={onZoomChange}
-              setZoom={setZoom}
-              onCancel={cancelCropping}
-              onConfirm={handleConfirmCrop}
-            />
+            <Suspense fallback={<ScreenFallback />}>
+              <ImageCropperView
+                imageToCrop={imageToCrop}
+                crop={crop}
+                zoom={zoom}
+                onCropChange={onCropChange}
+                onCropComplete={onCropComplete}
+                onZoomChange={onZoomChange}
+                setZoom={setZoom}
+                onCancel={cancelCropping}
+                onConfirm={handleConfirmCrop}
+              />
+            </Suspense>
           </motion.div>
         ) : (
           <motion.div
@@ -397,7 +405,7 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
               FULL_HEIGHT_VIEWS.includes(view) && 'flex-1 flex flex-col *:flex-1'
             )}
           >
-            {renderView()}
+            <Suspense fallback={<ScreenFallback />}>{renderView()}</Suspense>
           </motion.div>
         )}
       </AnimatePresence>

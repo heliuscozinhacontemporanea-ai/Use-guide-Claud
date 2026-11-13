@@ -50,25 +50,25 @@ describe('LocalePreference (decisão D10)', () => {
     await i18n.changeLanguage('pt-BR');
   });
 
-  it('página em português aberta por link mostra o aviso no idioma do navegador', () => {
+  it('página em português aberta por link mostra o aviso no idioma do navegador', async () => {
     setBrowserLanguages(['en-US']);
     renderAt('/eventos');
-    expect(screen.getByText('This page is also available in English.')).toBeTruthy();
+    expect(await screen.findByText('This page is also available in English.')).toBeTruthy();
   });
 
-  it('"View in English" grava a escolha e leva para a mesma página em inglês', () => {
+  it('"View in English" grava a escolha e leva para a mesma página em inglês', async () => {
     setBrowserLanguages(['en-US']);
     renderAt('/eventos');
-    fireEvent.click(screen.getByRole('button', { name: 'View in English' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'View in English' }));
     expect(screen.getByTestId('path').textContent).toBe('/en/events');
     expect(window.localStorage.getItem(LOCALE_STORAGE_KEY)).toBe('en');
     expect(screen.queryByText('This page is also available in English.')).toBeNull();
   });
 
-  it('"Continue in Portuguese" grava português e o aviso não volta', () => {
+  it('"Continue in Portuguese" grava português e o aviso não volta', async () => {
     setBrowserLanguages(['fr-FR']);
     renderAt('/eventos');
-    fireEvent.click(screen.getByRole('button', { name: 'Continuer en portugais' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Continuer en portugais' }));
     expect(window.localStorage.getItem(LOCALE_STORAGE_KEY)).toBe('pt-BR');
     expect(screen.queryByRole('region')).toBeNull();
   });
@@ -83,21 +83,21 @@ describe('LocalePreference (decisão D10)', () => {
     expect(screen.queryByRole('region')).toBeNull();
   });
 
-  it('a escolha feita com login sobe para a conta', () => {
+  it('a escolha feita com login sobe para a conta', async () => {
     setBrowserLanguages(['en-US']);
     auth.value = { user: { uid: 'u1' }, profile: { uid: 'u1', preferredLocale: 'en' } };
     window.localStorage.setItem(LOCALE_STORAGE_KEY, 'en');
     renderAt('/eventos');
-    fireEvent.click(screen.getByRole('button', { name: 'View in English' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'View in English' }));
     expect(updatePreferredLocaleUseCase).toHaveBeenCalledWith('en');
   });
 
-  it('o idioma salvo na conta vale neste aparelho', () => {
+  it('o idioma salvo na conta vale neste aparelho', async () => {
     setBrowserLanguages(['pt-BR']);
     auth.value = { user: { uid: 'u1' }, profile: { uid: 'u1', preferredLocale: 'fr' } };
     renderAt('/eventos');
     expect(window.localStorage.getItem(LOCALE_STORAGE_KEY)).toBe('fr');
-    expect(screen.getByText('Cette page est aussi disponible en français.')).toBeTruthy();
+    expect(await screen.findByText('Cette page est aussi disponible en français.')).toBeTruthy();
     expect(updatePreferredLocaleUseCase).not.toHaveBeenCalled();
   });
 

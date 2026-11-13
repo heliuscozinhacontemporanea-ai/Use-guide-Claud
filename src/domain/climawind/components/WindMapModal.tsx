@@ -1,12 +1,16 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { motion } from 'motion/react';
 import { X } from 'lucide-react';
-import { WindMapLeaflet } from './WindMapLeaflet';
 import { WindPoint } from '../types/climaWind';
 import { useScrollLock } from '../../../shared/hooks/useScrollLock';
 import { generateWindGrid } from '../utils/windGrid';
 import { Z_INDEX } from '../../../shared/constants/zIndex';
 import { firebaseApiFetch } from '../../../shared/infrastructure/firebase/firebaseApiFetch';
+import { ScreenFallback } from '../../../ui/lazy/DelayedFallback';
+import { lazyNamed } from '../../../ui/lazy/lazyNamed';
+
+// O Leaflet só é baixado quando o mapa abre (DESIGN.md P11).
+const WindMapLeaflet = lazyNamed(() => import('./WindMapLeaflet'), 'WindMapLeaflet');
 
 const NAMED_POINTS: WindPoint[] = [
   { id: 'jeri', name: 'Jericoacoara', lat: -2.796, lng: -40.508 },
@@ -72,7 +76,7 @@ export function WindMapModal({ isOpen, onClose }: WindMapModalProps) {
       const updatedPoints = ALL_WIND_POINTS.map((p, i) => {
         const pointData = Array.isArray(data) ? data[i] : i === 0 ? data : null;
 
-        if (!pointData || !pointData.current) {
+        if (!pointData?.current) {
           console.warn(`No data for point ${p.name || p.id}`, pointData);
           return { ...p, speed: 0, dir: 0 };
         }
@@ -113,7 +117,9 @@ export function WindMapModal({ isOpen, onClose }: WindMapModalProps) {
   return (
     <ModalLayout onClose={onClose}>
       <div className="relative w-full h-full">
-        <WindMapLeaflet points={points} />
+        <React.Suspense fallback={<ScreenFallback />}>
+          <WindMapLeaflet points={points} />
+        </React.Suspense>
       </div>
     </ModalLayout>
   );

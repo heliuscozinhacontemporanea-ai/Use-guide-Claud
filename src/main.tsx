@@ -1,7 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
-import './shared/i18n/config';
+import { i18nReady } from './shared/i18n/config';
 import { registerSW } from 'virtual:pwa-register';
 import App from './app/App.tsx';
 import { resolveHomeRedirect } from './shared/i18n';
@@ -20,10 +20,13 @@ if (homeRedirect) {
   window.history.replaceState(window.history.state, '', homeRedirect);
 }
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
-  </StrictMode>
-);
+// Quem usa inglês ou francês espera o idioma chegar antes da primeira pintura (AGENTS.md §12.2).
+void i18nReady.finally(() => {
+  createRoot(document.getElementById('root')!).render(
+    <StrictMode>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </StrictMode>
+  );
+});

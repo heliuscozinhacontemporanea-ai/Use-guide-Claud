@@ -160,29 +160,29 @@ describe('SideMenu', () => {
     expect(screen.getByText('main-menu-view')).toBeTruthy();
   });
 
-  it('renderiza FavoritesList quando menu=favorites', () => {
+  it('renderiza FavoritesList quando menu=favorites', async () => {
     renderSideMenu('/?menu=favorites');
-    expect(screen.getByText('favorites-view')).toBeTruthy();
+    expect(await screen.findByText('favorites-view')).toBeTruthy();
   });
 
-  it('renderiza MyBookingsView quando menu=bookings', () => {
+  it('renderiza MyBookingsView quando menu=bookings', async () => {
     renderSideMenu('/?menu=bookings');
-    expect(screen.getByText('my-bookings-view')).toBeTruthy();
+    expect(await screen.findByText('my-bookings-view')).toBeTruthy();
   });
 
-  it('renderiza UserTicketsHistoryView quando menu=tickets', () => {
+  it('renderiza UserTicketsHistoryView quando menu=tickets', async () => {
     renderSideMenu('/?menu=tickets');
-    expect(screen.getByText('user-tickets-view')).toBeTruthy();
+    expect(await screen.findByText('user-tickets-view')).toBeTruthy();
   });
 
-  it('renderiza AboutView quando menu=about', () => {
+  it('renderiza AboutView quando menu=about', async () => {
     renderSideMenu('/?menu=about');
-    expect(screen.getByText('about-view')).toBeTruthy();
+    expect(await screen.findByText('about-view')).toBeTruthy();
   });
 
-  it('renderiza SupportView quando menu=support', () => {
+  it('renderiza SupportView quando menu=support', async () => {
     renderSideMenu('/?menu=support');
-    expect(screen.getByText('support-view')).toBeTruthy();
+    expect(await screen.findByText('support-view')).toBeTruthy();
   });
 
   it('redireciona para main se deslogado ao tentar acessar tela privada', () => {

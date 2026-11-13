@@ -28,31 +28,3 @@ export const adminPanelPtBR: AdminPanelTranslation = {
     notifications: 'Avisos',
   },
 };
-
-export const adminPanelEn: AdminPanelTranslation = {
-  title: 'Admin panel',
-  back: 'Back to home',
-  tabsLabel: 'Admin panel sections',
-  tabs: {
-    reports: 'Reports',
-    partners: 'Partners',
-    items: 'Local guide',
-    events: 'Agenda',
-    plans: 'Plans',
-    notifications: 'Notices',
-  },
-};
-
-export const adminPanelFr: AdminPanelTranslation = {
-  title: 'Panneau admin',
-  back: 'Retour à l’accueil',
-  tabsLabel: 'Sections du panneau admin',
-  tabs: {
-    reports: 'Rapports',
-    partners: 'Partenaires',
-    items: 'Guide local',
-    events: 'Agenda',
-    plans: 'Formules',
-    notifications: 'Avis',
-  },
-};
