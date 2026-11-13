@@ -482,3 +482,13 @@ Desenho do responsável do produto, aprovado em 2026-11-08. Substitui a D30 e a 
 * **Leitura por agentes:** `git show origin/claude/agents/documentacao:docs/arquitetura/decisoes.md` (ou `git worktree add` da branch), sem trocar de branch.
 * A `claude/agents-md-v2` foi a branch de trabalho até 2026-11-08 e deixa de ser usada.
 
+## D32 — Design system em documento próprio: `DESIGN.md` (2026-11-13)
+
+Aprovada pelo responsável do produto em 2026-11-13 (solicitação S19 e propostas P1 a P24).
+
+* **Documento:** `DESIGN.md` na raiz, nas três branches, como o AGENTS.md. Rege aparência, movimento, gestos, interação e fluidez; o AGENTS.md §11 passa a apontar para ele e mantém só a regra de integridade (sem dado fictício; valores do backend). Muda só com autorização, como o AGENTS.md (§15).
+* **Regras novas (P1 a P24):** tokens de texto secundário calibrados por tema (o cinza a 50% reprova AA no claro); menos pesos de fonte; escalas fixas de texto (mínimo 12 px), espaçamento, raios (12, 20, 24 px e pílula) e ícones (16, 20, 24 px); imagem principal com prioridade; `ModalLayout` substituído pelo `Dialog`; animar só posição, escala e transparência; duração e curva num lugar só (`PushPage`); divisão por rota, pré-carregamento no toque, estrutura antes dos dados, resposta otimista só no que é seguro, skeleton só quando demora; cores do app instalado iguais ao tema; texto do sistema em 200%; gestos (arrastar folha, voltar pela borda) com mola; toda camada no histórico (voltar do Android e do iPhone); teclado sem cobrir a ação; convite para instalar o app (no iPhone, necessário para o push); sem menu do sistema no toque longo em botões e cartões; cada aba guarda o seu lugar.
+* **Base de movimento:** o vídeo `piloto-movimento.mp4` vale até o responsável mandar os vídeos novos de referência; a tabela 9.1 do `DESIGN.md` é refeita a partir deles (inclusive os valores de mola do P20).
+* **Débitos abertos:** B46 a B54 (`debitos.md`).
+* **Referência do texto anexado pelo responsável (dicas de fluidez):** adotados divisão por rota, pré-carregamento, estrutura antes dos dados, animar só propriedades compostas, resposta otimista restrita, imagens e fontes; não adotados por ora `ViewTransition`/`AnimateView` (duplicam a linguagem aprovada) e `@tanstack/react-virtual` (listas já paginadas). Instância mínima do Cloud Run e `web-vitals` ficam para decisão própria (custo e dependência nova).
+

@@ -8,6 +8,7 @@
 > Resposta de 2026-10-24: aprovada S15 (aplicada pelo prompt A5, junto com a S14).
 > Resposta de 2026-10-27: aprovada S16 (aplicada pelo prompt A6).
 > Resposta de 2026-10-27: aprovada S17 (aplicada pelo prompt A6, junto com a S16).
+> Resposta de 2026-11-13: aprovada S19, com as propostas P1 a P24 do `DESIGN.md` (D32).
 
 | # | Seção | Motivo | Status |
 |---|---|---|---|
@@ -29,6 +30,7 @@
 | S16 | §11.1 | D17: fundo neutro e liso, superfícies sólidas, cor só com significado e uma ação principal por tela | ✅ Aprovada em 2026-10-27 (prompt A6) |
 | S17 | §13 | Limite de 400 linhas só para código com mais de uma responsabilidade; conteúdo (traduções, textos legais) sem limite | ✅ Aprovada em 2026-10-27 (prompt A6, junto com a S16) |
 | S18 | §7.7 | D20: exceção ao mínimo de 128 bits para o código curto de check-in (6 caracteres nas reservas; 8 no ingresso e na entrada de atração, junto do QR), por HMAC, só para quem gerencia, na janela do serviço e com limite de erros | ✅ Aprovada em 2026-10-30 (extensão aos ingressos aprovada no mesmo dia; prompt A7, lote 18) |
+| S19 | §0.1, §0.2, §2.4, §11, §15 e §17 | Design system em documento próprio (`DESIGN.md`), com as propostas P1 a P24 | ✅ Aprovada em 2026-11-13 (D32) |
 
 ---
 
@@ -228,3 +230,82 @@
 > * Referência de tamanho (vale só para código: componentes, hooks, services, controllers, adapters): arquivo acima de **~200 linhas** DEVE ser avaliado para divisão. Acima de **400 linhas**, DEVE ser dividido ao tocar quando tiver mais de uma responsabilidade; se tiver uma só, PODE ficar, e a entrega registra em uma linha qual é a responsabilidade e por que não divide.
 > * Conteúdo não tem limite de linhas: traduções (`src/shared/i18n/`), textos legais e institucionais (termos, políticas, Sobre), testes, schemas e mappers declarativos. Textos legais e institucionais DEVEM ficar como conteúdo nos arquivos de tradução, por idioma, e não escritos dentro de componentes.
 
+## S19 — Design system em documento próprio (`DESIGN.md`)
+
+**Por quê:** as regras visuais estão espalhadas entre o AGENTS.md §11, as decisões D17, D19, D21 e D26, o README da base D17 e o código. O AGENTS.md mistura segurança e dinheiro com cor e movimento. Um documento só de design fica completo, é mais fácil de consultar e muda sem mexer nas regras de arquitetura.
+
+**O que sai do AGENTS.md:** o §11 inteiro (11.1 a 11.11), que passa para o `DESIGN.md` sem perder nenhuma regra.
+
+**O que fica no AGENTS.md:**
+
+* a lista de bibliotecas (§3.2);
+* o i18n (§12);
+* a proibição de dado fictício (§2.2.7);
+* links externos com `noopener` (§7.4).
+
+O `DESIGN.md` aponta para essas seções.
+
+---
+
+### 1. §0.1, item 6
+
+**Atual:**
+> 6. **UI/UX, acessibilidade e internacionalização** (§11, §12)
+
+**Proposto:**
+> 6. **UI/UX, acessibilidade e internacionalização** (`DESIGN.md`, §12)
+
+### 2. §0.2 Escopo
+
+**Atual:**
+> Vale para `src/` (frontend), `server/` + `server.ts` (backend), `functions/` (Cloud Functions), `firestore.rules`, `storage.rules`, `firestore.indexes.json` e `firebase.json`.
+
+**Proposto (frase nova no fim):**
+> As regras de aparência, movimento, interação e fluidez da interface estão no `DESIGN.md`, que tem a mesma força deste documento e segue a ordem de precedência do §0.1.
+
+### 3. §2.4, 4º item
+
+**Atual:**
+> * `AGENTS.md` e `README.md` existem nas três branches; ao mudar, as três são atualizadas no mesmo dia.
+
+**Proposto:**
+> * `AGENTS.md`, `DESIGN.md` e `README.md` existem nas três branches; ao mudar, as três são atualizadas no mesmo dia.
+
+O item 3 (branch de documentação) também passa a citar o `DESIGN.md`: "só documentação (`docs/`, `AGENTS.md`, `DESIGN.md`, `README.md`)".
+
+### 4. §11 inteiro
+
+**Atual:** §11.1 a §11.11 (identidade visual, contraste, responsividade, z-index, área de toque, feedback, acessibilidade, estados de dados, performance, conteúdo dinâmico e experiência de app nativo).
+
+**Proposto:**
+> ## 11. UI, UX e Layout
+>
+> As regras de design (cores e temas, tipografia, espaço, componentes, padrões de tela, movimento, fluidez, acessibilidade e responsividade) estão no **`DESIGN.md`**, na raiz. Toda tela nova ou tocada DEVE seguir o `DESIGN.md` e o seu checklist (§14.1 dele).
+>
+> Ficam aqui, por serem regras de integridade e não de aparência:
+> * Proibido texto fixo com aparência de dado real do item. Valores financeiros (preço, taxa, quantidade) DEVEM vir do backend/cadastro, nunca de constante no componente.
+
+### 5. §15, 1º item
+
+**Atual:**
+> * O AGENTS.md NÃO DEVE ser alterado por nenhum agente sem autorização explícita do responsável do produto. (…)
+
+**Proposto:**
+> * O AGENTS.md e o DESIGN.md NÃO DEVEM ser alterados por nenhum agente sem autorização explícita do responsável do produto. (…)
+
+### 6. §17, item de UI
+
+**Atual:**
+> - [ ] Contraste, toque ≥ 44px, `aria-label`, foco visível, z-index da escala, responsivo, dois temas (§11)
+
+**Proposto:**
+> - [ ] Checklist de design do `DESIGN.md` (§14.1 dele): tokens, contraste nos dois temas, escala de texto e raios, toque ≥ 44px, movimento, estados e carregamento sob demanda
+
+---
+
+### Aplicação, depois da autorização
+
+1. `DESIGN.md` na raiz, nas três branches, no mesmo dia, com as propostas P# aprovadas e sem as recusadas.
+2. Edições acima no AGENTS.md, nas três branches.
+3. Registro da S19 em `solicitacoes-agents.md` e da decisão em `decisoes.md`.
+4. As P# aprovadas que mexem em código entram como itens de trabalho, em PR próprio, com prints quando mudarem algo visível.
