@@ -14,6 +14,10 @@ import sys
 import yaml
 
 SOURCE_ANNOTATION = re.compile(r"^run\.googleapis\.com/(sources|base-images|build-)")
+# Com afinidade de sessão, o Google põe o cookie GAESA em toda resposta, e a CDN do Hosting deixa de
+# guardar o HTML das páginas (s-maxage). O servidor não guarda estado entre requisições (AGENTS.md §2.3),
+# então a afinidade não serve para nada aqui. Aprovado em 2026-11-13.
+SESSION_AFFINITY = "run.googleapis.com/sessionAffinity"
 
 
 def strip_source_annotations(metadata):
@@ -42,6 +46,7 @@ def prepare(service, image):
     strip_source_annotations(service.get("metadata"))
     template = service["spec"]["template"]
     strip_source_annotations(template.get("metadata"))
+    ((template.get("metadata") or {}).get("annotations") or {}).pop(SESSION_AFFINITY, None)
     # O nome da revisão precisa ser novo a cada deploy; sem ele, o Cloud Run gera um.
     (template.get("metadata") or {}).pop("name", None)
     # A atualização automática da imagem base só existe em deploy a partir do código-fonte; sem a
