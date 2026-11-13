@@ -8,7 +8,7 @@ export {
   getLocaleDisplayLabel,
   type Locale,
 } from './locale';
-export { i18n } from './config';
+export { ensureLocaleLoaded, i18n } from './config';
 export {
   isCrawler,
   resolveHomeRedirect,

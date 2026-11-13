@@ -49,6 +49,8 @@ export interface PartnerPanelProps {
   /** Ganhos (domínio payment), montado pela composição. */
   renderEarnings?: PartnerEarningsRenders;
   /** Área Cupons (promotions, B1); `scope` abre só os cupons daquele evento ou oferta. */
+  /** Mais › Equipe da portaria (C1), montada pela composição (ticketing). */
+  renderGateStaff?: (onBack: () => void) => ReactNode;
   renderCoupons?: (props: {
     scope: { kind: 'event' | 'offer'; id: string } | null;
     backLabel: string;

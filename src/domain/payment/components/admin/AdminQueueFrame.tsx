@@ -4,7 +4,7 @@ import { ListEmpty, ListError, ListLoading } from '../../../../ui/components/Lis
 import { BUTTON_SECONDARY } from '../../../../ui/styles/controls';
 import { adminFinanceErrorKey } from '../../utils/adminFinanceErrors';
 
-/** Carregando, erro, vazio e "carregar mais" de uma fila do admin (AGENTS.md §11.8). */
+/** Carregando, erro, vazio e "carregar mais" de uma fila do admin (DESIGN.md §8). */
 export function AdminQueueFrame({
   hint,
   loading,

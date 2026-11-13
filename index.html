@@ -30,6 +30,37 @@
         document.querySelector('meta[name="theme-color"]').setAttribute('content', dark ? '#0d0e10' : '#f3eee4');
       })();
     </script>
+    <script id="stale-html-guard">
+      // Logo depois de uma publicação, uma cópia antiga deste HTML (cache da CDN) pode apontar para arquivos
+      // do app que não existem mais. Se um deles falhar, recarrega uma vez com `_v`, que muda o endereço e
+      // traz o HTML novo; o `_v` sai da barra antes de o app abrir. O main.tsx libera a próxima recarga.
+      (function () {
+        var KEY = 'useguide.htmlReload';
+        var url = new URL(window.location.href);
+        if (url.searchParams.has('_v')) {
+          url.searchParams.delete('_v');
+          window.history.replaceState(window.history.state, '', url.pathname + url.search + url.hash);
+        }
+        window.addEventListener(
+          'error',
+          function (event) {
+            var el = event.target;
+            if (!el || (el.tagName !== 'SCRIPT' && !(el.tagName === 'LINK' && el.rel === 'modulepreload'))) return;
+            if ((el.src || el.href || '').indexOf('/assets/') === -1) return;
+            try {
+              if (sessionStorage.getItem(KEY)) return;
+              sessionStorage.setItem(KEY, '1');
+            } catch (e) {
+              return;
+            }
+            var fresh = new URL(window.location.href);
+            fresh.searchParams.set('_v', String(Date.now()));
+            window.location.replace(fresh.toString());
+          },
+          true
+        );
+      })();
+    </script>
     <link rel="canonical" href="https://useguide.com.br" />
     <link rel="alternate" hreflang="pt-BR" href="https://useguide.com.br/" />
     <link rel="alternate" hreflang="en" href="https://useguide.com.br/en" />

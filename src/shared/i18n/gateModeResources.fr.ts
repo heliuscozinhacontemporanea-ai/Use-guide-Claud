@@ -1,0 +1,26 @@
+import type { GateModeTranslation } from './gateModeResources';
+
+export const gateModeFr: GateModeTranslation = {
+  open: 'Ouvrir le mode accueil',
+  online: 'En ligne',
+  offline: 'Hors ligne',
+  close: 'Quitter le mode accueil',
+  lowBattery: 'Batterie faible. Branchez le chargeur pour ne pas arrêter l’accueil.',
+  aim: 'Visez le QR code dans le cadre',
+  opening: 'Ouverture de la caméra…',
+  standby: 'Caméra en veille pour économiser la batterie.',
+  cameraDenied: 'Pas d’accès à la caméra. Utilisez « Saisir le code ».',
+  unsupported: 'Le lecteur n’a pas pu s’ouvrir. Utilisez « Saisir le code ».',
+  resume: 'Touchez pour continuer',
+  enterCode: 'Saisir le code',
+  torch: 'Lampe',
+  next: 'Suivant',
+  codeTitle: 'Code jeton',
+  codeLabel: 'Code affiché sous le QR code',
+  character: 'Caractère {{n}} sur {{total}}',
+  confirmCode: 'Confirmer',
+  failed: 'Impossible de valider. Réessayez.',
+  allowed: 'Entrée autorisée',
+  denied: 'Entrée refusée',
+  attention: 'Attention',
+};

@@ -1,0 +1,80 @@
+import type { PurchasesTranslation } from './purchasesResources';
+
+export const purchasesEn: PurchasesTranslation = {
+  settingsItem: 'Purchases',
+  title: 'Purchases',
+  back: 'Back',
+  tabsLabel: 'Purchases',
+  tabs: {
+    done: 'Completed',
+    pending: 'Pending',
+    pendingCount: 'Pending ({{count}})',
+    canceled: 'Canceled',
+  },
+  empty: {
+    done: 'No completed purchases.',
+    pending: 'No purchases waiting for payment.',
+    canceled: 'No canceled purchases.',
+  },
+  loading: 'Loading your purchases…',
+  service: {
+    event: 'Event on {{date}}',
+    tour: 'Tour on {{date}}',
+    private_entry: 'Entry on {{date}}',
+  },
+  status: {
+    paid: 'Paid',
+    partiallyRefunded: 'Paid · partially refunded',
+    awaitingPayment: 'Awaiting payment · until {{time}}',
+    awaitingPaymentNoTime: 'Awaiting payment',
+    processing: 'Payment being confirmed',
+    disputed: 'Under review',
+    noShow: 'No-show',
+    refundPending: 'Refund in progress',
+    refunded: 'Refunded',
+    refundedAmount: 'Refunded {{amount}}',
+    notCompleted: 'Payment not completed',
+    canceledByPartner: 'Canceled by the organizer',
+  },
+  pay: 'Pay',
+  receipt: {
+    boughtAt: '#{{code}} · purchased on {{date}}',
+    serviceAt: '{{place}} · {{date}}',
+    tickets_one: '{{count}} ticket',
+    tickets_other: '{{count}} tickets',
+    participants_one: '{{count}} participant',
+    participants_other: '{{count}} participants',
+    discount: 'Discount',
+    serviceFee: 'Service fee',
+    total: 'Total paid',
+    refund: 'Refund',
+    finalAmount: 'Final amount',
+    policy: 'Cancellation policy: {{title}}. {{description}}',
+    viewTickets: 'View tickets',
+    viewBooking: 'View booking',
+    cancel: 'Cancel purchase',
+    cancelEndedTickets: 'The refund cancellation period has ended. Your tickets are still valid.',
+    cancelEndedBooking: 'The refund cancellation period has ended. Your booking is still valid.',
+  },
+  confirm: {
+    title: 'Cancel purchase?',
+    refundLabel: 'Refund',
+    withdrawal:
+      'You are within the withdrawal period and get everything back. Valid until {{date}}.',
+    withdrawalWithFee:
+      'You are within the withdrawal period: you get everything back, including the service fee. Valid until {{date}}.',
+    reschedule: 'The date changed and you get everything back. Valid until {{date}}.',
+    rescheduleWithFee:
+      'The date changed: you get everything back, including the service fee. Valid until {{date}}.',
+    policy: 'Under the {{policy}} policy, you get {{percent}}% back. Valid until {{date}}.',
+    policyKeepsFee:
+      'Under the {{policy}} policy, you get {{percent}}% of the tickets back. The service fee is not refunded. Valid until {{date}}.',
+    note: 'The amount goes back to the same payment method.',
+    confirm: 'Cancel purchase',
+    keep: 'Keep purchase',
+  },
+  feedback: {
+    canceled: 'Purchase canceled. The refund goes back to the same payment method.',
+  },
+  errors: { cancel: 'Could not cancel the purchase.' },
+};

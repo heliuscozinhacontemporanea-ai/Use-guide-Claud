@@ -18,7 +18,7 @@ import {
   ticketCodeVisibleFromMs,
 } from '../utils/ticketCheckInWindow';
 import {
-  assertCanManageOccurrence,
+  assertCanOperateGate,
   getAuditActorType,
   isActorAdmin,
   type TicketingActorContext,
@@ -120,6 +120,21 @@ export class CheckInService {
     return this.generateTicketPresentationQr(actor, ticketId);
   }
 
+  /**
+   * Contagem da portaria (C1): quantos ingressos valem para a sessão e quantos já entraram. É o que
+   * a equipe vê; vendas e valores ficam com o dono.
+   */
+  async gateCounts(
+    actor: TicketingActorContext,
+    occurrenceId: string
+  ): Promise<{ total: number; entered: number }> {
+    await assertCanOperateGate(actor, occurrenceId, this.now());
+    const tickets = await this.port.listTicketsByOccurrenceId(occurrenceId);
+    const entered = tickets.filter((ticket) => ticket.status === 'checked_in').length;
+    const waiting = tickets.filter((ticket) => ticket.status === 'issued').length;
+    return { total: entered + waiting, entered };
+  }
+
   async checkInTicket(
     actor: TicketingActorContext,
     params: {
@@ -130,7 +145,11 @@ export class CheckInService {
       code?: string;
     }
   ): Promise<{ ticket: Ticket; checkIn: EventCheckIn }> {
-    const { listing, occurrence } = await assertCanManageOccurrence(actor, params.occurrenceId);
+    const { listing, occurrence } = await assertCanOperateGate(
+      actor,
+      params.occurrenceId,
+      this.now()
+    );
 
     let targetTicketId = params.ticketId;
     if (!targetTicketId && params.code) {
@@ -191,6 +210,11 @@ export class CheckInService {
       occurrenceId: params.occurrenceId,
       checkedInBy: actor.uid,
       source: 'online',
+      ...(params.code
+        ? { method: 'code' as const }
+        : params.qrToken
+          ? { method: 'qr' as const }
+          : {}),
     });
 
     await createEventAuditLogUseCase({

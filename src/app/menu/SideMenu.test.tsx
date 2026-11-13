@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { UserRole } from '../../domain/auth/types/auth';
 import { i18n } from '../../shared/i18n';
 import { SideMenu } from './SideMenu';
@@ -48,6 +48,8 @@ vi.mock('../../domain/ticketing', () => ({
   ),
   MyPromotionsView: () => <span>my-promotions-view</span>,
   useMyPromotions: () => ({ data: [], loading: false, error: false, reload: vi.fn() }),
+  MyGatesView: () => <span>my-gates-view</span>,
+  useMyGates: () => ({ data: [], loading: false, error: false, reload: vi.fn() }),
 }));
 
 vi.mock('../../domain/content', () => ({
@@ -143,6 +145,17 @@ function renderSideMenu(initialUrl = '/?menu=1') {
 }
 
 describe('SideMenu', () => {
+  // Sub-telas sob demanda: carregadas antes, para o teste não depender da velocidade da máquina.
+  beforeAll(async () => {
+    await Promise.all([
+      import('../lazy/entries/contentViews'),
+      import('../lazy/entries/bookingMenuViews'),
+      import('../lazy/entries/ticketMenuViews'),
+      import('../lazy/entries/favoritesList'),
+      import('../lazy/entries/userViews'),
+    ]);
+  });
+
   beforeEach(async () => {
     await i18n.changeLanguage('pt-BR');
     authContextState.user = {
@@ -158,29 +171,29 @@ describe('SideMenu', () => {
     expect(screen.getByText('main-menu-view')).toBeTruthy();
   });
 
-  it('renderiza FavoritesList quando menu=favorites', () => {
+  it('renderiza FavoritesList quando menu=favorites', async () => {
     renderSideMenu('/?menu=favorites');
-    expect(screen.getByText('favorites-view')).toBeTruthy();
+    expect(await screen.findByText('favorites-view')).toBeTruthy();
   });
 
-  it('renderiza MyBookingsView quando menu=bookings', () => {
+  it('renderiza MyBookingsView quando menu=bookings', async () => {
     renderSideMenu('/?menu=bookings');
-    expect(screen.getByText('my-bookings-view')).toBeTruthy();
+    expect(await screen.findByText('my-bookings-view')).toBeTruthy();
   });
 
-  it('renderiza UserTicketsHistoryView quando menu=tickets', () => {
+  it('renderiza UserTicketsHistoryView quando menu=tickets', async () => {
     renderSideMenu('/?menu=tickets');
-    expect(screen.getByText('user-tickets-view')).toBeTruthy();
+    expect(await screen.findByText('user-tickets-view')).toBeTruthy();
   });
 
-  it('renderiza AboutView quando menu=about', () => {
+  it('renderiza AboutView quando menu=about', async () => {
     renderSideMenu('/?menu=about');
-    expect(screen.getByText('about-view')).toBeTruthy();
+    expect(await screen.findByText('about-view')).toBeTruthy();
   });
 
-  it('renderiza SupportView quando menu=support', () => {
+  it('renderiza SupportView quando menu=support', async () => {
     renderSideMenu('/?menu=support');
-    expect(screen.getByText('support-view')).toBeTruthy();
+    expect(await screen.findByText('support-view')).toBeTruthy();
   });
 
   it('redireciona para main se deslogado ao tentar acessar tela privada', () => {

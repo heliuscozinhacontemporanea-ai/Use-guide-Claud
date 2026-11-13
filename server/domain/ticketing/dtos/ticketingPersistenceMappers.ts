@@ -388,6 +388,7 @@ export class EventCheckInPersistenceMapper {
       occurrenceId: String(raw.occurrenceId || ''),
       checkedInBy: String(raw.checkedInBy || ''),
       source: raw.source === 'offline' ? 'offline' : 'online',
+      ...(raw.method === 'qr' || raw.method === 'code' ? { method: raw.method } : {}),
       offlineSessionId: typeof raw.offlineSessionId === 'string' ? raw.offlineSessionId : undefined,
       stationId: typeof raw.stationId === 'string' ? raw.stationId : undefined,
       clientEventId: typeof raw.clientEventId === 'string' ? raw.clientEventId : undefined,

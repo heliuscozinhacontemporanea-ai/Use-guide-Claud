@@ -121,6 +121,34 @@ export function toPartnerSlot(slot: AvailabilitySlot) {
 }
 
 /** Check-in de uma unidade: a reserva, qual unidade, o nome (entrada nominal) e se já tinha entrado. */
+/**
+ * Entrada liberada por alguém da equipe da portaria (C1): só o que a tela da portaria mostra, sem
+ * valores, comprador nem contato.
+ */
+export function toGateUnitCheckIn(result: UnitCheckInResult) {
+  const { booking } = result;
+  return {
+    booking: {
+      id: booking.id,
+      offerId: booking.offerId,
+      slotId: booking.slotId,
+      kind: booking.kind,
+      status: booking.status as BookingStatus,
+      participantsCount: booking.participantsCount,
+      sellingUnit: booking.offerSnapshot.sellingUnit ?? 'person',
+      checkIns: (booking.checkIns ?? []).map((checkIn) => ({
+        unit: checkIn.unit,
+        at: checkIn.at,
+        method: checkIn.method,
+      })),
+    },
+    unit: result.unit,
+    name: result.name,
+    alreadyCheckedIn: result.alreadyCheckedIn,
+    checkedInAt: result.checkedInAt,
+  };
+}
+
 export function toUnitCheckIn(result: UnitCheckInResult) {
   return {
     booking: toSellerBooking(result.booking),

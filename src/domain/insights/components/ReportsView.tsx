@@ -1,17 +1,24 @@
 import { ChevronLeft, Lock } from 'lucide-react';
 import { motion } from 'motion/react';
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '../../../shared/utils/cn';
 import { ErrorState } from '../../../ui/components/ErrorState';
 import { VerifiedBadge } from '../../../ui/components/VerifiedBadge';
+import { ScreenFallback } from '../../../ui/lazy/DelayedFallback';
+import { lazyNamed } from '../../../ui/lazy/lazyNamed';
 import type { GuideItem } from '../../guide';
 import { useEntityReport } from '../hooks/useEntityReport';
 import type { ReportEntity } from '../types/report';
 import { PendingReviewsPanel } from './reports/PendingReviewsPanel';
 import { ReportsEntityPicker } from './reports/ReportsEntityPicker';
 import { ReportsStatsGrid } from './reports/ReportsStatsGrid';
-import { ReportsViewsChart } from './reports/ReportsViewsChart';
+
+// O Recharts só é baixado quando o relatório abre (DESIGN.md P11).
+const ReportsViewsChart = lazyNamed(
+  () => import('./reports/ReportsViewsChart'),
+  'ReportsViewsChart'
+);
 
 interface ReportsViewProps {
   partnerId: string;
@@ -141,7 +148,9 @@ export function ReportsView({ items, events, unansweredByItem }: ReportsViewProp
           className="space-y-8"
         >
           <ReportsStatsGrid stats={report.stats} />
-          <ReportsViewsChart history={report.stats.history} />
+          <Suspense fallback={<ScreenFallback className="p-0" />}>
+            <ReportsViewsChart history={report.stats.history} />
+          </Suspense>
           <PendingReviewsPanel
             reviews={report.reviews}
             onReplied={report.markReplied}

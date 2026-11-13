@@ -1,6 +1,6 @@
 import { INPUT } from '../../../../ui/styles/controls';
 
-/** Classes do cadastro de parceiro (V2): tokens do app, roxo só na seleção e no avanço (§11.1). */
+/** Classes do cadastro de parceiro (V2): tokens do app, roxo só na seleção e no avanço (DESIGN.md §2.2). */
 export const SIGNUP_LABEL = 'block mb-1.5 px-1 text-[14px] font-semibold text-ink';
 export const SIGNUP_INPUT = `${INPUT} min-h-12 px-4 text-[15px] placeholder:text-ink/50`;
 export const SIGNUP_TEXTAREA = `${SIGNUP_INPUT} py-3 resize-none`;

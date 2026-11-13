@@ -6,7 +6,7 @@ import { type PartnerMoreEntry, PartnerMoreTab } from './PartnerMoreTab';
 
 /** Telas da conta que vêm de outros domínios, montadas pela composição do app. */
 export type PartnerAccountView = 'notifications' | 'terms' | 'help';
-export type PartnerMoreView = 'list' | 'plans' | 'coupons' | PartnerAccountView;
+export type PartnerMoreView = 'list' | 'plans' | 'coupons' | 'gate-staff' | PartnerAccountView;
 
 /** Mais (p24): o que é da conta e não do dia a dia, em dois grupos. */
 export function PartnerMoreSection({
@@ -23,6 +23,8 @@ export function PartnerMoreSection({
   notificationsHint,
   onReplayTour,
   renderCoupons,
+  renderGateStaff,
+  showGateStaff = true,
   showProducer = true,
   sells = true,
   onAddSegment,
@@ -46,6 +48,10 @@ export function PartnerMoreSection({
   onReplayTour?: () => void;
   /** Área Cupons, montada pela composição (promotions). */
   renderCoupons?: () => ReactNode;
+  /** Equipe da portaria (C1), montada pela composição (ticketing); só com o segmento Eventos. */
+  renderGateStaff?: (onBack: () => void) => ReactNode;
+  /** Só com portaria: segmentos Eventos ou Atração. */
+  showGateStaff?: boolean;
   /** Só com o segmento Eventos (painel por segmento). */
   showProducer?: boolean;
   /** Vende pelo app: contas de recebimento e cupons; a vitrine (hospedagem, restaurante) não. */
@@ -73,6 +79,7 @@ export function PartnerMoreSection({
     );
   }
   if (view === 'coupons') return <>{renderCoupons?.()}</>;
+  if (view === 'gate-staff') return <>{renderGateStaff?.(back)}</>;
   if (view !== 'list') return <>{renderAccountView?.(view, back)}</>;
 
   const documentsHint = summary
@@ -135,6 +142,14 @@ export function PartnerMoreSection({
           },
         ]
       : [];
+  if (renderGateStaff && showGateStaff) {
+    sales.push({
+      id: 'gate-staff',
+      title: t('gateStaff.owner.title'),
+      hint: t('gateStaff.owner.entryHint'),
+      onOpen: () => onViewChange('gate-staff'),
+    });
+  }
   const addSegment: PartnerMoreEntry[] = onAddSegment
     ? [
         {

@@ -1,0 +1,95 @@
+import type { AdminFinanceTranslation } from './adminFinanceResources';
+
+export const adminFinanceFr: AdminFinanceTranslation = {
+  title: 'Finances',
+  tabsLabel: 'Files financières',
+  tabs: {
+    claims: 'Réclamations',
+    forceMajeure: 'Force majeure',
+    debts: 'Dettes',
+  },
+  loading: 'Chargement…',
+  loadMore: 'Charger plus',
+  sending: 'Envoi…',
+  unknownSeller: 'Vendeur non identifié',
+  claims: {
+    hint: 'Achats avec un problème signalé par l’acheteur. Le versement est retenu jusqu’à la décision ; sans décision dans le délai, il est libéré.',
+    empty: 'Aucune réclamation à traiter.',
+    refundPending: 'Remboursement en cours',
+    fallbackTitle: {
+      ticket_order: 'Commande de billets',
+      booking: 'Réservation',
+    },
+    decideBy: 'Décider avant le {{date}}',
+    meta: 'Signalé le {{opened}} · payé {{paid}}',
+    metaEnd: 'service terminé le {{date}}',
+    decide: 'Décider',
+    decideTitle: 'Traiter la réclamation',
+    decideDescription:
+      'La décision est définitive. Le remboursement est prélevé sur le solde de la plateforme avant le versement.',
+    outcomeLabel: 'Décision',
+    outcomeRequired: 'Choisissez la décision.',
+    outcome: {
+      release: 'Libérer le versement',
+      refund_full: 'Remboursement intégral · {{amount}}',
+      refund_partial: 'Remboursement partiel',
+    },
+    outcomeHint: {
+      release: 'Le partenaire est payé normalement.',
+      refund_full: 'Frais de service compris.',
+      refund_partial: 'Jusqu’à {{max}}, sans les frais de service.',
+    },
+    partialLabel: 'Montant du remboursement',
+    partialInvalid: 'Indiquez un montant jusqu’à {{max}}.',
+    penaltyLabel: 'Pénalité de 20 % au partenaire',
+    penaltyHint: 'Service qui n’a pas eu lieu ; 24 h pour payer.',
+    submit: 'Confirmer la décision',
+    decided: {
+      release: 'Versement libéré.',
+      refund_full: 'Remboursement intégral demandé au moyen de paiement.',
+      refund_partial: 'Remboursement partiel demandé au moyen de paiement.',
+    },
+  },
+  forceMajeure: {
+    hint: 'Pénalités d’annulation avec force majeure déclarée. Pendant l’examen, la pénalité est suspendue.',
+    empty: 'Aucune déclaration à examiner.',
+    declaredAt: 'Déclarée le {{date}}',
+    meta: 'Déclarée le {{date}} · pénalité de {{amount}}',
+    openProof: 'Ouvrir le justificatif',
+    approve: 'Approuver',
+    reject: 'Refuser',
+    approveConfirm: 'Approuver la force majeure ? La pénalité est annulée.',
+    rejectConfirm:
+      'Refuser la force majeure ? La pénalité s’applique à nouveau, avec 24 h pour payer.',
+    approved: 'Force majeure approuvée. Pénalité annulée.',
+    rejected: 'Force majeure refusée. La pénalité s’applique à nouveau.',
+  },
+  debts: {
+    hint: 'Dettes ouvertes des CNPJ. Échue, la dette suspend les ventes du CNPJ et est déduite des versements.',
+    empty: 'Aucune dette ouverte.',
+    dueOn: 'Échéance le {{date}}',
+    overdueSince: 'Échue depuis le {{date}} · ventes suspendues',
+    waive: 'Annuler la dette',
+    waiveShort: 'Annuler',
+    reason: {
+      cancellation_penalty: 'Pénalité d’annulation',
+      dispute_lost: 'Litige perdu',
+      post_release_refund: 'Remboursement après versement',
+    },
+    waiveConfirm:
+      'Annuler {{amount}} ? La dette n’est plus réclamée et les ventes du CNPJ reprennent s’il n’y en a pas d’autre échue.',
+    waived: 'Dette annulée.',
+  },
+  errors: {
+    NOT_FOUND: 'Enregistrement introuvable. Actualisez la liste.',
+    FORBIDDEN: 'Accès réservé à l’admin.',
+    CLAIM_ALREADY_DECIDED: 'Cette réclamation a déjà été traitée.',
+    CLAIM_REFUND_FAILED: 'Le moyen de paiement a refusé le remboursement. Réessayez.',
+    INVALID_REFUND_AMOUNT: 'Montant hors de ce qui peut encore revenir à l’acheteur.',
+    PENALTY_NOT_ALLOWED:
+      'La pénalité ne s’applique qu’à un service qui n’a pas eu lieu, avec remboursement intégral.',
+    FORCE_MAJEURE_NOT_PENDING: 'Cette déclaration a déjà été examinée.',
+    DEBT_ALREADY_SETTLED: 'Cette dette est déjà réglée.',
+    UNAVAILABLE: 'Impossible de terminer maintenant. Réessayez.',
+  },
+};

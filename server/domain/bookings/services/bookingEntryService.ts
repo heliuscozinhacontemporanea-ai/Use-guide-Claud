@@ -57,12 +57,23 @@ export interface EntryCheckInInput {
   capturedAt?: string;
 }
 
+/**
+ * Equipe da portaria da atração (C1): diz se a pessoa pode liberar entradas do lugar. Com `atIso`
+ * (entrada lida sem internet e enviada depois), vale se ela fazia parte da equipe naquele instante.
+ */
+export type EntryGateStaffCheck = (
+  guideItemId: string,
+  uid: string,
+  atIso?: string
+) => Promise<boolean>;
+
 /** Entrada de atração privada (D20): um QR assinado por pessoa, verificável sem internet. */
 export class BookingEntryService {
   constructor(
     private readonly port: BookingsPort,
     private readonly signer: EntryPassSignerPort,
-    private readonly now: () => Date = () => new Date()
+    private readonly now: () => Date = () => new Date(),
+    private readonly isGateStaff: EntryGateStaffCheck = async () => false
   ) {}
 
   async getEntryPass(actor: BookingActor, bookingId: string): Promise<EntryPassView> {
@@ -100,7 +111,50 @@ export class BookingEntryService {
     };
   }
 
-  /** Chaves públicas para a portaria conferir o QR sem internet; só para o dono da oferta. */
+  /**
+   * Horários de entrada do lugar para quem opera a portaria (C1): o dono ou a equipe ativa. Só o
+   * que a portaria precisa para abrir: oferta, horário e nome; sem vendas nem valores.
+   */
+  async listGateSlots(
+    actor: BookingActor,
+    guideItemId: string,
+    fromIso: string,
+    toIso: string
+  ): Promise<
+    Array<{
+      offerId: string;
+      slotId: string;
+      title: string;
+      startsAt: string;
+      endsAt: string | null;
+      timeZone: string | null;
+    }>
+  > {
+    const offers = (await this.port.listPublishedOffersByGuideItem(guideItemId)).filter(
+      (offer) => offer.kind === 'private_entry'
+    );
+    const owner = offers[0]?.ownerId;
+    if (!owner || (owner !== actor.uid && !(await this.isGateStaff(guideItemId, actor.uid)))) {
+      throw new BookingDomainError('NOT_FOUND', 'Lugar não encontrado.');
+    }
+    const lists = await Promise.all(
+      offers.map(async (offer) =>
+        (await this.port.listSlots(offer.id, fromIso, toIso))
+          .filter((slot) => slot.status === 'open')
+          .map((slot) => ({
+            offerId: offer.id,
+            slotId: slot.id,
+            title: offer.title['pt-BR'],
+            startsAt: slot.startsAt,
+            endsAt: slot.endsAt ?? null,
+            timeZone: offer.timeZone ?? null,
+          }))
+      )
+    );
+    return lists.flat().sort((a, b) => a.startsAt.localeCompare(b.startsAt));
+  }
+
+  /** Chaves públicas para a portaria conferir o QR sem internet; para o dono ou a equipe (C1). */
   async getVerificationKeys(
     actor: BookingActor,
     offerId: string
@@ -110,7 +164,7 @@ export class BookingEntryService {
   }
 
   async checkIn(actor: BookingActor, input: EntryCheckInInput): Promise<UnitCheckInResult> {
-    const offer = await this.ownedEntryOffer(actor, input.offerId);
+    const offer = await this.ownedEntryOffer(actor, input.offerId, input.capturedAt);
     const slot = await this.port.getSlot(input.slotId);
     if (slot?.offerId !== offer.id) {
       throw new BookingDomainError('NOT_FOUND', 'Horário não encontrado.');
@@ -216,10 +270,16 @@ export class BookingEntryService {
     throw new BookingDomainError('INVALID_CHECK_IN_CODE', 'Código incorreto.');
   }
 
-  private async ownedEntryOffer(actor: BookingActor, offerId: string) {
+  private async ownedEntryOffer(actor: BookingActor, offerId: string, capturedAt?: string) {
     const offer = await this.port.getOffer(offerId);
-    // Só o dono da oferta valida a entrada; de outro parceiro responde como inexistente (§7.10).
-    if (!offer || offer.ownerId !== actor.uid) {
+    // Só o dono ou a equipe da portaria do lugar (C1) valida a entrada, conferido a cada leitura;
+    // de qualquer outra conta a oferta responde como inexistente (§7.10).
+    const allowed =
+      offer &&
+      (offer.ownerId === actor.uid ||
+        (offer.kind === 'private_entry' &&
+          (await this.isGateStaff(offer.guideItemId, actor.uid, capturedAt))));
+    if (!offer || !allowed) {
       throw new BookingDomainError('NOT_FOUND', 'Oferta não encontrada.');
     }
     if (offer.kind !== 'private_entry') throw NOT_ENTRY();

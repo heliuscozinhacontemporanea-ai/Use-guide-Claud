@@ -71,49 +71,52 @@ function getActor(req: AuthenticatedRequest) {
   };
 }
 
+const STATUS_BY_CODE: Record<string, number> = {
+  INVALID_ARGUMENT: 400,
+  FORBIDDEN: 403,
+  EMAIL_NOT_VERIFIED: 403,
+  NOT_FOUND: 404,
+  TRANSFER_LINK_INVALID: 404,
+  CONFLICT: 409,
+  TRANSFER_LINK_EXPIRED: 410,
+  UNPROCESSABLE_ENTITY: 422,
+  TRANSFER_ONLY_TO_BUYER: 422,
+  TRANSFER_LINK_OWN: 422,
+  COURTESY_NOT_TRANSFERABLE: 422,
+  TOO_MANY_REQUESTS: 429,
+  SERVICE_UNAVAILABLE: 503,
+};
+
+/** Formato único de erro (§10.2): `code` estável e mensagem segura para a pessoa. */
+function sendError(res: Response, status: number, code: string, message: string): Response {
+  return res.status(status).json({ error: { code, message } });
+}
+
 function handleTicketingError(res: Response, error: unknown): Response {
   // Cupom recusado na compra: a tela traduz pelo código (inválido, encerrado, esgotado, já usado).
   if (error instanceof PromotionsDomainError) {
-    return res.status(422).json({ error: { code: error.code, message: error.message } });
+    return sendError(res, 422, error.code, error.message);
   }
   if (error instanceof TicketingDomainError) {
-    switch (error.code) {
-      case 'INVALID_ARGUMENT':
-        return res.status(400).json({ error: error.message });
-      case 'FORBIDDEN':
-        return res.status(403).json({ error: error.message });
-      case 'NOT_FOUND':
-        return res.status(404).json({ error: error.message });
-      case 'CONFLICT':
-        return res.status(409).json({ error: error.message });
-      case 'UNPROCESSABLE_ENTITY':
-        return res.status(422).json({ error: error.message });
-      case 'TOO_MANY_REQUESTS':
-        return res.status(429).json({ error: error.message });
-      case 'TRANSFER_ONLY_TO_BUYER':
-      case 'TRANSFER_LINK_OWN':
-      case 'COURTESY_NOT_TRANSFERABLE':
-        return res.status(422).json({ error: error.message });
-      case 'TRANSFER_LINK_INVALID':
-        return res.status(404).json({ error: error.message });
-      case 'TRANSFER_LINK_EXPIRED':
-        return res.status(410).json({ error: error.message });
-      case 'EMAIL_NOT_VERIFIED':
-        return res.status(403).json({ error: { code: error.code, message: error.message } });
-      case 'SERVICE_UNAVAILABLE':
-        return res.status(503).json({ error: error.message });
-    }
+    const status = STATUS_BY_CODE[error.code];
+    if (status) return sendError(res, status, error.code, error.message);
   }
   if (error && typeof error === 'object' && 'code' in error) {
     const code = String((error as { code?: unknown }).code);
-    const msg = error instanceof Error ? error.message : 'Erro na operação.';
-    if (code === 'FORBIDDEN') return res.status(403).json({ error: msg });
-    if (code === 'NOT_FOUND') return res.status(404).json({ error: msg });
-    if (code === 'CONFLICT') return res.status(409).json({ error: msg });
-    if (code === 'UNPROCESSABLE_ENTITY') return res.status(422).json({ error: msg });
+    const status = ['FORBIDDEN', 'NOT_FOUND', 'CONFLICT', 'UNPROCESSABLE_ENTITY'].includes(code)
+      ? STATUS_BY_CODE[code]
+      : undefined;
+    if (status) {
+      return sendError(
+        res,
+        status,
+        code,
+        error instanceof Error ? error.message : 'Erro na operação.'
+      );
+    }
   }
-  console.error('[TicketingController]', error);
-  return res.status(500).json({ error: 'Erro interno no serviço de ingressos.' });
+  console.error('[TicketingController]', error instanceof Error ? error.name : 'unknown');
+  return sendError(res, 500, 'INTERNAL_ERROR', 'Erro interno no serviço de ingressos.');
 }
 
 export class TicketingController {
@@ -121,7 +124,7 @@ export class TicketingController {
     try {
       const occurrenceId = String(req.params.occurrenceId || req.query.occurrenceId || '');
       if (!occurrenceId) {
-        return res.status(400).json({ error: 'occurrenceId é obrigatório.' });
+        return sendError(res, 400, 'VALIDATION_ERROR', 'occurrenceId é obrigatório.');
       }
       const list = await listPublicTicketTypesByOccurrenceUseCase(occurrenceId);
       return res.status(200).json({ status: 'success', data: list });
@@ -132,7 +135,7 @@ export class TicketingController {
 
   static async listManagementTicketTypes(req: AuthenticatedRequest, res: Response) {
     try {
-      if (!req.user) return res.status(401).json({ error: 'Não autenticado.' });
+      if (!req.user) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
       const occurrenceId = String(req.params.occurrenceId || req.query.occurrenceId || '');
       const list = await listTicketTypesForManagementUseCase(getActor(req), occurrenceId);
       return res.status(200).json({ status: 'success', data: list });
@@ -143,10 +146,10 @@ export class TicketingController {
 
   static async createTicketType(req: AuthenticatedRequest, res: Response) {
     try {
-      if (!req.user) return res.status(401).json({ error: 'Não autenticado.' });
+      if (!req.user) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
       const parsed = createTicketTypeSchema.safeParse(req.body);
       if (!parsed.success) {
-        return res.status(400).json({ error: 'Dados inválidos.', details: parsed.error.flatten() });
+        return sendError(res, 400, 'VALIDATION_ERROR', 'Dados inválidos.');
       }
       const created = await createTicketTypeUseCase(getActor(req), parsed.data);
       return res.status(201).json({ status: 'success', id: created.id, data: created });
@@ -157,10 +160,10 @@ export class TicketingController {
 
   static async updateTicketType(req: AuthenticatedRequest, res: Response) {
     try {
-      if (!req.user) return res.status(401).json({ error: 'Não autenticado.' });
+      if (!req.user) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
       const parsed = updateTicketTypeSchema.safeParse(req.body);
       if (!parsed.success) {
-        return res.status(400).json({ error: 'Dados inválidos.', details: parsed.error.flatten() });
+        return sendError(res, 400, 'VALIDATION_ERROR', 'Dados inválidos.');
       }
       const ticketTypeId = String(req.params.ticketTypeId || req.params.id || '');
       const updated = await updateTicketTypeUseCase(getActor(req), ticketTypeId, parsed.data);
@@ -172,7 +175,7 @@ export class TicketingController {
 
   static async archiveOrDeleteTicketType(req: AuthenticatedRequest, res: Response) {
     try {
-      if (!req.user) return res.status(401).json({ error: 'Não autenticado.' });
+      if (!req.user) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
       const ticketTypeId = String(req.params.ticketTypeId || req.params.id || '');
       const result = await archiveTicketTypeUseCase(getActor(req), ticketTypeId);
       return res.status(200).json({ status: 'success', ...result });
@@ -183,10 +186,10 @@ export class TicketingController {
 
   static async createOrder(req: AuthenticatedRequest, res: Response) {
     try {
-      if (!req.user) return res.status(401).json({ error: 'Não autenticado.' });
+      if (!req.user) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
       const parsed = createTicketOrderSchema.safeParse(req.body);
       if (!parsed.success) {
-        return res.status(400).json({ error: 'Dados inválidos.', details: parsed.error.flatten() });
+        return sendError(res, 400, 'VALIDATION_ERROR', 'Dados inválidos.');
       }
       const result = await createTicketOrderUseCase(getActor(req), parsed.data);
       return res.status(result.isIdempotentReplay ? 200 : 201).json({
@@ -202,13 +205,11 @@ export class TicketingController {
 
   static async createOrderPaymentIntent(req: AuthenticatedRequest, res: Response) {
     try {
-      if (!req.user) return res.status(401).json({ error: 'Não autenticado.' });
+      if (!req.user) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
       const orderId = String(req.params.id || '');
       const parsed = payTicketOrderSchema.safeParse(req.body || {});
       if (!parsed.success) {
-        return res
-          .status(400)
-          .json({ error: 'Dados de pagamento inválidos.', details: parsed.error.flatten() });
+        return sendError(res, 400, 'VALIDATION_ERROR', 'Dados de pagamento inválidos.');
       }
       const result = await createTicketOrderPaymentIntentApplicationUseCase(getActor(req), {
         orderId,
@@ -222,11 +223,11 @@ export class TicketingController {
 
   static async confirmOrderPaymentReturn(req: AuthenticatedRequest, res: Response) {
     try {
-      if (!req.user) return res.status(401).json({ error: 'Não autenticado.' });
+      if (!req.user) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
       const orderId = String(req.params.id || '');
       const paymentIntentId = String(req.body?.paymentIntentId || req.query.paymentIntentId || '');
       if (!paymentIntentId) {
-        return res.status(400).json({ error: 'paymentIntentId é obrigatório.' });
+        return sendError(res, 400, 'VALIDATION_ERROR', 'paymentIntentId é obrigatório.');
       }
       const result = await confirmTicketOrderPaymentClientReturnApplicationUseCase(getActor(req), {
         orderId,
@@ -240,11 +241,11 @@ export class TicketingController {
 
   static async expireOrder(req: AuthenticatedRequest, res: Response) {
     try {
-      if (!req.user) return res.status(401).json({ error: 'Não autenticado.' });
+      if (!req.user) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
       const orderId = String(req.params.id || '');
       const { order } = await getTicketOrderUseCase(getActor(req), orderId);
       if (order.buyerId !== req.user.uid && req.user.admin !== true) {
-        return res.status(403).json({ error: 'Acesso negado a este pedido.' });
+        return sendError(res, 403, 'FORBIDDEN', 'Acesso negado a este pedido.');
       }
       await expireTicketOrderUseCase(orderId);
       return res.status(200).json({ status: 'success', orderId, expired: true });
@@ -255,7 +256,7 @@ export class TicketingController {
 
   static async listUserOrders(req: AuthenticatedRequest, res: Response) {
     try {
-      if (!req.user) return res.status(401).json({ error: 'Não autenticado.' });
+      if (!req.user) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
       const orders = await listUserTicketOrdersUseCase(getActor(req));
       return res.status(200).json({ status: 'success', data: orders });
     } catch (error) {
@@ -265,7 +266,7 @@ export class TicketingController {
 
   static async getOrder(req: AuthenticatedRequest, res: Response) {
     try {
-      if (!req.user) return res.status(401).json({ error: 'Não autenticado.' });
+      if (!req.user) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
       const id = String(req.params.id || '');
       const result = await getTicketOrderUseCase(getActor(req), id);
       return res.status(200).json({
@@ -280,7 +281,7 @@ export class TicketingController {
 
   static async listUserTickets(req: AuthenticatedRequest, res: Response) {
     try {
-      if (!req.user) return res.status(401).json({ error: 'Não autenticado.' });
+      if (!req.user) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
       const tickets = await listUserTicketsUseCase(getActor(req));
       return res.status(200).json({ status: 'success', data: tickets });
     } catch (error) {
@@ -290,7 +291,7 @@ export class TicketingController {
 
   static async getTicketQrToken(req: AuthenticatedRequest, res: Response) {
     try {
-      if (!req.user) return res.status(401).json({ error: 'Não autenticado.' });
+      if (!req.user) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
       const ticketId = String(req.params.id || '');
       const result = await getTicketQrTokenUseCase(getActor(req), ticketId);
       return res.status(200).json({
@@ -307,7 +308,7 @@ export class TicketingController {
 
   static async swapTicketQr(req: AuthenticatedRequest, res: Response) {
     try {
-      if (!req.user) return res.status(401).json({ error: 'Não autenticado.' });
+      if (!req.user) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
       const result = await swapTicketQrUseCase(getActor(req), String(req.params.id || ''));
       return res.status(200).json({ status: 'success', data: result });
     } catch (error) {
@@ -317,10 +318,10 @@ export class TicketingController {
 
   static async listOfflineCheckInChanges(req: AuthenticatedRequest, res: Response) {
     try {
-      if (!req.user) return res.status(401).json({ error: 'Não autenticado.' });
+      if (!req.user) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
       const since = typeof req.query.since === 'string' ? req.query.since : '';
       if (Number.isNaN(new Date(since).getTime())) {
-        return res.status(400).json({ error: 'Parâmetro since inválido.' });
+        return sendError(res, 400, 'VALIDATION_ERROR', 'Parâmetro since inválido.');
       }
       const result = await listOfflineCheckInChangesUseCase(getActor(req), {
         sessionId: String(req.params.sessionId || ''),
@@ -336,10 +337,10 @@ export class TicketingController {
 
   static async requestRefund(req: AuthenticatedRequest, res: Response) {
     try {
-      if (!req.user) return res.status(401).json({ error: 'Não autenticado.' });
+      if (!req.user) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
       const parsed = requestTicketRefundSchema.safeParse(req.body);
       if (!parsed.success) {
-        return res.status(400).json({ error: 'Dados inválidos.', details: parsed.error.flatten() });
+        return sendError(res, 400, 'VALIDATION_ERROR', 'Dados inválidos.');
       }
       const orderId = String(req.params.id || '');
       const result = await processTicketRefundApplicationUseCase(getActor(req), {
@@ -357,13 +358,36 @@ export class TicketingController {
 
   static async checkInTicket(req: AuthenticatedRequest, res: Response) {
     try {
-      if (!req.user) return res.status(401).json({ error: 'Não autenticado.' });
+      if (!req.user) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
       const parsed = checkInTicketSchema.safeParse(req.body);
       if (!parsed.success) {
-        return res.status(400).json({ error: 'Dados inválidos.', details: parsed.error.flatten() });
+        return sendError(res, 400, 'VALIDATION_ERROR', 'Dados inválidos.');
       }
-      const result = await checkInTicketUseCase(getActor(req), parsed.data);
-      return res.status(200).json({ status: 'success', data: result });
+      const { ticket, checkIn } = await checkInTicketUseCase(getActor(req), parsed.data);
+      // Saída por allowlist (§7.9 regra 4): a portaria, inclusive a equipe (C1), vê só o nome do
+      // titular, o lote e se é convidado; nunca o e-mail, o comprador nem o hash do QR.
+      return res.status(200).json({
+        status: 'success',
+        data: {
+          ticket: {
+            id: ticket.id,
+            status: ticket.status,
+            holderName: ticket.holderName,
+            courtesyId: ticket.courtesyId ?? null,
+            ticketTypeSnapshot: ticket.ticketTypeSnapshot
+              ? { name: ticket.ticketTypeSnapshot.name }
+              : null,
+            checkedInAt: ticket.checkedInAt ?? null,
+          },
+          checkIn: {
+            id: checkIn.id,
+            ticketId: checkIn.ticketId,
+            occurrenceId: checkIn.occurrenceId,
+            source: checkIn.source,
+            checkedInAt: checkIn.checkedInAt,
+          },
+        },
+      });
     } catch (error) {
       return handleTicketingError(res, error);
     }
@@ -371,10 +395,10 @@ export class TicketingController {
 
   static async createOfflineCheckInSession(req: AuthenticatedRequest, res: Response) {
     try {
-      if (!req.user) return res.status(401).json({ error: 'Não autenticado.' });
+      if (!req.user) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
       const parsed = createOfflineCheckInSessionSchema.safeParse(req.body);
       if (!parsed.success) {
-        return res.status(400).json({ error: 'Dados inválidos.', details: parsed.error.flatten() });
+        return sendError(res, 400, 'VALIDATION_ERROR', 'Dados inválidos.');
       }
       const result = await createOfflineCheckInSessionUseCase(getActor(req), parsed.data);
       return res.status(201).json({ status: 'success', data: result });
@@ -385,14 +409,14 @@ export class TicketingController {
 
   static async syncOfflineCheckIns(req: AuthenticatedRequest, res: Response) {
     try {
-      if (!req.user) return res.status(401).json({ error: 'Não autenticado.' });
+      if (!req.user) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
       const parsed = syncOfflineCheckInsSchema.safeParse(req.body);
       if (!parsed.success) {
-        return res.status(400).json({ error: 'Dados inválidos.', details: parsed.error.flatten() });
+        return sendError(res, 400, 'VALIDATION_ERROR', 'Dados inválidos.');
       }
       const rawEvents = parsed.data.events || parsed.data.items || [];
       if (rawEvents.length === 0) {
-        return res.status(400).json({ error: 'Nenhum evento offline informado.' });
+        return sendError(res, 400, 'VALIDATION_ERROR', 'Nenhum evento offline informado.');
       }
       const normalizedEvents = rawEvents.map((ev) => {
         const scannedAt =
@@ -423,7 +447,7 @@ export class TicketingController {
 
   static async getEventSalesAnalytics(req: AuthenticatedRequest, res: Response) {
     try {
-      if (!req.user) return res.status(401).json({ error: 'Não autenticado.' });
+      if (!req.user) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
       const eventListingId = String(req.params.id || '');
       const occurrenceId =
         typeof req.query.occurrenceId === 'string' ? req.query.occurrenceId : undefined;
@@ -440,7 +464,7 @@ export class TicketingController {
 
   static async listEventOrders(req: AuthenticatedRequest, res: Response) {
     try {
-      if (!req.user) return res.status(401).json({ error: 'Não autenticado.' });
+      if (!req.user) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
       const eventListingId = String(req.params.id || '');
       const actor = getActor(req);
       const orders = await listEventOrdersForPartnerOrAdminUseCase(actor, eventListingId);
@@ -455,7 +479,7 @@ export class TicketingController {
 
   static async listEventCheckIns(req: AuthenticatedRequest, res: Response) {
     try {
-      if (!req.user) return res.status(401).json({ error: 'Não autenticado.' });
+      if (!req.user) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
       const eventListingId = String(req.params.id || '');
       const checkIns = await listEventCheckInsForPartnerOrAdminUseCase(
         getActor(req),
@@ -469,7 +493,7 @@ export class TicketingController {
 
   static async listEventRefunds(req: AuthenticatedRequest, res: Response) {
     try {
-      if (!req.user) return res.status(401).json({ error: 'Não autenticado.' });
+      if (!req.user) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
       const eventListingId = String(req.params.id || '');
       const refunds = await listEventRefundsForPartnerOrAdminUseCase(getActor(req), eventListingId);
       return res.status(200).json({ status: 'success', data: refunds });
@@ -480,10 +504,10 @@ export class TicketingController {
 
   static async joinWaitlist(req: AuthenticatedRequest, res: Response) {
     try {
-      if (!req.user) return res.status(401).json({ error: 'Não autenticado.' });
+      if (!req.user) return sendError(res, 401, 'UNAUTHENTICATED', 'Não autenticado.');
       const parsed = joinWaitlistSchema.safeParse(req.body);
       if (!parsed.success) {
-        return res.status(400).json({ error: 'Dados inválidos.', details: parsed.error.flatten() });
+        return sendError(res, 400, 'VALIDATION_ERROR', 'Dados inválidos.');
       }
       const entry = await joinEventWaitlistUseCase(getActor(req), parsed.data);
       return res.status(201).json({ status: 'success', data: entry });

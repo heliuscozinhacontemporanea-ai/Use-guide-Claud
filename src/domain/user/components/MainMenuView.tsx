@@ -1,4 +1,4 @@
-import { Handshake, Megaphone, User } from 'lucide-react';
+import { Handshake, Megaphone, ScanLine, User } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatBusinessDate } from '../../../shared/utils/businessDateTime';
@@ -29,6 +29,8 @@ interface MainMenuViewProps {
   highlights?: ReactNode;
   /** Divulgação (D27): só para quem divulga ou foi convidado a divulgar algum evento. */
   onPromotionsOpen?: () => void;
+  /** Portaria (C1): só para quem está na equipe ou foi convidado para a portaria de um evento. */
+  onGateOpen?: () => void;
 }
 
 /** Tela principal do menu (D19): perfil com login; sem login, entrar ou cadastrar. */
@@ -48,6 +50,7 @@ export function MainMenuView({
   onPhotoClick,
   highlights,
   onPromotionsOpen,
+  onGateOpen,
 }: MainMenuViewProps) {
   const { t, i18n } = useTranslation();
   const fullName = userData.firstName ? `${userData.firstName} ${userData.lastName}`.trim() : '';
@@ -88,6 +91,9 @@ export function MainMenuView({
                 label={t('promoters.user.menu')}
                 onClick={onPromotionsOpen}
               />
+            )}
+            {onGateOpen && (
+              <MenuRow icon={ScanLine} label={t('gateStaff.menu.label')} onClick={onGateOpen} />
             )}
             {isAdmin || isPartner ? (
               <MenuRow

@@ -8,6 +8,13 @@ import { TicketingReportService } from './ticketingReportService';
 import { TicketOrderService } from './ticketOrderService';
 import { TicketTypeService } from './ticketTypeService';
 
+vi.mock('../../gateStaff', () => ({
+  isActiveGateStaffUseCase: vi.fn(
+    async (scope: { id: string }, uid: string) => scope.id === 'evt_1' && uid === 'equipe_1'
+  ),
+  wasGateStaffAtUseCase: vi.fn(async () => false),
+}));
+
 vi.mock('../../events', () => ({
   EventNotFoundError: class extends Error {
     code = 'NOT_FOUND';

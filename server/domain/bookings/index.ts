@@ -67,6 +67,7 @@ export { getPendingServiceConfirmationUseCase } from './usecases/getPendingServi
 export { getPublicOfferSummaryUseCase } from './usecases/getPublicOfferSummaryUseCase';
 export { getVerifiedServiceForReviewUseCase } from './usecases/getVerifiedServiceForReviewUseCase';
 export { hasCheckedInBookingUseCase } from './usecases/hasCheckedInBookingUseCase';
+export { listEntryGateSlotsUseCase } from './usecases/listEntryGateSlotsUseCase';
 export { listAvailableSlotsUseCase } from './usecases/listAvailableSlotsUseCase';
 export { listBookingsWithDueDeadlineUseCase } from './usecases/listBookingsWithDueDeadlineUseCase';
 export { listConfirmedBookingsStartingBetweenUseCase } from './usecases/listConfirmedBookingsStartingBetweenUseCase';

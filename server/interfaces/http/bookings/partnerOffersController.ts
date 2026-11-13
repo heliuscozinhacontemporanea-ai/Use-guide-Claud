@@ -23,7 +23,13 @@ import {
 } from '../../../domain/bookings';
 import type { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
 import { handleBookingError, sendError } from './bookingHttpErrors';
-import { toPartnerOffer, toPartnerSlot, toSellerBooking, toUnitCheckIn } from './bookingResponses';
+import {
+  toGateUnitCheckIn,
+  toPartnerOffer,
+  toPartnerSlot,
+  toSellerBooking,
+  toUnitCheckIn,
+} from './bookingResponses';
 import {
   CheckInByCodeSchema,
   CheckInWithoutCodeSchema,
@@ -392,7 +398,14 @@ export class PartnerOffersController {
         slotId: slotId.data,
         ...body.data,
       });
-      return res.status(200).json(toUnitCheckIn(result));
+      // A equipe da portaria (C1) recebe só o que a portaria mostra; o dono, a reserva inteira.
+      return res
+        .status(200)
+        .json(
+          result.booking.sellerPartnerId === actor.uid
+            ? toUnitCheckIn(result)
+            : toGateUnitCheckIn(result)
+        );
     } catch (error) {
       return handleBookingError(res, 'checkInEntry', error);
     }

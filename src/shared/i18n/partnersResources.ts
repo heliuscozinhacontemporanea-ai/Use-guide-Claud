@@ -32,37 +32,3 @@ export const partnersPtBR: PartnersTranslation = {
     edit: 'Editar {{name}}',
   },
 };
-
-export const partnersEn: PartnersTranslation = {
-  place: {
-    state: 'State',
-    statePlaceholder: 'Select',
-    city: 'City',
-    cityPlaceholder: 'E.g. Jijoca de Jericoacoara',
-    region: 'Area / Neighborhood',
-    regionPlaceholder: 'Neighborhood, beach or area',
-    address: 'Address',
-    addressPlaceholder: 'Postal code, street and number',
-    required: 'Enter the state and the city',
-  },
-  items: {
-    edit: 'Edit {{name}}',
-  },
-};
-
-export const partnersFr: PartnersTranslation = {
-  place: {
-    state: 'État',
-    statePlaceholder: 'Choisir',
-    city: 'Ville',
-    cityPlaceholder: 'Ex. : Jijoca de Jericoacoara',
-    region: 'Région / Quartier',
-    regionPlaceholder: 'Quartier, plage ou région',
-    address: 'Adresse',
-    addressPlaceholder: 'Code postal, rue et numéro',
-    required: "Indiquez l'État et la ville",
-  },
-  items: {
-    edit: 'Modifier {{name}}',
-  },
-};

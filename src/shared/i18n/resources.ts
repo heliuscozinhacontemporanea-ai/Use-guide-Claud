@@ -1,250 +1,61 @@
-import {
-  type AdminFinanceTranslation,
-  adminFinanceEn,
-  adminFinanceFr,
-  adminFinancePtBR,
-} from './adminFinanceResources';
-import {
-  type AdminPanelTranslation,
-  adminPanelEn,
-  adminPanelFr,
-  adminPanelPtBR,
-} from './adminPanelResources';
-import {
-  type AppAboutTranslation,
-  appAboutEn,
-  appAboutFr,
-  appAboutPtBR,
-} from './appAboutResources';
-import {
-  type ArrivalNoticeTranslation,
-  arrivalNoticeEn,
-  arrivalNoticeFr,
-  arrivalNoticePtBR,
-} from './arrivalNoticeResources';
-import {
-  type BookingsTranslation,
-  bookingsEn,
-  bookingsFr,
-  bookingsPtBR,
-} from './bookingsResources';
-import {
-  type CourtesyTranslation,
-  courtesyEn,
-  courtesyFr,
-  courtesyPtBR,
-} from './courtesyResources';
+import { type AdminFinanceTranslation, adminFinancePtBR } from './adminFinanceResources';
+import { type AdminPanelTranslation, adminPanelPtBR } from './adminPanelResources';
+import { type AppAboutTranslation, appAboutPtBR } from './appAboutResources';
+import { type ArrivalNoticeTranslation, arrivalNoticePtBR } from './arrivalNoticeResources';
+import { type BookingsTranslation, bookingsPtBR } from './bookingsResources';
+import { type CourtesyTranslation, courtesyPtBR } from './courtesyResources';
 import {
   type EmailVerificationTranslation,
-  emailVerificationEn,
-  emailVerificationFr,
   emailVerificationPtBR,
 } from './emailVerificationResources';
-import {
-  type EventSessionsTranslation,
-  eventSessionsEn,
-  eventSessionsFr,
-  eventSessionsPtBR,
-} from './eventSessionsResources';
-import {
-  type TicketLotsTranslation,
-  ticketLotsEn,
-  ticketLotsFr,
-  ticketLotsPtBR,
-} from './ticketLotsResources';
-import {
-  type GateModeTranslation,
-  gateModeEn,
-  gateModeFr,
-  gateModePtBR,
-} from './gateModeResources';
-import { type HelpTranslation, helpEn, helpFr, helpPtBR } from './helpResources';
-import {
-  type InsightsTranslation,
-  insightsEn,
-  insightsFr,
-  insightsPtBR,
-} from './insightsResources';
-import { type LegalTranslation, legalEn, legalFr, legalPtBR } from './legalResources';
-import {
-  type ListingDetailTranslation,
-  listingDetailEn,
-  listingDetailFr,
-  listingDetailPtBR,
-} from './listingDetailResources';
-import {
-  type ListingPlanTranslation,
-  listingPlanEn,
-  listingPlanFr,
-  listingPlanPtBR,
-} from './listingPlanResources';
-import { type NotifyTranslation, notifyEn, notifyFr, notifyPtBR } from './notifyResources';
+import { type EventSessionsTranslation, eventSessionsPtBR } from './eventSessionsResources';
+import { type GateStaffTranslation, gateStaffPtBR } from './gateStaffResources';
+import { type TicketLotsTranslation, ticketLotsPtBR } from './ticketLotsResources';
+import { type GateModeTranslation, gateModePtBR } from './gateModeResources';
+import { type HelpTranslation, helpPtBR } from './helpResources';
+import { type InsightsTranslation, insightsPtBR } from './insightsResources';
+import { type LegalTranslation, legalPtBR } from './legalResources';
+import { type ListingDetailTranslation, listingDetailPtBR } from './listingDetailResources';
+import { type ListingPlanTranslation, listingPlanPtBR } from './listingPlanResources';
+import { type NotifyTranslation, notifyPtBR } from './notifyResources';
 import {
   type PartnerAddSegmentTranslation,
-  partnerAddSegmentEn,
-  partnerAddSegmentFr,
   partnerAddSegmentPtBR,
 } from './partnerAddSegmentResources';
-import {
-  type PartnerAgoraTranslation,
-  partnerAgoraEn,
-  partnerAgoraFr,
-  partnerAgoraPtBR,
-} from './partnerAgoraResources';
-import {
-  type PartnerCatalogTranslation,
-  partnerCatalogEn,
-  partnerCatalogFr,
-  partnerCatalogPtBR,
-} from './partnerCatalogResources';
-import {
-  type PartnerEarningsTranslation,
-  partnerEarningsEn,
-  partnerEarningsFr,
-  partnerEarningsPtBR,
-} from './partnerEarningsResources';
+import { type PartnerAgoraTranslation, partnerAgoraPtBR } from './partnerAgoraResources';
+import { type PartnerCatalogTranslation, partnerCatalogPtBR } from './partnerCatalogResources';
+import { type PartnerEarningsTranslation, partnerEarningsPtBR } from './partnerEarningsResources';
 import {
   type PartnerFirstStepsTranslation,
-  partnerFirstStepsEn,
-  partnerFirstStepsFr,
   partnerFirstStepsPtBR,
 } from './partnerFirstStepsResources';
-import {
-  type PartnerPanelTranslation,
-  partnerPanelEn,
-  partnerPanelFr,
-  partnerPanelPtBR,
-} from './partnerPanelResources';
-import {
-  type PartnerSignupTranslation,
-  partnerSignupEn,
-  partnerSignupFr,
-  partnerSignupPtBR,
-} from './partnerSignupResources';
-import {
-  type PartnersTranslation,
-  partnersEn,
-  partnersFr,
-  partnersPtBR,
-} from './partnersResources';
-import {
-  type PartnerTourTranslation,
-  partnerTourEn,
-  partnerTourFr,
-  partnerTourPtBR,
-} from './partnerTourResources';
-import {
-  type PaymentAccountsTranslation,
-  paymentAccountsEn,
-  paymentAccountsFr,
-  paymentAccountsPtBR,
-} from './paymentAccountsResources';
-import {
-  type PlaceTimeTranslation,
-  placeTimeEn,
-  placeTimeFr,
-  placeTimePtBR,
-} from './placeTimeResources';
+import { type PartnerPanelTranslation, partnerPanelPtBR } from './partnerPanelResources';
+import { type PartnerSignupTranslation, partnerSignupPtBR } from './partnerSignupResources';
+import { type PartnersTranslation, partnersPtBR } from './partnersResources';
+import { type PartnerTourTranslation, partnerTourPtBR } from './partnerTourResources';
+import { type PaymentAccountsTranslation, paymentAccountsPtBR } from './paymentAccountsResources';
+import { type PlaceTimeTranslation, placeTimePtBR } from './placeTimeResources';
 import {
   type MyReviewsTranslation,
-  myReviewsEn,
-  myReviewsFr,
   myReviewsPtBR,
   type ProfileTranslation,
-  profileEn,
-  profileFr,
   profilePtBR,
 } from './profileResources';
-import {
-  type PromoCodeTranslation,
-  promoCodeEn,
-  promoCodeFr,
-  promoCodePtBR,
-} from './promoCodeResources';
-import {
-  type PromoterTranslation,
-  promoterEn,
-  promoterFr,
-  promoterPtBR,
-} from './promoterResources';
-import {
-  type PurchasesTranslation,
-  purchasesEn,
-  purchasesFr,
-  purchasesPtBR,
-} from './purchasesResources';
-import {
-  type ReceivablesTranslation,
-  receivablesEn,
-  receivablesFr,
-  receivablesPtBR,
-} from './receivablesResources';
-import {
-  type ReviewReportsTranslation,
-  reviewReportsEn,
-  reviewReportsFr,
-  reviewReportsPtBR,
-} from './reviewReportsResources';
-import {
-  type ReviewsUiTranslation,
-  reviewsUiEn,
-  reviewsUiFr,
-  reviewsUiPtBR,
-} from './reviewsUiResources';
-import {
-  type SaleClaimsTranslation,
-  saleClaimsEn,
-  saleClaimsFr,
-  saleClaimsPtBR,
-} from './saleClaimsResources';
-import {
-  type SalesPolicyTranslation,
-  salesPolicyEn,
-  salesPolicyFr,
-  salesPolicyPtBR,
-} from './salesPolicyResources';
-import {
-  type ServiceProofTranslation,
-  serviceProofEn,
-  serviceProofFr,
-  serviceProofPtBR,
-} from './serviceProofResources';
-import {
-  type TicketCheckoutTranslation,
-  ticketCheckoutEn,
-  ticketCheckoutFr,
-  ticketCheckoutPtBR,
-} from './ticketCheckoutResources';
-import {
-  type TicketGateTranslation,
-  ticketGateEn,
-  ticketGateFr,
-  ticketGatePtBR,
-} from './ticketGateResources';
-import {
-  type TicketSessionsTranslation,
-  ticketSessionsEn,
-  ticketSessionsFr,
-  ticketSessionsPtBR,
-} from './ticketSessionsResources';
-import {
-  type TicketWalletTranslation,
-  ticketWalletEn,
-  ticketWalletFr,
-  ticketWalletPtBR,
-} from './ticketWalletResources';
-import {
-  type UsernameTranslation,
-  usernameEn,
-  usernameFr,
-  usernamePtBR,
-} from './usernameResources';
-import {
-  type VerificationTranslation,
-  verificationEn,
-  verificationFr,
-  verificationPtBR,
-} from './verificationResources';
+import { type PromoCodeTranslation, promoCodePtBR } from './promoCodeResources';
+import { type PromoterTranslation, promoterPtBR } from './promoterResources';
+import { type PurchasesTranslation, purchasesPtBR } from './purchasesResources';
+import { type ReceivablesTranslation, receivablesPtBR } from './receivablesResources';
+import { type ReviewReportsTranslation, reviewReportsPtBR } from './reviewReportsResources';
+import { type ReviewsUiTranslation, reviewsUiPtBR } from './reviewsUiResources';
+import { type SaleClaimsTranslation, saleClaimsPtBR } from './saleClaimsResources';
+import { type SalesPolicyTranslation, salesPolicyPtBR } from './salesPolicyResources';
+import { type ServiceProofTranslation, serviceProofPtBR } from './serviceProofResources';
+import { type TicketCheckoutTranslation, ticketCheckoutPtBR } from './ticketCheckoutResources';
+import { type TicketGateTranslation, ticketGatePtBR } from './ticketGateResources';
+import { type TicketSessionsTranslation, ticketSessionsPtBR } from './ticketSessionsResources';
+import { type TicketWalletTranslation, ticketWalletPtBR } from './ticketWalletResources';
+import { type UsernameTranslation, usernamePtBR } from './usernameResources';
+import { type VerificationTranslation, verificationPtBR } from './verificationResources';
 
 export interface TranslationResource {
   bookings: BookingsTranslation;
@@ -271,6 +82,7 @@ export interface TranslationResource {
   notify: NotifyTranslation;
   help: HelpTranslation;
   eventSessions: EventSessionsTranslation;
+  gateStaff: GateStaffTranslation;
   ticketLots: TicketLotsTranslation;
   placeTime: PlaceTimeTranslation;
   gateMode: GateModeTranslation;
@@ -293,6 +105,7 @@ export interface TranslationResource {
   emailVerification: EmailVerificationTranslation;
   common: {
     language: string;
+    loading: string;
     cancel: string;
     confirm: string;
     close: string;
@@ -527,6 +340,7 @@ const ptBR: TranslationResource = {
   notify: notifyPtBR,
   help: helpPtBR,
   eventSessions: eventSessionsPtBR,
+  gateStaff: gateStaffPtBR,
   ticketLots: ticketLotsPtBR,
   placeTime: placeTimePtBR,
   gateMode: gateModePtBR,
@@ -549,6 +363,7 @@ const ptBR: TranslationResource = {
   emailVerification: emailVerificationPtBR,
   common: {
     language: 'Idioma',
+    loading: 'Carregando…',
     cancel: 'Cancelar',
     retry: 'Tentar novamente',
     confirm: 'Confirmar',
@@ -818,643 +633,5 @@ const ptBR: TranslationResource = {
     removeItem: 'Remover {{name}} dos favoritos',
   },
 };
-const en: TranslationResource = {
-  bookings: bookingsEn,
-  insights: insightsEn,
-  listingPlan: listingPlanEn,
-  partners: partnersEn,
-  paymentAccounts: paymentAccountsEn,
-  receivables: receivablesEn,
-  saleClaims: saleClaimsEn,
-  purchases: purchasesEn,
-  profile: profileEn,
-  myReviews: myReviewsEn,
-  reviewReports: reviewReportsEn,
-  adminPanel: adminPanelEn,
-  serviceProof: serviceProofEn,
-  adminFinance: adminFinanceEn,
-  ticketSessions: ticketSessionsEn,
-  salesPolicy: salesPolicyEn,
-  ticketCheckout: ticketCheckoutEn,
-  ticketWallet: ticketWalletEn,
-  ticketGate: ticketGateEn,
-  username: usernameEn,
-  appAbout: appAboutEn,
-  notify: notifyEn,
-  help: helpEn,
-  eventSessions: eventSessionsEn,
-  ticketLots: ticketLotsEn,
-  placeTime: placeTimeEn,
-  gateMode: gateModeEn,
-  partnerPanel: partnerPanelEn,
-  partnerCatalog: partnerCatalogEn,
-  partnerEarnings: partnerEarningsEn,
-  partnerFirstSteps: partnerFirstStepsEn,
-  partnerAddSegment: partnerAddSegmentEn,
-  listingDetail: listingDetailEn,
-  reviewsUi: reviewsUiEn,
-  partnerSignup: partnerSignupEn,
-  partnerAgora: partnerAgoraEn,
-  courtesy: courtesyEn,
-  promoters: promoterEn,
-  promoCodes: promoCodeEn,
-  partnerTour: partnerTourEn,
-  arrivalNotice: arrivalNoticeEn,
-  legal: legalEn,
-  verification: verificationEn,
-  emailVerification: emailVerificationEn,
-  common: {
-    language: 'Language',
-    cancel: 'Cancel',
-    retry: 'Try again',
-    confirm: 'Confirm',
-    close: 'Close',
-    seal: {
-      label: 'See what the Use Guide Verified badge means',
-      title: 'Use Guide Verified',
-      explanation: 'Owner verified by Use Guide · subscriber of the Use Guide Verified plan.',
-    },
-    featured: 'Featured',
-    locales: {
-      ptBR: 'Português (Brasil)',
-      en: 'English',
-      fr: 'Français',
-    },
-  },
-  header: {
-    openMenu: 'Open menu',
-    closeMenu: 'Close menu',
-    profileAlt: 'Profile',
-    openSearch: 'Open search',
-    managementPanel: 'Management Panel',
-    myPanel: 'My Panel',
-    openManagementPanel: 'Open management panel',
-    openMyPanel: 'Open my panel',
-    pageTitles: {
-      events: 'Events & Experiences',
-      tours: 'Adventure & Tours',
-      transfers: 'Transfers',
-      rentals: 'Rentals',
-      accommodations: 'Best Accommodations',
-      restaurants: 'Local Flavors',
-      attractions: 'Attractions',
-      practicalGuide: 'Practical Guide',
-    },
-  },
-  menu: {
-    closeMenu: 'Close menu',
-    changeProfilePhoto: 'Change profile photo',
-    userFallback: 'User',
-    signInOrRegister: 'Sign in or sign up',
-    emailPassword: 'Email and password',
-    orUse: 'or',
-    continueGoogle: 'Continue with Google',
-    managementPanel: 'Management panel',
-    myPanel: 'My panel',
-    authErrors: {
-      popupBlocked: 'The browser blocked the sign-in window. Allow pop-ups and try again.',
-      unauthorizedDomain:
-        'This address is not authorized for sign-in. Reload the page and try again.',
-      generic: 'Could not sign in with Google.',
-    },
-  },
-  navigation: {
-    explore: 'Explore',
-    events: 'Events',
-    tours: 'Tours',
-    transfers: 'Transfers',
-    rentals: 'Rentals',
-    accommodations: 'Accommodations',
-    restaurants: 'Restaurants',
-    attractions: 'Attractions',
-    tips: 'Tips',
-  },
-  errors: {
-    appCheck: {
-      APP_CHECK_REQUIRED:
-        'The server refused access because this device was not validated by App Check. Reload the page; if it continues, App Check needs to be configured.',
-      APP_CHECK_INVALID: 'App Check validation failed. Reload the page and try again.',
-    },
-    media: {
-      IMAGE_TOO_LARGE: 'The image is larger than 6 MB. Choose a smaller image.',
-      INVALID_IMAGE: 'Unsupported format. Upload a JPEG, PNG or WebP image.',
-      UPLOAD_FAILED: 'The image could not be uploaded. Please try again.',
-      STORAGE_UNAVAILABLE: 'Storage is unavailable right now. Please try again shortly.',
-    },
-    payment: {
-      SUBSCRIPTION_ALREADY_ACTIVE: 'You already have an active subscription.',
-      SUBSCRIPTION_NOT_FOUND: 'No active subscription found.',
-      PLAN_INACTIVE: 'This plan is not available right now.',
-      VALIDATION_ERROR: 'Invalid data. Please review and try again.',
-      FORBIDDEN: 'Complete your partner registration before subscribing.',
-      BILLING_UNAVAILABLE: 'Payments are unavailable right now. Please try again shortly.',
-      PAYMENT_FAILED: 'The payment was not approved.',
-      NOT_FOUND: 'Business not found.',
-      LISTING_PENDING_VERIFICATION: 'The team must verify the business before a plan.',
-      PLAN_ALREADY_ACTIVE: 'This business already has an active plan.',
-      PARTNER_SUSPENDED: 'Your account is suspended.',
-      SUBSCRIPTION_PAST_DUE: 'Update your payment method before changing the period.',
-    },
-  },
-  payment: {
-    checkout: {
-      title: 'Secure checkout',
-      close: 'Close checkout',
-      totalLabel: 'Total',
-      retry: 'Try again',
-      preparing: 'Preparing Stripe secure checkout…',
-      processingTitle: 'Payment processing',
-      processingDescription:
-        'We are waiting for Stripe to confirm the payment before activating your plan.',
-      secureFooter: 'Payment processed by Stripe. Card details never go through Use Guide.',
-      methodLegend: 'Payment method',
-      methodSubscription: 'Card — automatic renewal',
-      methodSubscriptionHint:
-        'Recurring card charge. Cancel anytime; the plan stays active until the end of the paid period.',
-      methodOneTime: 'One-time payment — Pix or card',
-      methodOneTimeHint: 'No automatic renewal. To keep the badge, pay again when the period ends.',
-      continue: 'Continue',
-      subscribeButton: 'Subscribe for {{amount}} {{period}}',
-      payButton: 'Pay {{amount}}',
-      trialNotice:
-        'Your current period is already paid. Save your card now; the first charge happens when that period ends.',
-      activatingTitle: 'Confirming your subscription',
-      activatingDescription: 'Stripe is confirming the payment. This takes a few seconds.',
-      activationDelayed:
-        'Confirmation is taking longer than usual. Your plan will be activated as soon as Stripe confirms; you can close this window.',
-      successTitle: 'Subscription active',
-      successDescription: 'Your {{plan}} plan is active and renews automatically.',
-    },
-    period: {
-      monthly: 'per month',
-      'semi-annual': 'every 6 months',
-      annual: 'per year',
-    },
-    element: {
-      unavailable: 'Online payments are unavailable right now.',
-      processing: 'Processing…',
-      payNow: 'Pay now',
-      saveCard: 'Save card',
-      paymentFailed: 'The payment could not be processed.',
-      confirmFailed: 'The payment could not be confirmed.',
-    },
-    subscription: {
-      title: 'Plan subscription',
-      loading: 'Loading subscription…',
-      statusActive: 'Active. Next charge on {{date}}.',
-      statusTrialing: 'Active. First charge on {{date}}.',
-      statusCancelScheduled: 'Renewal canceled. The plan is valid until {{date}}.',
-      statusPastDue: 'We could not charge your card. Update your payment method to keep the badge.',
-      statusCanceled: 'Subscription ended.',
-      statusIncomplete: 'Subscription payment pending.',
-      manageCard: 'Manage card and invoices',
-      cancelRenewal: 'Cancel renewal',
-      resumeRenewal: 'Resume renewal',
-      confirmCancel: 'Cancel automatic renewal? The plan stays active until {{date}}.',
-      actionFailed: 'The action could not be completed. Please try again.',
-      loadFailed: 'The subscription could not be loaded.',
-      retry: 'Try again',
-      changePeriod: 'Change period',
-      changeTitle: 'New period from the next renewal',
-      changeHint:
-        'The current period runs until {{date}}. The benefits are the same; only the billing cycle and amount change.',
-      changeConfirm: 'Change at the next renewal ({{date}})',
-      changeBack: 'Back',
-      currentPeriod: 'Current',
-      pendingChange: 'From {{date}}, the plan switches to {{plan}} ({{amount}}).',
-      keepCurrent: 'Keep the current period',
-    },
-  },
-  seo: {
-    routes: {
-      explore: {
-        title: 'Use Guide | Jericoacoara, Preá & Barrinha Travel Guide',
-        description:
-          'Discover the best experiences, inns, restaurants, tours and real-time wind conditions in Jericoacoara, Preá and Barrinha.',
-      },
-      events: {
-        title: 'Events & Experiences | Use Guide',
-        description:
-          'Parties, sunsets, kitesurf competitions and cultural events in Jericoacoara and the region.',
-      },
-      tours: {
-        title: 'Adventure & Tours | Use Guide',
-        description:
-          'Buggy and quad bike tours, crystal-clear lagoons and must-do routes around Jericoacoara.',
-      },
-      transfers: {
-        title: 'Transfers to Jericoacoara | Use Guide',
-        description:
-          'Transfers between Fortaleza, Jijoca, Jericoacoara, Preá and Barrinha: vehicles, capacity and booking.',
-      },
-      rentals: {
-        title: 'Rentals in Jericoacoara | Use Guide',
-        description: 'Rent ATVs, buggies, bikes and gear in Jericoacoara and the region.',
-      },
-      stays: {
-        title: 'Best Stays & Inns | Use Guide',
-        description:
-          'A curated selection of the best inns, boutique hotels and beachfront resorts in Jeri, Preá and Barrinha.',
-      },
-      restaurants: {
-        title: 'Local Flavors & Dining | Use Guide',
-        description:
-          'The best restaurants, beach bars, fresh seafood and fine dining in Jeri and Preá.',
-      },
-      attractions: {
-        title: 'Attractions & Landmarks | Use Guide',
-        description:
-          'Pedra Furada, Sunset Dune, the lagoons and the most famous postcards of Jericoacoara National Park.',
-      },
-      guide: {
-        title: 'Practical Guide & Tips | Use Guide',
-        description:
-          'Everything you need to know: tourism fee, how to get there, best season, transfers and essential tips.',
-      },
-    },
-  },
-  pages: {
-    notFoundTitle: 'Page not found',
-    notFoundDescription: 'The address you opened does not exist or has changed.',
-    itemUnavailable: 'This item is no longer available.',
-    backHome: 'Back to home',
-    checkoutResultMissing: 'We could not find the order for this payment.',
-    planPaymentTitle: 'Plan payment processing',
-    planPaymentDescription: 'As soon as Stripe confirms, the badge appears in your partner area.',
-    debtPaymentTitle: 'Debt payment processing',
-    debtPaymentDescription:
-      'As soon as Stripe confirms, the debt shows as paid under Payouts and sales resume.',
-    openPartnerArea: 'Open partner area',
-    partnerAreaTitle: 'Partner area',
-    partnerLoginRequired: 'Sign in to your partner account to open the dashboard.',
-    signIn: 'Sign in',
-    partnerOnly: 'This dashboard is only for registered partners.',
-    partnerProfileNotFound: 'We couldn’t find your partner registration.',
-    partnerProfileLoadError: 'We couldn’t load your partner registration.',
-    partnerSuspendedTitle: 'Partner account suspended',
-    partnerSuspended:
-      'Your dashboard access was suspended by the Use Guide team. Contact support to find out how to reactivate it.',
-  },
-  localeSuggestion: {
-    label: 'Language suggestion',
-    message: 'This page is also available in English.',
-    switch: 'View in English',
-    keep: 'Continue in Portuguese',
-  },
-  settings: {
-    title: 'Settings',
-    subtitle: 'App preferences',
-    back: 'Back',
-    appearance: 'Appearance',
-    appearanceSubtitle: 'Choose a mode',
-    language: 'Guide language',
-    languageSubtitle: 'Choose a language',
-    support: 'Support',
-    about: 'About the app',
-    theme: { light: 'Light', dark: 'Dark', system: 'System' },
-    themeDescription: {
-      light: 'Light-toned theme',
-      dark: 'Default dark theme with glass effect',
-      system: 'Follows your device setting',
-    },
-  },
-  favorites: {
-    title: 'My Favorites',
-    subtitle: 'Your saved items',
-    back: 'Back to the main menu',
-    emptyTitle: 'No saved favorites',
-    emptyDescription:
-      "You haven't saved anything yet. Explore the guide and tap the heart to keep what you like.",
-    removeItem: 'Remove {{name}} from favorites',
-  },
-};
-const fr: TranslationResource = {
-  bookings: bookingsFr,
-  insights: insightsFr,
-  listingPlan: listingPlanFr,
-  partners: partnersFr,
-  paymentAccounts: paymentAccountsFr,
-  receivables: receivablesFr,
-  saleClaims: saleClaimsFr,
-  purchases: purchasesFr,
-  profile: profileFr,
-  myReviews: myReviewsFr,
-  reviewReports: reviewReportsFr,
-  adminPanel: adminPanelFr,
-  serviceProof: serviceProofFr,
-  adminFinance: adminFinanceFr,
-  ticketSessions: ticketSessionsFr,
-  salesPolicy: salesPolicyFr,
-  ticketCheckout: ticketCheckoutFr,
-  ticketWallet: ticketWalletFr,
-  ticketGate: ticketGateFr,
-  username: usernameFr,
-  appAbout: appAboutFr,
-  notify: notifyFr,
-  help: helpFr,
-  eventSessions: eventSessionsFr,
-  ticketLots: ticketLotsFr,
-  placeTime: placeTimeFr,
-  gateMode: gateModeFr,
-  partnerPanel: partnerPanelFr,
-  partnerCatalog: partnerCatalogFr,
-  partnerEarnings: partnerEarningsFr,
-  partnerFirstSteps: partnerFirstStepsFr,
-  partnerAddSegment: partnerAddSegmentFr,
-  listingDetail: listingDetailFr,
-  reviewsUi: reviewsUiFr,
-  partnerSignup: partnerSignupFr,
-  partnerAgora: partnerAgoraFr,
-  courtesy: courtesyFr,
-  promoters: promoterFr,
-  promoCodes: promoCodeFr,
-  partnerTour: partnerTourFr,
-  arrivalNotice: arrivalNoticeFr,
-  legal: legalFr,
-  verification: verificationFr,
-  emailVerification: emailVerificationFr,
-  common: {
-    language: 'Langue',
-    cancel: 'Annuler',
-    retry: 'Réessayer',
-    confirm: 'Confirmer',
-    close: 'Fermer',
-    seal: {
-      label: 'Voir ce que signifie le badge Use Guide Vérifié',
-      title: 'Use Guide Vérifié',
-      explanation: "Responsable vérifié par Use Guide · abonné à l'offre Use Guide Vérifié.",
-    },
-    featured: 'À la une',
-    locales: {
-      ptBR: 'Português (Brasil)',
-      en: 'English',
-      fr: 'Français',
-    },
-  },
-  header: {
-    openMenu: 'Ouvrir le menu',
-    closeMenu: 'Fermer le menu',
-    profileAlt: 'Profil',
-    openSearch: 'Ouvrir la recherche',
-    managementPanel: 'Panneau de gestion',
-    myPanel: 'Mon espace',
-    openManagementPanel: 'Ouvrir le panneau de gestion',
-    openMyPanel: 'Ouvrir mon espace',
-    pageTitles: {
-      events: 'Événements & Expériences',
-      tours: 'Aventure & Excursions',
-      transfers: 'Transferts',
-      rentals: 'Locations',
-      accommodations: 'Meilleurs Hébergements',
-      restaurants: 'Saveurs Locales',
-      attractions: 'Attractions',
-      practicalGuide: 'Guide Pratique',
-    },
-  },
-  menu: {
-    closeMenu: 'Fermer le menu',
-    changeProfilePhoto: 'Changer la photo de profil',
-    userFallback: 'Utilisateur',
-    signInOrRegister: 'Se connecter ou s’inscrire',
-    emailPassword: 'E-mail et mot de passe',
-    orUse: 'ou',
-    continueGoogle: 'Continuer avec Google',
-    managementPanel: 'Panneau de gestion',
-    myPanel: 'Mon panneau',
-    authErrors: {
-      popupBlocked:
-        'Le navigateur a bloqué la fenêtre de connexion. Autorisez les pop-ups et réessayez.',
-      unauthorizedDomain:
-        'Cette adresse n’est pas autorisée pour la connexion. Rechargez la page et réessayez.',
-      generic: 'Impossible de se connecter avec Google.',
-    },
-  },
-  navigation: {
-    explore: 'Explorer',
-    events: 'Événements',
-    tours: 'Excursions',
-    transfers: 'Transferts',
-    rentals: 'Locations',
-    accommodations: 'Hébergements',
-    restaurants: 'Restaurants',
-    attractions: 'Attractions',
-    tips: 'Conseils',
-  },
-  errors: {
-    appCheck: {
-      APP_CHECK_REQUIRED:
-        'Le serveur a refusé l’accès car cet appareil n’a pas été validé par App Check. Rechargez la page ; si cela continue, App Check doit être configuré.',
-      APP_CHECK_INVALID: 'La validation App Check a échoué. Rechargez la page et réessayez.',
-    },
-    media: {
-      IMAGE_TOO_LARGE: "L'image dépasse 6 Mo. Choisissez une image plus légère.",
-      INVALID_IMAGE: 'Format non pris en charge. Envoyez une image JPEG, PNG ou WebP.',
-      UPLOAD_FAILED: "Impossible d'envoyer l'image. Veuillez réessayer.",
-      STORAGE_UNAVAILABLE:
-        'Le stockage est indisponible pour le moment. Réessayez dans un instant.',
-    },
-    payment: {
-      SUBSCRIPTION_ALREADY_ACTIVE: 'Vous avez déjà un abonnement actif.',
-      SUBSCRIPTION_NOT_FOUND: 'Aucun abonnement actif trouvé.',
-      PLAN_INACTIVE: 'Ce forfait n’est pas disponible pour le moment.',
-      VALIDATION_ERROR: 'Données invalides. Vérifiez et réessayez.',
-      FORBIDDEN: 'Terminez votre inscription de partenaire avant de vous abonner.',
-      BILLING_UNAVAILABLE:
-        'Les paiements sont indisponibles pour le moment. Réessayez dans un instant.',
-      PAYMENT_FAILED: 'Le paiement n’a pas été approuvé.',
-      NOT_FOUND: 'Établissement introuvable.',
-      LISTING_PENDING_VERIFICATION: "L'équipe doit vérifier l'établissement avant l'offre.",
-      PLAN_ALREADY_ACTIVE: 'Cet établissement a déjà une offre active.',
-      PARTNER_SUSPENDED: 'Votre compte est suspendu.',
-      SUBSCRIPTION_PAST_DUE: 'Mettez à jour votre moyen de paiement avant de changer de période.',
-    },
-  },
-  payment: {
-    checkout: {
-      title: 'Paiement sécurisé',
-      close: 'Fermer le paiement',
-      totalLabel: 'Total',
-      retry: 'Réessayer',
-      preparing: 'Préparation du paiement sécurisé Stripe…',
-      processingTitle: 'Paiement en cours',
-      processingDescription: 'Nous attendons la confirmation de Stripe pour activer votre forfait.',
-      secureFooter:
-        'Paiement traité par Stripe. Les données de carte ne passent jamais par Use Guide.',
-      methodLegend: 'Moyen de paiement',
-      methodSubscription: 'Carte — renouvellement automatique',
-      methodSubscriptionHint:
-        'Prélèvement récurrent sur la carte. Résiliable à tout moment ; le forfait reste actif jusqu’à la fin de la période payée.',
-      methodOneTime: 'Paiement unique — Pix ou carte',
-      methodOneTimeHint:
-        'Sans renouvellement automatique. Pour garder le badge, payez à nouveau à la fin de la période.',
-      continue: 'Continuer',
-      subscribeButton: 'S’abonner pour {{amount}} {{period}}',
-      payButton: 'Payer {{amount}}',
-      trialNotice:
-        'Votre période actuelle est déjà payée. Enregistrez votre carte maintenant ; le premier prélèvement aura lieu à la fin de cette période.',
-      activatingTitle: 'Confirmation de votre abonnement',
-      activatingDescription: 'Stripe confirme le paiement. Cela prend quelques secondes.',
-      activationDelayed:
-        'La confirmation prend plus de temps que d’habitude. Votre forfait sera activé dès que Stripe confirmera ; vous pouvez fermer cette fenêtre.',
-      successTitle: 'Abonnement actif',
-      successDescription: 'Votre forfait {{plan}} est actif et se renouvelle automatiquement.',
-    },
-    period: {
-      monthly: 'par mois',
-      'semi-annual': 'tous les 6 mois',
-      annual: 'par an',
-    },
-    element: {
-      unavailable: 'Les paiements en ligne sont indisponibles pour le moment.',
-      processing: 'Traitement…',
-      payNow: 'Payer maintenant',
-      saveCard: 'Enregistrer la carte',
-      paymentFailed: 'Le paiement n’a pas pu être traité.',
-      confirmFailed: 'Le paiement n’a pas pu être confirmé.',
-    },
-    subscription: {
-      title: 'Abonnement au forfait',
-      loading: 'Chargement de l’abonnement…',
-      statusActive: 'Actif. Prochain prélèvement le {{date}}.',
-      statusTrialing: 'Actif. Premier prélèvement le {{date}}.',
-      statusCancelScheduled: 'Renouvellement annulé. Le forfait est valable jusqu’au {{date}}.',
-      statusPastDue:
-        'Nous n’avons pas pu débiter votre carte. Mettez à jour votre moyen de paiement pour garder le badge.',
-      statusCanceled: 'Abonnement terminé.',
-      statusIncomplete: 'Paiement de l’abonnement en attente.',
-      manageCard: 'Gérer la carte et les factures',
-      cancelRenewal: 'Annuler le renouvellement',
-      resumeRenewal: 'Reprendre le renouvellement',
-      confirmCancel:
-        'Annuler le renouvellement automatique ? Le forfait reste actif jusqu’au {{date}}.',
-      actionFailed: 'L’action n’a pas pu aboutir. Veuillez réessayer.',
-      loadFailed: 'Impossible de charger l’abonnement.',
-      retry: 'Réessayer',
-      changePeriod: 'Changer de période',
-      changeTitle: 'Nouvelle période à partir du prochain renouvellement',
-      changeHint:
-        "La période actuelle court jusqu'au {{date}}. Les avantages sont les mêmes ; seuls le cycle et le montant de la facturation changent.",
-      changeConfirm: 'Changer au prochain renouvellement ({{date}})',
-      changeBack: 'Retour',
-      currentPeriod: 'Actuelle',
-      pendingChange: 'À partir du {{date}}, le forfait passe à {{plan}} ({{amount}}).',
-      keepCurrent: 'Garder la période actuelle',
-    },
-  },
-  seo: {
-    routes: {
-      explore: {
-        title: 'Use Guide | Guide de Jericoacoara, Preá et Barrinha',
-        description:
-          'Découvrez les meilleures expériences, pousadas, restaurants, excursions et le vent en temps réel à Jericoacoara, Preá et Barrinha.',
-      },
-      events: {
-        title: 'Événements & Expériences | Use Guide',
-        description:
-          'Fêtes, couchers de soleil, compétitions de kitesurf et événements culturels à Jericoacoara et dans la région.',
-      },
-      tours: {
-        title: 'Aventure & Excursions | Use Guide',
-        description:
-          'Excursions en buggy et en quad, lagunes cristallines et itinéraires incontournables autour de Jericoacoara.',
-      },
-      transfers: {
-        title: 'Transferts à Jericoacoara | Use Guide',
-        description:
-          'Transferts entre Fortaleza, Jijoca, Jericoacoara, Preá et Barrinha : véhicules, capacité et réservation.',
-      },
-      rentals: {
-        title: 'Locations à Jericoacoara | Use Guide',
-        description:
-          'Location de quads, buggys, vélos et équipements à Jericoacoara et dans la région.',
-      },
-      stays: {
-        title: 'Meilleurs Hébergements | Use Guide',
-        description:
-          'Une sélection des meilleures pousadas, hôtels boutique et resorts en bord de mer à Jeri, Preá et Barrinha.',
-      },
-      restaurants: {
-        title: 'Saveurs Locales & Gastronomie | Use Guide',
-        description:
-          'Les meilleurs restaurants, bars de plage, fruits de mer frais et la haute gastronomie de Jeri et Preá.',
-      },
-      attractions: {
-        title: 'Attractions & Sites Touristiques | Use Guide',
-        description:
-          'Pedra Furada, la Dune du Coucher de Soleil, les lagunes et les cartes postales du Parc National de Jericoacoara.',
-      },
-      guide: {
-        title: 'Guide Pratique & Conseils | Use Guide',
-        description:
-          "Tout ce qu'il faut savoir : taxe touristique, comment venir, meilleure saison, transferts et conseils essentiels.",
-      },
-    },
-  },
-  pages: {
-    notFoundTitle: 'Page introuvable',
-    notFoundDescription: 'L’adresse que vous avez ouverte n’existe pas ou a changé.',
-    itemUnavailable: 'Cet élément n’est plus disponible.',
-    backHome: 'Retour à l’accueil',
-    checkoutResultMissing: 'Nous n’avons pas trouvé la commande de ce paiement.',
-    planPaymentTitle: 'Paiement du forfait en cours',
-    planPaymentDescription:
-      'Dès que Stripe confirme, le badge apparaît dans votre espace partenaire.',
-    openPartnerArea: 'Ouvrir l’espace partenaire',
-    debtPaymentTitle: 'Paiement de la dette en cours',
-    debtPaymentDescription:
-      'Dès que Stripe confirme, la dette apparaît comme payée dans Versements et les ventes reprennent.',
-    partnerAreaTitle: 'Espace partenaire',
-    partnerLoginRequired:
-      'Connectez-vous à votre compte partenaire pour ouvrir le tableau de bord.',
-    signIn: 'Se connecter',
-    partnerOnly: 'Ce tableau de bord est réservé aux partenaires inscrits.',
-    partnerProfileNotFound: 'Nous n’avons pas trouvé votre inscription de partenaire.',
-    partnerProfileLoadError: 'Impossible de charger votre inscription de partenaire.',
-    partnerSuspendedTitle: 'Compte partenaire suspendu',
-    partnerSuspended:
-      'Votre accès au tableau de bord a été suspendu par l’équipe Use Guide. Contactez le support pour savoir comment le réactiver.',
-  },
-  localeSuggestion: {
-    label: 'Suggestion de langue',
-    message: 'Cette page est aussi disponible en français.',
-    switch: 'Voir en français',
-    keep: 'Continuer en portugais',
-  },
-  settings: {
-    title: 'Paramètres',
-    subtitle: 'Préférences de l’app',
-    back: 'Retour',
-    appearance: 'Apparence',
-    appearanceSubtitle: 'Choisissez un mode',
-    language: 'Langue du guide',
-    languageSubtitle: 'Choisissez une langue',
-    support: 'Assistance',
-    about: 'À propos de l’app',
-    theme: { light: 'Clair', dark: 'Sombre', system: 'Système' },
-    themeDescription: {
-      light: 'Thème aux tons clairs',
-      dark: 'Thème sombre par défaut avec effet verre',
-      system: 'Suit le réglage de votre appareil',
-    },
-  },
-  favorites: {
-    title: 'Mes favoris',
-    subtitle: 'Vos éléments enregistrés',
-    back: 'Retour au menu principal',
-    emptyTitle: 'Aucun favori enregistré',
-    emptyDescription:
-      'Vous n’avez encore rien enregistré. Explorez le guide et touchez le cœur pour garder ce qui vous plaît.',
-    removeItem: 'Retirer {{name}} des favoris',
-  },
-};
-export const resources = {
-  'pt-BR': {
-    translation: ptBR,
-  },
-  en: {
-    translation: en,
-  },
-  fr: {
-    translation: fr,
-  },
-} as const;
+/** pt-BR vai no arquivo inicial; en e fr são baixados só para quem usa (AGENTS.md §12.2, DESIGN.md P11). */
+export { ptBR };

@@ -1,5 +1,5 @@
 import { Check, Search } from 'lucide-react';
-import { useEffect, useId, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '../../../../shared/utils/cn';
 import { searchUsernamesUseCase, type UsernameProfile } from '../../../user';
@@ -53,8 +53,16 @@ export function UsernamePicker({
     setResults([]);
   }, [resetKey]);
 
+  // A busca só recomeça quando o @ digitado muda. Se dependesse da identidade de `onSelect` e
+  // `onError` (que muda, por exemplo, quando o i18n troca o `t` da tela), a escolha seria apagada
+  // e o botão de enviar desligado enquanto uma nova busca corre.
+  const callbacks = useRef({ onSelect, onError });
   useEffect(() => {
-    onSelect(null);
+    callbacks.current = { onSelect, onError };
+  });
+
+  useEffect(() => {
+    callbacks.current.onSelect(null);
     setFailed(false);
     if (!PREFIX.test(username)) {
       setResults([]);
@@ -67,12 +75,12 @@ export function UsernamePicker({
         .then((list) => {
           if (!alive) return;
           setResults(list);
-          onSelect(list.find((profile) => profile.username === username) ?? null);
+          callbacks.current.onSelect(list.find((profile) => profile.username === username) ?? null);
         })
         .catch((err: unknown) => {
           if (!alive) return;
           setFailed(true);
-          onError(err);
+          callbacks.current.onError(err);
         })
         .finally(() => alive && setSearching(false));
     }, LOOKUP_DELAY_MS);
@@ -80,7 +88,7 @@ export function UsernamePicker({
       alive = false;
       clearTimeout(timer);
     };
-  }, [username, onSelect, onError]);
+  }, [username]);
 
   const found = selected;
   return (

@@ -1,15 +1,18 @@
-import type { ReactNode } from 'react';
+import { type ReactNode, Suspense } from 'react';
 import { Route, Routes, type Location } from 'react-router-dom';
-import { AccountActionPage } from '../../domain/auth';
 import type { GuideItem } from '../../domain/guide';
 import { ExploreView } from '../../domain/guide/components/ExploreView';
 import { GridView } from '../../domain/guide/components/GridView';
 import { ACCOUNT_ACTION_PATH } from '../../shared/constants/accountActionPath';
 import { LOCALIZED_ROUTES, type RouteKey, SUPPORTED_LOCALES } from '../../shared/i18n';
 import { NotFoundView } from '../../ui/components/NotFoundView';
+import { ScreenFallback } from '../../ui/lazy/DelayedFallback';
 import { PageLayout } from '../../ui/layouts/PageLayout';
-import { AdminPanelComposition } from '../compositions/AdminPanelComposition';
-import { CheckoutResultComposition } from '../compositions/CheckoutResultComposition';
+import {
+  AccountActionPage,
+  AdminPanelComposition,
+  CheckoutResultComposition,
+} from '../lazy/screens';
 
 type GridCategory =
   | 'event'
@@ -66,10 +69,15 @@ export function AppRoutes({ location, onSelectItem, onStickyChange }: AppRoutesP
           />
         ))
       )}
-      <Route path="/checkout/result" element={<CheckoutResultComposition />} />
-      <Route path="/admin" element={<AdminPanelComposition />} />
-      <Route path={ACCOUNT_ACTION_PATH} element={<AccountActionPage />} />
+      <Route path="/checkout/result" element={onDemand(<CheckoutResultComposition />)} />
+      <Route path="/admin" element={onDemand(<AdminPanelComposition />)} />
+      <Route path={ACCOUNT_ACTION_PATH} element={onDemand(<AccountActionPage />)} />
       <Route path="*" element={<NotFoundView />} />
     </Routes>
   );
+}
+
+/** Página baixada sob demanda (DESIGN.md P11). */
+function onDemand(page: ReactNode) {
+  return <Suspense fallback={<ScreenFallback />}>{page}</Suspense>;
 }

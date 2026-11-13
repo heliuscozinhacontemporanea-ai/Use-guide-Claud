@@ -8,6 +8,8 @@ import pkg from './package.json';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const APP_SOURCE_DIR = `${path.resolve(__dirname, 'src')}${path.sep}`;
+const I18N_INIT_MODULE = path.resolve(__dirname, 'src/shared/i18n/config.ts');
 
 export default defineConfig(() => {
   return {
@@ -136,6 +138,19 @@ export default defineConfig(() => {
         },
       }),
     ],
+    build: {
+      rolldownOptions: {
+        treeshake: {
+          // O código do app não tem efeito colateral ao ser importado (AGENTS.md §2.2.4). Dizer isso ao
+          // empacotador deixa os `index.ts` dos domínios só repassarem o que cada tela usa, e as telas
+          // carregadas sob demanda saem do arquivo inicial (DESIGN.md P11). Exceções: CSS e o init do i18n.
+          moduleSideEffects: (id: string) => {
+            if (!id.startsWith(APP_SOURCE_DIR)) return undefined;
+            return id.endsWith('.css') || id === I18N_INIT_MODULE;
+          },
+        },
+      },
+    },
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),

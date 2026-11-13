@@ -1,5 +1,12 @@
 import { describe, expect, it, vi } from 'vitest';
 
+vi.mock('../../gateStaff', () => ({
+  isActiveGateStaffUseCase: vi.fn(
+    async (scope: { id: string }, uid: string) => scope.id === 'evt_1' && uid === 'equipe_1'
+  ),
+  wasGateStaffAtUseCase: vi.fn(async () => false),
+}));
+
 vi.mock('../../events', () => ({
   getEventListingByIdUseCase: vi.fn().mockResolvedValue({ id: 'evt_1', ownerId: 'partner_1' }),
   getEventOccurrenceByIdUseCase: vi.fn().mockResolvedValue({

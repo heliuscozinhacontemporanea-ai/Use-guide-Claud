@@ -13,6 +13,8 @@ export interface PromoterStorePort {
   listByEvent(eventListingId: string): Promise<EventPromoter[]>;
   listByPromoter(promoterUid: string): Promise<EventPromoter[]>;
   findByCode(eventListingId: string, code: string): Promise<EventPromoter | null>;
+  /** Divulgações com este código em qualquer evento, para o link curto (C6). */
+  listByCode(code: string): Promise<EventPromoter[]>;
   /** Exclusão de conta: apaga @ e nome guardados (§7.5). */
   anonymizePromoter(uid: string): Promise<number>;
 }

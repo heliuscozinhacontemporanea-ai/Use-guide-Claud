@@ -29,7 +29,7 @@ export function PartnerHomeHeader({
     <div>
       <div className="flex items-center gap-1">
         <BackButton label={t('partnerPanel.backToGuide')} onClick={onBack} />
-        {/* Identidade do parceiro no painel (AGENTS.md §11.1): o roxo marca a área de parceiro. */}
+        {/* Identidade do parceiro no painel (DESIGN.md §2.2): o roxo marca a área de parceiro. */}
         <span
           aria-hidden="true"
           className="mr-1 w-9 h-9 shrink-0 rounded-xl bg-partner-soft border border-partner-line text-partner flex items-center justify-center"

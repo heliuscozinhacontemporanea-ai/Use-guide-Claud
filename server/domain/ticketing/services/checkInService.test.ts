@@ -13,6 +13,13 @@ vi.mock('../../notifications', () => ({
   createNotificationUseCase: vi.fn().mockResolvedValue(true),
 }));
 
+vi.mock('../../gateStaff', () => ({
+  isActiveGateStaffUseCase: vi.fn(
+    async (scope: { id: string }, uid: string) => scope.id === 'evt_1' && uid === 'equipe_1'
+  ),
+  wasGateStaffAtUseCase: vi.fn(async () => false),
+}));
+
 vi.mock('../../events', () => ({
   getEventListingByIdUseCase: vi.fn().mockResolvedValue({ id: 'evt_1', ownerId: 'partner_1' }),
   getEventOccurrenceByIdUseCase: vi.fn().mockResolvedValue({
@@ -106,7 +113,7 @@ describe('check-in do ingresso: QR Ed25519 e código INGR (D20, B36)', () => {
     expect(pass.code).toBe(deriveTicketCheckInCode('tkt_1', 1));
     await day.service.checkInTicket(PARTNER, { occurrenceId: 'occ_1', qrToken: early.token });
     expect(day.port.checkInTicketAtomic).toHaveBeenCalledWith(
-      expect.objectContaining({ ticketId: 'tkt_1' })
+      expect.objectContaining({ ticketId: 'tkt_1', method: 'qr' })
     );
   });
 
@@ -117,7 +124,7 @@ describe('check-in do ingresso: QR Ed25519 e código INGR (D20, B36)', () => {
       code: `INGR:${deriveTicketCheckInCode('tkt_2', 2)}`,
     });
     expect(port.checkInTicketAtomic).toHaveBeenCalledWith(
-      expect.objectContaining({ ticketId: 'tkt_2' })
+      expect.objectContaining({ ticketId: 'tkt_2', method: 'code' })
     );
     await expect(
       service.checkInTicket(PARTNER, {
@@ -167,6 +174,18 @@ describe('check-in do ingresso: QR Ed25519 e código INGR (D20, B36)', () => {
         { uid: 'partner_2', admin: false },
         { occurrenceId: 'occ_1', code: deriveTicketCheckInCode('tkt_1', 1) }
       )
+    ).rejects.toMatchObject({ code: 'FORBIDDEN' });
+  });
+
+  it('equipe da portaria libera entradas do evento dela; depois de 6 h do fim, não mais (C1)', async () => {
+    const STAFF = { uid: 'equipe_1', admin: false };
+    const { service } = setup('2026-12-20T23:30:00.000Z');
+    const code = deriveTicketCheckInCode('tkt_1', 1);
+    const result = await service.checkInTicket(STAFF, { occurrenceId: 'occ_1', code });
+    expect(result.ticket.id).toBe('tkt_1');
+    const late = setup('2026-12-21T11:01:00.000Z');
+    await expect(
+      late.service.checkInTicket(STAFF, { occurrenceId: 'occ_1', code })
     ).rejects.toMatchObject({ code: 'FORBIDDEN' });
   });
 

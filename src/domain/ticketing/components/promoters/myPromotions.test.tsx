@@ -58,7 +58,7 @@ describe('Divulgação do usuário (p26, p27)', () => {
     render(<MyPromotionsView onBack={vi.fn()} />);
     expect(await screen.findByText('Luau na Duna')).toBeTruthy();
     expect(screen.getByText('38 ingressos vendidos pelos seus links')).toBeTruthy();
-    expect(screen.getByText(/d=joao-k7Qm2a/)).toBeTruthy();
+    expect(screen.getByText(/\/e\/joao-k7Qm2a$/)).toBeTruthy();
     expect(screen.getByText(/Convite para divulgar · R\$\s15/)).toBeTruthy();
   });
 

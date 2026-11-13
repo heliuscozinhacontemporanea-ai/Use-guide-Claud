@@ -21,6 +21,7 @@ export const NOTIFICATION_TYPES = {
   ticket_link_accepted: 'tickets',
   courtesy_received: 'tickets',
   promoter_invited: 'tickets',
+  gate_staff_invited: 'tickets',
   courtesy_canceled: 'tickets',
   ticket_qr_replaced: 'tickets',
   event_canceled: 'tickets',
@@ -67,6 +68,7 @@ export interface NotificationLink {
     | 'item'
     | 'event'
     | 'promotions'
+    | 'gate'
     | 'terms'
     | 'partner_terms';
   id?: string;

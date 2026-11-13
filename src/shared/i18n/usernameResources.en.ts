@@ -1,0 +1,78 @@
+import type { UsernameTranslation } from './usernameResources';
+
+export const usernameEn: UsernameTranslation = {
+  title: 'Username',
+  intro: 'Your username identifies you on Use Guide. Other people can use it to find your account.',
+  label: 'Your @',
+  rules: '3 to 30 letters, numbers, dot or underscore. No spaces or accents.',
+  save: 'Save',
+  change: 'Change @',
+  changeWarning: 'You can change it once every 30 days. Your previous @ stays yours for 14 days.',
+  lockedUntil: 'You can change it again from {{date}}.',
+  saved: 'Done: you are now @{{username}}.',
+  loadError: 'Could not load your username.',
+  retry: 'Try again',
+  onboardingTitle: 'Choose your username',
+  signOut: 'Sign out',
+  errors: {
+    USERNAME_INVALID: 'This @ is not allowed. Use letters, numbers, dot or underscore.',
+    USERNAME_TAKEN: 'This @ is already taken. Choose another one.',
+    USERNAME_CHANGE_TOO_SOON: 'You changed your @ less than 30 days ago.',
+    failed: 'Could not save. Try again.',
+  },
+  transfer: {
+    title: 'Transfer ticket',
+    label: 'Recipient’s @',
+    search: 'Search',
+    confirmTitle: 'Check who will receive it',
+    confirm: 'Transfer to @{{username}}',
+    other: 'Search someone else',
+    hint: 'The ticket leaves your wallet and the current QR code stops working.',
+    done: 'Ticket transferred to @{{username}}.',
+    returnTitle: 'Give the ticket back',
+    returnHint:
+      'You received this ticket from {{name}}. A received ticket can only go back to the buyer.',
+    returnConfirm: 'Give back to {{name}}',
+    returned: 'Ticket given back to {{name}}.',
+    link: {
+      title: 'The person has no account yet?',
+      hint: 'Send a link: they create an account and accept the ticket. The link is valid for 30 minutes and only once, and the ticket stays with you until someone accepts it.',
+      create: 'Create transfer link',
+      ready:
+        'Link ready. Valid until {{time}} and only once. Anyone with the link can accept the ticket: send it only to the right person.',
+      pending:
+        'A transfer link is open until {{time}}. The ticket stays with you until someone accepts it.',
+      share: 'Share',
+      copy: 'Copy link',
+      copied: 'Link copied.',
+      cancel: 'Cancel link',
+      shareText:
+        'I have a ticket for you: {{event}}. Open the link, create your Use Guide account and accept it.',
+      receiveTitle: 'You received a ticket',
+      loginHint: 'Sign in or create your Use Guide account to see and accept the ticket.',
+      login: 'Sign in or create account',
+      from: 'Sent by {{name}}. The link is valid until {{time}}.',
+      accept: 'Accept ticket',
+      decline: 'Not now',
+      accepted: 'Done: the ticket is in your wallet.',
+      seeTickets: 'See my tickets',
+      errors: {
+        TRANSFER_LINK_INVALID: 'This link is not valid or was already used.',
+        TRANSFER_LINK_EXPIRED: 'This link has expired. Ask the sender for a new one.',
+        TRANSFER_LINK_OWN: 'This link is yours: send it to the other person.',
+        RECIPIENT_NOT_VERIFIED: 'Confirm your email to receive the ticket.',
+        RATE_LIMITED: 'Too many attempts in a row. Try again in a few minutes.',
+        failed: 'Could not complete. Try again.',
+      },
+    },
+    errors: {
+      TRANSFER_ONLY_TO_BUYER: 'A received ticket can only be given back to the buyer.',
+      USERNAME_NOT_FOUND: 'No account with this @. Ask the person to check it in Settings.',
+      TRANSFER_TO_SELF: 'This ticket is already yours.',
+      RECIPIENT_NOT_VERIFIED:
+        'This account has not confirmed its email and cannot receive tickets.',
+      RATE_LIMITED: 'Too many searches in a row. Try again in a few minutes.',
+      failed: 'Could not transfer. Try again.',
+    },
+  },
+};

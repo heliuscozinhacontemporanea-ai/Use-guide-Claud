@@ -182,6 +182,7 @@ export interface TicketingPort {
     occurrenceId: string;
     checkedInBy: string;
     source?: 'online' | 'offline';
+    method?: 'qr' | 'code';
     offlineSessionId?: string;
     stationId?: string;
     clientEventId?: string;

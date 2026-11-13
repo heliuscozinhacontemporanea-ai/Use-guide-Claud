@@ -32,7 +32,7 @@ export function AppProviders({ children }: AppProvidersProps) {
 
   return (
     <ThemeProvider>
-      {/* Respeita "reduzir movimento" do aparelho em todas as animações do motion (AGENTS.md §11.7). */}
+      {/* Respeita "reduzir movimento" do aparelho em todas as animações do motion (DESIGN.md §9.1). */}
       <MotionConfig reducedMotion="user">
         <AuthProvider>
           {children}

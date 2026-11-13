@@ -217,6 +217,11 @@ export interface SessionEntry {
   courtesy: boolean;
   at: string;
   source: 'online' | 'offline';
+  /** QR lido ou código digitado; `null` quando a entrada não registrou. */
+  method: 'qr' | 'code' | null;
+  /** Quem liberou a entrada (C1): o dono ou o @ de alguém da equipe da portaria. */
+  releasedByOwner: boolean;
+  releasedByUsername: string | null;
 }
 
 export interface Refund {
@@ -322,4 +327,23 @@ export function formatMoneyMinorBrl(minor: MoneyMinor): string {
     style: 'currency',
     currency: 'BRL',
   });
+}
+
+/** Resposta da portaria ao liberar um ingresso: só o que a tela mostra (§7.9 regra 4). */
+export interface GateCheckInResult {
+  ticket: {
+    id: string;
+    status: string;
+    holderName: string;
+    courtesyId: string | null;
+    ticketTypeSnapshot: { name: string } | null;
+    checkedInAt: string | null;
+  };
+  checkIn: {
+    id: string;
+    ticketId: string;
+    occurrenceId: string;
+    source: 'online' | 'offline';
+    checkedInAt: string;
+  };
 }

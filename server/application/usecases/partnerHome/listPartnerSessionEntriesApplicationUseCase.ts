@@ -13,6 +13,11 @@ export interface PartnerSessionEntryView {
   at: string;
   /** Registrada com internet ou enviada depois pela lista sem internet. */
   source: 'online' | 'offline';
+  /** QR lido ou código digitado; `null` quando a entrada não registrou (ID direto). */
+  method: 'qr' | 'code' | null;
+  /** Quem liberou a entrada (C1): o próprio dono ou o @ de alguém da equipe da portaria. */
+  releasedByOwner: boolean;
+  releasedByUsername: string | null;
 }
 
 /** Quem entrou na sessão e quando, do mais recente ao mais antigo. A posse vem do ticketing. */
@@ -36,14 +41,13 @@ export async function listPartnerSessionEntriesApplicationUseCase(
   const owners = [
     ...new Set(checkIns.flatMap((checkIn) => tickets.get(checkIn.ticketId)?.ownerUserId ?? [])),
   ];
-  const names = new Map(
+  const staff = checkIns
+    .map((checkIn) => checkIn.checkedInBy)
+    .filter((uid) => uid && uid !== ownerUid);
+  const profiles = new Map(
     await Promise.all(
-      owners.map(
-        async (uid) =>
-          [
-            uid,
-            (await getUserPublicProfileUseCase(uid).catch(() => null))?.displayName ?? null,
-          ] as const
+      [...new Set([...owners, ...staff])].map(
+        async (uid) => [uid, await getUserPublicProfileUseCase(uid).catch(() => null)] as const
       )
     )
   );
@@ -52,11 +56,17 @@ export async function listPartnerSessionEntriesApplicationUseCase(
       const ticket = tickets.get(checkIn.ticketId);
       return {
         id: checkIn.id,
-        name: ticket ? (names.get(ticket.ownerUserId) ?? null) : null,
+        name: ticket ? (profiles.get(ticket.ownerUserId)?.displayName ?? null) : null,
         ticketType: ticket?.ticketTypeSnapshot?.name ?? null,
         courtesy: Boolean(ticket?.courtesyId),
         at: checkIn.checkedInAt,
         source: checkIn.source,
+        method: checkIn.method ?? null,
+        releasedByOwner: checkIn.checkedInBy === ownerUid,
+        releasedByUsername:
+          checkIn.checkedInBy === ownerUid
+            ? null
+            : (profiles.get(checkIn.checkedInBy)?.username ?? null),
       };
     })
     .sort((a, b) => b.at.localeCompare(a.at));

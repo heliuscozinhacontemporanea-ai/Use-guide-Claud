@@ -3,6 +3,8 @@ import { useLocation } from 'react-router-dom';
 import { useLocalizedRouting } from '../../shared/hooks/useLocalizedRouting';
 import {
   DEFAULT_LOCALE,
+  ensureLocaleLoaded,
+  type Locale,
   onLocaleChoice,
   saveLocaleChoice,
   suggestedLocaleFor,
@@ -20,7 +22,19 @@ export function LocalePreference() {
   useAccountLocaleSync();
 
   const suggestion = suggestedLocaleFor(pathname, navigator.userAgent);
-  if (!suggestion) return null;
+  // O aviso fala no idioma sugerido, que pode ainda não ter sido baixado (AGENTS.md §12.2).
+  const [loadedLocale, setLoadedLocale] = useState<Locale | null>(null);
+  useEffect(() => {
+    if (!suggestion) return;
+    let active = true;
+    void ensureLocaleLoaded(suggestion).then(() => {
+      if (active) setLoadedLocale(suggestion);
+    });
+    return () => {
+      active = false;
+    };
+  }, [suggestion]);
+  if (!suggestion || loadedLocale !== suggestion) return null;
 
   return (
     <LocaleSuggestionBanner

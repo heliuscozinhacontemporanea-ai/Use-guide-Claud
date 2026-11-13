@@ -8,7 +8,7 @@ export interface PartnerMoreEntry {
   onOpen: () => void;
   /** Ícone antes do título. */
   icon?: ReactNode;
-  /** Convite da área de parceiro, no roxo dela (§11.1). */
+  /** Convite da área de parceiro, no roxo dela (DESIGN.md §2.2). */
   partner?: boolean;
 }
 

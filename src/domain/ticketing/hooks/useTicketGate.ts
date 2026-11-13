@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { EventCheckIn, Ticket } from '../types/ticketing';
+import type { GateCheckInResult } from '../types/ticketing';
 import { verifyAndConsumeOfflineQrToken } from '../utils/offlineTicketVerifier';
 
 export interface GateResult {
@@ -27,10 +27,7 @@ export function useTicketGate({
   onOfflineRecorded,
 }: {
   occurrenceId: string;
-  performCheckIn: (
-    occurrenceId: string,
-    input: GateInput
-  ) => Promise<{ ticket: Ticket; checkIn: EventCheckIn }>;
+  performCheckIn: (occurrenceId: string, input: GateInput) => Promise<GateCheckInResult>;
   onOfflineRecorded: () => Promise<void> | void;
 }) {
   const { t } = useTranslation();

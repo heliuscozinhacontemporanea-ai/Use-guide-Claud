@@ -1,14 +1,16 @@
 import { describe, expect, it } from 'vitest';
-import * as app from '../../../../src/shared/i18n/notifyTypesResources';
+import { notifyTypesPtBR } from '../../../../src/shared/i18n/notifyTypesResources';
+import { notifyTypesEn } from '../../../../src/shared/i18n/notifyTypesResources.en';
+import { notifyTypesFr } from '../../../../src/shared/i18n/notifyTypesResources.fr';
 import * as server from '../i18n/notificationTexts';
 import { NOTIFICATION_TYPES } from '../types/notificationTypes';
 import { renderNotificationText } from './renderNotificationText';
 
 describe('textos do push', () => {
   it('são os mesmos da central no app, nos três idiomas (paridade)', () => {
-    expect(server.NOTIFICATION_TEXTS_PT_BR).toEqual(app.notifyTypesPtBR);
-    expect(server.NOTIFICATION_TEXTS_EN).toEqual(app.notifyTypesEn);
-    expect(server.NOTIFICATION_TEXTS_FR).toEqual(app.notifyTypesFr);
+    expect(server.NOTIFICATION_TEXTS_PT_BR).toEqual(notifyTypesPtBR);
+    expect(server.NOTIFICATION_TEXTS_EN).toEqual(notifyTypesEn);
+    expect(server.NOTIFICATION_TEXTS_FR).toEqual(notifyTypesFr);
   });
 
   it('todo tipo do catálogo tem texto', () => {

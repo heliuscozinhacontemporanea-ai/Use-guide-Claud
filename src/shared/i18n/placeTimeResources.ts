@@ -12,17 +12,3 @@ export const placeTimePtBR: PlaceTimeTranslation = {
   formNote: 'Horários de {{place}} ({{offset}}).',
   formNoteLocal: 'Horários do local ({{offset}}).',
 };
-
-export const placeTimeEn: PlaceTimeTranslation = {
-  suffix: '({{place}} time)',
-  suffixLocal: '(local time)',
-  formNote: 'Times in {{place}} ({{offset}}).',
-  formNoteLocal: 'Local times ({{offset}}).',
-};
-
-export const placeTimeFr: PlaceTimeTranslation = {
-  suffix: '(heure de {{place}})',
-  suffixLocal: '(heure locale)',
-  formNote: 'Horaires de {{place}} ({{offset}}).',
-  formNoteLocal: 'Horaires locaux ({{offset}}).',
-};

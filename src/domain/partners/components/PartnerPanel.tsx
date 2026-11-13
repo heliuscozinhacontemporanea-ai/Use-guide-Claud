@@ -62,6 +62,7 @@ export function PartnerPanel({
   renderEventAccountCard,
   renderNotificationsHint,
   renderCoupons,
+  renderGateStaff,
 }: PartnerPanelProps) {
   const { goTo } = useLocalizedRouting();
   const { t } = useTranslation();
@@ -333,6 +334,11 @@ export function PartnerPanel({
           ) : (
             <PartnerMoreSection
               showProducer={segments.segments.length === 0 || segments.segments.includes('events')}
+              showGateStaff={
+                segments.segments.length === 0 ||
+                segments.segments.includes('events') ||
+                segments.segments.includes('attraction')
+              }
               sells={segments.tabs.includes('earnings')}
               onAddSegment={() => setAddSegmentOpen(true)}
               couponsSegment={segments.couponsLabel}
@@ -352,6 +358,7 @@ export function PartnerPanel({
               onOpenPlan={(item) => setPlanListing({ id: item.id, name: item.name })}
               onOpenEarnings={() => setPanelTab('earnings')}
               renderAccountView={renderAccountView}
+              renderGateStaff={renderGateStaff}
               onReplayTour={() => tour.setChooserOpen(true)}
               renderCoupons={
                 renderCoupons

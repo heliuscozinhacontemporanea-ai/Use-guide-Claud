@@ -55,22 +55,34 @@ export function SessionEntriesSheet({
               <ListRowStatic
                 key={entry.id}
                 title={
-                  entry.name ??
-                  t(
-                    entry.courtesy ? 'ticketSessions.entries.guest' : 'ticketSessions.entries.buyer'
-                  )
+                  entry.name
+                    ? entry.courtesy
+                      ? `${entry.name} · ${t('ticketSessions.entries.guestTag')}`
+                      : entry.name
+                    : t(
+                        entry.courtesy
+                          ? 'ticketSessions.entries.guest'
+                          : 'ticketSessions.entries.buyer'
+                      )
                 }
                 sub={[
-                  entry.ticketType,
-                  entry.courtesy && entry.name ? t('ticketSessions.entries.guest') : null,
+                  when(entry.at),
+                  entry.ticketType && !entry.courtesy ? entry.ticketType : null,
+                  entry.releasedByOwner
+                    ? t('gateStaff.entries.releasedByYou')
+                    : entry.releasedByUsername
+                      ? t('gateStaff.entries.releasedBy', { username: entry.releasedByUsername })
+                      : t('gateStaff.entries.releasedByTeam'),
                   entry.source === 'offline' ? t('ticketSessions.entries.offline') : null,
                 ]
                   .filter(Boolean)
                   .join(' · ')}
                 aside={
-                  <span className="shrink-0 text-[15px] font-semibold text-ink tabular-nums">
-                    {when(entry.at)}
-                  </span>
+                  entry.method && (
+                    <span className="shrink-0 text-[14px] font-semibold text-ink/70">
+                      {t(`ticketSessions.entries.method.${entry.method}`)}
+                    </span>
+                  )
                 }
               />
             ))}

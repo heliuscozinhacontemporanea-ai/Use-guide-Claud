@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
+import { i18n } from '../i18n';
 import { getRouteSeoMetadata, updateDocumentSEO } from './seo';
 
 describe('updateDocumentSEO utility', () => {
@@ -91,7 +92,9 @@ describe('updateDocumentSEO utility', () => {
     expect(document.title).toBe('Jeri Wind Alert | Use Guide');
   });
 
-  it('monta os metadados da rota no idioma da URL', () => {
+  it('monta os metadados da rota no idioma da URL', async () => {
+    // Na app, o idioma da URL já foi baixado antes de a página pintar (main.tsx e useSyncLocaleWithUrl).
+    await i18n.loadLanguages('fr');
     expect(getRouteSeoMetadata('/eventos')).toMatchObject({
       title: 'Eventos & Experiências | Use Guide',
       canonicalUrl: 'https://useguide.com.br/eventos',

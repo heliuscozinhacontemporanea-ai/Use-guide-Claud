@@ -16,12 +16,12 @@ Quando duas regras parecerem conflitar, vale a de número menor:
 3. **Direção de dependências e comunicação entre domínios** (§3, §4)
 4. **Leitura vs. escrita (CQRS)** (§6)
 5. **Contratos de API, erros e observabilidade** (§10)
-6. **UI/UX, acessibilidade e internacionalização** (§11, §12)
+6. **UI/UX, acessibilidade e internacionalização** (`DESIGN.md`, §12)
 7. **Modularidade, estilo e comentários** (§13, §14)
 
 ### 0.2. Escopo
 
-Vale para `src/` (frontend), `server/` + `server.ts` (backend), `functions/` (Cloud Functions), `firestore.rules`, `storage.rules`, `firestore.indexes.json` e `firebase.json`.
+Vale para `src/` (frontend), `server/` + `server.ts` (backend), `functions/` (Cloud Functions), `firestore.rules`, `storage.rules`, `firestore.indexes.json` e `firebase.json`. As regras de aparência, movimento, interação e fluidez da interface estão no `DESIGN.md`, que tem a mesma força deste documento e segue a ordem de precedência do §0.1.
 
 ---
 
@@ -81,7 +81,7 @@ O código DEVE funcionar **sem alterações** nos dois ambientes. Nenhuma funcio
 4. Adapters DEVEM inicializar SDKs de forma preguiçosa (*lazy*): a importação de um módulo NÃO DEVE abrir conexões, ler segredos obrigatórios nem lançar exceção. Falta de configuração DEVE falhar na primeira chamada, com mensagem clara.
 5. O servidor DEVE subir mesmo sem integrações opcionais configuradas (ex: Stripe ausente no desenvolvimento local). Rotas dependentes DEVEM responder `503` com código de erro estável (§10.2), nunca derrubar o processo.
 6. É proibido código que só funciona em produção sem um caminho de teste no desenvolvimento local (ex: modo teste do Stripe, emulador, dados de seed explícitos).
-7. Mocks, stubs e fakes são permitidos **somente** em arquivos de teste (`*.test.ts`) ou adapters in-memory usados exclusivamente por testes. É proibido dado fictício no código de produção (ver §11.10).
+7. Mocks, stubs e fakes são permitidos **somente** em arquivos de teste (`*.test.ts`) ou adapters in-memory usados exclusivamente por testes. É proibido dado fictício no código de produção (ver §11).
 8. Enquanto o app não for liberado para usuários, NÃO DEVE ser criado código de compatibilidade com dados ou versões anteriores (leitura de formatos antigos, rotas duplicadas, scripts de migração, segredos ou hashes legados). Mudanças de modelo de dados são feitas diretamente, e os dados de teste podem ser recriados. Esta regra deixa de valer na data de liberação, registrada em `docs/arquitetura/decisoes.md`.
 
 ### 2.3. Restrições de plataforma que o código DEVE respeitar
@@ -96,8 +96,8 @@ O código DEVE funcionar **sem alterações** nos dois ambientes. Nenhuma funcio
 
 * **`main`:** código oficial. Só recebe PR da `claude/agents/useguide`, com o `ci` verde (proteção da branch). O merge publica no Cloud Run e no Hosting (`.github/workflows/deploy.yml`).
 * **`claude/agents/useguide`:** onde o agente trabalha, sem `docs/`. As mudanças se acumulam no PR aberto; o merge só acontece com "aprovado, pode publicar" do responsável, e com essa autorização o próprio agente PODE fazer o merge.
-* **`claude/agents/documentacao`:** só documentação (`docs/`, `AGENTS.md`, `README.md`). Branch órfã, nunca sobe. As decisões e os débitos citados neste documento (`docs/arquitetura/decisoes.md`, `docs/arquitetura/debitos.md`) estão nela.
-* `AGENTS.md` e `README.md` existem nas três branches; ao mudar, as três são atualizadas no mesmo dia.
+* **`claude/agents/documentacao`:** só documentação (`docs/`, `AGENTS.md`, `DESIGN.md`, `README.md`). Branch órfã, nunca sobe. As decisões e os débitos citados neste documento (`docs/arquitetura/decisoes.md`, `docs/arquitetura/debitos.md`) estão nela.
+* `AGENTS.md`, `DESIGN.md` e `README.md` existem nas três branches; ao mudar, as três são atualizadas no mesmo dia.
 * NÃO ligar "Automatically delete head branches" (apagaria a `claude/agents/useguide` a cada merge).
 
 ---
@@ -622,76 +622,11 @@ Passeios, aluguéis, translados e entradas de atrações privadas compartilham o
 
 ## 11. UI, UX e Layout
 
-### 11.1. Identidade visual
+As regras de design (cores e temas, tipografia, espaço, componentes, padrões de tela, movimento, gestos, fluidez, acessibilidade e responsividade) estão no **`DESIGN.md`**, na raiz. Toda tela nova ou tocada DEVE seguir o `DESIGN.md` e o seu checklist (§14.1 dele).
 
-* **Estilo:** superfícies sólidas e discretas sobre fundo neutro e liso: grafite no escuro (fundo `#0d0e10`, cartão `#1e2024`) e bege no claro (fundo `#f3eee4`, cartão `#faf6ee`). Sem gradientes, padrões nem linhas decorativas no fundo. Vidro (desfoque) só em barras fixas e folhas sobre o conteúdo. Cor só com significado: verde (#11D450) para ação, amarelo para pendente, verde-menta para concluído, vermelho para perigo e roxo (`--ug-partner`) para a área de parceiro: convite "Seja parceiro", apresentação, cadastro e a identidade do parceiro no painel (título e ícone do topo); as ações do painel continuam verdes. Uma ação principal por tela; as demais como texto. Tema **dark é o padrão de design**; em Configurações a pessoa escolhe claro, escuro ou sistema (`ThemeContext`, `AppearanceSettingsView`). Todo componente novo ou tocado DEVE funcionar nos dois temas com os tokens `--ug-*` de `src/index.css` (`bg-app`, `text-ink`, `bg-surface`, `border-line`, `text-warn`, `text-danger`…), nunca `text-white` fixo em superfície que muda de cor. O tema claro NUNCA usa branco puro: fundo off-white bege (`#f3eee4`) e superfícies `#faf6ee`. O tema é aplicado antes da primeira pintura (sem piscar) e o `theme-color` acompanha o tema.
-* **Accent:** verde #11D450, nas classes `teal-*` (o 400 é o tom principal, redefinido em `src/index.css`); menta = sucesso; ciano = informação. No tema claro, texto de ação #087A2E.
-* **Tipografia:** Inter (texto/UI) e Outfit (display). Proibida uma terceira fonte.
-* **Superfície elevada:** cartão sólido do design system (`GlassCard` passa a ser sólido, sem desfoque).
+Fica aqui, por ser regra de integridade e não de aparência:
 
-### 11.2. Contraste (WCAG 2.2 AA)
-
-* Texto normal ≥ **4.5:1**; texto grande (≥ 24px, ou ≥ 18.66px bold) e ícones informativos ≥ **3:1**.
-* Sobre fundo escuro sólido (`#020508`–`#0a0a0f`): `text-white/50` ≈ 5.3:1 (mínimo para texto funcional); `/40` ≈ 3.7:1 (só texto grande); `/30` e `/20` proibidos em texto informativo.
-* Sobre vidro (`bg-white/5` + blur) o contraste real é menor: validar com a cor efetiva do fundo.
-
-### 11.3. Responsividade (breakpoints padrão do Tailwind v4)
-
-| Prefixo | Largura mínima | Uso |
-|---|---|---|
-| (base) | 0 | celular — layout de referência (mobile-first) |
-| `sm:` | 640px | celular grande / tablet pequeno |
-| `md:` | 768px | tablet |
-| `lg:` | 1024px | desktop pequeno |
-| `xl:` | 1280px | desktop |
-
-* Telas de conteúdo DEVEM ter largura máxima legível (ex: `max-w-7xl mx-auto`) e se adaptar ao desktop; modais e formulários PODEM usar `max-w-[480px]`–`max-w-lg`.
-* Grids de cards: `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3` (ou equivalente).
-* Informação funcional nunca existe só a partir de um breakpoint maior.
-* Respeitar safe areas (`viewport-fit=cover`, `env(safe-area-inset-*)`) e não criar scroll horizontal.
-
-### 11.4. Z-index
-
-Usar exclusivamente `Z_INDEX` de `src/shared/constants/zIndex.ts`. Proibido valor numérico solto (`z-[130]`). Legado é migrado quando o arquivo for tocado.
-
-### 11.5. Área de toque
-
-Elemento interativo ≥ **44×44 px** (Apple HIG); DEVERIA chegar a 48×48 px em ações primárias (Material Design). O ícone pode ser menor; a área clicável não.
-
-### 11.6. Feedback
-
-Proibidos `alert()`, `confirm()`, `prompt()`. Usar o toast do design system (`sonner`, encapsulado em `src/ui/components/Toast.tsx`) e `ConfirmDialog` para confirmações.
-
-### 11.7. Acessibilidade
-
-* Botão só com ícone → `aria-label` (traduzido).
-* Foco visível: `focus-visible:ring-2 focus-visible:ring-teal-400/50`; proibido `outline-none` sem substituto.
-* Texto escondido por design → `sr-only`.
-* Modais: foco preso, `Esc` fecha, foco volta ao gatilho (Radix Dialog já faz).
-* Respeitar `prefers-reduced-motion` em animações (`motion`).
-
-### 11.8. Estados de dados
-
-Todo hook assíncrono expõe `data`, `loading` e `error`. Toda tela trata: carregando (skeleton), vazio, erro (com ação de tentar novamente) e offline (`useConnection`).
-
-### 11.9. Performance (Core Web Vitals)
-
-* Metas no p75 móvel: **LCP ≤ 2.5 s, INP ≤ 200 ms, CLS ≤ 0.1**.
-* Rotas e modais pesados (mapa, gráficos, checkout Stripe) DEVEM ser carregados sob demanda (`React.lazy`).
-* Imagens com `width`/`height`, `loading="lazy"` fora da dobra e formatos modernos.
-
-### 11.10. Conteúdo dinâmico
-
-Proibido texto fixo com aparência de dado real do item. Valores financeiros (preço, taxa, quantidade) DEVEM vir do backend/cadastro, nunca de constante no componente.
-
-### 11.11. Experiência de app nativo
-
-* Modais e diálogos: folha que sobe da borda inferior no celular (com alça e safe area) e cartão central do `sm:` em diante, pelo `Dialog` do design system.
-* Entrada e saída animadas (fade, escala, folha), com saída pelo `data-state` do Radix; duração de 150–300 ms.
-* Retorno ao toque em todo botão (`press`: escala 0,97, sem destaque azul de toque, `touch-action: manipulation`).
-* **Um efeito por propriedade em cada elemento:** não somar `press` a `whileTap`/`whileHover` do `motion` nem a `active:scale-*`; animações usam as propriedades `scale`/`translate`, nunca `transform` quando o elemento já é centralizado por `transform`.
-* Tudo respeita `prefers-reduced-motion` (`motion-reduce:animate-none` e `MotionConfig reducedMotion="user"`).
-* Ao abrir um diálogo o foco vai para o próprio diálogo, sem anel de foco num botão que a pessoa não tocou.
+* Proibido texto fixo com aparência de dado real do item. Valores financeiros (preço, taxa, quantidade) DEVEM vir do backend/cadastro, nunca de constante no componente.
 
 ---
 
@@ -835,7 +770,7 @@ Em qualquer edição: remover comentários "o quê", blocos `@file` e histórico
 
 ## 15. Processo de Decisão
 
-* O AGENTS.md NÃO DEVE ser alterado por nenhum agente sem autorização explícita do responsável do produto. Para propor uma mudança, o agente DEVE descrever o texto atual, o texto proposto e o motivo, e aguardar a autorização antes de editar.
+* O AGENTS.md e o DESIGN.md NÃO DEVEM ser alterados por nenhum agente sem autorização explícita do responsável do produto. Para propor uma mudança, o agente DEVE descrever o texto atual, o texto proposto e o motivo, e aguardar a autorização antes de editar.
 * Decisões já aprovadas estão em `docs/arquitetura/decisoes.md` e DEVEM ser seguidas sem nova consulta. Decisão marcada como **em aberto** NÃO pode ser implementada.
 * O agente DEVE parar e consultar o usuário, apresentando alternativas com prós/contras, quando a decisão:
   1. mudar modelo de dados persistido ou exigir migração;
@@ -891,7 +826,7 @@ npm run test:rules  # quando firestore.rules mudar (emulador)
 - [ ] Canal de dados cifrado e autenticado; sem SSRF, sem CORS aberto, DTO de saída por allowlist (§7.9)
 - [ ] Dinheiro em centavos, preço e taxa calculados no backend, idempotência no Stripe, webhook como fonte da verdade (§8)
 - [ ] Erro no formato padrão, sem vazar detalhes; logs sem PII (§10)
-- [ ] Contraste, toque ≥ 44px, `aria-label`, foco visível, z-index da escala, responsivo, dois temas (§11)
+- [ ] Checklist de design do `DESIGN.md` (§14.1 dele): tokens, contraste nos dois temas, escala de texto e raios, toque ≥ 44px, movimento e gestos, estados e carregamento sob demanda
 - [ ] Nenhum texto fixo; chaves nos 3 idiomas; moeda/data com `Intl` no fuso do estabelecimento (§12)
 - [ ] Um UseCase por arquivo; arquivo grande dividido ao tocar (§13)
 - [ ] Gates de qualidade verdes (§16.1)

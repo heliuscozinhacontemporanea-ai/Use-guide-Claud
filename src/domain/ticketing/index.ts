@@ -37,10 +37,13 @@ export {
 export { UserTicketsHistoryView } from './components/UserTicketsHistoryView';
 export { TransferLinkReceiverDialog } from './components/wallet/TransferLinkReceiverDialog';
 export { useCheckoutCountdown } from './hooks/useCheckoutCountdown';
+export { GateStaffPage } from './components/gateStaff/GateStaffPage';
+export { MyGatesView, type PlaceGateRenderProps } from './components/gateStaff/MyGatesView';
 export {
   SessionOfflineList,
   type SessionOfflineListState,
 } from './components/SessionOfflineList';
+export { useMyGates } from './hooks/useMyGates';
 export { useMyPromotions } from './hooks/useMyPromotions';
 export { usePartnerEventSales } from './hooks/usePartnerEventSales';
 export { useTicketPurchases } from './hooks/useTicketPurchases';

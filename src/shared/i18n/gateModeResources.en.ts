@@ -1,0 +1,26 @@
+import type { GateModeTranslation } from './gateModeResources';
+
+export const gateModeEn: GateModeTranslation = {
+  open: 'Open entrance mode',
+  online: 'Online',
+  offline: 'Offline',
+  close: 'Leave entrance mode',
+  lowBattery: 'Low battery. Plug in the charger so the entrance does not stop.',
+  aim: 'Point at the QR code inside the frame',
+  opening: 'Opening the camera…',
+  standby: 'Camera on standby to save battery.',
+  cameraDenied: 'No camera access. Use “Enter code”.',
+  unsupported: 'The reader could not open. Use “Enter code”.',
+  resume: 'Tap to continue',
+  enterCode: 'Enter code',
+  torch: 'Flashlight',
+  next: 'Next',
+  codeTitle: 'Token code',
+  codeLabel: 'Code shown below the QR code',
+  character: 'Character {{n}} of {{total}}',
+  confirmCode: 'Confirm',
+  failed: 'Could not validate. Try again.',
+  allowed: 'Entry allowed',
+  denied: 'Entry refused',
+  attention: 'Attention',
+};

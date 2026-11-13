@@ -27,7 +27,9 @@ export interface TicketSessionsTranslation {
     error: string;
     buyer: string;
     guest: string;
+    guestTag: string;
     offline: string;
+    method: { qr: string; code: string };
   };
   postponeDialog: {
     title: string;
@@ -89,7 +91,9 @@ export const ticketSessionsPtBR: TicketSessionsTranslation = {
     error: 'Não foi possível carregar as entradas.',
     buyer: 'Comprador',
     guest: 'Convidado',
+    guestTag: 'convidado',
     offline: 'registrada sem internet',
+    method: { qr: 'QR', code: 'Código' },
   },
   postponeDialog: {
     title: 'Adiar sessão',
@@ -124,138 +128,4 @@ export const ticketSessionsPtBR: TicketSessionsTranslation = {
     done: 'Sessão cancelada. Os reembolsos foram iniciados.',
   },
   failed: 'Não foi possível concluir agora. Tente de novo.',
-};
-
-export const ticketSessionsEn: TicketSessionsTranslation = {
-  sheet: {
-    sold: 'Sold',
-    soldTickets: 'Tickets sold',
-    entered: 'Entered',
-    enteredOf: '{{entered}} of {{total}}',
-    openGate: 'Open entrance',
-    postpone: 'Postpone session',
-    cancel: 'Cancel session',
-    gateTitle: 'Entrance',
-    openGateMode: 'Open entrance mode',
-    offlineHint:
-      'Without internet, the entrance keeps checking QR codes and sends the entries when the connection is back.',
-    error: 'The session could not be loaded.',
-  },
-  postpone: 'Postpone session',
-  cancel: 'Cancel session',
-  statusPostponed: 'Session postponed',
-  statusCanceled: 'Session canceled',
-  accountNotice:
-    'Paid ticket sales unavailable: finish the payment setup for the CNPJ of this event’s place. Free registrations work normally.',
-  entries: {
-    title: 'Entries',
-    open: 'See who came in',
-    count_one: '{{count}} entry',
-    count_other: '{{count}} entries',
-    empty: 'Nobody has come in yet.',
-    error: "Couldn't load the entries.",
-    buyer: 'Buyer',
-    guest: 'Guest',
-    offline: 'recorded offline',
-  },
-  postponeDialog: {
-    title: 'Postpone session',
-    description:
-      'Tickets stay valid on the new date, with no penalty for you. Each buyer is notified and has 7 days to ask for a full refund, service fee included.',
-    newStart: 'New start date and time',
-    durationKept: 'The session keeps the same duration.',
-    reason: 'Reason',
-    reasonHint: 'Shown in the notice to buyers. 3 to 300 characters.',
-    submit: 'Postpone session',
-    invalid: 'Enter a future date and the reason.',
-    done_one: 'Session postponed. {{count}} order stays valid on the new date.',
-    done_other: 'Session postponed. {{count}} orders stay valid on the new date.',
-  },
-  cancelDialog: {
-    title: 'Cancel session',
-    noSales: 'This session has no paid tickets. Canceling ends its sales.',
-    withSales_one:
-      'This session has {{count}} paid order. It will be fully refunded, service fee included.',
-    withSales_other:
-      'This session has {{count}} paid orders. All of them will be fully refunded, service fee included.',
-    penalty:
-      'Your CNPJ pays a penalty of 20% of the amount sold, with 24 h to pay under Payouts › Debts. After that, the penalty is deducted from payouts and the CNPJ’s sales are paused.',
-    forceMajeure:
-      'Was it force majeure (e.g. wind or closure by the authorities)? Declare it under Payouts › Debts before the due date: the penalty is suspended until the review.',
-    reason: 'Cancellation reason',
-    reasonHint: 'Shown in the notice to buyers. 3 to 300 characters.',
-    postponeInstead: 'Postpone instead',
-    confirm: 'Cancel session',
-    back: 'Back',
-    invalid: 'Enter the cancellation reason.',
-    done: 'Session canceled. Refunds have started.',
-  },
-  failed: 'Could not complete this now. Please try again.',
-};
-
-export const ticketSessionsFr: TicketSessionsTranslation = {
-  sheet: {
-    sold: 'Vendus',
-    soldTickets: 'Billets vendus',
-    entered: 'Entrés',
-    enteredOf: '{{entered}} sur {{total}}',
-    openGate: 'Ouvrir l’accueil',
-    postpone: 'Reporter la séance',
-    cancel: 'Annuler la séance',
-    gateTitle: 'Accueil',
-    openGateMode: 'Ouvrir le mode accueil',
-    offlineHint:
-      'Sans internet, l’accueil continue de vérifier les QR codes et envoie les entrées au retour de la connexion.',
-    error: 'Impossible de charger la séance.',
-  },
-  postpone: 'Reporter la séance',
-  cancel: 'Annuler la séance',
-  statusPostponed: 'Séance reportée',
-  statusCanceled: 'Séance annulée',
-  accountNotice:
-    'Vente de billets payants indisponible : terminez la configuration financière du CNPJ de l’établissement de cet événement. Les inscriptions gratuites fonctionnent normalement.',
-  entries: {
-    title: 'Entrées',
-    open: 'Voir qui est entré',
-    count_one: '{{count}} entrée',
-    count_other: '{{count}} entrées',
-    empty: "Personne n'est encore entré.",
-    error: 'Impossible de charger les entrées.',
-    buyer: 'Acheteur',
-    guest: 'Invité',
-    offline: 'enregistrée hors ligne',
-  },
-  postponeDialog: {
-    title: 'Reporter la séance',
-    description:
-      'Les billets restent valables à la nouvelle date, sans pénalité pour vous. Chaque acheteur est prévenu et a 7 jours pour demander un remboursement intégral, frais de service compris.',
-    newStart: 'Nouvelle date et heure de début',
-    durationKept: 'La séance garde la même durée.',
-    reason: 'Motif',
-    reasonHint: 'Visible dans l’avis aux acheteurs. De 3 à 300 caractères.',
-    submit: 'Reporter la séance',
-    invalid: 'Indiquez une date future et le motif.',
-    done_one: 'Séance reportée. {{count}} commande reste valable à la nouvelle date.',
-    done_other: 'Séance reportée. {{count}} commandes restent valables à la nouvelle date.',
-  },
-  cancelDialog: {
-    title: 'Annuler la séance',
-    noSales: 'Cette séance n’a aucun billet payé. L’annuler met fin à ses ventes.',
-    withSales_one:
-      'Cette séance a {{count}} commande payée. Elle sera remboursée intégralement, frais de service compris.',
-    withSales_other:
-      'Cette séance a {{count}} commandes payées. Toutes seront remboursées intégralement, frais de service compris.',
-    penalty:
-      'Votre CNPJ paie une pénalité de 20 % du montant vendu, avec 24 h pour payer dans Versements › Dettes. Ensuite, la pénalité est déduite des versements et les ventes du CNPJ sont suspendues.',
-    forceMajeure:
-      'C’était un cas de force majeure (ex. : vent ou fermeture par les autorités) ? Déclarez-le dans Versements › Dettes avant l’échéance : la pénalité est suspendue jusqu’à l’examen.',
-    reason: 'Motif de l’annulation',
-    reasonHint: 'Visible dans l’avis aux acheteurs. De 3 à 300 caractères.',
-    postponeInstead: 'Reporter plutôt',
-    confirm: 'Annuler la séance',
-    back: 'Retour',
-    invalid: 'Indiquez le motif de l’annulation.',
-    done: 'Séance annulée. Les remboursements ont commencé.',
-  },
-  failed: 'Impossible de terminer maintenant. Réessayez.',
 };
