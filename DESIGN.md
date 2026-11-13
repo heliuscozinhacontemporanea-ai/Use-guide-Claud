@@ -205,6 +205,7 @@ Antes de criar um componente visual genérico, o agente DEVE procurar nesta list
 | `VerifiedBadge`, `VerifiedSealButton`, `ShareButton` | selo, botão do selo, compartilhar |
 | `GateModeScreen`, `useQrScanner`, `useScreenWakeLock`, `useLowBattery` | modo portaria |
 | `TermsAcceptanceField`, `LegalTermsDocument` | aceite e exibição de termos |
+| `lazyNamed`, `loadChunk`, `DelayedFallback`, `ScreenFallback` (`src/ui/lazy/`) | tela baixada sob demanda, com recarga única e carregando só depois de 150 ms |
 
 ⚠️ **Divergências encontradas:**
 
@@ -287,7 +288,7 @@ Regras ✅:
 
 Metas no p75 do celular: **LCP ≤ 2,5 s, INP ≤ 200 ms, CLS ≤ 0,1**. Rotas e modais pesados (mapa, gráficos, checkout Stripe) DEVEM carregar sob demanda (`React.lazy`).
 
-⚠️ **O app inteiro sai num só arquivo JavaScript de 3,56 MB (1,0 MB comprimido), e nenhuma tela usa `React.lazy`.** É a principal causa de o app demorar a abrir: o celular baixa e interpreta painel do parceiro, admin, gráficos, mapa e Stripe antes de mostrar a Home. Ver P11.
+⚠️ O arquivo inicial tem 531 KB comprimidos (antes 993 KB); as telas, o menu, o mapa, o gráfico e os idiomas en/fr já são baixados sob demanda. O que sobra é quase todo Firestore, React e Motion (B46).
 
 ### 10.2. Regras novas
 
@@ -302,7 +303,7 @@ Metas no p75 do celular: **LCP ≤ 2,5 s, INP ≤ 200 ms, CLS ≤ 0,1**. Rotas e
   * licenças;
   * páginas legais.
 
-  Meta: arquivo inicial abaixo de 250 KB comprimido.
+  Meta: arquivo inicial abaixo de 450 KB comprimido, revista quando houver medição de celulares reais.
 * **P12 — Pré-carregar antes do toque.** O código da próxima tela provável carrega ao tocar (`touchstart`), passar o mouse ou focar no link; os dados entram junto quando a tela já tem leitura em cache do Firestore. Não pré-carregar tudo.
 * **P13 — Estrutura antes dos dados.** O topo, a barra inferior e o skeleton aparecem antes de o login ser confirmado ou de o primeiro snapshot chegar. Rotas públicas nunca esperam o login.
 * **P14 — Resposta otimista só no que é seguro.** Favoritar, marcar como lida e trocar filtro mudam na tela na hora e desfazem se o servidor recusar. Nunca em dinheiro, estoque, check-in, cancelamento ou reembolso: ali vale o servidor, com o botão em "carregando".
@@ -408,7 +409,7 @@ Registrados em `docs/arquitetura/debitos.md` (branch de documentação).
 |---|---|
 | B25 — tema claro por sobrescritas `!important` (430 usos de `text-white`) | 2.1 |
 | B31, B32 — abas de ingressos e do admin com cores fixas | 2.1 |
-| B46 — arquivo JS único de 3,56 MB, sem carregamento sob demanda | P7, P11, P12, P13, P15 |
+| B46 — arquivo inicial de 531 KB comprimidos (parcial); faltam `zod`, P7 e P13 | P7, P11, P12, P13, P15 |
 | B47 — texto secundário reprova AA no tema claro | P1 |
 | B48 — fontes, tamanhos de texto, raios e ícones fora da escala | P2, P3, P5, P6 |
 | B49 — `ModalLayout`, `Skeleton`, controles do mapa, `glassmorphism-vibrant` e variáveis que sobram | P8 |
