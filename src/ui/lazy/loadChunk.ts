@@ -1,4 +1,6 @@
 const RELOAD_FLAG = 'useguide.chunkReload';
+/** Mesma chave do script `stale-html-guard` do index.html. */
+const HTML_RELOAD_FLAG = 'useguide.htmlReload';
 
 function hasReloaded(): boolean {
   try {
@@ -30,8 +32,27 @@ export async function loadChunk<T>(load: () => Promise<T>): Promise<T> {
     return loaded;
   } catch (error) {
     if (hasReloaded() || !setReloaded(true)) throw error;
-    window.location.reload();
+    reloadWithFreshHtml();
     return new Promise<T>(() => undefined);
+  }
+}
+
+/**
+ * Recarrega com `_v` no endereço: a CDN guarda o HTML por alguns minutos, e uma recarga comum poderia
+ * trazer a mesma cópia antiga. O script `stale-html-guard` do index.html tira o `_v` da barra.
+ */
+export function reloadWithFreshHtml(): void {
+  const fresh = new URL(window.location.href);
+  fresh.searchParams.set('_v', String(Date.now()));
+  window.location.replace(fresh.toString());
+}
+
+/** O app abriu: a próxima publicação pode recarregar de novo pelo `stale-html-guard`. */
+export function markAppStarted(): void {
+  try {
+    sessionStorage.removeItem(HTML_RELOAD_FLAG);
+  } catch {
+    // Sem armazenamento, o guarda do index.html nem chega a recarregar.
   }
 }
 

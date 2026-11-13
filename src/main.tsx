@@ -5,6 +5,7 @@ import { i18nReady } from './shared/i18n/config';
 import { registerSW } from 'virtual:pwa-register';
 import App from './app/App.tsx';
 import { resolveHomeRedirect } from './shared/i18n';
+import { markAppStarted } from './ui/lazy/loadChunk';
 import './index.css';
 
 registerSW({ immediate: true });
@@ -29,6 +30,7 @@ function render() {
       </BrowserRouter>
     </StrictMode>
   );
+  markAppStarted();
 }
 // Se o idioma não chegar, o app pinta mesmo assim, em português.
 void i18nReady.then(render, render);
