@@ -2,7 +2,7 @@ import { AlertCircle, RefreshCw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from './Skeleton';
 
-/** Estados de uma lista assíncrona (AGENTS.md §11.8): carregando, vazio e erro com nova tentativa. */
+/** Estados de uma lista assíncrona (DESIGN.md §8): carregando, vazio e erro com nova tentativa. */
 export function ListLoading({ label }: { label: string }) {
   return (
     <div role="status" data-loading="" className="space-y-2">

@@ -1,7 +1,7 @@
 import { Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-/** Enquanto o cadastro sobe: um giro discreto em roxo, a cor da área de parceiro (§11.1). */
+/** Enquanto o cadastro sobe: um giro discreto em roxo, a cor da área de parceiro (DESIGN.md §2.2). */
 export function SignupProcessingState() {
   const { t } = useTranslation();
   return (

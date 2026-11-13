@@ -243,21 +243,24 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
           <MyGatesView
             onBack={goBack}
             renderPlaceGate={({ offerId, slotId, startsAt, timeZone, onClose }) => (
-              <SlotCheckInSheet
-                offerId={offerId}
-                kind="private_entry"
-                slot={{
-                  id: slotId,
-                  startsAt,
-                  endsAt: null,
-                  capacityTotal: 0,
-                  capacityReserved: 0,
-                  capacitySold: 0,
-                  status: 'open',
-                }}
-                timeZone={timeZone}
-                onClose={onClose}
-              />
+              // Espera própria: a folha baixada sob demanda não troca a lista da Portaria pelo carregando.
+              <Suspense fallback={null}>
+                <SlotCheckInSheet
+                  offerId={offerId}
+                  kind="private_entry"
+                  slot={{
+                    id: slotId,
+                    startsAt,
+                    endsAt: null,
+                    capacityTotal: 0,
+                    capacityReserved: 0,
+                    capacitySold: 0,
+                    status: 'open',
+                  }}
+                  timeZone={timeZone}
+                  onClose={onClose}
+                />
+              </Suspense>
             )}
           />
         );

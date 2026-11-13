@@ -21,7 +21,7 @@ if (homeRedirect) {
 }
 
 // Quem usa inglês ou francês espera o idioma chegar antes da primeira pintura (AGENTS.md §12.2).
-void i18nReady.finally(() => {
+function render() {
   createRoot(document.getElementById('root')!).render(
     <StrictMode>
       <BrowserRouter>
@@ -29,4 +29,6 @@ void i18nReady.finally(() => {
       </BrowserRouter>
     </StrictMode>
   );
-});
+}
+// Se o idioma não chegar, o app pinta mesmo assim, em português.
+void i18nReady.then(render, render);

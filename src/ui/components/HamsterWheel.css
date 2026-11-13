@@ -171,7 +171,7 @@
     99% 99% no-repeat;
 }
 
-/* Movimento reduzido: o hamster fica parado na roda (AGENTS.md §11.7). Vem depois das regras acima
+/* Movimento reduzido: o hamster fica parado na roda (DESIGN.md §9.1). Vem depois das regras acima
    e tem a mesma especificidade, por isso vence sem !important. */
 @media (prefers-reduced-motion: reduce) {
   .ug-hamster-wheel,

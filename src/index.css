@@ -92,7 +92,7 @@
 }
 
 /*
- * Tokens que mudam com o tema (AGENTS.md §11.1). O claro usa tons de linho, nunca branco puro,
+ * Tokens que mudam com o tema (DESIGN.md §2.1). O claro usa tons de linho, nunca branco puro,
  * para cansar menos a vista; o escuro é o padrão de design.
  */
 @theme inline {
@@ -234,7 +234,7 @@
   --ug-danger-line: rgba(244, 63, 94, 0.25);
   --ug-seal: #93c5fd;
   --ug-seal-soft: rgba(59, 130, 246, 0.12);
-  /* Roxo da área de parceiro (AGENTS.md §11.1): texto 5,5:1 sobre a superfície; fundo do botão com
+  /* Roxo da área de parceiro (DESIGN.md §2.2): texto 5,5:1 sobre a superfície; fundo do botão com
      texto claro 6:1. */
   --ug-partner: #818cf8;
   --ug-partner-soft: rgba(99, 102, 241, 0.14);
@@ -396,7 +396,7 @@
   }
 }
 
-/* Cartão elevado sólido (D17, AGENTS.md §11.1). O vidro fica reservado para `.glassmorphism-vibrant`. */
+/* Cartão elevado sólido (D17, DESIGN.md §5.1). O vidro fica reservado para `.glassmorphism-vibrant`. */
 .glassmorphism {
   background-color: var(--ug-surface);
   border: 1px solid var(--ug-line);

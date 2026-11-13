@@ -13,7 +13,7 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>(() => {
-    // O escuro é o padrão de design (AGENTS.md §11.1); claro e sistema são escolhas da pessoa.
+    // O escuro é o padrão de design (DESIGN.md §2); claro e sistema são escolhas da pessoa.
     const saved = localStorage.getItem('theme');
     return saved === 'light' || saved === 'dark' || saved === 'system' ? saved : 'dark';
   });

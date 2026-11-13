@@ -89,7 +89,7 @@ export function SupportView({
     (entry): entry is HelpEntry => Boolean(entry)
   );
 
-  // Número real vem da configuração (AGENTS.md §11.10: nada de número fictício no código).
+  // Número real vem da configuração (AGENTS.md §11: nada de número fictício no código).
   const whatsappUrl = whatsAppUrl(
     import.meta.env.VITE_SUPPORT_WHATSAPP?.trim(),
     t('help.whatsappMessage')
