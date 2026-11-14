@@ -7,6 +7,7 @@ import type { ForecastDay } from '../types/windForecast';
 export const WEATHER_UNAVAILABLE = 'WEATHER_UNAVAILABLE';
 
 const TIMEOUT_MS = 12_000;
+const DAY = /^\d{4}-\d{2}-\d{2}$/;
 
 interface DailyResponse {
   daily?: {
@@ -47,15 +48,18 @@ export class ApiWindForecastAdapter implements WindForecastPort {
     });
     const { daily } = await getWeather<DailyResponse>(params, false);
     if (!daily?.time) throw new Error(WEATHER_UNAVAILABLE);
-    return daily.time.map((day, i) => ({
-      day,
-      maxTemp: Math.round(daily.temperature_2m_max?.[i] ?? 0),
-      minTemp: Math.round(daily.temperature_2m_min?.[i] ?? 0),
-      maxWind: Math.round(daily.wind_speed_10m_max?.[i] ?? 0),
-      maxGusts: Math.round(daily.wind_gusts_10m_max?.[i] ?? 0),
-      windDir: daily.wind_direction_10m_dominant?.[i] ?? 0,
-      weatherCode: daily.weather_code?.[i] ?? 0,
-    }));
+    // Open-Meteo manda o dia ("2026-11-15"); o MET Norway, data e hora em UTC do dia agrupado.
+    return daily.time
+      .map((time, i) => ({
+        day: time.slice(0, 10),
+        maxTemp: Math.round(daily.temperature_2m_max?.[i] ?? 0),
+        minTemp: Math.round(daily.temperature_2m_min?.[i] ?? 0),
+        maxWind: Math.round(daily.wind_speed_10m_max?.[i] ?? 0),
+        maxGusts: Math.round(daily.wind_gusts_10m_max?.[i] ?? 0),
+        windDir: daily.wind_direction_10m_dominant?.[i] ?? 0,
+        weatherCode: daily.weather_code?.[i] ?? 0,
+      }))
+      .filter((entry) => DAY.test(entry.day));
   }
 
   async fetchCurrentWind(points: WindPoint[]): Promise<WindPoint[]> {

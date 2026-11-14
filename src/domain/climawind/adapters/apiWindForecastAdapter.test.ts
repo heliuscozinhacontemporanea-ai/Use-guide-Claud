@@ -43,6 +43,22 @@ describe('ApiWindForecastAdapter', () => {
     expect(init.signal).toBeInstanceOf(AbortSignal);
   });
 
+  it('aceita o dia com hora em UTC (MET Norway) e descarta o que não é data', async () => {
+    m.fetch.mockResolvedValue(
+      ok({
+        daily: {
+          time: ['2026-11-14T21:00:00Z', '2026-11-15T00:00:00Z', 'lixo'],
+          wind_speed_10m_max: [18, 20, 5],
+        },
+      })
+    );
+    const days = await new ApiWindForecastAdapter().fetchForecast(0, 0);
+    expect(days.map((entry) => [entry.day, entry.maxWind])).toEqual([
+      ['2026-11-14', 18],
+      ['2026-11-15', 20],
+    ]);
+  });
+
   it('erro do servidor vira um código, sem o texto do provedor', async () => {
     m.fetch.mockResolvedValue({ ok: false, status: 502, text: async () => 'upstream detail' });
     await expect(new ApiWindForecastAdapter().fetchForecast(0, 0)).rejects.toThrow(

@@ -30,9 +30,9 @@ function DayRow({ day, locale }: { day: ForecastDay; locale: string }) {
   const knots = t('wind.unit.knots');
   return (
     <li className="px-4 py-3 flex items-center gap-3">
-      <div className="w-16 shrink-0">
+      <div className="shrink-0 min-w-24">
         <p className="text-meta text-ink-muted capitalize">{weekday}</p>
-        <p className="text-body font-semibold text-ink">{dayMonth}</p>
+        <p className="text-body font-semibold text-ink whitespace-nowrap">{dayMonth}</p>
       </div>
       <Navigation
         size={20}
