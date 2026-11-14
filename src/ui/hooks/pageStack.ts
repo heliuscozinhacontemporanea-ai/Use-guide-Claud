@@ -13,6 +13,8 @@ export interface PageStack<T> {
   push: (page: T) => void;
   /** Fecha a página de cima: pelo histórico, se a entrada dela for a atual. */
   back: () => void;
+  /** Fecha todas as páginas desta pilha (ex.: ir para outra aba a partir de uma página). */
+  clear: () => void;
   getPages: () => readonly T[];
   subscribe: (listener: () => void) => () => void;
 }
@@ -57,6 +59,15 @@ export function createPageStack<T>(scope: string): PageStack<T> {
       }
       pages = pages.slice(0, -1);
       emit();
+    },
+    clear() {
+      const open = depth();
+      if (pages.length > 0) {
+        pages = [];
+        emit();
+      }
+      // As entradas saem do histórico depois; quando o `popstate` chegar, não há mais o que fechar.
+      if (open > 0 && markers().at(-1)?.startsWith(`${scope}#`)) window.history.go(-open);
     },
     getPages: () => pages,
     subscribe(listener) {

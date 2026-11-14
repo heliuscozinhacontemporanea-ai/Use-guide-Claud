@@ -1,9 +1,8 @@
 import { ChevronDown } from 'lucide-react';
-import { type ReactNode, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatBusinessDate } from '../../../../shared/utils/businessDateTime';
 import { formatMoneyMinorCompact } from '../../../../shared/utils/money';
-import { BackButton } from '../../../../ui/components/BackButton';
 import { DropdownMenu } from '../../../../ui/components/DropdownMenu';
 import { ListCard, ListRowButton, ListRowStatic } from '../../../../ui/components/ListRows';
 import { ListEmpty, ListError, ListLoading } from '../../../../ui/components/ListState';
@@ -23,6 +22,7 @@ function Bars({
   locale: string;
   timeZone: string;
 }) {
+  const { t } = useTranslation();
   const max = Math.max(1, ...buckets.map((bucket) => bucket.soldMinor));
   const label = (iso: string) =>
     formatBusinessDate(
@@ -37,7 +37,10 @@ function Bars({
         <li
           key={bucket.start}
           className="flex-1 h-full flex items-end"
-          aria-label={`${label(bucket.start)}: ${formatMoneyMinorCompact(bucket.soldMinor, locale)}`}
+          aria-label={t('partnerEarnings.reports.barLabel', {
+            date: label(bucket.start),
+            value: formatMoneyMinorCompact(bucket.soldMinor, locale),
+          })}
         >
           <span
             className="block w-full rounded-t-md bg-accent"
@@ -53,17 +56,11 @@ function Bars({
 
 type ReportItem = PartnerReports['items'][number];
 
-/** Relatórios (p23): vendido no período, por dia ou mês, e por item. */
-export function PartnerReportsPage({
-  onBack,
-  profile,
-  initialProfile = false,
-}: {
-  onBack: () => void;
-  /** Visitas e avaliações (insights), montado pela composição. */
-  profile: ReactNode;
-  initialProfile?: boolean;
-}) {
+/**
+ * Relatórios (p23): vendido no período, por dia ou mês, e por item. Abre por cima do painel (D33);
+ * "Visitas e avaliações" abre outra página por cima desta.
+ */
+export function PartnerReportsPage({ onOpenProfile }: { onOpenProfile: () => void }) {
   const { t, i18n } = useTranslation();
   // Ingressos (e quantos vieram de divulgador) ou pessoas e grupos; sem unidades, o número de vendas.
   const itemUnits = (item: ReportItem) => {
@@ -83,29 +80,10 @@ export function PartnerReportsPage({
   // `null` segue o padrão do período; a escolha no "^" vale até trocar de período.
   const [chosenUnit, setChosenUnit] = useState<ReportUnit | null>(null);
   const unit = chosenUnit ?? DEFAULT_UNIT[period];
-  const [showProfile, setShowProfile] = useState(initialProfile);
   const { data, loading, error, reload } = usePartnerReports(period);
-
-  if (showProfile) {
-    return (
-      <div className="space-y-4">
-        <BackButton
-          label={t('partnerEarnings.reports.title')}
-          onClick={() => (initialProfile ? onBack() : setShowProfile(false))}
-        />
-        {profile}
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center gap-2">
-        <BackButton label={t('partnerPanel.tabs.earnings')} onClick={onBack} />
-        <h2 className="text-[24px] font-display font-bold text-ink">
-          {t('partnerEarnings.reports.title')}
-        </h2>
-      </div>
       <SegmentedControl<PartnerReportPeriod>
         label={t('partnerEarnings.reports.title')}
         value={period}
@@ -124,15 +102,15 @@ export function PartnerReportsPage({
         <ListError message={t('partnerEarnings.reports.loadError')} onRetry={() => void reload()} />
       ) : (
         <>
-          <section className="rounded-[20px] bg-surface border border-line p-4 space-y-4">
+          <section className="rounded-card bg-surface border border-line p-4 space-y-4">
             <div className="flex items-start justify-between gap-3">
               <div className="space-y-1">
-                <p className="text-[13px] text-ink/70">
+                <p className="text-meta text-ink-muted">
                   {t('partnerEarnings.reports.sold', {
                     period: t(`partnerEarnings.reports.periods.${period}`),
                   })}
                 </p>
-                <p className="text-[24px] leading-tight font-bold text-ink">
+                <p className="text-heading font-bold text-ink tabular-nums">
                   {formatMoneyMinorCompact(data.soldMinor, locale)}
                 </p>
               </div>
@@ -143,7 +121,7 @@ export function PartnerReportsPage({
                     aria-label={t('partnerEarnings.reports.groupBy', {
                       unit: t(`partnerEarnings.reports.units.${unit}`),
                     })}
-                    className="group press shrink-0 min-h-11 px-3 -mr-1 rounded-xl flex items-center gap-1.5 text-[13px] font-semibold text-ink/80 hover:bg-ink/[0.06] focus-visible:ring-2 focus-visible:ring-teal-400/50"
+                    className="group press shrink-0 min-h-11 px-3 -mr-1 rounded-control flex items-center gap-1.5 text-meta font-semibold text-ink-muted hover:bg-ink/[0.06] focus-visible:ring-2 focus-visible:ring-teal-400/50"
                   >
                     {t(`partnerEarnings.reports.units.${unit}`)}
                     {/* "v" fechado e "^" aberto: o Radix marca o botão com data-state. */}
@@ -168,12 +146,10 @@ export function PartnerReportsPage({
             />
           </section>
           {data.truncated && (
-            <p className="px-1 text-[13px] text-warn">{t('partnerEarnings.reports.truncated')}</p>
+            <p className="px-1 text-meta text-warn">{t('partnerEarnings.reports.truncated')}</p>
           )}
           <section className="space-y-3">
-            <h3 className="px-1 text-[18px] font-display font-bold text-ink">
-              {t('partnerEarnings.reports.byItem')}
-            </h3>
+            <h3 className="px-1 text-title text-ink">{t('partnerEarnings.reports.byItem')}</h3>
             {data.items.length === 0 ? (
               <ListEmpty message={t('partnerEarnings.reports.empty')} />
             ) : (
@@ -184,7 +160,7 @@ export function PartnerReportsPage({
                     title={item.title ?? '—'}
                     sub={itemUnits(item)}
                     aside={
-                      <span className="shrink-0 text-[15px] font-semibold text-ink">
+                      <span className="shrink-0 text-body font-semibold text-ink tabular-nums">
                         {formatMoneyMinorCompact(item.soldMinor, locale)}
                       </span>
                     }
@@ -199,7 +175,7 @@ export function PartnerReportsPage({
         <ListRowButton
           title={t('partnerEarnings.reports.profile')}
           sub={t('partnerEarnings.reports.profileHint')}
-          onClick={() => setShowProfile(true)}
+          onClick={onOpenProfile}
         />
       </ListCard>
     </div>

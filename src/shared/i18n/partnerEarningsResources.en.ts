@@ -46,6 +46,7 @@ export const partnerEarningsEn: PartnerEarningsTranslation = {
     loadError: "Couldn't load the reports.",
     profile: 'Visits and reviews',
     profileHint: 'Who saw your listings and reviews to reply to',
+    barLabel: '{{date}}: {{value}}',
   },
   sheet: {
     title: 'Payout on {{date}}',

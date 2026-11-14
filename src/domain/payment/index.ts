@@ -9,6 +9,7 @@ export { CheckoutModal } from './components/CheckoutModal';
 export { MySaleClaimsProvider } from './components/claims/MySaleClaimsProvider';
 export { SaleClaimAction } from './components/claims/SaleClaimAction';
 export { PartnerDebtsPanel } from './components/earnings/PartnerDebtsPanel';
+export { PartnerPaymentAccountPage } from './components/earnings/PartnerPaymentAccountPage';
 export { PartnerPaymentAccountsPage } from './components/earnings/PartnerPaymentAccountsPage';
 export { PartnerStatementPanel } from './components/earnings/PartnerStatementPanel';
 export { PartnerStripeConnectPortal } from './components/PartnerStripeConnectPortal';

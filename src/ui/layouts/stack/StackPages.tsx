@@ -6,7 +6,16 @@ import {
   useReducedMotion,
   useTransform,
 } from 'motion/react';
-import { memo, type ReactNode, type RefObject, useEffect, useRef } from 'react';
+import {
+  memo,
+  type ReactNode,
+  type RefObject,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { cn } from '../../../shared/utils/cn';
 import { stackSheetProgress } from '../../motion/stackSheetProgress';
 import {
@@ -20,7 +29,8 @@ import {
   SPRING,
 } from '../../motion/tokens';
 import { NAV_BAR_HEIGHT, StackNavBar } from './StackNavBar';
-import type { StackEntry } from './stackTypes';
+import { StackPageActionContext } from './stackPageAction';
+import type { StackAction, StackEntry } from './stackTypes';
 import { useStackGestures } from './useStackGestures';
 import { useStackTransition } from './useStackTransition';
 
@@ -65,6 +75,17 @@ export function StackPages({
   );
   const scroller = useRef<HTMLDivElement>(null);
   const dragX = useMotionValue(0);
+  // Ações que as próprias páginas declaram (`useStackPageAction`), por tela.
+  const [pageActions, setPageActions] = useState<Record<string, StackAction>>({});
+  const setPageAction = useCallback((key: string, action: StackAction | null) => {
+    setPageActions((current) => {
+      if (!action && !(key in current)) return current;
+      const next = { ...current };
+      if (action) next[key] = action;
+      else delete next[key];
+      return next;
+    });
+  }, []);
   const width = () => containerRef.current?.offsetWidth || 1;
 
   useEffect(() => {
@@ -118,6 +139,12 @@ export function StackPages({
     }
   );
 
+  const withAction = (entry: StackEntry): StackEntry =>
+    entry.action || !pageActions[entry.key] ? entry : { ...entry, action: pageActions[entry.key] };
+  const barLayers = {
+    top: withAction(layers.top),
+    under: layers.under ? withAction(layers.under) : null,
+  };
   const moving = layers.under !== null;
   const stack = entries.some((entry) => entry.key === layers.top.key)
     ? entries
@@ -136,7 +163,7 @@ export function StackPages({
       )}
       {/* A barra vem antes das telas no código: o leitor de tela e o Tab começam pelo `<`; fica por cima pelo z-index. */}
       <StackNavBar
-        layers={layers}
+        layers={barLayers}
         progress={progress}
         dragX={dragX}
         backLabel={backLabel}
@@ -152,6 +179,7 @@ export function StackPages({
             progress={progress}
             dragX={dragX}
             scrollerRef={role === 'top' || role === 'alone' ? scroller : undefined}
+            onAction={setPageAction}
           />
         );
       })}
@@ -176,14 +204,20 @@ function PageLayer({
   progress,
   dragX,
   scrollerRef,
+  onAction,
 }: {
   entry: StackEntry;
   role: PageRole;
   progress: MotionValue<number>;
   dragX: MotionValue<number>;
   scrollerRef?: RefObject<HTMLDivElement | null>;
+  onAction: (key: string, action: StackAction | null) => void;
 }) {
   const reduced = useReducedMotion();
+  const setAction = useMemo(
+    () => (action: StackAction | null) => onAction(entry.key, action),
+    [onAction, entry.key]
+  );
   const slide = useTransform(progress, (q) => {
     if (role === 'top') return `${(1 - q) * 100}%`;
     if (role === 'under') return `${-RECEDE_SHIFT * 100 * q}%`;
@@ -211,16 +245,18 @@ function PageLayer({
         (role === 'top' || role === 'under') && 'will-change-transform'
       )}
     >
-      {entry.bare ? (
-        <PageContent render={entry.render} />
-      ) : (
-        <div
-          style={{ paddingTop: entry.navBar ? NAV_BAR_HEIGHT + 8 : 28 }}
-          className="min-h-full flex flex-col px-6 sm:px-8 pb-[calc(env(safe-area-inset-bottom,0px)+2rem)]"
-        >
+      <StackPageActionContext.Provider value={setAction}>
+        {entry.bare ? (
           <PageContent render={entry.render} />
-        </div>
-      )}
+        ) : (
+          <div
+            style={{ paddingTop: entry.navBar ? NAV_BAR_HEIGHT + 8 : 28 }}
+            className="min-h-full flex flex-col px-6 sm:px-8 pb-[calc(env(safe-area-inset-bottom,0px)+2rem)]"
+          >
+            <PageContent render={entry.render} />
+          </div>
+        )}
+      </StackPageActionContext.Provider>
       {role === 'under' && (
         <motion.div
           aria-hidden="true"

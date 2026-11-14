@@ -1,12 +1,9 @@
-import { PLATFORM_TIME_ZONE } from '../../../../shared/utils/timeZones';
 import { type ReactNode, useState } from 'react';
 import { usePartnerCatalogEvents } from '../../hooks/usePartnerCatalogEvents';
 import type { PartnerContentRecord } from '../../types/partnerContent';
-import type { PartnerEstablishment, PartnerTodayItem } from '../../types/partnerHome';
+import type { PartnerEstablishment } from '../../types/partnerHome';
 import { belongs, type EstablishmentFilter } from '../../utils/partnerHomeFilter';
 import { type CatalogSegment, PartnerCatalogTab } from './PartnerCatalogTab';
-import { PartnerEstablishmentPage } from './PartnerEstablishmentPage';
-import { PartnerEventPage } from './PartnerEventPage';
 
 /** O que a composição monta no Catálogo (outros domínios). */
 export interface PartnerCatalogRenders {
@@ -39,38 +36,27 @@ export interface EventGuestsRenderProps {
   onChanged: () => void;
 }
 
-/** Catálogo (p09) e página do estabelecimento (p19), com o filtro de estabelecimento (11.3). */
+/**
+ * Catálogo (p09), com o filtro de estabelecimento (11.3). O estabelecimento (p19) e o evento (p10)
+ * abrem por cima, na pilha do painel (`PartnerCatalogPage`, D33).
+ */
 export function PartnerCatalogSection({
   segment,
   parts,
   offersLabel,
   title,
   onSegmentChange,
-  placeId,
-  onPlaceChange: setPlaceId,
-  eventId,
-  onEventChange,
-  eventReloadKey,
-  onOpenSession,
+  onOpenPlace,
+  onOpenEvent,
   items,
-  events,
   loading,
   filter,
   establishments,
   eventsVersion,
-  onEditItem,
   onCreateItem,
-  onOpenEvent,
   onCreateEvent,
-  onOpenPlan,
-  onVerify,
-  onToggleActive,
-  verificationVersion,
-  planVersion,
-  onOpenReviews,
   renders,
   onOpenCoupons,
-  onOpenEarnings,
 }: {
   segment: CatalogSegment;
   /** Partes do catálogo que os segmentos do parceiro usam. */
@@ -80,99 +66,23 @@ export function PartnerCatalogSection({
   /** Título da tela, o mesmo da aba ("Passeios", "Ofertas"). */
   title?: string;
   onSegmentChange: (segment: CatalogSegment) => void;
-  /** Estabelecimento aberto (p19); o painel esconde os atalhos enquanto ele está aberto. */
-  placeId: string | null;
-  onPlaceChange: (placeId: string | null) => void;
-  /** Evento aberto (p10); o painel esconde os atalhos enquanto ele está aberto. */
-  eventId: string | null;
-  onEventChange: (eventId: string | null) => void;
-  /** Muda depois de adiar ou cancelar uma sessão. */
-  eventReloadKey: number;
-  onOpenSession: (item: PartnerTodayItem) => void;
+  onOpenPlace: (place: { id: string; name: string }) => void;
+  onOpenEvent: (event: { id: string; title: string }) => void;
   items: PartnerContentRecord[];
-  events: PartnerContentRecord[];
   loading: boolean;
   filter: EstablishmentFilter;
   establishments: PartnerEstablishment[];
   /** Muda depois de salvar um evento, para a lista reler vendidos e status. */
   eventsVersion: number;
-  onEditItem: (item: PartnerContentRecord) => void;
   onCreateItem: () => void;
-  /** Abre Editar evento (p18). */
-  onOpenEvent: (item: PartnerContentRecord, hasSales: boolean) => void;
   onCreateEvent: () => void;
-  onOpenPlan: (item: PartnerContentRecord) => void;
-  onVerify: (item: PartnerContentRecord) => void;
-  onToggleActive: (itemId: string, active: boolean) => Promise<void>;
-  /** Muda depois de um envio de verificação, para a página reler o status. */
-  verificationVersion: number;
-  /** Muda depois de ativar ou comprar um plano. */
-  planVersion: number;
-  onOpenReviews: () => void;
   renders: PartnerCatalogRenders;
-  /** Área Cupons já com o evento ou a oferta escolhidos (B1). */
+  /** Área Cupons já com a oferta escolhida (B1). */
   onOpenCoupons?: (target: { kind: 'event' | 'offer'; id: string }) => void;
-  /** Aba Ganhos, a partir da conta de "Você recebe" do evento (A4). */
-  onOpenEarnings?: () => void;
 }) {
   const catalogEvents = usePartnerCatalogEvents(eventsVersion);
   const [creatingOffer, setCreatingOffer] = useState(false);
   const places = items.filter((item) => item.category !== 'producer' && belongs([item.id], filter));
-  const openOfferCoupons = onOpenCoupons
-    ? (id: string) => onOpenCoupons({ kind: 'offer', id })
-    : undefined;
-  const toOfferItem = (item: PartnerContentRecord) => ({
-    id: item.id,
-    name: item.name,
-    category: item.category,
-  });
-
-  if (eventId) {
-    const record = events.find((entry) => entry.id === eventId);
-    return (
-      <PartnerEventPage
-        eventId={eventId}
-        reloadKey={eventReloadKey + eventsVersion}
-        onBack={() => onEventChange(null)}
-        onEdit={(hasSales) => record && onOpenEvent(record, hasSales)}
-        onOpenSession={onOpenSession}
-        timeZone={record?.timeZone ?? PLATFORM_TIME_ZONE}
-        renderGuests={renders.renderGuests}
-        renderPromoters={renders.renderPromoters}
-        onOpenCoupons={
-          onOpenCoupons ? () => onOpenCoupons({ kind: 'event', id: eventId }) : undefined
-        }
-        onOpenEarnings={onOpenEarnings}
-      />
-    );
-  }
-
-  const place = placeId ? items.find((item) => item.id === placeId) : undefined;
-  if (place) {
-    return (
-      <PartnerEstablishmentPage
-        key={`${place.id}-${verificationVersion}-${planVersion}`}
-        item={place}
-        stats={establishments.find((entry) => entry.id === place.id)}
-        onBack={() => setPlaceId(null)}
-        onEdit={() => onEditItem(place)}
-        onOpenPlan={() => onOpenPlan(place)}
-        onVerify={() => onVerify(place)}
-        onToggleActive={() => void onToggleActive(place.id, place.isActive !== false)}
-        visits={renders.renderVisits?.(place.id, () => onOpenPlan(place))}
-        offers={
-          renders.renderOffers?.({
-            items: [toOfferItem(place)],
-            creating: false,
-            onCreatingChange: () => {},
-            inPage: true,
-            onOpenCoupons: openOfferCoupons,
-          }) ?? null
-        }
-        reviews={renders.renderReviews?.(place.id, onOpenReviews)}
-      />
-    );
-  }
 
   return (
     <PartnerCatalogTab
@@ -193,8 +103,13 @@ export function PartnerCatalogSection({
           ? establishments.map((entry) => ({ id: entry.id, name: entry.name }))
           : null
       }
-      onOpenPlace={(item) => setPlaceId(item.id)}
-      onOpenEvent={onEventChange}
+      onOpenPlace={(item) => onOpenPlace({ id: item.id, name: item.name })}
+      onOpenEvent={(eventId) =>
+        onOpenEvent({
+          id: eventId,
+          title: catalogEvents.data.find((event) => event.id === eventId)?.title ?? '',
+        })
+      }
       onCreate={() =>
         segment === 'places'
           ? onCreateItem()
@@ -207,8 +122,15 @@ export function PartnerCatalogSection({
         creating: creatingOffer,
         onCreatingChange: setCreatingOffer,
         inPage: false,
-        onOpenCoupons: openOfferCoupons,
+        onOpenCoupons: onOpenCoupons ? (id) => onOpenCoupons({ kind: 'offer', id }) : undefined,
       })}
     />
   );
 }
+
+/** Item do catálogo no formato que o painel de ofertas (bookings) recebe. */
+export const toOfferItem = (item: PartnerContentRecord) => ({
+  id: item.id,
+  name: item.name,
+  category: item.category,
+});

@@ -61,7 +61,7 @@ describe('Relatórios (p23)', () => {
   });
 
   it('abre em 30 dias, troca o período e lista por item', async () => {
-    render(<PartnerReportsPage onBack={vi.fn()} profile={<p>visitas</p>} />);
+    render(<PartnerReportsPage onOpenProfile={vi.fn()} />);
     expect(await screen.findByText('Vendido em 30 dias')).toBeTruthy();
     expect(screen.getByText('Passeio de buggy ao Preá')).toBeTruthy();
     expect(screen.getByText('146 pessoas')).toBeTruthy();
@@ -73,17 +73,16 @@ describe('Relatórios (p23)', () => {
   });
 
   it('agrupa por semana em 30 dias e por dia em 7 dias; o "^" mostra a escolha', async () => {
-    render(<PartnerReportsPage onBack={vi.fn()} profile={null} />);
+    render(<PartnerReportsPage onOpenProfile={vi.fn()} />);
     expect(await screen.findByRole('button', { name: 'Agrupar por: Semana' })).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: '7 dias' }));
     expect(await screen.findByRole('button', { name: 'Agrupar por: Dia' })).toBeTruthy();
   });
 
-  it('"Visitas e avaliações" abre as métricas do perfil; vindo da página do estabelecimento, abre direto', async () => {
-    const onBack = vi.fn();
-    render(<PartnerReportsPage onBack={onBack} profile={<p>visitas</p>} initialProfile />);
-    expect(screen.getByText('visitas')).toBeTruthy();
-    fireEvent.click(screen.getByRole('button', { name: 'Relatórios' }));
-    expect(onBack).toHaveBeenCalled();
+  it('"Visitas e avaliações" abre a página das métricas do perfil por cima', async () => {
+    const onOpenProfile = vi.fn();
+    render(<PartnerReportsPage onOpenProfile={onOpenProfile} />);
+    fireEvent.click(await screen.findByRole('button', { name: /Visitas e avaliações/ }));
+    expect(onOpenProfile).toHaveBeenCalledTimes(1);
   });
 });

@@ -25,3 +25,17 @@ describe('createPageStack', () => {
     expect((window.history.state as { ugPages?: string[] } | null)?.ugPages ?? []).toEqual([]);
   });
 });
+
+describe('createPageStack · clear', () => {
+  afterEach(() => window.history.replaceState(null, ''));
+
+  it('fecha todas as páginas pelo histórico, de uma vez', async () => {
+    const stack = createPageStack<string>('painel');
+    const { result } = renderHook(() => usePageStack(stack));
+    act(() => stack.push('a'));
+    act(() => stack.push('b'));
+    act(() => stack.clear());
+    await waitFor(() => expect(result.current).toEqual([]));
+    expect((window.history.state as { ugPages?: string[] } | null)?.ugPages ?? []).toEqual([]);
+  });
+});

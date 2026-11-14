@@ -1,13 +1,14 @@
+import { Pencil } from 'lucide-react';
 import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatBusinessDate } from '../../../../shared/utils/businessDateTime';
 import { formatMoneyMinorCompact } from '../../../../shared/utils/money';
-import { BackButton } from '../../../../ui/components/BackButton';
 import { ListCard, ListRowButton } from '../../../../ui/components/ListRows';
 import { ListError, ListLoading } from '../../../../ui/components/ListState';
 import { SegmentedControl } from '../../../../ui/components/SegmentedControl';
 import { StatTile } from '../../../../ui/components/StatTile';
 import { TextButton } from '../../../../ui/components/TextButton';
+import { useStackPageAction } from '../../../../ui/layouts/stack/stackPageAction';
 import { usePartnerEventSalesPage } from '../../hooks/usePartnerEventSalesPage';
 import type { PartnerEventSales, PartnerTodayItem } from '../../types/partnerHome';
 import { addBusinessDays, businessDay, sameBusinessDay } from '../../utils/agendaCalendar';
@@ -33,11 +34,13 @@ function sessionItem(sales: PartnerEventSales, session: PartnerEventSales['sessi
   } satisfies PartnerTodayItem;
 }
 
-/** Página do evento (p10, p11): vendido, a receber, sessões e pedidos; a edição fica em "Editar". */
+/**
+ * Página do evento (p10, p11): vendido, a receber, sessões e pedidos; a edição fica em "Editar". Abre
+ * por cima do painel (D33): o título fica na barra fixa e o "Editar" é a ação da barra.
+ */
 export function PartnerEventPage({
   eventId,
   reloadKey,
-  onBack,
   onEdit,
   onOpenSession,
   renderGuests,
@@ -48,7 +51,6 @@ export function PartnerEventPage({
 }: {
   eventId: string;
   reloadKey: number;
-  onBack: () => void;
   /** `hasSales`: com pedidos, Editar evento não oferece excluir (D27). */
   onEdit: (hasSales: boolean) => void;
   onOpenSession: (item: PartnerTodayItem) => void;
@@ -70,6 +72,13 @@ export function PartnerEventPage({
   const guests = tab === 'guests' && renderGuests;
   const promoters = tab === 'promoters' && renderPromoters;
   const operation = guests || promoters;
+  const hasSales = (data?.ordersTotal ?? 0) > 0;
+  // Em Convidados e Divulgadores, o evento está em operação: editar sai da barra (p13).
+  const editInBar = useStackPageAction(
+    operation
+      ? null
+      : { label: t('partnerCatalog.event.edit'), icon: Pencil, onClick: () => onEdit(hasSales) }
+  );
   // No topo de Convidados, a próxima sessão e o vendido dela (p13).
   const next =
     data?.sessions.find((session) => new Date(session.startsAt) > now) ?? data?.sessions[0];
@@ -95,20 +104,16 @@ export function PartnerEventPage({
   return (
     <div className="space-y-6">
       <div className="space-y-1">
-        <div className="flex items-center gap-2">
-          <BackButton label={t('partnerPanel.tabs.catalog')} onClick={onBack} />
-          <h2 className="flex-1 min-w-0 text-[24px] font-display font-bold text-ink break-words">
-            {data?.event.title ?? ''}
-          </h2>
-          {!operation && (
-            <TextButton tone="accent" onClick={() => onEdit((data?.ordersTotal ?? 0) > 0)}>
+        {!editInBar && !operation && (
+          <div className="flex justify-end">
+            <TextButton tone="accent" onClick={() => onEdit(hasSales)}>
               {t('partnerCatalog.event.edit')}
             </TextButton>
-          )}
-        </div>
+          </div>
+        )}
         {data &&
           (operation && next ? (
-            <p className="px-1 text-[14px] text-ink/70">
+            <p className="px-1 text-meta text-ink-muted">
               {t('courtesy.header', {
                 when: sessionLabel(next.startsAt, locale),
                 sold: next.sold,
@@ -116,7 +121,7 @@ export function PartnerEventPage({
               })}
             </p>
           ) : (
-            <p className="px-1 text-[14px] text-ink/70">
+            <p className="px-1 text-meta text-ink-muted">
               {t(`partnerCatalog.status.${data.event.status}`)} ·{' '}
               {t('partnerCatalog.event.sessions', { count: data.event.sessions })}
             </p>
@@ -182,7 +187,7 @@ export function PartnerEventPage({
 
           {data.sessions.length > 0 && (
             <section className="space-y-3">
-              <h3 className="px-1 text-[18px] font-display font-bold text-ink">
+              <h3 className="px-1 text-title text-ink">
                 {t('partnerCatalog.event.sessionsTitle')}
               </h3>
               <ListCard>
@@ -202,7 +207,7 @@ export function PartnerEventPage({
                       .join(' · ')}
                     aside={
                       sameBusinessDay(session.startsAt, now, timeZone) ? (
-                        <span className="shrink-0 text-[13px] font-semibold text-accent">
+                        <span className="shrink-0 text-meta font-semibold text-accent">
                           {t('partnerPanel.home.gate')}
                         </span>
                       ) : null

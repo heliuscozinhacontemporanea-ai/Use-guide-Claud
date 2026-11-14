@@ -24,6 +24,7 @@ import {
   CheckoutModal,
   isPaidPlanId,
   PartnerDebtsPanel,
+  PartnerPaymentAccountPage,
   PartnerPaymentAccountsPage,
   PartnerStatementPanel,
   type PlanPeriodOption,
@@ -262,9 +263,13 @@ export function PartnerPortalComposition() {
       renderEarnings={{
         renderStatement: () => <PartnerStatementPanel />,
         renderDebts: () => <PartnerDebtsPanel />,
-        renderAccounts: (onBack) => (
-          <PartnerPaymentAccountsPage onBack={onBack} nameFor={establishmentNameFor} />
+        renderAccounts: ({ onOpenAccount }) => (
+          <PartnerPaymentAccountsPage
+            nameFor={establishmentNameFor}
+            onOpenAccount={onOpenAccount}
+          />
         ),
+        renderAccount: (accountKey) => <PartnerPaymentAccountPage accountKey={accountKey} />,
       }}
       renderAgora={{
         arrive: (item) => arriveAtSlot(item.parentId, item.id),

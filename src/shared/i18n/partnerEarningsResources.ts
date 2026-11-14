@@ -41,6 +41,8 @@ export interface PartnerEarningsTranslation {
     loadError: string;
     profile: string;
     profileHint: string;
+    /** Rótulo de cada barra do gráfico para o leitor de tela. */
+    barLabel: string;
   };
   sheet: {
     title: string;
@@ -102,6 +104,7 @@ export const partnerEarningsPtBR: PartnerEarningsTranslation = {
     loadError: 'Não foi possível carregar os relatórios.',
     profile: 'Visitas e avaliações',
     profileHint: 'Quem viu seus anúncios e avaliações para responder',
+    barLabel: '{{date}}: {{value}}',
   },
   sheet: {
     title: 'Repasse de {{date}}',

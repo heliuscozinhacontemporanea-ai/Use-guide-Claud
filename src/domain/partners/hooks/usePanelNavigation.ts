@@ -5,56 +5,75 @@ import type { PartnerPanelTab } from '../components/panel/partnerPanelTabs';
 
 export type CouponsScope = { kind: 'event' | 'offer'; id: string };
 
-/** Página aberta por cima do painel; os cupons levam de onde foram abertos (evento ou oferta). */
-export interface PanelPage {
-  view: PartnerMorePageView;
-  couponsScope?: CouponsScope | null;
-}
+/**
+ * Página aberta por cima do painel (D33). Estabelecimento, evento e conta levam o título da linha
+ * tocada: a barra fixa mostra o nome antes de a página terminar de carregar.
+ */
+export type PanelPage =
+  | { view: PartnerMorePageView; couponsScope?: CouponsScope | null }
+  | { view: 'place'; id: string; title: string }
+  | { view: 'event'; id: string; title: string }
+  | { view: 'reports' }
+  | { view: 'reports-profile' }
+  | { view: 'accounts' }
+  | { view: 'account'; key: string; title: string };
 
 /**
- * Aba do painel e o que está aberto dentro dela (página do evento, relatórios…). As páginas de Mais e
- * os cupons abrem por cima do painel, com entrada no histórico (D33, P19).
+ * Aba do painel e as páginas abertas por cima dela (estabelecimento, evento, relatórios, contas, Mais),
+ * com entrada no histórico (D33, P19). Uma página abre por cima de onde a pessoa está, sem trocar de aba.
  */
 export function usePanelNavigation() {
   const [panelTab, setPanelTab] = useState<PartnerPanelTab>('home');
-  const [openReports, setOpenReports] = useState<false | 'sales' | 'reviews'>(false);
-  const [openAccounts, setOpenAccounts] = useState(false);
-  const [placeId, setPlaceId] = useState<string | null>(null);
-  const [eventId, setEventId] = useState<string | null>(null);
   // Fora do estado do painel: abrir uma página não redesenha o painel inteiro.
   const [pages] = useState(() => createPageStack<PanelPage>('panel'));
 
-  // Abrir uma aba fecha o que estava aberto dentro de outra.
-  const openTab = useCallback((tab: PartnerPanelTab) => {
-    setPanelTab(tab);
-    setOpenReports(false);
-    setOpenAccounts(false);
-    setPlaceId(null);
-    setEventId(null);
-  }, []);
+  // Ir para outra aba fecha as páginas abertas por cima da atual.
+  const openTab = useCallback(
+    (tab: PartnerPanelTab) => {
+      pages.clear();
+      setPanelTab(tab);
+    },
+    [pages]
+  );
 
   const openMorePage = useCallback((view: PartnerMorePageView) => pages.push({ view }), [pages]);
-  // Os cupons abrem por cima de onde a pessoa está (Início, evento ou oferta), sem trocar de aba.
+  // Os cupons abrem por cima de onde a pessoa está (Início, evento ou oferta).
   const openCoupons = useCallback(
     (from: CouponsScope | 'home') =>
       pages.push({ view: 'coupons', couponsScope: from === 'home' ? null : from }),
+    [pages]
+  );
+  const openPlace = useCallback(
+    (place: { id: string; name: string }) =>
+      pages.push({ view: 'place', id: place.id, title: place.name }),
+    [pages]
+  );
+  const openEvent = useCallback(
+    (event: { id: string; title: string }) =>
+      pages.push({ view: 'event', id: event.id, title: event.title }),
+    [pages]
+  );
+  const openReports = useCallback(() => pages.push({ view: 'reports' }), [pages]);
+  const openReportsProfile = useCallback(() => pages.push({ view: 'reports-profile' }), [pages]);
+  const openAccounts = useCallback(() => pages.push({ view: 'accounts' }), [pages]);
+  const openAccount = useCallback(
+    (account: { key: string; title: string }) =>
+      pages.push({ view: 'account', key: account.key, title: account.title }),
     [pages]
   );
 
   return {
     panelTab,
     setPanelTab,
-    openReports,
-    setOpenReports,
-    openAccounts,
-    setOpenAccounts,
-    placeId,
-    setPlaceId,
-    eventId,
-    setEventId,
     pages,
-    openMorePage,
     openTab,
+    openMorePage,
     openCoupons,
+    openPlace,
+    openEvent,
+    openReports,
+    openReportsProfile,
+    openAccounts,
+    openAccount,
   };
 }
