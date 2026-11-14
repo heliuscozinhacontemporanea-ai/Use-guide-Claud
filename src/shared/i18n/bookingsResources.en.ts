@@ -76,6 +76,7 @@ export const bookingsEn: BookingsTranslation = {
     myBookingsTitle: 'My bookings',
     detail: {
       bookingTitle: 'My booking',
+      notFound: "We couldn't find this booking. It may have been canceled.",
       whenLabel: 'When',
       bookingLabel: 'Booking',
       meetingLabel: 'Meeting point',

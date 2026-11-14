@@ -18,13 +18,15 @@ const isPrefix = (short: string[], long: string[]) => short.every((key, i) => lo
  * lugar). Avançar anima 0 → 1; voltar mantém a tela que sai em cima e anima até 0, partindo de onde o
  * dedo a deixou (`releaseVelocity`).
  */
-export function useStackTransition(entries: StackEntry[]) {
+export function useStackTransition(entries: StackEntry[], onPopped?: () => void) {
   const reduced = useReducedMotion();
   const progress = useMotionValue(1);
   const [leaving, setLeaving] = useState<StackEntry | null>(null);
   const [moving, setMoving] = useState(false);
   const previous = useRef(entries);
   const releaseVelocity = useRef<number | undefined>(undefined);
+  const popped = useRef(onPopped);
+  popped.current = onPopped;
   const keySignature = keysOf(entries).join('/');
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: a troca só acontece quando a pilha muda de telas; renders com as mesmas telas só atualizam o conteúdo.
@@ -51,6 +53,7 @@ export function useStackTransition(entries: StackEntry[]) {
         setLeaving(null);
         setMoving(false);
         progress.set(1);
+        popped.current?.();
       });
       return;
     }

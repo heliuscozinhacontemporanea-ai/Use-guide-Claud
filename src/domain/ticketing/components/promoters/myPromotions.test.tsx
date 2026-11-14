@@ -55,7 +55,7 @@ describe('Divulgação do usuário (p26, p27)', () => {
   });
 
   it('soma só o que já foi aceito e mostra o link com o @ e o código', async () => {
-    render(<MyPromotionsView onBack={vi.fn()} />);
+    render(<MyPromotionsView />);
     expect(await screen.findByText('Luau na Duna')).toBeTruthy();
     expect(screen.getByText('38 ingressos vendidos pelos seus links')).toBeTruthy();
     expect(screen.getByText(/\/e\/joao-k7Qm2a$/)).toBeTruthy();
@@ -63,7 +63,7 @@ describe('Divulgação do usuário (p26, p27)', () => {
   });
 
   it('aceitar passa pela folha com quanto ganha e quem paga', async () => {
-    render(<MyPromotionsView onBack={vi.fn()} />);
+    render(<MyPromotionsView />);
     fireEvent.click(await screen.findByRole('button', { name: 'Aceitar' }));
     expect(screen.getByText('Buggy do Preá, direto a você')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Aceitar e pegar meu link' }));

@@ -4,6 +4,8 @@ import { type MenuView, menuParamFor, parseMenuParam } from './menuViews';
 
 type ParamsUpdate = (params: URLSearchParams) => void;
 
+const SUB_PARAM = 'sub';
+
 /** Marca as entradas do histórico criadas ao avançar dentro do menu, para o "voltar" desempilhar. */
 interface MenuHistoryState {
   menuStep?: boolean;
@@ -18,6 +20,8 @@ export function useSideMenu() {
   const location = useLocation();
   const navigate = useNavigate();
   const view = parseMenuParam(searchParams.get('menu'));
+  // Página interna da tela do menu (ex.: o detalhe de uma reserva); só um ID, nunca dado pessoal.
+  const sub = view ? searchParams.get(SUB_PARAM) : null;
   const isMenuStep = (location.state as MenuHistoryState | null)?.menuStep === true;
 
   const update = useCallback(
@@ -37,6 +41,7 @@ export function useSideMenu() {
       update(
         (params) => {
           params.set('menu', menuParamFor(target));
+          params.delete(SUB_PARAM);
           if (options.closeItem) {
             params.delete('item');
             params.delete('type');
@@ -58,13 +63,42 @@ export function useSideMenu() {
         navigate(-1);
         return;
       }
-      update((params) => params.set('menu', menuParamFor(parent)), { replace: true });
+      update(
+        (params) => {
+          params.set('menu', menuParamFor(parent));
+          params.delete(SUB_PARAM);
+        },
+        { replace: true }
+      );
     },
     [isMenuStep, navigate, update]
   );
 
+  /** Abre uma página interna da tela atual, com entrada própria no histórico (DESIGN.md P19). */
+  const openSub = useCallback(
+    (id: string) => {
+      update((params) => params.set(SUB_PARAM, id), { replace: false, state: { menuStep: true } });
+    },
+    [update]
+  );
+
+  /** Fecha a página interna: desempilha o histórico, ou troca no lugar se veio de um link direto. */
+  const closeSub = useCallback(() => {
+    if (isMenuStep) {
+      navigate(-1);
+      return;
+    }
+    update((params) => params.delete(SUB_PARAM), { replace: true });
+  }, [isMenuStep, navigate, update]);
+
   const closeMenu = useCallback(() => {
-    update((params) => params.delete('menu'), { replace: false });
+    update(
+      (params) => {
+        params.delete('menu');
+        params.delete(SUB_PARAM);
+      },
+      { replace: false }
+    );
   }, [update]);
 
   /** Fecha o menu e abre o detalhe do item na mesma navegação. */
@@ -73,6 +107,7 @@ export function useSideMenu() {
       update(
         (params) => {
           params.delete('menu');
+          params.delete(SUB_PARAM);
           params.set('item', item.id);
           params.set('type', item.category === 'event' ? 'event' : 'item');
         },
@@ -82,5 +117,15 @@ export function useSideMenu() {
     [update]
   );
 
-  return { view, isOpen: view !== null, openMenu, backTo, closeMenu, closeMenuAndOpenItem };
+  return {
+    view,
+    sub,
+    isOpen: view !== null,
+    openMenu,
+    backTo,
+    openSub,
+    closeSub,
+    closeMenu,
+    closeMenuAndOpenItem,
+  };
 }

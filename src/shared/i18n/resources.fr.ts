@@ -25,6 +25,7 @@ import { partnerTourFr } from './partnerTourResources.fr';
 import { partnersFr } from './partnersResources.fr';
 import { paymentAccountsFr } from './paymentAccountsResources.fr';
 import { placeTimeFr } from './placeTimeResources.fr';
+import { accountFr } from './accountResources.fr';
 import { myReviewsFr, profileFr } from './profileResources.fr';
 import { promoCodeFr } from './promoCodeResources.fr';
 import { promoterFr } from './promoterResources.fr';
@@ -54,6 +55,7 @@ export const fr: TranslationResource = {
   saleClaims: saleClaimsFr,
   purchases: purchasesFr,
   profile: profileFr,
+  account: accountFr,
   myReviews: myReviewsFr,
   reviewReports: reviewReportsFr,
   adminPanel: adminPanelFr,
@@ -341,25 +343,20 @@ export const fr: TranslationResource = {
   },
   settings: {
     title: 'Paramètres',
-    subtitle: 'Préférences de l’app',
     back: 'Retour',
     appearance: 'Apparence',
-    appearanceSubtitle: 'Choisissez un mode',
     language: 'Langue du guide',
-    languageSubtitle: 'Choisissez une langue',
     support: 'Assistance',
     about: 'À propos de l’app',
     theme: { light: 'Clair', dark: 'Sombre', system: 'Système' },
     themeDescription: {
       light: 'Thème aux tons clairs',
-      dark: 'Thème sombre par défaut avec effet verre',
+      dark: "Thème sombre, celui de l'app par défaut",
       system: 'Suit le réglage de votre appareil',
     },
   },
   favorites: {
     title: 'Mes favoris',
-    subtitle: 'Vos éléments enregistrés',
-    back: 'Retour au menu principal',
     emptyTitle: 'Aucun favori enregistré',
     emptyDescription:
       'Vous n’avez encore rien enregistré. Explorez le guide et touchez le cœur pour garder ce qui vous plaît.',

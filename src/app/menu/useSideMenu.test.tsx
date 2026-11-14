@@ -59,4 +59,30 @@ describe('useSideMenu', () => {
     expect(result.current.menu.isOpen).toBe(false);
     expect(result.current.search).toBe('?item=ev1&type=event');
   });
+
+  it('página interna: abre com entrada no histórico e o voltar a fecha sem sair da tela', () => {
+    const { result } = setup();
+    act(() => result.current.menu.openMenu('bookings'));
+    act(() => result.current.menu.openSub('b1'));
+    expect(result.current.menu.sub).toBe('b1');
+    expect(result.current.search).toBe('?menu=bookings&sub=b1');
+    act(() => result.current.menu.closeSub());
+    expect(result.current.menu.sub).toBeNull();
+    expect(result.current.menu.view).toBe('bookings');
+  });
+
+  it('link direto para uma página interna: fechar troca no lugar, sem sair do menu', () => {
+    const { result } = setup('/?menu=support&sub=refunds');
+    expect(result.current.menu.sub).toBe('refunds');
+    act(() => result.current.menu.closeSub());
+    expect(result.current.search).toBe('?menu=support');
+  });
+
+  it('trocar de tela ou fechar o menu tira a página interna da URL', () => {
+    const { result } = setup('/?menu=bookings&sub=b1');
+    act(() => result.current.menu.openMenu('settings'));
+    expect(result.current.search).toBe('?menu=settings');
+    act(() => result.current.menu.closeMenu());
+    expect(result.current.search).toBe('');
+  });
 });

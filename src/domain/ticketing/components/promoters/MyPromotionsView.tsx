@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatMoneyMinorCompact } from '../../../../shared/utils/money';
-import { BackButton } from '../../../../ui/components/BackButton';
 import { ListEmpty, ListError, ListLoading } from '../../../../ui/components/ListState';
 import { StatusText } from '../../../../ui/components/StatusText';
 import { respondPromoterInviteUseCase } from '../../application/usecases/respondPromoterInviteUseCase';
@@ -11,8 +10,11 @@ import { promoterErrorKey } from '../../utils/promoterErrorKey';
 import { PromoterInviteSheet } from './PromoterInviteSheet';
 import { PromotionCard } from './PromotionCard';
 
-/** Menu › Divulgação (p26): quanto tem a receber, os eventos, os links e os convites (D27). */
-export function MyPromotionsView({ onBack }: { onBack: () => void }) {
+/**
+ * Menu › Divulgação (p26): quanto tem a receber, os eventos, os links e os convites (D27). O `<` e o
+ * título ficam na barra fixa da folha do perfil (D33).
+ */
+export function MyPromotionsView() {
   const { t, i18n } = useTranslation();
   const { data, loading, error, reload } = useMyPromotions();
   const [inviting, setInviting] = useState<MyPromotion | null>(null);
@@ -33,16 +35,12 @@ export function MyPromotionsView({ onBack }: { onBack: () => void }) {
 
   return (
     <section className="w-full space-y-6">
-      <div className="flex items-center gap-2">
-        <BackButton label={t('promoters.user.back')} onClick={onBack} />
-        <h2 className="text-[22px] font-display font-bold text-ink">{t('promoters.user.title')}</h2>
-      </div>
-      <div className="p-4 rounded-[20px] bg-surface border border-line">
-        <p className="text-[15px] text-ink/70">{t('promoters.user.owedTitle')}</p>
-        <p className="text-[28px] font-bold text-ink">
+      <div className="p-4 rounded-card bg-surface border border-line">
+        <p className="text-body text-ink-muted">{t('promoters.user.owedTitle')}</p>
+        <p className="text-display font-bold text-ink tabular-nums">
           {formatMoneyMinorCompact(owed, i18n.language)}
         </p>
-        <p className="text-[15px] text-ink/70">
+        <p className="text-body text-ink-muted">
           {t('promoters.user.owedHint', { count: tickets })}
         </p>
       </div>
@@ -52,7 +50,7 @@ export function MyPromotionsView({ onBack }: { onBack: () => void }) {
         </p>
       )}
       <section className="space-y-3">
-        <h3 className="px-1 text-[18px] font-display font-bold text-ink">
+        <h3 className="px-1 text-title font-display font-bold text-ink">
           {t('promoters.user.events')}
         </h3>
         {loading && data.length === 0 ? (

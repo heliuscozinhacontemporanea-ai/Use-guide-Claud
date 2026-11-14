@@ -1,3 +1,4 @@
+import { type AccountTranslation, accountPtBR } from './accountResources';
 import { type AdminFinanceTranslation, adminFinancePtBR } from './adminFinanceResources';
 import { type AdminPanelTranslation, adminPanelPtBR } from './adminPanelResources';
 import { type AppAboutTranslation, appAboutPtBR } from './appAboutResources';
@@ -67,6 +68,7 @@ export interface TranslationResource {
   saleClaims: SaleClaimsTranslation;
   purchases: PurchasesTranslation;
   profile: ProfileTranslation;
+  account: AccountTranslation;
   myReviews: MyReviewsTranslation;
   reviewReports: ReviewReportsTranslation;
   adminPanel: AdminPanelTranslation;
@@ -297,12 +299,9 @@ export interface TranslationResource {
   };
   settings: {
     title: string;
-    subtitle: string;
     back: string;
     appearance: string;
-    appearanceSubtitle: string;
     language: string;
-    languageSubtitle: string;
     support: string;
     about: string;
     theme: { light: string; dark: string; system: string };
@@ -310,8 +309,6 @@ export interface TranslationResource {
   };
   favorites: {
     title: string;
-    subtitle: string;
-    back: string;
     emptyTitle: string;
     emptyDescription: string;
     removeItem: string;
@@ -327,6 +324,7 @@ const ptBR: TranslationResource = {
   saleClaims: saleClaimsPtBR,
   purchases: purchasesPtBR,
   profile: profilePtBR,
+  account: accountPtBR,
   myReviews: myReviewsPtBR,
   reviewReports: reviewReportsPtBR,
   adminPanel: adminPanelPtBR,
@@ -611,25 +609,20 @@ const ptBR: TranslationResource = {
   },
   settings: {
     title: 'Configurações',
-    subtitle: 'Preferências do app',
     back: 'Voltar',
     appearance: 'Aparência',
-    appearanceSubtitle: 'Selecione o modo',
     language: 'Idioma do Guide',
-    languageSubtitle: 'Selecione o idioma',
     support: 'Suporte',
     about: 'Sobre o app',
     theme: { light: 'Claro', dark: 'Escuro', system: 'Sistema' },
     themeDescription: {
       light: 'Tema com tonalidade clara',
-      dark: 'Tema escuro padrão com efeito glassmorphism',
+      dark: 'Tema escuro, o padrão do app',
       system: 'Acompanha a preferência do dispositivo',
     },
   },
   favorites: {
-    title: 'Meus Favoritos',
-    subtitle: 'Seus itens salvos',
-    back: 'Voltar para o menu principal',
+    title: 'Meus favoritos',
     emptyTitle: 'Nenhum favorito salvo',
     emptyDescription:
       'Você ainda não favoritou nenhum item. Explore o guia e toque no coração para guardar o que gostou.',

@@ -25,6 +25,7 @@ import { partnerTourEn } from './partnerTourResources.en';
 import { partnersEn } from './partnersResources.en';
 import { paymentAccountsEn } from './paymentAccountsResources.en';
 import { placeTimeEn } from './placeTimeResources.en';
+import { accountEn } from './accountResources.en';
 import { myReviewsEn, profileEn } from './profileResources.en';
 import { promoCodeEn } from './promoCodeResources.en';
 import { promoterEn } from './promoterResources.en';
@@ -54,6 +55,7 @@ export const en: TranslationResource = {
   saleClaims: saleClaimsEn,
   purchases: purchasesEn,
   profile: profileEn,
+  account: accountEn,
   myReviews: myReviewsEn,
   reviewReports: reviewReportsEn,
   adminPanel: adminPanelEn,
@@ -332,25 +334,20 @@ export const en: TranslationResource = {
   },
   settings: {
     title: 'Settings',
-    subtitle: 'App preferences',
     back: 'Back',
     appearance: 'Appearance',
-    appearanceSubtitle: 'Choose a mode',
     language: 'Guide language',
-    languageSubtitle: 'Choose a language',
     support: 'Support',
     about: 'About the app',
     theme: { light: 'Light', dark: 'Dark', system: 'System' },
     themeDescription: {
       light: 'Light-toned theme',
-      dark: 'Default dark theme with glass effect',
+      dark: 'Dark theme, the app default',
       system: 'Follows your device setting',
     },
   },
   favorites: {
-    title: 'My Favorites',
-    subtitle: 'Your saved items',
-    back: 'Back to the main menu',
+    title: 'My favorites',
     emptyTitle: 'No saved favorites',
     emptyDescription:
       "You haven't saved anything yet. Explore the guide and tap the heart to keep what you like.",

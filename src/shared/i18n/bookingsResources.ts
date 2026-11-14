@@ -71,6 +71,7 @@ export interface BookingsTranslation {
     myBookingsTitle: string;
     detail: {
       bookingTitle: string;
+      notFound: string;
       whenLabel: string;
       bookingLabel: string;
       meetingLabel: string;
@@ -357,6 +358,7 @@ export const bookingsPtBR: BookingsTranslation = {
     myBookingsTitle: 'Minhas reservas',
     detail: {
       bookingTitle: 'Minha reserva',
+      notFound: 'Não encontramos esta reserva. Ela pode ter sido cancelada.',
       whenLabel: 'Quando',
       bookingLabel: 'Reserva',
       meetingLabel: 'Ponto de encontro',

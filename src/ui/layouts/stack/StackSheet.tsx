@@ -1,5 +1,5 @@
 import { animate, motion, useMotionValue, useReducedMotion, useTransform } from 'motion/react';
-import { type ReactNode, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { type ReactNode, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Z_INDEX } from '../../../shared/constants/zIndex';
 import { cn } from '../../../shared/utils/cn';
@@ -7,7 +7,8 @@ import { readSafeAreaTop } from '../../motion/safeAreaTop';
 import { stackSheetProgress } from '../../motion/stackSheetProgress';
 import { CARD_PEEK_PX, FADE, SPRING } from '../../motion/tokens';
 import { StackPages } from './StackPages';
-import type { StackEntry } from './stackTypes';
+import { StackActionsContext } from './stackPageAction';
+import type { StackAction, StackEntry } from './stackTypes';
 
 export interface StackSheetProps {
   isOpen: boolean;
@@ -23,6 +24,8 @@ export interface StackSheetProps {
   takeover?: ReactNode;
   /** Por cima de tudo na folha (ex.: aviso curto). */
   overlay?: ReactNode;
+  /** A tela de cima terminou de sair ao voltar. */
+  onPopped?: () => void;
 }
 
 /**
@@ -71,9 +74,24 @@ function SheetBody({
   receded = false,
   takeover,
   overlay,
+  onPopped,
   onDismissDrag,
 }: StackSheetProps & { onDismissDrag: (velocity: number) => void }) {
   const reduced = useReducedMotion();
+  const [pageActions, setPageActions] = useState<Record<string, StackAction>>({});
+  const setPageAction = useCallback((key: string, action: StackAction | null) => {
+    setPageActions((current) => {
+      if (!action) {
+        if (!(key in current)) return current;
+        const { [key]: _removed, ...rest } = current;
+        return rest;
+      }
+      return { ...current, [key]: action };
+    });
+  }, []);
+  const stackEntries = entries.map((entry) =>
+    entry.action || !pageActions[entry.key] ? entry : { ...entry, action: pageActions[entry.key] }
+  );
   const [safeTop] = useState(() => readSafeAreaTop());
   const top = Math.max(safeTop, 16) + CARD_PEEK_PX;
   const sheetRef = useRef<HTMLDivElement>(null);
@@ -124,15 +142,18 @@ function SheetBody({
       )}
     >
       {takeover ?? (
-        <StackPages
-          sheetRef={sheetRef}
-          entries={entries}
-          backLabel={entries.length > 1 ? labels.back : labels.close}
-          onBack={entries.length > 1 ? onBack : onClose}
-          sheetHeight={height}
-          dragY={dragY}
-          onDismissDrag={onDismissDrag}
-        />
+        <StackActionsContext.Provider value={setPageAction}>
+          <StackPages
+            sheetRef={sheetRef}
+            entries={stackEntries}
+            backLabel={entries.length > 1 ? labels.back : labels.close}
+            onBack={entries.length > 1 ? onBack : onClose}
+            sheetHeight={height}
+            dragY={dragY}
+            onDismissDrag={onDismissDrag}
+            onPopped={onPopped}
+          />
+        </StackActionsContext.Provider>
       )}
       {overlay}
       <RecedeVeil receded={receded} />

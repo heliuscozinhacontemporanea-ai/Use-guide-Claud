@@ -7,7 +7,7 @@ import { type FirestoreReview, MyReviewsView, useMyReviews } from '../../domain/
  * Minhas avaliações com o nome do lugar vindo do guia: a avaliação guarda só o ID do item. Eventos
  * que já saíram do catálogo (passados) são buscados um a um.
  */
-export function MyReviewsComposition({ onBack }: { onBack: () => void }) {
+export function MyReviewsComposition() {
   const { items, events } = useGuideCatalog();
   const source = useMyReviews();
   const { data } = source;
@@ -47,7 +47,6 @@ export function MyReviewsComposition({ onBack }: { onBack: () => void }) {
   return (
     <MyReviewsView
       source={source}
-      onBack={onBack}
       titleOf={(review) => catalogTitle(review) || eventTitles[review.itemId] || undefined}
     />
   );

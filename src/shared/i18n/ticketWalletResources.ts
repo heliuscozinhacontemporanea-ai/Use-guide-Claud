@@ -12,7 +12,6 @@ type TicketStatusKey =
 export interface TicketWalletTranslation {
   title: string;
   tabsLabel: string;
-  back: string;
   refresh: string;
   loading: string;
   tabs: { upcoming: string; past: string };
@@ -39,7 +38,6 @@ export interface TicketWalletTranslation {
 export const ticketWalletPtBR: TicketWalletTranslation = {
   title: 'Ingressos',
   tabsLabel: 'Ingressos por data',
-  back: 'Voltar',
   refresh: 'Atualizar ingressos',
   loading: 'Carregando seus ingressos…',
   tabs: { upcoming: 'Próximos ({{count}})', past: 'Anteriores ({{count}})' },

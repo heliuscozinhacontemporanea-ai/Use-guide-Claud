@@ -5,6 +5,7 @@ import { uploadProfilePhotoUseCase } from '../../media';
 import { getCroppedImg } from '../../../shared/utils/formatters';
 
 export function useUserPhoto(
+  /** `text` é a chave de tradução do aviso. */
   onMessage?: (msg: { type: 'success' | 'error'; text: string }) => void
 ) {
   const { user, photoURL, setPhotoURL } = useAuthContext();
@@ -54,20 +55,13 @@ export function useUserPhoto(
       setPhotoURL(newPhotoURL);
 
       if (onMessage) {
-        onMessage({ type: 'success', text: 'Foto de perfil atualizada!' });
+        onMessage({ type: 'success', text: 'account.feedback.photoSaved' });
       }
       setImageToCrop(null);
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : '';
       console.error('[useUserPhoto] Error uploading photo:', error);
       if (onMessage) {
-        onMessage({
-          type: 'error',
-          text:
-            errorMessage === 'Canvas is empty'
-              ? 'Erro ao gerar imagem. Tente novamente.'
-              : 'Erro ao processar imagem.',
-        });
+        onMessage({ type: 'error', text: 'account.feedback.photoError' });
       }
     } finally {
       setIsUploading(false);

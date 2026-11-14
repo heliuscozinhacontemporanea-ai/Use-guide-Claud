@@ -53,13 +53,7 @@ describe('Minhas avaliações', () => {
   });
 
   it('cada avaliação em um cartão, com o nome do lugar, o selo e a resposta', () => {
-    render(
-      <MyReviewsView
-        source={source([REVIEW])}
-        onBack={vi.fn()}
-        titleOf={() => 'Restaurante Tamarindo'}
-      />
-    );
+    render(<MyReviewsView source={source([REVIEW])} titleOf={() => 'Restaurante Tamarindo'} />);
     expect(screen.getByText('Restaurante Tamarindo')).toBeTruthy();
     expect(screen.getByText('Experiência verificada')).toBeTruthy();
     expect(screen.getByRole('heading', { name: '12 de outubro' })).toBeTruthy();
@@ -72,26 +66,20 @@ describe('Minhas avaliações', () => {
     const sameDay = { ...REVIEW, id: 'r3', createdAt: '2026-10-12T20:00:00.000Z' };
     vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(new Date('2026-10-27T12:00:00.000Z'));
-    render(
-      <MyReviewsView
-        source={source([sameDay, REVIEW, older])}
-        onBack={vi.fn()}
-        titleOf={() => 'Tamarindo'}
-      />
-    );
+    render(<MyReviewsView source={source([sameDay, REVIEW, older])} titleOf={() => 'Tamarindo'} />);
     vi.useRealTimers();
     const headings = screen.getAllByRole('heading', { level: 3 }).map((h) => h.textContent);
     expect(headings).toEqual(['12 de outubro', '23 de junho de 2025']);
   });
 
   it('lugar fora do guia mostra o aviso no lugar do nome', () => {
-    render(<MyReviewsView source={source([REVIEW])} onBack={vi.fn()} titleOf={() => undefined} />);
+    render(<MyReviewsView source={source([REVIEW])} titleOf={() => undefined} />);
     expect(screen.getByText('Lugar fora do guia')).toBeTruthy();
   });
 
   it('excluir pede confirmação e só então chama o backend', async () => {
     const src = source([REVIEW]);
-    render(<MyReviewsView source={src} onBack={vi.fn()} titleOf={() => 'Tamarindo'} />);
+    render(<MyReviewsView source={src} titleOf={() => 'Tamarindo'} />);
     openMenu();
     fireEvent.click(await screen.findByRole('menuitem', { name: /Excluir/ }));
     expect(screen.getByText('Excluir esta avaliação?')).toBeTruthy();
@@ -104,7 +92,7 @@ describe('Minhas avaliações', () => {
 
   it('editar abre a folha com a nota e o texto e salva por cima', async () => {
     const src = source([REVIEW]);
-    render(<MyReviewsView source={src} onBack={vi.fn()} titleOf={() => 'Tamarindo'} />);
+    render(<MyReviewsView source={src} titleOf={() => 'Tamarindo'} />);
     openMenu();
     fireEvent.click(await screen.findByRole('menuitem', { name: /Editar/ }));
     const comment = screen.getByRole('textbox');
@@ -117,7 +105,7 @@ describe('Minhas avaliações', () => {
 
   it('comentário vazio não salva e mostra a mensagem traduzida', async () => {
     const src = source([REVIEW]);
-    render(<MyReviewsView source={src} onBack={vi.fn()} titleOf={() => 'Tamarindo'} />);
+    render(<MyReviewsView source={src} titleOf={() => 'Tamarindo'} />);
     openMenu();
     fireEvent.click(await screen.findByRole('menuitem', { name: /Editar/ }));
     fireEvent.change(screen.getByRole('textbox'), { target: { value: '   ' } });
@@ -134,9 +122,7 @@ describe('Minhas avaliações', () => {
       createdAt: '2026-10-27T12:00:00.000Z',
       decideBy: '2026-10-30T12:00:00.000Z',
     });
-    render(
-      <MyReviewsView source={source([REVIEW])} onBack={vi.fn()} titleOf={() => 'Tamarindo'} />
-    );
+    render(<MyReviewsView source={source([REVIEW])} titleOf={() => 'Tamarindo'} />);
     openMenu();
     fireEvent.click(await screen.findByRole('menuitem', { name: /Denunciar resposta/ }));
     const submit = screen.getByRole('button', { name: 'Enviar denúncia' });
@@ -166,7 +152,6 @@ describe('Minhas avaliações', () => {
     render(
       <MyReviewsView
         source={source([REVIEW, { ...REVIEW, id: 'r2', partnerResponse: null }])}
-        onBack={vi.fn()}
         titleOf={() => 'Tamarindo'}
       />
     );

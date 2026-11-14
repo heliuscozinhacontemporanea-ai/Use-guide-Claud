@@ -8,7 +8,6 @@ import type { PurchaseEntry } from '../../ui/components/purchases/purchaseEntry'
 import { BUTTON_SECONDARY } from '../../ui/styles/controls';
 
 interface BuyerPurchasesCompositionProps {
-  onBack: () => void;
   onOpenTickets: () => void;
   onOpenBookings: () => void;
 }
@@ -25,7 +24,7 @@ export function BuyerPurchasesComposition(props: BuyerPurchasesCompositionProps)
   );
 }
 
-function BuyerPurchases({ onBack, onOpenTickets, onOpenBookings }: BuyerPurchasesCompositionProps) {
+function BuyerPurchases({ onOpenTickets, onOpenBookings }: BuyerPurchasesCompositionProps) {
   const { t } = useTranslation();
   const tickets = useTicketPurchases();
   const bookings = useBookingPurchases();
@@ -45,7 +44,6 @@ function BuyerPurchases({ onBack, onOpenTickets, onOpenBookings }: BuyerPurchase
         void tickets.reload();
         void bookings.reload();
       }}
-      onBack={onBack}
       onOpen={(entry) => {
         setNotice(null);
         tickets.actions.setFeedback(null);

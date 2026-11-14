@@ -20,12 +20,12 @@ import type { NotificationPreferences } from '../types/notificationCategories';
 import { NotificationDeviceCard } from './NotificationDeviceCard';
 
 const LIST =
-  'shrink-0 rounded-[20px] bg-surface border border-line divide-y divide-line overflow-hidden';
-const SECTION_TITLE = 'px-1 mb-2 text-xs font-bold text-ink';
+  'shrink-0 rounded-card bg-surface border border-line divide-y divide-line overflow-hidden';
+const SECTION_TITLE = 'px-1 mb-2 text-meta font-semibold text-ink-muted';
 // Mesmo cartão de opção da folha de decisão (docs/design/base-d17/light-6-admin-decidir.png).
 const OPTION =
-  'press min-h-14 px-4 py-3 rounded-2xl bg-surface border border-line flex items-center gap-3 cursor-pointer has-[:checked]:bg-accent-soft has-[:checked]:border-accent-line focus-within:ring-2 focus-within:ring-teal-400/50';
-const NOTE = 'px-1 mt-2 text-[13px] text-ink/70';
+  'press min-h-14 px-4 py-3 rounded-control bg-surface border border-line flex items-center gap-3 cursor-pointer has-[:checked]:bg-accent-soft has-[:checked]:border-accent-line focus-within:ring-2 focus-within:ring-teal-400/50';
+const NOTE = 'px-1 mt-2 text-meta text-ink-muted';
 
 type AlwaysKey = 'purchases' | 'trips' | 'account' | 'partnerClaims' | 'partnerMoney';
 
@@ -48,8 +48,8 @@ function RowTitle({
   children: string;
 }) {
   return (
-    <p id={id} className="flex items-center gap-2 text-[15px] font-semibold text-ink">
-      <Icon size={18} className="shrink-0 text-ink/70" aria-hidden="true" />
+    <p id={id} className="flex items-center gap-2 text-body font-semibold text-ink">
+      <Icon size={20} className="shrink-0 text-ink-muted" aria-hidden="true" />
       {children}
     </p>
   );
@@ -61,9 +61,9 @@ function AlwaysRow({ item }: { item: AlwaysKey }) {
     <li className="flex items-center gap-3 px-4 py-3.5 min-h-16">
       <div className="flex-1 min-w-0">
         <RowTitle icon={ALWAYS_ICONS[item]}>{t(`notify.always.${item}.label`)}</RowTitle>
-        <p className="pl-[26px] text-[13px] text-ink/70">{t(`notify.always.${item}.hint`)}</p>
+        <p className="pl-7 text-meta text-ink-muted">{t(`notify.always.${item}.hint`)}</p>
       </div>
-      <span className="shrink-0 text-[13px] text-ink/60">{t('notify.always.on')}</span>
+      <span className="shrink-0 text-meta text-ink-muted">{t('notify.always.on')}</span>
     </li>
   );
 }
@@ -88,7 +88,7 @@ function ToggleRow({
         <RowTitle icon={icon} id={id}>
           {label}
         </RowTitle>
-        <p id={`${id}-hint`} className="pl-[26px] text-[13px] text-ink/70">
+        <p id={`${id}-hint`} className="pl-7 text-meta text-ink-muted">
           {hint}
         </p>
       </div>
@@ -121,10 +121,10 @@ function SalesChoice({
               className="w-4 h-4 shrink-0 accent-teal-500"
             />
             <span className="min-w-0">
-              <span className="block text-[15px] font-semibold text-ink">
+              <span className="block text-body font-semibold text-ink">
                 {t(`notify.sales.${option}`)}
               </span>
-              <span className="block text-[13px] text-ink/70">
+              <span className="block text-meta text-ink-muted">
                 {t(`notify.sales.${option}Hint`)}
               </span>
             </span>
@@ -138,24 +138,30 @@ function SalesChoice({
 
 /**
  * Configurações › Notificações (D25, revisão). Avisos que evitam perder um serviço, um prazo ou
- * dinheiro chegam sempre; a pessoa só escolhe o que é opcional (padrão Airbnb e Apple HIG).
+ * dinheiro chegam sempre; a pessoa só escolhe o que é opcional (padrão Airbnb e Apple HIG). Com
+ * `onBack` desenha o próprio topo (painel do parceiro); na folha do perfil o `<` e o título ficam
+ * na barra fixa (D33).
  */
 export function NotificationSettingsView({
   isPartner,
   onBack,
 }: {
   isPartner: boolean;
-  onBack: () => void;
+  onBack?: () => void;
 }) {
   const { t } = useTranslation();
   const { preferences, loading, error, saveError, reload, update } = useNotificationPreferences();
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex items-center gap-2 mb-4">
-        <BackButton label={t('settings.back')} onClick={onBack} />
-        <h2 className="text-[22px] font-display font-bold text-ink">{t('notify.settingsTitle')}</h2>
-      </div>
+    <div className="flex flex-col">
+      {onBack && (
+        <div className="flex items-center gap-2 mb-4">
+          <BackButton label={t('settings.back')} onClick={onBack} />
+          <h2 className="text-heading font-display font-bold text-ink">
+            {t('notify.settingsTitle')}
+          </h2>
+        </div>
+      )}
 
       <NotificationDeviceCard />
 
@@ -174,9 +180,9 @@ export function NotificationSettingsView({
       <p className={NOTE}>{t('notify.always.note')}</p>
 
       {loading ? (
-        <div className="mt-6 h-40 shrink-0 rounded-[20px] bg-ink/[0.04] animate-pulse motion-reduce:animate-none" />
+        <div className="mt-6 h-40 shrink-0 rounded-card bg-ink/[0.04] animate-pulse motion-reduce:animate-none" />
       ) : error || !preferences ? (
-        <div className="mt-6 flex items-center justify-between gap-2 px-1 text-[13px] text-ink/70">
+        <div className="mt-6 flex items-center justify-between gap-2 px-1 text-meta text-ink-muted">
           <span role="alert">{t('notify.loadError')}</span>
           <TextButton tone="accent" onClick={() => void reload()}>
             {t('notify.retry')}

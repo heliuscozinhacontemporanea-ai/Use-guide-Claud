@@ -86,7 +86,7 @@ function NavLayer({
       {entry.title && (
         <motion.h2
           style={{ x, opacity }}
-          className="pointer-events-none absolute inset-x-0 top-0 h-full px-16 flex items-center justify-center text-[17px] leading-6 font-semibold text-ink"
+          className="pointer-events-none absolute inset-x-0 top-0 h-full px-16 flex items-center justify-center text-title font-semibold text-ink"
         >
           <span className="truncate">{entry.title}</span>
         </motion.h2>
@@ -114,7 +114,11 @@ function NavAction({
       style={{ x, opacity }}
       className="press absolute right-2 top-1.5 w-11 h-11 rounded-full flex items-center justify-center text-ink/80 hover:bg-ink/[0.06] focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none"
     >
-      <Icon size={22} aria-hidden="true" />
+      <Icon
+        size={22}
+        aria-hidden="true"
+        className={action.busy ? 'animate-spin motion-reduce:animate-none' : undefined}
+      />
     </motion.button>
   );
 }

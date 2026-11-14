@@ -9,7 +9,13 @@ import { MainMenuView, useUserPhoto, useUserProfile } from '../../domain/user';
 import { useLocalizedRouting } from '../../shared/hooks/useLocalizedRouting';
 import { useUIStore } from '../../shared/stores/useUIStore';
 import { cn } from '../../shared/utils/cn';
+import { ToastContainer } from '../../ui/components/Toast';
 import { StackSheet } from '../../ui/layouts/stack/StackSheet';
+import {
+  StackSubPageProvider,
+  StackSubPageSlot,
+  useStackSubPageHost,
+} from '../../ui/layouts/stack/StackSubPage';
 import type { StackEntry } from '../../ui/layouts/stack/stackTypes';
 import { ScreenFallback } from '../../ui/lazy/DelayedFallback';
 import {
@@ -38,7 +44,6 @@ import {
 import { prefetchWhenIdle } from '../lazy/prefetchWhenIdle';
 import { ProfileHighlightsComposition } from '../compositions/ProfileHighlightsComposition';
 import { signOut } from '../signOut';
-import { MenuMessageToast } from './MenuMessageToast';
 import { type MenuView, menuPath, parentMenuView, visibleMenuView } from './menuViews';
 import { useSideMenu } from './useSideMenu';
 
@@ -61,8 +66,29 @@ const FULL_HEIGHT_VIEWS: readonly MenuView[] = [
   'notifications',
 ];
 
-/** Telas com a barra do topo fixa da folha (piloto D33: Perfil → Configurações → Idioma). */
-const NAV_BAR_VIEWS: readonly MenuView[] = ['main', 'settings', 'language'];
+/** Título de cada tela na barra fixa da folha do perfil (D33). */
+const TITLE_KEYS: Record<MenuView, string> = {
+  main: 'menu.profileTitle',
+  account: 'profile.account',
+  password: 'account.password.title',
+  tickets: 'ticketWallet.title',
+  bookings: 'bookings.buyer.myBookingsTitle',
+  favorites: 'favorites.title',
+  reviews: 'myReviews.title',
+  settings: 'settings.title',
+  purchases: 'purchases.title',
+  username: 'username.title',
+  language: 'settings.language',
+  appearance: 'settings.appearance',
+  support: 'help.title',
+  about: 'appAbout.title',
+  terms: 'appAbout.terms',
+  'partner-terms': 'legal.partner.title',
+  licenses: 'appAbout.licensesTitle',
+  notifications: 'notify.settingsTitle',
+  promotions: 'promoters.user.title',
+  gate: 'gateStaff.mine.title',
+};
 
 /** Compõe as telas de vários domínios (perfil, ingressos, reservas, compras, favoritos, avaliações, conteúdo) no menu. */
 export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
@@ -79,9 +105,12 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
   const { goTo } = useLocalizedRouting();
   const {
     view: requestedView,
+    sub,
     isOpen,
     openMenu,
     backTo,
+    openSub,
+    closeSub,
     closeMenu,
     closeMenuAndOpenItem,
   } = useSideMenu();
@@ -92,7 +121,24 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
   const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
 
   const showView = (target: MenuView) => openMenu(target);
-  const goBack = () => backTo(parentMenuView(view));
+  const goBack = () => (sub ? closeSub() : backTo(parentMenuView(view)));
+
+  // A página interna continua desenhada enquanto sai deslizando; solta quando a troca termina.
+  const [renderedSub, setRenderedSub] = React.useState(sub);
+  const latestSub = React.useRef(sub);
+  latestSub.current = sub;
+  React.useEffect(() => {
+    if (sub) setRenderedSub(sub);
+  }, [sub]);
+  React.useEffect(() => {
+    if (!isOpen) setRenderedSub(null);
+  }, [isOpen]);
+  const subPageHost = useStackSubPageHost({
+    id: sub,
+    renderedId: renderedSub,
+    open: openSub,
+    close: closeSub,
+  });
 
   React.useEffect(() => {
     if (isOpen) return prefetchWhenIdle(MENU_SCREENS);
@@ -166,14 +212,12 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
   const renderViewFor = (v: MenuView): React.ReactNode => {
     switch (v) {
       case 'appearance':
-        return <AppearanceSettingsView onBack={goBack} />;
+        return <AppearanceSettingsView />;
       case 'language':
-        return <LanguageSettingsView onBack={goBack} hideHeader />;
+        return <LanguageSettingsView />;
       case 'settings':
         return (
           <SettingsView
-            hideHeader
-            onBack={goBack}
             onOpenLanguage={() => showView('language')}
             onOpenAppearance={() => showView('appearance')}
             onOpenSupport={() => showView('support')}
@@ -184,13 +228,12 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
           />
         );
       case 'notifications':
-        return <NotificationSettingsView isPartner={isPartner} onBack={goBack} />;
+        return <NotificationSettingsView isPartner={isPartner} />;
       case 'username':
-        return <UsernameSettingsView onBack={goBack} />;
+        return <UsernameSettingsView />;
       case 'purchases':
         return (
           <BuyerPurchasesComposition
-            onBack={goBack}
             onOpenTickets={() => showView('tickets')}
             onOpenBookings={() => showView('bookings')}
           />
@@ -203,41 +246,36 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
             showPasswords={showPasswords}
             setShowPasswords={setShowPasswords}
             isLoading={isLoading}
-            message={message}
             onUpdatePassword={handleUpdatePassword}
-            onBack={goBack}
           />
         );
       case 'about':
         return (
           <AboutView
-            onBack={goBack}
             onOpenTerms={() => showView('terms')}
             onOpenPartnerTerms={() => showView('partner-terms')}
             onOpenLicenses={() => showView('licenses')}
           />
         );
       case 'terms':
-        return <AboutTermsView document="terms" onBack={goBack} />;
+        return <AboutTermsView document="terms" />;
       case 'partner-terms':
-        return <AboutTermsView document="partner" onBack={goBack} />;
+        return <AboutTermsView document="partner" />;
       case 'licenses':
-        return <AboutLicensesView onBack={goBack} />;
+        return <AboutLicensesView />;
       case 'support':
         return (
           <SupportView
-            onBack={goBack}
             onOpenPurchases={user ? () => showView('purchases') : undefined}
             onOpenTickets={user ? () => showView('tickets') : undefined}
             onOpenBookings={user ? () => showView('bookings') : undefined}
           />
         );
       case 'promotions':
-        return <MyPromotionsView onBack={goBack} />;
+        return <MyPromotionsView />;
       case 'gate':
         return (
           <MyGatesView
-            onBack={goBack}
             renderPlaceGate={({ offerId, slotId, startsAt, timeZone, onClose }) => (
               // Espera própria: a folha baixada sob demanda não troca a lista da Portaria pelo carregando.
               <Suspense fallback={null}>
@@ -261,13 +299,13 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
           />
         );
       case 'tickets':
-        return <UserTicketsHistoryView onBack={goBack} />;
+        return <UserTicketsHistoryView />;
       case 'bookings':
-        return <MyBookingsView onBack={goBack} />;
+        return <MyBookingsView />;
       case 'reviews':
-        return <MyReviewsComposition onBack={goBack} />;
+        return <MyReviewsComposition />;
       case 'favorites':
-        return <FavoritesList onBack={goBack} onSelectItem={closeMenuAndOpenItem} />;
+        return <FavoritesList onSelectItem={closeMenuAndOpenItem} />;
       case 'account':
         return (
           <AccountView
@@ -280,7 +318,6 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
             setUserData={setUserData}
             isLoading={isLoading}
             isPartner={isPartner}
-            message={message}
             showDeleteConfirm={showDeleteConfirm}
             setShowDeleteConfirm={setShowDeleteConfirm}
             onUpdateProfile={updateProfile}
@@ -291,14 +328,12 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
             }}
             onDeleteAccount={deleteAccount}
             hasPassword={hasPasswordSignInUseCase()}
-            onBack={goBack}
           />
         );
       case 'main':
         return (
           <>
             <MainMenuView
-              hideBackButton
               user={menuUser}
               userData={userData}
               memberSince={memberSince}
@@ -306,7 +341,6 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
               isPartner={isPartner}
               isUploading={isUploading}
               photoURL={photoURL}
-              onClose={closeMenu}
               onAccountOpen={() => showView('account')}
               onPartnersOpen={onPartnersOpen}
               onAdminOpen={onAdminOpen}
@@ -337,15 +371,10 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
     }
   };
 
-  const titles: Partial<Record<MenuView, string>> = {
-    main: t('menu.profileTitle'),
-    settings: t('settings.title'),
-    language: t('settings.language'),
-  };
   const entries: StackEntry[] = menuPath(view).map((v) => ({
     key: v,
-    title: titles[v],
-    navBar: NAV_BAR_VIEWS.includes(v),
+    title: t(TITLE_KEYS[v]),
+    navBar: true,
     action:
       v === 'main'
         ? { label: t('settings.title'), icon: Settings, onClick: () => showView('settings') }
@@ -358,37 +387,56 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
       </div>
     ),
   }));
+  if (sub) {
+    // Página interna da tela de cima (ex.: o detalhe da reserva), desenhada por ela mesma (StackSubPage).
+    // Ao voltar, a pilha mantém a cópia que sai, e `renderedSub` mantém o conteúdo até a troca acabar.
+    entries.push({
+      key: `${view}/${sub}`,
+      title: subPageHost.title,
+      navBar: true,
+      render: () => <StackSubPageSlot fallback={<ScreenFallback />} />,
+    });
+  }
 
   return (
-    <StackSheet
-      isOpen={isOpen}
-      onClose={closeMenu}
-      onBack={goBack}
-      entries={entries}
-      labels={{
-        back: t('settings.back'),
-        close: t('menu.closeMenu'),
-        dialog: t('menu.profileTitle'),
-      }}
-      receded={isLoginModalOpen && !isLoginClosingBySwipe}
-      takeover={
-        isCropping ? (
-          <Suspense fallback={<ScreenFallback />}>
-            <ImageCropperView
-              imageToCrop={imageToCrop}
-              crop={crop}
-              zoom={zoom}
-              onCropChange={onCropChange}
-              onCropComplete={onCropComplete}
-              onZoomChange={onZoomChange}
-              setZoom={setZoom}
-              onCancel={cancelCropping}
-              onConfirm={handleConfirmCrop}
-            />
-          </Suspense>
-        ) : undefined
-      }
-      overlay={<MenuMessageToast message={message} onDismiss={() => setMessage(null)} />}
-    />
+    <StackSubPageProvider value={subPageHost}>
+      <StackSheet
+        isOpen={isOpen}
+        onClose={closeMenu}
+        onBack={goBack}
+        entries={entries}
+        labels={{
+          back: t('settings.back'),
+          close: t('menu.closeMenu'),
+          dialog: t('menu.profileTitle'),
+        }}
+        receded={isLoginModalOpen && !isLoginClosingBySwipe}
+        takeover={
+          isCropping ? (
+            <Suspense fallback={<ScreenFallback />}>
+              <ImageCropperView
+                imageToCrop={imageToCrop}
+                crop={crop}
+                zoom={zoom}
+                onCropChange={onCropChange}
+                onCropComplete={onCropComplete}
+                onZoomChange={onZoomChange}
+                setZoom={setZoom}
+                onCancel={cancelCropping}
+                onConfirm={handleConfirmCrop}
+              />
+            </Suspense>
+          ) : undefined
+        }
+        onPopped={() => {
+          if (!latestSub.current) setRenderedSub(null);
+        }}
+        overlay={
+          <ToastContainer
+            toasts={message ? [{ id: 'menu', message: t(message.text), type: message.type }] : []}
+          />
+        }
+      />
+    </StackSubPageProvider>
   );
 }

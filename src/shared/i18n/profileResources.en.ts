@@ -23,7 +23,6 @@ export const profileEn: ProfileTranslation = {
 
 export const myReviewsEn: MyReviewsTranslation = {
   title: 'My reviews',
-  back: 'Back',
   loading: 'Loading your reviews…',
   empty: 'You have not reviewed any place yet.',
   loadMore: 'Show more',

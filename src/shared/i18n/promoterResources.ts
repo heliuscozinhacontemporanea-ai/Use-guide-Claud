@@ -46,7 +46,6 @@ export interface PromoterTranslation {
   };
   user: {
     title: string;
-    back: string;
     owedTitle: string;
     owedHint_one: string;
     owedHint_other: string;
@@ -142,7 +141,6 @@ export const promoterPtBR: PromoterTranslation = {
   },
   user: {
     title: 'Divulgação',
-    back: 'Voltar',
     owedTitle: 'A receber dos organizadores',
     owedHint_one: '{{count}} ingresso vendido pelos seus links',
     owedHint_other: '{{count}} ingressos vendidos pelos seus links',

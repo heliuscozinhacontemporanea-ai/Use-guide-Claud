@@ -1,23 +1,16 @@
-import { AlertCircle, CheckCircle2, RefreshCw } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { cn } from '../../../shared/utils/cn';
-import { BackButton } from '../../../ui/components/BackButton';
 import { ListEmpty, ListError, ListLoading } from '../../../ui/components/ListState';
 import { SegmentedControl } from '../../../ui/components/SegmentedControl';
+import { StatusText } from '../../../ui/components/StatusText';
+import { useStackPageAction } from '../../../ui/layouts/stack/stackPageAction';
 import { useTicketWalletActions } from '../hooks/useTicketWalletActions';
 import { useUserTicketsAndOrders } from '../hooks/useUserTickets';
 import type { Ticket } from '../types/ticketing';
 import { canTransferTicket } from '../utils/ticketWalletRules';
 import { TransferTicketForm } from './wallet/TransferTicketForm';
 import { WalletTicketCard } from './wallet/WalletTicketCard';
-
-interface UserTicketsHistoryViewProps {
-  onBack?: () => void;
-}
-
-const ROUND_BUTTON =
-  'press w-11 h-11 shrink-0 rounded-full flex items-center justify-center text-ink/80 hover:bg-ink/[0.06] focus-visible:ring-2 focus-visible:ring-teal-400/50';
 
 function endsAtOf(ticket: Ticket): number {
   const event = ticket.eventSnapshot;
@@ -26,9 +19,10 @@ function endsAtOf(ticket: Ticket): number {
 
 /**
  * Ingressos do comprador por tempo (Próximos e Anteriores), com QR Code e transferência. Pagar,
- * cancelar e relatar ficam em Configurações › Compras.
+ * cancelar e relatar ficam em Configurações › Compras. O título e o "atualizar" ficam na barra fixa
+ * da folha do perfil (D33).
  */
-export function UserTicketsHistoryView({ onBack }: UserTicketsHistoryViewProps = {}) {
+export function UserTicketsHistoryView() {
   const { t } = useTranslation();
   const wallet = useUserTicketsAndOrders(true);
   const { tickets, orders, loading, error, reload } = wallet;
@@ -38,28 +32,15 @@ export function UserTicketsHistoryView({ onBack }: UserTicketsHistoryViewProps =
   const upcoming = tickets.filter((ticket) => endsAtOf(ticket) > now.getTime());
   const past = tickets.filter((ticket) => endsAtOf(ticket) <= now.getTime());
   const shown = tab === 'upcoming' ? upcoming : past;
+  useStackPageAction({
+    label: t('ticketWallet.refresh'),
+    icon: RefreshCw,
+    busy: loading,
+    onClick: () => void reload(),
+  });
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2 min-w-0">
-          {onBack && <BackButton label={t('ticketWallet.back')} onClick={onBack} />}
-          <h2 className="text-[22px] font-display font-bold text-ink">{t('ticketWallet.title')}</h2>
-        </div>
-        <button
-          type="button"
-          onClick={() => void reload()}
-          aria-label={t('ticketWallet.refresh')}
-          className={ROUND_BUTTON}
-        >
-          <RefreshCw
-            size={18}
-            className={loading ? 'animate-spin text-accent' : ''}
-            aria-hidden="true"
-          />
-        </button>
-      </div>
-
       <SegmentedControl
         label={t('ticketWallet.tabsLabel')}
         value={tab}
@@ -71,21 +52,10 @@ export function UserTicketsHistoryView({ onBack }: UserTicketsHistoryViewProps =
       />
 
       {actions.feedback && (
-        <p
-          role={actions.feedback.type === 'error' ? 'alert' : 'status'}
-          className={cn(
-            'p-3 rounded-xl border text-xs flex items-center gap-2',
-            actions.feedback.type === 'success'
-              ? 'bg-success-soft border-success-line text-success'
-              : 'bg-danger-soft border-danger-line text-danger'
-          )}
-        >
-          {actions.feedback.type === 'success' ? (
-            <CheckCircle2 size={16} className="shrink-0" aria-hidden="true" />
-          ) : (
-            <AlertCircle size={16} className="shrink-0" aria-hidden="true" />
-          )}
-          {actions.feedback.message}
+        <p role={actions.feedback.type === 'error' ? 'alert' : 'status'} className="px-1">
+          <StatusText tone={actions.feedback.type === 'success' ? 'success' : 'danger'}>
+            {actions.feedback.message}
+          </StatusText>
         </p>
       )}
 

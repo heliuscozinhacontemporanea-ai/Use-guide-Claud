@@ -1,9 +1,8 @@
-import { motion } from 'motion/react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { BackButton } from '../../../../ui/components/BackButton';
 import { ListEmpty, ListError, ListLoading } from '../../../../ui/components/ListState';
 import { SegmentedControl } from '../../../../ui/components/SegmentedControl';
+import { StackSubPage, useStackSubPage } from '../../../../ui/layouts/stack/StackSubPage';
 import { BUTTON_SECONDARY } from '../../../../ui/styles/controls';
 import { useMyBookings } from '../../hooks/useMyBookings';
 import { showsArrivalNotice } from '../../utils/arrivalNotice';
@@ -13,14 +12,15 @@ import { MyBookingDetail } from './MyBookingDetail';
 
 /**
  * Reservas do comprador por tempo (Próximas e Anteriores), com os detalhes do serviço. Cancelar e
- * relatar ficam em Configurações › Compras.
+ * relatar ficam em Configurações › Compras. O detalhe abre como página interna da folha do perfil,
+ * com o `<` e o título na barra fixa (D33).
  */
-export function MyBookingsView({ onBack }: { onBack: () => void }) {
+export function MyBookingsView() {
   const { t } = useTranslation();
   const { data, loading, error, hasMore, reload, loadMore } = useMyBookings();
   const [tab, setTab] = useState<'upcoming' | 'past'>('upcoming');
-  const [openId, setOpenId] = useState<string | null>(null);
-  const opened = data.find((booking) => booking.id === openId) ?? null;
+  const detail = useStackSubPage();
+  const opened = data.find((booking) => booking.id === detail.id) ?? null;
   const now = new Date();
   // Até o serviço acabar a reserva fica em "Próximas": é onde estão o código, o contato e o
   // "Em andamento" (C4).
@@ -33,28 +33,8 @@ export function MyBookingsView({ onBack }: { onBack: () => void }) {
   // O aviso "chegou" fica acima das abas: o serviço pode já ter começado (D27).
   const arrived = data.filter((booking) => showsArrivalNotice(booking, now));
 
-  // Página que entra da direita em 280 ms (regra de movimento, 2026-11-09).
-  if (opened) {
-    return (
-      <motion.div
-        key={opened.id}
-        initial={{ opacity: 0, x: 48 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.28, ease: [0.32, 0.72, 0, 1] }}
-      >
-        <MyBookingDetail booking={opened} onBack={() => setOpenId(null)} />
-      </motion.div>
-    );
-  }
-
   return (
     <section className="w-full space-y-5">
-      <div className="flex items-center gap-2">
-        <BackButton label={t('bookings.buyer.back')} onClick={onBack} />
-        <h2 className="text-[22px] font-display font-bold text-ink">
-          {t('bookings.buyer.myBookingsTitle')}
-        </h2>
-      </div>
       {arrived.map((booking) => (
         <ArrivalNoticeCard key={booking.id} booking={booking} onChanged={reload} />
       ))}
@@ -82,7 +62,7 @@ export function MyBookingsView({ onBack }: { onBack: () => void }) {
               key={booking.id}
               booking={booking}
               upcoming={tab === 'upcoming'}
-              onOpen={() => setOpenId(booking.id)}
+              onOpen={() => detail.open(booking.id)}
             />
           ))}
         </ul>
@@ -92,6 +72,19 @@ export function MyBookingsView({ onBack }: { onBack: () => void }) {
         <button type="button" onClick={() => void loadMore()} className={BUTTON_SECONDARY}>
           {t('bookings.buyer.loadMore')}
         </button>
+      )}
+      {opened ? (
+        <StackSubPage title={t('bookings.buyer.detail.bookingTitle')}>
+          <MyBookingDetail booking={opened} />
+        </StackSubPage>
+      ) : (
+        // Link antigo ou reserva que saiu da lista: a página interna avisa em vez de ficar carregando.
+        detail.id &&
+        !loading && (
+          <StackSubPage title={t('bookings.buyer.detail.bookingTitle')}>
+            <ListEmpty message={t('bookings.buyer.detail.notFound')} />
+          </StackSubPage>
+        )
       )}
     </section>
   );

@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { useMinuteClock } from '../../../../shared/hooks/useMinuteClock';
 import { formatBusinessDate } from '../../../../shared/utils/businessDateTime';
 import { zonedDayKey } from '../../../../shared/utils/timeZones';
-import { BackButton } from '../../../../ui/components/BackButton';
 import type { ConfirmDialogData } from '../../../../ui/components/ConfirmDialog';
 import { ConfirmDialog } from '../../../../ui/components/ConfirmDialog';
 import { ListEmpty, ListError, ListLoading } from '../../../../ui/components/ListState';
@@ -34,12 +33,13 @@ export interface PlaceGateRenderProps {
   onClose: () => void;
 }
 
-/** Menu › Portaria (C1): convites e os eventos e lugares em que a pessoa está na equipe. */
+/**
+ * Menu › Portaria (C1): convites e os eventos e lugares em que a pessoa está na equipe. O `<` e o
+ * título ficam na barra fixa da folha do perfil (D33).
+ */
 export function MyGatesView({
-  onBack,
   renderPlaceGate,
 }: {
-  onBack: () => void;
   /** Portaria da atração (bookings), montada pela composição. */
   renderPlaceGate?: (props: PlaceGateRenderProps) => ReactNode;
 }) {
@@ -112,15 +112,7 @@ export function MyGatesView({
 
   return (
     <section className="w-full space-y-5">
-      <div className="space-y-2">
-        <div className="flex items-center gap-2">
-          <BackButton label={t('gateStaff.owner.back')} onClick={onBack} />
-          <h2 className="text-[22px] font-display font-bold text-ink">
-            {t('gateStaff.mine.title')}
-          </h2>
-        </div>
-        <p className="px-1 text-[14px] text-ink/70">{t('gateStaff.mine.intro')}</p>
-      </div>
+      <p className="px-1 text-control text-ink-muted">{t('gateStaff.mine.intro')}</p>
       {notice && (
         <p role="status" className="px-1">
           <StatusText tone={notice.tone}>{notice.text}</StatusText>
@@ -137,15 +129,15 @@ export function MyGatesView({
           {data.map((gate) => (
             <li
               key={gate.memberId}
-              className="p-4 rounded-[20px] bg-surface border border-line space-y-3"
+              className="p-4 rounded-card bg-surface border border-line space-y-3"
             >
               <div>
-                <h3 className="text-[17px] font-semibold text-ink break-words">{gate.title}</h3>
-                {gate.business && <p className="text-[14px] text-ink/70">{gate.business}</p>}
+                <h3 className="text-title font-semibold text-ink break-words">{gate.title}</h3>
+                {gate.business && <p className="text-control text-ink-muted">{gate.business}</p>}
               </div>
               {gate.status === 'invited' ? (
                 <>
-                  <p className="text-[14px] text-ink/70 first-letter:uppercase">
+                  <p className="text-control text-ink-muted first-letter:uppercase">
                     {inviteWhen(gate)}
                   </p>
                   <button
@@ -162,12 +154,12 @@ export function MyGatesView({
               ) : (
                 <>
                   {gate.sessions.length === 0 && (
-                    <p className="text-[14px] text-ink/70">{t('gateStaff.mine.noSlots')}</p>
+                    <p className="text-control text-ink-muted">{t('gateStaff.mine.noSlots')}</p>
                   )}
                   <ul className="space-y-3">
                     {gate.sessions.map((session) => (
                       <li key={session.id} className="space-y-2">
-                        <p className="text-[14px] text-ink first-letter:uppercase">
+                        <p className="text-control text-ink first-letter:uppercase">
                           {whenOf(gate, session)}
                         </p>
                         {isOpen(gate, session) ? (
@@ -179,7 +171,7 @@ export function MyGatesView({
                             {t('gateStaff.mine.open')}
                           </button>
                         ) : (
-                          <p className="text-[13px] text-ink/70">{opensText(gate, session)}</p>
+                          <p className="text-meta text-ink-muted">{opensText(gate, session)}</p>
                         )}
                       </li>
                     ))}

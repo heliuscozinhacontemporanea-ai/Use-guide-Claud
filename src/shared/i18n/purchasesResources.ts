@@ -2,7 +2,6 @@
 export interface PurchasesTranslation {
   settingsItem: string;
   title: string;
-  back: string;
   tabsLabel: string;
   tabs: { done: string; pending: string; pendingCount: string; canceled: string };
   empty: { done: string; pending: string; canceled: string };
@@ -62,7 +61,6 @@ export interface PurchasesTranslation {
 export const purchasesPtBR: PurchasesTranslation = {
   settingsItem: 'Compras',
   title: 'Compras',
-  back: 'Voltar',
   tabsLabel: 'Compras',
   tabs: {
     done: 'Finalizadas',

@@ -27,12 +27,9 @@ describe('FavoritesList', () => {
   });
 
   it('renderiza estado vazio quando não há favoritos', () => {
-    const onBack = vi.fn();
-    render(<FavoritesList onBack={onBack} />);
+    render(<FavoritesList />);
 
     expect(screen.getByText('Nenhum favorito salvo')).toBeTruthy();
-    fireEvent.click(screen.getByRole('button', { name: 'Voltar para o menu principal' }));
-    expect(onBack).toHaveBeenCalledTimes(1);
   });
 
   it('renderiza itens favoritos e dispara onSelectItem ao clicar', () => {
@@ -53,7 +50,7 @@ describe('FavoritesList', () => {
     ];
 
     const onSelectItem = vi.fn();
-    render(<FavoritesList onBack={vi.fn()} onSelectItem={onSelectItem} />);
+    render(<FavoritesList onSelectItem={onSelectItem} />);
 
     expect(screen.getByText('Passeio Lagoa do Paraíso')).toBeTruthy();
     fireEvent.click(screen.getByText('Passeio Lagoa do Paraíso'));
@@ -76,7 +73,7 @@ describe('FavoritesList', () => {
       },
     ];
 
-    render(<FavoritesList onBack={vi.fn()} />);
+    render(<FavoritesList />);
     const removeBtn = screen.getByRole('button', { name: 'Remover Item Teste dos favoritos' });
     fireEvent.click(removeBtn);
     expect(favoritesState.removeFavoriteItem).toHaveBeenCalledWith('item-123');

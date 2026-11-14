@@ -6,6 +6,8 @@ export interface StackAction {
   label: string;
   icon: LucideIcon;
   onClick: () => void;
+  /** Trabalhando (ex.: atualizando): o ícone gira. */
+  busy?: boolean;
 }
 
 /** Uma tela da pilha, da primeira (raiz) à de cima. */

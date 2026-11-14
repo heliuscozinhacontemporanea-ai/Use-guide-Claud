@@ -52,7 +52,6 @@ export const promoterFr: PromoterTranslation = {
   },
   user: {
     title: 'Promotion',
-    back: 'Retour',
     owedTitle: 'À recevoir des organisateurs',
     owedHint_one: '{{count}} billet vendu via vos liens',
     owedHint_other: '{{count}} billets vendus via vos liens',

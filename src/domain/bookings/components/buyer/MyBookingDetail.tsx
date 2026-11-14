@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import { capitalizeFirst } from '../../../../shared/utils/formatters';
 import { placeTimeSuffix } from '../../../../shared/utils/placeTime';
 import { rescheduleRefundDeadline } from '../../../../shared/utils/rescheduleRefundDeadline';
-import { BackButton } from '../../../../ui/components/BackButton';
 import { StatusText } from '../../../../ui/components/StatusText';
 import type { BookingSummary } from '../../types/bookings';
 import { bookingReference } from '../../utils/bookingReference';
@@ -14,19 +13,14 @@ import { serviceInProgress } from '../../utils/serviceInProgress';
 import { BookingWhatsAppButton } from '../BookingWhatsAppButton';
 import { BookingCheckInPass } from './BookingCheckInPass';
 
-const CARD = 'rounded-[20px] bg-surface border border-line';
+const CARD = 'rounded-card bg-surface border border-line';
 
 /**
  * "Minha reserva" (print aprovado em 2026-11-10): situação, quando, o que foi reservado, ponto de
- * encontro, código de check-in (só no dia, com o aviso) e o contato com o parceiro (C2/B37).
+ * encontro, código de check-in (só no dia, com o aviso) e o contato com o parceiro (C2/B37). Abre
+ * como página interna da folha do perfil, com o `<` e o título na barra fixa (D33).
  */
-export function MyBookingDetail({
-  booking,
-  onBack,
-}: {
-  booking: BookingSummary;
-  onBack: () => void;
-}) {
+export function MyBookingDetail({ booking }: { booking: BookingSummary }) {
   const { t, i18n } = useTranslation();
   const [contactError, setContactError] = useState<string | null>(null);
   const tz = booking.offer.timeZone ?? undefined;
@@ -75,45 +69,33 @@ export function MyBookingDetail({
 
   return (
     <section className="w-full space-y-4">
-      <div className="flex items-center gap-2">
-        <BackButton label={t('bookings.buyer.back')} onClick={onBack} />
-        <h2 className="text-[20px] font-display font-bold text-ink">
-          {t('bookings.buyer.detail.bookingTitle')}
-        </h2>
-      </div>
       <div className="space-y-2">
-        <span
-          className={
-            confirmed
-              ? 'inline-flex items-center gap-1.5 rounded-full border border-success-line bg-success-soft px-3 py-1 text-[13px] font-semibold text-success'
-              : 'inline-flex items-center rounded-full border border-line bg-surface px-3 py-1 text-[13px] font-semibold text-ink/75'
-          }
-        >
-          {confirmed && <span aria-hidden="true">●</span>}
+        {/* Status é texto com ponto, nunca caixa com borda (DESIGN.md §2.2). */}
+        <StatusText tone={confirmed ? 'success' : 'muted'}>
           {inProgress
             ? t('bookings.buyer.detail.inProgressSince', { time: startedTime })
             : t(`bookings.bookingStatus.${booking.status}`)}
           {confirmed && today && !inProgress && ` · ${t('bookings.buyer.detail.today')}`}
-        </span>
-        <h3 className="font-display text-[24px] font-bold text-ink leading-tight break-words">
+        </StatusText>
+        <h3 className="font-display text-heading font-bold text-ink break-words">
           {booking.offer.title}
         </h3>
         {booking.businessName && booking.businessName !== booking.offer.title && (
-          <p className="text-[14px] text-ink/70">{booking.businessName}</p>
+          <p className="text-control text-ink-muted">{booking.businessName}</p>
         )}
       </div>
 
       <dl className={`${CARD} px-4 divide-y divide-line`}>
         {rows.map(([label, value]) => (
-          <div key={label} className="flex items-start justify-between gap-4 py-3 text-[15px]">
-            <dt className="text-ink/70">{label}</dt>
+          <div key={label} className="flex items-start justify-between gap-4 py-3 text-body">
+            <dt className="text-ink-muted">{label}</dt>
             <dd className="text-right text-ink">{value}</dd>
           </div>
         ))}
       </dl>
 
       {refundUntil && (
-        <p className="flex items-start gap-2 text-[13px] text-info">
+        <p className="flex items-start gap-2 text-meta text-info">
           <CalendarClock size={16} className="shrink-0 mt-px" aria-hidden="true" />
           {t('bookings.buyer.rescheduledNotice', {
             date: formatSlotDateTime(refundUntil, i18n.language, tz),
@@ -135,7 +117,7 @@ export function MyBookingDetail({
             })}
             onError={setContactError}
           />
-          <p className="px-1 text-[13px] text-ink/70">{t('bookings.contact.partnerHint')}</p>
+          <p className="px-1 text-meta text-ink-muted">{t('bookings.contact.partnerHint')}</p>
           {contactError && <StatusText tone="warn">{contactError}</StatusText>}
         </div>
       )}
