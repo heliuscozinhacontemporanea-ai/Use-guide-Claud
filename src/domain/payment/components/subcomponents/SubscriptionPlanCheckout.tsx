@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { StripePaymentElement } from '../../adapters/ui/StripePaymentElement';
 import { usePlanSubscriptionCheckout } from '../../hooks/usePlanSubscriptionCheckout';
 import type { PaidPlanId } from '../../types/payment';
+import { BUTTON_PRIMARY } from '../../../../ui/styles/controls';
 import { formatPlanAmount } from '../../utils/formatPlanAmount';
 import { CheckoutError, CheckoutLoading, CheckoutPending } from './CheckoutStatusNotice';
 
@@ -50,15 +51,11 @@ export function SubscriptionPlanCheckout({
     return (
       <div className="py-6 flex flex-col items-center text-center gap-3" role="status">
         <CheckCircle2 size={40} className="text-success" />
-        <p className="text-base font-bold text-white">{t('payment.checkout.successTitle')}</p>
-        <p className="text-xs text-white/70">
+        <p className="text-title text-ink">{t('payment.checkout.successTitle')}</p>
+        <p className="text-meta text-ink-muted">
           {t('payment.checkout.successDescription', { plan: itemName })}
         </p>
-        <button
-          type="button"
-          onClick={onClose}
-          className="press min-h-11 px-5 rounded-xl bg-teal-400 hover:bg-teal-300 text-slate-950 text-sm font-bold cursor-pointer focus-visible:ring-2 focus-visible:ring-teal-400/50"
-        >
+        <button type="button" onClick={onClose} className={`${BUTTON_PRIMARY} px-5`}>
           {t('payment.checkout.close')}
         </button>
       </div>
@@ -84,7 +81,7 @@ export function SubscriptionPlanCheckout({
       {status === 'ready' && checkout?.clientSecret && (
         <>
           {checkout.intentType === 'setup' && (
-            <p className="text-xs text-white/70">{t('payment.checkout.trialNotice')}</p>
+            <p className="text-meta text-ink-muted">{t('payment.checkout.trialNotice')}</p>
           )}
           <StripePaymentElement
             returnKind="plan"
