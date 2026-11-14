@@ -392,6 +392,8 @@ Metas no p75 do celular: **LCP ≤ 2,5 s, INP ≤ 200 ms, CLS ≤ 0,1**. Rotas e
 
 ### 14.1. Checklist de design do PR
 
+Resumo para o PR. A verificação completa, arquivo por arquivo, é a do §16.
+
 - [ ] Tokens de tema; nada de `text-white`, `bg-white/x` ou hex solto
 - [ ] Texto secundário com contraste AA nos dois temas
 - [ ] Tamanhos da escala; nada abaixo de 12 px
@@ -426,3 +428,192 @@ Registrados em `docs/arquitetura/debitos.md` (branch de documentação).
 | B52 — folhas e páginas sem gesto, fora do histórico; aba não guarda rolagem e página | P18, P19, P20, P23 |
 | B53 — teclado sem tratamento; menu do sistema no toque longo | P21, P24 |
 | B54 — sem convite de instalação (no iPhone o push não chega sem instalar) | P22 |
+
+---
+
+## 16. Verificação obrigatória
+
+Ao tocar um arquivo de interface (componente, hook de tela, estilo, tradução exibida, layout), o agente DEVE passar por **todas** as determinações abaixo. Cada uma diz quando se aplica, o que verificar e qual prova vai na entrega. As verificações de arquitetura, segurança, dinheiro, i18n e código estão no AGENTS.md §18; um arquivo de tela passa pelas duas listas.
+
+**Como aplicar:**
+
+1. Para cada arquivo tocado, cada determinação recebe um de três resultados: **ok** (verificado, com a prova), **não se aplica** (com o motivo em poucas palavras) ou **débito** (com o número em `docs/arquitetura/debitos.md`). Pular sem registrar é proibido.
+2. A entrega (AGENTS.md §16.3) traz a tabela por arquivo. Determinações "não se aplica" iguais em vários arquivos PODEM ser agrupadas numa linha.
+3. O que estava errado no arquivo antes de tocá-lo também conta: ao tocar, corrige-se ou registra-se débito (§14 item 3).
+
+### V1 · Cores e tema (§2, P1)
+
+* **Aplica-se quando:** o arquivo tem classe de cor, fundo, borda, sombra ou estilo inline.
+* **Verificar:**
+  * Há `text-white`, `bg-white/x`, `bg-black/x`, `text-teal-400`, `text-indigo-*` ou hex solto onde deveria haver token?
+  * Cada cor tem significado (ação, pendente, concluído, perigo, informação, parceiro) ou é enfeite?
+  * Texto secundário usa opacidade solta (`text-ink/50`) em vez de `text-ink-muted`/`text-ink-subtle`?
+  * O contraste passa AA **nos dois temas** (tabela 2.3)?
+  * Há gradiente, padrão decorativo ou status em caixa com borda?
+* **Prova:** busca pelas classes proibidas no arquivo; print antes e depois, no claro e no escuro.
+
+### V2 · Tipografia (§3, P2, P3)
+
+* **Aplica-se quando:** o arquivo tem texto visível.
+* **Verificar:**
+  * Os tamanhos são da escala (`display`, `heading`, `title`, `body`, `control`, `meta`, `caption`)? Há `text-[Npx]` solto?
+  * Algum texto fica abaixo de 12 px (11 px só em etiqueta curta em maiúsculas)?
+  * Só Inter e Outfit? Números que mudam têm `tabular-nums`?
+  * Campo de formulário tem 16 px no celular?
+* **Prova:** busca por `text-[` e `text-[8px]`–`text-[11px]` no arquivo.
+
+### V3 · Espaço, forma e camadas (§4, §5, P4, P5)
+
+* **Aplica-se quando:** o arquivo define margem, espaçamento, largura, canto, superfície ou z-index.
+* **Verificar:**
+  * Margens e espaços seguem a tabela P4?
+  * Os cantos são `rounded-control`, `rounded-card`, `rounded-sheet` ou `rounded-full`? Há `rounded-[2rem]`, `rounded-[2.5rem]` ou valor solto?
+  * Vidro (desfoque) só em barra fixa ou folha, nunca em cartão de lista?
+  * z-index só pela `Z_INDEX`, sem número solto?
+  * Barras fixas e folhas respeitam a área segura (`env(safe-area-inset-*)`)? Há rolagem horizontal?
+* **Prova:** busca por `rounded-[`, `z-[` e `backdrop-blur` no arquivo.
+
+### V4 · Ícones e imagens (§6, P6, P7)
+
+* **Aplica-se quando:** o arquivo tem ícone ou imagem.
+* **Verificar:**
+  * Ícone só do `lucide-react`, em 16, 20 ou 24 px (28–32 só em estado vazio)?
+  * Botão só com ícone tem `aria-label` traduzido? Ícone decorativo tem `aria-hidden`?
+  * Imagem tem `width`/`height` ou `aspect-ratio`, `alt` traduzido (ou `alt=""` se decorativa) e `loading="lazy"` fora da primeira dobra?
+  * Imagem principal da primeira dobra tem `fetchpriority="high"` e não é `lazy`?
+* **Prova:** lista dos ícones e imagens do arquivo com tamanho e `alt`.
+
+### V5 · Componentes do design system (§7, P8)
+
+* **Aplica-se quando:** o arquivo cria ou usa botão, campo, folha, diálogo, aviso, menu, status, estado de lista ou estrutura de tela.
+* **Verificar:**
+  * Existe na tabela do §7 um componente para isso? O arquivo o usa ou recria um parecido?
+  * Há `alert()`, `confirm()` ou `prompt()`?
+  * Usa `ModalLayout`, `.glassmorphism-vibrant` fora do permitido ou `Skeleton` com cor fixa (P8)?
+  * Componente genérico novo nasceu em `src/ui/components/` e entrou na tabela do §7?
+* **Prova:** nome do componente do design system usado em cada caso.
+
+### V6 · Padrões de tela (§8)
+
+* **Aplica-se quando:** o arquivo é uma tela, folha, cartão, lista, formulário ou topo.
+* **Verificar:**
+  * Uma ação principal só (botão cheio); o resto em texto?
+  * Topo segue o padrão (`<` à esquerda, título, no máximo uma ação)? Em folha com várias telas, a barra fixa da D33?
+  * Cartão segue a ordem: foto ou ícone, o que é, quando, identificador, uma linha do que fazer?
+  * Lista longa virou abas ou lista compacta com detalhe na folha?
+  * Formulário com rótulo acima, erro abaixo em `text-danger` traduzido e ação principal visível?
+  * Há texto fixo com aparência de dado real?
+* **Prova:** print da tela.
+
+### V7 · Estados e espera (§8, P13, P14, P15)
+
+* **Aplica-se quando:** o arquivo mostra dado assíncrono, envia algo ao servidor ou depende de rede.
+* **Verificar:**
+  * Existem os quatro estados: carregando (skeleton com a forma do conteúdo), vazio (frase e ação), erro ("Tentar de novo") e sem internet?
+  * O skeleton só aparece depois de ~150 ms? Spinner só dentro de botão?
+  * Resposta otimista só no que é seguro, nunca em dinheiro, estoque, check-in, cancelamento ou reembolso?
+  * A estrutura (topo, barra, skeleton) aparece antes do login e do primeiro dado?
+  * Com rede lenta e cache vazio (primeira abertura), a tela continua correta?
+* **Prova:** print de cada estado, ou o teste que os cobre.
+
+### V8 · Movimento (§9.1, P9, P10)
+
+* **Aplica-se quando:** o arquivo anima algo, abre, fecha ou troca de tela.
+* **Verificar:**
+  * Mola, duração e curva vêm de `src/ui/motion/tokens.ts`? Há duração ou curva solta?
+  * Usa as peças do design system (`StackSheet`, pilha de telas) em vez de copiar a entrada de página?
+  * Anima só `scale`, `translate` e `opacity`? Nada de `width`, `height`, `top`, `left`, `margin` ou `padding`?
+  * Um efeito por propriedade (não somar `press` com `whileTap` ou `active:scale-*`)?
+  * Com "reduzir movimento": o automático esmaece em 150 ms e o arraste segue o dedo?
+  * **Quadro parado no meio da transição**, nos dois temas: cada parte (tela que entra, tela que sai, barra do topo, fundo) tem a cor e a posição da tabela 9.1?
+  * Comparado com a versão anterior, o que não devia mudar continua igual?
+  * A tela que entra por transição já tem o código baixado antes de deslizar (o esqueleto nunca desliza)?
+* **Prova:** vídeo no claro, no escuro e com "reduzir movimento", e o quadro do meio.
+
+### V9 · Gestos (§9.2, P18, P20)
+
+* **Aplica-se quando:** o arquivo é folha, página aberta por cima, ou fica dentro de uma delas.
+* **Verificar:**
+  * A folha fecha arrastando para baixo de qualquer ponto, com prioridade para a rolagem do conteúdo?
+  * A página volta arrastando para a direita, menos começando em cima de botão?
+  * Mais de 8 px de movimento cancela o toque?
+  * Carrossel, mapa, recorte de foto, campo de texto (seleção) e controle deslizante dentro da tela continuam funcionando, sem o gesto roubar o movimento?
+  * O fim do arraste herda a velocidade do dedo?
+  * Todo gesto tem alternativa em botão (`<`)?
+* **Prova:** vídeo com cada gesto, incluindo o arrasto em cima de botão e de elemento com rolagem lateral.
+
+### V10 · Navegação e histórico (§9.3, P19, P23)
+
+* **Aplica-se quando:** o arquivo abre ou fecha página, folha, diálogo ou aba.
+* **Verificar:**
+  * Cada camada aberta entra no histórico? O voltar do sistema fecha só a de cima?
+  * Fechar pelo `X`, pelo arraste ou pelo `<` também tira a entrada do histórico?
+  * Recarregar parado numa tela interna (ou abrir pelo link) remonta a pilha certa, com o voltar funcionando?
+  * Trocar de aba e voltar mantém rolagem e página? Voltar de uma página devolve a rolagem?
+* **Prova:** passos feitos (abrir, voltar do sistema, recarregar) e o resultado.
+
+### V11 · Desempenho e carregamento (§10, P11, P12)
+
+* **Aplica-se quando:** o arquivo importa biblioteca, componente pesado ou tela; ou entra no arquivo inicial.
+* **Verificar:**
+  * Tela ou componente pesado (mapa, gráfico, Stripe, QR, recorte, legais) carrega sob demanda?
+  * O tamanho do arquivo inicial subiu? Continua no caminho da meta de 450 KB comprimidos?
+  * A próxima tela provável é pré-carregada no toque, sem pré-carregar tudo?
+  * Algo causa pulo de layout (imagem sem dimensão, conteúdo que empurra)?
+* **Prova:** tamanho do arquivo inicial antes e depois (`npm run build`).
+
+### V12 · App nativo no navegador (§10.3, P21, P22, P24)
+
+* **Aplica-se quando:** o arquivo tem campo de texto, ação fixa embaixo, botão, cartão ou foto.
+* **Verificar:**
+  * O teclado aberto não cobre a ação principal nem o campo com foco?
+  * O "Ir/Enviar" do teclado envia quando é o último campo?
+  * Botões, cartões, abas e fotos de cartão não abrem o menu do sistema no toque longo nem selecionam texto? Texto de conteúdo continua copiável?
+* **Prova:** print com o teclado aberto no celular.
+
+### V13 · Acessibilidade (§11, P17)
+
+* **Aplica-se quando:** o arquivo tem qualquer elemento visível ou interativo.
+* **Verificar:**
+  * Área de toque ≥ 44 px (48 px na ação principal)?
+  * Foco visível em tudo que é interativo; nenhum `outline-none` sem substituto?
+  * Folha e diálogo: foco vai para eles ao abrir, fica preso dentro, `Esc` fecha e o foco volta ao botão que abriu?
+  * A ordem de leitura do leitor de tela faz sentido?
+  * Cor nunca é a única pista (status com texto, erro com mensagem)?
+  * Com o texto do sistema em 200%, nada é cortado e não há rolagem horizontal?
+* **Prova:** navegação só com teclado; print com o texto em 200%.
+
+### V14 · Tamanhos de tela e conteúdo nos extremos (§12)
+
+* **Aplica-se quando:** o arquivo tem layout.
+* **Verificar:**
+  * Funciona em 320 px (celular pequeno), no celular deitado, no tablet e no desktop (folha vira cartão central do `sm:`)?
+  * Informação funcional existe em todos os tamanhos?
+  * Funciona em `fr` (texto até 30% maior), sem largura fixa em texto?
+  * Funciona com vazio, um item, muitos itens, nome muito longo e valor alto?
+* **Prova:** prints em 320 px, desktop e `fr`.
+
+### V15 · Tema e idioma trocados com a tela aberta
+
+* **Aplica-se quando:** o arquivo mostra texto ou cor.
+* **Verificar:** trocar o tema e o idioma com a tela aberta deixa algo com a cor ou o texto antigos?
+* **Prova:** print depois da troca.
+
+### V16 · Texto na interface (§13)
+
+* **Aplica-se quando:** o arquivo tem texto visível.
+* **Verificar:**
+  * Há jargão técnico ("sessão", "token", "webhook")?
+  * O botão diz o que acontece, em vez de "OK" ou "Enviar"?
+  * O erro diz o que houve e o que fazer?
+  * Hora de serviço no fuso do estabelecimento, com o fuso indicado quando a pessoa está em outro?
+* **Prova:** lista dos textos novos ou alterados.
+
+### V17 · Aprovação e comparação (§14)
+
+* **Aplica-se quando:** a mudança é visível para quem usa o app.
+* **Verificar:**
+  * Print ou vídeo foi aprovado **antes** do código (celular escuro e claro e, quando fizer sentido, desktop e `fr`)?
+  * Há foto do **antes**, nos dois temas, para comparar com o depois?
+  * A referência aprovada foi guardada em `docs/design/`?
+* **Prova:** link ou caminho dos prints e vídeos aprovados.
