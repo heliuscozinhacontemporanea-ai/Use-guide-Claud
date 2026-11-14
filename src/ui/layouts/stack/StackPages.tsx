@@ -120,7 +120,13 @@ export function StackPages({
         dragX={dragX}
         scrollerRef={scroller}
       />
-      <StackNavBar layers={layers} progress={progress} backLabel={backLabel} onBack={onBack} />
+      <StackNavBar
+        layers={layers}
+        progress={progress}
+        dragX={dragX}
+        backLabel={backLabel}
+        onBack={onBack}
+      />
     </div>
   );
 }

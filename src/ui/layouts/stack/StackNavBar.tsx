@@ -9,6 +9,8 @@ export const NAV_BAR_HEIGHT = 56;
 interface StackNavBarProps {
   layers: StackLayers;
   progress: MotionValue<number>;
+  /** "Reduzir movimento": a tela de cima segue o dedo sem deslizar sozinha. */
+  dragX: MotionValue<number>;
   backLabel: string;
   onBack: () => void;
 }
@@ -17,7 +19,7 @@ interface StackNavBarProps {
  * Barra do topo fixa da folha (DESIGN.md §8, D33): o `<` fica parado na mesma altura em todas as telas;
  * o título centralizado e a ação da direita entram e saem junto com a página.
  */
-export function StackNavBar({ layers, progress, backLabel, onBack }: StackNavBarProps) {
+export function StackNavBar({ layers, progress, dragX, backLabel, onBack }: StackNavBarProps) {
   const { top, under } = layers;
   if (!top.navBar && !under?.navBar) return null;
   return (
@@ -31,8 +33,34 @@ export function StackNavBar({ layers, progress, backLabel, onBack }: StackNavBar
         <ChevronLeft size={26} strokeWidth={2.25} aria-hidden="true" />
       </button>
       {under?.navBar && <NavLayer entry={under} progress={progress} role="under" />}
+      {under && <BarRecede progress={progress} dragX={dragX} />}
       {top.navBar && <NavLayer entry={top} progress={progress} role={under ? 'top' : 'alone'} />}
     </div>
+  );
+}
+
+/**
+ * Véu `recede` só na parte da barra que pertence à tela de baixo (da borda esquerda até onde a tela de
+ * cima começa), com a mesma intensidade do véu do conteúdo: a tela que entra não muda de cor.
+ */
+function BarRecede({
+  progress,
+  dragX,
+}: {
+  progress: MotionValue<number>;
+  dragX: MotionValue<number>;
+}) {
+  const reduced = useReducedMotion();
+  const width = useTransform([progress, dragX], ([q = 1, d = 0]: number[]) =>
+    reduced ? `${d}px` : `${(1 - q) * 100}%`
+  );
+  const opacity = useTransform(progress, (q) => q);
+  return (
+    <motion.div
+      aria-hidden="true"
+      style={{ width, opacity }}
+      className="pointer-events-none absolute inset-y-0 left-0 bg-recede"
+    />
   );
 }
 
