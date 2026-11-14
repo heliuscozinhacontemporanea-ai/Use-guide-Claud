@@ -201,7 +201,9 @@ function PageLayer({
         opacity: reduced ? fade : 1,
       }}
       className={cn(
-        'absolute inset-0 overflow-y-auto overscroll-contain no-scrollbar bg-app',
+        // `isolate`: o `z-index` de dentro de uma tela não passa por cima da outra. Paradas, as telas não
+        // têm `transform`, e o `z-10` da raiz do painel pintava a raiz sobre a página aberta.
+        'absolute inset-0 isolate overflow-y-auto overscroll-contain no-scrollbar bg-app',
         // A tela de trás continua desenhada, coberta pela de cima (opaca) e fora do toque e do leitor de
         // tela (`inert`): voltar não precisa redesenhá-la, e o primeiro quadro da volta não engasga.
         role === 'top' && 'shadow-[-8px_0_24px_rgba(0,0,0,0.12)]',
