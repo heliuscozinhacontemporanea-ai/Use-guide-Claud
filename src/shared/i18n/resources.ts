@@ -270,6 +270,10 @@ export interface TranslationResource {
       attractions: { title: string; description: string };
       guide: { title: string; description: string };
     };
+    /** Anúncio aberto (`?item=`): título e descrição da página. */
+    item: { title: string; description: string };
+    admin: { title: string; description: string };
+    partners: { title: string; description: string };
   };
   pages: {
     notFoundTitle: string;
@@ -577,6 +581,19 @@ const ptBR: TranslationResource = {
         description:
           'Tudo o que você precisa saber: taxa de turismo, como chegar, melhor época, traslados e dicas essenciais.',
       },
+    },
+    item: {
+      title: '{{name}} | Guia {{place}}',
+      description: 'Confira informações completas sobre {{name}} no Use Guide.',
+    },
+    admin: {
+      title: 'Painel Administrativo',
+      description: 'Área de gestão e moderação de conteúdo do Use Guide.',
+    },
+    partners: {
+      title: 'Seja um Parceiro',
+      description:
+        'Cadastre seu negócio e alcance milhares de turistas em Jericoacoara, Preá e Barrinha.',
     },
   },
   pages: {

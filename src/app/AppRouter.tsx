@@ -1,26 +1,22 @@
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { Suspense, useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { useAuthContext } from '../domain/auth/context/AuthContext';
 import { UserRole } from '../domain/auth/types/auth';
-import { GuideItem, useGuideCatalog } from '../domain/guide';
+import { useGuideCatalog } from '../domain/guide';
 import { NotificationBell } from '../domain/notifications';
 import { ACCOUNT_ACTION_PATH } from '../shared/constants/accountActionPath';
 import { useLocalizedRouting, useSyncLocaleWithUrl } from '../shared/hooks/useLocalizedRouting';
 import { useScrollLock } from '../shared/hooks/useScrollLock';
-import { useSEO } from '../shared/hooks/useSEO';
 import { useUI, useUIStore } from '../shared/stores/useUIStore';
 import { cn } from '../shared/utils/cn';
 import { BottomNav } from '../ui/components/BottomNav';
-import { DelayedFallback, ScreenFallback } from '../ui/lazy/DelayedFallback';
+import { ScreenFallback } from '../ui/lazy/DelayedFallback';
 import { Header } from '../ui/layouts/Header';
 import { prefetchWhenIdle } from './lazy/prefetchWhenIdle';
 import {
   AdminPanelComposition,
   COMMON_SCREENS,
-  EventTicketingPurchasePanel,
-  ItemBookingComposition,
-  ListingDetail,
   LoginModal,
   loadAdminPanel,
   loadPartnerPortal,
@@ -29,18 +25,16 @@ import {
   SearchOverlay,
 } from './lazy/screens';
 import { useOpenedOnce } from './lazy/useOpenedOnce';
-
-// Categorias com reserva pelo app (passeio, translado, aluguel e entrada de atração).
-const BOOKABLE_CATEGORIES = ['tour', 'transfer', 'rental', 'sight'];
-
 import { SideMenu } from './menu/SideMenu';
 import { useSideMenu } from './menu/useSideMenu';
 import { AppRoutes } from './routes/AppRoutes';
-import { useMissingItemNotice } from './useMissingItemNotice';
 import { useNotificationNavigation } from './useNotificationNavigation';
+import { useOpenListing } from './useOpenListing';
+import { useRouteSEO } from './useRouteSEO';
 import { useScrollContainer } from './useScrollContainer';
 import { useTabMemory } from './useTabMemory';
 import { BackdropCard } from './BackdropCard';
+import { ListingDetailComposition } from './compositions/ListingDetailComposition';
 
 export function AppRouter() {
   const { user, refreshProfile } = useAuthContext();
@@ -129,80 +123,16 @@ export function AppRouter() {
   const openNotificationLink = useNotificationNavigation(openMenu);
   const isPartnersOpen = searchParams.get('partners') === '1';
 
-  const itemIdParam = searchParams.get('item');
-  const itemTypeParam = searchParams.get('type');
-
-  const selectedItem = useMemo(() => {
-    if (!itemIdParam) {
-      return null;
-    }
-
-    if (itemTypeParam === 'event') {
-      return events.find((event) => event.id === itemIdParam) ?? null;
-    }
-
-    if (itemTypeParam === 'item') {
-      return items.find((item) => item.id === itemIdParam) ?? null;
-    }
-
-    return null;
-  }, [itemIdParam, itemTypeParam, items, events]);
-
-  const dynamicSEO = useMemo(() => {
-    if (selectedItem) {
-      return {
-        title: `${selectedItem.name} | Guia ${selectedItem.location || 'Jericoacoara'}`,
-        description:
-          selectedItem.description ||
-          `Confira informações completas sobre ${selectedItem.name} no Use Guide.`,
-        image: selectedItem.image,
-        type: (selectedItem.category === 'event' ? 'event' : 'place') as 'event' | 'place',
-        keywords:
-          selectedItem.tags && selectedItem.tags.length > 0
-            ? selectedItem.tags
-            : [selectedItem.name, selectedItem.location, selectedItem.category, 'Jericoacoara'],
-      };
-    }
-    if (searchParams.get('admin') === '1') {
-      return {
-        title: 'Painel Administrativo',
-        description: 'Área de gestão e moderação de conteúdo do Use Guide.',
-        robots: 'noindex, nofollow',
-      };
-    }
-    if (isPartnersOpen) {
-      return {
-        title: 'Seja um Parceiro',
-        description:
-          'Cadastre seu negócio e alcance milhares de turistas em Jericoacoara, Preá e Barrinha.',
-      };
-    }
-    return undefined;
-  }, [selectedItem, searchParams, isPartnersOpen]);
-
-  useSEO(dynamicSEO);
-  useMissingItemNotice({
-    itemId: itemIdParam,
-    found: selectedItem !== null,
+  const { selectedItem, setSelectedItem, growsFromCard } = useOpenListing({
+    items,
+    events,
     catalogReady: !catalogLoading && !catalogError,
   });
-
-  const setSelectedItem = (item: GuideItem | null) => {
-    setSearchParams((prev) => {
-      const nextParams = new URLSearchParams(prev);
-
-      if (item) {
-        nextParams.set('item', item.id);
-
-        nextParams.set('type', item.category === 'event' ? 'event' : 'item');
-      } else {
-        nextParams.delete('item');
-        nextParams.delete('type');
-      }
-
-      return nextParams;
-    });
-  };
+  useRouteSEO({
+    selectedItem,
+    isAdminOpen: searchParams.get('admin') === '1',
+    isPartnersOpen,
+  });
 
   const setIsPartnersOpen = (open: boolean) => {
     setSearchParams((prev) => {
@@ -264,6 +194,10 @@ export function AppRouter() {
   const isAdminOpen = searchParams.get('admin') === '1';
   const isHideGlobalUI =
     isAccountActionPage || isAdminOpen || isPartnerPortalOpen || location.pathname === '/admin';
+  // Anúncio é página da aba, abaixo da barra (P23); aberto pela busca ou sem a barra, fica por cima.
+  const listingCoversTabBar = isSearchOpen || isHideGlobalUI;
+  // O que fica atrás do anúncio sai do toque, do Tab e do leitor de tela; a barra de abas continua.
+  const behindListing = Boolean(selectedItem) && !listingCoversTabBar;
 
   const isRetracted = isLoginModalOpen && !isMenuOpen && !isLoginClosingBySwipe;
   const loginMounted = useOpenedOnce(isLoginModalOpen);
@@ -292,26 +226,28 @@ export function AppRouter() {
           className="relative h-full overflow-y-auto no-scrollbar"
         >
           {!isHideGlobalUI && (
-            <Header
-              onSearchClick={() => setIsSearchOpen(true)}
-              isMenuOpen={isMenuOpen}
-              onMenuToggle={() => (isMenuOpen ? closeMenu() : openMenu())}
-              isScrolled={isScrolled}
-              isSearchSticky={isExplorePage ? isSearchSticky : false}
-              onAdminOpen={handleAdminOpen}
-              isAdmin={isAdmin}
-              isPartner={isPartner}
-              user={user}
-              notificationSlot={
-                user ? (
-                  <NotificationBell
-                    uid={user.uid}
-                    onNavigate={openNotificationLink}
-                    onOpenSettings={() => openMenu('notifications')}
-                  />
-                ) : null
-              }
-            />
+            <div inert={behindListing || undefined} className="contents">
+              <Header
+                onSearchClick={() => setIsSearchOpen(true)}
+                isMenuOpen={isMenuOpen}
+                onMenuToggle={() => (isMenuOpen ? closeMenu() : openMenu())}
+                isScrolled={isScrolled}
+                isSearchSticky={isExplorePage ? isSearchSticky : false}
+                onAdminOpen={handleAdminOpen}
+                isAdmin={isAdmin}
+                isPartner={isPartner}
+                user={user}
+                notificationSlot={
+                  user ? (
+                    <NotificationBell
+                      uid={user.uid}
+                      onNavigate={openNotificationLink}
+                      onOpenSettings={() => openMenu('notifications')}
+                    />
+                  ) : null
+                }
+              />
+            </div>
           )}
 
           {isAdminOpen ? (
@@ -326,6 +262,7 @@ export function AppRouter() {
             <AnimatePresence mode="wait">
               <motion.div
                 key={location.pathname}
+                inert={behindListing || undefined}
                 className={cn(
                   'min-h-full max-w-2xl mx-auto w-full',
                   isExplorePage ? 'pt-[70px]' : isAccountActionPage ? 'pt-0' : 'pt-28'
@@ -393,38 +330,13 @@ export function AppRouter() {
           {/* Anúncio em tela cheia (2026-11-10): a foto cresce do cartão e volta ao fechar. */}
           <AnimatePresence>
             {selectedItem && (
-              <Suspense key={selectedItem.id} fallback={null}>
-                <ListingDetail
-                  item={selectedItem}
-                  onClose={() => setSelectedItem(null)}
-                  renderBooking={
-                    BOOKABLE_CATEGORIES.includes(selectedItem.category)
-                      ? (included) => (
-                          <Suspense fallback={<BlockFallback />}>
-                            <ItemBookingComposition
-                              guideItemId={selectedItem.id}
-                              between={included}
-                            />
-                          </Suspense>
-                        )
-                      : undefined
-                  }
-                  ticketPanel={
-                    selectedItem.category === 'event' ? (
-                      <Suspense fallback={<BlockFallback />}>
-                        <EventTicketingPurchasePanel
-                          eventId={selectedItem.id}
-                          eventTitle={selectedItem.name}
-                          place={{ timeZone: selectedItem.timeZone, city: selectedItem.city }}
-                          userEmail={user?.email || undefined}
-                          userName={user?.displayName || undefined}
-                          onRequireLogin={openLoginModal}
-                        />
-                      </Suspense>
-                    ) : undefined
-                  }
-                />
-              </Suspense>
+              <ListingDetailComposition
+                key={selectedItem.id}
+                item={selectedItem}
+                coversTabBar={listingCoversTabBar}
+                growsFromCard={growsFromCard}
+                onClose={() => setSelectedItem(null)}
+              />
             )}
           </AnimatePresence>
 
@@ -440,14 +352,5 @@ export function AppRouter() {
         </motion.div>
       </BackdropCard>
     </div>
-  );
-}
-
-/** Espaço do bloco de compra enquanto o código dele chega (DESIGN.md P15). */
-function BlockFallback() {
-  return (
-    <DelayedFallback>
-      <div className="h-24 rounded-[20px] bg-surface border border-line animate-pulse-slow" />
-    </DelayedFallback>
   );
 }

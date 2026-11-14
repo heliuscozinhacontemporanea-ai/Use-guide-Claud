@@ -6,6 +6,8 @@ export const Z_INDEX = {
   base: 0,
   card: 10,
   header: 100,
+  /** Página aberta dentro de uma aba (anúncio): cobre o topo e fica abaixo da barra de abas (P23). */
+  tabPage: 105,
   bottomNav: 110,
   banner: 120,
   dropdown: 200,

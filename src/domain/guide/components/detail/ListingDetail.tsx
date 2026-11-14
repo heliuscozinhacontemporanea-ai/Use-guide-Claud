@@ -19,20 +19,9 @@ import {
 // Horário de funcionamento vem do cadastro destas categorias (passeio e translado têm horários por saída).
 const HOURS_CATEGORIES = ['restaurant', 'sight', 'rental'];
 
-const CARD = 'rounded-[20px] bg-surface border border-line';
+const CARD = 'rounded-card bg-surface border border-line';
 const ROW =
   'press w-full px-4 py-3.5 min-h-16 flex items-center gap-3 text-left focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none';
-
-const FAVORITE_LABEL: Record<string, string> = {
-  tour: 'passeio',
-  transfer: 'translado',
-  rental: 'aluguel',
-  hotel: 'hospedagem',
-  restaurant: 'restaurante',
-  sight: 'atração',
-  event: 'evento',
-  tips: 'dica',
-};
 
 const REVIEW_PROMPT: Record<string, 'tour' | 'stay' | 'restaurant'> = {
   tour: 'tour',
@@ -67,12 +56,12 @@ function WhatsAppRow({ item, hint }: { item: GuideItem; hint: string }) {
       }}
       className={`${CARD} ${ROW}`}
     >
-      <span className="size-11 shrink-0 rounded-xl bg-[#25d366]/12 text-[#25d366] flex items-center justify-center">
+      <span className="size-11 shrink-0 rounded-control bg-[#25d366]/12 text-[#25d366] flex items-center justify-center">
         <MessageCircle size={20} aria-hidden="true" />
       </span>
       <span className="flex-1 min-w-0">
-        <span className="block text-[13px] text-ink/70">{hint}</span>
-        <span className="block text-[15px] font-semibold text-ink">
+        <span className="block text-meta text-ink-muted">{hint}</span>
+        <span className="block text-body font-semibold text-ink">
           {t('listingDetail.whatsapp')}
         </span>
       </span>
@@ -83,12 +72,12 @@ function WhatsAppRow({ item, hint }: { item: GuideItem; hint: string }) {
 function InfoCard({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
   return (
     <div className={`${CARD} px-4 py-3.5 flex items-center gap-3`}>
-      <span className="size-11 shrink-0 rounded-xl bg-ink/[0.06] text-ink/80 flex items-center justify-center">
+      <span className="size-11 shrink-0 rounded-control bg-ink/[0.06] text-ink-muted flex items-center justify-center">
         {icon}
       </span>
       <span className="min-w-0">
-        <span className="block text-[13px] text-ink/70">{label}</span>
-        <span className="block text-[15px] font-semibold text-ink">{value}</span>
+        <span className="block text-meta text-ink-muted">{label}</span>
+        <span className="block text-body font-semibold text-ink">{value}</span>
       </span>
     </div>
   );
@@ -103,9 +92,15 @@ export function ListingDetail({
   onClose,
   renderBooking,
   ticketPanel,
+  coversTabBar,
+  growsFromCard,
 }: {
   item: GuideItem;
   onClose: () => void;
+  /** Aberto por cima da busca: veja `ListingDetailPage`. */
+  coversTabBar?: boolean;
+  /** A foto cresce do cartão tocado: veja `ListingDetailPage`. */
+  growsFromCard?: boolean;
   /**
    * Painel de reserva (bookings) montado pelo app. Recebe "O que está incluído" para pôr entre a
    * oferta e a política, como no print aprovado.
@@ -119,8 +114,8 @@ export function ListingDetail({
   const included =
     includes.length > 0 ? (
       <section className={`${CARD} p-4 space-y-1.5`}>
-        <h2 className="text-[16px] font-semibold text-ink">{t('listingDetail.included')}</h2>
-        <p className="text-[14px] text-ink/75">{includes.join(' · ')}</p>
+        <h2 className="text-title text-ink">{t('listingDetail.included')}</h2>
+        <p className="text-body text-ink-muted">{includes.join(' · ')}</p>
       </section>
     ) : null;
 
@@ -130,7 +125,9 @@ export function ListingDetail({
       onClose={onClose}
       locationLabel={locationOf(item)}
       collectionName={event ? 'events' : 'items'}
-      favoriteLabel={FAVORITE_LABEL[item.category] ?? 'item'}
+      favoriteLabel={t(`listingDetail.typeLabel.${item.category}`)}
+      coversTabBar={coversTabBar}
+      growsFromCard={growsFromCard}
     >
       {event && item.date && (
         <InfoCard
