@@ -12,6 +12,7 @@ import { helpEn } from './helpResources.en';
 import { insightsEn } from './insightsResources.en';
 import { legalEn } from './legalResources.en';
 import { authEn } from './authResources.en';
+import { windEn } from './windResources.en';
 import { listingDetailEn } from './listingDetailResources.en';
 import { listingPlanEn } from './listingPlanResources.en';
 import { notifyEn } from './notifyResources.en';
@@ -83,6 +84,7 @@ export const en: TranslationResource = {
   partnerAddSegment: partnerAddSegmentEn,
   listingDetail: listingDetailEn,
   auth: authEn,
+  wind: windEn,
   reviewsUi: reviewsUiEn,
   partnerSignup: partnerSignupEn,
   partnerAgora: partnerAgoraEn,

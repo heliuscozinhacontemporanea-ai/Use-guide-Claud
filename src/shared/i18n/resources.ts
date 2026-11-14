@@ -17,6 +17,7 @@ import { type HelpTranslation, helpPtBR } from './helpResources';
 import { type InsightsTranslation, insightsPtBR } from './insightsResources';
 import { type LegalTranslation, legalPtBR } from './legalResources';
 import { type AuthTranslation, authPtBR } from './authResources';
+import { type WindTranslation, windPtBR } from './windResources';
 import { type ListingDetailTranslation, listingDetailPtBR } from './listingDetailResources';
 import { type ListingPlanTranslation, listingPlanPtBR } from './listingPlanResources';
 import { type NotifyTranslation, notifyPtBR } from './notifyResources';
@@ -96,6 +97,7 @@ export interface TranslationResource {
   partnerAddSegment: PartnerAddSegmentTranslation;
   listingDetail: ListingDetailTranslation;
   auth: AuthTranslation;
+  wind: WindTranslation;
   reviewsUi: ReviewsUiTranslation;
   partnerSignup: PartnerSignupTranslation;
   partnerAgora: PartnerAgoraTranslation;
@@ -357,6 +359,7 @@ const ptBR: TranslationResource = {
   partnerAddSegment: partnerAddSegmentPtBR,
   listingDetail: listingDetailPtBR,
   auth: authPtBR,
+  wind: windPtBR,
   reviewsUi: reviewsUiPtBR,
   partnerSignup: partnerSignupPtBR,
   partnerAgora: partnerAgoraPtBR,

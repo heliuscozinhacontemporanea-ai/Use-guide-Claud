@@ -43,6 +43,8 @@ interface Track {
   axis: Axis | null;
   onInteractive: boolean;
   inScroller: boolean;
+  /** Começou num mapa ou área de arraste própria (`data-gesture-ignore`): nem fecha nem volta. */
+  ignored: boolean;
   scrollTop: number;
   canScroll: boolean;
   samples: Array<[number, number, number]>;
@@ -78,6 +80,7 @@ export function useStackGestures(
         axis: null,
         onInteractive: !!target.closest(INTERACTIVE),
         inScroller: insideHorizontalScroller(target, root),
+        ignored: !!target.closest('[data-gesture-ignore]'),
         scrollTop: scroller?.scrollTop ?? 0,
         canScroll: scroller ? scroller.scrollHeight > scroller.clientHeight + 1 : false,
         samples: [[time, x, y]],
@@ -94,6 +97,10 @@ export function useStackGestures(
       if (track.samples.length > 6) track.samples.shift();
       if (track.axis === null) {
         if (Math.hypot(dx, dy) < DRAG_SLOP_PX) return false;
+        if (track.ignored) {
+          track.axis = 'none';
+          return false;
+        }
         swallowClick = true;
         if (Math.abs(dy) > Math.abs(dx)) {
           const atTop = track.scrollTop <= 0;
