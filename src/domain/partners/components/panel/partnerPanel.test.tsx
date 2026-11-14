@@ -161,7 +161,7 @@ describe('casca do painel do parceiro (D27)', () => {
     expect(onOpenTab).toHaveBeenCalledWith('earnings');
   });
 
-  it('o modo Personalizar tira, reordena pelo teclado e só conclui pelo botão', () => {
+  it('o modo Personalizar tira, reordena pelo teclado e só conclui pelo botão', async () => {
     const setDraft = vi.fn();
     const finish = vi.fn();
     render(
@@ -189,7 +189,8 @@ describe('casca do painel do parceiro (D27)', () => {
     expect(screen.getByText('Vendas do mês')).toBeInTheDocument();
     fireEvent.click(screen.getByText('Vendas do mês'));
     expect(setDraft).toHaveBeenLastCalledWith(['today', 'sales_today', 'month_sales']);
-    fireEvent.click(screen.getByRole('button', { name: 'Concluir' }));
+    // A folha de cartões sai com animação; até sair, o resto da tela fica escondido do leitor de tela.
+    fireEvent.click(await screen.findByRole('button', { name: 'Concluir' }));
     expect(finish).toHaveBeenCalled();
   });
 

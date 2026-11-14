@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { i18n } from '../../shared/i18n';
 import { TermsAcceptanceField } from './TermsAcceptanceField';
@@ -8,7 +8,7 @@ describe('TermsAcceptanceField (D15)', () => {
     await i18n.changeLanguage('pt-BR');
   });
 
-  it('o link abre os termos sem marcar a caixa; marcar avisa o formulário', () => {
+  it('o link abre os termos sem marcar a caixa; marcar avisa o formulário', async () => {
     const onChange = vi.fn();
     render(<TermsAcceptanceField audience="buyer" checked={false} onChange={onChange} />);
     fireEvent.click(screen.getByRole('button', { name: 'termos e a política de cancelamento' }));
@@ -17,6 +17,8 @@ describe('TermsAcceptanceField (D15)', () => {
     expect(screen.getByText('Compras, cancelamento e reembolso')).toBeTruthy();
     expect(screen.getAllByText(/Direito de arrependimento/).length).toBeGreaterThan(0);
     fireEvent.click(screen.getByText('Fechar'));
+    // A folha sai com animação; até sair, o resto da tela fica escondido do leitor de tela (Radix).
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
     fireEvent.click(screen.getByRole('checkbox'));
     expect(onChange).toHaveBeenCalledWith(true);
   });

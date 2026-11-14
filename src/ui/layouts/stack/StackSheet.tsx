@@ -1,9 +1,10 @@
 import { animate, motion, useMotionValue, useReducedMotion, useTransform } from 'motion/react';
-import { type ReactNode, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { type ReactNode, useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Z_INDEX } from '../../../shared/constants/zIndex';
 import { cn } from '../../../shared/utils/cn';
 import { readSafeAreaTop } from '../../motion/safeAreaTop';
+import { useSheetLayer } from '../../motion/sheetLayers';
 import { stackSheetProgress } from '../../motion/stackSheetProgress';
 import { CARD_PEEK_PX, FADE, SPRING } from '../../motion/tokens';
 import { StackPages } from './StackPages';
@@ -17,7 +18,7 @@ export interface StackSheetProps {
   /** Da primeira tela à de cima. */
   entries: StackEntry[];
   labels: { back: string; close: string; dialog: string };
-  /** Algo abriu por cima da folha (ex.: login): ela recua como o fundo. */
+  /** Algo que não é folha abriu por cima (ex.: login): ela recua como o fundo. */
   receded?: boolean;
   /** Ocupa a folha inteira no lugar da pilha, sem gestos (ex.: recorte da foto). */
   takeover?: ReactNode;
@@ -35,6 +36,8 @@ export interface StackSheetProps {
 export function StackSheet(props: StackSheetProps) {
   const { isOpen } = props;
   const reduced = useReducedMotion();
+  // Folha aberta por cima desta (ex.: detalhe de uma compra): esta recua, como o fundo.
+  const layer = useSheetLayer(useId(), isOpen);
   const [mounted, setMounted] = useState(isOpen);
   const releaseVelocity = useRef<number | undefined>(undefined);
 
@@ -56,6 +59,7 @@ export function StackSheet(props: StackSheetProps) {
   return createPortal(
     <SheetBody
       {...props}
+      receded={Boolean(props.receded) || layer.hasAbove}
       onDismissDrag={(velocity) => {
         releaseVelocity.current = velocity;
         props.onClose();
