@@ -4,7 +4,6 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocalizedRouting } from '../../../shared/hooks/useLocalizedRouting';
 import { MessagePage } from '../../../ui/components/MessagePage';
-import { PushStack } from '../../../ui/layouts/stack/PushStack';
 import { createPartnerContentItemUseCase } from '../application/usecases/createPartnerContentItemUseCase';
 import { deletePartnerContentItemUseCase } from '../application/usecases/deletePartnerContentItemUseCase';
 import { updatePartnerContentItemUseCase } from '../application/usecases/updatePartnerContentItemUseCase';
@@ -41,6 +40,7 @@ import { PartnerEarningsTab } from './panel/PartnerEarningsTab';
 import { PartnerHomeTab } from './panel/PartnerHomeTab';
 import { PartnerMorePage, partnerMorePageTitle } from './panel/PartnerMorePage';
 import { PartnerMoreSection } from './panel/PartnerMoreSection';
+import { PartnerPanelStack } from './panel/PartnerPanelStack';
 import { PartnerPanelTop } from './panel/PartnerPanelTop';
 import { PartnerPanelTour } from './panel/PartnerPanelTour';
 import type { PartnerPanelTab } from './panel/partnerPanelTabs';
@@ -194,224 +194,214 @@ export function PartnerPanel({
 
   return (
     <PanelTimeZoneProvider timeZone={home.timeZone} establishments={home.establishments}>
-      <PushStack
-        backLabel={t('settings.back')}
-        onBack={nav.closePage}
-        entries={[
-          {
-            key: 'panel',
-            navBar: false,
-            bare: true,
-            render: () => (
-              <div className="min-h-full pt-12 pb-40 px-4 bg-app font-sans selection:bg-teal-500/30 relative overflow-x-hidden">
-                <div
-                  className={`max-w-4xl mx-auto space-y-8 relative z-10 transition-all duration-300 ${isEditing || editingListing !== undefined ? 'opacity-0 scale-[0.98] pointer-events-none h-0 overflow-hidden' : 'opacity-100 scale-100'}`}
-                >
-                  {!(
-                    (panelTab === 'catalog' && (nav.placeId || eventId)) ||
-                    (panelTab === 'earnings' && (nav.openReports || nav.openAccounts))
-                  ) && (
-                    <PartnerPanelTop
-                      home={home}
-                      tab={panelTab}
-                      onTabChange={nav.openTab}
-                      onBack={() => goTo('explore')}
-                      tabs={segments.tabs}
-                      catalogLabel={segments.catalogLabel}
-                    />
-                  )}
+      <PartnerPanelStack
+        stack={nav.pages}
+        root={
+          <div className="min-h-full pt-12 pb-40 px-4 bg-app font-sans selection:bg-teal-500/30 relative overflow-x-hidden">
+            <div
+              className={`max-w-4xl mx-auto space-y-8 relative z-10 transition-all duration-300 ${isEditing || editingListing !== undefined ? 'opacity-0 scale-[0.98] pointer-events-none h-0 overflow-hidden' : 'opacity-100 scale-100'}`}
+            >
+              {!(
+                (panelTab === 'catalog' && (nav.placeId || eventId)) ||
+                (panelTab === 'earnings' && (nav.openReports || nav.openAccounts))
+              ) && (
+                <PartnerPanelTop
+                  home={home}
+                  tab={panelTab}
+                  onTabChange={nav.openTab}
+                  onBack={() => goTo('explore')}
+                  tabs={segments.tabs}
+                  catalogLabel={segments.catalogLabel}
+                />
+              )}
 
-                  {panelTab === 'home' ? (
-                    <PartnerHomeTab
-                      loading={home.loading}
-                      error={home.error}
-                      onRetry={() => void home.reload()}
-                      view={home.data}
-                      attention={home.attention}
-                      cards={homeCards}
-                      leadingCard={visitsCard}
-                      labelFor={home.labelFor}
-                      onOpenAttention={(item) => setPanelTab(ATTENTION_TAB[item.kind])}
-                      onOpenStep={(step) => {
-                        const item = itemsList.find((entry) => entry.id === step.itemId);
-                        if (step.id === 'verify' && item) {
-                          setVerifyingListing({
-                            id: item.id,
-                            name: item.name,
-                            category: item.category,
-                          });
-                        } else if (step.id === 'account') {
-                          setPanelTab('earnings');
-                          nav.setOpenAccounts(true);
-                        } else if (step.id === 'offer') {
-                          setPanelTab('catalog');
-                          nav.setPlaceId(step.itemId);
-                        } else if (step.id === 'event') {
-                          setEditingHasSales(false);
-                          setIsEditing(newPartnerEventDraft(user?.uid ?? ''));
-                        }
-                      }}
-                      onOpenTab={setPanelTab}
-                      onOpenCoupons={renderCoupons ? () => nav.openCoupons('home') : undefined}
-                      agora={
-                        renderAgora && (
-                          <PartnerAgoraSection
-                            items={home.agora}
-                            nameOf={home.placeName}
-                            renders={renderAgora}
-                            version={agendaVersion}
-                            onOpenGate={(item) => {
-                              setAgendaGate(true);
-                              setAgendaItem(item);
-                            }}
-                            onChanged={agendaChanged}
-                          />
-                        )
-                      }
-                    />
-                  ) : panelTab === 'agenda' ? (
-                    <PartnerAgendaTab
-                      visible={(item) => belongs(item.establishmentIds, home.filter)}
-                      labelFor={home.labelFor}
-                      onOpenItem={setAgendaItem}
-                      reloadKey={agendaVersion}
-                      timeZone={home.timeZone}
-                    />
-                  ) : panelTab === 'catalog' ? (
-                    <PartnerCatalogSection
-                      segment={catalogPart}
-                      parts={segments.catalogParts}
-                      offersLabel={segments.offersLabel}
-                      title={
-                        segments.catalogLabel === 'catalog'
-                          ? undefined
-                          : t(`partnerPanel.catalogTab.${segments.catalogLabel}`)
-                      }
-                      onSegmentChange={(segment) => {
-                        setCatalogSegment(segment);
-                        setActiveTab(segment === 'events' ? 'events' : 'items');
-                      }}
-                      placeId={nav.placeId}
-                      onPlaceChange={nav.setPlaceId}
-                      eventId={eventId}
-                      onEventChange={nav.setEventId}
-                      eventReloadKey={agendaVersion}
-                      onOpenSession={setAgendaItem}
-                      items={itemsList}
-                      events={eventsList}
-                      loading={dataLoading}
-                      filter={home.filter}
-                      establishments={home.establishments}
-                      eventsVersion={eventsVersion}
-                      onEditItem={(item) => setEditingListing(item)}
-                      onCreateItem={() => setEditingListing(null)}
-                      onOpenEvent={(item, hasSales) => {
-                        setEditingHasSales(hasSales);
-                        setIsEditing({
-                          ...item,
-                          images: item.images || (item.image ? [item.image] : []),
-                        });
-                      }}
-                      onCreateEvent={() => {
-                        setEditingHasSales(false);
-                        setIsEditing(newPartnerEventDraft(user?.uid ?? ''));
-                      }}
-                      onOpenPlan={(item) => setPlanListing({ id: item.id, name: item.name })}
-                      onVerify={(item) =>
-                        setVerifyingListing({
-                          id: item.id,
-                          name: item.name,
-                          category: item.category,
-                        })
-                      }
-                      onToggleActive={handleToggleActive}
-                      verificationVersion={verificationVersion}
-                      planVersion={planVersion}
-                      onOpenReviews={() => {
-                        nav.setOpenReports('reviews');
-                        setPanelTab('earnings');
-                      }}
-                      renders={renderCatalog ?? {}}
-                      onOpenCoupons={renderCoupons ? nav.openCoupons : undefined}
-                      onOpenEarnings={
-                        segments.tabs.includes('earnings')
-                          ? () => setPanelTab('earnings')
-                          : undefined
-                      }
-                    />
-                  ) : panelTab === 'earnings' ? (
-                    <PartnerEarningsTab
-                      showReports={nav.openReports}
-                      onShowReportsChange={nav.setOpenReports}
-                      showAccounts={nav.openAccounts}
-                      onShowAccountsChange={nav.setOpenAccounts}
-                      renders={renderEarnings ?? {}}
-                      reports={renderReports?.({
-                        partnerId: user.uid,
-                        items: itemsList,
-                        events: eventsList,
-                        unansweredReviews: Object.fromEntries(
-                          home.establishments.map((entry) => [entry.id, entry.unansweredReviews])
-                        ),
-                      })}
-                    />
-                  ) : (
-                    <PartnerMoreSection
-                      showProducer={
-                        segments.segments.length === 0 || segments.segments.includes('events')
-                      }
-                      showGateStaff={
-                        segments.segments.length === 0 ||
-                        segments.segments.includes('events') ||
-                        segments.segments.includes('attraction')
-                      }
-                      sells={segments.tabs.includes('earnings')}
-                      onAddSegment={() => setAddSegmentOpen(true)}
-                      couponsSegment={segments.couponsLabel}
-                      onOpenPage={nav.openMorePage}
-                      summary={home.data?.summary ?? null}
-                      withoutPlan={home.data?.plans.filter((plan) => !plan.until).length ?? 0}
-                      onOpenProducer={() =>
-                        setEditingListing(
-                          itemsList.find((item) => item.category === 'producer') ?? null
-                        )
-                      }
-                      onOpenEstablishments={() => {
-                        setCatalogSegment('places');
-                        setActiveTab('items');
-                        setPanelTab('catalog');
-                      }}
-                      onOpenEarnings={() => setPanelTab('earnings')}
-                      hasAccountViews={Boolean(renderAccountView)}
-                      hasCoupons={Boolean(renderCoupons)}
-                      hasGateStaff={Boolean(renderGateStaff)}
-                      onReplayTour={() => tour.setChooserOpen(true)}
-                      notificationsHint={renderNotificationsHint?.()}
-                    />
-                  )}
-                </div>
-              </div>
-            ),
-          },
-          // Páginas de Mais e cupons, por cima do painel (D33): barra fixa, mola e voltar arrastando.
-          ...nav.morePages.map((view, index) => ({
-            key: `${view}-${index}`,
-            title: partnerMorePageTitle(view, t, segments.couponsLabel),
-            navBar: true,
-            render: () => (
-              <PartnerMorePage
-                view={view}
-                establishments={itemsList}
-                onOpenPlan={(item) => setPlanListing({ id: item.id, name: item.name })}
-                renderAccountView={renderAccountView}
-                renderCoupons={
-                  renderCoupons ? () => renderCoupons({ scope: nav.couponsScope }) : undefined
-                }
-                renderGateStaff={renderGateStaff}
-              />
-            ),
-          })),
-        ]}
+              {panelTab === 'home' ? (
+                <PartnerHomeTab
+                  loading={home.loading}
+                  error={home.error}
+                  onRetry={() => void home.reload()}
+                  view={home.data}
+                  attention={home.attention}
+                  cards={homeCards}
+                  leadingCard={visitsCard}
+                  labelFor={home.labelFor}
+                  onOpenAttention={(item) => setPanelTab(ATTENTION_TAB[item.kind])}
+                  onOpenStep={(step) => {
+                    const item = itemsList.find((entry) => entry.id === step.itemId);
+                    if (step.id === 'verify' && item) {
+                      setVerifyingListing({
+                        id: item.id,
+                        name: item.name,
+                        category: item.category,
+                      });
+                    } else if (step.id === 'account') {
+                      setPanelTab('earnings');
+                      nav.setOpenAccounts(true);
+                    } else if (step.id === 'offer') {
+                      setPanelTab('catalog');
+                      nav.setPlaceId(step.itemId);
+                    } else if (step.id === 'event') {
+                      setEditingHasSales(false);
+                      setIsEditing(newPartnerEventDraft(user?.uid ?? ''));
+                    }
+                  }}
+                  onOpenTab={setPanelTab}
+                  onOpenCoupons={renderCoupons ? () => nav.openCoupons('home') : undefined}
+                  agora={
+                    renderAgora && (
+                      <PartnerAgoraSection
+                        items={home.agora}
+                        nameOf={home.placeName}
+                        renders={renderAgora}
+                        version={agendaVersion}
+                        onOpenGate={(item) => {
+                          setAgendaGate(true);
+                          setAgendaItem(item);
+                        }}
+                        onChanged={agendaChanged}
+                      />
+                    )
+                  }
+                />
+              ) : panelTab === 'agenda' ? (
+                <PartnerAgendaTab
+                  visible={(item) => belongs(item.establishmentIds, home.filter)}
+                  labelFor={home.labelFor}
+                  onOpenItem={setAgendaItem}
+                  reloadKey={agendaVersion}
+                  timeZone={home.timeZone}
+                />
+              ) : panelTab === 'catalog' ? (
+                <PartnerCatalogSection
+                  segment={catalogPart}
+                  parts={segments.catalogParts}
+                  offersLabel={segments.offersLabel}
+                  title={
+                    segments.catalogLabel === 'catalog'
+                      ? undefined
+                      : t(`partnerPanel.catalogTab.${segments.catalogLabel}`)
+                  }
+                  onSegmentChange={(segment) => {
+                    setCatalogSegment(segment);
+                    setActiveTab(segment === 'events' ? 'events' : 'items');
+                  }}
+                  placeId={nav.placeId}
+                  onPlaceChange={nav.setPlaceId}
+                  eventId={eventId}
+                  onEventChange={nav.setEventId}
+                  eventReloadKey={agendaVersion}
+                  onOpenSession={setAgendaItem}
+                  items={itemsList}
+                  events={eventsList}
+                  loading={dataLoading}
+                  filter={home.filter}
+                  establishments={home.establishments}
+                  eventsVersion={eventsVersion}
+                  onEditItem={(item) => setEditingListing(item)}
+                  onCreateItem={() => setEditingListing(null)}
+                  onOpenEvent={(item, hasSales) => {
+                    setEditingHasSales(hasSales);
+                    setIsEditing({
+                      ...item,
+                      images: item.images || (item.image ? [item.image] : []),
+                    });
+                  }}
+                  onCreateEvent={() => {
+                    setEditingHasSales(false);
+                    setIsEditing(newPartnerEventDraft(user?.uid ?? ''));
+                  }}
+                  onOpenPlan={(item) => setPlanListing({ id: item.id, name: item.name })}
+                  onVerify={(item) =>
+                    setVerifyingListing({
+                      id: item.id,
+                      name: item.name,
+                      category: item.category,
+                    })
+                  }
+                  onToggleActive={handleToggleActive}
+                  verificationVersion={verificationVersion}
+                  planVersion={planVersion}
+                  onOpenReviews={() => {
+                    nav.setOpenReports('reviews');
+                    setPanelTab('earnings');
+                  }}
+                  renders={renderCatalog ?? {}}
+                  onOpenCoupons={renderCoupons ? nav.openCoupons : undefined}
+                  onOpenEarnings={
+                    segments.tabs.includes('earnings') ? () => setPanelTab('earnings') : undefined
+                  }
+                />
+              ) : panelTab === 'earnings' ? (
+                <PartnerEarningsTab
+                  showReports={nav.openReports}
+                  onShowReportsChange={nav.setOpenReports}
+                  showAccounts={nav.openAccounts}
+                  onShowAccountsChange={nav.setOpenAccounts}
+                  renders={renderEarnings ?? {}}
+                  reports={renderReports?.({
+                    partnerId: user.uid,
+                    items: itemsList,
+                    events: eventsList,
+                    unansweredReviews: Object.fromEntries(
+                      home.establishments.map((entry) => [entry.id, entry.unansweredReviews])
+                    ),
+                  })}
+                />
+              ) : (
+                <PartnerMoreSection
+                  showProducer={
+                    segments.segments.length === 0 || segments.segments.includes('events')
+                  }
+                  showGateStaff={
+                    segments.segments.length === 0 ||
+                    segments.segments.includes('events') ||
+                    segments.segments.includes('attraction')
+                  }
+                  sells={segments.tabs.includes('earnings')}
+                  onAddSegment={() => setAddSegmentOpen(true)}
+                  couponsSegment={segments.couponsLabel}
+                  onOpenPage={nav.openMorePage}
+                  summary={home.data?.summary ?? null}
+                  withoutPlan={home.data?.plans.filter((plan) => !plan.until).length ?? 0}
+                  onOpenProducer={() =>
+                    setEditingListing(
+                      itemsList.find((item) => item.category === 'producer') ?? null
+                    )
+                  }
+                  onOpenEstablishments={() => {
+                    setCatalogSegment('places');
+                    setActiveTab('items');
+                    setPanelTab('catalog');
+                  }}
+                  onOpenEarnings={() => setPanelTab('earnings')}
+                  hasAccountViews={Boolean(renderAccountView)}
+                  hasCoupons={Boolean(renderCoupons)}
+                  hasGateStaff={Boolean(renderGateStaff)}
+                  onReplayTour={() => tour.setChooserOpen(true)}
+                  notificationsHint={renderNotificationsHint?.()}
+                />
+              )}
+            </div>
+          </div>
+        }
+        // Páginas de Mais e cupons, por cima do painel (D33): barra fixa, mola e voltar arrastando.
+        renderPage={(page) => ({
+          title: partnerMorePageTitle(page.view, t, segments.couponsLabel),
+          content: (
+            <PartnerMorePage
+              view={page.view}
+              establishments={itemsList}
+              onOpenPlan={(item) => setPlanListing({ id: item.id, name: item.name })}
+              renderAccountView={renderAccountView}
+              renderCoupons={
+                renderCoupons
+                  ? () => renderCoupons({ scope: page.couponsScope ?? null })
+                  : undefined
+              }
+              renderGateStaff={renderGateStaff}
+            />
+          ),
+        })}
       />
 
       <AnimatePresence>

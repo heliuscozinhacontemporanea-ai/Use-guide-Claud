@@ -6,7 +6,7 @@ import {
   useReducedMotion,
   useTransform,
 } from 'motion/react';
-import { type RefObject, useEffect, useRef } from 'react';
+import { memo, type ReactNode, type RefObject, useEffect, useRef } from 'react';
 import { cn } from '../../../shared/utils/cn';
 import { stackSheetProgress } from '../../motion/stackSheetProgress';
 import {
@@ -161,6 +161,15 @@ export function StackPages({
 
 type PageRole = 'top' | 'under' | 'alone' | 'hidden';
 
+/**
+ * Conteúdo da tela, recalculado só quando quem monta a pilha o renova. As trocas de papel durante a
+ * animação (de baixo, de cima, escondida) só mexem na posição: sem isto, cada troca redesenhava a tela
+ * inteira duas vezes a mais, e o primeiro e o último quadro engasgavam no celular.
+ */
+const PageContent = memo(function PageContent({ render }: { render: () => ReactNode }) {
+  return <>{render()}</>;
+});
+
 function PageLayer({
   entry,
   role,
@@ -193,18 +202,21 @@ function PageLayer({
       }}
       className={cn(
         'absolute inset-0 overflow-y-auto overscroll-contain no-scrollbar bg-app',
-        role === 'hidden' && 'invisible',
-        role === 'top' && 'shadow-[-8px_0_24px_rgba(0,0,0,0.12)]'
+        // A tela de trás continua desenhada, coberta pela de cima (opaca) e fora do toque e do leitor de
+        // tela (`inert`): voltar não precisa redesenhá-la, e o primeiro quadro da volta não engasga.
+        role === 'top' && 'shadow-[-8px_0_24px_rgba(0,0,0,0.12)]',
+        // Camada própria só enquanto se move: o deslize fica no compositor, sem redesenhar a tela.
+        (role === 'top' || role === 'under') && 'will-change-transform'
       )}
     >
       {entry.bare ? (
-        entry.render()
+        <PageContent render={entry.render} />
       ) : (
         <div
           style={{ paddingTop: entry.navBar ? NAV_BAR_HEIGHT + 8 : 28 }}
           className="min-h-full flex flex-col px-6 sm:px-8 pb-[calc(env(safe-area-inset-bottom,0px)+2rem)]"
         >
-          {entry.render()}
+          <PageContent render={entry.render} />
         </div>
       )}
       {role === 'under' && (

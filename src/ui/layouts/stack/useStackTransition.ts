@@ -23,51 +23,71 @@ export function useStackTransition(entries: StackEntry[], onPopped?: () => void)
   const progress = useMotionValue(1);
   const [leaving, setLeaving] = useState<StackEntry | null>(null);
   const [moving, setMoving] = useState(false);
-  const previous = useRef(entries);
+  // Pilha da última troca. A troca é detectada durante a renderização (e não depois, num efeito) para
+  // a tela que sai continuar montada: antes ela sumia e era montada de novo para a animação de saída,
+  // e o primeiro quadro da volta engasgava.
+  const [shown, setShown] = useState(() => ({ signature: keysOf(entries).join('/'), entries }));
+  const pending = useRef<'push' | 'pop' | 'jump' | null>(null);
   const releaseVelocity = useRef<number | undefined>(undefined);
   const popped = useRef(onPopped);
   popped.current = onPopped;
   const keySignature = keysOf(entries).join('/');
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: a troca só acontece quando a pilha muda de telas; renders com as mesmas telas só atualizam o conteúdo.
-  useLayoutEffect(() => {
-    const before = keysOf(previous.current);
+  let currentLeaving = leaving;
+  let currentMoving = moving;
+  if (shown.signature !== keySignature) {
+    const before = keysOf(shown.entries);
     const after = keysOf(entries);
-    const outgoing = previous.current[previous.current.length - 1];
-    previous.current = entries;
+    const outgoing = shown.entries[shown.entries.length - 1];
+    if (after.length === before.length + 1 && isPrefix(before, after)) {
+      pending.current = 'push';
+      currentLeaving = null;
+      currentMoving = true;
+      // Já no primeiro desenho a tela nova está fora, à direita: o valor muda aqui, durante a
+      // renderização, porque as posições das telas são calculadas nela. Num efeito, o primeiro quadro
+      // mostrava a tela nova no lugar e ela saltava para fora antes de deslizar.
+      progress.jump(0);
+    } else if (after.length < before.length && isPrefix(after, before) && outgoing) {
+      pending.current = 'pop';
+      currentLeaving = outgoing;
+      currentMoving = true;
+    } else {
+      pending.current = 'jump';
+      currentLeaving = null;
+      currentMoving = false;
+      progress.jump(1);
+    }
+    setShown({ signature: keySignature, entries });
+    setLeaving(currentLeaving);
+    setMoving(currentMoving);
+  }
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: a animação só começa quando a pilha muda de telas.
+  useLayoutEffect(() => {
+    const kind = pending.current;
+    pending.current = null;
+    if (!kind) return;
     const velocity = releaseVelocity.current;
     releaseVelocity.current = undefined;
     const transition = reduced ? FADE : { ...SPRING, velocity };
-
-    if (after.length === before.length + 1 && isPrefix(before, after)) {
-      setLeaving(null);
-      setMoving(true);
-      progress.set(0);
+    if (kind === 'push') {
       void animate(progress, 1, transition).then(() => setMoving(false));
-      return;
-    }
-    if (after.length < before.length && isPrefix(after, before) && outgoing) {
-      setLeaving(outgoing);
-      setMoving(true);
+    } else if (kind === 'pop') {
       void animate(progress, 0, transition).then(() => {
         setLeaving(null);
         setMoving(false);
         progress.set(1);
         popped.current?.();
       });
-      return;
     }
-    setLeaving(null);
-    setMoving(false);
-    progress.set(1);
   }, [keySignature]);
 
-  const top = leaving ?? entries[entries.length - 1];
+  const top = currentLeaving ?? entries[entries.length - 1];
   if (!top) throw new Error('StackSheet precisa de ao menos uma tela.');
-  const underIndex = leaving ? entries.length - 1 : entries.length - 2;
+  const underIndex = currentLeaving ? entries.length - 1 : entries.length - 2;
   const layers: StackLayers = {
     top,
-    under: (moving && entries[underIndex]) || null,
+    under: (currentMoving && entries[underIndex]) || null,
   };
 
   return {
