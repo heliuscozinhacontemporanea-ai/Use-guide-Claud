@@ -120,6 +120,14 @@ export function StackPages({
         aria-hidden="true"
         className="absolute left-1/2 top-1.5 z-20 h-1.5 w-10 -translate-x-1/2 rounded-full bg-line"
       />
+      {/* A barra vem antes das telas no código: o leitor de tela e o Tab começam pelo `<`; fica por cima pelo z-index. */}
+      <StackNavBar
+        layers={layers}
+        progress={progress}
+        dragX={dragX}
+        backLabel={backLabel}
+        onBack={onBack}
+      />
       {stack.map((entry) => {
         const role = roleOf(entry.key);
         return (
@@ -133,13 +141,6 @@ export function StackPages({
           />
         );
       })}
-      <StackNavBar
-        layers={layers}
-        progress={progress}
-        dragX={dragX}
-        backLabel={backLabel}
-        onBack={onBack}
-      />
     </div>
   );
 }

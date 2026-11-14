@@ -114,6 +114,10 @@ function SheetBody({
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Tab') {
+        keepFocusInside(sheetRef.current, e);
+        return;
+      }
       if (e.key !== 'Escape') return;
       if (entries.length > 1) onBack();
       else onClose();
@@ -122,8 +126,12 @@ function SheetBody({
     return () => window.removeEventListener('keydown', onKey);
   }, [entries.length, onBack, onClose]);
 
+  // Foco vai para a folha ao abrir e volta para quem a abriu ao fechar (DESIGN.md §11).
   useEffect(() => {
-    if (isOpen) sheetRef.current?.focus({ preventScroll: true });
+    if (!isOpen) return;
+    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    sheetRef.current?.focus({ preventScroll: true });
+    return () => opener?.focus({ preventScroll: true });
   }, [isOpen]);
 
   return (
@@ -159,6 +167,29 @@ function SheetBody({
       <RecedeVeil receded={receded} />
     </motion.div>
   );
+}
+
+const FOCUSABLE =
+  'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+/** Tab e Shift+Tab circulam dentro da folha, só entre o que está visível (as telas de trás são `inert`). */
+function keepFocusInside(sheet: HTMLElement | null, event: KeyboardEvent) {
+  if (!sheet) return;
+  const items = [...sheet.querySelectorAll<HTMLElement>(FOCUSABLE)].filter(
+    (el) => !el.closest('[inert]')
+  );
+  const first = items[0];
+  const last = items[items.length - 1];
+  if (!first || !last) return;
+  const active = document.activeElement;
+  const outside = !(active instanceof Node) || !sheet.contains(active) || active === sheet;
+  if (event.shiftKey && (outside || active === first)) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && (outside || active === last)) {
+    event.preventDefault();
+    first.focus();
+  }
 }
 
 function RecedeVeil({ receded }: { receded: boolean }) {
