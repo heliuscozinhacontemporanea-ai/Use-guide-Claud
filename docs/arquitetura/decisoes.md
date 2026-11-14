@@ -493,3 +493,17 @@ Aprovada pelo responsável do produto em 2026-11-13 (solicitação S19 e propost
 * **HTML depois de uma publicação (aprovado em 2026-11-13):** o HTML das páginas de conteúdo continua com `s-maxage=300` na CDN (abertura rápida, menos partidas a frio do Cloud Run, robôs de busca). Se uma cópia antiga apontar para arquivos do app que não existem mais, o script `stale-html-guard` do `index.html` recarrega a página uma vez com `_v` no endereço (fura o cache e traz o HTML novo; o `_v` sai da barra antes de o app abrir); a recarga das telas sob demanda usa o mesmo `_v`. Sem ciclo: uma recarga por aba até o app abrir. Na próxima publicação, medir se a CDN já limpa esse HTML (cabeçalhos de `/eventos` antes e depois da subida do Hosting); se não limpar, propor `s-maxage=60`. **Medido em 2026-11-13:** a CDN não guardava esse HTML (`private`, `x-cache: MISS` sempre) por causa da afinidade de sessão do Cloud Run (`run.googleapis.com/sessionAffinity`, herança do AI Studio), que põe o cookie `GAESA` em toda resposta. Aprovado e publicado no PR #20: o script de publicação tira a anotação; desde então `/eventos` chega `public, max-age=0, s-maxage=300`, sem `GAESA`, com `x-cache: HIT` a partir da segunda visita.
 * **Referência do texto anexado pelo responsável (dicas de fluidez):** adotados divisão por rota, pré-carregamento, estrutura antes dos dados, animar só propriedades compostas, resposta otimista restrita, imagens e fontes; não adotados por ora `ViewTransition`/`AnimateView` (duplicam a linguagem aprovada) e `@tanstack/react-virtual` (listas já paginadas). Instância mínima do Cloud Run e `web-vitals` ficam para decisão própria (custo e dependência nova).
 
+## D33 — Movimento, gestos e folha do perfil (2026-11-14)
+
+Aprovada pelo responsável do produto em 2026-11-14, a partir do vídeo de referência e de quatro versões da prévia (`docs/design/movimento-2026-11/`). Atualiza o DESIGN.md (§2.1, §8, §9.1, §9 regras, P10, P18, P20).
+
+* **Mola padrão:** abrir página, voltar e abrir/fechar folha usam uma mola criticamente amortecida, sem quique, ω = 18,4/s (`stiffness 340, damping 37`), medida na referência com erro de 0,1–0,2%. Substitui os 280 ms com `cubic-bezier(0.32, 0.72, 0, 1)` e o vídeo `piloto-movimento.mp4`.
+* **Página (push):** a nova entra da direita; a anterior recua 26% com o véu `recede`.
+* **Folha:** sobe da base; o fundo vira cartão (escala 0,9, cantos de 12 px, véu `recede`, preto atrás). Sem desfoque atrás das folhas.
+* **Token `recede`:** no claro escurece 12%; no escuro **clareia** 10%, para destacar do preto (pedido do responsável).
+* **Barra do topo da folha:** `<` em todas as telas, na mesma altura e parado (na primeira tela, fecha a folha); título centralizado em `text-title`, entrando e saindo junto com a página.
+* **Gestos:** arrastar para baixo, de qualquer ponto e em qualquer tela, fecha a folha inteira (o conteúdo que rola tem prioridade); arrastar da esquerda para a direita volta uma tela, de qualquer ponto **menos começando em cima de botão** (ali não faz nada); arraste de mais de 8 px cancela o toque; todo gesto tem alternativa no `<`.
+* **Reduzir movimento:** o automático troca com esmaecido de 150 ms; o que o dedo arrasta continua seguindo o dedo.
+* **Perfil:** o menu do perfil abre como folha de baixo (substitui o menu lateral da D19; conteúdo igual), com o título "Perfil" na primeira tela.
+* **Aplicação:** primeiro o trajeto Perfil → Configurações → Idioma no app, gravado para conferência; depois as demais telas do menu e as outras folhas e páginas empilhadas, antes de publicar.
+

@@ -1,7 +1,7 @@
 # DESIGN.md — Design System do Use Guide
 
 > Versão 1.0 · aprovado pelo responsável do produto em 2026-11-13 (solicitação S19, decisão D32). Substitui o antigo §11 do AGENTS.md.
-> Legenda: **✅** = regra que já valia antes deste documento (AGENTS.md §11 ou decisões D17, D19, D21, D26, painel por segmento) · **P#** = regra aprovada com este documento, em 2026-11-13 · **⚠️** = o código ainda diverge da regra; a correção está no débito indicado (`docs/arquitetura/debitos.md`) e acontece ao tocar o arquivo ou no item de trabalho próprio.
+> Legenda: **✅** = regra que já valia antes deste documento (AGENTS.md §11 ou decisões D17, D19, D21, D26, painel por segmento) · **P#** = regra aprovada com este documento, em 2026-11-13 · **D33** = linguagem de movimento, gestos e folha do perfil, aprovados em 2026-11-14 a partir do vídeo de referência · **⚠️** = o código ainda diverge da regra; a correção está no débito indicado (`docs/arquitetura/debitos.md`) e acontece ao tocar o arquivo ou no item de trabalho próprio.
 > Palavras-chave **DEVE / NÃO DEVE / DEVERIA / PODE** como no AGENTS.md (RFC 2119).
 
 ---
@@ -46,6 +46,7 @@ Sempre pelos tokens (`bg-app`, `text-ink`, `bg-surface`, `border-line`…). Nunc
 | `sheet-card` / `sheet-card-line` | bloco dentro da folha | branco 4%, sem borda | `#faf6ee` com borda 12% |
 | `line` (`border-line`) | borda e divisória | branco 8% | tinta 12% |
 | `scrim` | véu atrás de folhas | preto 70% | tinta 35% |
+| `recede` | véu do que fica para trás numa troca de tela (fundo que vira cartão, página anterior) | **clareia**: branco 10% | **escurece**: preto 12% |
 | `on-fill` | texto sobre botão colorido | `#fff8f0` | `#fff8f0` |
 
 ### 2.2. Cores com significado ✅
@@ -222,6 +223,8 @@ Antes de criar um componente visual genérico, o agente DEVE procurar nesta list
 ## 8. Padrões de tela ✅
 
 * **Topo:** `BackButton` (chevron) à esquerda, título da tela, no máximo uma ação em ícone à direita. Barra fixa com vidro só quando o conteúdo rola por baixo.
+* **Topo de uma folha com várias telas (D33):** barra fixa da folha, fora das páginas: `<` à esquerda em **todas** as telas, na mesma altura (na primeira, fecha a folha), título centralizado em `text-title` (cortado com reticências entre o `<` e a ação da direita) e no máximo uma ação em ícone à direita.
+* **Perfil (D33):** o menu do perfil abre como folha de baixo, com o fundo virando cartão (substitui o menu lateral da D19; o conteúdo continua o mesmo). A primeira tela da folha tem o título "Perfil".
 * **Cartão:** foto ou ícone, o que é (título), quando (linha `meta`), identificador discreto logo abaixo do nome (ex.: código do pedido), e no máximo uma linha separada por divisória com o que fazer agora.
 * **Listas longas e filas:** lista compacta (título, contexto, status, valor); detalhe e decisão na folha.
 * **Abas no lugar de listas longas** (ex.: Próximas / Anteriores), com `SegmentedControl`. Trocar de aba não desliza.
@@ -235,15 +238,17 @@ Antes de criar um componente visual genérico, o agente DEVE procurar nesta list
 
 ## 9. Movimento, gestos e navegação
 
-### 9.1. Linguagem de movimento ✅ (painel por segmento, vídeo `piloto-movimento.mp4`, D17)
+### 9.1. Linguagem de movimento (aprovada em 2026-11-14, D33)
 
-> ⏳ **A substituir:** o responsável do produto vai mandar vídeos novos de referência. Quando chegarem, eles substituem o piloto e esta tabela é refeita a partir deles (durações, curvas e molas). Até lá, vale a tabela abaixo.
+Medida quadro a quadro no vídeo de referência do responsável do produto (`docs/design/movimento-2026-11/`): abrir página, voltar e abrir a folha seguem a **mola padrão** — criticamente amortecida, sem quique, ω = 18,4/s (`motion`: `stiffness: 340, damping: 37, mass: 1`), metade do caminho em ~75 ms, 90% em ~200 ms e parada em ~350 ms. Em CSS, a mola é a função `linear()` gerada de `src/ui/motion/tokens.ts`, com `cubic-bezier(0.25, 1, 0.5, 1)` em 440 ms como reserva.
 
-| O quê | Como | Duração e curva |
+| O quê | Como | Tempo |
 |---|---|---|
-| Abrir página (push) | entra da direita sobre a anterior, que recua um pouco e escurece | 280 ms, `cubic-bezier(0.32, 0.72, 0, 1)` |
-| Voltar | o inverso | 280 ms, mesma curva |
-| Folha | sobe da borda inferior; sai descendo | 280 ms entrada / 220 ms saída, mesma curva |
+| Abrir página (push) | a nova entra da direita (100% → 0); a anterior recua 26% para a esquerda e recebe o véu `recede` | mola padrão |
+| Voltar | o inverso | mola padrão |
+| Folha (abrir) | sobe da borda inferior até logo abaixo da área segura; o fundo vira **cartão**: escala 0,9, desce até a área segura, cantos de 12 px (`rounded-control`) e véu `recede`, com preto atrás | mola padrão |
+| Folha (fechar) | desce; o fundo volta ao tamanho e perde o véu | mola padrão (pelo arraste, com a velocidade do dedo) |
+| Barra do topo da folha | o `<` fica parado, na mesma altura em todas as telas; o título, centralizado (`text-title`), entra e sai junto com a página, no mesmo movimento | o da página |
 | Diálogo (do `sm:`) | aparece com escala de 0,96 e fade | 200 ms entrada / 150 ms saída, `cubic-bezier(0.2, 0.8, 0.2, 1)` |
 | Véu e fade | opacidade | 180 ms entrada / 150 ms saída |
 | Trocar de aba | sem deslizar; o conteúdo troca na hora | — |
@@ -254,25 +259,28 @@ Regras ✅:
 * Saída pelo `data-state` do Radix.
 * **Um efeito por propriedade em cada elemento:** não somar `press` com `whileTap`, `whileHover` ou `active:scale-*`.
 * Animar só `scale`, `translate` e `opacity`. Nunca `transform` em elemento já centralizado por `transform`.
-* "Reduzir movimento": `MotionConfig reducedMotion="user"` na raiz (já existe) e `motion-reduce:animate-none` nas animações CSS. Com ele ligado, nada se move; só aparece.
+* "Reduzir movimento" (D33): `MotionConfig reducedMotion="user"` na raiz (já existe). Com ele ligado, o que é automático (abrir página, voltar, abrir e fechar folha) troca com **esmaecido de 150 ms**, sem deslizar nem mudar de escala; o que a própria pessoa arrasta continua seguindo o dedo e, ao soltar, termina com o esmaecido.
+* Sem desfoque atrás das folhas (D33): o véu `scrim` basta e pesa menos no celular.
 * Ao abrir um diálogo o foco vai para o diálogo, sem anel num botão que a pessoa não tocou.
 
 **P9 — Animar só o que o navegador compõe barato:** proibido animar `width`, `height`, `top`, `left`, `margin` e `padding`, porque essas animações engasgam no celular. Para expandir e recolher, usar `grid-template-rows` ou o `layout` do motion. ⚠️ A barra do leitor da portaria anima `top`; trocar por `translate`.
 
-**P10 — Movimento num lugar só:** duração e curva vêm de `src/ui/motion/tokens.ts` com `DURATION` e `EASE`, e um componente `PushPage` no design system. Ninguém mais escreve duração ou curva solta. ⚠️ Hoje a entrada de página está copiada em `PartnersModal`, `ListingDetailPage` e `MyBookingsView` (B50).
+**P10 — Movimento num lugar só:** mola, duração e curva vêm de `src/ui/motion/tokens.ts` (`SPRING`, `DURATION`, `EASE`, `RECEDE`), e as peças `PushStack` (páginas com barra do topo fixa) e `StackSheet` (folha com o fundo virando cartão) ficam no design system. Ninguém mais escreve duração ou curva solta. ⚠️ Hoje a entrada de página está copiada em `PartnersModal`, `ListingDetailPage` e `MyBookingsView` (B50).
 
 ### 9.2. Gestos
 
 **P18 — Gestos de app nativo.**
 
-* **Folha:** fecha arrastando para baixo, pela alça ou pelo topo da folha; o conteúdo da folha rola normalmente e só fecha arrastando quando já está no topo. Solta antes de um terço da altura (e devagar), a folha volta; passou disso ou foi um arraste rápido, fecha.
-* **Página aberta por cima (push):** volta deslizando a partir da borda esquerda; a página acompanha o dedo e a anterior aparece por baixo, como no iPhone. Solta antes da metade (e devagar), ela volta para o lugar.
+* **Folha (D33):** arrastar para baixo de **qualquer ponto da folha**, em qualquer tela da pilha, fecha a folha inteira; na próxima abertura ela começa da primeira tela. O conteúdo que rola tem prioridade: só fecha arrastando quando ele já está no topo. Solta antes de um terço da altura (e devagar), a folha volta; passou disso ou foi um arraste rápido, fecha. Para cima, estica um pouco com resistência.
+* **Página aberta por cima (push) (D33):** arrastar da esquerda para a direita volta uma tela, de **qualquer ponto da tela, menos começando em cima de um botão** (ali o arrasto não faz nada: nem volta, nem aciona o botão). A página acompanha o dedo e a anterior aparece por baixo. Solta antes da metade (e devagar), ela volta para o lugar. O que rola para o lado (carrossel, mapa, recorte de foto) tem prioridade sobre o gesto.
 * Durante o arraste o véu e a página de trás acompanham a posição do dedo.
-* No Safari aberto no navegador (fora do app instalado), o gesto da borda é do próprio navegador e vira "voltar" pelo histórico (P19); o nosso gesto de borda vale no app instalado e no Android.
-* Com "reduzir movimento", o gesto continua funcionando, mas sem a página acompanhar o dedo: soltou, fecha ou volta sem animação.
+* Movimento de mais de 8 px vira arraste e cancela o toque: arrastar nunca aciona o que estava embaixo do dedo.
+* No Safari aberto no navegador (fora do app instalado), o arrasto que começa bem na borda é do próprio navegador e vira "voltar" pelo histórico (P19), com o mesmo resultado.
+* Com "reduzir movimento" (D33), o gesto continua seguindo o dedo (é a própria pessoa que move); ao soltar, termina com o esmaecido de 150 ms.
+* Todo gesto tem alternativa em botão: o `<` em todas as telas volta uma tela e, na primeira, fecha a folha.
 * ⚠️ Hoje só o menu lateral fecha arrastando (`useSwipeToClose`); as folhas (`Dialog`) e as páginas não.
 
-**P20 — Mola no que o dedo conduz.** Movimento comandado pelo dedo (arrastar folha, voltar pela borda, puxar para atualizar) termina com mola e herda a velocidade do dedo; pode ser interrompido no meio (tocar de novo segura a página onde está). O que abre por toque segue a tabela 9.1. Os valores de mola saem dos vídeos novos.
+**P20 — Mola no que o dedo conduz.** Movimento comandado pelo dedo (arrastar folha, voltar pela borda, puxar para atualizar) termina com mola e herda a velocidade do dedo; pode ser interrompido no meio (tocar de novo segura a página onde está). O que abre por toque segue a tabela 9.1, com a mesma mola padrão.
 
 ### 9.3. Navegação e voltar
 
