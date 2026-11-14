@@ -140,7 +140,7 @@ Cada uma tem texto (`text-x`), fundo suave (`bg-x-soft`) e borda (`border-x-line
 
 * Cartão sólido (`bg-surface border border-line`), borda e sombra quase invisíveis. No claro, sombra de 1 px.
 * **Vidro (desfoque) só em barras fixas e em folhas sobre o conteúdo.** Nunca em cartão de lista.
-* Folhas: fundo `bg-sheet` e blocos `bg-sheet-card border border-sheet-card-line` (D26).
+* Folhas: fundo `bg-sheet` e blocos `bg-sheet-card border border-sheet-card-line` (D26). A folha em pilha do Perfil (D33), que ocupa a tela inteira, usa o fundo das telas (`bg-app`), com cartões `bg-surface`.
 
 ### 5.2. Cantos
 

@@ -19,7 +19,6 @@ import {
   SHEET_CLOSE_VELOCITY,
   SPRING,
 } from '../../motion/tokens';
-import { StackPageKeyContext } from './stackPageAction';
 import { NAV_BAR_HEIGHT, StackNavBar } from './StackNavBar';
 import type { StackEntry } from './stackTypes';
 import { useStackGestures } from './useStackGestures';
@@ -178,7 +177,7 @@ function PageLayer({
         opacity: reduced ? fade : 1,
       }}
       className={cn(
-        'absolute inset-0 overflow-y-auto overscroll-contain no-scrollbar bg-sheet',
+        'absolute inset-0 overflow-y-auto overscroll-contain no-scrollbar bg-app',
         role === 'hidden' && 'invisible',
         role === 'top' && 'shadow-[-8px_0_24px_rgba(0,0,0,0.12)]'
       )}
@@ -187,9 +186,7 @@ function PageLayer({
         style={{ paddingTop: entry.navBar ? NAV_BAR_HEIGHT + 8 : 28 }}
         className="min-h-full flex flex-col px-6 sm:px-8 pb-[calc(env(safe-area-inset-bottom,0px)+2rem)]"
       >
-        <StackPageKeyContext.Provider value={entry.key}>
-          {entry.render()}
-        </StackPageKeyContext.Provider>
+        {entry.render()}
       </div>
       {role === 'under' && (
         <motion.div

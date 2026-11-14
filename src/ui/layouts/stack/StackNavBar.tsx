@@ -23,14 +23,14 @@ export function StackNavBar({ layers, progress, dragX, backLabel, onBack }: Stac
   const { top, under } = layers;
   if (!top.navBar && !under?.navBar) return null;
   return (
-    <div className="absolute inset-x-0 top-0 z-10 bg-sheet" style={{ height: NAV_BAR_HEIGHT }}>
+    <div className="absolute inset-x-0 top-0 z-10 bg-app" style={{ height: NAV_BAR_HEIGHT }}>
       <button
         type="button"
         onClick={onBack}
         aria-label={backLabel}
-        className="press absolute left-2 top-1.5 z-10 w-11 h-11 rounded-full flex items-center justify-center text-ink/80 hover:bg-ink/[0.06] focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none"
+        className="press absolute left-2 top-1.5 z-10 w-11 h-11 rounded-full flex items-center justify-center text-ink hover:bg-ink/[0.06] focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none"
       >
-        <ChevronLeft size={26} strokeWidth={2.25} aria-hidden="true" />
+        <ChevronLeft size={24} strokeWidth={2.25} aria-hidden="true" />
       </button>
       {under?.navBar && <NavLayer entry={under} progress={progress} role="under" />}
       {under && <BarRecede progress={progress} dragX={dragX} />}
@@ -112,13 +112,9 @@ function NavAction({
       onClick={action.onClick}
       aria-label={action.label}
       style={{ x, opacity }}
-      className="press absolute right-2 top-1.5 w-11 h-11 rounded-full flex items-center justify-center text-ink/80 hover:bg-ink/[0.06] focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none"
+      className="press absolute right-2 top-1.5 w-11 h-11 rounded-full flex items-center justify-center text-ink hover:bg-ink/[0.06] focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none"
     >
-      <Icon
-        size={22}
-        aria-hidden="true"
-        className={action.busy ? 'animate-spin motion-reduce:animate-none' : undefined}
-      />
+      <Icon size={24} aria-hidden="true" />
     </motion.button>
   );
 }

@@ -1,10 +1,8 @@
-import { RefreshCw } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ListEmpty, ListError, ListLoading } from '../../../ui/components/ListState';
 import { SegmentedControl } from '../../../ui/components/SegmentedControl';
 import { StatusText } from '../../../ui/components/StatusText';
-import { useStackPageAction } from '../../../ui/layouts/stack/stackPageAction';
 import { useTicketWalletActions } from '../hooks/useTicketWalletActions';
 import { useUserTicketsAndOrders } from '../hooks/useUserTickets';
 import type { Ticket } from '../types/ticketing';
@@ -19,8 +17,8 @@ function endsAtOf(ticket: Ticket): number {
 
 /**
  * Ingressos do comprador por tempo (Próximos e Anteriores), com QR Code e transferência. Pagar,
- * cancelar e relatar ficam em Configurações › Compras. O título e o "atualizar" ficam na barra fixa
- * da folha do perfil (D33).
+ * cancelar e relatar ficam em Configurações › Compras. O título fica na barra fixa da folha do
+ * perfil (D33).
  */
 export function UserTicketsHistoryView() {
   const { t } = useTranslation();
@@ -32,12 +30,16 @@ export function UserTicketsHistoryView() {
   const upcoming = tickets.filter((ticket) => endsAtOf(ticket) > now.getTime());
   const past = tickets.filter((ticket) => endsAtOf(ticket) <= now.getTime());
   const shown = tab === 'upcoming' ? upcoming : past;
-  useStackPageAction({
-    label: t('ticketWallet.refresh'),
-    icon: RefreshCw,
-    busy: loading,
-    onClick: () => void reload(),
-  });
+
+  // A lista vem da API ao abrir (ingresso é dado privado, AGENTS.md §6.2). Ingresso que chega com a tela
+  // aberta (transferência, Pix confirmado) aparece quando a pessoa volta ao app.
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') void reload();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, [reload]);
 
   return (
     <div className="space-y-4">
@@ -59,7 +61,7 @@ export function UserTicketsHistoryView() {
         </p>
       )}
 
-      {error && <ListError message={error} onRetry={() => void reload()} />}
+      {error && <ListError message={t('ticketWallet.loadError')} onRetry={() => void reload()} />}
 
       {loading && tickets.length === 0 ? (
         <ListLoading label={t('ticketWallet.loading')} />

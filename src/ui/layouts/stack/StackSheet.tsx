@@ -1,5 +1,5 @@
 import { animate, motion, useMotionValue, useReducedMotion, useTransform } from 'motion/react';
-import { type ReactNode, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { type ReactNode, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Z_INDEX } from '../../../shared/constants/zIndex';
 import { cn } from '../../../shared/utils/cn';
@@ -7,8 +7,7 @@ import { readSafeAreaTop } from '../../motion/safeAreaTop';
 import { stackSheetProgress } from '../../motion/stackSheetProgress';
 import { CARD_PEEK_PX, FADE, SPRING } from '../../motion/tokens';
 import { StackPages } from './StackPages';
-import { StackActionsContext } from './stackPageAction';
-import type { StackAction, StackEntry } from './stackTypes';
+import type { StackEntry } from './stackTypes';
 
 export interface StackSheetProps {
   isOpen: boolean;
@@ -30,7 +29,8 @@ export interface StackSheetProps {
 
 /**
  * Folha em pilha (DESIGN.md §9.1, D33): sobe da base com a mola padrão e o fundo do app vira cartão
- * (`stackSheetProgress`). Dentro, as telas se empilham com a barra do topo fixa e os gestos da P18.
+ * (`stackSheetProgress`). Dentro, as telas se empilham com a barra do topo fixa e os gestos da P18. O
+ * fundo é o das telas (`bg-app`), para os cartões terem o mesmo contraste do resto do app (§5.1).
  */
 export function StackSheet(props: StackSheetProps) {
   const { isOpen } = props;
@@ -78,20 +78,6 @@ function SheetBody({
   onDismissDrag,
 }: StackSheetProps & { onDismissDrag: (velocity: number) => void }) {
   const reduced = useReducedMotion();
-  const [pageActions, setPageActions] = useState<Record<string, StackAction>>({});
-  const setPageAction = useCallback((key: string, action: StackAction | null) => {
-    setPageActions((current) => {
-      if (!action) {
-        if (!(key in current)) return current;
-        const { [key]: _removed, ...rest } = current;
-        return rest;
-      }
-      return { ...current, [key]: action };
-    });
-  }, []);
-  const stackEntries = entries.map((entry) =>
-    entry.action || !pageActions[entry.key] ? entry : { ...entry, action: pageActions[entry.key] }
-  );
   const [safeTop] = useState(() => readSafeAreaTop());
   const top = Math.max(safeTop, 16) + CARD_PEEK_PX;
   const sheetRef = useRef<HTMLDivElement>(null);
@@ -146,22 +132,20 @@ function SheetBody({
       transition={reduced ? FADE : SPRING}
       className={cn(
         'fixed inset-x-0 bottom-0 mx-auto w-full max-w-[480px] flex flex-col overflow-hidden rounded-t-3xl outline-none origin-top',
-        takeover ? 'bg-black' : 'bg-sheet text-ink'
+        takeover ? 'bg-black' : 'bg-app text-ink'
       )}
     >
       {takeover ?? (
-        <StackActionsContext.Provider value={setPageAction}>
-          <StackPages
-            sheetRef={sheetRef}
-            entries={stackEntries}
-            backLabel={entries.length > 1 ? labels.back : labels.close}
-            onBack={entries.length > 1 ? onBack : onClose}
-            sheetHeight={height}
-            dragY={dragY}
-            onDismissDrag={onDismissDrag}
-            onPopped={onPopped}
-          />
-        </StackActionsContext.Provider>
+        <StackPages
+          sheetRef={sheetRef}
+          entries={entries}
+          backLabel={entries.length > 1 ? labels.back : labels.close}
+          onBack={entries.length > 1 ? onBack : onClose}
+          sheetHeight={height}
+          dragY={dragY}
+          onDismissDrag={onDismissDrag}
+          onPopped={onPopped}
+        />
       )}
       {overlay}
       <RecedeVeil receded={receded} />

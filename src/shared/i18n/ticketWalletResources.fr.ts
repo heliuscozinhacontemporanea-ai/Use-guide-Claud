@@ -3,7 +3,7 @@ import type { TicketWalletTranslation } from './ticketWalletResources';
 export const ticketWalletFr: TicketWalletTranslation = {
   title: 'Billets',
   tabsLabel: 'Billets par date',
-  refresh: 'Actualiser les billets',
+  loadError: 'Impossible de charger vos billets.',
   loading: 'Chargement de vos billets…',
   tabs: { upcoming: 'À venir ({{count}})', past: 'Passés ({{count}})' },
   emptyUpcoming: 'Aucun billet pour les prochains événements.',
