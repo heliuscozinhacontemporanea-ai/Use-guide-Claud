@@ -7,6 +7,7 @@ import { DropdownMenu } from '../../../../ui/components/DropdownMenu';
 import { ListCard, ListRowButton, ListRowStatic } from '../../../../ui/components/ListRows';
 import { ListEmpty, ListError, ListLoading } from '../../../../ui/components/ListState';
 import { SegmentedControl } from '../../../../ui/components/SegmentedControl';
+import { useStackPageSettled } from '../../../../ui/layouts/stack/stackPageSettled';
 import { usePartnerReports } from '../../hooks/usePartnerReports';
 import type { PartnerReportPeriod, PartnerReports } from '../../types/partnerHome';
 import { DEFAULT_UNIT, groupReportBuckets, type ReportUnit } from '../../utils/reportGrouping';
@@ -81,6 +82,8 @@ export function PartnerReportsPage({ onOpenProfile }: { onOpenProfile: () => voi
   const [chosenUnit, setChosenUnit] = useState<ReportUnit | null>(null);
   const unit = chosenUnit ?? DEFAULT_UNIT[period];
   const { data, loading, error, reload } = usePartnerReports(period);
+  // O gráfico e as listas esperam a página parar de deslizar (D33): desenhá-los no meio travava um quadro.
+  const settled = useStackPageSettled();
 
   return (
     <div className="space-y-5">
@@ -96,7 +99,7 @@ export function PartnerReportsPage({ onOpenProfile }: { onOpenProfile: () => voi
           label: t(`partnerEarnings.reports.periods.${value}`),
         }))}
       />
-      {loading && !data ? (
+      {(loading && !data) || !settled ? (
         <ListLoading label={t('partnerEarnings.reports.title')} />
       ) : error || !data ? (
         <ListError message={t('partnerEarnings.reports.loadError')} onRetry={() => void reload()} />

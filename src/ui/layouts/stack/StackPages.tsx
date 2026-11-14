@@ -30,6 +30,7 @@ import {
 } from '../../motion/tokens';
 import { NAV_BAR_HEIGHT, StackNavBar } from './StackNavBar';
 import { StackPageActionContext } from './stackPageAction';
+import { createStackPageSettledStore, StackPageSettledContext } from './stackPageSettled';
 import type { StackAction, StackEntry } from './stackTypes';
 import { useStackGestures } from './useStackGestures';
 import { useStackTransition } from './useStackTransition';
@@ -214,6 +215,9 @@ function PageLayer({
   onAction: (key: string, action: StackAction | null) => void;
 }) {
   const reduced = useReducedMotion();
+  // Parada no lugar quando não é a de cima em movimento; avisa as páginas só na primeira vez.
+  const [settled] = useState(() => createStackPageSettledStore(role !== 'top'));
+  useEffect(() => settled.set(role !== 'top'), [settled, role]);
   const setAction = useMemo(
     () => (action: StackAction | null) => onAction(entry.key, action),
     [onAction, entry.key]
@@ -246,16 +250,18 @@ function PageLayer({
       )}
     >
       <StackPageActionContext.Provider value={setAction}>
-        {entry.bare ? (
-          <PageContent render={entry.render} />
-        ) : (
-          <div
-            style={{ paddingTop: entry.navBar ? NAV_BAR_HEIGHT + 8 : 28 }}
-            className="min-h-full flex flex-col px-6 sm:px-8 pb-[calc(env(safe-area-inset-bottom,0px)+2rem)]"
-          >
+        <StackPageSettledContext.Provider value={settled}>
+          {entry.bare ? (
             <PageContent render={entry.render} />
-          </div>
-        )}
+          ) : (
+            <div
+              style={{ paddingTop: entry.navBar ? NAV_BAR_HEIGHT + 8 : 28 }}
+              className="min-h-full flex flex-col px-6 sm:px-8 pb-[calc(env(safe-area-inset-bottom,0px)+2rem)]"
+            >
+              <PageContent render={entry.render} />
+            </div>
+          )}
+        </StackPageSettledContext.Provider>
       </StackPageActionContext.Provider>
       {role === 'under' && (
         <motion.div
