@@ -810,7 +810,8 @@ npm run test:rules  # quando firestore.rules mudar (emulador)
 2. lista de arquivos criados/alterados/removidos;
 3. resultado dos gates (§16.1);
 4. variáveis de ambiente, índices, regras ou configurações do Stripe/Firebase que o usuário precisa aplicar;
-5. débitos criados ou resolvidos (`docs/arquitetura/debitos.md`).
+5. débitos criados ou resolvidos (`docs/arquitetura/debitos.md`);
+6. tabela da verificação obrigatória por arquivo tocado (§18 e `DESIGN.md` §16).
 
 ---
 
@@ -830,3 +831,237 @@ npm run test:rules  # quando firestore.rules mudar (emulador)
 - [ ] Nenhum texto fixo; chaves nos 3 idiomas; moeda/data com `Intl` no fuso do estabelecimento (§12)
 - [ ] Um UseCase por arquivo; arquivo grande dividido ao tocar (§13)
 - [ ] Gates de qualidade verdes (§16.1)
+- [ ] Verificação obrigatória registrada por arquivo tocado (§18)
+
+---
+
+## 18. Verificação obrigatória
+
+Ao tocar qualquer arquivo do escopo (§0.2), o agente DEVE passar por **todas** as determinações abaixo. Cada uma diz quando se aplica, o que verificar e qual prova vai na entrega. As verificações de aparência, movimento, interação e fluidez estão no `DESIGN.md` §16; um arquivo de tela passa pelas duas listas. O §17 é o resumo; esta seção é a verificação completa.
+
+**Como aplicar:**
+
+1. Para cada arquivo tocado, cada determinação recebe um de três resultados: **ok** (verificado, com a prova), **não se aplica** (com o motivo em poucas palavras) ou **débito** (com o número em `docs/arquitetura/debitos.md`). Pular sem registrar é proibido.
+2. A entrega (§16.3, item 6) traz a tabela por arquivo. Determinações "não se aplica" iguais em vários arquivos PODEM ser agrupadas numa linha.
+3. O que estava errado no arquivo antes de tocá-lo também conta: ao tocar, corrige-se ou registra-se débito.
+4. Determinação que dispara o §15 (dinheiro, dados, segurança, dependência, comportamento visível, ação irreversível) para o trabalho até a resposta do responsável.
+
+### A1 · Ambientes e configuração (§2)
+
+* **Aplica-se quando:** o arquivo lê configuração, variável de ambiente, segredo ou inicializa SDK.
+* **Verificar:**
+  * Variável nova está no `.env.example`?
+  * Variável `VITE_` contém só valor público?
+  * A detecção de ambiente usa o módulo central, sem `host.includes(...)` espalhado?
+  * A importação do módulo abre conexão, lê segredo obrigatório ou lança exceção (deveria ser na primeira chamada)?
+  * Sem a integração configurada, o servidor sobe e a rota responde `503` com código estável?
+  * Funciona no desenvolvimento local (emulador, modo teste do Stripe) e em produção?
+  * Há mock, stub ou dado fictício fora de teste?
+  * Há código de compatibilidade com formato antigo antes da liberação (§2.2 item 8)?
+* **Prova:** o arquivo rodando no desenvolvimento local; trecho do `.env.example`, se mudou.
+
+### A2 · Camadas e bibliotecas (§3)
+
+* **Aplica-se quando:** o arquivo tem `import`.
+* **Verificar:**
+  * Cada biblioteca importada está permitida nessa camada (tabela do §3.2)?
+  * SDK de fornecedor só em `adapters/` (ou `adapters/ui/`)? Port expõe tipo do SDK?
+  * `server/domain/**` importa `server/application/**`? `src/ui/**` ou `src/shared/**` importa `src/domain/**`?
+  * Controller que chama Application UseCase está em `server/interfaces/http/`?
+* **Prova:** lista dos imports novos e a camada de cada um.
+
+### A3 · Comunicação entre domínios (§5)
+
+* **Aplica-se quando:** o arquivo importa algo de outro domínio, publica ou consome evento.
+* **Verificar:**
+  * O import vem só do `index.ts` do outro domínio, e é algo que o §5.2 permite exportar?
+  * Importa service, adapter, factory, controller, route, schema, context ou store de outro domínio?
+  * Acessa coleção do Firestore de outro domínio?
+  * A nova seta `A → B` cria caminho `B → … → A` (grafo do §5.4)?
+  * Efeito colateral que não pode se perder usa outbox?
+  * `index.ts` reexporta route ou controller?
+* **Prova:** a seta nova e a confirmação de que não há caminho de volta.
+
+### A4 · Leitura e escrita (§6)
+
+* **Aplica-se quando:** o arquivo lê ou grava no Firestore ou no Storage, ou chama a API.
+* **Verificar:**
+  * O frontend faz `setDoc`, `addDoc`, `updateDoc`, `deleteDoc`, `writeBatch`, `runTransaction` ou `uploadBytes`?
+  * Leitura direta do cliente é de dado público ou do próprio usuário, com regra em `firestore.rules` e teste?
+  * O documento lido pelo cliente é projeção pública, sem PII de terceiros nem dado financeiro?
+  * Toda escuta tem `limit()` e é cancelada no `unmount`?
+  * Paginação por cursor, nunca por `offset`?
+  * Query composta tem índice em `firestore.indexes.json`?
+* **Prova:** a regra e o teste da coleção; o índice, se novo.
+
+### A5 · Rota e autorização (§7.1–§7.4, §7.10)
+
+* **Aplica-se quando:** o arquivo cria ou altera rota, controller, middleware ou UseCase chamado por rota.
+* **Verificar:**
+  * A rota tem App Check (exceto webhook, health e job interno), `verifyIdToken` (com `checkRevoked` em operação sensível) e checagem de posse ou papel?
+  * O papel vem de claim ou do servidor, nunca do body?
+  * `body`, `params` e `query` passam por `safeParse`? Falha devolve `400 VALIDATION_ERROR`?
+  * O DTO de entrada é allowlist? Campos como `isAdmin`, `status`, `price`, `ownerId` vêm do cliente?
+  * Rota pública, de autenticação ou de pagamento tem rate limit em armazenamento compartilhado?
+  * Há teste de IDOR (usuário A no recurso de B → `403`/`404`)?
+  * Ação de admin, preço, reembolso ou papel grava log de auditoria?
+* **Prova:** os testes de autorização e de IDOR.
+
+### A6 · Dados novos, criptografia e segredos (§7.6–§7.8)
+
+* **Aplica-se quando:** o arquivo cria campo persistido, token, segredo, hash ou assinatura.
+* **Verificar:**
+  * Cada campo novo foi classificado (pública, interna, confidencial, restrita, segredo, cartão)?
+  * Dado restrito é cifrado (AES-256-GCM pelo `FieldEncryptionPort`) e buscado por blind index?
+  * Dado de cartão ou bancário fica só no Stripe?
+  * Há segredo com valor padrão escrito no código?
+  * Token opaco usa `crypto.randomBytes(≥16)` e guarda só o HMAC?
+  * Comparação de segredo usa `timingSafeEqual`?
+  * Algoritmo está na lista permitida? `crypto` só nas camadas permitidas?
+  * ID de documento, caminho, URL ou nome de arquivo contém PII?
+* **Prova:** a classe de cada campo novo.
+
+### A7 · Transferência e integrações (§7.9)
+
+* **Aplica-se quando:** o arquivo chama serviço externo ou interno, ou recebe chamada de um.
+* **Verificar:**
+  * Tem timeout (`AbortSignal.timeout`)? Retry só em operação idempotente?
+  * Faz requisição para URL vinda do usuário (SSRF)?
+  * Desativa validação de certificado?
+  * Responde `Access-Control-Allow-Origin: *`?
+  * A resposta é montada por allowlist, sem devolver o documento inteiro?
+  * Envia PII para fora? Origem nova foi adicionada à CSP?
+* **Prova:** o timeout e o DTO de saída.
+
+### A8 · Privacidade — LGPD (§7.5)
+
+* **Aplica-se quando:** o arquivo lida com dado pessoal ou cria coleção ligada a usuário.
+* **Verificar:**
+  * Coleta só o necessário?
+  * PII aparece em log, metadata do Stripe, analytics ou URL?
+  * A exclusão de conta (`deleteUserAccountApplicationUseCase`) cobre a coleção nova, anonimizando o que tem retenção legal?
+  * A exportação dos dados do usuário inclui a coleção nova?
+* **Prova:** o trecho da exclusão que cobre a coleção.
+
+### A9 · Dinheiro (§1, §8)
+
+* **Aplica-se quando:** o arquivo lida com preço, taxa, pagamento, repasse, reembolso, multa ou plano.
+* **Verificar:**
+  * Valor em centavos (`MoneyMinor`), nunca `number` com casas decimais?
+  * Preço e taxa recalculados no backend, nunca vindos do cliente?
+  * Chamada de escrita ao Stripe tem `idempotencyKey` determinística? `metadata` só com IDs?
+  * O estado só muda pelo webhook (fonte da verdade), com idempotência em duas fases?
+  * Refund `pending`/`requires_action` é tratado como aprovado?
+  * Pix só para serviço até 80 dias?
+  * Transferência só depois do fim do serviço + 48 h?
+  * A mudança afeta preço, taxa, repasse, reembolso ou merchant of record (então §15)?
+* **Prova:** testes do service com gateway fake e do webhook.
+
+### A10 · Datas e fuso (§1, §12.4)
+
+* **Aplica-se quando:** o arquivo grava, calcula ou exibe data e hora.
+* **Verificar:**
+  * Persistido em UTC?
+  * Exibido no fuso do estabelecimento (`timeZone`), com o fuso indicado quando a pessoa está em outro?
+  * Contas da plataforma usam `America/Sao_Paulo`?
+* **Prova:** teste com fuso diferente do da máquina.
+
+### A11 · Regras do marketplace (§9)
+
+* **Aplica-se quando:** o arquivo é do catálogo, eventos, ingressos, reservas, avaliações ou SEO.
+* **Verificar:**
+  * Passeio, aluguel, translado ou entrada ficou fora de `ticketing` e de `guide` (é `bookings`)?
+  * Estoque e capacidade com transação e reserva com expiração?
+  * Avaliação: uma por usuário por item; agregado atualizado em transação; parceiro não altera avaliação de terceiro?
+  * Página indexável tem título, descrição, canonical, Open Graph, `hreflang` e JSON-LD?
+* **Prova:** o teste da regra.
+
+### A12 · API, erros e logs (§10)
+
+* **Aplica-se quando:** o arquivo responde HTTP, lança erro para o cliente ou escreve log.
+* **Verificar:**
+  * Recurso no plural, verbo e status semânticos (`201`, `204`)?
+  * Criação com efeito financeiro aceita `Idempotency-Key`?
+  * Erro no formato `{ error: { code, message, requestId } }`, com `code` estável e sem stack, mensagem do SDK ou detalhe interno?
+  * Log estruturado com `severity`, `requestId`, `domain` e `operation`, sem token, PII, `clientSecret` ou payload de webhook?
+* **Prova:** teste do controller com o status e o formato do erro.
+
+### A13 · Idiomas (§12)
+
+* **Aplica-se quando:** o arquivo tem texto que alguém vê ou ouve (JSX, toast, schema, `aria-label`, `alt`, `title`, e-mail, notificação, PDF), formata valor ou devolve erro.
+* **Verificar:**
+  * Há frase escrita direto no código?
+  * Cada chave usada existe em pt-BR, en e fr, com o mesmo conjunto (o teste de paridade passa)?
+  * Há texto em português usado como chave?
+  * Alguma frase é montada juntando pedaços, em vez de interpolação?
+  * Plural resolvido com `count === 1`, em vez de `_one`/`_other`?
+  * Marcação dentro de texto usa `<Trans>`, nunca `dangerouslySetInnerHTML`?
+  * Moeda, data e número por `Intl`/`date-fns` no idioma ativo?
+  * O backend devolve `code`, e a tela traduz por `errors:<CODE>`?
+  * Schema Zod do frontend usa chave como mensagem?
+  * Conteúdo cadastrado traduzível usa `LocalizedText`?
+  * E-mail, notificação e PDF saem no idioma do destinatário?
+  * A tela foi vista em `fr`?
+* **Prova:** as chaves criadas nos três idiomas e o teste de paridade.
+
+### A14 · Modularidade (§13)
+
+* **Aplica-se quando:** sempre.
+* **Verificar:**
+  * O arquivo tem uma razão para mudar?
+  * Um UseCase por arquivo, com o nome igual ao da função?
+  * Passou de ~200 linhas (avaliar) ou de 400 com mais de uma responsabilidade (dividir)?
+  * Texto legal ou institucional está no arquivo de tradução, e não no componente?
+  * Hook com estados sem relação foi dividido?
+  * `npx biome lint` sem aviso e `npx biome format --write` aplicados no arquivo?
+* **Prova:** tamanho do arquivo e saída do lint; se ficou acima de 400 linhas, a responsabilidade única em uma linha.
+
+### A15 · Comentários e tipagem (§14)
+
+* **Aplica-se quando:** sempre.
+* **Verificar:**
+  * Há comentário que repete o código, bloco `@file`, histórico de migração ou JSDoc redundante?
+  * Os comentários "porquê", referências e `TODO:` com débito foram mantidos?
+  * Há `any`, `@ts-ignore`, ou `@ts-expect-error` sem justificativa?
+* **Prova:** busca por `any` e `@ts-` no arquivo.
+
+### A16 · Testes (§16.2)
+
+* **Aplica-se quando:** o arquivo tem lógica, comportamento de tela, schema, regra ou rota.
+* **Verificar:**
+  * Service e UseCase com teste usando adapters fake?
+  * Schema com casos válidos, inválidos e campos extras maliciosos?
+  * Controller com status e formato de erro?
+  * Coleção legível pelo cliente com teste de regra?
+  * Componente ou peça de interface nova com teste do comportamento (botões, `Esc`, `aria`, abrir, fechar e voltar)?
+  * Bug corrigido com teste que falhava antes?
+* **Prova:** os testes criados ou alterados e o resultado.
+
+### A17 · Limpeza e consistência
+
+* **Aplica-se quando:** o arquivo substitui, move ou apaga algo, ou muda um padrão usado em outros lugares.
+* **Verificar:**
+  * Ficou componente, hook, função, chave de tradução, estilo ou arquivo sem uso? Foi apagado?
+  * Algum documento (`AGENTS.md`, `DESIGN.md`, `README.md`) cita o que foi apagado ou mudado? (Mudar os documentos segue o §15.)
+  * Outros arquivos usam o mesmo padrão? Mudam juntos ou viram débito registrado?
+* **Prova:** a busca pelo nome antigo sem resultados, ou o débito.
+
+### A18 · Decisão e documentos (§15)
+
+* **Aplica-se quando:** sempre.
+* **Verificar:**
+  * A mudança cai num dos cinco casos do §15 (modelo de dados, dinheiro ou segurança, dependência ou fornecedor, contrato de API ou comportamento visível, ação irreversível)? Houve autorização?
+  * Implementa decisão marcada como "em aberto"?
+  * Altera `AGENTS.md` ou `DESIGN.md` sem autorização?
+  * Escolha reversível e local foi registrada no resumo da entrega?
+* **Prova:** a autorização ou a decisão (`docs/arquitetura/decisoes.md`) que cobre a mudança.
+
+### A19 · Entrega e publicação (§2.4, §16.1, §16.3)
+
+* **Aplica-se quando:** sempre, ao concluir a tarefa.
+* **Verificar:**
+  * Os gates do §16.1 passaram?
+  * O commit está na `claude/agents/useguide`, e só documentação na `claude/agents/documentacao`?
+  * Mudança no `AGENTS.md`, `DESIGN.md` ou `README.md` foi levada às três branches no mesmo dia?
+  * A entrega segue os seis itens do §16.3?
+* **Prova:** a saída dos gates e o hash do commit.
