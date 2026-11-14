@@ -201,7 +201,8 @@ Antes de criar um componente visual genérico, o agente DEVE procurar nesta list
 | `Skeleton`, `ListLoading`, `ListEmpty`, `ListError`, `ErrorState` | estados carregando, vazio e erro |
 | `MessagePage`, `NotFoundView` | página inteira de mensagem; 404 |
 | `BackButton` | voltar, só com o chevron `<` |
-| `Header`, `PageLayout`, `SidebarLayout`, `BottomNav` | estrutura das telas |
+| `Header`, `PageLayout`, `BottomNav` | estrutura das telas |
+| `StackSheet` | folha em pilha com barra do topo fixa e fundo que vira cartão (D33) |
 | `GlassCard` | cartão sólido elevado (o nome é histórico) |
 | `VerifiedBadge`, `VerifiedSealButton`, `ShareButton` | selo, botão do selo, compartilhar |
 | `GateModeScreen`, `useQrScanner`, `useScreenWakeLock`, `useLowBattery` | modo portaria |
@@ -278,7 +279,7 @@ Regras ✅:
 * No Safari aberto no navegador (fora do app instalado), o arrasto que começa bem na borda é do próprio navegador e vira "voltar" pelo histórico (P19), com o mesmo resultado.
 * Com "reduzir movimento" (D33), o gesto continua seguindo o dedo (é a própria pessoa que move); ao soltar, termina com o esmaecido de 150 ms.
 * Todo gesto tem alternativa em botão: o `<` em todas as telas volta uma tela e, na primeira, fecha a folha.
-* ⚠️ Hoje só o menu lateral fecha arrastando (`useSwipeToClose`); as folhas (`Dialog`) e as páginas não.
+* ⚠️ Hoje só a folha do perfil (`StackSheet`) tem os gestos; as outras folhas (`Dialog`) e as páginas não.
 
 **P20 — Mola no que o dedo conduz.** Movimento comandado pelo dedo (arrastar folha, voltar pela borda, puxar para atualizar) termina com mola e herda a velocidade do dedo; pode ser interrompido no meio (tocar de novo segura a página onde está). O que abre por toque segue a tabela 9.1, com a mesma mola padrão.
 
@@ -437,9 +438,9 @@ Ao tocar um arquivo de interface (componente, hook de tela, estilo, tradução e
 
 **Como aplicar:**
 
-1. Para cada arquivo tocado, cada determinação recebe um de três resultados: **ok** (verificado, com a prova), **não se aplica** (com o motivo em poucas palavras) ou **débito** (com o número em `docs/arquitetura/debitos.md`). Pular sem registrar é proibido.
+1. Para cada arquivo tocado, cada determinação recebe um de três resultados: **ok** (verificado, com a prova; o que estava errado foi corrigido), **não se aplica** (com o motivo em poucas palavras) ou **débito** (com o número em `docs/arquitetura/debitos.md` e qual das exceções do item 3 o justifica). Pular sem registrar é proibido.
 2. A entrega (AGENTS.md §16.3) traz a tabela por arquivo. Determinações "não se aplica" iguais em vários arquivos PODEM ser agrupadas numa linha.
-3. O que estava errado no arquivo antes de tocá-lo também conta: ao tocar, corrige-se ou registra-se débito (§14 item 3).
+3. O que estava errado no arquivo antes de tocá-lo também conta e DEVE ser corrigido na mesma tarefa (§14 item 3). Débito só é permitido quando a correção (a) precisa de autorização pelo AGENTS.md §15 e ela foi negada ou ainda não veio, (b) depende de algo que ainda não existe e cuja criação também cai no §15, ou (c) exige mudar arquivos fora da tarefa; nesse caso, corrige-se a parte do arquivo tocado e registra-se o restante.
 
 ### V1 · Cores e tema (§2, P1)
 
