@@ -10,6 +10,7 @@ vi.mock('../../application/usecases/getPartnerCatalogEventsUseCase', () => ({
 vi.mock('../../hooks/useListingPlan', () => ({ useListingPlan: m.plan }));
 vi.mock('../../hooks/useListingVerification', () => ({ useListingVerification: m.verification }));
 
+import { PartnerCatalogPage } from './PartnerCatalogPage';
 import { PartnerCatalogSection } from './PartnerCatalogSection';
 
 const place = (id: string, name: string, extra: Partial<PartnerContentRecord> = {}) =>
@@ -22,58 +23,73 @@ const place = (id: string, name: string, extra: Partial<PartnerContentRecord> = 
     ...extra,
   }) as PartnerContentRecord;
 
+const ESTABLISHMENTS = [
+  {
+    id: 'buggy',
+    name: 'Buggy do Preá',
+    category: 'tour',
+    location: 'Preá',
+    rating: 4.8,
+    reviewCount: 96,
+    unansweredReviews: 0,
+  },
+  {
+    id: 'dunas',
+    name: 'Dunas Park',
+    category: 'sight',
+    location: 'Jeri',
+    rating: 0,
+    reviewCount: 0,
+    unansweredReviews: 0,
+  },
+];
+const ITEMS = [place('buggy', 'Buggy do Preá'), place('dunas', 'Dunas Park')];
+
 function renderSection(props: Partial<Parameters<typeof PartnerCatalogSection>[0]> = {}) {
-  const handlers = { onEventChange: vi.fn(), onPlaceChange: vi.fn(), onToggleActive: vi.fn() };
+  const handlers = { onOpenEvent: vi.fn(), onOpenPlace: vi.fn() };
   render(
     <PartnerCatalogSection
       segment="events"
       onSegmentChange={vi.fn()}
-      placeId={null}
-      onPlaceChange={handlers.onPlaceChange}
-      eventId={null}
-      onEventChange={handlers.onEventChange}
-      eventReloadKey={0}
-      onOpenSession={vi.fn()}
-      items={[place('buggy', 'Buggy do Preá'), place('dunas', 'Dunas Park')]}
-      events={[place('ev1', 'Luau na Duna')]}
+      onOpenPlace={handlers.onOpenPlace}
+      onOpenEvent={handlers.onOpenEvent}
+      items={ITEMS}
       loading={false}
       filter={null}
-      establishments={[
-        {
-          id: 'buggy',
-          name: 'Buggy do Preá',
-          category: 'tour',
-          location: 'Preá',
-          rating: 4.8,
-          reviewCount: 96,
-          unansweredReviews: 0,
-        },
-        {
-          id: 'dunas',
-          name: 'Dunas Park',
-          category: 'sight',
-          location: 'Jeri',
-          rating: 0,
-          reviewCount: 0,
-          unansweredReviews: 0,
-        },
-      ]}
+      establishments={ESTABLISHMENTS}
       eventsVersion={0}
-      onEditItem={vi.fn()}
       onCreateItem={vi.fn()}
-      onOpenEvent={vi.fn()}
       onCreateEvent={vi.fn()}
-      onOpenPlan={vi.fn()}
-      onVerify={vi.fn()}
-      onToggleActive={handlers.onToggleActive}
-      verificationVersion={0}
-      planVersion={0}
-      onOpenReviews={vi.fn()}
       renders={{}}
       {...props}
     />
   );
   return handlers;
+}
+
+function renderPlacePage() {
+  const onToggleActive = vi.fn();
+  render(
+    <PartnerCatalogPage
+      page={{ view: 'place', id: 'buggy' }}
+      items={ITEMS}
+      events={[]}
+      establishments={ESTABLISHMENTS}
+      eventReloadKey={0}
+      eventsVersion={0}
+      verificationVersion={0}
+      planVersion={0}
+      renders={{}}
+      onOpenSession={vi.fn()}
+      onEditItem={vi.fn()}
+      onEditEvent={vi.fn()}
+      onOpenPlan={vi.fn()}
+      onVerify={vi.fn()}
+      onToggleActive={onToggleActive}
+      onOpenReviews={vi.fn()}
+    />
+  );
+  return { onToggleActive };
 }
 
 describe('Catálogo (p09) e página do estabelecimento (p19)', () => {
@@ -120,12 +136,12 @@ describe('Catálogo (p09) e página do estabelecimento (p19)', () => {
   });
 
   it('eventos com status, agrupados por estabelecimento em "Todos"; o toque abre a página do evento', async () => {
-    const { onEventChange } = renderSection();
+    const { onOpenEvent } = renderSection();
     expect(await screen.findByText('Publicado · 128 vendidos')).toBeTruthy();
     expect(screen.getByText('Rascunho · falta a foto de capa')).toBeTruthy();
     expect(screen.getByRole('heading', { name: 'Dunas Park' })).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: /Luau na Duna/ }));
-    expect(onEventChange).toHaveBeenCalledWith('ev1');
+    expect(onOpenEvent).toHaveBeenCalledWith({ id: 'ev1', title: 'Luau na Duna' });
   });
 
   it('com filtro, só os eventos do estabelecimento escolhido e sem grupos', async () => {
@@ -136,7 +152,7 @@ describe('Catálogo (p09) e página do estabelecimento (p19)', () => {
   });
 
   it('página do estabelecimento: status, plano e nota; pausar usa a ação que já existia', () => {
-    const { onToggleActive } = renderSection({ placeId: 'buggy' });
+    const { onToggleActive } = renderPlacePage();
     expect(screen.getByText('Publicado · verificado')).toBeTruthy();
     expect(screen.getByText(/Plano anual até 12 de mar\. de 2027 · selo ativo/)).toBeTruthy();
     expect(screen.getByText('96 avaliações')).toBeTruthy();

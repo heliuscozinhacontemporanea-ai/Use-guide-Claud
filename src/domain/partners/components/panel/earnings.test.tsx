@@ -62,16 +62,7 @@ describe('Ganhos (p20, p21)', () => {
   });
 
   it('mostra a receber, recebido no mês, repasses programados e a venda retida', async () => {
-    render(
-      <PartnerEarningsTab
-        renders={{}}
-        reports={null}
-        showReports={false}
-        showAccounts={false}
-        onShowAccountsChange={vi.fn()}
-        onShowReportsChange={vi.fn()}
-      />
-    );
+    render(<PartnerEarningsTab renders={{}} onOpenReports={vi.fn()} onOpenAccounts={vi.fn()} />);
     expect(await screen.findByText('em 2 repasses')).toBeTruthy();
     expect(screen.getByText('Passeio de buggy (3 de nov. e 4 de nov.)')).toBeTruthy();
     expect(screen.getByText('Cliente abriu reclamação')).toBeTruthy();
@@ -80,16 +71,7 @@ describe('Ganhos (p20, p21)', () => {
   });
 
   it('a folha do repasse mostra a conta, a taxa e cada venda', async () => {
-    render(
-      <PartnerEarningsTab
-        renders={{}}
-        reports={null}
-        showReports={false}
-        showAccounts={false}
-        onShowAccountsChange={vi.fn()}
-        onShowReportsChange={vi.fn()}
-      />
-    );
+    render(<PartnerEarningsTab renders={{}} onOpenReports={vi.fn()} onOpenAccounts={vi.fn()} />);
     fireEvent.click(await screen.findByRole('button', { name: /6 de nov\./ }));
     const sheet = await screen.findByRole('dialog');
     expect(within(sheet).getByText('Repasse de 6 de nov.')).toBeTruthy();
@@ -99,19 +81,16 @@ describe('Ganhos (p20, p21)', () => {
   });
 
   it('Extrato, Dívidas e Contas usam o que a composição monta', async () => {
-    const onShowAccounts = vi.fn();
+    const onOpenAccounts = vi.fn();
+    const onOpenReports = vi.fn();
     render(
       <PartnerEarningsTab
         renders={{
           renderStatement: () => <p>extrato</p>,
           renderDebts: () => <p>dívidas</p>,
-          renderAccounts: () => <p>contas</p>,
         }}
-        reports={null}
-        showReports={false}
-        showAccounts={false}
-        onShowAccountsChange={onShowAccounts}
-        onShowReportsChange={vi.fn()}
+        onOpenReports={onOpenReports}
+        onOpenAccounts={onOpenAccounts}
       />
     );
     fireEvent.click(await screen.findByRole('button', { name: 'Extrato' }));
@@ -119,20 +98,8 @@ describe('Ganhos (p20, p21)', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Dívidas' }));
     expect(screen.getByText('dívidas')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: /Contas de recebimento/ }));
-    expect(onShowAccounts).toHaveBeenCalledWith(true);
+    expect(onOpenAccounts).toHaveBeenCalledTimes(1);
+    fireEvent.click(screen.getByRole('button', { name: /Relatórios/ }));
+    expect(onOpenReports).toHaveBeenCalledTimes(1);
   });
-});
-
-it('Contas de recebimento aberta mostra o que a composição monta', async () => {
-  render(
-    <PartnerEarningsTab
-      renders={{ renderAccounts: () => <p>contas</p> }}
-      reports={null}
-      showReports={false}
-      onShowReportsChange={vi.fn()}
-      showAccounts
-      onShowAccountsChange={vi.fn()}
-    />
-  );
-  expect(await screen.findByText('contas')).toBeTruthy();
 });

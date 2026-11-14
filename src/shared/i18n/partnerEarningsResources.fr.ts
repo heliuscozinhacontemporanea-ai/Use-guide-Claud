@@ -46,6 +46,7 @@ export const partnerEarningsFr: PartnerEarningsTranslation = {
     loadError: 'Impossible de charger les rapports.',
     profile: 'Visites et avis',
     profileHint: 'Qui a vu vos annonces et les avis à répondre',
+    barLabel: '{{date}} : {{value}}',
   },
   sheet: {
     title: 'Versement du {{date}}',

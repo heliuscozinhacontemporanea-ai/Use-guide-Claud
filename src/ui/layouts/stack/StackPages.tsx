@@ -6,7 +6,16 @@ import {
   useReducedMotion,
   useTransform,
 } from 'motion/react';
-import { type RefObject, useEffect, useRef } from 'react';
+import {
+  memo,
+  type ReactNode,
+  type RefObject,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { cn } from '../../../shared/utils/cn';
 import { stackSheetProgress } from '../../motion/stackSheetProgress';
 import {
@@ -20,36 +29,44 @@ import {
   SPRING,
 } from '../../motion/tokens';
 import { NAV_BAR_HEIGHT, StackNavBar } from './StackNavBar';
-import type { StackEntry } from './stackTypes';
+import { StackPageActionContext } from './stackPageAction';
+import { createStackPageSettledStore, StackPageSettledContext } from './stackPageSettled';
+import type { StackAction, StackEntry } from './stackTypes';
 import { useStackGestures } from './useStackGestures';
 import { useStackTransition } from './useStackTransition';
 
-interface StackPagesProps {
-  sheetRef: RefObject<HTMLDivElement | null>;
-  entries: StackEntry[];
-  backLabel: string;
-  onBack: () => void;
-  sheetHeight: number;
+/** Folha que contém a pilha (Perfil): arrastar para baixo fecha a folha inteira. */
+export interface StackSheetControl {
+  height: number;
   /** "Reduzir movimento": deslocamento da folha enquanto o dedo arrasta. */
   dragY: MotionValue<number>;
   onDismissDrag: (velocity: number) => void;
+}
+
+interface StackPagesProps {
+  /** Onde os gestos começam (a folha, ou a área da pilha de páginas). */
+  containerRef: RefObject<HTMLDivElement | null>;
+  entries: StackEntry[];
+  backLabel: string;
+  onBack: () => void;
+  /** Sem folha (`PushStack`), só existe o gesto de voltar. */
+  sheet?: StackSheetControl;
   /** A tela de cima terminou de sair (voltar): quem guarda o conteúdo dela pode soltá-lo. */
   onPopped?: () => void;
 }
 
 /**
- * Telas da folha: a de cima, a de baixo durante a troca, a barra fixa e os gestos (DESIGN.md P18).
+ * Telas da pilha (na folha do Perfil ou no `PushStack`): a de cima, a de baixo durante a troca, a
+ * barra fixa e os gestos (DESIGN.md P18).
  * Todas as telas da pilha ficam montadas (as de trás escondidas), como num app: voltar devolve a tela
  * com o estado e a rolagem de quando a pessoa saiu (P23).
  */
 export function StackPages({
-  sheetRef,
+  containerRef,
   entries,
   backLabel,
   onBack,
-  sheetHeight,
-  dragY,
-  onDismissDrag,
+  sheet,
   onPopped,
 }: StackPagesProps) {
   const reduced = useReducedMotion();
@@ -59,31 +76,49 @@ export function StackPages({
   );
   const scroller = useRef<HTMLDivElement>(null);
   const dragX = useMotionValue(0);
-  const width = () => sheetRef.current?.offsetWidth || 1;
+  // Ações que as próprias páginas declaram (`useStackPageAction`), por tela.
+  const [pageActions, setPageActions] = useState<Record<string, StackAction>>({});
+  const setPageAction = useCallback((key: string, action: StackAction | null) => {
+    setPageActions((current) => {
+      if (!action && !(key in current)) return current;
+      const next = { ...current };
+      if (action) next[key] = action;
+      else delete next[key];
+      return next;
+    });
+  }, []);
+  const width = () => containerRef.current?.offsetWidth || 1;
 
   useEffect(() => {
     if (!layers.under) dragX.set(0);
   }, [layers.under, dragX]);
 
   useStackGestures(
-    sheetRef,
-    { enabled: true, canGoBack: entries.length > 1, getScroller: () => scroller.current },
+    containerRef,
+    {
+      enabled: true,
+      sheet: Boolean(sheet),
+      canGoBack: entries.length > 1,
+      getScroller: () => scroller.current,
+    },
     {
       onSheetDrag: (dy) => {
+        if (!sheet) return;
         if (reduced) {
-          dragY.set(Math.max(0, dy));
+          sheet.dragY.set(Math.max(0, dy));
           return;
         }
-        const p = 1 - dy / sheetHeight;
+        const p = 1 - dy / sheet.height;
         stackSheetProgress.set(p > 1 ? 1 + (p - 1) * OVERDRAG_RESISTANCE : p);
       },
       onSheetRelease: (dy, vy) => {
-        if (dy > sheetHeight * SHEET_CLOSE_FRACTION || vy > SHEET_CLOSE_VELOCITY) {
-          onDismissDrag(-vy / sheetHeight);
+        if (!sheet) return;
+        if (dy > sheet.height * SHEET_CLOSE_FRACTION || vy > SHEET_CLOSE_VELOCITY) {
+          sheet.onDismissDrag(-vy / sheet.height);
         } else if (reduced) {
-          void animate(dragY, 0, FADE);
+          void animate(sheet.dragY, 0, FADE);
         } else {
-          void animate(stackSheetProgress, 1, { ...SPRING, velocity: -vy / sheetHeight });
+          void animate(stackSheetProgress, 1, { ...SPRING, velocity: -vy / sheet.height });
         }
       },
       onPageDragStart: beginDrag,
@@ -105,6 +140,12 @@ export function StackPages({
     }
   );
 
+  const withAction = (entry: StackEntry): StackEntry =>
+    entry.action || !pageActions[entry.key] ? entry : { ...entry, action: pageActions[entry.key] };
+  const barLayers = {
+    top: withAction(layers.top),
+    under: layers.under ? withAction(layers.under) : null,
+  };
   const moving = layers.under !== null;
   const stack = entries.some((entry) => entry.key === layers.top.key)
     ? entries
@@ -115,13 +156,15 @@ export function StackPages({
   };
   return (
     <div className="relative flex-1 min-h-0">
-      <div
-        aria-hidden="true"
-        className="absolute left-1/2 top-1.5 z-20 h-1.5 w-10 -translate-x-1/2 rounded-full bg-line"
-      />
+      {sheet && (
+        <div
+          aria-hidden="true"
+          className="absolute left-1/2 top-1.5 z-20 h-1.5 w-10 -translate-x-1/2 rounded-full bg-line"
+        />
+      )}
       {/* A barra vem antes das telas no código: o leitor de tela e o Tab começam pelo `<`; fica por cima pelo z-index. */}
       <StackNavBar
-        layers={layers}
+        layers={barLayers}
         progress={progress}
         dragX={dragX}
         backLabel={backLabel}
@@ -137,6 +180,7 @@ export function StackPages({
             progress={progress}
             dragX={dragX}
             scrollerRef={role === 'top' || role === 'alone' ? scroller : undefined}
+            onAction={setPageAction}
           />
         );
       })}
@@ -146,20 +190,38 @@ export function StackPages({
 
 type PageRole = 'top' | 'under' | 'alone' | 'hidden';
 
+/**
+ * Conteúdo da tela, recalculado só quando quem monta a pilha o renova. As trocas de papel durante a
+ * animação (de baixo, de cima, escondida) só mexem na posição: sem isto, cada troca redesenhava a tela
+ * inteira duas vezes a mais, e o primeiro e o último quadro engasgavam no celular.
+ */
+const PageContent = memo(function PageContent({ render }: { render: () => ReactNode }) {
+  return <>{render()}</>;
+});
+
 function PageLayer({
   entry,
   role,
   progress,
   dragX,
   scrollerRef,
+  onAction,
 }: {
   entry: StackEntry;
   role: PageRole;
   progress: MotionValue<number>;
   dragX: MotionValue<number>;
   scrollerRef?: RefObject<HTMLDivElement | null>;
+  onAction: (key: string, action: StackAction | null) => void;
 }) {
   const reduced = useReducedMotion();
+  // Parada no lugar quando não é a de cima em movimento; avisa as páginas só na primeira vez.
+  const [settled] = useState(() => createStackPageSettledStore(role !== 'top'));
+  useEffect(() => settled.set(role !== 'top'), [settled, role]);
+  const setAction = useMemo(
+    () => (action: StackAction | null) => onAction(entry.key, action),
+    [onAction, entry.key]
+  );
   const slide = useTransform(progress, (q) => {
     if (role === 'top') return `${(1 - q) * 100}%`;
     if (role === 'under') return `${-RECEDE_SHIFT * 100 * q}%`;
@@ -177,17 +239,30 @@ function PageLayer({
         opacity: reduced ? fade : 1,
       }}
       className={cn(
-        'absolute inset-0 overflow-y-auto overscroll-contain no-scrollbar bg-app',
-        role === 'hidden' && 'invisible',
-        role === 'top' && 'shadow-[-8px_0_24px_rgba(0,0,0,0.12)]'
+        // `isolate`: o `z-index` de dentro de uma tela não passa por cima da outra. Paradas, as telas não
+        // têm `transform`, e o `z-10` da raiz do painel pintava a raiz sobre a página aberta.
+        'absolute inset-0 isolate overflow-y-auto overscroll-contain no-scrollbar bg-app',
+        // A tela de trás continua desenhada, coberta pela de cima (opaca) e fora do toque e do leitor de
+        // tela (`inert`): voltar não precisa redesenhá-la, e o primeiro quadro da volta não engasga.
+        role === 'top' && 'shadow-[-8px_0_24px_rgba(0,0,0,0.12)]',
+        // Camada própria só enquanto se move: o deslize fica no compositor, sem redesenhar a tela.
+        (role === 'top' || role === 'under') && 'will-change-transform'
       )}
     >
-      <div
-        style={{ paddingTop: entry.navBar ? NAV_BAR_HEIGHT + 8 : 28 }}
-        className="min-h-full flex flex-col px-6 sm:px-8 pb-[calc(env(safe-area-inset-bottom,0px)+2rem)]"
-      >
-        {entry.render()}
-      </div>
+      <StackPageActionContext.Provider value={setAction}>
+        <StackPageSettledContext.Provider value={settled}>
+          {entry.bare ? (
+            <PageContent render={entry.render} />
+          ) : (
+            <div
+              style={{ paddingTop: entry.navBar ? NAV_BAR_HEIGHT + 8 : 28 }}
+              className="min-h-full flex flex-col px-6 sm:px-8 pb-[calc(env(safe-area-inset-bottom,0px)+2rem)]"
+            >
+              <PageContent render={entry.render} />
+            </div>
+          )}
+        </StackPageSettledContext.Provider>
+      </StackPageActionContext.Provider>
       {role === 'under' && (
         <motion.div
           aria-hidden="true"

@@ -1,21 +1,23 @@
-import { Star } from 'lucide-react';
+import { Pencil, Star } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { BackButton } from '../../../../ui/components/BackButton';
 import { StatTile } from '../../../../ui/components/StatTile';
 import { StatusText } from '../../../../ui/components/StatusText';
 import { TextButton } from '../../../../ui/components/TextButton';
+import { useStackPageAction } from '../../../../ui/layouts/stack/stackPageAction';
 import { useListingPlan } from '../../hooks/useListingPlan';
 import { useListingVerification } from '../../hooks/useListingVerification';
 import type { PartnerContentRecord } from '../../types/partnerContent';
 import type { PartnerEstablishment } from '../../types/partnerHome';
 import { formatPlanDate, listingPlanChipStatus } from '../../utils/listingPlanStatus';
 
-/** Página do estabelecimento (p19): status e plano, números, ofertas e avaliações. */
+/**
+ * Página do estabelecimento (p19): status e plano, números, ofertas e avaliações. Abre por cima do
+ * painel (D33): o nome fica na barra fixa e o "Editar" é a ação da barra.
+ */
 export function PartnerEstablishmentPage({
   item,
   stats,
-  onBack,
   onEdit,
   onOpenPlan,
   onVerify,
@@ -26,7 +28,6 @@ export function PartnerEstablishmentPage({
 }: {
   item: PartnerContentRecord;
   stats: PartnerEstablishment | undefined;
-  onBack: () => void;
   onEdit: () => void;
   onOpenPlan: () => void;
   onVerify: () => void;
@@ -39,6 +40,11 @@ export function PartnerEstablishmentPage({
   reviews: ReactNode;
 }) {
   const { t, i18n } = useTranslation();
+  const editInBar = useStackPageAction({
+    label: t('partnerCatalog.establishment.edit'),
+    icon: Pencil,
+    onClick: onEdit,
+  });
   const paused = item.isActive === false;
   const verification = useListingVerification(item.id);
   const verificationStatus = verification.data?.status ?? 'not_submitted';
@@ -57,17 +63,15 @@ export function PartnerEstablishmentPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-2">
-        <BackButton label={t('partnerPanel.tabs.catalog')} onClick={onBack} />
-        <h2 className="flex-1 min-w-0 text-[24px] font-display font-bold text-ink break-words">
-          {item.name}
-        </h2>
-        <TextButton tone="accent" onClick={onEdit}>
-          {t('partnerCatalog.establishment.edit')}
-        </TextButton>
-      </div>
+      {!editInBar && (
+        <div className="flex justify-end">
+          <TextButton tone="accent" onClick={onEdit}>
+            {t('partnerCatalog.establishment.edit')}
+          </TextButton>
+        </div>
+      )}
 
-      <section className="rounded-[20px] bg-surface border border-line p-4 space-y-1">
+      <section className="rounded-card bg-surface border border-line p-4 space-y-1">
         <StatusText tone={paused ? 'warn' : 'success'}>
           {paused
             ? t('partnerCatalog.status.paused')
@@ -80,7 +84,7 @@ export function PartnerEstablishmentPage({
         </StatusText>
         {!plan.loading && (
           <p
-            className={`text-[14px] ${planStatus === 'suspended' ? 'text-danger' : 'text-ink/80'}`}
+            className={`text-meta ${planStatus === 'suspended' ? 'text-danger' : 'text-ink-muted'}`}
           >
             {planStatus === 'none' ? t('partnerCatalog.establishment.noPlan') : planLine}
           </p>
@@ -134,15 +138,13 @@ export function PartnerEstablishmentPage({
 
       {offers && (
         <section className="space-y-3">
-          <h3 className="px-1 text-[18px] font-display font-bold text-ink">
-            {t('partnerCatalog.establishment.offers')}
-          </h3>
+          <h3 className="px-1 text-title text-ink">{t('partnerCatalog.establishment.offers')}</h3>
           {offers}
         </section>
       )}
 
       <section className="space-y-3">
-        <h3 className="px-1 text-[18px] font-display font-bold text-ink">
+        <h3 className="px-1 text-title text-ink">
           {t('partnerCatalog.establishment.reviewsTitle')}
         </h3>
         {reviews}

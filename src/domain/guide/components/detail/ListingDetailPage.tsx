@@ -2,12 +2,14 @@ import { MapPin, Star, X } from 'lucide-react';
 import { motion, useScroll } from 'motion/react';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { BOTTOM_NAV_CLEARANCE } from '../../../../shared/constants/bottomNav';
 import { CATEGORIES } from '../../../../shared/constants/categories';
 import { Z_INDEX } from '../../../../shared/constants/zIndex';
 import { cn } from '../../../../shared/utils/cn';
 import { optimizeImage } from '../../../../shared/utils/formatters';
 import { ShareButton } from '../../../../ui/components/ShareButton';
 import { VerifiedSealButton } from '../../../../ui/components/VerifiedSealButton';
+import { FADE } from '../../../../ui/motion/tokens';
 import { FavoriteButton } from '../../../favorites/components/FavoriteButton';
 import { trackInteractionUseCase as trackInteraction } from '../../../insights';
 import type { GuideItem } from '../../types/guide';
@@ -21,6 +23,9 @@ const EASE = [0.32, 0.72, 0, 1] as const;
  * Anúncio em tela cheia (aprovado em 2026-11-10): a foto vem do cartão e ocupa o topo, com
  * favoritar e compartilhar; embaixo, tag, nota, nome, local, descrição e as seções da categoria.
  * Fechar faz o caminho inverso (a foto volta para o cartão).
+ *
+ * É uma página da aba (decisão de 2026-11-14, P23): fica abaixo da barra de abas, que continua
+ * visível. Aberto pela busca, que já cobre a barra, fica por cima de tudo (`coversTabBar`).
  */
 export function ListingDetailPage({
   item,
@@ -28,6 +33,8 @@ export function ListingDetailPage({
   locationLabel,
   collectionName = 'items',
   favoriteLabel,
+  coversTabBar = false,
+  growsFromCard = true,
   children,
 }: {
   item: GuideItem;
@@ -37,6 +44,13 @@ export function ListingDetailPage({
   collectionName?: 'items' | 'events';
   /** Tipo do item no aviso de favorito (ex.: "passeio"). */
   favoriteLabel: string;
+  /** Por cima de uma camada que já cobre a barra de abas (a busca): janela à parte, sem a barra. */
+  coversTabBar?: boolean;
+  /**
+   * A foto cresce do cartão tocado (mesma chave nos dois). Sem toque (link, voltar, troca de aba), ela
+   * só esmaece: o cartão que monta depois tomaria a foto para si.
+   */
+  growsFromCard?: boolean;
   children: ReactNode;
 }) {
   const { t } = useTranslation();
@@ -60,7 +74,10 @@ export function ListingDetailPage({
   }, [onClose]);
 
   return (
-    <div className="fixed inset-0" style={{ zIndex: Z_INDEX.modal }}>
+    <div
+      className="fixed inset-0"
+      style={{ zIndex: coversTabBar ? Z_INDEX.modal : Z_INDEX.tabPage }}
+    >
       {/* O fundo aparece enquanto a foto cresce; a foto não some, ela muda de lugar. */}
       <motion.div
         aria-hidden="true"
@@ -72,15 +89,21 @@ export function ListingDetailPage({
       />
       <div
         ref={scrollRef}
-        role="dialog"
-        aria-modal="true"
+        role={coversTabBar ? 'dialog' : 'region'}
+        aria-modal={coversTabBar || undefined}
         aria-label={item.name}
         tabIndex={-1}
         className="absolute inset-0 overflow-y-auto overscroll-contain outline-none"
       >
         <motion.div
-          layoutId={listingHeroLayoutId(item.id)}
-          transition={{ duration: 0.38, ease: EASE }}
+          {...(growsFromCard
+            ? { layoutId: listingHeroLayoutId(item.id), transition: { duration: 0.38, ease: EASE } }
+            : {
+                initial: { opacity: 0 },
+                animate: { opacity: 1 },
+                exit: { opacity: 0 },
+                transition: FADE,
+              })}
           className="relative w-full h-[46vh] max-h-[460px] min-h-[260px] overflow-hidden bg-surface"
         >
           {images.length > 0 ? (
@@ -96,7 +119,15 @@ export function ListingDetailPage({
                 <img
                   key={src}
                   src={optimizeImage(src, 1200)}
-                  alt={images.length > 1 ? `${item.name} ${index + 1}` : item.name}
+                  alt={
+                    images.length > 1
+                      ? t('listingDetail.photoAlt', {
+                          name: item.name,
+                          index: index + 1,
+                          count: images.length,
+                        })
+                      : item.name
+                  }
                   className="w-full h-full shrink-0 snap-center object-cover"
                 />
               ))}
@@ -169,43 +200,46 @@ export function ListingDetailPage({
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0, transition: { delay: 0.12, duration: 0.3, ease: EASE } }}
           exit={{ opacity: 0, y: 24, transition: { duration: 0.18 } }}
-          className="relative mx-auto w-full max-w-2xl px-5 pt-5 pb-[max(2.5rem,env(safe-area-inset-bottom))] space-y-4"
+          style={{
+            paddingBottom: coversTabBar
+              ? 'max(2.5rem, env(safe-area-inset-bottom, 0px))'
+              : BOTTOM_NAV_CLEARANCE,
+          }}
+          className="relative mx-auto w-full max-w-2xl px-5 pt-5 space-y-4"
         >
           <header className="space-y-2">
             <div className="flex items-center gap-2">
               {category && (
                 <span
                   className={cn(
-                    'px-2 py-0.5 rounded-lg border text-[11px] font-bold tracking-wide uppercase',
+                    'px-2 py-0.5 rounded-full border text-[11px] font-bold tracking-wide uppercase',
                     category.colorClass,
                     category.bgClass,
                     category.borderClass
                   )}
                 >
-                  {category.label}
+                  {t(`listingDetail.category.${category.id}`)}
                 </span>
               )}
               {typeof item.rating === 'number' && item.rating > 0 && (
-                <span className="inline-flex items-center gap-1 text-[13px] font-semibold text-amber-400">
-                  <Star size={13} fill="currentColor" aria-hidden="true" />
+                <span className="inline-flex items-center gap-1 text-meta font-semibold text-warn tabular-nums">
+                  <Star size={16} fill="currentColor" aria-hidden="true" />
                   {item.rating.toFixed(1)}
                 </span>
               )}
             </div>
-            <h1 className="flex flex-wrap items-center gap-2 font-display text-[28px] font-bold leading-tight text-ink">
+            <h1 className="flex flex-wrap items-center gap-2 font-display text-display font-bold text-ink">
               {item.name}
               {isListingSealVisible(item) && <VerifiedSealButton size="md" />}
             </h1>
             {locationLabel && (
-              <p className="flex items-center gap-1.5 text-[14px] text-ink/70">
-                <MapPin size={15} aria-hidden="true" />
+              <p className="flex items-center gap-1.5 text-meta text-ink-muted">
+                <MapPin size={16} aria-hidden="true" />
                 {locationLabel}
               </p>
             )}
             {item.description && (
-              <p className="pt-1 text-[15px] leading-relaxed text-ink/80 whitespace-pre-line">
-                {item.description}
-              </p>
+              <p className="pt-1 text-body text-ink whitespace-pre-line">{item.description}</p>
             )}
           </header>
           {children}

@@ -186,7 +186,7 @@ export function SupportView({
       <div className="shrink-0 relative mb-8">
         <Search
           size={20}
-          className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-muted"
+          className="absolute left-[16px] top-1/2 -translate-y-1/2 text-ink-muted"
           aria-hidden="true"
         />
         <input
@@ -195,7 +195,7 @@ export function SupportView({
           onChange={(event) => setQuery(event.target.value)}
           placeholder={t('help.search')}
           aria-label={t('help.searchLabel')}
-          className={cn(INPUT, 'min-h-12 pl-11 rounded-full')}
+          className={cn(INPUT, 'min-h-12 pl-[44px] rounded-full')}
         />
       </div>
 

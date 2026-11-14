@@ -310,6 +310,19 @@ export const fr: TranslationResource = {
           "Tout ce qu'il faut savoir : taxe touristique, comment venir, meilleure saison, transferts et conseils essentiels.",
       },
     },
+    item: {
+      title: '{{name}} | Guide {{place}}',
+      description: 'Toutes les informations sur {{name}} sur Use Guide.',
+    },
+    admin: {
+      title: 'Espace administrateur',
+      description: 'Gestion et modération des contenus de Use Guide.',
+    },
+    partners: {
+      title: 'Devenir partenaire',
+      description:
+        'Inscrivez votre établissement et touchez des milliers de voyageurs à Jericoacoara, Preá et Barrinha.',
+    },
   },
   pages: {
     notFoundTitle: 'Page introuvable',

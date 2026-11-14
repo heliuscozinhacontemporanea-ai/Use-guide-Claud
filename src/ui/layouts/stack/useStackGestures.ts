@@ -13,6 +13,8 @@ export interface StackGestureHandlers {
 
 interface GestureOptions {
   enabled: boolean;
+  /** Arrastar na vertical mexe numa folha (fechar). Sem folha (`PushStack`), a vertical é só rolagem. */
+  sheet?: boolean;
   /** Há tela para voltar (o arrasto para a direita só vale fora da primeira). */
   canGoBack: boolean;
   /** Rolagem da tela de cima: o conteúdo que rola tem prioridade sobre fechar a folha. */
@@ -95,7 +97,8 @@ export function useStackGestures(
         swallowClick = true;
         if (Math.abs(dy) > Math.abs(dx)) {
           const atTop = track.scrollTop <= 0;
-          track.axis = (dy > 0 && atTop) || (dy < 0 && !track.canScroll) ? 'sheet' : 'none';
+          const sheetDrag = (dy > 0 && atTop) || (dy < 0 && !track.canScroll);
+          track.axis = opts.sheet !== false && sheetDrag ? 'sheet' : 'none';
         } else {
           const back = dx > 0 && opts.canGoBack && !track.onInteractive && !track.inScroller;
           track.axis = back ? 'page' : 'none';

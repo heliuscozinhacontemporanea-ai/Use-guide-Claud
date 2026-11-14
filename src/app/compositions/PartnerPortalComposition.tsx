@@ -24,6 +24,7 @@ import {
   CheckoutModal,
   isPaidPlanId,
   PartnerDebtsPanel,
+  PartnerPaymentAccountPage,
   PartnerPaymentAccountsPage,
   PartnerStatementPanel,
   type PlanPeriodOption,
@@ -250,10 +251,8 @@ export function PartnerPortalComposition() {
         <PartnerEventTicketingComposition eventListingId={eventListingId} lotsOnly />
       )}
       renderNotificationsHint={() => <SalesAlertsSummary />}
-      renderGateStaff={(onBack) => <GateStaffPage onBack={onBack} />}
-      renderCoupons={({ scope, backLabel, onBack }) => (
-        <PromoCodesPage scope={scope} backLabel={backLabel} onBack={onBack} />
-      )}
+      renderGateStaff={() => <GateStaffPage />}
+      renderCoupons={({ scope }) => <PromoCodesPage scope={scope} />}
       renderEventAccountCard={(establishmentId, establishmentName) => (
         <EventPaymentAccountCard
           establishmentId={establishmentId}
@@ -264,9 +263,13 @@ export function PartnerPortalComposition() {
       renderEarnings={{
         renderStatement: () => <PartnerStatementPanel />,
         renderDebts: () => <PartnerDebtsPanel />,
-        renderAccounts: (onBack) => (
-          <PartnerPaymentAccountsPage onBack={onBack} nameFor={establishmentNameFor} />
+        renderAccounts: ({ onOpenAccount }) => (
+          <PartnerPaymentAccountsPage
+            nameFor={establishmentNameFor}
+            onOpenAccount={onOpenAccount}
+          />
         ),
+        renderAccount: (accountKey) => <PartnerPaymentAccountPage accountKey={accountKey} />,
       }}
       renderAgora={{
         arrive: (item) => arriveAtSlot(item.parentId, item.id),
@@ -317,13 +320,13 @@ export function PartnerPortalComposition() {
           onChanged={onChanged}
         />
       )}
-      renderAccountView={(view, onBack) =>
+      renderAccountView={(view) =>
         view === 'notifications' ? (
-          <NotificationSettingsView isPartner onBack={onBack} />
+          <NotificationSettingsView isPartner />
         ) : view === 'terms' ? (
-          <AboutTermsView document="partner" onBack={onBack} />
+          <AboutTermsView document="partner" />
         ) : (
-          <SupportView onBack={onBack} initialTopic="partners" />
+          <SupportView initialTopic="partners" />
         )
       }
     />

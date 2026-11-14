@@ -159,7 +159,7 @@ Saem `rounded-[2rem]`, `rounded-[2.5rem]`, `rounded-[3rem]` e os tokens `--radiu
 
 ### 5.3. Camadas (z-index) ✅
 
-Só pela escala `Z_INDEX` (`base`, `card`, `header`, `bottomNav`, `banner`, `dropdown`, `overlay`, `modal`, `modalNested`, `popover`, `toast`, `criticalAlert`). Proibido número solto (`z-[130]`). Hoje nenhum arquivo usa número solto.
+Só pela escala `Z_INDEX` (`base`, `card`, `header`, `tabPage`, `bottomNav`, `banner`, `dropdown`, `overlay`, `modal`, `modalNested`, `popover`, `toast`, `criticalAlert`). `tabPage` é a página aberta dentro de uma aba (anúncio): cobre o topo e fica abaixo da barra de abas (P23). Proibido número solto (`z-[130]`). Hoje nenhum arquivo usa número solto.
 
 ---
 

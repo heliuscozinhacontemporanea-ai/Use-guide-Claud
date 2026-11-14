@@ -5,6 +5,12 @@ import type { StackAction, StackEntry } from './stackTypes';
 import type { StackLayers } from './useStackTransition';
 
 export const NAV_BAR_HEIGHT = 56;
+/**
+ * A barra tem altura fixa em px e o título para de crescer em 22 px: com a letra do sistema grande, o
+ * `<` e a ação continuam na barra e o título corta com reticências, como no iOS (o nome completo
+ * continua no `<h2>` para o leitor de tela). O conteúdo das telas acompanha a letra (P17).
+ */
+const TITLE_SIZE = 'min(1.0625rem, 22px)';
 
 interface StackNavBarProps {
   layers: StackLayers;
@@ -19,23 +25,49 @@ interface StackNavBarProps {
  * Barra do topo fixa da folha (DESIGN.md §8, D33): o `<` fica parado na mesma altura em todas as telas;
  * o título centralizado e a ação da direita entram e saem junto com a página.
  */
-export function StackNavBar({ layers, progress, dragX, backLabel, onBack }: StackNavBarProps) {
-  const { top, under } = layers;
+export function StackNavBar(props: StackNavBarProps) {
+  const { top, under } = props.layers;
   if (!top.navBar && !under?.navBar) return null;
+  // A tela de baixo não tem barra (ex.: a raiz do painel, com o próprio topo): a barra entra e sai
+  // inteira junto com a página de cima, como no iOS.
+  const slides = Boolean(under && !under.navBar);
+  return <Bar {...props} slides={slides} />;
+}
+
+function Bar({
+  layers,
+  progress,
+  dragX,
+  backLabel,
+  onBack,
+  slides,
+}: StackNavBarProps & { slides: boolean }) {
+  const { top, under } = layers;
+  const reduced = useReducedMotion();
+  const barX = useTransform(progress, (q) => (slides && !reduced ? `${(1 - q) * 100}%` : '0%'));
   return (
-    <div className="absolute inset-x-0 top-0 z-10 bg-app" style={{ height: NAV_BAR_HEIGHT }}>
+    <motion.div
+      className="absolute inset-x-0 top-0 z-10 bg-app"
+      style={{
+        height: NAV_BAR_HEIGHT,
+        x: slides && reduced ? dragX : barX,
+        opacity: slides && reduced ? progress : 1,
+      }}
+    >
       <button
         type="button"
         onClick={onBack}
         aria-label={backLabel}
-        className="press absolute left-2 top-1.5 z-10 w-11 h-11 rounded-full flex items-center justify-center text-ink hover:bg-ink/[0.06] focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none"
+        className="press absolute left-[8px] top-[6px] z-10 w-[44px] h-[44px] rounded-full flex items-center justify-center text-ink hover:bg-ink/[0.06] focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none"
       >
         <ChevronLeft size={24} strokeWidth={2.25} aria-hidden="true" />
       </button>
       {under?.navBar && <NavLayer entry={under} progress={progress} role="under" />}
-      {under && <BarRecede progress={progress} dragX={dragX} />}
-      {top.navBar && <NavLayer entry={top} progress={progress} role={under ? 'top' : 'alone'} />}
-    </div>
+      {under && !slides && <BarRecede progress={progress} dragX={dragX} />}
+      {top.navBar && (
+        <NavLayer entry={top} progress={progress} role={under && !slides ? 'top' : 'alone'} />
+      )}
+    </motion.div>
   );
 }
 
@@ -85,8 +117,8 @@ function NavLayer({
     <>
       {entry.title && (
         <motion.h2
-          style={{ x, opacity }}
-          className="pointer-events-none absolute inset-x-0 top-0 h-full px-16 flex items-center justify-center text-title font-semibold text-ink"
+          style={{ x, opacity, fontSize: TITLE_SIZE }}
+          className="pointer-events-none absolute inset-x-0 top-0 h-full px-[60px] flex items-center justify-center font-semibold leading-tight text-ink"
         >
           <span className="truncate">{entry.title}</span>
         </motion.h2>
@@ -112,7 +144,7 @@ function NavAction({
       onClick={action.onClick}
       aria-label={action.label}
       style={{ x, opacity }}
-      className="press absolute right-2 top-1.5 w-11 h-11 rounded-full flex items-center justify-center text-ink hover:bg-ink/[0.06] focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none"
+      className="press absolute right-[8px] top-[6px] w-[44px] h-[44px] rounded-full flex items-center justify-center text-ink hover:bg-ink/[0.06] focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none"
     >
       <Icon size={24} aria-hidden="true" />
     </motion.button>

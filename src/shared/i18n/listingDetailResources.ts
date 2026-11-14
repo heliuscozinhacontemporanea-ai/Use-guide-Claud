@@ -1,4 +1,15 @@
 // Anúncio em tela cheia (aprovado em 2026-11-10): seções que variam por categoria.
+export type ListingCategoryId =
+  | 'restaurant'
+  | 'sight'
+  | 'tour'
+  | 'transfer'
+  | 'rental'
+  | 'hotel'
+  | 'tips'
+  | 'producer'
+  | 'event';
+
 export interface ListingDetailTranslation {
   whatsapp: string;
   whatsappHint: { restaurant: string; hotel: string; default: string };
@@ -23,6 +34,11 @@ export interface ListingDetailTranslation {
   checkOutUntil: string;
   reviewsCount_one: string;
   reviewsCount_other: string;
+  /** Etiqueta da categoria no anúncio. */
+  category: Record<ListingCategoryId, string>;
+  /** Tipo do item no aviso de favoritar ("este passeio"). */
+  typeLabel: Record<ListingCategoryId, string>;
+  photoAlt: string;
 }
 
 export const listingDetailPtBR: ListingDetailTranslation = {
@@ -54,4 +70,27 @@ export const listingDetailPtBR: ListingDetailTranslation = {
   checkOutUntil: 'até {{time}}',
   reviewsCount_one: '{{count}} avaliação',
   reviewsCount_other: '{{count}} avaliações',
+  category: {
+    restaurant: 'Gastronomia',
+    sight: 'Atrações',
+    tour: 'Passeios',
+    transfer: 'Translados',
+    rental: 'Aluguéis',
+    hotel: 'Hospedagem',
+    tips: 'Dica essencial',
+    producer: 'Produtor de eventos',
+    event: 'Evento',
+  },
+  typeLabel: {
+    restaurant: 'restaurante',
+    sight: 'atração',
+    tour: 'passeio',
+    transfer: 'translado',
+    rental: 'aluguel',
+    hotel: 'hospedagem',
+    tips: 'dica',
+    producer: 'produtor',
+    event: 'evento',
+  },
+  photoAlt: '{{name}}, foto {{index}} de {{count}}',
 };

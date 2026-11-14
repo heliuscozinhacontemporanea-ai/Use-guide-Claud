@@ -1,9 +1,12 @@
 import * as RadixDialog from '@radix-ui/react-dialog';
 import { X } from 'lucide-react';
-import { ReactNode } from 'react';
+import { AnimatePresence } from 'motion/react';
+import { type ReactNode, useId, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Z_INDEX } from '../../shared/constants/zIndex';
 import { cn } from '../../shared/utils/cn';
+import { useSheetLayer } from '../motion/sheetLayers';
+import { DialogPanel } from './sheet/DialogPanel';
+import { useSheetHistory } from './sheet/useSheetHistory';
 
 interface DialogProps {
   open: boolean;
@@ -14,10 +17,15 @@ interface DialogProps {
   className?: string;
   /** Aberto por cima de outro modal (ex.: termos dentro do checkout). */
   nested?: boolean;
-  /** false: passo obrigatório, sem botão fechar, Esc nem toque fora. */
+  /** false: passo obrigatório, sem botão fechar, Esc, toque fora, arraste nem voltar. */
   dismissible?: boolean;
 }
 
+/**
+ * Toda folha ou diálogo do app (DESIGN.md §7, §9, D33). No celular é uma folha que sobe com a mola
+ * padrão, fecha arrastando para baixo e entra no histórico; a primeira folha aberta faz o app virar
+ * cartão e as de baixo recuam. Do `sm:` em diante é um cartão central.
+ */
 export function Dialog({
   open,
   onOpenChange,
@@ -29,58 +37,64 @@ export function Dialog({
   dismissible = true,
 }: DialogProps) {
   const { t } = useTranslation();
+  const id = useId();
+  const layer = useSheetLayer(id, open);
+  // A folha de baixo continua puxando o fundo enquanto sai, já fora da lista de abertas.
+  const drivesBackdrop = useRef(false);
+  if (open) drivesBackdrop.current = layer.isBottom;
+  const releaseVelocity = useRef<number | undefined>(undefined);
+
+  useSheetHistory(id, open && dismissible, () => onOpenChange(false));
+
   return (
     <RadixDialog.Root open={open} onOpenChange={onOpenChange}>
-      <RadixDialog.Portal>
-        <RadixDialog.Overlay
-          className="fixed inset-0 bg-scrim backdrop-blur-md animate-fade-in data-[state=closed]:animate-fade-out motion-reduce:animate-none"
-          // Mesma camada do conteúdo (que vem depois no DOM): o fundo escurece também sobre o menu lateral.
-          style={{ zIndex: nested ? Z_INDEX.modalNested : Z_INDEX.modal }}
-        />
-        {/* Celular: folha que sobe da borda (como num app nativo). Do sm em diante: cartão central. */}
-        <RadixDialog.Content
-          className={cn(
-            'fixed inset-x-0 bottom-0 mx-auto w-full max-w-md max-h-[92dvh] overflow-y-auto p-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] rounded-t-3xl bg-sheet border border-line shadow-2xl backdrop-blur-xl text-ink outline-none overscroll-contain animate-sheet-up data-[state=closed]:animate-sheet-down motion-reduce:animate-none',
-            'sm:inset-x-auto sm:bottom-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-[calc(100%-2rem)] sm:pb-6 sm:rounded-3xl sm:animate-scale-in sm:data-[state=closed]:animate-scale-out',
-            className
-          )}
-          style={{ zIndex: nested ? Z_INDEX.modalNested : Z_INDEX.modal }}
-          // O Radix foca o primeiro controle (o botão fechar) e o anel de foco aparece sem o usuário usar o teclado.
-          // Focar a própria folha mantém o Tab e o leitor de tela começando dentro do diálogo.
-          onEscapeKeyDown={(event) => !dismissible && event.preventDefault()}
-          onPointerDownOutside={(event) => !dismissible && event.preventDefault()}
-          onOpenAutoFocus={(event) => {
-            event.preventDefault();
-            (event.currentTarget as HTMLElement).focus();
-          }}
-        >
-          <div
-            aria-hidden="true"
-            className="mx-auto -mt-2 mb-4 h-1.5 w-10 rounded-full bg-line sm:hidden"
-          />
-          {title && (
-            <RadixDialog.Title className="text-lg font-bold text-ink tracking-tight mb-1 pr-10">
-              {title}
-            </RadixDialog.Title>
-          )}
-          {description && (
-            <RadixDialog.Description className="text-xs text-ink/70 mb-4 leading-relaxed">
-              {description}
-            </RadixDialog.Description>
-          )}
-
-          {children}
-
-          {dismissible && (
-            <RadixDialog.Close
-              aria-label={t('common.close')}
-              className="press absolute top-4 right-4 w-11 h-11 flex items-center justify-center rounded-full text-ink/60 hover:text-ink hover:bg-ink/[0.06] focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none"
+      <AnimatePresence>
+        {open && (
+          <RadixDialog.Portal forceMount key="dialog">
+            <DialogPanel
+              nested={nested}
+              dismissible={dismissible}
+              drivesBackdrop={drivesBackdrop.current}
+              receded={layer.hasAbove}
+              className={className}
+              releaseVelocity={releaseVelocity}
+              onDragClose={(velocity) => {
+                releaseVelocity.current = velocity;
+                onOpenChange(false);
+              }}
             >
-              <X size={20} />
-            </RadixDialog.Close>
-          )}
-        </RadixDialog.Content>
-      </RadixDialog.Portal>
+              <div
+                aria-hidden="true"
+                className="mx-auto -mt-2 mb-4 h-1.5 w-10 rounded-full bg-line sm:hidden"
+              />
+              {title && (
+                <RadixDialog.Title className="text-title font-semibold text-ink mb-1 pr-10">
+                  {title}
+                </RadixDialog.Title>
+              )}
+              {description && (
+                <RadixDialog.Description className="text-meta text-ink-muted mb-4">
+                  {description}
+                </RadixDialog.Description>
+              )}
+
+              {children}
+
+              {dismissible && (
+                <RadixDialog.Close
+                  aria-label={t('common.close')}
+                  className={cn(
+                    'press absolute top-4 right-4 w-11 h-11 flex items-center justify-center rounded-full text-ink-muted hover:text-ink hover:bg-ink/[0.06]',
+                    'focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none'
+                  )}
+                >
+                  <X size={20} aria-hidden="true" />
+                </RadixDialog.Close>
+              )}
+            </DialogPanel>
+          </RadixDialog.Portal>
+        )}
+      </AnimatePresence>
     </RadixDialog.Root>
   );
 }

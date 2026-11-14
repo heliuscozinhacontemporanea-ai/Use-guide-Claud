@@ -12,6 +12,7 @@ vi.mock('../../application/usecases/listPartnerEventOrdersUseCase', () => ({
   listPartnerEventOrdersUseCase: m.orders,
 }));
 
+import { PushStack } from '../../../../ui/layouts/stack/PushStack';
 import { PartnerEventEditor } from '../PartnerEventEditor';
 import { PartnerEventPage } from './PartnerEventPage';
 
@@ -94,6 +95,40 @@ describe('Página do evento (p10–p12) e Editar evento (p18)', () => {
     m.orders.mockResolvedValue({ data: [ORDER], nextCursor: null, total: 1 });
   });
 
+  it('na pilha do painel, "Editar" é a ação da barra e sai em Convidados (evento em operação)', async () => {
+    const onEdit = vi.fn();
+    render(
+      <PushStack
+        backLabel="Voltar"
+        onBack={vi.fn()}
+        entries={[
+          { key: 'panel', navBar: false, bare: true, render: () => <p>painel</p> },
+          {
+            key: 'event',
+            title: 'Luau na Duna',
+            navBar: true,
+            render: () => (
+              <PartnerEventPage
+                eventId="ev1"
+                reloadKey={0}
+                timeZone="America/Fortaleza"
+                onEdit={onEdit}
+                onOpenSession={vi.fn()}
+                renderGuests={() => <p>convidados</p>}
+              />
+            ),
+          },
+        ]}
+      />
+    );
+    expect(await screen.findByText(/^R\$\s12\.800$/)).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Editar' }));
+    expect(onEdit).toHaveBeenCalledWith(true);
+    fireEvent.click(screen.getByRole('button', { name: i18n.t('courtesy.tabs.guests') }));
+    expect(screen.getByText('convidados')).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Editar' })).toBeNull();
+  });
+
   it('mostra vendido, a receber, sessões e pedidos; a sessão abre a folha', async () => {
     const onOpenSession = vi.fn();
     render(
@@ -101,7 +136,6 @@ describe('Página do evento (p10–p12) e Editar evento (p18)', () => {
         eventId="ev1"
         reloadKey={0}
         timeZone="America/Fortaleza"
-        onBack={vi.fn()}
         onEdit={vi.fn()}
         onOpenSession={onOpenSession}
       />
@@ -124,7 +158,6 @@ describe('Página do evento (p10–p12) e Editar evento (p18)', () => {
         eventId="ev1"
         reloadKey={0}
         timeZone="America/Fortaleza"
-        onBack={vi.fn()}
         onEdit={vi.fn()}
         onOpenSession={vi.fn()}
         onOpenEarnings={onOpenEarnings}
@@ -148,7 +181,6 @@ describe('Página do evento (p10–p12) e Editar evento (p18)', () => {
         eventId="ev1"
         reloadKey={0}
         timeZone="America/Fortaleza"
-        onBack={vi.fn()}
         onEdit={vi.fn()}
         onOpenSession={vi.fn()}
       />
@@ -176,7 +208,6 @@ describe('Página do evento (p10–p12) e Editar evento (p18)', () => {
         eventId="ev1"
         reloadKey={0}
         timeZone="America/Fortaleza"
-        onBack={vi.fn()}
         onEdit={vi.fn()}
         onOpenSession={vi.fn()}
         onOpenCoupons={onOpenCoupons}
@@ -192,7 +223,6 @@ describe('Página do evento (p10–p12) e Editar evento (p18)', () => {
         eventId="ev1"
         reloadKey={0}
         timeZone="America/Fortaleza"
-        onBack={vi.fn()}
         onEdit={vi.fn()}
         onOpenSession={vi.fn()}
       />
@@ -215,7 +245,6 @@ describe('Página do evento (p10–p12) e Editar evento (p18)', () => {
         eventId="ev1"
         reloadKey={0}
         timeZone="America/Fortaleza"
-        onBack={vi.fn()}
         onEdit={vi.fn()}
         onOpenSession={vi.fn()}
       />

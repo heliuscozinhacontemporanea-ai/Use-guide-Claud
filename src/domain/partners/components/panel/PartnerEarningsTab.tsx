@@ -13,7 +13,6 @@ import { usePartnerEarnings } from '../../hooks/usePartnerEarnings';
 import type { PartnerPayoutGroup } from '../../types/partnerHome';
 import { payoutRow } from '../../utils/payoutFormat';
 import { PartnerPayoutSheet } from './PartnerPayoutSheet';
-import { PartnerReportsPage } from './PartnerReportsPage';
 
 type EarningsSegment = 'payouts' | 'statement' | 'debts';
 
@@ -27,26 +26,26 @@ const TONE: Record<PartnerPayoutGroup['status'], StatusTone> = {
 export interface PartnerEarningsRenders {
   renderStatement?: () => ReactNode;
   renderDebts?: () => ReactNode;
-  renderAccounts?: (onBack: () => void) => ReactNode;
+  /** Contas de recebimento (p22); o toque numa conta abre a página dela por cima. */
+  renderAccounts?: (props: {
+    onOpenAccount: (account: { key: string; title: string }) => void;
+  }) => ReactNode;
+  /** Cadastro e saldos no Stripe de uma conta (um CNPJ). */
+  renderAccount?: (accountKey: string) => ReactNode;
 }
 
-/** Ganhos (p20): a receber, recebido no mês, repasses, extrato, dívidas, contas e relatórios. */
+/**
+ * Ganhos (p20): a receber, recebido no mês, repasses, extrato e dívidas. Contas e relatórios abrem por
+ * cima do painel (D33).
+ */
 export function PartnerEarningsTab({
   renders,
-  reports,
-  showReports,
-  onShowReportsChange: setShowReports,
-  showAccounts,
-  onShowAccountsChange: setShowAccounts,
+  onOpenReports,
+  onOpenAccounts,
 }: {
   renders: PartnerEarningsRenders;
-  reports: ReactNode;
-  /** Relatórios abertos; a página do estabelecimento abre direto em "Visitas e avaliações". */
-  showReports: false | 'sales' | 'reviews';
-  onShowReportsChange: (open: false | 'sales' | 'reviews') => void;
-  /** Contas de recebimento (p22); o painel esconde os atalhos enquanto ela está aberta. */
-  showAccounts: boolean;
-  onShowAccountsChange: (open: boolean) => void;
+  onOpenReports: () => void;
+  onOpenAccounts: () => void;
 }) {
   const { t, i18n } = useTranslation();
   const { timeZone } = usePanelTimeZone();
@@ -55,24 +54,12 @@ export function PartnerEarningsTab({
   const [segment, setSegment] = useState<EarningsSegment>('payouts');
   const [open, setOpen] = useState<PartnerPayoutGroup | null>(null);
 
-  if (showReports) {
-    return (
-      <PartnerReportsPage
-        key={showReports}
-        initialProfile={showReports === 'reviews'}
-        onBack={() => setShowReports(false)}
-        profile={reports}
-      />
-    );
-  }
-  if (showAccounts) return <>{renders.renderAccounts?.(() => setShowAccounts(false))}</>;
-
   const toReceiveCount = data?.payouts.filter((group) => group.status !== 'paid').length ?? 0;
   const month = formatBusinessDate(new Date().toISOString(), locale, { month: 'long' }, timeZone);
 
   return (
     <section aria-labelledby="partner-earnings-title" className="space-y-5">
-      <h2 id="partner-earnings-title" className="px-1 text-[22px] font-display font-bold text-ink">
+      <h2 id="partner-earnings-title" className="px-1 text-heading font-display font-bold text-ink">
         {t('partnerEarnings.title')}
       </h2>
 
@@ -145,12 +132,12 @@ export function PartnerEarningsTab({
                   : t('partnerEarnings.accountsPartial', data.accounts)
                 : undefined
             }
-            onClick={() => setShowAccounts(true)}
+            onClick={onOpenAccounts}
           />
           <ListRowButton
             title={t('partnerPanel.more.reports')}
             sub={t('partnerPanel.more.reportsHint')}
-            onClick={() => setShowReports('sales')}
+            onClick={onOpenReports}
           />
         </ListCard>
       </div>

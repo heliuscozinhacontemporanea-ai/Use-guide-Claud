@@ -44,11 +44,14 @@ function SettingsRow({
       <button
         type="button"
         onClick={onClick}
-        className="w-full min-h-14 px-4 flex items-center gap-3 text-left hover:bg-ink/[0.03] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-400/50 focus-visible:outline-none"
+        className="w-full min-h-14 px-4 py-2 flex items-center gap-3 text-left hover:bg-ink/[0.03] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-400/50 focus-visible:outline-none"
       >
         <Icon size={20} className="text-ink-muted shrink-0" aria-hidden="true" />
-        <span className="flex-1 text-body font-semibold text-ink">{label}</span>
-        {value && <span className="text-meta text-ink-muted">{value}</span>}
+        {/* Com a letra grande, o valor desce para a linha de baixo em vez de ser cortado (P17). */}
+        <span className="flex-1 min-w-0 flex flex-wrap items-baseline justify-between gap-x-3">
+          <span className="text-body font-semibold text-ink break-words">{label}</span>
+          {value && <span className="text-meta text-ink-muted">{value}</span>}
+        </span>
         <ChevronRight size={20} className="text-ink-subtle shrink-0" aria-hidden="true" />
       </button>
     </li>

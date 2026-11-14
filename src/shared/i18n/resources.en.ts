@@ -303,6 +303,16 @@ export const en: TranslationResource = {
           'Everything you need to know: tourism fee, how to get there, best season, transfers and essential tips.',
       },
     },
+    item: {
+      title: '{{name}} | {{place}} Guide',
+      description: 'Everything about {{name}} on Use Guide.',
+    },
+    admin: { title: 'Admin panel', description: 'Use Guide content management and moderation.' },
+    partners: {
+      title: 'Become a partner',
+      description:
+        'List your business and reach thousands of travelers in Jericoacoara, Preá and Barrinha.',
+    },
   },
   pages: {
     notFoundTitle: 'Page not found',
