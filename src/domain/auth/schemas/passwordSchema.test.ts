@@ -15,7 +15,7 @@ describe('passwordSchema', () => {
     const result = passwordSchema.safeParse('Sh0rt!');
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error.issues[0]?.message).toMatch(/pelo menos 8 caracteres/i);
+      expect(result.error.issues[0]?.message).toBe('auth.validation.passwordMin');
     }
   });
 
@@ -23,7 +23,7 @@ describe('passwordSchema', () => {
     const result = passwordSchema.safeParse('weakpass1!');
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error.issues[0]?.message).toMatch(/letra maiúscula/i);
+      expect(result.error.issues[0]?.message).toBe('auth.validation.passwordUpper');
     }
   });
 
@@ -31,7 +31,7 @@ describe('passwordSchema', () => {
     const result = passwordSchema.safeParse('WEAKPASS1!');
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error.issues[0]?.message).toMatch(/letra minúscula/i);
+      expect(result.error.issues[0]?.message).toBe('auth.validation.passwordLower');
     }
   });
 
@@ -39,7 +39,7 @@ describe('passwordSchema', () => {
     const result = passwordSchema.safeParse('WeakPassword!');
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error.issues[0]?.message).toMatch(/número/i);
+      expect(result.error.issues[0]?.message).toBe('auth.validation.passwordNumber');
     }
   });
 
@@ -47,7 +47,7 @@ describe('passwordSchema', () => {
     const result = passwordSchema.safeParse('WeakPassword1');
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error.issues[0]?.message).toMatch(/caractere especial/i);
+      expect(result.error.issues[0]?.message).toBe('auth.validation.passwordSpecial');
     }
   });
 });
@@ -73,7 +73,7 @@ describe('resetPasswordSchema', () => {
     expect(result.success).toBe(false);
     if (!result.success) {
       const issue = result.error.issues.find((i) => i.path.includes('confirmPassword'));
-      expect(issue?.message).toMatch(/senhas não coincidem/i);
+      expect(issue?.message).toBe('auth.validation.mismatch');
     }
   });
 });

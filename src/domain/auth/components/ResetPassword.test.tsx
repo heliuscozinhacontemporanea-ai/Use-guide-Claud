@@ -1,86 +1,71 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import React from 'react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { ResetPassword } from './ResetPassword';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { i18n } from '../../../shared/i18n';
 import * as authFactory from '../factory';
+import { ResetPassword } from './ResetPassword';
 
 vi.mock('../factory', () => ({
   verifyPasswordResetCodeUseCase: vi.fn(),
   confirmPasswordResetUseCase: vi.fn(),
 }));
 
-describe('ResetPassword Component', () => {
-  beforeEach(() => {
+const t = (key: string) => i18n.t(key);
+
+function renderAt(url: string) {
+  return render(
+    <MemoryRouter initialEntries={[url]}>
+      <Routes>
+        <Route path="/reset-password" element={<ResetPassword />} />
+      </Routes>
+    </MemoryRouter>
+  );
+}
+
+describe('ResetPassword', () => {
+  beforeEach(async () => {
+    await i18n.changeLanguage('pt-BR');
     vi.clearAllMocks();
   });
 
-  it('renders error state when oobCode is missing from URL', async () => {
-    render(
-      <MemoryRouter initialEntries={['/reset-password']}>
-        <Routes>
-          <Route path="/reset-password" element={<ResetPassword />} />
-        </Routes>
-      </MemoryRouter>
-    );
-
-    await waitFor(() => {
-      expect(screen.getByText(/link de recuperação inválido ou expirado/i)).toBeInTheDocument();
-    });
+  it('sem código no link, mostra o erro e o caminho para pedir outro', async () => {
+    renderAt('/reset-password');
+    expect(await screen.findByText(t('auth.errors.invalidLink'))).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: t('auth.reset.requestNew') })).toBeInTheDocument();
   });
 
-  it('verifies oobCode successfully and renders new password form without phone field', async () => {
+  it('link vencido mostra o erro do link', async () => {
+    vi.mocked(authFactory.verifyPasswordResetCodeUseCase).mockRejectedValue(new Error('x'));
+    renderAt('/reset-password?oobCode=old');
+    expect(await screen.findByText(t('auth.errors.expiredLink'))).toBeInTheDocument();
+  });
+
+  it('com o link válido, mostra o e-mail, os campos e os requisitos, sem telefone', async () => {
     vi.mocked(authFactory.verifyPasswordResetCodeUseCase).mockResolvedValue('user@example.com');
-
-    render(
-      <MemoryRouter initialEntries={['/reset-password?oobCode=valid-code-123']}>
-        <Routes>
-          <Route path="/reset-password" element={<ResetPassword />} />
-        </Routes>
-      </MemoryRouter>
-    );
-
-    await waitFor(() => {
-      expect(screen.getByText('user@example.com')).toBeInTheDocument();
-      expect(screen.getByPlaceholderText('Nova senha *')).toBeInTheDocument();
-      expect(screen.getByPlaceholderText('Confirmar nova senha *')).toBeInTheDocument();
-    });
-
-    // Ensure no phone fields exist
+    renderAt('/reset-password?oobCode=valid-code-123');
+    expect(await screen.findByText('user@example.com')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(t('auth.field.new.placeholder'))).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(t('auth.field.confirm.placeholder'))).toBeInTheDocument();
+    expect(screen.getByText(t('auth.requirements.special'))).toBeInTheDocument();
     expect(screen.queryByPlaceholderText(/telefone/i)).not.toBeInTheDocument();
-    expect(screen.queryByPlaceholderText(/celular/i)).not.toBeInTheDocument();
   });
 
-  it('validates password requirements and confirms reset', async () => {
+  it('valida a senha e redefine', async () => {
     vi.mocked(authFactory.verifyPasswordResetCodeUseCase).mockResolvedValue('user@example.com');
     vi.mocked(authFactory.confirmPasswordResetUseCase).mockResolvedValue();
-
-    render(
-      <MemoryRouter initialEntries={['/reset-password?oobCode=valid-code-123']}>
-        <Routes>
-          <Route path="/reset-password" element={<ResetPassword />} />
-        </Routes>
-      </MemoryRouter>
-    );
-
-    await waitFor(() => {
-      expect(screen.getByPlaceholderText('Nova senha *')).toBeInTheDocument();
+    renderAt('/reset-password?oobCode=valid-code-123');
+    const password = await screen.findByPlaceholderText(t('auth.field.new.placeholder'));
+    fireEvent.change(password, { target: { value: 'StrongP@ss1' } });
+    fireEvent.change(screen.getByPlaceholderText(t('auth.field.confirm.placeholder')), {
+      target: { value: 'StrongP@ss1' },
     });
-
-    const passwordInput = screen.getByPlaceholderText('Nova senha *');
-    const confirmInput = screen.getByPlaceholderText('Confirmar nova senha *');
-    const submitBtn = screen.getByRole('button', { name: /salvar senha/i });
-
-    fireEvent.change(passwordInput, { target: { value: 'StrongP@ss1' } });
-    fireEvent.change(confirmInput, { target: { value: 'StrongP@ss1' } });
-    fireEvent.click(submitBtn);
-
-    await waitFor(() => {
+    fireEvent.click(screen.getByRole('button', { name: t('auth.reset.save') }));
+    await waitFor(() =>
       expect(authFactory.confirmPasswordResetUseCase).toHaveBeenCalledWith(
         'valid-code-123',
         'StrongP@ss1'
-      );
-      expect(screen.getByText(/sucesso!/i)).toBeInTheDocument();
-    });
+      )
+    );
+    expect(await screen.findByText(t('auth.reset.successTitle'))).toBeInTheDocument();
   });
 });

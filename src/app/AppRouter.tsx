@@ -46,7 +46,7 @@ export function AppRouter() {
   const isExplorePage = routeKey === 'explore';
   useSyncLocaleWithUrl();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { isLoginModalOpen, isLoginClosingBySwipe, closeLoginModal, openLoginModal } = useUI();
+  const { isLoginModalOpen, closeLoginModal, openLoginModal } = useUI();
   const loginModalTab = useUIStore((state) => state.loginModalTab);
 
   useEffect(() => prefetchWhenIdle(COMMON_SCREENS), []);
@@ -199,32 +199,14 @@ export function AppRouter() {
   // O que fica atrás do anúncio sai do toque, do Tab e do leitor de tela; a barra de abas continua.
   const behindListing = Boolean(selectedItem) && !listingCoversTabBar;
 
-  const isRetracted = isLoginModalOpen && !isMenuOpen && !isLoginClosingBySwipe;
   const loginMounted = useOpenedOnce(isLoginModalOpen);
   const partnersMounted = useOpenedOnce(isPartnersOpen);
 
   return (
     <div className="relative h-screen bg-black text-ink selection:bg-teal-500/30">
       <BackdropCard>
-        <motion.div
-          ref={scrollContainerRef}
-          animate={{
-            y: isRetracted ? 16 : 0,
-            scale: isRetracted ? 0.9 : 1,
-            opacity: 1,
-            borderTopLeftRadius: isRetracted ? 12 : 0,
-            borderTopRightRadius: isRetracted ? 12 : 0,
-          }}
-          transition={{
-            duration: isRetracted ? 0.45 : isLoginClosingBySwipe ? 0.22 : 0.35,
-            ease: isRetracted ? [0.16, 1, 0.3, 1] : [0.32, 0.72, 0, 1],
-          }}
-          style={{
-            transformOrigin: 'top center',
-            opacity: 1,
-          }}
-          className="relative h-full overflow-y-auto no-scrollbar"
-        >
+        {/* O fundo vira cartão atrás de qualquer folha pelo `BackdropCard` (D33). */}
+        <div ref={scrollContainerRef} className="relative h-full overflow-y-auto no-scrollbar">
           {!isHideGlobalUI && (
             <div inert={behindListing || undefined} className="contents">
               <Header
@@ -349,7 +331,7 @@ export function AppRouter() {
               />
             </Suspense>
           )}
-        </motion.div>
+        </div>
       </BackdropCard>
     </div>
   );

@@ -18,7 +18,7 @@ describe('Auth Validation Schemas (Frontend)', () => {
       });
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.flatten().fieldErrors.email).toContain('Formato de e-mail inválido');
+        expect(result.error.flatten().fieldErrors.email).toContain('auth.validation.emailInvalid');
       }
     });
 
@@ -29,7 +29,9 @@ describe('Auth Validation Schemas (Frontend)', () => {
       });
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.flatten().fieldErrors.password).toContain('Senha é obrigatória');
+        expect(result.error.flatten().fieldErrors.password).toContain(
+          'auth.validation.passwordRequired'
+        );
       }
     });
   });
@@ -57,7 +59,9 @@ describe('Auth Validation Schemas (Frontend)', () => {
       });
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.flatten().fieldErrors.firstName).toContain('Nome é obrigatório');
+        expect(result.error.flatten().fieldErrors.firstName).toContain(
+          'auth.validation.firstNameRequired'
+        );
       }
     });
 
@@ -70,7 +74,7 @@ describe('Auth Validation Schemas (Frontend)', () => {
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.flatten().fieldErrors.password).toContain(
-          'A senha deve conter pelo menos uma letra maiúscula'
+          'auth.validation.passwordUpper'
         );
       }
     });
@@ -83,7 +87,7 @@ describe('Auth Validation Schemas (Frontend)', () => {
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.flatten().fieldErrors.confirmPassword).toContain(
-          'As senhas não coincidem'
+          'auth.validation.mismatch'
         );
       }
     });
@@ -95,9 +99,7 @@ describe('Auth Validation Schemas (Frontend)', () => {
       });
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.flatten().fieldErrors.phone).toContain(
-          'Telefone/WhatsApp é obrigatório'
-        );
+        expect(result.error.flatten().fieldErrors.phone).toContain('auth.validation.phoneRequired');
       }
     });
   });
@@ -112,7 +114,7 @@ describe('Auth Validation Schemas (Frontend)', () => {
       const result = forgotPasswordSchema.safeParse({ email: 'not-an-email' });
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.flatten().fieldErrors.email).toContain('Formato de e-mail inválido');
+        expect(result.error.flatten().fieldErrors.email).toContain('auth.validation.emailInvalid');
       }
     });
   });

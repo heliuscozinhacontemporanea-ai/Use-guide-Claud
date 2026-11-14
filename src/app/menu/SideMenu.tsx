@@ -7,7 +7,6 @@ import { UserRole } from '../../domain/auth/types/auth';
 import { useMyGates, useMyPromotions } from '../../domain/ticketing';
 import { MainMenuView, useUserPhoto, useUserProfile } from '../../domain/user';
 import { useLocalizedRouting } from '../../shared/hooks/useLocalizedRouting';
-import { useUIStore } from '../../shared/stores/useUIStore';
 import { cn } from '../../shared/utils/cn';
 import { ToastContainer } from '../../ui/components/Toast';
 import { StackSheet } from '../../ui/layouts/stack/StackSheet';
@@ -94,8 +93,6 @@ const TITLE_KEYS: Record<MenuView, string> = {
 export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
   const { t } = useTranslation();
   const { user } = useAuthContext();
-  const isLoginModalOpen = useUIStore((state) => state.isLoginModalOpen);
-  const isLoginClosingBySwipe = useUIStore((state) => state.isLoginClosingBySwipe);
   // A linha Divulgação só aparece para quem divulga ou tem convite (D27).
   const promotions = useMyPromotions(Boolean(user && !user.isAnonymous));
   const hasPromotions = promotions.data.length > 0;
@@ -410,7 +407,6 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
           close: t('menu.closeMenu'),
           dialog: t('menu.profileTitle'),
         }}
-        receded={isLoginModalOpen && !isLoginClosingBySwipe}
         takeover={
           isCropping ? (
             <Suspense fallback={<ScreenFallback />}>

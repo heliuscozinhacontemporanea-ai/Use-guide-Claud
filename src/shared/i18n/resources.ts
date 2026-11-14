@@ -16,6 +16,7 @@ import { type GateModeTranslation, gateModePtBR } from './gateModeResources';
 import { type HelpTranslation, helpPtBR } from './helpResources';
 import { type InsightsTranslation, insightsPtBR } from './insightsResources';
 import { type LegalTranslation, legalPtBR } from './legalResources';
+import { type AuthTranslation, authPtBR } from './authResources';
 import { type ListingDetailTranslation, listingDetailPtBR } from './listingDetailResources';
 import { type ListingPlanTranslation, listingPlanPtBR } from './listingPlanResources';
 import { type NotifyTranslation, notifyPtBR } from './notifyResources';
@@ -94,6 +95,7 @@ export interface TranslationResource {
   partnerFirstSteps: PartnerFirstStepsTranslation;
   partnerAddSegment: PartnerAddSegmentTranslation;
   listingDetail: ListingDetailTranslation;
+  auth: AuthTranslation;
   reviewsUi: ReviewsUiTranslation;
   partnerSignup: PartnerSignupTranslation;
   partnerAgora: PartnerAgoraTranslation;
@@ -354,6 +356,7 @@ const ptBR: TranslationResource = {
   partnerFirstSteps: partnerFirstStepsPtBR,
   partnerAddSegment: partnerAddSegmentPtBR,
   listingDetail: listingDetailPtBR,
+  auth: authPtBR,
   reviewsUi: reviewsUiPtBR,
   partnerSignup: partnerSignupPtBR,
   partnerAgora: partnerAgoraPtBR,
