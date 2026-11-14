@@ -510,4 +510,5 @@ Aprovada pelo responsável do produto em 2026-11-14, a partir do vídeo de refer
   * a folha do Perfil usa o fundo das telas (`bg-app`) e os cartões `bg-surface`, para o conteúdo ficar mais claro que o fundo no escuro (opção A; DESIGN.md §5.1);
   * Ingressos não tem botão de atualizar: a lista recarrega quando a pessoa volta ao app;
   * a situação no detalhe da reserva segue a regra geral (texto com ponto, §2.2), no lugar da pílula do print de 10/11.
+  * **anúncio em tela cheia é página da aba** (opção A, aprovada com prints das duas opções): a barra de abas continua visível por cima dele, como no iPhone, e o fim do anúncio tem espaço para ela. Trocar de aba e voltar devolve o anúncio aberto; tocar na aba ativa fecha (P23). Aberto pela busca, que já cobre a barra, o anúncio fica por cima de tudo, como hoje. A compra (folha de pagamento) continua cobrindo a barra. Se um dia o anúncio ganhar um botão "Reservar" fixo embaixo, a escolha deve ser revista.
 
