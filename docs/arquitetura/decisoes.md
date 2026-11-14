@@ -506,4 +506,8 @@ Aprovada pelo responsável do produto em 2026-11-14, a partir do vídeo de refer
 * **Reduzir movimento:** o automático troca com esmaecido de 150 ms; o que o dedo arrasta continua seguindo o dedo.
 * **Perfil:** o menu do perfil abre como folha de baixo (substitui o menu lateral da D19; conteúdo igual), com o título "Perfil" na primeira tela.
 * **Aplicação:** primeiro o trajeto Perfil → Configurações → Idioma no app, gravado para conferência; depois as demais telas do menu e as outras folhas e páginas empilhadas, antes de publicar.
+* **Complementos (2026-11-14, depois das telas do menu):**
+  * a folha do Perfil usa o fundo das telas (`bg-app`) e os cartões `bg-surface`, para o conteúdo ficar mais claro que o fundo no escuro (opção A; DESIGN.md §5.1);
+  * Ingressos não tem botão de atualizar: a lista recarrega quando a pessoa volta ao app;
+  * a situação no detalhe da reserva segue a regra geral (texto com ponto, §2.2), no lugar da pílula do print de 10/11.
 
