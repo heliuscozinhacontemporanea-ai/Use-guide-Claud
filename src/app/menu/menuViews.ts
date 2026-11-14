@@ -87,3 +87,14 @@ export function parentMenuView(view: MenuView): MenuView {
 export function visibleMenuView(view: MenuView, isAuthenticated: boolean): MenuView {
   return !isAuthenticated && PRIVATE_VIEWS.includes(view) ? 'main' : view;
 }
+
+/** Caminho da primeira tela do menu até `view` (a pilha da folha do perfil, D33). */
+export function menuPath(view: MenuView): MenuView[] {
+  const path: MenuView[] = [view];
+  let current = view;
+  while (current !== 'main' && path.length < MENU_VIEWS.length) {
+    current = parentMenuView(current);
+    path.unshift(current);
+  }
+  return path;
+}

@@ -28,6 +28,8 @@ interface SettingsViewProps {
   onOpenUsername?: () => void;
   /** Só com login: avisos da conta e do parceiro (D25). */
   onOpenNotifications?: () => void;
+  /** Na folha do perfil o `<` e o título ficam na barra fixa (D33). */
+  hideHeader?: boolean;
 }
 
 function SettingsRow({
@@ -66,6 +68,7 @@ export function SettingsView({
   onOpenPurchases,
   onOpenUsername,
   onOpenNotifications,
+  hideHeader = false,
 }: SettingsViewProps) {
   const { t } = useTranslation();
   const { theme } = useTheme();
@@ -75,10 +78,12 @@ export function SettingsView({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center gap-2 mb-5">
-        <BackButton label={t('settings.back')} onClick={onBack} />
-        <h2 className="text-[22px] font-display font-bold text-ink">{t('settings.title')}</h2>
-      </div>
+      {!hideHeader && (
+        <div className="flex items-center gap-2 mb-5">
+          <BackButton label={t('settings.back')} onClick={onBack} />
+          <h2 className="text-[22px] font-display font-bold text-ink">{t('settings.title')}</h2>
+        </div>
+      )}
 
       <ul className="rounded-[20px] bg-surface border border-line divide-y divide-line overflow-hidden">
         {onOpenUsername && (

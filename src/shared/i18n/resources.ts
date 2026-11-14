@@ -146,6 +146,8 @@ export interface TranslationResource {
   };
   menu: {
     closeMenu: string;
+    /** Título da primeira tela da folha do perfil (D33). */
+    profileTitle: string;
     changeProfilePhoto: string;
     userFallback: string;
     signInOrRegister: string;
@@ -403,6 +405,7 @@ const ptBR: TranslationResource = {
   },
   menu: {
     closeMenu: 'Fechar menu',
+    profileTitle: 'Perfil',
     changeProfilePhoto: 'Alterar foto de perfil',
     userFallback: 'Usuário',
     signInOrRegister: 'Entrar ou cadastrar',

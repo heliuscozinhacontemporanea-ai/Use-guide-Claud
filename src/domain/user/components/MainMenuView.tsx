@@ -31,6 +31,8 @@ interface MainMenuViewProps {
   onPromotionsOpen?: () => void;
   /** Portaria (C1): só para quem está na equipe ou foi convidado para a portaria de um evento. */
   onGateOpen?: () => void;
+  /** Na folha do perfil o `<` fica na barra fixa (D33), não na tela. */
+  hideBackButton?: boolean;
 }
 
 /** Tela principal do menu (D19): perfil com login; sem login, entrar ou cadastrar. */
@@ -51,6 +53,7 @@ export function MainMenuView({
   highlights,
   onPromotionsOpen,
   onGateOpen,
+  hideBackButton = false,
 }: MainMenuViewProps) {
   const { t, i18n } = useTranslation();
   const fullName = userData.firstName ? `${userData.firstName} ${userData.lastName}`.trim() : '';
@@ -58,9 +61,11 @@ export function MainMenuView({
 
   return (
     <>
-      <div className="mb-4 pr-12">
-        <BackButton label={t('menu.closeMenu')} onClick={onClose} />
-      </div>
+      {!hideBackButton && (
+        <div className="mb-4 pr-12">
+          <BackButton label={t('menu.closeMenu')} onClick={onClose} />
+        </div>
+      )}
       {user ? (
         <div className="space-y-5">
           <div className="flex flex-col items-center text-center">

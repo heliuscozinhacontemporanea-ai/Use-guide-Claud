@@ -105,6 +105,7 @@
   --color-sheet-card-line: var(--ug-sheet-card-line);
   --color-line: var(--ug-line);
   --color-scrim: var(--ug-scrim);
+  --color-recede: var(--ug-recede);
   --color-accent: var(--ug-accent);
   --color-accent-soft: var(--ug-accent-soft);
   --color-accent-line: var(--ug-accent-line);
@@ -217,6 +218,8 @@
   --ug-sheet-card-line: transparent;
   --ug-line: rgba(255, 255, 255, 0.08);
   --ug-scrim: rgba(0, 0, 0, 0.7);
+  /* O que fica para trás numa troca de tela clareia no escuro, para destacar do preto (D33). */
+  --ug-recede: rgba(255, 255, 255, 0.1);
   --ug-accent: #3ee47a;
   --ug-accent-soft: rgba(17, 212, 80, 0.12);
   --ug-accent-line: rgba(17, 212, 80, 0.35);
@@ -278,6 +281,7 @@
   --ug-sheet-card-line: rgba(35, 29, 22, 0.12);
   --ug-line: rgba(35, 29, 22, 0.12);
   --ug-scrim: rgba(35, 29, 22, 0.35);
+  --ug-recede: rgba(0, 0, 0, 0.12);
   --ug-accent: #087a2e;
   --ug-accent-soft: rgba(17, 180, 70, 0.14);
   --ug-accent-line: rgba(8, 122, 46, 0.4);

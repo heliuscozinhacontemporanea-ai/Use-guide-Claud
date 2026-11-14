@@ -131,6 +131,7 @@ export const en: TranslationResource = {
   },
   menu: {
     closeMenu: 'Close menu',
+    profileTitle: 'Profile',
     changeProfilePhoto: 'Change profile photo',
     userFallback: 'User',
     signInOrRegister: 'Sign in or sign up',

@@ -1,15 +1,17 @@
-import { AnimatePresence, motion } from 'motion/react';
+import { Settings } from 'lucide-react';
 import React, { Suspense } from 'react';
+import { useTranslation } from 'react-i18next';
 import { hasPasswordSignInUseCase } from '../../domain/auth';
 import { useAuthContext } from '../../domain/auth/context/AuthContext';
 import { UserRole } from '../../domain/auth/types/auth';
 import { useMyGates, useMyPromotions } from '../../domain/ticketing';
 import { MainMenuView, useUserPhoto, useUserProfile } from '../../domain/user';
-import { Z_INDEX } from '../../shared/constants/zIndex';
 import { useLocalizedRouting } from '../../shared/hooks/useLocalizedRouting';
+import { useUIStore } from '../../shared/stores/useUIStore';
 import { cn } from '../../shared/utils/cn';
+import { StackSheet } from '../../ui/layouts/stack/StackSheet';
+import type { StackEntry } from '../../ui/layouts/stack/stackTypes';
 import { ScreenFallback } from '../../ui/lazy/DelayedFallback';
-import { SidebarLayout } from '../../ui/layouts/SidebarLayout';
 import {
   AboutLicensesView,
   AboutTermsView,
@@ -36,7 +38,8 @@ import {
 import { prefetchWhenIdle } from '../lazy/prefetchWhenIdle';
 import { ProfileHighlightsComposition } from '../compositions/ProfileHighlightsComposition';
 import { signOut } from '../signOut';
-import { type MenuView, parentMenuView, visibleMenuView } from './menuViews';
+import { MenuMessageToast } from './MenuMessageToast';
+import { type MenuView, menuPath, parentMenuView, visibleMenuView } from './menuViews';
 import { useSideMenu } from './useSideMenu';
 
 interface SideMenuProps {
@@ -58,23 +61,15 @@ const FULL_HEIGHT_VIEWS: readonly MenuView[] = [
   'notifications',
 ];
 
-const SETTINGS_VIEWS: readonly MenuView[] = [
-  'settings',
-  'purchases',
-  'username',
-  'language',
-  'appearance',
-  'support',
-  'about',
-  'terms',
-  'partner-terms',
-  'licenses',
-  'notifications',
-];
+/** Telas com a barra do topo fixa da folha (piloto D33: Perfil → Configurações → Idioma). */
+const NAV_BAR_VIEWS: readonly MenuView[] = ['main', 'settings', 'language'];
 
 /** Compõe as telas de vários domínios (perfil, ingressos, reservas, compras, favoritos, avaliações, conteúdo) no menu. */
 export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
+  const { t } = useTranslation();
   const { user } = useAuthContext();
+  const isLoginModalOpen = useUIStore((state) => state.isLoginModalOpen);
+  const isLoginClosingBySwipe = useUIStore((state) => state.isLoginClosingBySwipe);
   // A linha Divulgação só aparece para quem divulga ou tem convite (D27).
   const promotions = useMyPromotions(Boolean(user && !user.isAnonymous));
   const hasPromotions = promotions.data.length > 0;
@@ -168,15 +163,16 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
     closeMenu();
   };
 
-  const renderView = (): React.ReactNode => {
-    switch (view) {
+  const renderViewFor = (v: MenuView): React.ReactNode => {
+    switch (v) {
       case 'appearance':
         return <AppearanceSettingsView onBack={goBack} />;
       case 'language':
-        return <LanguageSettingsView onBack={goBack} />;
+        return <LanguageSettingsView onBack={goBack} hideHeader />;
       case 'settings':
         return (
           <SettingsView
+            hideHeader
             onBack={goBack}
             onOpenLanguage={() => showView('language')}
             onOpenAppearance={() => showView('appearance')}
@@ -302,6 +298,7 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
         return (
           <>
             <MainMenuView
+              hideBackButton
               user={menuUser}
               userData={userData}
               memberSince={memberSince}
@@ -340,78 +337,58 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
     }
   };
 
+  const titles: Partial<Record<MenuView, string>> = {
+    main: t('menu.profileTitle'),
+    settings: t('settings.title'),
+    language: t('settings.language'),
+  };
+  const entries: StackEntry[] = menuPath(view).map((v) => ({
+    key: v,
+    title: titles[v],
+    navBar: NAV_BAR_VIEWS.includes(v),
+    action:
+      v === 'main'
+        ? { label: t('settings.title'), icon: Settings, onClick: () => showView('settings') }
+        : undefined,
+    render: () => (
+      <div
+        className={cn('w-full', FULL_HEIGHT_VIEWS.includes(v) && 'flex-1 flex flex-col *:flex-1')}
+      >
+        <Suspense fallback={<ScreenFallback />}>{renderViewFor(v)}</Suspense>
+      </div>
+    ),
+  }));
+
   return (
-    <SidebarLayout
+    <StackSheet
       isOpen={isOpen}
       onClose={closeMenu}
-      isCropping={isCropping}
-      onSettingsClick={
-        isCropping || SETTINGS_VIEWS.includes(view) ? undefined : () => showView('settings')
+      onBack={goBack}
+      entries={entries}
+      labels={{
+        back: t('settings.back'),
+        close: t('menu.closeMenu'),
+        dialog: t('menu.profileTitle'),
+      }}
+      receded={isLoginModalOpen && !isLoginClosingBySwipe}
+      takeover={
+        isCropping ? (
+          <Suspense fallback={<ScreenFallback />}>
+            <ImageCropperView
+              imageToCrop={imageToCrop}
+              crop={crop}
+              zoom={zoom}
+              onCropChange={onCropChange}
+              onCropComplete={onCropComplete}
+              onZoomChange={onZoomChange}
+              setZoom={setZoom}
+              onCancel={cancelCropping}
+              onConfirm={handleConfirmCrop}
+            />
+          </Suspense>
+        ) : undefined
       }
-    >
-      <AnimatePresence>
-        {message && (
-          <motion.div
-            initial={{ opacity: 0, y: -20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -20, scale: 0.95 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 28 }}
-            style={{ zIndex: Z_INDEX.toast }}
-            className={cn(
-              'absolute top-4 left-4 right-4 p-4 rounded-3xl border text-[10px] font-black uppercase tracking-widest text-center shadow-2xl cursor-pointer text-white',
-              message.type === 'success'
-                ? 'bg-teal-500/80 border-teal-500/40 shadow-teal-500/20 backdrop-blur-md'
-                : 'bg-rose-500/80 border-rose-500/40 shadow-rose-500/20 backdrop-blur-md'
-            )}
-            onClick={() => setMessage(null)}
-          >
-            {message.text}
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence mode="wait" initial={false}>
-        {isCropping ? (
-          <motion.div
-            key="crop-view"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 1.05 }}
-            transition={{ duration: 0.2 }}
-            className="w-full h-full flex flex-col"
-          >
-            <Suspense fallback={<ScreenFallback />}>
-              <ImageCropperView
-                imageToCrop={imageToCrop}
-                crop={crop}
-                zoom={zoom}
-                onCropChange={onCropChange}
-                onCropComplete={onCropComplete}
-                onZoomChange={onZoomChange}
-                setZoom={setZoom}
-                onCancel={cancelCropping}
-                onConfirm={handleConfirmCrop}
-              />
-            </Suspense>
-          </motion.div>
-        ) : (
-          <motion.div
-            key={`menu-${view}`}
-            initial={{ opacity: 0, x: view === 'main' ? -10 : 10 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: view === 'main' ? 10 : -10 }}
-            transition={{ duration: 0.2 }}
-            className={cn(
-              'w-full',
-              // Ocupa a altura da tela (o rodapé com mt-auto fica embaixo) e cresce com o conteúdo, para a
-              // folha rolar quando ele passa da tela.
-              FULL_HEIGHT_VIEWS.includes(view) && 'flex-1 flex flex-col *:flex-1'
-            )}
-          >
-            <Suspense fallback={<ScreenFallback />}>{renderView()}</Suspense>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </SidebarLayout>
+      overlay={<MenuMessageToast message={message} onDismiss={() => setMessage(null)} />}
+    />
   );
 }

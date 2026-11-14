@@ -131,6 +131,7 @@ export const fr: TranslationResource = {
   },
   menu: {
     closeMenu: 'Fermer le menu',
+    profileTitle: 'Profil',
     changeProfilePhoto: 'Changer la photo de profil',
     userFallback: 'Utilisateur',
     signInOrRegister: 'Se connecter ou s’inscrire',
