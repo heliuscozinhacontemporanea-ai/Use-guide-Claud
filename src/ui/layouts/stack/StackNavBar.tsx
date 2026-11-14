@@ -5,6 +5,12 @@ import type { StackAction, StackEntry } from './stackTypes';
 import type { StackLayers } from './useStackTransition';
 
 export const NAV_BAR_HEIGHT = 56;
+/**
+ * A barra tem altura fixa em px e o título para de crescer em 22 px: com a letra do sistema grande, o
+ * `<` e a ação continuam na barra e o título corta com reticências, como no iOS (o nome completo
+ * continua no `<h2>` para o leitor de tela). O conteúdo das telas acompanha a letra (P17).
+ */
+const TITLE_SIZE = 'min(1.0625rem, 22px)';
 
 interface StackNavBarProps {
   layers: StackLayers;
@@ -28,7 +34,7 @@ export function StackNavBar({ layers, progress, dragX, backLabel, onBack }: Stac
         type="button"
         onClick={onBack}
         aria-label={backLabel}
-        className="press absolute left-2 top-1.5 z-10 w-11 h-11 rounded-full flex items-center justify-center text-ink hover:bg-ink/[0.06] focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none"
+        className="press absolute left-[8px] top-[6px] z-10 w-[44px] h-[44px] rounded-full flex items-center justify-center text-ink hover:bg-ink/[0.06] focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none"
       >
         <ChevronLeft size={24} strokeWidth={2.25} aria-hidden="true" />
       </button>
@@ -85,8 +91,8 @@ function NavLayer({
     <>
       {entry.title && (
         <motion.h2
-          style={{ x, opacity }}
-          className="pointer-events-none absolute inset-x-0 top-0 h-full px-16 flex items-center justify-center text-title font-semibold text-ink"
+          style={{ x, opacity, fontSize: TITLE_SIZE }}
+          className="pointer-events-none absolute inset-x-0 top-0 h-full px-[60px] flex items-center justify-center font-semibold leading-tight text-ink"
         >
           <span className="truncate">{entry.title}</span>
         </motion.h2>
@@ -112,7 +118,7 @@ function NavAction({
       onClick={action.onClick}
       aria-label={action.label}
       style={{ x, opacity }}
-      className="press absolute right-2 top-1.5 w-11 h-11 rounded-full flex items-center justify-center text-ink hover:bg-ink/[0.06] focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none"
+      className="press absolute right-[8px] top-[6px] w-[44px] h-[44px] rounded-full flex items-center justify-center text-ink hover:bg-ink/[0.06] focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none"
     >
       <Icon size={24} aria-hidden="true" />
     </motion.button>

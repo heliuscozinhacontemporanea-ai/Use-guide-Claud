@@ -104,7 +104,7 @@ export function AccountView({
   return (
     <div className="flex flex-col gap-8">
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5" noValidate>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(9rem,1fr))] gap-3">
           <div>
             <label htmlFor={`${ids}-first`} className={LABEL}>
               {t('account.firstName')}

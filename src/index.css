@@ -26,21 +26,24 @@
   --radius-arredondados: 2.5rem;
   --radius-arredondados-sm: 1.5rem;
 
-  /* Escala de texto (DESIGN.md P3): tamanho e altura de linha; o peso vem da classe font-*. */
-  --text-display: 28px;
-  --text-display--line-height: 34px;
-  --text-heading: 22px;
-  --text-heading--line-height: 28px;
-  --text-title: 17px;
-  --text-title--line-height: 24px;
-  --text-body: 15px;
-  --text-body--line-height: 22px;
-  --text-control: 14px;
-  --text-control--line-height: 20px;
-  --text-meta: 13px;
-  --text-meta--line-height: 18px;
-  --text-caption: 12px;
-  --text-caption--line-height: 16px;
+  /*
+   * Escala de texto (DESIGN.md P3), em rem para acompanhar o tamanho de letra escolhido pela pessoa
+   * (P17): 28, 22, 17, 15, 14, 13 e 12 px com a letra padrão de 16 px. O peso vem da classe font-*.
+   */
+  --text-display: 1.75rem;
+  --text-display--line-height: 2.125rem;
+  --text-heading: 1.375rem;
+  --text-heading--line-height: 1.75rem;
+  --text-title: 1.0625rem;
+  --text-title--line-height: 1.5rem;
+  --text-body: 0.9375rem;
+  --text-body--line-height: 1.375rem;
+  --text-control: 0.875rem;
+  --text-control--line-height: 1.25rem;
+  --text-meta: 0.8125rem;
+  --text-meta--line-height: 1.125rem;
+  --text-caption: 0.75rem;
+  --text-caption--line-height: 1rem;
 
   /* Raios (DESIGN.md P5). */
   --radius-control: 12px;
@@ -424,10 +427,11 @@
     min-height: 100vh;
   }
 
+  /* No mínimo 16 px (o iOS dá zoom em campo menor) e crescendo com a letra escolhida pela pessoa (P17). */
   input,
   select,
   textarea {
-    font-size: 16px !important;
+    font-size: max(16px, 1rem) !important;
   }
 }
 
