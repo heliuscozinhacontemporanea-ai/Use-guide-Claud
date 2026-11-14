@@ -25,11 +25,35 @@ interface StackNavBarProps {
  * Barra do topo fixa da folha (DESIGN.md §8, D33): o `<` fica parado na mesma altura em todas as telas;
  * o título centralizado e a ação da direita entram e saem junto com a página.
  */
-export function StackNavBar({ layers, progress, dragX, backLabel, onBack }: StackNavBarProps) {
-  const { top, under } = layers;
+export function StackNavBar(props: StackNavBarProps) {
+  const { top, under } = props.layers;
   if (!top.navBar && !under?.navBar) return null;
+  // A tela de baixo não tem barra (ex.: a raiz do painel, com o próprio topo): a barra entra e sai
+  // inteira junto com a página de cima, como no iOS.
+  const slides = Boolean(under && !under.navBar);
+  return <Bar {...props} slides={slides} />;
+}
+
+function Bar({
+  layers,
+  progress,
+  dragX,
+  backLabel,
+  onBack,
+  slides,
+}: StackNavBarProps & { slides: boolean }) {
+  const { top, under } = layers;
+  const reduced = useReducedMotion();
+  const barX = useTransform(progress, (q) => (slides && !reduced ? `${(1 - q) * 100}%` : '0%'));
   return (
-    <div className="absolute inset-x-0 top-0 z-10 bg-app" style={{ height: NAV_BAR_HEIGHT }}>
+    <motion.div
+      className="absolute inset-x-0 top-0 z-10 bg-app"
+      style={{
+        height: NAV_BAR_HEIGHT,
+        x: slides && reduced ? dragX : barX,
+        opacity: slides && reduced ? progress : 1,
+      }}
+    >
       <button
         type="button"
         onClick={onBack}
@@ -39,9 +63,11 @@ export function StackNavBar({ layers, progress, dragX, backLabel, onBack }: Stac
         <ChevronLeft size={24} strokeWidth={2.25} aria-hidden="true" />
       </button>
       {under?.navBar && <NavLayer entry={under} progress={progress} role="under" />}
-      {under && <BarRecede progress={progress} dragX={dragX} />}
-      {top.navBar && <NavLayer entry={top} progress={progress} role={under ? 'top' : 'alone'} />}
-    </div>
+      {under && !slides && <BarRecede progress={progress} dragX={dragX} />}
+      {top.navBar && (
+        <NavLayer entry={top} progress={progress} role={under && !slides ? 'top' : 'alone'} />
+      )}
+    </motion.div>
   );
 }
 

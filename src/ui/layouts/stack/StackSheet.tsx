@@ -141,13 +141,11 @@ function SheetBody({
     >
       {takeover ?? (
         <StackPages
-          sheetRef={sheetRef}
+          containerRef={sheetRef}
           entries={entries}
           backLabel={entries.length > 1 ? labels.back : labels.close}
           onBack={entries.length > 1 ? onBack : onClose}
-          sheetHeight={height}
-          dragY={dragY}
-          onDismissDrag={onDismissDrag}
+          sheet={{ height, dragY, onDismissDrag }}
           onPopped={onPopped}
         />
       )}

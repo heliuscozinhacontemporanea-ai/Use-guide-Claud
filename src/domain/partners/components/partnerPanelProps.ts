@@ -48,14 +48,10 @@ export interface PartnerPanelProps {
   onPlanPurchased?: () => void;
   /** Ganhos (domínio payment), montado pela composição. */
   renderEarnings?: PartnerEarningsRenders;
-  /** Área Cupons (promotions, B1); `scope` abre só os cupons daquele evento ou oferta. */
   /** Mais › Equipe da portaria (C1), montada pela composição (ticketing). */
-  renderGateStaff?: (onBack: () => void) => ReactNode;
-  renderCoupons?: (props: {
-    scope: { kind: 'event' | 'offer'; id: string } | null;
-    backLabel: string;
-    onBack: () => void;
-  }) => ReactNode;
+  renderGateStaff?: () => ReactNode;
+  /** Área Cupons (promotions, B1); `scope` abre só os cupons daquele evento ou oferta. */
+  renderCoupons?: (props: { scope: { kind: 'event' | 'offer'; id: string } | null }) => ReactNode;
   /** Resumo dos avisos de venda na linha Notificações do Mais (notifications). */
   renderNotificationsHint?: () => ReactNode;
   /** Conta de recebimento do evento em Editar evento (payment), montada pela composição. */
@@ -67,5 +63,5 @@ export interface PartnerPanelProps {
   /** Folha da sessão de evento (domínio ticketing), montada pela composição. */
   renderSessionSheet?: (props: AgendaSheetProps) => ReactNode;
   /** Notificações, termos do parceiro e ajuda (outros domínios), montados pela composição. */
-  renderAccountView?: (view: PartnerAccountView, onBack: () => void) => ReactNode;
+  renderAccountView?: (view: PartnerAccountView) => ReactNode;
 }

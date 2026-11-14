@@ -1,7 +1,6 @@
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { BackButton } from '../../../ui/components/BackButton';
 import { ListCard, ListRowButton } from '../../../ui/components/ListRows';
 import { ListEmpty, ListError, ListLoading } from '../../../ui/components/ListState';
 import { TextButton } from '../../../ui/components/TextButton';
@@ -13,17 +12,14 @@ import { PromoCodeSheet } from './PromoCodeSheet';
 
 /**
  * Área Cupons (B1): os cupons do parceiro, para um ou mais anúncios. Aberta por um evento, mostra só
- * os cupons dele e cria um novo já com ele marcado.
+ * os cupons dele e cria um novo já com ele marcado. O `<` e o título ficam na barra fixa da página
+ * (D33).
  */
 export function PromoCodesPage({
   scope: initialScope = null,
-  backLabel,
-  onBack,
 }: {
   /** Aberta por um evento ou uma oferta: só os cupons dele. */
   scope?: { kind: PromoTargetKind; id: string } | null;
-  backLabel: string;
-  onBack: () => void;
 }) {
   const { t, i18n } = useTranslation();
   const { data, loading, error, reload } = usePromoCodes();
@@ -39,24 +35,9 @@ export function PromoCodesPage({
     ) ?? [];
 
   return (
-    <section aria-labelledby="promo-codes-title" className="space-y-5">
-      <div className="space-y-1">
-        <div className="flex items-center gap-2">
-          <BackButton label={backLabel} onClick={onBack} />
-          <h2
-            id="promo-codes-title"
-            className="flex-1 min-w-0 text-[24px] font-display font-bold text-ink"
-          >
-            {t('promoCodes.title')}
-          </h2>
-          {data && data.targets.length > 0 && (
-            <TextButton tone="accent" onClick={() => setEditing('new')}>
-              <Plus size={18} aria-hidden="true" />
-              {t('promoCodes.create')}
-            </TextButton>
-          )}
-        </div>
-        <p className="px-1 text-[14px] text-ink/70">
+    <section aria-label={t('promoCodes.title')} className="space-y-5">
+      <div className="flex items-start justify-between gap-3">
+        <p className="flex-1 px-1 text-control text-ink-muted">
           {listing ? t('promoCodes.forEvent', { title: listing.title }) : t('promoCodes.subtitle')}
         </p>
         {listing && (
@@ -65,6 +46,12 @@ export function PromoCodesPage({
           </TextButton>
         )}
       </div>
+      {data && data.targets.length > 0 && (
+        <TextButton tone="accent" onClick={() => setEditing('new')}>
+          <Plus size={20} aria-hidden="true" />
+          {t('promoCodes.create')}
+        </TextButton>
+      )}
 
       {loading && !data ? (
         <ListLoading label={t('promoCodes.title')} />

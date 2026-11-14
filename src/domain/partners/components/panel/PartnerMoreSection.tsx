@@ -1,29 +1,29 @@
 import { Plus } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { BackButton } from '../../../../ui/components/BackButton';
 import { type PartnerMoreEntry, PartnerMoreTab } from './PartnerMoreTab';
 
 /** Telas da conta que vêm de outros domínios, montadas pela composição do app. */
 export type PartnerAccountView = 'notifications' | 'terms' | 'help';
-export type PartnerMoreView = 'list' | 'plans' | 'coupons' | 'gate-staff' | PartnerAccountView;
+/** Páginas abertas a partir de Mais, por cima do painel (D33). */
+export type PartnerMorePageView = 'plans' | 'coupons' | 'gate-staff' | PartnerAccountView;
 
-/** Mais (p24): o que é da conta e não do dia a dia, em dois grupos. */
+/**
+ * Mais (p24): o que é da conta e não do dia a dia, em dois grupos. Cada linha abre uma página por
+ * cima do painel (`PartnerMorePage`), com a barra fixa e o voltar arrastando.
+ */
 export function PartnerMoreSection({
-  view,
-  onViewChange,
-  establishments,
+  onOpenPage,
   summary,
   withoutPlan,
   onOpenProducer,
   onOpenEstablishments,
-  onOpenPlan,
   onOpenEarnings,
-  renderAccountView,
+  hasAccountViews,
   notificationsHint,
   onReplayTour,
-  renderCoupons,
-  renderGateStaff,
+  hasCoupons,
+  hasGateStaff,
   showGateStaff = true,
   showProducer = true,
   sells = true,
@@ -32,24 +32,22 @@ export function PartnerMoreSection({
 }: {
   /** Segmento que dá nome aos cupons ("Cupons dos seus passeios"); `null` = genérico. */
   couponsSegment?: 'tours' | 'rentals' | 'transfers' | 'attraction' | 'events' | null;
-  view: PartnerMoreView;
-  onViewChange: (view: PartnerMoreView) => void;
-  establishments: Array<{ id: string; name: string }>;
+  onOpenPage: (view: PartnerMorePageView) => void;
   summary: { documents: number; pendingVerifications: number } | null;
   withoutPlan: number;
   onOpenProducer: () => void;
   onOpenEstablishments: () => void;
-  onOpenPlan: (listing: { id: string; name: string }) => void;
   onOpenEarnings: () => void;
-  renderAccountView?: (view: PartnerAccountView, onBack: () => void) => ReactNode;
+  /** Avisos, termos e ajuda vêm da composição do app. */
+  hasAccountViews: boolean;
   /** Escolha de avisos de venda (notifications), montada pela composição. */
   notificationsHint?: ReactNode;
   /** "Ver o tour do painel" em Ajuda (etapa 6). */
   onReplayTour?: () => void;
   /** Área Cupons, montada pela composição (promotions). */
-  renderCoupons?: () => ReactNode;
-  /** Equipe da portaria (C1), montada pela composição (ticketing); só com o segmento Eventos. */
-  renderGateStaff?: (onBack: () => void) => ReactNode;
+  hasCoupons: boolean;
+  /** Equipe da portaria (C1), montada pela composição (ticketing). */
+  hasGateStaff: boolean;
   /** Só com portaria: segmentos Eventos ou Atração. */
   showGateStaff?: boolean;
   /** Só com o segmento Eventos (painel por segmento). */
@@ -60,28 +58,6 @@ export function PartnerMoreSection({
   onAddSegment?: () => void;
 }) {
   const { t } = useTranslation();
-  const back = () => onViewChange('list');
-  if (view === 'plans') {
-    return (
-      <div className="space-y-4">
-        <BackButton label={t('partnerPanel.more.title')} onClick={back} />
-        <PartnerMoreTab
-          title={t('partnerPanel.more.plans')}
-          groups={[
-            establishments.map((item) => ({
-              id: item.id,
-              title: item.name,
-              onOpen: () => onOpenPlan(item),
-            })),
-          ]}
-        />
-      </div>
-    );
-  }
-  if (view === 'coupons') return <>{renderCoupons?.()}</>;
-  if (view === 'gate-staff') return <>{renderGateStaff?.(back)}</>;
-  if (view !== 'list') return <>{renderAccountView?.(view, back)}</>;
-
   const documentsHint = summary
     ? [
         t('partnerPanel.more.documents', { count: summary.documents }),
@@ -116,7 +92,7 @@ export function PartnerMoreSection({
         withoutPlan > 0
           ? t('partnerPanel.more.withoutPlan', { count: withoutPlan })
           : t('partnerPanel.more.plansHint'),
-      onOpen: () => onViewChange('plans'),
+      onOpen: () => onOpenPage('plans'),
     },
     ...(sells
       ? [
@@ -130,7 +106,7 @@ export function PartnerMoreSection({
       : []),
   ];
   const sales: PartnerMoreEntry[] =
-    renderCoupons && sells
+    hasCoupons && sells
       ? [
           {
             id: 'coupons',
@@ -138,16 +114,16 @@ export function PartnerMoreSection({
               ? t(`partnerPanel.more.couponsBy.${couponsSegment}`)
               : t('partnerPanel.more.coupons'),
             hint: couponsSegment ? undefined : t('partnerPanel.more.couponsHint'),
-            onOpen: () => onViewChange('coupons'),
+            onOpen: () => onOpenPage('coupons'),
           },
         ]
       : [];
-  if (renderGateStaff && showGateStaff) {
+  if (hasGateStaff && showGateStaff) {
     sales.push({
       id: 'gate-staff',
       title: t('gateStaff.owner.title'),
       hint: t('gateStaff.owner.entryHint'),
-      onOpen: () => onViewChange('gate-staff'),
+      onOpen: () => onOpenPage('gate-staff'),
     });
   }
   const addSegment: PartnerMoreEntry[] = onAddSegment
@@ -155,22 +131,22 @@ export function PartnerMoreSection({
         {
           id: 'add-segment',
           title: t('partnerAddSegment.entry'),
-          icon: <Plus size={18} aria-hidden="true" />,
+          icon: <Plus size={20} aria-hidden="true" />,
           partner: true,
           onOpen: onAddSegment,
         },
       ]
     : [];
-  const help: PartnerMoreEntry[] = renderAccountView
+  const help: PartnerMoreEntry[] = hasAccountViews
     ? [
         {
           id: 'notifications',
           title: t('partnerPanel.more.notifications'),
           hint: notificationsHint,
-          onOpen: () => onViewChange('notifications'),
+          onOpen: () => onOpenPage('notifications'),
         },
-        { id: 'terms', title: t('partnerPanel.more.terms'), onOpen: () => onViewChange('terms') },
-        { id: 'help', title: t('partnerPanel.more.help'), onOpen: () => onViewChange('help') },
+        { id: 'terms', title: t('partnerPanel.more.terms'), onOpen: () => onOpenPage('terms') },
+        { id: 'help', title: t('partnerPanel.more.help'), onOpen: () => onOpenPage('help') },
         ...(onReplayTour
           ? [
               {

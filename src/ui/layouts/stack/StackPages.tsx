@@ -24,32 +24,38 @@ import type { StackEntry } from './stackTypes';
 import { useStackGestures } from './useStackGestures';
 import { useStackTransition } from './useStackTransition';
 
-interface StackPagesProps {
-  sheetRef: RefObject<HTMLDivElement | null>;
-  entries: StackEntry[];
-  backLabel: string;
-  onBack: () => void;
-  sheetHeight: number;
+/** Folha que contém a pilha (Perfil): arrastar para baixo fecha a folha inteira. */
+export interface StackSheetControl {
+  height: number;
   /** "Reduzir movimento": deslocamento da folha enquanto o dedo arrasta. */
   dragY: MotionValue<number>;
   onDismissDrag: (velocity: number) => void;
+}
+
+interface StackPagesProps {
+  /** Onde os gestos começam (a folha, ou a área da pilha de páginas). */
+  containerRef: RefObject<HTMLDivElement | null>;
+  entries: StackEntry[];
+  backLabel: string;
+  onBack: () => void;
+  /** Sem folha (`PushStack`), só existe o gesto de voltar. */
+  sheet?: StackSheetControl;
   /** A tela de cima terminou de sair (voltar): quem guarda o conteúdo dela pode soltá-lo. */
   onPopped?: () => void;
 }
 
 /**
- * Telas da folha: a de cima, a de baixo durante a troca, a barra fixa e os gestos (DESIGN.md P18).
+ * Telas da pilha (na folha do Perfil ou no `PushStack`): a de cima, a de baixo durante a troca, a
+ * barra fixa e os gestos (DESIGN.md P18).
  * Todas as telas da pilha ficam montadas (as de trás escondidas), como num app: voltar devolve a tela
  * com o estado e a rolagem de quando a pessoa saiu (P23).
  */
 export function StackPages({
-  sheetRef,
+  containerRef,
   entries,
   backLabel,
   onBack,
-  sheetHeight,
-  dragY,
-  onDismissDrag,
+  sheet,
   onPopped,
 }: StackPagesProps) {
   const reduced = useReducedMotion();
@@ -59,31 +65,38 @@ export function StackPages({
   );
   const scroller = useRef<HTMLDivElement>(null);
   const dragX = useMotionValue(0);
-  const width = () => sheetRef.current?.offsetWidth || 1;
+  const width = () => containerRef.current?.offsetWidth || 1;
 
   useEffect(() => {
     if (!layers.under) dragX.set(0);
   }, [layers.under, dragX]);
 
   useStackGestures(
-    sheetRef,
-    { enabled: true, canGoBack: entries.length > 1, getScroller: () => scroller.current },
+    containerRef,
+    {
+      enabled: true,
+      sheet: Boolean(sheet),
+      canGoBack: entries.length > 1,
+      getScroller: () => scroller.current,
+    },
     {
       onSheetDrag: (dy) => {
+        if (!sheet) return;
         if (reduced) {
-          dragY.set(Math.max(0, dy));
+          sheet.dragY.set(Math.max(0, dy));
           return;
         }
-        const p = 1 - dy / sheetHeight;
+        const p = 1 - dy / sheet.height;
         stackSheetProgress.set(p > 1 ? 1 + (p - 1) * OVERDRAG_RESISTANCE : p);
       },
       onSheetRelease: (dy, vy) => {
-        if (dy > sheetHeight * SHEET_CLOSE_FRACTION || vy > SHEET_CLOSE_VELOCITY) {
-          onDismissDrag(-vy / sheetHeight);
+        if (!sheet) return;
+        if (dy > sheet.height * SHEET_CLOSE_FRACTION || vy > SHEET_CLOSE_VELOCITY) {
+          sheet.onDismissDrag(-vy / sheet.height);
         } else if (reduced) {
-          void animate(dragY, 0, FADE);
+          void animate(sheet.dragY, 0, FADE);
         } else {
-          void animate(stackSheetProgress, 1, { ...SPRING, velocity: -vy / sheetHeight });
+          void animate(stackSheetProgress, 1, { ...SPRING, velocity: -vy / sheet.height });
         }
       },
       onPageDragStart: beginDrag,
@@ -115,10 +128,12 @@ export function StackPages({
   };
   return (
     <div className="relative flex-1 min-h-0">
-      <div
-        aria-hidden="true"
-        className="absolute left-1/2 top-1.5 z-20 h-1.5 w-10 -translate-x-1/2 rounded-full bg-line"
-      />
+      {sheet && (
+        <div
+          aria-hidden="true"
+          className="absolute left-1/2 top-1.5 z-20 h-1.5 w-10 -translate-x-1/2 rounded-full bg-line"
+        />
+      )}
       {/* A barra vem antes das telas no código: o leitor de tela e o Tab começam pelo `<`; fica por cima pelo z-index. */}
       <StackNavBar
         layers={layers}
@@ -182,12 +197,16 @@ function PageLayer({
         role === 'top' && 'shadow-[-8px_0_24px_rgba(0,0,0,0.12)]'
       )}
     >
-      <div
-        style={{ paddingTop: entry.navBar ? NAV_BAR_HEIGHT + 8 : 28 }}
-        className="min-h-full flex flex-col px-6 sm:px-8 pb-[calc(env(safe-area-inset-bottom,0px)+2rem)]"
-      >
-        {entry.render()}
-      </div>
+      {entry.bare ? (
+        entry.render()
+      ) : (
+        <div
+          style={{ paddingTop: entry.navBar ? NAV_BAR_HEIGHT + 8 : 28 }}
+          className="min-h-full flex flex-col px-6 sm:px-8 pb-[calc(env(safe-area-inset-bottom,0px)+2rem)]"
+        >
+          {entry.render()}
+        </div>
+      )}
       {role === 'under' && (
         <motion.div
           aria-hidden="true"

@@ -16,5 +16,7 @@ export interface StackEntry {
   action?: StackAction;
   /** A tela usa a barra do topo fixa da folha (D33). */
   navBar: boolean;
+  /** Tela com o próprio topo e recuo (ex.: a raiz do painel): sem o espaço da barra nem margens. */
+  bare?: boolean;
   render: () => ReactNode;
 }

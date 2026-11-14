@@ -250,10 +250,8 @@ export function PartnerPortalComposition() {
         <PartnerEventTicketingComposition eventListingId={eventListingId} lotsOnly />
       )}
       renderNotificationsHint={() => <SalesAlertsSummary />}
-      renderGateStaff={(onBack) => <GateStaffPage onBack={onBack} />}
-      renderCoupons={({ scope, backLabel, onBack }) => (
-        <PromoCodesPage scope={scope} backLabel={backLabel} onBack={onBack} />
-      )}
+      renderGateStaff={() => <GateStaffPage />}
+      renderCoupons={({ scope }) => <PromoCodesPage scope={scope} />}
       renderEventAccountCard={(establishmentId, establishmentName) => (
         <EventPaymentAccountCard
           establishmentId={establishmentId}
@@ -317,13 +315,13 @@ export function PartnerPortalComposition() {
           onChanged={onChanged}
         />
       )}
-      renderAccountView={(view, onBack) =>
+      renderAccountView={(view) =>
         view === 'notifications' ? (
-          <NotificationSettingsView isPartner onBack={onBack} />
+          <NotificationSettingsView isPartner />
         ) : view === 'terms' ? (
-          <AboutTermsView document="partner" onBack={onBack} />
+          <AboutTermsView document="partner" />
         ) : (
-          <SupportView onBack={onBack} initialTopic="partners" />
+          <SupportView initialTopic="partners" />
         )
       }
     />

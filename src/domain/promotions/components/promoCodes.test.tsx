@@ -98,16 +98,14 @@ describe('Área Cupons (B1)', () => {
   });
 
   it('lista os cupons com desconto, anúncios, usos e situação; aberta pelo evento, só os dele', async () => {
-    const { unmount } = render(<PromoCodesPage backLabel="Mais" onBack={vi.fn()} />);
+    const { unmount } = render(<PromoCodesPage />);
     expect(await screen.findByRole('button', { name: /VERAO10 · 10% de desconto/ })).toBeTruthy();
     expect(screen.getByText('Luau na Duna · 3 de 100 usos')).toBeTruthy();
     expect(screen.getByRole('button', { name: /FORRO20 · R\$\s20,00 por compra/ })).toBeTruthy();
     expect(screen.getByText('Pausado')).toBeTruthy();
     unmount();
 
-    render(
-      <PromoCodesPage scope={{ kind: 'event', id: 'ev2' }} backLabel="Catálogo" onBack={vi.fn()} />
-    );
+    render(<PromoCodesPage scope={{ kind: 'event', id: 'ev2' }} />);
     expect(await screen.findByText('Cupons que valem para Festival de Forró.')).toBeTruthy();
     expect(screen.queryByRole('button', { name: /VERAO10/ })).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Ver todos os cupons' }));
@@ -115,9 +113,7 @@ describe('Área Cupons (B1)', () => {
   });
 
   it('cria cupom já com o evento de onde veio', async () => {
-    render(
-      <PromoCodesPage scope={{ kind: 'event', id: 'ev1' }} backLabel="Catálogo" onBack={vi.fn()} />
-    );
+    render(<PromoCodesPage scope={{ kind: 'event', id: 'ev1' }} />);
     fireEvent.click(await screen.findByRole('button', { name: 'Criar' }));
     const sheet = await screen.findByRole('dialog');
     fireEvent.change(within(sheet).getByLabelText('Código'), { target: { value: 'luau 15!' } });
@@ -140,7 +136,7 @@ describe('Área Cupons (B1)', () => {
   });
 
   it('vale para oferta com só algumas opções de preço', async () => {
-    render(<PromoCodesPage backLabel="Mais" onBack={vi.fn()} />);
+    render(<PromoCodesPage />);
     fireEvent.click(await screen.findByRole('button', { name: 'Criar' }));
     const sheet = await screen.findByRole('dialog');
     expect(within(sheet).getByText('Passeios, aluguéis, translados e entradas')).toBeTruthy();
@@ -161,7 +157,7 @@ describe('Área Cupons (B1)', () => {
   });
 
   it('cupom já usado: desconto travado, muda só limite e fim; não pode ser excluído', async () => {
-    render(<PromoCodesPage backLabel="Mais" onBack={vi.fn()} />);
+    render(<PromoCodesPage />);
     fireEvent.click(await screen.findByRole('button', { name: /VERAO10/ }));
     let sheet = await screen.findByRole('dialog');
     expect(within(sheet).queryByRole('button', { name: 'Excluir cupom' })).toBeNull();
@@ -177,7 +173,7 @@ describe('Área Cupons (B1)', () => {
   });
 
   it('reativa cupom pausado e exclui cupom sem uso depois de confirmar', async () => {
-    render(<PromoCodesPage backLabel="Mais" onBack={vi.fn()} />);
+    render(<PromoCodesPage />);
     fireEvent.click(await screen.findByRole('button', { name: /FORRO20/ }));
     let sheet = await screen.findByRole('dialog');
     fireEvent.click(within(sheet).getByRole('button', { name: 'Reativar' }));
