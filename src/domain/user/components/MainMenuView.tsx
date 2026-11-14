@@ -3,7 +3,6 @@ import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatBusinessDate } from '../../../shared/utils/businessDateTime';
 import { getUserInitials } from '../../../shared/utils/formatters';
-import { BackButton } from '../../../ui/components/BackButton';
 import { TextButton } from '../../../ui/components/TextButton';
 import type { UserSession } from '../../auth/types/auth';
 import { MenuRow } from './menu/MenuRow';
@@ -19,7 +18,6 @@ interface MainMenuViewProps {
   isPartner: boolean;
   isUploading: boolean;
   photoURL: string | null;
-  onClose: () => void;
   onAccountOpen: () => void;
   onPartnersOpen: () => void;
   onAdminOpen: () => void;
@@ -33,7 +31,10 @@ interface MainMenuViewProps {
   onGateOpen?: () => void;
 }
 
-/** Tela principal do menu (D19): perfil com login; sem login, entrar ou cadastrar. */
+/**
+ * Tela principal do menu (D19): perfil com login; sem login, entrar ou cadastrar. O `<` que fecha e
+ * o título ficam na barra fixa da folha do perfil (D33).
+ */
 export function MainMenuView({
   user,
   userData,
@@ -42,7 +43,6 @@ export function MainMenuView({
   isPartner,
   isUploading,
   photoURL,
-  onClose,
   onAccountOpen,
   onPartnersOpen,
   onAdminOpen,
@@ -58,9 +58,6 @@ export function MainMenuView({
 
   return (
     <>
-      <div className="mb-4 pr-12">
-        <BackButton label={t('menu.closeMenu')} onClick={onClose} />
-      </div>
       {user ? (
         <div className="space-y-5">
           <div className="flex flex-col items-center text-center">
@@ -70,9 +67,11 @@ export function MainMenuView({
               isUploading={isUploading}
               onPhotoClick={onPhotoClick}
             />
-            <h2 className="mt-3 text-2xl font-display font-bold text-ink break-words">{name}</h2>
+            <h2 className="mt-3 text-heading font-display font-bold text-ink break-words">
+              {name}
+            </h2>
             {memberSince && (
-              <p className="text-[13px] text-ink/70">
+              <p className="text-meta text-ink-muted">
                 {t('profile.memberSince', {
                   date: formatBusinessDate(memberSince, i18n.language, {
                     month: 'long',
@@ -83,7 +82,7 @@ export function MainMenuView({
             )}
           </div>
           {highlights}
-          <ul className="rounded-[20px] bg-surface border border-line divide-y divide-line overflow-hidden">
+          <ul className="rounded-card bg-surface border border-line divide-y divide-line overflow-hidden">
             <MenuRow icon={User} label={t('profile.account')} onClick={onAccountOpen} />
             {onPromotionsOpen && (
               <MenuRow

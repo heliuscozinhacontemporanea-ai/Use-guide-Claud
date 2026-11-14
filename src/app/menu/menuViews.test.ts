@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   MENU_VIEWS,
   menuParamFor,
+  menuPath,
   parentMenuView,
   parseMenuParam,
   visibleMenuView,
@@ -53,5 +54,11 @@ describe('sub-telas do menu', () => {
     }
     expect(visibleMenuView('settings', false)).toBe('settings');
     expect(visibleMenuView('support', false)).toBe('support');
+  });
+
+  it('menuPath monta a pilha da primeira tela até a pedida', () => {
+    expect(menuPath('main')).toEqual(['main']);
+    expect(menuPath('settings')).toEqual(['main', 'settings']);
+    expect(menuPath('language')).toEqual(['main', 'settings', 'language']);
   });
 });

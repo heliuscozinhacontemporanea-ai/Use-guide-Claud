@@ -1,10 +1,10 @@
-import React from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { Heart, MapPin, Star, Trash2 } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
 import { useTranslation } from 'react-i18next';
-import { Heart, ChevronLeft, MapPin, Star, Trash2 } from 'lucide-react';
-import { useFavorites } from '../hooks/useFavorites';
-import { FavoriteItem } from '../types/favorite';
 import { Skeleton } from '../../../ui/components/Skeleton';
+import { FADE } from '../../../ui/motion/tokens';
+import { useFavorites } from '../hooks/useFavorites';
+import type { FavoriteItem } from '../types/favorite';
 
 export interface FavoriteSelection {
   id: string;
@@ -12,11 +12,11 @@ export interface FavoriteSelection {
 }
 
 interface FavoritesListProps {
-  onBack: () => void;
   onSelectItem?: ((item: FavoriteSelection) => void) | undefined;
 }
 
-export function FavoritesList({ onBack, onSelectItem }: FavoritesListProps) {
+/** Meus favoritos. O `<` e o título ficam na barra fixa da folha do perfil (D33). */
+export function FavoritesList({ onSelectItem }: FavoritesListProps) {
   const { t } = useTranslation();
   const { favorites, loading, removeFavoriteItem } = useFavorites();
 
@@ -28,133 +28,109 @@ export function FavoritesList({ onBack, onSelectItem }: FavoritesListProps) {
     onSelectItem({ id: fav.itemId, category });
   };
 
-  return (
-    <div className="w-full flex flex-col space-y-4">
-      <div className="flex items-center justify-between relative mb-2 pt-2">
-        <button
-          onClick={onBack}
-          aria-label={t('favorites.back')}
-          className="w-11 h-11 shrink-0 flex items-center justify-center text-white/70 hover:text-white active:scale-90 transition-all rounded-full bg-white/5 border border-white/10 focus-visible:ring-2 focus-visible:ring-teal-400/50"
-        >
-          <ChevronLeft size={22} />
-        </button>
-        <div className="text-center flex-1 mx-2">
-          <h2 className="text-xl font-display font-black text-white leading-tight">
-            {t('favorites.title')}
-          </h2>
-          <p className="text-[10px] text-white/50 font-black uppercase tracking-widest">
-            {t('favorites.subtitle')}
-          </p>
-        </div>
-        <div className="w-11" />
-      </div>
-
-      {loading ? (
-        <div className="space-y-3 pt-2">
-          {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="p-3.5 rounded-2xl glassmorphism border border-white/10 flex items-center gap-3"
-            >
-              <Skeleton className="w-16 h-16 rounded-xl bg-white/10 shrink-0" />
-              <div className="flex-1 space-y-2">
-                <Skeleton className="h-4 w-3/4 rounded bg-white/10" />
-                <Skeleton className="h-3 w-1/2 rounded bg-white/10" />
-              </div>
+  if (loading) {
+    return (
+      <div role="status" className="space-y-3">
+        {[1, 2, 3].map((i) => (
+          <div
+            key={i}
+            className="p-3 rounded-card bg-surface border border-line flex items-center gap-3"
+          >
+            <Skeleton className="w-16 h-16 rounded-control shrink-0" />
+            <div className="flex-1 space-y-2">
+              <Skeleton className="h-4 w-3/4" />
+              <Skeleton className="h-3 w-1/2" />
             </div>
-          ))}
-        </div>
-      ) : favorites.length === 0 ? (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="p-6 rounded-3xl glassmorphism border border-white/10 text-center space-y-4 my-4"
-        >
-          <div className="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center mx-auto shadow-lg shadow-rose-500/10">
-            <Heart size={24} className="fill-rose-500/20" />
           </div>
-          <div>
-            <h3 className="text-base font-display font-bold text-white mb-1">
-              {t('favorites.emptyTitle')}
-            </h3>
-            <p className="text-xs text-white/60 leading-relaxed max-w-xs mx-auto">
-              {t('favorites.emptyDescription')}
-            </p>
-          </div>
-        </motion.div>
-      ) : (
-        <div className="space-y-3 pt-1 max-h-[60vh] overflow-y-auto pr-1 custom-scrollbar">
-          <AnimatePresence mode="popLayout">
-            {favorites.map((fav) => {
-              const details = fav.itemDetails;
-              const name = details?.name || fav.itemId;
-              const image = details?.image || '';
-              const location = details?.location;
-              const rating = details?.rating;
+        ))}
+        <span className="sr-only">{t('favorites.title')}</span>
+      </div>
+    );
+  }
 
-              return (
-                <motion.div
-                  key={fav.id}
-                  layout
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  className="group relative flex items-center gap-3 p-3 rounded-2xl glassmorphism border border-white/10 hover:border-teal-500/30 transition-all bg-white/[0.03]"
-                >
-                  <button
-                    onClick={() => handleCardClick(fav)}
-                    className="flex-1 flex items-center gap-3 text-left overflow-hidden min-w-0"
-                  >
-                    {image ? (
-                      <img
-                        src={image}
-                        alt={name}
-                        className="w-16 h-16 rounded-xl object-cover shrink-0 border border-white/10"
-                      />
-                    ) : (
-                      <div className="w-16 h-16 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400 shrink-0">
-                        <Heart size={20} />
-                      </div>
+  if (favorites.length === 0) {
+    return (
+      <div className="py-8 flex flex-col items-center text-center gap-3">
+        <span className="w-12 h-12 rounded-full bg-accent-soft text-accent flex items-center justify-center">
+          <Heart size={24} aria-hidden="true" />
+        </span>
+        <p className="text-title font-semibold text-ink">{t('favorites.emptyTitle')}</p>
+        <p className="max-w-xs text-meta text-ink-muted">{t('favorites.emptyDescription')}</p>
+      </div>
+    );
+  }
+
+  return (
+    <ul className="space-y-3">
+      <AnimatePresence initial={false}>
+        {favorites.map((fav) => {
+          const details = fav.itemDetails;
+          const name = details?.name || fav.itemId;
+          const image = details?.image || '';
+          const location = details?.location;
+          const rating = details?.rating;
+
+          return (
+            <motion.li
+              key={fav.id}
+              exit={{ opacity: 0 }}
+              transition={FADE}
+              className="flex items-center gap-1 p-3 pr-1 rounded-card bg-surface border border-line"
+            >
+              <button
+                type="button"
+                onClick={() => handleCardClick(fav)}
+                className="press flex-1 flex items-center gap-3 text-left min-w-0 rounded-control focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none"
+              >
+                {image ? (
+                  <img
+                    src={image}
+                    alt=""
+                    width={64}
+                    height={64}
+                    loading="lazy"
+                    className="w-16 h-16 rounded-control object-cover shrink-0"
+                  />
+                ) : (
+                  <span className="w-16 h-16 rounded-control bg-accent-soft text-accent flex items-center justify-center shrink-0">
+                    <Heart size={20} aria-hidden="true" />
+                  </span>
+                )}
+                <span className="min-w-0 flex-1">
+                  <span className="block text-body font-semibold text-ink truncate">{name}</span>
+                  <span className="mt-1 flex items-center gap-2 text-meta text-ink-muted">
+                    {location && (
+                      <span className="flex items-center gap-1 min-w-0 capitalize">
+                        <MapPin size={16} className="shrink-0" aria-hidden="true" />
+                        <span className="truncate">{location}</span>
+                      </span>
                     )}
-
-                    <div className="min-w-0 flex-1">
-                      <h4 className="text-sm font-bold text-white truncate group-hover:text-teal-300 transition-colors">
-                        {name}
-                      </h4>
-
-                      <div className="flex items-center gap-2 mt-1 text-[11px] text-white/60">
-                        {location && (
-                          <span className="flex items-center gap-1 capitalize">
-                            <MapPin size={12} className="text-teal-400 shrink-0" />
-                            <span className="truncate">{location}</span>
-                          </span>
-                        )}
-                        {rating && (
-                          <span className="flex items-center gap-1 text-amber-400 ml-auto font-semibold">
-                            <Star size={11} className="fill-amber-400" />
-                            {rating.toFixed(1)}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </button>
-
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      removeFavoriteItem(fav.itemId);
-                    }}
-                    aria-label={t('favorites.removeItem', { name })}
-                    className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 hover:bg-rose-500/20 hover:border-rose-500/30 text-white/50 hover:text-rose-400 flex items-center justify-center transition-all shrink-0 active:scale-95"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </motion.div>
-              );
-            })}
-          </AnimatePresence>
-        </div>
-      )}
-    </div>
+                    {rating ? (
+                      <span className="flex items-center gap-1 ml-auto font-semibold text-ink tabular-nums">
+                        {/* Estrela amarela: exceção aprovada (DESIGN.md §2.2, D19). */}
+                        <Star
+                          size={16}
+                          className="fill-amber-400 text-amber-400"
+                          aria-hidden="true"
+                        />
+                        {rating.toFixed(1)}
+                      </span>
+                    ) : null}
+                  </span>
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => removeFavoriteItem(fav.itemId)}
+                aria-label={t('favorites.removeItem', { name })}
+                className="press w-11 h-11 shrink-0 rounded-full flex items-center justify-center text-ink-muted hover:text-danger hover:bg-danger-soft focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none"
+              >
+                <Trash2 size={20} aria-hidden="true" />
+              </button>
+            </motion.li>
+          );
+        })}
+      </AnimatePresence>
+    </ul>
   );
 }

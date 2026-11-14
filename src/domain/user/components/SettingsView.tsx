@@ -14,10 +14,8 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../shared/context/ThemeContext';
 import { DEFAULT_LOCALE, getLocaleDisplayLabel, i18n, normalizeLocale } from '../../../shared/i18n';
-import { BackButton } from '../../../ui/components/BackButton';
 
 interface SettingsViewProps {
-  onBack: () => void;
   onOpenLanguage: () => void;
   onOpenAppearance: () => void;
   onOpenSupport: () => void;
@@ -48,17 +46,17 @@ function SettingsRow({
         onClick={onClick}
         className="w-full min-h-14 px-4 flex items-center gap-3 text-left hover:bg-ink/[0.03] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-400/50 focus-visible:outline-none"
       >
-        <Icon size={20} className="text-ink/80 shrink-0" aria-hidden="true" />
-        <span className="flex-1 text-[15px] font-semibold text-ink">{label}</span>
-        {value && <span className="text-[13px] text-ink/70">{value}</span>}
-        <ChevronRight size={18} className="text-ink/40 shrink-0" aria-hidden="true" />
+        <Icon size={20} className="text-ink-muted shrink-0" aria-hidden="true" />
+        <span className="flex-1 text-body font-semibold text-ink">{label}</span>
+        {value && <span className="text-meta text-ink-muted">{value}</span>}
+        <ChevronRight size={20} className="text-ink-subtle shrink-0" aria-hidden="true" />
       </button>
     </li>
   );
 }
 
+/** Configurações. O `<` e o título ficam na barra fixa da folha do perfil (D33). */
 export function SettingsView({
-  onBack,
   onOpenLanguage,
   onOpenAppearance,
   onOpenSupport,
@@ -74,13 +72,8 @@ export function SettingsView({
   const ThemeIcon = theme === 'light' ? Sun : theme === 'dark' ? Moon : Monitor;
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex items-center gap-2 mb-5">
-        <BackButton label={t('settings.back')} onClick={onBack} />
-        <h2 className="text-[22px] font-display font-bold text-ink">{t('settings.title')}</h2>
-      </div>
-
-      <ul className="rounded-[20px] bg-surface border border-line divide-y divide-line overflow-hidden">
+    <div className="flex flex-col">
+      <ul className="rounded-card bg-surface border border-line divide-y divide-line overflow-hidden">
         {onOpenUsername && (
           <SettingsRow icon={AtSign} label={t('username.title')} onClick={onOpenUsername} />
         )}
@@ -112,7 +105,7 @@ export function SettingsView({
         />
       </ul>
 
-      <ul className="mt-4 rounded-[20px] bg-surface border border-line divide-y divide-line overflow-hidden">
+      <ul className="mt-4 rounded-card bg-surface border border-line divide-y divide-line overflow-hidden">
         <SettingsRow icon={HelpCircle} label={t('settings.support')} onClick={onOpenSupport} />
         <SettingsRow icon={Info} label={t('settings.about')} onClick={onOpenAbout} />
       </ul>

@@ -18,6 +18,7 @@ import type { HelpTopic } from '../../../shared/i18n/helpResources';
 import { cn } from '../../../shared/utils/cn';
 import { whatsAppUrl } from '../../../shared/utils/phone';
 import { BackButton } from '../../../ui/components/BackButton';
+import { StackSubPage, useStackSubPage } from '../../../ui/layouts/stack/StackSubPage';
 import { INPUT } from '../../../ui/styles/controls';
 import { type FaqEntry, FaqItem } from './support/FaqItem';
 import { SupportRow } from './support/SupportRow';
@@ -41,13 +42,17 @@ const TOP_QUESTIONS = [
   'forgot-password',
 ];
 const LIST =
-  'shrink-0 rounded-[20px] bg-surface border border-line divide-y divide-line overflow-hidden';
-const SECTION_TITLE = 'px-1 mb-3 text-[18px] font-display font-bold text-ink';
+  'shrink-0 rounded-card bg-surface border border-line divide-y divide-line overflow-hidden';
+const SECTION_TITLE = 'px-1 mb-3 text-title font-display font-bold text-ink';
 
 type HelpEntry = FaqEntry & { topic: HelpTopic };
 
+const isHelpTopic = (value: string | null): value is HelpTopic =>
+  TOPICS.some((topic) => topic.key === value);
+
 interface SupportViewProps {
-  onBack: () => void;
+  /** Desenha o próprio topo (painel do parceiro); na folha do perfil o `<` fica na barra fixa (D33). */
+  onBack?: () => void;
   /** Só com login: atalhos para as compras, os ingressos e as reservas da conta. */
   onOpenPurchases?: () => void;
   onOpenTickets?: () => void;
@@ -65,7 +70,8 @@ function normalize(text: string): string {
 
 /**
  * Configurações › Suporte (D25). Central de ajuda no estilo Airbnb e Tripadvisor: saudação com
- * busca, atalho para a compra, assuntos e perguntas mais lidas; o assunto abre a própria lista.
+ * busca, atalho para a compra, assuntos e perguntas mais lidas; o assunto abre a própria página
+ * (na folha do perfil, uma página interna da pilha).
  */
 export function SupportView({
   onBack,
@@ -76,7 +82,8 @@ export function SupportView({
 }: SupportViewProps) {
   const { t } = useTranslation();
   const [query, setQuery] = useState('');
-  const [topic, setTopic] = useState<HelpTopic | null>(initialTopic ?? null);
+  const subPage = useStackSubPage(initialTopic ?? null);
+  const topic = isHelpTopic(subPage.id) ? subPage.id : null;
   const [copied, setCopied] = useState(false);
   const faq = t('help.faq', { returnObjects: true }) as HelpEntry[];
   const term = normalize(query.trim());
@@ -121,12 +128,12 @@ export function SupportView({
               type="button"
               onClick={() => void copyEmail()}
               aria-label={copied ? t('help.copied') : t('help.copy')}
-              className="press w-11 h-11 mr-2 shrink-0 rounded-xl text-ink/70 hover:bg-ink/[0.05] flex items-center justify-center focus-visible:ring-2 focus-visible:ring-teal-400/50"
+              className="press w-11 h-11 mr-2 shrink-0 rounded-control text-ink-muted hover:bg-ink/[0.05] flex items-center justify-center focus-visible:ring-2 focus-visible:ring-teal-400/50"
             >
               {copied ? (
-                <Check size={18} aria-hidden="true" />
+                <Check size={20} aria-hidden="true" />
               ) : (
-                <Copy size={18} aria-hidden="true" />
+                <Copy size={20} aria-hidden="true" />
               )}
             </button>
           }
@@ -136,41 +143,50 @@ export function SupportView({
     </section>
   );
 
-  if (topic) {
+  const topicPage = topic && (
+    <>
+      <ul className={cn(LIST, 'mb-8')}>
+        {faq
+          .filter((entry) => entry.topic === topic)
+          .map((entry) => (
+            <FaqItem key={entry.id} entry={entry} />
+          ))}
+      </ul>
+      {contact}
+    </>
+  );
+
+  // Fora da folha do perfil (painel do parceiro), o assunto troca a tela no lugar.
+  if (topicPage && !subPage.inStack) {
     return (
-      <div className="flex flex-col h-full">
+      <div className="flex flex-col">
         <div className="flex items-center gap-2 mb-5">
-          <BackButton label={t('help.title')} onClick={() => setTopic(null)} />
-          <h2 className="text-[22px] font-display font-bold text-ink">
+          <BackButton label={t('help.title')} onClick={subPage.close} />
+          <h2 className="text-heading font-display font-bold text-ink">
             {t(`help.topics.${topic}`)}
           </h2>
         </div>
-        <ul className={cn(LIST, 'mb-8')}>
-          {faq
-            .filter((entry) => entry.topic === topic)
-            .map((entry) => (
-              <FaqItem key={entry.id} entry={entry} />
-            ))}
-        </ul>
-        {contact}
+        {topicPage}
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex items-center gap-2 mb-2">
-        <BackButton label={t('settings.back')} onClick={onBack} />
-        <h2 className="text-[17px] font-semibold text-ink">{t('help.title')}</h2>
-      </div>
+    <div className="flex flex-col">
+      {onBack && (
+        <div className="flex items-center gap-2 mb-2">
+          <BackButton label={t('settings.back')} onClick={onBack} />
+          <h2 className="text-title font-semibold text-ink">{t('help.title')}</h2>
+        </div>
+      )}
 
-      <h3 className="shrink-0 mt-2 mb-4 text-[28px] leading-tight font-display font-bold text-ink">
+      <h3 className="shrink-0 mt-2 mb-4 text-display font-display font-bold text-ink">
         {t('help.greeting')}
       </h3>
       <div className="shrink-0 relative mb-8">
         <Search
-          size={18}
-          className="absolute left-4 top-1/2 -translate-y-1/2 text-ink/60"
+          size={20}
+          className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-muted"
           aria-hidden="true"
         />
         <input
@@ -187,7 +203,7 @@ export function SupportView({
         <section className="shrink-0 mb-8">
           <h3 className={SECTION_TITLE}>{t('help.resultsTitle')}</h3>
           {results.length === 0 ? (
-            <p className="px-1 text-[14px] text-ink/70">{t('help.noResults')}</p>
+            <p className="px-1 text-control text-ink-muted">{t('help.noResults')}</p>
           ) : (
             <ul className={LIST}>
               {results.map((entry) => (
@@ -223,7 +239,7 @@ export function SupportView({
                   key={key}
                   icon={icon}
                   label={t(`help.topics.${key}`)}
-                  onClick={() => setTopic(key)}
+                  onClick={() => subPage.open(key)}
                 />
               ))}
             </ul>
@@ -241,6 +257,9 @@ export function SupportView({
       )}
 
       {contact}
+      {subPage.inStack && topicPage && (
+        <StackSubPage title={t(`help.topics.${topic}`)}>{topicPage}</StackSubPage>
+      )}
     </div>
   );
 }

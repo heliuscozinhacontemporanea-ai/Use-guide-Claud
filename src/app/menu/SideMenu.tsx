@@ -1,15 +1,23 @@
-import { AnimatePresence, motion } from 'motion/react';
+import { Settings } from 'lucide-react';
 import React, { Suspense } from 'react';
+import { useTranslation } from 'react-i18next';
 import { hasPasswordSignInUseCase } from '../../domain/auth';
 import { useAuthContext } from '../../domain/auth/context/AuthContext';
 import { UserRole } from '../../domain/auth/types/auth';
 import { useMyGates, useMyPromotions } from '../../domain/ticketing';
 import { MainMenuView, useUserPhoto, useUserProfile } from '../../domain/user';
-import { Z_INDEX } from '../../shared/constants/zIndex';
 import { useLocalizedRouting } from '../../shared/hooks/useLocalizedRouting';
+import { useUIStore } from '../../shared/stores/useUIStore';
 import { cn } from '../../shared/utils/cn';
+import { ToastContainer } from '../../ui/components/Toast';
+import { StackSheet } from '../../ui/layouts/stack/StackSheet';
+import {
+  StackSubPageProvider,
+  StackSubPageSlot,
+  useStackSubPageHost,
+} from '../../ui/layouts/stack/StackSubPage';
+import type { StackEntry } from '../../ui/layouts/stack/stackTypes';
 import { ScreenFallback } from '../../ui/lazy/DelayedFallback';
-import { SidebarLayout } from '../../ui/layouts/SidebarLayout';
 import {
   AboutLicensesView,
   AboutTermsView,
@@ -36,7 +44,7 @@ import {
 import { prefetchWhenIdle } from '../lazy/prefetchWhenIdle';
 import { ProfileHighlightsComposition } from '../compositions/ProfileHighlightsComposition';
 import { signOut } from '../signOut';
-import { type MenuView, parentMenuView, visibleMenuView } from './menuViews';
+import { type MenuView, menuPath, parentMenuView, visibleMenuView } from './menuViews';
 import { useSideMenu } from './useSideMenu';
 
 interface SideMenuProps {
@@ -58,23 +66,36 @@ const FULL_HEIGHT_VIEWS: readonly MenuView[] = [
   'notifications',
 ];
 
-const SETTINGS_VIEWS: readonly MenuView[] = [
-  'settings',
-  'purchases',
-  'username',
-  'language',
-  'appearance',
-  'support',
-  'about',
-  'terms',
-  'partner-terms',
-  'licenses',
-  'notifications',
-];
+/** Título de cada tela na barra fixa da folha do perfil (D33). */
+const TITLE_KEYS: Record<MenuView, string> = {
+  main: 'menu.profileTitle',
+  account: 'profile.account',
+  password: 'account.password.title',
+  tickets: 'ticketWallet.title',
+  bookings: 'bookings.buyer.myBookingsTitle',
+  favorites: 'favorites.title',
+  reviews: 'myReviews.title',
+  settings: 'settings.title',
+  purchases: 'purchases.title',
+  username: 'username.title',
+  language: 'settings.language',
+  appearance: 'settings.appearance',
+  support: 'help.title',
+  about: 'appAbout.title',
+  terms: 'appAbout.terms',
+  'partner-terms': 'legal.partner.title',
+  licenses: 'appAbout.licensesTitle',
+  notifications: 'notify.settingsTitle',
+  promotions: 'promoters.user.title',
+  gate: 'gateStaff.mine.title',
+};
 
 /** Compõe as telas de vários domínios (perfil, ingressos, reservas, compras, favoritos, avaliações, conteúdo) no menu. */
 export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
+  const { t } = useTranslation();
   const { user } = useAuthContext();
+  const isLoginModalOpen = useUIStore((state) => state.isLoginModalOpen);
+  const isLoginClosingBySwipe = useUIStore((state) => state.isLoginClosingBySwipe);
   // A linha Divulgação só aparece para quem divulga ou tem convite (D27).
   const promotions = useMyPromotions(Boolean(user && !user.isAnonymous));
   const hasPromotions = promotions.data.length > 0;
@@ -84,9 +105,12 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
   const { goTo } = useLocalizedRouting();
   const {
     view: requestedView,
+    sub,
     isOpen,
     openMenu,
     backTo,
+    openSub,
+    closeSub,
     closeMenu,
     closeMenuAndOpenItem,
   } = useSideMenu();
@@ -97,7 +121,24 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
   const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
 
   const showView = (target: MenuView) => openMenu(target);
-  const goBack = () => backTo(parentMenuView(view));
+  const goBack = () => (sub ? closeSub() : backTo(parentMenuView(view)));
+
+  // A página interna continua desenhada enquanto sai deslizando; solta quando a troca termina.
+  const [renderedSub, setRenderedSub] = React.useState(sub);
+  const latestSub = React.useRef(sub);
+  latestSub.current = sub;
+  React.useEffect(() => {
+    if (sub) setRenderedSub(sub);
+  }, [sub]);
+  React.useEffect(() => {
+    if (!isOpen) setRenderedSub(null);
+  }, [isOpen]);
+  const subPageHost = useStackSubPageHost({
+    id: sub,
+    renderedId: renderedSub,
+    open: openSub,
+    close: closeSub,
+  });
 
   React.useEffect(() => {
     if (isOpen) return prefetchWhenIdle(MENU_SCREENS);
@@ -168,16 +209,15 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
     closeMenu();
   };
 
-  const renderView = (): React.ReactNode => {
-    switch (view) {
+  const renderViewFor = (v: MenuView): React.ReactNode => {
+    switch (v) {
       case 'appearance':
-        return <AppearanceSettingsView onBack={goBack} />;
+        return <AppearanceSettingsView />;
       case 'language':
-        return <LanguageSettingsView onBack={goBack} />;
+        return <LanguageSettingsView />;
       case 'settings':
         return (
           <SettingsView
-            onBack={goBack}
             onOpenLanguage={() => showView('language')}
             onOpenAppearance={() => showView('appearance')}
             onOpenSupport={() => showView('support')}
@@ -188,13 +228,12 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
           />
         );
       case 'notifications':
-        return <NotificationSettingsView isPartner={isPartner} onBack={goBack} />;
+        return <NotificationSettingsView isPartner={isPartner} />;
       case 'username':
-        return <UsernameSettingsView onBack={goBack} />;
+        return <UsernameSettingsView />;
       case 'purchases':
         return (
           <BuyerPurchasesComposition
-            onBack={goBack}
             onOpenTickets={() => showView('tickets')}
             onOpenBookings={() => showView('bookings')}
           />
@@ -207,41 +246,36 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
             showPasswords={showPasswords}
             setShowPasswords={setShowPasswords}
             isLoading={isLoading}
-            message={message}
             onUpdatePassword={handleUpdatePassword}
-            onBack={goBack}
           />
         );
       case 'about':
         return (
           <AboutView
-            onBack={goBack}
             onOpenTerms={() => showView('terms')}
             onOpenPartnerTerms={() => showView('partner-terms')}
             onOpenLicenses={() => showView('licenses')}
           />
         );
       case 'terms':
-        return <AboutTermsView document="terms" onBack={goBack} />;
+        return <AboutTermsView document="terms" />;
       case 'partner-terms':
-        return <AboutTermsView document="partner" onBack={goBack} />;
+        return <AboutTermsView document="partner" />;
       case 'licenses':
-        return <AboutLicensesView onBack={goBack} />;
+        return <AboutLicensesView />;
       case 'support':
         return (
           <SupportView
-            onBack={goBack}
             onOpenPurchases={user ? () => showView('purchases') : undefined}
             onOpenTickets={user ? () => showView('tickets') : undefined}
             onOpenBookings={user ? () => showView('bookings') : undefined}
           />
         );
       case 'promotions':
-        return <MyPromotionsView onBack={goBack} />;
+        return <MyPromotionsView />;
       case 'gate':
         return (
           <MyGatesView
-            onBack={goBack}
             renderPlaceGate={({ offerId, slotId, startsAt, timeZone, onClose }) => (
               // Espera própria: a folha baixada sob demanda não troca a lista da Portaria pelo carregando.
               <Suspense fallback={null}>
@@ -265,13 +299,13 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
           />
         );
       case 'tickets':
-        return <UserTicketsHistoryView onBack={goBack} />;
+        return <UserTicketsHistoryView />;
       case 'bookings':
-        return <MyBookingsView onBack={goBack} />;
+        return <MyBookingsView />;
       case 'reviews':
-        return <MyReviewsComposition onBack={goBack} />;
+        return <MyReviewsComposition />;
       case 'favorites':
-        return <FavoritesList onBack={goBack} onSelectItem={closeMenuAndOpenItem} />;
+        return <FavoritesList onSelectItem={closeMenuAndOpenItem} />;
       case 'account':
         return (
           <AccountView
@@ -284,7 +318,6 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
             setUserData={setUserData}
             isLoading={isLoading}
             isPartner={isPartner}
-            message={message}
             showDeleteConfirm={showDeleteConfirm}
             setShowDeleteConfirm={setShowDeleteConfirm}
             onUpdateProfile={updateProfile}
@@ -295,7 +328,6 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
             }}
             onDeleteAccount={deleteAccount}
             hasPassword={hasPasswordSignInUseCase()}
-            onBack={goBack}
           />
         );
       case 'main':
@@ -309,7 +341,6 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
               isPartner={isPartner}
               isUploading={isUploading}
               photoURL={photoURL}
-              onClose={closeMenu}
               onAccountOpen={() => showView('account')}
               onPartnersOpen={onPartnersOpen}
               onAdminOpen={onAdminOpen}
@@ -340,46 +371,48 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
     }
   };
 
-  return (
-    <SidebarLayout
-      isOpen={isOpen}
-      onClose={closeMenu}
-      isCropping={isCropping}
-      onSettingsClick={
-        isCropping || SETTINGS_VIEWS.includes(view) ? undefined : () => showView('settings')
-      }
-    >
-      <AnimatePresence>
-        {message && (
-          <motion.div
-            initial={{ opacity: 0, y: -20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -20, scale: 0.95 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 28 }}
-            style={{ zIndex: Z_INDEX.toast }}
-            className={cn(
-              'absolute top-4 left-4 right-4 p-4 rounded-3xl border text-[10px] font-black uppercase tracking-widest text-center shadow-2xl cursor-pointer text-white',
-              message.type === 'success'
-                ? 'bg-teal-500/80 border-teal-500/40 shadow-teal-500/20 backdrop-blur-md'
-                : 'bg-rose-500/80 border-rose-500/40 shadow-rose-500/20 backdrop-blur-md'
-            )}
-            onClick={() => setMessage(null)}
-          >
-            {message.text}
-          </motion.div>
-        )}
-      </AnimatePresence>
+  const entries: StackEntry[] = menuPath(view).map((v) => ({
+    key: v,
+    title: t(TITLE_KEYS[v]),
+    navBar: true,
+    action:
+      v === 'main'
+        ? { label: t('settings.title'), icon: Settings, onClick: () => showView('settings') }
+        : undefined,
+    render: () => (
+      <div
+        className={cn('w-full', FULL_HEIGHT_VIEWS.includes(v) && 'flex-1 flex flex-col *:flex-1')}
+      >
+        <Suspense fallback={<ScreenFallback />}>{renderViewFor(v)}</Suspense>
+      </div>
+    ),
+  }));
+  if (sub) {
+    // Página interna da tela de cima (ex.: o detalhe da reserva), desenhada por ela mesma (StackSubPage).
+    // Ao voltar, a pilha mantém a cópia que sai, e `renderedSub` mantém o conteúdo até a troca acabar.
+    entries.push({
+      key: `${view}/${sub}`,
+      title: subPageHost.title,
+      navBar: true,
+      render: () => <StackSubPageSlot fallback={<ScreenFallback />} />,
+    });
+  }
 
-      <AnimatePresence mode="wait" initial={false}>
-        {isCropping ? (
-          <motion.div
-            key="crop-view"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 1.05 }}
-            transition={{ duration: 0.2 }}
-            className="w-full h-full flex flex-col"
-          >
+  return (
+    <StackSubPageProvider value={subPageHost}>
+      <StackSheet
+        isOpen={isOpen}
+        onClose={closeMenu}
+        onBack={goBack}
+        entries={entries}
+        labels={{
+          back: t('settings.back'),
+          close: t('menu.closeMenu'),
+          dialog: t('menu.profileTitle'),
+        }}
+        receded={isLoginModalOpen && !isLoginClosingBySwipe}
+        takeover={
+          isCropping ? (
             <Suspense fallback={<ScreenFallback />}>
               <ImageCropperView
                 imageToCrop={imageToCrop}
@@ -393,25 +426,17 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
                 onConfirm={handleConfirmCrop}
               />
             </Suspense>
-          </motion.div>
-        ) : (
-          <motion.div
-            key={`menu-${view}`}
-            initial={{ opacity: 0, x: view === 'main' ? -10 : 10 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: view === 'main' ? 10 : -10 }}
-            transition={{ duration: 0.2 }}
-            className={cn(
-              'w-full',
-              // Ocupa a altura da tela (o rodapé com mt-auto fica embaixo) e cresce com o conteúdo, para a
-              // folha rolar quando ele passa da tela.
-              FULL_HEIGHT_VIEWS.includes(view) && 'flex-1 flex flex-col *:flex-1'
-            )}
-          >
-            <Suspense fallback={<ScreenFallback />}>{renderView()}</Suspense>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </SidebarLayout>
+          ) : undefined
+        }
+        onPopped={() => {
+          if (!latestSub.current) setRenderedSub(null);
+        }}
+        overlay={
+          <ToastContainer
+            toasts={message ? [{ id: 'menu', message: t(message.text), type: message.type }] : []}
+          />
+        }
+      />
+    </StackSubPageProvider>
   );
 }

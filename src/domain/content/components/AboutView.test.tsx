@@ -13,7 +13,6 @@ describe('AboutView', () => {
     const handlers = { onTerms: vi.fn(), onPartner: vi.fn(), onLicenses: vi.fn() };
     render(
       <AboutView
-        onBack={() => undefined}
         onOpenTerms={handlers.onTerms}
         onOpenPartnerTerms={handlers.onPartner}
         onOpenLicenses={handlers.onLicenses}

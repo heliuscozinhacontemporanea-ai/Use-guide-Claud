@@ -22,7 +22,6 @@ export interface ProfileTranslation {
 
 export interface MyReviewsTranslation {
   title: string;
-  back: string;
   loading: string;
   empty: string;
   loadMore: string;
@@ -78,7 +77,6 @@ export const profilePtBR: ProfileTranslation = {
 
 export const myReviewsPtBR: MyReviewsTranslation = {
   title: 'Minhas avaliações',
-  back: 'Voltar',
   loading: 'Carregando suas avaliações…',
   empty: 'Você ainda não avaliou nenhum lugar.',
   loadMore: 'Ver mais',

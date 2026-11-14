@@ -80,6 +80,7 @@ export const bookingsFr: BookingsTranslation = {
     myBookingsTitle: 'Mes réservations',
     detail: {
       bookingTitle: 'Ma réservation',
+      notFound: "Nous n'avons pas trouvé cette réservation. Elle a peut-être été annulée.",
       whenLabel: 'Quand',
       bookingLabel: 'Réservation',
       meetingLabel: 'Point de rendez-vous',

@@ -1,7 +1,7 @@
 # DESIGN.md — Design System do Use Guide
 
 > Versão 1.0 · aprovado pelo responsável do produto em 2026-11-13 (solicitação S19, decisão D32). Substitui o antigo §11 do AGENTS.md.
-> Legenda: **✅** = regra que já valia antes deste documento (AGENTS.md §11 ou decisões D17, D19, D21, D26, painel por segmento) · **P#** = regra aprovada com este documento, em 2026-11-13 · **⚠️** = o código ainda diverge da regra; a correção está no débito indicado (`docs/arquitetura/debitos.md`) e acontece ao tocar o arquivo ou no item de trabalho próprio.
+> Legenda: **✅** = regra que já valia antes deste documento (AGENTS.md §11 ou decisões D17, D19, D21, D26, painel por segmento) · **P#** = regra aprovada com este documento, em 2026-11-13 · **D33** = linguagem de movimento, gestos e folha do perfil, aprovados em 2026-11-14 a partir do vídeo de referência · **⚠️** = o código ainda diverge da regra; a correção está no débito indicado (`docs/arquitetura/debitos.md`) e acontece ao tocar o arquivo ou no item de trabalho próprio.
 > Palavras-chave **DEVE / NÃO DEVE / DEVERIA / PODE** como no AGENTS.md (RFC 2119).
 
 ---
@@ -46,6 +46,7 @@ Sempre pelos tokens (`bg-app`, `text-ink`, `bg-surface`, `border-line`…). Nunc
 | `sheet-card` / `sheet-card-line` | bloco dentro da folha | branco 4%, sem borda | `#faf6ee` com borda 12% |
 | `line` (`border-line`) | borda e divisória | branco 8% | tinta 12% |
 | `scrim` | véu atrás de folhas | preto 70% | tinta 35% |
+| `recede` | véu do que fica para trás numa troca de tela (fundo que vira cartão, página anterior) | **clareia**: branco 10% | **escurece**: preto 12% |
 | `on-fill` | texto sobre botão colorido | `#fff8f0` | `#fff8f0` |
 
 ### 2.2. Cores com significado ✅
@@ -139,7 +140,7 @@ Cada uma tem texto (`text-x`), fundo suave (`bg-x-soft`) e borda (`border-x-line
 
 * Cartão sólido (`bg-surface border border-line`), borda e sombra quase invisíveis. No claro, sombra de 1 px.
 * **Vidro (desfoque) só em barras fixas e em folhas sobre o conteúdo.** Nunca em cartão de lista.
-* Folhas: fundo `bg-sheet` e blocos `bg-sheet-card border border-sheet-card-line` (D26).
+* Folhas: fundo `bg-sheet` e blocos `bg-sheet-card border border-sheet-card-line` (D26). A folha em pilha do Perfil (D33), que ocupa a tela inteira, usa o fundo das telas (`bg-app`), com cartões `bg-surface`.
 
 ### 5.2. Cantos
 
@@ -200,7 +201,8 @@ Antes de criar um componente visual genérico, o agente DEVE procurar nesta list
 | `Skeleton`, `ListLoading`, `ListEmpty`, `ListError`, `ErrorState` | estados carregando, vazio e erro |
 | `MessagePage`, `NotFoundView` | página inteira de mensagem; 404 |
 | `BackButton` | voltar, só com o chevron `<` |
-| `Header`, `PageLayout`, `SidebarLayout`, `BottomNav` | estrutura das telas |
+| `Header`, `PageLayout`, `BottomNav` | estrutura das telas |
+| `StackSheet` | folha em pilha com barra do topo fixa e fundo que vira cartão (D33) |
 | `GlassCard` | cartão sólido elevado (o nome é histórico) |
 | `VerifiedBadge`, `VerifiedSealButton`, `ShareButton` | selo, botão do selo, compartilhar |
 | `GateModeScreen`, `useQrScanner`, `useScreenWakeLock`, `useLowBattery` | modo portaria |
@@ -222,6 +224,8 @@ Antes de criar um componente visual genérico, o agente DEVE procurar nesta list
 ## 8. Padrões de tela ✅
 
 * **Topo:** `BackButton` (chevron) à esquerda, título da tela, no máximo uma ação em ícone à direita. Barra fixa com vidro só quando o conteúdo rola por baixo.
+* **Topo de uma folha com várias telas (D33):** barra fixa da folha, fora das páginas: `<` à esquerda em **todas** as telas, na mesma altura (na primeira, fecha a folha), título centralizado em `text-title` (cortado com reticências entre o `<` e a ação da direita) e no máximo uma ação em ícone à direita.
+* **Perfil (D33):** o menu do perfil abre como folha de baixo, com o fundo virando cartão (substitui o menu lateral da D19; o conteúdo continua o mesmo). A primeira tela da folha tem o título "Perfil".
 * **Cartão:** foto ou ícone, o que é (título), quando (linha `meta`), identificador discreto logo abaixo do nome (ex.: código do pedido), e no máximo uma linha separada por divisória com o que fazer agora.
 * **Listas longas e filas:** lista compacta (título, contexto, status, valor); detalhe e decisão na folha.
 * **Abas no lugar de listas longas** (ex.: Próximas / Anteriores), com `SegmentedControl`. Trocar de aba não desliza.
@@ -235,15 +239,17 @@ Antes de criar um componente visual genérico, o agente DEVE procurar nesta list
 
 ## 9. Movimento, gestos e navegação
 
-### 9.1. Linguagem de movimento ✅ (painel por segmento, vídeo `piloto-movimento.mp4`, D17)
+### 9.1. Linguagem de movimento (aprovada em 2026-11-14, D33)
 
-> ⏳ **A substituir:** o responsável do produto vai mandar vídeos novos de referência. Quando chegarem, eles substituem o piloto e esta tabela é refeita a partir deles (durações, curvas e molas). Até lá, vale a tabela abaixo.
+Medida quadro a quadro no vídeo de referência do responsável do produto (`docs/design/movimento-2026-11/`): abrir página, voltar e abrir a folha seguem a **mola padrão** — criticamente amortecida, sem quique, ω = 18,4/s (`motion`: `stiffness: 340, damping: 37, mass: 1`), metade do caminho em ~75 ms, 90% em ~200 ms e parada em ~350 ms. Em CSS, a mola é a função `linear()` gerada de `src/ui/motion/tokens.ts`, com `cubic-bezier(0.25, 1, 0.5, 1)` em 440 ms como reserva.
 
-| O quê | Como | Duração e curva |
+| O quê | Como | Tempo |
 |---|---|---|
-| Abrir página (push) | entra da direita sobre a anterior, que recua um pouco e escurece | 280 ms, `cubic-bezier(0.32, 0.72, 0, 1)` |
-| Voltar | o inverso | 280 ms, mesma curva |
-| Folha | sobe da borda inferior; sai descendo | 280 ms entrada / 220 ms saída, mesma curva |
+| Abrir página (push) | a nova entra da direita (100% → 0); a anterior recua 26% para a esquerda e recebe o véu `recede` | mola padrão |
+| Voltar | o inverso | mola padrão |
+| Folha (abrir) | sobe da borda inferior até logo abaixo da área segura; o fundo vira **cartão**: escala 0,9, desce até a área segura, cantos de 12 px (`rounded-control`) e véu `recede`, com preto atrás | mola padrão |
+| Folha (fechar) | desce; o fundo volta ao tamanho e perde o véu | mola padrão (pelo arraste, com a velocidade do dedo) |
+| Barra do topo da folha | o `<` fica parado, na mesma altura em todas as telas; o título, centralizado (`text-title`), entra e sai junto com a página, no mesmo movimento | o da página |
 | Diálogo (do `sm:`) | aparece com escala de 0,96 e fade | 200 ms entrada / 150 ms saída, `cubic-bezier(0.2, 0.8, 0.2, 1)` |
 | Véu e fade | opacidade | 180 ms entrada / 150 ms saída |
 | Trocar de aba | sem deslizar; o conteúdo troca na hora | — |
@@ -254,25 +260,28 @@ Regras ✅:
 * Saída pelo `data-state` do Radix.
 * **Um efeito por propriedade em cada elemento:** não somar `press` com `whileTap`, `whileHover` ou `active:scale-*`.
 * Animar só `scale`, `translate` e `opacity`. Nunca `transform` em elemento já centralizado por `transform`.
-* "Reduzir movimento": `MotionConfig reducedMotion="user"` na raiz (já existe) e `motion-reduce:animate-none` nas animações CSS. Com ele ligado, nada se move; só aparece.
+* "Reduzir movimento" (D33): `MotionConfig reducedMotion="user"` na raiz (já existe). Com ele ligado, o que é automático (abrir página, voltar, abrir e fechar folha) troca com **esmaecido de 150 ms**, sem deslizar nem mudar de escala; o que a própria pessoa arrasta continua seguindo o dedo e, ao soltar, termina com o esmaecido.
+* Sem desfoque atrás das folhas (D33): o véu `scrim` basta e pesa menos no celular.
 * Ao abrir um diálogo o foco vai para o diálogo, sem anel num botão que a pessoa não tocou.
 
 **P9 — Animar só o que o navegador compõe barato:** proibido animar `width`, `height`, `top`, `left`, `margin` e `padding`, porque essas animações engasgam no celular. Para expandir e recolher, usar `grid-template-rows` ou o `layout` do motion. ⚠️ A barra do leitor da portaria anima `top`; trocar por `translate`.
 
-**P10 — Movimento num lugar só:** duração e curva vêm de `src/ui/motion/tokens.ts` com `DURATION` e `EASE`, e um componente `PushPage` no design system. Ninguém mais escreve duração ou curva solta. ⚠️ Hoje a entrada de página está copiada em `PartnersModal`, `ListingDetailPage` e `MyBookingsView` (B50).
+**P10 — Movimento num lugar só:** mola, duração e curva vêm de `src/ui/motion/tokens.ts` (`SPRING`, `DURATION`, `EASE`, `RECEDE`), e as peças `PushStack` (páginas com barra do topo fixa) e `StackSheet` (folha com o fundo virando cartão) ficam no design system. Ninguém mais escreve duração ou curva solta. ⚠️ Hoje a entrada de página está copiada em `PartnersModal`, `ListingDetailPage` e `MyBookingsView` (B50).
 
 ### 9.2. Gestos
 
 **P18 — Gestos de app nativo.**
 
-* **Folha:** fecha arrastando para baixo, pela alça ou pelo topo da folha; o conteúdo da folha rola normalmente e só fecha arrastando quando já está no topo. Solta antes de um terço da altura (e devagar), a folha volta; passou disso ou foi um arraste rápido, fecha.
-* **Página aberta por cima (push):** volta deslizando a partir da borda esquerda; a página acompanha o dedo e a anterior aparece por baixo, como no iPhone. Solta antes da metade (e devagar), ela volta para o lugar.
+* **Folha (D33):** arrastar para baixo de **qualquer ponto da folha**, em qualquer tela da pilha, fecha a folha inteira; na próxima abertura ela começa da primeira tela. O conteúdo que rola tem prioridade: só fecha arrastando quando ele já está no topo. Solta antes de um terço da altura (e devagar), a folha volta; passou disso ou foi um arraste rápido, fecha. Para cima, estica um pouco com resistência.
+* **Página aberta por cima (push) (D33):** arrastar da esquerda para a direita volta uma tela, de **qualquer ponto da tela, menos começando em cima de um botão** (ali o arrasto não faz nada: nem volta, nem aciona o botão). A página acompanha o dedo e a anterior aparece por baixo. Solta antes da metade (e devagar), ela volta para o lugar. O que rola para o lado (carrossel, mapa, recorte de foto) tem prioridade sobre o gesto.
 * Durante o arraste o véu e a página de trás acompanham a posição do dedo.
-* No Safari aberto no navegador (fora do app instalado), o gesto da borda é do próprio navegador e vira "voltar" pelo histórico (P19); o nosso gesto de borda vale no app instalado e no Android.
-* Com "reduzir movimento", o gesto continua funcionando, mas sem a página acompanhar o dedo: soltou, fecha ou volta sem animação.
-* ⚠️ Hoje só o menu lateral fecha arrastando (`useSwipeToClose`); as folhas (`Dialog`) e as páginas não.
+* Movimento de mais de 8 px vira arraste e cancela o toque: arrastar nunca aciona o que estava embaixo do dedo.
+* No Safari aberto no navegador (fora do app instalado), o arrasto que começa bem na borda é do próprio navegador e vira "voltar" pelo histórico (P19), com o mesmo resultado.
+* Com "reduzir movimento" (D33), o gesto continua seguindo o dedo (é a própria pessoa que move); ao soltar, termina com o esmaecido de 150 ms.
+* Todo gesto tem alternativa em botão: o `<` em todas as telas volta uma tela e, na primeira, fecha a folha.
+* ⚠️ Hoje só a folha do perfil (`StackSheet`) tem os gestos; as outras folhas (`Dialog`) e as páginas não.
 
-**P20 — Mola no que o dedo conduz.** Movimento comandado pelo dedo (arrastar folha, voltar pela borda, puxar para atualizar) termina com mola e herda a velocidade do dedo; pode ser interrompido no meio (tocar de novo segura a página onde está). O que abre por toque segue a tabela 9.1. Os valores de mola saem dos vídeos novos.
+**P20 — Mola no que o dedo conduz.** Movimento comandado pelo dedo (arrastar folha, voltar pela borda, puxar para atualizar) termina com mola e herda a velocidade do dedo; pode ser interrompido no meio (tocar de novo segura a página onde está). O que abre por toque segue a tabela 9.1, com a mesma mola padrão.
 
 ### 9.3. Navegação e voltar
 
@@ -384,6 +393,8 @@ Metas no p75 do celular: **LCP ≤ 2,5 s, INP ≤ 200 ms, CLS ≤ 0,1**. Rotas e
 
 ### 14.1. Checklist de design do PR
 
+Resumo para o PR. A verificação completa, arquivo por arquivo, é a do §16.
+
 - [ ] Tokens de tema; nada de `text-white`, `bg-white/x` ou hex solto
 - [ ] Texto secundário com contraste AA nos dois temas
 - [ ] Tamanhos da escala; nada abaixo de 12 px
@@ -418,3 +429,192 @@ Registrados em `docs/arquitetura/debitos.md` (branch de documentação).
 | B52 — folhas e páginas sem gesto, fora do histórico; aba não guarda rolagem e página | P18, P19, P20, P23 |
 | B53 — teclado sem tratamento; menu do sistema no toque longo | P21, P24 |
 | B54 — sem convite de instalação (no iPhone o push não chega sem instalar) | P22 |
+
+---
+
+## 16. Verificação obrigatória
+
+Ao tocar um arquivo de interface (componente, hook de tela, estilo, tradução exibida, layout), o agente DEVE passar por **todas** as determinações abaixo. Cada uma diz quando se aplica, o que verificar e qual prova vai na entrega. As verificações de arquitetura, segurança, dinheiro, i18n e código estão no AGENTS.md §18; um arquivo de tela passa pelas duas listas.
+
+**Como aplicar:**
+
+1. Para cada arquivo tocado, cada determinação recebe um de três resultados: **ok** (verificado, com a prova; o que estava errado foi corrigido), **não se aplica** (com o motivo em poucas palavras) ou **débito** (com o número em `docs/arquitetura/debitos.md` e qual das exceções do item 3 o justifica). Pular sem registrar é proibido.
+2. A entrega (AGENTS.md §16.3) traz a tabela por arquivo. Determinações "não se aplica" iguais em vários arquivos PODEM ser agrupadas numa linha.
+3. O que estava errado no arquivo antes de tocá-lo também conta e DEVE ser corrigido na mesma tarefa (§14 item 3). Débito só é permitido quando a correção (a) precisa de autorização pelo AGENTS.md §15 e ela foi negada ou ainda não veio, (b) depende de algo que ainda não existe e cuja criação também cai no §15, ou (c) exige mudar arquivos fora da tarefa; nesse caso, corrige-se a parte do arquivo tocado e registra-se o restante.
+
+### V1 · Cores e tema (§2, P1)
+
+* **Aplica-se quando:** o arquivo tem classe de cor, fundo, borda, sombra ou estilo inline.
+* **Verificar:**
+  * Há `text-white`, `bg-white/x`, `bg-black/x`, `text-teal-400`, `text-indigo-*` ou hex solto onde deveria haver token?
+  * Cada cor tem significado (ação, pendente, concluído, perigo, informação, parceiro) ou é enfeite?
+  * Texto secundário usa opacidade solta (`text-ink/50`) em vez de `text-ink-muted`/`text-ink-subtle`?
+  * O contraste passa AA **nos dois temas** (tabela 2.3)?
+  * Há gradiente, padrão decorativo ou status em caixa com borda?
+* **Prova:** busca pelas classes proibidas no arquivo; print antes e depois, no claro e no escuro.
+
+### V2 · Tipografia (§3, P2, P3)
+
+* **Aplica-se quando:** o arquivo tem texto visível.
+* **Verificar:**
+  * Os tamanhos são da escala (`display`, `heading`, `title`, `body`, `control`, `meta`, `caption`)? Há `text-[Npx]` solto?
+  * Algum texto fica abaixo de 12 px (11 px só em etiqueta curta em maiúsculas)?
+  * Só Inter e Outfit? Números que mudam têm `tabular-nums`?
+  * Campo de formulário tem 16 px no celular?
+* **Prova:** busca por `text-[` e `text-[8px]`–`text-[11px]` no arquivo.
+
+### V3 · Espaço, forma e camadas (§4, §5, P4, P5)
+
+* **Aplica-se quando:** o arquivo define margem, espaçamento, largura, canto, superfície ou z-index.
+* **Verificar:**
+  * Margens e espaços seguem a tabela P4?
+  * Os cantos são `rounded-control`, `rounded-card`, `rounded-sheet` ou `rounded-full`? Há `rounded-[2rem]`, `rounded-[2.5rem]` ou valor solto?
+  * Vidro (desfoque) só em barra fixa ou folha, nunca em cartão de lista?
+  * z-index só pela `Z_INDEX`, sem número solto?
+  * Barras fixas e folhas respeitam a área segura (`env(safe-area-inset-*)`)? Há rolagem horizontal?
+* **Prova:** busca por `rounded-[`, `z-[` e `backdrop-blur` no arquivo.
+
+### V4 · Ícones e imagens (§6, P6, P7)
+
+* **Aplica-se quando:** o arquivo tem ícone ou imagem.
+* **Verificar:**
+  * Ícone só do `lucide-react`, em 16, 20 ou 24 px (28–32 só em estado vazio)?
+  * Botão só com ícone tem `aria-label` traduzido? Ícone decorativo tem `aria-hidden`?
+  * Imagem tem `width`/`height` ou `aspect-ratio`, `alt` traduzido (ou `alt=""` se decorativa) e `loading="lazy"` fora da primeira dobra?
+  * Imagem principal da primeira dobra tem `fetchpriority="high"` e não é `lazy`?
+* **Prova:** lista dos ícones e imagens do arquivo com tamanho e `alt`.
+
+### V5 · Componentes do design system (§7, P8)
+
+* **Aplica-se quando:** o arquivo cria ou usa botão, campo, folha, diálogo, aviso, menu, status, estado de lista ou estrutura de tela.
+* **Verificar:**
+  * Existe na tabela do §7 um componente para isso? O arquivo o usa ou recria um parecido?
+  * Há `alert()`, `confirm()` ou `prompt()`?
+  * Usa `ModalLayout`, `.glassmorphism-vibrant` fora do permitido ou `Skeleton` com cor fixa (P8)?
+  * Componente genérico novo nasceu em `src/ui/components/` e entrou na tabela do §7?
+* **Prova:** nome do componente do design system usado em cada caso.
+
+### V6 · Padrões de tela (§8)
+
+* **Aplica-se quando:** o arquivo é uma tela, folha, cartão, lista, formulário ou topo.
+* **Verificar:**
+  * Uma ação principal só (botão cheio); o resto em texto?
+  * Topo segue o padrão (`<` à esquerda, título, no máximo uma ação)? Em folha com várias telas, a barra fixa da D33?
+  * Cartão segue a ordem: foto ou ícone, o que é, quando, identificador, uma linha do que fazer?
+  * Lista longa virou abas ou lista compacta com detalhe na folha?
+  * Formulário com rótulo acima, erro abaixo em `text-danger` traduzido e ação principal visível?
+  * Há texto fixo com aparência de dado real?
+* **Prova:** print da tela.
+
+### V7 · Estados e espera (§8, P13, P14, P15)
+
+* **Aplica-se quando:** o arquivo mostra dado assíncrono, envia algo ao servidor ou depende de rede.
+* **Verificar:**
+  * Existem os quatro estados: carregando (skeleton com a forma do conteúdo), vazio (frase e ação), erro ("Tentar de novo") e sem internet?
+  * O skeleton só aparece depois de ~150 ms? Spinner só dentro de botão?
+  * Resposta otimista só no que é seguro, nunca em dinheiro, estoque, check-in, cancelamento ou reembolso?
+  * A estrutura (topo, barra, skeleton) aparece antes do login e do primeiro dado?
+  * Com rede lenta e cache vazio (primeira abertura), a tela continua correta?
+* **Prova:** print de cada estado, ou o teste que os cobre.
+
+### V8 · Movimento (§9.1, P9, P10)
+
+* **Aplica-se quando:** o arquivo anima algo, abre, fecha ou troca de tela.
+* **Verificar:**
+  * Mola, duração e curva vêm de `src/ui/motion/tokens.ts`? Há duração ou curva solta?
+  * Usa as peças do design system (`StackSheet`, pilha de telas) em vez de copiar a entrada de página?
+  * Anima só `scale`, `translate` e `opacity`? Nada de `width`, `height`, `top`, `left`, `margin` ou `padding`?
+  * Um efeito por propriedade (não somar `press` com `whileTap` ou `active:scale-*`)?
+  * Com "reduzir movimento": o automático esmaece em 150 ms e o arraste segue o dedo?
+  * **Quadro parado no meio da transição**, nos dois temas: cada parte (tela que entra, tela que sai, barra do topo, fundo) tem a cor e a posição da tabela 9.1?
+  * Comparado com a versão anterior, o que não devia mudar continua igual?
+  * A tela que entra por transição já tem o código baixado antes de deslizar (o esqueleto nunca desliza)?
+* **Prova:** vídeo no claro, no escuro e com "reduzir movimento", e o quadro do meio.
+
+### V9 · Gestos (§9.2, P18, P20)
+
+* **Aplica-se quando:** o arquivo é folha, página aberta por cima, ou fica dentro de uma delas.
+* **Verificar:**
+  * A folha fecha arrastando para baixo de qualquer ponto, com prioridade para a rolagem do conteúdo?
+  * A página volta arrastando para a direita, menos começando em cima de botão?
+  * Mais de 8 px de movimento cancela o toque?
+  * Carrossel, mapa, recorte de foto, campo de texto (seleção) e controle deslizante dentro da tela continuam funcionando, sem o gesto roubar o movimento?
+  * O fim do arraste herda a velocidade do dedo?
+  * Todo gesto tem alternativa em botão (`<`)?
+* **Prova:** vídeo com cada gesto, incluindo o arrasto em cima de botão e de elemento com rolagem lateral.
+
+### V10 · Navegação e histórico (§9.3, P19, P23)
+
+* **Aplica-se quando:** o arquivo abre ou fecha página, folha, diálogo ou aba.
+* **Verificar:**
+  * Cada camada aberta entra no histórico? O voltar do sistema fecha só a de cima?
+  * Fechar pelo `X`, pelo arraste ou pelo `<` também tira a entrada do histórico?
+  * Recarregar parado numa tela interna (ou abrir pelo link) remonta a pilha certa, com o voltar funcionando?
+  * Trocar de aba e voltar mantém rolagem e página? Voltar de uma página devolve a rolagem?
+* **Prova:** passos feitos (abrir, voltar do sistema, recarregar) e o resultado.
+
+### V11 · Desempenho e carregamento (§10, P11, P12)
+
+* **Aplica-se quando:** o arquivo importa biblioteca, componente pesado ou tela; ou entra no arquivo inicial.
+* **Verificar:**
+  * Tela ou componente pesado (mapa, gráfico, Stripe, QR, recorte, legais) carrega sob demanda?
+  * O tamanho do arquivo inicial subiu? Continua no caminho da meta de 450 KB comprimidos?
+  * A próxima tela provável é pré-carregada no toque, sem pré-carregar tudo?
+  * Algo causa pulo de layout (imagem sem dimensão, conteúdo que empurra)?
+* **Prova:** tamanho do arquivo inicial antes e depois (`npm run build`).
+
+### V12 · App nativo no navegador (§10.3, P21, P22, P24)
+
+* **Aplica-se quando:** o arquivo tem campo de texto, ação fixa embaixo, botão, cartão ou foto.
+* **Verificar:**
+  * O teclado aberto não cobre a ação principal nem o campo com foco?
+  * O "Ir/Enviar" do teclado envia quando é o último campo?
+  * Botões, cartões, abas e fotos de cartão não abrem o menu do sistema no toque longo nem selecionam texto? Texto de conteúdo continua copiável?
+* **Prova:** print com o teclado aberto no celular.
+
+### V13 · Acessibilidade (§11, P17)
+
+* **Aplica-se quando:** o arquivo tem qualquer elemento visível ou interativo.
+* **Verificar:**
+  * Área de toque ≥ 44 px (48 px na ação principal)?
+  * Foco visível em tudo que é interativo; nenhum `outline-none` sem substituto?
+  * Folha e diálogo: foco vai para eles ao abrir, fica preso dentro, `Esc` fecha e o foco volta ao botão que abriu?
+  * A ordem de leitura do leitor de tela faz sentido?
+  * Cor nunca é a única pista (status com texto, erro com mensagem)?
+  * Com o texto do sistema em 200%, nada é cortado e não há rolagem horizontal?
+* **Prova:** navegação só com teclado; print com o texto em 200%.
+
+### V14 · Tamanhos de tela e conteúdo nos extremos (§12)
+
+* **Aplica-se quando:** o arquivo tem layout.
+* **Verificar:**
+  * Funciona em 320 px (celular pequeno), no celular deitado, no tablet e no desktop (folha vira cartão central do `sm:`)?
+  * Informação funcional existe em todos os tamanhos?
+  * Funciona em `fr` (texto até 30% maior), sem largura fixa em texto?
+  * Funciona com vazio, um item, muitos itens, nome muito longo e valor alto?
+* **Prova:** prints em 320 px, desktop e `fr`.
+
+### V15 · Tema e idioma trocados com a tela aberta
+
+* **Aplica-se quando:** o arquivo mostra texto ou cor.
+* **Verificar:** trocar o tema e o idioma com a tela aberta deixa algo com a cor ou o texto antigos?
+* **Prova:** print depois da troca.
+
+### V16 · Texto na interface (§13)
+
+* **Aplica-se quando:** o arquivo tem texto visível.
+* **Verificar:**
+  * Há jargão técnico ("sessão", "token", "webhook")?
+  * O botão diz o que acontece, em vez de "OK" ou "Enviar"?
+  * O erro diz o que houve e o que fazer?
+  * Hora de serviço no fuso do estabelecimento, com o fuso indicado quando a pessoa está em outro?
+* **Prova:** lista dos textos novos ou alterados.
+
+### V17 · Aprovação e comparação (§14)
+
+* **Aplica-se quando:** a mudança é visível para quem usa o app.
+* **Verificar:**
+  * Print ou vídeo foi aprovado **antes** do código (celular escuro e claro e, quando fizer sentido, desktop e `fr`)?
+  * Há foto do **antes**, nos dois temas, para comparar com o depois?
+  * A referência aprovada foi guardada em `docs/design/`?
+* **Prova:** link ou caminho dos prints e vídeos aprovados.

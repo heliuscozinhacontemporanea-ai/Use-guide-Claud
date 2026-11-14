@@ -3,7 +3,6 @@ import type { PurchasesTranslation } from './purchasesResources';
 export const purchasesFr: PurchasesTranslation = {
   settingsItem: 'Achats',
   title: 'Achats',
-  back: 'Retour',
   tabsLabel: 'Achats',
   tabs: {
     done: 'Terminés',

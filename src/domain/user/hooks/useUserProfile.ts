@@ -27,6 +27,7 @@ export function useUserProfile(onAccountDeleted?: () => void) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  // `text` é a chave de tradução do aviso; quem mostra traduz.
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   useEffect(() => {
@@ -48,9 +49,8 @@ export function useUserProfile(onAccountDeleted?: () => void) {
             );
           }
         } catch (err: unknown) {
-          const errMsg = err instanceof Error ? err.message : 'Não foi possível carregar o perfil.';
           console.error('[useUserProfile] Error fetching user data:', err);
-          setError(errMsg);
+          setError('account.feedback.profileLoadError');
         } finally {
           setIsLoading(false);
         }
@@ -75,12 +75,12 @@ export function useUserProfile(onAccountDeleted?: () => void) {
     setError(null);
     try {
       await updateCurrentUserUseCase(userData);
-      setMessage({ type: 'success', text: 'Perfil atualizado com sucesso!' });
+      setMessage({ type: 'success', text: 'account.feedback.profileSaved' });
       return true;
     } catch (error: unknown) {
-      const err = error as { message?: string; code?: string };
       console.error('[useUserProfile] Error updating profile:', error);
-      const msg = err?.message || 'Erro ao atualizar perfil.';
+      // Nunca a mensagem crua do SDK para quem usa o app (AGENTS.md §10.2): só a chave do aviso.
+      const msg = 'account.feedback.profileError';
       setError(msg);
       setMessage({ type: 'error', text: msg });
       return false;
@@ -97,19 +97,19 @@ export function useUserProfile(onAccountDeleted?: () => void) {
     setError(null);
     try {
       await updatePasswordUseCase(user.email, passwordData);
-      setMessage({ type: 'success', text: 'Senha atualizada com sucesso!' });
+      setMessage({ type: 'success', text: 'account.feedback.passwordSaved' });
       return true;
     } catch (error: unknown) {
       const err = error as { message?: string; code?: string };
       console.error('[useUserProfile] Error updating password:', error);
-      let text = err?.message || 'Erro ao atualizar senha. Siga os requisitos mínimos.';
+      let text = 'account.feedback.passwordError';
       if (
         err?.code === 'auth/popup-closed-by-user' ||
         err?.code === 'auth/cancelled-popup-request'
       ) {
-        text = 'Exclusão cancelada: confirme com sua conta Google para continuar.';
+        text = 'account.feedback.googleCanceled';
       } else if (err?.code === 'auth/invalid-credential' || err?.code === 'auth/wrong-password') {
-        text = 'Senha atual incorreta.';
+        text = 'account.feedback.wrongPassword';
       }
       setError(text);
       setMessage({ type: 'error', text });
@@ -133,18 +133,20 @@ export function useUserProfile(onAccountDeleted?: () => void) {
     } catch (error: unknown) {
       const err = error as { message?: string; code?: string };
       console.error('[useUserProfile] Error deleting account:', error);
-      let text = 'Erro ao excluir conta. Verifique sua conexão.';
+      let text = 'account.feedback.deleteError';
       if (err?.code === 'auth/invalid-credential' || err?.code === 'auth/wrong-password') {
-        text = 'Senha incorreta. Verifique e tente novamente.';
+        text = 'account.feedback.wrongPassword';
       } else if (
         err?.code === 'auth/requires-recent-login' ||
         err?.message === 'REAUTHENTICATION_REQUIRED' ||
         err?.code === 'REAUTHENTICATION_REQUIRED'
       ) {
-        text =
-          'Para sua segurança, confirme suas credenciais recentemente antes de excluir sua conta.';
-      } else if (err?.message) {
-        text = err.message;
+        text = 'account.feedback.recentLogin';
+      } else if (
+        err?.code === 'auth/popup-closed-by-user' ||
+        err?.code === 'auth/cancelled-popup-request'
+      ) {
+        text = 'account.feedback.googleCanceled';
       }
       setError(text);
       setMessage({ type: 'error', text });

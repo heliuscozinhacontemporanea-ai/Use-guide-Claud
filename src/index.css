@@ -26,6 +26,27 @@
   --radius-arredondados: 2.5rem;
   --radius-arredondados-sm: 1.5rem;
 
+  /* Escala de texto (DESIGN.md P3): tamanho e altura de linha; o peso vem da classe font-*. */
+  --text-display: 28px;
+  --text-display--line-height: 34px;
+  --text-heading: 22px;
+  --text-heading--line-height: 28px;
+  --text-title: 17px;
+  --text-title--line-height: 24px;
+  --text-body: 15px;
+  --text-body--line-height: 22px;
+  --text-control: 14px;
+  --text-control--line-height: 20px;
+  --text-meta: 13px;
+  --text-meta--line-height: 18px;
+  --text-caption: 12px;
+  --text-caption--line-height: 16px;
+
+  /* Raios (DESIGN.md P5). */
+  --radius-control: 12px;
+  --radius-card: 20px;
+  --radius-sheet: 24px;
+
   @keyframes pulse-slow {
     0%,
     100% {
@@ -98,6 +119,8 @@
 @theme inline {
   --color-app: var(--ug-app);
   --color-ink: var(--ug-ink);
+  --color-ink-muted: var(--ug-ink-muted);
+  --color-ink-subtle: var(--ug-ink-subtle);
   --color-surface: var(--ug-surface);
   --color-surface-solid: var(--ug-surface-solid);
   --color-sheet: var(--ug-sheet);
@@ -105,6 +128,7 @@
   --color-sheet-card-line: var(--ug-sheet-card-line);
   --color-line: var(--ug-line);
   --color-scrim: var(--ug-scrim);
+  --color-recede: var(--ug-recede);
   --color-accent: var(--ug-accent);
   --color-accent-soft: var(--ug-accent-soft);
   --color-accent-line: var(--ug-accent-line);
@@ -209,6 +233,9 @@
 
   --ug-app: #0d0e10;
   --ug-ink: #ffffff;
+  /* Texto secundário (DESIGN.md P1): cada tema calibrado para passar AA sobre o fundo e o cartão. */
+  --ug-ink-muted: rgba(255, 255, 255, 0.6);
+  --ug-ink-subtle: rgba(255, 255, 255, 0.45);
   --ug-surface: #1e2024;
   --ug-surface-solid: #1e2024;
   /* Folhas (D17): no escuro, folha na cor do cartão e blocos um pouco mais claros. */
@@ -217,6 +244,8 @@
   --ug-sheet-card-line: transparent;
   --ug-line: rgba(255, 255, 255, 0.08);
   --ug-scrim: rgba(0, 0, 0, 0.7);
+  /* O que fica para trás numa troca de tela clareia no escuro, para destacar do preto (D33). */
+  --ug-recede: rgba(255, 255, 255, 0.1);
   --ug-accent: #3ee47a;
   --ug-accent-soft: rgba(17, 212, 80, 0.12);
   --ug-accent-line: rgba(17, 212, 80, 0.35);
@@ -246,6 +275,9 @@
 .ug-force-dark {
   --ug-app: #0d0e10;
   --ug-ink: #ffffff;
+  /* Texto secundário (DESIGN.md P1): cada tema calibrado para passar AA sobre o fundo e o cartão. */
+  --ug-ink-muted: rgba(255, 255, 255, 0.6);
+  --ug-ink-subtle: rgba(255, 255, 255, 0.45);
   --ug-surface: #1e2024;
   --ug-surface-solid: #1e2024;
   /* Folhas (D17): no escuro, folha na cor do cartão e blocos um pouco mais claros. */
@@ -270,6 +302,8 @@
 
   --ug-app: #f3eee4;
   --ug-ink: #231d16;
+  --ug-ink-muted: rgba(35, 29, 22, 0.72);
+  --ug-ink-subtle: rgba(35, 29, 22, 0.58);
   --ug-surface: rgba(250, 246, 238, 0.97);
   --ug-surface-solid: #faf6ee;
   /* Folhas no claro seguem as telas: fundo bege e cartões claros com borda. */
@@ -278,6 +312,7 @@
   --ug-sheet-card-line: rgba(35, 29, 22, 0.12);
   --ug-line: rgba(35, 29, 22, 0.12);
   --ug-scrim: rgba(35, 29, 22, 0.35);
+  --ug-recede: rgba(0, 0, 0, 0.12);
   --ug-accent: #087a2e;
   --ug-accent-soft: rgba(17, 180, 70, 0.14);
   --ug-accent-line: rgba(8, 122, 46, 0.4);

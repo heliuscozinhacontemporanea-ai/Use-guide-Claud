@@ -1,5 +1,5 @@
-import { AnimatePresence, motion } from 'motion/react';
-import { Suspense, useEffect, useMemo, useState } from 'react';
+import { AnimatePresence, motion, useReducedMotion, useTransform } from 'motion/react';
+import { type ReactNode, Suspense, useEffect, useMemo, useState } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { useAuthContext } from '../domain/auth/context/AuthContext';
 import { UserRole } from '../domain/auth/types/auth';
@@ -14,6 +14,10 @@ import { cn } from '../shared/utils/cn';
 import { BottomNav } from '../ui/components/BottomNav';
 import { DelayedFallback, ScreenFallback } from '../ui/lazy/DelayedFallback';
 import { Header } from '../ui/layouts/Header';
+import { readSafeAreaTop } from '../ui/motion/safeAreaTop';
+import { stackSheetProgress } from '../ui/motion/stackSheetProgress';
+import { CARD_RADIUS_PX, CARD_SCALE } from '../ui/motion/tokens';
+import { Z_INDEX } from '../shared/constants/zIndex';
 import { prefetchWhenIdle } from './lazy/prefetchWhenIdle';
 import {
   AdminPanelComposition,
@@ -250,174 +254,209 @@ export function AppRouter() {
   const partnersMounted = useOpenedOnce(isPartnersOpen);
 
   return (
-    <div className="relative h-screen bg-app text-ink selection:bg-teal-500/30">
-      <motion.div
-        ref={scrollContainerRef}
-        animate={{
-          y: isRetracted ? 16 : 0,
-          scale: isRetracted ? 0.9 : 1,
-          opacity: 1,
-          borderTopLeftRadius: isRetracted ? 12 : 0,
-          borderTopRightRadius: isRetracted ? 12 : 0,
-        }}
-        transition={{
-          duration: isRetracted ? 0.45 : isLoginClosingBySwipe ? 0.22 : 0.35,
-          ease: isRetracted ? [0.16, 1, 0.3, 1] : [0.32, 0.72, 0, 1],
-        }}
-        style={{
-          transformOrigin: 'top center',
-          opacity: 1,
-        }}
-        className="relative h-full overflow-y-auto no-scrollbar"
-      >
-        {!isHideGlobalUI && (
-          <Header
-            onSearchClick={() => setIsSearchOpen(true)}
-            isMenuOpen={isMenuOpen}
-            onMenuToggle={() => (isMenuOpen ? closeMenu() : openMenu())}
-            isScrolled={isScrolled}
-            isSearchSticky={isExplorePage ? isSearchSticky : false}
-            onAdminOpen={handleAdminOpen}
-            isAdmin={isAdmin}
-            isPartner={isPartner}
-            user={user}
-            notificationSlot={
-              user ? (
-                <NotificationBell
-                  uid={user.uid}
-                  onNavigate={openNotificationLink}
-                  onOpenSettings={() => openMenu('notifications')}
+    <div className="relative h-screen bg-black text-ink selection:bg-teal-500/30">
+      <BackdropCard>
+        <motion.div
+          ref={scrollContainerRef}
+          animate={{
+            y: isRetracted ? 16 : 0,
+            scale: isRetracted ? 0.9 : 1,
+            opacity: 1,
+            borderTopLeftRadius: isRetracted ? 12 : 0,
+            borderTopRightRadius: isRetracted ? 12 : 0,
+          }}
+          transition={{
+            duration: isRetracted ? 0.45 : isLoginClosingBySwipe ? 0.22 : 0.35,
+            ease: isRetracted ? [0.16, 1, 0.3, 1] : [0.32, 0.72, 0, 1],
+          }}
+          style={{
+            transformOrigin: 'top center',
+            opacity: 1,
+          }}
+          className="relative h-full overflow-y-auto no-scrollbar"
+        >
+          {!isHideGlobalUI && (
+            <Header
+              onSearchClick={() => setIsSearchOpen(true)}
+              isMenuOpen={isMenuOpen}
+              onMenuToggle={() => (isMenuOpen ? closeMenu() : openMenu())}
+              isScrolled={isScrolled}
+              isSearchSticky={isExplorePage ? isSearchSticky : false}
+              onAdminOpen={handleAdminOpen}
+              isAdmin={isAdmin}
+              isPartner={isPartner}
+              user={user}
+              notificationSlot={
+                user ? (
+                  <NotificationBell
+                    uid={user.uid}
+                    onNavigate={openNotificationLink}
+                    onOpenSettings={() => openMenu('notifications')}
+                  />
+                ) : null
+              }
+            />
+          )}
+
+          {isAdminOpen ? (
+            <Suspense fallback={<ScreenFallback className="min-h-dvh bg-app p-6" />}>
+              <AdminPanelComposition />
+            </Suspense>
+          ) : isPartnerPortalOpen ? (
+            <Suspense fallback={<ScreenFallback className="min-h-dvh bg-app p-6" />}>
+              <PartnerPortalComposition />
+            </Suspense>
+          ) : (
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={location.pathname}
+                className={cn(
+                  'min-h-full max-w-2xl mx-auto w-full',
+                  isExplorePage ? 'pt-[70px]' : isAccountActionPage ? 'pt-0' : 'pt-28'
+                )}
+              >
+                <AppRoutes
+                  location={location}
+                  onSelectItem={setSelectedItem}
+                  onStickyChange={setIsSearchSticky}
                 />
-              ) : null
-            }
-          />
-        )}
+              </motion.div>
+            </AnimatePresence>
+          )}
 
-        {isAdminOpen ? (
-          <Suspense fallback={<ScreenFallback className="min-h-dvh bg-app p-6" />}>
-            <AdminPanelComposition />
-          </Suspense>
-        ) : isPartnerPortalOpen ? (
-          <Suspense fallback={<ScreenFallback className="min-h-dvh bg-app p-6" />}>
-            <PartnerPortalComposition />
-          </Suspense>
-        ) : (
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={location.pathname}
-              className={cn(
-                'min-h-full max-w-2xl mx-auto w-full',
-                isExplorePage ? 'pt-[70px]' : isAccountActionPage ? 'pt-0' : 'pt-28'
-              )}
-            >
-              <AppRoutes
-                location={location}
-                onSelectItem={setSelectedItem}
-                onStickyChange={setIsSearchSticky}
-              />
-            </motion.div>
-          </AnimatePresence>
-        )}
+          {!isHideGlobalUI && <BottomNav />}
 
-        {!isHideGlobalUI && <BottomNav />}
-
-        <SideMenu
-          onPartnersOpen={() => {
-            setSearchParams(
-              (prev) => {
-                const nextParams = new URLSearchParams(prev);
-                nextParams.set('partners', '1');
-                return nextParams;
-              },
-              { replace: true }
-            );
-
-            setTimeout(() => {
+          <SideMenu
+            onPartnersOpen={() => {
               setSearchParams(
                 (prev) => {
                   const nextParams = new URLSearchParams(prev);
-                  nextParams.delete('menu');
                   nextParams.set('partners', '1');
                   return nextParams;
                 },
                 { replace: true }
               );
-            }, 800);
-          }}
-          onAdminOpen={handleAdminOpen}
-        />
 
-        {partnersMounted && (
-          <Suspense fallback={null}>
-            <PartnersModal
-              isOpen={isPartnersOpen}
-              onClose={() => setIsPartnersOpen(false)}
-              onOpenPartnerPanel={() => void openPartnerPortalAfterSignup()}
-            />
-          </Suspense>
-        )}
+              setTimeout(() => {
+                setSearchParams(
+                  (prev) => {
+                    const nextParams = new URLSearchParams(prev);
+                    nextParams.delete('menu');
+                    nextParams.set('partners', '1');
+                    return nextParams;
+                  },
+                  { replace: true }
+                );
+              }, 800);
+            }}
+            onAdminOpen={handleAdminOpen}
+          />
 
-        <AnimatePresence>
-          {isSearchOpen && (
-            <Suspense key="search" fallback={null}>
-              <SearchOverlay
-                isOpen={isSearchOpen}
-                onClose={() => setIsSearchOpen(false)}
-                onSelectItem={setSelectedItem}
+          {partnersMounted && (
+            <Suspense fallback={null}>
+              <PartnersModal
+                isOpen={isPartnersOpen}
+                onClose={() => setIsPartnersOpen(false)}
+                onOpenPartnerPanel={() => void openPartnerPortalAfterSignup()}
               />
             </Suspense>
           )}
-        </AnimatePresence>
 
-        {/* Anúncio em tela cheia (2026-11-10): a foto cresce do cartão e volta ao fechar. */}
-        <AnimatePresence>
-          {selectedItem && (
-            <Suspense key={selectedItem.id} fallback={null}>
-              <ListingDetail
-                item={selectedItem}
-                onClose={() => setSelectedItem(null)}
-                renderBooking={
-                  BOOKABLE_CATEGORIES.includes(selectedItem.category)
-                    ? (included) => (
-                        <Suspense fallback={<BlockFallback />}>
-                          <ItemBookingComposition
-                            guideItemId={selectedItem.id}
-                            between={included}
-                          />
-                        </Suspense>
-                      )
-                    : undefined
-                }
-                ticketPanel={
-                  selectedItem.category === 'event' ? (
-                    <Suspense fallback={<BlockFallback />}>
-                      <EventTicketingPurchasePanel
-                        eventId={selectedItem.id}
-                        eventTitle={selectedItem.name}
-                        place={{ timeZone: selectedItem.timeZone, city: selectedItem.city }}
-                        userEmail={user?.email || undefined}
-                        userName={user?.displayName || undefined}
-                        onRequireLogin={openLoginModal}
-                      />
-                    </Suspense>
-                  ) : undefined
-                }
+          <AnimatePresence>
+            {isSearchOpen && (
+              <Suspense key="search" fallback={null}>
+                <SearchOverlay
+                  isOpen={isSearchOpen}
+                  onClose={() => setIsSearchOpen(false)}
+                  onSelectItem={setSelectedItem}
+                />
+              </Suspense>
+            )}
+          </AnimatePresence>
+
+          {/* Anúncio em tela cheia (2026-11-10): a foto cresce do cartão e volta ao fechar. */}
+          <AnimatePresence>
+            {selectedItem && (
+              <Suspense key={selectedItem.id} fallback={null}>
+                <ListingDetail
+                  item={selectedItem}
+                  onClose={() => setSelectedItem(null)}
+                  renderBooking={
+                    BOOKABLE_CATEGORIES.includes(selectedItem.category)
+                      ? (included) => (
+                          <Suspense fallback={<BlockFallback />}>
+                            <ItemBookingComposition
+                              guideItemId={selectedItem.id}
+                              between={included}
+                            />
+                          </Suspense>
+                        )
+                      : undefined
+                  }
+                  ticketPanel={
+                    selectedItem.category === 'event' ? (
+                      <Suspense fallback={<BlockFallback />}>
+                        <EventTicketingPurchasePanel
+                          eventId={selectedItem.id}
+                          eventTitle={selectedItem.name}
+                          place={{ timeZone: selectedItem.timeZone, city: selectedItem.city }}
+                          userEmail={user?.email || undefined}
+                          userName={user?.displayName || undefined}
+                          onRequireLogin={openLoginModal}
+                        />
+                      </Suspense>
+                    ) : undefined
+                  }
+                />
+              </Suspense>
+            )}
+          </AnimatePresence>
+
+          {loginMounted && (
+            <Suspense fallback={null}>
+              <LoginModal
+                isOpen={isLoginModalOpen}
+                onClose={closeLoginModal}
+                initialTab={loginModalTab}
               />
             </Suspense>
           )}
-        </AnimatePresence>
-
-        {loginMounted && (
-          <Suspense fallback={null}>
-            <LoginModal
-              isOpen={isLoginModalOpen}
-              onClose={closeLoginModal}
-              initialTab={loginModalTab}
-            />
-          </Suspense>
-        )}
-      </motion.div>
+        </motion.div>
+      </BackdropCard>
     </div>
+  );
+}
+
+const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
+
+/**
+ * O app inteiro vira cartão atrás da folha em pilha (DESIGN.md §9.1, D33): encolhe, desce até a área
+ * segura, arredonda os cantos e recebe o véu `recede`, no mesmo movimento da folha (inclusive no arraste).
+ */
+function BackdropCard({ children }: { children: ReactNode }) {
+  const reduced = useReducedMotion();
+  const [top] = useState(() => Math.max(readSafeAreaTop(), 16));
+  const scale = useTransform(stackSheetProgress, (p) =>
+    reduced ? 1 : 1 - (1 - CARD_SCALE) * clamp01(p)
+  );
+  const y = useTransform(stackSheetProgress, (p) => (reduced ? 0 : top * clamp01(p)));
+  // Canto aparece pronto (não se anima o raio, DESIGN.md P9).
+  const borderRadius = useTransform(stackSheetProgress, (p) =>
+    !reduced && p > 0.001 ? CARD_RADIUS_PX : 0
+  );
+  const veil = useTransform(stackSheetProgress, clamp01);
+  return (
+    <motion.div
+      style={{ scale, y, borderRadius, transformOrigin: 'top center' }}
+      className="relative h-full overflow-hidden bg-app"
+    >
+      {children}
+      <motion.div
+        aria-hidden="true"
+        style={{ opacity: veil, zIndex: Z_INDEX.popover }}
+        className="pointer-events-none absolute inset-0 bg-recede"
+      />
+    </motion.div>
   );
 }
 

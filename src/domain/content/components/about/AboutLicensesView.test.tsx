@@ -9,7 +9,7 @@ describe('AboutLicensesView', () => {
   });
 
   it('mostra o crédito da animação e as bibliotecas, com o texto da licença ao abrir', async () => {
-    render(<AboutLicensesView onBack={() => undefined} />);
+    render(<AboutLicensesView />);
     const credit = screen.getByRole('button', { name: /Animação do hamster/ });
     expect(screen.getByText('por Nawsome · Uiverse.io')).toBeTruthy();
     fireEvent.click(credit);

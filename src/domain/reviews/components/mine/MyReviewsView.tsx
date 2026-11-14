@@ -2,7 +2,6 @@ import { Flag } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatBusinessDate, formatBusinessDay } from '../../../../shared/utils/businessDateTime';
-import { BackButton } from '../../../../ui/components/BackButton';
 import { ConfirmDialog, type ConfirmDialogData } from '../../../../ui/components/ConfirmDialog';
 import { ListEmpty, ListError, ListLoading } from '../../../../ui/components/ListState';
 import { StatusText } from '../../../../ui/components/StatusText';
@@ -18,7 +17,6 @@ import { ReportResponseSheet } from './ReportResponseSheet';
 
 interface MyReviewsViewProps {
   source: MyReviewsSource;
-  onBack: () => void;
   /** Nome do lugar ou evento, vindo do guia pela composição; `undefined` se não está mais no guia. */
   titleOf: (review: FirestoreReview) => string | undefined;
 }
@@ -26,7 +24,7 @@ interface MyReviewsViewProps {
 const REPORT_TONE = { open: 'warn', upheld: 'success', dismissed: 'muted' } as const;
 
 /** Minhas avaliações (D19): um cartão por avaliação; editar, denunciar a resposta e excluir no menu "…". */
-export function MyReviewsView({ source, onBack, titleOf }: MyReviewsViewProps) {
+export function MyReviewsView({ source, titleOf }: MyReviewsViewProps) {
   const { t, i18n } = useTranslation();
   const { data, loading, error, hasMore, reload, loadMore, remove, save } = source;
   const reports = useMyReviewReports();
@@ -90,14 +88,12 @@ export function MyReviewsView({ source, onBack, titleOf }: MyReviewsViewProps) {
 
   return (
     <section className="w-full space-y-5">
-      <div className="flex items-center gap-2">
-        <BackButton label={t('myReviews.back')} onClick={onBack} />
-        <h2 className="text-[22px] font-display font-bold text-ink">{t('myReviews.title')}</h2>
-      </div>
       {notice && (
         <p
           role={notice.tone === 'error' ? 'alert' : 'status'}
-          className={notice.tone === 'error' ? 'text-sm text-danger' : 'text-sm text-accent'}
+          className={
+            notice.tone === 'error' ? 'text-control text-danger' : 'text-control text-accent'
+          }
         >
           {notice.text}
         </p>
@@ -107,7 +103,7 @@ export function MyReviewsView({ source, onBack, titleOf }: MyReviewsViewProps) {
       {groups.map((group) => (
         <section key={group.label || 'sem-data'} className="space-y-2">
           {group.label && (
-            <h3 className="text-[13px] font-semibold text-ink/70 px-1">{group.label}</h3>
+            <h3 className="text-meta font-semibold text-ink-muted px-1">{group.label}</h3>
           )}
           <ul className="space-y-3">
             {group.reviews.map((review) => {
