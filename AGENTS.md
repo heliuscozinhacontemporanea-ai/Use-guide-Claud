@@ -841,9 +841,9 @@ Ao tocar qualquer arquivo do escopo (§0.2), o agente DEVE passar por **todas** 
 
 **Como aplicar:**
 
-1. Para cada arquivo tocado, cada determinação recebe um de três resultados: **ok** (verificado, com a prova), **não se aplica** (com o motivo em poucas palavras) ou **débito** (com o número em `docs/arquitetura/debitos.md`). Pular sem registrar é proibido.
+1. Para cada arquivo tocado, cada determinação recebe um de três resultados: **ok** (verificado, com a prova; o que estava errado foi corrigido), **não se aplica** (com o motivo em poucas palavras) ou **débito** (com o número em `docs/arquitetura/debitos.md` e qual das exceções do item 3 o justifica). Pular sem registrar é proibido.
 2. A entrega (§16.3, item 6) traz a tabela por arquivo. Determinações "não se aplica" iguais em vários arquivos PODEM ser agrupadas numa linha.
-3. O que estava errado no arquivo antes de tocá-lo também conta: ao tocar, corrige-se ou registra-se débito.
+3. O que estava errado no arquivo antes de tocá-lo também conta e DEVE ser corrigido na mesma tarefa. Débito só é permitido quando a correção (a) precisa de autorização pelo §15 e ela foi negada ou ainda não veio, (b) depende de algo que ainda não existe e cuja criação também cai no §15, ou (c) exige mudar arquivos fora da tarefa; nesse caso, corrige-se a parte do arquivo tocado e registra-se o restante.
 4. Determinação que dispara o §15 (dinheiro, dados, segurança, dependência, comportamento visível, ação irreversível) para o trabalho até a resposta do responsável.
 
 ### A1 · Ambientes e configuração (§2)
