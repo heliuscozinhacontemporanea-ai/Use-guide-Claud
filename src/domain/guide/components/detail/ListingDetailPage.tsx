@@ -1,6 +1,6 @@
 import { MapPin, Star, X } from 'lucide-react';
 import { motion, useScroll } from 'motion/react';
-import { type ReactNode, useEffect, useRef, useState } from 'react';
+import { type ReactNode, useEffect, useEffectEvent, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BOTTOM_NAV_CLEARANCE } from '../../../../shared/constants/bottomNav';
 import { CATEGORIES } from '../../../../shared/constants/categories';
@@ -9,20 +9,17 @@ import { cn } from '../../../../shared/utils/cn';
 import { optimizeImage } from '../../../../shared/utils/formatters';
 import { ShareButton } from '../../../../ui/components/ShareButton';
 import { VerifiedSealButton } from '../../../../ui/components/VerifiedSealButton';
-import { FADE } from '../../../../ui/motion/tokens';
 import { FavoriteButton } from '../../../favorites/components/FavoriteButton';
 import { trackInteractionUseCase as trackInteraction } from '../../../insights';
 import type { GuideItem } from '../../types/guide';
-import { listingHeroLayoutId } from '../../utils/listingHero';
+import { useListingHero } from '../../hooks/useListingHero';
 import { isListingSealVisible } from '../../utils/listingSeal';
-
-// Curva de app nativo: começa rápido e assenta devagar (regra de movimento, 2026-11-09).
-const EASE = [0.32, 0.72, 0, 1] as const;
 
 /**
  * Anúncio em tela cheia (aprovado em 2026-11-10): a foto vem do cartão e ocupa o topo, com
  * favoritar e compartilhar; embaixo, tag, nota, nome, local, descrição e as seções da categoria.
- * Fechar faz o caminho inverso (a foto volta para o cartão).
+ * A foto cresce do cartão e o conteúdo desce junto; fechar faz o caminho inverso (efeito do vídeo de
+ * referência de 2026-11-15, `useListingHero`).
  *
  * É uma página da aba (decisão de 2026-11-14, P23): fica abaixo da barra de abas, que continua
  * visível. Aberto pela busca, que já cobre a barra, fica por cima de tudo (`coversTabBar`).
@@ -46,16 +43,21 @@ export function ListingDetailPage({
   favoriteLabel: string;
   /** Por cima de uma camada que já cobre a barra de abas (a busca): janela à parte, sem a barra. */
   coversTabBar?: boolean;
-  /**
-   * A foto cresce do cartão tocado (mesma chave nos dois). Sem toque (link, voltar, troca de aba), ela
-   * só esmaece: o cartão que monta depois tomaria a foto para si.
-   */
+  /** A foto cresce do cartão tocado. Sem toque (link, voltar, troca de aba), o anúncio só esmaece. */
   growsFromCard?: boolean;
   children: ReactNode;
 }) {
   const { t } = useTranslation();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const heroRef = useRef<HTMLDivElement>(null);
   const { scrollY } = useScroll({ container: scrollRef });
+  // Aberto pela busca, a foto não tem cartão visível de onde sair: só esmaece.
+  const hero = useListingHero({
+    itemId: item.id,
+    enabled: growsFromCard && !coversTabBar,
+    heroRef,
+  });
+  const close = () => hero.close(onClose);
   const [activeImage, setActiveImage] = useState(0);
   const category = CATEGORIES[item.category as keyof typeof CATEGORIES];
   const images = item.images?.length ? item.images.slice(0, 5) : item.image ? [item.image] : [];
@@ -64,51 +66,44 @@ export function ListingDetailPage({
     void trackInteraction(item.id, 'view', collectionName);
   }, [item.id, collectionName]);
 
+  // O `onClose` muda a cada render de quem abriu: o Esc lê o mais recente sem refazer o efeito, e o
+  // foco vai para o anúncio só ao abrir (não sai de um campo da reserva quando a lista atualiza).
+  const onEscape = useEffectEvent((event: KeyboardEvent) => {
+    if (event.key === 'Escape') close();
+  });
   useEffect(() => {
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', onKey);
     scrollRef.current?.focus({ preventScroll: true });
-    return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
+    window.addEventListener('keydown', onEscape);
+    return () => window.removeEventListener('keydown', onEscape);
+  }, []);
 
   return (
-    <div
+    <motion.div
       className="fixed inset-0"
-      style={{ zIndex: coversTabBar ? Z_INDEX.modal : Z_INDEX.tabPage }}
+      style={{ ...hero.layer, zIndex: coversTabBar ? Z_INDEX.modal : Z_INDEX.tabPage }}
     >
-      {/* O fundo aparece enquanto a foto cresce; a foto não some, ela muda de lugar. */}
+      {/* O fundo aparece enquanto a foto cresce; a tela de baixo aparece até ele ficar opaco. */}
       <motion.div
         aria-hidden="true"
         className="absolute inset-0 bg-app"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.28, ease: EASE }}
+        style={{ opacity: hero.backdrop }}
       />
-      <div
+      <motion.div
         ref={scrollRef}
         role={coversTabBar ? 'dialog' : 'region'}
         aria-modal={coversTabBar || undefined}
         aria-label={item.name}
         tabIndex={-1}
+        style={hero.page}
         className="absolute inset-0 overflow-y-auto overscroll-contain outline-none"
       >
         <motion.div
-          {...(growsFromCard
-            ? { layoutId: listingHeroLayoutId(item.id), transition: { duration: 0.38, ease: EASE } }
-            : {
-                initial: { opacity: 0 },
-                animate: { opacity: 1 },
-                exit: { opacity: 0 },
-                transition: FADE,
-              })}
-          className="relative w-full h-[46vh] max-h-[460px] min-h-[260px] overflow-hidden bg-surface"
+          ref={heroRef}
+          style={{ ...hero.photo, transformOrigin: '0 0' }}
+          className="relative w-full h-[46vh] max-h-[460px] min-h-[260px] overflow-hidden bg-surface will-change-transform"
         >
           {images.length > 0 ? (
-            <motion.div
-              layout
+            <div
               className="flex w-full h-full overflow-x-auto snap-x snap-mandatory no-scrollbar"
               onScroll={(event) => {
                 const { scrollLeft, clientWidth } = event.currentTarget;
@@ -131,22 +126,24 @@ export function ListingDetailPage({
                   className="w-full h-full shrink-0 snap-center object-cover"
                 />
               ))}
-            </motion.div>
+            </div>
           ) : (
             <div className="w-full h-full bg-surface" />
           )}
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-black/25" />
+          {/* Dá leitura aos botões da capa: aparece e some com eles (a foto do cartão não tem). */}
+          <motion.div
+            style={hero.chrome}
+            className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-black/25"
+          />
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1, transition: { delay: 0.22, duration: 0.2 } }}
-          exit={{ opacity: 0, transition: { duration: 0.12 } }}
+          style={hero.chrome}
           className="pointer-events-none absolute inset-x-0 top-0 h-[46vh] max-h-[460px] min-h-[260px]"
         >
           <button
             type="button"
-            onClick={onClose}
+            onClick={close}
             aria-label={t('common.close')}
             className="press pointer-events-auto absolute right-4 top-[max(1rem,env(safe-area-inset-top))] size-11 rounded-full bg-black/55 text-white backdrop-blur-md flex items-center justify-center focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none"
           >
@@ -197,10 +194,8 @@ export function ListingDetailPage({
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0, transition: { delay: 0.12, duration: 0.3, ease: EASE } }}
-          exit={{ opacity: 0, y: 24, transition: { duration: 0.18 } }}
           style={{
+            ...hero.content,
             paddingBottom: coversTabBar
               ? 'max(2.5rem, env(safe-area-inset-bottom, 0px))'
               : BOTTOM_NAV_CLEARANCE,
@@ -244,7 +239,7 @@ export function ListingDetailPage({
           </header>
           {children}
         </motion.div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
