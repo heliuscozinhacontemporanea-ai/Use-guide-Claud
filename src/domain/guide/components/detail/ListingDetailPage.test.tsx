@@ -57,6 +57,22 @@ describe('ListingDetailPage', () => {
     expect(dialog.parentElement).toHaveStyle({ zIndex: String(Z_INDEX.modal) });
   });
 
+  it('o foco vai para o anúncio ao abrir e não volta para ele quando quem abriu atualiza', async () => {
+    const view = (onClose: () => void) => (
+      <ListingDetailPage item={ITEM} onClose={onClose} locationLabel="Preá, Ceará">
+        <input aria-label="participantes" />
+      </ListingDetailPage>
+    );
+    const { rerender } = render(view(vi.fn()));
+    const region = await screen.findByRole('region', { name: 'Buggy do Preá' });
+    expect(region).toHaveFocus();
+    const field = screen.getByRole('textbox', { name: 'participantes' });
+    field.focus();
+    // A lista atualiza (novo `onClose` a cada render): quem está digitando continua no campo.
+    rerender(view(vi.fn()));
+    expect(field).toHaveFocus();
+  });
+
   it('o favoritar chega pelo encaixe do app e recebe a rolagem da página', async () => {
     const favorite = vi.fn(() => <span>favoritar</span>);
     render(

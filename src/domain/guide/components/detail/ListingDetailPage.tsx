@@ -146,7 +146,7 @@ export function ListingDetailPage({
             type="button"
             onClick={close}
             aria-label={t('common.close')}
-            className="press pointer-events-auto absolute right-4 top-[max(1rem,env(safe-area-inset-top))] size-11 rounded-full bg-black/55 text-white backdrop-blur-md flex items-center justify-center focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none"
+            className="press pointer-events-auto absolute right-4 top-[max(1rem,env(safe-area-inset-top))] size-11 rounded-full bg-black/55 text-on-fill backdrop-blur-md flex items-center justify-center focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none"
           >
             <X size={20} strokeWidth={2.5} aria-hidden="true" />
           </button>
@@ -169,7 +169,7 @@ export function ListingDetailPage({
                 <span
                   key={src}
                   className={cn(
-                    'size-1.5 rounded-full bg-white transition-opacity',
+                    'size-1.5 rounded-full bg-on-fill transition-opacity',
                     index === activeImage ? 'opacity-100' : 'opacity-45'
                   )}
                 />
