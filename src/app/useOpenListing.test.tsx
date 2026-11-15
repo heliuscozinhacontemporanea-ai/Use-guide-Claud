@@ -8,9 +8,12 @@ import { useOpenListing } from './useOpenListing';
 const TOUR = { id: 'i1', name: 'Buggy', category: 'tour' } as GuideItem;
 const EVENT = { id: 'ev1', name: 'Luau', category: 'event' } as GuideItem;
 
-function setup(url: string) {
+function setup(url: string, before?: string) {
+  const entries = before ? [before, url] : [url];
   const wrapper = ({ children }: { children: ReactNode }) => (
-    <MemoryRouter initialEntries={[url]}>{children}</MemoryRouter>
+    <MemoryRouter initialEntries={entries} initialIndex={entries.length - 1}>
+      {children}
+    </MemoryRouter>
   );
   return renderHook(
     () => ({
@@ -35,6 +38,26 @@ describe('useOpenListing', () => {
     expect(result.current.location.search).toBe('?menu=1&item=ev1&type=event');
     act(() => result.current.listing.setSelectedItem(null));
     expect(result.current.location.search).toBe('?menu=1');
+  });
+});
+
+describe('useOpenListing · fechar tira o anúncio do histórico (P19)', () => {
+  it('aberto por um toque, fechar volta: o voltar seguinte sai da tela, sem reabrir', () => {
+    const { result } = setup('/passeios?menu=1', '/');
+    act(() => result.current.listing.setSelectedItem(TOUR));
+    act(() => result.current.listing.setSelectedItem(null));
+    expect(result.current.location.search).toBe('?menu=1');
+    act(() => result.current.navigate(-1));
+    expect(result.current.location.pathname).toBe('/');
+  });
+
+  it('aberto por link, fechar tira o anúncio da mesma entrada', () => {
+    const { result } = setup('/passeios?item=i1&type=item', '/');
+    act(() => result.current.listing.setSelectedItem(null));
+    expect(result.current.location.search).toBe('');
+    expect(result.current.listing.selectedItem).toBeNull();
+    act(() => result.current.navigate(-1));
+    expect(result.current.location.pathname).toBe('/');
   });
 });
 

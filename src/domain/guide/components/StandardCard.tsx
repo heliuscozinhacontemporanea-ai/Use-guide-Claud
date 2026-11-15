@@ -72,7 +72,8 @@ export function StandardCard({
           onClick();
         }}
         className={cn(
-          'press glassmorphism relative block w-full overflow-hidden text-left focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none',
+          // P24: o toque longo não abre o menu do sistema nem seleciona o texto do cartão.
+          'press glassmorphism relative block w-full overflow-hidden text-left select-none [-webkit-touch-callout:none] focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none',
           VARIANT[variant],
           variant === 'circle' ? 'rounded-full' : 'rounded-card',
           isHorizontal && 'flex',

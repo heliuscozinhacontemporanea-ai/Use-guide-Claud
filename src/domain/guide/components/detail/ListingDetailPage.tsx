@@ -123,6 +123,8 @@ export function ListingDetailPage({
                         })
                       : item.name
                   }
+                  // P7: a capa é a imagem principal da primeira dobra.
+                  fetchPriority={index === 0 ? 'high' : 'auto'}
                   className="w-full h-full shrink-0 snap-center object-cover"
                 />
               ))}
