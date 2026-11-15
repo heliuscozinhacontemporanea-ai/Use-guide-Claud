@@ -12,7 +12,6 @@ import {
 export interface PartnerSignupTranslation {
   details: PartnerSignupDetailsTranslation;
   errors: PartnerSignupErrorsTranslation;
-  processing: { title: string; text: string };
   editor: {
     newTitle: string;
     editTitle: string;
@@ -43,14 +42,6 @@ export interface PartnerSignupTranslation {
     trustText: string;
     start: string;
     footnote: string;
-  };
-  form: {
-    title: string;
-    step: string;
-    back: string;
-    next: string;
-    submit: string;
-    sending: string;
   };
   categories: {
     hotel: string;
@@ -92,7 +83,6 @@ export interface PartnerSignupTranslation {
     terms: string;
     termsHint: string;
   };
-  success: { title: string; text: string; openPanel: string; later: string };
   step2: {
     phonePrivate: string;
     phone: string;
@@ -133,10 +123,6 @@ export const partnerSignupPtBR: PartnerSignupTranslation = {
     deleted: 'Cadastro excluído.',
     deleteFailed: 'Não foi possível excluir. Tente de novo.',
   },
-  processing: {
-    title: 'Enviando seu cadastro',
-    text: 'Estamos guardando as informações e as fotos. Isso leva alguns segundos.',
-  },
   yes: 'Sim',
   no: 'Não',
   detailsTitle: 'Detalhes',
@@ -154,14 +140,6 @@ export const partnerSignupPtBR: PartnerSignupTranslation = {
     trustText: 'Estabelecimentos verificados mostram ao viajante que podem contar com você.',
     start: 'Começar cadastro',
     footnote: 'O cadastro é rápido, e o painel mostra cada passo até você começar a vender.',
-  },
-  form: {
-    title: 'Cadastro de parceiro',
-    step: '{{current}} de {{total}}',
-    back: 'Voltar',
-    next: 'Continuar',
-    submit: 'Enviar cadastro',
-    sending: 'Enviando…',
   },
   categories: {
     hotel: 'Hospedagem',
@@ -182,12 +160,6 @@ export const partnerSignupPtBR: PartnerSignupTranslation = {
     bookingPlaceholder: 'Seu anúncio em sites de reserva',
     maps: 'Localização no Google Maps',
     mapsPlaceholder: 'Cole o link do Google Maps',
-  },
-  success: {
-    title: 'Cadastro enviado',
-    text: '{{name}} já está no seu painel. Lá você vê os próximos passos para começar a vender.',
-    openPanel: 'Abrir meu painel',
-    later: 'Agora não',
   },
   step5: {
     title: 'Revisar e enviar',

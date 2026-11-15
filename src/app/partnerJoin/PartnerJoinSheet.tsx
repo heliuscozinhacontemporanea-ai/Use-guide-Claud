@@ -70,9 +70,6 @@ export function PartnerJoinSheet({
     savePartnerJoinDraftUseCase(next);
   };
 
-  // Ao avançar para conta, @ ou e-mail, "Seu negócio" continua embaixo para o voltar.
-  const show = (page: JoinPage) => setPages(['business', page]);
-
   const submit = useCallback(async () => {
     setSubmitting(true);
     setError(null);
@@ -92,11 +89,12 @@ export function PartnerJoinSheet({
 
   useEffect(() => {
     if (!continuing || submitting || loading) return;
-    if (!user || user.isAnonymous) show('account');
+    // Ao avançar para conta, @ ou e-mail, "Seu negócio" continua embaixo para o voltar.
+    if (!user || user.isAnonymous) setPages(['business', 'account']);
     // O nome do cadastro vem antes do @: a sugestão do @ sai dele (UsernameGate).
     else if (!profile?.firstName) return;
-    else if (!profile.username) show('username');
-    else if (!user.emailVerified) show('verify');
+    else if (!profile.username) setPages(['business', 'username']);
+    else if (!user.emailVerified) setPages(['business', 'verify']);
     else void submit();
   }, [continuing, submitting, loading, user, profile, submit]);
 
