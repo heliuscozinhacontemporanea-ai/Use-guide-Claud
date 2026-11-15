@@ -1,0 +1,44 @@
+# Fila de trabalho
+
+Tudo o que está aprovado ou pedido pelo responsável do produto e ainda não foi feito, num lugar só. Atualizar a cada entrega: o que for publicado sai da fila (o histórico fica no `decisoes.md` e no `PROCESSO.md`).
+
+## 1 · Trabalho aprovado, na ordem
+
+A ordem abaixo foi proposta em 2026-11-15 e pode ser mudada pelo responsável.
+
+| # | Item | Situação | Decisão |
+|---|---|---|---|
+| 1 | Cartão sai de cena inteiro, sem a moldura vazia (PR #25) | Pronto, `ci` verde; aguardando "aprovado, pode publicar" | D33 (complementos) |
+| 2 | **D34 · F1**: Seja parceiro em uma tela, anúncio em rascunho e guia de passos no Início do painel. Inclui o **item 2 da D33** ("Seja parceiro" em páginas empilhadas na folha), o B16 do parceiro e o B66 | Próximo; prints antes do código | D34, D33 |
+| 3 | **Item 3 da D33**: busca (SearchOverlay) como folha em altura cheia, com os tokens (resolve o B60) | Depois da F1 | D33 |
+| 4 | **D34 · F2**: blocos do anúncio (Sobre, Onde fica, Detalhes, Contatos, Fotos) como peças únicas, usadas pelo guia e pelo editor do painel. Junto, o **item 4 da D33**: editores de anúncio e de evento como páginas empilhadas do painel, com "Salvar" na barra | | D34, D33 |
+| 5 | **D34 · F3**: detalhes de venda só na oferta (D1 a D4) | | D34 |
+| 6 | **D34 · F4**: admin no mesmo editor do parceiro (D6, D8). Cobre o "editor do admin" do **item 5 da D33** | | D34, D33 |
+| 7 | **D34 · F5**: evento herda contato e local do estabelecimento (D5) | | D34 |
+| 8 | **D34 · F6**: o tour sai e entram as dicas de primeira visita (Agenda e Ganhos) | | D34 |
+| 9 | Resto do **item 5 da D33**: link de cortesia e durações e curvas soltas nos componentes menores (DESIGN.md P10) | | D33 |
+| 10 | **Acerto com o divulgador**, fase 1 e fase 2 | Aprovado em 2026-11-12; prints antes do código | `decisoes.md` (Acerto com o divulgador) |
+
+Itens 1 a 5 da D33, para referência: 1 anúncio (foto sai do cartão e volta) · 2 "Seja parceiro" em páginas empilhadas · 3 busca em folha de altura cheia · 4 editores de anúncio e evento como páginas empilhadas com "Salvar" na barra · 5 link de cortesia, editor do admin e durações soltas. O item 1 foi publicado em 2026-11-15 (PRs #23 e #24).
+
+## 2 · Propostas
+
+Cada proposta é apresentada antes de qualquer código; a implementação só começa com a aprovação.
+
+| Ordem | Proposta | Situação |
+|---|---|---|
+| 1 | Conta do parceiro em uma tela e guia de passos no painel (levantamento de todos os dados pedidos ao parceiro, duplicações D1 a D8) | Aprovada em 2026-11-15 (D34, https://claude.ai/artifact/QhRCHcvwW8sDF9Phoa5Z7C); implementação na seção 1 |
+| 2 | Termos e Política de Privacidade no cadastro comum, e "Sou o dono" para o dono assumir um lugar que já está no guia | Pedida em 2026-11-15; próxima proposta |
+
+### Proposta 2 · Termos no cadastro comum e "Sou o dono"
+
+Origem: comparação com Airbnb, Booking, Sympla, GetYourGuide, Eventbrite e Tripadvisor (2026-11-15), pontos 3 e 6.
+
+* **Ponto 3 · Termos no cadastro comum.** O cadastro do usuário (e-mail e senha ou Google) não mostra os Termos nem a Política de Privacidade; só o cadastro do parceiro tem aceite. Sugestão de partida: o aviso "Ao criar a conta, você concorda com os Termos e a Política de Privacidade", com links, nos três idiomas.
+* **Ponto 6 · "Sou o dono".** O guia tem lugares cadastrados pelo Use Guide (restaurantes, atrações, hospedagens). Hoje o dono não consegue assumir o lugar: cria outro anúncio, com risco de duplicado. Sugestão de partida: um botão "Sou o dono" no anúncio, usando a verificação por documento que já existe (D12), como o "reivindicar" do Tripadvisor.
+* **Lembrete ao começar esta proposta:** lembrar o responsável do ponto 7 da comparação: **CPF não vende** (D12), enquanto na Sympla e no Airbnb pessoa física vende. É decisão aprovada, por motivo fiscal e jurídico; o lembrete existe porque o "Sou o dono" passa pela verificação por documento, onde essa regra pesa.
+
+## 3 · A avaliar (sem decisão)
+
+* Abrir o cadastro do Stripe já preenchido com o CNPJ e o nome verificados (D7 da proposta da D34): mexe com dinheiro, precisa de proposta própria.
+* Débitos de `debitos.md`: corrigidos quando o arquivo for tocado (AGENTS.md §18) ou em tarefa própria. Os que já têm momento marcado: B60 (item 3 desta fila) e B66 (junto com a F1).
