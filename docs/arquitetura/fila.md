@@ -9,7 +9,7 @@ A ordem abaixo foi proposta em 2026-11-15 e pode ser mudada pelo responsável.
 | # | Item | Situação | Decisão |
 |---|---|---|---|
 | 1 | Cartão sai de cena inteiro, sem a moldura vazia (PR #25) | Pronto, `ci` verde; aguardando "aprovado, pode publicar" | D33 (complementos) |
-| 2 | **D34 · F1**: Seja parceiro em uma tela, anúncio em rascunho e guia de passos no Início do painel. Inclui o **item 2 da D33** ("Seja parceiro" em páginas empilhadas na folha), o B16 do parceiro e o B66 | Próximo; prints antes do código | D34, D33 |
+| 2 | **D34 · F1**: Seja parceiro em uma tela, anúncio em rascunho e guia de passos no Início do painel. Inclui o **item 2 da D33** ("Seja parceiro" em páginas empilhadas na folha), o B16 do parceiro e o B66 | Em andamento: prints e protótipo aprovados em 2026-11-15 (escolhas da F1 na D34) | D34, D33 |
 | 3 | **Item 3 da D33**: busca (SearchOverlay) como folha em altura cheia, com os tokens (resolve o B60) | Depois da F1 | D33 |
 | 4 | **D34 · F2**: blocos do anúncio (Sobre, Onde fica, Detalhes, Contatos, Fotos) como peças únicas, usadas pelo guia e pelo editor do painel. Junto, o **item 4 da D33**: editores de anúncio e de evento como páginas empilhadas do painel, com "Salvar" na barra | | D34, D33 |
 | 5 | **D34 · F3**: detalhes de venda só na oferta (D1 a D4) | | D34 |
