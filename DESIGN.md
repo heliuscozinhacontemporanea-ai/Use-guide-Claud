@@ -211,13 +211,12 @@ Antes de criar um componente visual genérico, o agente DEVE procurar nesta list
 
 ⚠️ **Divergências encontradas:**
 
-* `ModalLayout` abre com mola e escala 0,9: uma segunda linguagem de modal, ao lado do `Dialog`. Está em 3 arquivos.
 * `Skeleton` usa `bg-white/5 border-white/5` em vez de tokens.
 * Os controles de zoom do mapa usam `bg-white/5 text-white`.
 * `.glassmorphism-vibrant` (vidro com brilho) está em 11 arquivos, em lugares que não são barra fixa nem folha.
 * `--liquid-gradient`, `--glass-bg` e `--glass-border` sobram no CSS.
 
-**P8:** migrar `ModalLayout` para `Dialog` e apagá-lo; `Skeleton` e mapa com tokens; `.glassmorphism-vibrant` só onde a regra 5.1 permite; apagar as variáveis que sobram.
+**P8:** `Skeleton` e mapa com tokens; `.glassmorphism-vibrant` só onde a regra 5.1 permite; apagar as variáveis que sobram.
 
 ---
 
@@ -249,6 +248,7 @@ Medida quadro a quadro no vídeo de referência do responsável do produto (`doc
 | Voltar | o inverso | mola padrão |
 | Folha (abrir) | sobe da borda inferior até logo abaixo da área segura; o fundo vira **cartão**: escala 0,9, desce até a área segura, cantos de 12 px (`rounded-control`) e véu `recede`, com preto atrás | mola padrão |
 | Folha (fechar) | desce; o fundo volta ao tamanho e perde o véu | mola padrão (pelo arraste, com a velocidade do dedo) |
+| Anúncio (abrir e fechar) | a foto do cartão tocado cresce até virar a capa, e o conteúdo desce preso ao pé dela; o fundo do anúncio esmaece por cima da lista. Fechar faz o inverso e a foto pousa no mesmo cartão. Sem cartão na tela, só esmaece | molas `HERO_OPEN` (~230 ms) e `HERO_CLOSE` (~200 ms); fundo em 150 ms ao abrir e 170 ms ao fechar |
 | Barra do topo da folha | o `<` fica parado, na mesma altura em todas as telas; o título, centralizado (`text-title`), entra e sai junto com a página, no mesmo movimento | o da página |
 | Diálogo (do `sm:`) | aparece com escala de 0,96 e fade | 200 ms entrada / 150 ms saída, `cubic-bezier(0.2, 0.8, 0.2, 1)` |
 | Véu e fade | opacidade | 180 ms entrada / 150 ms saída |
@@ -259,14 +259,14 @@ Regras ✅:
 
 * Saída pelo `data-state` do Radix.
 * **Um efeito por propriedade em cada elemento:** não somar `press` com `whileTap`, `whileHover` ou `active:scale-*`.
-* Animar só `scale`, `translate` e `opacity`. Nunca `transform` em elemento já centralizado por `transform`.
+* Animar só `scale`, `translate` e `opacity`. Exceção, só no anúncio: o recorte (`clip-path: inset()`) da foto que sai do cartão, que não mexe no layout. Nunca `transform` em elemento já centralizado por `transform`.
 * "Reduzir movimento" (D33): `MotionConfig reducedMotion="user"` na raiz (já existe). Com ele ligado, o que é automático (abrir página, voltar, abrir e fechar folha) troca com **esmaecido de 150 ms**, sem deslizar nem mudar de escala; o que a própria pessoa arrasta continua seguindo o dedo e, ao soltar, termina com o esmaecido.
 * Sem desfoque atrás das folhas (D33): o véu `scrim` basta e pesa menos no celular.
 * Ao abrir um diálogo o foco vai para o diálogo, sem anel num botão que a pessoa não tocou.
 
 **P9 — Animar só o que o navegador compõe barato:** proibido animar `width`, `height`, `top`, `left`, `margin` e `padding`, porque essas animações engasgam no celular. Para expandir e recolher, usar `grid-template-rows` ou o `layout` do motion. ⚠️ A barra do leitor da portaria anima `top`; trocar por `translate`.
 
-**P10 — Movimento num lugar só:** mola, duração e curva vêm de `src/ui/motion/tokens.ts` (`SPRING`, `DURATION`, `EASE`, `RECEDE`), e as peças `PushStack` (páginas com barra do topo fixa) e `StackSheet` (folha com o fundo virando cartão) ficam no design system. Ninguém mais escreve duração ou curva solta. ⚠️ Hoje a entrada de página está copiada em `PartnersModal`, `ListingDetailPage` e `MyBookingsView` (B50).
+**P10 — Movimento num lugar só:** mola, duração e curva vêm de `src/ui/motion/tokens.ts` (`SPRING`, `DURATION`, `EASE`, `RECEDE`, `HERO_*`), e as peças `PushStack` (páginas com barra do topo fixa) e `StackSheet` (folha com o fundo virando cartão) ficam no design system. Ninguém mais escreve duração ou curva solta. ⚠️ Hoje a entrada de página está copiada em `PartnersModal` (B50).
 
 ### 9.2. Gestos
 
@@ -490,7 +490,7 @@ Ao tocar um arquivo de interface (componente, hook de tela, estilo, tradução e
 * **Verificar:**
   * Existe na tabela do §7 um componente para isso? O arquivo o usa ou recria um parecido?
   * Há `alert()`, `confirm()` ou `prompt()`?
-  * Usa `ModalLayout`, `.glassmorphism-vibrant` fora do permitido ou `Skeleton` com cor fixa (P8)?
+  * Usa `.glassmorphism-vibrant` fora do permitido ou `Skeleton` com cor fixa (P8)?
   * Componente genérico novo nasceu em `src/ui/components/` e entrou na tabela do §7?
 * **Prova:** nome do componente do design system usado em cada caso.
 
