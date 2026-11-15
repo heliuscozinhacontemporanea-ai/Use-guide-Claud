@@ -5,6 +5,19 @@ export interface Rect {
   height: number;
 }
 
+/**
+ * O cartão no tamanho de layout (sem a escala do toque), com a posição da foto dentro dele: a cópia
+ * do que fica sobre a foto (nome, etiquetas, degradê) é montada nesse tamanho.
+ */
+export interface CardLayout {
+  width: number;
+  height: number;
+  photoLeft: number;
+  photoTop: number;
+  photoWidth: number;
+  photoHeight: number;
+}
+
 /** De onde a foto sai (o cartão tocado) e para onde vai (a capa do anúncio), na tela. */
 export interface HeroGeometry {
   /** A foto dentro do cartão. */
@@ -15,6 +28,8 @@ export interface HeroGeometry {
   /** A capa do anúncio no lugar dela (sem transformação). */
   hero: Rect;
   viewport: Rect;
+  /** Sem ela (nada sobre a foto do cartão), não há cópia para acompanhar a foto. */
+  cardLayout?: CardLayout;
 }
 
 export interface HeroFrame {
@@ -24,6 +39,11 @@ export interface HeroFrame {
   contentY: number;
   /** A área do anúncio que aparece: do cartão à tela inteira. */
   pageClipPath: string;
+  /**
+   * A cópia do que fica sobre a foto do cartão, presa ao pé da foto e crescendo com ela (origem no
+   * canto de cima à esquerda da tela).
+   */
+  cardLook: { x: number; y: number; scale: number } | null;
 }
 
 export function lerpRect(from: Rect, to: Rect, p: number): Rect {
@@ -55,11 +75,20 @@ export function heroFrame(geometry: HeroGeometry, p: number): HeroFrame {
   // é arredondada onde encosta nos cantos dele (no cartão horizontal, os da direita são retos).
   const radius = cardRadius * (1 - p);
   const page = lerpRect(card, viewport, p);
+  const layout = geometry.cardLayout;
+  const lookScale = layout ? visible.width / layout.photoWidth : 1;
   return {
     photo: { x, y, scale, clipPath: `inset(${px(insetY)} ${px(insetX)})` },
     contentY: visible.top + visible.height - (hero.top + hero.height),
     pageClipPath: `inset(${px(page.top)} ${px(viewport.width - page.left - page.width)} ${px(
       viewport.height - page.top - page.height
     )} ${px(page.left)} round ${px(radius)})`,
+    cardLook: layout
+      ? {
+          x: visible.left - layout.photoLeft * lookScale,
+          y: visible.top + visible.height - (layout.photoTop + layout.photoHeight) * lookScale,
+          scale: lookScale,
+        }
+      : null,
   };
 }

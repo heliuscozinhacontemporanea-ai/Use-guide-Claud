@@ -210,6 +210,71 @@ describe('ListingDetailPage', () => {
       expect(cardPhoto.style.visibility).toBe('');
     });
 
+    it('sem pulo no início: mesmo com a primeira pintura pesada, o primeiro movimento é de um quadro', async () => {
+      render(toggle(true));
+      const region = screen.getByLabelText(ITEM.name, { selector: '[tabindex="-1"]' });
+      const photo = region.querySelector<HTMLElement>('.will-change-transform');
+      const clips: string[] = [];
+      // Recorte da página no primeiro quadro em que a foto se mexe.
+      let clipWhenPhotoMoved: string | undefined;
+      let photoStart: string | undefined;
+      new MutationObserver(() => {
+        clips.push(region.style.clipPath);
+        const transform = photo?.style.transform ?? '';
+        photoStart ??= transform;
+        if (clipWhenPhotoMoved === undefined && transform !== photoStart) {
+          clipWhenPhotoMoved = region.style.clipPath;
+        }
+      }).observe(region, { attributeFilter: ['style'], subtree: true });
+      // A primeira pintura de um anúncio no celular leva dezenas de ms.
+      const end = performance.now() + 35;
+      while (performance.now() < end) {
+        // ocupado
+      }
+      await waitFor(() => expect(isFull(region.style.clipPath)).toBe(true), { timeout: 3000 });
+      // Cartão com o topo em 300 px: um quadro de mola leva ~19% do caminho (topo ~242 px). Contando
+      // os 35 ms da pintura, levava ~38% (topo ~186 px).
+      const tops = clips
+        .filter((clip) => clip.startsWith('inset('))
+        .map((clip) => insets(clip)[0] ?? 300);
+      const firstMove = tops.find((top) => top < 299);
+      expect(firstMove).toBeGreaterThan(225);
+      // Foto e recorte da página andam juntos desde o primeiro quadro (antes, o recorte ficava um
+      // quadro preso no cartão e alcançava a foto de uma vez).
+      expect(insets(clipWhenPhotoMoved)[0]).toBeLessThan(299);
+    });
+
+    it('o nome do cartão vai por cima da foto e esmaece na primeira metade; o degradê da capa entra depois', async () => {
+      const card = document.querySelector<HTMLElement>(`[${LISTING_CARD_ATTR}]`);
+      const caption = document.createElement('span');
+      caption.textContent = 'Nome no cartão';
+      card?.append(caption);
+      for (const [element, size] of [
+        [card, 280],
+        [cardPhoto, 280],
+      ] as const) {
+        Object.defineProperties(element, {
+          offsetWidth: { value: size },
+          offsetHeight: { value: size },
+          offsetLeft: { value: 0 },
+          offsetTop: { value: 0 },
+        });
+      }
+      render(toggle(true));
+      const region = screen.getByLabelText(ITEM.name, { selector: '[tabindex="-1"]' });
+      const lookLayer = region.parentElement?.lastElementChild as HTMLElement;
+      expect(lookLayer).toHaveAttribute('aria-hidden', 'true');
+      const look = lookLayer.firstElementChild as HTMLElement;
+      expect(look).toHaveTextContent('Nome no cartão');
+      await waitFor(() => expect(Number(look.style.opacity)).toBe(1));
+      // O cartão original sai de cena no primeiro passo: a cópia o representa.
+      await waitFor(() => expect(card?.style.visibility).toBe('hidden'));
+      await waitFor(() => expect(isFull(region.style.clipPath)).toBe(true), { timeout: 3000 });
+      expect(Number(look.style.opacity)).toBe(0);
+      const shade = region.querySelector<HTMLElement>('.will-change-transform .bg-gradient-to-t');
+      expect(Number(shade?.style.opacity)).toBe(1);
+    });
+
     it('sem toque no cartão (link ou voltar), só esmaece e não mexe no cartão', async () => {
       render(toggle(true, false));
       const region = await screen.findByRole('region', { name: ITEM.name });
