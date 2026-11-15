@@ -32,6 +32,7 @@ import {
   type PartnerFirstStepsTranslation,
   partnerFirstStepsPtBR,
 } from './partnerFirstStepsResources';
+import { type PartnerGuideTranslation, partnerGuidePtBR } from './partnerGuideResources';
 import { type PartnerPanelTranslation, partnerPanelPtBR } from './partnerPanelResources';
 import { type PartnerSignupTranslation, partnerSignupPtBR } from './partnerSignupResources';
 import { type PartnersTranslation, partnersPtBR } from './partnersResources';
@@ -94,6 +95,7 @@ export interface TranslationResource {
   partnerCatalog: PartnerCatalogTranslation;
   partnerEarnings: PartnerEarningsTranslation;
   partnerFirstSteps: PartnerFirstStepsTranslation;
+  partnerGuide: PartnerGuideTranslation;
   partnerAddSegment: PartnerAddSegmentTranslation;
   listingDetail: ListingDetailTranslation;
   auth: AuthTranslation;
@@ -356,6 +358,7 @@ const ptBR: TranslationResource = {
   partnerCatalog: partnerCatalogPtBR,
   partnerEarnings: partnerEarningsPtBR,
   partnerFirstSteps: partnerFirstStepsPtBR,
+  partnerGuide: partnerGuidePtBR,
   partnerAddSegment: partnerAddSegmentPtBR,
   listingDetail: listingDetailPtBR,
   auth: authPtBR,

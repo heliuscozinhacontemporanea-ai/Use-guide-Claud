@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import { createPageStack } from '../../../ui/hooks/pageStack';
 import type { PartnerMorePageView } from '../components/panel/PartnerMoreSection';
 import type { PartnerPanelTab } from '../components/panel/partnerPanelTabs';
+import type { ListingStepId } from '../types/partnerHome';
 
 export type CouponsScope = { kind: 'event' | 'offer'; id: string };
 
@@ -16,7 +17,9 @@ export type PanelPage =
   | { view: 'reports' }
   | { view: 'reports-profile' }
   | { view: 'accounts' }
-  | { view: 'account'; key: string; title: string };
+  | { view: 'account'; key: string; title: string }
+  /** Um passo do guia do anúncio (D34): os campos do passo ou o publicar. */
+  | { view: 'listing-step'; itemId: string; step: ListingStepId | 'publish'; title: string };
 
 /**
  * Aba do painel e as páginas abertas por cima dela (estabelecimento, evento, relatórios, contas, Mais),
@@ -62,6 +65,12 @@ export function usePanelNavigation() {
     [pages]
   );
 
+  const openListingStep = useCallback(
+    (itemId: string, step: ListingStepId | 'publish', title: string) =>
+      pages.push({ view: 'listing-step', itemId, step, title }),
+    [pages]
+  );
+
   return {
     panelTab,
     setPanelTab,
@@ -73,6 +82,7 @@ export function usePanelNavigation() {
     openEvent,
     openReports,
     openReportsProfile,
+    openListingStep,
     openAccounts,
     openAccount,
   };

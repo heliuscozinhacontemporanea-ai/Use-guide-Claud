@@ -12,6 +12,8 @@ import type {
 
 export interface PartnerHomePort {
   get(): Promise<PartnerHomeView>;
+  /** Publica o rascunho no guia; `ListingIncompleteError` com os passos que faltam (D34). */
+  publishListing(itemId: string): Promise<void>;
   /** Horários e sessões do dono em [from, to). */
   getAgenda(fromIso: string, toIso: string): Promise<PartnerTodayItem[]>;
   /** Eventos do dono para o Catálogo. */

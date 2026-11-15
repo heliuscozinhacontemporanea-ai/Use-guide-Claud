@@ -162,7 +162,7 @@ export interface PartnerSignupDetailsTranslation {
 export const partnerSignupDetailsPtBR: PartnerSignupDetailsTranslation = {
   additional: {
     title: 'Funcionamento',
-    languages: 'Idiomas atendidos',
+    languages: 'Idiomas que você fala',
     checkIn: 'Check-in',
     checkOut: 'Check-out',
     from: 'Das',

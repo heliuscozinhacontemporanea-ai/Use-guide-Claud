@@ -86,6 +86,7 @@ export function HotelDetails(props: DetailsSectionProps) {
         label={f('amenities')}
         options={AMENITIES}
         selected={formData.amenities || []}
+        noneKey="amenities"
         onToggle={(value) => toggleInList('amenities', value)}
       />
     </div>

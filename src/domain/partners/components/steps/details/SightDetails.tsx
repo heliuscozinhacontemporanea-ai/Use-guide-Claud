@@ -52,7 +52,7 @@ export function SightDetails(props: DetailsSectionProps) {
         required
         error={getFieldError('sightAccessType')}
       />
-      {access === 'pago' ? (
+      {access === 'pago' && !props.listingOnly ? (
         <TextField
           id="sight-price"
           label={f('pricePerPerson')}
@@ -69,6 +69,7 @@ export function SightDetails(props: DetailsSectionProps) {
         label={f('sightServices')}
         options={SERVICES}
         selected={formData.sightServices || []}
+        noneKey="services"
         onToggle={(value) => toggleInList('sightServices', value)}
         error={getFieldError('sightServices')}
       />
@@ -76,6 +77,7 @@ export function SightDetails(props: DetailsSectionProps) {
         label={f('sightAmenities')}
         options={AMENITIES}
         selected={formData.sightAmenities || []}
+        noneKey="amenities"
         onToggle={(value) => toggleInList('sightAmenities', value)}
       />
       <ChipGroup
@@ -83,6 +85,7 @@ export function SightDetails(props: DetailsSectionProps) {
         hint={f('sightActivitiesHint')}
         options={ACTIVITIES}
         selected={formData.sightActivities || []}
+        noneKey="activities"
         onToggle={(value) => toggleInList('sightActivities', value)}
         error={getFieldError('sightActivities')}
       />

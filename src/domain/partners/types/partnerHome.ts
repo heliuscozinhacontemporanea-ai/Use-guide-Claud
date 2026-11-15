@@ -52,6 +52,8 @@ export interface PartnerEstablishment {
   reviewCount: number;
   unansweredReviews: number;
   timeZone?: string;
+  /** Rascunho fica fora do guia até ser publicado (D34). */
+  publication: 'draft' | 'published';
 }
 
 export interface PartnerUpcomingSession {
@@ -105,16 +107,34 @@ export type FirstStepSegment =
   | 'restaurant';
 
 export interface PartnerFirstStep {
-  id: 'verify' | 'account' | 'offer' | 'event';
+  id: 'verify' | 'account' | 'offer' | 'slots' | 'event';
   done: boolean;
+  /** `pending`: verificação em análise; `locked`: depende do passo anterior. */
   state?: 'pending' | 'locked';
   itemId: string;
 }
 
-/** O que falta para vender (painel por segmento), como `/api/partner-home` devolve. */
+/** Passo de "Para aparecer no guia" (D34), com os campos que faltam. */
+export type ListingStepId = 'name' | 'photos' | 'about' | 'where' | 'details' | 'contacts';
+
+export interface ListingStep {
+  id: ListingStepId;
+  done: boolean;
+  missing: string[];
+}
+
+/** O guia de passos do Início (D34), como `/api/partner-home` devolve. */
 export interface PartnerFirstSteps {
   segment: FirstStepSegment;
   title: 'prepare' | 'start' | 'complete';
+  /** O anúncio que o cartão acompanha. */
+  listing: {
+    itemId: string;
+    name: string;
+    publication: 'draft' | 'published';
+    steps: ListingStep[];
+  };
+  /** O que falta para vender (ou o selo, na vitrine). */
   steps: PartnerFirstStep[];
 }
 

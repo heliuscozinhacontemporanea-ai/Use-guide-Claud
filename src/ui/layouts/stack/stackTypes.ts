@@ -1,10 +1,13 @@
 import type { LucideIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 
-/** Ação em ícone à direita da barra do topo (no máximo uma por tela, DESIGN.md §8). */
+/**
+ * Ação à direita da barra do topo (no máximo uma por tela, DESIGN.md §8): ícone, ou o texto do rótulo
+ * quando não há ícone (ex.: "Salvar", D33).
+ */
 export interface StackAction {
   label: string;
-  icon: LucideIcon;
+  icon?: LucideIcon;
   onClick: () => void;
 }
 

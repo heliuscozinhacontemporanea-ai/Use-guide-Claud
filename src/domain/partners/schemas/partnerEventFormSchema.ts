@@ -1,9 +1,6 @@
 import { z } from 'zod';
 
-export const eventEntryTypeSchema = z.enum([
-  'pago',
-  'gratuito',
-]);
+export const eventEntryTypeSchema = z.enum(['pago', 'gratuito']);
 export type EventEntryType = z.infer<typeof eventEntryTypeSchema>;
 
 export const partnerEventFormSchema = z

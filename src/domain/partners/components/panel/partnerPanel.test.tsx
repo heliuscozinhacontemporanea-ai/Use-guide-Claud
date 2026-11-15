@@ -21,6 +21,7 @@ const VIEW: PartnerHomeView = {
       rating: 4.8,
       reviewCount: 96,
       unansweredReviews: 2,
+      publication: 'published',
     },
     {
       id: 'pousada',
@@ -30,6 +31,7 @@ const VIEW: PartnerHomeView = {
       rating: 4,
       reviewCount: 4,
       unansweredReviews: 0,
+      publication: 'published',
     },
   ],
   attention: [

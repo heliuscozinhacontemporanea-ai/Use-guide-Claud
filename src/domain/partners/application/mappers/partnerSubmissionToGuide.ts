@@ -24,7 +24,7 @@ function toGuideItemCategory(value: string): PartnerContentItemInput['category']
   }
 }
 
-function buildOperationalInfo(formData: PartnerSubmissionData) {
+export function buildOperationalInfo(formData: PartnerSubmissionData) {
   if (formData.category === 'hotel') {
     return {
       childrenAllowed: formData.childrenAllowed ?? undefined,
@@ -77,6 +77,8 @@ function buildOperationalInfo(formData: PartnerSubmissionData) {
       durationMinutes: Number.isFinite(hours) && hours > 0 ? Math.round(hours * 60) : undefined,
       meetingPoint: formData.meetingPoint,
       itinerary: formData.itinerary,
+      // "O que levar" do passeio usa o campo do translado (escolhas da F1, D34).
+      luggageInfo: formData.luggageInfo,
       includes: formData.tourIncludes,
       languages: formData.languages,
     };

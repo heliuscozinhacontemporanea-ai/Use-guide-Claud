@@ -21,6 +21,7 @@ import { partnerAgoraFr } from './partnerAgoraResources.fr';
 import { partnerCatalogFr } from './partnerCatalogResources.fr';
 import { partnerEarningsFr } from './partnerEarningsResources.fr';
 import { partnerFirstStepsFr } from './partnerFirstStepsResources.fr';
+import { partnerGuideFr } from './partnerGuideResources.fr';
 import { partnerPanelFr } from './partnerPanelResources.fr';
 import { partnerSignupFr } from './partnerSignupResources.fr';
 import { partnerTourFr } from './partnerTourResources.fr';
@@ -81,6 +82,7 @@ export const fr: TranslationResource = {
   partnerCatalog: partnerCatalogFr,
   partnerEarnings: partnerEarningsFr,
   partnerFirstSteps: partnerFirstStepsFr,
+  partnerGuide: partnerGuideFr,
   partnerAddSegment: partnerAddSegmentFr,
   listingDetail: listingDetailFr,
   auth: authFr,

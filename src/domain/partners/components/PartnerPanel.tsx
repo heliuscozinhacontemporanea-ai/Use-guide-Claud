@@ -74,6 +74,8 @@ export function PartnerPanel({
   const { t } = useTranslation();
   const home = usePartnerPanelHome();
   const nav = usePanelNavigation();
+  // Salvar do passo do guia aberto (D34): a página entrega, a barra chama.
+  const listingSave = React.useRef<(() => void) | null>(null);
   const { panelTab, setPanelTab } = nav;
   const [catalogSegment, setCatalogSegment] = React.useState<CatalogSegment>('places');
   const [eventsVersion, setEventsVersion] = React.useState(0);
@@ -228,6 +230,14 @@ export function PartnerPanel({
     onOpenAccount: nav.openAccount,
     onOpenCoupons: renderCoupons ? nav.openCoupons : undefined,
     onOpenEarnings: segments.tabs.includes('earnings') ? () => nav.openTab('earnings') : undefined,
+    listingSteps: home.data?.firstSteps?.listing.steps ?? [],
+    registerListingSave: (save) => {
+      listingSave.current = save;
+    },
+    onListingDone: () => {
+      void home.reload();
+      nav.pages.back();
+    },
     renderAccountView,
     renderCoupons,
     renderGateStaff,
@@ -262,6 +272,7 @@ export function PartnerPanel({
                   leadingCard={visitsCard}
                   labelFor={home.labelFor}
                   onOpenAttention={(item) => setPanelTab(ATTENTION_TAB[item.kind])}
+                  onOpenListingStep={nav.openListingStep}
                   onOpenStep={(step) => {
                     const item = itemsList.find((entry) => entry.id === step.itemId);
                     if (step.id === 'verify' && item) {
@@ -272,7 +283,7 @@ export function PartnerPanel({
                       });
                     } else if (step.id === 'account') {
                       nav.openAccounts();
-                    } else if (step.id === 'offer' && item) {
+                    } else if ((step.id === 'offer' || step.id === 'slots') && item) {
                       nav.openPlace(item);
                     } else if (step.id === 'event') {
                       setEditingHasSales(false);
@@ -381,6 +392,11 @@ export function PartnerPanel({
         renderPage={(page) => ({
           title: partnerPanelPageTitle(page, t, segments.couponsLabel),
           content: <PartnerPanelPageContent page={page} context={pageContext} />,
+          // Passo do guia (D34): "Salvar" na barra grava e volta ao Início.
+          action:
+            page.view === 'listing-step' && page.step !== 'publish'
+              ? { label: t('partnerGuide.page.save'), onClick: () => listingSave.current?.() }
+              : undefined,
         })}
       />
 
