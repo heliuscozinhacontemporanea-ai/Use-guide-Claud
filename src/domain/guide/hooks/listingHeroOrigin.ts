@@ -70,14 +70,16 @@ export function copyCardOverlays(
   );
   if (originals.length === 0 || photo.offsetWidth === 0) return { layout: null, covered: [photo] };
   into.replaceChildren(...originals.map((child) => child.cloneNode(true)));
-  into.style.width = `${card.offsetWidth}px`;
-  into.style.height = `${card.offsetHeight}px`;
-  const photoCoversCard =
-    photo.offsetWidth >= card.offsetWidth - 1 && photo.offsetHeight >= card.offsetHeight - 1;
+  // Por dentro da borda do cartão: é onde a foto e o que fica sobre ela se posicionam.
+  const width = card.clientWidth;
+  const height = card.clientHeight;
+  into.style.width = `${width}px`;
+  into.style.height = `${height}px`;
+  const photoCoversCard = photo.offsetWidth >= width - 1 && photo.offsetHeight >= height - 1;
   return {
     layout: {
-      width: card.offsetWidth,
-      height: card.offsetHeight,
+      width,
+      height,
       photoLeft: photo.offsetLeft,
       photoTop: photo.offsetTop,
       photoWidth: photo.offsetWidth,
