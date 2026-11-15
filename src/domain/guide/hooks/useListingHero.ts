@@ -1,12 +1,16 @@
 import {
   animate,
+  easeIn,
+  easeOut,
   type MotionValue,
+  spring,
   useMotionValue,
   usePresence,
   useReducedMotion,
   useTransform,
 } from 'motion/react';
 import { type RefObject, useEffect, useLayoutEffect, useRef } from 'react';
+import { type FramePlayback, playFromFirstFrame } from '../../../ui/motion/playFromFirstFrame';
 import {
   FADE,
   HERO_BACKDROP_IN,
@@ -85,6 +89,8 @@ export function useListingHero({
   const geometry = useRef<HeroGeometry | null>(null);
   const origin = useRef<ListingOrigin | null>(null);
   const closing = useRef<Promise<void> | null>(null);
+  const openFrame = useRef(0);
+  const opening = useRef<FramePlayback | null>(null);
   const pointerEvents = useMotionValue('auto');
   const present = useRef(isPresent);
   present.current = isPresent;
@@ -115,6 +121,22 @@ export function useListingHero({
     }
   };
 
+  // O anúncio monta e pinta pela primeira vez parado sobre o cartão, e a abertura começa depois disso,
+  // contando o tempo do primeiro quadro que ela desenha (`playFromFirstFrame`). Com o `animate` criado
+  // na montagem, a primeira pintura (pesada no celular) entrava na mola e a foto pulava ~40% do caminho.
+  const afterFirstPaint = (step: (elapsedMs: number) => boolean) => {
+    openFrame.current = requestAnimationFrame(() => {
+      openFrame.current = requestAnimationFrame(() => {
+        opening.current = playFromFirstFrame(step);
+      });
+    });
+  };
+  const fadeIn = (
+    elapsedMs: number,
+    transition: { duration: number },
+    ease: (t: number) => number
+  ) => ease(Math.min(1, elapsedMs / (transition.duration * 1000)));
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: mede e anima uma vez, ao abrir.
   useLayoutEffect(() => {
     const found = enabled && !reduced ? findListingOrigin(itemId) : null;
@@ -123,25 +145,39 @@ export function useListingHero({
       origin.current = found;
       geometry.current = measure(found, hero);
       progress.set(0);
-      // A foto do cartão some no mesmo quadro em que a capa aparece sobre ela.
-      const unsubscribe = progress.on('change', () => {
-        found.photo.style.visibility = 'hidden';
-        unsubscribe();
-      });
       visibility.set('visible');
-      void animate(backdrop, 1, HERO_BACKDROP_IN);
-      void animate(progress, 1, HERO_OPEN);
+      const photo = spring({ keyframes: [0, 1], ...HERO_OPEN });
+      afterFirstPaint((elapsed) => {
+        // A foto do cartão some no quadro em que a capa começa a sair dela. Não usar um ouvinte de
+        // `progress` que se remove na própria chamada: o Motion percorre os ouvintes por posição, e o
+        // seguinte (o recorte da página) perdia o primeiro quadro, que dava um pulo.
+        found.photo.style.visibility = 'hidden';
+        const { value, done } = photo.next(elapsed);
+        progress.set(done ? 1 : value);
+        backdrop.set(fadeIn(elapsed, HERO_BACKDROP_IN, easeIn));
+        return done && backdrop.get() === 1;
+      });
     } else {
       fade.set(0);
       visibility.set('visible');
-      void animate(backdrop, 1, FADE);
-      void animate(fade, 1, FADE);
+      afterFirstPaint((elapsed) => {
+        fade.set(fadeIn(elapsed, FADE, easeOut));
+        backdrop.set(fade.get());
+        return fade.get() === 1;
+      });
     }
-    return restoreCard;
+    return () => {
+      cancelAnimationFrame(openFrame.current);
+      opening.current?.stop();
+      restoreCard();
+    };
   }, []);
 
   const close = () => {
     if (closing.current) return closing.current;
+    // Fechou antes de a abertura começar ou no meio dela: a abertura para onde está.
+    cancelAnimationFrame(openFrame.current);
+    opening.current?.stop();
     pointerEvents.set('none');
     const found = origin.current;
     const hero = heroRef.current;

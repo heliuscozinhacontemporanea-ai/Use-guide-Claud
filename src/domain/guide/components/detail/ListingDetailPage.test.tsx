@@ -210,6 +210,40 @@ describe('ListingDetailPage', () => {
       expect(cardPhoto.style.visibility).toBe('');
     });
 
+    it('sem pulo no início: mesmo com a primeira pintura pesada, o primeiro movimento é de um quadro', async () => {
+      render(toggle(true));
+      const region = screen.getByLabelText(ITEM.name, { selector: '[tabindex="-1"]' });
+      const photo = region.querySelector<HTMLElement>('.will-change-transform');
+      const clips: string[] = [];
+      // Recorte da página no primeiro quadro em que a foto se mexe.
+      let clipWhenPhotoMoved: string | undefined;
+      let photoStart: string | undefined;
+      new MutationObserver(() => {
+        clips.push(region.style.clipPath);
+        const transform = photo?.style.transform ?? '';
+        photoStart ??= transform;
+        if (clipWhenPhotoMoved === undefined && transform !== photoStart) {
+          clipWhenPhotoMoved = region.style.clipPath;
+        }
+      }).observe(region, { attributeFilter: ['style'], subtree: true });
+      // A primeira pintura de um anúncio no celular leva dezenas de ms.
+      const end = performance.now() + 35;
+      while (performance.now() < end) {
+        // ocupado
+      }
+      await waitFor(() => expect(isFull(region.style.clipPath)).toBe(true), { timeout: 3000 });
+      // Cartão com o topo em 300 px: um quadro de mola leva ~19% do caminho (topo ~242 px). Contando
+      // os 35 ms da pintura, levava ~38% (topo ~186 px).
+      const tops = clips
+        .filter((clip) => clip.startsWith('inset('))
+        .map((clip) => insets(clip)[0] ?? 300);
+      const firstMove = tops.find((top) => top < 299);
+      expect(firstMove).toBeGreaterThan(225);
+      // Foto e recorte da página andam juntos desde o primeiro quadro (antes, o recorte ficava um
+      // quadro preso no cartão e alcançava a foto de uma vez).
+      expect(insets(clipWhenPhotoMoved)[0]).toBeLessThan(299);
+    });
+
     it('sem toque no cartão (link ou voltar), só esmaece e não mexe no cartão', async () => {
       render(toggle(true, false));
       const region = await screen.findByRole('region', { name: ITEM.name });
