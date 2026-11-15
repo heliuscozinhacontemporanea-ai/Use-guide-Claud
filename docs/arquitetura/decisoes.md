@@ -536,7 +536,7 @@ Aprovada pelo responsável do produto em 2026-11-15, decisão a decisão, nos co
   | Translado | Rotas atendidas, veículos e bagagem | Preço e passageiros por viagem |
   | Produtor de eventos | Não aparece no guia (D9): sem "publicar" | — |
 
-* **Idiomas:** os 6 da lista (português, inglês, espanhol, francês, alemão, italiano) e "Outro", que busca na lista de todos os idiomas e grava o idioma escolhido, para ele aparecer traduzido. Rótulo sem a palavra "guia": "Idiomas falados no passeio" ou "Idiomas em que você atende".
+* **Idiomas:** os 6 da lista (português, inglês, espanhol, francês, alemão, italiano) e "Outro", que busca na lista de todos os idiomas e grava o idioma escolhido, para ele aparecer traduzido. Rótulo no editor: "Idiomas que você fala", em todas as categorias (no anúncio, para o turista: "Idiomas falados"); nunca com a palavra "guia", que confunde com o guia do app.
 * **Guia de passos no Início do painel, no lugar do tour** (decisão 3): o cartão de primeiros passos vira o guia; cada passo abre uma página empilhada só com os campos dele e salva sozinho; o tour (5 capítulos, 14 dicas) sai; Agenda e Ganhos ganham uma dica curta na primeira visita; "Ver o tour do painel", em Mais, vira "Guia do anúncio". Para vender: verificar o documento (D12), conta de recebimento, primeira oferta e horários; produtor: verificar, conta de recebimento e primeiro evento; plano Use Guide Verificado opcional (D11).
 * **Detalhes de venda só na oferta** (decisão 4): os da última coluna da tabela saem do cadastro (resolve D1 a D4).
 * **Admin no mesmo editor do parceiro** (decisão 5): com o que só o admin faz (verificar, conceder plano, destacar, suspender); o editor espelho do admin é apagado (D6 e D8).
