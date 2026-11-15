@@ -142,8 +142,8 @@ graph LR
 | user | **auth** | misto | `ChangePasswordView`, `MainMenuView`, `useUserProfile`, `userSchema.ts`, `updatePasswordUseCase`, `deleteCurrentUserUseCase` |
 | content | auth (❌ context), notifications | — | `AboutView.tsx` |
 | favorites | auth, database (❌ `database/factory`), **guide** | — | `FavoritesList.tsx`, `FavoriteButton.tsx` |
-| guide | **favorites** (❌ `components/FavoriteButton`) | ❌ | 7 modais de detalhe |
-| guide | **insights**, **reviews**, **search**, ticketing | ✅ | modais de detalhe, `ExploreView.tsx` |
+| guide | ~~**favorites**~~ — resolvido em 2026-11-15: o anúncio recebe o favoritar por encaixe de `src/app/compositions/ListingDetailComposition.tsx` | ✅ | — |
+| guide | **insights**, **search**, ticketing (reviews saiu em 2026-11-15: as avaliações do anúncio chegam por encaixe da composição) | ✅ | modais de detalhe, `ExploreView.tsx` |
 | guide | climawind (❌ `components/LiveConditions`) | ❌ | `ExploreView.tsx` |
 | guide | auth (❌ context) | ❌ | `EventDetailModal.tsx` |
 | insights | auth, database, **guide**, reviews | ✅ | `ReportsView.tsx`, `trackInteractionUseCase.ts` |
@@ -157,7 +157,7 @@ graph LR
 ```mermaid
 graph LR
   auth <--> user
-  guide <--> favorites
+  favorites --> guide
   guide <--> search
   guide <--> insights
   user --> media
@@ -169,7 +169,7 @@ graph LR
 | Ciclo | Causa | Correção recomendada |
 |---|---|---|
 | **auth ↔ user** (também ciclo de runtime: `LoginModal → auth/index → useAuth → updateCurrentUserUseCase → userSchema → auth/index`) | `auth` busca o perfil do usuário; `user` usa a sessão de `auth` | `auth` vira folha (só sessão/token). Composição da "sessão + perfil" em `src/app/session` ou `user` depende de `auth` e nunca o contrário |
-| **guide ↔ favorites** | modais do guide embutem `FavoriteButton`; `FavoritesList` renderiza cards do guide | modais recebem `actions` por slot/props a partir de `src/app/compositions/ItemDetailComposition.tsx` |
+| **guide ↔ favorites** ✅ resolvido em 2026-11-15 | o anúncio do guide embutia `FavoriteButton` | o anúncio recebe o favoritar e as avaliações por encaixe, montados em `src/app/compositions/ListingDetailComposition.tsx`; sobra só favorites → guide |
 | **guide ↔ search** | `ExploreView` (guide) usa `SearchOverlay`; search usa tipos do guide | search depende de guide (dados); a tela que junta os dois vai para `src/app` |
 | **guide ↔ insights** | modais disparam `trackInteraction`; `ReportsView` lê itens do guide | tracking via composição/evento de UI; insights depende de guide |
 
