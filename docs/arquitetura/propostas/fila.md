@@ -4,8 +4,8 @@ Propostas pedidas pelo responsável do produto, na ordem em que serão feitas. C
 
 | Ordem | Proposta | Situação |
 |---|---|---|
-| 1 | Conta do parceiro em uma tela e guia de passos no painel (levantamento de todos os dados pedidos ao parceiro, duplicações D1 a D8) | Apresentada em 2026-11-15 (https://claude.ai/artifact/QhRCHcvwW8sDF9Phoa5Z7C); aguardando as 7 decisões |
-| 2 | Termos e Política de Privacidade no cadastro comum, e "Sou o dono" para o dono assumir um lugar que já está no guia | Pedida em 2026-11-15; começa depois da proposta 1 |
+| 1 | Conta do parceiro em uma tela e guia de passos no painel (levantamento de todos os dados pedidos ao parceiro, duplicações D1 a D8) | Aprovada em 2026-11-15 (D34, https://claude.ai/artifact/QhRCHcvwW8sDF9Phoa5Z7C); implementação em fases F1 a F6 |
+| 2 | Termos e Política de Privacidade no cadastro comum, e "Sou o dono" para o dono assumir um lugar que já está no guia | Pedida em 2026-11-15; próxima da fila (a proposta 1 foi aprovada) |
 
 ## 2 · Termos no cadastro comum e "Sou o dono"
 

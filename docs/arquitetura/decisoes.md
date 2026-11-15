@@ -515,3 +515,31 @@ Aprovada pelo responsável do produto em 2026-11-14, a partir do vídeo de refer
   * **cartão sem máscara na foto (opção C, 2026-11-15)**: para a foto do anúncio não piscar ao sair do cartão e voltar, o cartão em pé fica sem a máscara escura na foto inteira, só com o degradê atrás do texto; as etiquetas sobre a foto ganham fundo escuro próprio (≥ 4,5:1 em qualquer foto). No toque, o nome e as etiquetas do cartão esmaecem por cima da foto que cresce, e o degradê da capa entra na segunda metade do caminho; ao fechar, o inverso, e a foto pousa igual ao cartão. Escolhida pelo responsável entre A (véu do cartão na capa), B (capa esmaecendo) e C, com a ressalva de reverter se não gostar.
   * **painel do parceiro, Catálogo e Ganhos** (aprovado o piloto do painel): estabelecimento, evento, relatórios, visitas e avaliações, contas de recebimento e cada conta abrem por cima do painel, na pilha com barra fixa, como as páginas de Mais. A página abre por cima da aba atual (ex.: o passo "Criar conta de recebimento" do Início abre as contas sem trocar de aba); ir para outra aba fecha as páginas. O "Editar" do estabelecimento e do evento vira a ação em ícone (lápis) da barra (DESIGN.md §8); no evento, ela some em Convidados e Divulgadores. Conteúdo pesado que chega no meio do deslize (o gráfico dos relatórios) aparece quando a página para.
 
+
+## D34 — Conta do parceiro em uma tela e guia de passos no painel (2026-11-15)
+
+Aprovada pelo responsável do produto em 2026-11-15, decisão a decisão, nos comentários da proposta (https://claude.ai/artifact/QhRCHcvwW8sDF9Phoa5Z7C), que traz o levantamento de todos os dados pedidos ao parceiro e as duplicações D1 a D8.
+
+* **Seja parceiro em uma tela:** o que oferece (categoria), nome do negócio, estado e cidade (dão o fuso, D28), WhatsApp do negócio e aceite dos Termos do parceiro. Antes do botão "Criar meu painel": "Fotos, detalhes e preços você completa depois no painel, com um guia passo a passo."
+* **WhatsApp do negócio obrigatório** (decisão 7): é o contato do parceiro com a plataforma; o contato do cliente continua só pelo app (C2).
+* **Conta e e-mail:** quem não tem conta cria (Google ou e-mail) depois de "Seu negócio". O e-mail confirmado continua obrigatório para virar parceiro (AGENTS.md §7.10). A tela "Confirme seu e-mail" só oferece "Reenviar o e-mail" (conta criada não troca de e-mail), guarda os campos de "Seu negócio" no aparelho e segue sozinha quando o e-mail é confirmado.
+* **Rascunho** (decisão 1): o anúncio novo nasce como rascunho, fora do guia, até ser publicado. Os anúncios atuais continuam publicados.
+* **Para publicar** (decisão 2): todos os passos de "Para aparecer no guia" completos: Fotos (pelo menos 1; 5 como sugestão), Sobre (descrição e idiomas), Onde fica (endereço, Google Maps e região), Detalhes da categoria e Contatos e links (Instagram e site, com "Não tenho"). O passo "Detalhes da categoria" depende da categoria:
+
+  | Categoria | Detalhes obrigatórios para publicar | Fica só na oferta (para vender) |
+  |---|---|---|
+  | Hospedagem | Café da manhã (serve; se sim: incluso, preço e tipos), comodidades, check-in e check-out, crianças, pets e taxa, link de reserva | — |
+  | Restaurante | Tipo de cozinha, refeições, serviços, comodidades, horários, cardápio | — |
+  | Atração | Acesso (pública ou paga), serviços, comodidades, atividades, horários | Preço da entrada, se paga |
+  | Passeio | Roteiro e o que levar (bagagem) | Duração, ponto de encontro, preço e vagas |
+  | Aluguel | O que aluga e horários | Preço e mínimo de horas |
+  | Translado | Rotas atendidas, veículos e bagagem | Preço e passageiros por viagem |
+  | Produtor de eventos | Não aparece no guia (D9): sem "publicar" | — |
+
+* **Idiomas:** os 6 da lista (português, inglês, espanhol, francês, alemão, italiano) e "Outro", que busca na lista de todos os idiomas e grava o idioma escolhido, para ele aparecer traduzido. Rótulo sem a palavra "guia": "Idiomas falados no passeio" ou "Idiomas em que você atende".
+* **Guia de passos no Início do painel, no lugar do tour** (decisão 3): o cartão de primeiros passos vira o guia; cada passo abre uma página empilhada só com os campos dele e salva sozinho; o tour (5 capítulos, 14 dicas) sai; Agenda e Ganhos ganham uma dica curta na primeira visita; "Ver o tour do painel", em Mais, vira "Guia do anúncio". Para vender: verificar o documento (D12), conta de recebimento, primeira oferta e horários; produtor: verificar, conta de recebimento e primeiro evento; plano Use Guide Verificado opcional (D11).
+* **Detalhes de venda só na oferta** (decisão 4): os da última coluna da tabela saem do cadastro (resolve D1 a D4).
+* **Admin no mesmo editor do parceiro** (decisão 5): com o que só o admin faz (verificar, conceder plano, destacar, suspender); o editor espelho do admin é apagado (D6 e D8).
+* **Evento herda contato e local do estabelecimento** (decisão 6): já preenchidos, com opção de trocar só naquele evento (D5).
+* **A avaliar à parte:** abrir o cadastro do Stripe já preenchido com o CNPJ e o nome verificados (D7).
+* **Ordem:** F1 Seja parceiro em uma tela, rascunho e guia no Início (inclui o item 2 da D33, o B16 do parceiro e o B66); F2 blocos do anúncio como peças únicas (guia e editor do painel); F3 detalhes de venda só na oferta; F4 admin no mesmo editor; F5 evento herdando contato e local; F6 o tour sai e entram as dicas de primeira visita. Cada fase: prints ou vídeo antes do código, e publicação só com "aprovado, pode publicar".
