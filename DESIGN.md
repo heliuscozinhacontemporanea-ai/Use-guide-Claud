@@ -423,7 +423,7 @@ Registrados em `docs/arquitetura/debitos.md` (branch de documentação).
 | B46 — arquivo inicial de 531 KB comprimidos (parcial); faltam `zod`, P7 e P13 | P7, P11, P12, P13, P15 |
 | B47 — texto secundário reprova AA no tema claro | P1 |
 | B48 — fontes, tamanhos de texto, raios e ícones fora da escala | P2, P3, P5, P6 |
-| B49 — `ModalLayout`, `Skeleton`, controles do mapa, `glassmorphism-vibrant` e variáveis que sobram | P8 |
+| B49 — `Skeleton`, controles do mapa, `glassmorphism-vibrant` e variáveis que sobram | P8 |
 | B50 — entrada de página copiada em 3 arquivos; leitor da portaria anima `top` | P9, P10 |
 | B51 — manifesto do app instalado com `#000000` | P16 |
 | B52 — folhas e páginas sem gesto, fora do histórico; aba não guarda rolagem e página | P18, P19, P20, P23 |
