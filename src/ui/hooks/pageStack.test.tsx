@@ -35,7 +35,10 @@ describe('createPageStack · clear', () => {
     act(() => stack.push('a'));
     act(() => stack.push('b'));
     act(() => stack.clear());
-    await waitFor(() => expect(result.current).toEqual([]));
-    expect((window.history.state as { ugPages?: string[] } | null)?.ugPages ?? []).toEqual([]);
+    expect(result.current).toEqual([]);
+    // As entradas saem do histórico depois (o `history.go` é assíncrono).
+    await waitFor(() =>
+      expect((window.history.state as { ugPages?: string[] } | null)?.ugPages ?? []).toEqual([])
+    );
   });
 });

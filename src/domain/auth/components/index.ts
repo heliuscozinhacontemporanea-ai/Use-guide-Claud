@@ -4,6 +4,5 @@ export { RegisterForm } from './RegisterForm';
 export { ForgotPasswordForm } from './ForgotPasswordForm';
 export { AccountActionPage } from './AccountActionPage';
 export { EmailVerificationPrompt } from './EmailVerificationPrompt';
-export { AuthModalShell } from './AuthModalShell';
 export { PasswordField } from './PasswordField';
 export { AuthErrorMessage } from './AuthErrorMessage';

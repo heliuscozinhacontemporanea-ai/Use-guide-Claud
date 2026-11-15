@@ -28,7 +28,7 @@ export function PaymentMethodChoice({ value, onChange }: PaymentMethodChoiceProp
 
   return (
     <fieldset className="space-y-2">
-      <legend className="text-xs font-semibold text-white/70 mb-2">
+      <legend className="mb-2 text-meta font-semibold text-ink-muted">
         {t('payment.checkout.methodLegend')}
       </legend>
       {OPTIONS.map(({ value: option, icon: Icon }) => {
@@ -36,10 +36,10 @@ export function PaymentMethodChoice({ value, onChange }: PaymentMethodChoiceProp
         return (
           <label
             key={option}
-            className={`flex items-start gap-3 min-h-11 p-3.5 rounded-2xl border cursor-pointer transition-colors focus-within:ring-2 focus-within:ring-teal-400/50 ${
+            className={`flex items-start gap-3 min-h-11 p-3.5 rounded-card border cursor-pointer transition-colors focus-within:ring-2 focus-within:ring-teal-400/50 ${
               selected
                 ? 'border-accent-line bg-accent-soft'
-                : 'border-white/10 bg-white/[0.03] hover:bg-white/[0.06]'
+                : 'border-line bg-surface hover:bg-accent-soft'
             }`}
           >
             <input
@@ -50,10 +50,16 @@ export function PaymentMethodChoice({ value, onChange }: PaymentMethodChoiceProp
               onChange={() => onChange(option)}
               className="sr-only"
             />
-            <Icon size={18} className={selected ? 'text-accent mt-0.5' : 'text-white/60 mt-0.5'} />
+            <Icon
+              size={20}
+              aria-hidden="true"
+              className={selected ? 'text-accent mt-0.5' : 'text-ink-muted mt-0.5'}
+            />
             <span className="flex-1">
-              <span className="block text-sm font-bold text-white">{labels[option].title}</span>
-              <span className="block text-xs text-white/60 mt-0.5">{labels[option].hint}</span>
+              <span className="block text-control font-semibold text-ink">
+                {labels[option].title}
+              </span>
+              <span className="block mt-0.5 text-meta text-ink-muted">{labels[option].hint}</span>
             </span>
           </label>
         );

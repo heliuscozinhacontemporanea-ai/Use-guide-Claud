@@ -1,34 +1,23 @@
 import { z } from 'zod';
 import { checkPasswordRequirements } from '../utils/passwordRequirements';
 
+// Mensagens são chaves de tradução (AGENTS.md §12.5): a tela mostra `t(message)`.
 export const passwordSchema = z
   .string()
-  .min(8, 'A senha deve ter pelo menos 8 caracteres')
-  .max(100, 'A senha deve ter no máximo 100 caracteres')
-  .refine(
-    (val) => checkPasswordRequirements(val).hasUppercase,
-    'A senha deve conter pelo menos uma letra maiúscula'
-  )
-  .refine(
-    (val) => checkPasswordRequirements(val).hasLowercase,
-    'A senha deve conter pelo menos uma letra minúscula'
-  )
-  .refine(
-    (val) => checkPasswordRequirements(val).hasNumber,
-    'A senha deve conter pelo menos um número'
-  )
-  .refine(
-    (val) => checkPasswordRequirements(val).hasSpecial,
-    'A senha deve conter pelo menos um caractere especial'
-  );
+  .min(8, 'auth.validation.passwordMin')
+  .max(100, 'auth.validation.passwordMax')
+  .refine((val) => checkPasswordRequirements(val).hasUppercase, 'auth.validation.passwordUpper')
+  .refine((val) => checkPasswordRequirements(val).hasLowercase, 'auth.validation.passwordLower')
+  .refine((val) => checkPasswordRequirements(val).hasNumber, 'auth.validation.passwordNumber')
+  .refine((val) => checkPasswordRequirements(val).hasSpecial, 'auth.validation.passwordSpecial');
 
 export const resetPasswordSchema = z
   .object({
     password: passwordSchema,
-    confirmPassword: z.string().min(1, 'Confirmação de senha é obrigatória'),
+    confirmPassword: z.string().min(1, 'auth.validation.confirmRequired'),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: 'As senhas não coincidem',
+    message: 'auth.validation.mismatch',
     path: ['confirmPassword'],
   });
 

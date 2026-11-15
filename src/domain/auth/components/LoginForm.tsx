@@ -1,19 +1,21 @@
-import React from 'react';
-import { Mail } from 'lucide-react';
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { loginSchema, LoginFormData } from '../schemas/authSchema';
-import { PasswordField } from './PasswordField';
+import { Mail, RefreshCw } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
+import { TextButton } from '../../../ui/components/TextButton';
+import { BUTTON_PRIMARY, BUTTON_SECONDARY } from '../../../ui/styles/controls';
+import { type LoginFormData, loginSchema } from '../schemas/authSchema';
 import { AuthErrorMessage } from './AuthErrorMessage';
+import { AuthField } from './AuthField';
 import { getAuthErrorMessage } from './authErrorMapper';
-import { cn } from '../../../shared/utils/cn';
+import { PasswordField } from './PasswordField';
 
 interface LoginFormProps {
   onSuccess: () => void;
   onSwitchToRegister: (email?: string) => void;
   onSwitchToForgotPassword: (email?: string) => void;
-  login: (email: string, pass: string) => Promise<any>;
-  loginWithGoogle: () => Promise<any>;
+  login: (email: string, pass: string) => Promise<unknown>;
+  loginWithGoogle: () => Promise<unknown>;
   apiError: string | null;
   setApiError: (error: string | null) => void;
   isLoading: boolean;
@@ -31,156 +33,99 @@ export function LoginForm({
   isLoading,
   setIsLoading,
 }: LoginFormProps) {
+  const { t } = useTranslation();
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: '',
-      password: '',
-    },
+    defaultValues: { email: '', password: '' },
     mode: 'onTouched',
   });
+  const { errors } = form.formState;
 
-  const handleAuthError = (err: any) => {
-    if (err?.code === 'auth/user-not-found') {
-      setApiError('E-mail ou senha incorretos.');
-      return;
-    }
+  // E-mail sem cadastro aparece como "e-mail ou senha incorretos": não revela se a conta existe.
+  const showError = (err: unknown) => {
     const message = getAuthErrorMessage(err);
-    if (message) {
-      setApiError(message);
-    }
+    if (message === '') setApiError('auth.errors.wrongCredentials');
+    else if (message) setApiError(message);
   };
 
-  const onSubmit = async (data: LoginFormData) => {
+  const run = async (action: () => Promise<unknown>) => {
     setIsLoading(true);
     setApiError(null);
-
     try {
-      await login(data.email, data.password);
+      await action();
       onSuccess();
-    } catch (err: any) {
-      handleAuthError(err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleGoogleLogin = async () => {
-    setIsLoading(true);
-    setApiError(null);
-
-    try {
-      await loginWithGoogle();
-      onSuccess();
-    } catch (err: any) {
-      handleAuthError(err);
+    } catch (err: unknown) {
+      showError(err);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 mb-8" noValidate>
-      <div className="space-y-1">
-        <label htmlFor="login-email" className="sr-only">
-          E-mail
-        </label>
-        <div className="relative">
-          <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-            <Mail size={16} className="text-white/50" />
-          </div>
-          <input
-            id="login-email"
-            type="email"
-            placeholder="Seu e-mail cadastrado"
-            {...form.register('email')}
-            maxLength={100}
-            aria-invalid={!!form.formState.errors.email}
-            aria-describedby={form.formState.errors.email ? 'login-email-error' : undefined}
-            className={cn(
-              'w-full h-12 pl-12 pr-4 bg-white/5 border rounded-2xl text-base font-medium focus:outline-none transition-colors text-white',
-              form.formState.errors.email
-                ? 'border-rose-500/80 focus:border-rose-500'
-                : 'border-white/10 focus:border-teal-500/50'
-            )}
-          />
-        </div>
-        {form.formState.errors.email && (
-          <p
-            id="login-email-error"
-            role="alert"
-            className="text-[11px] text-rose-400 font-medium ml-1"
-          >
-            {form.formState.errors.email.message}
-          </p>
-        )}
-      </div>
-
+    <form
+      onSubmit={form.handleSubmit((data) => run(() => login(data.email, data.password)))}
+      className="flex flex-col gap-4"
+      noValidate
+    >
+      <AuthField
+        id="login-email"
+        type="email"
+        label={t('auth.email')}
+        placeholder={t('auth.loginEmailPlaceholder')}
+        icon={Mail}
+        autoComplete="email"
+        registration={form.register('email')}
+        error={errors.email?.message}
+      />
       <PasswordField
         id="login-password"
-        placeholder="Sua senha"
         registration={form.register('password')}
-        error={form.formState.errors.password?.message}
+        error={errors.password?.message}
         autoComplete="current-password"
       />
-
-      <div className="flex justify-end pr-1">
-        <button
-          type="button"
-          onClick={() => onSwitchToForgotPassword(form.getValues('email'))}
-          className="min-h-[44px] flex items-center px-1 text-xs text-teal-400/90 hover:text-teal-300 font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400/50 rounded"
-        >
-          Esqueceu a senha?
-        </button>
+      <div className="flex justify-end">
+        <TextButton tone="accent" onClick={() => onSwitchToForgotPassword(form.getValues('email'))}>
+          {t('auth.login.forgot')}
+        </TextButton>
       </div>
 
       <AuthErrorMessage message={apiError} />
 
-      <button
-        type="submit"
-        disabled={isLoading}
-        className="w-full h-12 min-h-[44px] glassmorphism-vibrant bg-teal-500/20 border-teal-500/30 rounded-2xl font-bold uppercase tracking-widest text-xs flex items-center justify-center group active:scale-95 transition-transform disabled:opacity-50 text-white"
-      >
+      <button type="submit" disabled={isLoading} className={`${BUTTON_PRIMARY} w-full min-h-12`}>
         {isLoading ? (
-          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+          <RefreshCw size={20} className="mx-auto animate-spin" aria-hidden="true" />
         ) : (
-          <span>Login</span>
+          t('auth.login.submit')
         )}
       </button>
 
-      <div className="relative my-4 flex items-center justify-center">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-white/10" />
-        </div>
-        <span className="relative px-3 bg-zinc-850 text-[10px] font-bold uppercase tracking-widest text-white/50">
-          OU USE
+      <div className="relative flex items-center justify-center">
+        <div aria-hidden="true" className="absolute inset-x-0 top-1/2 border-t border-line" />
+        <span className="relative px-3 bg-sheet text-caption font-semibold uppercase tracking-wide text-ink-muted">
+          {t('auth.login.orUse')}
         </span>
       </div>
 
       <button
         type="button"
-        onClick={handleGoogleLogin}
+        onClick={() => run(loginWithGoogle)}
         disabled={isLoading}
-        className="w-full h-12 min-h-[44px] bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center gap-3 active:scale-95 transition-transform hover:bg-white/10 disabled:opacity-50 group text-white"
+        className={`${BUTTON_SECONDARY} w-full min-h-12 inline-flex items-center justify-center gap-3`}
       >
         <img
           src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-          className="w-5 h-5"
-          alt="Google"
+          className="size-5"
+          alt={t('auth.login.googleLogo')}
           loading="lazy"
         />
-        <span className="text-xs font-bold text-white/70">Continuar com Google</span>
+        {t('auth.login.google')}
       </button>
 
-      <p className="text-center text-xs text-white/60 mt-4 flex items-center justify-center gap-1">
-        <span>Ainda não tem conta?</span>
-        <button
-          type="button"
-          onClick={() => onSwitchToRegister(form.getValues('email'))}
-          className="min-h-[44px] inline-flex items-center px-1 text-teal-400 font-bold hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400/50 rounded"
-        >
-          Cadastre-se
-        </button>
+      <p className="flex flex-wrap items-center justify-center gap-x-2 text-meta text-ink-muted">
+        {t('auth.login.noAccount')}
+        <TextButton tone="accent" onClick={() => onSwitchToRegister(form.getValues('email'))}>
+          {t('auth.login.signUp')}
+        </TextButton>
       </p>
     </form>
   );

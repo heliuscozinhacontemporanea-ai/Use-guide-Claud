@@ -1,4 +1,5 @@
 import { Calendar, MessageCircle, Utensils } from 'lucide-react';
+import type { MotionValue } from 'motion/react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LOCATIONS } from '../../../../shared/constants/locations';
@@ -6,7 +7,6 @@ import { formatSessionLabel } from '../../../../shared/utils/businessDateTime';
 import { whatsAppUrl } from '../../../../shared/utils/phone';
 import { placeTimeSuffix } from '../../../../shared/utils/placeTime';
 import { trackInteractionUseCase as trackInteraction } from '../../../insights';
-import { ReviewSection } from '../../../reviews';
 import type { GuideItem } from '../../types/guide';
 import { ListingDetailPage } from './ListingDetailPage';
 import {
@@ -22,14 +22,6 @@ const HOURS_CATEGORIES = ['restaurant', 'sight', 'rental'];
 const CARD = 'rounded-card bg-surface border border-line';
 const ROW =
   'press w-full px-4 py-3.5 min-h-16 flex items-center gap-3 text-left focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none';
-
-const REVIEW_PROMPT: Record<string, 'tour' | 'stay' | 'restaurant'> = {
-  tour: 'tour',
-  transfer: 'tour',
-  rental: 'tour',
-  hotel: 'stay',
-  restaurant: 'restaurant',
-};
 
 function locationOf(item: GuideItem): string {
   const known = LOCATIONS.find((location) => location.id === item.location)?.name;
@@ -92,6 +84,8 @@ export function ListingDetail({
   onClose,
   renderBooking,
   ticketPanel,
+  favorite,
+  reviews,
   coversTabBar,
   growsFromCard,
 }: {
@@ -107,6 +101,10 @@ export function ListingDetail({
    */
   renderBooking?: (included: ReactNode) => ReactNode;
   ticketPanel?: ReactNode;
+  /** Favoritar (favorites), montado pelo app: veja `ListingDetailPage`. */
+  favorite?: (scrollY: MotionValue<number>) => ReactNode;
+  /** Avaliações (reviews), montadas pelo app. No evento, o cartão de avaliações do evento. */
+  reviews?: ReactNode;
 }) {
   const { t, i18n } = useTranslation();
   const event = item.category === 'event';
@@ -125,7 +123,7 @@ export function ListingDetail({
       onClose={onClose}
       locationLabel={locationOf(item)}
       collectionName={event ? 'events' : 'items'}
-      favoriteLabel={t(`listingDetail.typeLabel.${item.category}`)}
+      favorite={favorite}
       coversTabBar={coversTabBar}
       growsFromCard={growsFromCard}
     >
@@ -156,18 +154,7 @@ export function ListingDetail({
       />
       {ticketPanel}
       {renderBooking ? renderBooking(included) : included}
-      {event ? (
-        <EventReviewsCard item={item} />
-      ) : (
-        <ReviewSection
-          itemId={item.id}
-          itemRating={item.rating}
-          itemReviewCount={item.reviewCount}
-          partnerId={item.partnerId}
-          ownerId={item.ownerId}
-          prompt={REVIEW_PROMPT[item.category] ?? 'default'}
-        />
-      )}
+      {event ? <EventReviewsCard item={item} /> : reviews}
     </ListingDetailPage>
   );
 }

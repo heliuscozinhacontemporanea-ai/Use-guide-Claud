@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import type { GuideItem } from '../domain/guide';
 import { useMissingItemNotice } from './useMissingItemNotice';
 
@@ -17,6 +17,7 @@ export function useOpenListing({
   catalogReady: boolean;
 }) {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const itemId = searchParams.get('item');
   const itemType = searchParams.get('type');
   // Anúncio aberto por um toque nesta tela (no cartão ou na busca). Some quando o anúncio fecha:
@@ -36,18 +37,28 @@ export function useOpenListing({
   useMissingItemNotice({ itemId, found: selectedItem !== null, catalogReady });
 
   const setSelectedItem = (item: GuideItem | null) => {
+    // Fechar tira a entrada do anúncio do histórico, para o voltar seguinte não reabri-lo (P19). Aberto
+    // por um toque aqui, a entrada é nossa e fechar é voltar; aberto por link, ela some no lugar.
+    if (!item && itemId && tap?.id === itemId) {
+      setTap(null);
+      navigate(-1);
+      return;
+    }
     setTap(item ? { id: item.id, seen: false } : null);
-    setSearchParams((prev) => {
-      const next = new URLSearchParams(prev);
-      if (item) {
-        next.set('item', item.id);
-        next.set('type', item.category === 'event' ? 'event' : 'item');
-      } else {
-        next.delete('item');
-        next.delete('type');
-      }
-      return next;
-    });
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (item) {
+          next.set('item', item.id);
+          next.set('type', item.category === 'event' ? 'event' : 'item');
+        } else {
+          next.delete('item');
+          next.delete('type');
+        }
+        return next;
+      },
+      { replace: !item }
+    );
   };
 
   /**

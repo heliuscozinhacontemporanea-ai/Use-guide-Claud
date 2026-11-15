@@ -39,6 +39,8 @@ export interface ListingDetailTranslation {
   /** Tipo do item no aviso de favoritar ("este passeio"). */
   typeLabel: Record<ListingCategoryId, string>;
   photoAlt: string;
+  /** Etiqueta do cartão de evento na lista. */
+  entry: { free: string; tickets: string };
 }
 
 export const listingDetailPtBR: ListingDetailTranslation = {
@@ -93,4 +95,5 @@ export const listingDetailPtBR: ListingDetailTranslation = {
     event: 'evento',
   },
   photoAlt: '{{name}}, foto {{index}} de {{count}}',
+  entry: { free: 'Entrada gratuita', tickets: 'Ingressos' },
 };

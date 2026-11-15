@@ -1,9 +1,8 @@
-import { AnimatePresence, motion } from 'motion/react';
-import { Lock, ShieldCheck, X } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Z_INDEX } from '../../../shared/constants/zIndex';
-import { GlassCard } from '../../../ui/components/GlassCard';
+import { Dialog } from '../../../ui/components/Dialog';
+import { BUTTON_PRIMARY } from '../../../ui/styles/controls';
 import type { PaidPlanId } from '../types/payment';
 import { formatPlanAmount } from '../utils/formatPlanAmount';
 import { OneTimePlanCheckout } from './subcomponents/OneTimePlanCheckout';
@@ -22,6 +21,7 @@ interface CheckoutModalProps {
   onPaymentSuccess?: (paymentId: string) => void;
 }
 
+/** Pagamento do plano do estabelecimento numa folha (D33): escolhe o meio e paga pelo Stripe. */
 export function CheckoutModal({
   isOpen,
   onClose,
@@ -35,98 +35,72 @@ export function CheckoutModal({
   const [method, setMethod] = useState<PlanPaymentMethod>('subscription');
   const [confirmedMethod, setConfirmedMethod] = useState<PlanPaymentMethod | null>(null);
 
-  if (!isOpen) return null;
-
   const handleClose = () => {
     setConfirmedMethod(null);
     onClose();
   };
 
   return (
-    <AnimatePresence>
-      <div
-        className="fixed inset-0 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md overflow-y-auto"
-        style={{ zIndex: Z_INDEX.modalNested }}
-      >
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 12 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 12 }}
-          className="w-full max-w-[480px] mx-auto my-auto"
-        >
-          <GlassCard className="p-6 border border-white/15 bg-surface shadow-2xl space-y-5 relative">
-            <div className="flex items-center justify-between border-b border-white/10 pb-4">
-              <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-xl bg-accent-soft border border-accent-line flex items-center justify-center text-accent">
-                  <Lock size={18} />
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-white">{t('payment.checkout.title')}</h3>
-                  <p className="text-xs text-white/60">{itemName}</p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={handleClose}
-                aria-label={t('payment.checkout.close')}
-                className="press w-11 h-11 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center text-white/70 focus-visible:ring-2 focus-visible:ring-teal-400/50 cursor-pointer"
-              >
-                <X size={18} />
-              </button>
-            </div>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => !open && handleClose()}
+      nested
+      title={t('payment.checkout.title')}
+      description={itemName}
+    >
+      <div className="space-y-5">
+        <div className="p-4 rounded-card bg-surface border border-line flex items-center justify-between gap-3">
+          <span className="text-meta text-ink-muted">{t('payment.checkout.totalLabel')}</span>
+          <span className="text-right">
+            <span className="block text-heading font-bold text-accent tabular-nums">
+              {formatPlanAmount(amountMinor, i18n.language)}
+            </span>
+            <span className="block text-caption text-ink-muted">
+              {t(`payment.period.${planId}`)}
+            </span>
+          </span>
+        </div>
 
-            <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-between gap-3">
-              <span className="text-xs text-white/60">{t('payment.checkout.totalLabel')}</span>
-              <span className="text-xl font-black text-accent">
-                {formatPlanAmount(amountMinor, i18n.language)}
-                <span className="block text-[11px] font-medium text-white/60 text-right">
-                  {t(`payment.period.${planId}`)}
-                </span>
-              </span>
-            </div>
+        {confirmedMethod === null && (
+          <div className="space-y-4">
+            <PaymentMethodChoice value={method} onChange={setMethod} />
+            <button
+              type="button"
+              onClick={() => setConfirmedMethod(method)}
+              className={`${BUTTON_PRIMARY} w-full min-h-12`}
+            >
+              {t('payment.checkout.continue')}
+            </button>
+          </div>
+        )}
 
-            {confirmedMethod === null && (
-              <div className="space-y-4">
-                <PaymentMethodChoice value={method} onChange={setMethod} />
-                <button
-                  type="button"
-                  onClick={() => setConfirmedMethod(method)}
-                  className="press w-full min-h-12 rounded-xl bg-teal-400 hover:bg-teal-300 text-slate-950 font-black text-sm cursor-pointer focus-visible:ring-2 focus-visible:ring-teal-400/50"
-                >
-                  {t('payment.checkout.continue')}
-                </button>
-              </div>
-            )}
+        {confirmedMethod === 'subscription' && (
+          <SubscriptionPlanCheckout
+            itemId={itemId}
+            planId={planId}
+            itemName={itemName}
+            amountMinor={amountMinor}
+            onClose={handleClose}
+            onActivated={onPaymentSuccess}
+          />
+        )}
 
-            {confirmedMethod === 'subscription' && (
-              <SubscriptionPlanCheckout
-                itemId={itemId}
-                planId={planId}
-                itemName={itemName}
-                amountMinor={amountMinor}
-                onClose={handleClose}
-                onActivated={onPaymentSuccess}
-              />
-            )}
+        {confirmedMethod === 'one_time' && (
+          <OneTimePlanCheckout
+            itemId={itemId}
+            planId={planId}
+            itemName={itemName}
+            amountMinor={amountMinor}
+            onClose={handleClose}
+            onPaymentSuccess={onPaymentSuccess}
+          />
+        )}
 
-            {confirmedMethod === 'one_time' && (
-              <OneTimePlanCheckout
-                itemId={itemId}
-                planId={planId}
-                itemName={itemName}
-                amountMinor={amountMinor}
-                onClose={handleClose}
-                onPaymentSuccess={onPaymentSuccess}
-              />
-            )}
-
-            <div className="flex items-center justify-center gap-2 pt-2 text-[11px] text-white/60">
-              <ShieldCheck size={14} className="text-accent shrink-0" />
-              <span>{t('payment.checkout.secureFooter')}</span>
-            </div>
-          </GlassCard>
-        </motion.div>
+        <p className="flex items-center justify-center gap-2 text-caption text-ink-muted">
+          <ShieldCheck size={16} className="text-accent shrink-0" aria-hidden="true" />
+          {t('payment.checkout.secureFooter')}
+        </p>
       </div>
-    </AnimatePresence>
+    </Dialog>
   );
 }

@@ -7,6 +7,7 @@ export const loadLoginModal = () => import('./entries/loginModal');
 export const loadPartnersModal = () => import('./entries/partnersModal');
 export const loadPartnerPortal = () => import('../compositions/PartnerPortalComposition');
 export const loadAdminPanel = () => import('../compositions/AdminPanelComposition');
+const loadListingActions = () => import('./entries/listingActions');
 const loadEventTicketPanel = () => import('./entries/eventTicketPanel');
 const loadItemBooking = () => import('../compositions/ItemBookingComposition');
 const loadCheckoutResult = () => import('../compositions/CheckoutResultComposition');
@@ -14,6 +15,8 @@ const loadAccountActionPage = () => import('./entries/accountActionPage');
 
 export const SearchOverlay = lazyNamed(loadSearchOverlay, 'SearchOverlay');
 export const ListingDetail = lazyNamed(loadListingDetail, 'ListingDetail');
+export const FavoriteButton = lazyNamed(loadListingActions, 'FavoriteButton');
+export const ReviewSection = lazyNamed(loadListingActions, 'ReviewSection');
 export const LoginModal = lazyNamed(loadLoginModal, 'LoginModal');
 export const PartnersModal = lazyNamed(loadPartnersModal, 'PartnersModal');
 export const PartnerPortalComposition = lazyNamed(loadPartnerPortal, 'PartnerPortalComposition');
@@ -26,5 +29,10 @@ export const ItemBookingComposition = lazyNamed(loadItemBooking, 'ItemBookingCom
 export const CheckoutResultComposition = lazyNamed(loadCheckoutResult, 'CheckoutResultComposition');
 export const AccountActionPage = lazyNamed(loadAccountActionPage, 'AccountActionPage');
 
-/** O que quase toda visita abre: anúncio, busca e login. */
-export const COMMON_SCREENS = [loadListingDetail, loadSearchOverlay, loadLoginModal] as const;
+/** O que quase toda visita abre: anúncio (com favoritar e avaliações), busca e login. */
+export const COMMON_SCREENS = [
+  loadListingDetail,
+  loadListingActions,
+  loadSearchOverlay,
+  loadLoginModal,
+] as const;

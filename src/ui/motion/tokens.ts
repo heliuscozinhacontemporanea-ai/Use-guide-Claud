@@ -27,3 +27,36 @@ export const PAGE_BACK_FRACTION = 0.5;
 export const PAGE_BACK_VELOCITY = 500;
 /** Puxar a folha para cima estica com resistência. */
 export const OVERDRAG_RESISTANCE = 0.15;
+
+/**
+ * A mola do efeito anda de 0 a 1 (progresso). Com o repouso padrão ela só termina ~250 ms depois de
+ * pousar. Abrindo, termina a menos de 1 px da tela cheia; fechando, a 1% do cartão, quando a foto já
+ * pousou e o cartão de verdade toma o lugar dela.
+ */
+const HERO_REST = { restDelta: 0.002, restSpeed: 0.5 } as const;
+const HERO_REST_CLOSE = { restDelta: 0.01, restSpeed: 0.5 } as const;
+
+/**
+ * Foto do cartão que vira a capa do anúncio, e volta (pedido de 2026-11-15). Medido quadro a quadro
+ * no vídeo de referência (Fotos do iPhone): a foto já sai em movimento no primeiro quadro (velocidade
+ * inicial) e assenta sem passar do ponto, em ~230 ms ao abrir e ~200 ms ao fechar.
+ */
+export const HERO_OPEN = {
+  type: 'spring',
+  stiffness: 306,
+  damping: 31.5,
+  mass: 1,
+  velocity: 13,
+  ...HERO_REST,
+} as const;
+export const HERO_CLOSE = {
+  type: 'spring',
+  stiffness: 420,
+  damping: 37,
+  mass: 1,
+  velocity: -15,
+  ...HERO_REST_CLOSE,
+} as const;
+/** O fundo do anúncio aparece em ~150 ms, acelerando, e some em ~170 ms (mesma referência). */
+export const HERO_BACKDROP_IN = { duration: 0.15, ease: 'easeIn' } as const;
+export const HERO_BACKDROP_OUT = { duration: 0.17, ease: 'easeInOut' } as const;

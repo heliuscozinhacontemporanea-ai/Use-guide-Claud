@@ -1,49 +1,31 @@
-export function getAuthErrorMessage(err: any): string | null {
-  if (!err) return null;
-  const code = err.code || '';
-  const message = err.message || '';
+/** Códigos do Firebase Auth que a tela explica; o resto vira a mensagem genérica. */
+const MESSAGES: Record<string, string> = {
+  'auth/wrong-password': 'auth.errors.wrongCredentials',
+  'auth/invalid-credential': 'auth.errors.wrongCredentials',
+  'auth/email-already-in-use': 'auth.errors.emailInUse',
+  'auth/weak-password': 'auth.errors.weakPassword',
+  'auth/invalid-email': 'auth.errors.invalidEmail',
+  'auth/too-many-requests': 'auth.errors.tooManyRequests',
+  'auth/popup-blocked': 'auth.errors.popupBlocked',
+  'auth/account-exists-with-different-credential': 'auth.errors.accountExists',
+  'auth/unauthorized-domain': 'auth.errors.unauthorizedDomain',
+  'auth/network-request-failed': 'auth.errors.network',
+  'auth/requires-recent-login': 'auth.errors.recentLogin',
+};
 
-  if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
-    return null;
-  }
-  if (message && !message.includes('Firebase:') && !message.startsWith('auth/')) {
-    return message;
-  }
-  if (code === 'auth/user-not-found') {
-    return '';
-  }
-  if (code === 'auth/wrong-password' || code === 'auth/invalid-credential') {
-    return 'E-mail ou senha incorretos.';
-  }
-  if (code === 'auth/email-already-in-use' || message.includes('email-already-in-use')) {
-    return 'Este e-mail já está em uso.';
-  }
-  if (code === 'auth/weak-password' || message.includes('weak-password')) {
-    return 'A senha fornecida é muito fraca.';
-  }
-  if (code === 'auth/invalid-email' || message.includes('invalid-email')) {
-    return 'O formato do e-mail informado é inválido.';
-  }
-  if (code === 'auth/too-many-requests') {
-    return 'Muitas tentativas recentes. Por favor, aguarde alguns instantes.';
-  }
-  if (code === 'auth/popup-blocked') {
-    return 'O pop-up de autenticação foi bloqueado pelo navegador. Habilite pop-ups para continuar.';
-  }
-  if (code === 'auth/account-exists-with-different-credential') {
-    return 'Já existe uma conta cadastrada com este e-mail através de outro método.';
-  }
-  if (code === 'auth/unauthorized-domain') {
-    return 'Domínio não autorizado nas configurações de autenticação do Firebase.';
-  }
-  if (code === 'auth/network-request-failed') {
-    return 'Erro de conexão. Verifique sua conexão com a internet.';
-  }
-  if (code === 'auth/requires-recent-login') {
-    return 'Esta operação requer autenticação recente. Por favor, faça login novamente.';
-  }
-  if (typeof err === 'string') {
-    return err;
-  }
-  return 'Ocorreu um erro ao processar a autenticação. Tente novamente.';
+/**
+ * Chave de tradução do erro de acesso (AGENTS.md §12.5). `null`: não há o que mostrar (a pessoa fechou
+ * a janela do Google). `''`: e-mail sem cadastro, que a tela trata sem revelar se a conta existe.
+ * Mensagem do SDK nunca chega à tela (§10.2).
+ */
+export function getAuthErrorMessage(err: unknown): string | null {
+  if (!err) return null;
+  const record = typeof err === 'object' ? (err as { code?: unknown; message?: unknown }) : {};
+  // Alguns caminhos (cadastro pela API) trazem o código só dentro da mensagem.
+  const fromMessage =
+    typeof record.message === 'string' ? record.message.match(/auth\/[a-z-]+/)?.[0] : undefined;
+  const code = typeof record.code === 'string' && record.code ? record.code : (fromMessage ?? '');
+  if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') return null;
+  if (code === 'auth/user-not-found') return '';
+  return MESSAGES[code] ?? 'auth.errors.generic';
 }

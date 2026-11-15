@@ -52,4 +52,5 @@ export const listingDetailEn: ListingDetailTranslation = {
     event: 'event',
   },
   photoAlt: '{{name}}, photo {{index}} of {{count}}',
+  entry: { free: 'Free entry', tickets: 'Tickets' },
 };
