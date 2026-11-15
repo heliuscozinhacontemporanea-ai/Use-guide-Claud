@@ -66,6 +66,18 @@ function sendControllerError(res: Response, error: unknown, fallbackMessage: str
       },
     });
   }
+  if (code === 'LISTING_INCOMPLETE') {
+    // Anúncio publicado não pode perder um passo completo (D34): a tela mostra o que falta.
+    const details = (error as { details?: { steps: Array<{ id: string; missing: string[] }> } })
+      .details;
+    return res.status(422).json({
+      error: {
+        code,
+        message: error instanceof Error ? error.message : 'Anúncio incompleto',
+        ...details,
+      },
+    });
+  }
   if (error instanceof EventHasSalesError) {
     return res.status(409).json({ error: { code: error.reason, message: error.message } });
   }

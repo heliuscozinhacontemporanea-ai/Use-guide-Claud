@@ -138,7 +138,9 @@ export class FirebaseGuideCatalogAdapter implements GuideCatalogPort {
         itemsReady = true;
         emit();
       },
-      onError
+      onError,
+      // Rascunho fica fora do guia (D34); a regra só libera publicados, e regra não é filtro.
+      [{ field: 'publication', op: '==', value: 'published' }]
     );
 
     const unsubscribeEvents = subscribeToCollectionUseCase(

@@ -12,8 +12,12 @@ service cloud.firestore {
       return isAuthenticated()
         && request.auth.uid == userId;
     }
+    // Rascunho (D34) fica fora do guia: só o dono e o admin leem. A busca pública filtra por
+    // `publication`, porque a regra não é filtro.
     match /items/{itemId} {
-      allow read: if true;
+      allow read: if resource.data.publication == 'published' ||
+        (isAuthenticated() && resource.data.ownerId == request.auth.uid) ||
+        isAdmin();
       allow write: if false;
     }
     // Telefone do anúncio que vende pelo app (C2/B37): só o servidor lê, depois da compra.

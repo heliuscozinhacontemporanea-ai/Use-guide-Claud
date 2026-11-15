@@ -1,5 +1,6 @@
 import { BR_STATES } from '../../../shared/kernel/timeZones';
 import { z } from 'zod';
+import { GUIDE_DECLINED_LINKS } from '../../guide';
 import { E164_MESSAGE, E164_PATTERN } from '../../../shared/kernel/phone';
 import { eventSalesPolicySchema } from '../../events/schemas/eventSchema';
 
@@ -90,7 +91,8 @@ const commonFields = {
   description: z.string().trim().max(10000),
   image: z.string().url().or(z.literal('')),
   images: z.array(z.string().url()).max(5),
-  location: z.string().trim().min(1).max(100),
+  // Vazio no rascunho criado pelo Seja parceiro: a região entra no passo "Onde fica" (D34).
+  location: z.string().trim().max(100),
   googleMapsType: z.string().trim().max(100).optional(),
   mapLink: optionalUrl,
   instagramLink: optionalUrl,
@@ -104,6 +106,7 @@ const commonFields = {
   city: z.string().trim().min(2).max(100).optional(),
   tags: z.array(z.string().trim().min(1).max(100)).max(50).optional(),
   operationalInfo: operationalInfoSchema.optional(),
+  declinedLinks: z.array(z.enum(GUIDE_DECLINED_LINKS)).max(GUIDE_DECLINED_LINKS.length).optional(),
   isActive: z.boolean().optional(),
 };
 

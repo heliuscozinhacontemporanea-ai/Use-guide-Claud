@@ -43,6 +43,8 @@ function input(overrides: Partial<PartnerHomeInput> = {}): PartnerHomeInput {
         location: 'Preá',
         rating: 4.8,
         reviewCount: 96,
+        publication: 'published',
+        setupSteps: [],
       },
       {
         id: 'pousada',
@@ -51,6 +53,8 @@ function input(overrides: Partial<PartnerHomeInput> = {}): PartnerHomeInput {
         location: 'Preá',
         rating: 0,
         reviewCount: 0,
+        publication: 'published',
+        setupSteps: [],
       },
     ],
     documents: [{ accountKey: 'acc1', maskedDocument: '**.***.***/0001-81', itemIds: ['buggy'] }],

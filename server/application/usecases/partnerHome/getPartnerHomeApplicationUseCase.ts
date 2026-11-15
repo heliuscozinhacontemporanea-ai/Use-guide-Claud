@@ -1,5 +1,9 @@
 import { summarizeOwnerPromoCodesUseCase } from '../../../domain/promotions';
-import { listOwnerAgendaUseCase, listPartnerOffersUseCase } from '../../../domain/bookings';
+import {
+  listOfferSlotsForPartnerUseCase,
+  listOwnerAgendaUseCase,
+  listPartnerOffersUseCase,
+} from '../../../domain/bookings';
 import { listOwnerEventListingsUseCase } from '../../../domain/events';
 import { listOwnerGuideItemsUseCase } from '../../../domain/guide';
 import {
@@ -113,6 +117,7 @@ export async function getPartnerHomeApplicationUseCase(
     verifications,
     accounts,
     offers,
+    offersWithSlots: await loadOffersWithSlots(actor, offers, agenda.slots, now),
     events: events.filter((event) => event.status !== 'archived'),
   });
   // Termos novos sem aceite: pedido no topo de "Resolva agora", sem parar as vendas.
@@ -140,6 +145,39 @@ export async function getPartnerHomeApplicationUseCase(
       ? { show: shouldShowPanelTour(tour), tipsOff: tour.tipsOff }
       : { show: false, tipsOff: false },
   };
+}
+
+// O passo "Horários" do guia (D34) olha a agenda já lida e, só para as ofertas sem horário nela, os
+// próximos dois meses de poucas ofertas.
+const SLOTS_LOOKAHEAD_MS = 60 * DAY_MS;
+const OFFERS_CHECKED_FOR_SLOTS = 5;
+const KINDS_WITH_SLOTS_STEP = new Set(['tour', 'rental', 'transfer']);
+
+async function loadOffersWithSlots(
+  actor: { uid: string; admin: boolean },
+  offers: ReadonlyArray<{ id: string; kind: string }>,
+  agendaSlots: ReadonlyArray<{ offerId: string; status: string; startsAt: string }>,
+  now: Date
+): Promise<Set<string>> {
+  const nowIso = now.toISOString();
+  const withSlots = new Set(
+    agendaSlots
+      .filter((slot) => slot.status === 'open' && slot.startsAt >= nowIso)
+      .map((slot) => slot.offerId)
+  );
+  const unknown = offers
+    .filter((offer) => KINDS_WITH_SLOTS_STEP.has(offer.kind) && !withSlots.has(offer.id))
+    .slice(0, OFFERS_CHECKED_FOR_SLOTS);
+  const until = new Date(now.getTime() + SLOTS_LOOKAHEAD_MS).toISOString();
+  await Promise.all(
+    unknown.map(async (offer) => {
+      const slots = await listOfferSlotsForPartnerUseCase(actor, offer.id, nowIso, until).catch(
+        () => []
+      );
+      if (slots.some((slot) => slot.status === 'open')) withSlots.add(offer.id);
+    })
+  );
+  return withSlots;
 }
 
 // Poucos eventos por abertura: o cartão olha só os próximos, na ordem das sessões.

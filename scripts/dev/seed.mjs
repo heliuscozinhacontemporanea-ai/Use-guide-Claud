@@ -46,10 +46,38 @@ async function api(path, idToken, body) {
     body: JSON.stringify(body),
   });
   if (!response.ok) throw new Error(`${path}: HTTP ${response.status} ${await response.text()}`);
-  return response.json().catch(() => ({}));
+  return response.status === 204 ? {} : response.json().catch(() => ({}));
 }
 
-// Vira parceiro e cria os estabelecimentos; quem já é parceiro é mantido como está.
+const WEEK = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
+const HOURS = Object.fromEntries(WEEK.map((day) => [day, { open: '08:00', close: '18:00', closed: false }]));
+
+// Os passos de "Para aparecer no guia" completos por categoria (D34), para o anúncio poder ser publicado.
+function detailsOf(category) {
+  switch (category) {
+    case 'tour':
+      return { operationalInfo: { languages: ['pt'], itinerary: 'Dunas, lagoa e pôr do sol.', luggageInfo: 'Protetor solar e água.' } };
+    case 'rental':
+      return { operationalInfo: { languages: ['pt'], vehicleTypes: ['Quadriciclo'], operatingHours: HOURS } };
+    case 'restaurant':
+      return {
+        instagramLink: 'https://instagram.com/useguide',
+        declinedLinks: ['website', 'menu'],
+        operationalInfo: {
+          languages: ['pt'],
+          cuisineType: 'Frutos do mar',
+          mealTypes: ['Almoço'],
+          additionalServices: [],
+          amenities: [],
+          operatingHours: HOURS,
+        },
+      };
+    default:
+      return {};
+  }
+}
+
+// Vira parceiro e cria os estabelecimentos, já publicados no guia; quem já é parceiro é mantido.
 async function ensurePartner(idToken, items) {
   const profile = await fetch(`${APP}/api/partners/profile`, {
     headers: { Authorization: `Bearer ${idToken}` },
@@ -57,17 +85,25 @@ async function ensurePartner(idToken, items) {
   if (profile.ok) return;
   await api('/api/partners/register', idToken, { formData: { termsAccepted: true } });
   for (const item of items) {
-    await api('/api/partners/items', idToken, {
+    // Foto de teste servida pelo próprio app local.
+    const photo = `${APP}/pwa-512x512.png`;
+    const { id } = await api('/api/partners/items', idToken, {
       name: item.name,
       description: `${item.name}: cadastro de teste do ambiente local.`,
       category: item.category,
-      image: '',
-      images: [],
+      image: photo,
+      images: [photo],
       location: 'Preá',
+      address: 'Rua da Praia, 10',
+      googleMapsLink: 'https://maps.app.goo.gl/useguide',
       state: 'CE',
       city: 'Jijoca de Jericoacoara',
       phone: '+5588999990000',
+      ...detailsOf(item.category),
     });
+    if (item.category !== 'producer') {
+      await api(`/api/partner-home/listings/${id}/publish`, idToken, {});
+    }
   }
 }
 

@@ -1,7 +1,12 @@
 import { FieldValue } from 'firebase-admin/firestore';
 import { adminDb } from '../../../infrastructure/firebase/adminClient';
 import { GuideItemContact, GuidePort, GuideVerificationUpdate } from '../ports/guidePort';
-import { GuideCreateItemInput, GuideItemRecord, GuideUpdateItemInput } from '../types/guideTypes';
+import {
+  GuideCreateItemInput,
+  GuideItemRecord,
+  GuidePublication,
+  GuideUpdateItemInput,
+} from '../types/guideTypes';
 
 // Só o servidor lê (rules `if false`): telefone de anúncio que vende pelo app (C2/B37).
 const CONTACTS = 'itemContacts';
@@ -11,6 +16,7 @@ export class FirestoreGuideAdapter implements GuidePort {
     data: GuideCreateItemInput & {
       ownerId: string;
       id?: string;
+      publication: GuidePublication;
     }
   ): Promise<string> {
     const { id, ...fields } = data;
@@ -48,6 +54,13 @@ export class FirestoreGuideAdapter implements GuidePort {
         ...data,
         updatedAt: FieldValue.serverTimestamp(),
       });
+  }
+
+  async setPublication(id: string, publication: GuidePublication): Promise<void> {
+    await adminDb
+      .collection('items')
+      .doc(id)
+      .update({ publication, updatedAt: FieldValue.serverTimestamp() });
   }
 
   async deleteItem(id: string): Promise<void> {

@@ -138,7 +138,8 @@ describe('FirebaseGuideCatalogAdapter realtime', () => {
     expect(databaseDomain.subscribeToCollectionUseCase).toHaveBeenCalledWith(
       'items',
       expect.any(Function),
-      onError
+      onError,
+      [{ field: 'publication', op: '==', value: 'published' }]
     );
     expect(databaseDomain.subscribeToCollectionUseCase).toHaveBeenCalledWith(
       'events',

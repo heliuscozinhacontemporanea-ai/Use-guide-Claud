@@ -203,13 +203,14 @@ export function buildPartnerHome(input: PartnerHomeInput): PartnerHomeView {
     cards: input.cards,
     timeZone: input.timeZone,
     establishments: input.establishments.map(
-      ({ id, name, category, location, rating, reviewCount, timeZone }) => ({
+      ({ id, name, category, location, rating, reviewCount, timeZone, publication }) => ({
         id,
         name,
         category,
         location,
         rating,
         reviewCount,
+        publication,
         unansweredReviews: input.unansweredReviews[id] ?? 0,
         ...(timeZone ? { timeZone } : {}),
       })

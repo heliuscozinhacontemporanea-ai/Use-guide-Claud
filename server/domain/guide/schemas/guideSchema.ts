@@ -1,5 +1,6 @@
 import { BR_STATES } from '../../../shared/kernel/timeZones';
 import { z } from 'zod';
+import { GUIDE_DECLINED_LINKS } from '../types/guideTypes';
 import { E164_MESSAGE, E164_PATTERN } from '../../../shared/kernel/phone';
 
 const optionalUrl = z.string().url().or(z.literal('')).optional();
@@ -103,6 +104,7 @@ const commonFields = {
   city: z.string().trim().min(2).max(100).optional(),
   tags: z.array(z.string().trim().min(1).max(100)).max(50).optional(),
   operationalInfo: operationalInfoSchema.optional(),
+  declinedLinks: z.array(z.enum(GUIDE_DECLINED_LINKS)).max(GUIDE_DECLINED_LINKS.length).optional(),
   isActive: z.boolean().optional(),
 };
 

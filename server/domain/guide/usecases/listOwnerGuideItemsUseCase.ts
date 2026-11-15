@@ -1,4 +1,6 @@
 import { guideService } from '../factory';
+import type { GuidePublication } from '../types/guideTypes';
+import { type ListingStep, listingSetupSteps } from '../utils/listingSetupSteps';
 
 /** Resumo de um item do dono, sem os campos internos do documento (AGENTS.md §7.9 item 4). */
 export interface OwnerGuideItemSummary {
@@ -11,6 +13,9 @@ export interface OwnerGuideItemSummary {
   reviewCount: number;
   /** Fuso do estabelecimento (D28); ausente em dado de teste antigo. */
   timeZone?: string;
+  publication: GuidePublication;
+  /** Passos de "Para aparecer no guia", com o que falta em cada um (D34). */
+  setupSteps: ListingStep[];
 }
 
 export async function listOwnerGuideItemsUseCase(
@@ -25,5 +30,7 @@ export async function listOwnerGuideItemsUseCase(
     rating: item.rating ?? 0,
     reviewCount: item.reviewCount ?? 0,
     ...(item.timeZone ? { timeZone: item.timeZone } : {}),
+    publication: item.publication,
+    setupSteps: listingSetupSteps(item),
   }));
 }

@@ -18,16 +18,25 @@ describe('UseCases públicos do guia', () => {
     await expect(getPublicGuideItemUseCase('a')).resolves.toBeNull();
   });
 
-  it('getPublicGuideItemUseCase devolve item ativo', async () => {
-    getItemById.mockResolvedValue({ id: 'a', isActive: true });
-    await expect(getPublicGuideItemUseCase('a')).resolves.toEqual({ id: 'a', isActive: true });
+  it('getPublicGuideItemUseCase devolve item ativo e publicado', async () => {
+    const item = { id: 'a', isActive: true, publication: 'published' };
+    getItemById.mockResolvedValue(item);
+    await expect(getPublicGuideItemUseCase('a')).resolves.toEqual(item);
   });
 
-  it('listPublicGuideItemsUseCase filtra itens inativos', async () => {
+  it('getPublicGuideItemUseCase devolve null para rascunho (D34)', async () => {
+    getItemById.mockResolvedValue({ id: 'a', isActive: true, publication: 'draft' });
+    await expect(getPublicGuideItemUseCase('a')).resolves.toBeNull();
+  });
+
+  it('listPublicGuideItemsUseCase deixa fora inativos e rascunhos', async () => {
     getAllItems.mockResolvedValue([
-      { id: 'a', isActive: true },
-      { id: 'b', isActive: false },
+      { id: 'a', isActive: true, publication: 'published' },
+      { id: 'b', isActive: false, publication: 'published' },
+      { id: 'c', isActive: true, publication: 'draft' },
     ]);
-    await expect(listPublicGuideItemsUseCase()).resolves.toEqual([{ id: 'a', isActive: true }]);
+    await expect(listPublicGuideItemsUseCase()).resolves.toEqual([
+      { id: 'a', isActive: true, publication: 'published' },
+    ]);
   });
 });

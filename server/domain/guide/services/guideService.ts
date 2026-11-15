@@ -3,7 +3,9 @@ import { findContactsInText } from '../../../shared/kernel/contactInText';
 import { type BrState, timeZoneForBrazilianCity } from '../../../shared/kernel/timeZones';
 import { GuideDomainError } from '../errors/guideDomainError';
 import { GuideItemContact, GuidePort, GuideVerificationUpdate } from '../ports/guidePort';
-import { GuideCreateItemInput, GuideUpdateItemInput } from '../types/guideTypes';
+import { GuideCreateItemInput, GuidePublication, GuideUpdateItemInput } from '../types/guideTypes';
+import { type ListingStep, listingSetupSteps, stepsLost } from '../utils/listingSetupSteps';
+import { sellsThroughApp } from '../utils/sellsThroughApp';
 
 const ADMIN_CREATABLE_ITEM_CATEGORIES = ['sight', 'tour', 'tips'] as const;
 
@@ -70,20 +72,6 @@ function ensureOwnership(user: AuthenticatedUserContext, ownerId: string): void 
   }
 }
 
-/**
- * Anúncios que vendem pelo app (C2/B37, aprovado em 2026-11-09): o telefone fica num documento só do
- * servidor, sem Instagram, site nem link de reserva, e o texto não pode trazer contato. A vitrine
- * (hospedagem, restaurante, atração sem venda) continua com o contato no anúncio.
- */
-const SELLING_CATEGORIES = ['tour', 'transfer', 'rental', 'producer'] as const;
-
-/** Atração com entrada paga vende pelo app (entrada privada, D9); a gratuita é vitrine. */
-export function sellsThroughApp(category: string | undefined, access?: string): boolean {
-  return (
-    SELLING_CATEGORIES.includes(category as never) || (category === 'sight' && access === 'pago')
-  );
-}
-
 type ContactFields = Pick<
   GuideCreateItemInput,
   'phone' | 'instagramLink' | 'websiteLink' | 'bookingLink'
@@ -124,6 +112,23 @@ function placeTimeZone(place: { state?: BrState; city?: string }): { timeZone?: 
     : {};
 }
 
+/**
+ * Anúncio do parceiro nasce como rascunho, fora do guia (D34). O admin publica direto os lugares do
+ * próprio guia, e o perfil de produtor não aparece no guia (D9), mas os eventos leem o nome dele.
+ */
+function initialPublication(
+  user: AuthenticatedUserContext,
+  category: GuideCreateItemInput['category']
+): GuidePublication {
+  return user.admin || category === 'producer' ? 'published' : 'draft';
+}
+
+function incomplete(message: string, steps: ListingStep[]): GuideDomainError {
+  return new GuideDomainError('LISTING_INCOMPLETE', message, {
+    steps: steps.map(({ id, missing }) => ({ id, missing })),
+  });
+}
+
 export class GuideService {
   constructor(private readonly guidePort: GuidePort) {}
 
@@ -133,12 +138,14 @@ export class GuideService {
   ): Promise<string> {
     ensureCanManageGuide(user);
     ensureCreateItemCategory(user, data.category);
+    const publication = initialPublication(user, data.category);
     if (!sellsThroughApp(data.category, data.operationalInfo?.access)) {
       return this.guidePort.createItem({
         ...data,
         ...placeTimeZone(data),
         ownerId: user.uid,
         isActive: data.isActive ?? true,
+        publication,
       });
     }
     ensureNoContactInText(data);
@@ -148,6 +155,7 @@ export class GuideService {
       ...placeTimeZone(data),
       ownerId: user.uid,
       isActive: data.isActive ?? true,
+      publication,
     });
     if (contact.phone) await this.guidePort.setItemContact(id, contact);
     return id;
@@ -165,6 +173,16 @@ export class GuideService {
       throw new GuideDomainError('NOT_FOUND', 'Item não encontrado');
     }
     ensureOwnership(user, existing.ownerId);
+    if (existing.publication === 'published') {
+      // No guia, um passo completo não pode voltar a ficar incompleto (escolhas da F1, D34).
+      const lost = stepsLost(
+        listingSetupSteps(existing),
+        listingSetupSteps({ ...existing, ...data })
+      );
+      if (lost.length > 0) {
+        throw incomplete('O anúncio está no guia: complete o passo antes de salvar.', lost);
+      }
+    }
     const place =
       data.state !== undefined || data.city !== undefined
         ? placeTimeZone({ state: data.state ?? existing.state, city: data.city ?? existing.city })
@@ -178,6 +196,23 @@ export class GuideService {
     const { item, contact } = splitContact(data);
     await this.guidePort.updateItem(id, { ...item, ...place });
     if (data.phone !== undefined) await this.guidePort.setItemContact(id, contact);
+  }
+
+  /** Publica o rascunho no guia, depois de conferir os passos da categoria (D34). */
+  async publishItem(user: AuthenticatedUserContext, id: string): Promise<void> {
+    ensureCanManageGuide(user);
+    ensureValidId(id);
+    const existing = await this.guidePort.getItemById(id);
+    if (!existing) {
+      throw new GuideDomainError('NOT_FOUND', 'Item não encontrado');
+    }
+    ensureOwnership(user, existing.ownerId);
+    if (existing.publication === 'published') return;
+    const open = listingSetupSteps(existing).filter((step) => !step.done);
+    if (open.length > 0) {
+      throw incomplete('Complete os passos do guia antes de publicar.', open);
+    }
+    await this.guidePort.setPublication(id, 'published');
   }
 
   /**

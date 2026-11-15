@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { verifyAuthToken } from '../../../infrastructure/auth/authMiddleware';
 import { PartnerHomeController } from './partnerHomeController';
+import { PartnerListingController } from './partnerListingController';
 
 const router = Router();
 
@@ -9,6 +10,7 @@ router.put('/cards', verifyAuthToken, PartnerHomeController.saveCards);
 router.put('/tour', verifyAuthToken, PartnerHomeController.recordTour);
 router.get('/agenda', verifyAuthToken, PartnerHomeController.getAgenda);
 router.get('/catalog', verifyAuthToken, PartnerHomeController.getCatalog);
+router.post('/listings/:itemId/publish', verifyAuthToken, PartnerListingController.publish);
 router.get('/earnings', verifyAuthToken, PartnerHomeController.getEarnings);
 router.get('/reports', verifyAuthToken, PartnerHomeController.getReports);
 router.get('/events/:eventId/sales', verifyAuthToken, PartnerHomeController.getEventSales);

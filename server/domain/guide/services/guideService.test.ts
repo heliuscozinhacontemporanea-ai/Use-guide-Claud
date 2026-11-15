@@ -8,6 +8,7 @@ function createGuidePortMock(): GuidePort {
   return {
     createItem: vi.fn(),
     updateItem: vi.fn(),
+    setPublication: vi.fn(),
     deleteItem: vi.fn(),
     getItemById: vi.fn(),
     updateItemVerification: vi.fn(),
@@ -214,6 +215,7 @@ describe('GuideService', () => {
         verifiedUntil: null,
         verificationType: null,
         isVerificationSuspended: false,
+        publication: 'published',
       });
 
       await service.updateItem(adminUser, 'item-1', {
@@ -242,6 +244,7 @@ describe('GuideService', () => {
         verifiedUntil: null,
         verificationType: null,
         isVerificationSuspended: false,
+        publication: 'published',
       });
 
       await expect(
@@ -270,6 +273,7 @@ describe('GuideService', () => {
         verifiedUntil: null,
         verificationType: null,
         isVerificationSuspended: false,
+        publication: 'published',
       });
 
       await service.deleteItem(partnerUser, 'item-1');

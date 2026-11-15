@@ -1,3 +1,4 @@
+import type { GuidePublication } from '../../../domain/guide';
 import type { PartnerFirstSteps } from './buildFirstSteps';
 import type { PromoCodesSummary } from '../../../domain/promotions';
 /** Leitura do Início do painel do parceiro (D27). Textos ficam no app; aqui só tipo, ids e valores. */
@@ -105,6 +106,8 @@ export interface PartnerHomeView {
     /** Avaliações ainda sem resposta do estabelecimento. */
     unansweredReviews: number;
     timeZone?: string;
+    /** Rascunho fica fora do guia até ser publicado (D34). */
+    publication: GuidePublication;
   }>;
   attention: PartnerAttentionItem[];
   /** O que falta para vender (painel por segmento); `null` quando está tudo pronto. */

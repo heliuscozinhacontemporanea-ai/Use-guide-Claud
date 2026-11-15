@@ -67,6 +67,13 @@ export interface GuideOperationalInfo {
 
 export type EventEntryType = 'pago' | 'gratuito';
 
+/** Anúncio novo nasce como rascunho, fora do guia, até o dono publicar (D34). */
+export type GuidePublication = 'draft' | 'published';
+
+/** Link que o dono declarou não ter ("Não tenho"), para o passo do guia poder ser concluído (D34). */
+export const GUIDE_DECLINED_LINKS = ['instagram', 'website', 'menu'] as const;
+export type GuideDeclinedLink = (typeof GUIDE_DECLINED_LINKS)[number];
+
 export interface GuideCatalogFields {
   name: string;
   description: string;
@@ -88,6 +95,7 @@ export interface GuideCatalogFields {
   timeZone?: string;
   tags?: string[];
   operationalInfo?: GuideOperationalInfo;
+  declinedLinks?: GuideDeclinedLink[];
   isActive: boolean;
   date?: string;
   endDate?: string;
@@ -116,6 +124,7 @@ export interface GuideItemRecord
   category: GuideItemCategory;
   ownerId: string;
   partnerId?: string;
+  publication: GuidePublication;
 }
 
 export interface GuideCreateItemInput {
@@ -140,6 +149,7 @@ export interface GuideCreateItemInput {
   timeZone?: string;
   tags?: string[];
   operationalInfo?: GuideOperationalInfo;
+  declinedLinks?: GuideDeclinedLink[];
   isActive?: boolean;
 }
 
@@ -165,5 +175,6 @@ export interface GuideUpdateItemInput {
   timeZone?: string;
   tags?: string[];
   operationalInfo?: GuideOperationalInfo;
+  declinedLinks?: GuideDeclinedLink[];
   isActive?: boolean;
 }
