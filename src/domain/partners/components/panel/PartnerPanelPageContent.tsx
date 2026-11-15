@@ -2,7 +2,9 @@ import type { TFunction } from 'i18next';
 import type { ReactNode } from 'react';
 import type { PanelPage } from '../../hooks/usePanelNavigation';
 import type { PartnerContentRecord } from '../../types/partnerContent';
-import type { PartnerEstablishment, PartnerTodayItem } from '../../types/partnerHome';
+import type { ListingStep, PartnerEstablishment, PartnerTodayItem } from '../../types/partnerHome';
+import { ListingPublishPage } from '../guide/ListingPublishPage';
+import { ListingStepPage } from '../guide/ListingStepPage';
 import type { PartnerPanelProps } from '../partnerPanelProps';
 import { PartnerCatalogPage } from './PartnerCatalogPage';
 import type { PartnerCatalogRenders } from './PartnerCatalogSection';
@@ -38,6 +40,44 @@ export interface PartnerPanelPageContext {
   renderAccountView?: PartnerPanelProps['renderAccountView'];
   renderCoupons?: PartnerPanelProps['renderCoupons'];
   renderGateStaff?: PartnerPanelProps['renderGateStaff'];
+  /** Passos do anúncio que o guia acompanha (Início, D34). */
+  listingSteps: ListingStep[];
+  /** A página do passo entrega à barra a ação de salvar. */
+  registerListingSave: (save: (() => void) | null) => void;
+  /** Passo salvo ou anúncio publicado: o Início recarrega e a página fecha. */
+  onListingDone: () => void;
+}
+
+/** Página de um passo do guia: o item vem do catálogo do dono, já carregado no painel. */
+function ListingGuidePage({
+  page,
+  context,
+}: {
+  page: Extract<PanelPage, { view: 'listing-step' }>;
+  context: PartnerPanelPageContext;
+}) {
+  const item = context.items.find((entry) => entry.id === page.itemId);
+  if (!item) return null;
+  if (page.step === 'publish') {
+    return (
+      <ListingPublishPage
+        item={item}
+        steps={context.listingSteps}
+        onPublished={context.onListingDone}
+      />
+    );
+  }
+  if (page.step === 'name') return null;
+  return (
+    <ListingStepPage
+      key={`${item.id}-${page.step}`}
+      item={item}
+      step={page.step}
+      steps={context.listingSteps}
+      registerSave={context.registerListingSave}
+      onSaved={context.onListingDone}
+    />
+  );
 }
 
 /** Título da página na barra fixa (D33). */
@@ -57,6 +97,8 @@ export function partnerPanelPageTitle(
       return t('partnerEarnings.reports.profile');
     case 'accounts':
       return t('paymentAccounts.page.title');
+    case 'listing-step':
+      return page.title;
     default:
       return partnerMorePageTitle(page.view, t, couponsSegment);
   }
@@ -108,6 +150,8 @@ export function PartnerPanelPageContent({
       );
     case 'account':
       return <>{context.earningsRenders.renderAccount?.(page.key)}</>;
+    case 'listing-step':
+      return <ListingGuidePage page={page} context={context} />;
     default: {
       const { renderCoupons } = context;
       const scope = page.view === 'coupons' ? (page.couponsScope ?? null) : null;

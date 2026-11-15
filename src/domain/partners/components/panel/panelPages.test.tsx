@@ -27,6 +27,9 @@ const context = (overrides: Partial<PartnerPanelPageContext> = {}): PartnerPanel
   onToggleActive: vi.fn(),
   onOpenReportsProfile: vi.fn(),
   onOpenAccount: vi.fn(),
+  listingSteps: [],
+  registerListingSave: vi.fn(),
+  onListingDone: vi.fn(),
   ...overrides,
 });
 

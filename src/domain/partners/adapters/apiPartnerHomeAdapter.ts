@@ -1,3 +1,4 @@
+import { incompleteStepsOf, ListingIncompleteError } from '../errors/listingIncompleteError';
 import { firebaseApiFetch } from '../../../shared/infrastructure/firebase/firebaseApiFetch';
 import type { PartnerHomePort } from '../ports/partnerHomePort';
 import type {
@@ -122,6 +123,20 @@ export class ApiPartnerHomeAdapter implements PartnerHomePort {
       OPTIONS
     );
     if (!response.ok) throw new Error('INTERNAL_ERROR');
+  }
+
+  async publishListing(itemId: string): Promise<void> {
+    const response = await firebaseApiFetch(
+      `/api/partner-home/listings/${encodeURIComponent(itemId)}/publish`,
+      { method: 'POST' },
+      OPTIONS
+    );
+    if (response.ok) return;
+    const body = await response.json().catch(() => ({}));
+    const code = typeof body?.error?.code === 'string' ? body.error.code : 'INTERNAL_ERROR';
+    if (code === 'LISTING_INCOMPLETE')
+      throw new ListingIncompleteError(incompleteStepsOf(body.error));
+    throw new Error(code);
   }
 
   async saveCards(cards: string[]): Promise<string[]> {

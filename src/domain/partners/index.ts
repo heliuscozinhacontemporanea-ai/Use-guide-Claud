@@ -14,8 +14,12 @@ export { ListingEditor, type ListingEditorProps } from './components/ListingEdit
 export { AdminListingSealControl } from './components/plan/AdminListingSealControl';
 export { ListingVerificationQueue } from './components/verification/ListingVerificationQueue';
 export { PartnerPanel } from './components/PartnerPanel';
-export { PartnersModal } from './components/PartnersModal';
-export { mapPartnerRegistrationPayload, usePartnerForm } from './hooks/usePartnerForm';
+export { PartnerBusinessPage } from './components/join/PartnerBusinessPage';
+export { PartnerPresentation } from './components/sections/PartnerPresentation';
+export { joinAsPartnerUseCase } from './application/usecases/joinAsPartnerUseCase';
+export { loadPartnerJoinDraftUseCase } from './application/usecases/loadPartnerJoinDraftUseCase';
+export { savePartnerJoinDraftUseCase } from './application/usecases/savePartnerJoinDraftUseCase';
+export { EMPTY_JOIN_DRAFT, type PartnerJoinDraft } from './utils/partnerJoinDraft';
 export { usePartnerContentActions } from './hooks/usePartnerContentActions';
 export { usePartnerContentCatalog } from './hooks/usePartnerContentCatalog';
 export { usePartnerContentMedia } from './hooks/usePartnerContentMedia';

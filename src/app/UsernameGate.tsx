@@ -1,3 +1,4 @@
+import { usePartnerJoinStore } from './stores/partnerJoinStore';
 import { useAuthContext } from '../domain/auth';
 import { signOut } from './signOut';
 import { UsernameOnboardingDialog } from '../domain/user';
@@ -7,9 +8,12 @@ import { UsernameOnboardingDialog } from '../domain/user';
  * contas antigas sem @, o app pede a escolha antes de seguir. Junta auth e user, por isso fica no app.
  */
 export function UsernameGate() {
+  // O Seja parceiro pede o @ e a confirmação na própria pilha (D34).
+  const joining = usePartnerJoinStore((state) => state.active);
   const { user, profile, loading, refreshProfile } = useAuthContext();
   // Espera o nome do cadastro (e-mail ou Google) estar salvo: a sugestão do @ vem dele.
-  if (loading || !user || user.isAnonymous || !profile?.firstName || profile.username) return null;
+  if (joining || loading || !user || user.isAnonymous || !profile?.firstName || profile.username)
+    return null;
   return (
     <UsernameOnboardingDialog
       onDone={() => void refreshProfile()}

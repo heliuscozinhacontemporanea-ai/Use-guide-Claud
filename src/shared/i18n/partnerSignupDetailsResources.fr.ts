@@ -3,7 +3,7 @@ import type { PartnerSignupDetailsTranslation } from './partnerSignupDetailsReso
 export const partnerSignupDetailsFr: PartnerSignupDetailsTranslation = {
   additional: {
     title: 'Fonctionnement',
-    languages: 'Langues parlées',
+    languages: 'Langues que vous parlez',
     checkIn: 'Arrivée',
     checkOut: 'Départ',
     from: 'De',

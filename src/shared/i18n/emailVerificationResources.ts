@@ -4,6 +4,10 @@ export interface EmailVerificationTranslation {
   sentAfterSignup: string;
   required: string;
   spamHint: string;
+  continuesHere: string;
+  waiting: string;
+  resendEmail: string;
+  resendEmailIn: string;
   checked: string;
   resend: string;
   resendIn: string;
@@ -34,6 +38,10 @@ export const emailVerificationPtBR: EmailVerificationTranslation = {
   required:
     'Para continuar, confirme seu e-mail. Enviamos o link para {{email}} quando você criou a conta.',
   spamHint: 'Não chegou? Veja a caixa de spam ou peça outro link.',
+  continuesHere: 'Enviamos um link para {{email}}. Assim que você confirmar, seguimos daqui.',
+  waiting: 'Esperando a confirmação',
+  resendEmail: 'Reenviar o e-mail',
+  resendEmailIn: 'Reenviar o e-mail em {{seconds}} s',
   checked: 'Já confirmei',
   resend: 'Enviar outro link',
   resendIn: 'Enviar outro link em {{seconds}} s',

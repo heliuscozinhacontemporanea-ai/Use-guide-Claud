@@ -7,6 +7,11 @@ export const emailVerificationFr: EmailVerificationTranslation = {
   required:
     'Pour continuer, confirmez votre e-mail. Nous avons envoyé le lien à {{email}} lors de la création du compte.',
   spamHint: 'Rien reçu ? Vérifiez les spams ou demandez un autre lien.',
+  continuesHere:
+    'Nous avons envoyé un lien à {{email}}. Dès que vous confirmez, nous reprenons ici.',
+  waiting: 'En attente de confirmation',
+  resendEmail: 'Renvoyer l’e-mail',
+  resendEmailIn: 'Renvoyer l’e-mail dans {{seconds}} s',
   checked: 'C’est confirmé',
   resend: 'Envoyer un autre lien',
   resendIn: 'Envoyer un autre lien dans {{seconds}} s',

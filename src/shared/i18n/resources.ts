@@ -32,6 +32,7 @@ import {
   type PartnerFirstStepsTranslation,
   partnerFirstStepsPtBR,
 } from './partnerFirstStepsResources';
+import { type PartnerGuideTranslation, partnerGuidePtBR } from './partnerGuideResources';
 import { type PartnerPanelTranslation, partnerPanelPtBR } from './partnerPanelResources';
 import { type PartnerSignupTranslation, partnerSignupPtBR } from './partnerSignupResources';
 import { type PartnersTranslation, partnersPtBR } from './partnersResources';
@@ -94,6 +95,7 @@ export interface TranslationResource {
   partnerCatalog: PartnerCatalogTranslation;
   partnerEarnings: PartnerEarningsTranslation;
   partnerFirstSteps: PartnerFirstStepsTranslation;
+  partnerGuide: PartnerGuideTranslation;
   partnerAddSegment: PartnerAddSegmentTranslation;
   listingDetail: ListingDetailTranslation;
   auth: AuthTranslation;
@@ -115,6 +117,8 @@ export interface TranslationResource {
     cancel: string;
     confirm: string;
     close: string;
+    /** Nome da área de avisos para o leitor de tela (B66). */
+    notificationsArea: string;
     retry: string;
     /** Selo "Use Guide Verificado" explicado ao toque (D11). */
     seal: {
@@ -356,6 +360,7 @@ const ptBR: TranslationResource = {
   partnerCatalog: partnerCatalogPtBR,
   partnerEarnings: partnerEarningsPtBR,
   partnerFirstSteps: partnerFirstStepsPtBR,
+  partnerGuide: partnerGuidePtBR,
   partnerAddSegment: partnerAddSegmentPtBR,
   listingDetail: listingDetailPtBR,
   auth: authPtBR,
@@ -378,6 +383,7 @@ const ptBR: TranslationResource = {
     retry: 'Tentar novamente',
     confirm: 'Confirmar',
     close: 'Fechar',
+    notificationsArea: 'Avisos',
     seal: {
       label: 'Ver o que significa o selo Use Guide Verificado',
       title: 'Use Guide Verificado',

@@ -52,6 +52,7 @@ describe('Firestore Rules — Security Suite', () => {
       await db.doc('items/item-1').set({
         name: 'Restaurante Teste',
         category: 'restaurant',
+        publication: 'published',
       });
 
       await db.doc('events/event-1').set({

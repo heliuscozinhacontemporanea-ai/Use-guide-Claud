@@ -12,6 +12,8 @@ export interface DetailsSectionProps {
   setFormData: FormStateSetter;
   errors: { [key: string]: string };
   setErrors: React.Dispatch<React.SetStateAction<{ [key: string]: string }>>;
+  /** No guia de passos (D34): sem os detalhes de venda, que ficam na oferta. */
+  listingOnly?: boolean;
 }
 
 /** Leitura e escrita dos campos de detalhe, iguais na inscrição e no editor do painel. */

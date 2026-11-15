@@ -1,15 +1,18 @@
+export { GuideDomainError, type IncompleteListingStep } from './errors/guideDomainError';
 export type { GuideItemContact, GuideVerificationUpdate } from './ports/guidePort';
-export { sellsThroughApp } from './services/guideService';
 export {
   FEATURED_LISTS,
   type FeaturedList,
   type FeaturedListingsProjection,
 } from './types/featuredListing';
+export { GUIDE_DECLINED_LINKS } from './types/guideTypes';
 export type {
   GuideCatalogFields,
+  GuideDeclinedLink,
   GuideCreateItemInput,
   GuideItemCategory,
   GuideItemRecord,
+  GuidePublication,
   GuideRatingAggregate,
   GuideUpdateItemInput,
   GuideVerification,
@@ -32,8 +35,16 @@ export {
   type OwnerGuideItemSummary,
 } from './usecases/listOwnerGuideItemsUseCase';
 export { listPublicGuideItemsUseCase } from './usecases/listPublicGuideItemsUseCase';
+export { publishGuideItemUseCase } from './usecases/publishGuideItemUseCase';
 export { saveFeaturedListingsUseCase } from './usecases/saveFeaturedListingsUseCase';
 export { updateGuideItemUseCase } from './usecases/updateGuideItemUseCase';
 export { updateItemVerificationUseCase } from './usecases/updateItemVerificationUseCase';
 export { updateReviewAggregateUseCase } from './usecases/updateReviewAggregateUseCase';
 export { featuredRotationDay, pickFeaturedListingIds } from './utils/featuredRotation';
+export {
+  type ListingField,
+  type ListingStep,
+  type ListingStepId,
+  listingSetupSteps,
+} from './utils/listingSetupSteps';
+export { sellsThroughApp } from './utils/sellsThroughApp';

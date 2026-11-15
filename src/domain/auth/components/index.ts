@@ -1,3 +1,5 @@
+export { AuthForms } from './AuthForms';
+export { EmailVerificationWait } from './EmailVerificationWait';
 export { LoginModal } from './LoginModal';
 export { LoginForm } from './LoginForm';
 export { RegisterForm } from './RegisterForm';

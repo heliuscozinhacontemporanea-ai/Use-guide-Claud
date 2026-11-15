@@ -8,4 +8,5 @@ export * from './schemas/authSchema';
 export * from './schemas/passwordSchema';
 export * from './utils/passwordRequirements';
 export { startEmailVerificationUseCase } from './application/usecases/startEmailVerificationUseCase';
+export { closeEmailVerificationPromptUseCase } from './application/usecases/closeEmailVerificationPromptUseCase';
 export { openEmailVerificationPromptUseCase } from './application/usecases/openEmailVerificationPromptUseCase';

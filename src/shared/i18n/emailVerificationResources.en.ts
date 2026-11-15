@@ -7,6 +7,10 @@ export const emailVerificationEn: EmailVerificationTranslation = {
   required:
     'To continue, confirm your email. We sent the link to {{email}} when you created your account.',
   spamHint: 'Didn’t get it? Check your spam folder or ask for another link.',
+  continuesHere: 'We sent a link to {{email}}. As soon as you confirm, we continue from here.',
+  waiting: 'Waiting for confirmation',
+  resendEmail: 'Resend the email',
+  resendEmailIn: 'Resend the email in {{seconds}} s',
   checked: 'I’ve confirmed it',
   resend: 'Send another link',
   resendIn: 'Send another link in {{seconds}} s',

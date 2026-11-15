@@ -56,6 +56,8 @@ export interface PartnerOperationalInfo {
   >;
 }
 
+export type DeclinedLink = 'instagram' | 'website' | 'menu';
+
 export type PartnerContentCategory =
   | 'restaurant'
   | 'sight'
@@ -107,6 +109,10 @@ export interface PartnerContentRecord {
   isVerificationSuspended?: boolean;
   verificationType?: 'trial' | 'monthly' | 'semi-annual' | 'annual' | 'admin' | null;
   operationalInfo?: PartnerOperationalInfo;
+  /** Links que o dono declarou não ter ("Não tenho", D34). */
+  declinedLinks?: DeclinedLink[];
+  /** Rascunho fica fora do guia até ser publicado (D34). */
+  publication?: 'draft' | 'published';
   isActive?: boolean;
   date?: string;
   endDate?: string;
@@ -134,6 +140,7 @@ export interface PartnerContentItemInput {
   timeZone?: string;
   tags?: string[];
   operationalInfo?: Record<string, unknown>;
+  declinedLinks?: DeclinedLink[];
   isActive?: boolean;
 }
 

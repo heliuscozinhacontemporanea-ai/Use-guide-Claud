@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { type PageStack, usePageStack } from '../../../../ui/hooks/pageStack';
 import { PushStack } from '../../../../ui/layouts/stack/PushStack';
-import type { StackEntry } from '../../../../ui/layouts/stack/stackTypes';
+import type { StackAction, StackEntry } from '../../../../ui/layouts/stack/stackTypes';
 import type { PanelPage } from '../../hooks/usePanelNavigation';
 
 /**
@@ -16,15 +16,15 @@ export function PartnerPanelStack({
 }: {
   stack: PageStack<PanelPage>;
   root: ReactNode;
-  renderPage: (page: PanelPage) => { title: string; content: ReactNode };
+  renderPage: (page: PanelPage) => { title: string; content: ReactNode; action?: StackAction };
 }) {
   const { t } = useTranslation();
   const pages = usePageStack(stack);
   const entries: StackEntry[] = [
     { key: 'panel', navBar: false, bare: true, render: () => root },
     ...pages.map((page, index) => {
-      const { title, content } = renderPage(page);
-      return { key: `${page.view}-${index}`, title, navBar: true, render: () => content };
+      const { title, content, action } = renderPage(page);
+      return { key: `${page.view}-${index}`, title, action, navBar: true, render: () => content };
     }),
   ];
   return <PushStack entries={entries} backLabel={t('settings.back')} onBack={stack.back} />;

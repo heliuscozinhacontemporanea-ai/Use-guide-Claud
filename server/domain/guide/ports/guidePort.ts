@@ -1,6 +1,7 @@
 import {
   GuideCreateItemInput,
   GuideItemRecord,
+  GuidePublication,
   GuideUpdateItemInput,
   GuideVerificationType,
 } from '../types/guideTypes';
@@ -22,10 +23,12 @@ export interface GuidePort {
     data: GuideCreateItemInput & {
       ownerId: string;
       id?: string;
+      publication: GuidePublication;
     }
   ): Promise<string>;
   getItemById(id: string): Promise<GuideItemRecord | null>;
   updateItem(id: string, data: GuideUpdateItemInput): Promise<void>;
+  setPublication(id: string, publication: GuidePublication): Promise<void>;
   deleteItem(id: string): Promise<void>;
   /** Cópia pública do selo do estabelecimento (D11); o plano fica em `listingPlans`. */
   updateItemVerification(itemId: string, verification: GuideVerificationUpdate): Promise<void>;

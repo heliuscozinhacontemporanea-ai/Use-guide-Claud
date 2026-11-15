@@ -13,6 +13,7 @@ export { LanguageSettingsView } from './components/LanguageSettingsView';
 export { MainMenuView } from './components/MainMenuView';
 export { SettingsView } from './components/SettingsView';
 export { UsernameSettingsView } from './components/UsernameSettingsView';
+export { UsernameOnboardingContent } from './components/UsernameOnboardingContent';
 export { UsernameOnboardingDialog } from './components/UsernameOnboardingDialog';
 export { userAdapter } from './factory';
 export { useUserPhoto } from './hooks/useUserPhoto';

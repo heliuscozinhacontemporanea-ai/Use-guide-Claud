@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { ListError, ListLoading } from '../../../../ui/components/ListState';
 import type {
   PartnerAttentionItem,
+  ListingStepId,
   PartnerFirstStep,
   PartnerHomeView,
   PartnerTodayItem,
@@ -11,7 +12,7 @@ import type { PartnerHomeCardId } from '../../types/partnerHomeCards';
 import type { PartnerCardData } from '../../utils/partnerHomeCardData';
 import { PartnerAttentionList } from './PartnerAttentionList';
 import { PartnerCardsEditor } from './PartnerCardsEditor';
-import { PartnerFirstStepsCard } from './PartnerFirstStepsCard';
+import { PartnerListingGuideCard } from './PartnerListingGuideCard';
 import { PartnerHomeCards } from './PartnerHomeCards';
 import type { PartnerPanelTab } from './partnerPanelTabs';
 
@@ -43,6 +44,7 @@ export function PartnerHomeTab({
   onOpenTab,
   onOpenCoupons,
   onOpenStep,
+  onOpenListingStep,
   agora,
   leadingCard,
 }: {
@@ -57,8 +59,10 @@ export function PartnerHomeTab({
   onOpenTab: (tab: PartnerPanelTab) => void;
   /** Toque no cartão "Cupons". */
   onOpenCoupons?: () => void;
-  /** Toque num dos primeiros passos (painel por segmento). */
+  /** Toque num passo de venda do guia (verificar, conta, oferta, horários, evento). */
   onOpenStep?: (step: PartnerFirstStep) => void;
+  /** Toque num passo de "Para aparecer no guia" ou no publicar (D34). */
+  onOpenListingStep?: (itemId: string, step: ListingStepId | 'publish', title: string) => void;
   /** Seção "Agora", acima de "Resolva agora": na hora do serviço é o que importa primeiro. */
   agora?: ReactNode;
   /** Cartão extra no começo da grade (visitas do mês na vitrine, S4). */
@@ -90,8 +94,14 @@ export function PartnerHomeTab({
         items={attention}
         onOpen={onOpenAttention}
         firstSteps={
-          view.firstSteps && onOpenStep ? (
-            <PartnerFirstStepsCard data={view.firstSteps} onOpen={onOpenStep} />
+          view.firstSteps && onOpenStep && onOpenListingStep ? (
+            <PartnerListingGuideCard
+              data={view.firstSteps}
+              onOpenStep={onOpenStep}
+              onOpenListingStep={(step, title) =>
+                view.firstSteps && onOpenListingStep(view.firstSteps.listing.itemId, step, title)
+              }
+            />
           ) : null
         }
       />

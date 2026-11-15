@@ -1,8 +1,8 @@
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { Suspense, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useLocation, useSearchParams } from 'react-router-dom';
-import { useAuthContext } from '../domain/auth/context/AuthContext';
-import { UserRole } from '../domain/auth/types/auth';
+import { UserRole, useAuthContext } from '../domain/auth';
 import { useGuideCatalog } from '../domain/guide';
 import { NotificationBell } from '../domain/notifications';
 import { ACCOUNT_ACTION_PATH } from '../shared/constants/accountActionPath';
@@ -21,7 +21,7 @@ import {
   loadAdminPanel,
   loadPartnerPortal,
   PartnerPortalComposition,
-  PartnersModal,
+  PartnerJoinSheet,
   SearchOverlay,
 } from './lazy/screens';
 import { useOpenedOnce } from './lazy/useOpenedOnce';
@@ -36,6 +36,9 @@ import { useTabMemory } from './useTabMemory';
 import { BackdropCard } from './BackdropCard';
 import { ListingDetailComposition } from './compositions/ListingDetailComposition';
 
+// Tempo para a folha do menu terminar de descer antes de outra subir.
+const SHEET_SWAP_MS = 450;
+
 export function AppRouter() {
   const { user, refreshProfile } = useAuthContext();
   const isPartner = user?.role === UserRole.PARTNER;
@@ -46,7 +49,8 @@ export function AppRouter() {
   const isExplorePage = routeKey === 'explore';
   useSyncLocaleWithUrl();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { isLoginModalOpen, closeLoginModal, openLoginModal } = useUI();
+  const { t } = useTranslation();
+  const { isLoginModalOpen, closeLoginModal, openLoginModal, showToast } = useUI();
   const loginModalTab = useUIStore((state) => state.loginModalTab);
 
   useEffect(() => prefetchWhenIdle(COMMON_SCREENS), []);
@@ -263,36 +267,30 @@ export function AppRouter() {
 
           <SideMenu
             onPartnersOpen={() => {
+              // As folhas em pilha dividem o mesmo progresso (D33): o menu desce primeiro e o Seja
+              // parceiro sobe depois, para uma não esconder a outra.
               setSearchParams(
                 (prev) => {
                   const nextParams = new URLSearchParams(prev);
-                  nextParams.set('partners', '1');
+                  nextParams.delete('menu');
                   return nextParams;
                 },
                 { replace: true }
               );
-
-              setTimeout(() => {
-                setSearchParams(
-                  (prev) => {
-                    const nextParams = new URLSearchParams(prev);
-                    nextParams.delete('menu');
-                    nextParams.set('partners', '1');
-                    return nextParams;
-                  },
-                  { replace: true }
-                );
-              }, 800);
+              setTimeout(() => setIsPartnersOpen(true), SHEET_SWAP_MS);
             }}
             onAdminOpen={handleAdminOpen}
           />
 
           {partnersMounted && (
             <Suspense fallback={null}>
-              <PartnersModal
+              <PartnerJoinSheet
                 isOpen={isPartnersOpen}
                 onClose={() => setIsPartnersOpen(false)}
-                onOpenPartnerPanel={() => void openPartnerPortalAfterSignup()}
+                onJoined={() => {
+                  showToast(t('partnerGuide.join.ready'), 'success');
+                  void openPartnerPortalAfterSignup();
+                }}
               />
             </Suspense>
           )}

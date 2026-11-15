@@ -1,3 +1,4 @@
+import { incompleteStepsOf, ListingIncompleteError } from '../errors/listingIncompleteError';
 import { firebaseApiFetch } from '../../../shared/infrastructure/firebase/firebaseApiFetch';
 import type { PartnerContentPort } from '../ports/partnerContentPort';
 import type { PartnerContentEventInput, PartnerContentItemInput } from '../types/partnerContent';
@@ -12,6 +13,9 @@ export class ApiPartnerContentAdapter implements PartnerContentPort {
       const body = await response.json().catch(() => null);
       // Erro tipado (`{ code, message }`) vira o código, que a tela traduz (§10.2, §12.5).
       const error = body?.error;
+      if (error?.code === 'LISTING_INCOMPLETE') {
+        throw new ListingIncompleteError(incompleteStepsOf(error));
+      }
       throw new Error(
         (typeof error === 'string' ? error : error?.code) ||
           'Erro na operação do conteúdo do parceiro'

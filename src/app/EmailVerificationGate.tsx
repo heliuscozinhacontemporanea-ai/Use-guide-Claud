@@ -1,3 +1,4 @@
+import { usePartnerJoinStore } from './stores/partnerJoinStore';
 import { EmailVerificationPrompt, useAuthContext } from '../domain/auth';
 
 /**
@@ -5,7 +6,9 @@ import { EmailVerificationPrompt, useAuthContext } from '../domain/auth';
  * depois do cadastro, para os dois passos não abrirem juntos.
  */
 export function EmailVerificationGate() {
+  // O Seja parceiro pede o @ e a confirmação na própria pilha (D34).
+  const joining = usePartnerJoinStore((state) => state.active);
   const { user, profile, loading } = useAuthContext();
-  if (loading || !user || user.isAnonymous || !profile?.username) return null;
+  if (joining || loading || !user || user.isAnonymous || !profile?.username) return null;
   return <EmailVerificationPrompt />;
 }

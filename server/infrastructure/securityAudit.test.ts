@@ -71,6 +71,7 @@ describe('Security Audit - Mass Assignment and Cross-Owner Defenses', () => {
       const mockPort: GuidePort = {
         createItem: vi.fn(),
         updateItem: vi.fn(),
+        setPublication: vi.fn(),
         deleteItem: vi.fn(),
         getItemById: vi.fn().mockResolvedValue({
           id: 'item-100',
@@ -104,6 +105,7 @@ describe('Security Audit - Mass Assignment and Cross-Owner Defenses', () => {
       const mockPort: GuidePort = {
         createItem: vi.fn(),
         updateItem: vi.fn(),
+        setPublication: vi.fn(),
         deleteItem: vi.fn(),
         getItemById: vi.fn().mockResolvedValue({
           id: 'item-200',

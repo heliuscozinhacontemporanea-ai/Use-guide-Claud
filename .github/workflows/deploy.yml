@@ -57,6 +57,26 @@ jobs:
           service_account: ${{ vars.GCP_DEPLOYER_SA }}
       - uses: google-github-actions/setup-gcloud@v3
 
+      - name: Imagem do servidor
+        run: |
+          gcloud auth configure-docker "$REGION-docker.pkg.dev" --quiet
+          docker build -t "$IMAGE" .
+          docker push "$IMAGE"
+
+      # Uma vez só (D34, F1): os anúncios que já existiam ganham `publication` antes das rules e do site
+      # novos, que só mostram anúncio publicado. Tarefa do Cloud Run com a imagem nova e a conta do
+      # servidor; se falhar, nada mais sobe. Sai no deploy seguinte, junto com o script.
+      - name: Anúncios já publicados (uma vez)
+        run: |
+          SA="$(gcloud run services describe "$SERVICE" --region "$REGION" --project "${{ vars.GCP_PROJECT_ID }}" --format='value(spec.template.spec.serviceAccountName)')"
+          gcloud run jobs deploy backfill-listing-publication \
+            --image "$IMAGE" --region "$REGION" --project "${{ vars.GCP_PROJECT_ID }}" \
+            ${SA:+--service-account "$SA"} \
+            --command node --args ops/backfillListingPublication.cjs \
+            --set-env-vars "FIREBASE_PROJECT_ID=${{ vars.GCP_PROJECT_ID }},FIRESTORE_DATABASE_ID=${{ vars.VITE_FIREBASE_FIRESTORE_DATABASE_ID }}" \
+            --max-retries 0 --task-timeout 300s --execute-now --wait --quiet
+          gcloud run jobs delete backfill-listing-publication --region "$REGION" --project "${{ vars.GCP_PROJECT_ID }}" --quiet
+
       # Índices, rules e Functions só sobem quando o arquivo deles mudou desde o último deploy. Ficam
       # desligados até a variável DEPLOY_FIREBASE_BACKEND = true (papéis da conta de publicação no
       # Google Cloud: docs/arquitetura/propostas/publicacao-alertas-backup.md, branch de documentação).
@@ -120,12 +140,6 @@ jobs:
         if: steps.changes.outputs.functions == 'true'
         with:
           node-version: 26
-
-      - name: Imagem do servidor
-        run: |
-          gcloud auth configure-docker "$REGION-docker.pkg.dev" --quiet
-          docker build -t "$IMAGE" .
-          docker push "$IMAGE"
 
       - uses: actions/setup-python@v7
         with:

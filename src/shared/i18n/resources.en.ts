@@ -21,6 +21,7 @@ import { partnerAgoraEn } from './partnerAgoraResources.en';
 import { partnerCatalogEn } from './partnerCatalogResources.en';
 import { partnerEarningsEn } from './partnerEarningsResources.en';
 import { partnerFirstStepsEn } from './partnerFirstStepsResources.en';
+import { partnerGuideEn } from './partnerGuideResources.en';
 import { partnerPanelEn } from './partnerPanelResources.en';
 import { partnerSignupEn } from './partnerSignupResources.en';
 import { partnerTourEn } from './partnerTourResources.en';
@@ -81,6 +82,7 @@ export const en: TranslationResource = {
   partnerCatalog: partnerCatalogEn,
   partnerEarnings: partnerEarningsEn,
   partnerFirstSteps: partnerFirstStepsEn,
+  partnerGuide: partnerGuideEn,
   partnerAddSegment: partnerAddSegmentEn,
   listingDetail: listingDetailEn,
   auth: authEn,
@@ -103,6 +105,7 @@ export const en: TranslationResource = {
     retry: 'Try again',
     confirm: 'Confirm',
     close: 'Close',
+    notificationsArea: 'Notifications',
     seal: {
       label: 'See what the Use Guide Verified badge means',
       title: 'Use Guide Verified',

@@ -19,10 +19,6 @@ export const partnerSignupEn: PartnerSignupTranslation = {
     deleted: 'Listing deleted.',
     deleteFailed: "Couldn't delete. Try again.",
   },
-  processing: {
-    title: 'Sending your sign-up',
-    text: 'We are saving your details and photos. This takes a few seconds.',
-  },
   yes: 'Yes',
   no: 'No',
   detailsTitle: 'Details',
@@ -41,14 +37,6 @@ export const partnerSignupEn: PartnerSignupTranslation = {
     trustText: 'Verified businesses show travelers they can count on you.',
     start: 'Start sign-up',
     footnote: 'Sign-up is quick, and the dashboard shows every step until you start selling.',
-  },
-  form: {
-    title: 'Partner sign-up',
-    step: '{{current}} of {{total}}',
-    back: 'Back',
-    next: 'Continue',
-    submit: 'Send sign-up',
-    sending: 'Sending…',
   },
   categories: {
     hotel: 'Lodging',
@@ -69,12 +57,6 @@ export const partnerSignupEn: PartnerSignupTranslation = {
     bookingPlaceholder: 'Your listing on booking sites',
     maps: 'Location on Google Maps',
     mapsPlaceholder: 'Paste the Google Maps link',
-  },
-  success: {
-    title: 'Sign-up sent',
-    text: '{{name}} is now in your dashboard, where you will see the next steps to start selling.',
-    openPanel: 'Open my dashboard',
-    later: 'Not now',
   },
   step5: {
     title: 'Review and send',

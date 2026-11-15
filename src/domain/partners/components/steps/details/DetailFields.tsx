@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { useNoneOfThese } from './noneOfThese';
 import type { DetailOptionKey } from '../../../../../shared/i18n/partnerSignupDetailsResources';
 import { cn } from '../../../../../shared/utils/cn';
 import { RequiredMark, SignupError } from '../../sections/SignupFieldParts';
@@ -101,6 +102,8 @@ interface ChipGroupProps {
   hint?: string;
   required?: boolean;
   error?: string;
+  /** Campo da lista: no guia de passos, mostra "Nenhuma destas" (D34). */
+  noneKey?: string;
 }
 
 /** Opções que se marcam tocando (comodidades, o que está incluído). */
@@ -112,8 +115,15 @@ export function ChipGroup({
   hint,
   required,
   error,
+  noneKey,
 }: ChipGroupProps) {
   const { t } = useTranslation();
+  const noneOfThese = useNoneOfThese();
+  const none = noneKey && noneOfThese ? noneOfThese.isNone(noneKey) : null;
+  const toggle = (value: string) => {
+    if (noneKey && none) noneOfThese?.setNone(noneKey, false);
+    onToggle(value);
+  };
   return (
     <fieldset>
       <legend className={SIGNUP_LABEL}>
@@ -129,13 +139,27 @@ export function ChipGroup({
               key={key}
               type="button"
               aria-pressed={on}
-              onClick={() => onToggle(value)}
+              onClick={() => toggle(value)}
               className={cn(CHOICE, 'px-3.5 text-[14px]', on ? CHOICE_ON : CHOICE_OFF)}
             >
               {t(`partnerSignup.details.options.${key}`)}
             </button>
           );
         })}
+        {noneKey && none !== null ? (
+          <button
+            type="button"
+            aria-pressed={none}
+            onClick={() => {
+              // Marcar "Nenhuma destas" desmarca as outras opções.
+              for (const value of selected) onToggle(value);
+              noneOfThese?.setNone(noneKey, !none);
+            }}
+            className={cn(CHOICE, 'px-3.5 text-[14px]', none ? CHOICE_ON : CHOICE_OFF)}
+          >
+            {t('partnerGuide.noneOfThese')}
+          </button>
+        ) : null}
       </div>
       <SignupError message={error} />
     </fieldset>

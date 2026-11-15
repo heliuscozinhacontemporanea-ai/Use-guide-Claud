@@ -56,16 +56,19 @@ describe('findListingOrigin', () => {
 describe('copyCardOverlays', () => {
   const rect = (left: number, top: number, width: number, height: number) =>
     ({ left, top, width, height, right: left + width, bottom: top + height }) as DOMRect;
-  const layout = (element: HTMLElement, width: number, height: number, left = 0, top = 0) => {
+  // `border`: a borda do cartão (1 px no `glassmorphism`) entra no offset, não no client.
+  const layout = (element: HTMLElement, width: number, height: number, border = 0) => {
     Object.defineProperties(element, {
-      offsetWidth: { value: width },
-      offsetHeight: { value: height },
-      offsetLeft: { value: left },
-      offsetTop: { value: top },
+      offsetWidth: { value: width + 2 * border },
+      offsetHeight: { value: height + 2 * border },
+      clientWidth: { value: width },
+      clientHeight: { value: height },
+      offsetLeft: { value: 0 },
+      offsetTop: { value: 0 },
     });
   };
 
-  it('copia só o que fica sobre a foto, no tamanho e com os cantos do cartão', () => {
+  it('copia só o que fica sobre a foto, no tamanho do cartão por dentro da borda', () => {
     const card = document.createElement('button');
     const photo = document.createElement('span');
     const caption = document.createElement('span');
@@ -77,7 +80,7 @@ describe('copyCardOverlays', () => {
     photo.getBoundingClientRect = () => rect(0, 0, 200, 200);
     caption.getBoundingClientRect = () => rect(0, 140, 200, 60);
     beside.getBoundingClientRect = () => rect(210, 0, 100, 200);
-    layout(card, 200, 200);
+    layout(card, 200, 200, 1);
     layout(photo, 200, 200);
     const into = document.createElement('div');
 
@@ -90,7 +93,7 @@ describe('copyCardOverlays', () => {
       photoWidth: 200,
       photoHeight: 200,
     });
-    // A foto cobre o cartão: ele sai de cena inteiro enquanto a capa o representa.
+    // A foto cobre o cartão por dentro da borda: ele sai de cena inteiro, sem deixar a moldura vazia.
     expect(copy.covered).toEqual([card]);
     expect(into.textContent).toBe('Buggy do Preá');
     expect(into.style.width).toBe('200px');

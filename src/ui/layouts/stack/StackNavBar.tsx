@@ -138,6 +138,18 @@ function NavAction({
   opacity: MotionValue<number>;
 }) {
   const Icon = action.icon;
+  if (!Icon) {
+    return (
+      <motion.button
+        type="button"
+        onClick={action.onClick}
+        style={{ x, opacity }}
+        className="press absolute right-[8px] top-[6px] min-w-[44px] h-[44px] px-2 rounded-full flex items-center justify-center text-[16px] font-semibold text-accent hover:bg-ink/[0.06] focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none"
+      >
+        {action.label}
+      </motion.button>
+    );
+  }
   return (
     <motion.button
       type="button"

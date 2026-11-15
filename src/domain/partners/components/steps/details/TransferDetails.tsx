@@ -100,16 +100,18 @@ export function TransferDetails(props: DetailsSectionProps) {
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <TextField
-          id="transfer-max-passengers"
-          label={f('maxPassengers')}
-          inputMode="numeric"
-          value={formData.maxPassengers}
-          onChange={(value) => updateFieldValue('maxPassengers', value.replace(/\D/g, ''))}
-          placeholder={p('maxPassengers')}
-          required
-          error={getFieldError('maxPassengers')}
-        />
+        {props.listingOnly ? null : (
+          <TextField
+            id="transfer-max-passengers"
+            label={f('maxPassengers')}
+            inputMode="numeric"
+            value={formData.maxPassengers}
+            onChange={(value) => updateFieldValue('maxPassengers', value.replace(/\D/g, ''))}
+            placeholder={p('maxPassengers')}
+            required
+            error={getFieldError('maxPassengers')}
+          />
+        )}
         <TextField
           id="transfer-luggage"
           label={f('luggage')}

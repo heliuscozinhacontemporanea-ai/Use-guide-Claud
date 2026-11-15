@@ -71,6 +71,7 @@ export function RestaurantDetails(props: DetailsSectionProps) {
         label={f('mealTypes')}
         options={MEAL_TYPES}
         selected={formData.mealTypes || []}
+        noneKey="mealTypes"
         onToggle={(value) => toggleInList('mealTypes', value)}
         error={getFieldError('mealTypes')}
       />
@@ -78,12 +79,14 @@ export function RestaurantDetails(props: DetailsSectionProps) {
         label={f('extraServices')}
         options={EXTRA_SERVICES}
         selected={formData.additionalServices || []}
+        noneKey="additionalServices"
         onToggle={(value) => toggleInList('additionalServices', value)}
       />
       <ChipGroup
         label={f('amenities')}
         options={AMENITIES}
         selected={formData.amenitiesRestaurant || []}
+        noneKey="amenities"
         onToggle={(value) => toggleInList('amenitiesRestaurant', value)}
       />
     </div>

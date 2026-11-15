@@ -19,10 +19,6 @@ export const partnerSignupFr: PartnerSignupTranslation = {
     deleted: 'Fiche supprimée.',
     deleteFailed: 'Impossible de supprimer. Réessayez.',
   },
-  processing: {
-    title: 'Envoi de votre inscription',
-    text: 'Nous enregistrons vos informations et vos photos. Cela prend quelques secondes.',
-  },
   yes: 'Oui',
   no: 'Non',
   detailsTitle: 'Détails',
@@ -44,14 +40,6 @@ export const partnerSignupFr: PartnerSignupTranslation = {
     footnote:
       'L’inscription est rapide, et le tableau de bord montre chaque étape jusqu’à vos premières ventes.',
   },
-  form: {
-    title: 'Inscription partenaire',
-    step: '{{current}} sur {{total}}',
-    back: 'Retour',
-    next: 'Continuer',
-    submit: 'Envoyer l’inscription',
-    sending: 'Envoi…',
-  },
   categories: {
     hotel: 'Hébergement',
     restaurant: 'Restaurant',
@@ -71,12 +59,6 @@ export const partnerSignupFr: PartnerSignupTranslation = {
     bookingPlaceholder: 'Votre annonce sur les sites de réservation',
     maps: 'Emplacement sur Google Maps',
     mapsPlaceholder: 'Collez le lien Google Maps',
-  },
-  success: {
-    title: 'Inscription envoyée',
-    text: '{{name}} est dans votre tableau de bord, avec les prochaines étapes pour commencer à vendre.',
-    openPanel: 'Ouvrir mon tableau de bord',
-    later: 'Plus tard',
   },
   step5: {
     title: 'Vérifier et envoyer',
