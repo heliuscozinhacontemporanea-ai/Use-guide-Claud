@@ -117,6 +117,8 @@ export interface TranslationResource {
     cancel: string;
     confirm: string;
     close: string;
+    /** Nome da área de avisos para o leitor de tela (B66). */
+    notificationsArea: string;
     retry: string;
     /** Selo "Use Guide Verificado" explicado ao toque (D11). */
     seal: {
@@ -381,6 +383,7 @@ const ptBR: TranslationResource = {
     retry: 'Tentar novamente',
     confirm: 'Confirmar',
     close: 'Fechar',
+    notificationsArea: 'Avisos',
     seal: {
       label: 'Ver o que significa o selo Use Guide Verificado',
       title: 'Use Guide Verificado',

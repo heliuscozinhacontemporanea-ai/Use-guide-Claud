@@ -4,7 +4,7 @@ import { lazyNamed } from '../../ui/lazy/lazyNamed';
 export const loadSearchOverlay = () => import('./entries/searchOverlay');
 export const loadListingDetail = () => import('./entries/listingDetail');
 export const loadLoginModal = () => import('./entries/loginModal');
-export const loadPartnersModal = () => import('./entries/partnersModal');
+export const loadPartnerJoin = () => import('./entries/partnerJoin');
 export const loadPartnerPortal = () => import('../compositions/PartnerPortalComposition');
 export const loadAdminPanel = () => import('../compositions/AdminPanelComposition');
 const loadListingActions = () => import('./entries/listingActions');
@@ -18,7 +18,7 @@ export const ListingDetail = lazyNamed(loadListingDetail, 'ListingDetail');
 export const FavoriteButton = lazyNamed(loadListingActions, 'FavoriteButton');
 export const ReviewSection = lazyNamed(loadListingActions, 'ReviewSection');
 export const LoginModal = lazyNamed(loadLoginModal, 'LoginModal');
-export const PartnersModal = lazyNamed(loadPartnersModal, 'PartnersModal');
+export const PartnerJoinSheet = lazyNamed(loadPartnerJoin, 'PartnerJoinSheet');
 export const PartnerPortalComposition = lazyNamed(loadPartnerPortal, 'PartnerPortalComposition');
 export const AdminPanelComposition = lazyNamed(loadAdminPanel, 'AdminPanelComposition');
 export const EventTicketingPurchasePanel = lazyNamed(

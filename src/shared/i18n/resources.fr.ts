@@ -105,6 +105,7 @@ export const fr: TranslationResource = {
     retry: 'Réessayer',
     confirm: 'Confirmer',
     close: 'Fermer',
+    notificationsArea: 'Notifications',
     seal: {
       label: 'Voir ce que signifie le badge Use Guide Vérifié',
       title: 'Use Guide Vérifié',

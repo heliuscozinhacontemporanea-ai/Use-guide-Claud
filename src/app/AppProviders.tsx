@@ -1,8 +1,9 @@
 import { MotionConfig } from 'motion/react';
 import { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Toaster } from 'sonner';
 import { ThemeProvider, useTheme } from '../shared/context/ThemeContext';
-import { AuthProvider } from '../domain/auth/context/AuthContext';
+import { AuthProvider } from '../domain/auth';
 import { Z_INDEX } from '../shared/constants/zIndex';
 import { useUIStore } from '../shared/stores/useUIStore';
 import { ConfirmDialog } from '../ui/components/ConfirmDialog';
@@ -13,8 +14,10 @@ interface AppProvidersProps {
 
 function ThemedToaster() {
   const { resolvedTheme } = useTheme();
+  const { t } = useTranslation();
   return (
     <Toaster
+      containerAriaLabel={t('common.notificationsArea')}
       position="bottom-center"
       theme={resolvedTheme}
       closeButton
