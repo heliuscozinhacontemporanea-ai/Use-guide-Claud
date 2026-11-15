@@ -168,7 +168,7 @@ export const partnerGuidePtBR: PartnerGuideTranslation = {
     accountTitle: 'Crie sua conta',
     accountLead:
       'Falta só a sua conta. O painel fica nela, e você entra com ela no celular ou no computador.',
-    usernameTitle: 'Seu @',
+    usernameTitle: 'Nome de usuário',
     verifyTitle: 'Confirme seu e-mail',
     verifyLead: 'Enviamos um link para {{email}}. Assim que você confirmar, seguimos daqui.',
     waiting: 'Esperando a confirmação',

@@ -38,7 +38,7 @@ export const partnerGuideFr: PartnerGuideTranslation = {
     accountTitle: 'Créez votre compte',
     accountLead:
       'Il ne manque que votre compte. Le tableau de bord y est rattaché, et vous vous connectez avec lui sur téléphone ou ordinateur.',
-    usernameTitle: 'Votre @',
+    usernameTitle: 'Nom d’utilisateur',
     verifyTitle: 'Confirmez votre e-mail',
     verifyLead:
       'Nous avons envoyé un lien à {{email}}. Dès que vous l’aurez confirmé, nous reprenons ici.',

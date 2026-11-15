@@ -37,7 +37,7 @@ export const partnerGuideEn: PartnerGuideTranslation = {
     accountTitle: 'Create your account',
     accountLead:
       'Only your account is missing. The dashboard lives in it, and you sign in with it on your phone or computer.',
-    usernameTitle: 'Your @',
+    usernameTitle: 'Username',
     verifyTitle: 'Confirm your email',
     verifyLead: 'We sent a link to {{email}}. As soon as you confirm it, we continue from here.',
     waiting: 'Waiting for confirmation',
