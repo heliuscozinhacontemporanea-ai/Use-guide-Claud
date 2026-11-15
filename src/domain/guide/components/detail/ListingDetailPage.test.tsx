@@ -244,6 +244,37 @@ describe('ListingDetailPage', () => {
       expect(insets(clipWhenPhotoMoved)[0]).toBeLessThan(299);
     });
 
+    it('o nome do cartão vai por cima da foto e esmaece na primeira metade; o degradê da capa entra depois', async () => {
+      const card = document.querySelector<HTMLElement>(`[${LISTING_CARD_ATTR}]`);
+      const caption = document.createElement('span');
+      caption.textContent = 'Nome no cartão';
+      card?.append(caption);
+      for (const [element, size] of [
+        [card, 280],
+        [cardPhoto, 280],
+      ] as const) {
+        Object.defineProperties(element, {
+          offsetWidth: { value: size },
+          offsetHeight: { value: size },
+          offsetLeft: { value: 0 },
+          offsetTop: { value: 0 },
+        });
+      }
+      render(toggle(true));
+      const region = screen.getByLabelText(ITEM.name, { selector: '[tabindex="-1"]' });
+      const lookLayer = region.parentElement?.lastElementChild as HTMLElement;
+      expect(lookLayer).toHaveAttribute('aria-hidden', 'true');
+      const look = lookLayer.firstElementChild as HTMLElement;
+      expect(look).toHaveTextContent('Nome no cartão');
+      await waitFor(() => expect(Number(look.style.opacity)).toBe(1));
+      // O cartão original sai de cena no primeiro passo: a cópia o representa.
+      await waitFor(() => expect(card?.style.visibility).toBe('hidden'));
+      await waitFor(() => expect(isFull(region.style.clipPath)).toBe(true), { timeout: 3000 });
+      expect(Number(look.style.opacity)).toBe(0);
+      const shade = region.querySelector<HTMLElement>('.will-change-transform .bg-gradient-to-t');
+      expect(Number(shade?.style.opacity)).toBe(1);
+    });
+
     it('sem toque no cartão (link ou voltar), só esmaece e não mexe no cartão', async () => {
       render(toggle(true, false));
       const region = await screen.findByRole('region', { name: ITEM.name });

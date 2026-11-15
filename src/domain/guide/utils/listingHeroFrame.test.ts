@@ -36,6 +36,31 @@ describe('heroFrame', () => {
     expect(heroFrame(GEOMETRY, 0.5).pageClipPath).toBe('inset(150px 12px 212px 12px round 10px)');
   });
 
+  it('a cópia do nome e das etiquetas sai exatamente sobre o cartão e acompanha o pé da foto', () => {
+    // Cartão em pé com a foto inteira, tocado (escala 0,97 do `press`): layout de 200 x 200.
+    const geometry: HeroGeometry = {
+      cardPhoto: { left: 23, top: 303, width: 194, height: 194 },
+      card: { left: 23, top: 303, width: 194, height: 194 },
+      cardRadius: 20,
+      hero: { left: 0, top: 0, width: 390, height: 300 },
+      viewport: { left: 0, top: 0, width: 390, height: 844 },
+      cardLayout: {
+        width: 200,
+        height: 200,
+        photoLeft: 0,
+        photoTop: 0,
+        photoWidth: 200,
+        photoHeight: 200,
+      },
+    };
+    expect(heroFrame(geometry, 0).cardLook).toEqual({ x: 23, y: 303, scale: 0.97 });
+    const end = heroFrame(geometry, 1).cardLook;
+    expect(end?.scale).toBeCloseTo(390 / 200);
+    // Preso ao pé da capa: o pé da cópia (200 x escala) termina no pé da foto (300).
+    expect((end?.y ?? 0) + 200 * (end?.scale ?? 0)).toBeCloseTo(300);
+    expect(heroFrame(GEOMETRY, 0).cardLook).toBeNull();
+  });
+
   it('no meio do caminho, a foto já cresce além do cartão e continua cobrindo', () => {
     const { photo } = heroFrame(GEOMETRY, 0.5);
     expect(photo.scale).toBeGreaterThan(120 / 220);

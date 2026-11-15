@@ -1,3 +1,5 @@
+import type { CardLayout } from '../utils/listingHeroFrame';
+
 /** Atributos que marcam o cartão e a foto dele, de onde a capa do anúncio sai. */
 export const LISTING_CARD_ATTR = 'data-listing-card';
 export const LISTING_PHOTO_ATTR = 'data-listing-photo';
@@ -33,4 +35,54 @@ export function findListingOrigin(itemId: string): ListingOrigin | null {
     if (found) return found;
   }
   return null;
+}
+
+const isOver = (inner: DOMRect, outer: DOMRect) =>
+  inner.left >= outer.left - 1 &&
+  inner.right <= outer.right + 1 &&
+  inner.top >= outer.top - 1 &&
+  inner.bottom <= outer.bottom + 1;
+
+export interface CardOverlayCopy {
+  /** O cartão no tamanho de layout; `null` se não há nada sobre a foto (cartão horizontal). */
+  layout: CardLayout | null;
+  /**
+   * O que sai de cena enquanto a capa e a cópia o representam: o cartão inteiro, quando a foto o
+   * cobre; senão, a foto e o que foi copiado (o texto ao lado da foto continua à vista).
+   */
+  covered: HTMLElement[];
+}
+
+/**
+ * Copia para `into` o que fica sobre a foto do cartão (nome, etiquetas, nota, degradê), no tamanho do
+ * cartão, para esmaecer por cima da foto que cresce em vez de sumir no toque.
+ */
+export function copyCardOverlays(
+  { card, photo }: ListingOrigin,
+  into: HTMLElement
+): CardOverlayCopy {
+  const photoRect = photo.getBoundingClientRect();
+  const originals = [...card.children].filter(
+    (child): child is HTMLElement =>
+      child instanceof HTMLElement &&
+      child !== photo &&
+      isOver(child.getBoundingClientRect(), photoRect)
+  );
+  if (originals.length === 0 || photo.offsetWidth === 0) return { layout: null, covered: [photo] };
+  into.replaceChildren(...originals.map((child) => child.cloneNode(true)));
+  into.style.width = `${card.offsetWidth}px`;
+  into.style.height = `${card.offsetHeight}px`;
+  const photoCoversCard =
+    photo.offsetWidth >= card.offsetWidth - 1 && photo.offsetHeight >= card.offsetHeight - 1;
+  return {
+    layout: {
+      width: card.offsetWidth,
+      height: card.offsetHeight,
+      photoLeft: photo.offsetLeft,
+      photoTop: photo.offsetTop,
+      photoWidth: photo.offsetWidth,
+      photoHeight: photo.offsetHeight,
+    },
+    covered: photoCoversCard ? [card] : [photo, ...originals],
+  };
 }

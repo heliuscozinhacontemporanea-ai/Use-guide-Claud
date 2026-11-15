@@ -49,12 +49,14 @@ export function ListingDetailPage({
   const { t } = useTranslation();
   const scrollRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
+  const cardLookRef = useRef<HTMLDivElement>(null);
   const { scrollY } = useScroll({ container: scrollRef });
   // Aberto pela busca, a foto não tem cartão visível de onde sair: só esmaece.
   const hero = useListingHero({
     itemId: item.id,
     enabled: growsFromCard && !coversTabBar,
     heroRef,
+    cardLookRef,
   });
   const close = () => hero.close(onClose);
   const [activeImage, setActiveImage] = useState(0);
@@ -131,9 +133,9 @@ export function ListingDetailPage({
           ) : (
             <div className="w-full h-full bg-surface" />
           )}
-          {/* Dá leitura aos botões da capa: aparece e some com eles (a foto do cartão não tem). */}
+          {/* Dá leitura aos botões da capa: entra na segunda metade do caminho da foto. */}
           <motion.div
-            style={hero.chrome}
+            style={hero.shade}
             className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-black/25"
           />
         </motion.div>
@@ -224,6 +226,19 @@ export function ListingDetailPage({
           </header>
           {children}
         </motion.div>
+      </motion.div>
+      {/* Nome e etiquetas do cartão tocado, copiados sobre a foto que cresce: esmaecem em vez de sumir.
+          Com o mesmo recorte da página, os cantos da cópia e da foto são sempre os mesmos. */}
+      <motion.div
+        aria-hidden="true"
+        style={{ clipPath: hero.page.clipPath }}
+        className="pointer-events-none absolute inset-0"
+      >
+        <motion.div
+          ref={cardLookRef}
+          style={{ ...hero.cardLook, transformOrigin: '0 0' }}
+          className="absolute left-0 top-0 overflow-hidden text-left"
+        />
       </motion.div>
     </motion.div>
   );

@@ -34,6 +34,10 @@ const IconMap: Record<string, typeof Info> = {
   Calendar,
 };
 
+// Etiqueta sobre a foto (sem máscara na foto inteira, opção C de 2026-11-15): o fundo próprio garante
+// ≥ 4,5:1 até sobre foto branca, para todas as cores de categoria.
+const ON_PHOTO_CHIP = 'bg-black/70';
+
 const VARIANT: Record<NonNullable<StandardCardProps['variant']>, string> = {
   square: 'aspect-square min-w-[280px]',
   portrait: 'aspect-[3/4] min-w-[280px]',
@@ -117,9 +121,6 @@ export function StandardCard({
           )}
         </span>
 
-        {/* Escurece a foto onde o texto fica por cima (cartões em pé). */}
-        {!isHorizontal && <span aria-hidden="true" className="absolute inset-0 bg-black/20" />}
-
         {featured && (
           <span className="absolute top-3 left-3 z-20 px-2 py-1 rounded-full bg-amber-400 text-slate-950 text-[11px] font-bold uppercase tracking-wide">
             {t('common.featured')}
@@ -127,7 +128,7 @@ export function StandardCard({
         )}
 
         {typeof item.rating === 'number' && item.rating > 0 && (
-          <span className="absolute top-3 right-3 z-20 inline-flex items-center gap-1 px-2 py-1 rounded-full bg-black/40 text-caption font-bold text-on-fill tabular-nums">
+          <span className="absolute top-3 right-3 z-20 inline-flex items-center gap-1 px-2 py-1 rounded-full bg-black/70 text-caption font-bold text-on-fill tabular-nums">
             <Star size={16} fill="currentColor" className="text-amber-300" aria-hidden="true" />
             {item.rating.toFixed(1)}
           </span>
@@ -138,7 +139,7 @@ export function StandardCard({
             'flex flex-col gap-2',
             isHorizontal
               ? 'w-2/3 p-5 justify-center'
-              : 'absolute inset-x-0 bottom-0 p-3 pt-20 bg-gradient-to-t from-black/95 via-black/40 to-transparent'
+              : 'absolute inset-x-0 bottom-0 p-3 pt-20 bg-gradient-to-t from-black/95 via-black/60 to-transparent'
           )}
         >
           <span className="flex items-center gap-2 min-w-0">
@@ -146,7 +147,8 @@ export function StandardCard({
               className={cn(
                 'shrink-0 px-2 py-0.5 rounded-full border text-[11px] font-bold uppercase tracking-wide',
                 cat.colorClass,
-                cat.bgClass,
+                // Sobre a foto, fundo escuro próprio: legível em qualquer foto (≥ 4,5:1).
+                isHorizontal ? cat.bgClass : ON_PHOTO_CHIP,
                 cat.borderClass
               )}
             >
@@ -163,7 +165,14 @@ export function StandardCard({
               </span>
             )}
             {item.category === 'event' && item.entryType && (
-              <span className="shrink-0 px-2 py-0.5 rounded-full bg-accent-soft border border-accent-line text-caption font-semibold text-accent">
+              <span
+                className={cn(
+                  'shrink-0 px-2 py-0.5 rounded-full border text-caption font-semibold',
+                  isHorizontal
+                    ? 'bg-accent-soft border-accent-line text-accent'
+                    : `${ON_PHOTO_CHIP} border-on-fill/20 text-on-fill`
+                )}
+              >
                 {t(
                   item.entryType === 'gratuito'
                     ? 'listingDetail.entry.free'
