@@ -1,5 +1,5 @@
 import { MapPin, Star, X } from 'lucide-react';
-import { motion, useScroll } from 'motion/react';
+import { type MotionValue, motion, useScroll } from 'motion/react';
 import { type ReactNode, useEffect, useEffectEvent, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BOTTOM_NAV_CLEARANCE } from '../../../../shared/constants/bottomNav';
@@ -9,7 +9,6 @@ import { cn } from '../../../../shared/utils/cn';
 import { optimizeImage } from '../../../../shared/utils/formatters';
 import { ShareButton } from '../../../../ui/components/ShareButton';
 import { VerifiedSealButton } from '../../../../ui/components/VerifiedSealButton';
-import { FavoriteButton } from '../../../favorites/components/FavoriteButton';
 import { trackInteractionUseCase as trackInteraction } from '../../../insights';
 import type { GuideItem } from '../../types/guide';
 import { useListingHero } from '../../hooks/useListingHero';
@@ -29,7 +28,7 @@ export function ListingDetailPage({
   onClose,
   locationLabel,
   collectionName = 'items',
-  favoriteLabel,
+  favorite,
   coversTabBar = false,
   growsFromCard = true,
   children,
@@ -39,8 +38,8 @@ export function ListingDetailPage({
   /** Local já pronto para exibir (ex.: "Preá, Ceará"). */
   locationLabel: string;
   collectionName?: 'items' | 'events';
-  /** Tipo do item no aviso de favorito (ex.: "passeio"). */
-  favoriteLabel: string;
+  /** Botão de favoritar, montado pelo app (favorites); some com a rolagem da página. */
+  favorite?: (scrollY: MotionValue<number>) => ReactNode;
   /** Por cima de uma camada que já cobre a barra de abas (a busca): janela à parte, sem a barra. */
   coversTabBar?: boolean;
   /** A foto cresce do cartão tocado. Sem toque (link, voltar, troca de aba), o anúncio só esmaece. */
@@ -151,23 +150,7 @@ export function ListingDetailPage({
           >
             <X size={20} strokeWidth={2.5} aria-hidden="true" />
           </button>
-          <div className="pointer-events-auto absolute bottom-3 left-4">
-            <FavoriteButton
-              itemId={item.id}
-              collectionName={collectionName}
-              itemTypeLabel={favoriteLabel}
-              partnerId={item.partnerId}
-              scrollY={scrollY}
-              itemDetails={{
-                name: item.name,
-                image: item.image,
-                category: item.category,
-                location: item.location,
-                rating: item.rating,
-                description: item.description,
-              }}
-            />
-          </div>
+          <div className="pointer-events-auto absolute bottom-3 left-4">{favorite?.(scrollY)}</div>
           <div className="pointer-events-auto absolute bottom-3 right-4">
             <ShareButton
               itemId={item.id}

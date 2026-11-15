@@ -8,7 +8,6 @@ import { LISTING_CARD_ATTR, LISTING_PHOTO_ATTR } from '../../hooks/listingHeroOr
 import type { GuideItem } from '../../types/guide';
 import { ListingDetailPage } from './ListingDetailPage';
 
-vi.mock('../../../favorites/components/FavoriteButton', () => ({ FavoriteButton: () => null }));
 vi.mock('../../../../ui/components/ShareButton', () => ({ ShareButton: () => null }));
 vi.mock('../../../insights', () => ({ trackInteractionUseCase: vi.fn() }));
 
@@ -26,7 +25,6 @@ const page = (coversTabBar?: boolean) =>
       item={ITEM}
       onClose={vi.fn()}
       locationLabel="Preá, Ceará"
-      favoriteLabel="passeio"
       coversTabBar={coversTabBar}
     >
       <p>conteúdo</p>
@@ -57,6 +55,22 @@ describe('ListingDetailPage', () => {
     const dialog = await screen.findByRole('dialog', { name: 'Buggy do Preá' });
     expect(dialog).toHaveAttribute('aria-modal', 'true');
     expect(dialog.parentElement).toHaveStyle({ zIndex: String(Z_INDEX.modal) });
+  });
+
+  it('o favoritar chega pelo encaixe do app e recebe a rolagem da página', async () => {
+    const favorite = vi.fn(() => <span>favoritar</span>);
+    render(
+      <ListingDetailPage
+        item={ITEM}
+        onClose={vi.fn()}
+        locationLabel="Preá, Ceará"
+        favorite={favorite}
+      >
+        <p>conteúdo</p>
+      </ListingDetailPage>
+    );
+    expect(await screen.findByText('favoritar')).toBeInTheDocument();
+    expect(favorite).toHaveBeenCalledWith(expect.objectContaining({ get: expect.any(Function) }));
   });
 
   it('etiqueta da categoria e texto das fotos no idioma ativo', async () => {
@@ -114,7 +128,6 @@ describe('ListingDetailPage', () => {
             item={ITEM}
             onClose={onClose}
             locationLabel="Preá, Ceará"
-            favoriteLabel="passeio"
             growsFromCard={growsFromCard}
           >
             <p>conteúdo</p>
@@ -150,12 +163,7 @@ describe('ListingDetailPage', () => {
     it('o X recolhe a foto para o cartão e só então fecha (troca o endereço) uma vez', async () => {
       const onClose = vi.fn();
       render(
-        <ListingDetailPage
-          item={ITEM}
-          onClose={onClose}
-          locationLabel="Preá, Ceará"
-          favoriteLabel="passeio"
-        >
+        <ListingDetailPage item={ITEM} onClose={onClose} locationLabel="Preá, Ceará">
           <p>conteúdo</p>
         </ListingDetailPage>
       );
