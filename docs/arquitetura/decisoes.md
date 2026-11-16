@@ -562,6 +562,14 @@ Aprovada pelo responsável do produto em 2026-11-15, decisão a decisão, nos co
   * **Detalhes de venda até a F3** (opção a): no editor, o bloco Detalhes continua com duração, ponto de encontro, preço da atração, mínimo de horas e passageiros; a F3 os tira do cadastro.
   * "Pausar no guia" continua na página do estabelecimento.
   * O editor antigo (`ListingEditor`) fica só para o admin, até a F4.
+* **Implementação da F2** (2026-11-16, escolhas reversíveis registradas na entrega):
+  * O ✓ ou o que falta fica à direita de cada bloco, como no protótipo; com 3 ou mais campos em aberto, a linha diz quantos ("Faltam 7 itens") e a página do bloco diz quais.
+  * "Excluir anúncio" e "Excluir evento" são uma linha vermelha num cartão próprio, como no protótipo.
+  * O guia do Início acompanha primeiro um estabelecimento em rascunho, mesmo com passos de venda em aberto em outro segmento: é o que a tela aprovada "Rascunho no Início" mostra. Publicado o rascunho, o guia volta aos passos de venda.
+  * Salvar ou excluir fecha só as páginas que pertencem ao que acabou (o editor do evento e as seções; o anúncio excluído e a página do estabelecimento). Sair das páginas do editor de evento descarta o rascunho.
+  * O telefone salvo abre no campo com a mesma máscara da digitação, e o resumo do bloco mostra "+55 (88) 99999-0000".
+  * Os idiomas continuam gravados em português; o resumo do bloco "Sobre" mostra o nome no idioma de quem lê.
+  * As mensagens de salvar e excluir evento passaram a ser traduzidas (antes, texto fixo em português); o erro do servidor aparece pelo código (`EVENT_HAS_SALES`, `CONTACT_IN_TEXT`), nunca pelo texto dele.
 * **Publicação da F1** (2026-11-16, PRs #25, #26 e #27):
   * **Exceção autorizada ao AGENTS.md §2.2 item 8:** o responsável aprovou um script de uma vez só para os anúncios que já existiam em produção. O deploy o rodou como tarefa do Cloud Run, com a conta do servidor, antes das rules e do site novos. Depois disso, o Explorar mostra 43 anúncios. O script e as linhas temporárias foram apagados em seguida (PR #27).
   * Na página do @ do Seja parceiro, o título é "Nome de usuário".
