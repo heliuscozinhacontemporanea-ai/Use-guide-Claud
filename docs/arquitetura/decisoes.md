@@ -570,6 +570,12 @@ Aprovada pelo responsável do produto em 2026-11-15, decisão a decisão, nos co
   * O telefone salvo abre no campo com a mesma máscara da digitação, e o resumo do bloco mostra "+55 (88) 99999-0000".
   * Os idiomas continuam gravados em português; o resumo do bloco "Sobre" mostra o nome no idioma de quem lê.
   * As mensagens de salvar e excluir evento passaram a ser traduzidas (antes, texto fixo em português); o erro do servidor aparece pelo código (`EVENT_HAS_SALES`, `CONTACT_IN_TEXT`), nunca pelo texto dele.
+* **Travas de excluir** (aprovadas em 2026-11-16, respostas "1- a / 2- a / 3- ok / 4- ok", no PR da F2):
+  * **Sessão com vendas ou cortesias:** o parceiro não a exclui pelo editor; o servidor recusa (`SESSION_HAS_SALES`) e a tela troca a lixeira por "Tem vendas ou cortesias: cancele ou adie pela folha da sessão". Cancelar continua só pela folha, que mostra reembolso e multa antes. O admin continua podendo encerrar com reembolso.
+  * **Excluir anúncio:** recusado enquanto houver reserva aguardando pagamento ou confirmada (`LISTING_HAS_BOOKINGS`) ou evento não arquivado ligado ao estabelecimento (`LISTING_HAS_EVENTS`), com a mensagem que manda cancelar os horários ou usar "Pausar no guia". Sem isso, o anúncio sai e as ofertas dele são arquivadas e tiradas da cópia pública; as reservas antigas ficam guardadas.
+  * **Dono primeiro:** a exclusão do anúncio confere dono ou admin antes de mexer no vínculo do dono.
+  * **Mensagens com código:** data de sessão com vendas (`SESSION_DATE_LOCKED`, "use Adiar na folha da sessão") e capacidade abaixo dos ocupados (`CAPACITY_BELOW_SOLD`), nos 3 idiomas.
+  * Achado no teste: alterar uma sessão salva gravava a auditoria com campo vazio, que o Firestore recusa; a alteração ficava gravada, mas a tela recebia erro. Corrigido junto.
 * **Publicação da F1** (2026-11-16, PRs #25, #26 e #27):
   * **Exceção autorizada ao AGENTS.md §2.2 item 8:** o responsável aprovou um script de uma vez só para os anúncios que já existiam em produção. O deploy o rodou como tarefa do Cloud Run, com a conta do servidor, antes das rules e do site novos. Depois disso, o Explorar mostra 43 anúncios. O script e as linhas temporárias foram apagados em seguida (PR #27).
   * Na página do @ do Seja parceiro, o título é "Nome de usuário".
