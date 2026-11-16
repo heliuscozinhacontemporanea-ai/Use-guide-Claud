@@ -555,3 +555,7 @@ Aprovada pelo responsável do produto em 2026-11-15, decisão a decisão, nos co
      * **Translado:** em "Onde fica", só a região é obrigatória; endereço e Google Maps são opcionais.
      * **Anúncio publicado:** salvar algo que deixaria incompleto um passo completo é recusado, com o que falta; o anúncio não sai do guia sozinho. Anúncio já publicado e incompleto continua publicado, e o guia mostra os passos em aberto como "Complete seu anúncio".
   * Hospedagem e restaurante, que não vendem, têm no guia só "Verificar o documento" (selo de verificado) em vez dos passos de venda.
+* **Publicação da F1** (2026-11-16, PRs #25, #26 e #27):
+  * **Exceção autorizada ao AGENTS.md §2.2 item 8:** o responsável aprovou um script de uma vez só para os anúncios que já existiam em produção. O deploy o rodou como tarefa do Cloud Run, com a conta do servidor, antes das rules e do site novos. Depois disso, o Explorar mostra 43 anúncios. O script e as linhas temporárias foram apagados em seguida (PR #27).
+  * Na página do @ do Seja parceiro, o título é "Nome de usuário".
+  * O primeiro deploy falhou no build da imagem, porque o `.dockerignore` deixava o script de fora (PR #26). Por isso, o deploy seguinte não publicou as rules: o passo "Mudanças" comparava com o commit anterior da `main`. Elas subiram por um deploy manual. Desde o PR #27, o passo compara com o último deploy que terminou bem.
