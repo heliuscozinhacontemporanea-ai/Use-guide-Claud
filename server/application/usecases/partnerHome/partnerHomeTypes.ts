@@ -1,4 +1,4 @@
-import type { GuidePublication } from '../../../domain/guide';
+import type { GuidePublication, ListingStep } from '../../../domain/guide';
 import type { PartnerFirstSteps } from './buildFirstSteps';
 import type { PromoCodesSummary } from '../../../domain/promotions';
 /** Leitura do Início do painel do parceiro (D27). Textos ficam no app; aqui só tipo, ids e valores. */
@@ -108,6 +108,8 @@ export interface PartnerHomeView {
     timeZone?: string;
     /** Rascunho fica fora do guia até ser publicado (D34). */
     publication: GuidePublication;
+    /** Passos de "Para aparecer no guia": o editor do anúncio mostra o ✓ ou o que falta (F2). */
+    setupSteps: ListingStep[];
   }>;
   attention: PartnerAttentionItem[];
   /** O que falta para vender (painel por segmento); `null` quando está tudo pronto. */

@@ -39,7 +39,7 @@ export function usePartnerPanelActions(profileData?: PartnerProfile) {
     itemsList: items.itemsList,
     eventsList: items.eventsList,
 
-    handleDelete: items.handleDelete,
+    handleDeleteEvent: items.handleDeleteEvent,
     handleToggleActive: items.handleToggleActive,
     handleImageUpload: items.handleImageUpload,
     handleSaveEvent: items.handleSaveEvent,

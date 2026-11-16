@@ -3,6 +3,7 @@ import { useId, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '../../../../../shared/utils/cn';
 import { ISO_639_1_CODES } from '../../../constants/languageCodes';
+import { storedLanguageName } from '../../../utils/languageNames';
 import { SIGNUP_LABEL } from '../../sections/signupStyles';
 
 // Gravado em português (débito registrado); o nome exibido vem do Intl no idioma ativo.
@@ -40,16 +41,11 @@ export function LanguagesField({
   const [searching, setSearching] = useState(false);
   const [query, setQuery] = useState('');
   const shown = useMemo(() => new Intl.DisplayNames([i18n.language], { type: 'language' }), [i18n]);
-  const stored = useMemo(() => new Intl.DisplayNames(['pt-BR'], { type: 'language' }), []);
   const label = (code: string, fallback: string) => {
     const name = shown.of(code) ?? fallback;
     return name.charAt(0).toLocaleUpperCase(i18n.language) + name.slice(1);
   };
-  // Valor gravado de um idioma da ISO: o nome em português, com inicial maiúscula.
-  const valueOf = (code: string) => {
-    const name = stored.of(code) ?? code;
-    return name.charAt(0).toLocaleUpperCase('pt-BR') + name.slice(1);
-  };
+  const valueOf = storedLanguageName;
   const common = new Set<string>(LANGUAGES.map((language) => language.value));
   const extraCodes = ISO_639_1_CODES.filter(
     (code) => !LANGUAGES.some((language) => language.code === code)

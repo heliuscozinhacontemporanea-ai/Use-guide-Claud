@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { splitE164, toE164 } from '../../shared/utils/phone';
+import { formatNationalNumber, splitE164, toE164 } from '../../shared/utils/phone';
 import { PhoneInputField } from './PhoneInputField';
 
 interface E164PhoneFieldProps {
@@ -11,7 +11,11 @@ interface E164PhoneFieldProps {
 
 /** Campo de telefone com DDI que entrega o valor já em E.164 (AGENTS.md §12.4). */
 export function E164PhoneField({ id, value, onChange }: E164PhoneFieldProps) {
-  const [{ ddi, nationalNumber }, setParts] = useState(() => splitE164(value));
+  // O número salvo abre com a mesma máscara de quando a pessoa digita.
+  const [{ ddi, nationalNumber }, setParts] = useState(() => {
+    const parts = splitE164(value);
+    return { ...parts, nationalNumber: formatNationalNumber(parts.ddi, parts.nationalNumber) };
+  });
 
   const update = (next: { ddi: string; nationalNumber: string }) => {
     setParts(next);

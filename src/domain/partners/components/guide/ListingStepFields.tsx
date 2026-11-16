@@ -1,9 +1,12 @@
 import type { ReactElement } from 'react';
 import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
+import { BR_STATES } from '../../../../shared/utils/timeZones';
+import { E164PhoneField } from '../../../../ui/components/E164PhoneField';
+import { listingSellsThroughApp } from '../../utils/listingSells';
 import type { DeclinedLink } from '../../types/partnerContent';
 import type { FormState } from '../../types/partsForm';
-import { SIGNUP_HINT } from '../sections/signupStyles';
+import { SIGNUP_HINT, SIGNUP_INPUT, SIGNUP_LABEL } from '../sections/signupStyles';
 import { HotelRules } from '../steps/additional/HotelRules';
 import { LanguagesField } from '../steps/additional/LanguagesField';
 import { OperatingHoursField } from '../steps/additional/OperatingHoursField';
@@ -135,7 +138,7 @@ export function WhereFields({ form, setForm, errors, setErrors }: ListingFieldsP
 }
 
 /** Página de detalhes da categoria, sem os detalhes de venda (ficam na oferta, D34). */
-export function DetailsFields(props: ListingFieldsProps) {
+export function DetailsFields(props: ListingFieldsProps & { withSaleDetails?: boolean }) {
   const { t } = useTranslation();
   const { form, setForm, errors, setErrors, declined, setDeclined } = props;
   const Details = DETAILS[form.category];
@@ -149,7 +152,8 @@ export function DetailsFields(props: ListingFieldsProps) {
           setFormData={setForm}
           errors={errors}
           setErrors={setErrors}
-          listingOnly
+          // No editor, os detalhes de venda ficam até a F3 os tirar do cadastro (escolhas da F2).
+          listingOnly={!props.withSaleDetails}
         />
       ) : null}
       {form.category === 'restaurant' ? (
@@ -233,6 +237,93 @@ export function ContactsFields({
           onChange={(checked) => setDeclined('website', checked)}
         />
       </div>
+    </div>
+  );
+}
+
+/** Bloco só do editor (F2): nome, estado e cidade; a categoria aparece, mas não muda. */
+export function NameFields({ form, setForm, errors }: ListingFieldsProps) {
+  const { t } = useTranslation();
+  const stateId = useId();
+  const producer = form.category === 'producer';
+  return (
+    <div className="space-y-6">
+      <TextField
+        id="guide-name"
+        label={producer ? t('partnerGuide.join.nameProducer') : t('partnerGuide.join.name')}
+        maxLength={200}
+        value={form.businessName}
+        onChange={(value) => setForm((prev) => ({ ...prev, businessName: value }))}
+        error={errors.businessName}
+      />
+      {producer ? null : (
+        <div>
+          <span className={SIGNUP_LABEL}>{t('partnerSignup.step1.question')}</span>
+          <p className="min-h-12 px-4 flex items-center rounded-xl border border-line bg-surface text-[15px] text-ink/70">
+            {t(`partnerSignup.categories.${form.category}`)}
+          </p>
+          <p className={SIGNUP_HINT}>{t('partnerSignup.step1.lockedCategory')}</p>
+        </div>
+      )}
+      <fieldset>
+        <legend className={SIGNUP_LABEL}>{t('partnerGuide.join.place')}</legend>
+        <div className="grid grid-cols-[88px_1fr] gap-2">
+          <select
+            id={stateId}
+            value={form.state ?? ''}
+            aria-label={t('partnerGuide.join.state')}
+            onChange={(event) => setForm((prev) => ({ ...prev, state: event.target.value }))}
+            className={SIGNUP_INPUT}
+          >
+            {BR_STATES.map((state) => (
+              <option key={state} value={state}>
+                {state}
+              </option>
+            ))}
+          </select>
+          <input
+            value={form.city ?? ''}
+            maxLength={100}
+            aria-label={t('partnerGuide.join.city')}
+            placeholder={t('partnerGuide.join.city')}
+            onChange={(event) => setForm((prev) => ({ ...prev, city: event.target.value }))}
+            className={SIGNUP_INPUT}
+          />
+        </div>
+        <p className={SIGNUP_HINT}>{t('partnerGuide.join.placeHint')}</p>
+      </fieldset>
+    </div>
+  );
+}
+
+/** Bloco só do editor (F2): o WhatsApp do negócio, com o mesmo campo do Seja parceiro. */
+export function PhoneFields({
+  category,
+  access,
+  phone,
+  onChange,
+  error,
+}: {
+  category: string;
+  access?: string;
+  phone: string | undefined;
+  onChange: (phone: string | undefined) => void;
+  error?: string;
+}) {
+  const { t } = useTranslation();
+  const id = useId();
+  return (
+    <div>
+      <label htmlFor={id} className={SIGNUP_LABEL}>
+        {t('partnerGuide.join.phone')}
+      </label>
+      <E164PhoneField id={id} value={phone} onChange={onChange} />
+      <p className={SIGNUP_HINT}>
+        {listingSellsThroughApp(category, access)
+          ? t('partnerGuide.join.phoneHintSells')
+          : t('partnerGuide.join.phoneHintShowcase')}
+      </p>
+      {error ? <p className="mt-1.5 px-1 text-[13px] text-danger">{error}</p> : null}
     </div>
   );
 }

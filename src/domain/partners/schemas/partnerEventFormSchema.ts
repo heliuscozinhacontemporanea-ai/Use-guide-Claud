@@ -3,18 +3,19 @@ import { z } from 'zod';
 export const eventEntryTypeSchema = z.enum(['pago', 'gratuito']);
 export type EventEntryType = z.infer<typeof eventEntryTypeSchema>;
 
+// Mensagens são chaves de tradução: a tela mostra `t(issue.message)` (AGENTS.md §12.5).
 export const partnerEventFormSchema = z
   .object({
-    name: z.string().trim().min(1, 'O nome do evento é obrigatório.').max(100),
+    name: z.string().trim().min(1, 'partnerCatalog.actions.required.name').max(100),
     description: z.string().max(400).optional(),
-    eventCategory: z.string().trim().min(1, 'A categoria do evento é obrigatória.'),
+    eventCategory: z.string().trim().min(1, 'partnerCatalog.actions.required.category'),
     customCategory: z.string().optional(),
     establishmentId: z.string().optional(),
-    date: z.string().trim().min(1, 'A data e hora de início são obrigatórias.'),
-    endDate: z.string().trim().min(1, 'A data e hora de término são obrigatórias.'),
-    location: z.string().trim().min(1, 'A região é obrigatória.'),
-    googleMapsLink: z.string().trim().min(1, 'O link do Google Maps (Local) é obrigatório.'),
-    images: z.array(z.string()).min(1, 'Ao menos uma imagem é obrigatória.'),
+    date: z.string().trim().min(1, 'partnerCatalog.actions.required.sessions'),
+    endDate: z.string().trim().min(1, 'partnerCatalog.actions.required.sessions'),
+    location: z.string().trim().min(1, 'partnerCatalog.actions.required.region'),
+    googleMapsLink: z.string().trim().min(1, 'partnerCatalog.actions.required.maps'),
+    images: z.array(z.string()).min(1, 'partnerCatalog.actions.required.photo'),
     image: z.string().optional(),
     entryType: eventEntryTypeSchema.default('gratuito'),
     phone: z.string().optional(),
@@ -27,7 +28,7 @@ export const partnerEventFormSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['customCategory'],
-        message: 'Por favor, especifique a categoria do evento.',
+        message: 'partnerCatalog.actions.required.customCategory',
       });
     }
   });

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useUI } from '../../../../shared/stores/useUIStore';
 import { StatusText } from '../../../../ui/components/StatusText';
 import { mapItemToFormData } from '../../application/mappers/partnerFormMapper';
+import { getPartnerItemContactUseCase } from '../../application/usecases/getPartnerItemContactUseCase';
 import { updatePartnerContentItemUseCase } from '../../application/usecases/updatePartnerContentItemUseCase';
 import { ListingIncompleteError } from '../../errors/listingIncompleteError';
 import type { DeclinedLink, PartnerContentRecord } from '../../types/partnerContent';
@@ -12,7 +13,14 @@ import { type ListingStepEdit, listingStepUpdate } from '../../utils/listingStep
 import { NoneOfTheseContext } from '../steps/details/noneOfThese';
 import { useListingStepLabels } from './listingStepLabels';
 import { ListingPhotosField } from './ListingPhotosField';
-import { AboutFields, ContactsFields, DetailsFields, WhereFields } from './ListingStepFields';
+import {
+  AboutFields,
+  ContactsFields,
+  DetailsFields,
+  NameFields,
+  PhoneFields,
+  WhereFields,
+} from './ListingStepFields';
 
 const NONE_LISTS = ['amenities', 'mealTypes', 'additionalServices', 'services', 'activities'];
 
@@ -32,6 +40,7 @@ export function ListingStepPage({
   steps,
   registerSave,
   onSaved,
+  mode = 'guide',
 }: {
   item: PartnerContentRecord;
   step: ListingStepEdit;
@@ -39,6 +48,8 @@ export function ListingStepPage({
   /** A página entrega à barra a ação de salvar (null ao sair). */
   registerSave: (save: (() => void) | null) => void;
   onSaved: () => void;
+  /** Pelo editor do anúncio (F2): sem "Passo X de N" e com os detalhes de venda até a F3. */
+  mode?: 'guide' | 'editor';
 }) {
   const { t } = useTranslation();
   const { showToast } = useUI();
@@ -50,15 +61,43 @@ export function ListingStepPage({
   const [declined, setDeclined] = useState(() => new Set<DeclinedLink>(item.declinedLinks ?? []));
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [phone, setPhone] = useState<string | undefined>(undefined);
+  const [phoneReady, setPhoneReady] = useState(step !== 'phone');
+
+  // O telefone de quem vende pelo app fica só no servidor (C2): a página lê pelo contato do dono.
+  // O campo só aparece depois, porque lê o valor ao montar.
+  useEffect(() => {
+    if (step !== 'phone') return;
+    let active = true;
+    void getPartnerItemContactUseCase(item.id)
+      .then(({ phone: current }) => {
+        if (active && current) setPhone(current);
+      })
+      .catch(() => undefined)
+      .finally(() => {
+        if (active) setPhoneReady(true);
+      });
+    return () => {
+      active = false;
+    };
+  }, [step, item.id]);
 
   const save = async () => {
-    if (saving) return;
+    if (saving || !phoneReady) return;
+    if (step === 'phone' && !phone) {
+      setMessage(t('partnerGuide.editor.phoneInvalid'));
+      return;
+    }
+    if (step === 'name' && !form.businessName.trim()) {
+      setMessage(t('partnerGuide.join.errors.name'));
+      return;
+    }
     setSaving(true);
     setMessage(null);
     try {
       await updatePartnerContentItemUseCase(
         item.id,
-        listingStepUpdate(step, item, form, { images, none, declined })
+        listingStepUpdate(step, item, form, { images, none, declined, phone })
       );
       showToast(t('partnerGuide.page.saved'), 'success');
       onSaved();
@@ -117,10 +156,21 @@ export function ListingStepPage({
       }}
     >
       <div className="space-y-6 pb-8">
+        {step === 'name' ? <NameFields {...fields} /> : null}
+        {step === 'phone' && phoneReady ? (
+          <PhoneFields
+            category={item.category}
+            access={item.operationalInfo?.access}
+            phone={phone}
+            onChange={setPhone}
+          />
+        ) : null}
         {step === 'photos' ? <ListingPhotosField images={images} onChange={setImages} /> : null}
         {step === 'about' ? <AboutFields {...fields} /> : null}
         {step === 'where' ? <WhereFields {...fields} /> : null}
-        {step === 'details' ? <DetailsFields {...fields} /> : null}
+        {step === 'details' ? (
+          <DetailsFields {...fields} withSaleDetails={mode === 'editor'} />
+        ) : null}
         {step === 'contacts' ? <ContactsFields {...fields} /> : null}
         {missing.length > 0 ? (
           <p className="px-1 text-[13px] text-ink/70">
@@ -137,7 +187,7 @@ export function ListingStepPage({
             {t('partnerGuide.page.saving')}
           </p>
         ) : null}
-        {position >= 0 ? (
+        {mode === 'guide' && position >= 0 ? (
           <div className="flex flex-wrap justify-between gap-x-4 gap-y-1 px-1 text-[13px] text-ink/60">
             <span className="tabular-nums">
               {t('partnerGuide.page.progress', { current: position + 1, total: order.length })}

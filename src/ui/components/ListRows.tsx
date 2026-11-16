@@ -1,5 +1,6 @@
 import { ChevronRight } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { cn } from '../../shared/utils/cn';
 import { StatusText, type StatusTone } from './StatusText';
 
 /** Cartão de lista com divisórias (p09, p19): cada linha é um `ListRowButton`. */
@@ -46,6 +47,32 @@ export function ListRowButton({
         </span>
         {aside}
         <ChevronRight size={18} className="text-ink/50 shrink-0" aria-hidden="true" />
+      </button>
+    </li>
+  );
+}
+
+/** Linha de ação, sem seta (ex.: "Excluir anúncio", em vermelho, num cartão só dela). */
+export function ListRowAction({
+  label,
+  tone = 'default',
+  onClick,
+}: {
+  label: string;
+  tone?: 'default' | 'danger';
+  onClick: () => void;
+}) {
+  return (
+    <li>
+      <button
+        type="button"
+        onClick={onClick}
+        className={cn(
+          'press w-full px-4 py-3.5 min-h-14 flex items-center text-left text-[15px] font-semibold focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-400/50',
+          tone === 'danger' ? 'text-danger' : 'text-ink'
+        )}
+      >
+        {label}
       </button>
     </li>
   );

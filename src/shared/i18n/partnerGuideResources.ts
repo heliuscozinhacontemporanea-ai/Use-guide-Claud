@@ -36,6 +36,33 @@ export interface PartnerGuideTranslation {
     resendIn: string;
     errors: { name: string; city: string; phone: string; terms: string; failed: string };
   };
+  editor: {
+    title: string;
+    published: string;
+    draft: string;
+    paused: string;
+    name: string;
+    phone: string;
+    delete: string;
+    deleteTitle: string;
+    deleteMessage: string;
+    deleted: string;
+    deleteFailed: string;
+    photos_one: string;
+    photos_other: string;
+    noPhotos: string;
+    empty: string;
+    sellsNote: string;
+    newTitle: string;
+    createDraft: string;
+    creatingDraft: string;
+    draftCreated: string;
+    newLater: string;
+    phoneInvalid: string;
+    done: string;
+    missingCount_one: string;
+    missingCount_other: string;
+  };
   card: {
     listing: string;
     complete: string;
@@ -183,6 +210,34 @@ export const partnerGuidePtBR: PartnerGuideTranslation = {
       terms: 'Para continuar, aceite os Termos do parceiro.',
       failed: 'Não foi possível criar o painel agora. Tente de novo.',
     },
+  },
+  editor: {
+    title: 'Editar anúncio',
+    published: 'Publicado no guia',
+    draft: 'Rascunho: ainda fora do guia',
+    paused: 'Pausado no guia',
+    name: 'Nome e cidade',
+    phone: 'WhatsApp do negócio',
+    delete: 'Excluir anúncio',
+    deleteTitle: 'Excluir "{{name}}"?',
+    deleteMessage: 'O anúncio sai do guia e do painel. Isso não pode ser desfeito.',
+    deleted: 'Anúncio excluído',
+    deleteFailed: 'Não foi possível excluir agora. Tente de novo.',
+    photos_one: '{{count}} foto',
+    photos_other: '{{count}} fotos',
+    noPhotos: 'Sem fotos',
+    empty: 'Ainda não preenchido',
+    sellsNote:
+      'Quem vende pelo app não mostra Instagram nem site no anúncio: o contato é pelo app.',
+    newTitle: 'Novo estabelecimento',
+    createDraft: 'Criar rascunho',
+    creatingDraft: 'Criando o rascunho…',
+    draftCreated: 'Rascunho criado: siga o guia no Início',
+    newLater: 'Fotos, detalhes e preços você completa no guia do Início.',
+    phoneInvalid: 'Escreva um telefone válido, com DDD.',
+    done: 'Completo',
+    missingCount_one: 'Falta {{count}} item',
+    missingCount_other: 'Faltam {{count}} itens',
   },
   card: {
     listing: 'Seu anúncio',

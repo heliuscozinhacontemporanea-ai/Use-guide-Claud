@@ -172,4 +172,27 @@ export const partnerCatalogFr: PartnerCatalogTranslation = {
     accountTitle: 'Versé sur le compte de',
     accountHint: "Pour changer, modifiez l'établissement ou allez dans Gains › Comptes.",
   },
+  actions: {
+    saved: 'Événement enregistré',
+    saveFailed: 'Impossible d’enregistrer l’événement pour le moment. Réessayez.',
+    deleted: 'Événement supprimé',
+    deleteFailed: 'Impossible de supprimer l’événement pour le moment. Réessayez.',
+    hasSales:
+      'Cet événement a déjà des ventes et ne peut pas être supprimé : annulez les séances depuis la fiche de chacune.',
+    paused: 'En pause dans le guide',
+    resumed: 'Publié dans le guide',
+    toggleFailed: 'Impossible de modifier pour le moment. Réessayez.',
+    sessionsLoading: 'Attendez le chargement des séances de l’événement pour enregistrer.',
+    establishmentRequired: 'Choisissez l’établissement ou le profil producteur de l’événement.',
+    required: {
+      generic: 'Remplissez les champs obligatoires.',
+      name: 'Indiquez le nom de l’événement.',
+      category: 'Choisissez la catégorie de l’événement.',
+      customCategory: 'Précisez la catégorie de l’événement.',
+      sessions: 'Indiquez le début et la fin de chaque séance.',
+      region: 'Choisissez la zone de l’événement.',
+      maps: 'Collez le lien Google Maps du lieu.',
+      photo: 'Ajoutez au moins une photo.',
+    },
+  },
 };

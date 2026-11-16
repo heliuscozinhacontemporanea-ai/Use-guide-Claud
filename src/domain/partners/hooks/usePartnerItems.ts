@@ -44,11 +44,9 @@ export function usePartnerItems({
       setIsUploading,
     });
 
-  const { handleDelete, handleToggleActive, handleSaveEvent } = usePartnerContentActions({
+  const { handleDeleteEvent, handleToggleActive, handleSaveEvent } = usePartnerContentActions({
     user,
-    activeTab,
     isEditing,
-    setIsEditing,
     setShowDeleteConfirm,
     setIsLoading,
   });
@@ -62,7 +60,7 @@ export function usePartnerItems({
     currentList,
     catalogError,
     isUploading,
-    handleDelete,
+    handleDeleteEvent,
     handleToggleActive,
     handleImageUpload,
     handleRemoveImage,

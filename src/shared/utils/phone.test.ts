@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { splitE164, toE164, whatsAppUrl } from './phone';
+import {
+  formatNationalNumber,
+  formatPhoneForDisplay,
+  splitE164,
+  toE164,
+  whatsAppUrl,
+} from './phone';
 
 describe('telefone em E.164', () => {
   it('monta E.164 a partir do DDI e do número com máscara', () => {
@@ -22,5 +28,20 @@ describe('telefone em E.164', () => {
     );
     expect(whatsAppUrl('(88) 99999-9999')).toBeNull();
     expect(whatsAppUrl(undefined)).toBeNull();
+  });
+
+  it('exibe o telefone com DDI e, no Brasil, com a máscara do número', () => {
+    expect(formatPhoneForDisplay('+5588999990000')).toBe('+55 (88) 99999-0000');
+    expect(formatPhoneForDisplay('+558833334444')).toBe('+55 (88) 3333-4444');
+    expect(formatPhoneForDisplay('+351912345678')).toBe('+351 912345678');
+    expect(formatPhoneForDisplay(undefined)).toBe('');
+    expect(formatPhoneForDisplay('88999990000')).toBe('');
+  });
+
+  it('o número salvo abre no campo com a mesma máscara da digitação', () => {
+    expect(formatNationalNumber('+55', '88999990000')).toBe('(88) 99999-0000');
+    expect(formatNationalNumber('+55', '8833334444')).toBe('(88) 3333-4444');
+    expect(formatNationalNumber('+55', '889')).toBe('889');
+    expect(formatNationalNumber('+351', '912345678')).toBe('912345678');
   });
 });

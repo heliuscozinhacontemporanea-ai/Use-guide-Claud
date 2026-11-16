@@ -32,6 +32,11 @@ export function PartnerBusinessPage({
   onOpenTerms,
   submitting,
   error,
+  requireTerms = true,
+  categories,
+  submitLabel,
+  submittingLabel,
+  laterText,
 }: {
   draft: PartnerJoinDraft;
   onChange: (draft: PartnerJoinDraft) => void;
@@ -39,6 +44,13 @@ export function PartnerBusinessPage({
   onOpenTerms: () => void;
   submitting: boolean;
   error: string | null;
+  /** Novo estabelecimento pelo painel (F2): os Termos já foram aceitos no Seja parceiro. */
+  requireTerms?: boolean;
+  /** Categorias que podem ser escolhidas (padrão: todas). */
+  categories?: string[];
+  submitLabel?: string;
+  submittingLabel?: string;
+  laterText?: string;
 }) {
   const { t } = useTranslation();
   const ids = { name: useId(), state: useId(), city: useId(), phone: useId(), terms: useId() };
@@ -47,10 +59,10 @@ export function PartnerBusinessPage({
   const sells = listingSellsThroughApp(draft.category);
   const set = (patch: Partial<PartnerJoinDraft>) => onChange({ ...draft, ...patch });
   const errorOf = (field: PartnerJoinField) =>
-    shown.includes(field) && partnerJoinErrors(draft).includes(field);
+    shown.includes(field) && partnerJoinErrors(draft, { requireTerms }).includes(field);
 
   const submit = () => {
-    const errors = partnerJoinErrors(draft);
+    const errors = partnerJoinErrors(draft, { requireTerms });
     setShown(errors);
     if (errors.length === 0) onSubmit();
   };
@@ -60,7 +72,9 @@ export function PartnerBusinessPage({
       <fieldset>
         <legend className={SIGNUP_LABEL}>{t('partnerGuide.join.offer')}</legend>
         <div className="grid grid-cols-2 gap-2">
-          {LISTING_CATEGORIES.map((category) => {
+          {LISTING_CATEGORIES.filter(
+            (category) => !categories || categories.includes(category.id)
+          ).map((category) => {
             const on = draft.category === category.id;
             return (
               <button
@@ -159,34 +173,38 @@ export function PartnerBusinessPage({
         ) : null}
       </div>
 
-      <div>
-        <div className="flex items-start gap-3 px-1">
-          <input
-            id={ids.terms}
-            type="checkbox"
-            checked={draft.terms}
-            onChange={(event) => set({ terms: event.target.checked })}
-            aria-invalid={errorOf('terms') || undefined}
-            className="mt-0.5 w-5 h-5 shrink-0 accent-[var(--color-partner-fill)]"
-          />
-          <span className="text-[15px] text-ink/85">
-            <label htmlFor={ids.terms}>{t('partnerGuide.join.termsBefore')}</label>{' '}
-            <button
-              type="button"
-              onClick={onOpenTerms}
-              className="press underline underline-offset-2 text-partner font-medium focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none"
-            >
-              {t('partnerGuide.join.termsLink')}
-            </button>
-          </span>
+      {requireTerms ? (
+        <div>
+          <div className="flex items-start gap-3 px-1">
+            <input
+              id={ids.terms}
+              type="checkbox"
+              checked={draft.terms}
+              onChange={(event) => set({ terms: event.target.checked })}
+              aria-invalid={errorOf('terms') || undefined}
+              className="mt-0.5 w-5 h-5 shrink-0 accent-[var(--color-partner-fill)]"
+            />
+            <span className="text-[15px] text-ink/85">
+              <label htmlFor={ids.terms}>{t('partnerGuide.join.termsBefore')}</label>{' '}
+              <button
+                type="button"
+                onClick={onOpenTerms}
+                className="press underline underline-offset-2 text-partner font-medium focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none"
+              >
+                {t('partnerGuide.join.termsLink')}
+              </button>
+            </span>
+          </div>
+          {errorOf('terms') ? (
+            <p className={SIGNUP_ERROR}>{t('partnerGuide.join.errors.terms')}</p>
+          ) : null}
         </div>
-        {errorOf('terms') ? (
-          <p className={SIGNUP_ERROR}>{t('partnerGuide.join.errors.terms')}</p>
-        ) : null}
-      </div>
+      ) : null}
 
       <div className="space-y-3 pt-2">
-        <p className="text-center text-[13px] text-ink/70">{t('partnerGuide.join.later')}</p>
+        <p className="text-center text-[13px] text-ink/70">
+          {laterText ?? t('partnerGuide.join.later')}
+        </p>
         {error ? (
           <p role="alert">
             <StatusText tone="danger">{error}</StatusText>
@@ -198,7 +216,9 @@ export function PartnerBusinessPage({
           onClick={submit}
           className="press w-full min-h-[52px] rounded-2xl bg-partner-fill text-on-fill text-[16px] font-semibold disabled:opacity-60 focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none"
         >
-          {submitting ? t('partnerGuide.join.creating') : t('partnerGuide.join.create')}
+          {submitting
+            ? (submittingLabel ?? t('partnerGuide.join.creating'))
+            : (submitLabel ?? t('partnerGuide.join.create'))}
         </button>
       </div>
     </div>

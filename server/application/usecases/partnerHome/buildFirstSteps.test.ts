@@ -111,6 +111,25 @@ describe('buildFirstSteps', () => {
     expect(withRental?.steps.map((step) => step.done)).toEqual([true, true, false, false]);
   });
 
+  it('estabelecimento novo (rascunho) passa à frente dos passos de venda de outro segmento', () => {
+    const result = buildFirstSteps({
+      ...base,
+      establishments: [
+        establishment('buggy', 'tour'),
+        establishment('pousada', 'hotel', 'draft', OPEN),
+      ],
+    });
+    expect(result).toMatchObject({ segment: 'lodging', title: 'complete' });
+    expect(result?.listing).toMatchObject({ itemId: 'pousada', publication: 'draft' });
+
+    // Publicado o rascunho, o guia volta aos passos de venda do passeio.
+    const published = buildFirstSteps({
+      ...base,
+      establishments: [establishment('buggy', 'tour'), establishment('pousada', 'hotel')],
+    });
+    expect(published?.segment).toBe('tours');
+  });
+
   it('restaurante: só verificar, com o anúncio junto', () => {
     const result = buildFirstSteps({
       ...base,
