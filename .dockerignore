@@ -4,3 +4,5 @@
 !package-lock.json
 !dist
 !scripts/ops/keepServerDependencies.mjs
+# Uma vez só (D34, F1): o script que o deploy roda como tarefa do Cloud Run; sai no deploy seguinte.
+!scripts/ops/backfillListingPublication.cjs
