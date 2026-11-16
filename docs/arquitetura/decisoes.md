@@ -555,6 +555,13 @@ Aprovada pelo responsável do produto em 2026-11-15, decisão a decisão, nos co
      * **Translado:** em "Onde fica", só a região é obrigatória; endereço e Google Maps são opcionais.
      * **Anúncio publicado:** salvar algo que deixaria incompleto um passo completo é recusado, com o que falta; o anúncio não sai do guia sozinho. Anúncio já publicado e incompleto continua publicado, e o guia mostra os passos em aberto como "Complete seu anúncio".
   * Hospedagem e restaurante, que não vendem, têm no guia só "Verificar o documento" (selo de verificado) em vez dos passos de venda.
+* **Escolhas da F2** (aprovadas em 2026-11-16, sobre os prints e o protótipo https://claude.ai/artifact/AAX2BNsCtANuyi45EJLL1q):
+  * O lápis do estabelecimento abre "Editar anúncio", uma página empilhada com a lista de blocos (resumo e ✓ ou o que falta, pela regra do guia). Os blocos são as páginas do guia da F1, com "Salvar" na barra e sem "Passo X de N"; só o editor tem Nome (a categoria não muda), WhatsApp do negócio e Excluir anúncio.
+  * Novo estabelecimento pelo Catálogo usa "Seu negócio" sem os Termos e nasce como rascunho, com o guia no Início.
+  * O editor de evento vira página empilhada do painel, com "Salvar" na barra (item 4 da D33); os campos não mudam.
+  * **Detalhes de venda até a F3** (opção a): no editor, o bloco Detalhes continua com duração, ponto de encontro, preço da atração, mínimo de horas e passageiros; a F3 os tira do cadastro.
+  * "Pausar no guia" continua na página do estabelecimento.
+  * O editor antigo (`ListingEditor`) fica só para o admin, até a F4.
 * **Publicação da F1** (2026-11-16, PRs #25, #26 e #27):
   * **Exceção autorizada ao AGENTS.md §2.2 item 8:** o responsável aprovou um script de uma vez só para os anúncios que já existiam em produção. O deploy o rodou como tarefa do Cloud Run, com a conta do servidor, antes das rules e do site novos. Depois disso, o Explorar mostra 43 anúncios. O script e as linhas temporárias foram apagados em seguida (PR #27).
   * Na página do @ do Seja parceiro, o título é "Nome de usuário".
