@@ -11,7 +11,7 @@ import { updateEventOccurrenceSafelyApplicationUseCase } from '../../../applicat
 import { updatePartnerEventApplicationUseCase } from '../../../application/usecases/updatePartnerEventApplicationUseCase';
 import { updatePartnerItemApplicationUseCase } from '../../../application/usecases/updatePartnerItemApplicationUseCase';
 import type { AuthenticatedRequest } from '../../../infrastructure/auth/authMiddleware';
-import { createEventOccurrenceUseCase, EventHasSalesError } from '../../events';
+import { createEventOccurrenceUseCase, EventDomainError } from '../../events';
 import { getOwnGuideItemContactUseCase } from '../../guide';
 import {
   getEventSalesAnalyticsUseCase,
@@ -41,6 +41,12 @@ function getErrorCode(error: unknown): string | undefined {
     return typeof code === 'string' ? code : undefined;
   }
   return undefined;
+}
+
+function getErrorReason(error: unknown): string | undefined {
+  if (!(error instanceof EventDomainError)) return undefined;
+  const reason = (error as { reason?: unknown }).reason;
+  return typeof reason === 'string' ? reason : undefined;
 }
 
 function sendControllerError(res: Response, error: unknown, fallbackMessage: string): Response {
@@ -78,8 +84,16 @@ function sendControllerError(res: Response, error: unknown, fallbackMessage: str
       },
     });
   }
-  if (error instanceof EventHasSalesError) {
-    return res.status(409).json({ error: { code: error.reason, message: error.message } });
+  // Travas com código próprio (D27, D34): a tela traduz pelo código (AGENTS.md §10.2, §12.5).
+  const reason = getErrorReason(error);
+  if (reason) {
+    const status = code === 'CONFLICT' ? 409 : 422;
+    return res.status(status).json({ error: { code: reason, message: (error as Error).message } });
+  }
+  if (code === 'LISTING_HAS_BOOKINGS' || code === 'LISTING_HAS_EVENTS') {
+    return res.status(409).json({
+      error: { code, message: error instanceof Error ? error.message : 'Anúncio em uso' },
+    });
   }
   if (code === 'UNPROCESSABLE_ENTITY') {
     return res.status(422).json({

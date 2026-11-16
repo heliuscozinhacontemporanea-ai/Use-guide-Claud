@@ -67,6 +67,10 @@ export const partnerGuideFr: PartnerGuideTranslation = {
     deleteMessage: 'L’annonce quitte le guide et le tableau de bord. C’est définitif.',
     deleted: 'Annonce supprimée',
     deleteFailed: 'Impossible de supprimer pour le moment. Réessayez.',
+    hasBookings:
+      'Cette annonce a des réservations actives et ne peut pas être supprimée. Annulez les créneaux dans l’agenda (avec remboursement et pénalité) ou utilisez Mettre en pause dans le guide.',
+    hasEvents:
+      'Cette annonce a des événements liés et ne peut pas être supprimée. Supprimez ou modifiez les événements, ou utilisez Mettre en pause dans le guide.',
     photos_one: '{{count}} photo',
     photos_other: '{{count}} photos',
     noPhotos: 'Aucune photo',

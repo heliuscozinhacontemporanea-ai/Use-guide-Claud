@@ -137,9 +137,17 @@ export function ListingEditorPage({
       setConfirm(false);
       showToast(t('partnerGuide.editor.deleted'), 'success');
       onDeleted();
-    } catch {
+    } catch (failure) {
       setConfirm(false);
-      setError(t('partnerGuide.editor.deleteFailed'));
+      // Reserva ativa ou evento ligado prende o anúncio (D34, F2): a tela diz o que fazer.
+      const code = failure instanceof Error ? failure.message : '';
+      setError(
+        code === 'LISTING_HAS_BOOKINGS'
+          ? t('partnerGuide.editor.hasBookings')
+          : code === 'LISTING_HAS_EVENTS'
+            ? t('partnerGuide.editor.hasEvents')
+            : t('partnerGuide.editor.deleteFailed')
+      );
     }
   };
 

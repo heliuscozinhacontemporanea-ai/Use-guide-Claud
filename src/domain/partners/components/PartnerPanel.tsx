@@ -258,6 +258,7 @@ export function PartnerPanel({
           businesses={partnerProfile?.businesses}
           establishments={itemsList}
           sessionsLoadState={eventEditor.sessionsLoadState}
+          lockedSessionIds={eventEditor.lockedSessionIds}
           renderSessionsField={renderEventSessionsField}
           renderEventTicketingManager={renderEventTicketingManager}
           renderAccountCard={renderEventAccountCard}

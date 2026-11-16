@@ -26,6 +26,10 @@ export interface BookingsPort {
   getOffer(offerId: string): Promise<BookableOffer | null>;
   listOffersByOwner(ownerId: string): Promise<BookableOffer[]>;
   listPublishedOffersByGuideItem(guideItemId: string): Promise<BookableOffer[]>;
+  /** Todas as ofertas do item do guia, em qualquer situação (exclusão do anúncio). */
+  listOffersByGuideItem(guideItemId: string): Promise<BookableOffer[]>;
+  /** Se a oferta tem reserva aguardando pagamento ou confirmada. */
+  hasActiveBookings(offerId: string): Promise<boolean>;
   upsertPublicOfferProjection(offer: PublicBookableOffer): Promise<void>;
   deletePublicOfferProjection(offerId: string): Promise<void>;
 

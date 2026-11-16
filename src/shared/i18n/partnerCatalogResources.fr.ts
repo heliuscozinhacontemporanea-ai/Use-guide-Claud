@@ -179,6 +179,12 @@ export const partnerCatalogFr: PartnerCatalogTranslation = {
     deleteFailed: 'Impossible de supprimer l’événement pour le moment. Réessayez.',
     hasSales:
       'Cet événement a déjà des ventes et ne peut pas être supprimé : annulez les séances depuis la fiche de chacune.',
+    sessionHasSales:
+      'Une séance retirée a des ventes ou des invitations et n’a pas été supprimée. Pour l’annuler, utilisez la fiche de la séance, sur la page de l’événement.',
+    sessionDateLocked:
+      'La date d’une séance avec des ventes ne se modifie pas ici. Utilisez Reporter sur la fiche de la séance : les acheteurs sont prévenus.',
+    capacityBelowSold:
+      'La capacité d’une séance est inférieure aux billets vendus, réservés ou offerts.',
     paused: 'En pause dans le guide',
     resumed: 'Publié dans le guide',
     toggleFailed: 'Impossible de modifier pour le moment. Réessayez.',

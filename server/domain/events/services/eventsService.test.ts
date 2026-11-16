@@ -16,6 +16,7 @@ function createMockPort(): EventsPort {
     updateRatingSummary: vi.fn(),
     updateVerificationByEstablishment: vi.fn(),
     updatePlaceByEstablishment: vi.fn(),
+    countOpenListingsByEstablishment: vi.fn(),
     deleteListingsByOwner: vi.fn(),
     createOccurrence: vi.fn(),
     getOccurrenceById: vi.fn(),
@@ -186,6 +187,30 @@ describe('EventsService', () => {
       )
     ).rejects.toMatchObject({
       code: 'UNPROCESSABLE_ENTITY',
+      reason: 'CAPACITY_BELOW_SOLD',
+    });
+  });
+
+  it('sessão com vendas não muda de data pela edição: o código manda adiar (D27)', async () => {
+    vi.mocked(port.getOccurrenceById).mockResolvedValue(sampleOccurrence);
+    vi.mocked(port.getListingById).mockResolvedValue(sampleListing);
+
+    await expect(
+      occurrences.updateOccurrence(
+        { uid: 'partner-1', admin: false },
+        'occ-1',
+        { startsAt: '2030-01-01T20:00:00.000Z', endsAt: '2030-01-01T23:00:00.000Z' },
+        5
+      )
+    ).rejects.toMatchObject({ code: 'UNPROCESSABLE_ENTITY', reason: 'SESSION_DATE_LOCKED' });
+    expect(port.updateOccurrence).not.toHaveBeenCalled();
+  });
+
+  it('conta só os eventos não arquivados do estabelecimento', async () => {
+    vi.mocked(port.countOpenListingsByEstablishment).mockResolvedValue(2);
+    await expect(service.countOpenEstablishmentEvents('item-1')).resolves.toBe(2);
+    await expect(service.countOpenEstablishmentEvents(' ')).rejects.toMatchObject({
+      code: 'INVALID_ARGUMENT',
     });
   });
 

@@ -176,6 +176,12 @@ export const partnerCatalogEn: PartnerCatalogTranslation = {
     deleteFailed: 'Couldn’t delete the event right now. Try again.',
     hasSales:
       'This event already has sales and can’t be deleted: cancel the sessions from each session’s sheet.',
+    sessionHasSales:
+      'A removed session has sales or courtesy tickets and was not deleted. To cancel it, use the session sheet on the event page.',
+    sessionDateLocked:
+      'The date of a session with sales can’t be changed here. Use Postpone on the session sheet: buyers are notified.',
+    capacityBelowSold:
+      'A session’s capacity is below the tickets sold, reserved or given as courtesy.',
     paused: 'Paused in the guide',
     resumed: 'Published in the guide',
     toggleFailed: 'Couldn’t change it right now. Try again.',

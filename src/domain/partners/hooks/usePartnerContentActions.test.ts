@@ -119,6 +119,24 @@ describe('usePartnerContentActions', () => {
     );
   });
 
+  it('sessão vendida removida ou com data mudada: a mensagem diz o que fazer', async () => {
+    m.update.mockResolvedValue(undefined);
+    const { result } = setup();
+    for (const [code, text] of [
+      ['SESSION_HAS_SALES', /não foi excluída/],
+      ['SESSION_DATE_LOCKED', /Use Adiar na folha da sessão/],
+      ['CAPACITY_BELOW_SOLD', /abaixo dos ingressos vendidos/],
+    ] as const) {
+      m.sessions.mockRejectedValueOnce(new Error(code));
+      let saved = true;
+      await act(async () => {
+        saved = await result.current.handleSaveEvent(loaded);
+      });
+      expect(saved).toBe(false);
+      expect(m.toast).toHaveBeenLastCalledWith(expect.stringMatching(text), 'error');
+    }
+  });
+
   it('excluir: evento com vendas é recusado com a explicação; sem vendas, devolve verdadeiro', async () => {
     m.remove.mockRejectedValueOnce(new Error('EVENT_HAS_SALES'));
     const { result, setShowDeleteConfirm } = setup();

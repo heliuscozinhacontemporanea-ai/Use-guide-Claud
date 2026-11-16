@@ -255,6 +255,13 @@ export class EventsService {
     await this.eventsPort.updateRatingSummary(eventListingId, summary);
   }
 
+  async countOpenEstablishmentEvents(establishmentId: string): Promise<number> {
+    if (!establishmentId?.trim()) {
+      throw new EventDomainError('INVALID_ARGUMENT', 'ID do estabelecimento inválido');
+    }
+    return this.eventsPort.countOpenListingsByEstablishment(establishmentId);
+  }
+
   async updateEstablishmentPlace(establishmentId: string, place: PlaceTime): Promise<void> {
     if (!establishmentId?.trim()) {
       throw new EventDomainError('INVALID_ARGUMENT', 'ID do estabelecimento inválido');

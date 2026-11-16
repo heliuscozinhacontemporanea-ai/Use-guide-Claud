@@ -23,6 +23,8 @@ export interface EventsPort {
   /** Eventos herdam o selo do estabelecimento ou perfil de produtor ao qual pertencem (D11). */
   /** Eventos seguem o fuso e a cidade do estabelecimento quando ele muda de lugar (D28). */
   updatePlaceByEstablishment(establishmentId: string, place: PlaceTime): Promise<void>;
+  /** Eventos ligados ao estabelecimento que não foram arquivados (trava de excluir o anúncio). */
+  countOpenListingsByEstablishment(establishmentId: string): Promise<number>;
   updateVerificationByEstablishment(
     establishmentId: string,
     verification: {

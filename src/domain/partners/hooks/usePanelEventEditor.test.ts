@@ -7,7 +7,7 @@ import { usePanelEventEditor } from './usePanelEventEditor';
 import { usePanelNavigation } from './usePanelNavigation';
 
 vi.mock('./usePartnerEventSessions', () => ({
-  usePartnerEventSessions: () => ({ loadState: 'ready', savedIds: ['s1'] }),
+  usePartnerEventSessions: () => ({ loadState: 'ready', savedIds: ['s1'], lockedIds: ['s1'] }),
 }));
 
 const event = { id: 'ev1', name: 'Luau', category: 'event' } as PartnerContentEditorState;
@@ -89,6 +89,7 @@ describe('usePanelEventEditor (item 4 da D33)', () => {
     const { result, setShowDeleteConfirm, stop } = setup();
     act(() => result.current.editor.openEditor(event, true));
     expect(result.current.editor.hasSales).toBe(true);
+    expect(result.current.editor.lockedSessionIds).toEqual(['s1']);
     act(() => result.current.nav.pages.back());
     await waitFor(() => expect(result.current.editor.item).toBeNull());
     expect(setShowDeleteConfirm).toHaveBeenCalledWith(false);

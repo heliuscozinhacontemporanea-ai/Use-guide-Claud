@@ -1,6 +1,9 @@
 export {
   EventDomainError,
   EventHasSalesError,
+  OccurrenceHasSalesError,
+  OccurrenceDateLockedError,
+  CapacityBelowSoldError,
   EventNotFoundError,
   EventOwnershipError,
   OccurrenceNotFoundError,
@@ -43,6 +46,7 @@ export { postponeEventOccurrenceUseCase } from './usecases/postponeEventOccurren
 export { publishEventListingUseCase } from './usecases/publishEventListingUseCase';
 export { recordEventAuditLogUseCase } from './usecases/recordEventAuditLogUseCase';
 export { updateEstablishmentEventsPlaceUseCase } from './usecases/updateEstablishmentEventsPlaceUseCase';
+export { countOpenEstablishmentEventsUseCase } from './usecases/countOpenEstablishmentEventsUseCase';
 export { updateEstablishmentEventsVerificationUseCase } from './usecases/updateEstablishmentEventsVerificationUseCase';
 export { updateEventListingPricingSummaryUseCase } from './usecases/updateEventListingPricingSummaryUseCase';
 export { updateEventListingUseCase } from './usecases/updateEventListingUseCase';

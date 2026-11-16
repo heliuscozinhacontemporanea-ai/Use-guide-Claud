@@ -48,6 +48,8 @@ export interface PartnerGuideTranslation {
     deleteMessage: string;
     deleted: string;
     deleteFailed: string;
+    hasBookings: string;
+    hasEvents: string;
     photos_one: string;
     photos_other: string;
     noPhotos: string;
@@ -223,6 +225,10 @@ export const partnerGuidePtBR: PartnerGuideTranslation = {
     deleteMessage: 'O anúncio sai do guia e do painel. Isso não pode ser desfeito.',
     deleted: 'Anúncio excluído',
     deleteFailed: 'Não foi possível excluir agora. Tente de novo.',
+    hasBookings:
+      'Este anúncio tem reservas ativas e não pode ser excluído. Cancele os horários na agenda (com reembolso e multa) ou use Pausar no guia.',
+    hasEvents:
+      'Este anúncio tem eventos ligados e não pode ser excluído. Exclua ou mude os eventos, ou use Pausar no guia.',
     photos_one: '{{count}} foto',
     photos_other: '{{count}} fotos',
     noPhotos: 'Sem fotos',

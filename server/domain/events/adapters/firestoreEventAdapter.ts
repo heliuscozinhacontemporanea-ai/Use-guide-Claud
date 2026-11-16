@@ -94,6 +94,15 @@ export class FirestoreEventAdapter implements EventsPort {
     });
   }
 
+  async countOpenListingsByEstablishment(establishmentId: string): Promise<number> {
+    const snapshot = await adminDb
+      .collection('events')
+      .where('establishmentId', '==', establishmentId)
+      .limit(200)
+      .get();
+    return snapshot.docs.filter((doc) => doc.get('status') !== 'archived').length;
+  }
+
   async updatePlaceByEstablishment(establishmentId: string, place: PlaceTime): Promise<void> {
     const snapshot = await adminDb
       .collection('events')
@@ -210,7 +219,10 @@ export class FirestoreEventAdapter implements EventsPort {
       id: docRef.id,
       createdAt: nowIso,
     };
-    await docRef.set(record);
+    // O antes e o depois são a sessão ou o evento como vieram do domínio, com campos opcionais
+    // `undefined` (ex.: `salesStartsAt`), que o Firestore recusa. A cópia em JSON os tira; os
+    // valores são texto, número e booleano, sem Timestamp.
+    await docRef.set(JSON.parse(JSON.stringify(record)) as EventAuditLog);
     return record;
   }
 }

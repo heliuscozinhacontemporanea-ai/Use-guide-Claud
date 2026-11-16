@@ -7,6 +7,8 @@ export const eventSessionsEn: EventSessionsTranslation = {
   add: 'Add date',
   session: 'Session {{n}}',
   remove: 'Remove {{session}}',
+  locked:
+    'Has sales or courtesy tickets: cancel or postpone it from the session sheet, on the event page.',
   startsAt: 'Start',
   endsAt: 'End',
   capacity: 'Maximum capacity',

@@ -65,6 +65,10 @@ export const partnerGuideEn: PartnerGuideTranslation = {
     deleteMessage: 'The listing leaves the guide and the dashboard. This can’t be undone.',
     deleted: 'Listing deleted',
     deleteFailed: 'We couldn’t delete it right now. Try again.',
+    hasBookings:
+      'This listing has active bookings and can’t be deleted. Cancel the time slots in the schedule (with refund and penalty) or use Pause in the guide.',
+    hasEvents:
+      'This listing has linked events and can’t be deleted. Delete or change the events, or use Pause in the guide.',
     photos_one: '{{count}} photo',
     photos_other: '{{count}} photos',
     noPhotos: 'No photos',

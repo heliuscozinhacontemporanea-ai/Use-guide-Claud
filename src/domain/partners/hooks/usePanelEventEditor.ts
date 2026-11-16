@@ -85,6 +85,7 @@ export function usePanelEventEditor({
     hasSales,
     eventsVersion,
     sessionsLoadState: sessions.loadState,
+    lockedSessionIds: sessions.lockedIds,
     openEditor,
     openNew: (ownerId: string) => openEditor(newPartnerEventDraft(ownerId), false),
     save,

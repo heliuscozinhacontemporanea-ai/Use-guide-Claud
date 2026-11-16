@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { i18n } from '../../../shared/i18n';
+import type { EventSessionDraft } from '../types/eventSession';
 import { EventSessionsField } from './EventSessionsField';
 
 const one = [
@@ -49,6 +50,26 @@ describe('EventSessionsField', () => {
     const [firstRemove] = screen.getAllByRole('button', { name: /Remover Sessão/ });
     if (firstRemove) fireEvent.click(firstRemove);
     expect(onChange.mock.calls[0]?.[0]).toHaveLength(1);
+  });
+
+  it('sessão com vendas ou cortesias fica sem lixeira e diz onde cancelar (D27)', () => {
+    const onChange = vi.fn();
+    const sessions: EventSessionDraft[] = [
+      { ...one[0], id: 'vendida' } as EventSessionDraft,
+      { ...one[0], id: 'livre' } as EventSessionDraft,
+    ];
+    render(
+      <EventSessionsField
+        sessions={sessions}
+        onChange={onChange}
+        loadState="ready"
+        lockedIds={['vendida']}
+      />
+    );
+    expect(screen.queryByRole('button', { name: 'Remover Sessão 1' })).toBeNull();
+    expect(screen.getByText(/cancele ou adie pela folha da sessão/)).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Remover Sessão 2' }));
+    expect(onChange.mock.calls[0]?.[0]).toEqual([sessions[0]]);
   });
 
   it('não deixa editar enquanto as sessões salvas não carregaram', () => {

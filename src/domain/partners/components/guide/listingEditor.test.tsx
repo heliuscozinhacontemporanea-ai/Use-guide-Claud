@@ -136,6 +136,28 @@ describe('ListingEditorPage (F2)', () => {
     expect(m.remove).toHaveBeenCalledWith('item-1');
   });
 
+  it.each([
+    ['LISTING_HAS_BOOKINGS', /tem reservas ativas.*Pausar no guia/],
+    ['LISTING_HAS_EVENTS', /tem eventos ligados.*Pausar no guia/],
+  ])('anúncio preso (%s): não sai e a página diz o que fazer', async (code, text) => {
+    const onDeleted = vi.fn();
+    m.remove.mockRejectedValue(new Error(code));
+    render(
+      <ListingEditorPage
+        item={tour}
+        steps={steps}
+        publication="published"
+        onOpenBlock={vi.fn()}
+        onDeleted={onDeleted}
+      />
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Excluir anúncio' }));
+    const dialog = await screen.findByRole('dialog');
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Excluir anúncio' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent(text);
+    expect(onDeleted).not.toHaveBeenCalled();
+  });
+
   it('falha ao excluir fica na página, com o aviso', async () => {
     const onDeleted = vi.fn();
     m.remove.mockRejectedValue(new Error('INTERNAL_ERROR'));

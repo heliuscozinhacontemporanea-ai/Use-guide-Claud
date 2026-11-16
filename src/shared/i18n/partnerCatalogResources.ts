@@ -170,6 +170,9 @@ export interface PartnerCatalogTranslation {
     deleted: string;
     deleteFailed: string;
     hasSales: string;
+    sessionHasSales: string;
+    sessionDateLocked: string;
+    capacityBelowSold: string;
     paused: string;
     resumed: string;
     toggleFailed: string;
@@ -364,6 +367,12 @@ export const partnerCatalogPtBR: PartnerCatalogTranslation = {
     deleteFailed: 'Não foi possível excluir o evento agora. Tente de novo.',
     hasSales:
       'Este evento já tem vendas e não pode ser excluído: cancele as sessões pela folha de cada uma.',
+    sessionHasSales:
+      'Uma sessão removida tem vendas ou cortesias e não foi excluída. Para cancelar, use a folha da sessão, na página do evento.',
+    sessionDateLocked:
+      'A data de uma sessão com vendas não muda por aqui. Use Adiar na folha da sessão: os compradores são avisados.',
+    capacityBelowSold:
+      'A capacidade de uma sessão ficou abaixo dos ingressos vendidos, reservados ou dados como cortesia.',
     paused: 'Pausado no guia',
     resumed: 'Publicado no guia',
     toggleFailed: 'Não foi possível mudar agora. Tente de novo.',

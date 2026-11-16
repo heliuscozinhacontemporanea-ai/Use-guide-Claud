@@ -16,6 +16,11 @@ export interface EventSessionsFieldProps {
   loadState: EventSessionsLoadState;
   /** Fuso e cidade do estabelecimento: as sessões são digitadas na hora do lugar (D28). */
   place?: PlaceTime;
+  /**
+   * Sessões com vendas ou cortesias: não saem pela lixeira. Cancelar ou adiar é pela folha da
+   * sessão, que mostra reembolso e multa antes de confirmar (D14, D27).
+   */
+  lockedIds?: readonly string[];
 }
 
 const LABEL = 'text-[12px] font-semibold text-ink/70';
@@ -26,6 +31,7 @@ export function EventSessionsField({
   onChange,
   loadState,
   place,
+  lockedIds,
 }: EventSessionsFieldProps) {
   const { t } = useTranslation();
   const tz = place?.timeZone;
@@ -67,6 +73,7 @@ export function EventSessionsField({
 
       {sessions.map((session, index) => {
         const label = t('eventSessions.session', { n: index + 1 });
+        const locked = Boolean(session.id && lockedIds?.includes(session.id));
         return (
           <fieldset
             key={session.id ?? `new-${index}`}
@@ -74,7 +81,7 @@ export function EventSessionsField({
           >
             <div className="flex items-center justify-between">
               <legend className="text-[13px] font-semibold text-ink/80">{label}</legend>
-              {sessions.length > 1 && (
+              {sessions.length > 1 && !locked && (
                 <button
                   type="button"
                   aria-label={t('eventSessions.remove', { session: label })}
@@ -85,6 +92,7 @@ export function EventSessionsField({
                 </button>
               )}
             </div>
+            {locked && <p className="text-[12px] text-ink/70">{t('eventSessions.locked')}</p>}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <label className="space-y-1.5 block">

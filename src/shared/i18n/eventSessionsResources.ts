@@ -6,6 +6,7 @@ export interface EventSessionsTranslation {
   add: string;
   session: string;
   remove: string;
+  locked: string;
   startsAt: string;
   endsAt: string;
   capacity: string;
@@ -38,6 +39,7 @@ export const eventSessionsPtBR: EventSessionsTranslation = {
   add: 'Adicionar data',
   session: 'Sessão {{n}}',
   remove: 'Remover {{session}}',
+  locked: 'Tem vendas ou cortesias: cancele ou adie pela folha da sessão, na página do evento.',
   startsAt: 'Início',
   endsAt: 'Término',
   capacity: 'Capacidade máxima',

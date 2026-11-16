@@ -18,6 +18,9 @@ import type { PartnerContentEditorState, PartnerContentEventInput } from '../typ
 // Códigos que o servidor devolve nestas rotas e que a pessoa consegue resolver (§10.2, §12.5).
 const KNOWN_CODES: Record<string, string> = {
   EVENT_HAS_SALES: 'partnerCatalog.actions.hasSales',
+  SESSION_HAS_SALES: 'partnerCatalog.actions.sessionHasSales',
+  SESSION_DATE_LOCKED: 'partnerCatalog.actions.sessionDateLocked',
+  CAPACITY_BELOW_SOLD: 'partnerCatalog.actions.capacityBelowSold',
   CONTACT_IN_TEXT: 'partnerGuide.page.contactInText',
 };
 

@@ -4,6 +4,7 @@ import {
   getEventListingByIdUseCase,
   listEventOccurrencesUseCase,
 } from '../../events';
+import { getPartnerEventSalesUseCase } from '../application/usecases/getPartnerEventSalesUseCase';
 import type { PartnerContentEditorState } from '../types/partnerContent';
 
 export type LoadedEventDetails = Pick<
@@ -21,16 +22,29 @@ export function usePartnerEventSessions(
 ) {
   const [loadState, setLoadState] = useState<EventSessionsLoadState>('idle');
   const [savedIds, setSavedIds] = useState<string[]>([]);
+  const [lockedIds, setLockedIds] = useState<string[]>([]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: lê de novo só quando outro evento é aberto.
   useEffect(() => {
     setSavedIds([]);
+    setLockedIds([]);
     if (!eventId) {
       setLoadState('idle');
       return;
     }
     let active = true;
     setLoadState('loading');
+    // Sessões com vendas ou cortesias ficam sem lixeira (D27). Sem a leitura, o servidor ainda recusa.
+    void getPartnerEventSalesUseCase(eventId)
+      .then((sales) => {
+        if (!active) return;
+        setLockedIds(
+          sales.sessions
+            .filter((session) => session.sold > 0 || session.courtesies > 0)
+            .map((session) => session.id)
+        );
+      })
+      .catch(() => undefined);
     Promise.all([listEventOccurrencesUseCase(eventId), getEventListingByIdUseCase(eventId)])
       .then(([occurrences, listing]) => {
         if (!active) return;
@@ -64,5 +78,5 @@ export function usePartnerEventSessions(
     };
   }, [eventId]);
 
-  return { loadState, savedIds };
+  return { loadState, savedIds, lockedIds };
 }

@@ -37,6 +37,8 @@ interface PartnerEventEditorProps {
   /** Estabelecimentos do parceiro: o fuso das sessões é o do escolhido (D28). */
   establishments?: PartnerContentRecord[];
   sessionsLoadState: EventSessionsLoadState;
+  /** Sessões com vendas ou cortesias: sem lixeira, cancelar ou adiar é pela folha da sessão (D27). */
+  lockedSessionIds?: readonly string[];
   renderSessionsField?: (props: EventSessionsFieldProps) => ReactNode;
   renderEventTicketingManager?: (eventListingId: string) => ReactNode;
   /** Conta de recebimento do estabelecimento do evento (payment), montada pela composição. */
@@ -68,6 +70,7 @@ export function PartnerEventEditor({
   businesses,
   establishments,
   sessionsLoadState,
+  lockedSessionIds,
   renderSessionsField,
   renderEventTicketingManager,
   renderAccountCard,
@@ -152,6 +155,7 @@ export function PartnerEventEditor({
           onChange: (sessions) => onChange({ ...item, sessions }),
           loadState: sessionsLoadState,
           place: eventPlace(item, establishments),
+          lockedIds: lockedSessionIds,
         });
       case 'location':
         return <EventContactSection {...sectionProps} part="location" />;
