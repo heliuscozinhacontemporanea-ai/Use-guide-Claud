@@ -8,12 +8,12 @@ A ordem abaixo foi proposta em 2026-11-15 e pode ser mudada pelo responsável.
 
 | # | Item | Situação | Decisão |
 |---|---|---|---|
-| 3 | **Item 3 da D33**: busca (SearchOverlay) como folha em altura cheia, com os tokens (resolve o B60) | Depois da F1 | D33 |
-| 4 | **D34 · F2**: blocos do anúncio (Sobre, Onde fica, Detalhes, Contatos, Fotos) como peças únicas, usadas pelo guia e pelo editor do painel. Junto, o **item 4 da D33**: editores de anúncio e de evento como páginas empilhadas do painel, com "Salvar" na barra | | D34, D33 |
+| 3 | **D34 · F2**: blocos do anúncio (Sobre, Onde fica, Detalhes, Contatos, Fotos) como peças únicas, usadas pelo guia e pelo editor do painel. Junto, o **item 4 da D33**: editores de anúncio e de evento como páginas empilhadas do painel, com "Salvar" na barra | Em andamento desde 2026-11-16: prints antes do código | D34, D33 |
 | 5 | **D34 · F3**: detalhes de venda só na oferta (D1 a D4) | | D34 |
 | 6 | **D34 · F4**: admin no mesmo editor do parceiro (D6, D8). Cobre o "editor do admin" do **item 5 da D33** | | D34, D33 |
 | 7 | **D34 · F5**: evento herda contato e local do estabelecimento (D5) | | D34 |
 | 8 | **D34 · F6**: o tour sai e entram as dicas de primeira visita (Agenda e Ganhos) | | D34 |
+| 8b | **Item 3 da D33**: busca (SearchOverlay) como folha em altura cheia, com os tokens (resolve o B60) | Adiado pelo responsável em 2026-11-16 (pular e começar a F2) | D33 |
 | 9 | Resto do **item 5 da D33**: link de cortesia e durações e curvas soltas nos componentes menores (DESIGN.md P10) | | D33 |
 | 10 | **Acerto com o divulgador**, fase 1 e fase 2 | Aprovado em 2026-11-12; prints antes do código | `decisoes.md` (Acerto com o divulgador) |
 
