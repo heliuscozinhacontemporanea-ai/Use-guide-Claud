@@ -8,7 +8,6 @@ A ordem abaixo foi proposta em 2026-11-15 e pode ser mudada pelo responsável.
 
 | # | Item | Situação | Decisão |
 |---|---|---|---|
-| 3 | **D34 · F2**: blocos do anúncio (Sobre, Onde fica, Detalhes, Contatos, Fotos) como peças únicas, usadas pelo guia e pelo editor do painel. Junto, o **item 4 da D33**: editores de anúncio e de evento como páginas empilhadas do painel, com "Salvar" na barra | Pronta em 2026-11-16, no PR para a `main`; aguarda "aprovado, pode publicar" | D34, D33 |
 | 5 | **D34 · F3**: detalhes de venda só na oferta (D1 a D4). A propor junto: o editor de ofertas como páginas empilhadas, igual aos de anúncio e de evento | | D34 |
 | 6 | **D34 · F4**: admin no mesmo editor do parceiro (D6, D8). Cobre o "editor do admin" do **item 5 da D33** | | D34, D33 |
 | 7 | **D34 · F5**: evento herda contato e local do estabelecimento (D5) | | D34 |
