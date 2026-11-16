@@ -51,7 +51,11 @@ export { clearBookingDeadlineUseCase } from './usecases/clearBookingDeadlineUseC
 export { completeFinishedBookingsUseCase } from './usecases/completeFinishedBookingsUseCase';
 export { confirmBookingPaymentUseCase } from './usecases/confirmBookingPaymentUseCase';
 export { createAvailabilitySlotsUseCase } from './usecases/createAvailabilitySlotsUseCase';
+export { archiveOffersByOwnerUseCase } from './usecases/archiveOffersByOwnerUseCase';
+export { archiveOffersOfGuideItemUseCase } from './usecases/archiveOffersOfGuideItemUseCase';
 export { createBookableOfferUseCase } from './usecases/createBookableOfferUseCase';
+export { hasActiveBookingsForGuideItemUseCase } from './usecases/hasActiveBookingsForGuideItemUseCase';
+export { hasActiveBookingsForOwnerUseCase } from './usecases/hasActiveBookingsForOwnerUseCase';
 export { createPendingBookingUseCase } from './usecases/createPendingBookingUseCase';
 export { eraseExpiredBookingContactsUseCase } from './usecases/eraseExpiredBookingContactsUseCase';
 export { expireOverdueBookingsUseCase } from './usecases/expireOverdueBookingsUseCase';

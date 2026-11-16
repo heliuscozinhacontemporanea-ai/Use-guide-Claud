@@ -129,13 +129,12 @@ function stepsFor(
   ];
 }
 
+type Pending = { entry: (typeof ORDER)[number]; steps: FirstStep[]; listing: Establishment };
+
 export function buildFirstSteps(input: FirstStepsInput): PartnerFirstSteps | null {
   let anySellingDone = false;
-  let pending: {
-    entry: (typeof ORDER)[number];
-    steps: FirstStep[];
-    listing: Establishment;
-  } | null = null;
+  let firstPending: Pending | null = null;
+  let firstDraft: Pending | null = null;
   for (const entry of ORDER) {
     const items = input.establishments.filter((item) => item.category === entry.category);
     if (items.length === 0) continue;
@@ -144,8 +143,13 @@ export function buildFirstSteps(input: FirstStepsInput): PartnerFirstSteps | nul
     const steps = stepsFor(entry, itemIds, listing.id, input);
     const complete = !listingOpen(listing) && steps.every((step) => step.done);
     if (complete && !SHOWCASE.has(entry.segment)) anySellingDone = true;
-    if (!complete && !pending) pending = { entry, steps, listing };
+    if (complete) continue;
+    firstPending ??= { entry, steps, listing };
+    if (listing.publication === 'draft') firstDraft ??= { entry, steps, listing };
   }
+  // Rascunho primeiro: o estabelecimento novo segue pelo guia do Início (escolhas da F2), mesmo
+  // com passos de venda em aberto em outro segmento.
+  const pending = firstDraft ?? firstPending;
   if (!pending) return null;
   const title = SHOWCASE.has(pending.entry.segment)
     ? 'complete'

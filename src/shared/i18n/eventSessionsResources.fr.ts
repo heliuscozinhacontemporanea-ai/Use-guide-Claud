@@ -8,6 +8,8 @@ export const eventSessionsFr: EventSessionsTranslation = {
   add: 'Ajouter une date',
   session: 'Séance {{n}}',
   remove: 'Supprimer {{session}}',
+  locked:
+    'Séance avec ventes ou invitations : annulez-la ou reportez-la depuis la fiche de la séance, sur la page de l’événement.',
   startsAt: 'Début',
   endsAt: 'Fin',
   capacity: 'Capacité maximale',

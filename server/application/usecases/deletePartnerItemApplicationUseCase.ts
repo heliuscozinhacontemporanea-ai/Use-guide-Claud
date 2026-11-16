@@ -1,5 +1,10 @@
 import type { AuthenticatedUserContext } from '../security/authenticatedUserContext';
-import { getItemByIdUseCase, deleteGuideItemUseCase } from '../../domain/guide';
+import {
+  archiveOffersOfGuideItemUseCase,
+  hasActiveBookingsForGuideItemUseCase,
+} from '../../domain/bookings';
+import { countOpenEstablishmentEventsUseCase } from '../../domain/events';
+import { GuideDomainError, getItemByIdUseCase, deleteGuideItemUseCase } from '../../domain/guide';
 import {
   deleteListingPlanUseCase,
   deleteListingVerificationUseCase,
@@ -41,6 +46,29 @@ export async function deletePartnerItemApplicationUseCase(
     throw new Error('Proprietário do item não encontrado.');
   }
 
+  // Dono ou admin antes de qualquer mudança: o vínculo do dono não é tocado por quem não pode (A01).
+  if (!user.admin && user.uid !== ownerId) {
+    throw new GuideDomainError(
+      'FORBIDDEN',
+      'Você não possui permissão para modificar este conteúdo'
+    );
+  }
+
+  // Excluir não cancela nada: reserva ativa ou evento ligado prende o anúncio (D34, F2). O parceiro
+  // cancela os horários pela agenda (com reembolso e multa) ou usa "Pausar no guia".
+  if (await hasActiveBookingsForGuideItemUseCase(id)) {
+    throw new GuideDomainError(
+      'LISTING_HAS_BOOKINGS',
+      'Este anúncio tem reservas ativas. Cancele os horários ou use Pausar no guia.'
+    );
+  }
+  if ((await countOpenEstablishmentEventsUseCase(id)) > 0) {
+    throw new GuideDomainError(
+      'LISTING_HAS_EVENTS',
+      'Este anúncio tem eventos ligados. Exclua ou mude os eventos, ou use Pausar no guia.'
+    );
+  }
+
   await unlinkBusinessUseCase(ownerId, id);
 
   try {
@@ -69,4 +97,6 @@ export async function deletePartnerItemApplicationUseCase(
   // O plano sai junto: a assinatura do estabelecimento para de cobrar na hora (B24).
   await cancelListingPlanSubscriptionUseCase(id);
   await deleteListingPlanUseCase(id);
+  // As ofertas saem do app junto com o anúncio; sem isso, continuariam vendáveis por link direto.
+  await archiveOffersOfGuideItemUseCase(id);
 }

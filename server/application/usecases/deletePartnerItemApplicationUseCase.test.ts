@@ -2,6 +2,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { AuthenticatedUserContext } from '../security/authenticatedUserContext';
 import { deletePartnerItemApplicationUseCase } from './deletePartnerItemApplicationUseCase';
 import {
+  archiveOffersOfGuideItemUseCase,
+  hasActiveBookingsForGuideItemUseCase,
+} from '../../domain/bookings';
+import { countOpenEstablishmentEventsUseCase } from '../../domain/events';
+import {
   deleteGuideItemUseCase,
   getItemByIdUseCase,
   type PublicResourceDTO,
@@ -13,9 +18,19 @@ import {
 } from '../../domain/partners';
 import { deleteVerificationFileUseCase } from '../../domain/media';
 
-vi.mock('../../domain/guide', () => ({
+vi.mock('../../domain/guide', async (original) => ({
+  GuideDomainError: (await original<typeof import('../../domain/guide')>()).GuideDomainError,
   getItemByIdUseCase: vi.fn(),
   deleteGuideItemUseCase: vi.fn(),
+}));
+
+vi.mock('../../domain/bookings', () => ({
+  hasActiveBookingsForGuideItemUseCase: vi.fn().mockResolvedValue(false),
+  archiveOffersOfGuideItemUseCase: vi.fn(),
+}));
+
+vi.mock('../../domain/events', () => ({
+  countOpenEstablishmentEventsUseCase: vi.fn().mockResolvedValue(0),
 }));
 
 vi.mock('../../domain/partners', () => ({
@@ -54,6 +69,58 @@ describe('deletePartnerItemApplicationUseCase', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(hasActiveBookingsForGuideItemUseCase).mockResolvedValue(false);
+    vi.mocked(countOpenEstablishmentEventsUseCase).mockResolvedValue(0);
+  });
+
+  it('outro parceiro é recusado antes de qualquer mudança no vínculo do dono (IDOR)', async () => {
+    vi.mocked(getItemByIdUseCase).mockResolvedValueOnce(mockItem);
+    const intruder: AuthenticatedUserContext = { uid: 'partner-A', admin: false, role: 'partner' };
+
+    await expect(deletePartnerItemApplicationUseCase(intruder, 'item-100')).rejects.toMatchObject({
+      code: 'FORBIDDEN',
+    });
+    expect(unlinkBusinessUseCase).not.toHaveBeenCalled();
+    expect(deleteGuideItemUseCase).not.toHaveBeenCalled();
+    expect(linkBusinessUseCase).not.toHaveBeenCalled();
+  });
+
+  it('com reserva ativa, recusa e não apaga nada (D34, F2)', async () => {
+    vi.mocked(getItemByIdUseCase).mockResolvedValueOnce(mockItem);
+    vi.mocked(hasActiveBookingsForGuideItemUseCase).mockResolvedValueOnce(true);
+
+    await expect(
+      deletePartnerItemApplicationUseCase(regularUser, 'item-100')
+    ).rejects.toMatchObject({
+      code: 'LISTING_HAS_BOOKINGS',
+    });
+    expect(unlinkBusinessUseCase).not.toHaveBeenCalled();
+    expect(deleteGuideItemUseCase).not.toHaveBeenCalled();
+    expect(archiveOffersOfGuideItemUseCase).not.toHaveBeenCalled();
+    expect(deleteListingVerificationUseCase).not.toHaveBeenCalled();
+  });
+
+  it('com evento ligado ao estabelecimento, recusa e não apaga nada', async () => {
+    vi.mocked(getItemByIdUseCase).mockResolvedValueOnce(mockItem);
+    vi.mocked(countOpenEstablishmentEventsUseCase).mockResolvedValueOnce(2);
+
+    await expect(
+      deletePartnerItemApplicationUseCase(regularUser, 'item-100')
+    ).rejects.toMatchObject({
+      code: 'LISTING_HAS_EVENTS',
+    });
+    expect(unlinkBusinessUseCase).not.toHaveBeenCalled();
+    expect(deleteGuideItemUseCase).not.toHaveBeenCalled();
+  });
+
+  it('se a checagem de reservas falhar, recusa em vez de apagar', async () => {
+    vi.mocked(getItemByIdUseCase).mockResolvedValueOnce(mockItem);
+    vi.mocked(hasActiveBookingsForGuideItemUseCase).mockRejectedValueOnce(new Error('timeout'));
+
+    await expect(deletePartnerItemApplicationUseCase(regularUser, 'item-100')).rejects.toThrow(
+      'timeout'
+    );
+    expect(deleteGuideItemUseCase).not.toHaveBeenCalled();
   });
 
   it('unlink sucesso + delete sucesso', async () => {
@@ -68,6 +135,8 @@ describe('deletePartnerItemApplicationUseCase', () => {
     expect(linkBusinessUseCase).not.toHaveBeenCalled();
     expect(deleteListingVerificationUseCase).toHaveBeenCalledWith('item-100');
     expect(deleteVerificationFileUseCase).toHaveBeenCalledWith('verification/partner-B/c.pdf');
+    // As ofertas saem do app junto com o anúncio.
+    expect(archiveOffersOfGuideItemUseCase).toHaveBeenCalledWith('item-100');
   });
 
   it('unlink falha + Guide não é apagado', async () => {

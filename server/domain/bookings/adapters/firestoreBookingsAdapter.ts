@@ -89,6 +89,25 @@ export class FirestoreBookingsAdapter implements BookingsPort {
     return snapshot.docs.map((doc) => OfferPersistenceMapper.toDomain(doc.id, doc.data()));
   }
 
+  async listOffersByGuideItem(guideItemId: string): Promise<BookableOffer[]> {
+    const snapshot = await adminDb
+      .collection(OFFERS)
+      .where('guideItemId', '==', guideItemId)
+      .limit(50)
+      .get();
+    return snapshot.docs.map((doc) => OfferPersistenceMapper.toDomain(doc.id, doc.data()));
+  }
+
+  async hasActiveBookings(offerId: string): Promise<boolean> {
+    const snapshot = await adminDb
+      .collection(BOOKINGS)
+      .where('offerId', '==', offerId)
+      .where('status', 'in', ['pending_payment', 'confirmed'])
+      .limit(1)
+      .get();
+    return !snapshot.empty;
+  }
+
   async upsertPublicOfferProjection(offer: PublicBookableOffer): Promise<void> {
     const { id, ...data } = offer;
     await adminDb

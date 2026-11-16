@@ -1,5 +1,4 @@
-import { anonymizeBuyerBookingsUseCase } from '../../domain/bookings';
-import { deleteEventsByOwnerUseCase } from '../../domain/events';
+import { anonymizeBuyerBookingsUseCase, archiveOffersByOwnerUseCase } from '../../domain/bookings';
 import { deleteResourcesByOwnerUseCase } from '../../domain/guide';
 import { deleteUserNotificationsUseCase } from '../../domain/notifications';
 import {
@@ -16,12 +15,22 @@ import {
   anonymizeTicketingUserUseCase,
 } from '../../domain/ticketing';
 import { deleteUserAccountUseCase, releaseUsernamesUseCase } from '../../domain/users';
+import { assertAccountCanCloseApplicationUseCase } from './accountClosure/closePartnerApplicationUseCase';
+import { closeOwnerEventsApplicationUseCase } from './accountClosure/closeOwnerEventsApplicationUseCase';
 import { deleteVerificationFiles } from './listingVerification/deleteVerificationFiles';
 
 export interface UserDeletionCoordinatorDependencies {
+  /**
+   * Recusa com vendas em andamento (reserva ativa, sessão futura com ingressos, multa ou repasse
+   * pendente), antes de apagar qualquer coisa (travas aprovadas em 2026-11-16).
+   */
+  assertCanClose?: (uid: string) => Promise<void>;
   deleteReviewsByUser: (uid: string) => Promise<void>;
   deletePartnerProfile: (uid: string) => Promise<void>;
   deleteResourcesByOwner: (uid: string) => Promise<void>;
+  /** As ofertas do dono saem do app (arquivadas, sem a cópia pública). */
+  archiveOffersByOwner?: (uid: string) => Promise<void>;
+  /** Evento com vendas no histórico fica arquivado; sem vendas, é apagado. */
   deleteEventsByOwner?: (uid: string) => Promise<void>;
   /** Verificações, documentos cifrados e arquivos enviados (D12). */
   deleteListingVerifications?: (uid: string) => Promise<void>;
@@ -41,10 +50,12 @@ export interface UserDeletionCoordinatorDependencies {
 export async function deleteUserAccountApplicationUseCase(
   uid: string,
   deps: UserDeletionCoordinatorDependencies = {
+    assertCanClose: (id) => assertAccountCanCloseApplicationUseCase(id),
     deleteReviewsByUser: (id) => deleteReviewsByUserUseCase(id),
     deletePartnerProfile: (id) => deletePartnerProfileUseCase(id),
     deleteResourcesByOwner: (id) => deleteResourcesByOwnerUseCase(id),
-    deleteEventsByOwner: (id) => deleteEventsByOwnerUseCase(id),
+    archiveOffersByOwner: (id) => archiveOffersByOwnerUseCase(id),
+    deleteEventsByOwner: (id) => closeOwnerEventsApplicationUseCase(id),
     deleteListingVerifications: async (id) =>
       deleteVerificationFiles(await deleteOwnerListingVerificationsUseCase(id)),
     deleteListingPlans: async (id) => {
@@ -71,7 +82,13 @@ export async function deleteUserAccountApplicationUseCase(
     throw new Error('UID do usuário é obrigatório para exclusão');
   }
 
+  if (deps.assertCanClose) {
+    await deps.assertCanClose(uid);
+  }
   await deps.deleteReviewsByUser(uid);
+  if (deps.archiveOffersByOwner) {
+    await deps.archiveOffersByOwner(uid);
+  }
   await deps.deleteResourcesByOwner(uid);
   if (deps.deleteEventsByOwner) {
     await deps.deleteEventsByOwner(uid);

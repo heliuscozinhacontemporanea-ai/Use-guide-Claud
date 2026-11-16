@@ -26,6 +26,21 @@ describe('createPageStack', () => {
   });
 });
 
+describe('createPageStack · back(n)', () => {
+  afterEach(() => window.history.replaceState(null, ''));
+
+  it('fecha as páginas de cima de uma vez, pelo histórico (editor e seção depois de salvar)', async () => {
+    const stack = createPageStack<string>('painel');
+    const { result } = renderHook(() => usePageStack(stack));
+    act(() => stack.push('lugar'));
+    act(() => stack.push('editor'));
+    act(() => stack.push('seção'));
+    act(() => stack.back(2));
+    await waitFor(() => expect(result.current).toEqual(['lugar']));
+    expect((window.history.state as { ugPages?: string[] } | null)?.ugPages).toEqual(['painel#1']);
+  });
+});
+
 describe('createPageStack · clear', () => {
   afterEach(() => window.history.replaceState(null, ''));
 

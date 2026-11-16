@@ -33,6 +33,7 @@ const ESTABLISHMENTS = [
     reviewCount: 96,
     unansweredReviews: 0,
     publication: 'published' as const,
+    setupSteps: [],
   },
   {
     id: 'dunas',
@@ -43,6 +44,7 @@ const ESTABLISHMENTS = [
     reviewCount: 0,
     unansweredReviews: 0,
     publication: 'published' as const,
+    setupSteps: [],
   },
 ];
 const ITEMS = [place('buggy', 'Buggy do Preá'), place('dunas', 'Dunas Park')];

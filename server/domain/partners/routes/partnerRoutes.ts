@@ -99,7 +99,4 @@ router.get(
   PartnerContentController.getEventSalesAnalytics
 );
 
-router.delete('/:partnerId', verifyAuthToken, PartnerController.deletePartner);
-router.delete('/', verifyAuthToken, PartnerController.deletePartner);
-
 export default router;

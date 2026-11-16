@@ -25,13 +25,16 @@ export const EMPTY_JOIN_DRAFT: PartnerJoinDraft = {
 const E164 = /^\+[1-9]\d{9,14}$/;
 
 /** Campos que faltam ou estão errados, na ordem da tela. */
-export function partnerJoinErrors(draft: PartnerJoinDraft): PartnerJoinField[] {
+export function partnerJoinErrors(
+  draft: PartnerJoinDraft,
+  { requireTerms = true }: { requireTerms?: boolean } = {}
+): PartnerJoinField[] {
   const errors: PartnerJoinField[] = [];
   if (!draft.category) errors.push('category');
   if (draft.name.trim().length < 2) errors.push('name');
   if (!isBrState(draft.state) || draft.city.trim().length < 2) errors.push('city');
   if (!E164.test(draft.phone)) errors.push('phone');
-  if (!draft.terms) errors.push('terms');
+  if (requireTerms && !draft.terms) errors.push('terms');
   return errors;
 }
 

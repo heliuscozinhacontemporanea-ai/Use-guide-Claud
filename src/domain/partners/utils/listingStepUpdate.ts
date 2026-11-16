@@ -16,7 +16,14 @@ function instagramLink(value: string): string {
 }
 
 /** Páginas do guia de passos que gravam algo no anúncio (D34). */
-export type ListingStepEdit = 'photos' | 'about' | 'where' | 'details' | 'contacts';
+export type ListingStepEdit =
+  | 'name'
+  | 'photos'
+  | 'about'
+  | 'where'
+  | 'details'
+  | 'contacts'
+  | 'phone';
 
 /** Listas de múltipla escolha que aceitam "Nenhuma destas" (D34). */
 const NONE_LISTS = [
@@ -34,6 +41,8 @@ export interface ListingStepExtras {
   none?: ReadonlySet<string>;
   /** Links que a pessoa declarou não ter. */
   declined?: ReadonlySet<DeclinedLink>;
+  /** WhatsApp do negócio em E.164 (bloco só do editor, F2). */
+  phone?: string;
 }
 
 function withDeclined(
@@ -69,6 +78,15 @@ export function listingStepUpdate(
 ): Partial<PartnerContentItemInput> {
   const current: PartnerOperationalInfo = item.operationalInfo ?? {};
   switch (step) {
+    case 'name':
+      return {
+        name: form.businessName.trim(),
+        ...(isBrState(form.state) && form.city?.trim()
+          ? { state: form.state, city: form.city.trim() }
+          : {}),
+      };
+    case 'phone':
+      return extras.phone ? { phone: extras.phone } : {};
     case 'photos': {
       const images = extras.images ?? item.images ?? [];
       return { images, image: images[0] ?? '' };

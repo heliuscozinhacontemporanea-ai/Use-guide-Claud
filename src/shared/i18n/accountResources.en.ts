@@ -57,6 +57,14 @@ export const accountEn: AccountTranslation = {
     googleCanceled: 'Canceled: confirm with your Google account to continue.',
     deleteError: "Couldn't delete the account. Check your connection and try again.",
     recentLogin: 'For your security, sign in again before deleting your account.',
+    closureBookings:
+      'Your account has active bookings as a partner. Cancel the time slots in the panel schedule and try again.',
+    closureSessions:
+      'Your account has upcoming event sessions with tickets or courtesy tickets. Cancel or postpone them from the session sheet in the panel and try again.',
+    closureDebts:
+      'Your account has an unpaid penalty. Pay it in Earnings, in the partner panel, and try again.',
+    closurePayouts:
+      'Your account has payouts still to receive or held by a claim. Wait for the transfer and try again.',
     photoSaved: 'Photo updated.',
     photoError: "Couldn't use this photo. Try another one.",
   },

@@ -1,10 +1,11 @@
 import { act, render, renderHook, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { i18n } from '../../../../shared/i18n';
-import { usePanelNavigation } from '../../hooks/usePanelNavigation';
+import { isEventEditorPage, usePanelNavigation } from '../../hooks/usePanelNavigation';
 import {
   type PartnerPanelPageContext,
   PartnerPanelPageContent,
+  partnerPanelPageAction,
   partnerPanelPageTitle,
 } from './PartnerPanelPageContent';
 
@@ -30,6 +31,10 @@ const context = (overrides: Partial<PartnerPanelPageContext> = {}): PartnerPanel
   listingSteps: [],
   registerListingSave: vi.fn(),
   onListingDone: vi.fn(),
+  onOpenListingBlock: vi.fn(),
+  onListingDeleted: vi.fn(),
+  onListingCreated: vi.fn(),
+  renderEventEditor: vi.fn(() => null),
   ...overrides,
 });
 
@@ -108,5 +113,100 @@ describe('páginas do painel (D33): Catálogo e Ganhos', () => {
       />
     );
     expect(screen.getByText('visitas')).toBeTruthy();
+  });
+
+  it('editores (F2): título na barra e "Salvar" nos blocos e nas páginas do evento', () => {
+    const t = i18n.t.bind(i18n);
+    expect(
+      partnerPanelPageTitle({ view: 'listing-editor', itemId: 'p1', title: 'Buggy' }, t, null)
+    ).toBe('Editar anúncio');
+    expect(partnerPanelPageTitle({ view: 'listing-new' }, t, null)).toBe('Novo estabelecimento');
+    expect(partnerPanelPageTitle({ view: 'listing-new', categories: ['producer'] }, t, null)).toBe(
+      'Perfil de produtor'
+    );
+    expect(
+      partnerPanelPageTitle(
+        { view: 'event-section', section: 'info', title: 'Informações' },
+        t,
+        null
+      )
+    ).toBe('Informações');
+
+    const actions = { saveListing: vi.fn(), saveEvent: vi.fn(), savingEvent: false };
+    const step = { view: 'listing-step', itemId: 'p1', step: 'name', title: 'Nome' } as const;
+    partnerPanelPageAction(step, t, actions)?.onClick();
+    expect(actions.saveListing).toHaveBeenCalled();
+    expect(partnerPanelPageAction({ ...step, step: 'publish' }, t, actions)).toBeUndefined();
+    expect(
+      partnerPanelPageAction({ view: 'listing-editor', itemId: 'p1', title: 'B' }, t, actions)
+    ).toBeUndefined();
+    const event = partnerPanelPageAction(
+      { view: 'event-editor', title: 'Editar evento' },
+      t,
+      actions
+    );
+    expect(event?.label).toBe('Salvar');
+    event?.onClick();
+    expect(actions.saveEvent).toHaveBeenCalled();
+    expect(
+      partnerPanelPageAction({ view: 'event-editor', title: 'E' }, t, {
+        ...actions,
+        savingEvent: true,
+      })?.label
+    ).toBe('Salvando…');
+  });
+
+  it('salvar o evento fecha só as páginas do editor; o evento excluído fecha também a dele', async () => {
+    const { result } = renderHook(() => usePanelNavigation());
+    // A pilha ouve o voltar do histórico enquanto alguém a mostra (o painel, no app).
+    const stop = result.current.pages.subscribe(() => undefined);
+    act(() => result.current.openEvent({ id: 'e1', title: 'Luau' }));
+    act(() => result.current.openEventEditor('Editar evento'));
+    act(() => result.current.openEventSection('info', 'Informações'));
+    act(() => result.current.closeTop(isEventEditorPage));
+    await waitFor(() =>
+      expect(result.current.pages.getPages()).toEqual([{ view: 'event', id: 'e1', title: 'Luau' }])
+    );
+
+    act(() => result.current.openEventEditor('Editar evento'));
+    act(() =>
+      result.current.closeTop(
+        (page) => isEventEditorPage(page) || (page.view === 'event' && page.id === 'e1')
+      )
+    );
+    await waitFor(() => expect(result.current.pages.getPages()).toEqual([]));
+    stop();
+  });
+
+  it('o editor do anúncio mostra os blocos do item, com os passos do estabelecimento', async () => {
+    const onOpenListingBlock = vi.fn();
+    render(
+      <PartnerPanelPageContent
+        page={{ view: 'listing-editor', itemId: 'p1', title: 'Buggy' }}
+        context={context({
+          items: [
+            {
+              id: 'p1',
+              name: 'Buggy do Preá',
+              category: 'tour',
+              images: [],
+              operationalInfo: {},
+            } as never,
+          ],
+          establishments: [
+            {
+              id: 'p1',
+              publication: 'draft',
+              setupSteps: [{ id: 'photos', done: false, missing: ['images'] }],
+            } as never,
+          ],
+          onOpenListingBlock,
+        })}
+      />
+    );
+    expect(screen.getByText('Rascunho: ainda fora do guia')).toBeTruthy();
+    expect(screen.getByRole('button', { name: /Fotos/ }).textContent).toContain('Falta: uma foto');
+    screen.getByRole('button', { name: /Fotos/ }).click();
+    expect(onOpenListingBlock).toHaveBeenCalledWith('p1', 'photos', 'Fotos');
   });
 });

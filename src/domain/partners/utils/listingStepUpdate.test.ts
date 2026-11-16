@@ -84,4 +84,29 @@ describe('listingStepUpdate', () => {
       city: 'Cruz',
     });
   });
+
+  it('nome (só no editor): nome, estado e cidade; a categoria não muda', () => {
+    const form = {
+      ...mapItemToFormData(item()),
+      businessName: ' Peixada Nova ',
+      state: 'CE',
+      city: ' Cruz ',
+    };
+    expect(listingStepUpdate('name', item(), form)).toEqual({
+      name: 'Peixada Nova',
+      state: 'CE',
+      city: 'Cruz',
+    });
+    expect(listingStepUpdate('name', item(), { ...form, state: 'XX' })).toEqual({
+      name: 'Peixada Nova',
+    });
+  });
+
+  it('WhatsApp (só no editor): grava o telefone em E.164; sem telefone, nada muda', () => {
+    const form = mapItemToFormData(item());
+    expect(listingStepUpdate('phone', item(), form, { phone: '+5588999990000' })).toEqual({
+      phone: '+5588999990000',
+    });
+    expect(listingStepUpdate('phone', item(), form)).toEqual({});
+  });
 });

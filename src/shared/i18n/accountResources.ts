@@ -51,6 +51,10 @@ export interface AccountTranslation {
     googleCanceled: string;
     deleteError: string;
     recentLogin: string;
+    closureBookings: string;
+    closureSessions: string;
+    closureDebts: string;
+    closurePayouts: string;
     photoSaved: string;
     photoError: string;
   };
@@ -113,6 +117,14 @@ export const accountPtBR: AccountTranslation = {
     googleCanceled: 'Cancelado: confirme com sua conta Google para continuar.',
     deleteError: 'Não foi possível excluir a conta. Confira sua conexão e tente de novo.',
     recentLogin: 'Por segurança, entre de novo na conta antes de excluí-la.',
+    closureBookings:
+      'Sua conta tem reservas ativas como parceiro. Cancele os horários na agenda do painel e tente de novo.',
+    closureSessions:
+      'Sua conta tem sessões de evento futuras com ingressos ou cortesias. Cancele ou adie pela folha da sessão, no painel, e tente de novo.',
+    closureDebts:
+      'Sua conta tem multa em aberto. Quite em Ganhos, no painel do parceiro, e tente de novo.',
+    closurePayouts:
+      'Sua conta tem repasses a receber ou retidos por reclamação. Aguarde a transferência e tente de novo.',
     photoSaved: 'Foto atualizada.',
     photoError: 'Não foi possível usar esta foto. Tente outra.',
   },

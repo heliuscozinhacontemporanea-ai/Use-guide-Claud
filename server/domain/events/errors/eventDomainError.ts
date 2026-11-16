@@ -44,3 +44,36 @@ export class EventHasSalesError extends EventDomainError {
     this.name = 'EventHasSalesError';
   }
 }
+
+/**
+ * Sessão com vendas ou cortesias não é excluída pelo parceiro: cancelar ou adiar é pela folha da
+ * sessão, que mostra reembolso e multa antes de confirmar (D14, D27).
+ */
+export class OccurrenceHasSalesError extends EventDomainError {
+  readonly reason = 'SESSION_HAS_SALES';
+  constructor(
+    message = 'Esta sessão tem vendas ou cortesias. Cancele ou adie pela folha da sessão.'
+  ) {
+    super('CONFLICT', message);
+    this.name = 'OccurrenceHasSalesError';
+  }
+}
+
+/** Sessão com vendas não muda de data pela edição: o adiamento avisa os compradores (D27). */
+export class OccurrenceDateLockedError extends EventDomainError {
+  readonly reason = 'SESSION_DATE_LOCKED';
+  constructor(message = 'Sessão com vendas: para mudar a data, adie pela folha da sessão.') {
+    super('UNPROCESSABLE_ENTITY', message);
+    this.name = 'OccurrenceDateLockedError';
+  }
+}
+
+export class CapacityBelowSoldError extends EventDomainError {
+  readonly reason = 'CAPACITY_BELOW_SOLD';
+  constructor(
+    message = 'A capacidade não pode ficar abaixo dos ingressos vendidos, reservados ou dados como cortesia.'
+  ) {
+    super('UNPROCESSABLE_ENTITY', message);
+    this.name = 'CapacityBelowSoldError';
+  }
+}

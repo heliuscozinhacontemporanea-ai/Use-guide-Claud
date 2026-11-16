@@ -56,15 +56,15 @@ const HOURS = Object.fromEntries(WEEK.map((day) => [day, { open: '08:00', close:
 function detailsOf(category) {
   switch (category) {
     case 'tour':
-      return { operationalInfo: { languages: ['pt'], itinerary: 'Dunas, lagoa e pôr do sol.', luggageInfo: 'Protetor solar e água.' } };
+      return { operationalInfo: { languages: ['Português'], itinerary: 'Dunas, lagoa e pôr do sol.', luggageInfo: 'Protetor solar e água.' } };
     case 'rental':
-      return { operationalInfo: { languages: ['pt'], vehicleTypes: ['Quadriciclo'], operatingHours: HOURS } };
+      return { operationalInfo: { languages: ['Português'], vehicleTypes: ['Quadriciclo'], operatingHours: HOURS } };
     case 'restaurant':
       return {
         instagramLink: 'https://instagram.com/useguide',
         declinedLinks: ['website', 'menu'],
         operationalInfo: {
-          languages: ['pt'],
+          languages: ['Português'],
           cuisineType: 'Frutos do mar',
           mealTypes: ['Almoço'],
           additionalServices: [],

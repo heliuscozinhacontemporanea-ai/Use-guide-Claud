@@ -1,5 +1,7 @@
 import {
+  CapacityBelowSoldError,
   EventDomainError,
+  OccurrenceDateLockedError,
   EventNotFoundError,
   OccurrenceNotFoundError,
 } from '../errors/eventDomainError';
@@ -106,10 +108,7 @@ export class EventOccurrencesService {
     }
 
     if (input.capacity !== undefined && input.capacity < committedTicketsCount) {
-      throw new EventDomainError(
-        'UNPROCESSABLE_ENTITY',
-        'A capacidade não pode ser reduzida abaixo da quantidade de ingressos vendidos ou reservados.'
-      );
+      throw new CapacityBelowSoldError();
     }
 
     if (
@@ -117,10 +116,7 @@ export class EventOccurrencesService {
       ((input.startsAt && input.startsAt !== occurrence.startsAt) ||
         (input.endsAt && input.endsAt !== occurrence.endsAt))
     ) {
-      throw new EventDomainError(
-        'UNPROCESSABLE_ENTITY',
-        'Ocorrência com vendas ativas deve ser adiada/reagendada via operação de adiamento para preservar o histórico.'
-      );
+      throw new OccurrenceDateLockedError();
     }
 
     const nextStartsAt = input.startsAt || occurrence.startsAt;

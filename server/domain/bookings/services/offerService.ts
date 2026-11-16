@@ -307,6 +307,52 @@ export class OfferService {
     return { lowestUnitAmountMinor, hasAvailability: false };
   }
 
+  /**
+   * Se alguma oferta do item do guia tem reserva aguardando pagamento ou confirmada: enquanto houver,
+   * o anúncio não é excluído (o parceiro cancela os horários pela agenda, com reembolso e multa).
+   */
+  async hasActiveBookingsForGuideItem(guideItemId: string): Promise<boolean> {
+    return this.anyActiveBookings(await this.port.listOffersByGuideItem(guideItemId));
+  }
+
+  /** O mesmo, para todas as ofertas do dono (trava de excluir a conta ou o perfil de parceiro). */
+  async hasActiveBookingsForOwner(ownerId: string): Promise<boolean> {
+    return this.anyActiveBookings(await this.port.listOffersByOwner(ownerId));
+  }
+
+  private async anyActiveBookings(offers: BookableOffer[]): Promise<boolean> {
+    for (const offer of offers) {
+      if (await this.port.hasActiveBookings(offer.id)) return true;
+    }
+    return false;
+  }
+
+  /**
+   * Anúncio excluído: as ofertas dele saem do app (arquivadas, sem a cópia pública). As reservas
+   * antigas ficam guardadas, pela retenção legal (AGENTS.md §7.5).
+   */
+  async archiveOffersOfGuideItem(guideItemId: string): Promise<void> {
+    await this.archiveOffers(await this.port.listOffersByGuideItem(guideItemId));
+  }
+
+  /** Conta ou perfil de parceiro encerrado: as ofertas do dono saem do app. */
+  async archiveOffersByOwner(ownerId: string): Promise<void> {
+    await this.archiveOffers(await this.port.listOffersByOwner(ownerId));
+  }
+
+  private async archiveOffers(offers: BookableOffer[]): Promise<void> {
+    for (const offer of offers) {
+      if (offer.status !== 'archived') {
+        await this.port.saveOffer({
+          ...offer,
+          status: 'archived',
+          updatedAt: this.now().toISOString(),
+        });
+      }
+      await this.port.deletePublicOfferProjection(offer.id);
+    }
+  }
+
   /** Fecha o horário e devolve as reservas ativas dele (a camada application reembolsa e notifica). */
   async cancelSlot(actor: BookingActor, offerId: string, slotId: string): Promise<Booking[]> {
     await this.getOwnedOffer(actor, offerId);

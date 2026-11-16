@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useUI } from '../../../shared/stores/useUIStore';
 import type { UserSession } from '../../auth';
 import {
@@ -7,18 +8,24 @@ import {
   saveEventSessionsUseCase,
   validateEventSessions,
 } from '../../events';
-import {
-  createPartnerContentEventUseCase,
-  deletePartnerContentEventUseCase,
-  deletePartnerContentItemUseCase,
-  updatePartnerContentEventUseCase,
-  updatePartnerContentItemUseCase,
-} from '../index';
+import { createPartnerContentEventUseCase } from '../application/usecases/createPartnerContentEventUseCase';
+import { deletePartnerContentEventUseCase } from '../application/usecases/deletePartnerContentEventUseCase';
+import { updatePartnerContentEventUseCase } from '../application/usecases/updatePartnerContentEventUseCase';
+import { updatePartnerContentItemUseCase } from '../application/usecases/updatePartnerContentItemUseCase';
 import { partnerEventFormSchema } from '../schemas/partnerEventFormSchema';
 import type { PartnerContentEditorState, PartnerContentEventInput } from '../types/partnerContent';
 
-function getErrorMessage(error: unknown, fallback: string): string {
-  return error instanceof Error && error.message ? error.message : fallback;
+// Códigos que o servidor devolve nestas rotas e que a pessoa consegue resolver (§10.2, §12.5).
+const KNOWN_CODES: Record<string, string> = {
+  EVENT_HAS_SALES: 'partnerCatalog.actions.hasSales',
+  SESSION_HAS_SALES: 'partnerCatalog.actions.sessionHasSales',
+  SESSION_DATE_LOCKED: 'partnerCatalog.actions.sessionDateLocked',
+  CAPACITY_BELOW_SOLD: 'partnerCatalog.actions.capacityBelowSold',
+  CONTACT_IN_TEXT: 'partnerGuide.page.contactInText',
+};
+
+function codeOf(error: unknown): string | undefined {
+  return error instanceof Error ? KNOWN_CODES[error.message] : undefined;
 }
 
 function toPlainRecord(value: object): Record<string, unknown> {
@@ -33,87 +40,79 @@ export interface SaveEventSessionsContext {
 
 export interface UsePartnerContentActionsProps {
   user: UserSession | null;
-  activeTab: 'items' | 'events';
   isEditing: PartnerContentEditorState | null;
-  setIsEditing: (item: PartnerContentEditorState | null) => void;
   setShowDeleteConfirm: (val: boolean) => void;
   setIsLoading: (val: boolean) => void;
 }
 
+/**
+ * Salvar e excluir o evento aberto no editor, e pausar um estabelecimento no guia. Salvar e excluir
+ * devolvem se deu certo: quem chama fecha as páginas do editor, que descartam o rascunho ao sair.
+ */
 export function usePartnerContentActions({
   user,
-  activeTab,
   isEditing,
-  setIsEditing,
   setShowDeleteConfirm,
   setIsLoading,
 }: UsePartnerContentActionsProps) {
+  const { t } = useTranslation();
   const { showToast } = useUI();
 
-  const handleDelete = useCallback(async () => {
-    if (!isEditing?.id) return;
-
+  const handleDeleteEvent = useCallback(async (): Promise<boolean> => {
+    if (!isEditing?.id) return false;
     setIsLoading(true);
-    const coll = activeTab === 'items' ? 'items' : 'events';
     try {
-      if (coll === 'items') {
-        await deletePartnerContentItemUseCase(isEditing.id);
-      } else {
-        await deletePartnerContentEventUseCase(isEditing.id);
-      }
-
-      setIsEditing(null);
+      await deletePartnerContentEventUseCase(isEditing.id);
       setShowDeleteConfirm(false);
-      showToast('Item excluído com sucesso!', 'success');
+      showToast(t('partnerCatalog.actions.deleted'), 'success');
+      return true;
     } catch (error: unknown) {
-      console.error('Erro ao excluir:', error);
-      showToast(getErrorMessage(error, 'Erro ao excluir item'), 'error');
+      setShowDeleteConfirm(false);
+      showToast(t(codeOf(error) ?? 'partnerCatalog.actions.deleteFailed'), 'error');
+      return false;
     } finally {
       setIsLoading(false);
     }
-  }, [isEditing, activeTab, setIsLoading, setIsEditing, setShowDeleteConfirm, showToast]);
+  }, [isEditing, setIsLoading, setShowDeleteConfirm, showToast, t]);
 
+  // Só os estabelecimentos são pausados no guia ("Pausar no guia", na página dele).
   const handleToggleActive = useCallback(
     async (itemId: string, currentActiveState: boolean) => {
-      const coll = activeTab === 'items' ? 'items' : 'events';
       try {
-        if (coll === 'items') {
-          await updatePartnerContentItemUseCase(itemId, {
-            isActive: !currentActiveState,
-          });
-        } else {
-          await updatePartnerContentEventUseCase(itemId, {
-            isActive: !currentActiveState,
-          });
-        }
-        showToast(`Item ${!currentActiveState ? 'ativado' : 'desativado'} com sucesso!`, 'success');
-      } catch (error: unknown) {
-        console.error('Erro ao alternar status ativo:', error);
-        showToast(getErrorMessage(error, 'Erro ao atualizar status'), 'error');
+        await updatePartnerContentItemUseCase(itemId, { isActive: !currentActiveState });
+        showToast(
+          t(
+            currentActiveState ? 'partnerCatalog.actions.paused' : 'partnerCatalog.actions.resumed'
+          ),
+          'success'
+        );
+      } catch {
+        showToast(t('partnerCatalog.actions.toggleFailed'), 'error');
       }
     },
-    [activeTab, showToast]
+    [showToast, t]
   );
 
   const handleSaveEvent = useCallback(
-    async ({ sessionsLoadState, savedSessionIds }: SaveEventSessionsContext) => {
-      if (!isEditing || !user?.uid) return;
+    async ({ sessionsLoadState, savedSessionIds }: SaveEventSessionsContext): Promise<boolean> => {
+      if (!isEditing || !user?.uid) return false;
 
       if (sessionsLoadState === 'loading' || sessionsLoadState === 'error') {
-        showToast('Aguarde o carregamento das sessões do evento antes de salvar.', 'error');
-        return;
+        showToast(t('partnerCatalog.actions.sessionsLoading'), 'error');
+        return false;
       }
       const sessions = isEditing.sessions ?? [];
+      // TODO: B69 — a validação das sessões (domínio events) ainda devolve a frase em português.
       const sessionsError = validateEventSessions(sessions);
       if (sessionsError) {
         showToast(sessionsError, 'error');
-        return;
+        return false;
       }
       const { date, endDate } = eventDateRangeFromSessions(sessions);
 
       if (!isEditing.id && !isEditing.establishmentId?.trim()) {
-        showToast('Selecione o estabelecimento ou o perfil de produtor do evento.', 'error');
-        return;
+        showToast(t('partnerCatalog.actions.establishmentRequired'), 'error');
+        return false;
       }
 
       const parsedEvent = partnerEventFormSchema.safeParse({
@@ -136,9 +135,14 @@ export function usePartnerContentActions({
       });
 
       if (!parsedEvent.success) {
-        const firstIssue = parsedEvent.error.issues[0];
-        showToast(firstIssue?.message || 'Preencha os campos obrigatórios.', 'error');
-        return;
+        const issue = parsedEvent.error.issues[0];
+        showToast(
+          issue?.message.startsWith('partnerCatalog.')
+            ? t(issue.message)
+            : t('partnerCatalog.actions.required.generic'),
+          'error'
+        );
+        return false;
       }
 
       setIsLoading(true);
@@ -188,20 +192,20 @@ export function usePartnerContentActions({
             sessions,
           });
         }
-        setIsEditing(null);
-        showToast('Evento salvo com sucesso!', 'success');
+        showToast(t('partnerCatalog.actions.saved'), 'success');
+        return true;
       } catch (error: unknown) {
-        console.error('Erro ao salvar evento:', error);
-        showToast(getErrorMessage(error, 'Erro ao salvar evento'), 'error');
+        showToast(t(codeOf(error) ?? 'partnerCatalog.actions.saveFailed'), 'error');
+        return false;
       } finally {
         setIsLoading(false);
       }
     },
-    [isEditing, user?.uid, setIsLoading, setIsEditing, showToast]
+    [isEditing, user?.uid, setIsLoading, showToast, t]
   );
 
   return {
-    handleDelete,
+    handleDeleteEvent,
     handleToggleActive,
     handleSaveEvent,
   };

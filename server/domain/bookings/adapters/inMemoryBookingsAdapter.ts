@@ -41,6 +41,14 @@ export class InMemoryBookingsAdapter implements BookingsPort {
       (offer) => offer.guideItemId === guideItemId && offer.status === 'published'
     );
   }
+  async listOffersByGuideItem(guideItemId: string) {
+    return [...this.offers.values()].filter((offer) => offer.guideItemId === guideItemId);
+  }
+  async hasActiveBookings(offerId: string) {
+    return [...this.bookings.values()].some(
+      (b) => b.offerId === offerId && (b.status === 'pending_payment' || b.status === 'confirmed')
+    );
+  }
   async upsertPublicOfferProjection(offer: PublicBookableOffer) {
     this.publicOffers.set(offer.id, offer);
   }

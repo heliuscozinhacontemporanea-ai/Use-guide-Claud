@@ -54,6 +54,8 @@ export interface PartnerEstablishment {
   timeZone?: string;
   /** Rascunho fica fora do guia até ser publicado (D34). */
   publication: 'draft' | 'published';
+  /** Passos de "Para aparecer no guia", com o que falta (editor do anúncio, F2). */
+  setupSteps: ListingStep[];
 }
 
 export interface PartnerUpcomingSession {

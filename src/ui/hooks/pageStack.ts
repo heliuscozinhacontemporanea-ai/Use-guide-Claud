@@ -11,8 +11,8 @@ function markers(): string[] {
 /** Páginas abertas por cima de uma tela, guardadas fora do React (`usePageStack` lê). */
 export interface PageStack<T> {
   push: (page: T) => void;
-  /** Fecha a página de cima: pelo histórico, se a entrada dela for a atual. */
-  back: () => void;
+  /** Fecha a página de cima (ou as `count` de cima): pelo histórico, se a entrada dela for a atual. */
+  back: (count?: number) => void;
   /** Fecha todas as páginas desta pilha (ex.: ir para outra aba a partir de uma página). */
   clear: () => void;
   getPages: () => readonly T[];
@@ -52,12 +52,13 @@ export function createPageStack<T>(scope: string): PageStack<T> {
       pages = [...pages, page];
       emit();
     },
-    back() {
+    back(count = 1) {
+      const steps = Math.max(1, Math.min(count, pages.length));
       if (markers().at(-1)?.startsWith(`${scope}#`)) {
-        window.history.back();
+        window.history.go(-Math.min(steps, depth()));
         return;
       }
-      pages = pages.slice(0, -1);
+      pages = pages.slice(0, -steps);
       emit();
     },
     clear() {

@@ -44,7 +44,7 @@ function input(overrides: Partial<PartnerHomeInput> = {}): PartnerHomeInput {
         rating: 4.8,
         reviewCount: 96,
         publication: 'published',
-        setupSteps: [],
+        setupSteps: [{ id: 'details', done: false, missing: ['luggage'] }],
       },
       {
         id: 'pousada',
@@ -112,7 +112,12 @@ describe('buildPartnerHome', () => {
       'plan_expiring',
       'verification_rejected',
     ]);
-    expect(home.establishments[0]).toMatchObject({ id: 'buggy', unansweredReviews: 2 });
+    expect(home.establishments[0]).toMatchObject({
+      id: 'buggy',
+      unansweredReviews: 2,
+      // O editor do anúncio mostra o ✓ ou o que falta de cada bloco (F2).
+      setupSteps: [{ id: 'details', done: false, missing: ['luggage'] }],
+    });
     expect(home.establishments[1]).toMatchObject({ id: 'pousada', unansweredReviews: 0 });
     expect(home.attention[1]).toMatchObject({
       establishmentIds: ['buggy'],

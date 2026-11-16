@@ -272,7 +272,7 @@ describe('Página do evento (p10–p12) e Editar evento (p18)', () => {
     expect(await screen.findByText('Nenhum pedido encontrado.')).toBeTruthy();
   });
 
-  it('Editar evento lista só o cadastro e abre cada parte; sem vendas nem portaria', () => {
+  it('Editar evento lista só o cadastro e cada parte abre como página (item 4 da D33)', () => {
     const item = {
       id: 'ev1',
       name: 'Luau na Duna',
@@ -283,13 +283,13 @@ describe('Página do evento (p10–p12) e Editar evento (p18)', () => {
       phone: '+5588999999999',
       instagramLink: '@luau',
     } as unknown as PartnerContentEditorState;
-    render(
+    const onOpenSection = vi.fn();
+    const view = render(
       <PartnerEventEditor
         item={item}
         onChange={vi.fn()}
-        onClose={vi.fn()}
-        onSave={vi.fn()}
-        isLoading={false}
+        section={null}
+        onOpenSection={onOpenSection}
         isUploading={false}
         onImageUpload={vi.fn()}
         sessionsLoadState={{ status: 'loaded' } as never}
@@ -313,8 +313,26 @@ describe('Página do evento (p10–p12) e Editar evento (p18)', () => {
     expect(screen.getByText('2 fotos')).toBeTruthy();
     expect(screen.getByText('WhatsApp, Instagram')).toBeTruthy();
     expect(screen.queryByText(/Vendas|Portaria|Check-in/)).toBeNull();
+    // Sem barra de salvar própria: o "Salvar" fica na barra da página (painel).
+    expect(screen.queryByRole('button', { name: 'Salvar' })).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: /Contato/ }));
-    expect(screen.getByRole('heading', { name: 'Contato' })).toBeTruthy();
+    expect(onOpenSection).toHaveBeenCalledWith('contact', 'Contato');
+
+    view.rerender(
+      <PartnerEventEditor
+        item={item}
+        onChange={vi.fn()}
+        section="contact"
+        onOpenSection={onOpenSection}
+        isUploading={false}
+        onImageUpload={vi.fn()}
+        sessionsLoadState={{ status: 'loaded' } as never}
+        showDeleteConfirm={false}
+        onRequestDelete={vi.fn()}
+        onConfirmDelete={vi.fn()}
+      />
+    );
+    expect(screen.queryByRole('button', { name: /Datas e sessões/ })).toBeNull();
     expect(screen.queryByText('Região do evento')).toBeNull();
   });
 
@@ -325,9 +343,8 @@ describe('Página do evento (p10–p12) e Editar evento (p18)', () => {
           { id: 'ev1', name: 'Luau', category: 'event' } as unknown as PartnerContentEditorState
         }
         onChange={vi.fn()}
-        onClose={vi.fn()}
-        onSave={vi.fn()}
-        isLoading={false}
+        section={null}
+        onOpenSection={vi.fn()}
         isUploading={false}
         onImageUpload={vi.fn()}
         sessionsLoadState={{ status: 'loaded' } as never}

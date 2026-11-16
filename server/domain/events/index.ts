@@ -1,6 +1,9 @@
 export {
   EventDomainError,
   EventHasSalesError,
+  OccurrenceHasSalesError,
+  OccurrenceDateLockedError,
+  CapacityBelowSoldError,
   EventNotFoundError,
   EventOwnershipError,
   OccurrenceNotFoundError,
@@ -29,7 +32,6 @@ export { createEventAuditLogUseCase } from './usecases/createEventAuditLogUseCas
 export { createEventListingUseCase } from './usecases/createEventListingUseCase';
 export { createEventOccurrenceUseCase } from './usecases/createEventOccurrenceUseCase';
 export { deleteEventOccurrenceUseCase } from './usecases/deleteEventOccurrenceUseCase';
-export { deleteEventsByOwnerUseCase } from './usecases/deleteEventsByOwnerUseCase';
 export { deleteOrArchiveEventListingUseCase } from './usecases/deleteOrArchiveEventListingUseCase';
 export { duplicateEventListingUseCase } from './usecases/duplicateEventListingUseCase';
 export { getEventListingByIdUseCase } from './usecases/getEventListingByIdUseCase';
@@ -43,6 +45,7 @@ export { postponeEventOccurrenceUseCase } from './usecases/postponeEventOccurren
 export { publishEventListingUseCase } from './usecases/publishEventListingUseCase';
 export { recordEventAuditLogUseCase } from './usecases/recordEventAuditLogUseCase';
 export { updateEstablishmentEventsPlaceUseCase } from './usecases/updateEstablishmentEventsPlaceUseCase';
+export { countOpenEstablishmentEventsUseCase } from './usecases/countOpenEstablishmentEventsUseCase';
 export { updateEstablishmentEventsVerificationUseCase } from './usecases/updateEstablishmentEventsVerificationUseCase';
 export { updateEventListingPricingSummaryUseCase } from './usecases/updateEventListingPricingSummaryUseCase';
 export { updateEventListingUseCase } from './usecases/updateEventListingUseCase';

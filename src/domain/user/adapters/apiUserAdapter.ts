@@ -71,6 +71,14 @@ export class ApiUserAdapter implements UserPort {
           code: 'REAUTHENTICATION_REQUIRED',
         });
       }
+      // Vendas em andamento prendem a conta: o código e os motivos vão para a tela traduzir.
+      const typed = errorData.error;
+      if (typed && typeof typed === 'object' && typeof typed.code === 'string') {
+        throw Object.assign(new Error(typed.code), {
+          code: typed.code,
+          blockers: Array.isArray(typed.blockers) ? typed.blockers : [],
+        });
+      }
       throw new Error(errorData.error || 'Falha ao excluir conta via API');
     }
   }

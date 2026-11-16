@@ -11,11 +11,13 @@ import type {
 async function parseJsonOrThrow<T>(response: Response, fallbackMessage: string): Promise<T> {
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) {
-    throw new Error(
-      typeof (payload as { error?: string }).error === 'string'
-        ? (payload as { error: string }).error
-        : fallbackMessage
-    );
+    const error = (payload as { error?: unknown }).error;
+    // Erro tipado (`{ code, message }`) vira o código, que a tela traduz (§10.2, §12.5).
+    const code =
+      error && typeof error === 'object' && typeof (error as { code?: unknown }).code === 'string'
+        ? (error as { code: string }).code
+        : undefined;
+    throw new Error(code ?? (typeof error === 'string' ? error : fallbackMessage));
   }
   return payload as T;
 }

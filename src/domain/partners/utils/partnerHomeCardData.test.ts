@@ -15,6 +15,7 @@ const VIEW: PartnerHomeView = {
       reviewCount: 1,
       unansweredReviews: 1,
       publication: 'published',
+      setupSteps: [],
     },
     {
       id: 'b',
@@ -25,6 +26,7 @@ const VIEW: PartnerHomeView = {
       reviewCount: 0,
       unansweredReviews: 0,
       publication: 'published',
+      setupSteps: [],
     },
   ],
   attention: [],

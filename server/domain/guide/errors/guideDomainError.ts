@@ -4,7 +4,10 @@ export type GuideErrorCode =
   | 'VALIDATION_ERROR'
   | 'INVALID_ID'
   | 'CONTACT_IN_TEXT'
-  | 'LISTING_INCOMPLETE';
+  | 'LISTING_INCOMPLETE'
+  /** Exclusão recusada: reservas ativas ou eventos ligados ao estabelecimento (D34, F2). */
+  | 'LISTING_HAS_BOOKINGS'
+  | 'LISTING_HAS_EVENTS';
 
 /** Passo do guia que impede publicar ou que o salvamento deixaria incompleto (D34). */
 export interface IncompleteListingStep {
