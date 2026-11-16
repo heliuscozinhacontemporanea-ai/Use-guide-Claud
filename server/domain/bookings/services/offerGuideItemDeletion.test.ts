@@ -96,4 +96,21 @@ describe('OfferService: exclusão do anúncio (D34, F2)', () => {
     // A reserva antiga continua guardada (retenção legal).
     expect(port.bookings.has('b1')).toBe(true);
   });
+
+  it('conta encerrada: reserva ativa em qualquer oferta do dono prende; arquivar tira todas do app', async () => {
+    const { port, service } = setup();
+    port.offers.set('de-outro-dono', offer('de-outro-dono', { ownerId: 'partner-2' }));
+    port.publicOffers.set('de-outro-dono', { id: 'de-outro-dono' } as never);
+    port.bookings.set('b1', booking('b1', 'de-outro-item', 'confirmed'));
+    expect(await service.hasActiveBookingsForOwner('partner-1')).toBe(true);
+    expect(await service.hasActiveBookingsForOwner('partner-2')).toBe(false);
+
+    await service.archiveOffersByOwner('partner-1');
+    for (const id of ['passeio', 'rascunho', 'de-outro-item']) {
+      expect(port.offers.get(id)?.status).toBe('archived');
+      expect(port.publicOffers.has(id)).toBe(false);
+    }
+    expect(port.offers.get('de-outro-dono')?.status).toBe('published');
+    expect(port.publicOffers.has('de-outro-dono')).toBe(true);
+  });
 });

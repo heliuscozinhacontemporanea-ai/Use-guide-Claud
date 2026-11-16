@@ -4,6 +4,7 @@ import { userService } from '../factory';
 import { Response } from 'express';
 import type { UserProfileDto } from '../dtos/userDto';
 import { AuthenticatedRequest } from '../../../infrastructure/auth/authMiddleware';
+import { AccountClosureBlockedError } from '../../../application/usecases/accountClosure/accountClosureBlockedError';
 import { deleteUserAccountApplicationUseCase } from '../../../application/usecases/deleteUserAccountApplicationUseCase';
 
 vi.mock('../../../application/usecases/deleteUserAccountApplicationUseCase', () => ({
@@ -267,6 +268,32 @@ describe('UserController', () => {
       const req = { body: { preferredLocale: 'en' } } as unknown as AuthenticatedRequest;
       await UserController.updatePreferences(req, res as unknown as Response);
       expect(res.status).toHaveBeenCalledWith(401);
+    });
+  });
+
+  describe('deleteAccount (travas de 2026-11-16)', () => {
+    it('conta com vendas em andamento: 409 com o código e os motivos, sem detalhe interno', async () => {
+      vi.mocked(deleteUserAccountApplicationUseCase).mockRejectedValueOnce(
+        new AccountClosureBlockedError(['sessions', 'payouts'])
+      );
+      const req = { user: { uid: 'p1' } } as unknown as AuthenticatedRequest;
+      await UserController.deleteAccount(req, mockRes);
+      expect(statusMock).toHaveBeenCalledWith(409);
+      expect(jsonMock).toHaveBeenCalledWith({
+        error: {
+          code: 'ACCOUNT_HAS_ACTIVE_SALES',
+          message: expect.any(String),
+          blockers: ['sessions', 'payouts'],
+        },
+      });
+    });
+
+    it('sem vendas: exclui e responde 200', async () => {
+      vi.mocked(deleteUserAccountApplicationUseCase).mockResolvedValueOnce(undefined);
+      const req = { user: { uid: 'p1' } } as unknown as AuthenticatedRequest;
+      await UserController.deleteAccount(req, mockRes);
+      expect(deleteUserAccountApplicationUseCase).toHaveBeenCalledWith('p1');
+      expect(statusMock).toHaveBeenCalledWith(200);
     });
   });
 });

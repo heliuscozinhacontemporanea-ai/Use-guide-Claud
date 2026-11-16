@@ -34,7 +34,6 @@ export interface EventsPort {
       isVerificationSuspended: boolean;
     }
   ): Promise<void>;
-  deleteListingsByOwner(ownerId: string): Promise<void>;
 
   createOccurrence(input: CreateEventOccurrenceInput): Promise<EventOccurrence>;
   getOccurrenceById(occurrenceId: string): Promise<EventOccurrence | null>;

@@ -7,6 +7,7 @@ import {
   updateUserProfileSchema,
   uploadUserPhotoSchema,
 } from '../schemas/userSchema';
+import { AccountClosureBlockedError } from '../../../application/usecases/accountClosure/accountClosureBlockedError';
 import { deleteUserAccountApplicationUseCase } from '../../../application/usecases/deleteUserAccountApplicationUseCase';
 
 export class UserController {
@@ -114,6 +115,12 @@ export class UserController {
         .status(200)
         .json({ status: 'success', message: 'Conta e dados associados excluídos com sucesso' });
     } catch (error) {
+      // Vendas em andamento prendem a conta (travas de 2026-11-16): a tela diz o que resolver.
+      if (error instanceof AccountClosureBlockedError) {
+        return res.status(409).json({
+          error: { code: error.code, message: error.message, blockers: error.blockers },
+        });
+      }
       console.error('[UserController.deleteAccount Error]:', error);
       return res.status(500).json({ error: 'Não foi possível excluir a conta.' });
     }

@@ -284,13 +284,6 @@ export class EventsService {
     await this.eventsPort.updateVerificationByEstablishment(establishmentId, verification);
   }
 
-  async deleteListingsByOwner(ownerId: string): Promise<void> {
-    if (!ownerId?.trim()) {
-      return;
-    }
-    await this.eventsPort.deleteListingsByOwner(ownerId);
-  }
-
   async updateListingPricingSummary(
     eventListingId: string,
     summary: { pricingMode: 'free' | 'paid'; startingPriceMinor?: number }

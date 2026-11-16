@@ -58,6 +58,14 @@ export const accountFr: AccountTranslation = {
     googleCanceled: 'Annulé : confirmez avec votre compte Google pour continuer.',
     deleteError: 'Impossible de supprimer le compte. Vérifiez votre connexion et réessayez.',
     recentLogin: 'Par sécurité, reconnectez-vous avant de supprimer votre compte.',
+    closureBookings:
+      'Votre compte a des réservations actives en tant que partenaire. Annulez les créneaux dans l’agenda du tableau de bord et réessayez.',
+    closureSessions:
+      'Votre compte a des séances à venir avec des billets ou des invitations. Annulez-les ou reportez-les depuis la fiche de la séance et réessayez.',
+    closureDebts:
+      'Votre compte a une pénalité impayée. Réglez-la dans Gains, dans le tableau de bord partenaire, et réessayez.',
+    closurePayouts:
+      'Votre compte a des virements à recevoir ou retenus par une réclamation. Attendez le virement et réessayez.',
     photoSaved: 'Photo mise à jour.',
     photoError: "Impossible d'utiliser cette photo. Essayez-en une autre.",
   },

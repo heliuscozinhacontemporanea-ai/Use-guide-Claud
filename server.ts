@@ -44,6 +44,7 @@ import {
 import { InternalBookingsController } from './server/interfaces/http/bookings/internalBookingsController';
 import { courtesyRouter } from './server/interfaces/http/courtesies/courtesyRoutes';
 import listingStatsRouter from './server/interfaces/http/insights/listingStatsRoutes';
+import partnerClosureRouter from './server/interfaces/http/partners/partnerClosureRoutes';
 import listingPlanRouter from './server/interfaces/http/listingPlans/listingPlanRoutes';
 import listingVerificationRouter from './server/interfaces/http/listingVerifications/listingVerificationRoutes';
 import { adminMessageRouter } from './server/interfaces/http/notifications/adminMessageRoutes';
@@ -271,6 +272,8 @@ async function startServer() {
   app.use('/api/listing-plans', listingPlanRouter);
   app.use('/api/partners/offers', partnerOffersRouter);
   app.use('/api/partners/establishments', partnerEstablishmentsRouter);
+  // Encerrar o perfil de parceiro passa pelas travas de venda (orquestra vários domínios, §3.4).
+  app.use('/api/partners', partnerClosureRouter);
   app.use('/api/partners', partnerRouter);
   app.use('/api/items', itemRouter);
   app.use('/api/events', publicEventsRouter);

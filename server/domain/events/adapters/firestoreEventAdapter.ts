@@ -140,18 +140,6 @@ export class FirestoreEventAdapter implements EventsPort {
     await batch.commit();
   }
 
-  async deleteListingsByOwner(ownerId: string): Promise<void> {
-    const eventsSnapshot = await adminDb.collection('events').where('ownerId', '==', ownerId).get();
-    if (eventsSnapshot.empty) {
-      return;
-    }
-    const batch = adminDb.batch();
-    eventsSnapshot.forEach((doc) => {
-      batch.delete(doc.ref);
-    });
-    await batch.commit();
-  }
-
   async createOccurrence(input: CreateEventOccurrenceInput): Promise<EventOccurrence> {
     const docRef = adminDb.collection('eventOccurrences').doc();
     const payload = EventOccurrencePersistenceMapper.toPersistenceCreate(input);

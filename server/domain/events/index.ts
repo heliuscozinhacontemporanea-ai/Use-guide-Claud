@@ -32,7 +32,6 @@ export { createEventAuditLogUseCase } from './usecases/createEventAuditLogUseCas
 export { createEventListingUseCase } from './usecases/createEventListingUseCase';
 export { createEventOccurrenceUseCase } from './usecases/createEventOccurrenceUseCase';
 export { deleteEventOccurrenceUseCase } from './usecases/deleteEventOccurrenceUseCase';
-export { deleteEventsByOwnerUseCase } from './usecases/deleteEventsByOwnerUseCase';
 export { deleteOrArchiveEventListingUseCase } from './usecases/deleteOrArchiveEventListingUseCase';
 export { duplicateEventListingUseCase } from './usecases/duplicateEventListingUseCase';
 export { getEventListingByIdUseCase } from './usecases/getEventListingByIdUseCase';

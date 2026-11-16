@@ -105,25 +105,4 @@ export class PartnerController {
       return handleControllerError(res, error, 'Erro ao buscar perfil de parceiro');
     }
   }
-
-  static async deletePartner(req: AuthenticatedRequest, res: Response) {
-    try {
-      const uid = req.user?.uid;
-      if (!uid) {
-        return res.status(401).json({ error: 'Não autenticado' });
-      }
-
-      const rawPartnerId = req.params.partnerId || uid;
-      const partnerId = (Array.isArray(rawPartnerId) ? rawPartnerId[0] : rawPartnerId) || uid;
-
-      if (!req.user?.admin && uid !== partnerId) {
-        return res.status(403).json({ error: 'Sem permissão para excluir este parceiro' });
-      }
-
-      await partnerService.deletePartnerProfile(partnerId);
-      return res.status(200).json({ status: 'success', message: 'Parceiro excluído com sucesso' });
-    } catch (error: unknown) {
-      return handleControllerError(res, error, 'Erro ao excluir parceiro');
-    }
-  }
 }

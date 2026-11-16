@@ -5,6 +5,7 @@ import { getCurrentUserUseCase } from '../application/usecases/getCurrentUserUse
 import { updateCurrentUserUseCase } from '../application/usecases/updateCurrentUserUseCase';
 import { updatePasswordUseCase } from '../application/usecases/updatePasswordUseCase';
 import { PasswordData, ShowPasswordsData, UserData } from '../types/user';
+import { deleteAccountFeedbackKey } from '../utils/deleteAccountFeedback';
 
 export function useUserProfile(onAccountDeleted?: () => void) {
   const { user } = useAuthContext();
@@ -131,23 +132,8 @@ export function useUserProfile(onAccountDeleted?: () => void) {
         onAccountDeleted();
       }
     } catch (error: unknown) {
-      const err = error as { message?: string; code?: string };
       console.error('[useUserProfile] Error deleting account:', error);
-      let text = 'account.feedback.deleteError';
-      if (err?.code === 'auth/invalid-credential' || err?.code === 'auth/wrong-password') {
-        text = 'account.feedback.wrongPassword';
-      } else if (
-        err?.code === 'auth/requires-recent-login' ||
-        err?.message === 'REAUTHENTICATION_REQUIRED' ||
-        err?.code === 'REAUTHENTICATION_REQUIRED'
-      ) {
-        text = 'account.feedback.recentLogin';
-      } else if (
-        err?.code === 'auth/popup-closed-by-user' ||
-        err?.code === 'auth/cancelled-popup-request'
-      ) {
-        text = 'account.feedback.googleCanceled';
-      }
+      const text = deleteAccountFeedbackKey(error);
       setError(text);
       setMessage({ type: 'error', text });
     } finally {

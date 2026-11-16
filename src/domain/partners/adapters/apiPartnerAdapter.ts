@@ -92,7 +92,13 @@ export class ApiPartnerAdapter implements PartnerPort {
 
     if (!res.ok) {
       const errorData = await res.json().catch(() => ({}));
-      throw new Error(errorData.error || 'Erro ao remover parceiro no backend');
+      // Erro tipado (ex.: ACCOUNT_HAS_ACTIVE_SALES) vira o código; texto solto, como antes.
+      const typed = errorData.error;
+      throw new Error(
+        typed && typeof typed === 'object' && typeof typed.code === 'string'
+          ? typed.code
+          : typed || 'Erro ao remover parceiro no backend'
+      );
     }
   }
 }

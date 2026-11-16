@@ -17,7 +17,6 @@ function createMockPort(): EventsPort {
     updateVerificationByEstablishment: vi.fn(),
     updatePlaceByEstablishment: vi.fn(),
     countOpenListingsByEstablishment: vi.fn(),
-    deleteListingsByOwner: vi.fn(),
     createOccurrence: vi.fn(),
     getOccurrenceById: vi.fn(),
     listOccurrencesByListingId: vi.fn(),
