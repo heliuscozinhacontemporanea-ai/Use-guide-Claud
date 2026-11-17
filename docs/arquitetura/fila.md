@@ -8,7 +8,7 @@ A ordem abaixo foi proposta em 2026-11-15 e pode ser mudada pelo responsável.
 
 | # | Item | Situação | Decisão |
 |---|---|---|---|
-| 5 | **D34 · F3**: detalhes de venda só na oferta (D1 a D4), editor de oferta, Horários e Reservas como páginas empilhadas, duração em horas e minutos, guia abrindo a oferta direto, sem abas de idioma na oferta | Escolhas aprovadas em 2026-11-17 (ponto 2 em proposta, abaixo) | D34 |
+| 5 | **D34 · F3**: detalhes de venda só na oferta (D1 a D4), editor de oferta, Horários e Reservas como páginas empilhadas, duração em horas e minutos, guia abrindo a oferta direto, sem abas de idioma na oferta | F3a no PR #29 (2026-11-17), aguardando "aprovado, pode publicar"; ponto 2 (aluguel e translado) vira a F3b, abaixo | D34 |
 | 5b | **Tradução automática** do conteúdo cadastrado (D5): domínio `translation` com Google Cloud Translation, só no backend, `LocalizedText` com `source` e traduções, aviso "Traduzido automaticamente pelo Google · Ver original" | Pendente (responsável, 2026-11-17); serviço pago: proposta antes do código (AGENTS.md §15) | D5, AGENTS.md §12.6 |
 | 6 | **D34 · F4**: admin no mesmo editor do parceiro (D6, D8). Cobre o "editor do admin" do **item 5 da D33** | | D34, D33 |
 | 7 | **D34 · F5**: evento herda contato e local do estabelecimento (D5) | | D34 |

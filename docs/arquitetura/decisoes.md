@@ -572,6 +572,14 @@ Aprovada pelo responsável do produto em 2026-11-15, decisão a decisão, nos co
   4. **Duração da oferta em horas e minutos** (opção a).
   5. **O guia abre a oferta direto** (opção a): "Primeira oferta" abre a nova oferta já ligada ao anúncio; "Horários" abre os horários dela.
   6. **Sem tradução feita à mão na oferta** (opção b): as abas Português, English e Français do editor de oferta saem; o parceiro escreve um texto só. A tradução automática da D5 (Google Cloud Translation, domínio `translation`) fica pendente na fila; até ela existir, quem usa o app em inglês ou francês vê o texto original da oferta.
+* **Implementação da F3a** (2026-11-17, PR #29; escolhas reversíveis registradas na entrega):
+  * O servidor recusa `durationMinutes`, `meetingPoint`, `price` (da atração), `maxPassengers` e `minRentalHours` no `operationalInfo` do anúncio. Gravar um passo do anúncio manda só os campos que o servidor aceita (lista conferida pelo tipo), para que anúncios antigos com esses campos continuem salvando; os campos antigos ficam esquecidos no documento até ele ser recriado (sem migração, AGENTS.md §2.2 item 8).
+  * O bloco Detalhes diz onde foi o que saiu: passeio ("Duração, ponto de encontro, preço e vagas ficam em cada oferta do passeio.") e atração paga (preço na oferta de entrada). Aluguel e translado ganham a frase na F3b.
+  * Editor de oferta, Horários e Reservas são uma página da pilha do painel (`view: 'offer'`), montada pela composição (`renderOfferPage`), com o título vindo de quem pede. Criar a oferta troca a página do editor pela dos horários dela (`replace` da pilha, sem nova entrada no histórico) e mostra "Oferta salva"; editar volta à lista. Ao fechar a última página de oferta, a lista e o guia do Início são relidos.
+  * Página aberta a partir de uma folha espera a entrada da folha sair do histórico (`afterSheetsClose`). Sem isso, o voltar assíncrono da folha fechava a página nova: era o que acontecia com o atalho "Cupons" da folha da oferta.
+  * Duração da oferta em dois campos (horas e minutos), de 15 min a 24 h (a mesma faixa de antes).
+  * O texto da oferta vai na chave `pt-BR` do modelo até a tradução automática (D5) existir; salvar apaga as traduções escritas à mão antes da F3.
+  * O passo "Horários" do guia traz a oferta que abre (a primeira ativa sem horário); oferta arquivada não conta como feita nem é aberta pelo guia.
 * **Implementação da F2** (2026-11-16, escolhas reversíveis registradas na entrega):
   * O ✓ ou o que falta fica à direita de cada bloco, como no protótipo; com 3 ou mais campos em aberto, a linha diz quantos ("Faltam 7 itens") e a página do bloco diz quais.
   * "Excluir anúncio" e "Excluir evento" são uma linha vermelha num cartão próprio, como no protótipo.
