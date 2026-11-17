@@ -1,5 +1,5 @@
 import { BookingDomainError } from '../errors/bookingDomainError';
-import type { BookingsPort, PageRequest } from '../ports/bookingsPort';
+import type { BookingsPort, FleetDayChange, PageRequest } from '../ports/bookingsPort';
 import {
   type AvailabilitySlot,
   type AvailabilitySlotStatus,
@@ -13,6 +13,16 @@ import {
   type Page,
   type PublicBookableOffer,
 } from '../types/bookingTypes';
+import type { FleetDay } from '../types/fleetTypes';
+import {
+  canHoldAgain,
+  fleetServiceEndsAt,
+  holdFleetBooking,
+  releaseFleetBooking,
+  resizeFleetDay,
+} from '../utils/fleetLedger';
+import { fleetSlotKey } from '../utils/fleetTime';
+import { rescheduleFleetHolds } from '../utils/fleetReschedule';
 import { newCheckIns } from '../utils/serviceProof';
 
 /** Usado SOMENTE por testes (AGENTS.md §2.2 item 7): mesmas regras de vagas do adapter do Firestore. */
@@ -23,6 +33,32 @@ export class InMemoryBookingsAdapter implements BookingsPort {
   readonly bookings = new Map<string, Booking>();
   readonly participants = new Map<string, BookingParticipant[]>();
   readonly audit: Array<{ bookingId: string; reason: string }> = [];
+  readonly fleetDays = new Map<string, FleetDay>();
+  private slotCounter = 0;
+
+  async saveFleetDays(changes: FleetDayChange[]) {
+    const now = new Date().toISOString();
+    const days = changes.map((change) => {
+      const current = this.fleetDays.get(change.id);
+      const window = {
+        ...(change.opensAt ? { opensAt: change.opensAt } : {}),
+        ...(change.closesAt ? { closesAt: change.closesAt } : {}),
+      };
+      return current
+        ? { ...resizeFleetDay(current, change.vehicles, now), ...window }
+        : { ...change, ...window, holds: [], slotIndex: {}, createdAt: now, updatedAt: now };
+    });
+    for (const day of days) this.fleetDays.set(day.id, day);
+    return days;
+  }
+  async getFleetDay(dayId: string) {
+    return this.fleetDays.get(dayId) ?? null;
+  }
+  async listFleetDays(offerId: string, fromDate: string, toDate: string) {
+    return [...this.fleetDays.values()]
+      .filter((day) => day.offerId === offerId && day.date >= fromDate && day.date <= toDate)
+      .sort((a, b) => a.date.localeCompare(b.date));
+  }
 
   async createOffer(offer: BookableOffer) {
     this.offers.set(offer.id, offer);
@@ -92,6 +128,28 @@ export class InMemoryBookingsAdapter implements BookingsPort {
     const slot = this.slots.get(params.slotId);
     if (!slot) throw new BookingDomainError('NOT_FOUND', 'Horário não encontrado.');
     const at = new Date().toISOString();
+    if (slot.fleetDayId) {
+      const offer = this.offers.get(slot.offerId);
+      const active = [...this.bookings.values()].filter(
+        (booking) =>
+          booking.slotId === slot.id &&
+          (booking.status === 'confirmed' || booking.status === 'pending_payment')
+      );
+      const plan = rescheduleFleetHolds({
+        slot,
+        bookings: active,
+        startsAt: params.startsAt,
+        timeZone: offer?.timeZone,
+        days: (id) => this.fleetDays.get(id) ?? null,
+        now: at,
+      });
+      for (const day of plan.days) this.fleetDays.set(day.id, day);
+      this.slots.set(slot.id, plan.slot);
+      for (const booking of plan.bookings) {
+        this.bookings.set(booking.id, { ...booking, rescheduledAt: at, updatedAt: at });
+      }
+      return plan.bookings.map((booking) => ({ ...booking, rescheduledAt: at, updatedAt: at }));
+    }
     this.slots.set(slot.id, {
       ...slot,
       startsAt: params.startsAt,
@@ -121,6 +179,25 @@ export class InMemoryBookingsAdapter implements BookingsPort {
   async reserveCapacityAndCreateBooking(booking: Booking, participants: BookingParticipant[]) {
     const existing = this.bookings.get(booking.id);
     if (existing) return existing;
+    if (booking.fleet) {
+      const day = this.fleetDays.get(booking.fleet.dayId) ?? null;
+      const key = fleetSlotKey(booking.offerSnapshot.startsAt, fleetServiceEndsAt(booking));
+      const slotId = day?.slotIndex[key];
+      this.slotCounter += 1;
+      const result = holdFleetBooking({
+        day,
+        booking,
+        existingSlot: slotId ? (this.slots.get(slotId) ?? null) : null,
+        newSlotId: `slot_${this.slotCounter}`,
+        now: new Date().toISOString(),
+      });
+      this.slots.set(result.slot.id, result.slot);
+      this.fleetDays.set(result.day.id, result.day);
+      const created = { ...booking, slotId: result.slot.id };
+      this.bookings.set(created.id, created);
+      this.participants.set(created.id, participants);
+      return created;
+    }
     const slot = this.slots.get(booking.slotId);
     if (!slot) throw new BookingDomainError('NOT_FOUND', 'Horário não encontrado.');
     if (slot.status !== 'open')
@@ -146,9 +223,16 @@ export class InMemoryBookingsAdapter implements BookingsPort {
     } else if (
       booking.status === 'expired' &&
       slot.status === 'open' &&
-      this.available(slot) >= booking.participantsCount
+      (booking.fleet
+        ? canHoldAgain(this.fleetDays.get(booking.fleet.dayId) ?? null, booking)
+        : this.available(slot) >= booking.participantsCount)
     ) {
       slot.capacitySold += booking.participantsCount;
+      const day = booking.fleet && this.fleetDays.get(booking.fleet.dayId);
+      if (day && booking.fleet) {
+        const { startsAt, endsAt } = booking.fleet;
+        day.holds.push({ bookingId, startsAt, endsAt, units: booking.participantsCount });
+      }
     } else {
       throw new BookingDomainError('LATE_PAYMENT_REJECTED', 'Pagamento não aceito.');
     }
@@ -179,6 +263,10 @@ export class InMemoryBookingsAdapter implements BookingsPort {
     if (slot) {
       if (booking.status === 'pending_payment') slot.capacityReserved -= booking.participantsCount;
       else slot.capacitySold -= booking.participantsCount;
+    }
+    const day = booking.fleet && this.fleetDays.get(booking.fleet.dayId);
+    if (day) {
+      this.fleetDays.set(day.id, releaseFleetBooking(day, booking.id, new Date().toISOString()));
     }
     const updated: Booking = {
       ...booking,

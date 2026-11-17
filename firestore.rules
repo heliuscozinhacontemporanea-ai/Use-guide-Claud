@@ -115,6 +115,10 @@ service cloud.firestore {
     match /bookingCheckInFailures/{failureId} {
       allow read, write: if false;
     }
+    // Dias abertos de aluguel e translado privativo (F3b): só o backend lê e grava.
+    match /fleetDays/{dayId} {
+      allow read, write: if false;
+    }
     match /ticketCheckInCodeFailures/{failureId} {
       allow read, write: if false;
     }

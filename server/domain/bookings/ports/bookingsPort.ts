@@ -10,6 +10,17 @@ import type {
   Page,
   PublicBookableOffer,
 } from '../types/bookingTypes';
+import type { FleetDay } from '../types/fleetTypes';
+
+/** Abrir ou mudar um dia de uma oferta por veículo (F3b). */
+export interface FleetDayChange {
+  id: string;
+  offerId: string;
+  date: string;
+  vehicles: number;
+  opensAt?: string;
+  closesAt?: string;
+}
 
 export interface PageRequest {
   cursor?: string | null;
@@ -33,6 +44,14 @@ export interface BookingsPort {
   upsertPublicOfferProjection(offer: PublicBookableOffer): Promise<void>;
   deletePublicOfferProjection(offerId: string): Promise<void>;
 
+  /**
+   * Abre ou muda dias de ofertas por veículo numa transação; recusa baixar os veículos de um dia abaixo
+   * do que já está reservado ao mesmo tempo (`VEHICLES_BELOW_BOOKED`).
+   */
+  saveFleetDays(changes: FleetDayChange[]): Promise<FleetDay[]>;
+  getFleetDay(dayId: string): Promise<FleetDay | null>;
+  listFleetDays(offerId: string, fromDate: string, toDate: string): Promise<FleetDay[]>;
+
   /** Cria só os horários cujo ID ainda não existe; devolve os criados. */
   createSlots(slots: AvailabilitySlot[]): Promise<AvailabilitySlot[]>;
   getSlot(slotId: string): Promise<AvailabilitySlot | null>;
@@ -49,7 +68,10 @@ export interface BookingsPort {
     reason: string;
   }): Promise<Booking[]>;
 
-  /** Idempotente pelo ID da reserva; lança INSUFFICIENT_CAPACITY ou SLOT_UNAVAILABLE. */
+  /**
+   * Idempotente pelo ID da reserva; lança INSUFFICIENT_CAPACITY ou SLOT_UNAVAILABLE. Reserva por veículo
+   * (`booking.fleet`): ocupa o dia e usa ou cria o horário de serviço; o ID do horário volta na reserva.
+   */
   reserveCapacityAndCreateBooking(
     booking: Booking,
     participants: BookingParticipant[]
