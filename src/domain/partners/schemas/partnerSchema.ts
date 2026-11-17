@@ -133,12 +133,9 @@ export const step3Schema = z
     amenitiesRestaurant: z.array(z.string()).optional().default([]),
     menuLink: z.string().optional().default(''),
     sightAccessType: z.string().optional().default(''),
-    sightPrice: z.string().optional().default(''),
     sightServices: z.array(z.string()).optional().default([]),
     sightAmenities: z.array(z.string()).optional().default([]),
     sightActivities: z.array(z.string()).optional().default([]),
-    tourDurationHours: z.string().optional().default(''),
-    meetingPoint: z.string().optional().default(''),
     itinerary: z.string().optional().default(''),
     luggageInfo: z.string().optional().default(''),
     transferRoutes: z
@@ -146,38 +143,26 @@ export const step3Schema = z
       .optional()
       .default([]),
     transferVehicles: z.array(z.string()).optional().default([]),
-    maxPassengers: z.string().optional().default(''),
     rentalVehicles: z.array(z.string()).optional().default([]),
-    minRentalHours: z.string().optional().default(''),
   })
   .superRefine((data, ctx) => {
     const require = (ok: boolean, path: string, message: string) => {
       if (!ok) ctx.addIssue({ code: z.ZodIssueCode.custom, path: [path], message });
     };
-    for (const field of ['itinerary', 'meetingPoint', 'luggageInfo'] as const) {
+    for (const field of ['itinerary', 'luggageInfo'] as const) {
       if (hasContact(data.category, data[field])) {
         ctx.addIssue({ code: z.ZodIssueCode.custom, path: [field], message: CONTACT_IN_TEXT });
       }
     }
-    if (data.category === 'tour') {
-      const hours = Number(data.tourDurationHours.replace(',', '.'));
-      require(Number.isFinite(hours) &&
-        hours > 0, 'tourDurationHours', 'partnerSignup.errors.durationRequired');
-      require(data.meetingPoint.trim() !==
-        '', 'meetingPoint', 'partnerSignup.errors.meetingPointRequired');
-    } else if (data.category === 'transfer') {
+    if (data.category === 'transfer') {
       require(data.transferRoutes.some(
         (route) => route.from.trim() && route.to.trim()
       ), 'transferRoutes', 'partnerSignup.errors.routesRequired');
       require(data.transferVehicles.length >
         0, 'transferVehicles', 'partnerSignup.errors.vehiclesRequired');
-      require(Number.parseInt(data.maxPassengers, 10) >
-        0, 'maxPassengers', 'partnerSignup.errors.capacityRequired');
     } else if (data.category === 'rental') {
       require(data.rentalVehicles.length >
         0, 'rentalVehicles', 'partnerSignup.errors.rentalWhatRequired');
-      require(Number.parseInt(data.minRentalHours, 10) >
-        0, 'minRentalHours', 'partnerSignup.errors.minHoursRequired');
     }
     if (data.category === 'hotel') {
       if (data.servesBreakfast === null || data.servesBreakfast === undefined) {
@@ -218,14 +203,6 @@ export const step3Schema = z
           path: ['sightAccessType'],
           message: 'partnerSignup.errors.accessRequired',
         });
-      } else if (data.sightAccessType === 'pago') {
-        if (!data.sightPrice || data.sightPrice.trim() === '') {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            path: ['sightPrice'],
-            message: 'partnerSignup.errors.accessPriceRequired',
-          });
-        }
       }
     }
   });
@@ -396,7 +373,6 @@ export const partnerSubmissionSchema = z.object({
   sightServices: z.array(z.string()).optional().default([]),
   sightAmenities: z.array(z.string()).optional().default([]),
   sightAccessType: z.string().optional().default(''),
-  sightPrice: z.string().optional().default(''),
   photosLink: z.string().optional().default(''),
   additionalInfo: z.string().optional().default(''),
   images: z.array(z.any()).optional().default([]),

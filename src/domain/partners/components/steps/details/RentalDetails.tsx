@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { ChipGroup, type DetailOptions, TextField, YesNoField } from './DetailFields';
+import { ChipGroup, type DetailOptions, YesNoField } from './DetailFields';
 import type { FieldKey } from './detailKeys';
 import { type DetailsSectionProps, useDetailsForm } from './useDetailsForm';
 
@@ -38,18 +38,6 @@ export function RentalDetails(props: DetailsSectionProps) {
         required
         error={getFieldError('rentalVehicles')}
       />
-      {props.listingOnly ? null : (
-        <TextField
-          id="rental-min-hours"
-          label={f('minHours')}
-          inputMode="numeric"
-          value={formData.minRentalHours}
-          onChange={(value) => updateFieldValue('minRentalHours', value.replace(/\D/g, ''))}
-          placeholder={t('partnerSignup.details.placeholders.minHours')}
-          required
-          error={getFieldError('minRentalHours')}
-        />
-      )}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <YesNoField
           label={f('deposit')}

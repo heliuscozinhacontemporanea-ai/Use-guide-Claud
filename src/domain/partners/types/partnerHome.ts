@@ -114,6 +114,8 @@ export interface PartnerFirstStep {
   /** `pending`: verificação em análise; `locked`: depende do passo anterior. */
   state?: 'pending' | 'locked';
   itemId: string;
+  /** Horários: a oferta que o passo abre (F3). */
+  offerId?: string;
 }
 
 /** Passo de "Para aparecer no guia" (D34), com os campos que faltam. */

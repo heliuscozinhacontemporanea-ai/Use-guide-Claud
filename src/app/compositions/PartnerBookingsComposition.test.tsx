@@ -42,7 +42,7 @@ describe('PartnerBookingsComposition (B26: conta por estabelecimento)', () => {
       { accountKey: 'k1', itemIds: ['tour-1'], account: { readyForSales: true } },
       { accountKey: 'k2', itemIds: ['tour-2'], account: { readyForSales: false } },
     ]);
-    render(<PartnerBookingsComposition items={ITEMS as never} />);
+    render(<PartnerBookingsComposition items={ITEMS as never} onOpenPage={vi.fn()} />);
     expect(await screen.findByText(/Alguns estabelecimentos ainda não podem vender/)).toBeTruthy();
     const { canPublish } = m.manager.mock.calls.at(-1)?.[0] ?? {};
     expect(canPublish('tour-1')).toBe(true);
@@ -53,7 +53,7 @@ describe('PartnerBookingsComposition (B26: conta por estabelecimento)', () => {
     m.accounts.mockResolvedValue([
       { accountKey: 'k1', itemIds: ['tour-1', 'tour-2'], account: { readyForSales: true } },
     ]);
-    render(<PartnerBookingsComposition items={ITEMS as never} />);
+    render(<PartnerBookingsComposition items={ITEMS as never} onOpenPage={vi.fn()} />);
     await waitFor(() => expect(m.accounts).toHaveBeenCalled());
     await waitFor(() => expect(m.manager.mock.calls.at(-1)?.[0].canPublish('tour-2')).toBe(true));
     expect(screen.queryByText('portal')).toBeNull();

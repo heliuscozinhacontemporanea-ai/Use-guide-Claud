@@ -23,6 +23,8 @@ export interface FirstStep {
   state?: 'pending' | 'locked';
   /** Estabelecimento que o passo abre. */
   itemId: string;
+  /** Horários: a oferta que o passo abre (F3), a primeira ainda sem horário aberto. */
+  offerId?: string;
 }
 
 /** O anúncio que o cartão acompanha, com os passos de "Para aparecer no guia". */
@@ -51,7 +53,7 @@ export interface FirstStepsInput {
   }>;
   verifications: ReadonlyArray<{ itemId: string; status: string }>;
   accounts: ReadonlyArray<{ itemIds: string[]; account: { readyForSales: boolean } | null }>;
-  offers: ReadonlyArray<{ id: string; guideItemId: string; kind: string }>;
+  offers: ReadonlyArray<{ id: string; guideItemId: string; kind: string; status: string }>;
   /** Ofertas com pelo menos um horário aberto daqui para a frente. */
   offersWithSlots: ReadonlySet<string>;
   events: ReadonlyArray<{ establishmentId?: string | null }>;
@@ -112,10 +114,15 @@ function stepsFor(
   if (entry.segment === 'events') {
     return [verify, account, { id: 'event', done: input.events.length > 0, itemId }];
   }
+  // Oferta arquivada não vende mais: não conta como feita nem abre os horários.
   const offers = input.offers.filter(
-    (offer) => offer.kind === entry.offerKind && itemIds.includes(offer.guideItemId)
+    (offer) =>
+      offer.kind === entry.offerKind &&
+      offer.status !== 'archived' &&
+      itemIds.includes(offer.guideItemId)
   );
   const hasSlots = offers.some((offer) => input.offersWithSlots.has(offer.id));
+  const slotsOffer = offers.find((offer) => !input.offersWithSlots.has(offer.id)) ?? offers[0];
   return [
     verify,
     account,
@@ -124,7 +131,7 @@ function stepsFor(
       id: 'slots',
       done: hasSlots,
       itemId,
-      ...(!hasSlots && offers.length === 0 ? { state: 'locked' } : {}),
+      ...(slotsOffer ? { offerId: slotsOffer.id } : { state: 'locked' }),
     },
   ];
 }

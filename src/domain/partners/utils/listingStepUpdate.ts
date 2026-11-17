@@ -15,6 +15,43 @@ function instagramLink(value: string): string {
   return handle ? `https://instagram.com/${handle}` : text;
 }
 
+// Campos que o servidor aceita no `operationalInfo` (allowlist, AGENTS.md §7.3): o anúncio lido do
+// Firestore pode trazer campos que saíram do cadastro (F3, D34), e o servidor recusaria a gravação.
+const OPERATIONAL_INFO_FIELDS: Record<keyof PartnerOperationalInfo, true> = {
+  itinerary: true,
+  includes: true,
+  transferRoutes: true,
+  vehicleTypes: true,
+  luggageInfo: true,
+  depositRequired: true,
+  driverLicenseRequired: true,
+  tags: true,
+  cuisineType: true,
+  subcategory: true,
+  amenities: true,
+  amenitiesRestaurant: true,
+  additionalServices: true,
+  mealTypes: true,
+  activities: true,
+  services: true,
+  languages: true,
+  menuLink: true,
+  access: true,
+  breakfast: true,
+  checkIn: true,
+  checkOut: true,
+  childrenAllowed: true,
+  petsPolicy: true,
+  petsExtraCost: true,
+  operatingHours: true,
+};
+
+function knownFields(info: PartnerOperationalInfo | undefined): PartnerOperationalInfo {
+  return Object.fromEntries(
+    Object.entries(info ?? {}).filter(([key]) => key in OPERATIONAL_INFO_FIELDS)
+  ) as PartnerOperationalInfo;
+}
+
 /** Páginas do guia de passos que gravam algo no anúncio (D34). */
 export type ListingStepEdit =
   | 'name'
@@ -76,7 +113,7 @@ export function listingStepUpdate(
   form: FormState,
   extras: ListingStepExtras = {}
 ): Partial<PartnerContentItemInput> {
-  const current: PartnerOperationalInfo = item.operationalInfo ?? {};
+  const current = knownFields(item.operationalInfo);
   switch (step) {
     case 'name':
       return {

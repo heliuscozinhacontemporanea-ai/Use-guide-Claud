@@ -23,29 +23,6 @@ export function TourDetails(props: DetailsSectionProps) {
 
   return (
     <div className="space-y-5">
-      {props.listingOnly ? null : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <TextField
-            id="tour-duration"
-            label={f('tourDuration')}
-            inputMode="decimal"
-            value={formData.tourDurationHours}
-            onChange={(value) => updateFieldValue('tourDurationHours', value)}
-            placeholder={p('tourDuration')}
-            required
-            error={getFieldError('tourDurationHours')}
-          />
-          <TextField
-            id="tour-meeting-point"
-            label={f('meetingPoint')}
-            value={formData.meetingPoint}
-            onChange={(value) => updateFieldValue('meetingPoint', value)}
-            placeholder={p('meetingPoint')}
-            required
-            error={getFieldError('meetingPoint')}
-          />
-        </div>
-      )}
       <TextField
         id="tour-itinerary"
         label={f('itinerary')}

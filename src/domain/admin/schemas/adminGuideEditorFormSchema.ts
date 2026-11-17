@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { unmaskCurrency } from '../../../shared/utils/currencyMask';
 
 export const adminOccurrenceFormSchema = z
   .object({
@@ -54,16 +53,6 @@ export const adminGuideEditorFormSchema = z
         path: ['image'],
         message: 'Erro: Você deve escolher uma das imagens como CAPA antes de salvar.',
       });
-    }
-    if (data.operationalInfo?.access === 'pago') {
-      const priceValue = unmaskCurrency(String(data.operationalInfo?.price || ''));
-      if (priceValue <= 0) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['operationalInfo'],
-          message: 'Erro: Insira um valor de preço válido maior que zero.',
-        });
-      }
     }
     if (data.category === 'event') {
       const hasOccurrences = Array.isArray(data.occurrences) && data.occurrences.length > 0;

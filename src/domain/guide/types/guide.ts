@@ -1,14 +1,10 @@
 export interface GuideItemOperationalInfo {
   /** Passeio, translado e aluguel (decisão D9). */
-  durationMinutes?: number;
-  meetingPoint?: string;
   itinerary?: string;
   includes?: string[];
   transferRoutes?: Array<{ from: string; to: string }>;
   vehicleTypes?: string[];
-  maxPassengers?: number;
   luggageInfo?: string;
-  minRentalHours?: number;
   depositRequired?: boolean;
   driverLicenseRequired?: boolean;
   tags?: string[];
@@ -23,7 +19,6 @@ export interface GuideItemOperationalInfo {
   languages?: string[] | string;
   menuLink?: string;
   access?: string;
-  price?: string;
   breakfast?: {
     serves?: boolean;
     types?: string[];

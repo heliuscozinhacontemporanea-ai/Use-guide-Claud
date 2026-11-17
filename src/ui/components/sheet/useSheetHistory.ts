@@ -65,3 +65,31 @@ export function useSheetHistory(id: string, open: boolean, onPopped: () => void)
     [id]
   );
 }
+
+// Uma folha que fecha tira a entrada dela com `history.back()`, que só chega depois (assíncrono).
+const SHEET_CLOSE_FALLBACK_MS = 800;
+
+/**
+ * Roda `run` quando nenhuma folha estiver mais no histórico. Para abrir uma página a partir de uma
+ * folha que está fechando: aberta antes, a página herdaria a marca da folha e o `back()` dela a fecharia.
+ */
+export function afterSheetsClose(run: () => void): void {
+  if (openSheets().length === 0) {
+    run();
+    return;
+  }
+  let done = false;
+  const finish = () => {
+    if (done) return;
+    done = true;
+    window.removeEventListener('popstate', onPop);
+    window.clearTimeout(timer);
+    run();
+  };
+  const onPop = () => {
+    if (openSheets().length === 0) finish();
+  };
+  window.addEventListener('popstate', onPop);
+  // Folha fechada sem voltar no histórico (ex.: entrada já removida): segue mesmo assim.
+  const timer = window.setTimeout(finish, SHEET_CLOSE_FALLBACK_MS);
+}

@@ -31,7 +31,7 @@ const readyToSell: FirstStepsInput = {
   ...base,
   verifications: [{ itemId: 'buggy', status: 'approved' }],
   accounts: [{ itemIds: ['buggy'], account: { readyForSales: true } }],
-  offers: [{ id: 'offer-1', guideItemId: 'buggy', kind: 'tour' }],
+  offers: [{ id: 'offer-1', guideItemId: 'buggy', kind: 'tour', status: 'published' }],
   offersWithSlots: new Set(['offer-1']),
 };
 
@@ -95,7 +95,12 @@ describe('buildFirstSteps', () => {
 
   it('horários: libera com a oferta e fica feito com um horário aberto', () => {
     const noSlots = buildFirstSteps({ ...readyToSell, offersWithSlots: new Set() });
-    expect(noSlots?.steps.at(-1)).toEqual({ id: 'slots', done: false, itemId: 'buggy' });
+    expect(noSlots?.steps.at(-1)).toEqual({
+      id: 'slots',
+      done: false,
+      itemId: 'buggy',
+      offerId: 'offer-1',
+    });
   });
 
   it('tudo feito no passeio: some; aluguel novo vira "Comece a vender"', () => {
@@ -147,5 +152,28 @@ describe('buildFirstSteps', () => {
     });
     expect(result?.steps.map((step) => step.id)).toEqual(['verify', 'account', 'event']);
     expect(result?.listing.steps.map((step) => step.id)).toEqual(['name']);
+  });
+
+  it('horários abre a primeira oferta ativa; oferta arquivada não conta (F3)', () => {
+    const offers = [
+      { id: 'old', guideItemId: 'buggy', kind: 'tour', status: 'archived' },
+      { id: 'draft', guideItemId: 'buggy', kind: 'tour', status: 'draft' },
+      { id: 'live', guideItemId: 'buggy', kind: 'tour', status: 'published' },
+    ];
+    // Só a arquivada tem horário: o passo continua aberto e leva à primeira oferta ativa.
+    const result = buildFirstSteps({ ...readyToSell, offers, offersWithSlots: new Set(['old']) });
+    expect(result?.steps.at(-1)).toEqual({
+      id: 'slots',
+      done: false,
+      itemId: 'buggy',
+      offerId: 'draft',
+    });
+    const onlyArchived = buildFirstSteps({
+      ...readyToSell,
+      offers: [offers[0] as (typeof offers)[number]],
+      offersWithSlots: new Set(),
+    });
+    expect(onlyArchived?.steps.at(-2)).toMatchObject({ id: 'offer', done: false });
+    expect(onlyArchived?.steps.at(-1)).toMatchObject({ id: 'slots', state: 'locked' });
   });
 });

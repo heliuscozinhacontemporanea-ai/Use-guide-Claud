@@ -133,24 +133,16 @@ describe('Partner Validation Schemas (Frontend)', () => {
       expect(result.success).toBe(true);
     });
 
-    it('tour exige duração positiva e ponto de encontro', () => {
-      expect(
-        step3Schema.safeParse({ category: 'tour', tourDurationHours: '3', meetingPoint: 'Vila' })
-          .success
-      ).toBe(true);
-      const invalid = step3Schema.safeParse({ category: 'tour', tourDurationHours: '0' });
-      expect(invalid.success).toBe(false);
-      const paths = invalid.error?.issues.map((issue) => issue.path[0]);
-      expect(paths).toEqual(expect.arrayContaining(['tourDurationHours', 'meetingPoint']));
+    it('tour não pede duração nem ponto de encontro: ficam na oferta (F3, D34)', () => {
+      expect(step3Schema.safeParse({ category: 'tour' }).success).toBe(true);
     });
 
-    it('transfer exige um trecho completo, um veículo e a capacidade', () => {
+    it('transfer exige um trecho completo e um veículo; passageiros ficam na oferta', () => {
       expect(
         step3Schema.safeParse({
           category: 'transfer',
           transferRoutes: [{ from: 'Fortaleza', to: 'Jericoacoara' }],
           transferVehicles: ['Van'],
-          maxPassengers: '12',
         }).success
       ).toBe(true);
       const invalid = step3Schema.safeParse({
@@ -158,22 +150,19 @@ describe('Partner Validation Schemas (Frontend)', () => {
         transferRoutes: [{ from: 'Fortaleza', to: ' ' }],
       });
       const paths = invalid.error?.issues.map((issue) => issue.path[0]);
-      expect(paths).toEqual(
-        expect.arrayContaining(['transferRoutes', 'transferVehicles', 'maxPassengers'])
-      );
+      expect(paths).toEqual(['transferRoutes', 'transferVehicles']);
     });
 
-    it('rental exige o que é alugado e o período mínimo', () => {
+    it('rental exige o que é alugado; o período fica na oferta', () => {
       expect(
         step3Schema.safeParse({
           category: 'rental',
           rentalVehicles: ['Quadriciclo'],
-          minRentalHours: '2',
         }).success
       ).toBe(true);
       const invalid = step3Schema.safeParse({ category: 'rental' });
       const paths = invalid.error?.issues.map((issue) => issue.path[0]);
-      expect(paths).toEqual(expect.arrayContaining(['rentalVehicles', 'minRentalHours']));
+      expect(paths).toEqual(['rentalVehicles']);
     });
   });
 

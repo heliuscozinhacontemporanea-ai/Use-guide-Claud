@@ -8,6 +8,7 @@ import {
   EntryOfflineKeys,
   EstablishmentCodeSheet,
   isBookableCategory,
+  PartnerOfferPage,
   PartnerSlotSheet,
   SlotContactsList,
   startSlotServiceUseCase,
@@ -223,15 +224,29 @@ export function PartnerPortalComposition() {
         <PlanSubscriptionCard itemId={itemId} plans={periodOptions} onLiveChange={onLiveChange} />
       )}
       renderCatalog={{
-        renderOffers: ({ items, creating, onCreatingChange, inPage, onOpenCoupons }) =>
-          inPage && !items.some((item) => isBookableCategory(item.category)) ? null : (
+        renderOffers: ({
+          items,
+          creating,
+          onCreatingChange,
+          inPage,
+          onOpenCoupons,
+          onOpenPage,
+          version,
+        }) =>
+          !onOpenPage ||
+          (inPage && !items.some((item) => isBookableCategory(item.category))) ? null : (
             <PartnerBookingsComposition
               items={items}
               creating={creating}
               onCreatingChange={onCreatingChange}
               onOpenCoupons={onOpenCoupons}
+              onOpenPage={onOpenPage}
+              version={version}
             />
           ),
+        renderOfferPage: ({ page, registerSave, onSaved }) => (
+          <PartnerOfferPage page={page} registerSave={registerSave} onSaved={onSaved} />
+        ),
         renderVisits: (itemId, onOpenPlan) => (
           <MonthVisitsTile itemId={itemId} onOpenPlan={onOpenPlan} />
         ),

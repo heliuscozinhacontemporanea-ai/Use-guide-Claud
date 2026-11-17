@@ -106,6 +106,7 @@ export interface BookingsTranslation {
     publishNeedsStripe: string;
     stripeRequiredSome: string;
     accountStatusError: string;
+    offerMissing: string;
     fromPrice: string;
     /** Catálogo do painel (p09, p19): linha da oferta e folha de ações. */
     perPerson: string;
@@ -129,22 +130,19 @@ export interface BookingsTranslation {
   editor: {
     titleNew: string;
     titleEdit: string;
-    languageTabs: string;
     titleLabel: string;
     descriptionLabel: string;
-    optionalTranslation: string;
     pricingLegend: string;
     priceLabel: string;
     priceAmount: string;
     addPriceOption: string;
     removePriceOption: string;
     durationLabel: string;
+    durationHours: string;
+    durationMinutes: string;
     meetingPointLabel: string;
     maxParticipantsLabel: string;
     requireNamesLabel: string;
-    save: string;
-    cancel: string;
-    saveFailed: string;
   };
   validation: {
     required: string;
@@ -152,6 +150,7 @@ export interface BookingsTranslation {
     priceInvalid: string;
     integer: string;
     atLeastOnePrice: string;
+    durationRange: string;
   };
   slotSheet: {
     when: string;
@@ -395,6 +394,7 @@ export const bookingsPtBR: BookingsTranslation = {
     stripeRequiredSome:
       'Alguns estabelecimentos ainda não podem vender: conclua a configuração financeira do CNPJ de cada um em Recebimentos.',
     accountStatusError: 'Não foi possível verificar sua conta financeira agora.',
+    offerMissing: 'Esta oferta não está mais disponível.',
     fromPrice: 'a partir de {{amount}}',
     perPerson: '{{amount}} por pessoa',
     perGroup: '{{amount}} por grupo',
@@ -417,22 +417,19 @@ export const bookingsPtBR: BookingsTranslation = {
   editor: {
     titleNew: 'Nova oferta',
     titleEdit: 'Editar oferta',
-    languageTabs: 'Idioma do texto',
     titleLabel: 'Título',
     descriptionLabel: 'Descrição',
-    optionalTranslation: 'Tradução opcional',
     pricingLegend: 'Preços',
     priceLabel: 'Nome da opção',
     priceAmount: 'Valor (R$)',
     addPriceOption: 'Adicionar opção de preço',
     removePriceOption: 'Remover opção de preço',
-    durationLabel: 'Duração (minutos)',
+    durationLabel: 'Duração',
+    durationHours: 'Horas',
+    durationMinutes: 'Minutos',
     meetingPointLabel: 'Ponto de encontro',
     maxParticipantsLabel: 'Máximo de participantes por reserva',
     requireNamesLabel: 'Pedir o nome de cada pessoa',
-    save: 'Salvar',
-    cancel: 'Cancelar',
-    saveFailed: 'Não foi possível salvar a oferta.',
   },
   validation: {
     required: 'Campo obrigatório.',
@@ -440,6 +437,7 @@ export const bookingsPtBR: BookingsTranslation = {
     priceInvalid: 'Informe um valor maior que zero.',
     integer: 'Informe um número inteiro.',
     atLeastOnePrice: 'Informe ao menos uma opção de preço.',
+    durationRange: 'A duração vai de 15 min a 24 h.',
   },
   slotSheet: {
     when: '{{date}} · {{time}}',

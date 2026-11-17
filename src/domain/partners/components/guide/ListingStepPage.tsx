@@ -168,9 +168,7 @@ export function ListingStepPage({
         {step === 'photos' ? <ListingPhotosField images={images} onChange={setImages} /> : null}
         {step === 'about' ? <AboutFields {...fields} /> : null}
         {step === 'where' ? <WhereFields {...fields} /> : null}
-        {step === 'details' ? (
-          <DetailsFields {...fields} withSaleDetails={mode === 'editor'} />
-        ) : null}
+        {step === 'details' ? <DetailsFields {...fields} /> : null}
         {step === 'contacts' ? <ContactsFields {...fields} /> : null}
         {missing.length > 0 ? (
           <p className="px-1 text-[13px] text-ink/70">

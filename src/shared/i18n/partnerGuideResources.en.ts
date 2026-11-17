@@ -120,6 +120,14 @@ export const partnerGuideEn: PartnerGuideTranslation = {
     contacts: 'Contacts and links',
     contactsHint: 'Instagram and website',
   },
+  offer: {
+    newTitle: 'New offer',
+    slots: 'Time slots',
+    saved: 'Offer saved',
+    tourInOffer: 'Duration, meeting point, price and spots are set in each offer of the tour.',
+    sightPriceInOffer:
+      'With paid access, the entry price is set in the entry offer, which is what visitors buy.',
+  },
   page: {
     progress: 'Step {{current}} of {{total}}',
     next: 'Next: {{step}}',

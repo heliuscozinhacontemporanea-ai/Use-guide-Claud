@@ -57,3 +57,29 @@ describe('createPageStack · clear', () => {
     );
   });
 });
+
+describe('createPageStack · replace', () => {
+  afterEach(() => window.history.replaceState(null, ''));
+
+  it('troca a página de cima sem nova entrada no histórico; voltar leva à de baixo', async () => {
+    const stack = createPageStack<string>('painel');
+    const { result } = renderHook(() => usePageStack(stack));
+    act(() => stack.push('lugar'));
+    act(() => stack.push('editor'));
+    act(() => stack.replace('horários'));
+    expect(result.current).toEqual(['lugar', 'horários']);
+    expect((window.history.state as { ugPages?: string[] } | null)?.ugPages).toEqual([
+      'painel#1',
+      'painel#2',
+    ]);
+    act(() => stack.back());
+    await waitFor(() => expect(result.current).toEqual(['lugar']));
+  });
+
+  it('sem páginas abertas, não faz nada', () => {
+    const stack = createPageStack<string>('painel');
+    const { result } = renderHook(() => usePageStack(stack));
+    act(() => stack.replace('horários'));
+    expect(result.current).toEqual([]);
+  });
+});
