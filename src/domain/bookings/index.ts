@@ -14,6 +14,11 @@ export { MyBookingsView } from './components/buyer/MyBookingsView';
 export type { PaymentElementSlotProps, RenderPaymentElement } from './components/buyer/types';
 export { EntryOfflineKeys } from './components/partner/EntryOfflineKeys';
 export { EstablishmentCodeSheet } from './components/partner/EstablishmentCodeSheet';
+export { PartnerOfferPage } from './components/partner/PartnerOfferPage';
+export type {
+  PartnerOfferPageSpec,
+  PartnerOfferSaved,
+} from './components/partner/PartnerOfferPage';
 export { PartnerOffersManager } from './components/partner/PartnerOffersManager';
 export { PartnerSlotSheet } from './components/partner/PartnerSlotSheet';
 export { SlotCheckInSheet } from './components/partner/SlotCheckInSheet';

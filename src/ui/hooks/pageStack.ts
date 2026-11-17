@@ -13,6 +13,11 @@ export interface PageStack<T> {
   push: (page: T) => void;
   /** Fecha a página de cima (ou as `count` de cima): pelo histórico, se a entrada dela for a atual. */
   back: (count?: number) => void;
+  /**
+   * Troca a página de cima por outra, sem mexer no histórico: voltar dela leva à de baixo (ex.: a oferta
+   * recém-criada sai do editor direto para os horários).
+   */
+  replace: (page: T) => void;
   /** Fecha todas as páginas desta pilha (ex.: ir para outra aba a partir de uma página). */
   clear: () => void;
   getPages: () => readonly T[];
@@ -50,6 +55,11 @@ export function createPageStack<T>(scope: string): PageStack<T> {
         ''
       );
       pages = [...pages, page];
+      emit();
+    },
+    replace(page) {
+      if (pages.length === 0) return;
+      pages = [...pages.slice(0, -1), page];
       emit();
     },
     back(count = 1) {

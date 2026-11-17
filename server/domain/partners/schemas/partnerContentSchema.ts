@@ -22,7 +22,6 @@ const operationalInfoSchema = z
     languages: z.union([stringArraySchema, z.string().trim().max(1000)]).optional(),
     menuLink: optionalUrl,
     access: z.string().trim().max(500).optional(),
-    price: z.string().trim().max(200).optional(),
     breakfast: z
       .object({
         serves: z.boolean().optional(),
@@ -47,8 +46,6 @@ const operationalInfoSchema = z
       .strict()
       .optional(),
     // Passeio, translado e aluguel (decisão D9).
-    durationMinutes: z.number().int().min(15).max(10080).optional(),
-    meetingPoint: z.string().trim().max(300).optional(),
     itinerary: z.string().trim().max(2000).optional(),
     includes: stringArraySchema.max(30).optional(),
     transferRoutes: z
@@ -63,9 +60,7 @@ const operationalInfoSchema = z
       .max(30)
       .optional(),
     vehicleTypes: stringArraySchema.max(20).optional(),
-    maxPassengers: z.number().int().min(1).max(100).optional(),
     luggageInfo: z.string().trim().max(500).optional(),
-    minRentalHours: z.number().int().min(1).max(720).optional(),
     depositRequired: z.boolean().optional(),
     driverLicenseRequired: z.boolean().optional(),
     childrenAllowed: z.boolean().optional(),

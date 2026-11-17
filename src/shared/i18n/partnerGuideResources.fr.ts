@@ -122,6 +122,15 @@ export const partnerGuideFr: PartnerGuideTranslation = {
     contacts: 'Contacts et liens',
     contactsHint: 'Instagram et site web',
   },
+  offer: {
+    newTitle: 'Nouvelle offre',
+    slots: 'Créneaux',
+    saved: 'Offre enregistrée',
+    tourInOffer:
+      'La durée, le point de rendez-vous, le prix et les places se définissent dans chaque offre de l’excursion.',
+    sightPriceInOffer:
+      'Avec un accès payant, le prix d’entrée se définit dans l’offre d’entrée, celle que les visiteurs achètent.',
+  },
   page: {
     progress: 'Étape {{current}} sur {{total}}',
     next: 'Ensuite : {{step}}',

@@ -19,7 +19,6 @@ vi.mock('../../application/usecases/cancelSlotUseCase', () => ({ cancelSlotUseCa
 vi.mock('../../application/usecases/createSlotsUseCase', () => ({ createSlotsUseCase: vi.fn() }));
 
 import { cancelSlotUseCase } from '../../application/usecases/cancelSlotUseCase';
-import { createOfferUseCase } from '../../application/usecases/createOfferUseCase';
 import { listPartnerOffersUseCase } from '../../application/usecases/listPartnerOffersUseCase';
 import { listPartnerSlotsUseCase } from '../../application/usecases/listPartnerSlotsUseCase';
 
@@ -39,6 +38,7 @@ describe('PartnerOffersManager', () => {
       <PartnerOffersManager
         canPublish={() => true}
         items={[{ id: 'r1', name: 'Restaurante', category: 'restaurant' }]}
+        onOpenPage={vi.fn()}
       />
     );
     expect(
@@ -48,40 +48,41 @@ describe('PartnerOffersManager', () => {
     ).toBeTruthy();
   });
 
-  it('cria oferta convertendo R$ 150,90 em 15090 centavos', async () => {
+  it('um estabelecimento só: "Criar" abre a página do editor já ligada a ele (F3)', async () => {
     vi.mocked(listPartnerOffersUseCase).mockResolvedValue([]);
-    vi.mocked(createOfferUseCase).mockImplementation(async (payload) => ({
-      ...payload,
-      id: 'offer_1',
-      status: 'draft',
-      createdAt: '',
-      updatedAt: '',
-    }));
     const onCreatingChange = vi.fn();
+    const onOpenPage = vi.fn();
     render(
       <PartnerOffersManager
         canPublish={() => true}
         items={[{ id: 'item-1', name: 'Lagoa do Paraíso', category: 'tour' }]}
         creating
         onCreatingChange={onCreatingChange}
+        onOpenPage={onOpenPage}
       />
     );
-    // Um estabelecimento só: o "Criar" do Catálogo abre o editor direto.
-    fireEvent.change((await screen.findAllByLabelText('Título'))[0]!, {
-      target: { value: 'Passeio de buggy' },
-    });
-    fireEvent.change(screen.getByLabelText('Nome da opção'), { target: { value: 'Adulto' } });
-    fireEvent.change(screen.getByLabelText('Valor (R$)'), { target: { value: '150,90' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Salvar' }));
-    await waitFor(() => expect(createOfferUseCase).toHaveBeenCalled());
-    const payload = vi.mocked(createOfferUseCase).mock.calls[0]![0];
-    expect(payload).toMatchObject({
-      guideItemId: 'item-1',
-      kind: 'tour',
-      title: { 'pt-BR': 'Passeio de buggy' },
-    });
-    expect(payload.pricing.priceOptions[0]?.unitAmountMinor).toBe(15090);
+    await waitFor(() =>
+      expect(onOpenPage).toHaveBeenCalledWith({
+        kind: 'editor',
+        itemId: 'item-1',
+        category: 'tour',
+        title: 'Nova oferta',
+      })
+    );
     expect(onCreatingChange).toHaveBeenCalledWith(false);
+  });
+
+  it('a lista relê as ofertas quando uma página de oferta fecha (versão nova)', async () => {
+    vi.mocked(listPartnerOffersUseCase).mockResolvedValue([]);
+    const props = {
+      canPublish: () => true,
+      items: [{ id: 'item-1', name: 'Lagoa do Paraíso', category: 'tour' }],
+      onOpenPage: vi.fn(),
+    };
+    const { rerender } = render(<PartnerOffersManager {...props} version={0} />);
+    await waitFor(() => expect(listPartnerOffersUseCase).toHaveBeenCalledTimes(1));
+    rerender(<PartnerOffersManager {...props} version={1} />);
+    await waitFor(() => expect(listPartnerOffersUseCase).toHaveBeenCalledTimes(2));
   });
 
   it('linha da oferta abre a folha; sem conta pronta, "Publicar" fica desabilitado e explica', async () => {
@@ -100,10 +101,12 @@ describe('PartnerOffersManager', () => {
         updatedAt: '',
       } as never,
     ]);
+    const onOpenPage = vi.fn();
     render(
       <PartnerOffersManager
         canPublish={() => false}
         items={[{ id: 'item-1', name: 'Buggy do Preá', category: 'tour' }]}
+        onOpenPage={onOpenPage}
       />
     );
     fireEvent.click(await screen.findByRole('button', { name: /Passeio de buggy/ }));
@@ -116,15 +119,23 @@ describe('PartnerOffersManager', () => {
         'Conclua a configuração financeira do CNPJ deste estabelecimento para publicar.'
       )
     ).toBeTruthy();
+    // Horários e editar abrem páginas do painel (F3).
+    // A página abre depois que a folha sai do histórico (o voltar dela é assíncrono).
+    fireEvent.click(within(dialog).getByRole('button', { name: /Horários/ }));
+    await waitFor(() =>
+      expect(onOpenPage).toHaveBeenCalledWith({ kind: 'slots', offerId: 'o1', title: 'Horários' })
+    );
   });
 
   it('com mais de um estabelecimento, "Criar" pergunta em qual', async () => {
     vi.mocked(listPartnerOffersUseCase).mockResolvedValue([]);
+    const onOpenPage = vi.fn();
     render(
       <PartnerOffersManager
         canPublish={() => true}
         creating
         onCreatingChange={vi.fn()}
+        onOpenPage={onOpenPage}
         items={[
           { id: 'a', name: 'Buggy do Preá', category: 'tour' },
           { id: 'b', name: 'Dunas Park', category: 'sight' },
@@ -134,7 +145,11 @@ describe('PartnerOffersManager', () => {
     const dialog = await screen.findByRole('dialog');
     expect(within(dialog).getByText('Em qual estabelecimento?')).toBeTruthy();
     fireEvent.click(within(dialog).getByRole('button', { name: /Dunas Park/ }));
-    expect((await screen.findAllByLabelText('Título')).length).toBeGreaterThan(0);
+    await waitFor(() =>
+      expect(onOpenPage).toHaveBeenCalledWith(
+        expect.objectContaining({ kind: 'editor', itemId: 'b', category: 'sight' })
+      )
+    );
   });
 });
 

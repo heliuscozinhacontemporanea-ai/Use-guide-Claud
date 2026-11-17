@@ -137,25 +137,26 @@ export function WhereFields({ form, setForm, errors, setErrors }: ListingFieldsP
   );
 }
 
-/** Página de detalhes da categoria, sem os detalhes de venda (ficam na oferta, D34). */
-export function DetailsFields(props: ListingFieldsProps & { withSaleDetails?: boolean }) {
+/** Página de detalhes da categoria; os detalhes de venda ficam na oferta (D34, F3). */
+export function DetailsFields(props: ListingFieldsProps) {
   const { t } = useTranslation();
   const { form, setForm, errors, setErrors, declined, setDeclined } = props;
   const Details = DETAILS[form.category];
+  // O que saiu do anúncio e ficou na oferta (F3, D34).
+  const saleNote =
+    form.category === 'tour'
+      ? 'partnerGuide.offer.tourInOffer'
+      : form.category === 'sight' && form.sightAccessType === 'pago'
+        ? 'partnerGuide.offer.sightPriceInOffer'
+        : null;
   const update = (field: keyof FormState, value: unknown) =>
     setForm((prev) => ({ ...prev, [field]: value }));
   return (
     <div className="space-y-6">
       {Details ? (
-        <Details
-          formData={form}
-          setFormData={setForm}
-          errors={errors}
-          setErrors={setErrors}
-          // No editor, os detalhes de venda ficam até a F3 os tirar do cadastro (escolhas da F2).
-          listingOnly={!props.withSaleDetails}
-        />
+        <Details formData={form} setFormData={setForm} errors={errors} setErrors={setErrors} />
       ) : null}
+      {saleNote ? <p className={SIGNUP_HINT}>{t(saleNote)}</p> : null}
       {form.category === 'restaurant' ? (
         <DeclineBox
           label={t('partnerGuide.contacts.noMenu')}

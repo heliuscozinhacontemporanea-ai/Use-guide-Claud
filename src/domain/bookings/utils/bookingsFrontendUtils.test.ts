@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { buildSlotsPayload } from '../components/partner/SlotCreationForm';
 import { placeDateKey, placeInputToIso, startOfPlaceWeek } from './dates';
 import { formatMinor, minorToReaisInput, parseReaisToMinor } from './money';
-import { emptyOfferFormValues, offerFormToFields } from './offerFormMapping';
+import { emptyOfferFormValues, offerFormToFields, offerToFormValues } from './offerFormMapping';
 import { canEditUnitName, unitLabel } from './unitLabel';
 
 describe('dinheiro', () => {
@@ -50,15 +50,38 @@ describe('datas no fuso do lugar', () => {
 });
 
 describe('formulário de oferta', () => {
-  it('envia o preço em centavos e omite traduções vazias', () => {
-    const values = emptyOfferFormValues('tour');
-    values.title['pt-BR'] = 'Passeio';
-    values.priceOptions = [{ id: 'adult', label: 'Adulto', amount: '150,90' }];
+  it('envia o preço em centavos, um texto só e a duração em minutos (F3)', () => {
+    const values = {
+      ...emptyOfferFormValues('tour'),
+      title: ' Passeio ',
+      durationHours: 3,
+      durationMins: 45,
+      priceOptions: [{ id: 'adult', label: 'Adulto', amount: '150,90' }],
+    };
     const fields = offerFormToFields(values);
     expect(fields.pricing.priceOptions[0]?.unitAmountMinor).toBe(15090);
     expect(fields.title).toEqual({ 'pt-BR': 'Passeio' });
     expect(fields).not.toHaveProperty('description');
+    expect(fields.durationMinutes).toBe(225);
     expect(fields.cancellationPolicy).toBe('flexible');
+  });
+
+  it('a oferta salva volta ao formulário em horas e minutos', () => {
+    const values = offerToFormValues({
+      id: 'o1',
+      guideItemId: 'i1',
+      kind: 'tour',
+      status: 'draft',
+      title: { 'pt-BR': 'Buggy', en: 'Buggy ride' },
+      pricing: { currency: 'BRL', priceOptions: [] },
+      durationMinutes: 95,
+      cancellationPolicy: 'flexible',
+      maxParticipantsPerBooking: 8,
+      requiresParticipantNames: false,
+      createdAt: '',
+      updatedAt: '',
+    } as unknown as Parameters<typeof offerToFormValues>[0]);
+    expect(values).toMatchObject({ title: 'Buggy', durationHours: 1, durationMins: 35 });
   });
 });
 
@@ -104,7 +127,7 @@ describe('criação de horários', () => {
 });
 
 describe('venda por pessoa ou grupo (D20)', () => {
-  const tour = { ...emptyOfferFormValues('tour'), title: { 'pt-BR': 'Buggy', en: '', fr: '' } };
+  const tour = { ...emptyOfferFormValues('tour'), title: 'Buggy' };
 
   it('grupo envia o tamanho e desliga os nomes; entrada de atração é sempre por pessoa', () => {
     const group = offerFormToFields({

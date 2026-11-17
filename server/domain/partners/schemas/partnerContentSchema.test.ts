@@ -30,4 +30,20 @@ describe('createPartnerItemSchema', () => {
       false
     );
   });
+
+  it.each([
+    { durationMinutes: 240 },
+    { meetingPoint: 'Praça do Preá' },
+    { price: 'R$ 20' },
+    { maxPassengers: 4 },
+    { minRentalHours: 2 },
+  ])('recusa detalhe de venda no anúncio: fica na oferta (F3, D34) — %o', (field) => {
+    expect(
+      updatePartnerItemSchema.safeParse({ operationalInfo: { itinerary: 'Dunas', ...field } })
+        .success
+    ).toBe(false);
+    expect(
+      updatePartnerItemSchema.safeParse({ operationalInfo: { itinerary: 'Dunas' } }).success
+    ).toBe(true);
+  });
 });

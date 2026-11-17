@@ -35,6 +35,8 @@ const context = (overrides: Partial<PartnerPanelPageContext> = {}): PartnerPanel
   onListingDeleted: vi.fn(),
   onListingCreated: vi.fn(),
   renderEventEditor: vi.fn(() => null),
+  registerOfferSave: vi.fn(),
+  onOfferSaved: vi.fn(),
   ...overrides,
 });
 
@@ -132,7 +134,29 @@ describe('páginas do painel (D33): Catálogo e Ganhos', () => {
       )
     ).toBe('Informações');
 
-    const actions = { saveListing: vi.fn(), saveEvent: vi.fn(), savingEvent: false };
+    const actions = {
+      saveListing: vi.fn(),
+      saveOffer: vi.fn(),
+      saveEvent: vi.fn(),
+      savingEvent: false,
+    };
+    // Oferta (F3): o título vem de quem pediu a página; só o editor tem "Salvar".
+    const offerEditor = {
+      view: 'offer',
+      request: { kind: 'editor', itemId: 'p1', category: 'tour', title: 'Nova oferta' },
+    } as const;
+    expect(partnerPanelPageTitle(offerEditor, t, null)).toBe('Nova oferta');
+    const saveOffer = partnerPanelPageAction(offerEditor, t, actions);
+    expect(saveOffer?.label).toBe('Salvar');
+    saveOffer?.onClick();
+    expect(actions.saveOffer).toHaveBeenCalled();
+    expect(
+      partnerPanelPageAction(
+        { view: 'offer', request: { kind: 'slots', offerId: 'o1', title: 'Horários' } },
+        t,
+        actions
+      )
+    ).toBeUndefined();
     const step = { view: 'listing-step', itemId: 'p1', step: 'name', title: 'Nome' } as const;
     partnerPanelPageAction(step, t, actions)?.onClick();
     expect(actions.saveListing).toHaveBeenCalled();

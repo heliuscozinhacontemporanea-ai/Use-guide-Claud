@@ -90,7 +90,6 @@ function ensureNoContactInText(data: {
   const fields: Array<[string, string | undefined]> = [
     ['description', data.description],
     ['itinerary', data.operationalInfo?.itinerary],
-    ['meetingPoint', data.operationalInfo?.meetingPoint],
     ['luggageInfo', data.operationalInfo?.luggageInfo],
   ];
   for (const [field, text] of fields) {

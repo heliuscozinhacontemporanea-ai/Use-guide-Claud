@@ -1,10 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useCancellationPolicyOptions } from '../../../../shared/hooks/useCancellationPolicyOptions';
 import { RadioCardGroup } from '../../../../ui/components/RadioCardGroup';
-import { BUTTON_PRIMARY, BUTTON_SECONDARY, INPUT } from '../../../../ui/styles/controls';
+import { INPUT } from '../../../../ui/styles/controls';
 import {
   type OfferFormInput,
   type OfferFormValues,
@@ -13,25 +13,26 @@ import {
 import type { OfferFields } from '../../types/bookings';
 import { getBookingErrorMessage } from '../../utils/bookingErrorMessage';
 import { offerFormToFields } from '../../utils/offerFormMapping';
+import { OfferDurationInput } from './OfferDurationInput';
 import { OfferPriceFields } from './OfferPriceFields';
 import { OfferSellingUnitFields } from './OfferSellingUnitFields';
 import { OfferTextFields } from './OfferTextFields';
 
 interface PartnerOfferEditorProps {
-  mode: 'create' | 'edit';
   defaultValues: OfferFormValues;
   /** Política da oferta já publicada: só pode trocar por uma igual ou mais flexível (D14). */
   publishedPolicy?: string;
+  /** A página entrega o salvar à barra fixa, que tem o "Salvar" (F3, D33). */
+  registerSave: (save: (() => void) | null) => void;
   onSubmit: (fields: OfferFields, kind: OfferFormValues['kind']) => Promise<void>;
-  onCancel: () => void;
 }
 
+/** Editor de oferta como página empilhada do painel; voltar descarta o que não foi salvo. */
 export function PartnerOfferEditor({
-  mode,
   defaultValues,
   publishedPolicy,
+  registerSave,
   onSubmit,
-  onCancel,
 }: PartnerOfferEditorProps) {
   const { t } = useTranslation();
   // Translado ainda não é vendável (AVAILABLE_OFFER_KINDS); quando for, a família vem do tipo da oferta.
@@ -41,7 +42,7 @@ export function PartnerOfferEditor({
     register,
     control,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<OfferFormInput, unknown, OfferFormValues>({
     resolver: zodResolver(offerFormSchema),
     defaultValues,
@@ -51,45 +52,76 @@ export function PartnerOfferEditor({
   const sellingUnit = useWatch({ control, name: 'sellingUnit' });
   const group = defaultValues.kind === 'tour' && sellingUnit === 'group';
 
+  // A barra pode ser tocada de novo enquanto a gravação anterior não voltou.
+  const saving = useRef(false);
   const submit = handleSubmit(async (values) => {
+    if (saving.current) return;
+    saving.current = true;
     setSubmitError(null);
     try {
       await onSubmit(offerFormToFields(values), values.kind);
     } catch (error: unknown) {
       setSubmitError(getBookingErrorMessage(error));
+    } finally {
+      saving.current = false;
     }
   });
+  const submitRef = useRef(submit);
+  submitRef.current = submit;
+  useEffect(() => {
+    registerSave(() => void submitRef.current());
+    return () => registerSave(null);
+  }, [registerSave]);
 
-  const numberField = (name: 'durationMinutes' | 'maxParticipantsPerBooking', label: string) => (
-    <label className="block space-y-1">
-      <span className="text-xs text-ink/70">{label}</span>
-      <input type="number" inputMode="numeric" {...register(name)} className={INPUT} />
-      {errors[name]?.message && (
-        <span role="alert" className="text-xs text-danger">
-          {t(errors[name]?.message ?? '')}
-        </span>
-      )}
-    </label>
-  );
+  const durationError = errors.durationHours?.message ?? errors.durationMins?.message;
+  const maxError = errors.maxParticipantsPerBooking?.message;
 
   return (
     <form onSubmit={submit} className="space-y-5" noValidate>
-      <h3 className="text-base font-bold text-ink">
-        {mode === 'create' ? t('bookings.editor.titleNew') : t('bookings.editor.titleEdit')}
-      </h3>
       <OfferTextFields register={register} errors={errors} />
       <OfferPriceFields control={control} register={register} errors={errors} />
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {numberField('durationMinutes', t('bookings.editor.durationLabel'))}
-        {numberField(
-          'maxParticipantsPerBooking',
-          t(
+      <fieldset className="space-y-1">
+        <legend className="text-xs text-ink/70">{t('bookings.editor.durationLabel')}</legend>
+        <div className="grid grid-cols-2 gap-3">
+          <OfferDurationInput
+            label={t('bookings.editor.durationHours')}
+            unit="h"
+            field={register('durationHours')}
+            invalid={Boolean(durationError)}
+          />
+          <OfferDurationInput
+            label={t('bookings.editor.durationMinutes')}
+            unit="min"
+            field={register('durationMins')}
+            invalid={Boolean(durationError)}
+          />
+        </div>
+        {durationError && (
+          <span role="alert" className="block text-xs text-danger">
+            {t(durationError)}
+          </span>
+        )}
+      </fieldset>
+      <label className="block space-y-1">
+        <span className="text-xs text-ink/70">
+          {t(
             group
               ? 'serviceProof.offerEditor.maxGroupsLabel'
               : 'bookings.editor.maxParticipantsLabel'
-          )
+          )}
+        </span>
+        <input
+          type="number"
+          inputMode="numeric"
+          {...register('maxParticipantsPerBooking')}
+          className={INPUT}
+        />
+        {maxError && (
+          <span role="alert" className="block text-xs text-danger">
+            {t(maxError)}
+          </span>
         )}
-      </div>
+      </label>
       <label className="block space-y-1">
         <span className="text-xs text-ink/70">{t('bookings.editor.meetingPointLabel')}</span>
         <input {...register('meetingPoint')} className={INPUT} />
@@ -138,14 +170,6 @@ export function PartnerOfferEditor({
           {submitError}
         </p>
       )}
-      <div className="flex flex-wrap gap-2 justify-end">
-        <button type="button" onClick={onCancel} className={BUTTON_SECONDARY}>
-          {t('bookings.editor.cancel')}
-        </button>
-        <button type="submit" disabled={isSubmitting} className={BUTTON_PRIMARY}>
-          {t('bookings.editor.save')}
-        </button>
-      </div>
     </form>
   );
 }

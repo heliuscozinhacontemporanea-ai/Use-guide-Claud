@@ -5,6 +5,18 @@ import type { PartnerEstablishment } from '../../types/partnerHome';
 import { belongs, type EstablishmentFilter } from '../../utils/partnerHomeFilter';
 import { type CatalogSegment, PartnerCatalogTab } from './PartnerCatalogTab';
 
+/** Página de oferta (bookings) empilhada no painel: editor, horários ou reservas (F3, D34). */
+export type OfferPageRequest =
+  | { kind: 'editor'; itemId: string; category: string; offerId?: string; title: string }
+  | { kind: 'slots' | 'bookings'; offerId: string; title: string };
+
+export interface OfferPageRenderProps {
+  page: OfferPageRequest;
+  /** O "Salvar" do editor fica na barra da página (D33). */
+  registerSave: (save: (() => void) | null) => void;
+  onSaved: (saved: { offerId: string; title: string; created: boolean }) => void;
+}
+
 /** O que a composição monta no Catálogo (outros domínios). */
 export interface PartnerCatalogRenders {
   /** Passeios e aluguéis (bookings) dos itens dados. */
@@ -16,7 +28,13 @@ export interface PartnerCatalogRenders {
     inPage: boolean;
     /** Cupons da oferta, na área Cupons (B1c). */
     onOpenCoupons?: (offerId: string) => void;
+    /** Abre o editor, os horários ou as reservas como página do painel (F3). */
+    onOpenPage?: (page: OfferPageRequest) => void;
+    /** Muda quando uma página de oferta fecha: a lista relê as ofertas. */
+    version?: number;
   }) => ReactNode;
+  /** Conteúdo da página de oferta empilhada (bookings). */
+  renderOfferPage?: (props: OfferPageRenderProps) => ReactNode;
   /** Visitas do mês (insights). */
   renderVisits?: (itemId: string, onOpenPlan: () => void) => ReactNode;
   /** Avaliações recentes (reviews); o toque leva às respostas. */

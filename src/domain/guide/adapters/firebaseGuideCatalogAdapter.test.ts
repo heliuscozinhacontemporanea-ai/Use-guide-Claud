@@ -93,7 +93,6 @@ describe('mapGuideItem', () => {
       partnerId: 'partner-456',
       endDate: '2027-01-01T00:00:00.000Z',
       operationalInfo: {
-        price: 'R$ 350',
         amenities: ['wifi', 'ar-condicionado'],
       },
       cpfCnpj: '12.345.678/0001-90',
@@ -109,7 +108,7 @@ describe('mapGuideItem', () => {
     expect(item.reviewCount).toBe(42);
     expect(item.isVerified).toBe(true);
     expect(item.endDate).toBe('2027-01-01T00:00:00.000Z');
-    expect(item.operationalInfo?.price).toBe('R$ 350');
+    expect(item.operationalInfo?.amenities).toEqual(['wifi', 'ar-condicionado']);
     expect('cpfCnpj' in item).toBe(false);
   });
 });

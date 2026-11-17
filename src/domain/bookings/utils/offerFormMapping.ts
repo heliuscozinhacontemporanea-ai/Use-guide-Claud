@@ -2,13 +2,13 @@ import type { OfferFormValues } from '../schemas/offerFormSchema';
 import type { LocalizedText, OfferFields, PartnerOffer } from '../types/bookings';
 import { minorToReaisInput, parseReaisToMinor } from './money';
 
-function toLocalized(value: { 'pt-BR': string; en: string; fr: string }): LocalizedText {
-  return {
-    'pt-BR': value['pt-BR'].trim(),
-    ...(value.en.trim() ? { en: value.en.trim() } : {}),
-    ...(value.fr.trim() ? { fr: value.fr.trim() } : {}),
-  };
+// O texto vai na chave pt-BR do modelo (obrigatória) até a tradução automática da D5 existir; salvar
+// apaga as traduções escritas à mão antes da F3, que deixariam de acompanhar o texto.
+function toLocalized(value: string): LocalizedText {
+  return { 'pt-BR': value.trim() };
 }
+
+const MINUTES_PER_HOUR = 60;
 
 /** Converte o formulário (valores em reais digitados) no corpo da API (centavos inteiros). */
 export function offerFormToFields(values: OfferFormValues): OfferFields {
@@ -25,7 +25,7 @@ export function offerFormToFields(values: OfferFormValues): OfferFields {
         unitAmountMinor: parseReaisToMinor(option.amount) ?? 0,
       })),
     },
-    durationMinutes: values.durationMinutes,
+    durationMinutes: values.durationHours * MINUTES_PER_HOUR + values.durationMins,
     ...(values.meetingPoint.trim()
       ? { meetingPoint: { address: values.meetingPoint.trim() } }
       : {}),
@@ -42,20 +42,18 @@ export function offerFormToFields(values: OfferFormValues): OfferFields {
 }
 
 export function offerToFormValues(offer: PartnerOffer): OfferFormValues {
+  const minutes = offer.durationMinutes ?? MINUTES_PER_HOUR;
   return {
     kind: offer.kind,
-    title: { 'pt-BR': offer.title['pt-BR'], en: offer.title.en ?? '', fr: offer.title.fr ?? '' },
-    description: {
-      'pt-BR': offer.description?.['pt-BR'] ?? '',
-      en: offer.description?.en ?? '',
-      fr: offer.description?.fr ?? '',
-    },
+    title: offer.title['pt-BR'],
+    description: offer.description?.['pt-BR'] ?? '',
     priceOptions: offer.pricing.priceOptions.map((option) => ({
       id: option.id,
       label: option.label['pt-BR'],
       amount: minorToReaisInput(option.unitAmountMinor),
     })),
-    durationMinutes: offer.durationMinutes ?? 60,
+    durationHours: Math.floor(minutes / MINUTES_PER_HOUR),
+    durationMins: minutes % MINUTES_PER_HOUR,
     meetingPoint: offer.meetingPoint?.address ?? '',
     pickupMode: offer.pickupMode ?? 'meeting_point',
     cancellationPolicy: offer.cancellationPolicy,
@@ -69,10 +67,11 @@ export function offerToFormValues(offer: PartnerOffer): OfferFormValues {
 export function emptyOfferFormValues(kind: 'tour' | 'private_entry'): OfferFormValues {
   return {
     kind,
-    title: { 'pt-BR': '', en: '', fr: '' },
-    description: { 'pt-BR': '', en: '', fr: '' },
+    title: '',
+    description: '',
     priceOptions: [{ id: 'adult', label: '', amount: '' }],
-    durationMinutes: 120,
+    durationHours: 2,
+    durationMins: 0,
     meetingPoint: '',
     pickupMode: 'meeting_point',
     cancellationPolicy: 'flexible',
