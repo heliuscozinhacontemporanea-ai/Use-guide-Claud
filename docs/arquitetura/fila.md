@@ -29,7 +29,7 @@ Cada proposta é apresentada antes de qualquer código; a implementação só co
 |---|---|---|
 | 1 | Conta do parceiro em uma tela e guia de passos no painel (levantamento de todos os dados pedidos ao parceiro, duplicações D1 a D8) | Aprovada em 2026-11-15 (D34, https://claude.ai/artifact/QhRCHcvwW8sDF9Phoa5Z7C); implementação na seção 1 |
 | 2 | Termos e Política de Privacidade no cadastro comum, e "Sou o dono" para o dono assumir um lugar que já está no guia | Pedida em 2026-11-15; próxima proposta |
-| 3 | **Aluguel e translado à venda** (ponto 2 da F3): regras do anúncio e da oferta, períodos do aluguel, caução, termo de aluguel, CNH, translado privativo e compartilhado, trecho | 8 decisões respondidas em 2026-11-17 (`decisoes.md`, Escolhas da F3); horário personalizado com 3 decisões em aberto |
+| 3 | **Aluguel e translado à venda** (ponto 2 da F3): regras do anúncio e da oferta, períodos do aluguel, caução, termo de aluguel, CNH, translado privativo e compartilhado, trecho | Decisões completas em 2026-11-17 (`decisoes.md`, Escolhas da F3); implementação como F3b |
 | 4 | **Texto do termo de aluguel** (padrão da plataforma, com versão, aceito na reserva): uso, danos, CNH, idade, devolução, nos três idiomas | Pedido em 2026-11-17 para depois; o texto passa pela aprovação do responsável |
 | 5 | **Caução do aluguel** por pré-autorização de cartão no dia da retirada (D3): cartão salvo no Stripe, só cartão, cobrança por dano e contestação | Fora desta fase (resposta 2, 2026-11-17); proposta própria |
 
