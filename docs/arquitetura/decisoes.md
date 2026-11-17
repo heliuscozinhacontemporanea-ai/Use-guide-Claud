@@ -562,6 +562,13 @@ Aprovada pelo responsável do produto em 2026-11-15, decisão a decisão, nos co
   * **Detalhes de venda até a F3** (opção a): no editor, o bloco Detalhes continua com duração, ponto de encontro, preço da atração, mínimo de horas e passageiros; a F3 os tira do cadastro.
   * "Pausar no guia" continua na página do estabelecimento.
   * O editor antigo (`ListingEditor`) fica só para o admin, até a F4.
+* **Escolhas da F3** (aprovadas em 2026-11-17, sobre os prints e o protótipo da F3):
+  1. **Detalhes de venda saem do anúncio** (opção a): duração e ponto de encontro do passeio, preço da atração paga, mínimo de horas do aluguel e passageiros do translado saem do cadastro, do editor, dos tipos e das validações; ficam só na oferta. Sem migração (AGENTS.md §2.2 item 8).
+  2. **Aluguel e translado à venda** (no lugar de "guia em vitrine até as fases 2 e 3"): o responsável pediu que aluguel e translado vendam pelo app quando todos os requisitos estiverem preenchidos, com regras para o anúncio e para a oferta. Proposta própria com protótipo, em decisão (antecipa as fases 2 e 3 da D3).
+  3. **Editor de oferta, Horários e Reservas como páginas empilhadas**, com "Salvar" na barra (opção a).
+  4. **Duração da oferta em horas e minutos** (opção a).
+  5. **O guia abre a oferta direto** (opção a): "Primeira oferta" abre a nova oferta já ligada ao anúncio; "Horários" abre os horários dela.
+  6. **Sem tradução feita à mão na oferta** (opção b): as abas Português, English e Français do editor de oferta saem; o parceiro escreve um texto só. A tradução automática da D5 (Google Cloud Translation, domínio `translation`) fica pendente na fila; até ela existir, quem usa o app em inglês ou francês vê o texto original da oferta.
 * **Implementação da F2** (2026-11-16, escolhas reversíveis registradas na entrega):
   * O ✓ ou o que falta fica à direita de cada bloco, como no protótipo; com 3 ou mais campos em aberto, a linha diz quantos ("Faltam 7 itens") e a página do bloco diz quais.
   * "Excluir anúncio" e "Excluir evento" são uma linha vermelha num cartão próprio, como no protótipo.

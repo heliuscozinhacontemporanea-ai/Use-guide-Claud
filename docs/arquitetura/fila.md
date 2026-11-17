@@ -8,7 +8,8 @@ A ordem abaixo foi proposta em 2026-11-15 e pode ser mudada pelo responsável.
 
 | # | Item | Situação | Decisão |
 |---|---|---|---|
-| 5 | **D34 · F3**: detalhes de venda só na oferta (D1 a D4). A propor junto: o editor de ofertas como páginas empilhadas, igual aos de anúncio e de evento | | D34 |
+| 5 | **D34 · F3**: detalhes de venda só na oferta (D1 a D4), editor de oferta, Horários e Reservas como páginas empilhadas, duração em horas e minutos, guia abrindo a oferta direto, sem abas de idioma na oferta | Escolhas aprovadas em 2026-11-17 (ponto 2 em proposta, abaixo) | D34 |
+| 5b | **Tradução automática** do conteúdo cadastrado (D5): domínio `translation` com Google Cloud Translation, só no backend, `LocalizedText` com `source` e traduções, aviso "Traduzido automaticamente pelo Google · Ver original" | Pendente (responsável, 2026-11-17); serviço pago: proposta antes do código (AGENTS.md §15) | D5, AGENTS.md §12.6 |
 | 6 | **D34 · F4**: admin no mesmo editor do parceiro (D6, D8). Cobre o "editor do admin" do **item 5 da D33** | | D34, D33 |
 | 7 | **D34 · F5**: evento herda contato e local do estabelecimento (D5) | | D34 |
 | 8 | **D34 · F6**: o tour sai e entram as dicas de primeira visita (Agenda e Ganhos) | | D34 |
@@ -28,6 +29,7 @@ Cada proposta é apresentada antes de qualquer código; a implementação só co
 |---|---|---|
 | 1 | Conta do parceiro em uma tela e guia de passos no painel (levantamento de todos os dados pedidos ao parceiro, duplicações D1 a D8) | Aprovada em 2026-11-15 (D34, https://claude.ai/artifact/QhRCHcvwW8sDF9Phoa5Z7C); implementação na seção 1 |
 | 2 | Termos e Política de Privacidade no cadastro comum, e "Sou o dono" para o dono assumir um lugar que já está no guia | Pedida em 2026-11-15; próxima proposta |
+| 3 | **Aluguel e translado à venda** (ponto 2 da F3): regras do anúncio e da oferta, períodos do aluguel, caução, termo de aluguel, CNH, translado privativo e compartilhado, trecho e número do voo | Pedida em 2026-11-17; protótipo enviado com 8 decisões, aguardando resposta |
 
 ### Proposta 2 · Termos no cadastro comum e "Sou o dono"
 
