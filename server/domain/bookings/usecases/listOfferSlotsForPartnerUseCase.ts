@@ -1,4 +1,4 @@
-import { getOfferService } from '../factory';
+import { getSlotService } from '../factory';
 import type { AvailabilitySlot, BookingActor } from '../types/bookingTypes';
 
 export async function listOfferSlotsForPartnerUseCase(
@@ -7,5 +7,5 @@ export async function listOfferSlotsForPartnerUseCase(
   fromIso: string,
   toIso: string
 ): Promise<AvailabilitySlot[]> {
-  return getOfferService().listOfferSlotsForOwner(actor, offerId, fromIso, toIso);
+  return getSlotService().listOfferSlotsForOwner(actor, offerId, fromIso, toIso);
 }

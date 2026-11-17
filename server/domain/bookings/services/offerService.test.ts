@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { InMemoryBookingsAdapter } from '../adapters/inMemoryBookingsAdapter';
 import type { BookableItem, BookableItemLookupPort } from '../ports/bookableItemLookupPort';
 import { type OfferInput, OfferService } from './offerService';
+import { SlotService } from './slotService';
 
 const NOW = new Date('2026-11-01T12:00:00.000Z');
 const OWNER = { uid: 'partner-1', admin: false };
@@ -30,6 +31,7 @@ function setup(item: Partial<BookableItem> | null = {}) {
             partnerId: 'partner-1',
             category: 'tour',
             name: 'Buggy do Zé',
+            published: true,
             ...item,
           },
   };
@@ -43,7 +45,7 @@ function setup(item: Partial<BookableItem> | null = {}) {
       return `id${counter}`;
     }
   );
-  return { port, service };
+  return { port, service, slotService: new SlotService(port, () => NOW) };
 }
 
 describe('OfferService', () => {
@@ -126,11 +128,47 @@ describe('OfferService', () => {
     ).rejects.toMatchObject({ code: 'FORBIDDEN', statusCode: 403 });
   });
 
-  it('rental e transfer ainda não estão disponíveis', async () => {
-    const { service } = setup();
-    await expect(
-      service.createOffer(OWNER, { ...INPUT, guideItemId: 'item-1', kind: 'rental' })
-    ).rejects.toMatchObject({ code: 'KIND_NOT_AVAILABLE', statusCode: 422 });
+  it('aluguel vende por veículo do anúncio, com períodos e preço por hora (F3b)', async () => {
+    const { service } = setup({ category: 'rental', vehicleTypes: ['Quadriciclo'] });
+    const rental = {
+      ...INPUT,
+      guideItemId: 'item-1',
+      kind: 'rental' as const,
+      vehicle: 'Quadriciclo',
+      sellingUnit: 'group' as const,
+      groupMaxPeople: 2,
+      pricing: {
+        currency: 'BRL' as const,
+        priceOptions: [
+          { id: 'p1', label: { 'pt-BR': '08:00 · 4 h' }, unitAmountMinor: 30000 },
+          { id: 'hourly', label: { 'pt-BR': 'Por hora' }, unitAmountMinor: 8000 },
+        ],
+      },
+      fleet: {
+        fixed: [{ id: 'p1', start: '08:00', minutes: 240 }],
+        custom: { mode: 'hours' as const, minHours: 2 },
+      },
+    };
+    await expect(service.createOffer(OWNER, rental)).resolves.toMatchObject({
+      kind: 'rental',
+      vehicle: 'Quadriciclo',
+    });
+    await expect(service.createOffer(OWNER, { ...rental, vehicle: 'Buggy' })).rejects.toMatchObject(
+      { code: 'VALIDATION_ERROR' }
+    );
+  });
+
+  it('só vai à venda com o anúncio publicado (B68)', async () => {
+    const { service } = setup({ published: false });
+    const offer = await service.createOffer(OWNER, {
+      ...INPUT,
+      guideItemId: 'item-1',
+      kind: 'tour',
+    });
+    await expect(service.setOfferStatus(OWNER, offer.id, 'published')).rejects.toMatchObject({
+      code: 'LISTING_NOT_PUBLISHED',
+      statusCode: 422,
+    });
   });
 
   it('tipo incompatível com a categoria do item e preço não inteiro são recusados', async () => {
@@ -196,7 +234,7 @@ describe('OfferService', () => {
   });
 
   it('recorrência cria horários em UTC, ignora passados e repetidos', async () => {
-    const { service } = setup();
+    const { service, slotService } = setup();
     const offer = await service.createOffer(OWNER, {
       ...INPUT,
       guideItemId: 'item-1',
@@ -210,25 +248,25 @@ describe('OfferService', () => {
       weekdays: [0, 1, 2],
       times: ['08:00'],
     };
-    const created = await service.createSlots(OWNER, offer.id, recurrence);
+    const created = await slotService.createSlots(OWNER, offer.id, recurrence);
     // 01/11 08:00 local = 11:00Z, antes de NOW (12:00Z): fica de fora.
     expect(created.map((slot) => slot.startsAt)).toEqual([
       '2026-11-02T11:00:00.000Z',
       '2026-11-03T11:00:00.000Z',
     ]);
     expect(created[0]?.endsAt).toBe('2026-11-02T15:00:00.000Z');
-    await expect(service.createSlots(OWNER, offer.id, recurrence)).resolves.toEqual([]);
+    await expect(slotService.createSlots(OWNER, offer.id, recurrence)).resolves.toEqual([]);
   });
 
   it('mais de 200 horários por vez é recusado', async () => {
-    const { service } = setup();
+    const { service, slotService } = setup();
     const offer = await service.createOffer(OWNER, {
       ...INPUT,
       guideItemId: 'item-1',
       kind: 'tour',
     });
     await expect(
-      service.createSlots(OWNER, offer.id, {
+      slotService.createSlots(OWNER, offer.id, {
         mode: 'recurrence',
         capacity: 5,
         startDate: '2026-11-02',
@@ -240,22 +278,26 @@ describe('OfferService', () => {
   });
 
   it('horários públicos só de oferta publicada, sem dados internos', async () => {
-    const { service } = setup();
+    const { service, slotService } = setup();
     const offer = await service.createOffer(OWNER, {
       ...INPUT,
       guideItemId: 'item-1',
       kind: 'tour',
     });
-    await service.createSlots(OWNER, offer.id, {
+    await slotService.createSlots(OWNER, offer.id, {
       mode: 'list',
       capacity: 4,
       slots: [{ startsAt: '2026-11-05T11:00:00.000Z' }],
     });
     await expect(
-      service.listAvailableSlots(offer.id, '2026-11-01T00:00:00.000Z', '2026-12-01T00:00:00.000Z')
+      slotService.listAvailableSlots(
+        offer.id,
+        '2026-11-01T00:00:00.000Z',
+        '2026-12-01T00:00:00.000Z'
+      )
     ).rejects.toMatchObject({ code: 'NOT_FOUND' });
     await service.setOfferStatus(OWNER, offer.id, 'published');
-    const slots = await service.listAvailableSlots(
+    const slots = await slotService.listAvailableSlots(
       offer.id,
       '2026-11-01T00:00:00.000Z',
       '2026-12-01T00:00:00.000Z'
@@ -271,24 +313,24 @@ describe('OfferService', () => {
   });
 
   it('resumo público: menor preço e disponibilidade nos próximos 30 dias', async () => {
-    const { service } = setup();
-    await expect(service.getPublicOfferSummary('item-1')).resolves.toBeNull();
+    const { service, slotService } = setup();
+    await expect(slotService.getPublicOfferSummary('item-1')).resolves.toBeNull();
     const offer = await service.createOffer(OWNER, {
       ...INPUT,
       guideItemId: 'item-1',
       kind: 'tour',
     });
     await service.setOfferStatus(OWNER, offer.id, 'published');
-    await expect(service.getPublicOfferSummary('item-1')).resolves.toEqual({
+    await expect(slotService.getPublicOfferSummary('item-1')).resolves.toEqual({
       lowestUnitAmountMinor: 15000,
       hasAvailability: false,
     });
-    await service.createSlots(OWNER, offer.id, {
+    await slotService.createSlots(OWNER, offer.id, {
       mode: 'list',
       capacity: 2,
       slots: [{ startsAt: '2026-11-05T11:00:00.000Z' }],
     });
-    await expect(service.getPublicOfferSummary('item-1')).resolves.toEqual({
+    await expect(slotService.getPublicOfferSummary('item-1')).resolves.toEqual({
       lowestUnitAmountMinor: 15000,
       hasAvailability: true,
     });
@@ -329,8 +371,8 @@ describe('OfferService', () => {
     const CHANGE = { startsAt: '2026-11-12T11:00:00.000Z', reason: 'Mar agitado' };
 
     it('as reservas ativas valem na nova data, com a data do aviso', async () => {
-      const { service, port } = seeded();
-      const moved = await service.rescheduleSlot(OWNER, 'offer-1', 'slot-1', CHANGE);
+      const { port, slotService } = seeded();
+      const moved = await slotService.rescheduleSlot(OWNER, 'offer-1', 'slot-1', CHANGE);
       expect(moved.map((booking) => booking.id)).toEqual(['bk-1']);
       expect(port.slots.get('slot-1')?.startsAt).toBe(CHANGE.startsAt);
       expect(port.bookings.get('bk-1')).toMatchObject({
@@ -341,20 +383,20 @@ describe('OfferService', () => {
     });
 
     it('data passada, horário cancelado ou oferta de outro parceiro são recusados', async () => {
-      const { service, port } = seeded();
+      const { port, slotService } = seeded();
       await expect(
-        service.rescheduleSlot(OWNER, 'offer-1', 'slot-1', {
+        slotService.rescheduleSlot(OWNER, 'offer-1', 'slot-1', {
           ...CHANGE,
           startsAt: '2026-10-30T11:00:00.000Z',
         })
       ).rejects.toMatchObject({ code: 'VALIDATION_ERROR' });
       await expect(
-        service.rescheduleSlot({ uid: 'outro', admin: false }, 'offer-1', 'slot-1', CHANGE)
+        slotService.rescheduleSlot({ uid: 'outro', admin: false }, 'offer-1', 'slot-1', CHANGE)
       ).rejects.toMatchObject({ code: 'NOT_FOUND' });
       const slot = port.slots.get('slot-1');
       if (slot) port.slots.set('slot-1', { ...slot, status: 'canceled' });
       await expect(
-        service.rescheduleSlot(OWNER, 'offer-1', 'slot-1', CHANGE)
+        slotService.rescheduleSlot(OWNER, 'offer-1', 'slot-1', CHANGE)
       ).rejects.toMatchObject({ code: 'SLOT_UNAVAILABLE' });
     });
   });

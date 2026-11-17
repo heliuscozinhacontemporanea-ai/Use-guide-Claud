@@ -1,4 +1,4 @@
-import { getOfferService } from '../factory';
+import { getSlotService } from '../factory';
 import type { PublicSlot } from '../types/bookingTypes';
 
 export async function listAvailableSlotsUseCase(
@@ -6,5 +6,5 @@ export async function listAvailableSlotsUseCase(
   fromIso: string,
   toIso: string
 ): Promise<PublicSlot[]> {
-  return getOfferService().listAvailableSlots(offerId, fromIso, toIso);
+  return getSlotService().listAvailableSlots(offerId, fromIso, toIso);
 }

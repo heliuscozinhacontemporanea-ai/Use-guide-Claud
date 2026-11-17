@@ -1,5 +1,5 @@
-import { getOfferService } from '../factory';
-import type { CreateSlotsInput } from '../services/offerService';
+import { getSlotService } from '../factory';
+import type { CreateSlotsInput } from '../services/slotService';
 import type { AvailabilitySlot, BookingActor } from '../types/bookingTypes';
 
 /** Lista explícita ou recorrência no fuso da oferta (D28); horários repetidos ou passados são ignorados. */
@@ -8,5 +8,5 @@ export async function createAvailabilitySlotsUseCase(
   offerId: string,
   input: CreateSlotsInput
 ): Promise<AvailabilitySlot[]> {
-  return getOfferService().createSlots(actor, offerId, input);
+  return getSlotService().createSlots(actor, offerId, input);
 }

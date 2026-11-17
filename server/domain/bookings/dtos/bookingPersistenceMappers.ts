@@ -52,6 +52,7 @@ export const SlotPersistenceMapper = {
       status: str(data.status, 'closed') as AvailabilitySlot['status'],
       ...(data.startedAt ? { startedAt: iso(data.startedAt) } : {}),
       ...(data.startedByUid ? { startedByUid: str(data.startedByUid) } : {}),
+      ...(data.fleetDayId ? { fleetDayId: str(data.fleetDayId) } : {}),
       createdAt: iso(data.createdAt),
       updatedAt: iso(data.updatedAt),
     };

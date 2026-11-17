@@ -1,4 +1,4 @@
-import { getOfferService } from '../factory';
+import { getSlotService } from '../factory';
 import type { Booking, BookingActor } from '../types/bookingTypes';
 
 /** Fecha o horário e devolve as reservas ativas; reembolsar e notificar é da camada application. */
@@ -7,5 +7,5 @@ export async function cancelSlotByPartnerUseCase(
   offerId: string,
   slotId: string
 ): Promise<Booking[]> {
-  return getOfferService().cancelSlot(actor, offerId, slotId);
+  return getSlotService().cancelSlot(actor, offerId, slotId);
 }

@@ -18,6 +18,42 @@ const localizedText = (max: number) =>
     })
     .strict();
 
+const hhmm = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/);
+
+// Aluguel e translado privativo (F3b): períodos ou saídas e o horário escolhido pelo cliente.
+const fleetSchedule = z
+  .object({
+    fixed: z
+      .array(
+        z
+          .object({
+            id: z.string().regex(/^[a-z0-9_-]{1,40}$/),
+            start: hhmm,
+            minutes: z
+              .number()
+              .int()
+              .min(15)
+              .max(24 * 60),
+          })
+          .strict()
+      )
+      .max(12),
+    custom: z
+      .discriminatedUnion('mode', [
+        z.object({ mode: z.literal('hours'), minHours: z.number().int().min(1).max(24) }).strict(),
+        z
+          .object({
+            mode: z.literal('time'),
+            from: hhmm,
+            to: hhmm,
+            minNoticeHours: z.number().int().min(0).max(72),
+          })
+          .strict(),
+      ])
+      .optional(),
+  })
+  .strict();
+
 const priceOption = z
   .object({
     id: z.string().regex(/^[a-z0-9_-]{1,40}$/),
@@ -51,11 +87,20 @@ const offerFields = {
     .optional(),
   pickupMode: z.enum(['meeting_point', 'buyer_address']).optional(),
   sellingUnit: z.enum(['person', 'group']).optional(),
-  groupMaxPeople: z.number().int().min(2).max(50).optional(),
+  // Aluguel: pessoas por veículo, a partir de 1 (bicicleta); grupo do passeio, a partir de 2 no app.
+  groupMaxPeople: z.number().int().min(1).max(50).optional(),
   // Opções da plataforma (D14); o serviço confere se a opção vale para o tipo da oferta.
   cancellationPolicy: z.enum([...BOOKING_CANCELLATION_POLICIES, ...TRANSFER_CANCELLATION_POLICIES]),
   maxParticipantsPerBooking: z.number().int().min(1).max(50),
   requiresParticipantNames: z.boolean(),
+  // O serviço confere veículo e trecho com o anúncio (F3b).
+  vehicle: z.string().trim().min(1).max(60).optional(),
+  route: z
+    .object({ from: z.string().trim().min(1).max(100), to: z.string().trim().min(1).max(100) })
+    .strict()
+    .optional(),
+  requiresDriverLicense: z.boolean().optional(),
+  fleet: fleetSchedule.optional(),
 };
 
 export const CreateOfferSchema = z

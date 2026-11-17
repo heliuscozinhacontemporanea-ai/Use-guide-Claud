@@ -254,7 +254,8 @@ export interface BookingsTranslation {
     INSUFFICIENT_CAPACITY: string;
     INVALID_TRANSITION: string;
     LATE_PAYMENT_REJECTED: string;
-    KIND_NOT_AVAILABLE: string;
+    LISTING_NOT_PUBLISHED: string;
+    VEHICLES_BELOW_BOOKED: string;
     CANCELLATION_NOT_ALLOWED: string;
     TERMS_NOT_ACCEPTED: string;
     SELLER_ACCOUNT_NOT_ELIGIBLE: string;
@@ -547,7 +548,8 @@ export const bookingsPtBR: BookingsTranslation = {
     INSUFFICIENT_CAPACITY: 'Não há vagas suficientes neste horário.',
     INVALID_TRANSITION: 'Esta mudança não é permitida agora.',
     LATE_PAYMENT_REJECTED: 'O pagamento chegou depois do prazo e será devolvido.',
-    KIND_NOT_AVAILABLE: 'Este tipo de oferta ainda não está disponível.',
+    LISTING_NOT_PUBLISHED: 'Publique o anúncio antes de pôr a oferta à venda.',
+    VEHICLES_BELOW_BOOKED: 'Este dia já tem mais veículos reservados do que esse número.',
     CANCELLATION_NOT_ALLOWED: 'Esta reserva não pode ser cancelada.',
     TERMS_NOT_ACCEPTED: 'Aceite os termos para continuar.',
     SELLER_ACCOUNT_NOT_ELIGIBLE: 'O parceiro ainda não pode receber pagamentos online.',

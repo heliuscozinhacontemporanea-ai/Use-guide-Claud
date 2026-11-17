@@ -17,7 +17,8 @@ export type {
   CreatePendingBookingInput,
 } from './services/bookingService';
 export type { CheckInWithoutCodeInput } from './services/bookingServiceProofService';
-export type { CreateSlotsInput, OfferInput } from './services/offerService';
+export type { OfferInput } from './services/offerService';
+export type { CreateSlotsInput } from './services/slotService';
 export type { OwnerOpenAbsence, OwnerSlotSummary } from './services/ownerAgendaService';
 export {
   type AvailabilitySlot,
