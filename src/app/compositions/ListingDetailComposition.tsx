@@ -16,10 +16,10 @@ import {
 const BOOKABLE_CATEGORIES = ['tour', 'transfer', 'rental', 'sight'];
 
 // Pergunta da avaliação conforme o tipo de experiência (veja `ReviewSection`).
-const REVIEW_PROMPT: Record<string, 'tour' | 'stay' | 'restaurant'> = {
+const REVIEW_PROMPT: Record<string, 'tour' | 'rental' | 'transfer' | 'stay' | 'restaurant'> = {
   tour: 'tour',
-  transfer: 'tour',
-  rental: 'tour',
+  transfer: 'transfer',
+  rental: 'rental',
   hotel: 'stay',
   restaurant: 'restaurant',
 };

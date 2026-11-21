@@ -4,6 +4,8 @@ export const reviewsUiEn: ReviewsUiTranslation = {
   title: 'Reviews',
   prompt: {
     tour: 'Did this tour? Tell us how it went.',
+    rental: 'Rented here? Tell us how it went.',
+    transfer: 'Took this transfer? Tell us how it went.',
     stay: 'Stayed here? Tell us how it went.',
     restaurant: 'Ate here? Tell us how it went.',
     event: 'Went to this event? Tell us how it went.',
