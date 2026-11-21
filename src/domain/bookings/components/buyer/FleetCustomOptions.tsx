@@ -1,5 +1,4 @@
 import { useTranslation } from 'react-i18next';
-import { cn } from '../../../../shared/utils/cn';
 import { ListEmpty } from '../../../../ui/components/ListState';
 import type { PublicFleetDay, PublicOffer } from '../../types/bookings';
 import { formatSlotTime, placeInputToIso } from '../../utils/dates';
@@ -10,7 +9,7 @@ import {
   HOURLY_PRICE_OPTION_ID,
 } from '../../utils/fleetSelection';
 import { formatMinor } from '../../utils/money';
-import { FLEET_OPTION, FLEET_OPTION_IDLE, FLEET_OPTION_SELECTED } from './FleetFixedOptions';
+import { FleetStartGrid } from './FleetStartGrid';
 import { FleetStepper } from './FleetStepper';
 
 /**
@@ -44,42 +43,15 @@ export function FleetCustomOptions({
 
   return (
     <div className="space-y-3">
-      <fieldset className="space-y-2">
-        <legend className="text-[13px] font-semibold text-ink/80">
-          {t(rental ? 'fleet.booking.pickupTime' : 'fleet.booking.pickupTimeTransfer')}
-        </legend>
-        <div className="grid grid-cols-4 gap-2">
-          {starts.map((start) => {
-            const selected = start.startsAt === selection.startsAt;
-            const label = time(start.startsAt);
-            return (
-              <button
-                key={start.startsAt}
-                type="button"
-                disabled={start.free <= 0}
-                aria-pressed={selected}
-                aria-label={
-                  start.free <= 0 ? `${label} · ${t('fleet.booking.soldOut')}` : undefined
-                }
-                onClick={() =>
-                  onChange({
-                    mode: 'custom',
-                    startsAt: start.startsAt,
-                    ...(rental ? { hours: custom.minHours } : {}),
-                  })
-                }
-                className={cn(
-                  FLEET_OPTION,
-                  'text-center text-[14px] font-medium disabled:line-through',
-                  selected ? FLEET_OPTION_SELECTED : FLEET_OPTION_IDLE
-                )}
-              >
-                {label}
-              </button>
-            );
-          })}
-        </div>
-      </fieldset>
+      <FleetStartGrid
+        legend={t(rental ? 'fleet.booking.pickupTime' : 'fleet.booking.pickupTimeTransfer')}
+        starts={starts}
+        selectedStartsAt={selection.startsAt}
+        timeZone={timeZone}
+        onSelect={(startsAt) =>
+          onChange({ mode: 'custom', startsAt, ...(rental ? { hours: custom.minHours } : {}) })
+        }
+      />
       {rental && selection.startsAt && quote && (
         <>
           <FleetStepper

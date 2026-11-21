@@ -96,7 +96,8 @@ export interface FleetTranslation {
     passengers_one: string;
     passengers_other: string;
     license: string;
-    total: string;
+    totalLabel: string;
+    dayPart: { dawn: string; morning: string; afternoon: string; evening: string };
     periodLine: string;
     hourlyLine: string;
     vehicleLine: string;
@@ -219,7 +220,13 @@ export const fleetPtBR: FleetTranslation = {
     passengers_one: 'até {{count}} passageiro cada',
     passengers_other: 'até {{count}} passageiros cada',
     license: 'Quem vai dirigir tem CNH válida e vai apresentá-la na retirada.',
-    total: 'Total: {{price}}',
+    totalLabel: 'Total',
+    dayPart: {
+      dawn: 'Madrugada',
+      morning: 'Manhã',
+      afternoon: 'Tarde',
+      evening: 'Noite',
+    },
     periodLine: '{{time}} · {{duration}} — {{price}} por veículo',
     hourlyLine: 'Por hora, mínimo {{count}} h — {{price}}',
     vehicleLine: '{{price}} por veículo',

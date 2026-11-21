@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { i18n } from '../../../../shared/i18n';
 import type { PublicFleetDay, PublicOffer } from '../../types/bookings';
@@ -235,6 +235,8 @@ describe('reserva de aluguel por horas (F3b, protótipo tela 5)', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Reservar' }));
 
     expect(screen.getByText('até 2 pessoas cada · 1 livre')).toBeTruthy();
+    // Total em duas colunas, como no protótipo (tela 5).
+    expect(screen.getByText('Total').parentElement?.textContent).toMatch(/^Total\s*R\$\s240,00$/);
     expect(
       (screen.getByRole('button', { name: 'Mais um veículo' }) as HTMLButtonElement).disabled
     ).toBe(true);
@@ -299,8 +301,16 @@ describe('reserva de translado na hora (F3b, protótipo tela 6)', () => {
         renderPaymentElement={() => null}
       />
     );
-    const crossed = await screen.findByRole('button', { name: '06:00 · Esgotado' });
+    // Horários agrupados por parte do dia (resposta 4, 2026-11-21).
+    const morning = await screen.findByRole('group', { name: 'Manhã' });
+    const crossed = within(morning).getByRole('button', { name: '06:00 · Esgotado' });
     expect((crossed as HTMLButtonElement).disabled).toBe(true);
+    expect(
+      within(screen.getByRole('group', { name: 'Tarde' })).getByRole('button', { name: '12:00' })
+    ).toBeTruthy();
+    expect(
+      within(screen.getByRole('group', { name: 'Noite' })).getByRole('button', { name: '22:00' })
+    ).toBeTruthy();
     expect(
       screen.getByText('Horários riscados: sem veículo livre (cada viagem ocupa ida e volta).')
     ).toBeTruthy();

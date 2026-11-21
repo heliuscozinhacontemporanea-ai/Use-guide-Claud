@@ -200,10 +200,11 @@ export function FleetBookingFlow({
         isAuthenticated={isAuthenticated}
       />
       {quote && (
-        <p className="text-right text-[15px] font-semibold text-ink">
-          {t('fleet.booking.total', {
-            price: formatMinor(quote.unitAmountMinor * vehicles, i18n.language),
-          })}
+        <p className="flex items-baseline justify-between gap-3 px-1">
+          <span className="text-[14px] text-ink/70">{t('fleet.booking.totalLabel')}</span>
+          <span className="text-[16px] font-semibold text-ink">
+            {formatMinor(quote.unitAmountMinor * vehicles, i18n.language)}
+          </span>
         </p>
       )}
       <button
