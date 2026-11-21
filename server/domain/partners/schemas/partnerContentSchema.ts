@@ -1,8 +1,8 @@
-import { BR_STATES } from '../../../shared/kernel/timeZones';
 import { z } from 'zod';
-import { GUIDE_DECLINED_LINKS } from '../../guide';
 import { E164_MESSAGE, E164_PATTERN } from '../../../shared/kernel/phone';
+import { BR_STATES } from '../../../shared/kernel/timeZones';
 import { eventSalesPolicySchema } from '../../events/schemas/eventSchema';
+import { GUIDE_DECLINED_LINKS } from '../../guide';
 
 const optionalUrl = z.string().url().or(z.literal('')).optional();
 
@@ -61,8 +61,6 @@ const operationalInfoSchema = z
       .optional(),
     vehicleTypes: stringArraySchema.max(20).optional(),
     luggageInfo: z.string().trim().max(500).optional(),
-    depositRequired: z.boolean().optional(),
-    driverLicenseRequired: z.boolean().optional(),
     childrenAllowed: z.boolean().optional(),
     petsPolicy: z.string().trim().max(1000).optional(),
     petsExtraCost: z.string().trim().max(200).optional(),

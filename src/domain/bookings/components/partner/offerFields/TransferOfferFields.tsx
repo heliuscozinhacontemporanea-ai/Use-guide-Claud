@@ -1,0 +1,216 @@
+import { Plus, Trash2 } from 'lucide-react';
+import {
+  type Control,
+  Controller,
+  type FieldErrors,
+  type UseFormRegister,
+  type UseFormSetValue,
+  useFieldArray,
+  useWatch,
+} from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
+import { RadioCardGroup } from '../../../../../ui/components/RadioCardGroup';
+import { BUTTON_SECONDARY, INPUT } from '../../../../../ui/styles/controls';
+import type { OfferFormInput } from '../../../schemas/offerFormSchema';
+import { OfferPriceFields } from '../OfferPriceFields';
+import { OfferDurationFields } from './OfferDurationFields';
+import { OfferNumberField } from './OfferNumberField';
+import { OfferToggleField } from './OfferToggleField';
+
+interface TransferOfferFieldsProps {
+  control: Control<OfferFormInput>;
+  register: UseFormRegister<OfferFormInput>;
+  setValue: UseFormSetValue<OfferFormInput>;
+  errors: FieldErrors<OfferFormInput>;
+  /** Trechos do anúncio: a oferta escolhe um, num sentido (F3b). */
+  routes: Array<{ from: string; to: string }>;
+  /** Depois de publicar, o trecho e o tipo não mudam (o servidor recusa). */
+  locked: boolean;
+}
+
+const routeKey = (route: { from: string; to: string }) => `${route.from}|${route.to}`;
+
+/** Translado (F3b): trecho, privativo ou compartilhado, tempo de viagem, saídas e atendimento. */
+export function TransferOfferFields(props: TransferOfferFieldsProps) {
+  const { control, register, setValue, errors, routes, locked } = props;
+  const { t } = useTranslation();
+  const departures = useFieldArray({ control, name: 'departures' });
+  const [mode, from, to] = useWatch({ control, name: ['sellingUnit', 'routeFrom', 'routeTo'] });
+  const shared = mode !== 'group';
+  // Os dois sentidos de cada trecho do anúncio: ida e volta são ofertas diferentes.
+  const directions = routes.flatMap((route) => [route, { from: route.to, to: route.from }]);
+  const departuresError = errors.departures?.root?.message ?? errors.departures?.message;
+
+  return (
+    <div className="space-y-5">
+      {directions.length === 0 ? (
+        <p className="text-sm text-ink/70">{t('fleet.editor.noRoutes')}</p>
+      ) : (
+        <RadioCardGroup
+          name="route"
+          legend={t('fleet.editor.routeLegend')}
+          options={directions.map((route) => ({
+            value: routeKey(route),
+            title: `${route.from} → ${route.to}`,
+          }))}
+          value={from && to ? routeKey({ from, to }) : undefined}
+          onChange={(value) => {
+            if (locked) return;
+            const [nextFrom = '', nextTo = ''] = value.split('|');
+            setValue('routeFrom', nextFrom, { shouldDirty: true });
+            setValue('routeTo', nextTo, { shouldDirty: true });
+          }}
+        />
+      )}
+      {errors.routeFrom?.message && (
+        <p role="alert" className="text-xs text-danger">
+          {t(errors.routeFrom.message)}
+        </p>
+      )}
+
+      <Controller
+        control={control}
+        name="sellingUnit"
+        render={({ field }) => (
+          <RadioCardGroup
+            name={field.name}
+            legend={t('fleet.editor.transferTypeLegend')}
+            options={[
+              {
+                value: 'group',
+                title: t('fleet.editor.privateTitle'),
+                description: t('fleet.editor.privateHint'),
+              },
+              {
+                value: 'person',
+                title: t('fleet.editor.sharedTitle'),
+                description: t('fleet.editor.sharedHint'),
+              },
+            ]}
+            value={field.value}
+            onChange={(value) => !locked && field.onChange(value)}
+          />
+        )}
+      />
+
+      <OfferDurationFields
+        legend={t('fleet.editor.travelTime')}
+        register={register}
+        errors={errors}
+      />
+
+      {shared ? (
+        <OfferPriceFields control={control} register={register} errors={errors} />
+      ) : (
+        <div className="grid grid-cols-2 gap-2">
+          <OfferNumberField
+            label={t('fleet.editor.vehiclePrice')}
+            decimal
+            field={register('vehicleAmount')}
+            error={errors.vehicleAmount?.message}
+          />
+          <OfferNumberField
+            label={t('fleet.editor.passengersPerVehicle')}
+            field={register('groupMaxPeople')}
+            error={errors.groupMaxPeople?.message}
+          />
+        </div>
+      )}
+      <OfferNumberField
+        label={t(shared ? 'bookings.editor.maxParticipantsLabel' : 'fleet.editor.maxVehicles')}
+        field={register('maxParticipantsPerBooking')}
+        error={errors.maxParticipantsPerBooking?.message}
+      />
+
+      {shared ? null : (
+        <>
+          <fieldset className="space-y-2">
+            <legend className="text-xs text-ink/70">
+              {t('fleet.editor.departuresLegend')} {t('fleet.editor.optional')}
+            </legend>
+            {departures.fields.map((departure, index) => (
+              <div key={departure.id} className="grid grid-cols-[1fr_auto] gap-2 items-end">
+                <OfferNumberField
+                  label={t('fleet.editor.departureTime')}
+                  type="time"
+                  field={register(`departures.${index}.start`)}
+                  error={errors.departures?.[index]?.start?.message}
+                />
+                <button
+                  type="button"
+                  onClick={() => departures.remove(index)}
+                  aria-label={t('fleet.editor.removeDeparture')}
+                  className={`${BUTTON_SECONDARY} w-11 flex items-center justify-center`}
+                >
+                  <Trash2 size={15} aria-hidden="true" />
+                </button>
+              </div>
+            ))}
+            {departuresError && (
+              <p role="alert" className="text-xs text-danger">
+                {t(departuresError)}
+              </p>
+            )}
+            <button
+              type="button"
+              onClick={() =>
+                departures.append({ id: `d${Date.now().toString(36)}`, start: '06:00' })
+              }
+              disabled={departures.fields.length >= 12}
+              className={BUTTON_SECONDARY}
+            >
+              <Plus size={13} className="inline mr-1" aria-hidden="true" />
+              {t('fleet.editor.addDeparture')}
+            </button>
+          </fieldset>
+          <OfferToggleField
+            control={control}
+            name="anyTimeEnabled"
+            title={t('fleet.editor.customLegend')}
+            hint={t('fleet.editor.anyTimeHint')}
+          >
+            <div className="grid grid-cols-2 gap-2">
+              <OfferNumberField
+                label={t('fleet.editor.anyTimeFrom')}
+                type="time"
+                field={register('anyTimeFrom')}
+                error={errors.anyTimeFrom?.message}
+              />
+              <OfferNumberField
+                label={t('fleet.editor.anyTimeTo')}
+                type="time"
+                field={register('anyTimeTo')}
+              />
+            </div>
+            <OfferNumberField
+              label={t('fleet.editor.minNotice')}
+              field={register('minNoticeHours')}
+              error={errors.minNoticeHours?.message}
+            />
+          </OfferToggleField>
+        </>
+      )}
+
+      <Controller
+        control={control}
+        name="pickupMode"
+        render={({ field }) => (
+          <RadioCardGroup
+            name={field.name}
+            legend={t('fleet.editor.transferPickupLegend')}
+            options={[
+              { value: 'buyer_address', title: t('fleet.editor.pickupAddress') },
+              { value: 'meeting_point', title: t('fleet.editor.pickupMeeting') },
+            ]}
+            value={field.value}
+            onChange={field.onChange}
+          />
+        )}
+      />
+      <label className="block space-y-1">
+        <span className="text-xs text-ink/70">{t('bookings.editor.meetingPointLabel')}</span>
+        <input {...register('meetingPoint')} className={INPUT} />
+      </label>
+    </div>
+  );
+}

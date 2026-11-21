@@ -37,8 +37,6 @@ export const INITIAL_FORM_DATA: FormState = {
   transferVehicles: [],
   luggageInfo: '',
   rentalVehicles: [],
-  depositRequired: null,
-  driverLicenseRequired: null,
   rentalIncludes: [],
   checkInFrom: '',
   checkInTo: '',

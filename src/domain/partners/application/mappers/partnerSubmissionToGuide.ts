@@ -1,7 +1,7 @@
-import { isBrState } from '../../../../shared/utils/timeZones';
-import type { PartnerContentItemInput } from '../../types/partnerContent';
 import { toE164 } from '../../../../shared/utils/phone';
+import { isBrState } from '../../../../shared/utils/timeZones';
 import type { PartnerSubmissionData } from '../../types/partner';
+import type { PartnerContentItemInput } from '../../types/partnerContent';
 
 function toGuideItemCategory(value: string): PartnerContentItemInput['category'] {
   switch (value) {
@@ -92,8 +92,6 @@ export function buildOperationalInfo(formData: PartnerSubmissionData) {
   if (formData.category === 'rental') {
     return {
       vehicleTypes: formData.rentalVehicles,
-      depositRequired: formData.depositRequired ?? undefined,
-      driverLicenseRequired: formData.driverLicenseRequired ?? undefined,
       includes: formData.rentalIncludes,
       operatingHours: formData.operatingHours,
       languages: formData.languages,

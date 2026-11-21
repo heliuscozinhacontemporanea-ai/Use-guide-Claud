@@ -51,8 +51,6 @@ export interface FormState {
   luggageInfo: string;
   // Aluguel
   rentalVehicles: string[];
-  depositRequired: boolean | null;
-  driverLicenseRequired: boolean | null;
   rentalIncludes: string[];
   checkInFrom: string;
   checkInTo: string;

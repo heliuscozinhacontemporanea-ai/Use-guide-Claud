@@ -66,6 +66,7 @@ describe('PartnerOffersManager', () => {
         kind: 'editor',
         itemId: 'item-1',
         category: 'tour',
+        listing: { vehicles: undefined, routes: undefined },
         title: 'Nova oferta',
       })
     );

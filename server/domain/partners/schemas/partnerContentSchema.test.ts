@@ -37,6 +37,8 @@ describe('createPartnerItemSchema', () => {
     { price: 'R$ 20' },
     { maxPassengers: 4 },
     { minRentalHours: 2 },
+    { depositRequired: true },
+    { driverLicenseRequired: true },
   ])('recusa detalhe de venda no anúncio: fica na oferta (F3, D34) — %o', (field) => {
     expect(
       updatePartnerItemSchema.safeParse({ operationalInfo: { itinerary: 'Dunas', ...field } })

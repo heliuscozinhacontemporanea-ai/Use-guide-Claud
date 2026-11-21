@@ -6,8 +6,21 @@ import { belongs, type EstablishmentFilter } from '../../utils/partnerHomeFilter
 import { type CatalogSegment, PartnerCatalogTab } from './PartnerCatalogTab';
 
 /** Página de oferta (bookings) empilhada no painel: editor, horários ou reservas (F3, D34). */
+/** Veículos e trechos do anúncio, que o aluguel e o translado escolhem na oferta (F3b). */
+export interface OfferListing {
+  vehicles?: string[];
+  routes?: Array<{ from: string; to: string }>;
+}
+
 export type OfferPageRequest =
-  | { kind: 'editor'; itemId: string; category: string; offerId?: string; title: string }
+  | {
+      kind: 'editor';
+      itemId: string;
+      category: string;
+      offerId?: string;
+      listing?: OfferListing;
+      title: string;
+    }
   | { kind: 'slots' | 'bookings'; offerId: string; title: string };
 
 export interface OfferPageRenderProps {
@@ -21,7 +34,7 @@ export interface OfferPageRenderProps {
 export interface PartnerCatalogRenders {
   /** Passeios e aluguéis (bookings) dos itens dados. */
   renderOffers?: (props: {
-    items: Array<{ id: string; name: string; category: string }>;
+    items: Array<{ id: string; name: string; category: string } & OfferListing>;
     creating: boolean;
     onCreatingChange: (creating: boolean) => void;
     /** Na página do estabelecimento: nulo quando ele não vende passeios nem aluguéis. */
@@ -151,4 +164,14 @@ export const toOfferItem = (item: PartnerContentRecord) => ({
   id: item.id,
   name: item.name,
   category: item.category,
+  ...offerListingOf(item),
 });
+
+/** Veículos e trechos que o anúncio cadastrou (aluguel e translado, F3b). */
+export function offerListingOf(item: Pick<PartnerContentRecord, 'operationalInfo'>): OfferListing {
+  const info = item.operationalInfo;
+  return {
+    ...(info?.vehicleTypes?.length ? { vehicles: info.vehicleTypes } : {}),
+    ...(info?.transferRoutes?.length ? { routes: info.transferRoutes } : {}),
+  };
+}

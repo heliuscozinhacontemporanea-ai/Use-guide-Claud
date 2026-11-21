@@ -1,12 +1,17 @@
+import type { PartnerContentRecord } from '../types/partnerContent';
 import type { PartnerFirstStep } from '../types/partnerHome';
 
 interface GuideStepTargets {
-  items: ReadonlyArray<{ id: string; name: string; category: string }>;
+  items: ReadonlyArray<
+    { id: string; name: string; category: string } & Pick<PartnerContentRecord, 'operationalInfo'>
+  >;
   verify: (item: { id: string; name: string; category: string }) => void;
   openAccounts: () => void;
   openPlace: (item: { id: string; name: string }) => void;
   /** Primeira oferta do estabelecimento e horários dela, como páginas (F3, D34). */
-  openNewOffer: (item: { id: string; category: string }) => void;
+  openNewOffer: (
+    item: { id: string; category: string } & Pick<PartnerContentRecord, 'operationalInfo'>
+  ) => void;
   openSlots: (offerId: string) => void;
   newEvent: () => void;
 }

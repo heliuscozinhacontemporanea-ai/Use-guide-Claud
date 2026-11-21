@@ -1,3 +1,4 @@
+import { isBrState } from '../../../shared/utils/timeZones';
 import { buildOperationalInfo } from '../application/mappers/partnerSubmissionToGuide';
 import type {
   DeclinedLink,
@@ -6,7 +7,6 @@ import type {
   PartnerOperationalInfo,
 } from '../types/partnerContent';
 import type { FormState } from '../types/partsForm';
-import { isBrState } from '../../../shared/utils/timeZones';
 
 /** "@perfil" vira o link do Instagram: o anúncio grava links completos. */
 function instagramLink(value: string): string {
@@ -23,8 +23,6 @@ const OPERATIONAL_INFO_FIELDS: Record<keyof PartnerOperationalInfo, true> = {
   transferRoutes: true,
   vehicleTypes: true,
   luggageInfo: true,
-  depositRequired: true,
-  driverLicenseRequired: true,
   tags: true,
   cuisineType: true,
   subcategory: true,

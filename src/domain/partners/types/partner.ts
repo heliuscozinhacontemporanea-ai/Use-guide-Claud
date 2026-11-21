@@ -78,8 +78,6 @@ export interface PartnerSubmissionData {
   transferVehicles?: string[];
   luggageInfo?: string;
   rentalVehicles?: string[];
-  depositRequired?: boolean | null;
-  driverLicenseRequired?: boolean | null;
   rentalIncludes?: string[];
 }
 

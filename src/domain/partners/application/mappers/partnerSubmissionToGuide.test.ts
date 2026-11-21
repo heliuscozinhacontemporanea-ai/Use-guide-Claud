@@ -160,23 +160,15 @@ describe('mapPartnerSubmissionToGuideItem', () => {
     expect(result.operationalInfo).not.toHaveProperty('maxPassengers');
   });
 
-  it('rental: grava caução e habilitação; o período mínimo fica na oferta', () => {
+  it('rental: grava o que aluga; período, caução e CNH ficam na oferta (F3)', () => {
     const result = mapPartnerSubmissionToGuideItem(
-      {
-        ...baseData,
-        category: 'rental',
-        rentalVehicles: ['Quadriciclo'],
-        depositRequired: true,
-        driverLicenseRequired: false,
-      },
+      { ...baseData, category: 'rental', rentalVehicles: ['Quadriciclo'] },
       ['https://rental.jpg']
     );
     expect(result.category).toBe('rental');
-    expect(result.operationalInfo).toMatchObject({
-      vehicleTypes: ['Quadriciclo'],
-      depositRequired: true,
-      driverLicenseRequired: false,
-    });
-    expect(result.operationalInfo).not.toHaveProperty('minRentalHours');
+    expect(result.operationalInfo).toMatchObject({ vehicleTypes: ['Quadriciclo'] });
+    for (const field of ['minRentalHours', 'depositRequired', 'driverLicenseRequired']) {
+      expect(result.operationalInfo).not.toHaveProperty(field);
+    }
   });
 });

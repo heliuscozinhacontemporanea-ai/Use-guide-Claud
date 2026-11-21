@@ -3,9 +3,9 @@ import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BR_STATES } from '../../../../shared/utils/timeZones';
 import { E164PhoneField } from '../../../../ui/components/E164PhoneField';
-import { listingSellsThroughApp } from '../../utils/listingSells';
 import type { DeclinedLink } from '../../types/partnerContent';
 import type { FormState } from '../../types/partsForm';
+import { listingSellsThroughApp } from '../../utils/listingSells';
 import { SIGNUP_HINT, SIGNUP_INPUT, SIGNUP_LABEL } from '../sections/signupStyles';
 import { HotelRules } from '../steps/additional/HotelRules';
 import { LanguagesField } from '../steps/additional/LanguagesField';
@@ -146,9 +146,13 @@ export function DetailsFields(props: ListingFieldsProps) {
   const saleNote =
     form.category === 'tour'
       ? 'partnerGuide.offer.tourInOffer'
-      : form.category === 'sight' && form.sightAccessType === 'pago'
-        ? 'partnerGuide.offer.sightPriceInOffer'
-        : null;
+      : form.category === 'rental'
+        ? 'partnerGuide.offer.rentalInOffer'
+        : form.category === 'transfer'
+          ? 'partnerGuide.offer.transferInOffer'
+          : form.category === 'sight' && form.sightAccessType === 'pago'
+            ? 'partnerGuide.offer.sightPriceInOffer'
+            : null;
   const update = (field: keyof FormState, value: unknown) =>
     setForm((prev) => ({ ...prev, [field]: value }));
   return (

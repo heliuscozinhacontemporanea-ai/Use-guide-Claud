@@ -37,8 +37,6 @@ export interface GuideOperationalInfo {
   transferRoutes?: Array<{ from: string; to: string }>;
   vehicleTypes?: string[];
   luggageInfo?: string;
-  depositRequired?: boolean;
-  driverLicenseRequired?: boolean;
   checkIn?: {
     from: string;
     to: string;

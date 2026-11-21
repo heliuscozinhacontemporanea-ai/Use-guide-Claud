@@ -138,6 +138,8 @@ export const bookingsFr: BookingsTranslation = {
   kind: {
     tour: 'Excursion',
     private_entry: 'Entrée d’attraction',
+    rental: 'Location',
+    transfer: 'Transfert',
   },
   editor: {
     titleNew: 'Nouvelle offre',
@@ -163,6 +165,12 @@ export const bookingsFr: BookingsTranslation = {
     integer: 'Indiquez un nombre entier.',
     atLeastOnePrice: 'Ajoutez au moins une option de tarif.',
     durationRange: 'La durée doit être comprise entre 15 min et 24 h.',
+    vehicleRequired: 'Choisissez le véhicule.',
+    routeRequired: 'Choisissez le trajet.',
+    periodInvalid: 'Horaire invalide : au moins 30 min, finissant le même jour.',
+    atLeastOnePeriod: 'Ajoutez une période ou activez l’horaire personnalisé.',
+    atLeastOneDeparture: 'Ajoutez un départ ou activez l’horaire personnalisé.',
+    windowInvalid: 'Le service doit commencer avant de finir.',
   },
   slotSheet: {
     when: '{{date}} · {{time}}',

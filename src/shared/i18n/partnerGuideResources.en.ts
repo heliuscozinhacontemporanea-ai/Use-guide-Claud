@@ -127,6 +127,9 @@ export const partnerGuideEn: PartnerGuideTranslation = {
     tourInOffer: 'Duration, meeting point, price and spots are set in each offer of the tour.',
     sightPriceInOffer:
       'With paid access, the entry price is set in the entry offer, which is what visitors buy.',
+    rentalInOffer:
+      'Price, period and driver’s license are set in each offer: they vary by vehicle.',
+    transferInOffer: 'Price, type (private or shared) and passengers are set in each offer.',
   },
   page: {
     progress: 'Step {{current}} of {{total}}',

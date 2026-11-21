@@ -126,6 +126,8 @@ export interface BookingsTranslation {
   kind: {
     tour: string;
     private_entry: string;
+    rental: string;
+    transfer: string;
   };
   editor: {
     titleNew: string;
@@ -151,6 +153,12 @@ export interface BookingsTranslation {
     integer: string;
     atLeastOnePrice: string;
     durationRange: string;
+    vehicleRequired: string;
+    routeRequired: string;
+    periodInvalid: string;
+    atLeastOnePeriod: string;
+    atLeastOneDeparture: string;
+    windowInvalid: string;
   };
   slotSheet: {
     when: string;
@@ -415,6 +423,8 @@ export const bookingsPtBR: BookingsTranslation = {
   kind: {
     tour: 'Passeio',
     private_entry: 'Entrada de atração',
+    rental: 'Aluguel',
+    transfer: 'Translado',
   },
   editor: {
     titleNew: 'Nova oferta',
@@ -440,6 +450,12 @@ export const bookingsPtBR: BookingsTranslation = {
     integer: 'Informe um número inteiro.',
     atLeastOnePrice: 'Informe ao menos uma opção de preço.',
     durationRange: 'A duração vai de 15 min a 24 h.',
+    vehicleRequired: 'Escolha o veículo.',
+    routeRequired: 'Escolha o trecho.',
+    periodInvalid: 'Horário inválido: ao menos 30 min, terminando no mesmo dia.',
+    atLeastOnePeriod: 'Informe um período ou ative o horário personalizado.',
+    atLeastOneDeparture: 'Informe uma saída ou ative o horário personalizado.',
+    windowInvalid: 'O atendimento precisa começar antes de terminar.',
   },
   slotSheet: {
     when: '{{date}} · {{time}}',

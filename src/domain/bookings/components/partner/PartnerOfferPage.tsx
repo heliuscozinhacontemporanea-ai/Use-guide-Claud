@@ -1,15 +1,24 @@
 import { useTranslation } from 'react-i18next';
 import { ListEmpty, ListError, ListLoading } from '../../../../ui/components/ListState';
 import { usePartnerOffers } from '../../hooks/usePartnerOffers';
+import type { BookableGuideItem } from '../../types/bookings';
 import { emptyOfferFormValues, offerToFormValues } from '../../utils/offerFormMapping';
-import { offerKindForCategory } from '../../utils/offerKindByCategory';
+import { isFleetOffer, offerKindForCategory } from '../../utils/offerKindByCategory';
 import { PartnerBookingsList } from './PartnerBookingsList';
+import { PartnerFleetDays } from './PartnerFleetDays';
 import { PartnerOfferEditor } from './PartnerOfferEditor';
 import { PartnerSlotsManager } from './PartnerSlotsManager';
 
 /** Página de oferta pedida ao painel (F3, D34): o editor, os horários ou as reservas. */
 export type PartnerOfferPageSpec =
-  | { kind: 'editor'; itemId: string; category: string; offerId?: string }
+  | {
+      kind: 'editor';
+      itemId: string;
+      category: string;
+      offerId?: string;
+      /** Veículos e trechos do anúncio, que o aluguel e o translado escolhem (F3b). */
+      listing?: Pick<BookableGuideItem, 'vehicles' | 'routes'>;
+    }
   | { kind: 'slots' | 'bookings'; offerId: string };
 
 export interface PartnerOfferSaved {
@@ -42,7 +51,8 @@ export function PartnerOfferPage({ page, registerSave, onSaved }: PartnerOfferPa
     const kind = offer?.kind ?? offerKindForCategory(page.category) ?? 'tour';
     return (
       <PartnerOfferEditor
-        defaultValues={offer ? offerToFormValues(offer) : emptyOfferFormValues(kind)}
+        defaultValues={offer ? offerToFormValues(offer) : emptyOfferFormValues(kind, page.listing)}
+        listing={page.listing}
         publishedPolicy={offer && offer.status !== 'draft' ? offer.cancellationPolicy : undefined}
         registerSave={registerSave}
         onSubmit={async (fields, formKind) => {
@@ -59,7 +69,9 @@ export function PartnerOfferPage({ page, registerSave, onSaved }: PartnerOfferPa
   return (
     <div className="space-y-4">
       <p className="px-1 text-[13px] text-ink/70 break-words">{offer.title['pt-BR']}</p>
-      {page.kind === 'slots' ? (
+      {page.kind === 'slots' && isFleetOffer(offer) ? (
+        <PartnerFleetDays offer={offer} />
+      ) : page.kind === 'slots' ? (
         <PartnerSlotsManager
           offerId={offer.id}
           kind={offer.kind}

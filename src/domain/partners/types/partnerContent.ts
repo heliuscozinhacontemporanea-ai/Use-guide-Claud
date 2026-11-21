@@ -6,8 +6,6 @@ export interface PartnerOperationalInfo {
   transferRoutes?: Array<{ from: string; to: string }>;
   vehicleTypes?: string[];
   luggageInfo?: string;
-  depositRequired?: boolean;
-  driverLicenseRequired?: boolean;
   tags?: string[];
   cuisineType?: string;
   subcategory?: string;

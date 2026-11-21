@@ -88,8 +88,6 @@ export interface PartnerSignupDetailsTranslation {
     itinerary: string;
     includes: string;
     rentalWhat: string;
-    deposit: string;
-    license: string;
     routes: string;
     from: string;
     to: string;
@@ -177,8 +175,6 @@ export const partnerSignupDetailsPtBR: PartnerSignupDetailsTranslation = {
     itinerary: 'Roteiro',
     includes: 'O que está incluído',
     rentalWhat: 'O que é alugado',
-    deposit: 'Exige caução',
-    license: 'Exige habilitação (CNH)',
     routes: 'Trechos atendidos',
     from: 'Origem',
     to: 'Destino',

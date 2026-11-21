@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useUI } from '../../../shared/stores/useUIStore';
-import type {
-  OfferPageRequest,
-  PartnerCatalogRenders,
+import {
+  type OfferPageRequest,
+  offerListingOf,
+  type PartnerCatalogRenders,
 } from '../components/panel/PartnerCatalogSection';
+import type { PartnerContentRecord } from '../types/partnerContent';
 import { isOfferPage, type usePanelNavigation } from './usePanelNavigation';
 
 /**
@@ -81,11 +83,14 @@ export function usePanelOfferPages(
     save: () => save.current?.(),
     onSaved,
     /** Guia do Início: a primeira oferta do estabelecimento, já ligada a ele. */
-    openNew: (item: { id: string; category: string }) =>
+    openNew: (
+      item: { id: string; category: string } & Pick<PartnerContentRecord, 'operationalInfo'>
+    ) =>
       openPage({
         kind: 'editor',
         itemId: item.id,
         category: item.category,
+        listing: offerListingOf(item),
         title: t('partnerGuide.offer.newTitle'),
       }),
     openSlots: (offerId: string) =>

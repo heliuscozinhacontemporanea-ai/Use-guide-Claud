@@ -5,12 +5,12 @@ import { ConfirmDialog, type ConfirmDialogData } from '../../../../ui/components
 import { Dialog } from '../../../../ui/components/Dialog';
 import { ListCard, ListRowButton } from '../../../../ui/components/ListRows';
 import { ListEmpty, ListError, ListLoading } from '../../../../ui/components/ListState';
-import { afterSheetsClose } from '../../../../ui/components/sheet/useSheetHistory';
 import type { StatusTone } from '../../../../ui/components/StatusText';
+import { afterSheetsClose } from '../../../../ui/components/sheet/useSheetHistory';
 import { usePartnerOffers } from '../../hooks/usePartnerOffers';
 import type { BookableGuideItem, OfferStatus, PartnerOffer } from '../../types/bookings';
 import { getBookingErrorMessage } from '../../utils/bookingErrorMessage';
-import { isBookableCategory } from '../../utils/offerKindByCategory';
+import { isBookableCategory, isFleetOffer } from '../../utils/offerKindByCategory';
 import type { PartnerOfferPageSpec } from './PartnerOfferPage';
 import { PartnerOfferSheet } from './PartnerOfferSheet';
 
@@ -72,6 +72,7 @@ export function PartnerOffersManager({
         kind: 'editor',
         itemId: item.id,
         category: item.category,
+        listing: { vehicles: item.vehicles, routes: item.routes },
         title: t('bookings.editor.titleNew'),
       })
     );
@@ -195,6 +196,7 @@ export function PartnerOffersManager({
               itemId: item.id,
               category: item.category,
               offerId: selected.id,
+              listing: { vehicles: item.vehicles, routes: item.routes },
               title: t('bookings.editor.titleEdit'),
             });
           }
@@ -204,7 +206,8 @@ export function PartnerOffersManager({
           openPage({
             kind: 'slots',
             offerId: selected.id,
-            title: t('bookings.partner.manageSlots'),
+            // Aluguel e translado privativo abrem dias com veículos (F3b).
+            title: t(isFleetOffer(selected) ? 'fleet.days.title' : 'bookings.partner.manageSlots'),
           })
         }
         onBookings={() =>

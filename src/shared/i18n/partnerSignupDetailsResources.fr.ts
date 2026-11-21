@@ -27,8 +27,6 @@ export const partnerSignupDetailsFr: PartnerSignupDetailsTranslation = {
     itinerary: 'Itinéraire',
     includes: 'Ce qui est inclus',
     rentalWhat: 'Ce que vous louez',
-    deposit: 'Caution exigée',
-    license: 'Permis de conduire exigé',
     routes: 'Trajets desservis',
     from: 'Départ',
     to: 'Arrivée',

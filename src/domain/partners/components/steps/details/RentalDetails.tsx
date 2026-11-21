@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { ChipGroup, type DetailOptions, YesNoField } from './DetailFields';
+import { ChipGroup, type DetailOptions } from './DetailFields';
 import type { FieldKey } from './detailKeys';
 import { type DetailsSectionProps, useDetailsForm } from './useDetailsForm';
 
@@ -25,7 +25,7 @@ const RENTAL_INCLUDES: DetailOptions = {
 /** Campos da inscrição de aluguel: o turista usa o veículo ou equipamento por um período (decisão D9). */
 export function RentalDetails(props: DetailsSectionProps) {
   const { t } = useTranslation();
-  const { formData, getFieldError, updateFieldValue, toggleInList } = useDetailsForm(props);
+  const { formData, getFieldError, toggleInList } = useDetailsForm(props);
   const f = (key: FieldKey) => t(`partnerSignup.details.fields.${key}`);
 
   return (
@@ -38,18 +38,6 @@ export function RentalDetails(props: DetailsSectionProps) {
         required
         error={getFieldError('rentalVehicles')}
       />
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <YesNoField
-          label={f('deposit')}
-          value={formData.depositRequired}
-          onChange={(value) => updateFieldValue('depositRequired', value)}
-        />
-        <YesNoField
-          label={f('license')}
-          value={formData.driverLicenseRequired}
-          onChange={(value) => updateFieldValue('driverLicenseRequired', value)}
-        />
-      </div>
       <ChipGroup
         label={f('includes')}
         options={RENTAL_INCLUDES}

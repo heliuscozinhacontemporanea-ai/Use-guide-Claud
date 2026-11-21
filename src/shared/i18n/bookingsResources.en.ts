@@ -131,6 +131,8 @@ export const bookingsEn: BookingsTranslation = {
   kind: {
     tour: 'Tour',
     private_entry: 'Attraction entry',
+    rental: 'Rental',
+    transfer: 'Transfer',
   },
   editor: {
     titleNew: 'New offer',
@@ -156,6 +158,12 @@ export const bookingsEn: BookingsTranslation = {
     integer: 'Enter a whole number.',
     atLeastOnePrice: 'Add at least one price option.',
     durationRange: 'Duration must be between 15 min and 24 h.',
+    vehicleRequired: 'Choose the vehicle.',
+    routeRequired: 'Choose the route.',
+    periodInvalid: 'Invalid time: at least 30 min, ending the same day.',
+    atLeastOnePeriod: 'Add a period or turn on the custom time.',
+    atLeastOneDeparture: 'Add a departure or turn on the custom time.',
+    windowInvalid: 'Service hours must start before they end.',
   },
   slotSheet: {
     when: '{{date}} · {{time}}',

@@ -103,6 +103,8 @@ export interface PartnerGuideTranslation {
     /** Bloco Detalhes: o que saiu do anúncio e ficou na oferta (F3). */
     tourInOffer: string;
     sightPriceInOffer: string;
+    rentalInOffer: string;
+    transferInOffer: string;
   };
   page: {
     progress: string;
@@ -296,6 +298,8 @@ export const partnerGuidePtBR: PartnerGuideTranslation = {
     tourInOffer: 'Duração, ponto de encontro, preço e vagas ficam em cada oferta do passeio.',
     sightPriceInOffer:
       'Com acesso pago, o preço da entrada fica na oferta de entrada, que é o que o turista compra.',
+    rentalInOffer: 'Preço, período e CNH ficam em cada oferta: mudam por veículo.',
+    transferInOffer: 'Preço, tipo (privativo ou compartilhado) e passageiros ficam em cada oferta.',
   },
   page: {
     progress: 'Passo {{current}} de {{total}}',

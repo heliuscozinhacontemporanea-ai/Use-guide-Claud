@@ -27,8 +27,6 @@ export const partnerSignupDetailsEn: PartnerSignupDetailsTranslation = {
     itinerary: 'Itinerary',
     includes: "What's included",
     rentalWhat: 'What you rent out',
-    deposit: 'Requires a deposit',
-    license: "Requires a driver's license",
     routes: 'Routes served',
     from: 'From',
     to: 'To',
