@@ -25,6 +25,20 @@ export function formatSlotTime(iso: string, locale: string, timeZone = PLATFORM_
   );
 }
 
+/** "08:00–12:00" no idioma ativo e na hora do lugar. */
+export function formatSlotRange(
+  startIso: string,
+  endIso: string,
+  locale: string,
+  timeZone = PLATFORM_TIME_ZONE
+) {
+  return new Intl.DateTimeFormat(locale, {
+    timeZone,
+    hour: '2-digit',
+    minute: '2-digit',
+  }).formatRange(new Date(startIso), new Date(endIso));
+}
+
 export function formatDayLabel(iso: string, locale: string, timeZone = PLATFORM_TIME_ZONE) {
   return new Intl.DateTimeFormat(locale, {
     timeZone,

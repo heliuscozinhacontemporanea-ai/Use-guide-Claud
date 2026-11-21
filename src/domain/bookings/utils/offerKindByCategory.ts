@@ -18,6 +18,8 @@ export function isBookableCategory(category: string): boolean {
 }
 
 /** Venda por veículo em dias abertos: aluguel e translado privativo (F3b). */
-export function isFleetOffer(offer: Pick<PartnerOffer, 'kind' | 'sellingUnit'>): boolean {
+export function isFleetOffer<T extends Pick<PartnerOffer, 'kind' | 'sellingUnit'>>(
+  offer: T
+): offer is T & { kind: 'rental' | 'transfer' } {
   return offer.kind === 'rental' || (offer.kind === 'transfer' && offer.sellingUnit === 'group');
 }

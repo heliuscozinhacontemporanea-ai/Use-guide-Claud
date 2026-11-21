@@ -66,6 +66,50 @@ export interface FleetTranslation {
     closed: string;
     invalidRange: string;
   };
+  booking: {
+    tabFixedRental: string;
+    tabCustomRental: string;
+    tabFixedTransfer: string;
+    tabCustomTransfer: string;
+    chooseLabel: string;
+    days: string;
+    noTimes: string;
+    free_one: string;
+    free_other: string;
+    soldOut: string;
+    pickupTime: string;
+    pickupTimeTransfer: string;
+    hours: string;
+    hoursHint: string;
+    lessHours: string;
+    moreHours: string;
+    hourlyCalc: string;
+    arrival: string;
+    vehicles: string;
+    lessVehicles: string;
+    moreVehicles: string;
+    perVehicle_one: string;
+    perVehicle_other: string;
+    passengers_one: string;
+    passengers_other: string;
+    license: string;
+    total: string;
+    periodLine: string;
+    hourlyLine: string;
+    vehicleLine: string;
+    peopleUpTo_one: string;
+    peopleUpTo_other: string;
+    passengersUpTo_one: string;
+    passengersUpTo_other: string;
+    pickupStore: string;
+    pickupDelivery: string;
+    pickupAddress: string;
+    pickupMeeting: string;
+    needsLicense: string;
+    privateTag: string;
+    sharedTag: string;
+    route: string;
+  };
 }
 
 export const fleetPtBR: FleetTranslation = {
@@ -135,5 +179,49 @@ export const fleetPtBR: FleetTranslation = {
     free: 'Livre',
     closed: 'Fechado',
     invalidRange: 'Escolha as datas e ao menos um dia da semana.',
+  },
+  booking: {
+    tabFixedRental: 'Períodos',
+    tabCustomRental: 'Personalizar',
+    tabFixedTransfer: 'Saídas',
+    tabCustomTransfer: 'Escolher horário',
+    chooseLabel: 'Como reservar',
+    days: 'Dia',
+    noTimes: 'Sem horários neste dia.',
+    free_one: '{{count}} livre',
+    free_other: '{{count}} livres',
+    soldOut: 'Esgotado',
+    pickupTime: 'Retirada',
+    pickupTimeTransfer: 'Hora da busca',
+    hours: 'Horas',
+    hoursHint: 'mínimo {{min}} h · devolução {{time}}',
+    lessHours: 'Menos uma hora',
+    moreHours: 'Mais uma hora',
+    hourlyCalc: '{{hours}} h × {{price}}',
+    arrival: 'Chegada prevista {{time}}.',
+    vehicles: 'Veículos',
+    lessVehicles: 'Menos um veículo',
+    moreVehicles: 'Mais um veículo',
+    perVehicle_one: 'até {{count}} pessoa cada',
+    perVehicle_other: 'até {{count}} pessoas cada',
+    passengers_one: 'até {{count}} passageiro cada',
+    passengers_other: 'até {{count}} passageiros cada',
+    license: 'Quem vai dirigir tem CNH válida e vai apresentá-la na retirada.',
+    total: 'Total: {{price}}',
+    periodLine: '{{time}} · {{duration}} — {{price}} por veículo',
+    hourlyLine: 'Por hora, mínimo {{count}} h — {{price}}',
+    vehicleLine: '{{price}} por veículo',
+    peopleUpTo_one: 'até {{count}} pessoa',
+    peopleUpTo_other: 'até {{count}} pessoas',
+    passengersUpTo_one: 'até {{count}} passageiro',
+    passengersUpTo_other: 'até {{count}} passageiros',
+    pickupStore: 'retirada na loja',
+    pickupDelivery: 'entrega no seu endereço',
+    pickupAddress: 'busca no seu endereço',
+    pickupMeeting: 'saída do ponto de encontro',
+    needsLicense: 'exige CNH',
+    privateTag: 'Privativo',
+    sharedTag: 'Compartilhado',
+    route: '{{from}} → {{to}}',
   },
 };

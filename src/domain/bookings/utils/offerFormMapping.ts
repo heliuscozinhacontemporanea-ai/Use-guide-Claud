@@ -7,11 +7,11 @@ import type {
   PartnerOffer,
   PriceOption,
 } from '../types/bookings';
+import { HOURLY_PRICE_OPTION_ID } from './fleetSelection';
 import { minorToReaisInput, parseReaisToMinor } from './money';
 
 const MINUTES_PER_HOUR = 60;
-// Opção de preço do aluguel por hora; o servidor usa o mesmo ID (F3b).
-const HOURLY_OPTION_ID = 'hourly';
+// Opção única do translado privativo: o preço é por veículo (F3b).
 const VEHICLE_OPTION_ID = 'vehicle';
 
 // O texto vai na chave pt-BR do modelo (obrigatória) até a tradução automática da D5 existir; salvar
@@ -56,7 +56,7 @@ function rentalFields(values: OfferFormValues): Partial<OfferFields> {
   }));
   if (values.hourlyEnabled) {
     priceOptions.push({
-      id: HOURLY_OPTION_ID,
+      id: HOURLY_PRICE_OPTION_ID,
       label: { 'pt-BR': '1 h' },
       unitAmountMinor: minor(values.hourlyAmount),
     });
@@ -218,7 +218,7 @@ export function offerToFormValues(offer: PartnerOffer): OfferFormValues {
         : [],
     hourlyEnabled: custom?.mode === 'hours',
     minHours: custom?.mode === 'hours' ? custom.minHours : 2,
-    hourlyAmount: amountOf(HOURLY_OPTION_ID),
+    hourlyAmount: amountOf(HOURLY_PRICE_OPTION_ID),
     routeFrom: offer.route?.from ?? '',
     routeTo: offer.route?.to ?? '',
     vehicleAmount: offer.kind === 'transfer' && fleetOffer ? amountOf(VEHICLE_OPTION_ID) : '',
