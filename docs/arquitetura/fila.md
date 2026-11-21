@@ -8,7 +8,7 @@ A ordem abaixo foi proposta em 2026-11-15 e pode ser mudada pelo responsável.
 
 | # | Item | Situação | Decisão |
 |---|---|---|---|
-| 5 | **D34 · F3**: detalhes de venda só na oferta (D1 a D4), editor de oferta, Horários e Reservas como páginas empilhadas, duração em horas e minutos, guia abrindo a oferta direto, sem abas de idioma na oferta | F3a no PR #29 (2026-11-17), aguardando "aprovado, pode publicar"; ponto 2 (aluguel e translado) vira a F3b, abaixo | D34 |
+| 5 | **D34 · F3**: detalhes de venda só na oferta (D1 a D4), editor de oferta, Horários e Reservas como páginas empilhadas, duração em horas e minutos, guia abrindo a oferta direto, sem abas de idioma na oferta; **F3b**: aluguel e translado à venda, com horário personalizado | F3a e F3b no PR #29 (F3b em 2026-11-21), aguardando "aprovado, pode publicar" | D34 |
 | 5b | **Tradução automática** do conteúdo cadastrado (D5): domínio `translation` com Google Cloud Translation, só no backend, `LocalizedText` com `source` e traduções, aviso "Traduzido automaticamente pelo Google · Ver original" | Pendente (responsável, 2026-11-17); serviço pago: proposta antes do código (AGENTS.md §15) | D5, AGENTS.md §12.6 |
 | 6 | **D34 · F4**: admin no mesmo editor do parceiro (D6, D8). Cobre o "editor do admin" do **item 5 da D33** | | D34, D33 |
 | 7 | **D34 · F5**: evento herda contato e local do estabelecimento (D5) | | D34 |
@@ -29,8 +29,8 @@ Cada proposta é apresentada antes de qualquer código; a implementação só co
 |---|---|---|
 | 1 | Conta do parceiro em uma tela e guia de passos no painel (levantamento de todos os dados pedidos ao parceiro, duplicações D1 a D8) | Aprovada em 2026-11-15 (D34, https://claude.ai/artifact/QhRCHcvwW8sDF9Phoa5Z7C); implementação na seção 1 |
 | 2 | Termos e Política de Privacidade no cadastro comum, e "Sou o dono" para o dono assumir um lugar que já está no guia | Pedida em 2026-11-15; próxima proposta |
-| 3 | **Aluguel e translado à venda** (ponto 2 da F3): regras do anúncio e da oferta, períodos do aluguel, caução, termo de aluguel, CNH, translado privativo e compartilhado, trecho | Decisões completas em 2026-11-17 (`decisoes.md`, Escolhas da F3); implementação como F3b |
-| 4 | **Texto do termo de aluguel** (padrão da plataforma, com versão, aceito na reserva): uso, danos, CNH, idade, devolução, nos três idiomas | Pedido em 2026-11-17 para depois; o texto passa pela aprovação do responsável |
+| 3 | **Aluguel e translado à venda** (ponto 2 da F3): regras do anúncio e da oferta, períodos do aluguel, caução, termo de aluguel, CNH, translado privativo e compartilhado, trecho | Decisões completas em 2026-11-17 (`decisoes.md`, Escolhas da F3); implementada como F3b no PR #29 (2026-11-21) |
+| 4 | **Texto do termo de aluguel** (padrão da plataforma, com versão, aceito na reserva): uso, danos, CNH, idade, devolução, nos três idiomas | Pedido em 2026-11-17 para depois; o texto passa pela aprovação do responsável. Até ele existir, a reserva de aluguel pede só os termos de compra (pergunta ao responsável na entrega da F3b, 2026-11-21) |
 | 5 | **Caução do aluguel** por pré-autorização de cartão no dia da retirada (D3): cartão salvo no Stripe, só cartão, cobrança por dano e contestação | Fora desta fase (resposta 2, 2026-11-17); proposta própria |
 
 ### Proposta 2 · Termos no cadastro comum e "Sou o dono"

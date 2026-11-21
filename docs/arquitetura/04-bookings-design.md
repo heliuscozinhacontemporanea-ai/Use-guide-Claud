@@ -49,10 +49,21 @@ interface BookableOffer {
   maxParticipantsPerBooking: number;
   requiresParticipantNames: boolean;
   createdAt: string; updatedAt: string;
-  // Fase 2 (rental): rentalUnit, depositAmountMinor, termsVersion
-  // Fase 3 (transfer): routes, luggagePolicy
+  // Aluguel e translado (F3b, 2026-11-21):
+  vehicle?: string;                 // aluguel: um dos veículos do anúncio
+  route?: { from: string; to: string }; // translado: um trecho do anúncio, num sentido
+  requiresDriverLicense?: boolean;  // aluguel: o comprador declara a CNH na reserva
+  sellingUnit?: 'person' | 'group'; groupMaxPeople?: number; // por veículo = 'group'
+  fleet?: {                         // aluguel e translado privativo
+    fixed: Array<{ id: string; start: 'HH:MM'; minutes: number }>; // períodos ou saídas
+    custom?: { mode: 'hours'; minHours: number }                    // aluguel por horas
+           | { mode: 'time'; from: 'HH:MM'; to: 'HH:MM'; minNoticeHours: number }; // translado na hora
+  };
 }
 ```
+
+### `fleetDays/{offerId}__{AAAA-MM-DD}` (Interna)
+Dia aberto de uma oferta por veículo (aluguel e translado privativo): `vehicles`, `opensAt`/`closesAt` (aluguel, do horário de funcionamento do anúncio), `holds` (reserva, início, fim e veículos; no translado, o fim conta a volta) e `slotIndex` (o horário de serviço criado para cada início e fim). Só o backend lê e grava (`allow read, write: if false`); o comprador vê o dia pela API, sem quem reservou.
 
 ### `publicBookableOffers/{offerId}` (Pública — projeção)
 Mesmos campos públicos (`guideItemId`, `kind`, `title`, `description`, `pricing`, `durationMinutes`, `meetingPoint`, `cancellationPolicy`, `status`), sem `ownerId`/`partnerId` internos além do necessário para exibição. Mantida pelo backend a cada escrita da oferta.
@@ -169,5 +180,5 @@ O backend ignora qualquer preço vindo do cliente; recalcula com `pricing` da of
 
 ## 7. Fases seguintes (fora do escopo dos prompts atuais)
 
-* **Fase 2 — rental:** `AvailabilitySlot` vira período (`startsAt`/`endsAt` por unidade), termo de responsabilidade versionado e aceito no checkout, caução por pré-autorização de cartão criada **no dia da retirada** (autorizações de cartão costumam expirar em cerca de 7 dias).
-* **Fase 3 — transfer:** rota (origem/destino), passageiros, bagagem, horário de voo opcional.
+* **Fases 2 e 3 (aluguel e translado), feitas na F3b** (D34, Escolhas da F3, 2026-11-17; PR #29): em vez de o `AvailabilitySlot` virar período, o aluguel e o translado privativo vendem por veículo em dias abertos (`fleetDays`), com períodos ou saídas fixos e horário personalizado; cada reserva ganha um horário de serviço para check-in, Agenda e repasse. O translado compartilhado vende por pessoa em horários com vagas. A rota é um trecho do anúncio, num sentido por oferta; a bagagem fica no anúncio.
+* **Ainda fora:** caução por pré-autorização de cartão criada **no dia da retirada** (autorizações de cartão costumam expirar em cerca de 7 dias), com proposta própria; termo de aluguel versionado aceito na reserva (texto na fila); número do voo; aluguel de vários dias.
