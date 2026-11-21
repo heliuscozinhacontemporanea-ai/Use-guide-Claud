@@ -7,8 +7,8 @@ import {
 } from '../../../../shared/utils/businessDateTime';
 import { capitalizeFirst } from '../../../../shared/utils/formatters';
 import { locationName } from '../../../../shared/utils/locationName';
-import { ListEmpty, ListError, ListLoading } from '../../../../ui/components/ListState';
 import { ListCard, ListRowButton } from '../../../../ui/components/ListRows';
+import { ListEmpty, ListError, ListLoading } from '../../../../ui/components/ListState';
 import { SegmentedControl } from '../../../../ui/components/SegmentedControl';
 import type { StatusTone } from '../../../../ui/components/StatusText';
 import { TextButton } from '../../../../ui/components/TextButton';
@@ -66,15 +66,19 @@ export function PartnerCatalogTab({
   const locale = i18n.language;
 
   const placeRow = (item: PartnerContentRecord) => {
-    const paused = item.isActive === false;
-    const status = paused
-      ? t('partnerCatalog.status.paused')
-      : [
-          t('partnerCatalog.status.published'),
-          item.isVerified && t('partnerCatalog.status.verified'),
-        ]
-          .filter(Boolean)
-          .join(' · ');
+    // Rascunho (D34) não está no guia: a linha não pode dizer "Publicado".
+    const draft = item.publication === 'draft';
+    const paused = !draft && item.isActive === false;
+    const status = draft
+      ? t('partnerCatalog.status.draft')
+      : paused
+        ? t('partnerCatalog.status.paused')
+        : [
+            t('partnerCatalog.status.published'),
+            item.isVerified && t('partnerCatalog.status.verified'),
+          ]
+            .filter(Boolean)
+            .join(' · ');
     return (
       <ListRowButton
         key={item.id}
@@ -85,7 +89,7 @@ export function PartnerCatalogTab({
         ]
           .filter(Boolean)
           .join(' · ')}
-        status={{ tone: paused ? 'warn' : 'success', text: status }}
+        status={{ tone: draft || paused ? 'warn' : 'success', text: status }}
         onClick={() => onOpenPlace(item)}
       />
     );
