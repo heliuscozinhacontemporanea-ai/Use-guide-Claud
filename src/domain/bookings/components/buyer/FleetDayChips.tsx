@@ -25,7 +25,8 @@ export function FleetDayChips({
     timeZone: 'UTC',
   });
   return (
-    <fieldset>
+    // `min-w-0`: o fieldset cresce até a largura dos 14 dias e a faixa deixa de rolar.
+    <fieldset className="min-w-0">
       <legend className="sr-only">{t('fleet.booking.days')}</legend>
       <div className="flex gap-2 overflow-x-auto -mx-1 px-1 pb-1 snap-x">
         {dates.map((date) => {

@@ -25,12 +25,15 @@ export function BookingContactFields({
   needsPickup,
   needsPhone,
   isAuthenticated,
+  pickupLabel,
 }: {
   value: BookingContactState;
   onChange: (next: BookingContactState) => void;
   needsPickup: boolean;
   needsPhone: boolean;
   isAuthenticated: boolean;
+  /** Rótulo do endereço quando não é o do passeio ("Onde você está hospedado?"). */
+  pickupLabel?: string;
 }) {
   const { t } = useTranslation();
   const pickupId = useId();
@@ -43,7 +46,7 @@ export function BookingContactFields({
       {needsPickup && (
         <div className="space-y-1.5">
           <label htmlFor={pickupId} className="text-[13px] font-semibold text-ink/80">
-            {t('serviceProof.checkout.pickupLabel')}
+            {pickupLabel ?? t('serviceProof.checkout.pickupLabel')}
           </label>
           <input
             id={pickupId}

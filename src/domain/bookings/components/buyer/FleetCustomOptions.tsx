@@ -106,9 +106,12 @@ export function FleetCustomOptions({
           )}
         </>
       )}
-      {!rental && quote && (
+      {!rental && (quote || starts.some((start) => start.free <= 0)) && (
         <p className="text-[13px] text-ink/70">
-          {t('fleet.booking.arrival', { time: time(quote.endsAt) })}
+          {quote && <span>{t('fleet.booking.arrival', { time: time(quote.endsAt) })} </span>}
+          {starts.some((start) => start.free <= 0) && (
+            <span>{t('fleet.booking.crossedTransfer')}</span>
+          )}
         </p>
       )}
     </div>

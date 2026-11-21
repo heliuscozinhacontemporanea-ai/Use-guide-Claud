@@ -191,6 +191,11 @@ export function FleetBookingFlow({
         value={contact}
         onChange={setContact}
         needsPickup={needsPickup}
+        pickupLabel={t(
+          offer.kind === 'transfer'
+            ? 'fleet.booking.pickupAddressLabel'
+            : 'fleet.booking.deliveryAddressLabel'
+        )}
         needsPhone
         isAuthenticated={isAuthenticated}
       />

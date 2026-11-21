@@ -85,6 +85,9 @@ export interface FleetTranslation {
     moreHours: string;
     hourlyCalc: string;
     arrival: string;
+    crossedTransfer: string;
+    pickupAddressLabel: string;
+    deliveryAddressLabel: string;
     vehicles: string;
     lessVehicles: string;
     moreVehicles: string;
@@ -205,6 +208,9 @@ export const fleetPtBR: FleetTranslation = {
     moreHours: 'Mais uma hora',
     hourlyCalc: '{{hours}} h × {{price}}',
     arrival: 'Chegada prevista {{time}}.',
+    crossedTransfer: 'Horários riscados: sem veículo livre (cada viagem ocupa ida e volta).',
+    pickupAddressLabel: 'Endereço de busca',
+    deliveryAddressLabel: 'Endereço de entrega',
     vehicles: 'Veículos',
     lessVehicles: 'Menos um veículo',
     moreVehicles: 'Mais um veículo',

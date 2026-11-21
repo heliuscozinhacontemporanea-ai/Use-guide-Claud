@@ -75,6 +75,8 @@ const transfer = {
   kind: 'transfer',
   vehicle: undefined,
   requiresDriverLicense: undefined,
+  pickupMode: 'buyer_address',
+  groupMaxPeople: 4,
   route: { from: 'Jericoacoara', to: 'Aeroporto de Jeri' },
   durationMinutes: 60,
   pricing: {
@@ -270,5 +272,42 @@ describe('reserva de aluguel por horas (F3b, protótipo tela 5)', () => {
     expect((screen.getByRole('button', { name: 'Continuar' }) as HTMLButtonElement).disabled).toBe(
       true
     );
+  });
+});
+
+describe('reserva de translado na hora (F3b, protótipo tela 6)', () => {
+  beforeEach(async () => {
+    vi.clearAllMocks();
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(at('08:00')));
+    await i18n.changeLanguage('pt-BR');
+    vi.mocked(listPublishedOffersForItemUseCase).mockResolvedValue([transfer]);
+    vi.mocked(getPublicFleetDayUseCase).mockResolvedValue(transferDay);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('explica os horários riscados, mostra a chegada e pede o endereço de busca', async () => {
+    render(
+      <BookingOfferPanel
+        guideItemId="item-2"
+        isAuthenticated
+        onRequireLogin={vi.fn()}
+        onViewMyBookings={vi.fn()}
+        renderPaymentElement={() => null}
+      />
+    );
+    const crossed = await screen.findByRole('button', { name: '06:00 · Esgotado' });
+    expect((crossed as HTMLButtonElement).disabled).toBe(true);
+    expect(
+      screen.getByText('Horários riscados: sem veículo livre (cada viagem ocupa ida e volta).')
+    ).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: '09:00' }));
+    expect(screen.getByText(/Chegada prevista 10:00\./)).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Reservar' }));
+    expect(screen.getByLabelText('Endereço de busca')).toBeTruthy();
+    expect(screen.getByText('até 4 passageiros cada · 2 livres')).toBeTruthy();
   });
 });

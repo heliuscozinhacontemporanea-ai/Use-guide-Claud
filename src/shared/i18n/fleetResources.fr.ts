@@ -88,6 +88,10 @@ export const fleetFr: FleetTranslation = {
     moreHours: 'Une heure de plus',
     hourlyCalc: '{{hours}} h × {{price}}',
     arrival: 'Arrivée prévue {{time}}.',
+    crossedTransfer:
+      'Horaires barrés : aucun véhicule libre (chaque trajet compte l’aller et le retour).',
+    pickupAddressLabel: 'Adresse de prise en charge',
+    deliveryAddressLabel: 'Adresse de livraison',
     vehicles: 'Véhicules',
     lessVehicles: 'Un véhicule de moins',
     moreVehicles: 'Un véhicule de plus',
