@@ -114,7 +114,11 @@ function transferFields(values: OfferFormValues): Partial<OfferFields> {
 export function offerFormToFields(values: OfferFormValues): OfferFields {
   const description = toLocalized(values.description);
   const group = values.kind === 'tour' && values.sellingUnit === 'group';
-  const meetingPoint = values.meetingPoint.trim();
+  // Translado que busca no endereço do cliente não tem ponto de encontro (o campo some no editor).
+  const meetingPoint =
+    values.kind === 'transfer' && values.pickupMode === 'buyer_address'
+      ? ''
+      : values.meetingPoint.trim();
   const common = {
     title: toLocalized(values.title),
     ...(description['pt-BR'] ? { description } : {}),

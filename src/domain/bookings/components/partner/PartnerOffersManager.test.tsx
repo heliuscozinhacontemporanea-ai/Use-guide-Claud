@@ -128,6 +128,62 @@ describe('PartnerOffersManager', () => {
     );
   });
 
+  it('aluguel: preço por veículo ou por hora e "Dias e reservas" no lugar de Horários (F3b)', async () => {
+    const base = {
+      guideItemId: 'item-1',
+      status: 'draft',
+      sellingUnit: 'group',
+      createdAt: '',
+      updatedAt: '',
+    };
+    vi.mocked(listPartnerOffersUseCase).mockResolvedValue([
+      {
+        ...base,
+        id: 'r1',
+        kind: 'rental',
+        title: { 'pt-BR': 'Quadriciclo' },
+        pricing: {
+          currency: 'BRL',
+          priceOptions: [
+            { id: 'p1', label: { 'pt-BR': '08:00 · 4 h' }, unitAmountMinor: 30000 },
+            { id: 'p2', label: { 'pt-BR': '13:00 · 4 h' }, unitAmountMinor: 25000 },
+            { id: 'hourly', label: { 'pt-BR': '1 h' }, unitAmountMinor: 8000 },
+          ],
+        },
+      } as never,
+      {
+        ...base,
+        id: 'r2',
+        kind: 'rental',
+        title: { 'pt-BR': 'Bicicleta por hora' },
+        pricing: {
+          currency: 'BRL',
+          priceOptions: [{ id: 'hourly', label: { 'pt-BR': '1 h' }, unitAmountMinor: 2000 }],
+        },
+      } as never,
+    ]);
+    const onOpenPage = vi.fn();
+    render(
+      <PartnerOffersManager
+        canPublish={() => true}
+        items={[{ id: 'item-1', name: 'Quadri Jeri', category: 'rental' }]}
+        onOpenPage={onOpenPage}
+      />
+    );
+    expect(await screen.findByText(/a partir de R\$\s250 por veículo/)).toBeTruthy();
+    expect(screen.getByText(/R\$\s20 por hora/)).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: /Quadriciclo/ }));
+    const dialog = await screen.findByRole('dialog');
+    fireEvent.click(within(dialog).getByRole('button', { name: /Dias e reservas/ }));
+    await waitFor(() =>
+      expect(onOpenPage).toHaveBeenCalledWith({
+        kind: 'slots',
+        offerId: 'r1',
+        title: 'Dias e reservas',
+      })
+    );
+  });
+
   it('com mais de um estabelecimento, "Criar" pergunta em qual', async () => {
     vi.mocked(listPartnerOffersUseCase).mockResolvedValue([]);
     const onOpenPage = vi.fn();

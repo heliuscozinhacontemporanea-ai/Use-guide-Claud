@@ -4,6 +4,7 @@ import { Dialog } from '../../../../ui/components/Dialog';
 import { ListCard, ListRowButton } from '../../../../ui/components/ListRows';
 import { BUTTON_SECONDARY } from '../../../../ui/styles/controls';
 import type { OfferStatus, PartnerOffer } from '../../types/bookings';
+import { isFleetOffer } from '../../utils/offerKindByCategory';
 
 interface PartnerOfferSheetProps {
   offer: PartnerOffer | null;
@@ -53,7 +54,7 @@ export function PartnerOfferSheet({
               onClick={onEdit}
             />
             <ListRowButton
-              title={t('bookings.partner.manageSlots')}
+              title={t(isFleetOffer(offer) ? 'fleet.days.title' : 'bookings.partner.manageSlots')}
               aside={<CalendarClock size={16} className="text-ink/60" aria-hidden="true" />}
               onClick={onSlots}
             />

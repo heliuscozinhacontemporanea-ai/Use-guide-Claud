@@ -35,7 +35,10 @@ export function TransferOfferFields(props: TransferOfferFieldsProps) {
   const { control, register, setValue, errors, routes, locked } = props;
   const { t } = useTranslation();
   const departures = useFieldArray({ control, name: 'departures' });
-  const [mode, from, to] = useWatch({ control, name: ['sellingUnit', 'routeFrom', 'routeTo'] });
+  const [mode, from, to, pickup] = useWatch({
+    control,
+    name: ['sellingUnit', 'routeFrom', 'routeTo', 'pickupMode'],
+  });
   const shared = mode !== 'group';
   // Os dois sentidos de cada trecho do anúncio: ida e volta são ofertas diferentes.
   const directions = routes.flatMap((route) => [route, { from: route.to, to: route.from }]);
@@ -207,10 +210,13 @@ export function TransferOfferFields(props: TransferOfferFieldsProps) {
           />
         )}
       />
-      <label className="block space-y-1">
-        <span className="text-xs text-ink/70">{t('bookings.editor.meetingPointLabel')}</span>
-        <input {...register('meetingPoint')} className={INPUT} />
-      </label>
+      {/* Busca no endereço do cliente não tem ponto de encontro (protótipo F3b, tela 6). */}
+      {pickup === 'meeting_point' && (
+        <label className="block space-y-1">
+          <span className="text-xs text-ink/70">{t('bookings.editor.meetingPointLabel')}</span>
+          <input {...register('meetingPoint')} className={INPUT} />
+        </label>
+      )}
     </div>
   );
 }

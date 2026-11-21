@@ -10,6 +10,7 @@ import { afterSheetsClose } from '../../../../ui/components/sheet/useSheetHistor
 import { usePartnerOffers } from '../../hooks/usePartnerOffers';
 import type { BookableGuideItem, OfferStatus, PartnerOffer } from '../../types/bookings';
 import { getBookingErrorMessage } from '../../utils/bookingErrorMessage';
+import { HOURLY_PRICE_OPTION_ID } from '../../utils/fleetSelection';
 import { isBookableCategory, isFleetOffer } from '../../utils/offerKindByCategory';
 import type { PartnerOfferPageSpec } from './PartnerOfferPage';
 import { PartnerOfferSheet } from './PartnerOfferSheet';
@@ -85,6 +86,7 @@ export function PartnerOffersManager({
   }, [creating, onlyItem?.id]);
 
   const summary = (offer: PartnerOffer) => {
+    if (isFleetOffer(offer)) return fleetSummary(offer);
     const prices = offer.pricing.priceOptions.map((option) => option.unitAmountMinor);
     const amount = formatMoneyMinorCompact(Math.min(...prices), i18n.language);
     const group = offer.sellingUnit === 'group';
@@ -97,6 +99,21 @@ export function PartnerOffersManager({
           ? 'perGroup'
           : 'perPerson';
     return t(`bookings.partner.${key}`, { amount });
+  };
+
+  // Aluguel e translado privativo: o preço é por veículo, ou por hora no horário personalizado (F3b).
+  const fleetSummary = (offer: PartnerOffer) => {
+    const options = offer.pricing.priceOptions;
+    const perVehicle = options.filter((option) => option.id !== HOURLY_PRICE_OPTION_ID);
+    const hourly = options.find((option) => option.id === HOURLY_PRICE_OPTION_ID);
+    const money = (minor: number) => formatMoneyMinorCompact(minor, i18n.language);
+    if (perVehicle.length === 0) {
+      return hourly ? t('fleet.summary.perHour', { amount: money(hourly.unitAmountMinor) }) : '';
+    }
+    const amount = money(Math.min(...perVehicle.map((option) => option.unitAmountMinor)));
+    return t(perVehicle.length > 1 ? 'fleet.summary.fromPerVehicle' : 'fleet.summary.perVehicle', {
+      amount,
+    });
   };
 
   const changeStatus = async (offer: PartnerOffer, status: Exclude<OfferStatus, 'draft'>) => {

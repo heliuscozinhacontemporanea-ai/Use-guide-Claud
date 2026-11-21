@@ -112,4 +112,9 @@ export const fleetEn: FleetTranslation = {
     sharedTag: 'Shared',
     route: '{{from}} → {{to}}',
   },
+  summary: {
+    perVehicle: '{{amount}} per vehicle',
+    fromPerVehicle: 'from {{amount}} per vehicle',
+    perHour: '{{amount}} per hour',
+  },
 };

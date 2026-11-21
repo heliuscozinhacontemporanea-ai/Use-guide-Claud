@@ -110,6 +110,12 @@ export interface FleetTranslation {
     sharedTag: string;
     route: string;
   };
+  /** Preço da oferta por veículo na lista do parceiro. */
+  summary: {
+    perVehicle: string;
+    fromPerVehicle: string;
+    perHour: string;
+  };
 }
 
 export const fleetPtBR: FleetTranslation = {
@@ -223,5 +229,10 @@ export const fleetPtBR: FleetTranslation = {
     privateTag: 'Privativo',
     sharedTag: 'Compartilhado',
     route: '{{from}} → {{to}}',
+  },
+  summary: {
+    perVehicle: '{{amount}} por veículo',
+    fromPerVehicle: 'a partir de {{amount}} por veículo',
+    perHour: '{{amount}} por hora',
   },
 };

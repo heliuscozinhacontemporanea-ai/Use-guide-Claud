@@ -180,6 +180,11 @@ describe('PartnerOfferPage · aluguel e translado (F3b)', () => {
       listing: { routes: [{ from: 'Jericoacoara', to: 'Aeroporto de Jeri' }] },
     });
     fireEvent.click(screen.getByRole('radio', { name: 'Aeroporto de Jeri → Jericoacoara' }));
+    // Busca no endereço do cliente: sem ponto de encontro; no ponto, o campo aparece.
+    expect(screen.queryByLabelText('Ponto de encontro')).toBeNull();
+    fireEvent.click(screen.getByRole('radio', { name: 'No ponto de encontro' }));
+    expect(screen.getByLabelText('Ponto de encontro')).toBeTruthy();
+    fireEvent.click(screen.getByRole('radio', { name: 'No endereço do cliente' }));
     fireEvent.change(screen.getByLabelText('Título'), { target: { value: 'Do aeroporto' } });
     fireEvent.change(screen.getByLabelText('Preço por veículo (R$)'), { target: { value: '250' } });
     save();

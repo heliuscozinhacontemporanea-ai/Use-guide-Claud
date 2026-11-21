@@ -19,10 +19,11 @@ const ACCOUNTS = [
   {
     email: 'parceiro.misto@useguide.test',
     name: 'Beto Aventuras',
-    note: 'passeio e aluguel',
+    note: 'passeio, aluguel e translado',
     items: [
       { name: 'Trilhas de Jeri', category: 'tour' },
       { name: 'Quadri Jeri', category: 'rental' },
+      { name: 'Jeri Transfer', category: 'transfer' },
     ],
   },
   {
@@ -59,6 +60,15 @@ function detailsOf(category) {
       return { operationalInfo: { languages: ['Português'], itinerary: 'Dunas, lagoa e pôr do sol.', luggageInfo: 'Protetor solar e água.' } };
     case 'rental':
       return { operationalInfo: { languages: ['Português'], vehicleTypes: ['Quadriciclo'], operatingHours: HOURS } };
+    case 'transfer':
+      return {
+        operationalInfo: {
+          languages: ['Português'],
+          transferRoutes: [{ from: 'Jericoacoara', to: 'Aeroporto de Jeri' }],
+          vehicleTypes: ['Van'],
+          luggageInfo: 'Uma mala grande por pessoa.',
+        },
+      };
     case 'restaurant':
       return {
         instagramLink: 'https://instagram.com/useguide',
