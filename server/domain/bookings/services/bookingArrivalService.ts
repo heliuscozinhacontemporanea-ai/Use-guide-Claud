@@ -9,7 +9,7 @@ import {
   CHECK_IN_CODE_KINDS,
 } from '../types/bookingTypes';
 import { hasAnyCheckIn } from '../utils/serviceProof';
-import { serviceEndsAtMs } from '../utils/serviceTime';
+import { serviceEndsAtMs, slotDurationMinutes } from '../utils/serviceTime';
 
 /** Reserva do horário que ainda espera o cliente: o contato do cartão "Cheguei" (p42). */
 export interface SlotContact {
@@ -162,7 +162,9 @@ export class BookingArrivalService {
   ): Promise<SlotContact[]> {
     const { offer, slot } = await this.ownedSlot(actor, offerId, slotId);
     const nowMs = this.now().getTime();
-    if (nowMs > serviceEndsAtMs(slot.startsAt, offer.durationMinutes)) return [];
+    if (nowMs > serviceEndsAtMs(slot.startsAt, slotDurationMinutes(slot, offer.durationMinutes))) {
+      return [];
+    }
     const contacts = (await this.port.listBookingsBySlot(slotId))
       .filter((booking) => waiting(booking) && booking.arrival && booking.contactPhone)
       .map((booking) => ({ booking, phone: booking.contactPhone as string }));

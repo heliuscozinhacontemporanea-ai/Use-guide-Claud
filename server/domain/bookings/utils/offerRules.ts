@@ -31,6 +31,10 @@ export function assertSellingUnit(
       'Informe quantas pessoas cabem em cada grupo.'
     );
   }
+  // Veículo de aluguel pode levar uma pessoa só (bicicleta); grupo de passeio tem ao menos duas.
+  if (kind === 'tour' && groupMaxPeople < 2) {
+    throw new BookingDomainError('VALIDATION_ERROR', 'O grupo do passeio tem ao menos 2 pessoas.');
+  }
 }
 
 export function assertValidPricing(pricing: BookableOffer['pricing']): void {

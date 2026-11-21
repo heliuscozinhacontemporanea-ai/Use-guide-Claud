@@ -9,6 +9,7 @@ import { BookingParticipantService } from './services/bookingParticipantService'
 import { BookingPrivacyService } from './services/bookingPrivacyService';
 import { BookingService } from './services/bookingService';
 import { BookingServiceProofService } from './services/bookingServiceProofService';
+import { FleetService } from './services/fleetService';
 import { OfferPlaceService } from './services/offerPlaceService';
 import { OfferService } from './services/offerService';
 import { OwnerAgendaService } from './services/ownerAgendaService';
@@ -16,6 +17,7 @@ import { SlotService } from './services/slotService';
 
 let offerService: OfferService | null = null;
 let slotService: SlotService | null = null;
+let fleetService: FleetService | null = null;
 let offerPlaceService: OfferPlaceService | null = null;
 let bookingService: BookingService | null = null;
 let checkInService: BookingCheckInService | null = null;
@@ -42,13 +44,18 @@ export function getSlotService(): SlotService {
   return slotService;
 }
 
+export function getFleetService(): FleetService {
+  fleetService ??= new FleetService(getPort(), new GuideBookableItemLookupAdapter());
+  return fleetService;
+}
+
 export function getOfferPlaceService(): OfferPlaceService {
   offerPlaceService ??= new OfferPlaceService(getPort(), new GuideBookableItemLookupAdapter());
   return offerPlaceService;
 }
 
 export function getBookingService(): BookingService {
-  bookingService ??= new BookingService(getPort());
+  bookingService ??= new BookingService(getPort(), new GuideBookableItemLookupAdapter());
   return bookingService;
 }
 

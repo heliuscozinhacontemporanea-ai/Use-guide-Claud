@@ -143,10 +143,43 @@ export const CreateSlotsSchema = z.discriminatedUnion('mode', [
     .strict(),
 ]);
 
+const dateOnly = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
+
+// Aluguel e translado privativo (F3b): período ou saída, ou o horário escolhido (e as horas do aluguel).
+const fleetBookingRequest = z
+  .object({
+    date: dateOnly,
+    periodId: z
+      .string()
+      .regex(/^[a-z0-9_-]{1,40}$/)
+      .optional(),
+    startsAt: isoDateTime.optional(),
+    hours: z.number().int().min(1).max(24).optional(),
+  })
+  .strict()
+  .refine((value) => Boolean(value.periodId) !== Boolean(value.startsAt), {
+    message: 'Escolha um período ou um horário.',
+  });
+
+export const OpenFleetDaysSchema = z
+  .object({
+    startDate: dateOnly,
+    endDate: dateOnly,
+    weekdays: z.array(z.number().int().min(0).max(6)).min(1).max(7),
+    // 0 fecha os dias para novas reservas.
+    vehicles: z.number().int().min(0).max(200),
+  })
+  .strict();
+
+export const FleetDaysQuerySchema = z.object({ from: dateOnly, to: dateOnly }).strict();
+export const FleetDateParamSchema = dateOnly;
+
 export const CreateBookingSchema = z
   .object({
     offerId: documentId,
-    slotId: documentId,
+    slotId: documentId.optional(),
+    fleet: fleetBookingRequest.optional(),
+    driverLicenseDeclared: z.boolean().optional(),
     lines: z
       .array(
         z
@@ -175,7 +208,10 @@ export const CreateBookingSchema = z
     // Cupom (B1c): o servidor confere e calcula o desconto; aqui só o formato.
     promoCode: z.string().trim().min(3).max(20).optional(),
   })
-  .strict();
+  .strict()
+  .refine((value) => Boolean(value.slotId) !== Boolean(value.fleet), {
+    message: 'Escolha um horário ou um dia.',
+  });
 
 export const RescheduleSlotSchema = z
   .object({

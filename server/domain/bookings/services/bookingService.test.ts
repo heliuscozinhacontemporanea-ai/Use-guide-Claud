@@ -55,7 +55,14 @@ function buildOffer(overrides: Partial<BookableOffer> = {}): BookableOffer {
   };
 }
 
-function setup(options: { now?: string; capacity?: number; offer?: Partial<BookableOffer> } = {}) {
+function setup(
+  options: {
+    now?: string;
+    capacity?: number;
+    offer?: Partial<BookableOffer>;
+    listingPublished?: boolean;
+  } = {}
+) {
   const port = new InMemoryBookingsAdapter();
   port.offers.set('offer-1', buildOffer(options.offer));
   for (const id of ['slot-1', 'slot-other']) {
@@ -72,7 +79,17 @@ function setup(options: { now?: string; capacity?: number; offer?: Partial<Booka
     });
   }
   let now = new Date(options.now ?? '2026-11-01T12:00:00.000Z');
-  const service = new BookingService(port, () => now);
+  const items = {
+    getItem: async () => ({
+      id: 'item-1',
+      ownerId: 'partner-1',
+      partnerId: 'partner-1',
+      category: 'tour',
+      name: 'Buggy',
+      published: options.listingPublished ?? true,
+    }),
+  };
+  const service = new BookingService(port, items, () => now);
   const setNow = (iso: string) => {
     now = new Date(iso);
   };

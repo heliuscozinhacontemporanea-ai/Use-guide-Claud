@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   CheckInByCodeSchema,
+  CreateBookingSchema,
   CreateOfferSchema,
   CreateSlotsSchema,
   EntryCheckInSchema,
@@ -87,12 +88,61 @@ describe('bookingSchemas', () => {
     expect(CheckInByCodeSchema.safeParse({ code: 'K7M4QX', bookingId: 'x' }).success).toBe(false);
   });
 
-  it('venda por grupo: tamanho do grupo de 2 a 50', () => {
+  it('venda por grupo: de 1 a 50 por grupo ou veículo (o serviço pede 2 no passeio)', () => {
     expect(
       CreateOfferSchema.safeParse({ ...OFFER, sellingUnit: 'group', groupMaxPeople: 4 }).success
     ).toBe(true);
     expect(
       CreateOfferSchema.safeParse({ ...OFFER, sellingUnit: 'group', groupMaxPeople: 1 }).success
+    ).toBe(true);
+    expect(
+      CreateOfferSchema.safeParse({ ...OFFER, sellingUnit: 'group', groupMaxPeople: 0 }).success
+    ).toBe(false);
+    expect(
+      CreateOfferSchema.safeParse({ ...OFFER, sellingUnit: 'group', groupMaxPeople: 51 }).success
+    ).toBe(false);
+  });
+
+  it('aluguel e translado: agenda de veículos e pedido de reserva por dia (F3b)', () => {
+    const fleet = {
+      fixed: [{ id: 'manha', start: '08:00', minutes: 240 }],
+      custom: { mode: 'hours', minHours: 2 },
+    };
+    expect(CreateOfferSchema.safeParse({ ...OFFER, kind: 'rental', fleet }).success).toBe(true);
+    expect(
+      CreateOfferSchema.safeParse({
+        ...OFFER,
+        kind: 'rental',
+        fleet: { ...fleet, fixed: [{ id: 'x', start: '25:00', minutes: 60 }] },
+      }).success
+    ).toBe(false);
+    const booking = {
+      offerId: 'offer-1',
+      lines: [{ priceOptionId: 'manha', quantity: 1 }],
+      locale: 'pt-BR',
+      acceptedTermsVersion: 'v1',
+    };
+    expect(
+      CreateBookingSchema.safeParse({
+        ...booking,
+        fleet: { date: '2026-11-21', periodId: 'manha' },
+      }).success
+    ).toBe(true);
+    expect(CreateBookingSchema.safeParse({ ...booking, slotId: 'slot-1' }).success).toBe(true);
+    // Nem horário nem dia, os dois juntos, ou período e horário escolhido ao mesmo tempo: recusa.
+    expect(CreateBookingSchema.safeParse(booking).success).toBe(false);
+    expect(
+      CreateBookingSchema.safeParse({
+        ...booking,
+        slotId: 'slot-1',
+        fleet: { date: '2026-11-21', periodId: 'manha' },
+      }).success
+    ).toBe(false);
+    expect(
+      CreateBookingSchema.safeParse({
+        ...booking,
+        fleet: { date: '2026-11-21', periodId: 'manha', startsAt: '2026-11-21T11:00:00.000Z' },
+      }).success
     ).toBe(false);
   });
 

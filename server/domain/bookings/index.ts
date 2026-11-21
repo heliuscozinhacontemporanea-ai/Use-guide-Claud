@@ -17,9 +17,14 @@ export type {
   CreatePendingBookingInput,
 } from './services/bookingService';
 export type { CheckInWithoutCodeInput } from './services/bookingServiceProofService';
+export type {
+  OpenFleetDaysInput,
+  PartnerFleetDay,
+  PublicFleetDay,
+} from './services/fleetService';
 export type { OfferInput } from './services/offerService';
-export type { CreateSlotsInput } from './services/slotService';
 export type { OwnerOpenAbsence, OwnerSlotSummary } from './services/ownerAgendaService';
+export type { CreateSlotsInput } from './services/slotService';
 export {
   type AvailabilitySlot,
   type BookableOffer,
@@ -34,6 +39,7 @@ export {
   type BookingServiceConfirmation,
   type BookingStatus,
   canTransitionBooking,
+  isFleetOffer,
   type LocalizedText,
   NO_CODE_REASONS,
   type NoCodeReason,
@@ -41,6 +47,8 @@ export {
   type PublicSlot,
 } from './types/bookingTypes';
 export { anonymizeBuyerBookingsUseCase } from './usecases/anonymizeBuyerBookingsUseCase';
+export { archiveOffersByOwnerUseCase } from './usecases/archiveOffersByOwnerUseCase';
+export { archiveOffersOfGuideItemUseCase } from './usecases/archiveOffersOfGuideItemUseCase';
 export { cancelBookingForCanceledSlotUseCase } from './usecases/cancelBookingForCanceledSlotUseCase';
 export { cancelPendingBookingUseCase } from './usecases/cancelPendingBookingUseCase';
 export { cancelSlotByPartnerUseCase } from './usecases/cancelSlotByPartnerUseCase';
@@ -52,11 +60,7 @@ export { clearBookingDeadlineUseCase } from './usecases/clearBookingDeadlineUseC
 export { completeFinishedBookingsUseCase } from './usecases/completeFinishedBookingsUseCase';
 export { confirmBookingPaymentUseCase } from './usecases/confirmBookingPaymentUseCase';
 export { createAvailabilitySlotsUseCase } from './usecases/createAvailabilitySlotsUseCase';
-export { archiveOffersByOwnerUseCase } from './usecases/archiveOffersByOwnerUseCase';
-export { archiveOffersOfGuideItemUseCase } from './usecases/archiveOffersOfGuideItemUseCase';
 export { createBookableOfferUseCase } from './usecases/createBookableOfferUseCase';
-export { hasActiveBookingsForGuideItemUseCase } from './usecases/hasActiveBookingsForGuideItemUseCase';
-export { hasActiveBookingsForOwnerUseCase } from './usecases/hasActiveBookingsForOwnerUseCase';
 export { createPendingBookingUseCase } from './usecases/createPendingBookingUseCase';
 export { eraseExpiredBookingContactsUseCase } from './usecases/eraseExpiredBookingContactsUseCase';
 export { expireOverdueBookingsUseCase } from './usecases/expireOverdueBookingsUseCase';
@@ -69,13 +73,17 @@ export { getEntryPassUseCase } from './usecases/getEntryPassUseCase';
 export { getEntryVerificationKeysUseCase } from './usecases/getEntryVerificationKeysUseCase';
 export { getOpenProviderAbsenceUseCase } from './usecases/getOpenProviderAbsenceUseCase';
 export { getPendingServiceConfirmationUseCase } from './usecases/getPendingServiceConfirmationUseCase';
+export { getPublicFleetDayUseCase } from './usecases/getPublicFleetDayUseCase';
 export { getPublicOfferSummaryUseCase } from './usecases/getPublicOfferSummaryUseCase';
 export { getVerifiedServiceForReviewUseCase } from './usecases/getVerifiedServiceForReviewUseCase';
+export { hasActiveBookingsForGuideItemUseCase } from './usecases/hasActiveBookingsForGuideItemUseCase';
+export { hasActiveBookingsForOwnerUseCase } from './usecases/hasActiveBookingsForOwnerUseCase';
 export { hasCheckedInBookingUseCase } from './usecases/hasCheckedInBookingUseCase';
-export { listEntryGateSlotsUseCase } from './usecases/listEntryGateSlotsUseCase';
 export { listAvailableSlotsUseCase } from './usecases/listAvailableSlotsUseCase';
 export { listBookingsWithDueDeadlineUseCase } from './usecases/listBookingsWithDueDeadlineUseCase';
 export { listConfirmedBookingsStartingBetweenUseCase } from './usecases/listConfirmedBookingsStartingBetweenUseCase';
+export { listEntryGateSlotsUseCase } from './usecases/listEntryGateSlotsUseCase';
+export { listFleetDaysForPartnerUseCase } from './usecases/listFleetDaysForPartnerUseCase';
 export { listMyBookingsUseCase } from './usecases/listMyBookingsUseCase';
 export { listOfferBookingsForPartnerUseCase } from './usecases/listOfferBookingsForPartnerUseCase';
 export { listOfferSlotsForPartnerUseCase } from './usecases/listOfferSlotsForPartnerUseCase';
@@ -88,10 +96,10 @@ export { markBookingNoShowUseCase } from './usecases/markBookingNoShowUseCase';
 export { markBookingPaymentFailedUseCase } from './usecases/markBookingPaymentFailedUseCase';
 export { markBookingRefundedUseCase } from './usecases/markBookingRefundedUseCase';
 export { openBookingContactUseCase } from './usecases/openBookingContactUseCase';
+export { openFleetDaysUseCase } from './usecases/openFleetDaysUseCase';
 export { recordProviderAbsenceUseCase } from './usecases/recordProviderAbsenceUseCase';
 export { recordProviderArrivalUseCase } from './usecases/recordProviderArrivalUseCase';
 export { recordSlotArrivalUseCase } from './usecases/recordSlotArrivalUseCase';
-export { startSlotServiceUseCase } from './usecases/startSlotServiceUseCase';
 export { requestCancellationByBuyerUseCase } from './usecases/requestCancellationByBuyerUseCase';
 export { rescheduleSlotByPartnerUseCase } from './usecases/rescheduleSlotByPartnerUseCase';
 export { resolveProviderAbsenceUseCase } from './usecases/resolveProviderAbsenceUseCase';
@@ -99,9 +107,11 @@ export { resolveServiceConfirmationUseCase } from './usecases/resolveServiceConf
 export { respondToArrivalUseCase } from './usecases/respondToArrivalUseCase';
 export { setBookableOfferStatusUseCase } from './usecases/setBookableOfferStatusUseCase';
 export { setParticipantNameUseCase } from './usecases/setParticipantNameUseCase';
+export { startSlotServiceUseCase } from './usecases/startSlotServiceUseCase';
 export { summarizeBookingUnitsUseCase } from './usecases/summarizeBookingUnitsUseCase';
 export { syncOffersPlaceFromItemUseCase } from './usecases/syncOffersPlaceFromItemUseCase';
 export { updateBookableOfferUseCase } from './usecases/updateBookableOfferUseCase';
 export { priceBookingLines } from './utils/bookingPricing';
+export type { FleetBookingRequest } from './utils/fleetBookingRequest';
 export { hasServiceProof, requiresServiceProof } from './utils/serviceProof';
 export { bookingServiceEndsAt } from './utils/serviceTime';

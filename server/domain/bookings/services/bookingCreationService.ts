@@ -1,13 +1,25 @@
-import { placeTimeOf } from '../../../shared/kernel/timeZones';
 import { isCurrentBuyerTermsVersion } from '../../../shared/kernel/legalTerms';
 import type { Locale } from '../../../shared/kernel/locale';
 import type { PlatformFeeConfig } from '../../../shared/kernel/platformFees';
+import { placeTimeOf } from '../../../shared/kernel/timeZones';
 import { BookingDomainError } from '../errors/bookingDomainError';
+import type { BookableItemLookupPort } from '../ports/bookableItemLookupPort';
 import type { BookingsPort } from '../ports/bookingsPort';
-import { type Booking, type BookingActor, CHECK_IN_CODE_KINDS } from '../types/bookingTypes';
-import { applyBookingPromo, loadBookingPromo, withBookingPromoUse } from '../utils/bookingPromo';
+import {
+  type BookableOffer,
+  type Booking,
+  type BookingActor,
+  CHECK_IN_CODE_KINDS,
+  isFleetOffer,
+} from '../types/bookingTypes';
 import { priceBookingLines } from '../utils/bookingPricing';
+import { applyBookingPromo, loadBookingPromo, withBookingPromoUse } from '../utils/bookingPromo';
 import { buildBookingId } from '../utils/buildBookingId';
+import {
+  type FleetBookingRequest,
+  type ResolvedFleetBooking,
+  resolveFleetBooking,
+} from '../utils/fleetBookingRequest';
 import { serviceEndsAtMs } from '../utils/serviceTime';
 
 // Tempo para pagar antes de a vaga voltar para a venda (inclui o Pix, que é assíncrono).
@@ -19,7 +31,12 @@ const E164 = /^\+[1-9]\d{7,14}$/;
 
 export interface CreatePendingBookingInput {
   offerId: string;
-  slotId: string;
+  /** Horário com vagas (passeio, entrada, translado compartilhado). */
+  slotId?: string;
+  /** Aluguel e translado privativo: período, saída ou horário escolhido (F3b). */
+  fleet?: FleetBookingRequest;
+  /** Aluguel com CNH: o comprador declara que quem dirige tem CNH válida. */
+  driverLicenseDeclared?: boolean;
   lines: Array<{ priceOptionId: string; quantity: number }>;
   participants: Array<{ name: string }>;
   idempotencyKey: string;
@@ -37,8 +54,43 @@ export interface CreatePendingBookingInput {
 export class BookingCreationService {
   constructor(
     private readonly port: BookingsPort,
+    private readonly items: BookableItemLookupPort,
     private readonly now: () => Date = () => new Date()
   ) {}
+
+  /** Onde e quando: o horário com vagas ou, na venda por veículo, o dia e o intervalo (F3b). */
+  private async placeOf(
+    offer: BookableOffer,
+    input: CreatePendingBookingInput
+  ): Promise<{
+    startsAt: string;
+    durationMinutes?: number;
+    slotId: string;
+    fleet: ResolvedFleetBooking | null;
+  }> {
+    if (isFleetOffer(offer)) {
+      if (!input.fleet)
+        throw new BookingDomainError('VALIDATION_ERROR', 'Escolha o dia e o horário.');
+      const day = await this.port.getFleetDay(`${offer.id}__${input.fleet.date}`);
+      const fleet = resolveFleetBooking({ offer, day, request: input.fleet, now: this.now() });
+      return {
+        startsAt: fleet.serviceStartsAt,
+        durationMinutes: fleet.serviceMinutes,
+        slotId: '',
+        fleet,
+      };
+    }
+    const slot = input.slotId ? await this.port.getSlot(input.slotId) : null;
+    if (!slot || slot.offerId !== offer.id) {
+      throw new BookingDomainError('VALIDATION_ERROR', 'Horário não pertence a esta oferta.');
+    }
+    return {
+      startsAt: slot.startsAt,
+      durationMinutes: offer.durationMinutes,
+      slotId: slot.id,
+      fleet: null,
+    };
+  }
 
   async create(
     actor: BookingActor,
@@ -56,11 +108,25 @@ export class BookingCreationService {
     if (offer?.status !== 'published') {
       throw new BookingDomainError('NOT_FOUND', 'Oferta não encontrada.');
     }
-    const slot = await this.port.getSlot(input.slotId);
-    if (slot?.offerId !== offer.id) {
-      throw new BookingDomainError('VALIDATION_ERROR', 'Horário não pertence a esta oferta.');
+    // Rascunho do anúncio não vende (D34, B68), mesmo com a oferta publicada antes.
+    if (!(await this.items.getItem(offer.guideItemId))?.published) {
+      throw new BookingDomainError('NOT_FOUND', 'Oferta não encontrada.');
     }
-    const listed = priceBookingLines(offer, input.lines, feeConfig);
+    if (offer.requiresDriverLicense && input.driverLicenseDeclared !== true) {
+      throw new BookingDomainError(
+        'DRIVER_LICENSE_REQUIRED',
+        'Confirme que quem vai dirigir tem CNH válida.'
+      );
+    }
+    const place = await this.placeOf(offer, input);
+    // Venda por veículo: uma linha só, com o preço do período, da hora ou do veículo (F3b).
+    const pricedOffer = place.fleet
+      ? { ...offer, pricing: { ...offer.pricing, priceOptions: [place.fleet.priceOption] } }
+      : offer;
+    if (place.fleet && input.lines.length !== 1) {
+      throw new BookingDomainError('VALIDATION_ERROR', 'Escolha quantos veículos.');
+    }
+    const listed = priceBookingLines(pricedOffer, input.lines, feeConfig);
     // Cupom (B1c): desconto sobre o valor da reserva; a taxa da plataforma incide no valor com desconto.
     const promo = await loadBookingPromo(input.promoCode, offer.id, actor.uid);
     const priced = promo ? applyBookingPromo(listed, promo, feeConfig) : listed;
@@ -98,7 +164,7 @@ export class BookingCreationService {
     const booking: Booking = {
       id: buildBookingId(actor.uid, input.idempotencyKey),
       offerId: offer.id,
-      slotId: slot.id,
+      slotId: place.slotId,
       guideItemId: offer.guideItemId,
       buyerId: actor.uid,
       sellerPartnerId: offer.partnerId,
@@ -108,8 +174,8 @@ export class BookingCreationService {
       expiresAt: new Date(nowDate.getTime() + PAYMENT_WINDOW_MS).toISOString(),
       offerSnapshot: {
         title: offer.title['pt-BR'],
-        startsAt: slot.startsAt,
-        ...(offer.durationMinutes ? { durationMinutes: offer.durationMinutes } : {}),
+        startsAt: place.startsAt,
+        ...(place.durationMinutes ? { durationMinutes: place.durationMinutes } : {}),
         ...(offer.meetingPoint ? { meetingPoint: offer.meetingPoint.address } : {}),
         cancellationPolicy: offer.cancellationPolicy,
         ...(offer.businessName ? { businessName: offer.businessName } : {}),
@@ -126,10 +192,20 @@ export class BookingCreationService {
       ...(keepsContacts
         ? {
             personalDataEraseAt: new Date(
-              serviceEndsAtMs(slot.startsAt, offer.durationMinutes) + CONTACT_RETENTION_MS
+              serviceEndsAtMs(place.startsAt, place.durationMinutes) + CONTACT_RETENTION_MS
             ).toISOString(),
           }
         : {}),
+      ...(place.fleet
+        ? {
+            fleet: {
+              dayId: place.fleet.dayId,
+              startsAt: place.fleet.serviceStartsAt,
+              endsAt: place.fleet.occupiedUntil,
+            },
+          }
+        : {}),
+      ...(offer.requiresDriverLicense ? { driverLicenseDeclaredAt: timestamp } : {}),
       locale: input.locale,
       idempotencyKey: input.idempotencyKey,
       createdAt: timestamp,

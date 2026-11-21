@@ -2,6 +2,7 @@ import { type NextFunction, type Response, Router } from 'express';
 import type { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
 import { verifyAuthToken } from '../../../infrastructure/auth/authMiddleware';
 import { BookingsController } from './bookingsController';
+import { FleetDaysController } from './fleetDaysController';
 import { PartnerOffersController } from './partnerOffersController';
 
 // Operações com dinheiro recusam token revogado (AGENTS.md §7.3 item 3).
@@ -11,6 +12,7 @@ function verifyAuthTokenStrict(req: AuthenticatedRequest, res: Response, next: N
 
 export const bookingsRouter = Router();
 bookingsRouter.get('/offers/:offerId/slots', BookingsController.listSlots);
+bookingsRouter.get('/offers/:offerId/fleet-days/:date', FleetDaysController.publicDay);
 bookingsRouter.post('/', verifyAuthTokenStrict, BookingsController.create);
 bookingsRouter.get('/me', verifyAuthToken, BookingsController.listMine);
 bookingsRouter.get('/:bookingId', verifyAuthToken, BookingsController.get);
@@ -49,6 +51,8 @@ partnerOffersRouter.post('/', PartnerOffersController.create);
 partnerOffersRouter.patch('/:offerId', PartnerOffersController.update);
 partnerOffersRouter.post('/:offerId/status', PartnerOffersController.setStatus);
 partnerOffersRouter.get('/:offerId/slots', PartnerOffersController.listSlots);
+partnerOffersRouter.get('/:offerId/fleet-days', FleetDaysController.list);
+partnerOffersRouter.post('/:offerId/fleet-days', FleetDaysController.open);
 partnerOffersRouter.post('/:offerId/slots', PartnerOffersController.createSlots);
 partnerOffersRouter.post(
   '/:offerId/slots/:slotId/cancel',

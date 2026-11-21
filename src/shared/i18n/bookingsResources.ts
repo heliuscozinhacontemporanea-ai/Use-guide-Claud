@@ -256,6 +256,7 @@ export interface BookingsTranslation {
     LATE_PAYMENT_REJECTED: string;
     LISTING_NOT_PUBLISHED: string;
     VEHICLES_BELOW_BOOKED: string;
+    DRIVER_LICENSE_REQUIRED: string;
     CANCELLATION_NOT_ALLOWED: string;
     TERMS_NOT_ACCEPTED: string;
     SELLER_ACCOUNT_NOT_ELIGIBLE: string;
@@ -550,6 +551,7 @@ export const bookingsPtBR: BookingsTranslation = {
     LATE_PAYMENT_REJECTED: 'O pagamento chegou depois do prazo e será devolvido.',
     LISTING_NOT_PUBLISHED: 'Publique o anúncio antes de pôr a oferta à venda.',
     VEHICLES_BELOW_BOOKED: 'Este dia já tem mais veículos reservados do que esse número.',
+    DRIVER_LICENSE_REQUIRED: 'Confirme que quem vai dirigir tem CNH válida.',
     CANCELLATION_NOT_ALLOWED: 'Esta reserva não pode ser cancelada.',
     TERMS_NOT_ACCEPTED: 'Aceite os termos para continuar.',
     SELLER_ACCOUNT_NOT_ELIGIBLE: 'O parceiro ainda não pode receber pagamentos online.',

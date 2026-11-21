@@ -266,6 +266,7 @@ export const bookingsEn: BookingsTranslation = {
     LATE_PAYMENT_REJECTED: 'The payment arrived after the deadline and will be refunded.',
     LISTING_NOT_PUBLISHED: 'Publish the listing before putting the offer on sale.',
     VEHICLES_BELOW_BOOKED: 'This day already has more vehicles booked than that.',
+    DRIVER_LICENSE_REQUIRED: 'Confirm that whoever drives has a valid driver’s license.',
     CANCELLATION_NOT_ALLOWED: 'This booking cannot be canceled.',
     TERMS_NOT_ACCEPTED: 'Accept the terms to continue.',
     SELLER_ACCOUNT_NOT_ELIGIBLE: 'This partner cannot receive online payments yet.',

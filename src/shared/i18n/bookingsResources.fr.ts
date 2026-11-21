@@ -275,6 +275,7 @@ export const bookingsFr: BookingsTranslation = {
     LATE_PAYMENT_REJECTED: 'Le paiement est arrivé après le délai et sera remboursé.',
     LISTING_NOT_PUBLISHED: 'Publiez l’annonce avant de mettre l’offre en vente.',
     VEHICLES_BELOW_BOOKED: 'Ce jour compte déjà plus de véhicules réservés que ce nombre.',
+    DRIVER_LICENSE_REQUIRED: 'Confirmez que la personne qui conduit a un permis valide.',
     CANCELLATION_NOT_ALLOWED: 'Cette réservation ne peut pas être annulée.',
     TERMS_NOT_ACCEPTED: 'Acceptez les conditions pour continuer.',
     SELLER_ACCOUNT_NOT_ELIGIBLE: 'Ce partenaire ne peut pas encore recevoir de paiements en ligne.',
