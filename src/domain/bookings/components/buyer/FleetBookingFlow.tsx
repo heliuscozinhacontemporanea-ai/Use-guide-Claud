@@ -173,13 +173,16 @@ export function FleetBookingFlow({
         moreLabel={t('fleet.booking.moreVehicles')}
       />
       {needsLicense && (
-        <label htmlFor={licenseId} className="flex items-start gap-3 min-h-11 text-[14px] text-ink">
+        <label
+          htmlFor={licenseId}
+          className="flex items-start gap-3 min-h-11 text-[14px] text-ink cursor-pointer"
+        >
           <input
             id={licenseId}
             type="checkbox"
             checked={license}
             onChange={(event) => setLicense(event.target.checked)}
-            className="mt-0.5 size-5 shrink-0 accent-teal-600"
+            className="mt-0.5 size-5 shrink-0 accent-teal-400"
           />
           <span>{t('fleet.booking.license')}</span>
         </label>
