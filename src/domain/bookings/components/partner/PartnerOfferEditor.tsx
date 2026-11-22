@@ -78,7 +78,7 @@ export function PartnerOfferEditor({
 
   return (
     <form onSubmit={submit} className="space-y-5" noValidate>
-      <OfferTextFields register={register} errors={errors} />
+      <OfferTextFields kind={kind} register={register} errors={errors} />
       {kind === 'rental' ? (
         <RentalOfferFields
           control={control}

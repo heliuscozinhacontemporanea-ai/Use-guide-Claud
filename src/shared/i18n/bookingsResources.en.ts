@@ -138,6 +138,13 @@ export const bookingsEn: BookingsTranslation = {
     titleNew: 'New offer',
     titleEdit: 'Edit offer',
     titleLabel: 'Title',
+    titlePlaceholder: {
+      tour: 'E.g. Buggy tour to Lagoa do Paraíso',
+      private_entry: 'E.g. Full-price entry',
+      rental: 'E.g. Quad bike for 4 hours',
+      transfer: 'E.g. Transfer to the airport',
+    },
+    optionPlaceholder: 'E.g. Adult',
     descriptionLabel: 'Description',
     pricingLegend: 'Prices',
     priceLabel: 'Option name',

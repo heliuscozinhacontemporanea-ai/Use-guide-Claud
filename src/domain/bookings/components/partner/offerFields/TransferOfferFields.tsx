@@ -1,21 +1,20 @@
-import { Plus, Trash2 } from 'lucide-react';
 import {
   type Control,
   Controller,
   type FieldErrors,
   type UseFormRegister,
   type UseFormSetValue,
-  useFieldArray,
   useWatch,
 } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { RadioCardGroup } from '../../../../../ui/components/RadioCardGroup';
-import { BUTTON_SECONDARY, INPUT } from '../../../../../ui/styles/controls';
+import { INPUT } from '../../../../../ui/styles/controls';
 import type { OfferFormInput } from '../../../schemas/offerFormSchema';
 import { OfferPriceFields } from '../OfferPriceFields';
 import { OfferDurationFields } from './OfferDurationFields';
 import { OfferNumberField } from './OfferNumberField';
 import { OfferToggleField } from './OfferToggleField';
+import { TransferDeparturesField } from './TransferDeparturesField';
 
 interface TransferOfferFieldsProps {
   control: Control<OfferFormInput>;
@@ -34,7 +33,6 @@ const routeKey = (route: { from: string; to: string }) => `${route.from}|${route
 export function TransferOfferFields(props: TransferOfferFieldsProps) {
   const { control, register, setValue, errors, routes, locked } = props;
   const { t } = useTranslation();
-  const departures = useFieldArray({ control, name: 'departures' });
   const [mode, from, to, pickup] = useWatch({
     control,
     name: ['sellingUnit', 'routeFrom', 'routeTo', 'pickupMode'],
@@ -42,7 +40,6 @@ export function TransferOfferFields(props: TransferOfferFieldsProps) {
   const shared = mode !== 'group';
   // Os dois sentidos de cada trecho do anúncio: ida e volta são ofertas diferentes.
   const directions = routes.flatMap((route) => [route, { from: route.to, to: route.from }]);
-  const departuresError = errors.departures?.root?.message ?? errors.departures?.message;
 
   return (
     <div className="space-y-5">
@@ -127,45 +124,7 @@ export function TransferOfferFields(props: TransferOfferFieldsProps) {
 
       {shared ? null : (
         <>
-          <fieldset className="space-y-2">
-            <legend className="text-xs text-ink/70">
-              {t('fleet.editor.departuresLegend')} {t('fleet.editor.optional')}
-            </legend>
-            {departures.fields.map((departure, index) => (
-              <div key={departure.id} className="grid grid-cols-[1fr_auto] gap-2 items-end">
-                <OfferNumberField
-                  label={t('fleet.editor.departureTime')}
-                  type="time"
-                  field={register(`departures.${index}.start`)}
-                  error={errors.departures?.[index]?.start?.message}
-                />
-                <button
-                  type="button"
-                  onClick={() => departures.remove(index)}
-                  aria-label={t('fleet.editor.removeDeparture')}
-                  className={`${BUTTON_SECONDARY} w-11 flex items-center justify-center`}
-                >
-                  <Trash2 size={15} aria-hidden="true" />
-                </button>
-              </div>
-            ))}
-            {departuresError && (
-              <p role="alert" className="text-xs text-danger">
-                {t(departuresError)}
-              </p>
-            )}
-            <button
-              type="button"
-              onClick={() =>
-                departures.append({ id: `d${Date.now().toString(36)}`, start: '06:00' })
-              }
-              disabled={departures.fields.length >= 12}
-              className={BUTTON_SECONDARY}
-            >
-              <Plus size={13} className="inline mr-1" aria-hidden="true" />
-              {t('fleet.editor.addDeparture')}
-            </button>
-          </fieldset>
+          <TransferDeparturesField control={control} register={register} errors={errors} />
           <OfferToggleField
             control={control}
             name="anyTimeEnabled"

@@ -133,6 +133,8 @@ export interface BookingsTranslation {
     titleNew: string;
     titleEdit: string;
     titleLabel: string;
+    titlePlaceholder: { tour: string; private_entry: string; rental: string; transfer: string };
+    optionPlaceholder: string;
     descriptionLabel: string;
     pricingLegend: string;
     priceLabel: string;
@@ -430,6 +432,13 @@ export const bookingsPtBR: BookingsTranslation = {
     titleNew: 'Nova oferta',
     titleEdit: 'Editar oferta',
     titleLabel: 'Título',
+    titlePlaceholder: {
+      tour: 'Ex.: Passeio de buggy até a Lagoa do Paraíso',
+      private_entry: 'Ex.: Entrada inteira',
+      rental: 'Ex.: Quadriciclo por 4 horas',
+      transfer: 'Ex.: Translado para o aeroporto',
+    },
+    optionPlaceholder: 'Ex.: Adulto',
     descriptionLabel: 'Descrição',
     pricingLegend: 'Preços',
     priceLabel: 'Nome da opção',

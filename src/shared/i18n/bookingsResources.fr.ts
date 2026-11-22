@@ -145,6 +145,13 @@ export const bookingsFr: BookingsTranslation = {
     titleNew: 'Nouvelle offre',
     titleEdit: 'Modifier l’offre',
     titleLabel: 'Titre',
+    titlePlaceholder: {
+      tour: 'Ex. : Balade en buggy jusqu’à la Lagoa do Paraíso',
+      private_entry: 'Ex. : Entrée plein tarif',
+      rental: 'Ex. : Quad pour 4 heures',
+      transfer: 'Ex. : Transfert vers l’aéroport',
+    },
+    optionPlaceholder: 'Ex. : Adulte',
     descriptionLabel: 'Description',
     pricingLegend: 'Tarifs',
     priceLabel: 'Nom de l’option',

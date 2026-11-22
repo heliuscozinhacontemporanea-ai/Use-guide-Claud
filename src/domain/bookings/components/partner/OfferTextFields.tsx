@@ -2,14 +2,16 @@ import type { FieldErrors, UseFormRegister } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { INPUT } from '../../../../ui/styles/controls';
 import type { OfferFormInput } from '../../schemas/offerFormSchema';
+import type { OfferKind } from '../../types/bookings';
 
 interface OfferTextFieldsProps {
+  kind: OfferKind;
   register: UseFormRegister<OfferFormInput>;
   errors: FieldErrors<OfferFormInput>;
 }
 
 /** Título e descrição num texto só (F3, D34); a tradução automática da D5 ainda não existe. */
-export function OfferTextFields({ register, errors }: OfferTextFieldsProps) {
+export function OfferTextFields({ kind, register, errors }: OfferTextFieldsProps) {
   const { t } = useTranslation();
   const titleError = errors.title?.message;
   const descriptionError = errors.description?.message;
@@ -20,6 +22,7 @@ export function OfferTextFields({ register, errors }: OfferTextFieldsProps) {
         <span className="text-xs text-ink/70">{t('bookings.editor.titleLabel')}</span>
         <input
           {...register('title')}
+          placeholder={t(`bookings.editor.titlePlaceholder.${kind}`)}
           aria-invalid={Boolean(titleError)}
           aria-describedby={titleError ? 'offer-title-error' : undefined}
           className={INPUT}

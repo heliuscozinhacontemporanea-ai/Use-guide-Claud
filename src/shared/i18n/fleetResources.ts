@@ -9,6 +9,8 @@ export interface FleetTranslation {
     periodPrice: string;
     addPeriod: string;
     removePeriod: string;
+    periodSummary: string;
+    noPrice: string;
     customLegend: string;
     hourlyHint: string;
     minHours: string;
@@ -38,6 +40,7 @@ export interface FleetTranslation {
     departureTime: string;
     addDeparture: string;
     removeDeparture: string;
+    departureChip: string;
     anyTimeHint: string;
     anyTimeFrom: string;
     anyTimeTo: string;
@@ -132,6 +135,8 @@ export const fleetPtBR: FleetTranslation = {
     periodPrice: 'Preço por veículo (R$)',
     addPeriod: 'Adicionar período',
     removePeriod: 'Remover período',
+    periodSummary: '{{time}} · {{duration}}',
+    noPrice: 'sem preço',
     customLegend: 'Horário personalizado',
     hourlyHint: 'O cliente escolhe quantas horas quer.',
     minHours: 'Mínimo de horas',
@@ -161,6 +166,7 @@ export const fleetPtBR: FleetTranslation = {
     departureTime: 'Saída',
     addDeparture: 'Adicionar saída',
     removeDeparture: 'Remover saída',
+    departureChip: 'Saída das {{time}}',
     anyTimeHint: 'O cliente escolhe a hora da busca.',
     anyTimeFrom: 'Atende de',
     anyTimeTo: 'Até',
