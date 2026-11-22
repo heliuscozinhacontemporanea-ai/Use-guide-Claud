@@ -21,6 +21,7 @@ export function PartnerBookingsComposition({
   onOpenCoupons,
   onOpenPage,
   version,
+  inPage,
 }: {
   items: BookableGuideItem[];
   creating?: boolean;
@@ -29,6 +30,8 @@ export function PartnerBookingsComposition({
   /** Editor, horários e reservas como páginas do painel (F3). */
   onOpenPage: (page: PartnerOfferPageSpec & { title: string }) => void;
   version?: number;
+  /** Na página do estabelecimento: a lista termina com "+ Nova oferta". */
+  inPage?: boolean;
 }) {
   const { t } = useTranslation();
   const [account, setAccount] = useState<AccountState>({ status: 'loading' });
@@ -70,6 +73,7 @@ export function PartnerBookingsComposition({
       onOpenCoupons={onOpenCoupons}
       onOpenPage={onOpenPage}
       version={version}
+      inPage={inPage}
       accountNotice={
         notReady.length > 0 ? (
           <PaymentAccountNotice

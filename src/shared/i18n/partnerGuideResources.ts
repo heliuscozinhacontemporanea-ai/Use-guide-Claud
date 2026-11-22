@@ -297,11 +297,13 @@ export const partnerGuidePtBR: PartnerGuideTranslation = {
     newTitle: 'Nova oferta',
     slots: 'Horários',
     saved: 'Oferta salva',
-    tourInOffer: 'Duração, ponto de encontro, preço e vagas ficam em cada oferta do passeio.',
+    tourInOffer:
+      '<b>Duração, ponto de encontro, preço e vagas</b> ficam em cada oferta do passeio.',
     sightPriceInOffer:
-      'Com acesso pago, o preço da entrada fica na oferta de entrada, que é o que o turista compra.',
-    rentalInOffer: 'Preço, período e CNH ficam em cada oferta: mudam por veículo.',
-    transferInOffer: 'Preço, tipo (privativo ou compartilhado) e passageiros ficam em cada oferta.',
+      'Com acesso pago, <b>o preço da entrada</b> fica na oferta de entrada, que é o que o turista compra.',
+    rentalInOffer: '<b>Preço, período e CNH</b> ficam em cada oferta: mudam por veículo.',
+    transferInOffer:
+      '<b>Preço, tipo (privativo ou compartilhado) e passageiros</b> ficam em cada oferta.',
   },
   page: {
     progress: 'Passo {{current}} de {{total}}',

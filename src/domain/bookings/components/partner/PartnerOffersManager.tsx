@@ -11,6 +11,7 @@ import { usePartnerOffers } from '../../hooks/usePartnerOffers';
 import type { BookableGuideItem, OfferStatus, PartnerOffer } from '../../types/bookings';
 import { getBookingErrorMessage } from '../../utils/bookingErrorMessage';
 import { HOURLY_PRICE_OPTION_ID } from '../../utils/fleetSelection';
+import { formatDuration } from '../../utils/formatDuration';
 import { isBookableCategory, isFleetOffer } from '../../utils/offerKindByCategory';
 import type { PartnerOfferPageSpec } from './PartnerOfferPage';
 import { PartnerOfferSheet } from './PartnerOfferSheet';
@@ -37,6 +38,8 @@ interface PartnerOffersManagerProps {
   onOpenPage: (page: PartnerOfferPageSpec & { title: string }) => void;
   /** Muda quando uma página de oferta fecha: a lista relê as ofertas. */
   version?: number;
+  /** Na página do estabelecimento: a lista termina com "+ Nova oferta" (protótipo da F3, tela 5). */
+  inPage?: boolean;
 }
 
 /** Passeios e aluguéis do Catálogo (p09) e da página do estabelecimento (p19). */
@@ -49,6 +52,7 @@ export function PartnerOffersManager({
   onOpenCoupons,
   onOpenPage,
   version = 0,
+  inPage = false,
 }: PartnerOffersManagerProps) {
   const { t, i18n } = useTranslation();
   const offers = usePartnerOffers();
@@ -155,6 +159,14 @@ export function PartnerOffersManager({
 
   const visible = offers.data.filter((offer) => offer.status !== 'archived' && itemOf(offer));
   const grouped = eligible.length > 1;
+  // Na linha, a duração vem antes do preço ("4 h · a partir de R$ 90 por pessoa"); a folha só o preço.
+  const rowSub = (offer: PartnerOffer) =>
+    [offer.durationMinutes ? formatDuration(offer.durationMinutes) : null, summary(offer)]
+      .filter(Boolean)
+      .join(' · ');
+  const newOfferRow = (item: (typeof eligible)[number]) => (
+    <ListRowButton title={t('bookings.partner.newOfferRow')} onClick={() => startCreate(item)} />
+  );
 
   return (
     <div className="space-y-4">
@@ -170,6 +182,8 @@ export function PartnerOffersManager({
         <ListError message={offers.error} onRetry={() => void offers.reload()} />
       ) : eligible.length === 0 ? (
         <ListEmpty message={t('bookings.partner.noEligibleItems')} />
+      ) : visible.length === 0 && inPage && eligible[0] ? (
+        <ListCard>{newOfferRow(eligible[0])}</ListCard>
       ) : visible.length === 0 ? (
         <ListEmpty message={t('bookings.partner.emptyCatalog')} />
       ) : (
@@ -186,7 +200,7 @@ export function PartnerOffersManager({
                   <ListRowButton
                     key={offer.id}
                     title={offer.title['pt-BR']}
-                    sub={summary(offer)}
+                    sub={rowSub(offer)}
                     status={{
                       tone: STATUS_TONE[offer.status],
                       text: t(`bookings.status.${offer.status}`),
@@ -194,6 +208,7 @@ export function PartnerOffersManager({
                     onClick={() => setSelected(offer)}
                   />
                 ))}
+                {inPage && newOfferRow(item)}
               </ListCard>
             </div>
           );

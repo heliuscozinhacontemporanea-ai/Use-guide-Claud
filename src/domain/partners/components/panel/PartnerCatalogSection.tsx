@@ -58,6 +58,8 @@ export interface PartnerCatalogRenders {
   }) => ReactNode;
   /** Conteúdo da página de oferta empilhada (bookings). */
   renderOfferPage?: (props: OfferPageRenderProps) => ReactNode;
+  /** "Ver as ofertas deste passeio · 1 oferta à venda" (bookings), no bloco Detalhes. */
+  renderOffersLink?: (props: { itemId: string; category: string; onOpen: () => void }) => ReactNode;
   /** Visitas do mês (insights). */
   renderVisits?: (itemId: string, onOpenPlan: () => void) => ReactNode;
   /** Avaliações recentes (reviews); o toque leva às respostas. */

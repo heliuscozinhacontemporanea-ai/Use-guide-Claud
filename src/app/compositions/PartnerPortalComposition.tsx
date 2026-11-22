@@ -8,6 +8,7 @@ import {
   EntryOfflineKeys,
   EstablishmentCodeSheet,
   isBookableCategory,
+  ListingOffersLink,
   PartnerOfferPage,
   PartnerSlotSheet,
   SlotContactsList,
@@ -242,9 +243,11 @@ export function PartnerPortalComposition() {
               onOpenCoupons={onOpenCoupons}
               onOpenPage={onOpenPage}
               version={version}
+              inPage={inPage}
             />
           ),
         renderOfferPage: (props) => <PartnerOfferPage {...props} />,
+        renderOffersLink: (props) => <ListingOffersLink {...props} />,
         renderVisits: (itemId, onOpenPlan) => (
           <MonthVisitsTile itemId={itemId} onOpenPlan={onOpenPlan} />
         ),

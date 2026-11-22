@@ -127,12 +127,13 @@ export const partnerGuideFr: PartnerGuideTranslation = {
     slots: 'Créneaux',
     saved: 'Offre enregistrée',
     tourInOffer:
-      'La durée, le point de rendez-vous, le prix et les places se définissent dans chaque offre de l’excursion.',
+      '<b>La durée, le point de rendez-vous, le prix et les places</b> se définissent dans chaque offre de l’excursion.',
     sightPriceInOffer:
-      'Avec un accès payant, le prix d’entrée se définit dans l’offre d’entrée, celle que les visiteurs achètent.',
+      'Avec un accès payant, <b>le prix d’entrée</b> se définit dans l’offre d’entrée, celle que les visiteurs achètent.',
     rentalInOffer:
-      'Prix, période et permis se définissent dans chaque offre : ils varient selon le véhicule.',
-    transferInOffer: 'Prix, type (privé ou partagé) et passagers se définissent dans chaque offre.',
+      '<b>Prix, période et permis</b> se définissent dans chaque offre : ils varient selon le véhicule.',
+    transferInOffer:
+      '<b>Prix, type (privé ou partagé) et passagers</b> se définissent dans chaque offre.',
   },
   page: {
     progress: 'Étape {{current}} sur {{total}}',

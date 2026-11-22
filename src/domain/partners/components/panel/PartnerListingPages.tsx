@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import type { PanelPage } from '../../hooks/usePanelNavigation';
 import type { PartnerContentRecord } from '../../types/partnerContent';
 import type { ListingStep, PartnerEstablishment } from '../../types/partnerHome';
@@ -19,6 +20,8 @@ export interface ListingPagesContext {
   onOpenListingBlock: (itemId: string, block: EditorBlock, title: string) => void;
   onListingDeleted: (itemId: string) => void;
   onListingCreated: (itemId: string) => void;
+  /** "Ver as ofertas deste passeio" no bloco Detalhes do editor (protótipo da F3, tela 1). */
+  renderOffersLink?: (item: PartnerContentRecord) => ReactNode;
 }
 
 /**
@@ -50,6 +53,7 @@ export function ListingBlockPage({
       mode={editor ? 'editor' : 'guide'}
       registerSave={context.registerListingSave}
       onSaved={context.onListingDone}
+      offersLink={editor && page.step === 'details' ? context.renderOffersLink?.(item) : null}
     />
   );
 }

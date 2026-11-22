@@ -89,6 +89,11 @@ export interface BookingsTranslation {
     sectionDescription: string;
     noEligibleItems: string;
     newOffer: string;
+    newOfferRow: string;
+    listingOffers: { tour: string; private_entry: string; rental: string; transfer: string };
+    listingOffersCount_one: string;
+    listingOffersCount_other: string;
+    listingOffersNone: string;
     emptyOffers: string;
     loading: string;
     loadError: string;
@@ -386,6 +391,16 @@ export const bookingsPtBR: BookingsTranslation = {
     sectionDescription: 'Venda horários dos seus passeios e entradas das suas atrações.',
     noEligibleItems: 'Cadastre um passeio ou uma atração para vender reservas.',
     newOffer: 'Nova oferta',
+    newOfferRow: '+ Nova oferta',
+    listingOffers: {
+      tour: 'Ver as ofertas deste passeio',
+      private_entry: 'Ver as ofertas desta atração',
+      rental: 'Ver as ofertas deste aluguel',
+      transfer: 'Ver as ofertas deste translado',
+    },
+    listingOffersCount_one: '{{count}} oferta à venda',
+    listingOffersCount_other: '{{count}} ofertas à venda',
+    listingOffersNone: 'Nenhuma oferta à venda ainda',
     emptyOffers: 'Nenhuma oferta para este item.',
     loading: 'Carregando ofertas…',
     loadError: 'Não foi possível carregar as ofertas.',

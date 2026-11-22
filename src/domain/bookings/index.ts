@@ -1,5 +1,6 @@
 // Componentes públicos apenas para src/app/compositions (AGENTS.md §5.2 item 5).
 
+export { startSlotServiceUseCase } from './application/usecases/startSlotServiceUseCase';
 export {
   isBookingServiceEvidence,
   ServiceEvidenceList,
@@ -14,16 +15,16 @@ export { MyBookingsView } from './components/buyer/MyBookingsView';
 export type { PaymentElementSlotProps, RenderPaymentElement } from './components/buyer/types';
 export { EntryOfflineKeys } from './components/partner/EntryOfflineKeys';
 export { EstablishmentCodeSheet } from './components/partner/EstablishmentCodeSheet';
-export { PartnerOfferPage } from './components/partner/PartnerOfferPage';
+export { ListingOffersLink } from './components/partner/ListingOffersLink';
 export type {
   PartnerOfferPageSpec,
   PartnerOfferSaved,
 } from './components/partner/PartnerOfferPage';
+export { PartnerOfferPage } from './components/partner/PartnerOfferPage';
 export { PartnerOffersManager } from './components/partner/PartnerOffersManager';
 export { PartnerSlotSheet } from './components/partner/PartnerSlotSheet';
 export { SlotCheckInSheet } from './components/partner/SlotCheckInSheet';
 export { SlotContactsList } from './components/partner/SlotContactsList';
-export { startSlotServiceUseCase } from './application/usecases/startSlotServiceUseCase';
 export { useBookingPurchases } from './hooks/useBookingPurchases';
 export { useMyBookings } from './hooks/useMyBookings';
 export { useSlotArrival } from './hooks/useSlotArrival';

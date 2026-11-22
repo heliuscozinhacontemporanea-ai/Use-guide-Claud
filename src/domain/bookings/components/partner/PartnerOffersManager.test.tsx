@@ -185,6 +185,44 @@ describe('PartnerOffersManager', () => {
     );
   });
 
+  it('na página do estabelecimento: duração antes do preço e "+ Nova oferta" no fim da lista', async () => {
+    vi.mocked(listPartnerOffersUseCase).mockResolvedValue([
+      {
+        id: 'o1',
+        guideItemId: 'item-1',
+        kind: 'tour',
+        status: 'published',
+        title: { 'pt-BR': 'Passeio de buggy' },
+        durationMinutes: 240,
+        pricing: {
+          currency: 'BRL',
+          priceOptions: [
+            { id: 'a', label: { 'pt-BR': 'Adulto' }, unitAmountMinor: 15000 },
+            { id: 'c', label: { 'pt-BR': 'Criança' }, unitAmountMinor: 9000 },
+          ],
+        },
+        createdAt: '',
+        updatedAt: '',
+      } as never,
+    ]);
+    const onOpenPage = vi.fn();
+    render(
+      <PartnerOffersManager
+        canPublish={() => true}
+        items={[{ id: 'item-1', name: 'Buggy do Preá', category: 'tour' }]}
+        onOpenPage={onOpenPage}
+        inPage
+      />
+    );
+    expect(await screen.findByText(/4 h · a partir de R\$\s90 por pessoa/)).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: '+ Nova oferta' }));
+    await waitFor(() =>
+      expect(onOpenPage).toHaveBeenCalledWith(
+        expect.objectContaining({ kind: 'editor', itemId: 'item-1', itemName: 'Buggy do Preá' })
+      )
+    );
+  });
+
   it('com mais de um estabelecimento, "Criar" pergunta em qual', async () => {
     vi.mocked(listPartnerOffersUseCase).mockResolvedValue([]);
     const onOpenPage = vi.fn();

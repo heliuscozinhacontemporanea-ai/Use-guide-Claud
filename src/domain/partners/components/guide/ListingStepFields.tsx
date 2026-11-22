@@ -1,8 +1,9 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import { useId } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { BR_STATES } from '../../../../shared/utils/timeZones';
 import { E164PhoneField } from '../../../../ui/components/E164PhoneField';
+import { INFO_NOTE_STRONG, InfoNote } from '../../../../ui/components/InfoNote';
 import type { DeclinedLink } from '../../types/partnerContent';
 import type { FormState } from '../../types/partsForm';
 import { listingSellsThroughApp } from '../../utils/listingSells';
@@ -138,9 +139,9 @@ export function WhereFields({ form, setForm, errors, setErrors }: ListingFieldsP
 }
 
 /** Página de detalhes da categoria; os detalhes de venda ficam na oferta (D34, F3). */
-export function DetailsFields(props: ListingFieldsProps) {
+export function DetailsFields(props: ListingFieldsProps & { offersLink?: ReactNode }) {
   const { t } = useTranslation();
-  const { form, setForm, errors, setErrors, declined, setDeclined } = props;
+  const { form, setForm, errors, setErrors, declined, setDeclined, offersLink } = props;
   const Details = DETAILS[form.category];
   // O que saiu do anúncio e ficou na oferta (F3, D34).
   const saleNote =
@@ -160,7 +161,12 @@ export function DetailsFields(props: ListingFieldsProps) {
       {Details ? (
         <Details formData={form} setFormData={setForm} errors={errors} setErrors={setErrors} />
       ) : null}
-      {saleNote ? <p className={SIGNUP_HINT}>{t(saleNote)}</p> : null}
+      {saleNote ? (
+        <InfoNote>
+          <Trans i18nKey={saleNote} components={{ b: INFO_NOTE_STRONG }} />
+        </InfoNote>
+      ) : null}
+      {offersLink}
       {form.category === 'restaurant' ? (
         <DeclineBox
           label={t('partnerGuide.contacts.noMenu')}

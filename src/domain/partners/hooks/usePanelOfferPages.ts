@@ -81,6 +81,17 @@ export function usePanelOfferPages(
     [nav, showToast]
   );
 
+  // "Ver as ofertas": volta à página do estabelecimento se ela está embaixo; senão, abre por cima.
+  const openPlaceOffers = useCallback(
+    (place: { id: string; name: string }) => {
+      const open = nav.pages.getPages();
+      const below = open.findLastIndex((page) => page.view === 'place' && page.id === place.id);
+      if (below >= 0) nav.pages.back(open.length - 1 - below);
+      else nav.openPlace(place);
+    },
+    [nav]
+  );
+
   // As listas de ofertas do Catálogo e da página do estabelecimento abrem as páginas por aqui.
   const catalogRenders = useMemo<PartnerCatalogRenders>(() => {
     const renders = renderCatalog ?? {};
@@ -105,6 +116,12 @@ export function usePanelOfferPages(
       onOpenOfferPage: openPage,
       onOfferFormDone: onFormDone,
       offerFormVersion: formVersion,
+      renderOffersLink: (item: PartnerContentRecord) =>
+        renderCatalog?.renderOffersLink?.({
+          itemId: item.id,
+          category: item.category,
+          onOpen: () => openPlaceOffers(item),
+        }),
     },
     /** Guia do Início: a primeira oferta do estabelecimento, já ligada a ele. */
     openNew: (
