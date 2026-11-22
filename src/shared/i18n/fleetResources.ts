@@ -104,6 +104,7 @@ export interface FleetTranslation {
     passengers_other: string;
     license: string;
     totalLabel: string;
+    goToPayment: string;
     dayPart: { dawn: string; morning: string; afternoon: string; evening: string };
     periodLine: string;
     hourlyLine: string;
@@ -237,6 +238,7 @@ export const fleetPtBR: FleetTranslation = {
     passengers_other: 'até {{count}} passageiros cada',
     license: 'Quem vai dirigir tem CNH válida e vai apresentá-la na retirada.',
     totalLabel: 'Total',
+    goToPayment: 'Ir para o pagamento',
     dayPart: {
       dawn: 'Madrugada',
       morning: 'Manhã',

@@ -3,6 +3,7 @@ import { useId, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BUYER_TERMS_VERSION } from '../../../../shared/constants/legalTerms';
 import { BUTTON_PRIMARY, BUTTON_SECONDARY } from '../../../../ui/styles/controls';
+import { useFirstOpenFleetDate } from '../../hooks/useFirstOpenFleetDate';
 import { usePublicFleetDay } from '../../hooks/usePublicFleetDay';
 import type { PublicOffer } from '../../types/bookings';
 import { formatDayLabel, formatSlotRange, placeDateKey } from '../../utils/dates';
@@ -49,7 +50,9 @@ export function FleetBookingFlow({
     [timeZone]
   );
   const firstMode: FleetMode = (offer.fleet?.fixed.length ?? 0) > 0 ? 'fixed' : 'custom';
-  const [date, setDate] = useState(dates[0] ?? '');
+  const firstOpen = useFirstOpenFleetDate(offer, dates);
+  const [picked, setDate] = useState<string | null>(null);
+  const date = picked ?? firstOpen ?? '';
   const [selection, setSelection] = useState<FleetSelection>({ mode: firstMode });
   const [step, setStep] = useState<Step>('select');
   const [vehicles, setVehicles] = useState(1);
@@ -213,7 +216,7 @@ export function FleetBookingFlow({
         onClick={() => (isAuthenticated ? setStep('checkout') : onRequireLogin())}
         className={`${BUTTON_PRIMARY} w-full`}
       >
-        {isAuthenticated ? t('bookings.buyer.continue') : t('bookings.buyer.login')}
+        {isAuthenticated ? t('fleet.booking.goToPayment') : t('bookings.buyer.login')}
       </button>
     </div>
   );

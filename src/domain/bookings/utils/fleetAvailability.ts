@@ -100,3 +100,15 @@ export function nextPlaceDates(today: string, count: number): string[] {
     new Date(base + index * 86_400_000).toISOString().slice(0, 10)
   );
 }
+
+/** O dia tem algo para reservar agora: período ou saída com veículo, ou início personalizado livre. */
+export function hasBookableTime(
+  offer: Pick<PublicOffer, 'kind' | 'durationMinutes'>,
+  day: PublicFleetDay,
+  nowMs: number,
+  placeIso: (date: string, time: string) => string | null
+): boolean {
+  if (day.vehicles < 1) return false;
+  if (day.fixed.some((period) => period.available > 0)) return true;
+  return customStarts(offer, day, nowMs, placeIso).some((start) => start.free > 0);
+}

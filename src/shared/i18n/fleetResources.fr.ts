@@ -110,6 +110,7 @@ export const fleetFr: FleetTranslation = {
     passengers_other: 'jusqu’à {{count}} passagers chacun',
     license: 'La personne qui conduit a un permis valide et le présentera au retrait.',
     totalLabel: 'Total',
+    goToPayment: 'Passer au paiement',
     dayPart: {
       dawn: 'Nuit',
       morning: 'Matin',

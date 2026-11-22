@@ -240,7 +240,9 @@ describe('reserva de aluguel por horas (F3b, protótipo tela 5)', () => {
     expect(
       (screen.getByRole('button', { name: 'Mais um veículo' }) as HTMLButtonElement).disabled
     ).toBe(true);
-    const proceed = screen.getByRole('button', { name: 'Continuar' }) as HTMLButtonElement;
+    const proceed = screen.getByRole('button', {
+      name: 'Ir para o pagamento',
+    }) as HTMLButtonElement;
     fireEvent.click(screen.getByLabelText(/Quem vai dirigir tem CNH válida/));
     fireEvent.change(screen.getByPlaceholderText('(85) 99999-9999'), {
       target: { value: '88999990000' },
@@ -262,6 +264,23 @@ describe('reserva de aluguel por horas (F3b, protótipo tela 5)', () => {
     });
   });
 
+  it('abre no primeiro dia que ainda tem horário (resposta 17, 2026-11-22)', async () => {
+    const closedToday = {
+      ...rentalDay,
+      fixed: rentalDay.fixed.map((p) => ({ ...p, available: 0 })),
+      custom: undefined,
+    };
+    vi.mocked(getPublicFleetDayUseCase).mockImplementation(async (_offerId, date) =>
+      date === '2026-11-21' ? closedToday : { ...rentalDay, date }
+    );
+    renderPanel();
+    await waitFor(() =>
+      expect(getPublicFleetDayUseCase).toHaveBeenCalledWith('quad', '2026-11-22')
+    );
+    const day22 = await screen.findByRole('button', { name: /22 de novembro/ });
+    await waitFor(() => expect(day22.getAttribute('aria-pressed')).toBe('true'));
+  });
+
   it('sem a CNH marcada a reserva não segue', async () => {
     renderPanel();
     fireEvent.click(await screen.findByRole('button', { name: /08:00\s–\s12:00|08:00–12:00/ }));
@@ -271,9 +290,9 @@ describe('reserva de aluguel por horas (F3b, protótipo tela 5)', () => {
     });
     const checkboxes = screen.getAllByRole('checkbox');
     fireEvent.click(checkboxes[checkboxes.length - 1] as HTMLElement);
-    expect((screen.getByRole('button', { name: 'Continuar' }) as HTMLButtonElement).disabled).toBe(
-      true
-    );
+    expect(
+      (screen.getByRole('button', { name: 'Ir para o pagamento' }) as HTMLButtonElement).disabled
+    ).toBe(true);
   });
 });
 

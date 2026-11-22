@@ -110,6 +110,7 @@ export const fleetEn: FleetTranslation = {
     passengers_other: 'up to {{count}} passengers each',
     license: 'Whoever drives has a valid driver’s license and will show it at pickup.',
     totalLabel: 'Total',
+    goToPayment: 'Go to payment',
     dayPart: {
       dawn: 'Early morning',
       morning: 'Morning',
