@@ -122,11 +122,26 @@ export const partnerGuideFr: PartnerGuideTranslation = {
     contacts: 'Contacts et liens',
     contactsHint: 'Instagram et site web',
   },
+  offer: {
+    newTitle: 'Nouvelle offre',
+    slots: 'Créneaux',
+    saved: 'Offre enregistrée',
+    tourInOffer:
+      '<b>La durée, le point de rendez-vous, le prix et les places</b> se définissent dans chaque offre de l’excursion.',
+    sightPriceInOffer:
+      'Avec un accès payant, <b>le prix d’entrée</b> se définit dans l’offre d’entrée, celle que les visiteurs achètent.',
+    rentalInOffer:
+      '<b>Prix, période et permis</b> se définissent dans chaque offre : ils varient selon le véhicule.',
+    transferInOffer:
+      '<b>Prix, type (privé ou partagé) et passagers</b> se définissent dans chaque offre.',
+  },
   page: {
     progress: 'Étape {{current}} sur {{total}}',
     next: 'Ensuite : {{step}}',
     nextPublish: 'Ensuite : publier dans le guide',
     save: 'Enregistrer',
+    create: 'Créer',
+    open: 'Ouvrir',
     saving: 'Enregistrement…',
     saved: 'Enregistré',
     missing: 'Il manque : {{fields}}',

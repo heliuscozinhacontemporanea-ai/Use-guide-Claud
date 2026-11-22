@@ -205,6 +205,28 @@ describe('blocos pelo editor (F2)', () => {
     return { save: () => (save as unknown as () => void)(), onSaved };
   };
 
+  it('Detalhes: o que ficou na oferta aparece em quadro com destaque, e o link das ofertas embaixo', () => {
+    render(
+      <ListingStepPage
+        item={tour}
+        step="details"
+        steps={steps}
+        mode="editor"
+        registerSave={vi.fn()}
+        onSaved={vi.fn()}
+        offersLink={<button type="button">Ver as ofertas deste passeio</button>}
+      />
+    );
+    const strong = screen.getByText('Duração, ponto de encontro, preço e vagas');
+    expect(strong.tagName).toBe('STRONG');
+    expect(strong.parentElement).toHaveTextContent(
+      'Duração, ponto de encontro, preço e vagas ficam em cada oferta do passeio.'
+    );
+    expect(
+      screen.getByRole('button', { name: 'Ver as ofertas deste passeio' })
+    ).toBeInTheDocument();
+  });
+
   it('Nome: a categoria aparece travada, sem "Passo X de N", e salva nome e cidade', async () => {
     const { save, onSaved } = open('name');
     expect(screen.getByText('Passeios')).toBeInTheDocument();

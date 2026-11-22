@@ -5,10 +5,11 @@ export const CHECK_IN_CODE_LENGTH = 6;
 export const ENTRY_CODE_LENGTH = 8;
 
 // Iguais nos três idiomas, como um código de voo (D20); não são traduzidos nem enviados ao servidor.
-// Aluguel (ALUG) e translado (TRAN) entram quando esses tipos forem vendidos (D3).
 const PREFIX: Record<OfferKind, string> = {
   tour: 'PASS',
   private_entry: 'ENTR',
+  rental: 'ALUG',
+  transfer: 'TRAN',
 };
 
 export function checkInPrefix(kind: OfferKind): string {

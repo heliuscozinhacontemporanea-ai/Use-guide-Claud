@@ -19,10 +19,13 @@ import type {
   NoCodeReason,
   OfferFields,
   OfferStatus,
+  OpenFleetDaysPayload,
   Page,
+  PartnerFleetDay,
   PartnerOffer,
   PartnerSlot,
   PartnerSlotDetail,
+  PublicFleetDay,
   PublicSlot,
   SlotContact,
   UnitCheckInResult,
@@ -94,6 +97,25 @@ export class HttpBookingsAdapter implements BookingsApiPort {
     ).data;
   }
 
+  async listFleetDays(
+    offerId: string,
+    fromDate: string,
+    toDate: string
+  ): Promise<PartnerFleetDay[]> {
+    const query = new URLSearchParams({ from: fromDate, to: toDate });
+    return (await call<{ data: PartnerFleetDay[] }>(`${offerPath(offerId)}/fleet-days?${query}`))
+      .data;
+  }
+
+  async openFleetDays(offerId: string, payload: OpenFleetDaysPayload): Promise<PartnerFleetDay[]> {
+    return (
+      await call<{ data: PartnerFleetDay[] }>(
+        `${offerPath(offerId)}/fleet-days`,
+        json('POST', payload)
+      )
+    ).data;
+  }
+
   async cancelSlot(offerId: string, slotId: string): Promise<{ canceledBookings: number }> {
     return call(
       `${offerPath(offerId)}/slots/${encodeURIComponent(slotId)}/cancel`,
@@ -119,6 +141,16 @@ export class HttpBookingsAdapter implements BookingsApiPort {
 
   async markNoShow(bookingId: string): Promise<BookingSummary> {
     return call(`/api/bookings/${encodeURIComponent(bookingId)}/no-show`, json('POST', {}));
+  }
+
+  async getPublicFleetDay(offerId: string, date: string): Promise<PublicFleetDay> {
+    const path = `/api/bookings/offers/${encodeURIComponent(offerId)}/fleet-days/${encodeURIComponent(date)}`;
+    // Rota pública, como os horários livres: dá para ver o dia sem login.
+    return call<PublicFleetDay>(
+      path,
+      { method: 'GET' },
+      { requireAuth: false, requireAppCheck: true }
+    );
   }
 
   async listAvailableSlots(offerId: string, fromIso: string, toIso: string): Promise<PublicSlot[]> {

@@ -1,8 +1,11 @@
+import type { QueryDocumentSnapshot, Transaction } from 'firebase-admin/firestore';
 import { adminDb } from '../../../infrastructure/firebase/adminClient';
 import { BookingPersistenceMapper, SlotPersistenceMapper } from '../dtos/bookingPersistenceMappers';
 import { BookingDomainError } from '../errors/bookingDomainError';
 import type { AvailabilitySlot, AvailabilitySlotStatus, Booking } from '../types/bookingTypes';
-import { BOOKINGS, nowIso, SLOTS, writeAudit } from './firestoreBookingsShared';
+import { fleetDayIdAt, rescheduleFleetHolds } from '../utils/fleetReschedule';
+import { BOOKINGS, nowIso, OFFERS, SLOTS, writeAudit } from './firestoreBookingsShared';
+import { readFleetDay, writeFleetDay } from './firestoreFleetStore';
 
 /** Horários de uma oferta (`availabilitySlots`). */
 export class FirestoreSlotStore {
@@ -76,6 +79,10 @@ export class FirestoreSlotStore {
         adminDb.collection(BOOKINGS).where('slotId', '==', params.slotId).limit(500)
       );
       const at = nowIso();
+      const slot = SlotPersistenceMapper.toDomain(slotSnapshot.id, slotSnapshot.data() ?? {});
+      if (slot.fleetDayId) {
+        return this.rescheduleFleet(tx, slot, bookingsSnapshot.docs, params, at);
+      }
       tx.update(slotRef, {
         startsAt: params.startsAt,
         endsAt: params.endsAt ?? null,
@@ -106,6 +113,53 @@ export class FirestoreSlotStore {
         moved.push(updated);
       }
       return moved;
+    });
+  }
+
+  // Horário por veículo (F3b): os veículos mudam de hora, e de dia se a data mudar, só se couberem.
+  private async rescheduleFleet(
+    tx: Transaction,
+    slot: AvailabilitySlot,
+    docs: QueryDocumentSnapshot[],
+    params: { startsAt: string; actorUid: string; reason: string },
+    at: string
+  ): Promise<Booking[]> {
+    const offerSnapshot = await tx.get(adminDb.collection(OFFERS).doc(slot.offerId));
+    const timeZone = offerSnapshot.data()?.timeZone;
+    const from = slot.fleetDayId ? await readFleetDay(tx, slot.fleetDayId) : null;
+    const toId = fleetDayIdAt(
+      slot.offerId,
+      params.startsAt,
+      typeof timeZone === 'string' ? timeZone : undefined
+    );
+    const to = from && toId === from.id ? from : await readFleetDay(tx, toId);
+    const active = docs
+      .map((doc) => BookingPersistenceMapper.toDomain(doc.id, doc.data()))
+      .filter((booking) => booking.status === 'confirmed' || booking.status === 'pending_payment');
+    const plan = rescheduleFleetHolds({
+      slot,
+      bookings: active,
+      startsAt: params.startsAt,
+      timeZone: typeof timeZone === 'string' ? timeZone : undefined,
+      days: (id) => (id === from?.id ? from : id === to?.id ? to : null),
+      now: at,
+    });
+    tx.set(adminDb.collection(SLOTS).doc(slot.id), SlotPersistenceMapper.toPersistence(plan.slot));
+    for (const day of plan.days) writeFleetDay(tx, day);
+    return plan.bookings.map((booking) => {
+      const updated = { ...booking, rescheduledAt: at, updatedAt: at };
+      tx.set(
+        adminDb.collection(BOOKINGS).doc(booking.id),
+        BookingPersistenceMapper.toPersistence(updated)
+      );
+      writeAudit(tx, {
+        bookingId: booking.id,
+        from: booking.status,
+        to: booking.status,
+        actorUid: params.actorUid,
+        reason: params.reason,
+      });
+      return updated;
     });
   }
 }

@@ -1,8 +1,8 @@
 import * as RadixDialog from '@radix-ui/react-dialog';
 import {
   animate,
-  motion,
   type MotionValue,
+  motion,
   useMotionValue,
   usePresence,
   useReducedMotion,
@@ -12,6 +12,7 @@ import { type ReactNode, type RefObject, useEffect, useLayoutEffect, useRef } fr
 import { Z_INDEX } from '../../../shared/constants/zIndex';
 import { cn } from '../../../shared/utils/cn';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
+import { useStackGestures } from '../../layouts/stack/useStackGestures';
 import { stackSheetProgress } from '../../motion/stackSheetProgress';
 import {
   FADE,
@@ -20,7 +21,6 @@ import {
   SHEET_CLOSE_VELOCITY,
   SPRING,
 } from '../../motion/tokens';
-import { useStackGestures } from '../../layouts/stack/useStackGestures';
 
 /** Diálogo do `sm:` em diante (DESIGN.md §9.1): escala de 0,96 e fade, 200 ms entrando e 150 saindo. */
 const CARD_IN = { duration: 0.2, ease: [0.2, 0.8, 0.2, 1] } as const;
@@ -138,8 +138,15 @@ function PhoneSheet({
   useEffect(() => {
     if (!drivesBackdrop) return;
     stackSheetProgress.set(shown.get());
-    return shown.on('change', (value) => stackSheetProgress.set(value));
-  }, [drivesBackdrop, shown]);
+    const stop = shown.on('change', (value) => stackSheetProgress.set(value));
+    return () => {
+      stop();
+      // Folha tirada da tela sem a animação de saída (o componente que a mostrava sumiu de uma vez):
+      // sem isto, o app ficava preso como cartão, com o véu `recede` (o "fundo cinza").
+      if (stackSheetProgress.get() > 0)
+        void animate(stackSheetProgress, 0, reduced ? FADE : SPRING);
+    };
+  }, [drivesBackdrop, shown, reduced]);
 
   useEffect(() => {
     void animate(scale, receded ? 0.92 : 1, reduced ? FADE : SPRING);

@@ -3,7 +3,7 @@ import type { BookingCancellationPolicy } from '../../../shared/utils/cancellati
 /** Espelho neutro dos DTOs de saída da API de reservas (server/interfaces/http/bookings). */
 export type LocalizedText = { 'pt-BR': string; en?: string; fr?: string };
 
-export type OfferKind = 'tour' | 'private_entry';
+export type OfferKind = 'tour' | 'private_entry' | 'rental' | 'transfer';
 export type OfferStatus = 'draft' | 'published' | 'paused' | 'archived';
 
 export interface PriceOption {
@@ -30,6 +30,73 @@ export interface OfferFields {
   groupMaxPeople?: number;
   /** Nome do estabelecimento mostrado ao cliente (D20). */
   businessName?: string;
+  /** Aluguel: o veículo, um dos do anúncio (F3b). */
+  vehicle?: string;
+  /** Translado: o trecho, num sentido. */
+  route?: { from: string; to: string };
+  /** Aluguel: quem dirige precisa de CNH (o comprador declara na reserva). */
+  requiresDriverLicense?: boolean;
+  /** Aluguel e translado privativo: períodos ou saídas e o horário personalizado. */
+  fleet?: FleetSchedule;
+}
+
+/** Período fixo do aluguel ou saída do translado, na hora do lugar (F3b). */
+export interface FleetPeriod {
+  id: string;
+  /** "HH:MM". */
+  start: string;
+  minutes: number;
+}
+
+export type FleetCustom =
+  | { mode: 'hours'; minHours: number }
+  | { mode: 'time'; from: string; to: string; minNoticeHours: number };
+
+export interface FleetSchedule {
+  fixed: FleetPeriod[];
+  custom?: FleetCustom;
+}
+
+/** Ocupação de um intervalo, sem quem reservou. */
+export interface FleetBusy {
+  startsAt: string;
+  endsAt: string;
+  units: number;
+}
+
+/** Dia aberto visto pelo parceiro. */
+export interface PartnerFleetDay {
+  date: string;
+  vehicles: number;
+  opensAt?: string;
+  closesAt?: string;
+  busy: FleetBusy[];
+}
+
+export interface OpenFleetDaysPayload {
+  startDate: string;
+  endDate: string;
+  weekdays: number[];
+  vehicles: number;
+}
+
+/** Dia visto pelo comprador: períodos ou saídas com veículos livres e o horário personalizado. */
+export interface PublicFleetDay {
+  date: string;
+  vehicles: number;
+  opensAt?: string;
+  closesAt?: string;
+  busy: FleetBusy[];
+  fixed: Array<{ id: string; startsAt: string; endsAt: string; available: number }>;
+  custom?: FleetCustom & { earliestStartsAt: string };
+}
+
+/** Escolha do comprador numa oferta por veículo. */
+export interface FleetBookingRequest {
+  date: string;
+  periodId?: string;
+  startsAt?: string;
+  hours?: number;
 }
 
 export type SellingUnit = 'person' | 'group';
@@ -162,11 +229,15 @@ export interface Page<T> {
   nextCursor: string | null;
 }
 
-/** Item do guia do parceiro que pode virar oferta (passeio ou atração). */
+/** Item do guia do parceiro que pode virar oferta. */
 export interface BookableGuideItem {
   id: string;
   name: string;
   category: string;
+  /** Aluguel e translado: veículos do anúncio (a oferta escolhe um, F3b). */
+  vehicles?: string[];
+  /** Translado: trechos do anúncio. */
+  routes?: Array<{ from: string; to: string }>;
 }
 
 /** Oferta publicada lida da projeção pública `publicBookableOffers` (sem dono nem parceiro). */
@@ -182,7 +253,11 @@ export interface PublicOffer extends OfferFields {
 
 export interface CreateBookingPayload {
   offerId: string;
-  slotId: string;
+  /** Horário com vagas; na venda por veículo, `fleet` no lugar (F3b). */
+  slotId?: string;
+  fleet?: FleetBookingRequest;
+  /** Aluguel com CNH: quem dirige tem CNH válida. */
+  driverLicenseDeclared?: boolean;
   lines: Array<{ priceOptionId: string; quantity: number }>;
   participants: Array<{ name: string }>;
   pickupAddress?: string;

@@ -4,14 +4,12 @@ import {
   BookingPersistenceMapper,
   OfferPersistenceMapper,
   ParticipantPersistenceMapper,
-  SlotPersistenceMapper,
 } from '../dtos/bookingPersistenceMappers';
 import { BookingDomainError } from '../errors/bookingDomainError';
 import type { BookingsPort, PageRequest } from '../ports/bookingsPort';
 import {
   type BookableOffer,
   type Booking,
-  type BookingCancellation,
   type BookingParticipant,
   type BookingStatus,
   canTransitionBooking,
@@ -20,18 +18,17 @@ import {
 } from '../types/bookingTypes';
 import {
   AUDIT,
-  available,
   BOOKINGS,
   nowIso,
   OFFERS,
   PARTICIPANTS,
   PUBLIC_OFFERS,
   readBooking,
-  readSlot,
-  SLOTS,
   writeAudit,
 } from './firestoreBookingsShared';
+import { FirestoreCapacityStore } from './firestoreCapacityStore';
 import { FirestoreCheckInStore } from './firestoreCheckInStore';
+import { FirestoreFleetStore } from './firestoreFleetStore';
 import { FirestoreSlotStore } from './firestoreSlotStore';
 
 async function paginate(query: Query, page: PageRequest): Promise<Page<Booking>> {
@@ -51,6 +48,8 @@ async function paginate(query: Query, page: PageRequest): Promise<Page<Booking>>
 export class FirestoreBookingsAdapter implements BookingsPort {
   private readonly slots = new FirestoreSlotStore();
   private readonly checkIns = new FirestoreCheckInStore();
+  private readonly capacity = new FirestoreCapacityStore();
+  private readonly fleet = new FirestoreFleetStore();
 
   async createOffer(offer: BookableOffer): Promise<void> {
     await adminDb
@@ -120,6 +119,20 @@ export class FirestoreBookingsAdapter implements BookingsPort {
     await adminDb.collection(PUBLIC_OFFERS).doc(offerId).delete();
   }
 
+  readonly saveFleetDays = this.fleet.saveFleetDays.bind(this.fleet);
+  readonly getFleetDay = this.fleet.getFleetDay.bind(this.fleet);
+  readonly listFleetDays = this.fleet.listFleetDays.bind(this.fleet);
+
+  readonly reserveCapacityAndCreateBooking = this.capacity.reserveCapacityAndCreateBooking.bind(
+    this.capacity
+  );
+  readonly confirmBookingAndCommitCapacity = this.capacity.confirmBookingAndCommitCapacity.bind(
+    this.capacity
+  );
+  readonly releaseCapacityAndSetStatus = this.capacity.releaseCapacityAndSetStatus.bind(
+    this.capacity
+  );
+
   readonly createSlots = this.slots.createSlots.bind(this.slots);
   readonly getSlot = this.slots.getSlot.bind(this.slots);
   readonly listSlots = this.slots.listSlots.bind(this.slots);
@@ -138,159 +151,6 @@ export class FirestoreBookingsAdapter implements BookingsPort {
   readonly listBookingsWithPersonalDataEraseBefore =
     this.checkIns.listBookingsWithPersonalDataEraseBefore.bind(this.checkIns);
   readonly deleteParticipants = this.checkIns.deleteParticipants.bind(this.checkIns);
-
-  async reserveCapacityAndCreateBooking(
-    booking: Booking,
-    participants: BookingParticipant[]
-  ): Promise<Booking> {
-    const slotRef = adminDb.collection(SLOTS).doc(booking.slotId);
-    const bookingRef = adminDb.collection(BOOKINGS).doc(booking.id);
-    return adminDb.runTransaction(async (tx) => {
-      const [slotSnapshot, existingSnapshot] = await Promise.all([
-        tx.get(slotRef),
-        tx.get(bookingRef),
-      ]);
-      if (existingSnapshot.exists) {
-        return BookingPersistenceMapper.toDomain(
-          existingSnapshot.id,
-          existingSnapshot.data() ?? {}
-        );
-      }
-      if (!slotSnapshot.exists) {
-        throw new BookingDomainError('NOT_FOUND', 'Horário não encontrado.');
-      }
-      const slot = SlotPersistenceMapper.toDomain(slotSnapshot.id, slotSnapshot.data() ?? {});
-      if (slot.status !== 'open' || new Date(slot.startsAt).getTime() <= Date.now()) {
-        throw new BookingDomainError('SLOT_UNAVAILABLE', 'Horário indisponível.');
-      }
-      if (available(slot) < booking.participantsCount) {
-        throw new BookingDomainError(
-          'INSUFFICIENT_CAPACITY',
-          'Vagas insuficientes para este horário.'
-        );
-      }
-      tx.update(slotRef, {
-        capacityReserved: slot.capacityReserved + booking.participantsCount,
-        updatedAt: nowIso(),
-      });
-      tx.set(bookingRef, BookingPersistenceMapper.toPersistence(booking));
-      participants.forEach((participant, index) => {
-        tx.set(adminDb.collection(PARTICIPANTS).doc(`${booking.id}_${index}`), {
-          bookingId: booking.id,
-          name: participant.name,
-          isLeadContact: participant.isLeadContact,
-        });
-      });
-      writeAudit(tx, {
-        bookingId: booking.id,
-        from: null,
-        to: booking.status,
-        actorUid: booking.buyerId,
-        reason: 'created',
-      });
-      return booking;
-    });
-  }
-
-  async confirmBookingAndCommitCapacity(
-    bookingId: string,
-    paymentIntentId: string
-  ): Promise<Booking> {
-    return adminDb.runTransaction(async (tx) => {
-      const booking = await readBooking(tx, bookingId);
-      if (booking.status === 'confirmed') {
-        return booking;
-      }
-      const slot = await readSlot(tx, booking.slotId);
-      const slotRef = adminDb.collection(SLOTS).doc(slot.id);
-
-      if (booking.status === 'pending_payment') {
-        tx.update(slotRef, {
-          capacityReserved: Math.max(0, slot.capacityReserved - booking.participantsCount),
-          capacitySold: slot.capacitySold + booking.participantsCount,
-          updatedAt: nowIso(),
-        });
-      } else if (
-        booking.status === 'expired' &&
-        slot.status === 'open' &&
-        available(slot) >= booking.participantsCount
-      ) {
-        // Pagamento chegou depois da expiração e ainda há vaga: a reserva volta a valer.
-        tx.update(slotRef, {
-          capacitySold: slot.capacitySold + booking.participantsCount,
-          updatedAt: nowIso(),
-        });
-      } else {
-        throw new BookingDomainError(
-          'LATE_PAYMENT_REJECTED',
-          'Pagamento recebido para uma reserva que não pode mais ser confirmada.'
-        );
-      }
-
-      const confirmed: Booking = {
-        ...booking,
-        status: 'confirmed',
-        expiresAt: null,
-        paymentIntentId,
-        updatedAt: nowIso(),
-      };
-      tx.set(
-        adminDb.collection(BOOKINGS).doc(bookingId),
-        BookingPersistenceMapper.toPersistence(confirmed)
-      );
-      writeAudit(tx, {
-        bookingId,
-        from: booking.status,
-        to: 'confirmed',
-        actorUid: 'system:webhook',
-        reason: 'payment_succeeded',
-      });
-      return confirmed;
-    });
-  }
-
-  async releaseCapacityAndSetStatus(params: {
-    bookingId: string;
-    to: 'expired' | 'canceled';
-    actorUid: string;
-    reason: string;
-    cancellation?: BookingCancellation;
-  }): Promise<Booking> {
-    return adminDb.runTransaction(async (tx) => {
-      const booking = await readBooking(tx, params.bookingId);
-      if (booking.status === params.to) {
-        return booking;
-      }
-      if (!canTransitionBooking(booking.status, params.to)) {
-        throw new BookingDomainError('INVALID_TRANSITION', 'Mudança de status não permitida.');
-      }
-      const slot = await readSlot(tx, booking.slotId);
-      const field = booking.status === 'pending_payment' ? 'capacityReserved' : 'capacitySold';
-      tx.update(adminDb.collection(SLOTS).doc(slot.id), {
-        [field]: Math.max(0, slot[field] - booking.participantsCount),
-        updatedAt: nowIso(),
-      });
-      const updated: Booking = {
-        ...booking,
-        status: params.to,
-        expiresAt: null,
-        ...(params.cancellation ? { cancellation: params.cancellation } : {}),
-        updatedAt: nowIso(),
-      };
-      tx.set(
-        adminDb.collection(BOOKINGS).doc(booking.id),
-        BookingPersistenceMapper.toPersistence(updated)
-      );
-      writeAudit(tx, {
-        bookingId: booking.id,
-        from: booking.status,
-        to: params.to,
-        actorUid: params.actorUid,
-        reason: params.reason,
-      });
-      return updated;
-    });
-  }
 
   async setBookingStatus(params: {
     bookingId: string;

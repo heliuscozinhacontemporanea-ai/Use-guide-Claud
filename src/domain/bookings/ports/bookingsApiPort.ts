@@ -17,10 +17,13 @@ import type {
   NoCodeReason,
   OfferFields,
   OfferStatus,
+  OpenFleetDaysPayload,
   Page,
+  PartnerFleetDay,
   PartnerOffer,
   PartnerSlot,
   PartnerSlotDetail,
+  PublicFleetDay,
   PublicSlot,
   SlotContact,
   UnitCheckInResult,
@@ -34,6 +37,9 @@ export interface BookingsApiPort {
   listPartnerSlots(offerId: string, fromIso: string, toIso: string): Promise<PartnerSlot[]>;
   getPartnerSlotDetail(offerId: string, slotId: string): Promise<PartnerSlotDetail>;
   createSlots(offerId: string, payload: CreateSlotsPayload): Promise<PartnerSlot[]>;
+  /** Aluguel e translado privativo: dias com veículos (F3b). */
+  listFleetDays(offerId: string, fromDate: string, toDate: string): Promise<PartnerFleetDay[]>;
+  openFleetDays(offerId: string, payload: OpenFleetDaysPayload): Promise<PartnerFleetDay[]>;
   cancelSlot(offerId: string, slotId: string): Promise<{ canceledBookings: number }>;
   rescheduleSlot(
     offerId: string,
@@ -44,6 +50,7 @@ export interface BookingsApiPort {
   markNoShow(bookingId: string): Promise<BookingSummary>;
 
   listAvailableSlots(offerId: string, fromIso: string, toIso: string): Promise<PublicSlot[]>;
+  getPublicFleetDay(offerId: string, date: string): Promise<PublicFleetDay>;
   createBooking(payload: CreateBookingPayload): Promise<CreateBookingResponse>;
   getBooking(bookingId: string): Promise<BookingDetails>;
   listMyBookings(cursor?: string | null): Promise<Page<BookingSummary>>;

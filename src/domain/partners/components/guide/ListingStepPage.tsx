@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useUI } from '../../../../shared/stores/useUIStore';
 import { StatusText } from '../../../../ui/components/StatusText';
@@ -11,7 +11,6 @@ import type { ListingStep } from '../../types/partnerHome';
 import type { FormState } from '../../types/partsForm';
 import { type ListingStepEdit, listingStepUpdate } from '../../utils/listingStepUpdate';
 import { NoneOfTheseContext } from '../steps/details/noneOfThese';
-import { useListingStepLabels } from './listingStepLabels';
 import { ListingPhotosField } from './ListingPhotosField';
 import {
   AboutFields,
@@ -21,6 +20,7 @@ import {
   PhoneFields,
   WhereFields,
 } from './ListingStepFields';
+import { useListingStepLabels } from './listingStepLabels';
 
 const NONE_LISTS = ['amenities', 'mealTypes', 'additionalServices', 'services', 'activities'];
 
@@ -41,6 +41,7 @@ export function ListingStepPage({
   registerSave,
   onSaved,
   mode = 'guide',
+  offersLink,
 }: {
   item: PartnerContentRecord;
   step: ListingStepEdit;
@@ -50,6 +51,8 @@ export function ListingStepPage({
   onSaved: () => void;
   /** Pelo editor do anúncio (F2): sem "Passo X de N" e com os detalhes de venda até a F3. */
   mode?: 'guide' | 'editor';
+  /** "Ver as ofertas deste passeio" no bloco Detalhes (protótipo da F3, tela 1). */
+  offersLink?: ReactNode;
 }) {
   const { t } = useTranslation();
   const { showToast } = useUI();
@@ -168,9 +171,7 @@ export function ListingStepPage({
         {step === 'photos' ? <ListingPhotosField images={images} onChange={setImages} /> : null}
         {step === 'about' ? <AboutFields {...fields} /> : null}
         {step === 'where' ? <WhereFields {...fields} /> : null}
-        {step === 'details' ? (
-          <DetailsFields {...fields} withSaleDetails={mode === 'editor'} />
-        ) : null}
+        {step === 'details' ? <DetailsFields {...fields} offersLink={offersLink} /> : null}
         {step === 'contacts' ? <ContactsFields {...fields} /> : null}
         {missing.length > 0 ? (
           <p className="px-1 text-[13px] text-ink/70">

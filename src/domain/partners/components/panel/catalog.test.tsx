@@ -155,6 +155,19 @@ describe('Catálogo (p09) e página do estabelecimento (p19)', () => {
     expect(screen.queryByRole('heading', { name: 'Dunas Park' })).toBeNull();
   });
 
+  it('lugar em rascunho aparece como Rascunho, não como Publicado (D34)', () => {
+    renderSection({
+      segment: 'places',
+      items: [
+        place('buggy', 'Buggy do Preá', { publication: 'published' }),
+        place('dunas', 'Dunas Park', { publication: 'draft' }),
+      ],
+    });
+    expect(screen.getByRole('button', { name: /Dunas Park.*Rascunho/ })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /Dunas Park.*Publicado/ })).toBeNull();
+    expect(screen.getByRole('button', { name: /Buggy do Preá.*Publicado/ })).toBeTruthy();
+  });
+
   it('página do estabelecimento: status, plano e nota; pausar usa a ação que já existia', () => {
     const { onToggleActive } = renderPlacePage();
     expect(screen.getByText('Publicado · verificado')).toBeTruthy();

@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { ChipGroup, type DetailOptions, TextField, YesNoField } from './DetailFields';
+import { ChipGroup, type DetailOptions, YesNoField } from './DetailFields';
 import type { FieldKey } from './detailKeys';
 import { type DetailsSectionProps, useDetailsForm } from './useDetailsForm';
 
@@ -43,28 +43,12 @@ export function SightDetails(props: DetailsSectionProps) {
       <YesNoField
         label={f('sightAccess')}
         value={access === 'pago' ? true : access === 'gratuito' ? false : null}
-        onChange={(paid) => {
-          updateFieldValue('sightAccessType', paid ? 'pago' : 'gratuito');
-          if (!paid) updateFieldValue('sightPrice', '');
-        }}
+        onChange={(paid) => updateFieldValue('sightAccessType', paid ? 'pago' : 'gratuito')}
         yesLabel={f('paid')}
         noLabel={f('free')}
         required
         error={getFieldError('sightAccessType')}
       />
-      {access === 'pago' && !props.listingOnly ? (
-        <TextField
-          id="sight-price"
-          label={f('pricePerPerson')}
-          inputMode="decimal"
-          prefix="R$"
-          value={formData.sightPrice || ''}
-          onChange={(value) => updateFieldValue('sightPrice', value)}
-          placeholder="0,00"
-          required
-          error={getFieldError('sightPrice')}
-        />
-      ) : null}
       <ChipGroup
         label={f('sightServices')}
         options={SERVICES}

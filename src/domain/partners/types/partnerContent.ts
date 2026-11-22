@@ -1,21 +1,17 @@
 import type { EventSalesPolicy, EventSessionDraft } from '../../events';
 export interface PartnerOperationalInfo {
   /** Passeio, translado e aluguel (decisão D9). */
-  durationMinutes?: number;
-  meetingPoint?: string;
   itinerary?: string;
   includes?: string[];
   transferRoutes?: Array<{ from: string; to: string }>;
   vehicleTypes?: string[];
-  maxPassengers?: number;
   luggageInfo?: string;
-  minRentalHours?: number;
-  depositRequired?: boolean;
-  driverLicenseRequired?: boolean;
   tags?: string[];
   cuisineType?: string;
   subcategory?: string;
   amenities?: string[] | string;
+  /** Gravado pelo editor do admin; a busca do guia lê. */
+  amenitiesRestaurant?: string[] | string;
   additionalServices?: string[] | string;
   mealTypes?: string[] | string;
   activities?: string[] | string;
@@ -23,7 +19,6 @@ export interface PartnerOperationalInfo {
   languages?: string[] | string;
   menuLink?: string;
   access?: string;
-  price?: string;
 
   breakfast?: {
     serves?: boolean;

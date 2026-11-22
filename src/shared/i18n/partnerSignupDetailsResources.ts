@@ -85,21 +85,15 @@ export type DetailOptionKey = (typeof DETAIL_OPTION_KEYS)[number];
 
 export interface PartnerSignupDetailsTranslation {
   fields: {
-    tourDuration: string;
-    meetingPoint: string;
     itinerary: string;
     includes: string;
     rentalWhat: string;
-    minHours: string;
-    deposit: string;
-    license: string;
     routes: string;
     from: string;
     to: string;
     removeRoute: string;
     addRoute: string;
     vehicles: string;
-    maxPassengers: string;
     luggage: string;
     servesBreakfast: string;
     breakfastIncluded: string;
@@ -116,20 +110,15 @@ export interface PartnerSignupDetailsTranslation {
     sightAccess: string;
     paid: string;
     free: string;
-    pricePerPerson: string;
     sightServices: string;
     sightAmenities: string;
     sightActivities: string;
     sightActivitiesHint: string;
   };
   placeholders: {
-    tourDuration: string;
-    meetingPoint: string;
     itinerary: string;
-    minHours: string;
     from: string;
     to: string;
-    maxPassengers: string;
     luggage: string;
     subcategory: string;
     cuisine: string;
@@ -183,21 +172,15 @@ export const partnerSignupDetailsPtBR: PartnerSignupDetailsTranslation = {
     nothing: 'Nada mais a preencher nesta categoria.',
   },
   fields: {
-    tourDuration: 'Duração (horas)',
-    meetingPoint: 'Ponto de encontro',
     itinerary: 'Roteiro',
     includes: 'O que está incluído',
     rentalWhat: 'O que é alugado',
-    minHours: 'Período mínimo (horas)',
-    deposit: 'Exige caução',
-    license: 'Exige habilitação (CNH)',
     routes: 'Trechos atendidos',
     from: 'Origem',
     to: 'Destino',
     removeRoute: 'Remover trecho {{n}}',
     addRoute: 'Adicionar trecho',
     vehicles: 'Veículos',
-    maxPassengers: 'Passageiros por veículo (máximo)',
     luggage: 'Bagagem',
     servesBreakfast: 'Serve café da manhã ao hóspede?',
     breakfastIncluded: 'O café está incluso no preço da estadia?',
@@ -214,20 +197,15 @@ export const partnerSignupDetailsPtBR: PartnerSignupDetailsTranslation = {
     sightAccess: 'Acesso à atração',
     paid: 'Pago',
     free: 'Gratuito',
-    pricePerPerson: 'Preço por pessoa',
     sightServices: 'Serviços oferecidos',
     sightAmenities: 'Estrutura',
     sightActivities: 'Atividades',
     sightActivitiesHint: 'O que o visitante pode fazer no lugar.',
   },
   placeholders: {
-    tourDuration: 'Ex.: 4',
-    meetingPoint: 'Ex.: em frente à igreja de Jeri',
     itinerary: 'Paradas, horários e o que o visitante vai ver',
-    minHours: 'Ex.: 2',
     from: 'Ex.: Aeroporto de Fortaleza',
     to: 'Ex.: Jericoacoara',
-    maxPassengers: 'Ex.: 4',
     luggage: 'Ex.: 1 mala grande e 1 de mão por pessoa',
     subcategory: 'Ex.: restaurante, bar, café',
     cuisine: 'Ex.: italiana, japonesa',

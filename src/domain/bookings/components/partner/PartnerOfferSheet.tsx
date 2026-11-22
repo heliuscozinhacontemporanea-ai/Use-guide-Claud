@@ -1,9 +1,11 @@
 import { CalendarClock, Pencil, TicketPercent, Users } from 'lucide-react';
+import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Dialog } from '../../../../ui/components/Dialog';
 import { ListCard, ListRowButton } from '../../../../ui/components/ListRows';
 import { BUTTON_SECONDARY } from '../../../../ui/styles/controls';
 import type { OfferStatus, PartnerOffer } from '../../types/bookings';
+import { isFleetOffer } from '../../utils/offerKindByCategory';
 
 interface PartnerOfferSheetProps {
   offer: PartnerOffer | null;
@@ -33,16 +35,20 @@ export function PartnerOfferSheet({
   onCoupons,
 }: PartnerOfferSheetProps) {
   const { t } = useTranslation();
-  if (!offer) return null;
-  const archived = offer.status === 'archived';
-  const hintId = `publish-hint-${offer.id}`;
+  // A folha desce com a última oferta: sumir de uma vez deixava o fundo do app preso como cartão.
+  const last = useRef(offer);
+  if (offer) last.current = offer;
+  const shown = offer ?? last.current;
+  if (!shown) return null;
+  const archived = shown.status === 'archived';
+  const hintId = `publish-hint-${shown.id}`;
 
   return (
     <Dialog
-      open
+      open={Boolean(offer)}
       onOpenChange={(open) => !open && onClose()}
-      title={offer.title['pt-BR']}
-      description={`${summary} · ${t(`bookings.status.${offer.status}`)}`}
+      title={shown.title['pt-BR']}
+      description={`${summary} · ${t(`bookings.status.${shown.status}`)}`}
     >
       {archived ? null : (
         <div className="space-y-4">
@@ -53,7 +59,7 @@ export function PartnerOfferSheet({
               onClick={onEdit}
             />
             <ListRowButton
-              title={t('bookings.partner.manageSlots')}
+              title={t(isFleetOffer(shown) ? 'fleet.days.title' : 'bookings.partner.manageSlots')}
               aside={<CalendarClock size={16} className="text-ink/60" aria-hidden="true" />}
               onClick={onSlots}
             />
@@ -71,7 +77,7 @@ export function PartnerOfferSheet({
             )}
           </ListCard>
           <div className="grid grid-cols-2 gap-2">
-            {offer.status === 'published' ? (
+            {shown.status === 'published' ? (
               <button
                 type="button"
                 disabled={busy}
@@ -100,7 +106,7 @@ export function PartnerOfferSheet({
               {t('bookings.partner.archive')}
             </button>
           </div>
-          {!canPublish && offer.status !== 'published' && (
+          {!canPublish && shown.status !== 'published' && (
             <p id={hintId} className="px-1 text-[13px] text-warn">
               {t('bookings.partner.publishNeedsStripe')}
             </p>

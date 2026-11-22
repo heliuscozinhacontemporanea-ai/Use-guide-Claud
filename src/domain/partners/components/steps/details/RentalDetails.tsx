@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { ChipGroup, type DetailOptions, TextField, YesNoField } from './DetailFields';
+import { ChipGroup, type DetailOptions } from './DetailFields';
 import type { FieldKey } from './detailKeys';
 import { type DetailsSectionProps, useDetailsForm } from './useDetailsForm';
 
@@ -25,7 +25,7 @@ const RENTAL_INCLUDES: DetailOptions = {
 /** Campos da inscrição de aluguel: o turista usa o veículo ou equipamento por um período (decisão D9). */
 export function RentalDetails(props: DetailsSectionProps) {
   const { t } = useTranslation();
-  const { formData, getFieldError, updateFieldValue, toggleInList } = useDetailsForm(props);
+  const { formData, getFieldError, toggleInList } = useDetailsForm(props);
   const f = (key: FieldKey) => t(`partnerSignup.details.fields.${key}`);
 
   return (
@@ -38,30 +38,6 @@ export function RentalDetails(props: DetailsSectionProps) {
         required
         error={getFieldError('rentalVehicles')}
       />
-      {props.listingOnly ? null : (
-        <TextField
-          id="rental-min-hours"
-          label={f('minHours')}
-          inputMode="numeric"
-          value={formData.minRentalHours}
-          onChange={(value) => updateFieldValue('minRentalHours', value.replace(/\D/g, ''))}
-          placeholder={t('partnerSignup.details.placeholders.minHours')}
-          required
-          error={getFieldError('minRentalHours')}
-        />
-      )}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <YesNoField
-          label={f('deposit')}
-          value={formData.depositRequired}
-          onChange={(value) => updateFieldValue('depositRequired', value)}
-        />
-        <YesNoField
-          label={f('license')}
-          value={formData.driverLicenseRequired}
-          onChange={(value) => updateFieldValue('driverLicenseRequired', value)}
-        />
-      </div>
       <ChipGroup
         label={f('includes')}
         options={RENTAL_INCLUDES}

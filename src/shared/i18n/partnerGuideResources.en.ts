@@ -120,11 +120,25 @@ export const partnerGuideEn: PartnerGuideTranslation = {
     contacts: 'Contacts and links',
     contactsHint: 'Instagram and website',
   },
+  offer: {
+    newTitle: 'New offer',
+    slots: 'Time slots',
+    saved: 'Offer saved',
+    tourInOffer:
+      '<b>Duration, meeting point, price and spots</b> are set in each offer of the tour.',
+    sightPriceInOffer:
+      'With paid access, <b>the entry price</b> is set in the entry offer, which is what visitors buy.',
+    rentalInOffer:
+      '<b>Price, period and driver’s license</b> are set in each offer: they vary by vehicle.',
+    transferInOffer: '<b>Price, type (private or shared) and passengers</b> are set in each offer.',
+  },
   page: {
     progress: 'Step {{current}} of {{total}}',
     next: 'Next: {{step}}',
     nextPublish: 'Next: publish in the guide',
     save: 'Save',
+    create: 'Create',
+    open: 'Open',
     saving: 'Saving…',
     saved: 'Saved',
     missing: 'Missing: {{fields}}',

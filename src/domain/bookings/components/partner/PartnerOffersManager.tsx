@@ -1,26 +1,20 @@
 import { type ReactNode, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatMoneyMinorCompact } from '../../../../shared/utils/money';
-import { BackButton } from '../../../../ui/components/BackButton';
 import { ConfirmDialog, type ConfirmDialogData } from '../../../../ui/components/ConfirmDialog';
 import { Dialog } from '../../../../ui/components/Dialog';
 import { ListCard, ListRowButton } from '../../../../ui/components/ListRows';
 import { ListEmpty, ListError, ListLoading } from '../../../../ui/components/ListState';
 import type { StatusTone } from '../../../../ui/components/StatusText';
+import { afterSheetsClose } from '../../../../ui/components/sheet/useSheetHistory';
 import { usePartnerOffers } from '../../hooks/usePartnerOffers';
 import type { BookableGuideItem, OfferStatus, PartnerOffer } from '../../types/bookings';
 import { getBookingErrorMessage } from '../../utils/bookingErrorMessage';
-import { emptyOfferFormValues, offerToFormValues } from '../../utils/offerFormMapping';
-import { isBookableCategory, offerKindForCategory } from '../../utils/offerKindByCategory';
-import { PartnerBookingsList } from './PartnerBookingsList';
-import { PartnerOfferEditor } from './PartnerOfferEditor';
+import { HOURLY_PRICE_OPTION_ID } from '../../utils/fleetSelection';
+import { formatDuration } from '../../utils/formatDuration';
+import { isBookableCategory, isFleetOffer } from '../../utils/offerKindByCategory';
+import type { PartnerOfferPageSpec } from './PartnerOfferPage';
 import { PartnerOfferSheet } from './PartnerOfferSheet';
-import { PartnerSlotsManager } from './PartnerSlotsManager';
-
-type View =
-  | { type: 'list' }
-  | { type: 'editor'; item: BookableGuideItem; offer?: PartnerOffer }
-  | { type: 'slots' | 'bookings'; offer: PartnerOffer };
 
 const STATUS_TONE: Record<OfferStatus, StatusTone> = {
   draft: 'warn',
@@ -40,6 +34,12 @@ interface PartnerOffersManagerProps {
   onCreatingChange?: (creating: boolean) => void;
   /** Cupons da oferta, na área Cupons do painel (B1c). */
   onOpenCoupons?: (offerId: string) => void;
+  /** Editor, horários e reservas abrem como páginas empilhadas do painel (F3, D33). */
+  onOpenPage: (page: PartnerOfferPageSpec & { title: string }) => void;
+  /** Muda quando uma página de oferta fecha: a lista relê as ofertas. */
+  version?: number;
+  /** Na página do estabelecimento: a lista termina com "+ Nova oferta" (protótipo da F3, tela 5). */
+  inPage?: boolean;
 }
 
 /** Passeios e aluguéis do Catálogo (p09) e da página do estabelecimento (p19). */
@@ -50,10 +50,13 @@ export function PartnerOffersManager({
   creating = false,
   onCreatingChange,
   onOpenCoupons,
+  onOpenPage,
+  version = 0,
+  inPage = false,
 }: PartnerOffersManagerProps) {
   const { t, i18n } = useTranslation();
   const offers = usePartnerOffers();
-  const [view, setView] = useState<View>({ type: 'list' });
+  const { reload } = offers;
   const [selected, setSelected] = useState<PartnerOffer | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -61,9 +64,24 @@ export function PartnerOffersManager({
   const eligible = items.filter((item) => isBookableCategory(item.category));
   const itemOf = (offer: PartnerOffer) => eligible.find((item) => item.id === offer.guideItemId);
 
+  // O carregamento inicial já lê as ofertas; a versão só muda depois que uma página de oferta fecha.
+  useEffect(() => {
+    if (version > 0) void reload();
+  }, [version, reload]);
+
+  // Com vários estabelecimentos, a escolha é uma folha: o editor abre depois que ela fecha.
   const startCreate = (item: BookableGuideItem) => {
     onCreatingChange?.(false);
-    setView({ type: 'editor', item });
+    afterSheetsClose(() =>
+      onOpenPage({
+        kind: 'editor',
+        itemId: item.id,
+        itemName: item.name,
+        category: item.category,
+        listing: { vehicles: item.vehicles, routes: item.routes },
+        title: t('bookings.editor.titleNew'),
+      })
+    );
   };
   const onlyItem = eligible.length === 1 ? eligible[0] : undefined;
   // Um estabelecimento só: o "Criar" vai direto ao editor.
@@ -73,6 +91,7 @@ export function PartnerOffersManager({
   }, [creating, onlyItem?.id]);
 
   const summary = (offer: PartnerOffer) => {
+    if (isFleetOffer(offer)) return fleetSummary(offer);
     const prices = offer.pricing.priceOptions.map((option) => option.unitAmountMinor);
     const amount = formatMoneyMinorCompact(Math.min(...prices), i18n.language);
     const group = offer.sellingUnit === 'group';
@@ -85,6 +104,21 @@ export function PartnerOffersManager({
           ? 'perGroup'
           : 'perPerson';
     return t(`bookings.partner.${key}`, { amount });
+  };
+
+  // Aluguel e translado privativo: o preço é por veículo, ou por hora no horário personalizado (F3b).
+  const fleetSummary = (offer: PartnerOffer) => {
+    const options = offer.pricing.priceOptions;
+    const perVehicle = options.filter((option) => option.id !== HOURLY_PRICE_OPTION_ID);
+    const hourly = options.find((option) => option.id === HOURLY_PRICE_OPTION_ID);
+    const money = (minor: number) => formatMoneyMinorCompact(minor, i18n.language);
+    if (perVehicle.length === 0) {
+      return hourly ? t('fleet.summary.perHour', { amount: money(hourly.unitAmountMinor) }) : '';
+    }
+    const amount = money(Math.min(...perVehicle.map((option) => option.unitAmountMinor)));
+    return t(perVehicle.length > 1 ? 'fleet.summary.fromPerVehicle' : 'fleet.summary.perVehicle', {
+      amount,
+    });
   };
 
   const changeStatus = async (offer: PartnerOffer, status: Exclude<OfferStatus, 'draft'>) => {
@@ -115,60 +149,24 @@ export function PartnerOffersManager({
     });
   };
 
-  const open = (next: View) => {
+  // A folha da oferta fecha primeiro; a página abre depois que ela sai do histórico.
+  const fromSheet = (open: () => void) => {
     setSelected(null);
-    setView(next);
+    afterSheetsClose(open);
   };
-
-  if (view.type === 'editor') {
-    return (
-      <PartnerOfferEditor
-        mode={view.offer ? 'edit' : 'create'}
-        publishedPolicy={
-          view.offer && view.offer.status !== 'draft' ? view.offer.cancellationPolicy : undefined
-        }
-        defaultValues={
-          view.offer
-            ? offerToFormValues(view.offer)
-            : emptyOfferFormValues(offerKindForCategory(view.item.category) ?? 'tour')
-        }
-        onCancel={() => setView({ type: 'list' })}
-        onSubmit={async (fields, kind) => {
-          if (view.offer) await offers.update(view.offer.id, fields);
-          else await offers.create({ ...fields, guideItemId: view.item.id, kind });
-          setView({ type: 'list' });
-        }}
-      />
-    );
-  }
-
-  if (view.type === 'slots' || view.type === 'bookings') {
-    return (
-      <div className="space-y-4">
-        <div className="flex items-center gap-2">
-          <BackButton
-            label={t('bookings.editor.cancel')}
-            onClick={() => setView({ type: 'list' })}
-          />
-          <p className="text-[18px] font-display font-bold text-ink break-words">
-            {view.offer.title['pt-BR']}
-          </p>
-        </div>
-        {view.type === 'slots' ? (
-          <PartnerSlotsManager
-            offerId={view.offer.id}
-            kind={view.offer.kind}
-            place={{ timeZone: view.offer.timeZone, city: view.offer.city }}
-          />
-        ) : (
-          <PartnerBookingsList offerId={view.offer.id} />
-        )}
-      </div>
-    );
-  }
+  const openPage = (page: PartnerOfferPageSpec & { title: string }) =>
+    fromSheet(() => onOpenPage(page));
 
   const visible = offers.data.filter((offer) => offer.status !== 'archived' && itemOf(offer));
   const grouped = eligible.length > 1;
+  // Na linha, a duração vem antes do preço ("4 h · a partir de R$ 90 por pessoa"); a folha só o preço.
+  const rowSub = (offer: PartnerOffer) =>
+    [offer.durationMinutes ? formatDuration(offer.durationMinutes) : null, summary(offer)]
+      .filter(Boolean)
+      .join(' · ');
+  const newOfferRow = (item: (typeof eligible)[number]) => (
+    <ListRowButton title={t('bookings.partner.newOfferRow')} onClick={() => startCreate(item)} />
+  );
 
   return (
     <div className="space-y-4">
@@ -184,6 +182,8 @@ export function PartnerOffersManager({
         <ListError message={offers.error} onRetry={() => void offers.reload()} />
       ) : eligible.length === 0 ? (
         <ListEmpty message={t('bookings.partner.noEligibleItems')} />
+      ) : visible.length === 0 && inPage && eligible[0] ? (
+        <ListCard>{newOfferRow(eligible[0])}</ListCard>
       ) : visible.length === 0 ? (
         <ListEmpty message={t('bookings.partner.emptyCatalog')} />
       ) : (
@@ -200,7 +200,7 @@ export function PartnerOffersManager({
                   <ListRowButton
                     key={offer.id}
                     title={offer.title['pt-BR']}
-                    sub={summary(offer)}
+                    sub={rowSub(offer)}
                     status={{
                       tone: STATUS_TONE[offer.status],
                       text: t(`bookings.status.${offer.status}`),
@@ -208,6 +208,7 @@ export function PartnerOffersManager({
                     onClick={() => setSelected(offer)}
                   />
                 ))}
+                {inPage && newOfferRow(item)}
               </ListCard>
             </div>
           );
@@ -222,16 +223,41 @@ export function PartnerOffersManager({
         onClose={() => setSelected(null)}
         onEdit={() => {
           const item = selected && itemOf(selected);
-          if (selected && item) open({ type: 'editor', item, offer: selected });
+          if (selected && item) {
+            openPage({
+              kind: 'editor',
+              itemId: item.id,
+              itemName: item.name,
+              category: item.category,
+              offerId: selected.id,
+              listing: { vehicles: item.vehicles, routes: item.routes },
+              title: t('bookings.editor.titleEdit'),
+            });
+          }
         }}
-        onSlots={() => selected && open({ type: 'slots', offer: selected })}
-        onBookings={() => selected && open({ type: 'bookings', offer: selected })}
+        onSlots={() =>
+          selected &&
+          openPage({
+            kind: 'slots',
+            offerId: selected.id,
+            // Aluguel e translado privativo abrem dias com veículos (F3b).
+            title: t(isFleetOffer(selected) ? 'fleet.days.title' : 'bookings.partner.manageSlots'),
+          })
+        }
+        onBookings={() =>
+          selected &&
+          openPage({
+            kind: 'bookings',
+            offerId: selected.id,
+            title: t('bookings.partner.viewBookings'),
+          })
+        }
         onStatus={(status) => selected && requestStatus(selected, status)}
         onCoupons={
           onOpenCoupons && selected
             ? () => {
-                setSelected(null);
-                onOpenCoupons(selected.id);
+                const offerId = selected.id;
+                fromSheet(() => onOpenCoupons(offerId));
               }
             : undefined
         }

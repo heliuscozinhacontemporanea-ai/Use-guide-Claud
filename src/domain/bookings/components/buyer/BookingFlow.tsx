@@ -1,12 +1,15 @@
 import { ChevronLeft } from 'lucide-react';
-import { useId, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BUYER_TERMS_VERSION } from '../../../../shared/constants/legalTerms';
-import { E164PhoneField } from '../../../../ui/components/E164PhoneField';
-import { TermsAcceptanceField } from '../../../../ui/legal/TermsAcceptanceField';
-import { BUTTON_PRIMARY, BUTTON_SECONDARY, INPUT } from '../../../../ui/styles/controls';
+import { BUTTON_PRIMARY, BUTTON_SECONDARY } from '../../../../ui/styles/controls';
 import type { PublicOffer, PublicSlot } from '../../types/bookings';
 import { BookingCheckout } from './BookingCheckout';
+import {
+  BookingContactFields,
+  bookingContactPayload,
+  EMPTY_BOOKING_CONTACT,
+} from './BookingContactFields';
 import { OfferPriceOptions } from './OfferPriceOptions';
 import { ParticipantsForm } from './ParticipantsForm';
 import { QuantitySelector } from './QuantitySelector';
@@ -31,23 +34,19 @@ export function BookingFlow({
   renderPaymentElement,
 }: BookingFlowProps) {
   const { t } = useTranslation();
-  const pickupId = useId();
-  const phoneId = useId();
-  const promoId = useId();
   const [step, setStep] = useState<Step>('select');
   const [slot, setSlot] = useState<PublicSlot | null>(null);
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [names, setNames] = useState<string[]>([]);
-  const [termsAccepted, setTermsAccepted] = useState(false);
-  const [pickupAddress, setPickupAddress] = useState('');
-  const [contactPhone, setContactPhone] = useState<string | undefined>(undefined);
-  const [promoCode, setPromoCode] = useState('');
+  const [contact, setContact] = useState(EMPTY_BOOKING_CONTACT);
   // Telefone para o dia do serviço (D27); a entrada de atração usa QR e não precisa.
   const needsPhone = offer.kind !== 'private_entry';
-  const phoneReady = !needsPhone || /^\+[1-9]\d{7,14}$/.test(contactPhone ?? '');
   const needsPickup = offer.pickupMode === 'buyer_address';
+  const contactState = useMemo(
+    () => bookingContactPayload(contact, { pickup: needsPickup, phone: needsPhone }),
+    [contact, needsPickup, needsPhone]
+  );
   const group = offer.sellingUnit === 'group';
-  const pickupReady = !needsPickup || pickupAddress.trim().length >= 3;
   const participants = Object.values(quantities).reduce((sum, quantity) => sum + quantity, 0);
   const maxParticipants = Math.min(offer.maxParticipantsPerBooking, slot?.available ?? 0);
 
@@ -59,22 +58,10 @@ export function BookingFlow({
         .filter(([, quantity]) => quantity > 0)
         .map(([priceOptionId, quantity]) => ({ priceOptionId, quantity })),
       participants: names.map((name) => ({ name })),
-      ...(needsPickup ? { pickupAddress: pickupAddress.trim() } : {}),
-      ...(needsPhone && contactPhone ? { contactPhone } : {}),
-      ...(promoCode.length >= 3 ? { promoCode } : {}),
+      ...contactState.payload,
       acceptedTermsVersion: BUYER_TERMS_VERSION,
     }),
-    [
-      offer.id,
-      slot?.id,
-      quantities,
-      names,
-      needsPickup,
-      pickupAddress,
-      needsPhone,
-      contactPhone,
-      promoCode,
-    ]
+    [offer.id, slot?.id, quantities, names, contactState.payload]
   );
 
   const proceed = () => {
@@ -162,72 +149,19 @@ export function BookingFlow({
           groupMaxPeople={group ? offer.groupMaxPeople : undefined}
         />
       )}
-      {slot && participants > 0 && needsPickup && (
-        <div className="space-y-1.5">
-          <label htmlFor={pickupId} className="text-[13px] font-semibold text-ink/80">
-            {t('serviceProof.checkout.pickupLabel')}
-          </label>
-          <input
-            id={pickupId}
-            value={pickupAddress}
-            onChange={(event) => setPickupAddress(event.target.value)}
-            maxLength={300}
-            autoComplete="street-address"
-            placeholder={t('serviceProof.checkout.pickupPlaceholder')}
-            aria-describedby={`${pickupId}-hint`}
-            className={INPUT}
-          />
-          <p id={`${pickupId}-hint`} className="text-[12px] text-ink/70">
-            {t('serviceProof.checkout.pickupHint')}
-          </p>
-        </div>
-      )}
-      {slot && participants > 0 && needsPhone && (
-        <div className="space-y-1.5">
-          <label htmlFor={phoneId} className="text-[13px] font-semibold text-ink/80">
-            {t('serviceProof.checkout.phoneLabel')}
-          </label>
-          <E164PhoneField id={phoneId} value={contactPhone} onChange={setContactPhone} />
-          <p className="text-[12px] text-ink/70">{t('serviceProof.checkout.phoneHint')}</p>
-        </div>
-      )}
       {slot && participants > 0 && (
-        <div className="space-y-1.5">
-          <label htmlFor={promoId} className="text-[13px] font-semibold text-ink/80">
-            {t('bookings.buyer.promoCode')}
-          </label>
-          <input
-            id={promoId}
-            value={promoCode}
-            onChange={(event) =>
-              setPromoCode(
-                event.target.value
-                  .toUpperCase()
-                  .replace(/[^A-Z0-9]/g, '')
-                  .slice(0, 20)
-              )
-            }
-            autoCapitalize="characters"
-            autoCorrect="off"
-            spellCheck={false}
-            className={INPUT}
-          />
-        </div>
-      )}
-      {slot && participants > 0 && !isAuthenticated && (
-        <p className="text-xs text-ink/70">{t('bookings.buyer.loginRequired')}</p>
-      )}
-      {slot && participants > 0 && (
-        <TermsAcceptanceField
-          audience="buyer"
-          checked={termsAccepted}
-          onChange={setTermsAccepted}
+        <BookingContactFields
+          value={contact}
+          onChange={setContact}
+          needsPickup={needsPickup}
+          needsPhone={needsPhone}
+          isAuthenticated={isAuthenticated}
         />
       )}
       {slot && (
         <button
           type="button"
-          disabled={participants === 0 || !termsAccepted || !pickupReady || !phoneReady}
+          disabled={participants === 0 || !contactState.ready}
           onClick={proceed}
           className={`${BUTTON_PRIMARY} w-full`}
         >

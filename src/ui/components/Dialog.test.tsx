@@ -2,6 +2,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { useState } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { i18n } from '../../shared/i18n';
+import { stackSheetProgress } from '../motion/stackSheetProgress';
 import { Dialog } from './Dialog';
 
 function Sheet({ dismissible = true }: { dismissible?: boolean }) {
@@ -18,6 +19,15 @@ function Sheet({ dismissible = true }: { dismissible?: boolean }) {
   );
 }
 
+/** Folha mostrada só enquanto `show`: some de uma vez, sem a animação de saída. */
+function UnmountedSheet({ show }: { show: boolean }) {
+  return show ? (
+    <Dialog open onOpenChange={() => undefined} title="Oferta">
+      <p>ações</p>
+    </Dialog>
+  ) : null;
+}
+
 const openSheets = () =>
   ((window.history.state as { ugSheets?: string[] } | null)?.ugSheets ?? []).length;
 
@@ -25,6 +35,14 @@ describe('Dialog (D33)', () => {
   afterEach(() => {
     vi.restoreAllMocks();
     window.history.replaceState(null, '');
+  });
+
+  it('folha que some de uma vez (o pai deixa de mostrá-la) devolve o fundo do app', async () => {
+    const { rerender } = render(<UnmountedSheet show />);
+    // Aberta, a folha leva o app atrás a virar cartão.
+    await waitFor(() => expect(stackSheetProgress.get()).toBeGreaterThan(0.5), { timeout: 3000 });
+    rerender(<UnmountedSheet show={false} />);
+    await waitFor(() => expect(stackSheetProgress.get()).toBeLessThan(0.01), { timeout: 3000 });
   });
 
   it('aberta, entra no histórico; o voltar do sistema fecha só ela', async () => {

@@ -1,11 +1,12 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import { useId } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { BR_STATES } from '../../../../shared/utils/timeZones';
 import { E164PhoneField } from '../../../../ui/components/E164PhoneField';
-import { listingSellsThroughApp } from '../../utils/listingSells';
+import { INFO_NOTE_STRONG, InfoNote } from '../../../../ui/components/InfoNote';
 import type { DeclinedLink } from '../../types/partnerContent';
 import type { FormState } from '../../types/partsForm';
+import { listingSellsThroughApp } from '../../utils/listingSells';
 import { SIGNUP_HINT, SIGNUP_INPUT, SIGNUP_LABEL } from '../sections/signupStyles';
 import { HotelRules } from '../steps/additional/HotelRules';
 import { LanguagesField } from '../steps/additional/LanguagesField';
@@ -137,25 +138,35 @@ export function WhereFields({ form, setForm, errors, setErrors }: ListingFieldsP
   );
 }
 
-/** Página de detalhes da categoria, sem os detalhes de venda (ficam na oferta, D34). */
-export function DetailsFields(props: ListingFieldsProps & { withSaleDetails?: boolean }) {
+/** Página de detalhes da categoria; os detalhes de venda ficam na oferta (D34, F3). */
+export function DetailsFields(props: ListingFieldsProps & { offersLink?: ReactNode }) {
   const { t } = useTranslation();
-  const { form, setForm, errors, setErrors, declined, setDeclined } = props;
+  const { form, setForm, errors, setErrors, declined, setDeclined, offersLink } = props;
   const Details = DETAILS[form.category];
+  // O que saiu do anúncio e ficou na oferta (F3, D34).
+  const saleNote =
+    form.category === 'tour'
+      ? 'partnerGuide.offer.tourInOffer'
+      : form.category === 'rental'
+        ? 'partnerGuide.offer.rentalInOffer'
+        : form.category === 'transfer'
+          ? 'partnerGuide.offer.transferInOffer'
+          : form.category === 'sight' && form.sightAccessType === 'pago'
+            ? 'partnerGuide.offer.sightPriceInOffer'
+            : null;
   const update = (field: keyof FormState, value: unknown) =>
     setForm((prev) => ({ ...prev, [field]: value }));
   return (
     <div className="space-y-6">
       {Details ? (
-        <Details
-          formData={form}
-          setFormData={setForm}
-          errors={errors}
-          setErrors={setErrors}
-          // No editor, os detalhes de venda ficam até a F3 os tirar do cadastro (escolhas da F2).
-          listingOnly={!props.withSaleDetails}
-        />
+        <Details formData={form} setFormData={setForm} errors={errors} setErrors={setErrors} />
       ) : null}
+      {saleNote ? (
+        <InfoNote>
+          <Trans i18nKey={saleNote} components={{ b: INFO_NOTE_STRONG }} />
+        </InfoNote>
+      ) : null}
+      {offersLink}
       {form.category === 'restaurant' ? (
         <DeclineBox
           label={t('partnerGuide.contacts.noMenu')}

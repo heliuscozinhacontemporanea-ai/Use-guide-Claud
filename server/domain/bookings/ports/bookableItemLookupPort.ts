@@ -10,6 +10,14 @@ export interface BookableItem {
   timeZone?: string;
   /** Cidade do estabelecimento, mostrada ao lado da hora para quem está em outro fuso. */
   city?: string;
+  /** Rascunho não vende (D34, B68). */
+  published: boolean;
+  /** Aluguel e translado: veículos do anúncio (a oferta escolhe um, F3b). */
+  vehicleTypes?: string[];
+  /** Translado: trechos do anúncio (a oferta escolhe um, num sentido). */
+  transferRoutes?: Array<{ from: string; to: string }>;
+  /** Aluguel: horário de funcionamento por dia da semana (0 = domingo), na hora do lugar. */
+  openingHours?: Array<{ open: string; close: string } | null>;
 }
 
 export interface BookableItemLookupPort {

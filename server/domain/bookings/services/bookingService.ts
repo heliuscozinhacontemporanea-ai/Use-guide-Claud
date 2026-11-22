@@ -1,6 +1,7 @@
 import { calculateBuyerRefund } from '../../../shared/kernel/cancellationPolicy';
 import type { PlatformFeeConfig } from '../../../shared/kernel/platformFees';
 import { BookingDomainError } from '../errors/bookingDomainError';
+import type { BookableItemLookupPort } from '../ports/bookableItemLookupPort';
 import type { BookingsPort, PageRequest } from '../ports/bookingsPort';
 import { BookingCreationService, type CreatePendingBookingInput } from './bookingCreationService';
 
@@ -44,6 +45,7 @@ export type BookingContactTarget =
 export class BookingService {
   constructor(
     private readonly port: BookingsPort,
+    private readonly items: BookableItemLookupPort,
     private readonly now: () => Date = () => new Date()
   ) {}
 
@@ -53,7 +55,11 @@ export class BookingService {
     input: CreatePendingBookingInput,
     feeConfig: PlatformFeeConfig
   ): Promise<Booking> {
-    return new BookingCreationService(this.port, this.now).create(actor, input, feeConfig);
+    return new BookingCreationService(this.port, this.items, this.now).create(
+      actor,
+      input,
+      feeConfig
+    );
   }
 
   async getBookingForActor(actor: BookingActor, bookingId: string): Promise<BookingDetails> {

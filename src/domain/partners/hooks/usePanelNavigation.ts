@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import { createPageStack } from '../../../ui/hooks/pageStack';
+import type { OfferPageRequest } from '../components/panel/PartnerCatalogSection';
 import type { PartnerMorePageView } from '../components/panel/PartnerMoreSection';
 import type { PartnerPanelTab } from '../components/panel/partnerPanelTabs';
 import type { ListingStepId } from '../types/partnerHome';
@@ -35,7 +36,11 @@ export type PanelPage =
   | { view: 'listing-new'; categories?: string[] }
   /** Editor de evento como página (item 4 da D33): a lista de seções ou uma seção. */
   | { view: 'event-editor'; title: string }
-  | { view: 'event-section'; section: string; title: string };
+  | { view: 'event-section'; section: string; title: string }
+  /** Editor de oferta, horários e reservas (F3): montados pela composição (bookings). */
+  | { view: 'offer'; request: OfferPageRequest };
+
+export const isOfferPage = (page: PanelPage) => page.view === 'offer';
 
 /** Páginas do editor de evento: a lista de seções e cada seção. */
 export const isEventEditorPage = (page: PanelPage) =>

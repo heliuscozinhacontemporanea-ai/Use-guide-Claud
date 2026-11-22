@@ -19,7 +19,6 @@ vi.mock('../../application/usecases/cancelSlotUseCase', () => ({ cancelSlotUseCa
 vi.mock('../../application/usecases/createSlotsUseCase', () => ({ createSlotsUseCase: vi.fn() }));
 
 import { cancelSlotUseCase } from '../../application/usecases/cancelSlotUseCase';
-import { createOfferUseCase } from '../../application/usecases/createOfferUseCase';
 import { listPartnerOffersUseCase } from '../../application/usecases/listPartnerOffersUseCase';
 import { listPartnerSlotsUseCase } from '../../application/usecases/listPartnerSlotsUseCase';
 
@@ -39,6 +38,7 @@ describe('PartnerOffersManager', () => {
       <PartnerOffersManager
         canPublish={() => true}
         items={[{ id: 'r1', name: 'Restaurante', category: 'restaurant' }]}
+        onOpenPage={vi.fn()}
       />
     );
     expect(
@@ -48,40 +48,43 @@ describe('PartnerOffersManager', () => {
     ).toBeTruthy();
   });
 
-  it('cria oferta convertendo R$ 150,90 em 15090 centavos', async () => {
+  it('um estabelecimento só: "Criar" abre a página do editor já ligada a ele (F3)', async () => {
     vi.mocked(listPartnerOffersUseCase).mockResolvedValue([]);
-    vi.mocked(createOfferUseCase).mockImplementation(async (payload) => ({
-      ...payload,
-      id: 'offer_1',
-      status: 'draft',
-      createdAt: '',
-      updatedAt: '',
-    }));
     const onCreatingChange = vi.fn();
+    const onOpenPage = vi.fn();
     render(
       <PartnerOffersManager
         canPublish={() => true}
         items={[{ id: 'item-1', name: 'Lagoa do Paraíso', category: 'tour' }]}
         creating
         onCreatingChange={onCreatingChange}
+        onOpenPage={onOpenPage}
       />
     );
-    // Um estabelecimento só: o "Criar" do Catálogo abre o editor direto.
-    fireEvent.change((await screen.findAllByLabelText('Título'))[0]!, {
-      target: { value: 'Passeio de buggy' },
-    });
-    fireEvent.change(screen.getByLabelText('Nome da opção'), { target: { value: 'Adulto' } });
-    fireEvent.change(screen.getByLabelText('Valor (R$)'), { target: { value: '150,90' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Salvar' }));
-    await waitFor(() => expect(createOfferUseCase).toHaveBeenCalled());
-    const payload = vi.mocked(createOfferUseCase).mock.calls[0]![0];
-    expect(payload).toMatchObject({
-      guideItemId: 'item-1',
-      kind: 'tour',
-      title: { 'pt-BR': 'Passeio de buggy' },
-    });
-    expect(payload.pricing.priceOptions[0]?.unitAmountMinor).toBe(15090);
+    await waitFor(() =>
+      expect(onOpenPage).toHaveBeenCalledWith({
+        kind: 'editor',
+        itemId: 'item-1',
+        itemName: 'Lagoa do Paraíso',
+        category: 'tour',
+        listing: { vehicles: undefined, routes: undefined },
+        title: 'Nova oferta',
+      })
+    );
     expect(onCreatingChange).toHaveBeenCalledWith(false);
+  });
+
+  it('a lista relê as ofertas quando uma página de oferta fecha (versão nova)', async () => {
+    vi.mocked(listPartnerOffersUseCase).mockResolvedValue([]);
+    const props = {
+      canPublish: () => true,
+      items: [{ id: 'item-1', name: 'Lagoa do Paraíso', category: 'tour' }],
+      onOpenPage: vi.fn(),
+    };
+    const { rerender } = render(<PartnerOffersManager {...props} version={0} />);
+    await waitFor(() => expect(listPartnerOffersUseCase).toHaveBeenCalledTimes(1));
+    rerender(<PartnerOffersManager {...props} version={1} />);
+    await waitFor(() => expect(listPartnerOffersUseCase).toHaveBeenCalledTimes(2));
   });
 
   it('linha da oferta abre a folha; sem conta pronta, "Publicar" fica desabilitado e explica', async () => {
@@ -100,10 +103,12 @@ describe('PartnerOffersManager', () => {
         updatedAt: '',
       } as never,
     ]);
+    const onOpenPage = vi.fn();
     render(
       <PartnerOffersManager
         canPublish={() => false}
         items={[{ id: 'item-1', name: 'Buggy do Preá', category: 'tour' }]}
+        onOpenPage={onOpenPage}
       />
     );
     fireEvent.click(await screen.findByRole('button', { name: /Passeio de buggy/ }));
@@ -116,15 +121,117 @@ describe('PartnerOffersManager', () => {
         'Conclua a configuração financeira do CNPJ deste estabelecimento para publicar.'
       )
     ).toBeTruthy();
+    // Horários e editar abrem páginas do painel (F3).
+    // A página abre depois que a folha sai do histórico (o voltar dela é assíncrono).
+    fireEvent.click(within(dialog).getByRole('button', { name: /Horários/ }));
+    await waitFor(() =>
+      expect(onOpenPage).toHaveBeenCalledWith({ kind: 'slots', offerId: 'o1', title: 'Horários' })
+    );
+  });
+
+  it('aluguel: preço por veículo ou por hora e "Dias e reservas" no lugar de Horários (F3b)', async () => {
+    const base = {
+      guideItemId: 'item-1',
+      status: 'draft',
+      sellingUnit: 'group',
+      createdAt: '',
+      updatedAt: '',
+    };
+    vi.mocked(listPartnerOffersUseCase).mockResolvedValue([
+      {
+        ...base,
+        id: 'r1',
+        kind: 'rental',
+        title: { 'pt-BR': 'Quadriciclo' },
+        pricing: {
+          currency: 'BRL',
+          priceOptions: [
+            { id: 'p1', label: { 'pt-BR': '08:00 · 4 h' }, unitAmountMinor: 30000 },
+            { id: 'p2', label: { 'pt-BR': '13:00 · 4 h' }, unitAmountMinor: 25000 },
+            { id: 'hourly', label: { 'pt-BR': '1 h' }, unitAmountMinor: 8000 },
+          ],
+        },
+      } as never,
+      {
+        ...base,
+        id: 'r2',
+        kind: 'rental',
+        title: { 'pt-BR': 'Bicicleta por hora' },
+        pricing: {
+          currency: 'BRL',
+          priceOptions: [{ id: 'hourly', label: { 'pt-BR': '1 h' }, unitAmountMinor: 2000 }],
+        },
+      } as never,
+    ]);
+    const onOpenPage = vi.fn();
+    render(
+      <PartnerOffersManager
+        canPublish={() => true}
+        items={[{ id: 'item-1', name: 'Quadri Jeri', category: 'rental' }]}
+        onOpenPage={onOpenPage}
+      />
+    );
+    expect(await screen.findByText(/a partir de R\$\s250 por veículo/)).toBeTruthy();
+    expect(screen.getByText(/R\$\s20 por hora/)).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: /Quadriciclo/ }));
+    const dialog = await screen.findByRole('dialog');
+    fireEvent.click(within(dialog).getByRole('button', { name: /Dias e reservas/ }));
+    await waitFor(() =>
+      expect(onOpenPage).toHaveBeenCalledWith({
+        kind: 'slots',
+        offerId: 'r1',
+        title: 'Dias e reservas',
+      })
+    );
+  });
+
+  it('na página do estabelecimento: duração antes do preço e "+ Nova oferta" no fim da lista', async () => {
+    vi.mocked(listPartnerOffersUseCase).mockResolvedValue([
+      {
+        id: 'o1',
+        guideItemId: 'item-1',
+        kind: 'tour',
+        status: 'published',
+        title: { 'pt-BR': 'Passeio de buggy' },
+        durationMinutes: 240,
+        pricing: {
+          currency: 'BRL',
+          priceOptions: [
+            { id: 'a', label: { 'pt-BR': 'Adulto' }, unitAmountMinor: 15000 },
+            { id: 'c', label: { 'pt-BR': 'Criança' }, unitAmountMinor: 9000 },
+          ],
+        },
+        createdAt: '',
+        updatedAt: '',
+      } as never,
+    ]);
+    const onOpenPage = vi.fn();
+    render(
+      <PartnerOffersManager
+        canPublish={() => true}
+        items={[{ id: 'item-1', name: 'Buggy do Preá', category: 'tour' }]}
+        onOpenPage={onOpenPage}
+        inPage
+      />
+    );
+    expect(await screen.findByText(/4 h · a partir de R\$\s90 por pessoa/)).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: '+ Nova oferta' }));
+    await waitFor(() =>
+      expect(onOpenPage).toHaveBeenCalledWith(
+        expect.objectContaining({ kind: 'editor', itemId: 'item-1', itemName: 'Buggy do Preá' })
+      )
+    );
   });
 
   it('com mais de um estabelecimento, "Criar" pergunta em qual', async () => {
     vi.mocked(listPartnerOffersUseCase).mockResolvedValue([]);
+    const onOpenPage = vi.fn();
     render(
       <PartnerOffersManager
         canPublish={() => true}
         creating
         onCreatingChange={vi.fn()}
+        onOpenPage={onOpenPage}
         items={[
           { id: 'a', name: 'Buggy do Preá', category: 'tour' },
           { id: 'b', name: 'Dunas Park', category: 'sight' },
@@ -134,7 +241,11 @@ describe('PartnerOffersManager', () => {
     const dialog = await screen.findByRole('dialog');
     expect(within(dialog).getByText('Em qual estabelecimento?')).toBeTruthy();
     fireEvent.click(within(dialog).getByRole('button', { name: /Dunas Park/ }));
-    expect((await screen.findAllByLabelText('Título')).length).toBeGreaterThan(0);
+    await waitFor(() =>
+      expect(onOpenPage).toHaveBeenCalledWith(
+        expect.objectContaining({ kind: 'editor', itemId: 'b', category: 'sight' })
+      )
+    );
   });
 });
 
@@ -154,7 +265,7 @@ describe('PartnerSlotsManager', () => {
       },
     ]);
     vi.mocked(cancelSlotUseCase).mockResolvedValue({ canceledBookings: 3 });
-    render(<PartnerSlotsManager offerId="offer-1" />);
+    render(<PartnerSlotsManager offerId="offer-1" onOpenForm={vi.fn()} />);
     fireEvent.click(await screen.findByRole('button', { name: 'Cancelar horário' }));
     expect(cancelSlotUseCase).not.toHaveBeenCalled();
     expect(await screen.findByText(/multa de 20% do valor vendido/)).toBeTruthy();

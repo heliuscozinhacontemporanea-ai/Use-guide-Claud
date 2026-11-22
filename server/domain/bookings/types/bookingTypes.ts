@@ -1,13 +1,19 @@
 import type { BookingCancellationPolicy } from '../../../shared/kernel/cancellationPolicy';
 import type { TermsAcceptance } from '../../../shared/kernel/legalTerms';
 import type { Locale } from '../../../shared/kernel/locale';
+import type { FleetSchedule } from './fleetTypes';
 
 /** Texto cadastrado pelo parceiro; pt-BR é obrigatório (AGENTS.md §12.6). */
 export type LocalizedText = { 'pt-BR': string; en?: string; fr?: string };
 
-/** Fase 1 vende só `tour` e `private_entry`; os outros já existem no modelo (decisão D3). */
+/** Os quatro tipos vendem pelo app desde a F3 da D34 (aluguel e translado, fases 2 e 3 da D3). */
 export type BookableOfferKind = 'tour' | 'private_entry' | 'rental' | 'transfer';
-export const AVAILABLE_OFFER_KINDS: readonly BookableOfferKind[] = ['tour', 'private_entry'];
+export const AVAILABLE_OFFER_KINDS: readonly BookableOfferKind[] = [
+  'tour',
+  'private_entry',
+  'rental',
+  'transfer',
+];
 
 export type BookableOfferStatus = 'draft' | 'published' | 'paused' | 'archived';
 
@@ -68,8 +74,21 @@ export interface BookableOffer {
   cancellationPolicy: BookingCancellationPolicy;
   maxParticipantsPerBooking: number;
   requiresParticipantNames: boolean;
+  /** Aluguel: o que é alugado, um dos veículos do anúncio (F3b). */
+  vehicle?: string;
+  /** Translado: o trecho, um dos do anúncio, num sentido só (F3b). */
+  route?: { from: string; to: string };
+  /** Aluguel: quem dirige precisa de CNH; o comprador declara na reserva e o parceiro confere. */
+  requiresDriverLicense?: boolean;
+  /** Aluguel e translado privativo: venda por veículo em dias abertos (F3b). */
+  fleet?: FleetSchedule;
   createdAt: string;
   updatedAt: string;
+}
+
+/** Venda por veículo em dias abertos: aluguel e translado privativo (F3b). */
+export function isFleetOffer(offer: Pick<BookableOffer, 'kind' | 'sellingUnit'>): boolean {
+  return offer.kind === 'rental' || (offer.kind === 'transfer' && offer.sellingUnit === 'group');
 }
 
 /** Projeção pública lida pelo cliente em `publicBookableOffers` (sem dono nem parceiro). */
@@ -89,6 +108,8 @@ export interface AvailabilitySlot {
   /** "Iniciar serviço" do prestador (C4): o primeiro toque vale, em qualquer aparelho. */
   startedAt?: string;
   startedByUid?: string;
+  /** Horário de uma oferta por veículo: criado pela primeira reserva naquele início e fim (F3b). */
+  fleetDayId?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -235,6 +256,10 @@ export interface Booking {
   contactPhone?: string;
   /** Quando endereço de busca e telefone são apagados: 7 dias depois do fim do serviço (D20, D27, §7.5). */
   personalDataEraseAt?: string;
+  /** Reserva por veículo (F3b): o dia e o intervalo que ela ocupa (no translado, ida e volta). */
+  fleet?: { dayId: string; startsAt: string; endsAt: string };
+  /** Aluguel com CNH: quando o comprador declarou que quem dirige tem CNH válida (Interna). */
+  driverLicenseDeclaredAt?: string;
   /** Resposta do cliente ao aviso "chegou" (D27): "Estou chegando" ou "Não vou mais". */
   arrivalResponse?: { response: 'coming' | 'not_going'; at: string };
   /** Uma entrada por unidade usada; repetir o check-in da mesma unidade não cria outra. */

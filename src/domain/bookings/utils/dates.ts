@@ -25,6 +25,20 @@ export function formatSlotTime(iso: string, locale: string, timeZone = PLATFORM_
   );
 }
 
+/** "08:00–12:00" no idioma ativo e na hora do lugar. */
+export function formatSlotRange(
+  startIso: string,
+  endIso: string,
+  locale: string,
+  timeZone = PLATFORM_TIME_ZONE
+) {
+  return new Intl.DateTimeFormat(locale, {
+    timeZone,
+    hour: '2-digit',
+    minute: '2-digit',
+  }).formatRange(new Date(startIso), new Date(endIso));
+}
+
 export function formatDayLabel(iso: string, locale: string, timeZone = PLATFORM_TIME_ZONE) {
   return new Intl.DateTimeFormat(locale, {
     timeZone,
@@ -54,4 +68,11 @@ export function addDays(date: Date, days: number): Date {
 /** Converte "AAAA-MM-DDTHH:MM" digitado na hora do lugar em ISO UTC. */
 export function placeInputToIso(value: string, timeZone = PLATFORM_TIME_ZONE): string | null {
   return zonedDateTimeToIso(value, timeZone) || null;
+}
+
+/** Último dia do mês seguinte a `today` ("AAAA-MM-DD"): a data final padrão de abrir horários e dias. */
+export function endOfNextMonth(today: string): string {
+  const [year, month] = today.split('-').map(Number) as [number, number];
+  // Dia 0 do mês depois do seguinte = último dia do mês seguinte.
+  return new Date(Date.UTC(year, month + 1, 0)).toISOString().slice(0, 10);
 }

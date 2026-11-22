@@ -1,7 +1,15 @@
 // Avaliações no anúncio em tela cheia (aprovado em 2026-11-10).
 export interface ReviewsUiTranslation {
   title: string;
-  prompt: { tour: string; stay: string; restaurant: string; event: string; default: string };
+  prompt: {
+    tour: string;
+    rental: string;
+    transfer: string;
+    stay: string;
+    restaurant: string;
+    event: string;
+    default: string;
+  };
   rate: string;
   saved: string;
   ownerTitle: string;
@@ -24,6 +32,8 @@ export const reviewsUiPtBR: ReviewsUiTranslation = {
   title: 'Avaliações',
   prompt: {
     tour: 'Fez este passeio? Conte como foi.',
+    rental: 'Alugou aqui? Conte como foi.',
+    transfer: 'Fez este translado? Conte como foi.',
     stay: 'Ficou aqui? Conte como foi.',
     restaurant: 'Comeu aqui? Conte como foi.',
     event: 'Foi a este evento? Conte como foi.',

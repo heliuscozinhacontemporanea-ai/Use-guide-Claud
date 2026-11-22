@@ -58,20 +58,17 @@ describe('mapPartnerSubmissionToGuideItem', () => {
     });
   });
 
-  it('sight: deve mapear corretamente parceiro da categoria sight', () => {
+  it('sight: grava o acesso; o preço da entrada fica na oferta (F3, D34)', () => {
     const sightData: PartnerSubmissionData = {
       ...baseData,
       category: 'sight',
       sightAccessType: 'pago',
-      sightPrice: 'R$ 20,00',
     };
 
     const result = mapPartnerSubmissionToGuideItem(sightData, ['https://ponto.jpg']);
     expect(result.category).toBe('sight');
-    expect(result.operationalInfo).toMatchObject({
-      access: 'pago',
-      price: 'R$ 20,00',
-    });
+    expect(result.operationalInfo).toMatchObject({ access: 'pago' });
+    expect(result.operationalInfo).not.toHaveProperty('price');
   });
 
   it('categoria inválida: deve lançar erro se a categoria for incompatível (ex: event)', () => {
@@ -121,13 +118,11 @@ describe('mapPartnerSubmissionToGuideItem', () => {
     const result = mapPartnerSubmissionToGuideItem(baseData, ['https://img1.jpg']);
     expect(result).not.toHaveProperty('isActive');
   });
-  it('tour: converte a duração em minutos e mantém roteiro e itens inclusos', () => {
+  it('tour: grava roteiro e itens inclusos; duração e ponto de encontro ficam na oferta', () => {
     const result = mapPartnerSubmissionToGuideItem(
       {
         ...baseData,
         category: 'tour',
-        tourDurationHours: '2,5',
-        meetingPoint: 'Praça principal',
         itinerary: 'Lagoa do Paraíso e Pedra Furada',
         tourIncludes: ['Guia'],
       },
@@ -135,14 +130,14 @@ describe('mapPartnerSubmissionToGuideItem', () => {
     );
     expect(result.category).toBe('tour');
     expect(result.operationalInfo).toMatchObject({
-      durationMinutes: 150,
-      meetingPoint: 'Praça principal',
       itinerary: 'Lagoa do Paraíso e Pedra Furada',
       includes: ['Guia'],
     });
+    expect(result.operationalInfo).not.toHaveProperty('durationMinutes');
+    expect(result.operationalInfo).not.toHaveProperty('meetingPoint');
   });
 
-  it('transfer: descarta trechos incompletos e grava a capacidade como inteiro', () => {
+  it('transfer: descarta trechos incompletos; passageiros ficam na oferta', () => {
     const result = mapPartnerSubmissionToGuideItem(
       {
         ...baseData,
@@ -152,7 +147,6 @@ describe('mapPartnerSubmissionToGuideItem', () => {
           { from: 'Jijoca', to: '' },
         ],
         transferVehicles: ['4x4'],
-        maxPassengers: '6',
         luggageInfo: '1 mala por pessoa',
       },
       ['https://transfer.jpg']
@@ -161,29 +155,20 @@ describe('mapPartnerSubmissionToGuideItem', () => {
     expect(result.operationalInfo).toMatchObject({
       transferRoutes: [{ from: 'Fortaleza', to: 'Jericoacoara' }],
       vehicleTypes: ['4x4'],
-      maxPassengers: 6,
       luggageInfo: '1 mala por pessoa',
     });
+    expect(result.operationalInfo).not.toHaveProperty('maxPassengers');
   });
 
-  it('rental: grava período mínimo, caução e exigência de habilitação', () => {
+  it('rental: grava o que aluga; período, caução e CNH ficam na oferta (F3)', () => {
     const result = mapPartnerSubmissionToGuideItem(
-      {
-        ...baseData,
-        category: 'rental',
-        rentalVehicles: ['Quadriciclo'],
-        minRentalHours: '0',
-        depositRequired: true,
-        driverLicenseRequired: false,
-      },
+      { ...baseData, category: 'rental', rentalVehicles: ['Quadriciclo'] },
       ['https://rental.jpg']
     );
     expect(result.category).toBe('rental');
-    expect(result.operationalInfo).toMatchObject({
-      vehicleTypes: ['Quadriciclo'],
-      depositRequired: true,
-      driverLicenseRequired: false,
-    });
-    expect(result.operationalInfo).not.toHaveProperty('minRentalHours', 0);
+    expect(result.operationalInfo).toMatchObject({ vehicleTypes: ['Quadriciclo'] });
+    for (const field of ['minRentalHours', 'depositRequired', 'driverLicenseRequired']) {
+      expect(result.operationalInfo).not.toHaveProperty(field);
+    }
   });
 });

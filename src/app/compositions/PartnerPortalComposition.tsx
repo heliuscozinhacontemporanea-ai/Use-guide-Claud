@@ -8,6 +8,8 @@ import {
   EntryOfflineKeys,
   EstablishmentCodeSheet,
   isBookableCategory,
+  ListingOffersLink,
+  PartnerOfferPage,
   PartnerSlotSheet,
   SlotContactsList,
   startSlotServiceUseCase,
@@ -19,7 +21,6 @@ import { MonthVisitsTile, ReportsView } from '../../domain/insights';
 import { NotificationSettingsView, SalesAlertsSummary } from '../../domain/notifications';
 import type { PartnerProfile, SubscriptionPlan } from '../../domain/partners';
 import { getPartnerProfileUseCase, PartnerPanel } from '../../domain/partners';
-import { PromoCodesPage } from '../../domain/promotions';
 import {
   CheckoutModal,
   isPaidPlanId,
@@ -30,6 +31,7 @@ import {
   type PlanPeriodOption,
   PlanSubscriptionCard,
 } from '../../domain/payment';
+import { PromoCodesPage } from '../../domain/promotions';
 import { RecentItemReviews } from '../../domain/reviews';
 import {
   EventGuestsPanel,
@@ -223,15 +225,29 @@ export function PartnerPortalComposition() {
         <PlanSubscriptionCard itemId={itemId} plans={periodOptions} onLiveChange={onLiveChange} />
       )}
       renderCatalog={{
-        renderOffers: ({ items, creating, onCreatingChange, inPage, onOpenCoupons }) =>
-          inPage && !items.some((item) => isBookableCategory(item.category)) ? null : (
+        renderOffers: ({
+          items,
+          creating,
+          onCreatingChange,
+          inPage,
+          onOpenCoupons,
+          onOpenPage,
+          version,
+        }) =>
+          !onOpenPage ||
+          (inPage && !items.some((item) => isBookableCategory(item.category))) ? null : (
             <PartnerBookingsComposition
               items={items}
               creating={creating}
               onCreatingChange={onCreatingChange}
               onOpenCoupons={onOpenCoupons}
+              onOpenPage={onOpenPage}
+              version={version}
+              inPage={inPage}
             />
           ),
+        renderOfferPage: (props) => <PartnerOfferPage {...props} />,
+        renderOffersLink: (props) => <ListingOffersLink {...props} />,
         renderVisits: (itemId, onOpenPlan) => (
           <MonthVisitsTile itemId={itemId} onOpenPlan={onOpenPlan} />
         ),

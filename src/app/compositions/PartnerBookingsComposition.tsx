@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import {
   type BookableGuideItem,
   isBookableCategory,
+  type PartnerOfferPageSpec,
   PartnerOffersManager,
 } from '../../domain/bookings';
 import { listPaymentAccountsUseCase, PaymentAccountNotice } from '../../domain/payment';
@@ -18,11 +19,19 @@ export function PartnerBookingsComposition({
   creating,
   onCreatingChange,
   onOpenCoupons,
+  onOpenPage,
+  version,
+  inPage,
 }: {
   items: BookableGuideItem[];
   creating?: boolean;
   onCreatingChange?: (creating: boolean) => void;
   onOpenCoupons?: (offerId: string) => void;
+  /** Editor, horários e reservas como páginas do painel (F3). */
+  onOpenPage: (page: PartnerOfferPageSpec & { title: string }) => void;
+  version?: number;
+  /** Na página do estabelecimento: a lista termina com "+ Nova oferta". */
+  inPage?: boolean;
 }) {
   const { t } = useTranslation();
   const [account, setAccount] = useState<AccountState>({ status: 'loading' });
@@ -62,6 +71,9 @@ export function PartnerBookingsComposition({
       creating={creating}
       onCreatingChange={onCreatingChange}
       onOpenCoupons={onOpenCoupons}
+      onOpenPage={onOpenPage}
+      version={version}
+      inPage={inPage}
       accountNotice={
         notReady.length > 0 ? (
           <PaymentAccountNotice

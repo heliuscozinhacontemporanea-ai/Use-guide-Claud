@@ -89,6 +89,11 @@ export interface BookingsTranslation {
     sectionDescription: string;
     noEligibleItems: string;
     newOffer: string;
+    newOfferRow: string;
+    listingOffers: { tour: string; private_entry: string; rental: string; transfer: string };
+    listingOffersCount_one: string;
+    listingOffersCount_other: string;
+    listingOffersNone: string;
     emptyOffers: string;
     loading: string;
     loadError: string;
@@ -106,6 +111,7 @@ export interface BookingsTranslation {
     publishNeedsStripe: string;
     stripeRequiredSome: string;
     accountStatusError: string;
+    offerMissing: string;
     fromPrice: string;
     /** Catálogo do painel (p09, p19): linha da oferta e folha de ações. */
     perPerson: string;
@@ -125,26 +131,27 @@ export interface BookingsTranslation {
   kind: {
     tour: string;
     private_entry: string;
+    rental: string;
+    transfer: string;
   };
   editor: {
     titleNew: string;
     titleEdit: string;
-    languageTabs: string;
     titleLabel: string;
+    titlePlaceholder: { tour: string; private_entry: string; rental: string; transfer: string };
+    optionPlaceholder: string;
     descriptionLabel: string;
-    optionalTranslation: string;
     pricingLegend: string;
     priceLabel: string;
     priceAmount: string;
     addPriceOption: string;
     removePriceOption: string;
     durationLabel: string;
+    durationHours: string;
+    durationMinutes: string;
     meetingPointLabel: string;
     maxParticipantsLabel: string;
     requireNamesLabel: string;
-    save: string;
-    cancel: string;
-    saveFailed: string;
   };
   validation: {
     required: string;
@@ -152,6 +159,13 @@ export interface BookingsTranslation {
     priceInvalid: string;
     integer: string;
     atLeastOnePrice: string;
+    durationRange: string;
+    vehicleRequired: string;
+    routeRequired: string;
+    periodInvalid: string;
+    atLeastOnePeriod: string;
+    atLeastOneDeparture: string;
+    windowInvalid: string;
   };
   slotSheet: {
     when: string;
@@ -180,7 +194,8 @@ export interface BookingsTranslation {
     nextWeek: string;
     emptyWeek: string;
     capacity: string;
-    createTitle: string;
+    open: string;
+    invalid: string;
     modeRecurrence: string;
     modeSingle: string;
     startDate: string;
@@ -189,10 +204,8 @@ export interface BookingsTranslation {
     times: string;
     singleDateTime: string;
     capacityLabel: string;
-    create: string;
     created_one: string;
     created_other: string;
-    createFailed: string;
     cancelSlot: string;
     canceled_one: string;
     canceled_other: string;
@@ -255,7 +268,9 @@ export interface BookingsTranslation {
     INSUFFICIENT_CAPACITY: string;
     INVALID_TRANSITION: string;
     LATE_PAYMENT_REJECTED: string;
-    KIND_NOT_AVAILABLE: string;
+    LISTING_NOT_PUBLISHED: string;
+    VEHICLES_BELOW_BOOKED: string;
+    DRIVER_LICENSE_REQUIRED: string;
     CANCELLATION_NOT_ALLOWED: string;
     TERMS_NOT_ACCEPTED: string;
     SELLER_ACCOUNT_NOT_ELIGIBLE: string;
@@ -376,6 +391,16 @@ export const bookingsPtBR: BookingsTranslation = {
     sectionDescription: 'Venda horários dos seus passeios e entradas das suas atrações.',
     noEligibleItems: 'Cadastre um passeio ou uma atração para vender reservas.',
     newOffer: 'Nova oferta',
+    newOfferRow: '+ Nova oferta',
+    listingOffers: {
+      tour: 'Ver as ofertas deste passeio',
+      private_entry: 'Ver as ofertas desta atração',
+      rental: 'Ver as ofertas deste aluguel',
+      transfer: 'Ver as ofertas deste translado',
+    },
+    listingOffersCount_one: '{{count}} oferta à venda',
+    listingOffersCount_other: '{{count}} ofertas à venda',
+    listingOffersNone: 'Nenhuma oferta à venda ainda',
     emptyOffers: 'Nenhuma oferta para este item.',
     loading: 'Carregando ofertas…',
     loadError: 'Não foi possível carregar as ofertas.',
@@ -395,6 +420,7 @@ export const bookingsPtBR: BookingsTranslation = {
     stripeRequiredSome:
       'Alguns estabelecimentos ainda não podem vender: conclua a configuração financeira do CNPJ de cada um em Recebimentos.',
     accountStatusError: 'Não foi possível verificar sua conta financeira agora.',
+    offerMissing: 'Esta oferta não está mais disponível.',
     fromPrice: 'a partir de {{amount}}',
     perPerson: '{{amount}} por pessoa',
     perGroup: '{{amount}} por grupo',
@@ -413,26 +439,32 @@ export const bookingsPtBR: BookingsTranslation = {
   kind: {
     tour: 'Passeio',
     private_entry: 'Entrada de atração',
+    rental: 'Aluguel',
+    transfer: 'Translado',
   },
   editor: {
     titleNew: 'Nova oferta',
     titleEdit: 'Editar oferta',
-    languageTabs: 'Idioma do texto',
     titleLabel: 'Título',
+    titlePlaceholder: {
+      tour: 'Ex.: Passeio de buggy até a Lagoa do Paraíso',
+      private_entry: 'Ex.: Entrada inteira',
+      rental: 'Ex.: Quadriciclo por 4 horas',
+      transfer: 'Ex.: Translado para o aeroporto',
+    },
+    optionPlaceholder: 'Ex.: Adulto',
     descriptionLabel: 'Descrição',
-    optionalTranslation: 'Tradução opcional',
     pricingLegend: 'Preços',
     priceLabel: 'Nome da opção',
     priceAmount: 'Valor (R$)',
     addPriceOption: 'Adicionar opção de preço',
     removePriceOption: 'Remover opção de preço',
-    durationLabel: 'Duração (minutos)',
+    durationLabel: 'Duração',
+    durationHours: 'Horas',
+    durationMinutes: 'Minutos',
     meetingPointLabel: 'Ponto de encontro',
     maxParticipantsLabel: 'Máximo de participantes por reserva',
     requireNamesLabel: 'Pedir o nome de cada pessoa',
-    save: 'Salvar',
-    cancel: 'Cancelar',
-    saveFailed: 'Não foi possível salvar a oferta.',
   },
   validation: {
     required: 'Campo obrigatório.',
@@ -440,6 +472,13 @@ export const bookingsPtBR: BookingsTranslation = {
     priceInvalid: 'Informe um valor maior que zero.',
     integer: 'Informe um número inteiro.',
     atLeastOnePrice: 'Informe ao menos uma opção de preço.',
+    durationRange: 'A duração vai de 15 min a 24 h.',
+    vehicleRequired: 'Escolha o veículo.',
+    routeRequired: 'Escolha o trecho.',
+    periodInvalid: 'Horário inválido: ao menos 30 min, terminando no mesmo dia.',
+    atLeastOnePeriod: 'Informe um período ou ative o horário personalizado.',
+    atLeastOneDeparture: 'Informe uma saída ou ative o horário personalizado.',
+    windowInvalid: 'O atendimento precisa começar antes de terminar.',
   },
   slotSheet: {
     when: '{{date}} · {{time}}',
@@ -468,7 +507,8 @@ export const bookingsPtBR: BookingsTranslation = {
     nextWeek: 'Próxima semana',
     emptyWeek: 'Nenhum horário nesta semana.',
     capacity: '{{sold}} vendidas · {{reserved}} reservadas · {{free}} livres',
-    createTitle: 'Criar horários',
+    open: 'Abrir horários',
+    invalid: 'Confira as datas, os dias da semana, os horários e as vagas.',
     modeRecurrence: 'Recorrente',
     modeSingle: 'Avulso',
     startDate: 'De',
@@ -477,10 +517,8 @@ export const bookingsPtBR: BookingsTranslation = {
     times: 'Horários (HH:MM, separados por vírgula)',
     singleDateTime: 'Data e hora',
     capacityLabel: 'Vagas por horário',
-    create: 'Criar horários',
     created_one: '{{count}} horário criado.',
     created_other: '{{count}} horários criados.',
-    createFailed: 'Não foi possível criar os horários.',
     cancelSlot: 'Cancelar horário',
     canceled_one: 'Horário cancelado. {{count}} reserva reembolsada.',
     canceled_other: 'Horário cancelado. {{count}} reservas reembolsadas.',
@@ -549,7 +587,9 @@ export const bookingsPtBR: BookingsTranslation = {
     INSUFFICIENT_CAPACITY: 'Não há vagas suficientes neste horário.',
     INVALID_TRANSITION: 'Esta mudança não é permitida agora.',
     LATE_PAYMENT_REJECTED: 'O pagamento chegou depois do prazo e será devolvido.',
-    KIND_NOT_AVAILABLE: 'Este tipo de oferta ainda não está disponível.',
+    LISTING_NOT_PUBLISHED: 'Publique o anúncio antes de pôr a oferta à venda.',
+    VEHICLES_BELOW_BOOKED: 'Este dia já tem mais veículos reservados do que esse número.',
+    DRIVER_LICENSE_REQUIRED: 'Confirme que quem vai dirigir tem CNH válida.',
     CANCELLATION_NOT_ALLOWED: 'Esta reserva não pode ser cancelada.',
     TERMS_NOT_ACCEPTED: 'Aceite os termos para continuar.',
     SELLER_ACCOUNT_NOT_ELIGIBLE: 'O parceiro ainda não pode receber pagamentos online.',

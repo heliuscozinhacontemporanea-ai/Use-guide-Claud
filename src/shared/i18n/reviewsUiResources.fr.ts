@@ -4,6 +4,8 @@ export const reviewsUiFr: ReviewsUiTranslation = {
   title: 'Avis',
   prompt: {
     tour: 'Vous avez fait cette excursion ? Racontez-nous.',
+    rental: 'Vous avez loué ici ? Racontez-nous.',
+    transfer: 'Vous avez pris ce transfert ? Racontez-nous.',
     stay: 'Vous avez séjourné ici ? Racontez-nous.',
     restaurant: 'Vous avez mangé ici ? Racontez-nous.',
     event: 'Vous étiez à cet événement ? Racontez-nous.',

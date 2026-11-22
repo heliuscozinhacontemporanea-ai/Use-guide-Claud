@@ -7,14 +7,14 @@ import type { PartnerTodayItem } from '../../types/partnerHome';
 import type { EventEditorSection } from '../PartnerEventEditor';
 import type { PartnerPanelProps } from '../partnerPanelProps';
 import { PartnerCatalogPage } from './PartnerCatalogPage';
+import type { OfferPageRenderProps, PartnerCatalogRenders } from './PartnerCatalogSection';
+import type { PartnerEarningsRenders } from './PartnerEarningsTab';
 import {
   ListingBlockPage,
   ListingEditorPanelPage,
   type ListingPagesContext,
   NewListingPanelPage,
 } from './PartnerListingPages';
-import type { PartnerCatalogRenders } from './PartnerCatalogSection';
-import type { PartnerEarningsRenders } from './PartnerEarningsTab';
 import { PartnerMorePage, partnerMorePageTitle } from './PartnerMorePage';
 import { PartnerReportsPage } from './PartnerReportsPage';
 
@@ -46,6 +46,12 @@ export interface PartnerPanelPageContext extends ListingPagesContext {
   renderGateStaff?: PartnerPanelProps['renderGateStaff'];
   /** Editor do evento aberto: a lista de seções (`null`) ou uma seção (item 4 da D33). */
   renderEventEditor: (section: EventEditorSection | null) => ReactNode;
+  /** Páginas de oferta (F3): a do editor entrega o salvar à barra. */
+  registerOfferSave: (save: (() => void) | null) => void;
+  onOfferSaved: (saved: { offerId: string; title: string; created: boolean }) => void;
+  onOpenOfferPage: OfferPageRenderProps['onOpenPage'];
+  onOfferFormDone: OfferPageRenderProps['onFormDone'];
+  offerFormVersion: number;
 }
 
 /** Título da página na barra fixa (D33). */
@@ -62,6 +68,8 @@ export function partnerPanelPageTitle(
     case 'event-editor':
     case 'event-section':
       return page.title;
+    case 'offer':
+      return page.request.title;
     case 'listing-editor':
       return t('partnerGuide.editor.title');
     case 'listing-new':
@@ -135,6 +143,19 @@ export function PartnerPanelPageContent({
       return <>{context.renderEventEditor(null)}</>;
     case 'event-section':
       return <>{context.renderEventEditor(page.section as EventEditorSection)}</>;
+    case 'offer':
+      return (
+        <>
+          {context.catalogRenders.renderOfferPage?.({
+            page: page.request,
+            registerSave: context.registerOfferSave,
+            onSaved: context.onOfferSaved,
+            onOpenPage: context.onOpenOfferPage,
+            onFormDone: context.onOfferFormDone,
+            version: context.offerFormVersion,
+          })}
+        </>
+      );
     default: {
       const { renderCoupons } = context;
       const scope = page.view === 'coupons' ? (page.couponsScope ?? null) : null;
@@ -153,16 +174,32 @@ export function PartnerPanelPageContent({
 }
 
 /**
- * Ação da barra fixa: "Salvar" nos blocos do anúncio (grava e volta) e nas páginas do editor de
- * evento (grava o evento inteiro e fecha o editor).
+ * Ação da barra fixa: "Salvar" nos blocos do anúncio (grava e volta), no editor de oferta e nas páginas
+ * do editor de evento (grava o evento inteiro e fecha o editor).
  */
 export function partnerPanelPageAction(
   page: PanelPage,
   t: TFunction,
-  actions: { saveListing: () => void; saveEvent: () => void; savingEvent: boolean }
+  actions: {
+    saveListing: () => void;
+    saveOffer: () => void;
+    saveEvent: () => void;
+    savingEvent: boolean;
+  }
 ): StackAction | undefined {
   if (page.view === 'listing-step' && page.step !== 'publish') {
     return { label: t('partnerGuide.page.save'), onClick: actions.saveListing };
+  }
+  if (page.view === 'offer' && page.request.kind === 'editor') {
+    // Oferta nova: "Criar" na barra, como no protótipo da F3 (tela 8).
+    const label = page.request.offerId ? 'partnerGuide.page.save' : 'partnerGuide.page.create';
+    return { label: t(label), onClick: actions.saveOffer };
+  }
+  if (page.view === 'offer' && page.request.kind === 'openSlots') {
+    return { label: t('partnerGuide.page.create'), onClick: actions.saveOffer };
+  }
+  if (page.view === 'offer' && page.request.kind === 'openDays') {
+    return { label: t('partnerGuide.page.open'), onClick: actions.saveOffer };
   }
   if (page.view === 'event-editor' || page.view === 'event-section') {
     return {

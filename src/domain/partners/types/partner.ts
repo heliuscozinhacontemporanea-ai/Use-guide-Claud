@@ -72,19 +72,12 @@ export interface PartnerSubmissionData {
   sightServices?: string[];
   sightAmenities?: string[];
   sightAccessType?: string;
-  sightPrice?: string;
-  tourDurationHours?: string;
-  meetingPoint?: string;
   itinerary?: string;
   tourIncludes?: string[];
   transferRoutes?: Array<{ from: string; to: string }>;
   transferVehicles?: string[];
-  maxPassengers?: string;
   luggageInfo?: string;
   rentalVehicles?: string[];
-  minRentalHours?: string;
-  depositRequired?: boolean | null;
-  driverLicenseRequired?: boolean | null;
   rentalIncludes?: string[];
 }
 

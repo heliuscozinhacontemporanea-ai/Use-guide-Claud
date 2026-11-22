@@ -13,13 +13,14 @@ import {
 } from '../utils/checkInCode';
 import {
   CHECK_IN_FAILURE_WINDOW_MS,
-  CHECK_IN_OPENS_BEFORE_MS,
   CHECK_IN_MAX_FAILURES,
+  CHECK_IN_OPENS_BEFORE_MS,
   checkInCodeVisibleFromMs,
   checkInWindow,
   resolveCheckInTime,
 } from '../utils/checkInWindow';
 import { checkInsOf, hasServiceProof } from '../utils/serviceProof';
+import { slotDurationMinutes } from '../utils/serviceTime';
 
 /** Código de uma unidade: a pessoa (venda por pessoa) ou o grupo. */
 export interface UnitCode {
@@ -154,7 +155,10 @@ export class BookingCheckInService {
     if (atMs === null) {
       throw new BookingDomainError('VALIDATION_ERROR', 'Hora do check-in inválida.');
     }
-    const { opensAtMs, closesAtMs } = checkInWindow(slot.startsAt, offer.durationMinutes);
+    const { opensAtMs, closesAtMs } = checkInWindow(
+      slot.startsAt,
+      slotDurationMinutes(slot, offer.durationMinutes)
+    );
     if (atMs < opensAtMs || atMs > closesAtMs) {
       throw new BookingDomainError(
         'CHECK_IN_WINDOW_CLOSED',
@@ -211,7 +215,10 @@ export class BookingCheckInService {
           )
             .filter((slot) => slot.status === 'open')
             .filter((slot) => {
-              const { opensAtMs, closesAtMs } = checkInWindow(slot.startsAt, offer.durationMinutes);
+              const { opensAtMs, closesAtMs } = checkInWindow(
+                slot.startsAt,
+                slotDurationMinutes(slot, offer.durationMinutes)
+              );
               return atMs >= opensAtMs && atMs <= closesAtMs;
             })
             .map((slot) => ({ offer, slot }))

@@ -19,7 +19,7 @@ interface ReviewSectionProps {
   occurrenceId?: string;
   ticketId?: string;
   /** Pergunta do convite para avaliar, conforme o tipo do anúncio. */
-  prompt?: 'tour' | 'stay' | 'restaurant' | 'event' | 'default';
+  prompt?: 'tour' | 'rental' | 'transfer' | 'stay' | 'restaurant' | 'event' | 'default';
 }
 
 export function ReviewSection({

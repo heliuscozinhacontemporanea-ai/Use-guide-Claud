@@ -36,6 +36,23 @@ describe('listingStepUpdate', () => {
     });
   });
 
+  it('anúncio antigo com campos de venda: grava só os campos aceitos pelo servidor (F3)', () => {
+    const tour = item({
+      category: 'tour',
+      operationalInfo: {
+        languages: ['Português'],
+        itinerary: 'Dunas',
+        ...({ durationMinutes: 240, meetingPoint: 'Praça', price: 'R$ 20' } as object),
+      },
+    });
+    const about = listingStepUpdate('about', tour, mapItemToFormData(tour));
+    expect(about.operationalInfo).toEqual({ languages: ['Português'], itinerary: 'Dunas' });
+    const details = listingStepUpdate('details', tour, mapItemToFormData(tour));
+    for (const field of ['durationMinutes', 'meetingPoint', 'price']) {
+      expect(details.operationalInfo).not.toHaveProperty(field);
+    }
+  });
+
   it('detalhes: lista vazia só conta como respondida com "Nenhuma destas"', () => {
     const form = { ...mapItemToFormData(item()), mealTypes: ['Almoço'], additionalServices: [] };
     const unanswered = listingStepUpdate('details', item(), form);

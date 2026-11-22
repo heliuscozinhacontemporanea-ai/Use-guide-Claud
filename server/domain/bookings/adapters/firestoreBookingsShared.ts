@@ -11,6 +11,7 @@ export const BOOKINGS = 'bookings';
 export const PARTICIPANTS = 'bookingParticipants';
 export const AUDIT = 'bookingAuditLogs';
 export const CHECK_IN_FAILURES = 'bookingCheckInFailures';
+export const FLEET_DAYS = 'fleetDays';
 
 export function nowIso(): string {
   return new Date().toISOString();

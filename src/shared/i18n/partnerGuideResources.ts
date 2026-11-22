@@ -95,11 +95,24 @@ export interface PartnerGuideTranslation {
     contacts: string;
     contactsHint: string;
   };
+  /** Páginas de oferta abertas pelo guia do Início (F3). */
+  offer: {
+    newTitle: string;
+    slots: string;
+    saved: string;
+    /** Bloco Detalhes: o que saiu do anúncio e ficou na oferta (F3). */
+    tourInOffer: string;
+    sightPriceInOffer: string;
+    rentalInOffer: string;
+    transferInOffer: string;
+  };
   page: {
     progress: string;
     next: string;
     nextPublish: string;
     save: string;
+    create: string;
+    open: string;
     saving: string;
     saved: string;
     missing: string;
@@ -280,11 +293,25 @@ export const partnerGuidePtBR: PartnerGuideTranslation = {
     contacts: 'Contatos e links',
     contactsHint: 'Instagram e site',
   },
+  offer: {
+    newTitle: 'Nova oferta',
+    slots: 'Horários',
+    saved: 'Oferta salva',
+    tourInOffer:
+      '<b>Duração, ponto de encontro, preço e vagas</b> ficam em cada oferta do passeio.',
+    sightPriceInOffer:
+      'Com acesso pago, <b>o preço da entrada</b> fica na oferta de entrada, que é o que o turista compra.',
+    rentalInOffer: '<b>Preço, período e CNH</b> ficam em cada oferta: mudam por veículo.',
+    transferInOffer:
+      '<b>Preço, tipo (privativo ou compartilhado) e passageiros</b> ficam em cada oferta.',
+  },
   page: {
     progress: 'Passo {{current}} de {{total}}',
     next: 'Próximo: {{step}}',
     nextPublish: 'Próximo: publicar no guia',
     save: 'Salvar',
+    create: 'Criar',
+    open: 'Abrir',
     saving: 'Salvando…',
     saved: 'Salvo',
     missing: 'Falta: {{fields}}',

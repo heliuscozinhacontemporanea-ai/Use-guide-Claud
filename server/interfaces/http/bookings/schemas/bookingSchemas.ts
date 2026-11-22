@@ -18,6 +18,42 @@ const localizedText = (max: number) =>
     })
     .strict();
 
+const hhmm = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/);
+
+// Aluguel e translado privativo (F3b): períodos ou saídas e o horário escolhido pelo cliente.
+const fleetSchedule = z
+  .object({
+    fixed: z
+      .array(
+        z
+          .object({
+            id: z.string().regex(/^[a-z0-9_-]{1,40}$/),
+            start: hhmm,
+            minutes: z
+              .number()
+              .int()
+              .min(15)
+              .max(24 * 60),
+          })
+          .strict()
+      )
+      .max(12),
+    custom: z
+      .discriminatedUnion('mode', [
+        z.object({ mode: z.literal('hours'), minHours: z.number().int().min(1).max(24) }).strict(),
+        z
+          .object({
+            mode: z.literal('time'),
+            from: hhmm,
+            to: hhmm,
+            minNoticeHours: z.number().int().min(0).max(72),
+          })
+          .strict(),
+      ])
+      .optional(),
+  })
+  .strict();
+
 const priceOption = z
   .object({
     id: z.string().regex(/^[a-z0-9_-]{1,40}$/),
@@ -51,11 +87,20 @@ const offerFields = {
     .optional(),
   pickupMode: z.enum(['meeting_point', 'buyer_address']).optional(),
   sellingUnit: z.enum(['person', 'group']).optional(),
-  groupMaxPeople: z.number().int().min(2).max(50).optional(),
+  // Aluguel: pessoas por veículo, a partir de 1 (bicicleta); grupo do passeio, a partir de 2 no app.
+  groupMaxPeople: z.number().int().min(1).max(50).optional(),
   // Opções da plataforma (D14); o serviço confere se a opção vale para o tipo da oferta.
   cancellationPolicy: z.enum([...BOOKING_CANCELLATION_POLICIES, ...TRANSFER_CANCELLATION_POLICIES]),
   maxParticipantsPerBooking: z.number().int().min(1).max(50),
   requiresParticipantNames: z.boolean(),
+  // O serviço confere veículo e trecho com o anúncio (F3b).
+  vehicle: z.string().trim().min(1).max(60).optional(),
+  route: z
+    .object({ from: z.string().trim().min(1).max(100), to: z.string().trim().min(1).max(100) })
+    .strict()
+    .optional(),
+  requiresDriverLicense: z.boolean().optional(),
+  fleet: fleetSchedule.optional(),
 };
 
 export const CreateOfferSchema = z
@@ -98,10 +143,43 @@ export const CreateSlotsSchema = z.discriminatedUnion('mode', [
     .strict(),
 ]);
 
+const dateOnly = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
+
+// Aluguel e translado privativo (F3b): período ou saída, ou o horário escolhido (e as horas do aluguel).
+const fleetBookingRequest = z
+  .object({
+    date: dateOnly,
+    periodId: z
+      .string()
+      .regex(/^[a-z0-9_-]{1,40}$/)
+      .optional(),
+    startsAt: isoDateTime.optional(),
+    hours: z.number().int().min(1).max(24).optional(),
+  })
+  .strict()
+  .refine((value) => Boolean(value.periodId) !== Boolean(value.startsAt), {
+    message: 'Escolha um período ou um horário.',
+  });
+
+export const OpenFleetDaysSchema = z
+  .object({
+    startDate: dateOnly,
+    endDate: dateOnly,
+    weekdays: z.array(z.number().int().min(0).max(6)).min(1).max(7),
+    // 0 fecha os dias para novas reservas.
+    vehicles: z.number().int().min(0).max(200),
+  })
+  .strict();
+
+export const FleetDaysQuerySchema = z.object({ from: dateOnly, to: dateOnly }).strict();
+export const FleetDateParamSchema = dateOnly;
+
 export const CreateBookingSchema = z
   .object({
     offerId: documentId,
-    slotId: documentId,
+    slotId: documentId.optional(),
+    fleet: fleetBookingRequest.optional(),
+    driverLicenseDeclared: z.boolean().optional(),
     lines: z
       .array(
         z
@@ -130,7 +208,10 @@ export const CreateBookingSchema = z
     // Cupom (B1c): o servidor confere e calcula o desconto; aqui só o formato.
     promoCode: z.string().trim().min(3).max(20).optional(),
   })
-  .strict();
+  .strict()
+  .refine((value) => Boolean(value.slotId) !== Boolean(value.fleet), {
+    message: 'Escolha um horário ou um dia.',
+  });
 
 export const RescheduleSlotSchema = z
   .object({

@@ -221,6 +221,20 @@
       ]
     },
     {
+      "collectionGroup": "fleetDays",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "offerId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
       "collectionGroup": "availabilitySlots",
       "queryScope": "COLLECTION",
       "fields": [

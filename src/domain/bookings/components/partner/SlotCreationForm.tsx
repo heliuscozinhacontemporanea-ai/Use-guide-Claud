@@ -1,12 +1,19 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { BUTTON_PRIMARY, BUTTON_SECONDARY, INPUT } from '../../../../ui/styles/controls';
+import { cn } from '../../../../shared/utils/cn';
+import { SegmentedControl } from '../../../../ui/components/SegmentedControl';
+import { INPUT } from '../../../../ui/styles/controls';
 import type { CreateSlotsPayload } from '../../types/bookings';
-import { placeInputToIso } from '../../utils/dates';
+import { getBookingErrorMessage } from '../../utils/bookingErrorMessage';
+import { endOfNextMonth, placeInputToIso } from '../../utils/dates';
 
 const WEEKDAYS = [0, 1, 2, 3, 4, 5, 6] as const;
 
 interface SlotCreationFormProps {
+  /** Hoje na hora do lugar ("AAAA-MM-DD"): as datas já vêm de hoje ao fim do mês seguinte. */
+  today: string;
+  /** O "Criar" fica na barra da página (protótipo da F3, tela 9). */
+  registerSave: (save: (() => void) | null) => void;
   onCreate: (payload: CreateSlotsPayload) => Promise<void>;
   /** Fuso da oferta; a recorrência é expandida no servidor com o mesmo fuso (D28). */
   timeZone?: string;
@@ -48,19 +55,48 @@ export function buildSlotsPayload(
   };
 }
 
-export function SlotCreationForm({ onCreate, timeZone }: SlotCreationFormProps) {
+export function SlotCreationForm({
+  today,
+  registerSave,
+  onCreate,
+  timeZone,
+}: SlotCreationFormProps) {
   const { t } = useTranslation();
   const [state, setState] = useState({
     mode: 'recurrence' as 'recurrence' | 'list',
     capacity: '10',
-    startDate: '',
-    endDate: '',
-    weekdays: [] as number[],
+    startDate: today,
+    endDate: endOfNextMonth(today),
+    weekdays: [...WEEKDAYS] as number[],
     times: '08:00',
     single: '',
   });
-  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const submitting = useRef(false);
   const payload = buildSlotsPayload(state, timeZone);
+
+  const submit = async () => {
+    if (submitting.current) return;
+    if (!payload) {
+      setError(t('bookings.slots.invalid'));
+      return;
+    }
+    setError(null);
+    submitting.current = true;
+    try {
+      await onCreate(payload);
+    } catch (err: unknown) {
+      setError(getBookingErrorMessage(err));
+    } finally {
+      submitting.current = false;
+    }
+  };
+  const submitRef = useRef(submit);
+  submitRef.current = submit;
+  useEffect(() => {
+    registerSave(() => void submitRef.current());
+    return () => registerSave(null);
+  }, [registerSave]);
 
   const toggleWeekday = (day: number) =>
     setState((current) => ({
@@ -72,51 +108,40 @@ export function SlotCreationForm({ onCreate, timeZone }: SlotCreationFormProps) 
 
   return (
     <form
-      className="space-y-3 p-4 rounded-2xl bg-white/5 border border-white/10"
-      onSubmit={async (event) => {
+      className="space-y-4"
+      noValidate
+      onSubmit={(event) => {
         event.preventDefault();
-        if (!payload) return;
-        setSubmitting(true);
-        try {
-          await onCreate(payload);
-        } finally {
-          setSubmitting(false);
-        }
+        void submit();
       }}
     >
-      <h4 className="text-sm font-bold text-white">{t('bookings.slots.createTitle')}</h4>
-      <div role="radiogroup" className="flex gap-2">
-        {(['recurrence', 'list'] as const).map((mode) => (
-          <button
-            key={mode}
-            type="button"
-            role="radio"
-            aria-checked={state.mode === mode}
-            onClick={() => setState((current) => ({ ...current, mode }))}
-            className={`${BUTTON_SECONDARY} ${state.mode === mode ? 'ring-2 ring-teal-400/60' : ''}`}
-          >
-            {mode === 'recurrence'
-              ? t('bookings.slots.modeRecurrence')
-              : t('bookings.slots.modeSingle')}
-          </button>
-        ))}
-      </div>
+      <SegmentedControl<'recurrence' | 'list'>
+        label={t('bookings.slots.open')}
+        value={state.mode}
+        onChange={(mode) => setState((current) => ({ ...current, mode }))}
+        options={[
+          { value: 'recurrence', label: t('bookings.slots.modeRecurrence') },
+          { value: 'list', label: t('bookings.slots.modeSingle') },
+        ]}
+      />
       {state.mode === 'recurrence' ? (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3">
             <label className="block space-y-1">
-              <span className="text-xs text-white/70">{t('bookings.slots.startDate')}</span>
+              <span className="text-xs text-ink/70">{t('bookings.slots.startDate')}</span>
               <input
                 type="date"
+                min={today}
                 value={state.startDate}
                 onChange={(e) => setState({ ...state, startDate: e.target.value })}
                 className={INPUT}
               />
             </label>
             <label className="block space-y-1">
-              <span className="text-xs text-white/70">{t('bookings.slots.endDate')}</span>
+              <span className="text-xs text-ink/70">{t('bookings.slots.endDate')}</span>
               <input
                 type="date"
+                min={state.startDate}
                 value={state.endDate}
                 onChange={(e) => setState({ ...state, endDate: e.target.value })}
                 className={INPUT}
@@ -124,7 +149,7 @@ export function SlotCreationForm({ onCreate, timeZone }: SlotCreationFormProps) 
             </label>
           </div>
           <fieldset>
-            <legend className="text-xs text-white/70 mb-1">{t('bookings.slots.weekdays')}</legend>
+            <legend className="mb-1 text-xs text-ink/70">{t('bookings.slots.weekdays')}</legend>
             <div className="flex flex-wrap gap-1.5">
               {WEEKDAYS.map((day) => (
                 <button
@@ -132,11 +157,12 @@ export function SlotCreationForm({ onCreate, timeZone }: SlotCreationFormProps) 
                   type="button"
                   aria-pressed={state.weekdays.includes(day)}
                   onClick={() => toggleWeekday(day)}
-                  className={`min-h-11 min-w-11 rounded-xl text-xs font-bold cursor-pointer focus-visible:ring-2 focus-visible:ring-teal-400/50 ${
+                  className={cn(
+                    'press min-h-11 min-w-11 rounded-xl px-2 text-xs font-bold focus-visible:ring-2 focus-visible:ring-teal-400/50',
                     state.weekdays.includes(day)
-                      ? 'bg-teal-500/25 text-teal-100'
-                      : 'bg-white/5 text-white/70'
-                  }`}
+                      ? 'bg-partner-soft text-partner'
+                      : 'bg-ink/[0.06] text-ink/70'
+                  )}
                 >
                   {t(`bookings.weekdays.${day}`)}
                 </button>
@@ -144,7 +170,7 @@ export function SlotCreationForm({ onCreate, timeZone }: SlotCreationFormProps) 
             </div>
           </fieldset>
           <label className="block space-y-1">
-            <span className="text-xs text-white/70">{t('bookings.slots.times')}</span>
+            <span className="text-xs text-ink/70">{t('bookings.slots.times')}</span>
             <input
               value={state.times}
               onChange={(e) => setState({ ...state, times: e.target.value })}
@@ -154,7 +180,7 @@ export function SlotCreationForm({ onCreate, timeZone }: SlotCreationFormProps) 
         </>
       ) : (
         <label className="block space-y-1">
-          <span className="text-xs text-white/70">{t('bookings.slots.singleDateTime')}</span>
+          <span className="text-xs text-ink/70">{t('bookings.slots.singleDateTime')}</span>
           <input
             type="datetime-local"
             value={state.single}
@@ -164,7 +190,7 @@ export function SlotCreationForm({ onCreate, timeZone }: SlotCreationFormProps) 
         </label>
       )}
       <label className="block space-y-1">
-        <span className="text-xs text-white/70">{t('bookings.slots.capacityLabel')}</span>
+        <span className="text-xs text-ink/70">{t('bookings.slots.capacityLabel')}</span>
         <input
           type="number"
           min={1}
@@ -174,9 +200,11 @@ export function SlotCreationForm({ onCreate, timeZone }: SlotCreationFormProps) 
           className={INPUT}
         />
       </label>
-      <button type="submit" disabled={!payload || submitting} className={BUTTON_PRIMARY}>
-        {t('bookings.slots.create')}
-      </button>
+      {error && (
+        <p role="alert" className="text-xs text-danger">
+          {error}
+        </p>
+      )}
     </form>
   );
 }

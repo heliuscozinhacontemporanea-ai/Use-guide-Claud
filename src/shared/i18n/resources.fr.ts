@@ -1,18 +1,19 @@
+import { accountFr } from './accountResources.fr';
 import { adminFinanceFr } from './adminFinanceResources.fr';
 import { adminPanelFr } from './adminPanelResources.fr';
 import { appAboutFr } from './appAboutResources.fr';
 import { arrivalNoticeFr } from './arrivalNoticeResources.fr';
+import { authFr } from './authResources.fr';
 import { bookingsFr } from './bookingsResources.fr';
 import { courtesyFr } from './courtesyResources.fr';
 import { emailVerificationFr } from './emailVerificationResources.fr';
 import { eventSessionsFr } from './eventSessionsResources.fr';
+import { fleetFr } from './fleetResources.fr';
 import { gateModeFr } from './gateModeResources.fr';
 import { gateStaffFr } from './gateStaffResources.fr';
 import { helpFr } from './helpResources.fr';
 import { insightsFr } from './insightsResources.fr';
 import { legalFr } from './legalResources.fr';
-import { authFr } from './authResources.fr';
-import { windFr } from './windResources.fr';
 import { listingDetailFr } from './listingDetailResources.fr';
 import { listingPlanFr } from './listingPlanResources.fr';
 import { notifyFr } from './notifyResources.fr';
@@ -24,16 +25,16 @@ import { partnerFirstStepsFr } from './partnerFirstStepsResources.fr';
 import { partnerGuideFr } from './partnerGuideResources.fr';
 import { partnerPanelFr } from './partnerPanelResources.fr';
 import { partnerSignupFr } from './partnerSignupResources.fr';
-import { partnerTourFr } from './partnerTourResources.fr';
 import { partnersFr } from './partnersResources.fr';
+import { partnerTourFr } from './partnerTourResources.fr';
 import { paymentAccountsFr } from './paymentAccountsResources.fr';
 import { placeTimeFr } from './placeTimeResources.fr';
-import { accountFr } from './accountResources.fr';
 import { myReviewsFr, profileFr } from './profileResources.fr';
 import { promoCodeFr } from './promoCodeResources.fr';
 import { promoterFr } from './promoterResources.fr';
 import { purchasesFr } from './purchasesResources.fr';
 import { receivablesFr } from './receivablesResources.fr';
+import type { TranslationResource } from './resources';
 import { reviewReportsFr } from './reviewReportsResources.fr';
 import { reviewsUiFr } from './reviewsUiResources.fr';
 import { saleClaimsFr } from './saleClaimsResources.fr';
@@ -46,7 +47,7 @@ import { ticketSessionsFr } from './ticketSessionsResources.fr';
 import { ticketWalletFr } from './ticketWalletResources.fr';
 import { usernameFr } from './usernameResources.fr';
 import { verificationFr } from './verificationResources.fr';
-import type { TranslationResource } from './resources';
+import { windFr } from './windResources.fr';
 
 export const fr: TranslationResource = {
   bookings: bookingsFr,
@@ -95,6 +96,7 @@ export const fr: TranslationResource = {
   promoCodes: promoCodeFr,
   partnerTour: partnerTourFr,
   arrivalNotice: arrivalNoticeFr,
+  fleet: fleetFr,
   legal: legalFr,
   verification: verificationFr,
   emailVerification: emailVerificationFr,

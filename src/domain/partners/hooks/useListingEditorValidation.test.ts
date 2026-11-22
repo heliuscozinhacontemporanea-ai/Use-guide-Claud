@@ -13,8 +13,6 @@ function validTour(): FormState {
     state: 'CE',
     city: 'Jijoca de Jericoacoara',
     phone: '88999999999',
-    tourDurationHours: '4',
-    meetingPoint: 'Praça principal',
     googleMaps: 'https://maps.google.com/?q=jericoacoara',
     images: [{ id: 'img-1', preview: 'https://img.example/1.jpg' }],
   };
@@ -35,7 +33,7 @@ describe('useListingEditorValidation', () => {
   });
 
   it('exige os campos da categoria e ao menos uma foto', () => {
-    expect(validate({ ...validTour(), meetingPoint: '' })).toBe(false);
+    expect(validate({ ...validTour(), category: 'rental' })).toBe(false);
     expect(validate({ ...validTour(), images: [] })).toBe(false);
   });
 
@@ -64,7 +62,12 @@ describe('useListingEditorValidation', () => {
 
   it('devolve todos os erros de uma vez, por campo', () => {
     const { result } = renderHook(() =>
-      useListingEditorValidation({ ...validTour(), businessName: '', meetingPoint: '', images: [] })
+      useListingEditorValidation({
+        ...validTour(),
+        category: 'rental',
+        businessName: '',
+        images: [],
+      })
     );
     let found: ReturnType<typeof result.current.validateAll> = null;
     act(() => {
@@ -72,7 +75,7 @@ describe('useListingEditorValidation', () => {
     });
     expect(found).toEqual({
       businessName: 'partnerSignup.errors.nameRequired',
-      meetingPoint: 'partnerSignup.errors.meetingPointRequired',
+      rentalVehicles: 'partnerSignup.errors.rentalWhatRequired',
       images: 'partnerSignup.errors.photosRequired',
     });
   });

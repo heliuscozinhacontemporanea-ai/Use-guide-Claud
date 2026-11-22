@@ -6,12 +6,14 @@ import { MessagePage } from '../../../ui/components/MessagePage';
 import { PanelTimeZoneProvider } from '../hooks/panelTimeZone';
 import { usePanelEventEditor } from '../hooks/usePanelEventEditor';
 import { type PanelPage, usePanelNavigation } from '../hooks/usePanelNavigation';
+import { usePanelOfferPages } from '../hooks/usePanelOfferPages';
 import { usePanelTour } from '../hooks/usePanelTour';
 import { usePartnerPanelActions } from '../hooks/usePartnerPanelActions';
 import { usePartnerPanelHome } from '../hooks/usePartnerPanelHome';
 import { usePartnerSegments } from '../hooks/usePartnerSegments';
 import { usePlanCheckout } from '../hooks/usePlanCheckout';
 import type { PartnerTodayItem } from '../types/partnerHome';
+import { openGuideStep } from '../utils/openGuideStep';
 import { startingHomeCards } from '../utils/partnerSegments';
 import { PartnerEventEditor } from './PartnerEventEditor';
 import { ListingPlanFlow } from './panel/ListingPlanFlow';
@@ -32,8 +34,8 @@ import { PartnerEarningsTab } from './panel/PartnerEarningsTab';
 import { PartnerHomeTab } from './panel/PartnerHomeTab';
 import { PartnerMoreSection } from './panel/PartnerMoreSection';
 import {
-  type PartnerPanelPageContext,
   PartnerPanelPageContent,
+  type PartnerPanelPageContext,
   partnerPanelPageAction,
   partnerPanelPageTitle,
 } from './panel/PartnerPanelPageContent';
@@ -147,6 +149,7 @@ export function PartnerPanel({
       : t(`partnerTour.chapters.${tab}`);
 
   const [addSegmentOpen, setAddSegmentOpen] = React.useState(false);
+  const offerPages = usePanelOfferPages(nav, renderCatalog, () => void home.reload());
   const eventEditor = usePanelEventEditor({
     nav,
     isEditing,
@@ -202,7 +205,7 @@ export function PartnerPanel({
     eventsVersion,
     verificationVersion,
     planVersion,
-    catalogRenders: renderCatalog ?? {},
+    catalogRenders: offerPages.catalogRenders,
     earningsRenders: renderEarnings ?? {},
     reportsProfile: renderReports?.({
       partnerId: user.uid,
@@ -246,6 +249,7 @@ export function PartnerPanel({
       void home.reload();
       nav.openTab('home');
     },
+    ...offerPages.pageContext,
     renderEventEditor: (section) =>
       eventEditor.item ? (
         <PartnerEventEditor
@@ -301,22 +305,17 @@ export function PartnerPanel({
                   labelFor={home.labelFor}
                   onOpenAttention={(item) => setPanelTab(ATTENTION_TAB[item.kind])}
                   onOpenListingStep={nav.openListingStep}
-                  onOpenStep={(step) => {
-                    const item = itemsList.find((entry) => entry.id === step.itemId);
-                    if (step.id === 'verify' && item) {
-                      setVerifyingListing({
-                        id: item.id,
-                        name: item.name,
-                        category: item.category,
-                      });
-                    } else if (step.id === 'account') {
-                      nav.openAccounts();
-                    } else if ((step.id === 'offer' || step.id === 'slots') && item) {
-                      nav.openPlace(item);
-                    } else if (step.id === 'event') {
-                      newEvent();
-                    }
-                  }}
+                  onOpenStep={(step) =>
+                    openGuideStep(step, {
+                      items: itemsList,
+                      verify: setVerifyingListing,
+                      openAccounts: nav.openAccounts,
+                      openPlace: nav.openPlace,
+                      openNewOffer: offerPages.openNew,
+                      openSlots: offerPages.openSlots,
+                      newEvent,
+                    })
+                  }
                   onOpenTab={setPanelTab}
                   onOpenCoupons={renderCoupons ? () => nav.openCoupons('home') : undefined}
                   agora={
@@ -366,7 +365,7 @@ export function PartnerPanel({
                   eventsVersion={eventsVersion}
                   onCreateItem={() => openNewListing()}
                   onCreateEvent={newEvent}
-                  renders={renderCatalog ?? {}}
+                  renders={offerPages.catalogRenders}
                   onOpenCoupons={renderCoupons ? nav.openCoupons : undefined}
                 />
               ) : panelTab === 'earnings' ? (
@@ -418,6 +417,7 @@ export function PartnerPanel({
           content: <PartnerPanelPageContent page={page} context={pageContext} />,
           action: partnerPanelPageAction(page, t, {
             saveListing: () => listingSave.current?.(),
+            saveOffer: offerPages.save,
             saveEvent: () => void eventEditor.save(),
             savingEvent: isLoading,
           }),

@@ -3,6 +3,7 @@ import { type AdminFinanceTranslation, adminFinancePtBR } from './adminFinanceRe
 import { type AdminPanelTranslation, adminPanelPtBR } from './adminPanelResources';
 import { type AppAboutTranslation, appAboutPtBR } from './appAboutResources';
 import { type ArrivalNoticeTranslation, arrivalNoticePtBR } from './arrivalNoticeResources';
+import { type AuthTranslation, authPtBR } from './authResources';
 import { type BookingsTranslation, bookingsPtBR } from './bookingsResources';
 import { type CourtesyTranslation, courtesyPtBR } from './courtesyResources';
 import {
@@ -10,14 +11,12 @@ import {
   emailVerificationPtBR,
 } from './emailVerificationResources';
 import { type EventSessionsTranslation, eventSessionsPtBR } from './eventSessionsResources';
-import { type GateStaffTranslation, gateStaffPtBR } from './gateStaffResources';
-import { type TicketLotsTranslation, ticketLotsPtBR } from './ticketLotsResources';
+import { type FleetTranslation, fleetPtBR } from './fleetResources';
 import { type GateModeTranslation, gateModePtBR } from './gateModeResources';
+import { type GateStaffTranslation, gateStaffPtBR } from './gateStaffResources';
 import { type HelpTranslation, helpPtBR } from './helpResources';
 import { type InsightsTranslation, insightsPtBR } from './insightsResources';
 import { type LegalTranslation, legalPtBR } from './legalResources';
-import { type AuthTranslation, authPtBR } from './authResources';
-import { type WindTranslation, windPtBR } from './windResources';
 import { type ListingDetailTranslation, listingDetailPtBR } from './listingDetailResources';
 import { type ListingPlanTranslation, listingPlanPtBR } from './listingPlanResources';
 import { type NotifyTranslation, notifyPtBR } from './notifyResources';
@@ -56,10 +55,12 @@ import { type SalesPolicyTranslation, salesPolicyPtBR } from './salesPolicyResou
 import { type ServiceProofTranslation, serviceProofPtBR } from './serviceProofResources';
 import { type TicketCheckoutTranslation, ticketCheckoutPtBR } from './ticketCheckoutResources';
 import { type TicketGateTranslation, ticketGatePtBR } from './ticketGateResources';
+import { type TicketLotsTranslation, ticketLotsPtBR } from './ticketLotsResources';
 import { type TicketSessionsTranslation, ticketSessionsPtBR } from './ticketSessionsResources';
 import { type TicketWalletTranslation, ticketWalletPtBR } from './ticketWalletResources';
 import { type UsernameTranslation, usernamePtBR } from './usernameResources';
 import { type VerificationTranslation, verificationPtBR } from './verificationResources';
+import { type WindTranslation, windPtBR } from './windResources';
 
 export interface TranslationResource {
   bookings: BookingsTranslation;
@@ -108,6 +109,7 @@ export interface TranslationResource {
   promoCodes: PromoCodeTranslation;
   partnerTour: PartnerTourTranslation;
   arrivalNotice: ArrivalNoticeTranslation;
+  fleet: FleetTranslation;
   legal: LegalTranslation;
   verification: VerificationTranslation;
   emailVerification: EmailVerificationTranslation;
@@ -373,6 +375,7 @@ const ptBR: TranslationResource = {
   promoCodes: promoCodePtBR,
   partnerTour: partnerTourPtBR,
   arrivalNotice: arrivalNoticePtBR,
+  fleet: fleetPtBR,
   legal: legalPtBR,
   verification: verificationPtBR,
   emailVerification: emailVerificationPtBR,
@@ -658,5 +661,6 @@ const ptBR: TranslationResource = {
     removeItem: 'Remover {{name}} dos favoritos',
   },
 };
+
 /** pt-BR vai no arquivo inicial; en e fr são baixados só para quem usa (AGENTS.md §12.2, DESIGN.md P11). */
 export { ptBR };

@@ -1,7 +1,7 @@
-import { isBrState } from '../../../../shared/utils/timeZones';
-import type { PartnerContentItemInput } from '../../types/partnerContent';
 import { toE164 } from '../../../../shared/utils/phone';
+import { isBrState } from '../../../../shared/utils/timeZones';
 import type { PartnerSubmissionData } from '../../types/partner';
+import type { PartnerContentItemInput } from '../../types/partnerContent';
 
 function toGuideItemCategory(value: string): PartnerContentItemInput['category'] {
   switch (value) {
@@ -66,16 +66,12 @@ export function buildOperationalInfo(formData: PartnerSubmissionData) {
       services: formData.sightServices,
       amenities: formData.sightAmenities,
       access: formData.sightAccessType,
-      price: formData.sightPrice,
       operatingHours: formData.operatingHours,
       languages: formData.languages,
     };
   }
   if (formData.category === 'tour') {
-    const hours = Number((formData.tourDurationHours ?? '').replace(',', '.'));
     return {
-      durationMinutes: Number.isFinite(hours) && hours > 0 ? Math.round(hours * 60) : undefined,
-      meetingPoint: formData.meetingPoint,
       itinerary: formData.itinerary,
       // "O que levar" do passeio usa o campo do translado (escolhas da F1, D34).
       luggageInfo: formData.luggageInfo,
@@ -89,7 +85,6 @@ export function buildOperationalInfo(formData: PartnerSubmissionData) {
         (route) => route.from.trim() && route.to.trim()
       ),
       vehicleTypes: formData.transferVehicles,
-      maxPassengers: positiveInt(formData.maxPassengers),
       luggageInfo: formData.luggageInfo,
       languages: formData.languages,
     };
@@ -97,20 +92,12 @@ export function buildOperationalInfo(formData: PartnerSubmissionData) {
   if (formData.category === 'rental') {
     return {
       vehicleTypes: formData.rentalVehicles,
-      minRentalHours: positiveInt(formData.minRentalHours),
-      depositRequired: formData.depositRequired ?? undefined,
-      driverLicenseRequired: formData.driverLicenseRequired ?? undefined,
       includes: formData.rentalIncludes,
       operatingHours: formData.operatingHours,
       languages: formData.languages,
     };
   }
   return undefined;
-}
-
-function positiveInt(value: string | undefined): number | undefined {
-  const parsed = Number.parseInt(value ?? '', 10);
-  return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
 }
 
 export function mapPartnerSubmissionToGuideItem(

@@ -3,7 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { usePublishedOffers } from '../../hooks/usePublishedOffers';
 import type { LocalizedText } from '../../types/bookings';
 import { formatDuration } from '../../utils/formatDuration';
+import { isFleetOffer } from '../../utils/offerKindByCategory';
 import { BookingFlow, type BookingFlowProps } from './BookingFlow';
+import { FleetBookingFlow } from './FleetBookingFlow';
 import { OfferPolicySummary } from './OfferPolicySummary';
 
 const CARD = 'rounded-[20px] bg-surface border border-line';
@@ -51,7 +53,11 @@ export function BookingOfferPanel({ guideItemId, between, ...flowProps }: Bookin
               {textFor(offer.description, i18n.language)}
             </p>
           )}
-          <BookingFlow offer={offer} {...flowProps} />
+          {isFleetOffer(offer) ? (
+            <FleetBookingFlow offer={offer} {...flowProps} />
+          ) : (
+            <BookingFlow offer={offer} {...flowProps} />
+          )}
         </section>
       ))}
       {between}

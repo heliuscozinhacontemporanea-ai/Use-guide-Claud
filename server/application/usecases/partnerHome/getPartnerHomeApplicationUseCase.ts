@@ -1,5 +1,7 @@
-import { summarizeOwnerPromoCodesUseCase } from '../../../domain/promotions';
 import {
+  type BookableOffer,
+  isFleetOffer,
+  listFleetDaysForPartnerUseCase,
   listOfferSlotsForPartnerUseCase,
   listOwnerAgendaUseCase,
   listPartnerOffersUseCase,
@@ -10,9 +12,9 @@ import {
   getListingPlanUntilUseCase,
   getPartnerHomeCardsUseCase,
   getPartnerPanelTourUseCase,
-  shouldShowPanelTour,
   listOwnerSalesDocumentsUseCase,
   listOwnerVerificationStatusesUseCase,
+  shouldShowPanelTour,
 } from '../../../domain/partners';
 import {
   listAccountDebtsUseCase,
@@ -20,13 +22,14 @@ import {
   listPayoutEntriesUseCase,
   type PayoutEntryView,
 } from '../../../domain/payment';
+import { summarizeOwnerPromoCodesUseCase } from '../../../domain/promotions';
 import { countUnansweredReviewsUseCase } from '../../../domain/reviews';
 import { getEventPromotersUseCase } from '../../../domain/ticketing';
 import { businessDayStartMs } from '../../../shared/kernel/businessDay';
 import { hasCurrentPartnerTerms } from '../partnerTermsStatus';
 import { listPartnerPaymentAccountsApplicationUseCase } from '../paymentAccounts/listPartnerPaymentAccountsApplicationUseCase';
-import { buildPartnerHome, type PartnerSessionInput, UPCOMING_SESSIONS } from './buildPartnerHome';
 import { buildFirstSteps } from './buildFirstSteps';
+import { buildPartnerHome, type PartnerSessionInput, UPCOMING_SESSIONS } from './buildPartnerHome';
 import { panelTimeZone } from './panelTimeZone';
 import { businessMonthStarts } from './partnerHomeCardsData';
 import type { PartnerHomePromoters, PartnerHomeView } from './partnerHomeTypes';
@@ -148,14 +151,14 @@ export async function getPartnerHomeApplicationUseCase(
 }
 
 // O passo "Horários" do guia (D34) olha a agenda já lida e, só para as ofertas sem horário nela, os
-// próximos dois meses de poucas ofertas.
+// próximos dois meses de poucas ofertas. Aluguel e translado privativo contam os dias abertos (F3b).
 const SLOTS_LOOKAHEAD_MS = 60 * DAY_MS;
 const OFFERS_CHECKED_FOR_SLOTS = 5;
 const KINDS_WITH_SLOTS_STEP = new Set(['tour', 'rental', 'transfer']);
 
 async function loadOffersWithSlots(
   actor: { uid: string; admin: boolean },
-  offers: ReadonlyArray<{ id: string; kind: string }>,
+  offers: ReadonlyArray<Pick<BookableOffer, 'id' | 'kind' | 'sellingUnit'>>,
   agendaSlots: ReadonlyArray<{ offerId: string; status: string; startsAt: string }>,
   now: Date
 ): Promise<Set<string>> {
@@ -171,6 +174,16 @@ async function loadOffersWithSlots(
   const until = new Date(now.getTime() + SLOTS_LOOKAHEAD_MS).toISOString();
   await Promise.all(
     unknown.map(async (offer) => {
+      if (isFleetOffer(offer)) {
+        const days = await listFleetDaysForPartnerUseCase(
+          actor,
+          offer.id,
+          nowIso.slice(0, 10),
+          until.slice(0, 10)
+        ).catch(() => []);
+        if (days.some((day) => day.vehicles > 0)) withSlots.add(offer.id);
+        return;
+      }
       const slots = await listOfferSlotsForPartnerUseCase(actor, offer.id, nowIso, until).catch(
         () => []
       );
