@@ -281,6 +281,18 @@ describe('reserva de aluguel por horas (F3b, protótipo tela 5)', () => {
     await waitFor(() => expect(day22.getAttribute('aria-pressed')).toBe('true'));
   });
 
+  it('dia que só tem horário personalizado abre na aba Personalizar', async () => {
+    const onlyCustom = {
+      ...rentalDay,
+      fixed: rentalDay.fixed.map((p) => ({ ...p, available: 0 })),
+    };
+    vi.mocked(getPublicFleetDayUseCase).mockResolvedValue(onlyCustom);
+    renderPanel();
+    const tab = await screen.findByRole('button', { name: 'Personalizar' });
+    await waitFor(() => expect(tab.getAttribute('aria-pressed')).toBe('true'));
+    expect(screen.getByRole('button', { name: '10:00' })).toBeTruthy();
+  });
+
   it('sem a CNH marcada a reserva não segue', async () => {
     renderPanel();
     fireEvent.click(await screen.findByRole('button', { name: /08:00\s–\s12:00|08:00–12:00/ }));

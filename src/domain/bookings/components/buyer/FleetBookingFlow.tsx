@@ -53,12 +53,22 @@ export function FleetBookingFlow({
   const firstOpen = useFirstOpenFleetDate(offer, dates);
   const [picked, setDate] = useState<string | null>(null);
   const date = picked ?? firstOpen ?? '';
-  const [selection, setSelection] = useState<FleetSelection>({ mode: firstMode });
+  const [stored, setSelection] = useState<FleetSelection>({ mode: firstMode });
+  const [modeTouched, setModeTouched] = useState(false);
   const [step, setStep] = useState<Step>('select');
   const [vehicles, setVehicles] = useState(1);
   const [license, setLicense] = useState(false);
   const [contact, setContact] = useState(EMPTY_BOOKING_CONTACT);
   const day = usePublicFleetDay(offer.id, date);
+  // Sem a pessoa trocar de aba, abre na que tem horário no dia: períodos ou saídas; se só sobrou o
+  // horário personalizado, ele (resposta 17 da comparação com os protótipos, 2026-11-22).
+  const fixedOpen = day.data?.fixed.some((period) => period.available > 0) ?? false;
+  const autoMode: FleetMode = !day.data || fixedOpen || !offer.fleet?.custom ? firstMode : 'custom';
+  const selection = useMemo<FleetSelection>(
+    () =>
+      modeTouched || stored.periodId || stored.startsAt ? stored : { ...stored, mode: autoMode },
+    [modeTouched, stored, autoMode]
+  );
 
   const quote = useMemo(
     () => (day.data ? fleetQuote(offer, day.data, selection) : null),
@@ -111,12 +121,15 @@ export function FleetBookingFlow({
           date={date}
           onDate={(next) => {
             setDate(next);
-            setSelection({ mode: selection.mode });
+            setSelection({ mode: modeTouched ? selection.mode : firstMode });
           }}
           day={{ ...day, reload: () => void day.reload() }}
           selection={selection}
           quote={quote}
-          onSelection={setSelection}
+          onSelection={(next) => {
+            if (next.mode !== selection.mode) setModeTouched(true);
+            setSelection(next);
+          }}
         />
         <button
           type="button"
