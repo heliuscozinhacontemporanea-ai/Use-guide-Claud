@@ -72,6 +72,7 @@ export function PartnerOffersManager({
       onOpenPage({
         kind: 'editor',
         itemId: item.id,
+        itemName: item.name,
         category: item.category,
         listing: { vehicles: item.vehicles, routes: item.routes },
         title: t('bookings.editor.titleNew'),
@@ -211,6 +212,7 @@ export function PartnerOffersManager({
             openPage({
               kind: 'editor',
               itemId: item.id,
+              itemName: item.name,
               category: item.category,
               offerId: selected.id,
               listing: { vehicles: item.vehicles, routes: item.routes },

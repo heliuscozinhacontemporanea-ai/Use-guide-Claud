@@ -20,7 +20,6 @@ import { MonthVisitsTile, ReportsView } from '../../domain/insights';
 import { NotificationSettingsView, SalesAlertsSummary } from '../../domain/notifications';
 import type { PartnerProfile, SubscriptionPlan } from '../../domain/partners';
 import { getPartnerProfileUseCase, PartnerPanel } from '../../domain/partners';
-import { PromoCodesPage } from '../../domain/promotions';
 import {
   CheckoutModal,
   isPaidPlanId,
@@ -31,6 +30,7 @@ import {
   type PlanPeriodOption,
   PlanSubscriptionCard,
 } from '../../domain/payment';
+import { PromoCodesPage } from '../../domain/promotions';
 import { RecentItemReviews } from '../../domain/reviews';
 import {
   EventGuestsPanel,
@@ -244,9 +244,7 @@ export function PartnerPortalComposition() {
               version={version}
             />
           ),
-        renderOfferPage: ({ page, registerSave, onSaved }) => (
-          <PartnerOfferPage page={page} registerSave={registerSave} onSaved={onSaved} />
-        ),
+        renderOfferPage: (props) => <PartnerOfferPage {...props} />,
         renderVisits: (itemId, onOpenPlan) => (
           <MonthVisitsTile itemId={itemId} onOpenPlan={onOpenPlan} />
         ),

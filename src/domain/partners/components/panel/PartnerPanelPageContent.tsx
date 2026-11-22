@@ -7,14 +7,14 @@ import type { PartnerTodayItem } from '../../types/partnerHome';
 import type { EventEditorSection } from '../PartnerEventEditor';
 import type { PartnerPanelProps } from '../partnerPanelProps';
 import { PartnerCatalogPage } from './PartnerCatalogPage';
+import type { OfferPageRenderProps, PartnerCatalogRenders } from './PartnerCatalogSection';
+import type { PartnerEarningsRenders } from './PartnerEarningsTab';
 import {
   ListingBlockPage,
   ListingEditorPanelPage,
   type ListingPagesContext,
   NewListingPanelPage,
 } from './PartnerListingPages';
-import type { PartnerCatalogRenders } from './PartnerCatalogSection';
-import type { PartnerEarningsRenders } from './PartnerEarningsTab';
 import { PartnerMorePage, partnerMorePageTitle } from './PartnerMorePage';
 import { PartnerReportsPage } from './PartnerReportsPage';
 
@@ -49,6 +49,9 @@ export interface PartnerPanelPageContext extends ListingPagesContext {
   /** Páginas de oferta (F3): a do editor entrega o salvar à barra. */
   registerOfferSave: (save: (() => void) | null) => void;
   onOfferSaved: (saved: { offerId: string; title: string; created: boolean }) => void;
+  onOpenOfferPage: OfferPageRenderProps['onOpenPage'];
+  onOfferFormDone: OfferPageRenderProps['onFormDone'];
+  offerFormVersion: number;
 }
 
 /** Título da página na barra fixa (D33). */
@@ -147,6 +150,9 @@ export function PartnerPanelPageContent({
             page: page.request,
             registerSave: context.registerOfferSave,
             onSaved: context.onOfferSaved,
+            onOpenPage: context.onOpenOfferPage,
+            onFormDone: context.onOfferFormDone,
+            version: context.offerFormVersion,
           })}
         </>
       );
@@ -185,7 +191,15 @@ export function partnerPanelPageAction(
     return { label: t('partnerGuide.page.save'), onClick: actions.saveListing };
   }
   if (page.view === 'offer' && page.request.kind === 'editor') {
-    return { label: t('partnerGuide.page.save'), onClick: actions.saveOffer };
+    // Oferta nova: "Criar" na barra, como no protótipo da F3 (tela 8).
+    const label = page.request.offerId ? 'partnerGuide.page.save' : 'partnerGuide.page.create';
+    return { label: t(label), onClick: actions.saveOffer };
+  }
+  if (page.view === 'offer' && page.request.kind === 'openSlots') {
+    return { label: t('partnerGuide.page.create'), onClick: actions.saveOffer };
+  }
+  if (page.view === 'offer' && page.request.kind === 'openDays') {
+    return { label: t('partnerGuide.page.open'), onClick: actions.saveOffer };
   }
   if (page.view === 'event-editor' || page.view === 'event-section') {
     return {

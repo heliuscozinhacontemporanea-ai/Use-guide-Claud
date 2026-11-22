@@ -111,6 +111,8 @@ export interface PartnerGuideTranslation {
     next: string;
     nextPublish: string;
     save: string;
+    create: string;
+    open: string;
     saving: string;
     saved: string;
     missing: string;
@@ -306,6 +308,8 @@ export const partnerGuidePtBR: PartnerGuideTranslation = {
     next: 'Próximo: {{step}}',
     nextPublish: 'Próximo: publicar no guia',
     save: 'Salvar',
+    create: 'Criar',
+    open: 'Abrir',
     saving: 'Salvando…',
     saved: 'Salvo',
     missing: 'Falta: {{fields}}',

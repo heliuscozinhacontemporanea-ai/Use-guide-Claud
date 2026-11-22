@@ -19,15 +19,25 @@ export type OfferPageRequest =
       category: string;
       offerId?: string;
       listing?: OfferListing;
+      /** Nome do estabelecimento, na linha de contexto do editor (protótipo da F3). */
+      itemName?: string;
       title: string;
     }
-  | { kind: 'slots' | 'bookings'; offerId: string; title: string };
+  | { kind: 'slots' | 'bookings'; offerId: string; title: string }
+  /** "Abrir horários" e "Abrir dias" em página própria, com a ação na barra (protótipo da F3). */
+  | { kind: 'openSlots' | 'openDays'; offerId: string; title: string; vehicles?: number };
 
 export interface OfferPageRenderProps {
   page: OfferPageRequest;
-  /** O "Salvar" do editor fica na barra da página (D33). */
+  /** O "Salvar", o "Criar" e o "Abrir" ficam na barra da página (D33). */
   registerSave: (save: (() => void) | null) => void;
   onSaved: (saved: { offerId: string; title: string; created: boolean }) => void;
+  /** Abre outra página de oferta por cima (ex.: "Abrir horários"). */
+  onOpenPage: (page: OfferPageRequest) => void;
+  /** O formulário de "Abrir horários" ou "Abrir dias" terminou: fecha a página e avisa. */
+  onFormDone: (message: string) => void;
+  /** Muda quando um formulário de abrir termina: horários e dias releem. */
+  version: number;
 }
 
 /** O que a composição monta no Catálogo (outros domínios). */

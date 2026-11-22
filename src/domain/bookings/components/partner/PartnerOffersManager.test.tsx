@@ -65,6 +65,7 @@ describe('PartnerOffersManager', () => {
       expect(onOpenPage).toHaveBeenCalledWith({
         kind: 'editor',
         itemId: 'item-1',
+        itemName: 'Lagoa do Paraíso',
         category: 'tour',
         listing: { vehicles: undefined, routes: undefined },
         title: 'Nova oferta',
@@ -226,7 +227,7 @@ describe('PartnerSlotsManager', () => {
       },
     ]);
     vi.mocked(cancelSlotUseCase).mockResolvedValue({ canceledBookings: 3 });
-    render(<PartnerSlotsManager offerId="offer-1" />);
+    render(<PartnerSlotsManager offerId="offer-1" onOpenForm={vi.fn()} />);
     fireEvent.click(await screen.findByRole('button', { name: 'Cancelar horário' }));
     expect(cancelSlotUseCase).not.toHaveBeenCalled();
     expect(await screen.findByText(/multa de 20% do valor vendido/)).toBeTruthy();

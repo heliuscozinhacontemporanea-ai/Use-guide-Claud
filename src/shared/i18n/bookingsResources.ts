@@ -189,7 +189,8 @@ export interface BookingsTranslation {
     nextWeek: string;
     emptyWeek: string;
     capacity: string;
-    createTitle: string;
+    open: string;
+    invalid: string;
     modeRecurrence: string;
     modeSingle: string;
     startDate: string;
@@ -198,10 +199,8 @@ export interface BookingsTranslation {
     times: string;
     singleDateTime: string;
     capacityLabel: string;
-    create: string;
     created_one: string;
     created_other: string;
-    createFailed: string;
     cancelSlot: string;
     canceled_one: string;
     canceled_other: string;
@@ -493,7 +492,8 @@ export const bookingsPtBR: BookingsTranslation = {
     nextWeek: 'Próxima semana',
     emptyWeek: 'Nenhum horário nesta semana.',
     capacity: '{{sold}} vendidas · {{reserved}} reservadas · {{free}} livres',
-    createTitle: 'Criar horários',
+    open: 'Abrir horários',
+    invalid: 'Confira as datas, os dias da semana, os horários e as vagas.',
     modeRecurrence: 'Recorrente',
     modeSingle: 'Avulso',
     startDate: 'De',
@@ -502,10 +502,8 @@ export const bookingsPtBR: BookingsTranslation = {
     times: 'Horários (HH:MM, separados por vírgula)',
     singleDateTime: 'Data e hora',
     capacityLabel: 'Vagas por horário',
-    create: 'Criar horários',
     created_one: '{{count}} horário criado.',
     created_other: '{{count}} horários criados.',
-    createFailed: 'Não foi possível criar os horários.',
     cancelSlot: 'Cancelar horário',
     canceled_one: 'Horário cancelado. {{count}} reserva reembolsada.',
     canceled_other: 'Horário cancelado. {{count}} reservas reembolsadas.',

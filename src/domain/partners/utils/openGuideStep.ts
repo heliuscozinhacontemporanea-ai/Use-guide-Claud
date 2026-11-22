@@ -10,7 +10,10 @@ interface GuideStepTargets {
   openPlace: (item: { id: string; name: string }) => void;
   /** Primeira oferta do estabelecimento e horários dela, como páginas (F3, D34). */
   openNewOffer: (
-    item: { id: string; category: string } & Pick<PartnerContentRecord, 'operationalInfo'>
+    item: { id: string; name: string; category: string } & Pick<
+      PartnerContentRecord,
+      'operationalInfo'
+    >
   ) => void;
   openSlots: (offerId: string) => void;
   newEvent: () => void;

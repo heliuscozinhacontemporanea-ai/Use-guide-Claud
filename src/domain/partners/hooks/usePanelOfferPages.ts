@@ -23,6 +23,7 @@ export function usePanelOfferPages(
   const { showToast } = useUI();
   const save = useRef<(() => void) | null>(null);
   const [version, setVersion] = useState(0);
+  const [formVersion, setFormVersion] = useState(0);
   const open = useRef(false);
   const closed = useRef(onPagesClosed);
   closed.current = onPagesClosed;
@@ -65,6 +66,21 @@ export function usePanelOfferPages(
     [nav, showToast, t]
   );
 
+  // "Abrir horários" e "Abrir dias" (protótipo da F3): ao terminar, a página sai, o aviso aparece e
+  // a página de horários ou de dias embaixo relê.
+  const onFormDone = useCallback(
+    (message: string) => {
+      showToast(message, 'success');
+      setFormVersion((current) => current + 1);
+      nav.closeTop(
+        (page) =>
+          page.view === 'offer' &&
+          (page.request.kind === 'openSlots' || page.request.kind === 'openDays')
+      );
+    },
+    [nav, showToast]
+  );
+
   // As listas de ofertas do Catálogo e da página do estabelecimento abrem as páginas por aqui.
   const catalogRenders = useMemo<PartnerCatalogRenders>(() => {
     const renders = renderCatalog ?? {};
@@ -82,13 +98,25 @@ export function usePanelOfferPages(
     registerSave,
     save: () => save.current?.(),
     onSaved,
+    /** O que as páginas de oferta da pilha recebem do painel. */
+    pageContext: {
+      registerOfferSave: registerSave,
+      onOfferSaved: onSaved,
+      onOpenOfferPage: openPage,
+      onOfferFormDone: onFormDone,
+      offerFormVersion: formVersion,
+    },
     /** Guia do Início: a primeira oferta do estabelecimento, já ligada a ele. */
     openNew: (
-      item: { id: string; category: string } & Pick<PartnerContentRecord, 'operationalInfo'>
+      item: { id: string; name: string; category: string } & Pick<
+        PartnerContentRecord,
+        'operationalInfo'
+      >
     ) =>
       openPage({
         kind: 'editor',
         itemId: item.id,
+        itemName: item.name,
         category: item.category,
         listing: offerListingOf(item),
         title: t('partnerGuide.offer.newTitle'),

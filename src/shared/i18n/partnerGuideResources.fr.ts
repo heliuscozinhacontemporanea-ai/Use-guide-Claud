@@ -139,6 +139,8 @@ export const partnerGuideFr: PartnerGuideTranslation = {
     next: 'Ensuite : {{step}}',
     nextPublish: 'Ensuite : publier dans le guide',
     save: 'Enregistrer',
+    create: 'Créer',
+    open: 'Ouvrir',
     saving: 'Enregistrement…',
     saved: 'Enregistré',
     missing: 'Il manque : {{fields}}',

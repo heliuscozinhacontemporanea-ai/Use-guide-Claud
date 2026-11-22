@@ -45,6 +45,9 @@ function renderEditor(page: Parameters<typeof PartnerOfferPage>[0]['page']) {
         save = next;
       }}
       onSaved={onSaved}
+      onOpenPage={vi.fn()}
+      onFormDone={vi.fn()}
+      version={0}
     />
   );
   return {

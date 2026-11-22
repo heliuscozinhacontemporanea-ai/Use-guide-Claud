@@ -56,10 +56,12 @@ export const fleetEn: FleetTranslation = {
     to: 'To',
     weekdays: 'Weekdays',
     vehicles: 'Vehicles available per day',
-    vehiclesHint: 'Periods, departures and custom times share these vehicles. 0 closes the day.',
+    vehiclesNote_one:
+      'Periods, departures and custom times share <b>this {{count}} vehicle</b>. The app never sells the same vehicle twice at the same time; 0 closes the day.',
+    vehiclesNote_other:
+      'Periods, departures and custom times share <b>these {{count}} vehicles</b>. The app never sells the same vehicle twice at the same time; 0 closes the day.',
     rentalHoursHint:
       'Each day uses the listing’s opening hours; days closed in the listing don’t open.',
-    submit: 'Open',
     opened_one: '{{count}} day opened.',
     opened_other: '{{count}} days opened.',
     empty: 'No open days this week.',
@@ -67,6 +69,11 @@ export const fleetEn: FleetTranslation = {
     vehiclesCount_other: '{{count}} vehicles',
     busy_one: '{{start}}–{{end}} · {{count}} vehicle',
     busy_other: '{{start}}–{{end}} · {{count}} vehicles',
+    busyKind_one: '{{start}}–{{end}} · {{count}} vehicle ({{kind}})',
+    busyKind_other: '{{start}}–{{end}} · {{count}} vehicles ({{kind}})',
+    kind: { period: 'period', departure: 'departure', custom: 'custom time' },
+    footnote:
+      'Each booking has its own time in the Schedule, with check-in code, “I’m here” and payout.',
     free: 'Free',
     closed: 'Closed',
     invalidRange: 'Pick the dates and at least one weekday.',

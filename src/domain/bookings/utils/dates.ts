@@ -69,3 +69,10 @@ export function addDays(date: Date, days: number): Date {
 export function placeInputToIso(value: string, timeZone = PLATFORM_TIME_ZONE): string | null {
   return zonedDateTimeToIso(value, timeZone) || null;
 }
+
+/** Último dia do mês seguinte a `today` ("AAAA-MM-DD"): a data final padrão de abrir horários e dias. */
+export function endOfNextMonth(today: string): string {
+  const [year, month] = today.split('-').map(Number) as [number, number];
+  // Dia 0 do mês depois do seguinte = último dia do mês seguinte.
+  return new Date(Date.UTC(year, month + 1, 0)).toISOString().slice(0, 10);
+}

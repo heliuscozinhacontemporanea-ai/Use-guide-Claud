@@ -55,9 +55,9 @@ export interface FleetTranslation {
     to: string;
     weekdays: string;
     vehicles: string;
-    vehiclesHint: string;
+    vehiclesNote_one: string;
+    vehiclesNote_other: string;
     rentalHoursHint: string;
-    submit: string;
     opened_one: string;
     opened_other: string;
     empty: string;
@@ -65,6 +65,10 @@ export interface FleetTranslation {
     vehiclesCount_other: string;
     busy_one: string;
     busy_other: string;
+    busyKind_one: string;
+    busyKind_other: string;
+    kind: { period: string; departure: string; custom: string };
+    footnote: string;
     free: string;
     closed: string;
     invalidRange: string;
@@ -181,10 +185,11 @@ export const fleetPtBR: FleetTranslation = {
     to: 'Até',
     weekdays: 'Dias da semana',
     vehicles: 'Veículos disponíveis por dia',
-    vehiclesHint:
-      'Os períodos, as saídas e o horário personalizado usam esses veículos. 0 fecha o dia.',
+    vehiclesNote_one:
+      'Os períodos, as saídas e o horário personalizado usam <b>esse {{count}} veículo</b>. O app não vende o mesmo veículo duas vezes no mesmo horário; 0 fecha o dia.',
+    vehiclesNote_other:
+      'Os períodos, as saídas e o horário personalizado usam <b>esses {{count}} veículos</b>. O app não vende o mesmo veículo duas vezes no mesmo horário; 0 fecha o dia.',
     rentalHoursHint: 'O horário de cada dia vem do anúncio; dia fechado no anúncio não abre.',
-    submit: 'Abrir',
     opened_one: '{{count}} dia aberto.',
     opened_other: '{{count}} dias abertos.',
     empty: 'Nenhum dia aberto nesta semana.',
@@ -192,6 +197,11 @@ export const fleetPtBR: FleetTranslation = {
     vehiclesCount_other: '{{count}} veículos',
     busy_one: '{{start}}–{{end}} · {{count}} veículo',
     busy_other: '{{start}}–{{end}} · {{count}} veículos',
+    busyKind_one: '{{start}}–{{end}} · {{count}} veículo ({{kind}})',
+    busyKind_other: '{{start}}–{{end}} · {{count}} veículos ({{kind}})',
+    kind: { period: 'período', departure: 'saída', custom: 'personalizado' },
+    footnote:
+      'Cada reserva tem o seu horário na Agenda, com código de check-in, “Cheguei” e repasse.',
     free: 'Livre',
     closed: 'Fechado',
     invalidRange: 'Escolha as datas e ao menos um dia da semana.',

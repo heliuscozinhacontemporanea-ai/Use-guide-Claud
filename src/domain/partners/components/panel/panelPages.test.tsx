@@ -3,8 +3,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { i18n } from '../../../../shared/i18n';
 import { isEventEditorPage, usePanelNavigation } from '../../hooks/usePanelNavigation';
 import {
-  type PartnerPanelPageContext,
   PartnerPanelPageContent,
+  type PartnerPanelPageContext,
   partnerPanelPageAction,
   partnerPanelPageTitle,
 } from './PartnerPanelPageContent';
@@ -37,6 +37,9 @@ const context = (overrides: Partial<PartnerPanelPageContext> = {}): PartnerPanel
   renderEventEditor: vi.fn(() => null),
   registerOfferSave: vi.fn(),
   onOfferSaved: vi.fn(),
+  onOpenOfferPage: vi.fn(),
+  onOfferFormDone: vi.fn(),
+  offerFormVersion: 0,
   ...overrides,
 });
 
@@ -140,16 +143,37 @@ describe('páginas do painel (D33): Catálogo e Ganhos', () => {
       saveEvent: vi.fn(),
       savingEvent: false,
     };
-    // Oferta (F3): o título vem de quem pediu a página; só o editor tem "Salvar".
+    // Oferta (F3): o título vem de quem pediu a página; nova oferta "Criar", editar "Salvar",
+    // "Abrir horários" "Criar" e "Abrir dias" "Abrir" (protótipos da F3).
     const offerEditor = {
       view: 'offer',
       request: { kind: 'editor', itemId: 'p1', category: 'tour', title: 'Nova oferta' },
     } as const;
     expect(partnerPanelPageTitle(offerEditor, t, null)).toBe('Nova oferta');
     const saveOffer = partnerPanelPageAction(offerEditor, t, actions);
-    expect(saveOffer?.label).toBe('Salvar');
+    expect(saveOffer?.label).toBe('Criar');
     saveOffer?.onClick();
     expect(actions.saveOffer).toHaveBeenCalled();
+    const editAction = partnerPanelPageAction(
+      { view: 'offer', request: { ...offerEditor.request, offerId: 'o1', title: 'Editar oferta' } },
+      t,
+      actions
+    );
+    expect(editAction?.label).toBe('Salvar');
+    expect(
+      partnerPanelPageAction(
+        { view: 'offer', request: { kind: 'openSlots', offerId: 'o1', title: 'Abrir horários' } },
+        t,
+        actions
+      )?.label
+    ).toBe('Criar');
+    expect(
+      partnerPanelPageAction(
+        { view: 'offer', request: { kind: 'openDays', offerId: 'o1', title: 'Abrir dias' } },
+        t,
+        actions
+      )?.label
+    ).toBe('Abrir');
     expect(
       partnerPanelPageAction(
         { view: 'offer', request: { kind: 'slots', offerId: 'o1', title: 'Horários' } },

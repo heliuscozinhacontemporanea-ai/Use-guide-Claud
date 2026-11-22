@@ -5,15 +5,15 @@ import { useLocalizedRouting } from '../../../shared/hooks/useLocalizedRouting';
 import { MessagePage } from '../../../ui/components/MessagePage';
 import { PanelTimeZoneProvider } from '../hooks/panelTimeZone';
 import { usePanelEventEditor } from '../hooks/usePanelEventEditor';
-import { usePanelOfferPages } from '../hooks/usePanelOfferPages';
-import { openGuideStep } from '../utils/openGuideStep';
 import { type PanelPage, usePanelNavigation } from '../hooks/usePanelNavigation';
+import { usePanelOfferPages } from '../hooks/usePanelOfferPages';
 import { usePanelTour } from '../hooks/usePanelTour';
 import { usePartnerPanelActions } from '../hooks/usePartnerPanelActions';
 import { usePartnerPanelHome } from '../hooks/usePartnerPanelHome';
 import { usePartnerSegments } from '../hooks/usePartnerSegments';
 import { usePlanCheckout } from '../hooks/usePlanCheckout';
 import type { PartnerTodayItem } from '../types/partnerHome';
+import { openGuideStep } from '../utils/openGuideStep';
 import { startingHomeCards } from '../utils/partnerSegments';
 import { PartnerEventEditor } from './PartnerEventEditor';
 import { ListingPlanFlow } from './panel/ListingPlanFlow';
@@ -34,8 +34,8 @@ import { PartnerEarningsTab } from './panel/PartnerEarningsTab';
 import { PartnerHomeTab } from './panel/PartnerHomeTab';
 import { PartnerMoreSection } from './panel/PartnerMoreSection';
 import {
-  type PartnerPanelPageContext,
   PartnerPanelPageContent,
+  type PartnerPanelPageContext,
   partnerPanelPageAction,
   partnerPanelPageTitle,
 } from './panel/PartnerPanelPageContent';
@@ -249,8 +249,7 @@ export function PartnerPanel({
       void home.reload();
       nav.openTab('home');
     },
-    registerOfferSave: offerPages.registerSave,
-    onOfferSaved: offerPages.onSaved,
+    ...offerPages.pageContext,
     renderEventEditor: (section) =>
       eventEditor.item ? (
         <PartnerEventEditor

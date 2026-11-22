@@ -136,6 +136,8 @@ export const partnerGuideEn: PartnerGuideTranslation = {
     next: 'Next: {{step}}',
     nextPublish: 'Next: publish in the guide',
     save: 'Save',
+    create: 'Create',
+    open: 'Open',
     saving: 'Saving…',
     saved: 'Saved',
     missing: 'Missing: {{fields}}',

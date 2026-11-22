@@ -1,11 +1,11 @@
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { type PlaceTime, placeTimeFormNote } from '../../../../shared/utils/placeTime';
 import { ListEmpty, ListError, ListLoading } from '../../../../ui/components/ListState';
-import { BUTTON_SECONDARY } from '../../../../ui/styles/controls';
+import { BUTTON_PARTNER_WIDE, BUTTON_SECONDARY } from '../../../../ui/styles/controls';
 import { usePartnerSlots } from '../../hooks/usePartnerSlots';
-import type { CreateSlotsPayload, OfferKind, PartnerSlot } from '../../types/bookings';
+import type { OfferKind, PartnerSlot } from '../../types/bookings';
 import { getBookingErrorMessage } from '../../utils/bookingErrorMessage';
 import {
   addDays,
@@ -16,7 +16,6 @@ import {
 } from '../../utils/dates';
 import { SlotCancelDialog } from './SlotCancelDialog';
 import { SlotCheckInSheet } from './SlotCheckInSheet';
-import { SlotCreationForm } from './SlotCreationForm';
 import { SlotRescheduleDialog } from './SlotRescheduleDialog';
 
 function groupByDay(slots: PartnerSlot[], timeZone?: string): Array<[string, PartnerSlot[]]> {
@@ -32,19 +31,22 @@ export function PartnerSlotsManager({
   offerId,
   kind = 'tour',
   place,
+  onOpenForm,
+  reloadKey = 0,
 }: {
   offerId: string;
   kind?: OfferKind;
   /** Fuso e cidade da oferta: os horários são digitados e mostrados na hora do lugar (D28). */
   place?: PlaceTime;
+  /** "Abrir horários" em página própria (protótipo da F3, tela 9). */
+  onOpenForm: () => void;
+  /** Muda quando "Abrir horários" termina: a semana é relida. */
+  reloadKey?: number;
 }) {
   const { t, i18n } = useTranslation();
   const tz = place?.timeZone;
   const [weekStart, setWeekStart] = useState(() => startOfPlaceWeek(new Date(), tz));
-  const { data, loading, error, reload, create, cancel, reschedule } = usePartnerSlots(
-    offerId,
-    weekStart
-  );
+  const { data, loading, error, reload, cancel, reschedule } = usePartnerSlots(offerId, weekStart);
   const [canceling, setCanceling] = useState<PartnerSlot | null>(null);
   const [rescheduling, setRescheduling] = useState<PartnerSlot | null>(null);
   const [checkingIn, setCheckingIn] = useState<PartnerSlot | null>(null);
@@ -53,14 +55,10 @@ export function PartnerSlotsManager({
   const [notice, setNotice] = useState<string | null>(null);
   const days = useMemo(() => groupByDay(data, tz), [data, tz]);
 
-  const handleCreate = async (payload: CreateSlotsPayload) => {
-    try {
-      const created = await create(payload);
-      setNotice(t('bookings.slots.created', { count: created.length }));
-    } catch (err: unknown) {
-      setNotice(getBookingErrorMessage(err));
-    }
-  };
+  const firstKey = useRef(reloadKey);
+  useEffect(() => {
+    if (reloadKey !== firstKey.current) void reload();
+  }, [reloadKey, reload]);
 
   const confirmCancel = async (slot: PartnerSlot) => {
     setCanceling(null);
@@ -199,7 +197,10 @@ export function PartnerSlotsManager({
           onClose={() => setCheckingIn(null)}
         />
       )}
-      <SlotCreationForm onCreate={handleCreate} timeZone={tz} />
+      <button type="button" onClick={onOpenForm} className={BUTTON_PARTNER_WIDE}>
+        <Plus size={16} aria-hidden="true" />
+        {t('bookings.slots.open')}
+      </button>
       <SlotCancelDialog
         slot={canceling}
         timeZone={tz}

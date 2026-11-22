@@ -56,11 +56,12 @@ export const fleetFr: FleetTranslation = {
     to: 'Au',
     weekdays: 'Jours de la semaine',
     vehicles: 'Véhicules disponibles par jour',
-    vehiclesHint:
-      'Les périodes, les départs et l’horaire personnalisé partagent ces véhicules. 0 ferme le jour.',
+    vehiclesNote_one:
+      'Les périodes, les départs et l’horaire personnalisé utilisent <b>ce {{count}} véhicule</b>. L’app ne vend jamais le même véhicule deux fois au même horaire ; 0 ferme le jour.',
+    vehiclesNote_other:
+      'Les périodes, les départs et l’horaire personnalisé utilisent <b>ces {{count}} véhicules</b>. L’app ne vend jamais le même véhicule deux fois au même horaire ; 0 ferme le jour.',
     rentalHoursHint:
       'Chaque jour suit les horaires de l’annonce ; un jour fermé dans l’annonce n’ouvre pas.',
-    submit: 'Ouvrir',
     opened_one: '{{count}} jour ouvert.',
     opened_other: '{{count}} jours ouverts.',
     empty: 'Aucun jour ouvert cette semaine.',
@@ -68,6 +69,11 @@ export const fleetFr: FleetTranslation = {
     vehiclesCount_other: '{{count}} véhicules',
     busy_one: '{{start}}–{{end}} · {{count}} véhicule',
     busy_other: '{{start}}–{{end}} · {{count}} véhicules',
+    busyKind_one: '{{start}}–{{end}} · {{count}} véhicule ({{kind}})',
+    busyKind_other: '{{start}}–{{end}} · {{count}} véhicules ({{kind}})',
+    kind: { period: 'période', departure: 'départ', custom: 'personnalisé' },
+    footnote:
+      'Chaque réservation a son horaire dans l’Agenda, avec code d’enregistrement, « Je suis arrivé » et versement.',
     free: 'Libre',
     closed: 'Fermé',
     invalidRange: 'Choisissez les dates et au moins un jour de la semaine.',
