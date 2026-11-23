@@ -77,16 +77,22 @@ describe('Guia local do admin (F4)', () => {
 
 describe('Nova dica (F4)', () => {
   it('pede título, texto e foto; publica como dica', async () => {
-    let save: (() => void) | null = null;
-    render(<AdminTipPage registerSave={(next) => (save = next)} />);
-    save?.();
+    const bar: { save: (() => void) | null } = { save: null };
+    render(
+      <AdminTipPage
+        registerSave={(next) => {
+          bar.save = next;
+        }}
+      />
+    );
+    bar.save?.();
     expect(await screen.findByRole('alert')).toBeTruthy();
     expect(m.create).not.toHaveBeenCalled();
     fireEvent.change(screen.getByLabelText('Título'), { target: { value: 'Pôr do sol na Duna' } });
     fireEvent.change(screen.getByLabelText('Texto'), { target: { value: 'Chegue cedo.' } });
     fireEvent.click(screen.getByRole('button', { name: 'foto' }));
     m.create.mockResolvedValue('tip-1');
-    save?.();
+    bar.save?.();
     await waitFor(() =>
       expect(m.create).toHaveBeenCalledWith(
         expect.objectContaining({ category: 'tips', name: 'Pôr do sol na Duna' })
