@@ -9,7 +9,8 @@ A ordem abaixo foi proposta em 2026-11-15 e pode ser mudada pelo responsável.
 | # | Item | Situação | Decisão |
 |---|---|---|---|
 | 5b | **Tradução automática** do conteúdo cadastrado (D5): domínio `translation` com Google Cloud Translation, só no backend, `LocalizedText` com `source` e traduções, aviso "Traduzido automaticamente pelo Google · Ver original" | Pendente (responsável, 2026-11-17); serviço pago: proposta antes do código (AGENTS.md §15) | D5, AGENTS.md §12.6 |
-| 6 | **D34 · F4**: admin no mesmo editor do parceiro (D6, D8). Cobre o "editor do admin" do **item 5 da D33** | | D34, D33 |
+| 6 | **D34 · F4**: admin no mesmo editor do parceiro (D6, D8), criando anúncios de todas as categorias. Cobre o "editor do admin" do **item 5 da D33** | Próxima (pedido do responsável em 2026-11-23: o "Sou o dono" depende dela); prints antes do código | D34, D33, D35 |
+| 6b | **D35**: Termos no cadastro comum e "Sou o dono" | Aprovada em 2026-11-23; implementação depois da F4 | D35 |
 | 7 | **D34 · F5**: evento herda contato e local do estabelecimento (D5) | | D34 |
 | 8 | **D34 · F6**: o tour sai e entram as dicas de primeira visita (Agenda e Ganhos) | | D34 |
 | 8b | **Item 3 da D33**: busca (SearchOverlay) como folha em altura cheia, com os tokens (resolve o B60) | Adiado pelo responsável em 2026-11-16 (pular e começar a F2) | D33 |
@@ -29,7 +30,7 @@ Cada proposta é apresentada antes de qualquer código; a implementação só co
 | Ordem | Proposta | Situação |
 |---|---|---|
 | 1 | Conta do parceiro em uma tela e guia de passos no painel (levantamento de todos os dados pedidos ao parceiro, duplicações D1 a D8) | Aprovada em 2026-11-15 (D34, https://claude.ai/artifact/QhRCHcvwW8sDF9Phoa5Z7C); implementação na seção 1 |
-| 2 | Termos e Política de Privacidade no cadastro comum, e "Sou o dono" para o dono assumir um lugar que já está no guia | Iniciada em 2026-11-22 (protótipo e perguntas ao responsável) |
+| 2 | Termos e Política de Privacidade no cadastro comum, e "Sou o dono" para o dono assumir um lugar que já está no guia | Aprovada em 2026-11-23 (D35); implementação no item 6b da seção 1, depois da F4 |
 | 3 | **Aluguel e translado à venda** (ponto 2 da F3): regras do anúncio e da oferta, períodos do aluguel, caução, termo de aluguel, CNH, translado privativo e compartilhado, trecho | Decisões completas em 2026-11-17 (`decisoes.md`, Escolhas da F3); implementada como F3b no PR #29 (2026-11-21) |
 | 4 | **Texto do termo de aluguel** (padrão da plataforma, com versão, aceito na reserva): uso, danos, CNH, idade, devolução, nos três idiomas | Pedido em 2026-11-17 para depois; o texto passa pela aprovação do responsável. Até ele existir, a reserva de aluguel pede só os termos de compra (resposta 1a, 2026-11-21) |
 | 5 | **Caução do aluguel** por pré-autorização de cartão no dia da retirada (D3): cartão salvo no Stripe, só cartão, cobrança por dano e contestação | Fora desta fase (resposta 2, 2026-11-17); proposta própria |

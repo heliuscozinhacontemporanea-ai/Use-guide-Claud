@@ -620,3 +620,17 @@ Aprovada pelo responsável do produto em 2026-11-15, decisão a decisão, nos co
   * **Exceção autorizada ao AGENTS.md §2.2 item 8:** o responsável aprovou um script de uma vez só para os anúncios que já existiam em produção. O deploy o rodou como tarefa do Cloud Run, com a conta do servidor, antes das rules e do site novos. Depois disso, o Explorar mostra 43 anúncios. O script e as linhas temporárias foram apagados em seguida (PR #27).
   * Na página do @ do Seja parceiro, o título é "Nome de usuário".
   * O primeiro deploy falhou no build da imagem, porque o `.dockerignore` deixava o script de fora (PR #26). Por isso, o deploy seguinte não publicou as rules: o passo "Mudanças" comparava com o commit anterior da `main`. Elas subiram por um deploy manual. Desde o PR #27, o passo compara com o último deploy que terminou bem.
+
+## D35 — Termos no cadastro comum e "Sou o dono" (2026-11-23)
+
+Proposta 2 da fila (pontos 3 e 6 da comparação com Airbnb, Booking, Sympla, GetYourGuide, Eventbrite e Tripadvisor). Aprovada pelo responsável do produto em 2026-11-23, resposta a resposta, sobre os prints e o protótipo de 11 telas. Antes das respostas, o responsável foi lembrado de que **CPF não vende** (D12).
+
+1. **Termos no cadastro comum (1b):** abaixo de "Cadastrar" e de "Continuar com Google", o aviso "Ao criar a conta (ou Ao continuar), você concorda com os Termos de uso e a Política de privacidade do Use Guide", com os links para as páginas que já existem. O perfil guarda a versão aceita e a data, como prova. Os Termos de uso ganham versão própria, como os de compra e os do parceiro.
+2. **Quem pode assumir (2a):** com CNPJ ou CPF, na regra de hoje: com CPF a pessoa assume e mantém o anúncio, mas só vende com CNPJ (MEI serve).
+3. **Onde aparece (3b):** no fim do anúncio cadastrado pelo Use Guide que não vende pelo app ("É o dono deste lugar?" e "Sou o dono") e no "Seja parceiro", que mostra até 3 lugares do Use Guide com nome parecido na mesma cidade enquanto a pessoa digita o nome ("Já está no guia?" e "É o meu").
+4. **Prova (4a):** os mesmos campos e arquivos da verificação (D12), analisados pelo admin. Sem SMS nem ligação.
+5. **Dois pedidos para o mesmo lugar (5b):** o app aceita vários; o admin vê todos juntos, aprova um, e os outros são recusados com o motivo.
+6. **Depois de aprovado (6a):** o anúncio passa para a conta com fotos, avaliações e nota, e fica verificado com os mesmos documentos. O plano segue a D11. O admin pode devolver o anúncio ao Use Guide; aprovar e devolver ficam no registro de auditoria.
+7. **Como o app sabe que o anúncio é do Use Guide (7a):** o servidor grava um campo público no anúncio. Os anúncios que já estão no ar recebem o campo por um script de uma vez só, apagado depois de usado (exceção ao AGENTS.md §2.2 item 8, como na publicação da F1).
+8. **Pedido do responsável junto das respostas:** o painel de admin precisa criar anúncios de todas as categorias (hoje cria só atração, passeio e dica), e o anúncio assumido não pode levar nada de admin: sai da conta do Use Guide, perde o selo dado pelo admin e segue as regras do parceiro (D11, D12, D34). Por isso a **F4** (admin no mesmo editor do parceiro, decisão 5 da D34) vem antes da implementação da D35.
+   * **Risco encontrado no levantamento (2026-11-23):** os anúncios do Use Guide ficam na conta pessoal do admin que os criou, e a exclusão de conta apaga os anúncios do dono. Excluir a conta desse admin apagaria os anúncios do Use Guide. A correção vai como pergunta nos prints da F4.
