@@ -9,7 +9,7 @@ A ordem abaixo foi proposta em 2026-11-15 e pode ser mudada pelo responsável.
 | # | Item | Situação | Decisão |
 |---|---|---|---|
 | 5b | **Tradução automática** do conteúdo cadastrado (D5): domínio `translation` com Google Cloud Translation, só no backend, `LocalizedText` com `source` e traduções, aviso "Traduzido automaticamente pelo Google · Ver original" | Pendente (responsável, 2026-11-17); serviço pago: proposta antes do código (AGENTS.md §15) | D5, AGENTS.md §12.6 |
-| 6 | **D34 · F4**: admin no mesmo editor do parceiro (D6, D8), criando anúncios de todas as categorias. Cobre o "editor do admin" do **item 5 da D33** | Próxima (pedido do responsável em 2026-11-23: o "Sou o dono" depende dela); prints antes do código | D34, D33, D35 |
+| 6 | **D34 · F4**: admin no mesmo editor do parceiro (D6, D8), criando anúncios de todas as categorias. Cobre o "editor do admin" do **item 5 da D33** | Escolhas aprovadas em 2026-11-23 (decisoes.md, Escolhas da F4); em implementação | D34, D33, D35 |
 | 6b | **D35**: Termos no cadastro comum e "Sou o dono" | Aprovada em 2026-11-23; implementação depois da F4 | D35 |
 | 7 | **D34 · F5**: evento herda contato e local do estabelecimento (D5) | | D34 |
 | 8 | **D34 · F6**: o tour sai e entram as dicas de primeira visita (Agenda e Ganhos) | | D34 |
