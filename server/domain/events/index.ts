@@ -40,9 +40,7 @@ export { listAllEventListingsUseCase } from './usecases/listAllEventListingsUseC
 export { listEventOccurrencesUseCase } from './usecases/listEventOccurrencesUseCase';
 export { listOwnerEventListingsUseCase } from './usecases/listOwnerEventListingsUseCase';
 export { listPublicEventListingsUseCase } from './usecases/listPublicEventListingsUseCase';
-export { pauseEventListingUseCase } from './usecases/pauseEventListingUseCase';
 export { postponeEventOccurrenceUseCase } from './usecases/postponeEventOccurrenceUseCase';
-export { publishEventListingUseCase } from './usecases/publishEventListingUseCase';
 export { recordEventAuditLogUseCase } from './usecases/recordEventAuditLogUseCase';
 export { updateEstablishmentEventsPlaceUseCase } from './usecases/updateEstablishmentEventsPlaceUseCase';
 export { countOpenEstablishmentEventsUseCase } from './usecases/countOpenEstablishmentEventsUseCase';

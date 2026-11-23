@@ -43,6 +43,8 @@ export interface UsePartnerContentActionsProps {
   isEditing: PartnerContentEditorState | null;
   setShowDeleteConfirm: (val: boolean) => void;
   setIsLoading: (val: boolean) => void;
+  /** Evento do Use Guide, pelo admin (escolhas da F4): estabelecimento opcional. */
+  useGuide?: boolean;
 }
 
 /**
@@ -54,6 +56,7 @@ export function usePartnerContentActions({
   isEditing,
   setShowDeleteConfirm,
   setIsLoading,
+  useGuide = false,
 }: UsePartnerContentActionsProps) {
   const { t } = useTranslation();
   const { showToast } = useUI();
@@ -110,8 +113,14 @@ export function usePartnerContentActions({
       }
       const { date, endDate } = eventDateRangeFromSessions(sessions);
 
-      if (!isEditing.id && !isEditing.establishmentId?.trim()) {
+      const noEstablishment = !isEditing.establishmentId?.trim();
+      if (!isEditing.id && noEstablishment && !useGuide) {
         showToast(t('partnerCatalog.actions.establishmentRequired'), 'error');
+        return false;
+      }
+      // Sem estabelecimento, o evento do Use Guide leva estado e cidade: dão o fuso (D28).
+      if (!isEditing.id && noEstablishment && (isEditing.city?.trim().length ?? 0) < 2) {
+        showToast(t('partnerCatalog.actions.cityRequired'), 'error');
         return false;
       }
 
@@ -160,7 +169,10 @@ export function usePartnerContentActions({
           customCategory: isEditing.customCategory,
           entryType: parsedEvent.data.entryType,
           ...(isEditing.salesPolicy ? { salesPolicy: isEditing.salesPolicy } : {}),
-          establishmentId: isEditing.establishmentId,
+          establishmentId: isEditing.establishmentId || undefined,
+          ...(noEstablishment && isEditing.city?.trim()
+            ? { state: isEditing.state || 'CE', city: isEditing.city.trim() }
+            : {}),
           instagramLink: isEditing.instagramLink,
           websiteLink: isEditing.websiteLink,
           bookingLink: isEditing.bookingLink,
@@ -187,7 +199,6 @@ export function usePartnerContentActions({
           await updatePartnerContentEventUseCase(eventId, updateData);
           await saveEventSessionsUseCase({
             eventListingId: eventId,
-            scope: 'partner',
             savedIds: savedSessionIds,
             sessions,
           });
@@ -201,7 +212,7 @@ export function usePartnerContentActions({
         setIsLoading(false);
       }
     },
-    [isEditing, user?.uid, setIsLoading, showToast, t]
+    [isEditing, user?.uid, setIsLoading, showToast, t, useGuide]
   );
 
   return {

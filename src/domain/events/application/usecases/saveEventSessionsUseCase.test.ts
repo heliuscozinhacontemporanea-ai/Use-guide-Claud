@@ -9,15 +9,6 @@ const { calls, record } = vi.hoisted(() => {
   return { calls, record };
 });
 
-vi.mock('./createAdminEventOccurrenceUseCase', () => ({
-  createAdminEventOccurrenceUseCase: record('admin:create'),
-}));
-vi.mock('./updateAdminEventOccurrenceUseCase', () => ({
-  updateAdminEventOccurrenceUseCase: record('admin:update'),
-}));
-vi.mock('./deleteAdminEventOccurrenceUseCase', () => ({
-  deleteAdminEventOccurrenceUseCase: record('admin:delete'),
-}));
 vi.mock('./createPartnerEventOccurrenceUseCase', () => ({
   createPartnerEventOccurrenceUseCase: record('partner:create'),
 }));
@@ -45,23 +36,12 @@ describe('saveEventSessionsUseCase', () => {
     calls.length = 0;
   });
 
-  it('parceiro: cria e altera antes de apagar, pelas rotas do parceiro', async () => {
+  it('cria e altera antes de apagar, pelas rotas do parceiro (o admin usa as mesmas, F4)', async () => {
     await saveEventSessionsUseCase({
       eventListingId: 'ev1',
-      scope: 'partner',
       savedIds: ['kept', 'removed'],
       sessions,
     });
     expect(calls).toEqual(['partner:create', 'partner:update', 'partner:delete']);
-  });
-
-  it('admin usa as rotas do admin', async () => {
-    await saveEventSessionsUseCase({
-      eventListingId: 'ev1',
-      scope: 'admin',
-      savedIds: ['kept'],
-      sessions,
-    });
-    expect(calls).toEqual(['admin:create', 'admin:update']);
   });
 });

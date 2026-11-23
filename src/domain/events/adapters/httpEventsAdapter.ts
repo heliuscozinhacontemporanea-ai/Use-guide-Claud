@@ -1,12 +1,6 @@
 import { firebaseApiFetch } from '../../../shared/infrastructure/firebase/firebaseApiFetch';
 import type { EventsPort } from '../ports/eventsPort';
-import type {
-  CreateEventListingInput,
-  CreateEventOccurrenceInput,
-  EventListing,
-  EventOccurrence,
-  UpdateEventListingInput,
-} from '../types/event';
+import type { CreateEventOccurrenceInput, EventListing, EventOccurrence } from '../types/event';
 
 async function parseJsonOrThrow<T>(response: Response, fallbackMessage: string): Promise<T> {
   const payload = await response.json().catch(() => ({}));
@@ -134,100 +128,5 @@ export class HttpEventsAdapter implements EventsPort {
       { requireAuth: true, requireAppCheck: true }
     );
     await parseJsonOrThrow(response, 'Erro ao remover ocorrência.');
-  }
-
-  async createAdminEventListing(
-    input: CreateEventListingInput
-  ): Promise<{ id: string; listing?: EventListing; occurrences?: EventOccurrence[] }> {
-    const response = await firebaseApiFetch(
-      '/api/admin/events',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(input),
-      },
-      { requireAuth: true, requireAppCheck: true }
-    );
-    const result = await parseJsonOrThrow<{
-      id: string;
-      data?: { listing: EventListing; occurrences: EventOccurrence[] };
-    }>(response, 'Erro ao criar evento administrativo.');
-    return {
-      id: result.id,
-      listing: result.data?.listing,
-      occurrences: result.data?.occurrences,
-    };
-  }
-
-  async updateAdminEventListing(id: string, input: UpdateEventListingInput): Promise<void> {
-    const response = await firebaseApiFetch(
-      `/api/admin/events/${encodeURIComponent(id)}`,
-      {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(input),
-      },
-      { requireAuth: true, requireAppCheck: true }
-    );
-    await parseJsonOrThrow(response, 'Erro ao atualizar evento administrativo.');
-  }
-
-  async deleteAdminEventListing(id: string): Promise<void> {
-    const response = await firebaseApiFetch(
-      `/api/admin/events/${encodeURIComponent(id)}`,
-      { method: 'DELETE' },
-      { requireAuth: true, requireAppCheck: true }
-    );
-    await parseJsonOrThrow(response, 'Erro ao remover evento administrativo.');
-  }
-
-  async createAdminEventOccurrence(
-    eventListingId: string,
-    input: CreateEventOccurrenceInput
-  ): Promise<EventOccurrence> {
-    const response = await firebaseApiFetch(
-      `/api/admin/events/${encodeURIComponent(eventListingId)}/occurrences`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(input),
-      },
-      { requireAuth: true, requireAppCheck: true }
-    );
-    const result = await parseJsonOrThrow<{ data: EventOccurrence }>(
-      response,
-      'Erro ao criar ocorrência administrativa.'
-    );
-    return result.data;
-  }
-
-  async updateAdminEventOccurrence(
-    eventListingId: string,
-    occurrenceId: string,
-    input: Partial<CreateEventOccurrenceInput>
-  ): Promise<EventOccurrence> {
-    const response = await firebaseApiFetch(
-      `/api/admin/events/${encodeURIComponent(eventListingId)}/occurrences/${encodeURIComponent(occurrenceId)}`,
-      {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(input),
-      },
-      { requireAuth: true, requireAppCheck: true }
-    );
-    const result = await parseJsonOrThrow<{ data: EventOccurrence }>(
-      response,
-      'Erro ao atualizar ocorrência administrativa.'
-    );
-    return result.data;
-  }
-
-  async deleteAdminEventOccurrence(eventListingId: string, occurrenceId: string): Promise<void> {
-    const response = await firebaseApiFetch(
-      `/api/admin/events/${encodeURIComponent(eventListingId)}/occurrences/${encodeURIComponent(occurrenceId)}`,
-      { method: 'DELETE' },
-      { requireAuth: true, requireAppCheck: true }
-    );
-    await parseJsonOrThrow(response, 'Erro ao excluir ocorrência administrativa.');
   }
 }

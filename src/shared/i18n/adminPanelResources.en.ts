@@ -50,6 +50,15 @@ export const adminPanelEn: AdminPanelTranslation = {
     pauseFailed: 'Could not change it now. Try again.',
     listingError: 'Could not open the listing.',
   },
+  events: {
+    new: 'New event',
+    loading: 'Loading the agenda…',
+    loadError: 'Could not load the agenda.',
+    empty: 'No events yet.',
+    ownerUseGuide:
+      'Owner: <b>Use Guide</b>. Informative event: does not sell tickets through the app.',
+    ownerPartner: 'Partner event. Admin changes are kept in the audit log.',
+  },
   tip: {
     newTitle: 'New tip',
     editTitle: 'Edit tip',

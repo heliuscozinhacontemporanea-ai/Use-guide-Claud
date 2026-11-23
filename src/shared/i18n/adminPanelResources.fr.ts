@@ -56,6 +56,16 @@ export const adminPanelFr: AdminPanelTranslation = {
     pauseFailed: 'Impossible de modifier maintenant. Réessayez.',
     listingError: 'Impossible d’ouvrir l’annonce.',
   },
+  events: {
+    new: 'Nouvel événement',
+    loading: 'Chargement de l’agenda…',
+    loadError: 'Impossible de charger l’agenda.',
+    empty: 'Aucun événement pour l’instant.',
+    ownerUseGuide:
+      'Propriétaire : <b>Use Guide</b>. Événement informatif : ne vend pas de billets par l’app.',
+    ownerPartner:
+      'Événement de partenaire. Les modifications de l’admin sont gardées dans le journal d’audit.',
+  },
   tip: {
     newTitle: 'Nouveau conseil',
     editTitle: 'Modifier le conseil',

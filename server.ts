@@ -7,9 +7,8 @@ import { renderSeoPageApplicationUseCase } from './server/application/usecases/r
 import { renderSitemapApplicationUseCase } from './server/application/usecases/renderSitemapApplicationUseCase';
 import adminRouter from './server/domain/admin/routes/adminRoutes';
 import climaWindRouter from './server/domain/climawind/routes/climaWindRoutes';
-import { adminEventsRouter, publicEventsRouter } from './server/domain/events/routes/eventRoutes';
+import { publicEventsRouter } from './server/domain/events/routes/eventRoutes';
 import favoriteRouter from './server/domain/favorites/routes/favoriteRoutes';
-import { itemRouter } from './server/domain/guide/routes/guideRoutes';
 import insightsRouter from './server/domain/insights/routes/insightsRoutes';
 import mediaRouter from './server/domain/media/routes/mediaRoutes';
 import notificationRouter from './server/domain/notifications/routes/notificationRoutes';
@@ -258,7 +257,6 @@ async function startServer() {
       '/api/partner-home',
       '/api/listing-plans',
       '/api/listing-verifications',
-      '/api/items',
       '/api/admin',
     ],
     adminAuditTrail
@@ -289,10 +287,8 @@ async function startServer() {
   // Encerrar o perfil de parceiro passa pelas travas de venda (orquestra vários domínios, §3.4).
   app.use('/api/partners', partnerClosureRouter);
   app.use('/api/partners', partnerRouter);
-  app.use('/api/items', itemRouter);
   app.use('/api/events', publicEventsRouter);
   app.use('/api/admin/listings', adminListingRouter);
-  app.use('/api/admin/events', adminEventsRouter);
   app.use('/api/admin/events', adminTicketingEventsRouter);
   app.use('/api/ticketing', ticketingRouter);
   app.use('/api/reviews', reviewRouter);

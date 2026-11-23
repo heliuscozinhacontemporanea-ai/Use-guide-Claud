@@ -1,10 +1,4 @@
-import type {
-  CreateEventListingInput,
-  CreateEventOccurrenceInput,
-  EventListing,
-  EventOccurrence,
-  UpdateEventListingInput,
-} from '../types/event';
+import type { CreateEventOccurrenceInput, EventListing, EventOccurrence } from '../types/event';
 
 export interface EventsPort {
   getEventListingById(id: string): Promise<EventListing | null>;
@@ -30,20 +24,4 @@ export interface EventsPort {
     occurrenceId: string,
     replacement: { startsAt: string; endsAt: string; reason: string }
   ): Promise<void>;
-
-  createAdminEventListing(
-    input: CreateEventListingInput
-  ): Promise<{ id: string; listing?: EventListing; occurrences?: EventOccurrence[] }>;
-  updateAdminEventListing(id: string, input: UpdateEventListingInput): Promise<void>;
-  deleteAdminEventListing(id: string): Promise<void>;
-  createAdminEventOccurrence(
-    eventListingId: string,
-    input: CreateEventOccurrenceInput
-  ): Promise<EventOccurrence>;
-  updateAdminEventOccurrence(
-    eventListingId: string,
-    occurrenceId: string,
-    input: Partial<CreateEventOccurrenceInput>
-  ): Promise<EventOccurrence>;
-  deleteAdminEventOccurrence(eventListingId: string, occurrenceId: string): Promise<void>;
 }

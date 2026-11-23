@@ -48,6 +48,13 @@ interface PartnerEventEditorProps {
   showDeleteConfirm: boolean;
   onRequestDelete: (open: boolean) => void;
   onConfirmDelete: () => Promise<void>;
+  /**
+   * Evento do Use Guide, pelo admin (escolhas da F4): estabelecimento opcional (com estado e cidade
+   * quando não há), entrada gratuita ou paga no local, sem lotes nem política de venda.
+   */
+  useGuide?: boolean;
+  /** Acima das linhas: o dono do evento, no editor do admin (escolhas da F4). */
+  header?: ReactNode;
 }
 
 /** Fuso e cidade do estabelecimento escolhido; sem ele, os do próprio evento salvo. */
@@ -78,6 +85,8 @@ export function PartnerEventEditor({
   showDeleteConfirm,
   onRequestDelete,
   onConfirmDelete,
+  useGuide = false,
+  header,
 }: PartnerEventEditorProps) {
   const { t } = useTranslation();
   const paid = item.entryType === 'pago';
@@ -112,9 +121,15 @@ export function PartnerEventEditor({
     {
       id: 'tickets',
       title: t('partnerCatalog.editor.tickets'),
-      sub: t(paid ? 'partnerCatalog.editor.paid' : 'partnerCatalog.editor.free'),
+      sub: t(
+        paid
+          ? useGuide
+            ? 'partnerCatalog.fields.paidAtPlace'
+            : 'partnerCatalog.editor.paid'
+          : 'partnerCatalog.editor.free'
+      ),
     },
-    ...(paid
+    ...(paid && !useGuide
       ? [
           {
             id: 'policy' as const,
@@ -148,7 +163,7 @@ export function PartnerEventEditor({
   const body = (open: Section) => {
     switch (open) {
       case 'info':
-        return <EventBasicsSection {...sectionProps} businesses={businesses} />;
+        return <EventBasicsSection {...sectionProps} businesses={businesses} useGuide={useGuide} />;
       case 'sessions':
         return renderSessionsField?.({
           sessions: item.sessions ?? [],
@@ -158,15 +173,22 @@ export function PartnerEventEditor({
           lockedIds: lockedSessionIds,
         });
       case 'location':
-        return <EventContactSection {...sectionProps} part="location" />;
+        return (
+          <EventContactSection
+            {...sectionProps}
+            part="location"
+            placeFields={useGuide && !item.establishmentId}
+          />
+        );
       case 'tickets':
         return (
           <div className="space-y-3">
             <EventEntrySection
               {...sectionProps}
               renderEventTicketingManager={renderEventTicketingManager}
+              sellsTickets={!useGuide}
             />
-            {!item.id && paid && (
+            {!item.id && paid && !useGuide && (
               <p className="px-1 text-[13px] text-ink/70">{t('partnerCatalog.editor.saveFirst')}</p>
             )}
           </div>
@@ -192,6 +214,7 @@ export function PartnerEventEditor({
         <div className="space-y-6">{body(section)}</div>
       ) : (
         <>
+          {header}
           <ListCard>
             {rows.map((row) => (
               <ListRowButton

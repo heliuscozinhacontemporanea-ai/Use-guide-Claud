@@ -46,6 +46,13 @@ describe('partnerJoinDraft', () => {
     ).toEqual([]);
   });
 
+  it('o admin pode deixar o telefone do lugar em branco, mas não inválido (F4)', () => {
+    const place = { category: 'hotel', name: 'Pousada', state: 'CE', city: 'Cruz', terms: false };
+    const options = { requireTerms: false, requirePhone: false };
+    expect(partnerJoinErrors({ ...place, phone: '' }, options)).toEqual([]);
+    expect(partnerJoinErrors({ ...place, phone: '123' }, options)).toEqual(['phone']);
+  });
+
   it('descarta campos com formato errado no que veio do aparelho', () => {
     expect(parsePartnerJoinDraft({ name: 'X', terms: 'sim', phone: 5 })).toEqual({
       ...EMPTY_JOIN_DRAFT,

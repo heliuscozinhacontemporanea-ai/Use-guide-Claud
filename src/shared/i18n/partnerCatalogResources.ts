@@ -78,6 +78,46 @@ export interface PartnerCatalogTranslation {
     notePayoutTo: string;
     openEarnings: string;
   };
+  /** Campos das seções de Editar evento (informações e local), e as opções do evento do Use Guide (F4). */
+  fields: {
+    basicsTitle: string;
+    establishment: string;
+    establishmentReadOnly: string;
+    readOnly: string;
+    establishmentPlaceholder: string;
+    establishmentEmpty: string;
+    establishmentOptional: string;
+    noEstablishment: string;
+    useGuidePlaces: string;
+    name: string;
+    namePlaceholder: string;
+    category: string;
+    categoryLabel: string;
+    categoryPlaceholder: string;
+    customCategory: string;
+    customCategoryPlaceholder: string;
+    description: string;
+    descriptionPlaceholder: string;
+    contactTitle: string;
+    phone: string;
+    site: string;
+    instagram: string;
+    instagramPlaceholder: string;
+    maps: string;
+    mapsPlaceholder: string;
+    region: string;
+    address: string;
+    addressPlaceholder: string;
+    state: string;
+    city: string;
+    placeHint: string;
+    entryTitle: string;
+    entryLabel: string;
+    paid: string;
+    paidAtPlace: string;
+    free: string;
+    noAppSales: string;
+  };
   event: {
     sessions_one: string;
     sessions_other: string;
@@ -178,6 +218,7 @@ export interface PartnerCatalogTranslation {
     toggleFailed: string;
     sessionsLoading: string;
     establishmentRequired: string;
+    cityRequired: string;
     required: {
       generic: string;
       name: string;
@@ -270,6 +311,46 @@ export const partnerCatalogPtBR: PartnerCatalogTranslation = {
     notePayout: 'Cada sessão é repassada 2 dias depois de acabar.',
     notePayoutTo: 'Cada sessão é repassada 2 dias depois de acabar, na conta do CNPJ {{document}}.',
     openEarnings: 'Ver repasses em Ganhos',
+  },
+  fields: {
+    basicsTitle: 'Informações básicas',
+    establishment: 'Estabelecimento ou perfil de produtor',
+    establishmentReadOnly: 'Estabelecimento vinculado',
+    readOnly: 'Somente leitura',
+    establishmentPlaceholder: 'Selecione o estabelecimento…',
+    establishmentEmpty: 'Nenhum estabelecimento cadastrado no seu perfil.',
+    establishmentOptional: 'Estabelecimento (opcional)',
+    noEstablishment: 'Nenhum (lugar público)',
+    useGuidePlaces: 'Só anúncios do Use Guide. Evento de parceiro é criado pelo parceiro.',
+    name: 'Nome do evento',
+    namePlaceholder: 'Ex.: Show na praia, Sunset Party…',
+    category: 'Categoria',
+    categoryLabel: 'Categoria do evento',
+    categoryPlaceholder: 'Selecione uma categoria…',
+    customCategory: 'Especifique a categoria',
+    customCategoryPlaceholder: 'Ex.: Luau, Palestra, Oficina…',
+    description: 'Descrição do evento',
+    descriptionPlaceholder:
+      'Os detalhes importantes, as atrações ou o que o evento tem de diferente…',
+    contactTitle: 'Contato e localização',
+    phone: 'WhatsApp de contato ou reservas',
+    site: 'Site ou link de ingressos',
+    instagram: 'Instagram do evento',
+    instagramPlaceholder: '@perfil',
+    maps: 'Google Maps (local)',
+    mapsPlaceholder: 'Link da localização',
+    region: 'Região ou bairro',
+    address: 'Endereço do local',
+    addressPlaceholder: 'Rua, número, referência…',
+    state: 'Estado',
+    city: 'Cidade',
+    placeHint: 'Os horários do evento seguem o fuso desta cidade.',
+    entryTitle: 'Entradas e ingressos',
+    entryLabel: 'Tipo de entrada',
+    paid: 'Pago',
+    paidAtPlace: 'Pago no local',
+    free: 'Entrada gratuita',
+    noAppSales: 'Evento do Use Guide não vende ingresso pelo app.',
   },
   event: {
     sessions_one: '{{count}} sessão',
@@ -378,6 +459,7 @@ export const partnerCatalogPtBR: PartnerCatalogTranslation = {
     toggleFailed: 'Não foi possível mudar agora. Tente de novo.',
     sessionsLoading: 'Aguarde as sessões do evento carregarem para salvar.',
     establishmentRequired: 'Escolha o estabelecimento ou o perfil de produtor do evento.',
+    cityRequired: 'Informe a cidade do evento, em Local.',
     required: {
       generic: 'Preencha os campos obrigatórios.',
       name: 'Informe o nome do evento.',

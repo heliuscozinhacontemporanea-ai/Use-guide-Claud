@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { usePageStack } from '../../../ui/hooks/pageStack';
 import { PushStack } from '../../../ui/layouts/stack/PushStack';
 import type { StackAction, StackEntry } from '../../../ui/layouts/stack/stackTypes';
+import { AdminEventPage, AdminEventSectionPage } from './AdminEventPages';
+import { useAdminEvent } from './adminEventStore';
 import { AdminListingEditorPage } from './AdminListingEditorPage';
 import {
   AdminListingBlockPage,
@@ -21,7 +23,8 @@ const registerSave = (save: (() => void) | null) => {
 
 function pageEntry(
   page: AdminPage,
-  t: TFunction
+  t: TFunction,
+  newEvent: boolean
 ): { title: string; content: ReactNode; action?: StackAction } {
   const save = (label: string): StackAction => ({ label, onClick: () => barSave?.() });
   switch (page.view) {
@@ -55,6 +58,18 @@ function pageEntry(
         action: save(t(page.itemId ? 'adminPanel.tip.save' : 'adminPanel.tip.publish')),
         content: <AdminTipPage itemId={page.itemId} registerSave={registerSave} />,
       };
+    case 'event':
+      return {
+        title: t(newEvent ? 'partnerCatalog.editor.titleNew' : 'partnerCatalog.editor.titleEdit'),
+        action: save(t('adminPanel.save')),
+        content: <AdminEventPage registerSave={registerSave} />,
+      };
+    case 'event-section':
+      return {
+        title: page.title,
+        action: save(t('adminPanel.save')),
+        content: <AdminEventSectionPage section={page.section} />,
+      };
   }
 }
 
@@ -65,10 +80,11 @@ function pageEntry(
 export function AdminPanelStack({ root }: { root: ReactNode }) {
   const { t } = useTranslation();
   const pages = usePageStack(adminPages);
+  const newEvent = !useAdminEvent().draft?.id;
   const entries: StackEntry[] = [
     { key: 'admin', navBar: false, bare: true, render: () => root },
     ...pages.map((page, index) => {
-      const { title, content, action } = pageEntry(page, t);
+      const { title, content, action } = pageEntry(page, t, newEvent);
       return { key: `${page.view}-${index}`, title, action, navBar: true, render: () => content };
     }),
   ];

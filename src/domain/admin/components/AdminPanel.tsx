@@ -4,76 +4,30 @@ import { type ReactNode, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CATEGORIES } from '../../../shared/constants/categories';
 import { useLocalizedRouting } from '../../../shared/hooks/useLocalizedRouting';
-import { useUI } from '../../../shared/stores/useUIStore';
 import { BackButton } from '../../../ui/components/BackButton';
 import { ErrorState } from '../../../ui/components/ErrorState';
 import { useAuthContext } from '../../auth/context/AuthContext';
 import { UserRole } from '../../auth/types/auth';
-import {
-  createAdminEventListingUseCase,
-  deleteAdminEventListingUseCase,
-  saveEventSessionsUseCase,
-  updateAdminEventListingUseCase,
-} from '../../events';
-import {
-  createGuideItemUseCase,
-  deleteGuideItemUseCase,
-  type GuideItem,
-  updateGuideItemUseCase,
-} from '../../guide';
-import {
-  toGuideEventInput,
-  toGuideEventUpdateInput,
-  toGuideItemInput,
-  toGuideItemUpdateInput,
-} from '../application/mappers/adminGuideEditorMapper';
-import { useAdminGuideCatalog } from '../hooks/useAdminGuideCatalog';
 import { useAdminPartnerActions } from '../hooks/useAdminPartnerActions';
 import { useAdminPartners } from '../hooks/useAdminPartners';
 import { useAdminStats } from '../hooks/useAdminStats';
 import { AdminAccessDenied } from './subcomponents/AdminAccessDenied';
-import type { AdminEventSlots } from './subcomponents/AdminEditorEventFields';
-import { AdminEditorModal, type AdminEditorSaveData } from './subcomponents/AdminEditorModal';
-import { AdminGuideView } from './subcomponents/AdminGuideView';
 import { AdminNavigation, type AdminTabId } from './subcomponents/AdminNavigation';
 import { AdminNotificationsView } from './subcomponents/AdminNotificationsView';
 import { AdminPartnersView } from './subcomponents/AdminPartnersView';
 import { AdminPlansView } from './subcomponents/AdminPlansView';
 import { AdminStatsView } from './subcomponents/AdminStatsView';
 
-function newRecord(category: 'tips' | 'event'): GuideItem {
-  return {
-    id: '',
-    name: '',
-    description: '',
-    image: '',
-    images: [],
-    category,
-    location: 'Jericoacoara',
-  } as GuideItem;
-}
-
-export interface AdminListingEditorProps {
-  /** Cadastro a editar; `null` cria um novo. */
-  item: GuideItem | null;
-  onClose: () => void;
-}
-
-export interface AdminPanelProps extends AdminEventSlots {
+export interface AdminPanelProps {
   /**
    * Aba "Guia local" montada pela composição (escolhas da F4): anúncios e dicas no editor do
    * parceiro, com as páginas empilhadas.
    */
   renderGuideTab?: () => ReactNode;
-  /**
-   * Editor de cadastro (o mesmo do parceiro), montado pela composição do app. Dicas e eventos
-   * continuam no editor próprio do admin.
-   */
-  renderListingEditor?: (props: AdminListingEditorProps) => ReactNode;
+  /** Aba "Agenda" montada pela composição: eventos no editor do parceiro (escolhas da F4). */
+  renderEventsTab?: () => ReactNode;
   /** Fila de verificação dos estabelecimentos (domínio partners), montada pela composição. */
   renderVerificationQueue?: () => ReactNode;
-  /** Selo de cada estabelecimento (D11, domínio partners), montado pela composição. */
-  renderListingSeal?: (item: GuideItem) => ReactNode;
   /** Filas financeiras (D16, domínio payment), montadas pela composição. */
   renderFinanceQueues?: () => ReactNode;
   /** Fila de denúncias de respostas (D19, domínio reviews), montada pela composição. */
@@ -82,23 +36,15 @@ export interface AdminPanelProps extends AdminEventSlots {
 
 export function AdminPanel({
   renderGuideTab,
-  renderListingEditor,
+  renderEventsTab,
   renderVerificationQueue,
-  renderListingSeal,
   renderFinanceQueues,
   renderModerationQueue,
-  renderSessionsField,
-  renderTicketingManager,
 }: AdminPanelProps = {}) {
   const { t } = useTranslation();
   const { goTo } = useLocalizedRouting();
   const { user, loading: userLoading } = useAuthContext();
-  const { showToast, confirmAction } = useUI();
   const [activeTab, setActiveTab] = useState<AdminTabId>('reports');
-  const [filter, setFilter] = useState<string>('all');
-  const [isEditing, setIsEditing] = useState<GuideItem | null>(null);
-  // `null` abre o editor de cadastro para um item novo; `undefined` mantém fechado.
-  const [editingListing, setEditingListing] = useState<GuideItem | null | undefined>(undefined);
 
   const isAdminUser = user?.role === UserRole.ADMIN;
 
@@ -116,108 +62,23 @@ export function AdminPanel({
     patchPartner,
     removePartner,
   } = useAdminPartners(isAdminUser && activeTab === 'partners');
-  const {
-    items: itemsList,
-    events: eventsList,
-    isLoading: dataLoading,
-    error: dataError,
-    retry: retryCatalog,
-  } = useAdminGuideCatalog(
-    isAdminUser && (activeTab === 'events' || (activeTab === 'items' && !renderGuideTab))
-  );
-
-  const currentList = activeTab === 'events' ? eventsList : itemsList;
-
-  // O filtro de categoria só existe na aba de itens; na agenda todos os eventos aparecem.
-  const filteredItems = useMemo(() => {
-    if (activeTab !== 'items' || filter === 'all') return currentList;
-    return currentList.filter((item) => item.category === filter);
-  }, [activeTab, currentList, filter]);
 
   const categories = useMemo(
     () => [
-      { id: 'all', label: 'Todos', color: 'bg-white/10' },
+      { id: 'all', label: t('adminPanel.guide.filters.all'), color: 'bg-white/10' },
       ...Object.values(CATEGORIES).map((c) => ({
         id: c.id,
         label: c.label,
         color: `${c.bgClass} ${c.colorClass}`,
       })),
     ],
-    []
+    [t]
   );
-
-  const handleDelete = async (coll: string, id: string) => {
-    if (!(await confirmAction('Excluir permanentemente?'))) return;
-    try {
-      if (coll === 'items') {
-        await deleteGuideItemUseCase(id);
-      } else if (coll === 'events') {
-        await deleteAdminEventListingUseCase(id);
-      }
-      showToast('Registro excluído.', 'success');
-    } catch (error) {
-      console.error(`Erro ao deletar em ${coll}/${id}:`, error);
-      showToast('Não foi possível excluir o registro.', 'error');
-    }
-  };
 
   const { handleToggleStatus, handleDeletePartner } = useAdminPartnerActions({
     patchPartner,
     removePartner,
   });
-
-  const handleSaveRecord = async (editorData: AdminEditorSaveData) => {
-    try {
-      if (activeTab === 'items') {
-        if (editorData.id) {
-          await updateGuideItemUseCase(editorData.id, toGuideItemUpdateInput(editorData));
-        } else {
-          await createGuideItemUseCase(toGuideItemInput(editorData));
-        }
-      } else {
-        const normalizedEventData: GuideItem = {
-          ...editorData,
-          endDate: editorData.endDate || editorData.date,
-          eventCategory: editorData.eventCategory || 'geral',
-        };
-        const rawOccurrences = editorData.occurrences;
-
-        if (editorData.id) {
-          await updateAdminEventListingUseCase(
-            editorData.id,
-            toGuideEventUpdateInput(normalizedEventData)
-          );
-          await saveEventSessionsUseCase({
-            eventListingId: editorData.id,
-            scope: 'admin',
-            savedIds: editorData.savedOccurrenceIds ?? [],
-            sessions: rawOccurrences ?? [],
-          });
-        } else {
-          const eventPayload = toGuideEventInput(normalizedEventData);
-          await createAdminEventListingUseCase({
-            ...eventPayload,
-            occurrences: Array.isArray(rawOccurrences)
-              ? rawOccurrences.map((occ) => ({
-                  startsAt: occ.startsAt,
-                  endsAt: occ.endsAt,
-                  capacity: occ.capacity,
-                }))
-              : undefined,
-          });
-        }
-      }
-      setIsEditing(null);
-      showToast('Registro salvo.', 'success');
-    } catch (error: unknown) {
-      console.error('[AdminPanel.handleSaveRecord]', error);
-      showToast(
-        error instanceof Error ? error.message : 'Não foi possível salvar o conteúdo.',
-        'error'
-      );
-      throw error;
-    }
-  };
 
   if (userLoading) {
     return (
@@ -290,77 +151,14 @@ export function AdminPanel({
               <AdminPlansView />
             ) : activeTab === 'notifications' ? (
               <AdminNotificationsView />
-            ) : activeTab === 'items' && renderGuideTab ? (
-              renderGuideTab()
+            ) : activeTab === 'items' ? (
+              renderGuideTab?.()
             ) : (
-              <AdminGuideView
-                activeTab={activeTab}
-                categories={categories}
-                filter={filter}
-                setFilter={setFilter}
-                filteredItems={filteredItems}
-                dataLoading={dataLoading}
-                dataError={dataError}
-                onRetry={retryCatalog}
-                onInitNew={() => {
-                  if (activeTab === 'items' && renderListingEditor) {
-                    setEditingListing(null);
-                    return;
-                  }
-                  setIsEditing(newRecord(activeTab === 'items' ? 'tips' : 'event'));
-                }}
-                onInitNewTip={
-                  activeTab === 'items' && renderListingEditor
-                    ? () => setIsEditing(newRecord('tips'))
-                    : undefined
-                }
-                onEdit={(item) => {
-                  if (activeTab === 'items' && item.category !== 'tips' && renderListingEditor) {
-                    setEditingListing(item);
-                    return;
-                  }
-                  setIsEditing({
-                    ...item,
-                    images: item.images || (item.image ? [item.image] : []),
-                  });
-                }}
-                onDelete={handleDelete}
-                renderListingSeal={activeTab === 'items' ? renderListingSeal : undefined}
-              />
+              renderEventsTab?.()
             )}
           </motion.div>
         </AnimatePresence>
       </div>
-
-      <AnimatePresence>
-        {editingListing !== undefined &&
-          renderListingEditor?.({
-            item: editingListing,
-            onClose: () => setEditingListing(undefined),
-          })}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {isEditing && (
-          <AdminEditorModal
-            isEditing={isEditing}
-            setIsEditing={setIsEditing}
-            activeTab={activeTab as 'items' | 'events'}
-            isAdminUser={isAdminUser}
-            onSave={handleSaveRecord}
-            renderSessionsField={renderSessionsField}
-            renderTicketingManager={renderTicketingManager}
-            onDeleteConfirm={async (id) => {
-              if (activeTab === 'items') {
-                await deleteGuideItemUseCase(id);
-              } else {
-                await deleteAdminEventListingUseCase(id);
-              }
-              showToast('Registro excluído.', 'success');
-            }}
-          />
-        )}
-      </AnimatePresence>
 
       <style>{`
         .no-scrollbar::-webkit-scrollbar {

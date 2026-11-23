@@ -71,6 +71,14 @@ export interface AdminPanelTranslation {
   tabs: Tabs;
   guide: Guide;
   tip: Tip;
+  events: {
+    new: string;
+    loading: string;
+    loadError: string;
+    empty: string;
+    ownerUseGuide: string;
+    ownerPartner: string;
+  };
 }
 
 export const adminPanelPtBR: AdminPanelTranslation = {
@@ -123,6 +131,14 @@ export const adminPanelPtBR: AdminPanelTranslation = {
     resumed: 'Anúncio de volta ao guia.',
     pauseFailed: 'Não foi possível mudar agora. Tente de novo.',
     listingError: 'Não foi possível abrir o anúncio.',
+  },
+  events: {
+    new: 'Novo evento',
+    loading: 'Carregando a agenda…',
+    loadError: 'Não foi possível carregar a agenda.',
+    empty: 'Nenhum evento ainda.',
+    ownerUseGuide: 'Dono: <b>Use Guide</b>. Evento informativo: não vende ingresso pelo app.',
+    ownerPartner: 'Evento de parceiro. As mudanças do admin ficam no registro de auditoria.',
   },
   tip: {
     newTitle: 'Nova dica',

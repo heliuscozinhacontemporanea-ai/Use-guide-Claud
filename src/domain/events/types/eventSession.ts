@@ -9,6 +9,3 @@ export interface EventSessionDraft {
 }
 
 export type EventSessionsLoadState = 'idle' | 'loading' | 'ready' | 'error';
-
-/** Quem grava as sessões: cada um usa as rotas da própria área. */
-export type EventSessionsScope = 'admin' | 'partner';
