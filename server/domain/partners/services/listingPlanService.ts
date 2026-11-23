@@ -15,6 +15,7 @@ import {
   isPlanActive,
   resolveAdminPlan,
 } from '../utils/listingSeal';
+import { isUseGuideOwner } from '../../../shared/kernel/useGuideOwner';
 
 const TRIAL_DAYS = 7;
 const DAY_MS = 86_400_000;
@@ -143,6 +144,10 @@ export class ListingPlanService {
   async setAdminSeal(actor: Actor, listing: PlanListing, grant: boolean): Promise<void> {
     if (!actor.admin) {
       throw new ListingPlanError('FORBIDDEN', 'Somente administradores alteram o selo.');
+    }
+    // Anúncio do Use Guide não tem selo: o selo diz que o dono foi verificado (escolhas da F4).
+    if (isUseGuideOwner(listing.ownerId)) {
+      throw new ListingPlanError('USE_GUIDE_LISTING', 'Anúncio do Use Guide não recebe selo.');
     }
     const current = await this.repository.get(listing.id);
     const now = this.now();

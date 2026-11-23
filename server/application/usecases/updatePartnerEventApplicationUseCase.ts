@@ -4,9 +4,9 @@ import {
   updateEventListingUseCase,
 } from '../../domain/events';
 import { getItemByIdUseCase } from '../../domain/guide';
-import { updateBusinessUseCase } from '../../domain/partners';
 import { placeTimeOf } from '../../shared/kernel/timeZones';
 import type { AuthenticatedUserContext } from '../security/authenticatedUserContext';
+import { renameOwnerBusiness } from './ownerBusinessLink';
 import { updateEventListingSafelyApplicationUseCase } from './updateEventListingSafelyApplicationUseCase';
 
 export async function updatePartnerEventApplicationUseCase(
@@ -40,7 +40,7 @@ export async function updatePartnerEventApplicationUseCase(
 
   if (data.name && data.name !== previous.name) {
     try {
-      await updateBusinessUseCase(ownerId, {
+      await renameOwnerBusiness(ownerId, {
         businessId: id,
         businessName: data.name,
         type: 'event',

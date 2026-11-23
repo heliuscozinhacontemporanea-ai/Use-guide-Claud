@@ -5,14 +5,10 @@ import {
 } from '../../domain/bookings';
 import { countOpenEstablishmentEventsUseCase } from '../../domain/events';
 import { GuideDomainError, getItemByIdUseCase, deleteGuideItemUseCase } from '../../domain/guide';
-import {
-  deleteListingPlanUseCase,
-  deleteListingVerificationUseCase,
-  linkBusinessUseCase,
-  unlinkBusinessUseCase,
-} from '../../domain/partners';
+import { deleteListingPlanUseCase, deleteListingVerificationUseCase } from '../../domain/partners';
 import { cancelListingPlanSubscriptionUseCase } from '../../domain/payment';
 import { deleteVerificationFiles } from './listingVerification/deleteVerificationFiles';
+import { linkOwnerBusiness, unlinkOwnerBusiness } from './ownerBusinessLink';
 
 function isNotFoundError(error: unknown): boolean {
   if (!error) return false;
@@ -69,14 +65,14 @@ export async function deletePartnerItemApplicationUseCase(
     );
   }
 
-  await unlinkBusinessUseCase(ownerId, id);
+  await unlinkOwnerBusiness(ownerId, id);
 
   try {
     await deleteGuideItemUseCase(user, id);
   } catch (error) {
     if (!isNotFoundError(error)) {
       try {
-        await linkBusinessUseCase(ownerId, {
+        await linkOwnerBusiness(ownerId, {
           businessId: id,
           businessName: existing.name || '',
           type: 'item',

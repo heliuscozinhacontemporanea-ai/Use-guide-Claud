@@ -107,6 +107,13 @@ describe('ListingPlanService (D11)', () => {
     expect((await service.computeSeal('item-1', 'rejected')).isVerified).toBe(false);
   });
 
+  it('anúncio do Use Guide não recebe selo do admin (F4)', async () => {
+    await expect(
+      service.setAdminSeal(admin, { ...pousada, ownerId: 'useguide' }, true)
+    ).rejects.toMatchObject({ code: 'USE_GUIDE_LISTING' });
+    expect(await repo.get('item-1')).toBeNull();
+  });
+
   it('só admin mexe no selo; outro dono não vê o plano', async () => {
     await expect(service.setAdminSeal(owner, pousada, true)).rejects.toMatchObject({
       code: 'FORBIDDEN',

@@ -241,6 +241,10 @@ service cloud.firestore {
     match /interactionGuards/{guardId} {
       allow read, write: if false;
     }
+    // Registro de auditoria das ações de admin (A09, F4): só o servidor lê e grava, nem o admin.
+    match /adminAuditLog/{entryId} {
+      allow read, write: if false;
+    }
     match /{document=**} {
       allow read, write: if false;
     }

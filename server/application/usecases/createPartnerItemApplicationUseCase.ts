@@ -5,7 +5,9 @@ import {
   listOwnerGuideItemsUseCase,
 } from '../../domain/guide';
 import type { GuideCreateItemInput } from '../../domain/guide';
-import { linkBusinessUseCase, recordPartnerPanelTourUseCase } from '../../domain/partners';
+import { recordPartnerPanelTourUseCase } from '../../domain/partners';
+import { USE_GUIDE_OWNER_ID } from '../../shared/kernel/useGuideOwner';
+import { linkOwnerBusiness } from './ownerBusinessLink';
 
 /**
  * Quem acabou de entrar pelo Seja parceiro segue o guia de passos do Início, e não o tour (escolhas
@@ -27,8 +29,10 @@ export async function createPartnerItemApplicationUseCase(
   data: GuideCreateItemInput
 ): Promise<string> {
   const itemId = await createGuideItemUseCase(user, data);
+  // O admin cadastra para o Use Guide (escolhas da F4); só o parceiro liga o anúncio ao perfil.
+  const ownerId = user.admin ? USE_GUIDE_OWNER_ID : user.uid;
   try {
-    await linkBusinessUseCase(user.uid, {
+    await linkOwnerBusiness(ownerId, {
       businessId: itemId,
       businessName: data.name,
       type: 'item',

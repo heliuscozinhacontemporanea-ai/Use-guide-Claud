@@ -1,13 +1,29 @@
 import { AuthenticatedUserContext } from '../../../application/security/authenticatedUserContext';
 import { findContactsInText } from '../../../shared/kernel/contactInText';
 import { type BrState, timeZoneForBrazilianCity } from '../../../shared/kernel/timeZones';
+import { isUseGuideOwner, USE_GUIDE_OWNER_ID } from '../../../shared/kernel/useGuideOwner';
 import { GuideDomainError } from '../errors/guideDomainError';
 import { GuideItemContact, GuidePort, GuideVerificationUpdate } from '../ports/guidePort';
 import { GuideCreateItemInput, GuidePublication, GuideUpdateItemInput } from '../types/guideTypes';
-import { type ListingStep, listingSetupSteps, stepsLost } from '../utils/listingSetupSteps';
+import {
+  type ListingStep,
+  listingSetupSteps,
+  stepsLost,
+  minimumPublishSteps,
+} from '../utils/listingSetupSteps';
 import { sellsThroughApp } from '../utils/sellsThroughApp';
 
-const ADMIN_CREATABLE_ITEM_CATEGORIES = ['sight', 'tour', 'tips'] as const;
+// O admin cadastra lugares de todas as categorias e as dicas (escolhas da F4); o perfil de produtor é
+// do parceiro (D9).
+const ADMIN_CREATABLE_ITEM_CATEGORIES = [
+  'sight',
+  'hotel',
+  'restaurant',
+  'tour',
+  'transfer',
+  'rental',
+  'tips',
+] as const;
 
 const PARTNER_CREATABLE_ITEM_CATEGORIES = [
   'sight',
@@ -112,14 +128,16 @@ function placeTimeZone(place: { state?: BrState; city?: string }): { timeZone?: 
 }
 
 /**
- * Anúncio do parceiro nasce como rascunho, fora do guia (D34). O admin publica direto os lugares do
- * próprio guia, e o perfil de produtor não aparece no guia (D9), mas os eventos leem o nome dele.
+ * Anúncio nasce como rascunho, fora do guia (D34), também o do Use Guide (escolhas da F4). A dica vai
+ * para o guia ao salvar, e o perfil de produtor não aparece no guia (D9), mas os eventos leem o nome.
  */
-function initialPublication(
-  user: AuthenticatedUserContext,
-  category: GuideCreateItemInput['category']
-): GuidePublication {
-  return user.admin || category === 'producer' ? 'published' : 'draft';
+function initialPublication(category: GuideCreateItemInput['category']): GuidePublication {
+  return category === 'tips' || category === 'producer' ? 'published' : 'draft';
+}
+
+/** O conteúdo que o admin cadastra é do Use Guide, nunca da conta pessoal de quem criou (F4). */
+function ownerOf(user: AuthenticatedUserContext): string {
+  return user.admin ? USE_GUIDE_OWNER_ID : user.uid;
 }
 
 function incomplete(message: string, steps: ListingStep[]): GuideDomainError {
@@ -137,12 +155,13 @@ export class GuideService {
   ): Promise<string> {
     ensureCanManageGuide(user);
     ensureCreateItemCategory(user, data.category);
-    const publication = initialPublication(user, data.category);
+    const publication = initialPublication(data.category);
+    const ownerId = ownerOf(user);
     if (!sellsThroughApp(data.category, data.operationalInfo?.access)) {
       return this.guidePort.createItem({
         ...data,
         ...placeTimeZone(data),
-        ownerId: user.uid,
+        ownerId,
         isActive: data.isActive ?? true,
         publication,
       });
@@ -152,7 +171,7 @@ export class GuideService {
     const id = await this.guidePort.createItem({
       ...item,
       ...placeTimeZone(data),
-      ownerId: user.uid,
+      ownerId,
       isActive: data.isActive ?? true,
       publication,
     });
@@ -197,7 +216,10 @@ export class GuideService {
     if (data.phone !== undefined) await this.guidePort.setItemContact(id, contact);
   }
 
-  /** Publica o rascunho no guia, depois de conferir os passos da categoria (D34). */
+  /**
+   * Publica o rascunho no guia, depois de conferir os passos da categoria (D34). O admin publica o
+   * anúncio do Use Guide com o mínimo (escolhas da F4).
+   */
   async publishItem(user: AuthenticatedUserContext, id: string): Promise<void> {
     ensureCanManageGuide(user);
     ensureValidId(id);
@@ -207,7 +229,9 @@ export class GuideService {
     }
     ensureOwnership(user, existing.ownerId);
     if (existing.publication === 'published') return;
-    const open = listingSetupSteps(existing).filter((step) => !step.done);
+    const rule =
+      user.admin && isUseGuideOwner(existing.ownerId) ? minimumPublishSteps : listingSetupSteps;
+    const open = rule(existing).filter((step) => !step.done);
     if (open.length > 0) {
       throw incomplete('Complete os passos do guia antes de publicar.', open);
     }

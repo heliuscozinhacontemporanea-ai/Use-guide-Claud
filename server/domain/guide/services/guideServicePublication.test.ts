@@ -90,7 +90,7 @@ describe('GuideService · rascunho e publicação (D34)', () => {
     service = new GuideService(port);
   });
 
-  it('anúncio do parceiro nasce como rascunho; o perfil de produtor e o do admin, publicados', async () => {
+  it('anúncio nasce como rascunho; o perfil de produtor e a dica, publicados', async () => {
     await service.createItem(partner, { ...draftInput, category: 'hotel' });
     expect(port.createItem).toHaveBeenLastCalledWith(
       expect.objectContaining({ publication: 'draft', ownerId: 'partner-1' })
@@ -101,8 +101,68 @@ describe('GuideService · rascunho e publicação (D34)', () => {
     );
     await service.createItem(admin, { ...draftInput, category: 'sight' });
     expect(port.createItem).toHaveBeenLastCalledWith(
+      expect.objectContaining({ publication: 'draft' })
+    );
+    await service.createItem(admin, { ...draftInput, category: 'tips' });
+    expect(port.createItem).toHaveBeenLastCalledWith(
       expect.objectContaining({ publication: 'published' })
     );
+  });
+
+  it('o que o admin cadastra é do Use Guide, nunca da conta pessoal (F4)', async () => {
+    for (const category of [
+      'hotel',
+      'restaurant',
+      'sight',
+      'tour',
+      'transfer',
+      'rental',
+    ] as const) {
+      await service.createItem(admin, { ...draftInput, category });
+      expect(port.createItem).toHaveBeenLastCalledWith(
+        expect.objectContaining({ ownerId: 'useguide', category })
+      );
+    }
+    await expect(
+      service.createItem(admin, { ...draftInput, category: 'producer' })
+    ).rejects.toMatchObject({ code: 'FORBIDDEN' });
+  });
+
+  it('o admin publica o anúncio do Use Guide com o mínimo: nome, cidade, região e 1 foto', async () => {
+    const minimal = completeRestaurant({
+      ownerId: 'useguide',
+      description: '',
+      address: '',
+      googleMapsLink: '',
+      operationalInfo: {},
+    });
+    vi.mocked(port.getItemById).mockResolvedValue(minimal);
+    await service.publishItem(admin, 'item-1');
+    expect(port.setPublication).toHaveBeenCalledWith('item-1', 'published');
+  });
+
+  it('sem foto ou sem região, o anúncio do Use Guide não é publicado', async () => {
+    vi.mocked(port.getItemById).mockResolvedValue(
+      completeRestaurant({ ownerId: 'useguide', images: [], location: '' })
+    );
+    await expect(service.publishItem(admin, 'item-1')).rejects.toMatchObject({
+      code: 'LISTING_INCOMPLETE',
+      details: {
+        steps: [
+          { id: 'photos', missing: ['images'] },
+          { id: 'where', missing: ['region'] },
+        ],
+      },
+    });
+    expect(port.setPublication).not.toHaveBeenCalled();
+  });
+
+  it('rascunho de parceiro publicado pelo admin segue a regra inteira do parceiro', async () => {
+    vi.mocked(port.getItemById).mockResolvedValue(completeRestaurant({ description: '' }));
+    await expect(service.publishItem(admin, 'item-1')).rejects.toMatchObject({
+      code: 'LISTING_INCOMPLETE',
+    });
+    expect(port.setPublication).not.toHaveBeenCalled();
   });
 
   it('o cliente não escolhe a publicação: o valor vem só do servidor', async () => {

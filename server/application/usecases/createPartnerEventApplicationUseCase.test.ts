@@ -141,4 +141,50 @@ describe('createPartnerEventApplicationUseCase', () => {
       false
     );
   });
+
+  describe('evento do Use Guide (escolhas da F4)', () => {
+    const adminUser: AuthenticatedUserContext = { uid: 'admin-1', role: 'admin', admin: true };
+
+    it('sem estabelecimento: usa o fuso do estado e da cidade, sem perfil de parceiro', async () => {
+      await createPartnerEventApplicationUseCase(adminUser, {
+        ...baseEventInput,
+        state: 'CE',
+        city: 'Jijoca de Jericoacoara',
+      });
+      expect(mocks.getPartnerProfileUseCase).not.toHaveBeenCalled();
+      expect(mocks.createEventListingUseCase).toHaveBeenCalledWith(
+        adminUser,
+        expect.objectContaining({ timeZone: 'America/Fortaleza', city: 'Jijoca de Jericoacoara' })
+      );
+      expect(mocks.linkBusinessUseCase).not.toHaveBeenCalled();
+    });
+
+    it('sem estabelecimento nem cidade, recusa', async () => {
+      await expect(
+        createPartnerEventApplicationUseCase(adminUser, baseEventInput)
+      ).rejects.toMatchObject({ code: 'INVALID_ARGUMENT' });
+      expect(mocks.createEventListingUseCase).not.toHaveBeenCalled();
+    });
+
+    it('no estabelecimento, só anúncio do Use Guide', async () => {
+      mocks.getItemByIdUseCase.mockResolvedValue({ id: 'est-p', ownerId: 'partner-1' });
+      await expect(
+        createPartnerEventApplicationUseCase(adminUser, {
+          ...baseEventInput,
+          establishmentId: 'est-p',
+        })
+      ).rejects.toMatchObject({ code: 'FORBIDDEN' });
+      mocks.getItemByIdUseCase.mockResolvedValue({
+        id: 'est-u',
+        ownerId: 'useguide',
+        timeZone: 'America/Fortaleza',
+      });
+      await createPartnerEventApplicationUseCase(adminUser, {
+        ...baseEventInput,
+        establishmentId: 'est-u',
+      });
+      expect(mocks.createEventListingUseCase).toHaveBeenCalledTimes(1);
+      expect(mocks.linkBusinessUseCase).not.toHaveBeenCalled();
+    });
+  });
 });
