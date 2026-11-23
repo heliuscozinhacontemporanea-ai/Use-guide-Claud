@@ -15,6 +15,13 @@ export { AdminListingSealControl } from './components/plan/AdminListingSealContr
 export { ListingVerificationQueue } from './components/verification/ListingVerificationQueue';
 export { PartnerPanel } from './components/PartnerPanel';
 export { PartnerBusinessPage } from './components/join/PartnerBusinessPage';
+// Páginas do anúncio que o admin também usa (escolhas da F4), só para src/app/compositions.
+export { type EditorBlock, ListingEditorPage } from './components/guide/ListingEditorPage';
+export { ListingPhotosField } from './components/guide/ListingPhotosField';
+export { ListingPublishPage } from './components/guide/ListingPublishPage';
+export { ListingStepPage } from './components/guide/ListingStepPage';
+export { NewListingPage } from './components/join/NewListingPage';
+export type { ListingStep } from './types/partnerHome';
 export { PartnerPresentation } from './components/sections/PartnerPresentation';
 export { joinAsPartnerUseCase } from './application/usecases/joinAsPartnerUseCase';
 export { loadPartnerJoinDraftUseCase } from './application/usecases/loadPartnerJoinDraftUseCase';

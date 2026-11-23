@@ -20,6 +20,8 @@ import {
 import { AdminFinanceQueues } from '../../domain/payment';
 import { ReviewModerationQueue } from '../../domain/reviews';
 import { PartnerEventTicketingManager } from '../../domain/ticketing';
+import { AdminGuideTab } from './admin/AdminGuideTab';
+import { AdminPanelStack } from './admin/AdminPanelStack';
 
 // Cadastros novos que o admin pode criar pelo editor do parceiro (o servidor permite só estes ao admin).
 const ADMIN_LISTING_CATEGORIES = ['sight', 'tour'];
@@ -91,24 +93,31 @@ function AdminListingEditor({ item, onClose }: AdminListingEditorProps) {
  */
 export function AdminPanelComposition() {
   return (
-    <AdminDispatcher
-      renderListingEditor={(props) => <AdminListingEditor {...props} />}
-      renderVerificationQueue={() => <ListingVerificationQueue />}
-      renderListingSeal={(item) => <AdminListingSealControl itemId={item.id} name={item.name} />}
-      renderFinanceQueues={() => (
-        <AdminFinanceQueues
-          renderClaimEvidence={(claim) =>
-            isBookingServiceEvidence(claim.serviceEvidence) ? (
-              <ServiceEvidenceList evidence={claim.serviceEvidence} />
-            ) : null
-          }
+    <AdminPanelStack
+      root={
+        <AdminDispatcher
+          renderGuideTab={() => <AdminGuideTab />}
+          renderListingEditor={(props) => <AdminListingEditor {...props} />}
+          renderVerificationQueue={() => <ListingVerificationQueue />}
+          renderListingSeal={(item) => (
+            <AdminListingSealControl itemId={item.id} name={item.name} />
+          )}
+          renderFinanceQueues={() => (
+            <AdminFinanceQueues
+              renderClaimEvidence={(claim) =>
+                isBookingServiceEvidence(claim.serviceEvidence) ? (
+                  <ServiceEvidenceList evidence={claim.serviceEvidence} />
+                ) : null
+              }
+            />
+          )}
+          renderModerationQueue={() => <ReviewModerationQueue />}
+          renderSessionsField={(props) => <EventSessionsField {...props} />}
+          renderTicketingManager={(eventListingId, place) => (
+            <PartnerEventTicketingManager eventListingId={eventListingId} asAdmin place={place} />
+          )}
         />
-      )}
-      renderModerationQueue={() => <ReviewModerationQueue />}
-      renderSessionsField={(props) => <EventSessionsField {...props} />}
-      renderTicketingManager={(eventListingId, place) => (
-        <PartnerEventTicketingManager eventListingId={eventListingId} asAdmin place={place} />
-      )}
+      }
     />
   );
 }

@@ -14,9 +14,17 @@ const PLACE_CATEGORIES = LISTING_CATEGORIES.map((category) => category.id).filte
 /** Novo estabelecimento pelo Catálogo (F2): "Seu negócio" sem os Termos, já aceitos. */
 export function NewListingPage({
   categories = PLACE_CATEGORIES,
+  requirePhone = true,
+  laterText,
+  createdMessage,
   onCreated,
 }: {
   categories?: string[];
+  /** O admin cadastra o lugar sem telefone, se não tiver (escolhas da F4). */
+  requirePhone?: boolean;
+  laterText?: string;
+  /** Aviso depois de criar (o do parceiro manda seguir o guia no Início). */
+  createdMessage?: string;
   onCreated: (itemId: string) => void;
 }) {
   const { t } = useTranslation();
@@ -33,7 +41,7 @@ export function NewListingPage({
     setError(null);
     try {
       const itemId = await createListingDraftUseCase(draft);
-      showToast(t('partnerGuide.editor.draftCreated'), 'success');
+      showToast(createdMessage ?? t('partnerGuide.editor.draftCreated'), 'success');
       onCreated(itemId);
     } catch {
       setError(t('partnerGuide.join.errors.failed'));
@@ -51,10 +59,11 @@ export function NewListingPage({
       submitting={submitting}
       error={error}
       requireTerms={false}
+      requirePhone={requirePhone}
       categories={categories}
       submitLabel={t('partnerGuide.editor.createDraft')}
       submittingLabel={t('partnerGuide.editor.creatingDraft')}
-      laterText={t('partnerGuide.editor.newLater')}
+      laterText={laterText ?? t('partnerGuide.editor.newLater')}
     />
   );
 }

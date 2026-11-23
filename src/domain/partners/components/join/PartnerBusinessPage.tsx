@@ -33,6 +33,7 @@ export function PartnerBusinessPage({
   submitting,
   error,
   requireTerms = true,
+  requirePhone = true,
   categories,
   submitLabel,
   submittingLabel,
@@ -46,6 +47,8 @@ export function PartnerBusinessPage({
   error: string | null;
   /** Novo estabelecimento pelo painel (F2): os Termos já foram aceitos no Seja parceiro. */
   requireTerms?: boolean;
+  /** O admin cadastra o lugar sem telefone, se não tiver (escolhas da F4). */
+  requirePhone?: boolean;
   /** Categorias que podem ser escolhidas (padrão: todas). */
   categories?: string[];
   submitLabel?: string;
@@ -59,10 +62,11 @@ export function PartnerBusinessPage({
   const sells = listingSellsThroughApp(draft.category);
   const set = (patch: Partial<PartnerJoinDraft>) => onChange({ ...draft, ...patch });
   const errorOf = (field: PartnerJoinField) =>
-    shown.includes(field) && partnerJoinErrors(draft, { requireTerms }).includes(field);
+    shown.includes(field) &&
+    partnerJoinErrors(draft, { requireTerms, requirePhone }).includes(field);
 
   const submit = () => {
-    const errors = partnerJoinErrors(draft, { requireTerms });
+    const errors = partnerJoinErrors(draft, { requireTerms, requirePhone });
     setShown(errors);
     if (errors.length === 0) onSubmit();
   };
@@ -158,7 +162,7 @@ export function PartnerBusinessPage({
 
       <div>
         <label htmlFor={ids.phone} className={SIGNUP_LABEL}>
-          {t('partnerGuide.join.phone')}
+          {requirePhone ? t('partnerGuide.join.phone') : t('partnerGuide.join.phonePlace')}
         </label>
         <E164PhoneField
           id={ids.phone}
@@ -166,7 +170,11 @@ export function PartnerBusinessPage({
           onChange={(phone) => set({ phone: phone ?? '' })}
         />
         <p className={SIGNUP_HINT}>
-          {sells ? t('partnerGuide.join.phoneHintSells') : t('partnerGuide.join.phoneHintShowcase')}
+          {!requirePhone
+            ? t('partnerGuide.join.phoneHintPlace')
+            : sells
+              ? t('partnerGuide.join.phoneHintSells')
+              : t('partnerGuide.join.phoneHintShowcase')}
         </p>
         {errorOf('phone') ? (
           <p className={SIGNUP_ERROR}>{t('partnerGuide.join.errors.phone')}</p>

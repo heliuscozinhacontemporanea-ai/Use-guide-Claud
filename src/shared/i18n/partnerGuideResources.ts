@@ -18,6 +18,8 @@ export interface PartnerGuideTranslation {
     phone: string;
     phoneHintSells: string;
     phoneHintShowcase: string;
+    phonePlace: string;
+    phoneHintPlace: string;
     termsBefore: string;
     termsLink: string;
     later: string;
@@ -201,6 +203,8 @@ export const partnerGuidePtBR: PartnerGuideTranslation = {
     phone: 'Telefone ou WhatsApp do negócio',
     phoneHintSells: 'Fica só com a plataforma: o cliente recebe depois da compra, pelo pedido.',
     phoneHintShowcase: 'Aparece no anúncio, para quem quiser falar com você.',
+    phonePlace: 'Telefone ou WhatsApp do lugar (opcional)',
+    phoneHintPlace: 'Aparece no anúncio. Quem assumir o anúncio pode trocar.',
     termsBefore: 'Li e aceito os',
     termsLink: 'Termos do parceiro',
     later: 'Fotos, detalhes e preços você completa depois no painel, com um guia passo a passo.',

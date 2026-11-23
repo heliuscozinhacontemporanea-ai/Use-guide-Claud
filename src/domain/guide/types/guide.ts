@@ -59,6 +59,8 @@ export type GuideContentType = 'item' | 'event';
 
 export type EventEntryType = 'pago' | 'gratuito';
 
+export type GuideDeclinedLink = 'instagram' | 'website' | 'menu';
+
 export interface GuideItem {
   id: string;
   contentType?: GuideContentType;
@@ -92,6 +94,10 @@ export interface GuideItem {
   isVerificationSuspended?: boolean;
   verificationType?: 'trial' | 'monthly' | 'semi-annual' | 'annual' | 'admin' | null;
   operationalInfo?: GuideItemOperationalInfo;
+  /** Links que o dono marcou como "Não tenho" (escolhas da F1, D34). */
+  declinedLinks?: GuideDeclinedLink[];
+  /** Rascunho ou no guia (D34); só o dono e o admin leem o rascunho. */
+  publication?: 'draft' | 'published';
   isActive?: boolean;
   date?: string;
   endDate?: string;

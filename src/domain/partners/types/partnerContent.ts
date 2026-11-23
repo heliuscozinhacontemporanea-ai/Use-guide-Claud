@@ -119,7 +119,8 @@ export interface PartnerContentRecord {
 export interface PartnerContentItemInput {
   name: string;
   description: string;
-  category: 'sight' | 'hotel' | 'restaurant' | 'tour' | 'transfer' | 'rental' | 'producer';
+  /** `tips` só o admin cria (escolhas da F4); o servidor confere o papel. */
+  category: 'sight' | 'hotel' | 'restaurant' | 'tour' | 'transfer' | 'rental' | 'producer' | 'tips';
   image: string;
   images: string[];
   location: string;

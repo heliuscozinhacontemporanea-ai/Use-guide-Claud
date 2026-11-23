@@ -61,6 +61,11 @@ export interface AdminListingEditorProps {
 
 export interface AdminPanelProps extends AdminEventSlots {
   /**
+   * Aba "Guia local" montada pela composição (escolhas da F4): anúncios e dicas no editor do
+   * parceiro, com as páginas empilhadas.
+   */
+  renderGuideTab?: () => ReactNode;
+  /**
    * Editor de cadastro (o mesmo do parceiro), montado pela composição do app. Dicas e eventos
    * continuam no editor próprio do admin.
    */
@@ -76,6 +81,7 @@ export interface AdminPanelProps extends AdminEventSlots {
 }
 
 export function AdminPanel({
+  renderGuideTab,
   renderListingEditor,
   renderVerificationQueue,
   renderListingSeal,
@@ -116,7 +122,9 @@ export function AdminPanel({
     isLoading: dataLoading,
     error: dataError,
     retry: retryCatalog,
-  } = useAdminGuideCatalog(isAdminUser && (activeTab === 'items' || activeTab === 'events'));
+  } = useAdminGuideCatalog(
+    isAdminUser && (activeTab === 'events' || (activeTab === 'items' && !renderGuideTab))
+  );
 
   const currentList = activeTab === 'events' ? eventsList : itemsList;
 
@@ -282,6 +290,8 @@ export function AdminPanel({
               <AdminPlansView />
             ) : activeTab === 'notifications' ? (
               <AdminNotificationsView />
+            ) : activeTab === 'items' && renderGuideTab ? (
+              renderGuideTab()
             ) : (
               <AdminGuideView
                 activeTab={activeTab}
