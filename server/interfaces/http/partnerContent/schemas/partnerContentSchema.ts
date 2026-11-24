@@ -1,8 +1,18 @@
 import { z } from 'zod';
-import { E164_MESSAGE, E164_PATTERN } from '../../../shared/kernel/phone';
-import { BR_STATES } from '../../../shared/kernel/timeZones';
-import { eventSalesPolicySchema } from '../../events/schemas/eventSchema';
-import { GUIDE_DECLINED_LINKS } from '../../guide';
+import { GUIDE_DECLINED_LINKS } from '../../../../domain/guide';
+import { EVENT_CANCELLATION_POLICIES } from '../../../../shared/kernel/cancellationPolicy';
+import { E164_MESSAGE, E164_PATTERN } from '../../../../shared/kernel/phone';
+import { BR_STATES } from '../../../../shared/kernel/timeZones';
+
+// Política de venda do evento (D14); o admin usa as mesmas rotas do parceiro (escolhas da F4).
+const eventSalesPolicySchema = z
+  .object({
+    cancellationPolicy: z.enum(EVENT_CANCELLATION_POLICIES),
+    serviceFeeMode: z.enum(['pass_to_buyer', 'absorb']),
+    allowTicketTransfer: z.boolean(),
+    ticketTransferCutoffHours: z.number().int().min(0).max(720),
+  })
+  .strict();
 
 const optionalUrl = z.string().url().or(z.literal('')).optional();
 

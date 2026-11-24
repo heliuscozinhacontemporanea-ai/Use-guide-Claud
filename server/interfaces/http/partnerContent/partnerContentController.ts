@@ -11,14 +11,15 @@ import { updateEventOccurrenceSafelyApplicationUseCase } from '../../../applicat
 import { updatePartnerEventApplicationUseCase } from '../../../application/usecases/updatePartnerEventApplicationUseCase';
 import { updatePartnerItemApplicationUseCase } from '../../../application/usecases/updatePartnerItemApplicationUseCase';
 import type { AuthenticatedRequest } from '../../../infrastructure/auth/authMiddleware';
-import { createEventOccurrenceUseCase, EventDomainError } from '../../events';
-import { getOwnGuideItemContactUseCase } from '../../guide';
+import { createEventOccurrenceUseCase, EventDomainError } from '../../../domain/events';
+import { getOwnGuideItemContactUseCase } from '../../../domain/guide';
 import {
   getEventSalesAnalyticsUseCase,
   listEventCheckInsForPartnerOrAdminUseCase,
   listEventOrdersForPartnerOrAdminUseCase,
   listEventRefundsForPartnerOrAdminUseCase,
-} from '../../ticketing';
+  toPartnerOrderView,
+} from '../../../domain/ticketing';
 import {
   createPartnerEventOccurrenceSchema,
   createPartnerEventSchema,
@@ -26,7 +27,7 @@ import {
   updatePartnerEventOccurrenceSchema,
   updatePartnerEventSchema,
   updatePartnerItemSchema,
-} from '../schemas/partnerContentSchema';
+} from './schemas/partnerContentSchema';
 
 function requireGuideContext(req: AuthenticatedRequest): AuthenticatedUserContext {
   if (!req.guideUserContext) {
@@ -346,7 +347,9 @@ export class PartnerContentController {
       const user = requireGuideContext(req);
       const id = String(req.params.id || '');
       const orders = await listEventOrdersForPartnerOrAdminUseCase(user, id);
-      return res.status(200).json({ status: 'success', data: orders });
+      // Parceiro não recebe nome, e-mail nem documento do comprador (§7.9, decisão 1e.2); o admin, sim.
+      const data = user.admin ? orders : orders.map(toPartnerOrderView);
+      return res.status(200).json({ status: 'success', data });
     } catch (error: unknown) {
       return sendControllerError(res, error, 'Erro ao consultar pedidos do evento');
     }

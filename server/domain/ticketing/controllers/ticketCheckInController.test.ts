@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vitest';
 const m = vi.hoisted(() => ({ checkIn: vi.fn() }));
 vi.mock('../usecases/checkInTicketUseCase', () => ({ checkInTicketUseCase: m.checkIn }));
 
-import { TicketingController } from './ticketingController';
+import { TicketCheckInController } from './ticketCheckInController';
 
 function response() {
   const res = { status: vi.fn(), json: vi.fn() };
@@ -13,7 +13,7 @@ function response() {
   return res;
 }
 
-describe('TicketingController.checkInTicket (§7.9, C1)', () => {
+describe('TicketCheckInController.checkInTicket (§7.9, C1)', () => {
   it('a portaria recebe só nome, lote e convidado; nunca e-mail, comprador nem hash do QR', async () => {
     m.checkIn.mockResolvedValue({
       ticket: {
@@ -36,7 +36,7 @@ describe('TicketingController.checkInTicket (§7.9, C1)', () => {
       },
     });
     const res = response();
-    await TicketingController.checkInTicket(
+    await TicketCheckInController.checkInTicket(
       { body: { occurrenceId: 'occ1', ticketId: 't1' }, user: { uid: 'equipe-1' } } as never,
       res as unknown as Response
     );

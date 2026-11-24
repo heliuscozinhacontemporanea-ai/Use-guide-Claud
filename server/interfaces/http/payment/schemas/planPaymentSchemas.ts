@@ -16,8 +16,6 @@ export const CreatePlanPaymentIntentSchema = z
   })
   .strict();
 
-export type CreatePlanPaymentIntentDTO = z.infer<typeof CreatePlanPaymentIntentSchema>;
-
 export const ConfirmPlanPaymentSchema = z
   .object({
     paymentIntentId: z
@@ -26,16 +24,3 @@ export const ConfirmPlanPaymentSchema = z
       .regex(/^pi_[A-Za-z0-9]+$/),
   })
   .strict();
-
-export const CreateTicketPaymentIntentSchema = z
-  .object({
-    orderId: z.string().trim().min(1, 'orderId é obrigatório'),
-    idempotencyKey: z
-      .string()
-      .trim()
-      .min(1, 'idempotencyKey é obrigatório')
-      .max(150, 'idempotencyKey excede o tamanho máximo de 150 caracteres'),
-  })
-  .strict();
-
-export type CreateTicketPaymentIntentDTO = z.infer<typeof CreateTicketPaymentIntentSchema>;

@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import { AuthenticatedUserContext } from '../../application/security/authenticatedUserContext';
+import { AuthenticatedUserContext } from '../../shared/kernel/authenticatedUserContext';
 import { AuthenticatedUser } from './types/authenticatedUser';
 
 export type { AuthenticatedUser };

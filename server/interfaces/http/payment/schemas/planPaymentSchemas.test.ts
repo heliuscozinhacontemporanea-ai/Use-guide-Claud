@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { CreatePlanPaymentIntentSchema, CreateTicketPaymentIntentSchema } from './paymentSchema';
+import { CreatePlanPaymentIntentSchema } from './planPaymentSchemas';
 
 describe('Payment Schemas - Mass Assignment Protection and Strictness', () => {
   const validPlanPayload = {
@@ -30,17 +30,6 @@ describe('Payment Schemas - Mass Assignment Protection and Strictness', () => {
       role: 'admin',
     };
     const result = CreatePlanPaymentIntentSchema.safeParse(maliciousPayload);
-    expect(result.success).toBe(false);
-  });
-
-  it('rejeita campos extras em CreateTicketPaymentIntentSchema', () => {
-    const maliciousTicketPayload = {
-      orderId: 'ord-123',
-      idempotencyKey: 'idemp-ticket-12345',
-      totalMinor: 100,
-      platformFeeMinor: 0,
-    };
-    const result = CreateTicketPaymentIntentSchema.safeParse(maliciousTicketPayload);
     expect(result.success).toBe(false);
   });
 });

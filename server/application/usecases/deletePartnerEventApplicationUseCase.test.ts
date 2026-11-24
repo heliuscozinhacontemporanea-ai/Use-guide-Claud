@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { type EventListing, getEventListingByIdUseCase } from '../../domain/events';
 import { linkBusinessUseCase, unlinkBusinessUseCase } from '../../domain/partners';
-import type { AuthenticatedUserContext } from '../security/authenticatedUserContext';
+import type { AuthenticatedUserContext } from '../../shared/kernel/authenticatedUserContext';
 import { deleteEventListingSafelyApplicationUseCase } from './deleteEventListingSafelyApplicationUseCase';
 import { deletePartnerEventApplicationUseCase } from './deletePartnerEventApplicationUseCase';
 

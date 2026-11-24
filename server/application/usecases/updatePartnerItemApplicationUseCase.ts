@@ -3,7 +3,7 @@ import { updateEstablishmentEventsPlaceUseCase } from '../../domain/events';
 import type { GuideUpdateItemInput } from '../../domain/guide';
 import { getItemByIdUseCase, updateGuideItemUseCase } from '../../domain/guide';
 import { placeTimeOf } from '../../shared/kernel/timeZones';
-import type { AuthenticatedUserContext } from '../security/authenticatedUserContext';
+import type { AuthenticatedUserContext } from '../../shared/kernel/authenticatedUserContext';
 import { renameOwnerBusiness } from './ownerBusinessLink';
 
 function toItemRollbackInput(previous: { [key: string]: unknown }): GuideUpdateItemInput {

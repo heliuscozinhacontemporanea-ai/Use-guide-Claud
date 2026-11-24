@@ -13,8 +13,8 @@ import insightsRouter from './server/domain/insights/routes/insightsRoutes';
 import mediaRouter from './server/domain/media/routes/mediaRoutes';
 import notificationRouter from './server/domain/notifications/routes/notificationRoutes';
 import partnerRouter from './server/domain/partners/routes/partnerRoutes';
-import { PaymentController } from './server/domain/payment/controllers/paymentController';
-import paymentRouter from './server/domain/payment/routes/paymentRoutes';
+import { PaymentController } from './server/interfaces/http/payment/paymentController';
+import paymentRouter from './server/interfaces/http/payment/paymentRoutes';
 import {
   adminReviewReportRouter,
   reviewReportRouter,
@@ -36,6 +36,7 @@ import {
 } from './server/infrastructure/logging/structuredLog';
 import { adminAuditTrail } from './server/interfaces/http/admin/adminAuditTrail';
 import adminListingRouter from './server/interfaces/http/admin/adminListingRoutes';
+import adminReportsRouter from './server/interfaces/http/admin/adminReportsRoutes';
 import billingRouter from './server/interfaces/http/billing/billingRoutes';
 import {
   bookingsRouter,
@@ -46,6 +47,8 @@ import { InternalBookingsController } from './server/interfaces/http/bookings/in
 import { courtesyRouter } from './server/interfaces/http/courtesies/courtesyRoutes';
 import listingStatsRouter from './server/interfaces/http/insights/listingStatsRoutes';
 import partnerClosureRouter from './server/interfaces/http/partners/partnerClosureRoutes';
+import partnerRegistrationRouter from './server/interfaces/http/partners/partnerRegistrationRoutes';
+import partnerContentRouter from './server/interfaces/http/partnerContent/partnerContentRoutes';
 import listingPlanRouter from './server/interfaces/http/listingPlans/listingPlanRoutes';
 import listingVerificationRouter from './server/interfaces/http/listingVerifications/listingVerificationRoutes';
 import listingClaimRouter from './server/interfaces/http/listingClaims/listingClaimRoutes';
@@ -68,6 +71,9 @@ import {
 } from './server/interfaces/http/saleClaims/saleClaimRoutes';
 import { InternalTicketingController } from './server/interfaces/http/ticketing/internalTicketingController';
 import { ticketTransferRouter } from './server/interfaces/http/ticketTransfers/ticketTransferRoutes';
+import { apiNotFound } from './server/interfaces/http/middlewares/apiNotFound';
+import accountDeletionRouter from './server/interfaces/http/users/accountDeletionRoutes';
+import ticketOrderPaymentRouter from './server/interfaces/http/ticketing/ticketOrderPaymentRoutes';
 import { usernameClaimRouter } from './server/interfaces/http/users/usernameClaimRoutes';
 
 async function startServer() {
@@ -281,6 +287,7 @@ async function startServer() {
   app.use('/api/admin/notifications', adminMessageRouter);
   app.use('/api/notifications', notificationRouter);
   app.use('/api/users', usernameClaimRouter);
+  app.use('/api/users', accountDeletionRouter);
   app.use('/api/users', userRouter);
   app.use('/api/listing-verifications', listingVerificationRouter);
   app.use('/api/listing-claims', listingClaimRouter);
@@ -289,19 +296,24 @@ async function startServer() {
   app.use('/api/partners/establishments', partnerEstablishmentsRouter);
   // Encerrar o perfil de parceiro passa pelas travas de venda (orquestra vários domínios, §3.4).
   app.use('/api/partners', partnerClosureRouter);
+  app.use('/api/partners', partnerRegistrationRouter);
+  app.use('/api/partners', partnerContentRouter);
   app.use('/api/partners', partnerRouter);
   app.use('/api/events', publicEventsRouter);
   app.use('/api/admin/listings', adminListingRouter);
   app.use('/api/admin/events', adminTicketingEventsRouter);
+  app.use('/api/ticketing', ticketOrderPaymentRouter);
   app.use('/api/ticketing', ticketingRouter);
   app.use('/api/reviews', reviewRouter);
   app.use('/api/review-reports', reviewReportRouter);
   app.use('/api/admin/review-reports', adminReviewReportRouter);
   app.use('/api/insights/stats', listingStatsRouter);
   app.use('/api/insights', insightsRouter);
+  app.use('/api/admin', adminReportsRouter);
   app.use('/api/admin', adminRouter);
   app.use('/api/favorites', favoriteRouter);
   app.use('/api/media', mediaRouter);
+  app.use('/api', apiNotFound);
 
   // Erros não tratados (inclusive do body-parser) nunca devolvem a mensagem interna (AGENTS.md §10.2).
   app.use(

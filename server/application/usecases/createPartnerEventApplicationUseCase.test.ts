@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { AuthenticatedUserContext } from '../security/authenticatedUserContext';
+import type { AuthenticatedUserContext } from '../../shared/kernel/authenticatedUserContext';
 import { PartnerDomainError } from '../../domain/partners/errors/partnerDomainError';
 import { createPartnerEventApplicationUseCase } from './createPartnerEventApplicationUseCase';
 

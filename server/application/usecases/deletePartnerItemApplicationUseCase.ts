@@ -1,4 +1,4 @@
-import type { AuthenticatedUserContext } from '../security/authenticatedUserContext';
+import type { AuthenticatedUserContext } from '../../shared/kernel/authenticatedUserContext';
 import {
   archiveOffersOfGuideItemUseCase,
   hasActiveBookingsForGuideItemUseCase,

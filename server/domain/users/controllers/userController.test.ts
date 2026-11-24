@@ -4,12 +4,6 @@ import { userService } from '../factory';
 import { Response } from 'express';
 import type { UserProfileDto } from '../dtos/userDto';
 import { AuthenticatedRequest } from '../../../infrastructure/auth/authMiddleware';
-import { AccountClosureBlockedError } from '../../../application/usecases/accountClosure/accountClosureBlockedError';
-import { deleteUserAccountApplicationUseCase } from '../../../application/usecases/deleteUserAccountApplicationUseCase';
-
-vi.mock('../../../application/usecases/deleteUserAccountApplicationUseCase', () => ({
-  deleteUserAccountApplicationUseCase: vi.fn(),
-}));
 
 vi.mock('../factory', () => ({
   userService: {
@@ -196,41 +190,6 @@ describe('UserController', () => {
     });
   });
 
-  describe('deleteAccount', () => {
-    it('deve retornar 401 quando não autenticado', async () => {
-      const req = { user: undefined } as unknown as AuthenticatedRequest;
-      await UserController.deleteAccount(req, mockRes as Response);
-
-      expect(statusMock).toHaveBeenCalledWith(401);
-    });
-
-    it('deve retornar 200 com sucesso após exclusão orquestrada da conta', async () => {
-      const req = { user: { uid: 'user-1' } } as unknown as AuthenticatedRequest;
-      vi.mocked(deleteUserAccountApplicationUseCase).mockResolvedValueOnce(undefined);
-
-      await UserController.deleteAccount(req, mockRes as Response);
-
-      expect(statusMock).toHaveBeenCalledWith(200);
-      expect(jsonMock).toHaveBeenCalledWith({
-        status: 'success',
-        message: 'Conta e dados associados excluídos com sucesso',
-      });
-      expect(deleteUserAccountApplicationUseCase).toHaveBeenCalledWith('user-1');
-    });
-
-    it('deve retornar 500 com mensagem sanitizada em erro interno', async () => {
-      const req = { user: { uid: 'user-1' } } as unknown as AuthenticatedRequest;
-      vi.mocked(deleteUserAccountApplicationUseCase).mockRejectedValueOnce(
-        new Error('Cascade deletion crash')
-      );
-
-      await UserController.deleteAccount(req, mockRes as Response);
-
-      expect(statusMock).toHaveBeenCalledWith(500);
-      expect(jsonMock).toHaveBeenCalledWith({ error: 'Não foi possível excluir a conta.' });
-    });
-  });
-
   describe('updatePreferences', () => {
     function preferencesResponse() {
       const res = { status: vi.fn(), json: vi.fn(), end: vi.fn() };
@@ -268,32 +227,6 @@ describe('UserController', () => {
       const req = { body: { preferredLocale: 'en' } } as unknown as AuthenticatedRequest;
       await UserController.updatePreferences(req, res as unknown as Response);
       expect(res.status).toHaveBeenCalledWith(401);
-    });
-  });
-
-  describe('deleteAccount (travas de 2026-11-16)', () => {
-    it('conta com vendas em andamento: 409 com o código e os motivos, sem detalhe interno', async () => {
-      vi.mocked(deleteUserAccountApplicationUseCase).mockRejectedValueOnce(
-        new AccountClosureBlockedError(['sessions', 'payouts'])
-      );
-      const req = { user: { uid: 'p1' } } as unknown as AuthenticatedRequest;
-      await UserController.deleteAccount(req, mockRes);
-      expect(statusMock).toHaveBeenCalledWith(409);
-      expect(jsonMock).toHaveBeenCalledWith({
-        error: {
-          code: 'ACCOUNT_HAS_ACTIVE_SALES',
-          message: expect.any(String),
-          blockers: ['sessions', 'payouts'],
-        },
-      });
-    });
-
-    it('sem vendas: exclui e responde 200', async () => {
-      vi.mocked(deleteUserAccountApplicationUseCase).mockResolvedValueOnce(undefined);
-      const req = { user: { uid: 'p1' } } as unknown as AuthenticatedRequest;
-      await UserController.deleteAccount(req, mockRes);
-      expect(deleteUserAccountApplicationUseCase).toHaveBeenCalledWith('p1');
-      expect(statusMock).toHaveBeenCalledWith(200);
     });
   });
 });

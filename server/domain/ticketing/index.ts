@@ -9,6 +9,8 @@ export {
   TicketNotEligibleForReviewError,
   TicketTypeUnavailableError,
 } from './errors/ticketingDomainError';
+export { type TicketingHttpError, ticketingHttpError } from './errors/ticketingHttpError';
+export { type PartnerOrderView, toPartnerOrderView } from './utils/partnerOrderView';
 export type {
   CourtesyLinkPreview,
   CourtesyRecipient,

@@ -1,10 +1,8 @@
 import { Response } from 'express';
-import { registerPartnerApplicationUseCase } from '../../../application/usecases/registerPartnerApplicationUseCase';
 import { AuthenticatedRequest } from '../../../infrastructure/auth/authMiddleware';
-import { RegisterPartnerDTO } from '../dtos/RegisterPartnerDTO';
 import { PartnerDomainError } from '../errors/partnerDomainError';
 import { partnerService } from '../factory';
-import { registerPartnerSchema, updatePartnerStatusSchema } from '../schemas/partnerSchema';
+import { updatePartnerStatusSchema } from '../schemas/partnerSchema';
 
 function handleControllerError(res: Response, error: unknown, defaultMessage: string): Response {
   if (error instanceof PartnerDomainError) {
@@ -23,9 +21,9 @@ function handleControllerError(res: Response, error: unknown, defaultMessage: st
         return res.status(400).json({ error: error.message });
     }
   }
-  const msg = error instanceof Error ? error.message : defaultMessage;
-  console.error(`[PartnerController Error]:`, error);
-  return res.status(500).json({ error: msg });
+  // Nunca a mensagem interna para o cliente (AGENTS.md §10.2).
+  console.error('[PartnerController Error]:', error);
+  return res.status(500).json({ error: defaultMessage });
 }
 
 export class PartnerController {
@@ -54,31 +52,6 @@ export class PartnerController {
         .json({ status: 'success', message: 'Status do parceiro atualizado com sucesso' });
     } catch (error: unknown) {
       return handleControllerError(res, error, 'Erro ao alterar status do parceiro');
-    }
-  }
-
-  static async registerOrUpgrade(req: AuthenticatedRequest, res: Response) {
-    try {
-      const uid = req.user?.uid;
-      if (!uid) {
-        return res.status(401).json({ error: 'Não autenticado' });
-      }
-
-      const parsed = registerPartnerSchema.safeParse(req.body);
-      if (!parsed.success) {
-        return res.status(400).json({ error: 'Dados inválidos', details: parsed.error.format() });
-      }
-
-      const dto = RegisterPartnerDTO.fromValidatedInput(parsed.data);
-      await registerPartnerApplicationUseCase(
-        { uid, emailVerified: req.user?.emailVerified === true },
-        dto.formData
-      );
-      return res
-        .status(200)
-        .json({ status: 'success', message: 'Parceiro cadastrado com sucesso' });
-    } catch (error: unknown) {
-      return handleControllerError(res, error, 'Erro ao cadastrar parceiro');
     }
   }
 
