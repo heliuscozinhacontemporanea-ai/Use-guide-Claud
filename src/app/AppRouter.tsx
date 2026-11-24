@@ -22,10 +22,13 @@ import {
   loadPartnerPortal,
   PartnerPortalComposition,
   PartnerJoinSheet,
+  ClaimListingSheet,
   SearchOverlay,
 } from './lazy/screens';
 import { useOpenedOnce } from './lazy/useOpenedOnce';
 import { usePartnerInvite } from './partnerJoin/usePartnerInvite';
+import { useClaimStore } from './stores/claimStore';
+import { useClaimListing } from './claim/useClaimListing';
 import { AboutTermsView } from './lazy/menuScreens';
 import { SideMenu } from './menu/SideMenu';
 import { useSideMenu } from './menu/useSideMenu';
@@ -175,6 +178,8 @@ export function AppRouter() {
     );
   }, [setSearchParams]);
   const startPartnerInvite = usePartnerInvite(openPartnerJoin);
+  // Volta para "Assumir anúncio" depois do login, mesmo com o anúncio já fechado (D35, 4a).
+  useClaimListing();
 
   const setIsSearchOpen = (open: boolean) => {
     setSearchParams((prev) => {
@@ -231,6 +236,9 @@ export function AppRouter() {
 
   const loginMounted = useOpenedOnce(isLoginModalOpen);
   const partnersMounted = useOpenedOnce(isPartnersOpen);
+  const claimOpen = useClaimStore((state) => state.target !== null);
+  const claimMounted = useOpenedOnce(claimOpen);
+  const openClaim = useClaimStore((state) => state.open);
 
   return (
     <div className="relative h-screen bg-black text-ink selection:bg-teal-500/30">
@@ -306,11 +314,21 @@ export function AppRouter() {
                   setIsPartnersOpen(false);
                   startPartnerInvite();
                 }}
+                onClaim={(target) => {
+                  setIsPartnersOpen(false);
+                  setTimeout(() => openClaim(target), SHEET_SWAP_MS);
+                }}
                 onJoined={() => {
                   showToast(t('partnerGuide.join.ready'), 'success');
                   void openPartnerPortalAfterSignup();
                 }}
               />
+            </Suspense>
+          )}
+
+          {claimMounted && (
+            <Suspense fallback={null}>
+              <ClaimListingSheet onOpenPanel={() => void openPartnerPortalAfterSignup()} />
             </Suspense>
           )}
 

@@ -60,6 +60,7 @@ export function PartnerPanel({
   renderSlotSheet,
   renderSessionSheet,
   renderAgora,
+  renderHomeTop,
   renderEventAccountCard,
   renderNotificationsHint,
   renderCoupons,
@@ -318,6 +319,7 @@ export function PartnerPanel({
                   }
                   onOpenTab={setPanelTab}
                   onOpenCoupons={renderCoupons ? () => nav.openCoupons('home') : undefined}
+                  top={renderHomeTop?.()}
                   agora={
                     renderAgora && (
                       <PartnerAgoraSection

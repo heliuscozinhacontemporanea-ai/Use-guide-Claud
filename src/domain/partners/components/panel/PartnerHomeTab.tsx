@@ -47,6 +47,7 @@ export function PartnerHomeTab({
   onOpenListingStep,
   agora,
   leadingCard,
+  top,
 }: {
   loading: boolean;
   error: string | null;
@@ -67,6 +68,8 @@ export function PartnerHomeTab({
   agora?: ReactNode;
   /** Cartão extra no começo da grade (visitas do mês na vitrine, S4). */
   leadingCard?: ReactNode;
+  /** Acima de tudo: pedidos de "Sou o dono" (D35). */
+  top?: ReactNode;
 }) {
   const { t } = useTranslation();
   if (loading && !view) return <ListLoading label={t('partnerPanel.tabs.home')} />;
@@ -89,6 +92,7 @@ export function PartnerHomeTab({
   }
   return (
     <div className="space-y-7">
+      {top}
       {agora}
       <PartnerAttentionList
         items={attention}

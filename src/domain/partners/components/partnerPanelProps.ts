@@ -40,6 +40,8 @@ export interface PartnerPanelProps {
   renderEventTicketingManager?: (eventListingId: string) => ReactNode;
   /** Campo de sessões do evento (domínio events), montado pela composição do app. */
   renderEventSessionsField?: (props: EventSessionsFieldProps) => ReactNode;
+  /** Topo do Início: pedidos de "Sou o dono" em análise, recusados ou recém-aprovados (D35). */
+  renderHomeTop?: () => ReactNode;
   /** Assinatura no cartão do plano de um estabelecimento, montada pela composição. */
   renderPlanSubscription?: (itemId: string, onLiveChange: (live: boolean) => void) => ReactNode;
   /** Passeios, visitas e avaliações do Catálogo (outros domínios), montados pela composição. */

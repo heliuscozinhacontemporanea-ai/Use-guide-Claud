@@ -1,3 +1,5 @@
+import { MyListingClaimsCards } from '../../domain/partners';
+import { useClaimStore } from '../stores/claimStore';
 import { LogIn, RefreshCw, ShieldAlert } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -48,6 +50,7 @@ import { PartnerBookingsComposition } from './PartnerBookingsComposition';
 import { PartnerEventTicketingComposition } from './PartnerEventTicketingComposition';
 
 export function PartnerPortalComposition() {
+  const openClaim = useClaimStore((state) => state.open);
   const { t } = useTranslation();
   const { user, loading } = useAuthContext();
   const { openLoginModal } = useUI();
@@ -265,6 +268,19 @@ export function PartnerPortalComposition() {
       }}
       renderEventTicketingManager={(eventListingId) => (
         <PartnerEventTicketingComposition eventListingId={eventListingId} lotsOnly />
+      )}
+      renderHomeTop={() => (
+        <MyListingClaimsCards
+          onResend={(claim) =>
+            openClaim({
+              itemId: claim.itemId,
+              name: claim.listingName,
+              category: '',
+              city: null,
+              image: null,
+            })
+          }
+        />
       )}
       renderNotificationsHint={() => <SalesAlertsSummary />}
       renderGateStaff={() => <GateStaffPage />}

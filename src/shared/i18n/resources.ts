@@ -59,6 +59,7 @@ import { type TicketLotsTranslation, ticketLotsPtBR } from './ticketLotsResource
 import { type TicketSessionsTranslation, ticketSessionsPtBR } from './ticketSessionsResources';
 import { type TicketWalletTranslation, ticketWalletPtBR } from './ticketWalletResources';
 import { type UsernameTranslation, usernamePtBR } from './usernameResources';
+import { type ClaimTranslation, claimPtBR } from './claimResources';
 import { type VerificationTranslation, verificationPtBR } from './verificationResources';
 import { type WindTranslation, windPtBR } from './windResources';
 
@@ -84,6 +85,7 @@ export interface TranslationResource {
   ticketWallet: TicketWalletTranslation;
   ticketGate: TicketGateTranslation;
   username: UsernameTranslation;
+  claims: ClaimTranslation;
   appAbout: AppAboutTranslation;
   notify: NotifyTranslation;
   help: HelpTranslation;
@@ -351,6 +353,7 @@ const ptBR: TranslationResource = {
   ticketWallet: ticketWalletPtBR,
   ticketGate: ticketGatePtBR,
   username: usernamePtBR,
+  claims: claimPtBR,
   appAbout: appAboutPtBR,
   notify: notifyPtBR,
   help: helpPtBR,

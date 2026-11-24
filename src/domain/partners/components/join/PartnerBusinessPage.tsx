@@ -1,4 +1,4 @@
-import { useId, useState } from 'react';
+import { type ReactNode, useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '../../../../shared/utils/cn';
 import { BR_STATES } from '../../../../shared/utils/timeZones';
@@ -35,6 +35,7 @@ export function PartnerBusinessPage({
   requireTerms = true,
   requirePhone = true,
   allowUseGuideName = false,
+  afterName,
   categories,
   submitLabel,
   submittingLabel,
@@ -52,6 +53,8 @@ export function PartnerBusinessPage({
   requirePhone?: boolean;
   /** O admin pode usar "Use Guide" no nome; o parceiro, não (D35, item 10). */
   allowUseGuideName?: boolean;
+  /** Abaixo do nome: "Já está no guia?" (D35, 3b), da composição. */
+  afterName?: ReactNode;
   /** Categorias que podem ser escolhidas (padrão: todas). */
   categories?: string[];
   submitLabel?: string;
@@ -131,6 +134,7 @@ export function PartnerBusinessPage({
           <p className={SIGNUP_ERROR}>{t('partnerGuide.join.errors.name')}</p>
         ) : null}
       </div>
+      {afterName}
 
       <fieldset>
         <legend className={SIGNUP_LABEL}>{t('partnerGuide.join.place')}</legend>

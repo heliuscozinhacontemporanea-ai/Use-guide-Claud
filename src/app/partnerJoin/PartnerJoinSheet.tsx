@@ -5,13 +5,17 @@ import {
   EmailVerificationWait,
   useAuthContext,
 } from '../../domain/auth';
+import { useGuideCatalog } from '../../domain/guide';
 import {
+  type ClaimTarget,
+  ClaimSuggestions,
   EMPTY_JOIN_DRAFT,
   joinAsPartnerUseCase,
   PartnerBusinessPage,
   type PartnerJoinDraft,
   PartnerPresentation,
 } from '../../domain/partners';
+import { claimSuggestions } from '../claim/claimTarget';
 import { ScreenFallback } from '../../ui/lazy/DelayedFallback';
 import { StackSheet } from '../../ui/layouts/stack/StackSheet';
 import type { StackEntry } from '../../ui/layouts/stack/stackTypes';
@@ -30,17 +34,21 @@ export function PartnerJoinSheet({
   isOpen,
   onClose,
   onNeedAccount,
+  onClaim,
   onJoined,
 }: {
   isOpen: boolean;
   onClose: () => void;
   /** Aberto por link sem conta: "Começar" leva ao cadastro pelo convite (D35, item 9). */
   onNeedAccount: () => void;
+  /** "É o meu": troca o cadastro pelo pedido do lugar que já está no guia (D35, 3b). */
+  onClaim: (target: ClaimTarget) => void;
   /** Painel criado: abre o painel do parceiro. */
   onJoined: () => void;
 }) {
   const { t } = useTranslation();
   const { user, refreshProfile } = useAuthContext();
+  const { items } = useGuideCatalog();
   const setJoining = usePartnerJoinStore((state) => state.setActive);
   const [pages, setPages] = useState<JoinPage[]>([]);
   const [draft, setDraft] = useState<PartnerJoinDraft>(EMPTY_JOIN_DRAFT);
@@ -112,6 +120,9 @@ export function PartnerJoinSheet({
               onChange={setDraft}
               onOpenTerms={() => setPages((current) => [...current, 'terms'])}
               onSubmit={() => void submit()}
+              afterName={
+                <ClaimSuggestions places={claimSuggestions(items, draft)} onPick={onClaim} />
+              }
               submitting={submitting}
               error={error}
             />

@@ -5,6 +5,7 @@ export const loadSearchOverlay = () => import('./entries/searchOverlay');
 export const loadListingDetail = () => import('./entries/listingDetail');
 export const loadLoginModal = () => import('./entries/loginModal');
 export const loadPartnerJoin = () => import('./entries/partnerJoin');
+export const loadClaim = () => import('./entries/claim');
 export const loadPartnerPortal = () => import('../compositions/PartnerPortalComposition');
 export const loadAdminPanel = () => import('../compositions/AdminPanelComposition');
 const loadListingActions = () => import('./entries/listingActions');
@@ -19,6 +20,7 @@ export const FavoriteButton = lazyNamed(loadListingActions, 'FavoriteButton');
 export const ReviewSection = lazyNamed(loadListingActions, 'ReviewSection');
 export const LoginModal = lazyNamed(loadLoginModal, 'LoginModal');
 export const PartnerJoinSheet = lazyNamed(loadPartnerJoin, 'PartnerJoinSheet');
+export const ClaimListingSheet = lazyNamed(loadClaim, 'ClaimListingSheet');
 export const PartnerPortalComposition = lazyNamed(loadPartnerPortal, 'PartnerPortalComposition');
 export const AdminPanelComposition = lazyNamed(loadAdminPanel, 'AdminPanelComposition');
 export const EventTicketingPurchasePanel = lazyNamed(
