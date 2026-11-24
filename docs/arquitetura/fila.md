@@ -16,7 +16,7 @@ A ordem abaixo foi proposta em 2026-11-15 e pode ser mudada pelo responsável.
 | 9 | Resto do **item 5 da D33**: link de cortesia e durações e curvas soltas nos componentes menores (DESIGN.md P10) | | D33 |
 | 10 | **Acerto com o divulgador**, fase 1 e fase 2 | Aprovado em 2026-11-12; prints antes do código | `decisoes.md` (Acerto com o divulgador) |
 
-Publicados em 2026-11-24 (PRs #30 e #31): a **D34 · F4** (admin no mesmo editor do parceiro, dono Use Guide, registro de auditoria), que cobre o "editor do admin" do item 5 da D33.
+Publicados em 2026-11-24 (PRs #30 e #31): a **D34 · F4** (admin no mesmo editor do parceiro, dono Use Guide, registro de auditoria), que cobre o "editor do admin" do item 5 da D33, e a correção do B76 (sitemap com todos os anúncios).
 
 Publicados em 2026-11-22 (PR #29): a **D34 · F3** inteira (F3a, F3b com aluguel e translado à venda e horário personalizado, e os ajustes da comparação com os protótipos).
 
