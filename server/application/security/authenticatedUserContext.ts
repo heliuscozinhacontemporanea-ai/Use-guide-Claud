@@ -1,8 +1,4 @@
-export type ApplicationUserRole = 'visitor' | 'user' | 'partner' | 'admin';
-
-export interface AuthenticatedUserContext {
-  uid: string;
-  email?: string;
-  admin: boolean;
-  role: ApplicationUserRole;
-}
+export type {
+  ApplicationUserRole,
+  AuthenticatedUserContext,
+} from '../../shared/kernel/authenticatedUserContext';

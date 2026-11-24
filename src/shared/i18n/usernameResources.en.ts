@@ -16,6 +16,8 @@ export const usernameEn: UsernameTranslation = {
   signOut: 'Sign out',
   errors: {
     USERNAME_INVALID: 'This @ is not allowed. Use letters, numbers, dot or underscore.',
+    USERNAME_RESERVED:
+      'This @ uses a reserved name (Use Guide’s or a brand’s). Choose another one.',
     USERNAME_TAKEN: 'This @ is already taken. Choose another one.',
     USERNAME_CHANGE_TOO_SOON: 'You changed your @ less than 30 days ago.',
     failed: 'Could not save. Try again.',

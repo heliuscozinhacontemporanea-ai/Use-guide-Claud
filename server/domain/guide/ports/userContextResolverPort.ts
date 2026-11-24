@@ -1,4 +1,4 @@
-import { AuthenticatedUserContext } from '../../../application/security/authenticatedUserContext';
+import { AuthenticatedUserContext } from '../../../shared/kernel/authenticatedUserContext';
 
 export interface UserContextResolverPort {
   resolveContext(user: {

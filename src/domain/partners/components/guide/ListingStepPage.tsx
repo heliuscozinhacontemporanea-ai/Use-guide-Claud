@@ -112,7 +112,9 @@ export function ListingStepPage({
             })
           : error instanceof Error && error.message === 'CONTACT_IN_TEXT'
             ? t('partnerGuide.page.contactInText')
-            : t('partnerGuide.page.failed')
+            : error instanceof Error && error.message === 'LISTING_NAME_RESERVED'
+              ? t('partnerGuide.join.errors.nameReserved')
+              : t('partnerGuide.page.failed')
       );
     } finally {
       setSaving(false);

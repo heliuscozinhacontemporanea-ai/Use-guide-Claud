@@ -7,6 +7,7 @@ import { usernameSchema } from './schemas/usernameSchema';
 
 const STATUS: Record<UsernameError['code'], number> = {
   USERNAME_INVALID: 400,
+  USERNAME_RESERVED: 422,
   USERNAME_TAKEN: 409,
   USERNAME_CHANGE_TOO_SOON: 422,
   USERNAME_NOT_FOUND: 404,

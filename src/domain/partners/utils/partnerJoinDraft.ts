@@ -1,3 +1,4 @@
+import { mentionsUseGuide } from '../../../shared/utils/reservedNames';
 import { isBrState } from '../../../shared/utils/timeZones';
 
 /** O que a tela "Seu negócio" pede (D34): o resto o parceiro completa no guia do painel. */
@@ -11,7 +12,8 @@ export interface PartnerJoinDraft {
   terms: boolean;
 }
 
-export type PartnerJoinField = 'category' | 'name' | 'city' | 'phone' | 'terms';
+/** `nameReserved`: o nome usa "Use Guide" (D35, item 10). */
+export type PartnerJoinField = 'category' | 'name' | 'nameReserved' | 'city' | 'phone' | 'terms';
 
 export const EMPTY_JOIN_DRAFT: PartnerJoinDraft = {
   category: '',
@@ -30,11 +32,13 @@ export function partnerJoinErrors(
   {
     requireTerms = true,
     requirePhone = true,
-  }: { requireTerms?: boolean; requirePhone?: boolean } = {}
+    allowUseGuideName = false,
+  }: { requireTerms?: boolean; requirePhone?: boolean; allowUseGuideName?: boolean } = {}
 ): PartnerJoinField[] {
   const errors: PartnerJoinField[] = [];
   if (!draft.category) errors.push('category');
   if (draft.name.trim().length < 2) errors.push('name');
+  else if (!allowUseGuideName && mentionsUseGuide(draft.name)) errors.push('nameReserved');
   if (!isBrState(draft.state) || draft.city.trim().length < 2) errors.push('city');
   // O admin pode deixar o telefone do lugar em branco (escolhas da F4); preenchido, vale o formato.
   if ((requirePhone || draft.phone) && !E164.test(draft.phone)) errors.push('phone');

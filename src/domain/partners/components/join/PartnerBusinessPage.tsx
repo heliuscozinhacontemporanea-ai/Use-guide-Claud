@@ -34,6 +34,7 @@ export function PartnerBusinessPage({
   error,
   requireTerms = true,
   requirePhone = true,
+  allowUseGuideName = false,
   categories,
   submitLabel,
   submittingLabel,
@@ -49,6 +50,8 @@ export function PartnerBusinessPage({
   requireTerms?: boolean;
   /** O admin cadastra o lugar sem telefone, se não tiver (escolhas da F4). */
   requirePhone?: boolean;
+  /** O admin pode usar "Use Guide" no nome; o parceiro, não (D35, item 10). */
+  allowUseGuideName?: boolean;
   /** Categorias que podem ser escolhidas (padrão: todas). */
   categories?: string[];
   submitLabel?: string;
@@ -63,10 +66,10 @@ export function PartnerBusinessPage({
   const set = (patch: Partial<PartnerJoinDraft>) => onChange({ ...draft, ...patch });
   const errorOf = (field: PartnerJoinField) =>
     shown.includes(field) &&
-    partnerJoinErrors(draft, { requireTerms, requirePhone }).includes(field);
+    partnerJoinErrors(draft, { requireTerms, requirePhone, allowUseGuideName }).includes(field);
 
   const submit = () => {
-    const errors = partnerJoinErrors(draft, { requireTerms, requirePhone });
+    const errors = partnerJoinErrors(draft, { requireTerms, requirePhone, allowUseGuideName });
     setShown(errors);
     if (errors.length === 0) onSubmit();
   };
@@ -118,9 +121,12 @@ export function PartnerBusinessPage({
               ? t('partnerGuide.join.namePlaceholderProducer')
               : t('partnerGuide.join.namePlaceholder')
           }
-          aria-invalid={errorOf('name') || undefined}
+          aria-invalid={errorOf('name') || errorOf('nameReserved') || undefined}
           className={SIGNUP_INPUT}
         />
+        {errorOf('nameReserved') ? (
+          <p className={SIGNUP_ERROR}>{t('partnerGuide.join.errors.nameReserved')}</p>
+        ) : null}
         {errorOf('name') ? (
           <p className={SIGNUP_ERROR}>{t('partnerGuide.join.errors.name')}</p>
         ) : null}

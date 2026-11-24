@@ -1,5 +1,5 @@
 import type { Response } from 'express';
-import type { AuthenticatedUserContext } from '../../../application/security/authenticatedUserContext';
+import type { AuthenticatedUserContext } from '../../../shared/kernel/authenticatedUserContext';
 import { cancelEventOccurrenceAndRefundApplicationUseCase } from '../../../application/usecases/cancelEventOccurrenceAndRefundApplicationUseCase';
 import { createPartnerEventApplicationUseCase } from '../../../application/usecases/createPartnerEventApplicationUseCase';
 import { createPartnerItemApplicationUseCase } from '../../../application/usecases/createPartnerItemApplicationUseCase';
@@ -89,6 +89,11 @@ function sendControllerError(res: Response, error: unknown, fallbackMessage: str
   if (reason) {
     const status = code === 'CONFLICT' ? 409 : 422;
     return res.status(status).json({ error: { code: reason, message: (error as Error).message } });
+  }
+  if (code === 'LISTING_NAME_RESERVED') {
+    return res.status(422).json({
+      error: { code, message: error instanceof Error ? error.message : 'Nome reservado' },
+    });
   }
   if (code === 'LISTING_HAS_BOOKINGS' || code === 'LISTING_HAS_EVENTS') {
     return res.status(409).json({

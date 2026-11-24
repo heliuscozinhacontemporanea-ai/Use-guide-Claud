@@ -48,6 +48,7 @@ export const partnerGuideEn: PartnerGuideTranslation = {
     resent: 'Email sent again. Check your spam folder too.',
     resendIn: 'Resend in {{seconds}} s',
     errors: {
+      nameReserved: 'The business name can’t use the Use Guide name.',
       name: 'Enter the name.',
       city: 'Choose the state and enter the city.',
       phone: 'Enter a valid phone number, with area code.',

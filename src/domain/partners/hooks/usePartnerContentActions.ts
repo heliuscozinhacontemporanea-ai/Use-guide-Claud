@@ -22,6 +22,7 @@ const KNOWN_CODES: Record<string, string> = {
   SESSION_DATE_LOCKED: 'partnerCatalog.actions.sessionDateLocked',
   CAPACITY_BELOW_SOLD: 'partnerCatalog.actions.capacityBelowSold',
   CONTACT_IN_TEXT: 'partnerGuide.page.contactInText',
+  LISTING_NAME_RESERVED: 'partnerGuide.join.errors.nameReserved',
 };
 
 function codeOf(error: unknown): string | undefined {

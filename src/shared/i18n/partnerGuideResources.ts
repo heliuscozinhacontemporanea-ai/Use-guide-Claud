@@ -36,7 +36,14 @@ export interface PartnerGuideTranslation {
     resend: string;
     resent: string;
     resendIn: string;
-    errors: { name: string; city: string; phone: string; terms: string; failed: string };
+    errors: {
+      name: string;
+      nameReserved: string;
+      city: string;
+      phone: string;
+      terms: string;
+      failed: string;
+    };
   };
   editor: {
     title: string;
@@ -224,6 +231,7 @@ export const partnerGuidePtBR: PartnerGuideTranslation = {
     resendIn: 'Reenviar em {{seconds}} s',
     errors: {
       name: 'Escreva o nome.',
+      nameReserved: 'O nome do negócio não pode usar o nome do Use Guide.',
       city: 'Escolha o estado e escreva a cidade.',
       phone: 'Escreva um telefone válido, com DDD.',
       terms: 'Para continuar, aceite os Termos do parceiro.',

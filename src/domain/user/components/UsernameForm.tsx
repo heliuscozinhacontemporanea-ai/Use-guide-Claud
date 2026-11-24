@@ -8,9 +8,15 @@ import {
   isUsernameFormatValid,
   nextUsernameChangeAt,
   normalizeUsernameInput,
+  usernameFromTyping,
 } from '../utils/username';
 
-const KNOWN_ERRORS = ['USERNAME_INVALID', 'USERNAME_TAKEN', 'USERNAME_CHANGE_TOO_SOON'];
+const KNOWN_ERRORS = [
+  'USERNAME_INVALID',
+  'USERNAME_RESERVED',
+  'USERNAME_TAKEN',
+  'USERNAME_CHANGE_TOO_SOON',
+];
 
 /** Escolha ou troca do @ (D21): usado em Configurações e no passo obrigatório depois do cadastro. */
 export function UsernameForm({
@@ -73,7 +79,7 @@ export function UsernameForm({
           <input
             id={inputId}
             value={value}
-            onChange={(event) => setValue(event.target.value)}
+            onChange={(event) => setValue(usernameFromTyping(event.target.value))}
             maxLength={31}
             autoCapitalize="none"
             autoCorrect="off"

@@ -50,6 +50,7 @@ export const partnerGuideFr: PartnerGuideTranslation = {
     resent: 'E-mail renvoyé. Vérifiez aussi les spams.',
     resendIn: 'Renvoyer dans {{seconds}} s',
     errors: {
+      nameReserved: 'Le nom de l’établissement ne peut pas utiliser le nom Use Guide.',
       name: 'Indiquez le nom.',
       city: 'Choisissez l’État et indiquez la ville.',
       phone: 'Indiquez un numéro de téléphone valide, avec l’indicatif régional.',

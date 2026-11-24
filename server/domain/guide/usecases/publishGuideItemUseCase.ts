@@ -1,4 +1,4 @@
-import type { AuthenticatedUserContext } from '../../../application/security/authenticatedUserContext';
+import type { AuthenticatedUserContext } from '../../../shared/kernel/authenticatedUserContext';
 import { guideService } from '../factory';
 
 /** Publica o rascunho no guia; recusa com `LISTING_INCOMPLETE` se algum passo faltar (D34). */
