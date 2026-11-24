@@ -9,12 +9,13 @@ A ordem abaixo foi proposta em 2026-11-15 e pode ser mudada pelo responsável.
 | # | Item | Situação | Decisão |
 |---|---|---|---|
 | 5b | **Tradução automática** do conteúdo cadastrado (D5): domínio `translation` com Google Cloud Translation, só no backend, `LocalizedText` com `source` e traduções, aviso "Traduzido automaticamente pelo Google · Ver original" | Pendente (responsável, 2026-11-17); serviço pago: proposta antes do código (AGENTS.md §15) | D5, AGENTS.md §12.6 |
-| 6b | **D35**: Termos no cadastro comum, conta antes do parceiro, nomes reservados no @ e "Sou o dono" | Implementada em 2026-11-24 no PR #32; aguardando "aprovado, pode publicar" | D35 |
 | 7 | **D34 · F5**: evento herda contato e local do estabelecimento (D5) | | D34 |
 | 8 | **D34 · F6**: o tour sai e entram as dicas de primeira visita (Agenda e Ganhos) | | D34 |
 | 8b | **Item 3 da D33**: busca (SearchOverlay) como folha em altura cheia, com os tokens (resolve o B60) | Adiado pelo responsável em 2026-11-16 (pular e começar a F2) | D33 |
 | 9 | Resto do **item 5 da D33**: link de cortesia e durações e curvas soltas nos componentes menores (DESIGN.md P10) | | D33 |
 | 10 | **Acerto com o divulgador**, fase 1 e fase 2 | Aprovado em 2026-11-12; prints antes do código | `decisoes.md` (Acerto com o divulgador) |
+
+Publicados em 2026-11-24 (PR #32): a **D35** inteira (Termos no cadastro, conta antes do parceiro, nomes reservados no @ e "Sou o dono"), com a limpeza do B76.
 
 Publicados em 2026-11-24 (PRs #30 e #31): a **D34 · F4** (admin no mesmo editor do parceiro, dono Use Guide, registro de auditoria), que cobre o "editor do admin" do item 5 da D33, e a correção do B76 (sitemap com todos os anúncios).
 
