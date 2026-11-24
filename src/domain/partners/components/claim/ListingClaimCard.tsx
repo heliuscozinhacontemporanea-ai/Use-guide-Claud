@@ -55,7 +55,7 @@ export function ListingClaimCard({
   const approve = async () => {
     const ok = await confirmAction(
       `${t('claims.admin.confirmTitle', { name: claim.claimantName })}\n\n${t('claims.admin.confirmText', { listing: claim.listing.name })}`,
-      { confirmLabel: t('claims.admin.approve') }
+      { tone: 'positive', confirmLabel: t('claims.admin.approve') }
     );
     if (ok) await run(() => onReview('approve', null), 'claims.admin.approvedToast');
   };
@@ -94,7 +94,7 @@ export function ListingClaimCard({
             key={kind}
             type="button"
             onClick={() => onOpenFile(kind)}
-            className="min-h-11 text-meta font-semibold text-partner underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400/50 rounded"
+            className="min-h-11 text-left text-meta font-semibold text-partner underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400/50 rounded"
           >
             {t('claims.admin.open', { file: t(`verification.files.${kind}`) })}
           </button>

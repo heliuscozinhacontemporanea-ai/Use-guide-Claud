@@ -21,6 +21,8 @@ const m = vi.hoisted(() => ({
   hasActiveBookingsForGuideItemUseCase: vi.fn(async () => false),
   archiveOffersOfGuideItemUseCase: vi.fn(),
   countOpenEstablishmentEventsUseCase: vi.fn(async () => 0),
+  recordPartnerPanelTourUseCase: vi.fn(async () => undefined),
+  acceptPartnerTermsUseCase: vi.fn(async () => undefined),
 }));
 
 vi.mock('../../../domain/guide', () => ({
@@ -64,6 +66,8 @@ vi.mock('../../../domain/partners', async (importOriginal) => {
     deleteListingPlanUseCase: m.deleteListingPlanUseCase,
     getListingPlanUntilUseCase: m.getListingPlanUntilUseCase,
     rejectListingClaimUseCase: m.rejectListingClaimUseCase,
+    recordPartnerPanelTourUseCase: m.recordPartnerPanelTourUseCase,
+    acceptPartnerTermsUseCase: m.acceptPartnerTermsUseCase,
   };
 });
 
@@ -132,6 +136,9 @@ describe('"Sou o dono" na aplicação (D35)', () => {
       expect.not.objectContaining({ termsAccepted: true })
     );
     expect(m.registerPartnerApplicationUseCase).toHaveBeenCalled();
+    // Começa pelo pedido no Início, sem o tour antigo.
+    expect(m.recordPartnerPanelTourUseCase).toHaveBeenCalledWith('ana', 'done');
+    expect(m.acceptPartnerTermsUseCase).toHaveBeenCalledWith('ana', expect.any(String));
   });
 
   it('recusa arquivo que não foi enviado por quem pede', async () => {

@@ -328,7 +328,13 @@ export function AppRouter() {
 
           {claimMounted && (
             <Suspense fallback={null}>
-              <ClaimListingSheet onOpenPanel={() => void openPartnerPortalAfterSignup()} />
+              <ClaimListingSheet
+                onOpenPanel={() => {
+                  // O pedido pode ter começado no anúncio: ele fecha para o painel aparecer.
+                  setSelectedItem(null);
+                  void openPartnerPortalAfterSignup();
+                }}
+              />
             </Suspense>
           )}
 

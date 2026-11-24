@@ -1,12 +1,15 @@
 import { getItemByIdUseCase } from '../../../domain/guide';
 import { isOwnVerificationFileUseCase } from '../../../domain/media';
 import {
+  acceptPartnerTermsUseCase,
   ListingClaimError,
   type ListingClaimView,
+  recordPartnerPanelTourUseCase,
   type SubmitListingClaimInput,
   submitListingClaimUseCase,
 } from '../../../domain/partners';
 import { getUserProfileUseCase } from '../../../domain/users';
+import { PARTNER_TERMS_VERSION } from '../../../shared/kernel/legalTerms';
 import { registerPartnerApplicationUseCase } from '../registerPartnerApplicationUseCase';
 
 /**
@@ -47,6 +50,12 @@ export async function submitListingClaimApplicationUseCase(
     },
     claim
   );
-  if (!isPartner) await registerPartnerApplicationUseCase(actor, { termsAccepted: true });
+  if (!isPartner) {
+    await registerPartnerApplicationUseCase(actor, { termsAccepted: true });
+    // A pessoa marcou os Termos do parceiro no pedido: a versão aceita fica gravada, como prova (D15).
+    await acceptPartnerTermsUseCase(actor.uid, PARTNER_TERMS_VERSION);
+    // Quem entra pelo "Sou o dono" começa pelo pedido no Início, sem o tour antigo (como na F1).
+    await recordPartnerPanelTourUseCase(actor.uid, 'done').catch(() => undefined);
+  }
   return view;
 }
