@@ -45,18 +45,3 @@ export function partnerJoinErrors(
   if (requireTerms && !draft.terms) errors.push('terms');
   return errors;
 }
-
-/** Lê um rascunho guardado, descartando o que não tiver o formato certo. */
-export function parsePartnerJoinDraft(value: unknown): PartnerJoinDraft | null {
-  if (!value || typeof value !== 'object') return null;
-  const record = value as Record<string, unknown>;
-  const text = (key: string) => (typeof record[key] === 'string' ? (record[key] as string) : '');
-  return {
-    category: text('category'),
-    name: text('name'),
-    state: text('state') || EMPTY_JOIN_DRAFT.state,
-    city: text('city'),
-    phone: text('phone'),
-    terms: record.terms === true,
-  };
-}

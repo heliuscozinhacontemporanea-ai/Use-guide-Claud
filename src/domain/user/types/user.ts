@@ -31,6 +31,8 @@ export interface UserData {
   firstName: string;
   lastName: string;
   phone: string;
+  /** Cadastro por e-mail ou primeiro login com Google (D35 1b). */
+  acceptedUseTerms?: true;
 }
 
 export interface PasswordData {

@@ -26,13 +26,10 @@ export interface PartnerGuideTranslation {
     create: string;
     creating: string;
     ready: string;
-    accountTitle: string;
-    accountLead: string;
-    usernameTitle: string;
     verifyTitle: string;
-    verifyLead: string;
     waiting: string;
-    kept: string;
+    inviteNote: string;
+    verifyNeeded: string;
     resend: string;
     resent: string;
     resendIn: string;
@@ -218,14 +215,10 @@ export const partnerGuidePtBR: PartnerGuideTranslation = {
     create: 'Criar meu painel',
     creating: 'Criando seu painel…',
     ready: 'Seu painel está pronto',
-    accountTitle: 'Crie sua conta',
-    accountLead:
-      'Falta só a sua conta. O painel fica nela, e você entra com ela no celular ou no computador.',
-    usernameTitle: 'Nome de usuário',
     verifyTitle: 'Confirme seu e-mail',
-    verifyLead: 'Enviamos um link para {{email}}. Assim que você confirmar, seguimos daqui.',
     waiting: 'Esperando a confirmação',
-    kept: 'Seus dados do negócio ficam guardados.',
+    inviteNote: 'Depois de criar a conta, você segue para o cadastro do seu negócio.',
+    verifyNeeded: 'Para ser parceiro, a sua conta precisa do e-mail confirmado.',
     resend: 'Reenviar o e-mail',
     resent: 'E-mail reenviado. Confira também a caixa de spam.',
     resendIn: 'Reenviar em {{seconds}} s',

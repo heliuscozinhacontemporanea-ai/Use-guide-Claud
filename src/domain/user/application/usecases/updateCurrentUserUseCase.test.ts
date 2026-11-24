@@ -25,7 +25,9 @@ describe('updateCurrentUserUseCase', () => {
       ...validData,
       role: 'user',
     };
-    vi.mocked(userAdapter.updateCurrentUser).mockResolvedValueOnce(expectedProfile as any);
+    vi.mocked(userAdapter.updateCurrentUser).mockResolvedValueOnce(
+      expectedProfile as Awaited<ReturnType<typeof userAdapter.updateCurrentUser>>
+    );
 
     const result = await updateCurrentUserUseCase(validData);
     expect(result).toEqual(expectedProfile);
@@ -39,7 +41,13 @@ describe('updateCurrentUserUseCase', () => {
       phone: '123',
     };
 
-    await expect(updateCurrentUserUseCase(invalidData as any)).rejects.toThrow();
+    await expect(updateCurrentUserUseCase(invalidData)).rejects.toThrow();
     expect(userAdapter.updateCurrentUser).not.toHaveBeenCalled();
+  });
+
+  it('envia o aceite dos Termos de uso no nascimento da conta (D35 1b)', async () => {
+    const data = { firstName: 'Ana', lastName: 'Lima', phone: '', acceptedUseTerms: true as const };
+    await updateCurrentUserUseCase(data);
+    expect(userAdapter.updateCurrentUser).toHaveBeenCalledWith(data);
   });
 });

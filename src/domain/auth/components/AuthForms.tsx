@@ -1,5 +1,5 @@
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { useState } from 'react';
+import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SegmentedControl } from '../../../ui/components/SegmentedControl';
 import { FADE } from '../../../ui/motion/tokens';
@@ -18,10 +18,16 @@ export function AuthForms({
   initialView = 'login',
   onSuccess,
   onViewChange,
+  onOpenTerms,
+  note,
 }: {
   initialView?: AuthView;
   onSuccess: () => void;
   onViewChange?: (view: AuthView) => void;
+  /** Abre "Termos e políticas" sem sair do cadastro (D35 1b). */
+  onOpenTerms: () => void;
+  /** Linha no alto, de onde a pessoa veio (convite do parceiro, "Sou o dono"), D35. */
+  note?: ReactNode;
 }) {
   const { t } = useTranslation();
   const reduced = useReducedMotion();
@@ -40,6 +46,7 @@ export function AuthForms({
 
   return (
     <>
+      {note && view !== 'forgot' ? <div className="mt-2">{note}</div> : null}
       {view !== 'forgot' && (
         <div className="mt-3 mb-5">
           <SegmentedControl<'login' | 'register'>
@@ -73,6 +80,7 @@ export function AuthForms({
               setApiError={setApiError}
               isLoading={isLoading}
               setIsLoading={setIsLoading}
+              onOpenTerms={onOpenTerms}
             />
           )}
           {view === 'register' && (
@@ -85,6 +93,7 @@ export function AuthForms({
               isLoading={isLoading}
               setIsLoading={setIsLoading}
               initialEmail={passedEmail}
+              onOpenTerms={onOpenTerms}
             />
           )}
           {view === 'forgot' && (

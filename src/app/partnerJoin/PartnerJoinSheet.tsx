@@ -1,7 +1,6 @@
 import { Suspense, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  AuthForms,
   closeEmailVerificationPromptUseCase,
   EmailVerificationWait,
   useAuthContext,
@@ -9,46 +8,42 @@ import {
 import {
   EMPTY_JOIN_DRAFT,
   joinAsPartnerUseCase,
-  loadPartnerJoinDraftUseCase,
   PartnerBusinessPage,
   type PartnerJoinDraft,
   PartnerPresentation,
-  savePartnerJoinDraftUseCase,
 } from '../../domain/partners';
-import { UsernameOnboardingContent } from '../../domain/user';
 import { ScreenFallback } from '../../ui/lazy/DelayedFallback';
 import { StackSheet } from '../../ui/layouts/stack/StackSheet';
 import type { StackEntry } from '../../ui/layouts/stack/stackTypes';
 import { AboutTermsView } from '../lazy/menuScreens';
-import { signOut } from '../signOut';
 import { usePartnerJoinStore } from '../stores/partnerJoinStore';
 
-type JoinPage = 'business' | 'terms' | 'account' | 'username' | 'verify';
+type JoinPage = 'verify' | 'business' | 'terms';
 
 /**
  * Seja parceiro (D34, item 2 da D33): apresentação e "Seu negócio" em páginas empilhadas na folha.
- * Quem não tem conta cria ali mesmo, escolhe o @ e confirma o e-mail; a tela segue sozinha a cada
- * etapa e, no fim, cria o painel com o anúncio em rascunho. Junta auth, user e partners: fica no app.
+ * Só abre com conta (D35, item 9): quem não confirmou o e-mail confirma antes de "Seu negócio", e a
+ * tela segue sozinha; no fim, cria o painel com o anúncio em rascunho. Junta auth e partners: fica no
+ * app.
  */
 export function PartnerJoinSheet({
   isOpen,
   onClose,
+  onNeedAccount,
   onJoined,
 }: {
   isOpen: boolean;
   onClose: () => void;
+  /** Aberto por link sem conta: "Começar" leva ao cadastro pelo convite (D35, item 9). */
+  onNeedAccount: () => void;
   /** Painel criado: abre o painel do parceiro. */
   onJoined: () => void;
 }) {
   const { t } = useTranslation();
-  const { user, profile, loading, refreshProfile } = useAuthContext();
+  const { user, refreshProfile } = useAuthContext();
   const setJoining = usePartnerJoinStore((state) => state.setActive);
   const [pages, setPages] = useState<JoinPage[]>([]);
-  const [draft, setDraft] = useState<PartnerJoinDraft>(
-    () => loadPartnerJoinDraftUseCase() ?? EMPTY_JOIN_DRAFT
-  );
-  // "Criar meu painel" tocado: a cada mudança da conta, o fluxo anda sozinho até criar o painel.
-  const [continuing, setContinuing] = useState(false);
+  const [draft, setDraft] = useState<PartnerJoinDraft>(EMPTY_JOIN_DRAFT);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -60,15 +55,18 @@ export function PartnerJoinSheet({
   useEffect(() => {
     if (!isOpen) {
       setPages([]);
-      setContinuing(false);
+      setDraft(EMPTY_JOIN_DRAFT);
       setError(null);
     }
   }, [isOpen]);
 
-  const changeDraft = (next: PartnerJoinDraft) => {
-    setDraft(next);
-    savePartnerJoinDraftUseCase(next);
-  };
+  const emailVerified = user?.emailVerified === true;
+  // E-mail confirmado (em outra aba ou pelo link): a espera dá lugar a "Seu negócio".
+  useEffect(() => {
+    if (emailVerified) {
+      setPages((current) => (current[0] === 'verify' ? ['business'] : current));
+    }
+  }, [emailVerified]);
 
   const submit = useCallback(async () => {
     setSubmitting(true);
@@ -76,34 +74,24 @@ export function PartnerJoinSheet({
     try {
       await joinAsPartnerUseCase(draft);
       closeEmailVerificationPromptUseCase();
-      setContinuing(false);
       onJoined();
-    } catch {
-      setContinuing(false);
+    } catch (err) {
       setPages(['business']);
-      setError(t('partnerGuide.join.errors.failed'));
+      setError(
+        err instanceof Error && err.message === 'LISTING_NAME_RESERVED'
+          ? t('partnerGuide.join.errors.nameReserved')
+          : t('partnerGuide.join.errors.failed')
+      );
     } finally {
       setSubmitting(false);
     }
   }, [draft, onJoined, t]);
-
-  useEffect(() => {
-    if (!continuing || submitting || loading) return;
-    // Ao avançar para conta, @ ou e-mail, "Seu negócio" continua embaixo para o voltar.
-    if (!user || user.isAnonymous) setPages(['business', 'account']);
-    // O nome do cadastro vem antes do @: a sugestão do @ sai dele (UsernameGate).
-    else if (!profile?.firstName) return;
-    else if (!profile.username) setPages(['business', 'username']);
-    else if (!user.emailVerified) setPages(['business', 'verify']);
-    else void submit();
-  }, [continuing, submitting, loading, user, profile, submit]);
 
   const back = () => {
     if (pages.length === 0) {
       onClose();
       return;
     }
-    setContinuing(false);
     setPages((current) => current.slice(0, -1));
   };
 
@@ -121,12 +109,9 @@ export function PartnerJoinSheet({
           render: () => (
             <PartnerBusinessPage
               draft={draft}
-              onChange={changeDraft}
+              onChange={setDraft}
               onOpenTerms={() => setPages((current) => [...current, 'terms'])}
-              onSubmit={() => {
-                setError(null);
-                setContinuing(true);
-              }}
+              onSubmit={() => void submit()}
               submitting={submitting}
               error={error}
             />
@@ -143,39 +128,16 @@ export function PartnerJoinSheet({
             </Suspense>
           ),
         };
-      case 'account':
-        return {
-          key: page,
-          title: t('partnerGuide.join.accountTitle'),
-          navBar: true,
-          render: () => (
-            <div className="pb-6">
-              <p className="text-[15px] text-ink/75">{t('partnerGuide.join.accountLead')}</p>
-              <AuthForms initialView="register" onSuccess={() => undefined} />
-            </div>
-          ),
-        };
-      case 'username':
-        return {
-          key: page,
-          title: t('partnerGuide.join.usernameTitle'),
-          navBar: true,
-          render: () => (
-            <div className="pb-6">
-              <UsernameOnboardingContent
-                onDone={() => void refreshProfile()}
-                onSignOut={() => void signOut()}
-              />
-            </div>
-          ),
-        };
       case 'verify':
         return {
           key: page,
           navBar: true,
           render: () => (
             <div className="pb-6">
-              <EmailVerificationWait onVerified={onVerified} note={t('partnerGuide.join.kept')} />
+              <EmailVerificationWait
+                onVerified={onVerified}
+                note={t('partnerGuide.join.verifyNeeded')}
+              />
             </div>
           ),
         };
@@ -186,7 +148,15 @@ export function PartnerJoinSheet({
     {
       key: 'intro',
       navBar: true,
-      render: () => <PartnerPresentation onStart={() => setPages(['business'])} />,
+      render: () => (
+        <PartnerPresentation
+          onStart={() =>
+            !user || user.isAnonymous
+              ? onNeedAccount()
+              : setPages([emailVerified ? 'business' : 'verify'])
+          }
+        />
+      ),
     },
     ...pages.map(pageEntry),
   ];

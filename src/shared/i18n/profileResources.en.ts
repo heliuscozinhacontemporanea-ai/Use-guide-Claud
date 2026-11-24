@@ -18,6 +18,7 @@ export const profileEn: ProfileTranslation = {
   reviewsHint_other: 'written',
   account: 'My account',
   partnerProgram: 'Become a partner',
+  partnerCard: { title: 'Have a business?', text: 'List it on Use Guide' },
   logout: 'Sign out',
 };
 

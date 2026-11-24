@@ -6,7 +6,6 @@ import { LanguagesField } from '../steps/additional/LanguagesField';
 import {
   EMPTY_JOIN_DRAFT,
   type PartnerJoinDraft,
-  parsePartnerJoinDraft,
   partnerJoinErrors,
 } from '../../utils/partnerJoinDraft';
 import { PartnerBusinessPage } from './PartnerBusinessPage';
@@ -61,14 +60,6 @@ describe('partnerJoinDraft', () => {
     expect(
       partnerJoinErrors({ ...place, phone, name: 'Dicas Use Guide' }, { allowUseGuideName: true })
     ).toEqual([]);
-  });
-
-  it('descarta campos com formato errado no que veio do aparelho', () => {
-    expect(parsePartnerJoinDraft({ name: 'X', terms: 'sim', phone: 5 })).toEqual({
-      ...EMPTY_JOIN_DRAFT,
-      name: 'X',
-    });
-    expect(parsePartnerJoinDraft(null)).toBeNull();
   });
 });
 

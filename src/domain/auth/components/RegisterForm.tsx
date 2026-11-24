@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { PhoneInputField, type PhoneInputFieldRef } from '../../../ui/components/PhoneInputField';
 import { TextButton } from '../../../ui/components/TextButton';
+import { TermsNotice } from '../../../ui/legal/TermsNotice';
 import { BUTTON_PRIMARY } from '../../../ui/styles/controls';
 import { type RegisterFormData, registerSchema } from '../schemas/authSchema';
 import { AuthErrorMessage } from './AuthErrorMessage';
@@ -27,6 +28,7 @@ interface RegisterFormProps {
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
   initialEmail?: string;
+  onOpenTerms: () => void;
 }
 
 export function RegisterForm({
@@ -38,6 +40,7 @@ export function RegisterForm({
   isLoading,
   setIsLoading,
   initialEmail,
+  onOpenTerms,
 }: RegisterFormProps) {
   const { t } = useTranslation();
   const phoneRef = useRef<PhoneInputFieldRef>(null);
@@ -155,6 +158,7 @@ export function RegisterForm({
           t('auth.register.submit')
         )}
       </button>
+      <TermsNotice action="create" onOpenTerms={onOpenTerms} />
 
       <p className="flex flex-wrap items-center justify-center gap-x-2 text-meta text-ink-muted">
         {t('auth.register.hasAccount')}

@@ -26,8 +26,6 @@ export { usePartnerEventSessions } from './hooks/usePartnerEventSessions';
 export { newPartnerEventDraft } from './utils/newPartnerEventDraft';
 export { PartnerPresentation } from './components/sections/PartnerPresentation';
 export { joinAsPartnerUseCase } from './application/usecases/joinAsPartnerUseCase';
-export { loadPartnerJoinDraftUseCase } from './application/usecases/loadPartnerJoinDraftUseCase';
-export { savePartnerJoinDraftUseCase } from './application/usecases/savePartnerJoinDraftUseCase';
 export { EMPTY_JOIN_DRAFT, type PartnerJoinDraft } from './utils/partnerJoinDraft';
 export { usePartnerContentActions } from './hooks/usePartnerContentActions';
 export { usePartnerContentCatalog } from './hooks/usePartnerContentCatalog';

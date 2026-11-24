@@ -163,6 +163,7 @@ export interface TranslationResource {
     changeProfilePhoto: string;
     userFallback: string;
     signInOrRegister: string;
+    partnerInvite: string;
     emailPassword: string;
     orUse: string;
     continueGoogle: string;
@@ -426,6 +427,7 @@ const ptBR: TranslationResource = {
     changeProfilePhoto: 'Alterar foto de perfil',
     userFallback: 'Usuário',
     signInOrRegister: 'Entrar ou cadastrar',
+    partnerInvite: 'Tem um negócio? <invite>Crie sua conta para anunciar</invite>',
     emailPassword: 'E-mail e senha',
     orUse: 'ou',
     continueGoogle: 'Continuar com Google',

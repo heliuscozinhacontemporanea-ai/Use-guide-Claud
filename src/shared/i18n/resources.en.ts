@@ -146,6 +146,7 @@ export const en: TranslationResource = {
     changeProfilePhoto: 'Change profile photo',
     userFallback: 'User',
     signInOrRegister: 'Sign in or sign up',
+    partnerInvite: 'Have a business? <invite>Create your account to list it</invite>',
     emailPassword: 'Email and password',
     orUse: 'or',
     continueGoogle: 'Continue with Google',

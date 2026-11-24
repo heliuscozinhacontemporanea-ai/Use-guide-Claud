@@ -19,6 +19,7 @@ export interface LegalTranslation {
   partner: LegalSection & { feesWithValues: string; feesGeneric: string };
   privacy: LegalSection;
   accept: { buyer: string; partner: string; required: string; close: string };
+  notice: { create: string; continue: string };
   partnerTerms: {
     title: string;
     description: string;
@@ -97,6 +98,12 @@ export const legalPtBR: LegalTranslation = {
       'Os dados ficam em servidores protegidos por criptografia e são acessados só por pessoas autorizadas.',
       'Você pode pedir acesso, correção ou exclusão dos seus dados pelo e-mail ajuda@useguide.com.br. Registros de compra são anonimizados, e não apagados, pelo prazo legal.',
     ],
+  },
+  notice: {
+    create:
+      'Ao criar a conta, você concorda com os <terms>Termos de uso</terms> e a <privacy>Política de privacidade</privacy> do Use Guide.',
+    continue:
+      'Ao continuar, você concorda com os <terms>Termos de uso</terms> e a <privacy>Política de privacidade</privacy> do Use Guide.',
   },
   accept: {
     buyer: 'Li e aceito os <terms>termos e a política de cancelamento</terms>',

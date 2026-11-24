@@ -1,3 +1,4 @@
+import { USE_TERMS_VERSION } from '../../../shared/kernel/legalTerms';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { prepareImageForStorageUseCase } from '../../media';
 import { UserService } from './userService';
@@ -71,6 +72,22 @@ describe('UserService', () => {
       const result = await userService.updateProfile('user-123', input);
       expect(result).toEqual(updatedProfile);
       expect(userPortMock.updateUserProfile).toHaveBeenCalledWith('user-123', input);
+    });
+
+    it('grava o aceite dos Termos de uso com a versão e a data do servidor (D35 1b)', async () => {
+      const service = new UserService(userPortMock, () => new Date('2026-11-24T12:00:00.000Z'));
+      await service.updateProfile('user-123', {
+        firstName: 'Ana',
+        lastName: 'Lima',
+        phone: '',
+        acceptedUseTerms: true,
+      });
+      expect(userPortMock.updateUserProfile).toHaveBeenCalledWith('user-123', {
+        firstName: 'Ana',
+        lastName: 'Lima',
+        phone: '',
+        useTerms: { version: USE_TERMS_VERSION, acceptedAt: '2026-11-24T12:00:00.000Z' },
+      });
     });
 
     it('deve lançar erro se UID for vazio na atualização', async () => {

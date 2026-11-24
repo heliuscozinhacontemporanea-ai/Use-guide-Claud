@@ -44,6 +44,9 @@ export const updateUserProfileSchema = z
       .min(1, 'Sobrenome é obrigatório')
       .max(50, 'Sobrenome deve ter no máximo 50 caracteres'),
     phone: z.string().max(20, 'Telefone inválido').optional().default(''),
+    // Só no nascimento da conta (cadastro por e-mail ou primeiro login com Google), D35 1b. A versão e
+    // a data são do servidor.
+    acceptedUseTerms: z.literal(true).optional(),
   })
   .strict();
 

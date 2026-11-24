@@ -139,7 +139,7 @@ vi.mock('../../domain/user', () => ({
 function renderSideMenu(initialUrl = '/?menu=1') {
   return render(
     <MemoryRouter initialEntries={[initialUrl]}>
-      <SideMenu onPartnersOpen={vi.fn()} onAdminOpen={vi.fn()} />
+      <SideMenu onPartnersOpen={vi.fn()} onPartnerInvite={vi.fn()} onAdminOpen={vi.fn()} />
     </MemoryRouter>
   );
 }

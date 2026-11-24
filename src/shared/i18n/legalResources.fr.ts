@@ -69,6 +69,12 @@ export const legalFr: LegalTranslation = {
       'Vous pouvez demander l’accès, la correction ou la suppression de vos données à ajuda@useguide.com.br. Les données d’achat sont anonymisées, et non supprimées, pendant la durée légale.',
     ],
   },
+  notice: {
+    create:
+      'En créant un compte, vous acceptez les <terms>Conditions d’utilisation</terms> et la <privacy>Politique de confidentialité</privacy> de Use Guide.',
+    continue:
+      'En continuant, vous acceptez les <terms>Conditions d’utilisation</terms> et la <privacy>Politique de confidentialité</privacy> de Use Guide.',
+  },
   accept: {
     buyer: 'J’ai lu et j’accepte les <terms>conditions et la politique d’annulation</terms>',
     partner: 'J’ai lu et j’accepte les <terms>conditions du partenaire</terms>',

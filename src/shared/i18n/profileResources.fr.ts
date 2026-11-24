@@ -18,6 +18,7 @@ export const profileFr: ProfileTranslation = {
   reviewsHint_other: 'publiés',
   account: 'Mon compte',
   partnerProgram: 'Devenir partenaire',
+  partnerCard: { title: 'Vous avez un établissement ?', text: 'Annoncez-le sur Use Guide' },
   logout: 'Se déconnecter',
 };
 

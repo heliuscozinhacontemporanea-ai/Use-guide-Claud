@@ -1,8 +1,8 @@
 import { FieldPath, FieldValue } from 'firebase-admin/firestore';
 import { adminAuth, adminDb, adminStorage } from '../../../infrastructure/firebase/adminClient';
 import { toUserProfileDto, UserProfileDto } from '../dtos/userDto';
-import { UserPort } from '../ports/userPort';
-import { UpdateUserPreferencesInput, UpdateUserProfileInput } from '../schemas/userSchema';
+import type { UserPort, UserProfileUpdate } from '../ports/userPort';
+import { UpdateUserPreferencesInput } from '../schemas/userSchema';
 
 export class FirestoreUserAdapter implements UserPort {
   async getUserProfile(uid: string): Promise<UserProfileDto | null> {
@@ -30,7 +30,7 @@ export class FirestoreUserAdapter implements UserPort {
     return profiles;
   }
 
-  async updateUserProfile(uid: string, data: UpdateUserProfileInput): Promise<UserProfileDto> {
+  async updateUserProfile(uid: string, data: UserProfileUpdate): Promise<UserProfileDto> {
     const userRef = adminDb.collection('users').doc(uid);
     const displayName = `${data.firstName || ''} ${data.lastName || ''}`.trim() || null;
 
@@ -39,6 +39,7 @@ export class FirestoreUserAdapter implements UserPort {
       lastName: data.lastName,
       displayName,
       phone: data.phone,
+      ...(data.useTerms ? { useTerms: data.useTerms } : {}),
       updatedAt: new Date().toISOString(),
     };
 

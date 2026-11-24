@@ -146,6 +146,8 @@ export const fr: TranslationResource = {
     changeProfilePhoto: 'Changer la photo de profil',
     userFallback: 'Utilisateur',
     signInOrRegister: 'Se connecter ou s’inscrire',
+    partnerInvite:
+      'Vous avez un établissement ? <invite>Créez votre compte pour l’annoncer</invite>',
     emailPassword: 'E-mail et mot de passe',
     orUse: 'ou',
     continueGoogle: 'Continuer avec Google',

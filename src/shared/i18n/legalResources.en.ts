@@ -69,6 +69,12 @@ export const legalEn: LegalTranslation = {
       'You can request access to, correction of or deletion of your data at ajuda@useguide.com.br. Purchase records are anonymized, not deleted, for the legal period.',
     ],
   },
+  notice: {
+    create:
+      'By creating an account, you agree to Use Guide’s <terms>Terms of Use</terms> and <privacy>Privacy Policy</privacy>.',
+    continue:
+      'By continuing, you agree to Use Guide’s <terms>Terms of Use</terms> and <privacy>Privacy Policy</privacy>.',
+  },
   accept: {
     buyer: 'I have read and accept the <terms>terms and cancellation policy</terms>',
     partner: 'I have read and accept the <terms>partner terms</terms>',

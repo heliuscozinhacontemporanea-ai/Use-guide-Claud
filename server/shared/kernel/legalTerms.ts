@@ -4,6 +4,8 @@
  */
 export const BUYER_TERMS_VERSION = '2026-11-07';
 export const PARTNER_TERMS_VERSION = '2026-11-07';
+/** Termos de uso e Política de privacidade, aceitos ao criar a conta (D35 1b). */
+export const USE_TERMS_VERSION = '2026-11-24';
 
 /** Antecedência do aviso de mudança grande; continuar usando depois da vigência vale como aceite. */
 export const TERMS_NOTICE_DAYS = 15;
