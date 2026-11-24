@@ -18,6 +18,7 @@ import {
   listEventCheckInsForPartnerOrAdminUseCase,
   listEventOrdersForPartnerOrAdminUseCase,
   listEventRefundsForPartnerOrAdminUseCase,
+  toPartnerOrderView,
 } from '../../../domain/ticketing';
 import {
   createPartnerEventOccurrenceSchema,
@@ -346,7 +347,9 @@ export class PartnerContentController {
       const user = requireGuideContext(req);
       const id = String(req.params.id || '');
       const orders = await listEventOrdersForPartnerOrAdminUseCase(user, id);
-      return res.status(200).json({ status: 'success', data: orders });
+      // Parceiro não recebe nome, e-mail nem documento do comprador (§7.9, decisão 1e.2); o admin, sim.
+      const data = user.admin ? orders : orders.map(toPartnerOrderView);
+      return res.status(200).json({ status: 'success', data });
     } catch (error: unknown) {
       return sendControllerError(res, error, 'Erro ao consultar pedidos do evento');
     }

@@ -5,28 +5,7 @@ import { listEventCheckInsForPartnerOrAdminUseCase } from '../usecases/listEvent
 import { listEventOrdersForPartnerOrAdminUseCase } from '../usecases/listEventOrdersForPartnerOrAdminUseCase';
 import { listEventRefundsForPartnerOrAdminUseCase } from '../usecases/listEventRefundsForPartnerOrAdminUseCase';
 import { getActor, handleTicketingError, sendError } from './ticketingHttp';
-import type { TicketOrder } from '../types/ticketingTypes';
-
-/** Pedido para o dono do evento: dados da venda, sem os dados pessoais do comprador. */
-function toPartnerOrderDto(order: TicketOrder) {
-  return {
-    id: order.id,
-    eventListingId: order.eventListingId,
-    occurrenceId: order.occurrenceId,
-    status: order.status,
-    currency: order.currency,
-    subtotalMinor: order.subtotalMinor,
-    discountMinor: order.discountMinor,
-    platformFeeMinor: order.platformFeeMinor,
-    paymentFeeMinor: order.paymentFeeMinor,
-    serviceFeeMinor: order.serviceFeeMinor,
-    totalMinor: order.totalMinor,
-    paymentMethod: order.paymentMethod,
-    paidAt: order.paidAt,
-    createdAt: order.createdAt,
-    updatedAt: order.updatedAt,
-  };
-}
+import { toPartnerOrderView } from '../utils/partnerOrderView';
 
 /** Relatórios de venda do evento para o admin: pedidos, reembolsos, check-ins e números. */
 export class EventTicketingReportController {
@@ -56,7 +35,7 @@ export class EventTicketingReportController {
       // Parceiro não recebe e-mail nem documento do comprador (AGENTS.md §7.9 regra 4, D27).
       return res
         .status(200)
-        .json({ status: 'success', data: actor.admin ? orders : orders.map(toPartnerOrderDto) });
+        .json({ status: 'success', data: actor.admin ? orders : orders.map(toPartnerOrderView) });
     } catch (error) {
       return handleTicketingError(res, error);
     }
