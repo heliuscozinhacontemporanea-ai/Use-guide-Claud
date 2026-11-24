@@ -15,6 +15,8 @@
 | Ciclos **domínio ↔ camada** | **7** ❌ `domain/*` ↔ `application` | **8** ❌ `ui`/`shared` ↔ `domain/*` |
 | Imports internos de outro domínio (sem passar por `index.ts`) | 1 | 30+ |
 
+> **Atualização (2026-11-24, B77, PR #33):** `npx madge --circular src` acha 3 ciclos de arquivo (`partners` interno, `bookings` interno e `favorites` ↔ `shared/stores/useFavoritesStore`); o `auth ↔ user` e o do `admin` (que importava o próprio `index`) saíram. Os números da tabela acima são do baseline.
+
 **Conclusão:** no backend, a lógica entre domínios já é acíclica; os ciclos existem porque **controllers que vivem dentro de `server/domain/*` importam `server/application/*`**, que por sua vez importa os domínios. É um problema de **posição de arquivo/camada**, resolvido movendo controllers orquestradores para `server/interfaces/http/` e o tipo `AuthenticatedUserContext` para `server/shared/kernel/`. No frontend, os ciclos são reais (de responsabilidade) e exigem composição em `src/app`.
 
 ---
@@ -135,11 +137,11 @@ graph LR
 
 | De | Para | Via `index.ts`? | Arquivos críticos |
 |---|---|---|---|
-| admin | auth | ❌ `auth/context/AuthContext`, `auth/types` | `AdminDispatcher.tsx`, `AdminPanel.tsx` |
+| admin | auth | ✅ pela fachada desde 2026-11-24 (B77) | — |
 | admin | guide, events, notifications, search, ticketing, media, database | ✅ | — |
 | admin | partners | ⚠️ `partners/utils/dateTime` interno | `AdminEditorEventFields.tsx` |
-| auth | **user** | ❌ `user/application/usecases/*`, `user/types` | `hooks/useAuth.ts`, `context/AuthContext.tsx`, `stores/useAuthStore.ts` |
-| user | **auth** | misto | `ChangePasswordView`, `MainMenuView`, `useUserProfile`, `userSchema.ts`, `updatePasswordUseCase`, `deleteCurrentUserUseCase` |
+| auth | ~~**user**~~ — resolvido em 2026-11-24 (B77): o `auth` guarda só a sessão e não importa o `user` | — | — |
+| user | auth | ✅ pela fachada desde 2026-11-24 (B77) | `AccountContext.tsx`, `useAccountEntry.ts`, `ChangePasswordView`, `MainMenuView`, `useUserProfile`, `userSchema.ts`, `updatePasswordUseCase`, `deleteCurrentUserUseCase` |
 | content | auth (❌ context), notifications | — | `AboutView.tsx` |
 | favorites | auth, database (❌ `database/factory`), **guide** | — | `FavoritesList.tsx`, `FavoriteButton.tsx` |
 | guide | ~~**favorites**~~ — resolvido em 2026-11-15: o anúncio recebe o favoritar por encaixe de `src/app/compositions/ListingDetailComposition.tsx` | ✅ | — |
@@ -156,7 +158,7 @@ graph LR
 
 ```mermaid
 graph LR
-  auth <--> user
+  user --> auth
   favorites --> guide
   guide <--> search
   guide <--> insights
@@ -168,7 +170,7 @@ graph LR
 
 | Ciclo | Causa | Correção recomendada |
 |---|---|---|
-| **auth ↔ user** (também ciclo de runtime: `LoginModal → auth/index → useAuth → updateCurrentUserUseCase → userSchema → auth/index`) | `auth` busca o perfil do usuário; `user` usa a sessão de `auth` | `auth` vira folha (só sessão/token). Composição da "sessão + perfil" em `src/app/session` ou `user` depende de `auth` e nunca o contrário |
+| **auth ↔ user** ✅ resolvido em 2026-11-24 (B77, PR #33) | `auth` buscava e gravava o perfil do usuário; `user` usava a sessão de `auth` | `auth` virou folha (só sessão); o `user` junta sessão e perfil (`AccountProvider`/`useAccount`) e grava o perfil ao entrar ou criar conta (`useAccountEntry`), que o `AppRouter` passa ao `LoginModal` |
 | **guide ↔ favorites** ✅ resolvido em 2026-11-15 | o anúncio do guide embutia `FavoriteButton` | o anúncio recebe o favoritar e as avaliações por encaixe, montados em `src/app/compositions/ListingDetailComposition.tsx`; sobra só favorites → guide |
 | **guide ↔ search** | `ExploreView` (guide) usa `SearchOverlay`; search usa tipos do guide | search depende de guide (dados); a tela que junta os dois vai para `src/app` |
 | **guide ↔ insights** | modais disparam `trackInteraction`; `ReportsView` lê itens do guide | tracking via composição/evento de UI; insights depende de guide |
@@ -177,7 +179,7 @@ graph LR
 
 | Camada | Importa | Arquivo | Correção |
 |---|---|---|---|
-| `src/ui/layouts/Header.tsx`, `SideMenu.tsx` | auth (context), user, ticketing, content | layout conhece domínio | receber usuário/itens de menu por props; montar em `src/app` |
+| ~~`src/ui/layouts/Header.tsx`, `SideMenu.tsx`~~ ✅ (o `SideMenu` foi para `src/app/menu`; o `Header` recebe a conta por props desde 2026-11-24, B77) | — | — | — |
 | `src/ui/components/ShareButton.tsx` | insights | — | callback `onShared` |
 | `src/shared/stores/useFavoritesStore.ts` | favorites, insights | store de domínio em `shared` | mover para `src/domain/favorites/stores` |
 | `src/shared/lib/insights.ts` | insights | — | mover para `src/domain/insights` |
