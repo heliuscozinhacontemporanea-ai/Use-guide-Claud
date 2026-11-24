@@ -15,6 +15,8 @@ A ordem abaixo foi proposta em 2026-11-15 e pode ser mudada pelo responsável.
 | 9 | Resto do **item 5 da D33**: link de cortesia e durações e curvas soltas nos componentes menores (DESIGN.md P10) | | D33 |
 | 10 | **Acerto com o divulgador**, fase 1 e fase 2 | Aprovado em 2026-11-12; prints antes do código | `decisoes.md` (Acerto com o divulgador) |
 
+Publicados em 2026-11-24 (PR #34): o **B2** (controllers que orquestram domínios em `server/interfaces/http`, com o B1), o **B81** (pedidos do evento sem dados do comprador para o parceiro), o **B80** (404 da API) e o fechamento do **B21**.
+
 Publicados em 2026-11-24 (PR #33): o **B77** (o `auth` só com a sessão, o perfil no `user`) e o fim dos ciclos de import no app e no servidor.
 
 Publicados em 2026-11-24 (PR #32): a **D35** inteira (Termos no cadastro, conta antes do parceiro, nomes reservados no @ e "Sou o dono"), com a limpeza do B76.
