@@ -8,7 +8,7 @@ import {
   countOccurrenceCourtesiesUseCase,
 } from '../../../domain/ticketing';
 import { getSoldTicketsCountForOccurrenceApplicationUseCase } from '../getSoldTicketsCountForOccurrenceApplicationUseCase';
-import type { PartnerSessionInput } from './buildPartnerHome';
+import type { PartnerSessionInput } from './partnerHomeTypes';
 
 // A portaria do evento abre 2 h antes do início (D27).
 const GATE_OPENS_BEFORE_MS = 2 * 60 * 60 * 1000;

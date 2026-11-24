@@ -29,10 +29,14 @@ import { businessDayStartMs } from '../../../shared/kernel/businessDay';
 import { hasCurrentPartnerTerms } from '../partnerTermsStatus';
 import { listPartnerPaymentAccountsApplicationUseCase } from '../paymentAccounts/listPartnerPaymentAccountsApplicationUseCase';
 import { buildFirstSteps } from './buildFirstSteps';
-import { buildPartnerHome, type PartnerSessionInput, UPCOMING_SESSIONS } from './buildPartnerHome';
+import { buildPartnerHome, UPCOMING_SESSIONS } from './buildPartnerHome';
 import { panelTimeZone } from './panelTimeZone';
 import { businessMonthStarts } from './partnerHomeCardsData';
-import type { PartnerHomePromoters, PartnerHomeView } from './partnerHomeTypes';
+import type {
+  PartnerHomePromoters,
+  PartnerHomeView,
+  PartnerSessionInput,
+} from './partnerHomeTypes';
 import { listOwnerOccurrences, type OwnerEvent, toSessionInput } from './partnerSessions';
 
 const DAY_MS = 24 * 60 * 60_000;

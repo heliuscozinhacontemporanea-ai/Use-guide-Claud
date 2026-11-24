@@ -17,7 +17,7 @@ import { BUTTON_PRIMARY, BUTTON_SECONDARY } from '../../../../ui/styles/controls
 import type { PartnerTodayItem } from '../../types/partnerHome';
 import { StatusText } from '../../../../ui/components/StatusText';
 import type { AgoraCard } from '../../utils/agoraCards';
-import type { AgoraOfflineState } from './PartnerAgoraSection';
+import type { AgoraOfflineState } from '../../types/partnerAgora';
 
 const ICON: Record<AgoraCard['type'], LucideIcon> = {
   arrive: MapPin,

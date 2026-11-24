@@ -1,8 +1,9 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { i18n } from '../../../../shared/i18n';
+import type { AgoraOfflineState } from '../../types/partnerAgora';
 import type { PartnerTodayItem } from '../../types/partnerHome';
-import { type AgoraOfflineState, PartnerAgoraSection } from './PartnerAgoraSection';
+import { PartnerAgoraSection } from './PartnerAgoraSection';
 
 const MIN = 60_000;
 const rel = (minutes: number) => new Date(Date.now() + minutes * MIN).toISOString();

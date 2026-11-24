@@ -1,7 +1,7 @@
 import { useEffect, useCallback } from 'react';
 import { useAuthContext } from '../../auth';
-import { useFavoritesStore } from '../../../shared/stores/useFavoritesStore';
-import { FavoriteItemDetails } from '../types/favorite';
+import { useFavoritesStore } from '../stores/useFavoritesStore';
+import type { FavoriteItemDetails } from '../types/favorite';
 
 export function useFavorites(itemId?: string) {
   const { user } = useAuthContext();

@@ -8,17 +8,6 @@ import type { TransactionRepositoryPort } from '../ports/transactionRepositoryPo
 import { paymentMethodsForService } from '../utils/payoutRules';
 import type { PaymentAccountService } from './paymentAccountService';
 
-export class PaymentDomainError extends Error {
-  constructor(
-    public readonly code: string,
-    message: string,
-    public readonly statusCode = 400
-  ) {
-    super(message);
-    this.name = 'PaymentDomainError';
-  }
-}
-
 export class StripePaymentService {
   constructor(
     private readonly paymentGateway: PaymentGatewayPort,

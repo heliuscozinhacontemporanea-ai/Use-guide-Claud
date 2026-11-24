@@ -4,6 +4,7 @@ import { buildSlotsPayload } from '../components/partner/SlotCreationForm';
 import { placeDateKey, placeInputToIso, startOfPlaceWeek } from './dates';
 import { formatMinor, minorToReaisInput, parseReaisToMinor } from './money';
 import { emptyOfferFormValues, offerFormToFields, offerToFormValues } from './offerFormMapping';
+import { textFor } from './localizedText';
 import { canEditUnitName, unitLabel } from './unitLabel';
 
 describe('dinheiro', () => {
@@ -180,5 +181,21 @@ describe('unidade da reserva (D20)', () => {
     expect(canEditUnitName({ ...booking, requiresParticipantNames: false }, pass, early)).toBe(
       false
     );
+  });
+});
+
+describe('texto do parceiro no idioma da tela', () => {
+  const text = { 'pt-BR': 'Passeio de buggy', en: 'Buggy tour' };
+
+  it('usa a tradução quando existe e o português quando falta', () => {
+    expect(textFor(text, 'en')).toBe('Buggy tour');
+    expect(textFor(text, 'fr')).toBe('Passeio de buggy');
+    expect(textFor({ ...text, fr: '' }, 'fr')).toBe('Passeio de buggy');
+  });
+
+  it('outro idioma ou texto ausente', () => {
+    expect(textFor(text, 'pt-BR')).toBe('Passeio de buggy');
+    expect(textFor(text, 'es')).toBe('Passeio de buggy');
+    expect(textFor(undefined, 'en')).toBe('');
   });
 });

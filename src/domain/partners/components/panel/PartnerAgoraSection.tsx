@@ -3,21 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { useUI } from '../../../../shared/stores/useUIStore';
 import { usePanelItemTime } from '../../hooks/panelTimeZone';
 import { usePartnerAgora } from '../../hooks/usePartnerAgora';
+import type { AgoraOfflineState } from '../../types/partnerAgora';
 import type { PartnerTodayItem } from '../../types/partnerHome';
 import { AgoraCardItem } from './AgoraCardItem';
-
-/** A lista sem internet (evento) ou a portaria (atração) neste aparelho (C5), em termos neutros. */
-export interface AgoraOfflineState {
-  kind: 'list' | 'keys';
-  status: 'missing' | 'ready' | 'no_connection';
-  /** Só na lista: ingressos guardados e quando foi a última atualização. */
-  count: number | null;
-  updatedAt: string | null;
-  online: boolean;
-  busy: boolean;
-  failed: boolean;
-  download: () => void;
-}
 
 /** O que a composição monta para "Agora" (domínios bookings e ticketing). */
 export interface PartnerAgoraRenders {

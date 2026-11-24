@@ -1,12 +1,9 @@
 import { create } from 'zustand';
-import {
-  addFavoriteUseCase,
-  removeFavoriteUseCase,
-  subscribeUserFavoritesUseCase,
-  type FavoriteItem,
-  type FavoriteItemDetails,
-} from '../../domain/favorites';
-import { trackInteractionUseCase as trackInteraction } from '../../domain/insights';
+import { trackInteractionUseCase as trackInteraction } from '../../insights';
+import { addFavoriteUseCase } from '../application/usecases/addFavoriteUseCase';
+import { removeFavoriteUseCase } from '../application/usecases/removeFavoriteUseCase';
+import { subscribeUserFavoritesUseCase } from '../application/usecases/subscribeUserFavoritesUseCase';
+import type { FavoriteItem, FavoriteItemDetails } from '../types/favorite';
 
 export interface FavoritesStoreState {
   favorites: FavoriteItem[];
@@ -94,7 +91,7 @@ export const useFavoritesStore = create<FavoritesStoreState>((set, get) => ({
     const { favoriteItemIds, favorites } = get();
     const currentlyFavorited = favoriteItemIds.has(itemId);
 
-    // Otimista
+    // A tela muda na hora e volta atrás se o servidor recusar.
     if (currentlyFavorited) {
       const existingFav = favorites.find((f) => f.itemId === itemId);
       const collectionName = itemData?.collectionName || existingFav?.itemCollection || 'items';

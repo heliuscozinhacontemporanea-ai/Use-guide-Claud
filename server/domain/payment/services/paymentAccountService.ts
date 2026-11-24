@@ -6,7 +6,7 @@ import type { PaymentAccountRepositoryPort } from '../ports/paymentAccountReposi
 import type { PaymentAccountRecord, PaymentAccountView } from '../types/paymentAccount';
 import { isSellerAccountReady } from '../utils/sellerReadiness';
 import type { DebtService } from './debtService';
-import { PaymentDomainError } from './stripePaymentService';
+import { PaymentDomainError } from '../errors/paymentDomainError';
 
 export interface EnsurePaymentAccountInput {
   accountKey: string;

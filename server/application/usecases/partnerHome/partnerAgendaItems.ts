@@ -1,6 +1,5 @@
 import type { OwnerSlotSummary } from '../../../domain/bookings';
-import type { PartnerSessionInput } from './buildPartnerHome';
-import type { PartnerTodayItem } from './partnerHomeTypes';
+import type { PartnerSessionInput, PartnerTodayItem } from './partnerHomeTypes';
 
 /** Linha da agenda (Hoje no Início e a Agenda) a partir de um horário de reserva. */
 export function slotToAgendaItem(slot: OwnerSlotSummary): PartnerTodayItem {

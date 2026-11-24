@@ -13,9 +13,7 @@ vi.mock('../../../domain/notifications', () => ({
 }));
 vi.mock('../../../domain/ticketing', () => ({ getTicketOrderUseCase: vi.fn() }));
 vi.mock('../../../domain/payment', async () => {
-  const { PaymentDomainError } = await import(
-    '../../../domain/payment/services/stripePaymentService'
-  );
+  const { PaymentDomainError } = await import('../../../domain/payment/errors/paymentDomainError');
   return {
     PaymentDomainError,
     openSaleClaimUseCase: vi.fn(async (input: Record<string, unknown>) => ({
