@@ -137,19 +137,19 @@ jobs:
           docker build -t "$IMAGE" .
           docker push "$IMAGE"
 
-      # Uma vez só (escolhas da F4, D35 resposta 7a): o que está na conta pessoal de um admin passa para
-      # o dono Use Guide antes do servidor novo. Tarefa do Cloud Run com a imagem nova e a conta do
-      # servidor; se falhar, nada mais sobe. Sai no deploy seguinte, junto com o script.
-      - name: Conteúdo do admin para o Use Guide (uma vez)
+      # Uma vez só (B76): anúncios antigos sem `isActive` recebem `true`, antes do site novo, que passa a
+      # exigir o campo. Tarefa do Cloud Run com a imagem nova e a conta do servidor; se falhar, nada mais
+      # sobe. Sai no deploy seguinte, junto com o script.
+      - name: Anúncios antigos com isActive (uma vez)
         run: |
           SA="$(gcloud run services describe "$SERVICE" --region "$REGION" --project "${{ vars.GCP_PROJECT_ID }}" --format='value(spec.template.spec.serviceAccountName)')"
-          gcloud run jobs deploy move-admin-content-to-useguide \
+          gcloud run jobs deploy set-missing-items-active \
             --image "$IMAGE" --region "$REGION" --project "${{ vars.GCP_PROJECT_ID }}" \
             ${SA:+--service-account "$SA"} \
-            --command node --args ops/moveAdminContentToUseGuide.cjs \
+            --command node --args ops/setMissingItemsActive.cjs \
             --set-env-vars "FIREBASE_PROJECT_ID=${{ vars.GCP_PROJECT_ID }},FIRESTORE_DATABASE_ID=${{ vars.VITE_FIREBASE_FIRESTORE_DATABASE_ID }}" \
             --max-retries 0 --task-timeout 300s --execute-now --wait --quiet
-          gcloud run jobs delete move-admin-content-to-useguide --region "$REGION" --project "${{ vars.GCP_PROJECT_ID }}" --quiet
+          gcloud run jobs delete set-missing-items-active --region "$REGION" --project "${{ vars.GCP_PROJECT_ID }}" --quiet
 
       - uses: actions/setup-python@v7
         with:

@@ -142,9 +142,12 @@ export class FirebaseGuideCatalogAdapter implements GuideCatalogPort {
       'items',
       (records) => {
         // Perfil de produtor não é item do guia: só serve de vínculo para os eventos (decisão D9).
+        // `isActive === true` no documento, como no servidor (sitemap e HTML), para os dois
+        // mostrarem os mesmos anúncios (B76).
         items = records
+          .filter((record) => record.isActive === true)
           .map(mapGuideItem)
-          .filter((item) => item.isActive !== false && item.category !== 'producer');
+          .filter((item) => item.category !== 'producer');
         itemsReady = true;
         emit();
       },

@@ -4,5 +4,5 @@
 !package-lock.json
 !dist
 !scripts/ops/keepServerDependencies.mjs
-# Uma vez só (F4): o script que o deploy roda como tarefa do Cloud Run; sai no deploy seguinte.
-!scripts/ops/moveAdminContentToUseGuide.cjs
+# Uma vez só (B76): o script que o deploy roda como tarefa do Cloud Run; sai no deploy seguinte.
+!scripts/ops/setMissingItemsActive.cjs

@@ -15,8 +15,8 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY package.json ./
 COPY dist ./dist
-# Uma vez só (F4): o deploy roda este script como tarefa do Cloud Run; sai no deploy seguinte.
-COPY scripts/ops/moveAdminContentToUseGuide.cjs ./ops/moveAdminContentToUseGuide.cjs
+# Uma vez só (B76): o deploy roda este script como tarefa do Cloud Run; sai no deploy seguinte.
+COPY scripts/ops/setMissingItemsActive.cjs ./ops/setMissingItemsActive.cjs
 USER node
 # O mapa de código deixa a pilha de erro apontar a linha do código-fonte nos logs e alertas.
 CMD ["node", "--enable-source-maps", "dist/server.cjs"]
