@@ -88,6 +88,7 @@ describe('Security Audit - Mass Assignment and Cross-Owner Defenses', () => {
         getItemContact: vi.fn(),
         setItemContact: vi.fn(),
         deleteItemContact: vi.fn(),
+        transferOwner: vi.fn(),
       };
 
       const guideService = new GuideService(mockPort);
@@ -122,6 +123,7 @@ describe('Security Audit - Mass Assignment and Cross-Owner Defenses', () => {
         getItemContact: vi.fn(),
         setItemContact: vi.fn(),
         deleteItemContact: vi.fn(),
+        transferOwner: vi.fn(),
       };
 
       const guideService = new GuideService(mockPort);

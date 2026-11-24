@@ -47,6 +47,9 @@ export const NOTIFICATION_TYPES = {
   plan_expiring: 'finance',
   plan_renewal_failed: 'finance',
   sale_daily_digest: 'sales',
+  listing_claim_approved: 'account',
+  listing_claim_rejected: 'account',
+  listing_claim_returned: 'account',
   admin_message: 'messages',
 } as const;
 

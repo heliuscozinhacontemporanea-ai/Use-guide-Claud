@@ -245,6 +245,10 @@ service cloud.firestore {
     match /adminAuditLog/{entryId} {
       allow read, write: if false;
     }
+    // Pedidos de "Sou o dono" (D35): documento cifrado e arquivos privados; só pela API.
+    match /listingClaims/{claimId} {
+      allow read, write: if false;
+    }
     match /{document=**} {
       allow read, write: if false;
     }

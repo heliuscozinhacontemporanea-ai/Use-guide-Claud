@@ -284,6 +284,11 @@ export class GuideService {
     await this.guidePort.deleteItem(id);
   }
 
+  transferOwner(itemId: string, expectedOwnerId: string, ownerId: string): Promise<boolean> {
+    ensureValidId(itemId);
+    return this.guidePort.transferOwner(itemId, expectedOwnerId, ownerId);
+  }
+
   async updateItemVerification(
     itemId: string,
     verification: GuideVerificationUpdate

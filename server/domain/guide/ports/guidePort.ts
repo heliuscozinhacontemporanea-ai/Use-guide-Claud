@@ -45,4 +45,9 @@ export interface GuidePort {
   getItemContact(itemId: string): Promise<GuideItemContact | null>;
   setItemContact(itemId: string, contact: GuideItemContact): Promise<void>;
   deleteItemContact(itemId: string): Promise<void>;
+  /**
+   * Troca o dono do anúncio só se o dono atual for `expectedOwnerId` (D35 "Sou o dono"): devolve
+   * `false` se outro dono já estiver gravado. Já com o novo dono, não muda nada e devolve `true`.
+   */
+  transferOwner(itemId: string, expectedOwnerId: string, ownerId: string): Promise<boolean>;
 }

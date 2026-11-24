@@ -152,6 +152,12 @@ describe('Firestore Rules — Security Suite', () => {
 
       await db.doc('interactionGuards/guard-1').set({ expiresAt: new Date() });
 
+      await db.doc('listingClaims/item-1_partner-1').set({
+        itemId: 'item-1',
+        claimantId: 'partner-1',
+        status: 'pending',
+      });
+
       await db.doc('adminAuditLog/entry-1').set({
         actorUid: 'admin-user',
         action: 'PUT /api/partners/items/:id',
@@ -283,6 +289,15 @@ describe('Firestore Rules — Security Suite', () => {
       for (const db of [adminDb, userDb]) {
         await assertFails(getDoc(doc(db, 'adminAuditLog/entry-1')));
         await assertFails(setDoc(doc(db, 'adminAuditLog/entry-2'), { actorUid: 'x' }));
+      }
+    });
+
+    it('listingClaims (D35): pedido negado até para quem pediu e para o admin', async () => {
+      const adminDb = testEnv.authenticatedContext('admin-user', { admin: true }).firestore();
+      const claimantDb = testEnv.authenticatedContext('partner-1').firestore();
+      for (const db of [adminDb, claimantDb]) {
+        await assertFails(getDoc(doc(db, 'listingClaims/item-1_partner-1')));
+        await assertFails(setDoc(doc(db, 'listingClaims/item-1_partner-2'), { status: 'approved' }));
       }
     });
 

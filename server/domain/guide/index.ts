@@ -53,3 +53,4 @@ export {
   type GuideListingSetup,
   getGuideListingSetupUseCase,
 } from './usecases/getGuideListingSetupUseCase';
+export { transferGuideItemOwnerUseCase } from './usecases/transferGuideItemOwnerUseCase';

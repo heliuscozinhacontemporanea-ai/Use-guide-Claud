@@ -19,6 +19,7 @@ function createGuidePortMock(): GuidePort {
     getItemContact: vi.fn(),
     setItemContact: vi.fn(),
     deleteItemContact: vi.fn(),
+    transferOwner: vi.fn(),
   };
 }
 
