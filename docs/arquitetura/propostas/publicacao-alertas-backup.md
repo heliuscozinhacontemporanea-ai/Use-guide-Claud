@@ -63,7 +63,7 @@ O primeiro deploy confirma a lista: se faltar algum papel, o erro do Actions diz
 | Firestore: cópia diária | **backup agendado** do Firestore | 7 dias |
 | Firestore: cópia semanal | backup agendado | 8 semanas |
 | Storage (fotos e documentos) | **exclusão reversível** (soft delete) do bucket | 7 dias |
-| Teste de restauração | restaurar o backup num banco novo e conferir; repetir a cada 3 meses (§7.10) | registro em `docs/arquitetura/restauracoes.md` |
+| Teste de restauração | restaurar o backup num banco novo e conferir; repetir a cada 3 meses (§7.10) | passo a passo e registro em `docs/arquitetura/restauracoes.md` (2026-11-24) |
 
 * Os backups ficam no mesmo projeto, sem acesso pelo app. Os documentos de verificação ficam cifrados (§7.7) também no backup.
 * Os comandos também ficam no `setup-monitoring.sh`.
