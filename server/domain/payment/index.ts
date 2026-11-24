@@ -20,7 +20,7 @@ export type { CreateDebtInput } from './services/debtService';
 export type { EnsurePaymentAccountInput } from './services/paymentAccountService';
 export type { DisputeOutcome, RecordSaleInput, ReleaseSummary } from './services/payoutService';
 export type { OpenSaleClaimInput, SaleClaimDecision } from './services/saleClaimService';
-export { PaymentDomainError } from './services/stripePaymentService';
+export { PaymentDomainError } from './errors/paymentDomainError';
 export type {
   AccountDebt,
   AccountDebtReason,

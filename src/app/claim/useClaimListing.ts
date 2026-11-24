@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useAuthContext } from '../../domain/auth';
+import { useAccount } from '../../domain/user';
 import type { ClaimTarget } from '../../domain/partners';
 import { useUIStore } from '../../shared/stores/useUIStore';
 import { useClaimStore } from '../stores/claimStore';
@@ -9,7 +9,7 @@ import { useClaimStore } from '../stores/claimStore';
  * no alto e volta sozinho para o pedido quando a conta tem o @. Fechar o acesso sem conta desiste.
  */
 export function useClaimListing(): (target: ClaimTarget) => void {
-  const { user, profile, loading } = useAuthContext();
+  const { user, profile, loading } = useAccount();
   const waiting = useClaimStore((state) => state.waiting);
   const open = useClaimStore((state) => state.open);
   const wait = useClaimStore((state) => state.wait);

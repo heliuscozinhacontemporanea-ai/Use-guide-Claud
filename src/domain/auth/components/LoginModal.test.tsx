@@ -2,10 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { i18n } from '../../../shared/i18n';
-import { useAuth } from '../hooks/useAuth';
 import { LoginModal } from './LoginModal';
-
-vi.mock('../hooks/useAuth', () => ({ useAuth: vi.fn() }));
 
 const t = (key: string) => i18n.t(key);
 
@@ -19,12 +16,6 @@ describe('LoginModal (folha de acesso, D33)', () => {
   beforeEach(async () => {
     await i18n.changeLanguage('pt-BR');
     vi.clearAllMocks();
-    vi.mocked(useAuth).mockReturnValue({
-      login: mockLogin,
-      signUp: mockSignUp,
-      loginWithGoogle: mockLoginWithGoogle,
-      forgotPassword: mockForgotPassword,
-    } as unknown as ReturnType<typeof useAuth>);
   });
   afterEach(async () => {
     await i18n.changeLanguage('pt-BR');
@@ -37,6 +28,12 @@ describe('LoginModal (folha de acesso, D33)', () => {
     render(
       <MemoryRouter>
         <LoginModal
+          actions={{
+            login: mockLogin,
+            signUp: mockSignUp,
+            loginWithGoogle: mockLoginWithGoogle,
+            forgotPassword: mockForgotPassword,
+          }}
           note={note}
           isOpen
           onClose={mockOnClose}

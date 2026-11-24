@@ -10,7 +10,7 @@ import type {
 } from '../types/saleClaim';
 import { computeClaimDeadline, computeReleaseAt } from '../utils/payoutRules';
 import type { PayoutService } from './payoutService';
-import { PaymentDomainError } from './stripePaymentService';
+import { PaymentDomainError } from '../errors/paymentDomainError';
 
 export interface OpenSaleClaimInput {
   referenceType: string;

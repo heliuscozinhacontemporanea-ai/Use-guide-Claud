@@ -1,20 +1,14 @@
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { usePublishedOffers } from '../../hooks/usePublishedOffers';
-import type { LocalizedText } from '../../types/bookings';
 import { formatDuration } from '../../utils/formatDuration';
+import { textFor } from '../../utils/localizedText';
 import { isFleetOffer } from '../../utils/offerKindByCategory';
 import { BookingFlow, type BookingFlowProps } from './BookingFlow';
 import { FleetBookingFlow } from './FleetBookingFlow';
 import { OfferPolicySummary } from './OfferPolicySummary';
 
 const CARD = 'rounded-[20px] bg-surface border border-line';
-
-export function textFor(text: LocalizedText | undefined, language: string): string {
-  if (!text) return '';
-  const key = language === 'en' || language === 'fr' ? language : 'pt-BR';
-  return text[key] || text['pt-BR'];
-}
 
 interface BookingOfferPanelProps extends Omit<BookingFlowProps, 'offer'> {
   guideItemId: string;

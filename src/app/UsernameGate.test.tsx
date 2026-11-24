@@ -10,11 +10,8 @@ const auth = vi.hoisted(() => ({
   },
 }));
 
-vi.mock('../domain/auth', () => ({
-  useAuthContext: () => auth.value,
-  logoutUseCase: vi.fn(),
-}));
 vi.mock('../domain/user', () => ({
+  useAccount: () => auth.value,
   UsernameOnboardingDialog: () => <div>escolha-do-arroba</div>,
 }));
 

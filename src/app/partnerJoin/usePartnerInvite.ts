@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useAuthContext } from '../../domain/auth';
+import { useAccount } from '../../domain/user';
 import { useUIStore } from '../../shared/stores/useUIStore';
 import { usePartnerJoinStore } from '../stores/partnerJoinStore';
 
@@ -9,7 +9,7 @@ import { usePartnerJoinStore } from '../stores/partnerJoinStore';
  * Fechar o acesso sem criar conta encerra o convite.
  */
 export function usePartnerInvite(openPartnerJoin: () => void): () => void {
-  const { user, profile, loading } = useAuthContext();
+  const { user, profile, loading } = useAccount();
   const invited = usePartnerJoinStore((state) => state.invited);
   const setInvited = usePartnerJoinStore((state) => state.setInvited);
   const isLoginOpen = useUIStore((state) => state.isLoginModalOpen);

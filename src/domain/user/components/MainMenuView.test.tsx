@@ -4,7 +4,9 @@ import { i18n } from '../../../shared/i18n';
 import { UserRole } from '../../auth/types/auth';
 import { MainMenuView } from './MainMenuView';
 
-vi.mock('../../auth', () => ({ useAuth: () => ({ loginWithGoogle: vi.fn() }) }));
+vi.mock('../hooks/useAccountEntry', () => ({
+  useAccountEntry: () => ({ loginWithGoogle: vi.fn() }),
+}));
 
 const USER = {
   uid: 'u1',

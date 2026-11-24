@@ -16,9 +16,7 @@ vi.mock('../../../domain/bookings', async () => ({
   resolveServiceConfirmationUseCase: vi.fn(),
 }));
 vi.mock('../../../domain/payment', async () => {
-  const { PaymentDomainError } = await import(
-    '../../../domain/payment/services/stripePaymentService'
-  );
+  const { PaymentDomainError } = await import('../../../domain/payment/errors/paymentDomainError');
   return {
     PaymentDomainError,
     decideSaleClaimUseCase: vi.fn(),

@@ -9,8 +9,10 @@ const auth = vi.hoisted(() => ({
 }));
 const updatePreferredLocaleUseCase = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 
-vi.mock('../../domain/auth/context/AuthContext', () => ({ useAuthContext: () => auth.value }));
-vi.mock('../../domain/user', () => ({ updatePreferredLocaleUseCase }));
+vi.mock('../../domain/user', () => ({
+  updatePreferredLocaleUseCase,
+  useAccount: () => auth.value,
+}));
 
 function CurrentPath() {
   return <span data-testid="path">{useLocation().pathname}</span>;

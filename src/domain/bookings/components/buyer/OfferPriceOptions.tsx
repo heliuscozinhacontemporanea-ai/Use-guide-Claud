@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import type { PublicOffer } from '../../types/bookings';
 import { formatMinor } from '../../utils/money';
-import { textFor } from './BookingOfferPanel';
+import { textFor } from '../../utils/localizedText';
 
 /** Opções de preço da oferta, como o parceiro cadastrou: por pessoa ou por grupo (D20). */
 export function OfferPriceOptions({ offer }: { offer: PublicOffer }) {

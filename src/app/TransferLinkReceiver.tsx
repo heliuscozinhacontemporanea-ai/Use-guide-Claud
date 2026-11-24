@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useAuthContext } from '../domain/auth';
+import { useAccount } from '../domain/user';
 import { parseTransferLinkHash, TransferLinkReceiverDialog } from '../domain/ticketing';
 import { useUI } from '../shared/stores/useUIStore';
 import { useSideMenu } from './menu/useSideMenu';
@@ -29,7 +29,7 @@ function store(link: { linkId: string; token: string } | null) {
  * sobreviver ao login e à criação da conta (inclusive a escolha do @) sem ficar à vista.
  */
 export function TransferLinkReceiver() {
-  const { user, profile, loading } = useAuthContext();
+  const { user, profile, loading } = useAccount();
   const { openLoginModal } = useUI();
   const { openMenu } = useSideMenu();
   const [link, setLink] = useState(readStored);

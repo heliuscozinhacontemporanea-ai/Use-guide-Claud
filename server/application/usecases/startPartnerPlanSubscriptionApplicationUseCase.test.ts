@@ -8,7 +8,7 @@ vi.mock('../../domain/partners', () => ({
     value === 'monthly' || value === 'semi-annual' || value === 'annual',
 }));
 vi.mock('../../domain/payment', async () => {
-  const { PaymentDomainError } = await import('../../domain/payment/services/stripePaymentService');
+  const { PaymentDomainError } = await import('../../domain/payment/errors/paymentDomainError');
   return { PaymentDomainError, startPlanSubscriptionUseCase: vi.fn().mockResolvedValue({}) };
 });
 vi.mock('./listingPlans/assertListingPlanPurchasableApplicationUseCase', () => ({
@@ -17,7 +17,7 @@ vi.mock('./listingPlans/assertListingPlanPurchasableApplicationUseCase', () => (
 
 import { getSubscriptionPlanByIdUseCase } from '../../domain/admin';
 import { startPlanSubscriptionUseCase } from '../../domain/payment';
-import { PaymentDomainError } from '../../domain/payment/services/stripePaymentService';
+import { PaymentDomainError } from '../../domain/payment/errors/paymentDomainError';
 import { startPartnerPlanSubscriptionApplicationUseCase } from './startPartnerPlanSubscriptionApplicationUseCase';
 
 const ACTOR = { uid: 'p1', email: 'p1@example.com' };

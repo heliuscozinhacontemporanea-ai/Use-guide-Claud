@@ -3,7 +3,7 @@ import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SegmentedControl } from '../../../ui/components/SegmentedControl';
 import { FADE } from '../../../ui/motion/tokens';
-import { useAuth } from '../hooks/useAuth';
+import type { AccountEntryActions } from '../types/auth';
 import { ForgotPasswordForm } from './ForgotPasswordForm';
 import { LoginForm } from './LoginForm';
 import { RegisterForm } from './RegisterForm';
@@ -15,12 +15,15 @@ export type AuthView = 'login' | 'register' | 'forgot';
  * (D34). A troca entre as três só esmaece.
  */
 export function AuthForms({
+  actions,
   initialView = 'login',
   onSuccess,
   onViewChange,
   onOpenTerms,
   note,
 }: {
+  /** Entrar e criar conta com o perfil junto, montado pelo domínio `user` (B77). */
+  actions: AccountEntryActions;
   initialView?: AuthView;
   onSuccess: () => void;
   onViewChange?: (view: AuthView) => void;
@@ -31,7 +34,7 @@ export function AuthForms({
 }) {
   const { t } = useTranslation();
   const reduced = useReducedMotion();
-  const { login, signUp, loginWithGoogle, forgotPassword } = useAuth();
+  const { login, signUp, loginWithGoogle, forgotPassword } = actions;
   const [view, setView] = useState<AuthView>(initialView);
   const [passedEmail, setPassedEmail] = useState('');
   const [apiError, setApiError] = useState<string | null>(null);

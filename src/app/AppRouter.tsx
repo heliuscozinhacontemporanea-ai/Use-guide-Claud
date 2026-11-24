@@ -2,9 +2,10 @@ import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { Suspense, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useSearchParams } from 'react-router-dom';
-import { UserRole, useAuthContext } from '../domain/auth';
+import { UserRole } from '../domain/auth';
 import { useGuideCatalog } from '../domain/guide';
 import { NotificationBell } from '../domain/notifications';
+import { useAccount, useAccountEntry } from '../domain/user';
 import { ACCOUNT_ACTION_PATH } from '../shared/constants/accountActionPath';
 import { useLocalizedRouting, useSyncLocaleWithUrl } from '../shared/hooks/useLocalizedRouting';
 import { useScrollLock } from '../shared/hooks/useScrollLock';
@@ -45,7 +46,8 @@ import { ListingDetailComposition } from './compositions/ListingDetailCompositio
 const SHEET_SWAP_MS = 450;
 
 export function AppRouter() {
-  const { user, refreshProfile } = useAuthContext();
+  const { user, profile, photoURL, refreshProfile } = useAccount();
+  const accountEntry = useAccountEntry();
   const isPartner = user?.role === UserRole.PARTNER;
   const isAdmin = user?.role === UserRole.ADMIN;
 
@@ -256,7 +258,15 @@ export function AppRouter() {
                 onAdminOpen={handleAdminOpen}
                 isAdmin={isAdmin}
                 isPartner={isPartner}
-                user={user}
+                account={
+                  user
+                    ? {
+                        photoURL,
+                        displayName: profile?.displayName || user.displayName,
+                        email: user.email,
+                      }
+                    : null
+                }
                 notificationSlot={
                   user ? (
                     <NotificationBell
@@ -366,6 +376,7 @@ export function AppRouter() {
           {loginMounted && (
             <Suspense fallback={null}>
               <LoginModal
+                actions={accountEntry}
                 isOpen={isLoginModalOpen}
                 onClose={closeLoginModal}
                 initialTab={loginModalTab}

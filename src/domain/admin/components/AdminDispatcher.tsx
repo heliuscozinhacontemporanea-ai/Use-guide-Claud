@@ -1,7 +1,6 @@
 import { ChevronLeft, RefreshCw, ShieldAlert } from 'lucide-react';
 import { useEffect } from 'react';
-import { useAuthContext } from '../../auth/context/AuthContext';
-import { UserRole } from '../../auth/types/auth';
+import { UserRole, useAuthContext } from '../../auth';
 import { AdminPanel, type AdminPanelProps } from './AdminPanel';
 import { useLocalizedRouting } from '../../../shared/hooks/useLocalizedRouting';
 

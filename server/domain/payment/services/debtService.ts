@@ -7,7 +7,7 @@ import type {
   ForceMajeureReviewView,
 } from '../types/accountDebt';
 import { debtDueAt, isDebtOverdue, remainingDebtMinor } from '../utils/debtRules';
-import { PaymentDomainError } from './stripePaymentService';
+import { PaymentDomainError } from '../errors/paymentDomainError';
 
 export interface CreateDebtInput {
   accountKey: string;

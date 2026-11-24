@@ -139,3 +139,20 @@ export interface PartnerHomeView {
   /** Para as linhas do Mais (p24). */
   summary: { documents: number; pendingVerifications: number };
 }
+
+export interface PartnerSessionInput {
+  id: string;
+  eventId: string;
+  eventTitle: string;
+  establishmentId: string | null;
+  startsAt: string;
+  endsAt: string | null;
+  /** Fim das vendas pelo app: só depois dele a lista sem internet pode ser baixada (D21). */
+  salesEndsAt: string;
+  capacity: number;
+  sold: number;
+  /** Cortesias que ocupam lugar (D27); fora do "vendidos". */
+  courtesies: number;
+  /** Convidados que já entraram (C7); zero antes de a portaria abrir. */
+  courtesiesEntered: number;
+}

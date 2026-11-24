@@ -6,29 +6,17 @@ import { businessDayStartMs } from '../../../shared/kernel/businessDay';
 import type { PartnerPaymentAccount } from '../paymentAccounts/listPartnerPaymentAccountsApplicationUseCase';
 import { sessionToAgendaItem, slotToAgendaItem } from './partnerAgendaItems';
 import { sumMonthSales, summarizeWeek } from './partnerHomeCardsData';
-import type { PartnerAttentionItem, PartnerHomeView, PartnerTodayItem } from './partnerHomeTypes';
+import type {
+  PartnerAttentionItem,
+  PartnerHomeView,
+  PartnerSessionInput,
+  PartnerTodayItem,
+} from './partnerHomeTypes';
 
 const DAY_MS = 24 * 60 * 60_000;
 // Plano vencendo entra em "Resolva agora" na última semana.
 const PLAN_WARNING_MS = 7 * DAY_MS;
 export const UPCOMING_SESSIONS = 5;
-
-export interface PartnerSessionInput {
-  id: string;
-  eventId: string;
-  eventTitle: string;
-  establishmentId: string | null;
-  startsAt: string;
-  endsAt: string | null;
-  /** Fim das vendas pelo app: só depois dele a lista sem internet pode ser baixada (D21). */
-  salesEndsAt: string;
-  capacity: number;
-  sold: number;
-  /** Cortesias que ocupam lugar (D27); fora do "vendidos". */
-  courtesies: number;
-  /** Convidados que já entraram (C7); zero antes de a portaria abrir. */
-  courtesiesEntered: number;
-}
 
 export interface PartnerHomeInput {
   nowIso: string;

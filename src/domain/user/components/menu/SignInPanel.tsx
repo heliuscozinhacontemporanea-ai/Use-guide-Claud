@@ -4,7 +4,7 @@ import { Trans, useTranslation } from 'react-i18next';
 import { useUI } from '../../../../shared/stores/useUIStore';
 import { TermsNotice } from '../../../../ui/legal/TermsNotice';
 import { BUTTON_SECONDARY } from '../../../../ui/styles/controls';
-import { useAuth } from '../../../auth';
+import { useAccountEntry } from '../../hooks/useAccountEntry';
 
 function authErrorKey(code: unknown): string | null {
   if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') return null;
@@ -26,7 +26,7 @@ export function SignInPanel({
 }) {
   const { t } = useTranslation();
   const { openLoginModal } = useUI();
-  const { loginWithGoogle } = useAuth();
+  const { loginWithGoogle } = useAccountEntry();
   const [googleLoading, setGoogleLoading] = useState(false);
   const [errorKey, setErrorKey] = useState<string | null>(null);
 

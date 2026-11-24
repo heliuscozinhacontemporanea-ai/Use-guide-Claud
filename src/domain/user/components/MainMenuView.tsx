@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { formatBusinessDate } from '../../../shared/utils/businessDateTime';
 import { getUserInitials } from '../../../shared/utils/formatters';
 import { TextButton } from '../../../ui/components/TextButton';
-import type { UserSession } from '../../auth/types/auth';
+import type { UserSession } from '../../auth';
 import { MenuRow } from './menu/MenuRow';
 import { ProfileAvatar } from './menu/ProfileAvatar';
 import { SignInPanel } from './menu/SignInPanel';

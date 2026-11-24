@@ -9,13 +9,11 @@ vi.mock(
   () => ({ listAdminAccountDebtsApplicationUseCase: m.list })
 );
 vi.mock('../../../domain/payment', async () => {
-  const { PaymentDomainError } = await import(
-    '../../../domain/payment/services/stripePaymentService'
-  );
+  const { PaymentDomainError } = await import('../../../domain/payment/errors/paymentDomainError');
   return { PaymentDomainError, waiveAccountDebtUseCase: m.waive };
 });
 
-import { PaymentDomainError } from '../../../domain/payment/services/stripePaymentService';
+import { PaymentDomainError } from '../../../domain/payment/errors/paymentDomainError';
 import { AdminAccountDebtController } from './adminAccountDebtController';
 
 function response() {

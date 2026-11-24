@@ -5,7 +5,7 @@ import { assertListingPlanPurchasableApplicationUseCase } from '../../../applica
 import { reconcileStripeWebhookEventApplicationUseCase } from '../../../application/usecases/reconcileStripeWebhookEventApplicationUseCase';
 import type { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
 import { ConfirmPlanPaymentSchema, CreatePlanPaymentIntentSchema } from '../schemas/paymentSchema';
-import { PaymentDomainError } from '../services/stripePaymentService';
+import { PaymentDomainError } from '../errors/paymentDomainError';
 import { claimStripeWebhookEventUseCase } from '../usecases/claimStripeWebhookEventUseCase';
 import { completeStripeWebhookEventUseCase } from '../usecases/completeStripeWebhookEventUseCase';
 import { constructStripeWebhookEventUseCase } from '../usecases/constructStripeWebhookEventUseCase';

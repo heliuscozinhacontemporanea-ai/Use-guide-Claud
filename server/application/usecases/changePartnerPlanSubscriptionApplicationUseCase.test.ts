@@ -8,7 +8,7 @@ vi.mock('../../domain/partners', () => ({
     value === 'monthly' || value === 'semi-annual' || value === 'annual',
 }));
 vi.mock('../../domain/payment', async () => {
-  const { PaymentDomainError } = await import('../../domain/payment/services/stripePaymentService');
+  const { PaymentDomainError } = await import('../../domain/payment/errors/paymentDomainError');
   return { PaymentDomainError, schedulePlanSubscriptionChangeUseCase: m.schedule };
 });
 vi.mock('./listingPlans/assertListingPlanPurchasableApplicationUseCase', () => ({

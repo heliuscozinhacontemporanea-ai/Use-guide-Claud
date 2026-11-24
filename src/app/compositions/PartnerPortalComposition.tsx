@@ -4,8 +4,7 @@ import { LogIn, RefreshCw, ShieldAlert } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getActiveSubscriptionPlansUseCase } from '../../domain/admin';
-import { useAuthContext } from '../../domain/auth/context/AuthContext';
-import { UserRole } from '../../domain/auth/types/auth';
+import { UserRole } from '../../domain/auth';
 import {
   EntryOfflineKeys,
   EstablishmentCodeSheet,
@@ -23,6 +22,7 @@ import { MonthVisitsTile, ReportsView } from '../../domain/insights';
 import { NotificationSettingsView, SalesAlertsSummary } from '../../domain/notifications';
 import type { PartnerProfile, SubscriptionPlan } from '../../domain/partners';
 import { getPartnerProfileUseCase, PartnerPanel } from '../../domain/partners';
+import { useAccount } from '../../domain/user';
 import {
   CheckoutModal,
   isPaidPlanId,
@@ -52,7 +52,7 @@ import { PartnerEventTicketingComposition } from './PartnerEventTicketingComposi
 export function PartnerPortalComposition() {
   const openClaim = useClaimStore((state) => state.open);
   const { t } = useTranslation();
-  const { user, loading } = useAuthContext();
+  const { user, loading } = useAccount();
   const { openLoginModal } = useUI();
   const { goTo } = useLocalizedRouting();
   const arriveAtSlot = useSlotArrival();

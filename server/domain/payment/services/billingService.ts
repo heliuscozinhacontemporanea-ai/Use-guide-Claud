@@ -8,7 +8,7 @@ import type {
   PlanSubscriptionRecord,
   PlanSubscriptionRepositoryPort,
 } from '../ports/planSubscriptionRepositoryPort';
-import { PaymentDomainError } from './stripePaymentService';
+import { PaymentDomainError } from '../errors/paymentDomainError';
 
 const LIVE_STATUSES: ReadonlySet<ProviderSubscriptionStatus> = new Set([
   'active',

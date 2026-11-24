@@ -1,10 +1,6 @@
 import { Suspense, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  closeEmailVerificationPromptUseCase,
-  EmailVerificationWait,
-  useAuthContext,
-} from '../../domain/auth';
+import { closeEmailVerificationPromptUseCase, EmailVerificationWait } from '../../domain/auth';
 import { useGuideCatalog } from '../../domain/guide';
 import {
   type ClaimTarget,
@@ -15,6 +11,7 @@ import {
   type PartnerJoinDraft,
   PartnerPresentation,
 } from '../../domain/partners';
+import { useAccount } from '../../domain/user';
 import { claimSuggestions } from '../claim/claimTarget';
 import { ScreenFallback } from '../../ui/lazy/DelayedFallback';
 import { StackSheet } from '../../ui/layouts/stack/StackSheet';
@@ -47,7 +44,7 @@ export function PartnerJoinSheet({
   onJoined: () => void;
 }) {
   const { t } = useTranslation();
-  const { user, refreshProfile } = useAuthContext();
+  const { user, refreshProfile } = useAccount();
   const { items } = useGuideCatalog();
   const setJoining = usePartnerJoinStore((state) => state.setActive);
   const [pages, setPages] = useState<JoinPage[]>([]);

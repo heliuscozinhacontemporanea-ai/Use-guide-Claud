@@ -14,16 +14,14 @@ vi.mock('../../../application/usecases/payouts/listAdminSaleClaimsApplicationUse
   listAdminSaleClaimsApplicationUseCase: m.pending,
 }));
 vi.mock('../../../domain/payment', async () => {
-  const { PaymentDomainError } = await import(
-    '../../../domain/payment/services/stripePaymentService'
-  );
+  const { PaymentDomainError } = await import('../../../domain/payment/errors/paymentDomainError');
   return {
     PaymentDomainError,
     listMySaleClaimsUseCase: m.mine,
   };
 });
 
-import { PaymentDomainError } from '../../../domain/payment/services/stripePaymentService';
+import { PaymentDomainError } from '../../../domain/payment/errors/paymentDomainError';
 import { SALE_CLAIM_REASONS } from '../../../domain/payment/types/saleClaim';
 import { SaleClaimController } from './saleClaimController';
 import { SALE_CLAIM_REASON_VALUES } from './schemas/saleClaimSchemas';

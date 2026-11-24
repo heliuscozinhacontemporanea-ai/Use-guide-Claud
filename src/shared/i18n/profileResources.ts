@@ -18,6 +18,8 @@ export interface ProfileTranslation {
   account: string;
   partnerProgram: string;
   partnerCard: { title: string; text: string };
+  /** Nome da conta nova pelo Google quando a conta Google não tem nome (B77). */
+  defaultName: { first: string; last: string };
   logout: string;
 }
 
@@ -74,6 +76,7 @@ export const profilePtBR: ProfileTranslation = {
   account: 'Minha conta',
   partnerProgram: 'Seja parceiro',
   partnerCard: { title: 'Tem um negócio?', text: 'Anuncie no Use Guide' },
+  defaultName: { first: 'Novo', last: 'Usuário' },
   logout: 'Sair da conta',
 };
 

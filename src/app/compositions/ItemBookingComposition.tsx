@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { useAuthContext } from '../../domain/auth/context/AuthContext';
+import { useAuthContext } from '../../domain/auth';
 import { BookingOfferPanel } from '../../domain/bookings';
 import { StripePaymentElement } from '../../domain/payment';
 import { useUI } from '../../shared/stores/useUIStore';

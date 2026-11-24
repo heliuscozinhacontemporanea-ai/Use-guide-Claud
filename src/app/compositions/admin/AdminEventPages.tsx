@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { Trans } from 'react-i18next';
-import { useAuthContext } from '../../../domain/auth/context/AuthContext';
+import { useAuthContext } from '../../../domain/auth';
 import { EventSessionsField } from '../../../domain/events';
 import {
   type EventEditorSection,

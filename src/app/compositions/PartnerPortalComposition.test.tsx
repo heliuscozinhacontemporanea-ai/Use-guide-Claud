@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { UserRole } from '../../domain/auth/types/auth';
+import { UserRole } from '../../domain/auth';
 import { i18n } from '../../shared/i18n';
 import { useUIStore } from '../../shared/stores/useUIStore';
 import { PartnerPortalComposition } from './PartnerPortalComposition';
@@ -10,9 +10,7 @@ const authState = vi.hoisted(() => ({
   value: { user: null as null | { uid: string; role: string }, loading: false },
 }));
 
-vi.mock('../../domain/auth/context/AuthContext', () => ({
-  useAuthContext: () => authState.value,
-}));
+vi.mock('../../domain/user', () => ({ useAccount: () => authState.value }));
 vi.mock('../../domain/partners', () => ({
   PartnerPanel: () => <div>partner-panel</div>,
   getPartnerProfileUseCase: vi.fn(),

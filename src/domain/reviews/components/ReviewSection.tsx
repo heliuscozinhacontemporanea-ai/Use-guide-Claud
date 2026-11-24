@@ -2,7 +2,7 @@ import { AlertCircle, CheckCircle2, ShieldAlert } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useUI } from '../../../shared/stores/useUIStore';
-import { useAuthContext } from '../../auth/context/AuthContext';
+import { useAuthContext } from '../../auth';
 import { useReviews } from '../hooks/useReviews';
 import { ReviewForm } from './ReviewForm';
 import { ReviewList } from './ReviewList';

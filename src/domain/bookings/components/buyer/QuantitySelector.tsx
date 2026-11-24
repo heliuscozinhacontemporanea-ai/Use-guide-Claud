@@ -1,6 +1,7 @@
 import { Minus, Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { PriceOption } from '../../types/bookings';
+import { textFor } from '../../utils/localizedText';
 import { formatMinor } from '../../utils/money';
 
 interface QuantitySelectorProps {
@@ -11,11 +12,6 @@ interface QuantitySelectorProps {
   onChange: (value: Record<string, number>) => void;
   /** Venda por grupo (D20): cada unidade é um grupo de até este número de pessoas. */
   groupMaxPeople?: number;
-}
-
-function labelOf(option: PriceOption, language: string): string {
-  const key = language === 'en' || language === 'fr' ? language : 'pt-BR';
-  return option.label[key] || option.label['pt-BR'];
 }
 
 export function QuantitySelector({
@@ -45,7 +41,7 @@ export function QuantitySelector({
       )}
       {options.map((option) => {
         const quantity = value[option.id] ?? 0;
-        const label = labelOf(option, i18n.language);
+        const label = textFor(option.label, i18n.language);
         const canIncrease =
           total < maxParticipants &&
           (option.maxQuantity === undefined || quantity < option.maxQuantity);

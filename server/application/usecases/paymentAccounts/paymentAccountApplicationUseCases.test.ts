@@ -6,7 +6,7 @@ vi.mock('../../../domain/partners', () => ({
   assertPartnerTermsAcceptedUseCase: vi.fn(),
 }));
 vi.mock('../../../domain/payment', async () => ({
-  PaymentDomainError: (await import('../../../domain/payment/services/stripePaymentService'))
+  PaymentDomainError: (await import('../../../domain/payment/errors/paymentDomainError'))
     .PaymentDomainError,
   listPayoutEntriesUseCase: vi.fn().mockResolvedValue({ data: [], nextCursor: null }),
   listOwnerPaymentAccountsUseCase: vi.fn(),

@@ -1,14 +1,14 @@
 import { useState, useRef, useCallback, ChangeEvent } from 'react';
 import type { Area, Point } from 'react-easy-crop';
-import { useAuthContext } from '../../auth/context/AuthContext';
 import { uploadProfilePhotoUseCase } from '../../media';
 import { getCroppedImg } from '../../../shared/utils/formatters';
+import { useAccount } from '../context/AccountContext';
 
 export function useUserPhoto(
   /** `text` é a chave de tradução do aviso. */
   onMessage?: (msg: { type: 'success' | 'error'; text: string }) => void
 ) {
-  const { user, photoURL, setPhotoURL } = useAuthContext();
+  const { user, photoURL, setPhotoURL } = useAccount();
   const [isUploading, setIsUploading] = useState(false);
   const [imageToCrop, setImageToCrop] = useState<string | null>(null);
   const [isCropping, setIsCropping] = useState(false);

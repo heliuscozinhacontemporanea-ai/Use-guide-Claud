@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
-import { useAuthContext } from '../../domain/auth/context/AuthContext';
-import { updatePreferredLocaleUseCase } from '../../domain/user';
+import { updatePreferredLocaleUseCase, useAccount } from '../../domain/user';
 import {
   type Locale,
   normalizeLocale,
@@ -22,7 +21,7 @@ function saveOnAccount(locale: Locale): void {
  * vale em qualquer aparelho; uma escolha feita antes do login sobe para a conta que ainda não tem.
  */
 export function useAccountLocaleSync(): void {
-  const { user, profile } = useAuthContext();
+  const { user, profile } = useAccount();
   const uid = user?.uid ?? null;
   const accountLocale = profile ? normalizeLocale(profile.preferredLocale) : undefined;
 

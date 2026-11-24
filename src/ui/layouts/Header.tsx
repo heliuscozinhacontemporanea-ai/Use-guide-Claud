@@ -3,8 +3,6 @@ import { useLocation } from 'react-router-dom';
 import { useLocalizedRouting } from '../../shared/hooks/useLocalizedRouting';
 import { Search, Handshake, User as UserIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { useAuthContext } from '../../domain/auth/context/AuthContext';
-import { UserSession } from '../../domain/auth/types/auth';
 import { cn } from '../../shared/utils/cn';
 import { Z_INDEX } from '../../shared/constants/zIndex';
 import { getUserInitials } from '../../shared/utils/formatters';
@@ -18,7 +16,8 @@ interface HeaderProps {
   onAdminOpen?: () => void;
   isAdmin?: boolean;
   isPartner?: boolean;
-  user?: UserSession | null;
+  /** Quem está logado, montado em src/app (o design system não conhece domínios). */
+  account?: { photoURL: string | null; displayName: string | null; email: string | null } | null;
   /** Sininho de notificações, montado em src/app (o design system não conhece domínios). */
   notificationSlot?: ReactNode;
 }
@@ -31,15 +30,12 @@ export function Header({
   onAdminOpen,
   isAdmin = false,
   isPartner = false,
-  user = null,
+  account = null,
   notificationSlot,
 }: HeaderProps) {
   const { pathname } = useLocation();
   const { t } = useTranslation();
-  const { photoURL, profile } = useAuthContext();
-  const userInitials = user
-    ? getUserInitials(profile?.displayName || user.displayName, user.email)
-    : '';
+  const userInitials = account ? getUserInitials(account.displayName, account.email) : '';
   const { routeKey } = useLocalizedRouting();
   const isMainPage = routeKey === 'explore';
 
@@ -93,13 +89,13 @@ export function Header({
             aria-expanded={isMenuOpen}
             className="relative w-[34px] h-[34px] rounded-xl bg-white/10 border border-white/20 backdrop-blur-2xl p-0.5 flex items-center justify-center active:scale-90 transition-all hover:bg-white/20 text-white/80 shadow-md overflow-hidden group before:absolute before:inset-[-5px] before:content-[''] focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none"
           >
-            {user && photoURL ? (
+            {account?.photoURL ? (
               <img
-                src={photoURL}
+                src={account.photoURL}
                 alt={t('header.profileAlt')}
                 className="w-full h-full rounded-[10px] object-cover"
               />
-            ) : user && userInitials ? (
+            ) : userInitials ? (
               <div className="w-full h-full rounded-[10px] bg-teal-500/15 border border-teal-400/20 flex items-center justify-center font-display font-black text-[10px] text-teal-300 tracking-wider select-none uppercase">
                 {userInitials}
               </div>
@@ -109,7 +105,7 @@ export function Header({
               </div>
             )}
           </button>
-          {isMainPage && user && (isAdmin || isPartner) && (
+          {isMainPage && account && (isAdmin || isPartner) && (
             <button
               onClick={onAdminOpen}
               title={isAdmin ? t('header.managementPanel') : t('header.myPanel')}

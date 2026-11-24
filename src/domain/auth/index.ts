@@ -1,7 +1,6 @@
 export * from './types/auth';
 export * from './types/authPort';
 export * from './factory';
-export * from './hooks/useAuth';
 export * from './context/AuthContext';
 export * from './components';
 export * from './schemas/authSchema';

@@ -18,9 +18,7 @@ vi.mock('../../../domain/media', () => ({
 }));
 vi.mock('../../../domain/partners', () => ({ listOwnerSalesDocumentsUseCase: m.documents }));
 vi.mock('../../../domain/payment', async () => {
-  const { PaymentDomainError } = await import(
-    '../../../domain/payment/services/stripePaymentService'
-  );
+  const { PaymentDomainError } = await import('../../../domain/payment/errors/paymentDomainError');
   return {
     PaymentDomainError,
     declareForceMajeureUseCase: m.declareDomain,

@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { PhoneInputField, type PhoneInputFieldRef } from '../../../ui/components/PhoneInputField';
 import { TextButton } from '../../../ui/components/TextButton';
 import { BUTTON_DANGER, BUTTON_PRIMARY, INPUT } from '../../../ui/styles/controls';
-import type { UserSession } from '../../auth/types/auth';
+import type { UserSession } from '../../auth';
 import { type UpdateProfileFormData, updateProfileSchema } from '../schemas/userSchema';
 
 type ProfileData = { firstName: string; lastName: string; phone: string };

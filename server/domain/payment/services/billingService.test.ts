@@ -5,7 +5,7 @@ import type {
   PlanSubscriptionRepositoryPort,
 } from '../ports/planSubscriptionRepositoryPort';
 import { BillingService, type StartPlanSubscriptionInput } from './billingService';
-import { PaymentDomainError } from './stripePaymentService';
+import { PaymentDomainError } from '../errors/paymentDomainError';
 
 const NOW = new Date('2026-10-10T12:00:00.000Z');
 

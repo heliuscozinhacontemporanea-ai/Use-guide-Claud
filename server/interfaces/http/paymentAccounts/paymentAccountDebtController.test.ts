@@ -12,13 +12,11 @@ vi.mock(
   () => ({ startPartnerDebtPaymentApplicationUseCase: m.pay })
 );
 vi.mock('../../../domain/payment', async () => {
-  const { PaymentDomainError } = await import(
-    '../../../domain/payment/services/stripePaymentService'
-  );
+  const { PaymentDomainError } = await import('../../../domain/payment/errors/paymentDomainError');
   return { PaymentDomainError };
 });
 
-import { PaymentDomainError } from '../../../domain/payment/services/stripePaymentService';
+import { PaymentDomainError } from '../../../domain/payment/errors/paymentDomainError';
 import { PaymentAccountController } from './paymentAccountController';
 
 function response() {

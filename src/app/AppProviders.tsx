@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Toaster } from 'sonner';
 import { ThemeProvider, useTheme } from '../shared/context/ThemeContext';
 import { AuthProvider } from '../domain/auth';
+import { AccountProvider } from '../domain/user';
 import { Z_INDEX } from '../shared/constants/zIndex';
 import { useUIStore } from '../shared/stores/useUIStore';
 import { ConfirmDialog } from '../ui/components/ConfirmDialog';
@@ -38,9 +39,11 @@ export function AppProviders({ children }: AppProvidersProps) {
       {/* Respeita "reduzir movimento" do aparelho em todas as animações do motion (DESIGN.md §9.1). */}
       <MotionConfig reducedMotion="user">
         <AuthProvider>
-          {children}
-          <ConfirmDialog data={confirmDialog} />
-          <ThemedToaster />
+          <AccountProvider>
+            {children}
+            <ConfirmDialog data={confirmDialog} />
+            <ThemedToaster />
+          </AccountProvider>
         </AuthProvider>
       </MotionConfig>
     </ThemeProvider>
