@@ -71,6 +71,7 @@ import {
 } from './server/interfaces/http/saleClaims/saleClaimRoutes';
 import { InternalTicketingController } from './server/interfaces/http/ticketing/internalTicketingController';
 import { ticketTransferRouter } from './server/interfaces/http/ticketTransfers/ticketTransferRoutes';
+import { apiNotFound } from './server/interfaces/http/middlewares/apiNotFound';
 import accountDeletionRouter from './server/interfaces/http/users/accountDeletionRoutes';
 import ticketOrderPaymentRouter from './server/interfaces/http/ticketing/ticketOrderPaymentRoutes';
 import { usernameClaimRouter } from './server/interfaces/http/users/usernameClaimRoutes';
@@ -312,6 +313,7 @@ async function startServer() {
   app.use('/api/admin', adminRouter);
   app.use('/api/favorites', favoriteRouter);
   app.use('/api/media', mediaRouter);
+  app.use('/api', apiNotFound);
 
   // Erros não tratados (inclusive do body-parser) nunca devolvem a mensagem interna (AGENTS.md §10.2).
   app.use(
