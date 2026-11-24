@@ -3,6 +3,7 @@ import { Mail, RefreshCw } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { TextButton } from '../../../ui/components/TextButton';
+import { TermsNotice } from '../../../ui/legal/TermsNotice';
 import { BUTTON_PRIMARY, BUTTON_SECONDARY } from '../../../ui/styles/controls';
 import { type LoginFormData, loginSchema } from '../schemas/authSchema';
 import { AuthErrorMessage } from './AuthErrorMessage';
@@ -20,6 +21,7 @@ interface LoginFormProps {
   setApiError: (error: string | null) => void;
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
+  onOpenTerms: () => void;
 }
 
 export function LoginForm({
@@ -32,6 +34,7 @@ export function LoginForm({
   setApiError,
   isLoading,
   setIsLoading,
+  onOpenTerms,
 }: LoginFormProps) {
   const { t } = useTranslation();
   const form = useForm<LoginFormData>({
@@ -120,6 +123,7 @@ export function LoginForm({
         />
         {t('auth.login.google')}
       </button>
+      <TermsNotice action="continue" onOpenTerms={onOpenTerms} />
 
       <p className="flex flex-wrap items-center justify-center gap-x-2 text-meta text-ink-muted">
         {t('auth.login.noAccount')}

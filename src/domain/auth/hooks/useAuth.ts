@@ -50,6 +50,7 @@ export function useAuth() {
         firstName,
         lastName,
         phone: phone || '',
+        acceptedUseTerms: true,
       });
       await startEmailVerificationUseCase(i18n.language);
       await refreshProfile();
@@ -74,10 +75,12 @@ export function useAuth() {
         const nameParts = rawName.split(/\s+/).filter(Boolean);
         const firstName = (nameParts[0] || 'Novo').slice(0, 50);
         const lastName = (nameParts.slice(1).join(' ') || 'Usuário').slice(0, 50);
+        // Primeiro login com Google: a conta nasce aqui, abaixo do aviso dos Termos (D35 1b).
         await updateCurrentUserUseCase({
           firstName,
           lastName,
           phone: '',
+          acceptedUseTerms: true,
         });
       }
       await refreshProfile();

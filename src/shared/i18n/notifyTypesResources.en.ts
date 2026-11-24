@@ -147,6 +147,18 @@ export const notifyTypesEn: NotificationTypeTexts = {
     body_one: 'The plan for {{listing}} ends in {{count}} day. Renew to keep the badge.',
     body_other: 'The plan for {{listing}} ends in {{count}} days. Renew to keep the badge.',
   },
+  listing_claim_approved: {
+    title: 'Listing approved',
+    body: '{{listing}} is now yours. See what’s missing to sell in your dashboard.',
+  },
+  listing_claim_rejected: {
+    title: 'Request declined',
+    body: 'Your request to claim {{listing}} was declined. See the reason in your dashboard.',
+  },
+  listing_claim_returned: {
+    title: 'Listing returned to Use Guide',
+    body: '{{listing}} went back to Use Guide. Contact support if you have questions.',
+  },
   plan_renewal_failed: {
     title: 'We couldn’t renew your plan',
     body: 'The card was declined. Update your payment method to keep the badge.',

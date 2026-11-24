@@ -67,5 +67,19 @@ describe('User Validation Schemas (Backend)', () => {
       });
       expect(result.success).toBe(true);
     });
+
+    it('aceita só `acceptedUseTerms: true`; versão e data não vêm do app (D35 1b)', () => {
+      const base = { firstName: 'Ana', lastName: 'Lima', phone: '' };
+      expect(updateUserProfileSchema.safeParse({ ...base, acceptedUseTerms: true }).success).toBe(
+        true
+      );
+      expect(updateUserProfileSchema.safeParse({ ...base, acceptedUseTerms: false }).success).toBe(
+        false
+      );
+      expect(
+        updateUserProfileSchema.safeParse({ ...base, useTerms: { version: 'x', acceptedAt: 'y' } })
+          .success
+      ).toBe(false);
+    });
   });
 });

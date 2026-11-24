@@ -2,6 +2,11 @@
 const USERNAME_PATTERN = /^(?!\.)(?!.*\.\.)(?!.*\.$)[a-z0-9._]{3,30}$/;
 const CHANGE_INTERVAL_MS = 30 * 24 * 60 * 60_000;
 
+/** Espaço digitado vira "_", como no Instagram ("conta teste" → "conta_teste"). */
+export function usernameFromTyping(value: string): string {
+  return value.replace(/\s/g, '_');
+}
+
 export function normalizeUsernameInput(value: string): string {
   return value.trim().replace(/^@/, '').toLowerCase();
 }

@@ -1,7 +1,8 @@
-import { AuthenticatedUserContext } from '../../../application/security/authenticatedUserContext';
+import { AuthenticatedUserContext } from '../../../shared/kernel/authenticatedUserContext';
 import { findContactsInText } from '../../../shared/kernel/contactInText';
 import { type BrState, timeZoneForBrazilianCity } from '../../../shared/kernel/timeZones';
 import { isUseGuideOwner, USE_GUIDE_OWNER_ID } from '../../../shared/kernel/useGuideOwner';
+import { mentionsUseGuide } from '../../../shared/kernel/reservedNames';
 import { GuideDomainError } from '../errors/guideDomainError';
 import { GuideItemContact, GuidePort, GuideVerificationUpdate } from '../ports/guidePort';
 import { GuideCreateItemInput, GuidePublication, GuideUpdateItemInput } from '../types/guideTypes';
@@ -140,6 +141,16 @@ function ownerOf(user: AuthenticatedUserContext): string {
   return user.admin ? USE_GUIDE_OWNER_ID : user.uid;
 }
 
+/** Parceiro não usa "Use Guide" no nome do negócio; o admin, sim (D35, item 10). */
+function ensureNameNotReserved(user: AuthenticatedUserContext, name: unknown): void {
+  if (!user.admin && typeof name === 'string' && mentionsUseGuide(name)) {
+    throw new GuideDomainError(
+      'LISTING_NAME_RESERVED',
+      'O nome do negócio não pode usar o nome do Use Guide.'
+    );
+  }
+}
+
 function incomplete(message: string, steps: ListingStep[]): GuideDomainError {
   return new GuideDomainError('LISTING_INCOMPLETE', message, {
     steps: steps.map(({ id, missing }) => ({ id, missing })),
@@ -155,6 +166,7 @@ export class GuideService {
   ): Promise<string> {
     ensureCanManageGuide(user);
     ensureCreateItemCategory(user, data.category);
+    ensureNameNotReserved(user, data.name);
     const publication = initialPublication(data.category);
     const ownerId = ownerOf(user);
     if (!sellsThroughApp(data.category, data.operationalInfo?.access)) {
@@ -191,6 +203,7 @@ export class GuideService {
       throw new GuideDomainError('NOT_FOUND', 'Item não encontrado');
     }
     ensureOwnership(user, existing.ownerId);
+    ensureNameNotReserved(user, data.name);
     if (existing.publication === 'published') {
       // No guia, um passo completo não pode voltar a ficar incompleto (escolhas da F1, D34).
       const lost = stepsLost(
@@ -269,6 +282,11 @@ export class GuideService {
     }
     ensureOwnership(user, existing.ownerId);
     await this.guidePort.deleteItem(id);
+  }
+
+  transferOwner(itemId: string, expectedOwnerId: string, ownerId: string): Promise<boolean> {
+    ensureValidId(itemId);
+    return this.guidePort.transferOwner(itemId, expectedOwnerId, ownerId);
   }
 
   async updateItemVerification(

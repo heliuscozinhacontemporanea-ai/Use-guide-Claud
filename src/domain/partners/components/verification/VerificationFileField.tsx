@@ -22,7 +22,7 @@ export function VerificationFileField({
 
   return (
     <div className="space-y-1.5">
-      <label htmlFor={inputId} className="block text-xs font-semibold text-white/80">
+      <label htmlFor={inputId} className="block text-xs font-semibold text-ink/80">
         {label}
       </label>
       <input
@@ -37,8 +37,8 @@ export function VerificationFileField({
         type="button"
         onClick={() => inputRef.current?.click()}
         className={cn(
-          'press w-full min-h-[44px] flex items-center gap-2 px-4 rounded-2xl border bg-white/5 text-xs text-white/80 hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-teal-400/50',
-          error ? 'border-danger-line' : 'border-white/10'
+          'press w-full min-h-[44px] flex items-center gap-2 px-4 rounded-2xl border bg-surface text-xs text-ink/80 hover:bg-accent-soft focus-visible:ring-2 focus-visible:ring-teal-400/50',
+          error ? 'border-danger-line' : 'border-line'
         )}
       >
         <FileUp size={14} aria-hidden="true" />

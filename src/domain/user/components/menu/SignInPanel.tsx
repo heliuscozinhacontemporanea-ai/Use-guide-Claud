@@ -1,10 +1,10 @@
-import { Handshake, Mail } from 'lucide-react';
+import { Mail } from 'lucide-react';
 import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { useUI } from '../../../../shared/stores/useUIStore';
+import { TermsNotice } from '../../../../ui/legal/TermsNotice';
 import { BUTTON_SECONDARY } from '../../../../ui/styles/controls';
 import { useAuth } from '../../../auth';
-import { MenuRow } from './MenuRow';
 
 function authErrorKey(code: unknown): string | null {
   if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') return null;
@@ -13,8 +13,17 @@ function authErrorKey(code: unknown): string | null {
   return 'menu.authErrors.generic';
 }
 
-/** Menu sem login: entrar por e-mail ou Google e o convite para parceiros. */
-export function SignInPanel({ onPartnersOpen }: { onPartnersOpen: () => void }) {
+/**
+ * Menu sem login: entrar por e-mail ou Google, o aviso dos Termos (D35 1b) e o convite discreto para
+ * quem tem um negócio, que cria a conta antes do Seja parceiro (D35, item 9).
+ */
+export function SignInPanel({
+  onPartnerInvite,
+  onOpenTerms,
+}: {
+  onPartnerInvite: () => void;
+  onOpenTerms: () => void;
+}) {
   const { t } = useTranslation();
   const { openLoginModal } = useUI();
   const { loginWithGoogle } = useAuth();
@@ -81,10 +90,22 @@ export function SignInPanel({ onPartnersOpen }: { onPartnersOpen: () => void }) 
             {t(errorKey)}
           </p>
         )}
+        <TermsNotice action="continue" onOpenTerms={onOpenTerms} />
       </section>
-      <ul className="rounded-[20px] bg-surface border border-line divide-y divide-line overflow-hidden">
-        <MenuRow icon={Handshake} label={t('profile.partnerProgram')} onClick={onPartnersOpen} />
-      </ul>
+      <p className="pt-4 border-t border-line text-center text-meta text-ink-muted">
+        <Trans
+          i18nKey="menu.partnerInvite"
+          components={{
+            invite: (
+              <button
+                type="button"
+                onClick={onPartnerInvite}
+                className="min-h-11 font-semibold text-partner rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400/50"
+              />
+            ),
+          }}
+        />
+      </p>
     </div>
   );
 }

@@ -20,6 +20,10 @@ interface MainMenuViewProps {
   photoURL: string | null;
   onAccountOpen: () => void;
   onPartnersOpen: () => void;
+  /** Sem conta: o convite cria a conta e depois abre o Seja parceiro (D35, item 9). */
+  onPartnerInvite: () => void;
+  /** Sem conta: "Termos e políticas" (D35 1b). */
+  onOpenTerms: () => void;
   onAdminOpen: () => void;
   onLogout: () => void;
   onPhotoClick: () => void;
@@ -45,6 +49,8 @@ export function MainMenuView({
   photoURL,
   onAccountOpen,
   onPartnersOpen,
+  onPartnerInvite,
+  onOpenTerms,
   onAdminOpen,
   onLogout,
   onPhotoClick,
@@ -82,6 +88,22 @@ export function MainMenuView({
             )}
           </div>
           {highlights}
+          {/* Quem ainda não é parceiro vê o convite abaixo dos atalhos (D35, item 9). */}
+          {isAdmin || isPartner ? null : (
+            <div className="flex items-center gap-3 p-4 rounded-card bg-surface border border-line">
+              <div className="flex-1 min-w-0">
+                <p className="text-body font-semibold text-ink">{t('profile.partnerCard.title')}</p>
+                <p className="text-meta text-ink-muted">{t('profile.partnerCard.text')}</p>
+              </div>
+              <button
+                type="button"
+                onClick={onPartnersOpen}
+                className="shrink-0 min-h-11 px-4 rounded-xl bg-partner-soft border border-partner-line text-meta font-semibold text-partner focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400/50"
+              >
+                {t('profile.partnerProgram')}
+              </button>
+            </div>
+          )}
           <ul className="rounded-card bg-surface border border-line divide-y divide-line overflow-hidden">
             <MenuRow icon={User} label={t('profile.account')} onClick={onAccountOpen} />
             {onPromotionsOpen && (
@@ -100,13 +122,7 @@ export function MainMenuView({
                 label={isAdmin ? t('menu.managementPanel') : t('menu.myPanel')}
                 onClick={onAdminOpen}
               />
-            ) : (
-              <MenuRow
-                icon={Handshake}
-                label={t('profile.partnerProgram')}
-                onClick={onPartnersOpen}
-              />
-            )}
+            ) : null}
           </ul>
           <div className="pt-4 flex justify-center">
             <TextButton tone="danger" onClick={onLogout}>
@@ -115,7 +131,7 @@ export function MainMenuView({
           </div>
         </div>
       ) : (
-        <SignInPanel onPartnersOpen={onPartnersOpen} />
+        <SignInPanel onPartnerInvite={onPartnerInvite} onOpenTerms={onOpenTerms} />
       )}
     </>
   );

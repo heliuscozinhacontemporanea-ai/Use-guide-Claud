@@ -4,6 +4,7 @@ import { deleteUserNotificationsUseCase } from '../../domain/notifications';
 import {
   deleteOwnerListingPlansUseCase,
   deleteOwnerListingVerificationsUseCase,
+  deleteClaimantListingClaimsUseCase,
   deletePartnerProfileUseCase,
 } from '../../domain/partners';
 import { cancelPartnerPlanSubscriptionsUseCase } from '../../domain/payment';
@@ -34,6 +35,8 @@ export interface UserDeletionCoordinatorDependencies {
   deleteEventsByOwner?: (uid: string) => Promise<void>;
   /** Verificações, documentos cifrados e arquivos enviados (D12). */
   deleteListingVerifications?: (uid: string) => Promise<void>;
+  /** Pedidos de "Sou o dono" (D35) e os documentos enviados. */
+  deleteListingClaims?: (uid: string) => Promise<void>;
   /** Planos dos estabelecimentos (D11): cancela as assinaturas no Stripe e apaga os planos. */
   deleteListingPlans?: (uid: string) => Promise<void>;
   /** Reservas do comprador: tira endereço e nomes e mantém o registro financeiro (§7.5, D20). */
@@ -58,6 +61,8 @@ export async function deleteUserAccountApplicationUseCase(
     deleteEventsByOwner: (id) => closeOwnerEventsApplicationUseCase(id),
     deleteListingVerifications: async (id) =>
       deleteVerificationFiles(await deleteOwnerListingVerificationsUseCase(id)),
+    deleteListingClaims: async (id) =>
+      deleteVerificationFiles(await deleteClaimantListingClaimsUseCase(id)),
     deleteListingPlans: async (id) => {
       await cancelPartnerPlanSubscriptionsUseCase(id);
       await deleteOwnerListingPlansUseCase(id);
@@ -92,6 +97,9 @@ export async function deleteUserAccountApplicationUseCase(
   await deps.deleteResourcesByOwner(uid);
   if (deps.deleteEventsByOwner) {
     await deps.deleteEventsByOwner(uid);
+  }
+  if (deps.deleteListingClaims) {
+    await deps.deleteListingClaims(uid);
   }
   if (deps.deleteListingVerifications) {
     await deps.deleteListingVerifications(uid);

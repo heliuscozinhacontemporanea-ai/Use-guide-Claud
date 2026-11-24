@@ -148,6 +148,18 @@ export const notifyTypesPtBR: NotificationTypeTexts = {
     body_one: 'O plano de {{listing}} termina em {{count}} dia. Renove para manter o selo.',
     body_other: 'O plano de {{listing}} termina em {{count}} dias. Renove para manter o selo.',
   },
+  listing_claim_approved: {
+    title: 'Anúncio aprovado',
+    body: '{{listing}} agora é seu. Veja no painel o que falta para vender.',
+  },
+  listing_claim_rejected: {
+    title: 'Pedido recusado',
+    body: 'O pedido para assumir {{listing}} foi recusado. Veja o motivo no painel.',
+  },
+  listing_claim_returned: {
+    title: 'Anúncio devolvido ao Use Guide',
+    body: '{{listing}} voltou para o Use Guide. Fale com o suporte se tiver dúvidas.',
+  },
   plan_renewal_failed: {
     title: 'Não conseguimos renovar seu plano',
     body: 'O cartão não passou. Atualize a forma de pagamento para manter o selo.',

@@ -59,14 +59,12 @@ function setup(nowIso = '2026-11-01T12:00:00.000Z') {
 }
 
 describe('@usuário (D21)', () => {
-  it('normaliza e recusa formatos inválidos e nomes bloqueados', () => {
+  it('normaliza e recusa formatos inválidos', () => {
     expect(normalizeUsername('@Ana.Souza')).toBe('ana.souza');
     expect(normalizeUsername('ab')).toBeNull();
     expect(normalizeUsername('.ana')).toBeNull();
     expect(normalizeUsername('ana..souza')).toBeNull();
     expect(normalizeUsername('ana souza')).toBeNull();
-    expect(normalizeUsername('suporte')).toBeNull();
-    expect(normalizeUsername('useguide_oficial')).toBeNull();
     expect(usernameBaseFromName('Ana Sôuza')).toBe('anasouza');
   });
 
@@ -75,6 +73,18 @@ describe('@usuário (D21)', () => {
     expect(await service.suggest('u1', 'Ana Souza')).toBe('anasouza');
     port.reservations.set('anasouza', { uid: 'u9' });
     expect(await service.suggest('u1', 'Ana Souza')).toBe('anasouza550');
+  });
+
+  it('nome reservado tem código próprio, e a sugestão não usa marca (D35, item 10)', async () => {
+    const { service } = setup();
+    await expect(service.claim('u1', 'suporte_useguide')).rejects.toMatchObject({
+      code: 'USERNAME_RESERVED',
+    });
+    await expect(service.claim('u1', '1nst4.gram')).rejects.toMatchObject({
+      code: 'USERNAME_RESERVED',
+    });
+    expect(await service.claim('u1', 'metade_praia')).toBe('metade_praia');
+    expect(await service.suggest('u2', 'Instagram Silva')).toBe('viajante');
   });
 
   it('o @ é único; troca uma vez a cada 30 dias; o antigo fica reservado 14 dias', async () => {

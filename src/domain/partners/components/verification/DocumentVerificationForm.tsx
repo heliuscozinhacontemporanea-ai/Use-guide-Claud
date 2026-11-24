@@ -1,10 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
-import { useId } from 'react';
+import { type ReactNode, useId } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { maskCpfCnpj } from '../../../../shared/utils/documentValidator';
 import { cn } from '../../../../shared/utils/cn';
+import { BUTTON_PRIMARY } from '../../../../ui/styles/controls';
 import {
   type DocumentVerificationFormValues,
   documentVerificationFormSchema,
@@ -16,12 +17,20 @@ import { VerificationRadioGroup } from './VerificationRadioGroup';
 interface DocumentVerificationFormProps {
   submitting: boolean;
   onSubmit: (values: DocumentVerificationFormValues) => Promise<void>;
+  /** Antes do botão: aceite dos Termos e aviso do "Assumir anúncio" (D35). */
+  extra?: ReactNode;
+  submitLabel?: string;
 }
 
 const INPUT =
-  'w-full min-h-[44px] bg-white/5 border rounded-2xl px-4 text-sm text-white placeholder:text-white/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400/50';
+  'w-full min-h-[44px] bg-surface border rounded-2xl px-4 text-sm text-ink placeholder:text-ink/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400/50';
 
-export function DocumentVerificationForm({ submitting, onSubmit }: DocumentVerificationFormProps) {
+export function DocumentVerificationForm({
+  submitting,
+  onSubmit,
+  extra,
+  submitLabel,
+}: DocumentVerificationFormProps) {
   const { t } = useTranslation();
   const documentId = useId();
   const cadasturId = useId();
@@ -56,10 +65,10 @@ export function DocumentVerificationForm({ submitting, onSubmit }: DocumentVerif
           />
         )}
       />
-      <p className="text-xs text-white/60">{t('verification.form.cnpjHint')}</p>
+      <p className="text-xs text-ink-muted">{t('verification.form.cnpjHint')}</p>
 
       <div className="space-y-1.5">
-        <label htmlFor={documentId} className="block text-xs font-semibold text-white/80">
+        <label htmlFor={documentId} className="block text-xs font-semibold text-ink/80">
           {t('verification.form.document')}
         </label>
         <input
@@ -67,7 +76,7 @@ export function DocumentVerificationForm({ submitting, onSubmit }: DocumentVerif
           inputMode="numeric"
           autoComplete="off"
           maxLength={documentType === 'cnpj' ? 18 : 14}
-          className={cn(INPUT, errors.document ? 'border-danger-line' : 'border-white/10')}
+          className={cn(INPUT, errors.document ? 'border-danger-line' : 'border-line')}
           {...register('document', {
             onChange: (event) => setValue('document', maskCpfCnpj(event.target.value)),
           })}
@@ -96,8 +105,8 @@ export function DocumentVerificationForm({ submitting, onSubmit }: DocumentVerif
       />
 
       <div className="space-y-3">
-        <h4 className="text-xs font-semibold text-white/80">{t('verification.form.filesTitle')}</h4>
-        <p className="text-xs text-white/60">{t('verification.form.fileHint')}</p>
+        <h4 className="text-xs font-semibold text-ink/80">{t('verification.form.filesTitle')}</h4>
+        <p className="text-xs text-ink-muted">{t('verification.form.fileHint')}</p>
         {documentType === 'cnpj' && (
           <Controller
             control={control}
@@ -125,7 +134,7 @@ export function DocumentVerificationForm({ submitting, onSubmit }: DocumentVerif
           )}
         />
         {documentType === 'cpf' && (
-          <p className="text-xs text-white/60">{t('verification.form.cpfReuseHint')}</p>
+          <p className="text-xs text-ink-muted">{t('verification.form.cpfReuseHint')}</p>
         )}
         {holderRole === 'representative' && (
           <Controller
@@ -144,26 +153,29 @@ export function DocumentVerificationForm({ submitting, onSubmit }: DocumentVerif
       </div>
 
       <div className="space-y-1.5">
-        <label htmlFor={cadasturId} className="block text-xs font-semibold text-white/80">
+        <label htmlFor={cadasturId} className="block text-xs font-semibold text-ink/80">
           {t('verification.form.cadastur')}
         </label>
         <input
           id={cadasturId}
           maxLength={30}
           autoComplete="off"
-          className={cn(INPUT, 'border-white/10')}
+          className={cn(INPUT, 'border-line')}
           {...register('cadastur')}
         />
-        <p className="text-xs text-white/60">{t('verification.form.cadasturHint')}</p>
+        <p className="text-xs text-ink-muted">{t('verification.form.cadasturHint')}</p>
       </div>
 
+      {extra}
       <button
         type="submit"
         disabled={submitting}
-        className="press w-full min-h-[48px] flex items-center justify-center gap-2 rounded-2xl bg-teal-500 text-black text-xs font-bold hover:bg-teal-400 disabled:opacity-60 focus-visible:ring-2 focus-visible:ring-teal-400/50"
+        className={`${BUTTON_PRIMARY} press w-full min-h-12 inline-flex items-center justify-center gap-2`}
       >
         {submitting && <Loader2 size={14} className="animate-spin" aria-hidden="true" />}
-        {submitting ? t('verification.form.submitting') : t('verification.form.submit')}
+        {submitting
+          ? t('verification.form.submitting')
+          : (submitLabel ?? t('verification.form.submit'))}
       </button>
     </form>
   );

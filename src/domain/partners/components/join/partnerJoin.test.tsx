@@ -6,7 +6,6 @@ import { LanguagesField } from '../steps/additional/LanguagesField';
 import {
   EMPTY_JOIN_DRAFT,
   type PartnerJoinDraft,
-  parsePartnerJoinDraft,
   partnerJoinErrors,
 } from '../../utils/partnerJoinDraft';
 import { PartnerBusinessPage } from './PartnerBusinessPage';
@@ -53,12 +52,14 @@ describe('partnerJoinDraft', () => {
     expect(partnerJoinErrors({ ...place, phone: '123' }, options)).toEqual(['phone']);
   });
 
-  it('descarta campos com formato errado no que veio do aparelho', () => {
-    expect(parsePartnerJoinDraft({ name: 'X', terms: 'sim', phone: 5 })).toEqual({
-      ...EMPTY_JOIN_DRAFT,
-      name: 'X',
-    });
-    expect(parsePartnerJoinDraft(null)).toBeNull();
+  it('o parceiro não usa "Use Guide" no nome do negócio; o admin, sim (D35, item 10)', () => {
+    const place = { ...EMPTY_JOIN_DRAFT, category: 'restaurant', city: 'Jijoca', terms: true };
+    const phone = '+5588999999999';
+    expect(partnerJoinErrors({ ...place, phone, name: 'Bar Us3 Guide' })).toEqual(['nameReserved']);
+    expect(partnerJoinErrors({ ...place, phone, name: 'Bar do Guia' })).toEqual([]);
+    expect(
+      partnerJoinErrors({ ...place, phone, name: 'Dicas Use Guide' }, { allowUseGuideName: true })
+    ).toEqual([]);
   });
 });
 

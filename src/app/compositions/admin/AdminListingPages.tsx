@@ -37,6 +37,7 @@ export function AdminNewListingPage() {
     <NewListingPage
       categories={PLACE_CATEGORIES}
       requirePhone={false}
+      allowUseGuideName
       laterText={t('adminPanel.guide.newLater')}
       createdMessage={t('adminPanel.guide.created')}
       onCreated={(itemId) => adminPages.replace({ view: 'listing-editor', itemId })}

@@ -26,8 +26,6 @@ export { usePartnerEventSessions } from './hooks/usePartnerEventSessions';
 export { newPartnerEventDraft } from './utils/newPartnerEventDraft';
 export { PartnerPresentation } from './components/sections/PartnerPresentation';
 export { joinAsPartnerUseCase } from './application/usecases/joinAsPartnerUseCase';
-export { loadPartnerJoinDraftUseCase } from './application/usecases/loadPartnerJoinDraftUseCase';
-export { savePartnerJoinDraftUseCase } from './application/usecases/savePartnerJoinDraftUseCase';
 export { EMPTY_JOIN_DRAFT, type PartnerJoinDraft } from './utils/partnerJoinDraft';
 export { usePartnerContentActions } from './hooks/usePartnerContentActions';
 export { usePartnerContentCatalog } from './hooks/usePartnerContentCatalog';
@@ -57,3 +55,11 @@ export type {
   PartnerContentRecord,
 } from './types/partnerContent';
 export type { FormState, OperatingDay, PartnerImage } from './types/partsForm';
+// "Sou o dono" (D35): componentes só para as composições do app (§5.2 item 5).
+export { ClaimListingPage } from './components/claim/ClaimListingPage';
+export { ClaimSentPage } from './components/claim/ClaimSentPage';
+export { ClaimSuggestions } from './components/claim/ClaimSuggestions';
+export { ListingClaimQueue } from './components/claim/ListingClaimQueue';
+export { ListingClaimRow } from './components/claim/ListingClaimRow';
+export { MyListingClaimsCards } from './components/claim/MyListingClaimsCards';
+export type { ClaimTarget, MyListingClaim } from './types/listingClaim';

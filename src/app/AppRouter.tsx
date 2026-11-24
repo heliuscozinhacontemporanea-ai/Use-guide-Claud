@@ -1,5 +1,5 @@
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { UserRole, useAuthContext } from '../domain/auth';
@@ -22,9 +22,14 @@ import {
   loadPartnerPortal,
   PartnerPortalComposition,
   PartnerJoinSheet,
+  ClaimListingSheet,
   SearchOverlay,
 } from './lazy/screens';
 import { useOpenedOnce } from './lazy/useOpenedOnce';
+import { usePartnerInvite } from './partnerJoin/usePartnerInvite';
+import { useClaimStore } from './stores/claimStore';
+import { useClaimListing } from './claim/useClaimListing';
+import { AboutTermsView } from './lazy/menuScreens';
 import { SideMenu } from './menu/SideMenu';
 import { useSideMenu } from './menu/useSideMenu';
 import { AppRoutes } from './routes/AppRoutes';
@@ -52,6 +57,7 @@ export function AppRouter() {
   const { t } = useTranslation();
   const { isLoginModalOpen, closeLoginModal, openLoginModal, showToast } = useUI();
   const loginModalTab = useUIStore((state) => state.loginModalTab);
+  const loginNote = useUIStore((state) => state.loginNote);
 
   useEffect(() => prefetchWhenIdle(COMMON_SCREENS), []);
   useEffect(() => {
@@ -150,6 +156,31 @@ export function AppRouter() {
     });
   };
 
+  // As folhas em pilha dividem o mesmo progresso (D33): o menu desce primeiro e o Seja parceiro sobe
+  // depois, para uma não esconder a outra.
+  const openPartnerJoin = useCallback(() => {
+    setSearchParams(
+      (prev) => {
+        const nextParams = new URLSearchParams(prev);
+        nextParams.delete('menu');
+        return nextParams;
+      },
+      { replace: true }
+    );
+    setTimeout(
+      () =>
+        setSearchParams((prev) => {
+          const nextParams = new URLSearchParams(prev);
+          nextParams.set('partners', '1');
+          return nextParams;
+        }),
+      SHEET_SWAP_MS
+    );
+  }, [setSearchParams]);
+  const startPartnerInvite = usePartnerInvite(openPartnerJoin);
+  // Volta para "Assumir anúncio" depois do login, mesmo com o anúncio já fechado (D35, 4a).
+  useClaimListing();
+
   const setIsSearchOpen = (open: boolean) => {
     setSearchParams((prev) => {
       const nextParams = new URLSearchParams(prev);
@@ -205,6 +236,9 @@ export function AppRouter() {
 
   const loginMounted = useOpenedOnce(isLoginModalOpen);
   const partnersMounted = useOpenedOnce(isPartnersOpen);
+  const claimOpen = useClaimStore((state) => state.target !== null);
+  const claimMounted = useOpenedOnce(claimOpen);
+  const openClaim = useClaimStore((state) => state.open);
 
   return (
     <div className="relative h-screen bg-black text-ink selection:bg-teal-500/30">
@@ -266,19 +300,8 @@ export function AppRouter() {
           {!isHideGlobalUI && <BottomNav searchFor={tabSearchFor} onReselect={reselectTab} />}
 
           <SideMenu
-            onPartnersOpen={() => {
-              // As folhas em pilha dividem o mesmo progresso (D33): o menu desce primeiro e o Seja
-              // parceiro sobe depois, para uma não esconder a outra.
-              setSearchParams(
-                (prev) => {
-                  const nextParams = new URLSearchParams(prev);
-                  nextParams.delete('menu');
-                  return nextParams;
-                },
-                { replace: true }
-              );
-              setTimeout(() => setIsPartnersOpen(true), SHEET_SWAP_MS);
-            }}
+            onPartnersOpen={openPartnerJoin}
+            onPartnerInvite={startPartnerInvite}
             onAdminOpen={handleAdminOpen}
           />
 
@@ -287,8 +310,28 @@ export function AppRouter() {
               <PartnerJoinSheet
                 isOpen={isPartnersOpen}
                 onClose={() => setIsPartnersOpen(false)}
+                onNeedAccount={() => {
+                  setIsPartnersOpen(false);
+                  startPartnerInvite();
+                }}
+                onClaim={(target) => {
+                  setIsPartnersOpen(false);
+                  setTimeout(() => openClaim(target), SHEET_SWAP_MS);
+                }}
                 onJoined={() => {
                   showToast(t('partnerGuide.join.ready'), 'success');
+                  void openPartnerPortalAfterSignup();
+                }}
+              />
+            </Suspense>
+          )}
+
+          {claimMounted && (
+            <Suspense fallback={null}>
+              <ClaimListingSheet
+                onOpenPanel={() => {
+                  // O pedido pode ter começado no anúncio: ele fecha para o painel aparecer.
+                  setSelectedItem(null);
                   void openPartnerPortalAfterSignup();
                 }}
               />
@@ -326,6 +369,12 @@ export function AppRouter() {
                 isOpen={isLoginModalOpen}
                 onClose={closeLoginModal}
                 initialTab={loginModalTab}
+                note={loginNote}
+                renderTerms={(onBack) => (
+                  <Suspense fallback={<ScreenFallback />}>
+                    <AboutTermsView document="terms" onBack={onBack} />
+                  </Suspense>
+                )}
               />
             </Suspense>
           )}

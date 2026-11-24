@@ -1,8 +1,11 @@
 import { Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useAuthContext } from '../../domain/auth';
+import { UserRole, useAuthContext } from '../../domain/auth';
 import type { GuideItem } from '../../domain/guide';
+import { ListingClaimRow } from '../../domain/partners';
 import { useUI } from '../../shared/stores/useUIStore';
+import { claimTargetOf } from '../claim/claimTarget';
+import { useClaimListing } from '../claim/useClaimListing';
 import { DelayedFallback } from '../../ui/lazy/DelayedFallback';
 import {
   EventTicketingPurchasePanel,
@@ -53,6 +56,9 @@ export function ListingDetailComposition({
   const { user } = useAuthContext();
   const { openLoginModal } = useUI();
   const event = item.category === 'event';
+  const startClaim = useClaimListing();
+  // O admin cuida do anúncio do Use Guide pelo painel; o convite é para o dono do lugar.
+  const claimTarget = user?.role === UserRole.ADMIN ? null : claimTargetOf(item);
 
   return (
     <Suspense fallback={null}>
@@ -91,6 +97,12 @@ export function ListingDetailComposition({
                 ownerId={item.ownerId}
                 prompt={REVIEW_PROMPT[item.category] ?? 'default'}
               />
+              {/* Fim do anúncio do Use Guide: o dono assume o lugar (D35, 3b). */}
+              {claimTarget ? (
+                <div className="mt-4">
+                  <ListingClaimRow onClaim={() => startClaim(claimTarget)} />
+                </div>
+              ) : null}
             </Suspense>
           )
         }

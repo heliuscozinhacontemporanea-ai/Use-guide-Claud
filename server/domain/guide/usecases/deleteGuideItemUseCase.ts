@@ -1,5 +1,5 @@
 import { guideService } from '../factory';
-import { AuthenticatedUserContext } from '../../../application/security/authenticatedUserContext';
+import { AuthenticatedUserContext } from '../../../shared/kernel/authenticatedUserContext';
 
 export async function deleteGuideItemUseCase(
   user: AuthenticatedUserContext,

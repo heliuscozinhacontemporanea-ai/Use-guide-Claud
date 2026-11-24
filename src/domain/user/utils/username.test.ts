@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { isUsernameFormatValid, nextUsernameChangeAt, normalizeUsernameInput } from './username';
+import {
+  isUsernameFormatValid,
+  nextUsernameChangeAt,
+  normalizeUsernameInput,
+  usernameFromTyping,
+} from './username';
 
 describe('@usuário na tela (D21)', () => {
   it('normaliza e confere o formato antes de enviar', () => {
@@ -8,6 +13,12 @@ describe('@usuário na tela (D21)', () => {
     expect(isUsernameFormatValid('an')).toBe(false);
     expect(isUsernameFormatValid('ana souza')).toBe(false);
     expect(isUsernameFormatValid('ana.')).toBe(false);
+  });
+
+  it('espaço digitado vira sublinhado, como no Instagram', () => {
+    expect(usernameFromTyping('conta teste')).toBe('conta_teste');
+    expect(usernameFromTyping('ana  souza ')).toBe('ana__souza_');
+    expect(isUsernameFormatValid(usernameFromTyping('conta teste'))).toBe(true);
   });
 
   it('troca de novo só 30 dias depois da última', () => {

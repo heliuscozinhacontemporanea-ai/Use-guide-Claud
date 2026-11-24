@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { AuthenticatedUserContext } from '../../../application/security/authenticatedUserContext';
+import type { AuthenticatedUserContext } from '../../../shared/kernel/authenticatedUserContext';
 import { GuideDomainError } from '../errors/guideDomainError';
 import type { GuidePort } from '../ports/guidePort';
 import type { GuideItemRecord } from '../types/guideTypes';
@@ -68,6 +68,7 @@ function portMock(): GuidePort {
     getItemContact: vi.fn(),
     setItemContact: vi.fn(),
     deleteItemContact: vi.fn(),
+    transferOwner: vi.fn(),
   };
 }
 

@@ -18,6 +18,8 @@ export const usernameFr: UsernameTranslation = {
   signOut: 'Se déconnecter',
   errors: {
     USERNAME_INVALID: 'Ce @ n’est pas autorisé. Utilisez lettres, chiffres, point ou tiret bas.',
+    USERNAME_RESERVED:
+      'Ce @ utilise un nom réservé (celui de Use Guide ou d’une marque). Choisissez-en un autre.',
     USERNAME_TAKEN: 'Ce @ est déjà pris. Choisissez-en un autre.',
     USERNAME_CHANGE_TOO_SOON: 'Vous avez changé de @ il y a moins de 30 jours.',
     failed: 'Impossible d’enregistrer. Réessayez.',

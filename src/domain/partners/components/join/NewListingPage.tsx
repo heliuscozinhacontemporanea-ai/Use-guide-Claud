@@ -15,6 +15,7 @@ const PLACE_CATEGORIES = LISTING_CATEGORIES.map((category) => category.id).filte
 export function NewListingPage({
   categories = PLACE_CATEGORIES,
   requirePhone = true,
+  allowUseGuideName = false,
   laterText,
   createdMessage,
   onCreated,
@@ -22,6 +23,8 @@ export function NewListingPage({
   categories?: string[];
   /** O admin cadastra o lugar sem telefone, se não tiver (escolhas da F4). */
   requirePhone?: boolean;
+  /** O admin pode usar "Use Guide" no nome (D35, item 10). */
+  allowUseGuideName?: boolean;
   laterText?: string;
   /** Aviso depois de criar (o do parceiro manda seguir o guia no Início). */
   createdMessage?: string;
@@ -43,8 +46,12 @@ export function NewListingPage({
       const itemId = await createListingDraftUseCase(draft);
       showToast(createdMessage ?? t('partnerGuide.editor.draftCreated'), 'success');
       onCreated(itemId);
-    } catch {
-      setError(t('partnerGuide.join.errors.failed'));
+    } catch (err) {
+      setError(
+        err instanceof Error && err.message === 'LISTING_NAME_RESERVED'
+          ? t('partnerGuide.join.errors.nameReserved')
+          : t('partnerGuide.join.errors.failed')
+      );
     } finally {
       setSubmitting(false);
     }
@@ -60,6 +67,7 @@ export function NewListingPage({
       error={error}
       requireTerms={false}
       requirePhone={requirePhone}
+      allowUseGuideName={allowUseGuideName}
       categories={categories}
       submitLabel={t('partnerGuide.editor.createDraft')}
       submittingLabel={t('partnerGuide.editor.creatingDraft')}

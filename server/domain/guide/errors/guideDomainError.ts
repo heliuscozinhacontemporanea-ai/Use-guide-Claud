@@ -5,6 +5,8 @@ export type GuideErrorCode =
   | 'INVALID_ID'
   | 'CONTACT_IN_TEXT'
   | 'LISTING_INCOMPLETE'
+  /** Nome do negócio com "Use Guide" em anúncio de parceiro (D35, item 10). */
+  | 'LISTING_NAME_RESERVED'
   /** Exclusão recusada: reservas ativas ou eventos ligados ao estabelecimento (D34, F2). */
   | 'LISTING_HAS_BOOKINGS'
   | 'LISTING_HAS_EVENTS';

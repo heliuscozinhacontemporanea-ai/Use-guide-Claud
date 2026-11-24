@@ -19,7 +19,7 @@ export function VerificationRadioGroup<T extends string>({
 }: VerificationRadioGroupProps<T>) {
   return (
     <fieldset className="space-y-2">
-      <legend className="text-xs font-semibold text-white/80 mb-2">{legend}</legend>
+      <legend className="text-xs font-semibold text-ink/80 mb-2">{legend}</legend>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
         {options.map((option) => (
           <label
@@ -27,8 +27,8 @@ export function VerificationRadioGroup<T extends string>({
             className={cn(
               'min-h-[44px] flex items-center gap-2 px-4 py-2 rounded-2xl border text-xs cursor-pointer transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-teal-400/50',
               value === option.value
-                ? 'border-accent-line bg-accent-soft text-white'
-                : 'border-white/10 bg-white/5 text-white/70 hover:bg-white/10'
+                ? 'border-accent-line bg-accent-soft text-ink'
+                : 'border-line bg-surface text-ink/70 hover:bg-accent-soft'
             )}
           >
             <input

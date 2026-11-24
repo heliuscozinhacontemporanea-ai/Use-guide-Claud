@@ -14,6 +14,8 @@ export const updateProfileSchema = z.object({
     .min(1, 'account.validation.lastNameRequired')
     .max(50, 'account.validation.lastNameTooLong'),
   phone: z.string().max(20, 'account.validation.phoneInvalid'),
+  // Só no nascimento da conta (D35 1b): o servidor grava a versão e a data dos Termos de uso.
+  acceptedUseTerms: z.literal(true).optional(),
 });
 
 export type UpdateProfileFormData = z.infer<typeof updateProfileSchema>;

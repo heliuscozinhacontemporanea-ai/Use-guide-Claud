@@ -1,10 +1,14 @@
+import { USE_TERMS_VERSION } from '../../../shared/kernel/legalTerms';
 import { prepareImageForStorageUseCase } from '../../media';
 import { UserProfileDto } from '../dtos/userDto';
 import { UserPort } from '../ports/userPort';
 import { UpdateUserPreferencesInput, UpdateUserProfileInput } from '../schemas/userSchema';
 
 export class UserService {
-  constructor(private userPort: UserPort) {}
+  constructor(
+    private userPort: UserPort,
+    private readonly now: () => Date = () => new Date()
+  ) {}
 
   async getProfile(uid: string): Promise<UserProfileDto | null> {
     if (!uid) {
@@ -24,7 +28,13 @@ export class UserService {
     if (!uid) {
       throw new Error('UID do usuário é obrigatório');
     }
-    return this.userPort.updateUserProfile(uid, input);
+    const { acceptedUseTerms, ...profile } = input;
+    return this.userPort.updateUserProfile(uid, {
+      ...profile,
+      ...(acceptedUseTerms
+        ? { useTerms: { version: USE_TERMS_VERSION, acceptedAt: this.now().toISOString() } }
+        : {}),
+    });
   }
 
   async updatePreferences(uid: string, input: UpdateUserPreferencesInput): Promise<void> {

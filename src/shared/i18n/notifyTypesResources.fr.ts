@@ -149,6 +149,18 @@ export const notifyTypesFr: NotificationTypeTexts = {
     body_other:
       'La formule de {{listing}} se termine dans {{count}} jours. Renouvelez-la pour garder le badge.',
   },
+  listing_claim_approved: {
+    title: 'Annonce approuvée',
+    body: '{{listing}} est maintenant à vous. Voyez dans le tableau de bord ce qu’il manque pour vendre.',
+  },
+  listing_claim_rejected: {
+    title: 'Demande refusée',
+    body: 'Votre demande de reprise de {{listing}} a été refusée. Voyez le motif dans le tableau de bord.',
+  },
+  listing_claim_returned: {
+    title: 'Annonce rendue à Use Guide',
+    body: '{{listing}} est revenue à Use Guide. Contactez le support si vous avez des questions.',
+  },
   plan_renewal_failed: {
     title: 'Impossible de renouveler votre formule',
     body: 'La carte a été refusée. Mettez à jour votre moyen de paiement pour garder le badge.',

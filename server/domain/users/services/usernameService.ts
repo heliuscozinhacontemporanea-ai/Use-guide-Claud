@@ -6,6 +6,7 @@ import {
   USERNAME_RELEASE_DAYS,
   usernameBaseFromName,
 } from '../utils/username';
+import { isReservedUsername } from '../utils/reservedUsernames';
 
 const DAY_MS = 24 * 60 * 60_000;
 const SUGGESTION_ATTEMPTS = 8;
@@ -28,13 +29,20 @@ export class UsernameService {
   ) {}
 
   async suggest(uid: string, name: string): Promise<string> {
-    const base = usernameBaseFromName(name);
+    // Quem se chama "Instagram Silva" não recebe sugestão com a marca (D35, item 10).
+    const fromName = usernameBaseFromName(name);
+    const base = isReservedUsername(fromName) ? 'viajante' : fromName;
     const nowIso = this.now().toISOString();
     for (let attempt = 0; attempt < SUGGESTION_ATTEMPTS; attempt += 1) {
       const candidate =
         attempt === 0 ? base : `${base}${Math.floor(this.random() * 900 + 100)}`.slice(0, 30);
       const normalized = normalizeUsername(candidate);
-      if (normalized && (await this.port.isAvailable(normalized, uid, nowIso))) return normalized;
+      if (
+        normalized &&
+        !isReservedUsername(normalized) &&
+        (await this.port.isAvailable(normalized, uid, nowIso))
+      )
+        return normalized;
     }
     return `${base.slice(0, 20)}${Date.now().toString(36).slice(-6)}`;
   }
@@ -49,6 +57,12 @@ export class UsernameService {
     const now = this.now();
     const current = await this.port.getCurrent(uid);
     if (current.username === username) return username;
+    if (isReservedUsername(username)) {
+      throw new UsernameError(
+        'USERNAME_RESERVED',
+        'Este @ usa um nome reservado (do Use Guide ou de uma marca). Escolha outro.'
+      );
+    }
     if (
       current.username &&
       current.changedAt &&

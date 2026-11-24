@@ -1,4 +1,3 @@
-import { clearPartnerJoinDraft } from '../../adapters/partnerJoinDraftStorage';
 import type { PartnerJoinDraft } from '../../utils/partnerJoinDraft';
 import { isBrState } from '../../../../shared/utils/timeZones';
 import { createOrUpdatePartnerProfileUseCase } from './createOrUpdatePartnerProfileUseCase';
@@ -22,6 +21,5 @@ export async function joinAsPartnerUseCase(draft: PartnerJoinDraft): Promise<str
     city: draft.city.trim(),
     phone: draft.phone,
   });
-  clearPartnerJoinDraft();
   return id;
 }

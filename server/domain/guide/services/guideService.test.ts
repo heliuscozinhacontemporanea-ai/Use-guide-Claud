@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { AuthenticatedUserContext } from '../../../application/security/authenticatedUserContext';
+import { AuthenticatedUserContext } from '../../../shared/kernel/authenticatedUserContext';
 import { GuideDomainError } from '../errors/guideDomainError';
 import { GuidePort } from '../ports/guidePort';
 import { GuideService } from './guideService';
@@ -19,6 +19,7 @@ function createGuidePortMock(): GuidePort {
     getItemContact: vi.fn(),
     setItemContact: vi.fn(),
     deleteItemContact: vi.fn(),
+    transferOwner: vi.fn(),
   };
 }
 
@@ -167,6 +168,56 @@ describe('GuideService', () => {
         });
       }
       expect(port.createItem).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('nome do negócio (D35, item 10)', () => {
+    const place = {
+      description: '',
+      category: 'restaurant' as const,
+      image: '',
+      images: [],
+      location: '',
+    };
+
+    it('parceiro não usa "Use Guide" no nome, nem disfarçado', async () => {
+      for (const name of ['Use Guide Oficial', 'Restaurante Us3 Guide', 'use.guide']) {
+        await expect(service.createItem(partnerUser, { ...place, name })).rejects.toMatchObject({
+          code: 'LISTING_NAME_RESERVED',
+        });
+      }
+      expect(port.createItem).not.toHaveBeenCalled();
+    });
+
+    it('a regra vale também ao renomear', async () => {
+      vi.mocked(port.getItemById).mockResolvedValue({
+        id: 'item-1',
+        name: 'Cantinho',
+        ...place,
+        ownerId: 'partner-1',
+        isActive: true,
+        rating: 0,
+        reviewCount: 0,
+        isVerified: false,
+        verifiedUntil: null,
+        verificationType: null,
+        isVerificationSuspended: false,
+        publication: 'draft',
+      });
+      await expect(
+        service.updateItem(partnerUser, 'item-1', { name: 'Cantinho Use Guide' })
+      ).rejects.toMatchObject({ code: 'LISTING_NAME_RESERVED' });
+      expect(port.updateItem).not.toHaveBeenCalled();
+    });
+
+    it('o admin pode, e nomes parecidos passam', async () => {
+      vi.mocked(port.createItem).mockResolvedValue('item-9');
+      await expect(
+        service.createItem(adminUser, { ...place, name: 'Dicas do Use Guide' })
+      ).resolves.toBe('item-9');
+      await expect(
+        service.createItem(partnerUser, { ...place, name: 'Pousada Guide Jeri' })
+      ).resolves.toBe('item-9');
     });
   });
 

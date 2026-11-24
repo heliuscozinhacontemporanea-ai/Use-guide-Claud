@@ -17,6 +17,7 @@ export interface ProfileTranslation {
   reviewsHint_other: string;
   account: string;
   partnerProgram: string;
+  partnerCard: { title: string; text: string };
   logout: string;
 }
 
@@ -72,6 +73,7 @@ export const profilePtBR: ProfileTranslation = {
   reviewsHint_other: 'feitas',
   account: 'Minha conta',
   partnerProgram: 'Seja parceiro',
+  partnerCard: { title: 'Tem um negócio?', text: 'Anuncie no Use Guide' },
   logout: 'Sair da conta',
 };
 

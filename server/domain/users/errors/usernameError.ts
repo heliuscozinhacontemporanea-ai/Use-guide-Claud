@@ -1,5 +1,7 @@
 export type UsernameErrorCode =
   | 'USERNAME_INVALID'
+  /** Nome do Use Guide, de uma marca ou de um órgão público (D35, item 10). */
+  | 'USERNAME_RESERVED'
   | 'USERNAME_TAKEN'
   | 'USERNAME_CHANGE_TOO_SOON'
   | 'USERNAME_NOT_FOUND';

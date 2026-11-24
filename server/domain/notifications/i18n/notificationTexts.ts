@@ -151,6 +151,18 @@ export const NOTIFICATION_TEXTS_PT_BR: NotificationTypeTexts = {
     body_one: 'O plano de {{listing}} termina em {{count}} dia. Renove para manter o selo.',
     body_other: 'O plano de {{listing}} termina em {{count}} dias. Renove para manter o selo.',
   },
+  listing_claim_approved: {
+    title: 'Anúncio aprovado',
+    body: '{{listing}} agora é seu. Veja no painel o que falta para vender.',
+  },
+  listing_claim_rejected: {
+    title: 'Pedido recusado',
+    body: 'O pedido para assumir {{listing}} foi recusado. Veja o motivo no painel.',
+  },
+  listing_claim_returned: {
+    title: 'Anúncio devolvido ao Use Guide',
+    body: '{{listing}} voltou para o Use Guide. Fale com o suporte se tiver dúvidas.',
+  },
   plan_renewal_failed: {
     title: 'Não conseguimos renovar seu plano',
     body: 'O cartão não passou. Atualize a forma de pagamento para manter o selo.',
@@ -360,6 +372,18 @@ export const NOTIFICATION_TEXTS_EN: NotificationTypeTexts = {
     title: 'Your plan is ending soon',
     body_one: 'The plan for {{listing}} ends in {{count}} day. Renew to keep the badge.',
     body_other: 'The plan for {{listing}} ends in {{count}} days. Renew to keep the badge.',
+  },
+  listing_claim_approved: {
+    title: 'Listing approved',
+    body: '{{listing}} is now yours. See what’s missing to sell in your dashboard.',
+  },
+  listing_claim_rejected: {
+    title: 'Request declined',
+    body: 'Your request to claim {{listing}} was declined. See the reason in your dashboard.',
+  },
+  listing_claim_returned: {
+    title: 'Listing returned to Use Guide',
+    body: '{{listing}} went back to Use Guide. Contact support if you have questions.',
   },
   plan_renewal_failed: {
     title: 'We couldn’t renew your plan',
@@ -572,6 +596,18 @@ export const NOTIFICATION_TEXTS_FR: NotificationTypeTexts = {
       'La formule de {{listing}} se termine dans {{count}} jour. Renouvelez-la pour garder le badge.',
     body_other:
       'La formule de {{listing}} se termine dans {{count}} jours. Renouvelez-la pour garder le badge.',
+  },
+  listing_claim_approved: {
+    title: 'Annonce approuvée',
+    body: '{{listing}} est maintenant à vous. Voyez dans le tableau de bord ce qu’il manque pour vendre.',
+  },
+  listing_claim_rejected: {
+    title: 'Demande refusée',
+    body: 'Votre demande de reprise de {{listing}} a été refusée. Voyez le motif dans le tableau de bord.',
+  },
+  listing_claim_returned: {
+    title: 'Annonce rendue à Use Guide',
+    body: '{{listing}} est revenue à Use Guide. Contactez le support si vous avez des questions.',
   },
   plan_renewal_failed: {
     title: 'Impossible de renouveler votre formule',

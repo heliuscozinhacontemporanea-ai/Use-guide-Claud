@@ -56,6 +56,23 @@ export class FirestoreGuideAdapter implements GuidePort {
       });
   }
 
+  async transferOwner(itemId: string, expectedOwnerId: string, ownerId: string): Promise<boolean> {
+    const ref = adminDb.collection('items').doc(itemId);
+    return adminDb.runTransaction(async (transaction) => {
+      const snapshot = await transaction.get(ref);
+      const current = snapshot.get('ownerId');
+      if (!snapshot.exists) return false;
+      if (current === ownerId) return true;
+      if (current !== expectedOwnerId) return false;
+      transaction.update(ref, {
+        ownerId,
+        partnerId: ownerId,
+        updatedAt: FieldValue.serverTimestamp(),
+      });
+      return true;
+    });
+  }
+
   async setPublication(id: string, publication: GuidePublication): Promise<void> {
     await adminDb
       .collection('items')

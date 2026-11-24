@@ -48,6 +48,7 @@ import listingStatsRouter from './server/interfaces/http/insights/listingStatsRo
 import partnerClosureRouter from './server/interfaces/http/partners/partnerClosureRoutes';
 import listingPlanRouter from './server/interfaces/http/listingPlans/listingPlanRoutes';
 import listingVerificationRouter from './server/interfaces/http/listingVerifications/listingVerificationRoutes';
+import listingClaimRouter from './server/interfaces/http/listingClaims/listingClaimRoutes';
 import { adminMessageRouter } from './server/interfaces/http/notifications/adminMessageRoutes';
 import { InternalNotificationsController } from './server/interfaces/http/notifications/internalNotificationsController';
 import { InternalTermsController } from './server/interfaces/http/notifications/internalTermsController';
@@ -257,6 +258,7 @@ async function startServer() {
       '/api/partner-home',
       '/api/listing-plans',
       '/api/listing-verifications',
+      '/api/listing-claims',
       '/api/admin',
     ],
     adminAuditTrail
@@ -281,6 +283,7 @@ async function startServer() {
   app.use('/api/users', usernameClaimRouter);
   app.use('/api/users', userRouter);
   app.use('/api/listing-verifications', listingVerificationRouter);
+  app.use('/api/listing-claims', listingClaimRouter);
   app.use('/api/listing-plans', listingPlanRouter);
   app.use('/api/partners/offers', partnerOffersRouter);
   app.use('/api/partners/establishments', partnerEstablishmentsRouter);

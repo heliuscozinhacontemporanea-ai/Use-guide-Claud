@@ -26,17 +26,21 @@ export interface PartnerGuideTranslation {
     create: string;
     creating: string;
     ready: string;
-    accountTitle: string;
-    accountLead: string;
-    usernameTitle: string;
     verifyTitle: string;
-    verifyLead: string;
     waiting: string;
-    kept: string;
+    inviteNote: string;
+    verifyNeeded: string;
     resend: string;
     resent: string;
     resendIn: string;
-    errors: { name: string; city: string; phone: string; terms: string; failed: string };
+    errors: {
+      name: string;
+      nameReserved: string;
+      city: string;
+      phone: string;
+      terms: string;
+      failed: string;
+    };
   };
   editor: {
     title: string;
@@ -211,19 +215,16 @@ export const partnerGuidePtBR: PartnerGuideTranslation = {
     create: 'Criar meu painel',
     creating: 'Criando seu painel…',
     ready: 'Seu painel está pronto',
-    accountTitle: 'Crie sua conta',
-    accountLead:
-      'Falta só a sua conta. O painel fica nela, e você entra com ela no celular ou no computador.',
-    usernameTitle: 'Nome de usuário',
     verifyTitle: 'Confirme seu e-mail',
-    verifyLead: 'Enviamos um link para {{email}}. Assim que você confirmar, seguimos daqui.',
     waiting: 'Esperando a confirmação',
-    kept: 'Seus dados do negócio ficam guardados.',
+    inviteNote: 'Depois de criar a conta, você segue para o cadastro do seu negócio.',
+    verifyNeeded: 'Para ser parceiro, a sua conta precisa do e-mail confirmado.',
     resend: 'Reenviar o e-mail',
     resent: 'E-mail reenviado. Confira também a caixa de spam.',
     resendIn: 'Reenviar em {{seconds}} s',
     errors: {
       name: 'Escreva o nome.',
+      nameReserved: 'O nome do negócio não pode usar o nome do Use Guide.',
       city: 'Escolha o estado e escreva a cidade.',
       phone: 'Escreva um telefone válido, com DDD.',
       terms: 'Para continuar, aceite os Termos do parceiro.',

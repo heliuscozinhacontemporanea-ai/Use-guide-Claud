@@ -28,6 +28,8 @@ function renderMenu(overrides: Partial<Parameters<typeof MainMenuView>[0]> = {})
     onClose: vi.fn(),
     onAccountOpen: vi.fn(),
     onPartnersOpen: vi.fn(),
+    onPartnerInvite: vi.fn(),
+    onOpenTerms: vi.fn(),
     onAdminOpen: vi.fn(),
     onLogout: vi.fn(),
     onPhotoClick: vi.fn(),
@@ -64,10 +66,43 @@ describe('menu lateral como perfil (D19)', () => {
     expect(props.onAdminOpen).toHaveBeenCalled();
   });
 
+  it('quem não é parceiro vê o cartão "Tem um negócio?" abaixo dos destaques (D35, item 9)', () => {
+    const props = renderMenu();
+    expect(screen.getByText('Tem um negócio?')).toBeTruthy();
+    expect(screen.getByText('Anuncie no Use Guide')).toBeTruthy();
+    // O cartão vem depois dos destaques e antes de "Minha conta".
+    const order = [
+      screen.getByText('destaques'),
+      screen.getByText('Tem um negócio?'),
+      screen.getByRole('button', { name: 'Minha conta' }),
+    ];
+    for (let index = 1; index < order.length; index += 1) {
+      const previous = order[index - 1] as Node;
+      const current = order[index] as Node;
+      expect(
+        previous.compareDocumentPosition(current) & Node.DOCUMENT_POSITION_FOLLOWING
+      ).toBeTruthy();
+    }
+    fireEvent.click(screen.getByRole('button', { name: 'Seja parceiro' }));
+    expect(props.onPartnersOpen).toHaveBeenCalled();
+    expect(screen.getAllByRole('button', { name: 'Seja parceiro' })).toHaveLength(1);
+  });
+
   it('sem login: entrar por e-mail ou Google, sem os destaques', () => {
     renderMenu({ user: null });
     expect(screen.getByRole('heading', { name: 'Entrar ou cadastrar' })).toBeTruthy();
     expect(screen.getByRole('button', { name: /Continuar com Google/ })).toBeTruthy();
     expect(screen.queryByText('destaques')).toBeNull();
+  });
+
+  it('sem login: aviso dos Termos e convite discreto, sem a linha Seja parceiro (D35)', () => {
+    const props = renderMenu({ user: null });
+    expect(screen.queryByRole('button', { name: 'Seja parceiro' })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Termos de uso' }));
+    expect(props.onOpenTerms).toHaveBeenCalledTimes(1);
+    fireEvent.click(screen.getByRole('button', { name: 'Política de privacidade' }));
+    expect(props.onOpenTerms).toHaveBeenCalledTimes(2);
+    fireEvent.click(screen.getByRole('button', { name: 'Crie sua conta para anunciar' }));
+    expect(props.onPartnerInvite).toHaveBeenCalled();
   });
 });

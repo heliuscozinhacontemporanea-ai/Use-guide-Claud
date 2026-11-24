@@ -1,4 +1,4 @@
-import type { AuthenticatedUserContext } from '../../../application/security/authenticatedUserContext';
+import type { AuthenticatedUserContext } from '../../../shared/kernel/authenticatedUserContext';
 import { guideService } from '../factory';
 import type { GuideItemContact } from '../ports/guidePort';
 

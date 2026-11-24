@@ -46,6 +46,7 @@ import { ticketLotsEn } from './ticketLotsResources.en';
 import { ticketSessionsEn } from './ticketSessionsResources.en';
 import { ticketWalletEn } from './ticketWalletResources.en';
 import { usernameEn } from './usernameResources.en';
+import { claimEn } from './claimResources.en';
 import { verificationEn } from './verificationResources.en';
 import { windEn } from './windResources.en';
 
@@ -71,6 +72,7 @@ export const en: TranslationResource = {
   ticketWallet: ticketWalletEn,
   ticketGate: ticketGateEn,
   username: usernameEn,
+  claims: claimEn,
   appAbout: appAboutEn,
   notify: notifyEn,
   help: helpEn,
@@ -146,6 +148,7 @@ export const en: TranslationResource = {
     changeProfilePhoto: 'Change profile photo',
     userFallback: 'User',
     signInOrRegister: 'Sign in or sign up',
+    partnerInvite: 'Have a business? <invite>Create your account to list it</invite>',
     emailPassword: 'Email and password',
     orUse: 'or',
     continueGoogle: 'Continue with Google',

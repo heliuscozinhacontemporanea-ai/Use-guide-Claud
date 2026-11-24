@@ -37,19 +37,16 @@ export const partnerGuideFr: PartnerGuideTranslation = {
     create: 'Créer mon tableau de bord',
     creating: 'Création de votre tableau de bord…',
     ready: 'Votre tableau de bord est prêt',
-    accountTitle: 'Créez votre compte',
-    accountLead:
-      'Il ne manque que votre compte. Le tableau de bord y est rattaché, et vous vous connectez avec lui sur téléphone ou ordinateur.',
-    usernameTitle: 'Nom d’utilisateur',
     verifyTitle: 'Confirmez votre e-mail',
-    verifyLead:
-      'Nous avons envoyé un lien à {{email}}. Dès que vous l’aurez confirmé, nous reprenons ici.',
     waiting: 'En attente de confirmation',
-    kept: 'Les informations de votre activité sont gardées.',
+    inviteNote:
+      'Après avoir créé votre compte, vous passerez à l’inscription de votre établissement.',
+    verifyNeeded: 'Pour devenir partenaire, votre compte doit avoir une adresse e-mail confirmée.',
     resend: 'Renvoyer l’e-mail',
     resent: 'E-mail renvoyé. Vérifiez aussi les spams.',
     resendIn: 'Renvoyer dans {{seconds}} s',
     errors: {
+      nameReserved: 'Le nom de l’établissement ne peut pas utiliser le nom Use Guide.',
       name: 'Indiquez le nom.',
       city: 'Choisissez l’État et indiquez la ville.',
       phone: 'Indiquez un numéro de téléphone valide, avec l’indicatif régional.',

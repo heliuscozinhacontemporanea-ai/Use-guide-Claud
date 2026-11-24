@@ -48,6 +48,8 @@ import { useSideMenu } from './useSideMenu';
 
 interface SideMenuProps {
   onPartnersOpen: () => void;
+  /** Convite "Tem um negócio?" de quem ainda não tem conta (D35, item 9). */
+  onPartnerInvite: () => void;
   onAdminOpen: () => void;
 }
 
@@ -90,7 +92,7 @@ const TITLE_KEYS: Record<MenuView, string> = {
 };
 
 /** Compõe as telas de vários domínios (perfil, ingressos, reservas, compras, favoritos, avaliações, conteúdo) no menu. */
-export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
+export function SideMenu({ onPartnersOpen, onPartnerInvite, onAdminOpen }: SideMenuProps) {
   const { t } = useTranslation();
   const { user } = useAuthContext();
   // A linha Divulgação só aparece para quem divulga ou tem convite (D27).
@@ -340,6 +342,8 @@ export function SideMenu({ onPartnersOpen, onAdminOpen }: SideMenuProps) {
               photoURL={photoURL}
               onAccountOpen={() => showView('account')}
               onPartnersOpen={onPartnersOpen}
+              onPartnerInvite={onPartnerInvite}
+              onOpenTerms={() => showView('terms')}
               onAdminOpen={onAdminOpen}
               onLogout={handleLogout}
               onPhotoClick={() => fileInputRef.current?.click()}

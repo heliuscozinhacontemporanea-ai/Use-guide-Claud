@@ -30,10 +30,23 @@ describe('LoginModal (folha de acesso, D33)', () => {
     await i18n.changeLanguage('pt-BR');
   });
 
-  const renderModal = (initialTab?: 'login' | 'forgot') =>
+  const renderModal = (
+    initialTab?: 'login' | 'register' | 'forgot',
+    note?: { key: string; values?: Record<string, string> }
+  ) =>
     render(
       <MemoryRouter>
-        <LoginModal isOpen onClose={mockOnClose} initialTab={initialTab} />
+        <LoginModal
+          note={note}
+          isOpen
+          onClose={mockOnClose}
+          initialTab={initialTab}
+          renderTerms={(onBack) => (
+            <button type="button" onClick={onBack}>
+              termos-e-politicas
+            </button>
+          )}
+        />
       </MemoryRouter>
     );
   const submit = () => {
@@ -96,6 +109,31 @@ describe('LoginModal (folha de acesso, D33)', () => {
     expect(
       await screen.findByRole('button', { name: t('auth.register.submit') })
     ).toBeInTheDocument();
+  });
+
+  it('aviso dos Termos abaixo do Google e de "Cadastrar"; os Termos abrem e voltam sem perder o que foi digitado (D35 1b)', async () => {
+    renderModal('register');
+    expect(screen.getByText(/Ao criar a conta, você concorda/)).toBeTruthy();
+    const email = screen.getByPlaceholderText(t('auth.registerEmailPlaceholder'));
+    fireEvent.change(email, { target: { value: 'ana@exemplo.com' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Termos de uso' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'termos-e-politicas' }));
+    await waitFor(() =>
+      expect(screen.getByPlaceholderText(t('auth.registerEmailPlaceholder'))).toHaveValue(
+        'ana@exemplo.com'
+      )
+    );
+    fireEvent.click(
+      screen.getAllByRole('button', { name: t('auth.tabs.login') })[0] as HTMLElement
+    );
+    expect(await screen.findByText(/Ao continuar, você concorda/)).toBeTruthy();
+  });
+
+  it('mostra no alto de onde a pessoa veio (D35)', () => {
+    renderModal('register', { key: 'partnerGuide.join.inviteNote' });
+    expect(
+      screen.getByText('Depois de criar a conta, você segue para o cadastro do seu negócio.')
+    ).toBeTruthy();
   });
 
   it('esqueci a senha abre a recuperação e volta para entrar', async () => {

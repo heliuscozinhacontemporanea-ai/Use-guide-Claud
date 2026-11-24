@@ -1,6 +1,6 @@
 import { AdminDispatcher } from '../../domain/admin';
 import { isBookingServiceEvidence, ServiceEvidenceList } from '../../domain/bookings';
-import { ListingVerificationQueue } from '../../domain/partners';
+import { ListingClaimQueue, ListingVerificationQueue } from '../../domain/partners';
 import { AdminFinanceQueues } from '../../domain/payment';
 import { ReviewModerationQueue } from '../../domain/reviews';
 import { AdminEventsTab } from './admin/AdminEventsTab';
@@ -19,7 +19,12 @@ export function AdminPanelComposition() {
         <AdminDispatcher
           renderGuideTab={() => <AdminGuideTab />}
           renderEventsTab={() => <AdminEventsTab />}
-          renderVerificationQueue={() => <ListingVerificationQueue />}
+          renderVerificationQueue={() => (
+            <div className="space-y-10">
+              <ListingClaimQueue />
+              <ListingVerificationQueue />
+            </div>
+          )}
           renderFinanceQueues={() => (
             <AdminFinanceQueues
               renderClaimEvidence={(claim) =>

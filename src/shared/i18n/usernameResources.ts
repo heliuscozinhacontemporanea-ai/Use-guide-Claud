@@ -15,6 +15,7 @@ export interface UsernameTranslation {
   signOut: string;
   errors: {
     USERNAME_INVALID: string;
+    USERNAME_RESERVED: string;
     USERNAME_TAKEN: string;
     USERNAME_CHANGE_TOO_SOON: string;
     failed: string;
@@ -89,6 +90,8 @@ export const usernamePtBR: UsernameTranslation = {
   signOut: 'Sair da conta',
   errors: {
     USERNAME_INVALID: 'Este @ não é permitido. Use letras, números, ponto ou sublinhado.',
+    USERNAME_RESERVED:
+      'Este @ usa um nome reservado (do Use Guide ou de uma marca). Escolha outro.',
     USERNAME_TAKEN: 'Este @ já está em uso. Escolha outro.',
     USERNAME_CHANGE_TOO_SOON: 'Você trocou de @ há menos de 30 dias.',
     failed: 'Não foi possível salvar. Tente de novo.',

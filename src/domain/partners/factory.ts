@@ -1,3 +1,5 @@
+import { ApiListingClaimAdapter } from './adapters/apiListingClaimAdapter';
+import type { ListingClaimPort } from './ports/listingClaimPort';
 import { ApiListingPlanAdapter } from './adapters/apiListingPlanAdapter';
 import { ApiPartnerHomeAdapter } from './adapters/apiPartnerHomeAdapter';
 import { ApiListingVerificationAdapter } from './adapters/apiListingVerificationAdapter';
@@ -13,5 +15,6 @@ export const partnerAdapter: PartnerPort = new ApiPartnerAdapter();
 export const partnerContentAdapter: PartnerContentPort = new ApiPartnerContentAdapter();
 export const listingVerificationAdapter: ListingVerificationPort =
   new ApiListingVerificationAdapter();
+export const listingClaimAdapter: ListingClaimPort = new ApiListingClaimAdapter();
 export const listingPlanAdapter: ListingPlanPort = new ApiListingPlanAdapter();
 export const partnerHomeAdapter: PartnerHomePort = new ApiPartnerHomeAdapter();
