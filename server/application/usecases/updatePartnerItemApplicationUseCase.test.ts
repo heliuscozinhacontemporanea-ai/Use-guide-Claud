@@ -7,7 +7,7 @@ import {
   updateGuideItemUseCase,
 } from '../../domain/guide';
 import { updateBusinessUseCase } from '../../domain/partners';
-import type { AuthenticatedUserContext } from '../security/authenticatedUserContext';
+import type { AuthenticatedUserContext } from '../../shared/kernel/authenticatedUserContext';
 import { updatePartnerItemApplicationUseCase } from './updatePartnerItemApplicationUseCase';
 
 vi.mock('../../domain/guide', () => ({

@@ -17,8 +17,8 @@ import {
   CapacityBelowSoldError,
   OccurrenceDateLockedError,
   OccurrenceHasSalesError,
-} from '../../events/errors/eventDomainError';
-import { GuideDomainError } from '../../guide/errors/guideDomainError';
+} from '../../../domain/events';
+import { GuideDomainError } from '../../../domain/guide';
 import { PartnerContentController } from './partnerContentController';
 
 function response() {

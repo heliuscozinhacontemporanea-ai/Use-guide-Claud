@@ -108,14 +108,6 @@ export const createTicketOrderSchema = z
   })
   .strict();
 
-export const requestTicketRefundSchema = z
-  .object({
-    reason: z.string().trim().min(1).max(500),
-    ticketId: z.string().trim().min(1).optional(),
-    idempotencyKey: z.string().trim().min(1).max(150),
-  })
-  .strict();
-
 export const checkInTicketSchema = z
   .object({
     occurrenceId: z.string().trim().min(1),
@@ -139,12 +131,6 @@ export const joinWaitlistSchema = z
     occurrenceId: z.string().trim().min(1),
     ticketTypeId: z.string().trim().min(1).optional(),
     quantity: z.number().int().positive().max(10).default(1),
-  })
-  .strict();
-
-export const payTicketOrderSchema = z
-  .object({
-    idempotencyKey: z.string().trim().min(1).max(150).optional(),
   })
   .strict();
 

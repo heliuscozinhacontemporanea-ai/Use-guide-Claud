@@ -11,14 +11,14 @@ import { updateEventOccurrenceSafelyApplicationUseCase } from '../../../applicat
 import { updatePartnerEventApplicationUseCase } from '../../../application/usecases/updatePartnerEventApplicationUseCase';
 import { updatePartnerItemApplicationUseCase } from '../../../application/usecases/updatePartnerItemApplicationUseCase';
 import type { AuthenticatedRequest } from '../../../infrastructure/auth/authMiddleware';
-import { createEventOccurrenceUseCase, EventDomainError } from '../../events';
-import { getOwnGuideItemContactUseCase } from '../../guide';
+import { createEventOccurrenceUseCase, EventDomainError } from '../../../domain/events';
+import { getOwnGuideItemContactUseCase } from '../../../domain/guide';
 import {
   getEventSalesAnalyticsUseCase,
   listEventCheckInsForPartnerOrAdminUseCase,
   listEventOrdersForPartnerOrAdminUseCase,
   listEventRefundsForPartnerOrAdminUseCase,
-} from '../../ticketing';
+} from '../../../domain/ticketing';
 import {
   createPartnerEventOccurrenceSchema,
   createPartnerEventSchema,
@@ -26,7 +26,7 @@ import {
   updatePartnerEventOccurrenceSchema,
   updatePartnerEventSchema,
   updatePartnerItemSchema,
-} from '../schemas/partnerContentSchema';
+} from './schemas/partnerContentSchema';
 
 function requireGuideContext(req: AuthenticatedRequest): AuthenticatedUserContext {
   if (!req.guideUserContext) {

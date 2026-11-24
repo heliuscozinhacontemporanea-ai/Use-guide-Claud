@@ -12,7 +12,7 @@ import {
   timeZoneForBrazilianCity,
 } from '../../shared/kernel/timeZones';
 import { USE_GUIDE_OWNER_ID } from '../../shared/kernel/useGuideOwner';
-import type { AuthenticatedUserContext } from '../security/authenticatedUserContext';
+import type { AuthenticatedUserContext } from '../../shared/kernel/authenticatedUserContext';
 import { syncListingSealApplicationUseCase } from './listingPlans/syncListingSealApplicationUseCase';
 import { linkOwnerBusiness } from './ownerBusinessLink';
 

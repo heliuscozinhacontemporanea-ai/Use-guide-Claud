@@ -5,7 +5,7 @@ import {
 } from '../../domain/events';
 import { getItemByIdUseCase } from '../../domain/guide';
 import { placeTimeOf } from '../../shared/kernel/timeZones';
-import type { AuthenticatedUserContext } from '../security/authenticatedUserContext';
+import type { AuthenticatedUserContext } from '../../shared/kernel/authenticatedUserContext';
 import { renameOwnerBusiness } from './ownerBusinessLink';
 import { updateEventListingSafelyApplicationUseCase } from './updateEventListingSafelyApplicationUseCase';
 

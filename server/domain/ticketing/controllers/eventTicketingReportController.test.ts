@@ -6,7 +6,7 @@ vi.mock('../usecases/listEventOrdersForPartnerOrAdminUseCase', () => ({
   listEventOrdersForPartnerOrAdminUseCase: m.list,
 }));
 
-import { TicketingController } from './ticketingController';
+import { EventTicketingReportController } from './eventTicketingReportController';
 
 const ORDER = {
   id: 'o1',
@@ -26,11 +26,11 @@ function response() {
   return res;
 }
 
-describe('TicketingController.listEventOrders (§7.9)', () => {
+describe('EventTicketingReportController.listEventOrders (§7.9)', () => {
   it('parceiro recebe o pedido sem nome, e-mail, documento nem uid do comprador', async () => {
     m.list.mockResolvedValue([ORDER]);
     const res = response();
-    await TicketingController.listEventOrders(
+    await EventTicketingReportController.listEventOrders(
       { params: { id: 'ev1' }, user: { uid: 'owner-1' } } as never,
       res as unknown as Response
     );
@@ -44,7 +44,7 @@ describe('TicketingController.listEventOrders (§7.9)', () => {
   it('admin continua vendo o pedido completo', async () => {
     m.list.mockResolvedValue([ORDER]);
     const res = response();
-    await TicketingController.listEventOrders(
+    await EventTicketingReportController.listEventOrders(
       { params: { id: 'ev1' }, user: { uid: 'admin-1', admin: true } } as never,
       res as unknown as Response
     );

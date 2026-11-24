@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { registerPartnerSchema } from './partnerSchema';
+import { registerPartnerSchema } from './partnerRegistrationSchemas';
 
 describe('Partner Validation Schemas (Backend)', () => {
   describe('registerPartnerSchema', () => {

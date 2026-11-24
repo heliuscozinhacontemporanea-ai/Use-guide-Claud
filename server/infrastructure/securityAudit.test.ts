@@ -7,7 +7,7 @@ import { getResourceOwnerIdUseCase } from '../domain/guide/usecases/getResourceO
 import { InsightsAccessError } from '../domain/insights/errors/insightsErrors';
 import { InsightsRepositoryPort } from '../domain/insights/ports/insightsRepositoryPort';
 import { InsightsService } from '../domain/insights/services/insightsService';
-import { CreatePlanPaymentIntentSchema } from '../domain/payment/schemas/paymentSchema';
+import { CreatePlanPaymentIntentSchema } from '../interfaces/http/payment/schemas/planPaymentSchemas';
 import { updateUserProfileSchema } from '../domain/users/schemas/userSchema';
 
 vi.mock('../domain/guide/usecases/getResourceOwnerIdUseCase', () => ({

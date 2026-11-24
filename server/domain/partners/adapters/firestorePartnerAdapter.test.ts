@@ -7,7 +7,6 @@ import {
   isValidCpfCnpj,
   normalizeDocument,
 } from '../services/documentIdentity';
-import { registerPartnerSchema } from '../schemas/partnerSchema';
 import type { PartnerBusiness } from '../types/partnerTypes';
 
 interface StoreDoc {
@@ -252,16 +251,6 @@ describe('FirestorePartnerAdapter', () => {
       expect(isValidCpfCnpj('00.000.000/0001-91')).toBe(true);
 
       expect(isValidCpfCnpj('123.456.789-00')).toBe(false);
-    });
-
-    it('rejeita termsAccepted=false', () => {
-      const result = registerPartnerSchema.safeParse({
-        formData: {
-          termsAccepted: false,
-        },
-      });
-
-      expect(result.success).toBe(false);
     });
   });
 

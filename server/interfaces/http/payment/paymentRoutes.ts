@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { verifyAuthToken } from '../../../infrastructure/auth/authMiddleware';
-import { PaymentController } from '../controllers/paymentController';
+import { PaymentController } from './paymentController';
 
 const router = Router();
 

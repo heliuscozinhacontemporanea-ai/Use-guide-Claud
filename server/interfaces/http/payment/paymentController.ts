@@ -1,17 +1,22 @@
-import { randomUUID } from 'crypto';
 import type { Request, Response } from 'express';
 import { getPlanForPaymentApplicationUseCase } from '../../../application/usecases/getPlanForPaymentApplicationUseCase';
 import { assertListingPlanPurchasableApplicationUseCase } from '../../../application/usecases/listingPlans/assertListingPlanPurchasableApplicationUseCase';
 import { reconcileStripeWebhookEventApplicationUseCase } from '../../../application/usecases/reconcileStripeWebhookEventApplicationUseCase';
 import type { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
-import { ConfirmPlanPaymentSchema, CreatePlanPaymentIntentSchema } from '../schemas/paymentSchema';
-import { PaymentDomainError } from '../errors/paymentDomainError';
-import { claimStripeWebhookEventUseCase } from '../usecases/claimStripeWebhookEventUseCase';
-import { completeStripeWebhookEventUseCase } from '../usecases/completeStripeWebhookEventUseCase';
-import { constructStripeWebhookEventUseCase } from '../usecases/constructStripeWebhookEventUseCase';
-import { createPlanPaymentIntentUseCase } from '../usecases/createPlanPaymentIntentUseCase';
-import { releaseStripeWebhookEventUseCase } from '../usecases/releaseStripeWebhookEventUseCase';
-import { retrievePaymentIntentUseCase } from '../usecases/retrievePaymentIntentUseCase';
+import { newIdempotencyKey } from '../../../infrastructure/crypto/idempotencyKey';
+import {
+  claimStripeWebhookEventUseCase,
+  completeStripeWebhookEventUseCase,
+  constructStripeWebhookEventUseCase,
+  createPlanPaymentIntentUseCase,
+  PaymentDomainError,
+  releaseStripeWebhookEventUseCase,
+  retrievePaymentIntentUseCase,
+} from '../../../domain/payment';
+import {
+  ConfirmPlanPaymentSchema,
+  CreatePlanPaymentIntentSchema,
+} from './schemas/planPaymentSchemas';
 
 export class PaymentController {
   static async createPlanPaymentIntent(
@@ -57,7 +62,7 @@ export class PaymentController {
         planId: plan.id,
         planName: plan.name,
         amountMinor,
-        idempotencyKey: idempotencyKey || randomUUID(),
+        idempotencyKey: idempotencyKey || newIdempotencyKey(),
       });
 
       return res.status(200).json({

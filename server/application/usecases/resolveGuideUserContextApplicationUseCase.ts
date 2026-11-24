@@ -1,4 +1,4 @@
-import { AuthenticatedUserContext } from '../security/authenticatedUserContext';
+import { AuthenticatedUserContext } from '../../shared/kernel/authenticatedUserContext';
 import { getPartnerProfileUseCase } from '../../domain/partners';
 import { getUserAuthorizationSnapshotUseCase } from '../../domain/users';
 

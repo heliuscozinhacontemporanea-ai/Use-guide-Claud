@@ -3,12 +3,12 @@ import type { Request, Response } from 'express';
 import { PaymentController } from './paymentController';
 import { getPlanForPaymentApplicationUseCase } from '../../../application/usecases/getPlanForPaymentApplicationUseCase';
 import { reconcileStripeWebhookEventApplicationUseCase } from '../../../application/usecases/reconcileStripeWebhookEventApplicationUseCase';
-import { claimStripeWebhookEventUseCase } from '../usecases/claimStripeWebhookEventUseCase';
-import { completeStripeWebhookEventUseCase } from '../usecases/completeStripeWebhookEventUseCase';
-import { constructStripeWebhookEventUseCase } from '../usecases/constructStripeWebhookEventUseCase';
-import { createPlanPaymentIntentUseCase } from '../usecases/createPlanPaymentIntentUseCase';
-import { releaseStripeWebhookEventUseCase } from '../usecases/releaseStripeWebhookEventUseCase';
-import { retrievePaymentIntentUseCase } from '../usecases/retrievePaymentIntentUseCase';
+import { claimStripeWebhookEventUseCase } from '../../../domain/payment/usecases/claimStripeWebhookEventUseCase';
+import { completeStripeWebhookEventUseCase } from '../../../domain/payment/usecases/completeStripeWebhookEventUseCase';
+import { constructStripeWebhookEventUseCase } from '../../../domain/payment/usecases/constructStripeWebhookEventUseCase';
+import { createPlanPaymentIntentUseCase } from '../../../domain/payment/usecases/createPlanPaymentIntentUseCase';
+import { releaseStripeWebhookEventUseCase } from '../../../domain/payment/usecases/releaseStripeWebhookEventUseCase';
+import { retrievePaymentIntentUseCase } from '../../../domain/payment/usecases/retrievePaymentIntentUseCase';
 import { AuthenticatedRequest } from '../../../infrastructure/auth/authenticatedRequest';
 
 vi.mock('../../../application/usecases/getPlanForPaymentApplicationUseCase', () => ({
@@ -19,7 +19,7 @@ vi.mock('../../../application/usecases/reconcileStripeWebhookEventApplicationUse
   reconcileStripeWebhookEventApplicationUseCase: vi.fn(),
 }));
 
-vi.mock('../usecases/createPlanPaymentIntentUseCase', () => ({
+vi.mock('../../../domain/payment/usecases/createPlanPaymentIntentUseCase', () => ({
   createPlanPaymentIntentUseCase: vi.fn(),
 }));
 vi.mock(
@@ -30,19 +30,19 @@ vi.mock(
       .mockResolvedValue({ currentPlanUntil: null }),
   })
 );
-vi.mock('../usecases/constructStripeWebhookEventUseCase', () => ({
+vi.mock('../../../domain/payment/usecases/constructStripeWebhookEventUseCase', () => ({
   constructStripeWebhookEventUseCase: vi.fn(),
 }));
-vi.mock('../usecases/claimStripeWebhookEventUseCase', () => ({
+vi.mock('../../../domain/payment/usecases/claimStripeWebhookEventUseCase', () => ({
   claimStripeWebhookEventUseCase: vi.fn(),
 }));
-vi.mock('../usecases/completeStripeWebhookEventUseCase', () => ({
+vi.mock('../../../domain/payment/usecases/completeStripeWebhookEventUseCase', () => ({
   completeStripeWebhookEventUseCase: vi.fn(),
 }));
-vi.mock('../usecases/releaseStripeWebhookEventUseCase', () => ({
+vi.mock('../../../domain/payment/usecases/releaseStripeWebhookEventUseCase', () => ({
   releaseStripeWebhookEventUseCase: vi.fn(),
 }));
-vi.mock('../usecases/retrievePaymentIntentUseCase', () => ({
+vi.mock('../../../domain/payment/usecases/retrievePaymentIntentUseCase', () => ({
   retrievePaymentIntentUseCase: vi.fn(),
 }));
 
