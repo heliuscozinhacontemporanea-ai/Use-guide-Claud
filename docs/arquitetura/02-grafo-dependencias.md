@@ -15,7 +15,7 @@
 | Ciclos **domínio ↔ camada** | **7** ❌ `domain/*` ↔ `application` | **8** ❌ `ui`/`shared` ↔ `domain/*` |
 | Imports internos de outro domínio (sem passar por `index.ts`) | 1 | 30+ |
 
-> **Atualização (2026-11-24, B77, PR #33):** `npx madge --circular src` acha 3 ciclos de arquivo (`partners` interno, `bookings` interno e `favorites` ↔ `shared/stores/useFavoritesStore`); o `auth ↔ user` e o do `admin` (que importava o próprio `index`) saíram. Os números da tabela acima são do baseline.
+> **Atualização (2026-11-24, PR #33):** `npx madge --circular` não acha nenhum ciclo em `src/`, em `server/` + `server.ts` nem em `functions/src`. Saíram o `auth ↔ user` (B77), o do `admin` (importava o próprio `index`), o do cartão do "Agora" (tipo em `partners/types/partnerAgora.ts`), o da reserva do comprador (`textFor` em `bookings/utils/localizedText.ts`), o do store de favoritos (foi para `domain/favorites/stores`) e, no servidor, os do pagamento (`PaymentDomainError` em `payment/errors/`) e do Início do parceiro (`PartnerSessionInput` em `partnerHomeTypes.ts`). O baseline acima dizia 0 no servidor; esses dois ciclos surgiram depois dele. Os números da tabela são do baseline.
 
 **Conclusão:** no backend, a lógica entre domínios já é acíclica; os ciclos existem porque **controllers que vivem dentro de `server/domain/*` importam `server/application/*`**, que por sua vez importa os domínios. É um problema de **posição de arquivo/camada**, resolvido movendo controllers orquestradores para `server/interfaces/http/` e o tipo `AuthenticatedUserContext` para `server/shared/kernel/`. No frontend, os ciclos são reais (de responsabilidade) e exigem composição em `src/app`.
 
@@ -181,11 +181,11 @@ graph LR
 |---|---|---|---|
 | ~~`src/ui/layouts/Header.tsx`, `SideMenu.tsx`~~ ✅ (o `SideMenu` foi para `src/app/menu`; o `Header` recebe a conta por props desde 2026-11-24, B77) | — | — | — |
 | `src/ui/components/ShareButton.tsx` | insights | — | callback `onShared` |
-| `src/shared/stores/useFavoritesStore.ts` | favorites, insights | store de domínio em `shared` | mover para `src/domain/favorites/stores` |
+| ~~`src/shared/stores/useFavoritesStore.ts`~~ ✅ movido para `src/domain/favorites/stores` em 2026-11-24 (PR #33) | — | — | — |
 | `src/shared/lib/insights.ts` | insights | — | mover para `src/domain/insights` |
 | `src/shared/utils/operatingHoursStatus.ts` | guide | regra de domínio em `shared` | mover para `src/domain/guide/utils` |
 
-### 3.4. Ciclo interno de runtime (partners)
+### 3.4. Ciclo interno de runtime (partners) ✅ não aparece mais no `madge` (2026-11-24)
 
 `PartnerPanel.tsx → usePartnerPanelActions → usePartnerContentActions → usePartnerItems → partners/index.ts → PartnerPanel.tsx`: hooks importam o barrel do próprio domínio. Regra: **dentro do domínio, importar por caminho relativo, nunca o próprio `index.ts`.**
 
