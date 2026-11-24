@@ -9,13 +9,14 @@ A ordem abaixo foi proposta em 2026-11-15 e pode ser mudada pelo responsável.
 | # | Item | Situação | Decisão |
 |---|---|---|---|
 | 5b | **Tradução automática** do conteúdo cadastrado (D5): domínio `translation` com Google Cloud Translation, só no backend, `LocalizedText` com `source` e traduções, aviso "Traduzido automaticamente pelo Google · Ver original" | Pendente (responsável, 2026-11-17); serviço pago: proposta antes do código (AGENTS.md §15) | D5, AGENTS.md §12.6 |
-| 6 | **D34 · F4**: admin no mesmo editor do parceiro (D6, D8), criando anúncios de todas as categorias. Cobre o "editor do admin" do **item 5 da D33** | Implementada em 2026-11-23; aguardando "aprovado, pode publicar" | D34, D33, D35 |
-| 6b | **D35**: Termos no cadastro comum e "Sou o dono" | Aprovada em 2026-11-23; implementação depois da F4 | D35 |
+| 6b | **D35**: Termos no cadastro comum e "Sou o dono" | Aprovada em 2026-11-23; próxima a implementar (a F4 foi publicada) | D35 |
 | 7 | **D34 · F5**: evento herda contato e local do estabelecimento (D5) | | D34 |
 | 8 | **D34 · F6**: o tour sai e entram as dicas de primeira visita (Agenda e Ganhos) | | D34 |
 | 8b | **Item 3 da D33**: busca (SearchOverlay) como folha em altura cheia, com os tokens (resolve o B60) | Adiado pelo responsável em 2026-11-16 (pular e começar a F2) | D33 |
 | 9 | Resto do **item 5 da D33**: link de cortesia e durações e curvas soltas nos componentes menores (DESIGN.md P10) | | D33 |
 | 10 | **Acerto com o divulgador**, fase 1 e fase 2 | Aprovado em 2026-11-12; prints antes do código | `decisoes.md` (Acerto com o divulgador) |
+
+Publicados em 2026-11-24 (PRs #30 e #31): a **D34 · F4** (admin no mesmo editor do parceiro, dono Use Guide, registro de auditoria), que cobre o "editor do admin" do item 5 da D33.
 
 Publicados em 2026-11-22 (PR #29): a **D34 · F3** inteira (F3a, F3b com aluguel e translado à venda e horário personalizado, e os ajustes da comparação com os protótipos).
 
