@@ -28,4 +28,19 @@ describe('catálogo do guia: primeira entrega', () => {
     listeners.get('items')?.([]);
     expect(onUpdate).toHaveBeenCalledTimes(2);
   });
+
+  it('mostra só o anúncio com isActive true, como o servidor (B76)', () => {
+    const onUpdate = vi.fn();
+    new FirebaseGuideCatalogAdapter().subscribe(onUpdate, vi.fn());
+    listeners.get('featuredListings')?.([]);
+    listeners.get('events')?.([]);
+    listeners.get('items')?.([
+      { id: 'ativo', name: 'Buggy', category: 'tour', isActive: true },
+      { id: 'pausado', name: 'Lancha', category: 'tour', isActive: false },
+      { id: 'semCampo', name: 'Pousada', category: 'hotel' },
+    ]);
+    expect(onUpdate.mock.lastCall?.[0].items.map((item: { id: string }) => item.id)).toEqual([
+      'ativo',
+    ]);
+  });
 });
