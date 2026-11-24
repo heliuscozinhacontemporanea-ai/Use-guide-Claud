@@ -17,6 +17,8 @@
 
 > **Atualização (2026-11-24, PR #33):** `npx madge --circular` não acha nenhum ciclo em `src/`, em `server/` + `server.ts` nem em `functions/src`. Saíram o `auth ↔ user` (B77), o do `admin` (importava o próprio `index`), o do cartão do "Agora" (tipo em `partners/types/partnerAgora.ts`), o da reserva do comprador (`textFor` em `bookings/utils/localizedText.ts`), o do store de favoritos (foi para `domain/favorites/stores`) e, no servidor, os do pagamento (`PaymentDomainError` em `payment/errors/`) e do Início do parceiro (`PartnerSessionInput` em `partnerHomeTypes.ts`). O baseline acima dizia 0 no servidor; esses dois ciclos surgiram depois dele. Os números da tabela são do baseline.
 
+> **Atualização (2026-11-24, B2, PR #34):** nenhum arquivo de `server/domain` nem de `server/infrastructure` importa `server/application`; os controllers que orquestram domínios e o middleware `resolveGuideContext` estão em `server/interfaces/http`, que entra nos domínios só pelo `index.ts`. O B1 também saiu (o schema de evento do parceiro está em `interfaces/http/partnerContent/schemas`).
+
 **Conclusão:** no backend, a lógica entre domínios já é acíclica; os ciclos existem porque **controllers que vivem dentro de `server/domain/*` importam `server/application/*`**, que por sua vez importa os domínios. É um problema de **posição de arquivo/camada**, resolvido movendo controllers orquestradores para `server/interfaces/http/` e o tipo `AuthenticatedUserContext` para `server/shared/kernel/`. No frontend, os ciclos são reais (de responsabilidade) e exigem composição em `src/app`.
 
 ---
