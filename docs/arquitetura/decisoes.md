@@ -5,6 +5,7 @@
 ## Liberação para usuários
 
 * **Data de liberação: ainda não definida.** Até essa data vale o AGENTS.md §2.2 item 8 (sem código legado ou de transição). Registre aqui a data quando o app for liberado.
+* **Antes da liberação (2026-11-24, decisão do responsável):** apagar os anúncios, dicas e eventos de teste que estão em contas de parceiro sem dono real. A F4 só passou para o dono `useguide` o conteúdo das contas com a claim `admin` (um anúncio); os demais são de teste e não serão migrados.
 
 ## Decisões
 
