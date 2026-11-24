@@ -10,11 +10,20 @@ export { getAllPartnersUseCase } from './application/usecases/getAllPartnersUseC
 export { getPartnerProfileUseCase } from './application/usecases/getPartnerProfileUseCase';
 export { subscribeToPartnerProfileUseCase } from './application/usecases/subscribeToPartnerProfileUseCase';
 export { updatePartnerStatusUseCase } from './application/usecases/updatePartnerStatusUseCase';
-export { ListingEditor, type ListingEditorProps } from './components/ListingEditor';
 export { AdminListingSealControl } from './components/plan/AdminListingSealControl';
 export { ListingVerificationQueue } from './components/verification/ListingVerificationQueue';
 export { PartnerPanel } from './components/PartnerPanel';
 export { PartnerBusinessPage } from './components/join/PartnerBusinessPage';
+// Páginas do anúncio que o admin também usa (escolhas da F4), só para src/app/compositions.
+export { type EditorBlock, ListingEditorPage } from './components/guide/ListingEditorPage';
+export { ListingPhotosField } from './components/guide/ListingPhotosField';
+export { ListingPublishPage } from './components/guide/ListingPublishPage';
+export { ListingStepPage } from './components/guide/ListingStepPage';
+export { NewListingPage } from './components/join/NewListingPage';
+export type { ListingStep } from './types/partnerHome';
+export { type EventEditorSection, PartnerEventEditor } from './components/PartnerEventEditor';
+export { usePartnerEventSessions } from './hooks/usePartnerEventSessions';
+export { newPartnerEventDraft } from './utils/newPartnerEventDraft';
 export { PartnerPresentation } from './components/sections/PartnerPresentation';
 export { joinAsPartnerUseCase } from './application/usecases/joinAsPartnerUseCase';
 export { loadPartnerJoinDraftUseCase } from './application/usecases/loadPartnerJoinDraftUseCase';
@@ -42,6 +51,7 @@ export type {
   SubscriptionPlan,
 } from './types/partner';
 export type {
+  PartnerContentEditorState,
   PartnerContentEventInput,
   PartnerContentItemInput,
   PartnerContentRecord,

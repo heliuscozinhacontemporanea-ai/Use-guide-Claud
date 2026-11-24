@@ -198,3 +198,20 @@ export function stepsLost(before: ListingStep[], after: ListingStep[]): ListingS
     (current) => !current.done && before.some((old) => old.id === current.id && old.done)
   );
 }
+
+/**
+ * O mínimo para o admin publicar um anúncio do Use Guide (escolhas da F4): nome, cidade, região e 1
+ * foto. O resto fica para quem assumir o anúncio completar ("Complete seu anúncio", D35).
+ */
+export function minimumPublishSteps(item: ListingSetupInput): ListingStep[] {
+  if (item.category === 'tips') return [];
+  return [
+    step('name', [
+      ['name', filled(item.name)],
+      ['state', filled(item.state)],
+      ['city', filled(item.city)],
+    ]),
+    step('photos', [['images', (item.images ?? []).some(filled)]]),
+    step('where', [['region', filled(item.location)]]),
+  ];
+}

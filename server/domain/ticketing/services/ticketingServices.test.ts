@@ -265,6 +265,27 @@ describe('serviços de ticketing', () => {
     ).rejects.toThrow(/Não é permitido alterar o preço/);
   });
 
+  it('evento do Use Guide não ganha lote: não vende ingresso pelo app (F4)', async () => {
+    const listing = await getEventListingByIdUseCase('evt_1');
+    vi.mocked(getEventListingByIdUseCase).mockResolvedValueOnce({
+      ...(listing as NonNullable<typeof listing>),
+      ownerId: 'useguide',
+    });
+    await expect(
+      services.types.createTicketType(
+        { uid: 'admin_1', admin: true },
+        {
+          occurrenceId: 'occ_1',
+          name: 'Pista',
+          kind: 'paid',
+          priceMinor: 5000,
+          quantity: 10,
+        }
+      )
+    ).rejects.toMatchObject({ code: 'UNPROCESSABLE_ENTITY' });
+    expect(mockPort.createTicketType).not.toHaveBeenCalled();
+  });
+
   it('datas de venda do lote: o fim precisa vir depois do início; `null` tira a data', async () => {
     vi.mocked(mockPort.getTicketTypeById).mockResolvedValue(
       createMockTicketType({ salesStartsAt: '2026-12-10T12:00:00.000Z' })

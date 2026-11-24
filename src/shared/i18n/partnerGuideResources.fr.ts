@@ -28,6 +28,8 @@ export const partnerGuideFr: PartnerGuideTranslation = {
     phoneHintSells:
       'Seule la plateforme le voit : le client le reçoit après l’achat, par la commande.',
     phoneHintShowcase: 'Affiché sur l’annonce, pour qui veut vous contacter.',
+    phonePlace: 'Téléphone ou WhatsApp du lieu (facultatif)',
+    phoneHintPlace: 'Affiché sur l’annonce. La personne qui reprend l’annonce peut le changer.',
     termsBefore: 'J’ai lu et j’accepte les',
     termsLink: 'Conditions partenaire',
     later:

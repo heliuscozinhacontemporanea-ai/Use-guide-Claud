@@ -18,6 +18,7 @@ import {
   getAuditActorType,
   type TicketingActorContext,
 } from './ticketingAccess';
+import { isUseGuideOwner } from '../../../shared/kernel/useGuideOwner';
 
 /** Lotes de ingresso, cupons e o resumo de preço do evento. */
 export class TicketTypeService {
@@ -67,6 +68,13 @@ export class TicketTypeService {
   ): Promise<TicketType> {
     assertMoneyMinor(input.priceMinor);
     const { occurrence, listing } = await assertCanManageOccurrence(actor, input.occurrenceId);
+    // Evento do Use Guide não vende ingresso pelo app (escolhas da F4): gratuito ou pago no local.
+    if (isUseGuideOwner(listing.ownerId)) {
+      throw new TicketingDomainError(
+        'UNPROCESSABLE_ENTITY',
+        'Evento do Use Guide não vende ingresso pelo app.'
+      );
+    }
 
     if (input.quantity > occurrence.capacity) {
       throw new TicketingDomainError(

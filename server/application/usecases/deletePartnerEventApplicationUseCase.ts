@@ -1,7 +1,7 @@
 import type { AuthenticatedUserContext } from '../security/authenticatedUserContext';
 import { getEventListingByIdUseCase } from '../../domain/events';
-import { linkBusinessUseCase, unlinkBusinessUseCase } from '../../domain/partners';
 import { deleteEventListingSafelyApplicationUseCase } from './deleteEventListingSafelyApplicationUseCase';
+import { linkOwnerBusiness, unlinkOwnerBusiness } from './ownerBusinessLink';
 
 function isNotFoundError(error: unknown): boolean {
   if (!error) return false;
@@ -43,14 +43,14 @@ export async function deletePartnerEventApplicationUseCase(
     throw err;
   }
 
-  await unlinkBusinessUseCase(ownerId, id);
+  await unlinkOwnerBusiness(ownerId, id);
 
   try {
     await deleteEventListingSafelyApplicationUseCase(user, id);
   } catch (error) {
     if (!isNotFoundError(error)) {
       try {
-        await linkBusinessUseCase(ownerId, {
+        await linkOwnerBusiness(ownerId, {
           businessId: id,
           businessName: existing.name || existing.title || '',
           type: 'event',

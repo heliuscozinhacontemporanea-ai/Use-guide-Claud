@@ -15,10 +15,13 @@ export function ListingPublishPage({
   item,
   steps,
   onPublished,
+  editLaterText,
 }: {
   item: PartnerContentRecord;
   steps: ListingStep[];
   onPublished: () => void;
+  /** Onde editar depois (o parceiro edita no Catálogo; o admin, no Guia local). */
+  editLaterText?: string;
 }) {
   const { t } = useTranslation();
   const { showToast } = useUI();
@@ -96,7 +99,7 @@ export function ListingPublishPage({
             ? t('partnerGuide.publish.incomplete', {
                 steps: open.map((step) => labels.step(step.id)).join(', '),
               })
-            : t('partnerGuide.publish.editLater')}
+            : (editLaterText ?? t('partnerGuide.publish.editLater'))}
         </p>
       </div>
     </div>

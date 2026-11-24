@@ -17,6 +17,6 @@ export function createListingDraftUseCase(draft: PartnerJoinDraft): Promise<stri
     location: '',
     state: draft.state,
     city: draft.city.trim(),
-    phone: draft.phone,
+    ...(draft.phone ? { phone: draft.phone } : {}),
   });
 }

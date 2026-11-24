@@ -1,10 +1,13 @@
 import { Ticket } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '../../../../shared/utils/cn';
 import { type EventSectionProps, updateEventField } from './eventSectionProps';
 
 interface EventEntrySectionProps extends EventSectionProps {
   renderEventTicketingManager?: (eventListingId: string) => ReactNode;
+  /** Evento do Use Guide não vende pelo app (escolhas da F4): "Pago no local", sem lotes. */
+  sellsTickets?: boolean;
 }
 
 const OPTION_CLASS =
@@ -14,7 +17,9 @@ export function EventEntrySection({
   item,
   onChange,
   renderEventTicketingManager,
+  sellsTickets = true,
 }: EventEntrySectionProps) {
+  const { t } = useTranslation();
   const isPaid = item.entryType === 'pago';
 
   return (
@@ -24,11 +29,15 @@ export function EventEntrySection({
           <Ticket size={18} aria-hidden="true" />
         </span>
         <h3 className="text-sm font-black text-ink uppercase tracking-widest">
-          Entradas / Ingressos
+          {t('partnerCatalog.fields.entryTitle')}
         </h3>
       </div>
 
-      <div className="grid grid-cols-2 gap-4" role="radiogroup" aria-label="Tipo de entrada">
+      <div
+        className="grid grid-cols-2 gap-4"
+        role="radiogroup"
+        aria-label={t('partnerCatalog.fields.entryLabel')}
+      >
         <button
           type="button"
           role="radio"
@@ -41,7 +50,7 @@ export function EventEntrySection({
               : 'bg-surface border-line text-ink/70 hover:bg-ink/[0.06] hover:text-ink'
           )}
         >
-          Pago
+          {t(sellsTickets ? 'partnerCatalog.fields.paid' : 'partnerCatalog.fields.paidAtPlace')}
         </button>
         <button
           type="button"
@@ -55,11 +64,14 @@ export function EventEntrySection({
               : 'bg-surface border-line text-ink/70 hover:bg-ink/[0.06] hover:text-ink'
           )}
         >
-          Entrada gratuita
+          {t('partnerCatalog.fields.free')}
         </button>
       </div>
 
-      {item.id && renderEventTicketingManager && (
+      {!sellsTickets ? (
+        <p className="px-1 text-[13px] text-ink/70">{t('partnerCatalog.fields.noAppSales')}</p>
+      ) : null}
+      {sellsTickets && item.id && renderEventTicketingManager && (
         <div className="pt-4">{renderEventTicketingManager(item.id)}</div>
       )}
     </div>

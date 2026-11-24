@@ -1,5 +1,5 @@
 import { Check } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useUI } from '../../../../shared/stores/useUIStore';
 import { formatPhoneForDisplay } from '../../../../shared/utils/phone';
@@ -33,12 +33,21 @@ export function ListingEditorPage({
   publication,
   onOpenBlock,
   onDeleted,
+  header,
+  footer,
+  phoneTitle,
 }: {
   item: PartnerContentRecord;
   steps: ListingStep[];
   publication?: 'draft' | 'published';
   onOpenBlock: (block: EditorBlock, title: string) => void;
   onDeleted: () => void;
+  /** Acima dos blocos: o dono do anúncio, no editor do admin (escolhas da F4). */
+  header?: ReactNode;
+  /** Entre os blocos e o excluir: publicar e o que só o admin faz (escolhas da F4). */
+  footer?: ReactNode;
+  /** Nome do bloco do telefone (no anúncio do Use Guide, o telefone é do lugar). */
+  phoneTitle?: string;
 }) {
   const { t, i18n } = useTranslation();
   const { showToast } = useUI();
@@ -121,7 +130,7 @@ export function ListingEditorPage({
           },
         ]
       : []),
-    { id: 'phone', title: t('partnerGuide.editor.phone'), sub: phoneText },
+    { id: 'phone', title: phoneTitle ?? t('partnerGuide.editor.phone'), sub: phoneText },
   ];
   const headline =
     item.isActive === false
@@ -158,6 +167,7 @@ export function ListingEditorPage({
           {headline}
         </StatusText>
       </p>
+      {header}
       <ListCard>
         {blocks.map((block) => (
           <ListRowButton
@@ -172,6 +182,7 @@ export function ListingEditorPage({
       {sells && item.category !== 'producer' ? (
         <p className="px-1 text-[13px] text-ink/70">{t('partnerGuide.editor.sellsNote')}</p>
       ) : null}
+      {footer}
       {error ? (
         <p role="alert">
           <StatusText tone="danger">{error}</StatusText>

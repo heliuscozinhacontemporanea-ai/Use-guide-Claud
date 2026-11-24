@@ -1,15 +1,11 @@
-import type { EventSessionDraft, EventSessionsScope } from '../../types/eventSession';
+import type { EventSessionDraft } from '../../types/eventSession';
 import { planEventSessionChanges } from '../../utils/eventSessions';
-import { createAdminEventOccurrenceUseCase } from './createAdminEventOccurrenceUseCase';
 import { createPartnerEventOccurrenceUseCase } from './createPartnerEventOccurrenceUseCase';
-import { deleteAdminEventOccurrenceUseCase } from './deleteAdminEventOccurrenceUseCase';
 import { deletePartnerEventOccurrenceUseCase } from './deletePartnerEventOccurrenceUseCase';
-import { updateAdminEventOccurrenceUseCase } from './updateAdminEventOccurrenceUseCase';
 import { updatePartnerEventOccurrenceUseCase } from './updatePartnerEventOccurrenceUseCase';
 
 export interface SaveEventSessionsInput {
   eventListingId: string;
-  scope: EventSessionsScope;
   /** IDs das sessões que existiam quando o editor abriu. */
   savedIds: string[];
   sessions: EventSessionDraft[];
@@ -21,17 +17,13 @@ export interface SaveEventSessionsInput {
  */
 export async function saveEventSessionsUseCase({
   eventListingId,
-  scope,
   savedIds,
   sessions,
 }: SaveEventSessionsInput): Promise<void> {
   const { toCreate, toUpdate, toDeleteIds } = planEventSessionChanges(savedIds, sessions);
-  const create =
-    scope === 'admin' ? createAdminEventOccurrenceUseCase : createPartnerEventOccurrenceUseCase;
-  const update =
-    scope === 'admin' ? updateAdminEventOccurrenceUseCase : updatePartnerEventOccurrenceUseCase;
-  const remove =
-    scope === 'admin' ? deleteAdminEventOccurrenceUseCase : deletePartnerEventOccurrenceUseCase;
+  const create = createPartnerEventOccurrenceUseCase;
+  const update = updatePartnerEventOccurrenceUseCase;
+  const remove = deletePartnerEventOccurrenceUseCase;
 
   for (const session of toCreate) {
     await create(eventListingId, {

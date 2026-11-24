@@ -152,6 +152,14 @@ describe('Firestore Rules — Security Suite', () => {
 
       await db.doc('interactionGuards/guard-1').set({ expiresAt: new Date() });
 
+      await db.doc('adminAuditLog/entry-1').set({
+        actorUid: 'admin-user',
+        action: 'PUT /api/partners/items/:id',
+        targets: { id: 'item-1' },
+        status: 200,
+        at: '2026-11-23T12:00:00.000Z',
+      });
+
       await db.doc('favorites/fav-1').set({
         userId: 'user-1',
         itemId: 'item-1',
@@ -266,6 +274,15 @@ describe('Firestore Rules — Security Suite', () => {
         await assertFails(getDoc(doc(db, 'eventPromoters/p-1')));
         await assertFails(setDoc(doc(db, 'eventPromoters/p-2'), { status: 'active' }));
         await assertFails(getDoc(doc(db, 'notificationCampaigns/terms_partner_v1')));
+      }
+    });
+
+    it('adminAuditLog (A09, F4): registro de auditoria negado até para o admin', async () => {
+      const adminDb = testEnv.authenticatedContext('admin-user', { admin: true }).firestore();
+      const userDb = testEnv.authenticatedContext('partner-1').firestore();
+      for (const db of [adminDb, userDb]) {
+        await assertFails(getDoc(doc(db, 'adminAuditLog/entry-1')));
+        await assertFails(setDoc(doc(db, 'adminAuditLog/entry-2'), { actorUid: 'x' }));
       }
     });
 

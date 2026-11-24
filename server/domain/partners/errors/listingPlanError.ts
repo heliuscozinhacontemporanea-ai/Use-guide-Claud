@@ -6,7 +6,8 @@ export type ListingPlanErrorCode =
   | 'TRIAL_ALREADY_USED'
   | 'PLAN_ALREADY_ACTIVE'
   | 'PARTNER_SUSPENDED'
-  | 'LISTING_PLAN_REQUIRED';
+  | 'LISTING_PLAN_REQUIRED'
+  | 'USE_GUIDE_LISTING';
 
 const STATUS: Record<ListingPlanErrorCode, number> = {
   VALIDATION_ERROR: 400,
@@ -17,6 +18,7 @@ const STATUS: Record<ListingPlanErrorCode, number> = {
   PLAN_ALREADY_ACTIVE: 409,
   PARTNER_SUSPENDED: 403,
   LISTING_PLAN_REQUIRED: 403,
+  USE_GUIDE_LISTING: 422,
 };
 
 export class ListingPlanError extends Error {

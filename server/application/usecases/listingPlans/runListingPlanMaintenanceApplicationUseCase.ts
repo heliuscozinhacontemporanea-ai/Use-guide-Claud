@@ -5,6 +5,7 @@ import {
   listExpiringListingSealsUseCase,
 } from '../../../domain/partners';
 import { syncListingSealApplicationUseCase } from './syncListingSealApplicationUseCase';
+import { isUseGuideOwner } from '../../../shared/kernel/useGuideOwner';
 
 const ALERT_DAYS_BEFORE = 3;
 const BATCH_LIMIT = 200;
@@ -24,7 +25,8 @@ export async function runListingPlanMaintenanceApplicationUseCase(
 
   let notified = 0;
   for (const plan of await listExpiringListingSealsUseCase(ALERT_DAYS_BEFORE, BATCH_LIMIT)) {
-    if (!plan.planUntil || plan.sealSuspended) continue;
+    // O dono Use Guide não é conta: não recebe aviso (escolhas da F4).
+    if (!plan.planUntil || plan.sealSuspended || isUseGuideOwner(plan.ownerId)) continue;
     const until = new Date(plan.planUntil);
     const daysRemaining = Math.max(1, Math.ceil((until.getTime() - now.getTime()) / MS_PER_DAY));
     const item = await getItemByIdUseCase(plan.itemId);

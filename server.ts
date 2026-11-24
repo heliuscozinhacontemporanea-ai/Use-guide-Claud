@@ -7,9 +7,8 @@ import { renderSeoPageApplicationUseCase } from './server/application/usecases/r
 import { renderSitemapApplicationUseCase } from './server/application/usecases/renderSitemapApplicationUseCase';
 import adminRouter from './server/domain/admin/routes/adminRoutes';
 import climaWindRouter from './server/domain/climawind/routes/climaWindRoutes';
-import { adminEventsRouter, publicEventsRouter } from './server/domain/events/routes/eventRoutes';
+import { publicEventsRouter } from './server/domain/events/routes/eventRoutes';
 import favoriteRouter from './server/domain/favorites/routes/favoriteRoutes';
-import { itemRouter } from './server/domain/guide/routes/guideRoutes';
 import insightsRouter from './server/domain/insights/routes/insightsRoutes';
 import mediaRouter from './server/domain/media/routes/mediaRoutes';
 import notificationRouter from './server/domain/notifications/routes/notificationRoutes';
@@ -35,6 +34,8 @@ import {
   logContextFromTraceHeader,
   runWithLogContext,
 } from './server/infrastructure/logging/structuredLog';
+import { adminAuditTrail } from './server/interfaces/http/admin/adminAuditTrail';
+import adminListingRouter from './server/interfaces/http/admin/adminListingRoutes';
 import billingRouter from './server/interfaces/http/billing/billingRoutes';
 import {
   bookingsRouter,
@@ -249,6 +250,17 @@ async function startServer() {
   });
 
   // 5. Normal routes
+  // Mudanças feitas por admin vão para o registro de auditoria (A09, escolhas da F4).
+  app.use(
+    [
+      '/api/partners',
+      '/api/partner-home',
+      '/api/listing-plans',
+      '/api/listing-verifications',
+      '/api/admin',
+    ],
+    adminAuditTrail
+  );
   app.use('/api/bookings', bookingsRouter);
   app.use('/api/payment/plans', billingRouter);
   app.use('/api/payment-accounts', paymentAccountRouter);
@@ -275,9 +287,8 @@ async function startServer() {
   // Encerrar o perfil de parceiro passa pelas travas de venda (orquestra vários domínios, §3.4).
   app.use('/api/partners', partnerClosureRouter);
   app.use('/api/partners', partnerRouter);
-  app.use('/api/items', itemRouter);
   app.use('/api/events', publicEventsRouter);
-  app.use('/api/admin/events', adminEventsRouter);
+  app.use('/api/admin/listings', adminListingRouter);
   app.use('/api/admin/events', adminTicketingEventsRouter);
   app.use('/api/ticketing', ticketingRouter);
   app.use('/api/reviews', reviewRouter);

@@ -23,6 +23,11 @@ export function runWithLogContext<T>(context: LogContext, fn: () => T): T {
   return storage.run(context, fn);
 }
 
+/** Contexto da requisição em andamento (requestId), para quem grava fora do log. */
+export function currentLogContext(): LogContext | undefined {
+  return storage.getStore();
+}
+
 /** Contexto da requisição a partir do header do Google Front End; sem ele, um id local. */
 export function logContextFromTraceHeader(
   header: string | undefined,

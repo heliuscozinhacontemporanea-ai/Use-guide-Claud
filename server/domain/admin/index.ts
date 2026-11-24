@@ -6,3 +6,5 @@ export type {
   UpdateSubscriptionPlanInput,
 } from './types/subscriptionPlan';
 export { AdminDomainError } from './errors/adminDomainError';
+export { recordAdminActionUseCase } from './usecases/recordAdminActionUseCase';
+export type { AdminAuditEntry } from './types/adminAudit';

@@ -85,10 +85,18 @@ describe('GuideService', () => {
       ).rejects.toThrow(GuideDomainError);
     });
 
-    it('deve permitir admin criar tips, tour e sight', async () => {
+    it('deve permitir admin criar dicas e lugares de todas as categorias (F4)', async () => {
       vi.mocked(port.createItem).mockResolvedValue('item-admin');
 
-      for (const category of ['tips', 'tour', 'sight'] as const) {
+      for (const category of [
+        'tips',
+        'tour',
+        'sight',
+        'hotel',
+        'restaurant',
+        'transfer',
+        'rental',
+      ] as const) {
         const result = await service.createItem(adminUser, {
           name: `Conteúdo ${category}`,
           description: 'Editorial',
@@ -101,8 +109,8 @@ describe('GuideService', () => {
       }
     });
 
-    it('deve bloquear admin de criar hotel ou restaurant com FORBIDDEN', async () => {
-      for (const category of ['hotel', 'restaurant'] as const) {
+    it('deve bloquear admin de criar perfil de produtor com FORBIDDEN', async () => {
+      for (const category of ['producer'] as const) {
         await expect(
           service.createItem(adminUser, {
             name: `Estabelecimento ${category}`,

@@ -1,7 +1,7 @@
 import { subscribeToCollectionUseCase } from '../../database';
 import { GuideCatalogPort, GuideCatalogSnapshot } from '../ports/guideCatalogPort';
 import type { FeaturedListings } from '../types/featuredListing';
-import { GuideItem } from '../types/guide';
+import type { GuideDeclinedLink, GuideItem } from '../types/guide';
 
 export function mapGuideItem(record: Record<string, unknown>): GuideItem {
   const category =
@@ -38,6 +38,16 @@ export function mapGuideItem(record: Record<string, unknown>): GuideItem {
     timeZone: typeof record.timeZone === 'string' ? record.timeZone : undefined,
     state: typeof record.state === 'string' ? record.state : undefined,
     city: typeof record.city === 'string' ? record.city : undefined,
+    declinedLinks: Array.isArray(record.declinedLinks)
+      ? record.declinedLinks.filter(
+          (link): link is GuideDeclinedLink =>
+            link === 'instagram' || link === 'website' || link === 'menu'
+        )
+      : undefined,
+    publication:
+      record.publication === 'draft' || record.publication === 'published'
+        ? record.publication
+        : undefined,
     isVerified: typeof record.isVerified === 'boolean' ? record.isVerified : undefined,
     verifiedUntil:
       typeof record.verifiedUntil === 'string'

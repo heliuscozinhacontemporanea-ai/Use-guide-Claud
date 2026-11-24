@@ -1,5 +1,6 @@
 import { canChangeCancellationPolicy } from '../../../shared/kernel/cancellationPolicy';
 import type { PlaceTime } from '../../../shared/kernel/timeZones';
+import { USE_GUIDE_OWNER_ID } from '../../../shared/kernel/useGuideOwner';
 import {
   EventDomainError,
   EventNotFoundError,
@@ -54,11 +55,13 @@ export class EventsService {
     }
 
     const firstOcc = initialOccurrences[0];
+    // O evento que o admin cadastra é do Use Guide, nunca da conta pessoal (escolhas da F4).
+    const ownerId = actor.admin ? USE_GUIDE_OWNER_ID : actor.uid;
     const listing = await this.eventsPort.createListing({
       ...input,
-      ownerId: actor.uid,
-      partnerId: actor.admin ? input.partnerId : actor.uid,
-      organizerId: input.organizerId || actor.uid,
+      ownerId,
+      partnerId: ownerId,
+      organizerId: ownerId,
       date: firstOcc?.startsAt || input.date,
       endDate: firstOcc?.endsAt || input.endDate,
     });

@@ -56,7 +56,7 @@ export function AdminListingSealControl({ itemId, name }: AdminListingSealContro
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-white/70">
+      <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-ink/70">
         <BadgeCheck size={12} aria-hidden="true" />
         {loading
           ? t('listingPlan.dialog.loading')
@@ -72,10 +72,8 @@ export function AdminListingSealControl({ itemId, name }: AdminListingSealContro
           name,
         })}
         className={cn(
-          'press min-h-[44px] px-4 rounded-xl text-[10px] font-black uppercase tracking-widest disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-teal-400/50',
-          hasSeal
-            ? 'bg-seal-soft text-seal hover:bg-blue-500 hover:text-black'
-            : 'bg-blue-500 text-black hover:bg-blue-400'
+          'press min-h-[44px] px-4 rounded-xl text-[13px] font-semibold disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-teal-400/50',
+          hasSeal ? 'bg-ink/[0.07] text-ink' : 'bg-seal-soft text-seal'
         )}
       >
         {t(hasSeal ? 'listingPlan.admin.revoke' : 'listingPlan.admin.grant')}

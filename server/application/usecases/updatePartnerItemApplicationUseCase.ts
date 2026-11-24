@@ -2,9 +2,9 @@ import { syncOffersPlaceFromItemUseCase } from '../../domain/bookings';
 import { updateEstablishmentEventsPlaceUseCase } from '../../domain/events';
 import type { GuideUpdateItemInput } from '../../domain/guide';
 import { getItemByIdUseCase, updateGuideItemUseCase } from '../../domain/guide';
-import { updateBusinessUseCase } from '../../domain/partners';
 import { placeTimeOf } from '../../shared/kernel/timeZones';
 import type { AuthenticatedUserContext } from '../security/authenticatedUserContext';
+import { renameOwnerBusiness } from './ownerBusinessLink';
 
 function toItemRollbackInput(previous: { [key: string]: unknown }): GuideUpdateItemInput {
   const result: GuideUpdateItemInput = {};
@@ -97,7 +97,7 @@ export async function updatePartnerItemApplicationUseCase(
 
   if (data.name && data.name !== previous.name) {
     try {
-      await updateBusinessUseCase(ownerId, {
+      await renameOwnerBusiness(ownerId, {
         businessId: id,
         businessName: data.name,
         type: 'item',

@@ -46,5 +46,10 @@ export {
   type ListingStep,
   type ListingStepId,
   listingSetupSteps,
+  minimumPublishSteps,
 } from './utils/listingSetupSteps';
 export { sellsThroughApp } from './utils/sellsThroughApp';
+export {
+  type GuideListingSetup,
+  getGuideListingSetupUseCase,
+} from './usecases/getGuideListingSetupUseCase';

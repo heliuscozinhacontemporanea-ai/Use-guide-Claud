@@ -65,6 +65,7 @@ export function usePartnerContentCatalog({ userId, activeTab }: UsePartnerConten
           state: item.state,
           city: item.city,
           timeZone: item.timeZone,
+          declinedLinks: item.declinedLinks,
         }));
 
         const mappedEvents: PartnerContentRecord[] = events.map((event) => ({

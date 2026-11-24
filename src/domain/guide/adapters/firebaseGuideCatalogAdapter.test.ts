@@ -111,6 +111,19 @@ describe('mapGuideItem', () => {
     expect(item.operationalInfo?.amenities).toEqual(['wifi', 'ar-condicionado']);
     expect('cpfCnpj' in item).toBe(false);
   });
+
+  it('mantém o "Não tenho" e a publicação do anúncio (o editor regravava sem eles)', () => {
+    const item = mapGuideItem({
+      id: 'item-11',
+      name: 'Peixada',
+      category: 'restaurant',
+      declinedLinks: ['menu', 'website', 'outro'],
+      publication: 'draft',
+    });
+    expect(item.declinedLinks).toEqual(['menu', 'website']);
+    expect(item.publication).toBe('draft');
+    expect(mapGuideItem({ id: 'x', publication: 'arquivado' }).publication).toBeUndefined();
+  });
 });
 
 describe('FirebaseGuideCatalogAdapter realtime', () => {
