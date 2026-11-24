@@ -1,7 +1,14 @@
 import React from 'react';
 import { Heart } from 'lucide-react';
-import { motion, AnimatePresence, useMotionValue, useTransform, MotionValue } from 'motion/react';
-import { useAuthContext } from '../../auth/context/AuthContext';
+import {
+  AnimatePresence,
+  type MotionStyle,
+  type MotionValue,
+  motion,
+  useMotionValue,
+  useTransform,
+} from 'motion/react';
+import { useAuthContext } from '../../auth';
 import { useUI } from '../../../shared/stores/useUIStore';
 import { cn } from '../../../shared/utils/cn';
 import { useFavorites } from '../hooks/useFavorites';
@@ -63,11 +70,7 @@ export function FavoriteButton({
         id={`fav-btn-${itemId}`}
         onClick={handleFavorite}
         aria-label={isFavorited ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
-        style={
-          {
-            '--button-base-opacity': baseOpacity,
-          } as any
-        }
+        style={{ '--button-base-opacity': baseOpacity } as MotionStyle}
         className={cn(
           'w-11 h-11 rounded-full flex items-center justify-center transition-all active:scale-95 group/fav',
           isFavorited

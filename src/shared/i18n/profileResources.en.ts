@@ -19,6 +19,7 @@ export const profileEn: ProfileTranslation = {
   account: 'My account',
   partnerProgram: 'Become a partner',
   partnerCard: { title: 'Have a business?', text: 'List it on Use Guide' },
+  defaultName: { first: 'New', last: 'User' },
   logout: 'Sign out',
 };
 

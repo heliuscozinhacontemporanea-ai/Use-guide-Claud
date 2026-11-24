@@ -6,7 +6,7 @@ import { usePartnerJoinStore } from '../stores/partnerJoinStore';
 const auth = vi.hoisted(() => ({
   value: { user: null as unknown, profile: null as unknown, loading: false },
 }));
-vi.mock('../../domain/auth', () => ({ useAuthContext: () => auth.value }));
+vi.mock('../../domain/user', () => ({ useAccount: () => auth.value }));
 
 import { usePartnerInvite } from './usePartnerInvite';
 

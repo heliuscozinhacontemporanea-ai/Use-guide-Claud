@@ -19,6 +19,7 @@ export const profileFr: ProfileTranslation = {
   account: 'Mon compte',
   partnerProgram: 'Devenir partenaire',
   partnerCard: { title: 'Vous avez un établissement ?', text: 'Annoncez-le sur Use Guide' },
+  defaultName: { first: 'Nouvel', last: 'Utilisateur' },
   logout: 'Se déconnecter',
 };
 

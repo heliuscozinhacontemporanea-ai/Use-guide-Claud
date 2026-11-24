@@ -122,7 +122,7 @@ export class FirebaseAuthAdapter implements AuthPort {
       return {
         uid: user.uid,
         email: user.email,
-        displayName: user.displayName || 'Novo Usuário',
+        displayName: user.displayName,
         photoURL: user.photoURL,
         emailVerified: user.emailVerified,
         role,

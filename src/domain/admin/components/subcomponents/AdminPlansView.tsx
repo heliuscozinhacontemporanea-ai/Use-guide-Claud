@@ -6,14 +6,9 @@ import { useUI } from '../../../../shared/stores/useUIStore';
 import { maskCurrency, unmaskCurrency } from '../../../../shared/utils/currencyMask';
 import { ErrorState } from '../../../../ui/components/ErrorState';
 import { GlassCard } from '../../../../ui/components/GlassCard';
-import {
-  getAllSubscriptionPlansUseCase,
-  updateSubscriptionPlanUseCase,
-} from '../../index';
-import {
-  type AdminPlanFormValues,
-  adminPlanFormSchema,
-} from '../../schemas/adminPlanFormSchema';
+import { getAllSubscriptionPlansUseCase } from '../../application/usecases/getAllSubscriptionPlansUseCase';
+import { updateSubscriptionPlanUseCase } from '../../application/usecases/updateSubscriptionPlanUseCase';
+import { type AdminPlanFormValues, adminPlanFormSchema } from '../../schemas/adminPlanFormSchema';
 import type { SubscriptionPlan } from '../../types/admin';
 
 const PLAN_ORDER: SubscriptionPlan['id'][] = ['trial', 'monthly', 'semi-annual', 'annual'];
@@ -72,9 +67,7 @@ function AdminPlanCard({ plan }: { plan: SubscriptionPlan }) {
               aria-label="Nome do plano"
               className="w-full bg-transparent border-b border-transparent focus:border-white/20 text-sm font-bold text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400/50 rounded px-1 py-0.5"
             />
-            {errors.name && (
-              <p className="text-[11px] text-rose-400 mt-1">{errors.name.message}</p>
-            )}
+            {errors.name && <p className="text-[11px] text-rose-400 mt-1">{errors.name.message}</p>}
           </div>
           <label className="flex items-center gap-2 text-xs text-white/60 min-h-[44px]">
             <input
@@ -135,11 +128,7 @@ function AdminPlanCard({ plan }: { plan: SubscriptionPlan }) {
           aria-label={`Salvar alterações do ${watchedName || plan.name}`}
           className="w-full min-h-[44px] flex items-center justify-center gap-2 py-2.5 bg-teal-500 text-black rounded-xl text-xs font-bold uppercase tracking-wide disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-teal-400/50"
         >
-          {isSubmitting ? (
-            <Loader2 className="animate-spin" size={14} />
-          ) : (
-            <Save size={14} />
-          )}
+          {isSubmitting ? <Loader2 className="animate-spin" size={14} /> : <Save size={14} />}
           Salvar
         </button>
       </form>
@@ -153,20 +142,19 @@ export function AdminPlansView() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [retryKey, setRetryKey] = useState(0);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: `retryKey` é o gatilho do "tentar de novo".
   useEffect(() => {
     async function loadPlans() {
       setIsLoading(true);
       setLoadError(null);
       try {
         const allPlans = await getAllSubscriptionPlansUseCase();
-        const loadedPlans = PLAN_ORDER.map((id) =>
-          allPlans.find((p) => p.id === id)
-        ).filter((p): p is SubscriptionPlan => p !== undefined);
+        const loadedPlans = PLAN_ORDER.map((id) => allPlans.find((p) => p.id === id)).filter(
+          (p): p is SubscriptionPlan => p !== undefined
+        );
 
         if (loadedPlans.length < PLAN_ORDER.length) {
-          const missingIds = PLAN_ORDER.filter(
-            (id) => !loadedPlans.some((p) => p.id === id)
-          );
+          const missingIds = PLAN_ORDER.filter((id) => !loadedPlans.some((p) => p.id === id));
           console.warn(
             '[AdminPlansView] Planos ausentes na coleção subscriptionPlans:',
             missingIds

@@ -12,11 +12,12 @@ const authContextState = vi.hoisted(() => ({
   profile: null as unknown,
 }));
 
-vi.mock('../../domain/auth/context/AuthContext', () => ({
-  useAuthContext: () => authContextState,
-}));
-
-vi.mock('../../domain/auth', () => ({
+vi.mock('../../domain/auth', async () => ({
+  UserRole: (
+    await vi.importActual<typeof import('../../domain/auth/types/auth')>(
+      '../../domain/auth/types/auth'
+    )
+  ).UserRole,
   hasPasswordSignInUseCase: vi.fn().mockReturnValue(true),
   logoutUseCase: vi.fn().mockResolvedValue(undefined),
 }));
@@ -68,6 +69,7 @@ vi.mock('../../domain/content', () => ({
 }));
 
 vi.mock('../../domain/user', () => ({
+  useAccount: () => authContextState,
   useUserProfile: () => ({
     userData: { firstName: 'Maria', lastName: 'Silva', phone: '11999999999' },
     setUserData: vi.fn(),

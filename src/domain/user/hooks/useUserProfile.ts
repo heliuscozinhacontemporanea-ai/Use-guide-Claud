@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useAuthContext } from '../../auth/context/AuthContext';
+import { useAuthContext } from '../../auth';
 import { deleteCurrentUserUseCase } from '../application/usecases/deleteCurrentUserUseCase';
 import { getCurrentUserUseCase } from '../application/usecases/getCurrentUserUseCase';
 import { updateCurrentUserUseCase } from '../application/usecases/updateCurrentUserUseCase';

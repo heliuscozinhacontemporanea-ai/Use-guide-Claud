@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { EmailVerificationWait, useAuthContext } from '../../domain/auth';
+import { EmailVerificationWait } from '../../domain/auth';
 import { ClaimListingPage, ClaimSentPage } from '../../domain/partners';
+import { useAccount } from '../../domain/user';
 import { StackSheet } from '../../ui/layouts/stack/StackSheet';
 import type { StackEntry } from '../../ui/layouts/stack/stackTypes';
 import { useClaimStore } from '../stores/claimStore';
@@ -10,11 +11,11 @@ type ClaimPage = 'verify' | 'form' | 'sent';
 
 /**
  * Folha "Assumir anúncio" (D35, telas 6 e 7): confirma o e-mail se faltar (como no Seja parceiro),
- * o pedido com os documentos e "Pedido enviado". Junta auth e partners: fica no app.
+ * o pedido com os documentos e "Pedido enviado". Junta auth, user e partners: fica no app.
  */
 export function ClaimListingSheet({ onOpenPanel }: { onOpenPanel: () => void }) {
   const { t } = useTranslation();
-  const { user, profile, refreshProfile } = useAuthContext();
+  const { user, profile, refreshProfile } = useAccount();
   const target = useClaimStore((state) => state.target);
   const close = useClaimStore((state) => state.close);
   const [page, setPage] = useState<ClaimPage>('form');

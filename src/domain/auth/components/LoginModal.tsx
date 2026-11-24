@@ -2,10 +2,13 @@ import { Store } from 'lucide-react';
 import { type ReactNode, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { LoginModalTab, LoginNote } from '../../../shared/stores/useUIStore';
+import type { AccountEntryActions } from '../types/auth';
 import { Dialog } from '../../../ui/components/Dialog';
 import { AuthForms, type AuthView } from './AuthForms';
 
 interface LoginModalProps {
+  /** Entrar e criar conta com o perfil junto, vindo da composição do app (B77). */
+  actions: AccountEntryActions;
   isOpen: boolean;
   onClose: () => void;
   initialTab?: LoginModalTab;
@@ -20,6 +23,7 @@ interface LoginModalProps {
  * voltar do sistema, e o app atrás vira cartão. Os Termos abrem na mesma folha, sem perder o cadastro.
  */
 export function LoginModal({
+  actions,
   isOpen,
   onClose,
   initialTab = 'login',
@@ -57,6 +61,7 @@ export function LoginModal({
       <div hidden={showTerms}>
         <AuthForms
           key={opening}
+          actions={actions}
           initialView={initialTab}
           onSuccess={onClose}
           onViewChange={setView}

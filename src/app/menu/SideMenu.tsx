@@ -1,11 +1,9 @@
 import { Settings } from 'lucide-react';
 import React, { Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
-import { hasPasswordSignInUseCase } from '../../domain/auth';
-import { useAuthContext } from '../../domain/auth/context/AuthContext';
-import { UserRole } from '../../domain/auth/types/auth';
+import { hasPasswordSignInUseCase, UserRole } from '../../domain/auth';
 import { useMyGates, useMyPromotions } from '../../domain/ticketing';
-import { MainMenuView, useUserPhoto, useUserProfile } from '../../domain/user';
+import { MainMenuView, useAccount, useUserPhoto, useUserProfile } from '../../domain/user';
 import { useLocalizedRouting } from '../../shared/hooks/useLocalizedRouting';
 import { cn } from '../../shared/utils/cn';
 import { ToastContainer } from '../../ui/components/Toast';
@@ -94,7 +92,7 @@ const TITLE_KEYS: Record<MenuView, string> = {
 /** Compõe as telas de vários domínios (perfil, ingressos, reservas, compras, favoritos, avaliações, conteúdo) no menu. */
 export function SideMenu({ onPartnersOpen, onPartnerInvite, onAdminOpen }: SideMenuProps) {
   const { t } = useTranslation();
-  const { user } = useAuthContext();
+  const { user } = useAccount();
   // A linha Divulgação só aparece para quem divulga ou tem convite (D27).
   const promotions = useMyPromotions(Boolean(user && !user.isAnonymous));
   const hasPromotions = promotions.data.length > 0;
