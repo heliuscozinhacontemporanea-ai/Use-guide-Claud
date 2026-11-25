@@ -71,6 +71,7 @@ import {
 } from './server/interfaces/http/saleClaims/saleClaimRoutes';
 import { InternalTicketingController } from './server/interfaces/http/ticketing/internalTicketingController';
 import { ticketTransferRouter } from './server/interfaces/http/ticketTransfers/ticketTransferRoutes';
+import clientErrorRouter from './server/interfaces/http/clientErrors/clientErrorRoutes';
 import { apiNotFound } from './server/interfaces/http/middlewares/apiNotFound';
 import accountDeletionRouter from './server/interfaces/http/users/accountDeletionRoutes';
 import ticketOrderPaymentRouter from './server/interfaces/http/ticketing/ticketOrderPaymentRoutes';
@@ -117,8 +118,8 @@ async function startServer() {
               // Google Analytics 4 (index.html).
               'https://www.googletagmanager.com',
             ],
-            styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
-            fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
+            styleSrc: ["'self'", "'unsafe-inline'"],
+            fontSrc: ["'self'", 'data:'],
             imgSrc: [
               "'self'",
               'data:',
@@ -313,6 +314,7 @@ async function startServer() {
   app.use('/api/admin', adminRouter);
   app.use('/api/favorites', favoriteRouter);
   app.use('/api/media', mediaRouter);
+  app.use('/api/client-errors', clientErrorRouter);
   app.use('/api', apiNotFound);
 
   // Erros não tratados (inclusive do body-parser) nunca devolvem a mensagem interna (AGENTS.md §10.2).

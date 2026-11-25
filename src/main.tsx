@@ -5,10 +5,14 @@ import { i18nReady } from './shared/i18n/config';
 import { registerSW } from 'virtual:pwa-register';
 import App from './app/App.tsx';
 import { resolveHomeRedirect } from './shared/i18n';
+import { installClientErrorReporting } from './shared/infrastructure/errorReporting/clientErrorReporter';
 import { markAppStarted } from './ui/lazy/loadChunk';
 import './index.css';
 
 registerSW({ immediate: true });
+
+// Erros do navegador vão para o Error Reporting, sem dado pessoal (decisão de 2026-11-24).
+const reportClientError = installClientErrorReporting();
 
 // Antes do primeiro render: a home já abre no idioma da pessoa, sem piscar em português nem criar
 // entrada no histórico (decisão D10).
@@ -23,7 +27,10 @@ if (homeRedirect) {
 
 // Quem usa inglês ou francês espera o idioma chegar antes da primeira pintura (AGENTS.md §12.2).
 function render() {
-  createRoot(document.getElementById('root')!).render(
+  createRoot(document.getElementById('root')!, {
+    // Tela que o ErrorBoundary segurou não chega ao `error` da janela; vai por aqui.
+    onCaughtError: (error, info) => reportClientError('react', error, info.componentStack),
+  }).render(
     <StrictMode>
       <BrowserRouter>
         <App />

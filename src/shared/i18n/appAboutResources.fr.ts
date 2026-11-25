@@ -13,6 +13,8 @@ export const appAboutFr: AppAboutTranslation = {
     'Use Guide s’appuie sur des projets open source et le travail d’autres auteurs. Merci à celles et ceux qui les ont créés.',
   credits: 'Crédits',
   hamsterWork: 'Animation du hamster de la page introuvable',
+  interFontWork: 'Police Inter (textes de l’app)',
+  outfitFontWork: 'Police Outfit (titres)',
   creditBy: 'par {{author}} · {{source}}',
   libraries: 'Bibliothèques open source',
   project: 'Page du projet',

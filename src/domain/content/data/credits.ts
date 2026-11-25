@@ -1,3 +1,5 @@
+import interLicense from '../../../assets/fonts/Inter-OFL.txt?raw';
+import outfitLicense from '../../../assets/fonts/Outfit-OFL.txt?raw';
 import type { ThirdPartyCredit } from '../types/content';
 
 /** Autoria de trabalhos de terceiros usados no app, como pede a licença de cada um. */
@@ -30,5 +32,24 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.`,
+  },
+  // Fontes servidas pelo app (src/assets/fonts): a OFL pede a licença junto de cada cópia distribuída.
+  {
+    id: 'inter',
+    workKey: 'appAbout.interFontWork',
+    author: 'The Inter Project Authors',
+    source: 'GitHub',
+    url: 'https://github.com/rsms/inter',
+    license: 'OFL-1.1',
+    text: interLicense.trim(),
+  },
+  {
+    id: 'outfit',
+    workKey: 'appAbout.outfitFontWork',
+    author: 'The Outfit Project Authors',
+    source: 'GitHub',
+    url: 'https://github.com/Outfitio/Outfit-Fonts',
+    license: 'OFL-1.1',
+    text: outfitLicense.trim(),
   },
 ];
