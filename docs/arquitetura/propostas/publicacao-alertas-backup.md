@@ -106,5 +106,5 @@ gcloud iam service-accounts add-iam-policy-binding 377157973786-compute@develope
 2. GitHub → Settings → Secrets and variables → Actions → Variables: `DEPLOY_FIREBASE_BACKEND` = `true`.
 3. Actions → deploy → Run workflow (publica índices, rules e Functions pendentes).
 4. Cloud Shell, na pasta do repositório: `ALERT_EMAIL=<seu e-mail> bash scripts/ops/setup-monitoring.sh` (opcional: `BILLING_ACCOUNT=… BUDGET_BRL=…`).
-5. Console → Error Reporting → Configure notifications → canal "Use Guide - alertas".
+5. Console → Error Reporting → Configure notifications → canal "Use Guide - alertas". ✅ Feito (confirmado em 2026-11-25).
 
