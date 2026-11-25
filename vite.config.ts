@@ -69,38 +69,10 @@ export default defineConfig(() => {
         workbox: {
           // Push (D25): trata `push` e o toque na notificação (public/push-sw.js).
           importScripts: ['/push-sw.js'],
-          globPatterns: ['**/*.{js,css,html,ico,png,svg,webp}'],
+          globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff2}'],
           maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
           navigateFallbackDenylist: [/^\/__/, /^\/api/],
           runtimeCaching: [
-            {
-              urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-              handler: 'CacheFirst',
-              options: {
-                cacheName: 'google-fonts-cache',
-                expiration: {
-                  maxEntries: 10,
-                  maxAgeSeconds: 60 * 60 * 24 * 365,
-                },
-                cacheableResponse: {
-                  statuses: [0, 200],
-                },
-              },
-            },
-            {
-              urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
-              handler: 'CacheFirst',
-              options: {
-                cacheName: 'gstatic-fonts-cache',
-                expiration: {
-                  maxEntries: 10,
-                  maxAgeSeconds: 60 * 60 * 24 * 365,
-                },
-                cacheableResponse: {
-                  statuses: [0, 200],
-                },
-              },
-            },
             {
               urlPattern: /^https:\/\/unpkg\.com\/leaflet@.*/i,
               handler: 'CacheFirst',

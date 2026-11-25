@@ -118,8 +118,8 @@ async function startServer() {
               // Google Analytics 4 (index.html).
               'https://www.googletagmanager.com',
             ],
-            styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
-            fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
+            styleSrc: ["'self'", "'unsafe-inline'"],
+            fontSrc: ["'self'", 'data:'],
             imgSrc: [
               "'self'",
               'data:',

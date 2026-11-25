@@ -91,7 +91,7 @@ Cada uma tem texto (`text-x`), fundo suave (`bg-x-soft`) e borda (`border-x-line
 * **Inter** para texto e interface; **Outfit** para títulos de destaque (display). Proibida uma terceira fonte.
 * Campos de formulário com 16 px no celular (evita o zoom do iOS) ✅.
 
-**P2 — Menos pesos de fonte.** Hoje são carregados 11 arquivos (Inter 300–800 e Outfit 300–800), por um `@import` dentro do CSS, o que atrasa o texto na primeira abertura. Proposta: Inter 400, 500, 600 e 700; Outfit 600 e 700 (6 arquivos). O link das fontes sai do CSS e vai para o `<head>` com `preconnect`, e `font-display: swap` continua.
+**P2 — Fontes servidas pelo app.** Inter (400 a 700) e Outfit (600 e 700) em arquivos `woff2` do próprio app, só com os caracteres latinos, pré-carregadas no `<head>` e guardadas pelo service worker; nada vem do Google Fonts. `font-display: swap` continua, com fonte reserva de medidas ajustadas à Outfit, para o título não mudar de largura se a fonte atrasar.
 
 ### 3.2. Escala de tamanhos
 

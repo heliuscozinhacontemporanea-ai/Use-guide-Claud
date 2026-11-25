@@ -16,6 +16,9 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Use Guide" />
     <meta name="theme-color" content="#0d0e10" />
+    <!-- As fontes começam a baixar junto com o HTML, e não só quando o primeiro texto aparece (DESIGN.md P2). -->
+    <link rel="preload" href="/src/assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/src/assets/fonts/outfit-latin.woff2" as="font" type="font/woff2" crossorigin />
     <script>
       // Aplica o tema antes da primeira pintura (sem piscar escuro no tema claro). Mesma regra do ThemeContext.
       (function () {

@@ -10,6 +10,8 @@ export interface AppAboutTranslation {
   licensesIntro: string;
   credits: string;
   hamsterWork: string;
+  interFontWork: string;
+  outfitFontWork: string;
   creditBy: string;
   libraries: string;
   project: string;
@@ -30,6 +32,8 @@ export const appAboutPtBR: AppAboutTranslation = {
     'O Use Guide usa projetos de código aberto e trabalhos de outros autores. Agradecemos a quem os criou.',
   credits: 'Créditos',
   hamsterWork: 'Animação do hamster na página não encontrada',
+  interFontWork: 'Fonte Inter (textos do app)',
+  outfitFontWork: 'Fonte Outfit (títulos)',
   creditBy: 'por {{author}} · {{source}}',
   libraries: 'Bibliotecas de código aberto',
   project: 'Página do projeto',

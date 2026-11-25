@@ -13,6 +13,8 @@ export const appAboutEn: AppAboutTranslation = {
     'Use Guide relies on open source projects and work by other authors. Thank you to everyone who made them.',
   credits: 'Credits',
   hamsterWork: 'Hamster animation on the page not found',
+  interFontWork: 'Inter typeface (app text)',
+  outfitFontWork: 'Outfit typeface (headings)',
   creditBy: 'by {{author}} · {{source}}',
   libraries: 'Open source libraries',
   project: 'Project page',
