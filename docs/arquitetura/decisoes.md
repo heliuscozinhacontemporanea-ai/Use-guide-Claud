@@ -688,7 +688,7 @@ Proposta 2 da fila (pontos 3 e 6 da comparação com Airbnb, Booking, Sympla, Ge
 
 ## D36 — Erros do navegador no Error Reporting (2026-11-24)
 
-Pedida pelo responsável a partir da avaliação de manutenção (padrão ouro), entre as opções A (rota própria e o Error Reporting que já existe) e B (Sentry). **Escolha: A**, sem fornecedor novo nem custo. Implementação no PR #35.
+Pedida pelo responsável a partir da avaliação de manutenção (padrão ouro), entre as opções A (rota própria e o Error Reporting que já existe) e B (Sentry). **Escolha: A**, sem fornecedor novo nem custo. Implementação no PR #35, publicada em 2026-11-25 (deploy 39), junto com as fontes servidas pelo app (DESIGN.md P2).
 
 1. **O que vai:** erros de JavaScript (`error` da janela), promessas rejeitadas sem tratamento e telas que o `ErrorBoundary` segurou (`onCaughtError` do React 19). Ficam de fora erro de script de outra origem (extensão, anúncio), avisos do navegador (`ResizeObserver loop`, `Script error.`) e falhas que o servidor já registra.
 2. **Sem dado pessoal (§7.5):** o app e o servidor tiram e-mail, sequências de 6 ou mais dígitos (CPF, CNPJ, telefone, cartão), tokens e parâmetros e âncora de URL; a tela vai só pelo caminho. Classe Interna (§7.6). Fica no Cloud Logging pelo prazo padrão (30 dias).
