@@ -42,6 +42,7 @@ Cada proposta é apresentada antes de qualquer código; a implementação só co
 | 5 | **Caução do aluguel** por pré-autorização de cartão no dia da retirada (D3): cartão salvo no Stripe, só cartão, cobrança por dano e contestação | Fora desta fase (resposta 2, 2026-11-17); proposta própria |
 | 6 | **Explorar e categorias como vitrine que vende**, com espaços de publicidade paga pelos parceiros (`propostas/explorar-vitrine.md`, prints em `propostas/explorar-vitrine/`) | Apresentada em 2026-11-25; aguardando as 8 decisões da seção 9 da proposta |
 | 7 | **v2: Use Guide na hora certa, a viagem inteira** (conceito próprio, Explorar por momento da viagem, Minha viagem, depois da viagem), com pesquisa acadêmica (`propostas/explorar-v2-hora-certa.md`, prints em `propostas/explorar-v2-hora-certa/`); parte da v1, que continua como está | Apresentada em 2026-11-25; aguardando as 9 decisões da seção 11 |
+| 8 | **v3 unificada**: vitrine padrão (v1) + personalização opcional (v2) + Perfil como casa de tudo + atalhos do agora na Explorar (`propostas/explorar-v3-unificada.md`, prints em `propostas/explorar-v3-unificada/`); junta os itens 6 e 7, que não mudam | Apresentada em 2026-11-25; é a proposta a decidir (13 decisões da seção 11) |
 
 ### Proposta 2 · Termos no cadastro comum e "Sou o dono"
 
