@@ -40,6 +40,7 @@ Cada proposta é apresentada antes de qualquer código; a implementação só co
 | 3 | **Aluguel e translado à venda** (ponto 2 da F3): regras do anúncio e da oferta, períodos do aluguel, caução, termo de aluguel, CNH, translado privativo e compartilhado, trecho | Decisões completas em 2026-11-17 (`decisoes.md`, Escolhas da F3); implementada como F3b no PR #29 (2026-11-21) |
 | 4 | **Texto do termo de aluguel** (padrão da plataforma, com versão, aceito na reserva): uso, danos, CNH, idade, devolução, nos três idiomas | Pedido em 2026-11-17 para depois; o texto passa pela aprovação do responsável. Até ele existir, a reserva de aluguel pede só os termos de compra (resposta 1a, 2026-11-21) |
 | 5 | **Caução do aluguel** por pré-autorização de cartão no dia da retirada (D3): cartão salvo no Stripe, só cartão, cobrança por dano e contestação | Fora desta fase (resposta 2, 2026-11-17); proposta própria |
+| 6 | **Explorar e categorias como vitrine que vende**, com espaços de publicidade paga pelos parceiros (`propostas/explorar-vitrine.md`, prints em `propostas/explorar-vitrine/`) | Apresentada em 2026-11-25; aguardando as 8 decisões da seção 9 da proposta |
 
 ### Proposta 2 · Termos no cadastro comum e "Sou o dono"
 
