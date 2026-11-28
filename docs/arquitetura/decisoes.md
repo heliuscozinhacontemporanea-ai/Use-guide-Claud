@@ -698,7 +698,7 @@ Pedida pelo responsável a partir da avaliação de manutenção (padrão ouro),
 
 ## D37 — Explorar v3: navegação, topo e destinos (fase A, decisões 1 e 2) (2026-11-28)
 
-Proposta: `propostas/explorar-v3-unificada.md` (junta a v1 `explorar-vitrine.md` e a v2 `explorar-v2-hora-certa.md`, que não mudam). Pranchas aprovadas em `propostas/explorar-v3-unificada/decisoes-fase-a/` (`d12-a`, `d12-b`, `d12-c`), com os ajustes abaixo. As decisões 3 a 6 da fase A (preço no cartão, rótulo das vagas pagas, DESIGN.md e lugar na fila) seguem em aberto.
+Proposta: `propostas/explorar-v3-unificada.md` (junta a v1 `explorar-vitrine.md` e a v2 `explorar-v2-hora-certa.md`, que não mudam). Pranchas aprovadas em `propostas/explorar-v3-unificada/decisoes-fase-a/` (`d12-a`, `d12-b`, `d12-c` e `decisao-3-preco`), com os ajustes abaixo. As decisões 4 a 6 da fase A (rótulo das vagas pagas, DESIGN.md e lugar na fila) seguem em aberto.
 
 1. **Topo principal como hoje:** Perfil (avatar), atalho do painel (só parceiro e admin), busca e avisos. O Perfil continua abrindo a folha da D33.
 2. **Ajuste dos ícones do topo:** Perfil e atalho do painel **sem fundo**, na mesma cor e no mesmo tamanho dos ícones de busca e avisos (24 px, cor do texto), com área de toque de 44 px.
@@ -727,3 +727,8 @@ Proposta: `propostas/explorar-v3-unificada.md` (junta a v1 `explorar-vitrine.md`
    - **O que elas fazem:** costumam pôr os tipos de produto no topo do início e as funções da pessoa na barra.
    - **O que fazemos:** o contrário, de propósito: as funções da pessoa ficam no topo, que se mantém, e os tipos de produto na barra.
    - **Diferencial:** ligar experiências e serviços da mesma viagem.
+10. **Preço no cartão já na fase A, com a taxa inclusa** (decisão 3, 2026-11-28).
+    - **O que o cartão mostra:** "a partir de R$ X" e a unidade da oferta (por pessoa, por dia, por veículo).
+    - **Ingresso:** o valor já inclui a taxa de serviço paga pelo comprador (D14), com a linha "taxa de serviço inclusa". Se o dono absorver a taxa, o valor é o do ingresso e a linha não aparece. No pagamento, a taxa continua destacada, como na D14.
+    - **Dados novos na projeção pública** (§15.1): o servidor grava no anúncio e no evento publicados o menor preço em centavos (com a taxa, no ingresso), a duração e o "cancelamento grátis até X h", conforme a política da oferta. Os campos são recalculados quando a oferta, o tipo de ingresso ou o lote muda.
+    - **Regra do "a partir de"** (proposta, pode ser revista): menor preço **inteira ou adulto** à venda; meia-entrada, preço de criança e opção esgotada não entram. Sem opção à venda, o cartão fica sem preço.
