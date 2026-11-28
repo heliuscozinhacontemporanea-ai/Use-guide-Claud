@@ -160,6 +160,21 @@ Nas duas opções, a navegação é fixa: nenhuma aba aparece ou some conforme o
 
 ## 11. Decisões pedidas
 
+**Para começar a fase A** (pranchas em `explorar-v3-unificada/decisoes-fase-a/`, uma por decisão, apresentadas em 2026-11-28):
+
+| # | Decisão | Prancha |
+|---|---|---|
+| 1 | Telas: vitrine padrão, cartão e Perfil | `decisao-1-telas.jpg` |
+| 2 | Barra: A sem Mapa (Explorar · Perfil; recomendada), A completa (com Mapa, exige localização nos anúncios) ou B (como hoje) | `decisao-2-barra.jpg` |
+| 3 | Preço no cartão já na fase A, e ingresso com a taxa de serviço inclusa | `decisao-3-preco.jpg` |
+| 4 | Rótulo das vagas pagas do carrossel: "Destaque" (D11) ou "Patrocinado" | `decisao-4-rotulo.jpg` |
+| 5 | Três mudanças no DESIGN.md | `decisao-5-design.jpg` |
+| 6 | Lugar na fila de trabalho | `decisao-6-fila.jpg` |
+
+Achado de 2026-11-28: os anúncios não têm latitude e longitude (só o link do mapa). A aba Mapa e o "perto de você" dependem de acrescentar a localização ao anúncio (o parceiro marca no mapa, o admin preenche os do Use Guide), que é mudança de dados (§15.1).
+
+**Lista completa:**
+
 **Telas e navegação**
 1. Aprovar o fluxo e as telas da v3 (pranchas 1 a 4).
 2. Barra inferior: **A** (Explorar · Mapa · Perfil, com o Perfil virando aba; muda a D33) ou **B** (como hoje).
