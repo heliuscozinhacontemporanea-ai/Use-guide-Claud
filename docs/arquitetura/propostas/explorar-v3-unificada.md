@@ -171,6 +171,25 @@ Nas duas opções, a navegação é fixa: nenhuma aba aparece ou some conforme o
 | 5 | Três mudanças no DESIGN.md | `decisao-5-design.jpg` |
 | 6 | Lugar na fila de trabalho | `decisao-6-fila.jpg` |
 
+**Respostas de 2026-11-28 (decisões 1 e 2, revisadas juntas):**
+
+* **Decisão 1, aprovada com ressalvas:**
+  - **Topo como hoje:** avatar do Perfil, atalho do painel (parceiro e admin), busca e avisos.
+  - **Sem "Jericoacoara ▾":** no lugar entram cartões de **Destinos**, com foto e nome. Tocar num destino, ou buscar por ele, abre a página do destino e começa a personalização por cima, com a saída "Só estou olhando".
+  - **Destinos com curadoria primeiro:** o rótulo "Em alta" só entra com dados reais de visitas e compras.
+  - **Experiências e Serviços separados:**
+    - Experiências: passeios, eventos e atrações;
+    - Serviços: hospedagem, restaurantes, translados e aluguéis.
+* **Decisão 2, resolvida:** **Serviços vai na barra, junto com Experiências.**
+  - A barra passa a ser **Explorar · Experiências · Serviços**.
+  - O Perfil continua no avatar (D33, sem mudança).
+  - Dentro de cada aba, as categorias são pílulas de filtro, começando em "Todas".
+* **Pesquisa de referência** (Booking "Connected Trip", Airbnb 2026, Klook, Trip.com, Traveloka, Gartner sobre superapps, Material Design):
+  - as plataformas completas costumam pôr as verticais no topo do início e as funções da pessoa na barra;
+  - aqui é o contrário, de propósito: as funções da pessoa ficam no topo, que se mantém, e as verticais na barra;
+  - o diferencial está em ligar experiências e serviços da mesma viagem, como na "Sua viagem completa" da página do destino.
+* **Prints:** `decisoes-fase-a/d12-a-explorar-e-destino.jpg`, `d12-b-pagina-do-destino.jpg`, `d12-c-experiencias-servicos.jpg`. Aguardando a aprovação final da decisão 1 com eles.
+
 Achado de 2026-11-28: os anúncios não têm latitude e longitude (só o link do mapa). A aba Mapa e o "perto de você" dependem de acrescentar a localização ao anúncio (o parceiro marca no mapa, o admin preenche os do Use Guide), que é mudança de dados (§15.1).
 
 **Lista completa:**
