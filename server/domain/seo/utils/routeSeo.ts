@@ -47,6 +47,40 @@ export const ROUTE_SEO_TEXTS: Record<RouteKey, Record<Locale, RouteText>> = {
         'Découvrez les meilleures expériences, pousadas, restaurants, excursions et le vent en temps réel à Jericoacoara, Preá et Barrinha.',
     },
   },
+  experiences: {
+    'pt-BR': {
+      title: 'Experiências em Jericoacoara, Preá e Barrinha | Use Guide',
+      description:
+        'Passeios, eventos e atrações em Jericoacoara, Preá e Barrinha, com preços, avaliações verificadas e reserva pelo app.',
+    },
+    en: {
+      title: 'Experiences in Jericoacoara, Preá & Barrinha | Use Guide',
+      description:
+        'Tours, events and attractions in Jericoacoara, Preá and Barrinha, with prices, verified reviews and booking in the app.',
+    },
+    fr: {
+      title: 'Expériences à Jericoacoara, Preá et Barrinha | Use Guide',
+      description:
+        'Excursions, événements et attractions à Jericoacoara, Preá et Barrinha, avec les prix, des avis vérifiés et la réservation dans l’app.',
+    },
+  },
+  services: {
+    'pt-BR': {
+      title: 'Serviços em Jericoacoara, Preá e Barrinha | Use Guide',
+      description:
+        'Hospedagem, restaurantes, translados e aluguéis em Jericoacoara, Preá e Barrinha, com avaliações verificadas.',
+    },
+    en: {
+      title: 'Services in Jericoacoara, Preá & Barrinha | Use Guide',
+      description:
+        'Stays, restaurants, transfers and rentals in Jericoacoara, Preá and Barrinha, with verified reviews.',
+    },
+    fr: {
+      title: 'Services à Jericoacoara, Preá et Barrinha | Use Guide',
+      description:
+        'Hébergements, restaurants, transferts et locations à Jericoacoara, Preá et Barrinha, avec des avis vérifiés.',
+    },
+  },
   events: {
     'pt-BR': {
       title: 'Eventos & Experiências | Use Guide',

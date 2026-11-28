@@ -23,16 +23,16 @@ describe('i18n config', () => {
   });
   it('possui recursos nos três idiomas; en e fr chegam sob demanda', async () => {
     await i18n.loadLanguages(['en', 'fr']);
-    expect(i18n.t('header.pageTitles.events', { lng: 'pt-BR' })).toBe('Eventos & Experiências');
-    expect(i18n.t('header.pageTitles.events', { lng: 'en' })).toBe('Events & Experiences');
-    expect(i18n.t('header.pageTitles.events', { lng: 'fr' })).toBe('Événements & Expériences');
+    expect(i18n.t('navigation.experiences', { lng: 'pt-BR' })).toBe('Experiências');
+    expect(i18n.t('navigation.experiences', { lng: 'en' })).toBe('Experiences');
+    expect(i18n.t('navigation.experiences', { lng: 'fr' })).toBe('Expériences');
   });
   it('dois pedidos ao mesmo tempo esperam o idioma chegar (sem trocar o idioma da tela)', async () => {
     i18n.removeResourceBundle('fr', 'translation');
     const first = ensureLocaleLoaded('fr');
     // O segundo pedido, feito com o primeiro ainda a caminho, também só resolve com o idioma pronto.
     await ensureLocaleLoaded('fr');
-    expect(i18n.getFixedT('fr')('header.pageTitles.events')).toBe('Événements & Expériences');
+    expect(i18n.getFixedT('fr')('navigation.experiences')).toBe('Expériences');
     expect(i18n.language).toBe(DEFAULT_LOCALE);
     await first;
   });

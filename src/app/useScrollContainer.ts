@@ -3,7 +3,12 @@ import { type RefObject, useEffect, useRef, useState } from 'react';
 interface ScrollContainerState {
   scrollContainerRef: RefObject<HTMLDivElement | null>;
   isScrolled: boolean;
+  /** O título grande da tela já passou por baixo do topo (D37). */
+  isPastTitle: boolean;
 }
+
+// Altura do título grande (`ScreenTitle`): passou dela, o nome aparece no meio da barra.
+const TITLE_SCROLL_PX = 40;
 
 /**
  * Guarda e restaura a altura da rolagem por rota e avisa o cabeçalho quando a página rolou.
@@ -14,6 +19,7 @@ export function useScrollContainer(pathname: string): ScrollContainerState {
   const scrollPositions = useRef<Record<string, number>>({});
   const lastPathname = useRef(pathname);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isPastTitle, setIsPastTitle] = useState(false);
 
   useEffect(() => {
     const container = scrollContainerRef.current;
@@ -52,6 +58,7 @@ export function useScrollContainer(pathname: string): ScrollContainerState {
 
     const handleScroll = () => {
       setIsScrolled(container.scrollTop > 10);
+      setIsPastTitle(container.scrollTop > TITLE_SCROLL_PX);
     };
 
     container.addEventListener('scroll', handleScroll, { passive: true });
@@ -62,5 +69,5 @@ export function useScrollContainer(pathname: string): ScrollContainerState {
     };
   }, []);
 
-  return { scrollContainerRef, isScrolled };
+  return { scrollContainerRef, isScrolled, isPastTitle };
 }

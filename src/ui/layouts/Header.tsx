@@ -1,18 +1,21 @@
+import { Handshake, Search, User as UserIcon } from 'lucide-react';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import type { ReactNode } from 'react';
-import { useLocation } from 'react-router-dom';
-import { useLocalizedRouting } from '../../shared/hooks/useLocalizedRouting';
-import { Search, Handshake, User as UserIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { cn } from '../../shared/utils/cn';
+import { screenTitleKey } from '../../shared/constants/navigation';
 import { Z_INDEX } from '../../shared/constants/zIndex';
-import { getUserInitials } from '../../shared/utils/formatters';
+import { useLocalizedRouting } from '../../shared/hooks/useLocalizedRouting';
+import { cn } from '../../shared/utils/cn';
+import { FADE, SPRING } from '../motion/tokens';
 
 interface HeaderProps {
   onSearchClick: () => void;
   isMenuOpen: boolean;
   onMenuToggle: () => void;
+  /** A página rolou: o topo vira barra fixa com vidro (§5.1). */
   isScrolled?: boolean;
-  isSearchSticky?: boolean;
+  /** O título grande saiu de vista: o nome da tela aparece no meio da barra (D37). */
+  showTitle?: boolean;
   onAdminOpen?: () => void;
   isAdmin?: boolean;
   isPartner?: boolean;
@@ -22,118 +25,102 @@ interface HeaderProps {
   notificationSlot?: ReactNode;
 }
 
+const ICON_BUTTON =
+  'press relative w-11 h-11 rounded-control flex items-center justify-center text-ink focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none';
+
+/**
+ * Topo principal (DESIGN.md §8, D37): Perfil e atalho do painel à esquerda, busca e avisos à direita,
+ * todos ícones de 24 px sem fundo. O título grande fica na página; ao rolar, o topo vira barra com
+ * vidro e o nome da tela aparece no meio.
+ */
 export function Header({
   onSearchClick,
   isMenuOpen,
   onMenuToggle,
   isScrolled = false,
+  showTitle = false,
   onAdminOpen,
   isAdmin = false,
   isPartner = false,
   account = null,
   notificationSlot,
 }: HeaderProps) {
-  const { pathname } = useLocation();
   const { t } = useTranslation();
-  const userInitials = account ? getUserInitials(account.displayName, account.email) : '';
   const { routeKey } = useLocalizedRouting();
-  const isMainPage = routeKey === 'explore';
-
-  const isAdminPage = pathname.startsWith('/admin');
-
-  const getPageTitle = () => {
-    switch (routeKey) {
-      case 'events':
-        return t('header.pageTitles.events');
-      case 'tours':
-        return t('header.pageTitles.tours');
-      case 'transfers':
-        return t('header.pageTitles.transfers');
-      case 'rentals':
-        return t('header.pageTitles.rentals');
-      case 'stays':
-        return t('header.pageTitles.accommodations');
-      case 'restaurants':
-        return t('header.pageTitles.restaurants');
-      case 'attractions':
-        return t('header.pageTitles.attractions');
-      case 'guide':
-        return t('header.pageTitles.practicalGuide');
-      default:
-        return '';
-    }
-  };
-
-  const title = getPageTitle();
-
-  const showGlass = isScrolled && !isMainPage;
+  const reduceMotion = useReducedMotion();
+  const titleKey = screenTitleKey(routeKey);
+  const showPanel = Boolean(account) && (isAdmin || isPartner);
 
   return (
     <header
       style={{ zIndex: Z_INDEX.header }}
-      className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-2xl px-6 py-5 flex flex-col justify-center bg-transparent border-b border-transparent"
+      className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-2xl px-2 pt-[env(safe-area-inset-top)]"
     >
       <div
+        aria-hidden="true"
         className={cn(
-          'absolute top-0 left-0 right-0 bottom-0 z-[-1] pointer-events-none',
-          showGlass
-            ? 'glassmorphism-vibrant border-b border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.6)] opacity-100 transition-all duration-200 ease-out'
-            : 'opacity-0 border-b border-transparent shadow-none transition-none'
+          'absolute inset-0 -z-10 pointer-events-none transition-opacity duration-200 ease-out',
+          isScrolled ? 'glassmorphism-vibrant border-b border-line opacity-100' : 'opacity-0'
         )}
       />
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      <div className="relative h-16 flex items-center justify-between">
+        <div className="flex items-center">
           <button
+            type="button"
             onClick={onMenuToggle}
             aria-label={isMenuOpen ? t('header.closeMenu') : t('header.openMenu')}
             aria-expanded={isMenuOpen}
-            className="relative w-[34px] h-[34px] rounded-xl bg-white/10 border border-white/20 backdrop-blur-2xl p-0.5 flex items-center justify-center active:scale-90 transition-all hover:bg-white/20 text-white/80 shadow-md overflow-hidden group before:absolute before:inset-[-5px] before:content-[''] focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none"
+            className={ICON_BUTTON}
           >
             {account?.photoURL ? (
-              <img
-                src={account.photoURL}
-                alt={t('header.profileAlt')}
-                className="w-full h-full rounded-[10px] object-cover"
-              />
-            ) : userInitials ? (
-              <div className="w-full h-full rounded-[10px] bg-teal-500/15 border border-teal-400/20 flex items-center justify-center font-display font-black text-[10px] text-teal-300 tracking-wider select-none uppercase">
-                {userInitials}
-              </div>
+              <img src={account.photoURL} alt="" className="w-7 h-7 rounded-full object-cover" />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-teal-400/70 group-hover:text-teal-400 transition-colors">
-                <UserIcon size={16} />
-              </div>
+              <UserIcon size={24} aria-hidden="true" />
             )}
           </button>
-          {isMainPage && account && (isAdmin || isPartner) && (
+          {showPanel && (
             <button
+              type="button"
               onClick={onAdminOpen}
-              title={isAdmin ? t('header.managementPanel') : t('header.myPanel')}
               aria-label={isAdmin ? t('header.openManagementPanel') : t('header.openMyPanel')}
-              className="relative w-[34px] h-[34px] rounded-xl bg-white/10 border border-white/20 backdrop-blur-2xl flex items-center justify-center active:scale-90 transition-all hover:bg-white/20 text-indigo-400 shadow-md animate-fade-in before:absolute before:inset-[-5px] before:content-[''] focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none"
+              className={ICON_BUTTON}
             >
-              <Handshake size={16} />
+              <Handshake size={24} aria-hidden="true" />
             </button>
-          )}
-          {!isMainPage && (
-            <div className="space-y-0.5">
-              <h1 className="text-3xl font-display font-bold tracking-tight text-white/90">
-                {title}
-              </h1>
-            </div>
           )}
         </div>
-        <div className="flex items-center gap-3">
+
+        {/* O nome repete o título grande da página, que já é o h1: o leitor de tela lê só aquele. */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-x-28 inset-y-0 flex items-center justify-center pointer-events-none"
+        >
+          <AnimatePresence>
+            {showTitle && titleKey && (
+              <motion.span
+                key={titleKey}
+                initial={{ opacity: 0, y: reduceMotion ? 0 : 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: reduceMotion ? 0 : 6 }}
+                transition={reduceMotion ? FADE : SPRING}
+                className="text-title font-semibold text-ink truncate"
+              >
+                {t(titleKey)}
+              </motion.span>
+            )}
+          </AnimatePresence>
+        </div>
+
+        <div className="flex items-center">
+          <button
+            type="button"
+            onClick={onSearchClick}
+            aria-label={t('header.openSearch')}
+            className={ICON_BUTTON}
+          >
+            <Search size={24} aria-hidden="true" />
+          </button>
           {notificationSlot}
-          {!isMainPage && !isAdminPage && (
-            <button
-              onClick={onSearchClick}
-              aria-label={t('header.openSearch')}
-              className="relative w-[34px] h-[34px] rounded-xl bg-white/10 border border-white/20 backdrop-blur-2xl flex items-center justify-center active:scale-90 transition-all hover:bg-white/20 text-white/80 shadow-md before:absolute before:inset-[-5px] before:content-[''] focus-visible:ring-2 focus-visible:ring-teal-400/50 focus-visible:outline-none"
-            >
-              <Search size={20} className="text-white/80" />
-            </button>
-          )}
         </div>
       </div>
     </header>

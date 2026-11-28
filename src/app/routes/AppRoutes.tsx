@@ -3,6 +3,8 @@ import { Route, Routes, type Location } from 'react-router-dom';
 import type { GuideItem } from '../../domain/guide';
 import { ExploreView } from '../../domain/guide/components/ExploreView';
 import { GridView } from '../../domain/guide/components/GridView';
+import { TabListView } from '../../domain/guide/components/TabListView';
+import { tabOfRoute } from '../../shared/constants/navigation';
 import { ACCOUNT_ACTION_PATH } from '../../shared/constants/accountActionPath';
 import { LOCALIZED_ROUTES, type RouteKey, SUPPORTED_LOCALES } from '../../shared/i18n';
 import { NotFoundView } from '../../ui/components/NotFoundView';
@@ -14,46 +16,33 @@ import {
   CheckoutResultComposition,
 } from '../lazy/screens';
 
-type GridCategory =
-  | 'event'
-  | 'tour'
-  | 'transfer'
-  | 'rental'
-  | 'hotel'
-  | 'restaurant'
-  | 'sight'
-  | 'tips';
-
-const GRID_CATEGORY: Record<Exclude<RouteKey, 'explore'>, GridCategory> = {
-  events: 'event',
-  tours: 'tour',
-  transfers: 'transfer',
-  rentals: 'rental',
-  stays: 'hotel',
-  restaurants: 'restaurant',
-  attractions: 'sight',
-  guide: 'tips',
-};
-
 interface AppRoutesProps {
   location: Location;
   onSelectItem: (item: GuideItem) => void;
-  onStickyChange: (sticky: boolean) => void;
+  onOpenSearch: () => void;
 }
 
 /** Uma <Route> por chave e idioma, geradas do mapa único de URLs (decisão D6). */
-export function AppRoutes({ location, onSelectItem, onStickyChange }: AppRoutesProps) {
+export function AppRoutes({ location, onSelectItem, onOpenSearch }: AppRoutesProps) {
   const renderRoute = (routeKey: RouteKey): ReactNode => {
     if (routeKey === 'explore') {
       return (
         <PageLayout>
-          <ExploreView onSelectItem={onSelectItem} onStickyChange={onStickyChange} />
+          <ExploreView onSelectItem={onSelectItem} onOpenSearch={onOpenSearch} />
+        </PageLayout>
+      );
+    }
+    const tab = tabOfRoute(routeKey);
+    if (tab === 'experiences' || tab === 'services') {
+      return (
+        <PageLayout>
+          <TabListView tab={tab} routeKey={routeKey} onSelectItem={onSelectItem} />
         </PageLayout>
       );
     }
     return (
       <PageLayout>
-        <GridView category={GRID_CATEGORY[routeKey]} onSelectItem={onSelectItem} />
+        <GridView category="tips" onSelectItem={onSelectItem} />
       </PageLayout>
     );
   };

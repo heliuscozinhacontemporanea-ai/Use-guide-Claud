@@ -62,6 +62,7 @@ import { type UsernameTranslation, usernamePtBR } from './usernameResources';
 import { type ClaimTranslation, claimPtBR } from './claimResources';
 import { type VerificationTranslation, verificationPtBR } from './verificationResources';
 import { type WindTranslation, windPtBR } from './windResources';
+import { type ExploreTranslation, explorePtBR } from './exploreResources';
 
 export interface TranslationResource {
   bookings: BookingsTranslation;
@@ -103,6 +104,7 @@ export interface TranslationResource {
   listingDetail: ListingDetailTranslation;
   auth: AuthTranslation;
   wind: WindTranslation;
+  explore: ExploreTranslation;
   reviewsUi: ReviewsUiTranslation;
   partnerSignup: PartnerSignupTranslation;
   partnerAgora: PartnerAgoraTranslation;
@@ -141,22 +143,9 @@ export interface TranslationResource {
   header: {
     openMenu: string;
     closeMenu: string;
-    profileAlt: string;
     openSearch: string;
-    managementPanel: string;
-    myPanel: string;
     openManagementPanel: string;
     openMyPanel: string;
-    pageTitles: {
-      events: string;
-      tours: string;
-      transfers: string;
-      rentals: string;
-      accommodations: string;
-      restaurants: string;
-      attractions: string;
-      practicalGuide: string;
-    };
   };
   menu: {
     closeMenu: string;
@@ -174,7 +163,12 @@ export interface TranslationResource {
     authErrors: { popupBlocked: string; unauthorizedDomain: string; generic: string };
   };
   navigation: {
+    label: string;
     explore: string;
+    experiences: string;
+    services: string;
+    allExperiences: string;
+    allServices: string;
     events: string;
     tours: string;
     transfers: string;
@@ -274,6 +268,8 @@ export interface TranslationResource {
   seo: {
     routes: {
       explore: { title: string; description: string };
+      experiences: { title: string; description: string };
+      services: { title: string; description: string };
       events: { title: string; description: string };
       tours: { title: string; description: string };
       transfers: { title: string; description: string };
@@ -371,6 +367,7 @@ const ptBR: TranslationResource = {
   listingDetail: listingDetailPtBR,
   auth: authPtBR,
   wind: windPtBR,
+  explore: explorePtBR,
   reviewsUi: reviewsUiPtBR,
   partnerSignup: partnerSignupPtBR,
   partnerAgora: partnerAgoraPtBR,
@@ -407,22 +404,9 @@ const ptBR: TranslationResource = {
   header: {
     openMenu: 'Abrir menu',
     closeMenu: 'Fechar menu',
-    profileAlt: 'Perfil',
     openSearch: 'Abrir busca',
-    managementPanel: 'Painel de Gestão',
-    myPanel: 'Meu Painel',
     openManagementPanel: 'Abrir painel de gestão',
     openMyPanel: 'Abrir meu painel',
-    pageTitles: {
-      events: 'Eventos & Experiências',
-      tours: 'Aventura & Passeios',
-      transfers: 'Translados',
-      rentals: 'Aluguéis',
-      accommodations: 'Melhores Hospedagens',
-      restaurants: 'Sabores Locais',
-      attractions: 'Atrações',
-      practicalGuide: 'Guia Prático',
-    },
   },
   menu: {
     closeMenu: 'Fechar menu',
@@ -444,12 +428,17 @@ const ptBR: TranslationResource = {
     },
   },
   navigation: {
+    label: 'Navegação principal',
     explore: 'Explorar',
+    experiences: 'Experiências',
+    services: 'Serviços',
+    allExperiences: 'Todas',
+    allServices: 'Todos',
     events: 'Eventos',
     tours: 'Passeios',
     transfers: 'Translados',
     rentals: 'Aluguéis',
-    accommodations: 'Hospedagens',
+    accommodations: 'Hospedagem',
     restaurants: 'Restaurantes',
     attractions: 'Atrações',
     tips: 'Dicas',
@@ -560,6 +549,16 @@ const ptBR: TranslationResource = {
         title: 'Use Guide | Guia de Jericoacoara, Preá e Barrinha',
         description:
           'Descubra as melhores experiências, pousadas, restaurantes, passeios e condições de vento em tempo real em Jericoacoara, Preá e Barrinha.',
+      },
+      experiences: {
+        title: 'Experiências em Jericoacoara, Preá e Barrinha | Use Guide',
+        description:
+          'Passeios, eventos e atrações em Jericoacoara, Preá e Barrinha, com preços, avaliações verificadas e reserva pelo app.',
+      },
+      services: {
+        title: 'Serviços em Jericoacoara, Preá e Barrinha | Use Guide',
+        description:
+          'Hospedagem, restaurantes, translados e aluguéis em Jericoacoara, Preá e Barrinha, com avaliações verificadas.',
       },
       events: {
         title: 'Eventos & Experiências | Use Guide',

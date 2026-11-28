@@ -11,6 +11,13 @@ vi.mock('../../domain/guide/components/ExploreView', () => ({
 vi.mock('../../domain/guide/components/GridView', () => ({
   GridView: ({ category }: { category: string }) => <div>grid-{category}</div>,
 }));
+vi.mock('../../domain/guide/components/TabListView', () => ({
+  TabListView: ({ tab, routeKey }: { tab: string; routeKey: string }) => (
+    <div>
+      tab-{tab}-{routeKey}
+    </div>
+  ),
+}));
 vi.mock('../../domain/ticketing', () => ({
   CheckoutResultView: ({ orderId }: { orderId: string }) => <div>checkout-{orderId}</div>,
 }));
@@ -24,7 +31,7 @@ vi.mock('../../domain/auth/components/ResetPassword', () => ({
 function Harness() {
   const location = useLocation();
   useSyncLocaleWithUrl();
-  return <AppRoutes location={location} onSelectItem={vi.fn()} onStickyChange={vi.fn()} />;
+  return <AppRoutes location={location} onSelectItem={vi.fn()} onOpenSearch={vi.fn()} />;
 }
 
 function renderAt(path: string) {
@@ -50,15 +57,25 @@ describe('AppRoutes', () => {
     await i18n.changeLanguage('pt-BR');
   });
 
-  it('rota em inglês renderiza a listagem e troca o idioma para en', async () => {
+  it('rota em inglês abre a pílula da aba e troca o idioma para en', async () => {
     renderAt('/en/tours');
-    expect(await screen.findByText('grid-tour')).toBeTruthy();
+    expect(await screen.findByText('tab-experiences-tours')).toBeTruthy();
     await waitFor(() => expect(i18n.language).toBe('en'));
   });
 
-  it('slug traduzido em francês leva à mesma listagem', async () => {
+  it('slug traduzido em francês leva à mesma pílula', async () => {
     renderAt('/fr/hebergements');
-    expect(await screen.findByText('grid-hotel')).toBeTruthy();
+    expect(await screen.findByText('tab-services-stays')).toBeTruthy();
+  });
+
+  it('abas Experiências e Serviços têm URL própria (D37)', async () => {
+    renderAt('/experiencias');
+    expect(await screen.findByText('tab-experiences-experiences')).toBeTruthy();
+  });
+
+  it('dicas continuam na grade, dentro da Explorar', async () => {
+    renderAt('/info');
+    expect(await screen.findByText('grid-tips')).toBeTruthy();
   });
 
   it('/favoritos não é página: favoritos ficam no menu lateral', async () => {

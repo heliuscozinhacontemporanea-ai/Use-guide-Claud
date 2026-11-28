@@ -2,6 +2,8 @@ import { DEFAULT_LOCALE, type Locale, SUPPORTED_LOCALES } from './locale';
 
 export const ROUTE_KEYS = [
   'explore',
+  'experiences',
+  'services',
   'events',
   'tours',
   'transfers',
@@ -19,6 +21,8 @@ export type RouteKey = (typeof ROUTE_KEYS)[number];
  */
 export const LOCALIZED_ROUTES: Record<RouteKey, Record<Locale, string>> = {
   explore: { 'pt-BR': '/', en: '/en', fr: '/fr' },
+  experiences: { 'pt-BR': '/experiencias', en: '/en/experiences', fr: '/fr/experiences' },
+  services: { 'pt-BR': '/servicos', en: '/en/services', fr: '/fr/services' },
   events: { 'pt-BR': '/eventos', en: '/en/events', fr: '/fr/evenements' },
   tours: { 'pt-BR': '/passeios', en: '/en/tours', fr: '/fr/excursions' },
   transfers: { 'pt-BR': '/translados', en: '/en/transfers', fr: '/fr/transferts' },

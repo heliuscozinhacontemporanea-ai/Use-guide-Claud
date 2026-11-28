@@ -1,19 +1,12 @@
 // Contratos e tipos públicos do domínio de Busca
-export type {
-  CategoryFilter,
-  FilterBarProps,
-  SearchOverlayProps,
-  SearchFilterState,
-} from './types/search';
+export type { SearchOverlayProps } from './types/search';
 
 // Constantes públicas do domínio de Busca
-export { REGIONS, CATEGORY_FILTERS, PLACEHOLDER_PHRASES } from './constants/filterOptions';
+export { REGIONS } from './constants/filterOptions';
 
 // Hooks públicos do domínio de Busca
 export { useSearch, filterItemsList } from './hooks/useSearch';
-export { useFilters } from './hooks/useFilters';
 export { useDynamicSuggestions } from './hooks/useDynamicSuggestions';
 
 // Componentes públicos do domínio de Busca
-export { FilterBar } from './components/FilterBar';
 export { SearchOverlay } from './components/SearchOverlay';

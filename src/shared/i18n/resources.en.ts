@@ -49,6 +49,7 @@ import { usernameEn } from './usernameResources.en';
 import { claimEn } from './claimResources.en';
 import { verificationEn } from './verificationResources.en';
 import { windEn } from './windResources.en';
+import { exploreEn } from './exploreResources.en';
 
 export const en: TranslationResource = {
   bookings: bookingsEn,
@@ -90,6 +91,7 @@ export const en: TranslationResource = {
   listingDetail: listingDetailEn,
   auth: authEn,
   wind: windEn,
+  explore: exploreEn,
   reviewsUi: reviewsUiEn,
   partnerSignup: partnerSignupEn,
   partnerAgora: partnerAgoraEn,
@@ -125,22 +127,9 @@ export const en: TranslationResource = {
   header: {
     openMenu: 'Open menu',
     closeMenu: 'Close menu',
-    profileAlt: 'Profile',
     openSearch: 'Open search',
-    managementPanel: 'Management Panel',
-    myPanel: 'My Panel',
     openManagementPanel: 'Open management panel',
     openMyPanel: 'Open my panel',
-    pageTitles: {
-      events: 'Events & Experiences',
-      tours: 'Adventure & Tours',
-      transfers: 'Transfers',
-      rentals: 'Rentals',
-      accommodations: 'Best Accommodations',
-      restaurants: 'Local Flavors',
-      attractions: 'Attractions',
-      practicalGuide: 'Practical Guide',
-    },
   },
   menu: {
     closeMenu: 'Close menu',
@@ -162,12 +151,17 @@ export const en: TranslationResource = {
     },
   },
   navigation: {
+    label: 'Main navigation',
     explore: 'Explore',
+    experiences: 'Experiences',
+    services: 'Services',
+    allExperiences: 'All',
+    allServices: 'All',
     events: 'Events',
     tours: 'Tours',
     transfers: 'Transfers',
     rentals: 'Rentals',
-    accommodations: 'Accommodations',
+    accommodations: 'Stays',
     restaurants: 'Restaurants',
     attractions: 'Attractions',
     tips: 'Tips',
@@ -274,6 +268,16 @@ export const en: TranslationResource = {
         title: 'Use Guide | Jericoacoara, Preá & Barrinha Travel Guide',
         description:
           'Discover the best experiences, inns, restaurants, tours and real-time wind conditions in Jericoacoara, Preá and Barrinha.',
+      },
+      experiences: {
+        title: 'Experiences in Jericoacoara, Preá & Barrinha | Use Guide',
+        description:
+          'Tours, events and attractions in Jericoacoara, Preá and Barrinha, with prices, verified reviews and booking in the app.',
+      },
+      services: {
+        title: 'Services in Jericoacoara, Preá & Barrinha | Use Guide',
+        description:
+          'Stays, restaurants, transfers and rentals in Jericoacoara, Preá and Barrinha, with verified reviews.',
       },
       events: {
         title: 'Events & Experiences | Use Guide',

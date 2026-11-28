@@ -1,5 +1,5 @@
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { Suspense, useCallback, useEffect, useState } from 'react';
+import { Suspense, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { UserRole } from '../domain/auth';
@@ -14,6 +14,8 @@ import { cn } from '../shared/utils/cn';
 import { BottomNav } from '../ui/components/BottomNav';
 import { ScreenFallback } from '../ui/lazy/DelayedFallback';
 import { Header } from '../ui/layouts/Header';
+import { ScreenTitle } from '../ui/layouts/ScreenTitle';
+import { screenTitleKey, tabOfRoute } from '../shared/constants/navigation';
 import { prefetchWhenIdle } from './lazy/prefetchWhenIdle';
 import {
   AdminPanelComposition,
@@ -53,7 +55,10 @@ export function AppRouter() {
 
   const location = useLocation();
   const { routeKey } = useLocalizedRouting();
-  const isExplorePage = routeKey === 'explore';
+  const titleKey = screenTitleKey(routeKey);
+  // Trocar de pílula dentro de Experiências ou Serviços não troca de página (só a lista muda).
+  const tab = tabOfRoute(routeKey);
+  const pageKey = tab === 'experiences' || tab === 'services' ? tab : location.pathname;
   useSyncLocaleWithUrl();
   const [searchParams, setSearchParams] = useSearchParams();
   const { t } = useTranslation();
@@ -201,8 +206,8 @@ export function AppRouter() {
   useScrollLock(!!selectedItem);
   useScrollLock(isLoginModalOpen && !isMenuOpen);
 
-  const { scrollContainerRef, isScrolled } = useScrollContainer(location.pathname);
-  const tabSearchFor = useTabMemory(location);
+  const { scrollContainerRef, isScrolled, isPastTitle } = useScrollContainer(location.pathname);
+  const rememberedPlace = useTabMemory(location);
   const reduceMotion = useReducedMotion();
   // Tocar na aba ativa (P23): com anúncio aberto, volta à raiz da aba; senão, sobe ao topo.
   const reselectTab = () => {
@@ -220,13 +225,6 @@ export function AppRouter() {
     }
     scrollContainerRef.current?.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
   };
-  const [isSearchSticky, setIsSearchSticky] = useState(false);
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: a busca fixa volta ao normal a cada troca de rota.
-  useEffect(() => {
-    setIsSearchSticky(false);
-  }, [location.pathname]);
-
   const isAccountActionPage = location.pathname === ACCOUNT_ACTION_PATH;
   const isAdminOpen = searchParams.get('admin') === '1';
   const isHideGlobalUI =
@@ -254,7 +252,7 @@ export function AppRouter() {
                 isMenuOpen={isMenuOpen}
                 onMenuToggle={() => (isMenuOpen ? closeMenu() : openMenu())}
                 isScrolled={isScrolled}
-                isSearchSticky={isExplorePage ? isSearchSticky : false}
+                showTitle={isPastTitle}
                 onAdminOpen={handleAdminOpen}
                 isAdmin={isAdmin}
                 isPartner={isPartner}
@@ -291,23 +289,26 @@ export function AppRouter() {
           ) : (
             <AnimatePresence mode="wait">
               <motion.div
-                key={location.pathname}
+                key={pageKey}
                 inert={behindListing || undefined}
                 className={cn(
                   'min-h-full max-w-2xl mx-auto w-full',
-                  isExplorePage ? 'pt-[70px]' : isAccountActionPage ? 'pt-0' : 'pt-28'
+                  isAccountActionPage ? 'pt-0' : 'pt-[calc(env(safe-area-inset-top)+4rem)]'
                 )}
               >
+                {titleKey && <ScreenTitle>{t(titleKey)}</ScreenTitle>}
                 <AppRoutes
                   location={location}
                   onSelectItem={setSelectedItem}
-                  onStickyChange={setIsSearchSticky}
+                  onOpenSearch={() => setIsSearchOpen(true)}
                 />
               </motion.div>
             </AnimatePresence>
           )}
 
-          {!isHideGlobalUI && <BottomNav searchFor={tabSearchFor} onReselect={reselectTab} />}
+          {!isHideGlobalUI && (
+            <BottomNav rememberedPlace={rememberedPlace} onReselect={reselectTab} />
+          )}
 
           <SideMenu
             onPartnersOpen={openPartnerJoin}
