@@ -695,3 +695,35 @@ Pedida pelo responsável a partir da avaliação de manutenção (padrão ouro),
 3. **Limites:** o mesmo erro vai uma vez por página, até 10 por página; a rota `POST /api/client-errors` aceita 30 por IP a cada 10 minutos (armazenamento compartilhado), exige App Check como toda rota `/api` e recusa campo extra.
 4. **No Error Reporting:** serviço `use-guide-web`, separado do servidor (`use-guide`), com a revisão do Cloud Run como versão. O aviso por e-mail é o mesmo canal "Use Guide - alertas" (passo manual do Error Reporting, em `propostas/publicacao-alertas-backup.md`), já ligado: o responsável confirmou em 2026-11-25 que os avisos chegam por e-mail. A configuração vale para o projeto inteiro, então cobre também o `use-guide-web`.
 5. **Limites conhecidos:** a pilha sai do código minificado (agrupa bem, mas sem nomes de função legíveis); navegador sem token do App Check não envia.
+
+## D37 — Explorar v3: navegação, topo e destinos (fase A, decisões 1 e 2) (2026-11-28)
+
+Proposta: `propostas/explorar-v3-unificada.md` (junta a v1 `explorar-vitrine.md` e a v2 `explorar-v2-hora-certa.md`, que não mudam). Pranchas aprovadas em `propostas/explorar-v3-unificada/decisoes-fase-a/` (`d12-a`, `d12-b`, `d12-c`), com os ajustes abaixo. As decisões 3 a 6 da fase A (preço no cartão, rótulo das vagas pagas, DESIGN.md e lugar na fila) seguem em aberto.
+
+1. **Topo principal como hoje:** Perfil (avatar), atalho do painel (só parceiro e admin), busca e avisos. O Perfil continua abrindo a folha da D33.
+2. **Ajuste dos ícones do topo:** Perfil e atalho do painel **sem fundo**, na mesma cor e no mesmo tamanho dos ícones de busca e avisos (24 px, cor do texto), com área de toque de 44 px.
+3. **Topo ao rolar:**
+   - no alto da página, o título grande da tela (Explorar, Experiências, Serviços, Hospedagem, Aluguéis, Passeios…) fica abaixo dos ícones;
+   - ao rolar, o topo vira um bloco fixo (barra com vidro, §5.1);
+   - quando o título grande passa por baixo dele, o nome da tela aparece **no meio da barra**, entre os ícones da esquerda e os da direita: Perfil, painel, **nome da tela**, busca, avisos;
+   - a troca é por opacidade e deslocamento, com a mola e as durações do `src/ui/motion/tokens.ts`; com "reduzir movimento", só esmaece.
+4. **Busca em pílula** com **frases que mudam** (como o `PLACEHOLDER_PHRASES` de hoje), acrescentando experiências e serviços (translado, aluguel, passeio, evento, hospedagem, restaurante e destino).
+   - As frases vão para o i18n nos 3 idiomas.
+   - O campo tem nome fixo para leitor de tela ("Buscar").
+   - Com "reduzir movimento", a frase não troca.
+   - A pílula fora de `rounded-control` entra no pacote de mudanças do DESIGN.md (decisão 5 da fase A).
+5. **Sem seletor "Jericoacoara ▾":** no lugar entram cartões de **Destinos** com foto e nome, **com curadoria do Use Guide** primeiro. O rótulo "Em alta" só entra quando vier de dados reais (visitas e compras dos últimos 7 dias).
+6. **Destino como porta da personalização:** tocar num destino, ou buscar por ele, abre a página do destino.
+   - A pergunta "Quando você vem a {destino}?" sobe por cima, com "Escolher datas", "Já estou em {destino}" e "Só estou olhando".
+   - A página do destino tem "Agora em {destino}", **"Sua viagem completa"** (Como chegar, Onde ficar, O que fazer, Onde comer) e os carrosséis de experiências e de serviços do lugar.
+7. **Experiências e Serviços:**
+   - **Experiências:** passeios, eventos e atrações.
+   - **Serviços:** hospedagem, restaurantes, translados e aluguéis.
+   - Dicas ficam na Explorar e na página do destino.
+8. **Barra inferior: Explorar · Experiências · Serviços** (substitui a barra atual de categorias).
+   - Dentro de cada aba, o destino atual (dá para trocar) e as categorias em **pílulas de filtro**, começando em "Todas" ou "Todos".
+   - O Mapa fica para quando os anúncios tiverem localização, como "Ver no mapa" dentro das listas.
+9. **Referências usadas** (pesquisa de 2026-11-28): Booking ("Connected Trip"), Airbnb (versões 2025 e 2026), Klook, Trip.com, Traveloka, Gartner (superapps), Material Design e NN/g (navegação no celular).
+   - **O que elas fazem:** costumam pôr os tipos de produto no topo do início e as funções da pessoa na barra.
+   - **O que fazemos:** o contrário, de propósito: as funções da pessoa ficam no topo, que se mantém, e os tipos de produto na barra.
+   - **Diferencial:** ligar experiências e serviços da mesma viagem.

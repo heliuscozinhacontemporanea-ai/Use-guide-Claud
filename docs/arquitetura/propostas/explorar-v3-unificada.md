@@ -188,7 +188,11 @@ Nas duas opções, a navegação é fixa: nenhuma aba aparece ou some conforme o
   - as plataformas completas costumam pôr as verticais no topo do início e as funções da pessoa na barra;
   - aqui é o contrário, de propósito: as funções da pessoa ficam no topo, que se mantém, e as verticais na barra;
   - o diferencial está em ligar experiências e serviços da mesma viagem, como na "Sua viagem completa" da página do destino.
-* **Prints:** `decisoes-fase-a/d12-a-explorar-e-destino.jpg`, `d12-b-pagina-do-destino.jpg`, `d12-c-experiencias-servicos.jpg`. Aguardando a aprovação final da decisão 1 com eles.
+* **Prints:** `decisoes-fase-a/d12-a-explorar-e-destino.jpg`, `d12-b-pagina-do-destino.jpg`, `d12-c-experiencias-servicos.jpg`.
+* **Decisões 1 e 2 aprovadas em 2026-11-28**, com três ajustes (sem prints novos), registradas na **D37** (`decisoes.md`):
+  - ícones de Perfil e painel sem fundo, iguais aos de busca e avisos;
+  - busca em pílula com frases que mudam, acrescentando experiências e serviços;
+  - topo que vira bloco fixo ao rolar, com o nome da tela no meio da barra.
 
 Achado de 2026-11-28: os anúncios não têm latitude e longitude (só o link do mapa). A aba Mapa e o "perto de você" dependem de acrescentar a localização ao anúncio (o parceiro marca no mapa, o admin preenche os do Use Guide), que é mudança de dados (§15.1).
 
