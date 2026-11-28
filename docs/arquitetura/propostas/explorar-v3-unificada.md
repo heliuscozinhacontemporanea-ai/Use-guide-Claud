@@ -168,7 +168,7 @@ Nas duas opções, a navegação é fixa: nenhuma aba aparece ou some conforme o
 | 2 | Barra: A sem Mapa (Explorar · Perfil; recomendada), A completa (com Mapa, exige localização nos anúncios) ou B (como hoje) | `decisao-2-barra.jpg` |
 | 3 | Preço no cartão já na fase A, e ingresso com a taxa de serviço inclusa · **aprovado em 2026-11-28: com preço e taxa inclusa (D37 item 10)** | `decisao-3-preco.jpg` |
 | 4 | Rótulo das vagas pagas do carrossel: "Destaque" (D11) ou "Patrocinado" · **aprovado em 2026-11-28: "Patrocinado" (D37 item 11)** | `decisao-4-rotulo.jpg` |
-| 5 | Três mudanças no DESIGN.md | `decisao-5-design.jpg` |
+| 5 | Três mudanças no DESIGN.md (com os ajustes da D37, cinco) · **autorizadas em 2026-11-28 e aplicadas (D37 item 12)** | `decisao-5-design.jpg` |
 | 6 | Lugar na fila de trabalho | `decisao-6-fila.jpg` |
 
 **Respostas de 2026-11-28 (decisões 1 e 2, revisadas juntas):**

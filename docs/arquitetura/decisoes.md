@@ -698,7 +698,7 @@ Pedida pelo responsável a partir da avaliação de manutenção (padrão ouro),
 
 ## D37 — Explorar v3: navegação, topo e destinos (fase A, decisões 1 e 2) (2026-11-28)
 
-Proposta: `propostas/explorar-v3-unificada.md` (junta a v1 `explorar-vitrine.md` e a v2 `explorar-v2-hora-certa.md`, que não mudam). Pranchas aprovadas em `propostas/explorar-v3-unificada/decisoes-fase-a/` (`d12-a`, `d12-b`, `d12-c`, `decisao-3-preco` e `decisao-4-rotulo`), com os ajustes abaixo. As decisões 5 e 6 da fase A (DESIGN.md e lugar na fila) seguem em aberto.
+Proposta: `propostas/explorar-v3-unificada.md` (junta a v1 `explorar-vitrine.md` e a v2 `explorar-v2-hora-certa.md`, que não mudam). Pranchas aprovadas em `propostas/explorar-v3-unificada/decisoes-fase-a/` (`d12-a`, `d12-b`, `d12-c`, `decisao-3-preco` e `decisao-4-rotulo`), com os ajustes abaixo. A decisão 6 da fase A (lugar na fila) segue em aberto.
 
 1. **Topo principal como hoje:** Perfil (avatar), atalho do painel (só parceiro e admin), busca e avisos. O Perfil continua abrindo a folha da D33.
 2. **Ajuste dos ícones do topo:** Perfil e atalho do painel **sem fundo**, na mesma cor e no mesmo tamanho dos ícones de busca e avisos (24 px, cor do texto), com área de toque de 44 px.
@@ -736,3 +736,11 @@ Proposta: `propostas/explorar-v3-unificada.md` (junta a v1 `explorar-vitrine.md`
     - **O que muda:** substitui o "Destaque" da D11 nas 3 vagas por lista e vale para toda publicidade futura (proposta v1, seção 5). Fica no canto da foto, nos 3 idiomas.
     - **Tocar no rótulo** abre a folha "Anúncio patrocinado": o parceiro pagou pelo espaço, a ordem dos outros resultados continua a de sempre, e pagar não muda nota, avaliações nem preço.
     - **Regras das vagas** (rodízio diário, 3 vagas por lista, plano ativo): continuam as da D11.
+12. **Cinco mudanças no DESIGN.md autorizadas** (decisão 5, 2026-11-28; texto atual, proposto e motivo apresentados antes, AGENTS.md §15):
+    1. P4: título de seção em `text-title` nas vitrines;
+    2. §8: item "Cartão de vitrine";
+    3. §8: item "Espaço pago";
+    4. P5: `rounded-full` também no campo de busca principal;
+    5. §8: "Topo" passa a valer para páginas internas, e entra o "Topo principal".
+
+    Aplicadas no DESIGN.md em 2026-11-28 na `claude/agents/documentacao` e na `claude/agents/useguide`. A `main` recebe o texto no merge do próximo PR, porque só aceita PR da branch de trabalho (§2.4).

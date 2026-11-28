@@ -130,7 +130,7 @@ Cada uma tem texto (`text-x`), fundo suave (`bg-x-soft`) e borda (`border-x-line
 | entre cartões de uma lista | 12 px |
 | dentro do cartão | 16 px |
 | dentro da folha | 24 px |
-| entre seções da tela | 24 px, com título de seção em `text-meta` |
+| entre seções da tela | 24 px, com título de seção em `text-meta`; nas vitrines (Explorar, página do destino, Experiências e Serviços), título de seção em `text-title` |
 
 ---
 
@@ -153,7 +153,7 @@ Cada uma tem texto (`text-x`), fundo suave (`bg-x-soft`) e borda (`border-x-line
 | `rounded-control` | 12 px (`xl`) | botão, campo, item de menu |
 | `rounded-card` | 20 px | cartão, foto do cartão |
 | `rounded-sheet` | 24 px (`3xl`) | folha e diálogo |
-| `rounded-full` | pílula | abas, etiqueta, avatar, interruptor |
+| `rounded-full` | pílula | abas, etiqueta, avatar, interruptor, campo de busca principal |
 
 Saem `rounded-[2rem]`, `rounded-[2.5rem]`, `rounded-[3rem]` e os tokens `--radius-arredondados*`.
 
@@ -222,10 +222,13 @@ Antes de criar um componente visual genérico, o agente DEVE procurar nesta list
 
 ## 8. Padrões de tela ✅
 
-* **Topo:** `BackButton` (chevron) à esquerda, título da tela, no máximo uma ação em ícone à direita. Barra fixa com vidro só quando o conteúdo rola por baixo.
+* **Topo (páginas internas):** `BackButton` (chevron) à esquerda, título da tela, no máximo uma ação em ícone à direita. Barra fixa com vidro só quando o conteúdo rola por baixo.
+* **Topo principal** (Explorar, Experiências, Serviços e suas categorias): Perfil e atalho do painel à esquerda, busca e avisos à direita, todos como ícones sem fundo de 24 px (toque de 44 px). O título grande da tela fica abaixo dos ícones; ao rolar, o topo vira barra fixa com vidro e o nome da tela aparece no meio dela. Com "reduzir movimento", o nome só esmaece (D37).
 * **Topo de uma folha com várias telas (D33):** barra fixa da folha, fora das páginas: `<` à esquerda em **todas** as telas, na mesma altura (na primeira, fecha a folha), título centralizado em `text-title` (cortado com reticências entre o `<` e a ação da direita) e no máximo uma ação em ícone à direita.
 * **Perfil (D33):** o menu do perfil abre como folha de baixo, com o fundo virando cartão (substitui o menu lateral da D19; o conteúdo continua o mesmo). A primeira tela da folha tem o título "Perfil".
 * **Cartão:** foto ou ícone, o que é (título), quando (linha `meta`), identificador discreto logo abaixo do nome (ex.: código do pedido), e no máximo uma linha separada por divisória com o que fazer agora.
+* **Cartão de vitrine** (Explorar, página do destino, Experiências e Serviços): foto 16:10 com ♡; título em até 2 linhas; nota com número de avaliações e duração ou tipo; "a partir de R$ X" com a unidade, vindo do servidor (no ingresso, com a taxa de serviço inclusa e a linha "taxa de serviço inclusa"); no máximo uma linha de benefício com ✓. Sem avaliações, "Novo no Use Guide" (D37).
+* **Espaço pago:** toda vaga paga mostra "Patrocinado" no canto da foto, em pílula escura, nos 3 idiomas; tocar abre a explicação. No máximo 1 a cada 6 cartões e nunca dois seguidos (CDC art. 36; D37).
 * **Listas longas e filas:** lista compacta (título, contexto, status, valor); detalhe e decisão na folha.
 * **Abas no lugar de listas longas** (ex.: Próximas / Anteriores), com `SegmentedControl`. Trocar de aba não desliza.
 * **Formulário:** rótulo acima do campo; erro abaixo, em `text-danger`, traduzido; ação principal no fim ou fixa embaixo no celular.
