@@ -144,7 +144,7 @@ Detalha o item "Selo e plano por estabelecimento" da D9. Modelo de referência: 
 * **Admin:** concede ou retira o selo por estabelecimento, com as regras da D8.
 * **Expiração:** job diário desliga o selo vencido em itens e eventos; os cards públicos também conferem `verifiedUntil`. A folga de 2 dias da renovação no cartão continua.
 * **Benefícios:** avaliações e respostas **sempre liberadas**, com ou sem plano. As métricas (insights) de um estabelecimento exigem o plano daquele estabelecimento, conferido no backend.
-* **Destaque nas listas (opção C):** **3 vagas** "Destaque" no topo de cada lista (valor de configuração), em rodízio diário entre os estabelecimentos com plano ativo; o resto da lista em ordem orgânica (nota, avaliações), com assinantes e não assinantes juntos. A vaga paga é sempre identificada como "Destaque" (CDC art. 36).
+* **Destaque nas listas (opção C):** **3 vagas** "Destaque" no topo de cada lista (valor de configuração), em rodízio diário entre os estabelecimentos com plano ativo; o resto da lista em ordem orgânica (nota, avaliações), com assinantes e não assinantes juntos. A vaga paga é sempre identificada como "Destaque" (CDC art. 36). **Atualizado pela D37 (2026-11-28): o rótulo passa a ser "Patrocinado".**
 * **Detalhes de implementação (2026-10-21, aprovados):**
   * **Divisão:** 18.3a (plano por estabelecimento, selo, trial, selo do admin, job diário) → 18.3b (cobrança no Stripe por estabelecimento) → 18.3c (métricas exigindo o plano e destaque) → 18.3.1 (telas).
   * **Lista do destaque = categoria** (hospedagens, restaurantes, passeios, atrações, translados, aluguéis e eventos), cada uma com 3 vagas.
@@ -698,7 +698,7 @@ Pedida pelo responsável a partir da avaliação de manutenção (padrão ouro),
 
 ## D37 — Explorar v3: navegação, topo e destinos (fase A, decisões 1 e 2) (2026-11-28)
 
-Proposta: `propostas/explorar-v3-unificada.md` (junta a v1 `explorar-vitrine.md` e a v2 `explorar-v2-hora-certa.md`, que não mudam). Pranchas aprovadas em `propostas/explorar-v3-unificada/decisoes-fase-a/` (`d12-a`, `d12-b`, `d12-c` e `decisao-3-preco`), com os ajustes abaixo. As decisões 4 a 6 da fase A (rótulo das vagas pagas, DESIGN.md e lugar na fila) seguem em aberto.
+Proposta: `propostas/explorar-v3-unificada.md` (junta a v1 `explorar-vitrine.md` e a v2 `explorar-v2-hora-certa.md`, que não mudam). Pranchas aprovadas em `propostas/explorar-v3-unificada/decisoes-fase-a/` (`d12-a`, `d12-b`, `d12-c`, `decisao-3-preco` e `decisao-4-rotulo`), com os ajustes abaixo. As decisões 5 e 6 da fase A (DESIGN.md e lugar na fila) seguem em aberto.
 
 1. **Topo principal como hoje:** Perfil (avatar), atalho do painel (só parceiro e admin), busca e avisos. O Perfil continua abrindo a folha da D33.
 2. **Ajuste dos ícones do topo:** Perfil e atalho do painel **sem fundo**, na mesma cor e no mesmo tamanho dos ícones de busca e avisos (24 px, cor do texto), com área de toque de 44 px.
@@ -732,3 +732,7 @@ Proposta: `propostas/explorar-v3-unificada.md` (junta a v1 `explorar-vitrine.md`
     - **Ingresso:** o valor já inclui a taxa de serviço paga pelo comprador (D14), com a linha "taxa de serviço inclusa". Se o dono absorver a taxa, o valor é o do ingresso e a linha não aparece. No pagamento, a taxa continua destacada, como na D14.
     - **Dados novos na projeção pública** (§15.1): o servidor grava no anúncio e no evento publicados o menor preço em centavos (com a taxa, no ingresso), a duração e o "cancelamento grátis até X h", conforme a política da oferta. Os campos são recalculados quando a oferta, o tipo de ingresso ou o lote muda.
     - **Regra do "a partir de"** (proposta, pode ser revista): menor preço **inteira ou adulto** à venda; meia-entrada, preço de criança e opção esgotada não entram. Sem opção à venda, o cartão fica sem preço.
+11. **Rótulo "Patrocinado"** para toda vaga paga (decisão 4, 2026-11-28).
+    - **O que muda:** substitui o "Destaque" da D11 nas 3 vagas por lista e vale para toda publicidade futura (proposta v1, seção 5). Fica no canto da foto, nos 3 idiomas.
+    - **Tocar no rótulo** abre a folha "Anúncio patrocinado": o parceiro pagou pelo espaço, a ordem dos outros resultados continua a de sempre, e pagar não muda nota, avaliações nem preço.
+    - **Regras das vagas** (rodízio diário, 3 vagas por lista, plano ativo): continuam as da D11.
