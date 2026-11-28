@@ -12,10 +12,12 @@ A ordem abaixo foi proposta em 2026-11-15 e pode ser mudada pelo responsável.
 - vitrine padrão e cartão de vitrine com preço (taxa inclusa no ingresso);
 - topo principal e busca em pílula;
 - Destinos com curadoria e página do destino com "Sua viagem completa";
-- barra Explorar · Experiências · Serviços · Por perto, com o mapa e o "Leve-me até lá" no anúncio (D37 item 15; fornecedor e dados em decisão);
+- barra Explorar · Experiências · Serviços;
+- Destinos com fotos do Commons (crédito na tela Créditos) e troca da foto pelo admin; "Quando você vem a {destino}?" guardado só no aparelho (D37 item 16);
 - Perfil reorganizado;
 - "Patrocinado" nas vagas da D11;
-- textos nos 3 idiomas, tokens e estados. | Aprovada em 2026-11-28 (decisões 1 a 6); **primeira da fila**. As pranchas da D37 valem como os prints aprovados | D37 |
+- textos nos 3 idiomas, tokens e estados. | Aprovada em 2026-11-28 (decisões 1 a 6); **em andamento desde 2026-11-28**. As pranchas da D37 valem como os prints aprovados. Vagas do plano nas telas que juntam categorias: em pesquisa (`propostas/vagas-pagas.md`) | D37 |
+| v3-A2 | **Mapa, logo depois da fase A:** aba "Por perto" (4ª da barra) e "Leve-me até lá" no anúncio, com o pino marcado pelo parceiro | Pranchas prontas (`decisao-7a-por-perto.jpg`, `decisao-7b-leve-me.jpg`); **decisão 7 em aberto** (fornecedor, localização no anúncio, privacidade, mapa do vento B82) | D37 itens 15 e 16 |
 | 5b | **Tradução automática** do conteúdo cadastrado (D5): domínio `translation` com Google Cloud Translation, só no backend, `LocalizedText` com `source` e traduções, aviso "Traduzido automaticamente pelo Google · Ver original" | Pendente (responsável, 2026-11-17); serviço pago: proposta antes do código (AGENTS.md §15) | D5, AGENTS.md §12.6 |
 | 7 | **D34 · F5**: evento herda contato e local do estabelecimento (D5) | | D34 |
 | 8 | **D34 · F6**: o tour sai e entram as dicas de primeira visita (Agenda e Ganhos) | | D34 |

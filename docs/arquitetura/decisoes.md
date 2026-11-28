@@ -758,3 +758,8 @@ Proposta: `propostas/explorar-v3-unificada.md` (junta a v1 `explorar-vitrine.md`
     - **botão "Leve-me até lá"** no anúncio, que abre a rota no app de mapas da pessoa.
 
     Em aberto (decisão 7 da proposta v3, pranchas `decisao-7a-por-perto.jpg` e `decisao-7b-leve-me.jpg`): fornecedor do mapa (§15.3), localização no anúncio (§15.1), privacidade e a troca do mapa do vento (B82). Nada do mapa é implementado antes dessas respostas.
+16. **Início da fase A** (2026-11-28, "Inicie a etapa A e deixe o mapa para logo em seguida"):
+    - **Mapa:** fica para logo depois da fase A (item 15); a decisão 7 continua em aberto.
+    - **Fotos dos Destinos:** fotos livres do Wikimedia Commons, com o crédito na tela Créditos, como as fontes. O **admin troca a foto pelo painel** (dado novo: a foto escolhida pelo admin para cada destino, de leitura pública).
+    - **"Quando você vem a {destino}?" entra já na fase A.** A resposta (datas, "já estou aqui" ou "só estou olhando") fica só no aparelho e ainda não muda a vitrine; a personalização que usa a resposta é da fase B.
+    - **Vagas do plano nas telas que juntam categorias** ("Todas", "Todos" e "Em destaque"): em pesquisa (`propostas/vagas-pagas.md`, com referências para o destaque do plano e para o patrocinado pago). Até a decisão, vale a regra da D11.
