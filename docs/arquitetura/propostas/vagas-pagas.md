@@ -38,10 +38,12 @@
 
 ## 2. Recomendação
 
+**Regra que já vale (DESIGN.md §8, "Espaço pago", aprovada na D37):** no máximo 1 vaga paga a cada 6 cartões e nunca duas seguidas. Hoje a D11 põe as 3 vagas juntas no topo, o que essa regra não permite. Por isso as vagas passam a ficar **espaçadas: 1º, 7º e 13º cartão** da lista (a fase A já aplica esse espaçamento).
+
 ### 2.1. Destaque do plano "Use Guide Verificado" (o que já existe)
 
-1. **Sorteio a cada visita no lugar do rodízio diário.** As 3 vagas do topo de cada categoria são sorteadas cada vez que a lista abre, entre todos que têm o plano. Num dia, cada assinante aparece no topo na mesma proporção (3 dividido pelo número de assinantes) e ninguém fica o dia inteiro de fora. É o modelo de todas as referências (decisão a cada visita), sem leilão, porque todos pagam o mesmo.
-2. **Telas que juntam categorias** ("Todas", "Todos" e o "Em destaque" da Explorar): 3 vagas, alternando as categorias, sorteadas do mesmo jeito.
+1. **Sorteio a cada visita no lugar do rodízio diário.** As 3 vagas de cada categoria (1º, 7º e 13º cartão) são sorteadas cada vez que a lista abre, entre todos que têm o plano. Num dia, cada assinante aparece no topo na mesma proporção (3 dividido pelo número de assinantes) e ninguém fica o dia inteiro de fora. É o modelo de todas as referências (decisão a cada visita), sem leilão, porque todos pagam o mesmo.
+2. **Telas que juntam categorias** ("Todas", "Todos" e o "Em destaque" da Explorar): as mesmas 3 posições espaçadas, alternando as categorias, sorteadas do mesmo jeito.
 3. **O parceiro vê quantas vezes apareceu no topo**, nas métricas do plano (transparência, como pede a P2B europeia).
 4. **A lista normal continua por nota e avaliações**, e o selo aparece em todo assinante, em qualquer posição.
 5. **Se um lugar tiver muitos assinantes por categoria** (por exemplo, mais de 15), cada um aparece pouco. Aí se revê o número de vagas (a configuração já vai até 12) ou o preço. Não precisa decidir agora.
@@ -52,7 +54,7 @@
 
 1. **Cobrança por visita ao anúncio** (como o iFood), com **teto diário** escolhido pelo parceiro. Acabou o teto do dia, a vaga sai até o dia seguinte. É mais simples de entender que um leilão para negócios pequenos.
 2. **Sem leilão no começo:** preço fixo por visita por categoria e destino (como o restaurante no Tripadvisor). O leilão fica para quando houver disputa de verdade.
-3. **Onde aparece:** nunca nas 3 primeiras posições, que ficam para o plano; no máximo **1 patrocinado a cada 5 resultados** da lista, e sempre com o rótulo "Patrocinado". Pela pesquisa, o topo é onde o patrocinado mais custa confiança.
+3. **Onde aparece:** divide as mesmas posições espaçadas com o plano (no máximo 1 vaga paga a cada 6 cartões, nunca duas seguidas, como manda o DESIGN.md), sempre com o rótulo "Patrocinado". Pela pesquisa, o topo é onde o patrocinado mais custa confiança; por isso o pago não ganha posição extra no topo.
 4. **Quem pode anunciar:** só anúncio publicado, de estabelecimento verificado e com nota mínima (como o nível do iFood), para o patrocinado não trazer coisa ruim para o topo.
 5. **Não usa interesses da pessoa** (v3, §8), só o contexto: categoria, destino, busca.
 
