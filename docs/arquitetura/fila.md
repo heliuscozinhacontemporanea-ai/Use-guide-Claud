@@ -8,6 +8,14 @@ A ordem abaixo foi proposta em 2026-11-15 e pode ser mudada pelo responsável.
 
 | # | Item | Situação | Decisão |
 |---|---|---|---|
+| v3-A | **Explorar v3 · fase A**:
+- vitrine padrão e cartão de vitrine com preço (taxa inclusa no ingresso);
+- topo principal e busca em pílula;
+- Destinos com curadoria e página do destino com "Sua viagem completa";
+- barra Explorar · Experiências · Serviços;
+- Perfil reorganizado;
+- "Patrocinado" nas vagas da D11;
+- textos nos 3 idiomas, tokens e estados. | Aprovada em 2026-11-28 (decisões 1 a 6); **primeira da fila**. As pranchas da D37 valem como os prints aprovados | D37 |
 | 5b | **Tradução automática** do conteúdo cadastrado (D5): domínio `translation` com Google Cloud Translation, só no backend, `LocalizedText` com `source` e traduções, aviso "Traduzido automaticamente pelo Google · Ver original" | Pendente (responsável, 2026-11-17); serviço pago: proposta antes do código (AGENTS.md §15) | D5, AGENTS.md §12.6 |
 | 7 | **D34 · F5**: evento herda contato e local do estabelecimento (D5) | | D34 |
 | 8 | **D34 · F6**: o tour sai e entram as dicas de primeira visita (Agenda e Ganhos) | | D34 |
@@ -42,7 +50,7 @@ Cada proposta é apresentada antes de qualquer código; a implementação só co
 | 5 | **Caução do aluguel** por pré-autorização de cartão no dia da retirada (D3): cartão salvo no Stripe, só cartão, cobrança por dano e contestação | Fora desta fase (resposta 2, 2026-11-17); proposta própria |
 | 6 | **Explorar e categorias como vitrine que vende**, com espaços de publicidade paga pelos parceiros (`propostas/explorar-vitrine.md`, prints em `propostas/explorar-vitrine/`) | Apresentada em 2026-11-25; aguardando as 8 decisões da seção 9 da proposta |
 | 7 | **v2: Use Guide na hora certa, a viagem inteira** (conceito próprio, Explorar por momento da viagem, Minha viagem, depois da viagem), com pesquisa acadêmica (`propostas/explorar-v2-hora-certa.md`, prints em `propostas/explorar-v2-hora-certa/`); parte da v1, que continua como está | Apresentada em 2026-11-25; aguardando as 9 decisões da seção 11 |
-| 8 | **v3 unificada**: vitrine padrão (v1) + personalização opcional (v2) + Perfil como casa de tudo + atalhos do agora na Explorar (`propostas/explorar-v3-unificada.md`, prints em `propostas/explorar-v3-unificada/`); junta os itens 6 e 7, que não mudam | Apresentada em 2026-11-25; é a proposta a decidir (13 decisões da seção 11) |
+| 8 | **v3 unificada**: vitrine padrão (v1) + personalização opcional (v2) + Perfil como casa de tudo + atalhos do agora na Explorar (`propostas/explorar-v3-unificada.md`, prints em `propostas/explorar-v3-unificada/`); junta os itens 6 e 7, que não mudam | Apresentada em 2026-11-25; **fase A aprovada em 2026-11-28 (D37)**; fases B a F seguem em aberto |
 
 ### Proposta 2 · Termos no cadastro comum e "Sou o dono"
 
