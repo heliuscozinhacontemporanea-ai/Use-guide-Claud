@@ -722,7 +722,7 @@ Proposta: `propostas/explorar-v3-unificada.md` (junta a v1 `explorar-vitrine.md`
    - Dicas ficam na Explorar e na página do destino.
 8. **Barra inferior: Explorar · Experiências · Serviços** (substitui a barra atual de categorias).
    - Dentro de cada aba, o destino atual (dá para trocar) e as categorias em **pílulas de filtro**, começando em "Todas" ou "Todos".
-   - O Mapa fica para quando os anúncios tiverem localização, como "Ver no mapa" dentro das listas.
+   - **Atualizado em 2026-11-28 (item 15):** a barra ganha a 4ª aba, **Por perto**: Explorar · Experiências · Serviços · Por perto.
 9. **Referências usadas** (pesquisa de 2026-11-28): Booking ("Connected Trip"), Airbnb (versões 2025 e 2026), Klook, Trip.com, Traveloka, Gartner (superapps), Material Design e NN/g (navegação no celular).
    - **O que elas fazem:** costumam pôr os tipos de produto no topo do início e as funções da pessoa na barra.
    - **O que fazemos:** o contrário, de propósito: as funções da pessoa ficam no topo, que se mantém, e os tipos de produto na barra.
@@ -751,3 +751,10 @@ Proposta: `propostas/explorar-v3-unificada.md` (junta a v1 `explorar-vitrine.md`
     - uma proposta própria.
 
     Achado de 2026-11-28: o mapa do vento usa um endereço direto de imagens do Google, fora da API oficial (débito B82).
+
+    **Substituído pelo item 15** no mesmo dia.
+15. **Mapa na fase A** (pedido do responsável, 2026-11-28):
+    - **aba "Por perto"** na barra, com ícone: mapa com os anúncios ao redor, filtros em pílulas e lista por distância;
+    - **botão "Leve-me até lá"** no anúncio, que abre a rota no app de mapas da pessoa.
+
+    Em aberto (decisão 7 da proposta v3, pranchas `decisao-7a-por-perto.jpg` e `decisao-7b-leve-me.jpg`): fornecedor do mapa (§15.3), localização no anúncio (§15.1), privacidade e a troca do mapa do vento (B82). Nada do mapa é implementado antes dessas respostas.

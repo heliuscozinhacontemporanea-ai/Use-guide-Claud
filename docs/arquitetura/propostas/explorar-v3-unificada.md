@@ -170,6 +170,7 @@ Nas duas opções, a navegação é fixa: nenhuma aba aparece ou some conforme o
 | 4 | Rótulo das vagas pagas do carrossel: "Destaque" (D11) ou "Patrocinado" · **aprovado em 2026-11-28: "Patrocinado" (D37 item 11)** | `decisao-4-rotulo.jpg` |
 | 5 | Três mudanças no DESIGN.md (com os ajustes da D37, cinco) · **autorizadas em 2026-11-28 e aplicadas (D37 item 12)** | `decisao-5-design.jpg` |
 | 6 | Lugar na fila de trabalho | `decisao-6-fila.jpg` |
+| 7 | Mapa na fase A: fornecedor, localização no anúncio, privacidade e mapa do vento (B82) · **em aberto** | `decisao-7a-por-perto.jpg`, `decisao-7b-leve-me.jpg` |
 
 **Respostas de 2026-11-28 (decisões 1 e 2, revisadas juntas):**
 
@@ -195,6 +196,26 @@ Nas duas opções, a navegação é fixa: nenhuma aba aparece ou some conforme o
   - topo que vira bloco fixo ao rolar, com o nome da tela no meio da barra.
 
 Achado de 2026-11-28: os anúncios não têm latitude e longitude (só o link do mapa). A aba Mapa e o "perto de você" dependem de acrescentar a localização ao anúncio (o parceiro marca no mapa, o admin preenche os do Use Guide), que é mudança de dados (§15.1).
+
+**Pedido de 2026-11-28: mapa já na fase A.** O responsável pediu um ícone na barra com o nome **"Por perto"** e, no anúncio, um botão **"Leve-me até lá"**. Os prints usam o mapa real de Jericoacoara (OpenStreetMap pelo OpenFreeMap, com MapLibre), com anúncios fictícios.
+
+* **Prancha `decisao-7a-por-perto.jpg`:**
+  1. aba "Por perto", 4ª da barra (Explorar · Experiências · Serviços · Por perto), com o topo principal da D37 em barra fixa com vidro e o nome no meio;
+  2. pinos: preço para o que se compra, ícone para o que não se vende; o escolhido fica cheio; cartões embaixo, ligados aos pinos, com a distância em linha reta;
+  3. antes de permitir a localização: o mapa abre no destino atual e convida, sem pedir sozinho; a localização fica só no aparelho;
+  4. "Lista": os mesmos lugares do mais perto ao mais longe;
+  5. francês ("À proximité"), para conferir o tamanho dos textos.
+* **Prancha `decisao-7b-leve-me.jpg`:**
+  6. anúncio: o bloco "Onde fica" (mapa pequeno, endereço, ponto de referência) troca o "Como chegar" de hoje, e a linha "Leve-me até lá" fica embaixo dele, com a distância;
+  7. o mesmo no tema claro;
+  8. "Leve-me até lá" abre a escolha do app de rota: Google Maps, Apple Maps (só em aparelho Apple), Waze ou copiar o endereço;
+  9. editor do parceiro: "Onde fica" em página empilhada (D33), arrastando o mapa até o pino ou usando a localização atual, com ponto de referência opcional.
+* **O nome do bloco muda por tipo:** "Onde fica" (restaurante, hospedagem e atração), "Ponto de encontro" (passeio), "Onde retirar" (aluguel) e "Local do evento". Translado não tem pino.
+* **Decisões pedidas (7):**
+  - **7a · Fornecedor do mapa (§15.3):** OpenFreeMap com MapLibre (recomendado), Google Maps (API oficial) ou mapa OSM pago com contrato (Stadia ou MapTiler).
+  - **7b · Localização no anúncio (§15.1):** campo novo com latitude e longitude (classe pública), marcado pelo parceiro, no lugar dos campos de link do mapa; obrigatório para publicar anúncio com lugar.
+  - **7c · Privacidade (§7.5):** localização da pessoa pedida só no toque, usada só no aparelho e nunca enviada; o fornecedor do mapa vê o IP e a área vista (entra na Política de Privacidade).
+  - **7d · Mapa do vento (B82):** trocar já para o mesmo mapa, sem satélite (recomendado), ou satélite oficial do Google numa decisão própria.
 
 **Lista completa:**
 

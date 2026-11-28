@@ -12,7 +12,7 @@ A ordem abaixo foi proposta em 2026-11-15 e pode ser mudada pelo responsável.
 - vitrine padrão e cartão de vitrine com preço (taxa inclusa no ingresso);
 - topo principal e busca em pílula;
 - Destinos com curadoria e página do destino com "Sua viagem completa";
-- barra Explorar · Experiências · Serviços;
+- barra Explorar · Experiências · Serviços · Por perto, com o mapa e o "Leve-me até lá" no anúncio (D37 item 15; fornecedor e dados em decisão);
 - Perfil reorganizado;
 - "Patrocinado" nas vagas da D11;
 - textos nos 3 idiomas, tokens e estados. | Aprovada em 2026-11-28 (decisões 1 a 6); **primeira da fila**. As pranchas da D37 valem como os prints aprovados | D37 |
