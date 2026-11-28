@@ -1,3 +1,7 @@
+import {
+  isValidCardSummary,
+  type ListingCardSummary,
+} from '../../../shared/kernel/listingCardSummary';
 import { AuthenticatedUserContext } from '../../../shared/kernel/authenticatedUserContext';
 import { findContactsInText } from '../../../shared/kernel/contactInText';
 import { type BrState, timeZoneForBrazilianCity } from '../../../shared/kernel/timeZones';
@@ -307,6 +311,14 @@ export class GuideService {
   ): Promise<void> {
     ensureValidId(resourceId);
     await this.guidePort.updateReviewAggregate(resourceType, resourceId, rating, reviewCount);
+  }
+
+  async setItemCardSummary(itemId: string, summary: ListingCardSummary | null): Promise<void> {
+    ensureValidId(itemId);
+    if (summary && !isValidCardSummary(summary)) {
+      throw new GuideDomainError('VALIDATION_ERROR', 'Resumo do cartão inválido.');
+    }
+    await this.guidePort.setItemCardSummary(itemId, summary);
   }
 
   async deleteResourcesByOwner(ownerId: string): Promise<void> {

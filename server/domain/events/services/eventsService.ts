@@ -1,3 +1,7 @@
+import {
+  isValidCardSummary,
+  type ListingCardSummary,
+} from '../../../shared/kernel/listingCardSummary';
 import { canChangeCancellationPolicy } from '../../../shared/kernel/cancellationPolicy';
 import type { PlaceTime } from '../../../shared/kernel/timeZones';
 import { USE_GUIDE_OWNER_ID } from '../../../shared/kernel/useGuideOwner';
@@ -289,12 +293,15 @@ export class EventsService {
 
   async updateListingPricingSummary(
     eventListingId: string,
-    summary: { pricingMode: 'free' | 'paid'; startingPriceMinor?: number }
+    summary: { pricingMode: 'free' | 'paid'; cardSummary: ListingCardSummary | null }
   ): Promise<void> {
+    if (summary.cardSummary && !isValidCardSummary(summary.cardSummary)) {
+      throw new EventDomainError('INVALID_ARGUMENT', 'Resumo do cartão inválido.');
+    }
     await this.eventsPort.updateListing(eventListingId, {
       pricingMode: summary.pricingMode,
       entryType: summary.pricingMode === 'paid' ? 'pago' : 'gratuito',
-      startingPriceMinor: summary.startingPriceMinor,
+      cardSummary: summary.cardSummary,
     });
   }
 

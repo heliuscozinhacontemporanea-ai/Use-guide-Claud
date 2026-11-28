@@ -1,6 +1,7 @@
 import { isActiveGateStaffUseCase, wasGateStaffAtUseCase } from '../gateStaff';
 import { Ed25519EntryPassAdapter } from './adapters/ed25519EntryPassAdapter';
 import { FirestoreBookingsAdapter } from './adapters/firestoreBookingsAdapter';
+import { GuideListingCardSummaryAdapter } from './adapters/guideListingCardSummaryAdapter';
 import { GuideBookableItemLookupAdapter } from './adapters/guideBookableItemLookupAdapter';
 import { BookingArrivalService } from './services/bookingArrivalService';
 import { BookingCheckInService } from './services/bookingCheckInService';
@@ -35,7 +36,11 @@ function getPort(): FirestoreBookingsAdapter {
 }
 
 export function getOfferService(): OfferService {
-  offerService ??= new OfferService(getPort(), new GuideBookableItemLookupAdapter());
+  offerService ??= new OfferService(
+    getPort(),
+    new GuideBookableItemLookupAdapter(),
+    new GuideListingCardSummaryAdapter()
+  );
   return offerService;
 }
 

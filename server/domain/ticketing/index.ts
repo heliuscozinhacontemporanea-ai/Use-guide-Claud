@@ -71,6 +71,7 @@ export { createOfflineCheckInSessionUseCase } from './usecases/createOfflineChec
 export { createTicketOrderUseCase } from './usecases/createTicketOrderUseCase';
 export { createTicketTransferLinkUseCase } from './usecases/createTicketTransferLinkUseCase';
 export { createTicketTypeUseCase } from './usecases/createTicketTypeUseCase';
+export { refreshEventCardSummaryUseCase } from './usecases/refreshEventCardSummaryUseCase';
 export { endPromoterUseCase } from './usecases/endPromoterUseCase';
 export { expireAllOverdueOrdersUseCase } from './usecases/expireAllOverdueOrdersUseCase';
 export { expireTicketOrderUseCase } from './usecases/expireTicketOrderUseCase';

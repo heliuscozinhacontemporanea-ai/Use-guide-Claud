@@ -1,3 +1,4 @@
+import type { ListingCardSummary } from '../../../shared/kernel/listingCardSummary';
 import {
   GuideCreateItemInput,
   GuideItemRecord,
@@ -38,6 +39,8 @@ export interface GuidePort {
     rating: number,
     reviewCount: number
   ): Promise<void>;
+  /** "A partir de" do cartão de vitrine (D37 item 10); `null` tira o resumo do anúncio. */
+  setItemCardSummary(itemId: string, summary: ListingCardSummary | null): Promise<void>;
   deleteResourcesByOwner(ownerId: string): Promise<void>;
   getAllItems(): Promise<GuideItemRecord[]>;
   /** Estabelecimentos e itens de um dono (painel do parceiro, D27). */

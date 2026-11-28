@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { InMemoryBookingsAdapter } from '../adapters/inMemoryBookingsAdapter';
+import type { ListingCardSummary } from '../../../shared/kernel/listingCardSummary';
 import type { BookableItem, BookableItemLookupPort } from '../ports/bookableItemLookupPort';
 import { type OfferInput, OfferService } from './offerService';
 import { SlotService } from './slotService';
@@ -36,16 +37,22 @@ function setup(item: Partial<BookableItem> | null = {}) {
           },
   };
   let counter = 0;
+  const summaries = new Map<string, ListingCardSummary | null>();
   const service = new OfferService(
     port,
     items,
+    {
+      setItemCardSummary: async (itemId, summary) => {
+        summaries.set(itemId, summary);
+      },
+    },
     () => NOW,
     () => {
       counter += 1;
       return `id${counter}`;
     }
   );
-  return { port, service, slotService: new SlotService(port, () => NOW) };
+  return { port, service, summaries, slotService: new SlotService(port, () => NOW) };
 }
 
 describe('OfferService', () => {
@@ -204,6 +211,33 @@ describe('OfferService', () => {
     expect(projection).not.toHaveProperty('partnerId');
     await service.setOfferStatus(OWNER, offer.id, 'paused');
     expect(port.publicOffers.has(offer.id)).toBe(false);
+  });
+
+  it('o cartão do anúncio ganha o "a partir de" ao publicar e perde ao pausar (D37 item 10)', async () => {
+    const { service, summaries } = setup();
+    const offer = await service.createOffer(OWNER, {
+      ...INPUT,
+      guideItemId: 'item-1',
+      kind: 'tour',
+      pricing: {
+        currency: 'BRL',
+        priceOptions: [
+          { id: 'adult', label: { 'pt-BR': 'Adulto' }, unitAmountMinor: 18000 },
+          { id: 'child', label: { 'pt-BR': 'Criança' }, unitAmountMinor: 9000 },
+        ],
+      },
+      cancellationPolicy: 'moderate',
+    });
+    await service.setOfferStatus(OWNER, offer.id, 'published');
+    expect(summaries.get('item-1')).toEqual({
+      fromPriceMinor: 9000,
+      priceUnit: 'person',
+      serviceFeeIncluded: false,
+      durationMinutes: 240,
+      freeCancellationHours: 120,
+    });
+    await service.setOfferStatus(OWNER, offer.id, 'paused');
+    expect(summaries.get('item-1')).toBeNull();
   });
 
   it('verificação antes de publicar que recusa mantém a oferta fora do ar', async () => {

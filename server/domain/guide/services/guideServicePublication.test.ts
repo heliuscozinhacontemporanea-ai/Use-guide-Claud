@@ -62,6 +62,7 @@ function portMock(): GuidePort {
     getItemById: vi.fn(),
     updateItemVerification: vi.fn(),
     updateReviewAggregate: vi.fn(),
+    setItemCardSummary: vi.fn(),
     deleteResourcesByOwner: vi.fn(),
     getAllItems: vi.fn(),
     listItemsByOwner: vi.fn(),

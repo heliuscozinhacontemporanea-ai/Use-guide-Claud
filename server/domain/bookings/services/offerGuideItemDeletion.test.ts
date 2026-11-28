@@ -63,7 +63,13 @@ function setup() {
   port.offers.set('de-outro-item', offer('de-outro-item', { guideItemId: 'item-2' }));
   port.publicOffers.set('passeio', { id: 'passeio' } as never);
   port.publicOffers.set('de-outro-item', { id: 'de-outro-item' } as never);
-  return { port, service: new OfferService(port, items, () => NOW) };
+  const cleared: string[] = [];
+  const summaries = {
+    setItemCardSummary: async (itemId: string, summary: unknown) => {
+      if (summary === null) cleared.push(itemId);
+    },
+  };
+  return { port, cleared, service: new OfferService(port, items, summaries, () => NOW) };
 }
 
 describe('OfferService: exclusão do anúncio (D34, F2)', () => {
@@ -84,9 +90,11 @@ describe('OfferService: exclusão do anúncio (D34, F2)', () => {
   });
 
   it('as ofertas do anúncio excluído saem do app; as de outro anúncio ficam', async () => {
-    const { port, service } = setup();
+    const { port, service, cleared } = setup();
     port.bookings.set('b1', booking('b1', 'passeio', 'completed'));
     await service.archiveOffersOfGuideItem('item-1');
+    // O cartão do anúncio perde o "a partir de" (D37 item 10).
+    expect(cleared).toEqual(['item-1']);
 
     expect(port.offers.get('passeio')?.status).toBe('archived');
     expect(port.offers.get('rascunho')?.status).toBe('archived');

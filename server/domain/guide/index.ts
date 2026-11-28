@@ -37,6 +37,7 @@ export {
 export { listPublicGuideItemsUseCase } from './usecases/listPublicGuideItemsUseCase';
 export { publishGuideItemUseCase } from './usecases/publishGuideItemUseCase';
 export { saveFeaturedListingsUseCase } from './usecases/saveFeaturedListingsUseCase';
+export { setItemCardSummaryUseCase } from './usecases/setItemCardSummaryUseCase';
 export { updateGuideItemUseCase } from './usecases/updateGuideItemUseCase';
 export { updateItemVerificationUseCase } from './usecases/updateItemVerificationUseCase';
 export { updateReviewAggregateUseCase } from './usecases/updateReviewAggregateUseCase';

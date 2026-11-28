@@ -1,3 +1,7 @@
+import {
+  isValidCardSummary,
+  type ListingCardSummary,
+} from '../../../shared/kernel/listingCardSummary';
 import { isCancellationPolicyAllowed } from '../../../shared/kernel/cancellationPolicy';
 import {
   type CreateEventListingInput,
@@ -44,6 +48,28 @@ function toIsoString(val: unknown, fallback: string): string {
     return (val as { toDate: () => Date }).toDate().toISOString();
   }
   return fallback;
+}
+
+const CARD_PRICE_UNITS = ['person', 'group', 'vehicle', 'hour', 'ticket'] as const;
+
+/** Lê o resumo do cartão gravado pelo servidor; formato estranho fica sem resumo. */
+function toCardSummary(raw: unknown): ListingCardSummary | undefined {
+  if (!raw || typeof raw !== 'object') return undefined;
+  const value = raw as Record<string, unknown>;
+  const unit = CARD_PRICE_UNITS.find((candidate) => candidate === value.priceUnit);
+  if (typeof value.fromPriceMinor !== 'number' || !unit) return undefined;
+  const summary: ListingCardSummary = {
+    fromPriceMinor: value.fromPriceMinor,
+    priceUnit: unit,
+    serviceFeeIncluded: value.serviceFeeIncluded === true,
+    ...(typeof value.durationMinutes === 'number'
+      ? { durationMinutes: value.durationMinutes }
+      : {}),
+    ...(typeof value.freeCancellationHours === 'number'
+      ? { freeCancellationHours: value.freeCancellationHours }
+      : {}),
+  };
+  return isValidCardSummary(summary) ? summary : undefined;
 }
 
 export class EventListingPersistenceMapper {
@@ -165,8 +191,7 @@ export class EventListingPersistenceMapper {
           : raw.entryType === 'pago'
             ? 'paid'
             : 'free',
-      startingPriceMinor:
-        typeof raw.startingPriceMinor === 'number' ? raw.startingPriceMinor : undefined,
+      cardSummary: toCardSummary(raw.cardSummary),
       date: typeof raw.date === 'string' ? raw.date : undefined,
       endDate: typeof raw.endDate === 'string' ? raw.endDate : undefined,
       createdAt: toIsoString(raw.createdAt, nowIso),
@@ -235,9 +260,6 @@ export class EventListingPersistenceMapper {
       ...(input.ageRestriction ? { ageRestriction: input.ageRestriction } : {}),
       entryType: input.entryType || 'gratuito',
       pricingMode: input.pricingMode || (input.entryType === 'pago' ? 'paid' : 'free'),
-      ...(input.startingPriceMinor !== undefined
-        ? { startingPriceMinor: input.startingPriceMinor }
-        : {}),
       ...(input.maxTicketsPerUserPerOccurrence !== undefined
         ? { maxTicketsPerUserPerOccurrence: input.maxTicketsPerUserPerOccurrence }
         : {}),
@@ -302,7 +324,7 @@ export class EventListingPersistenceMapper {
       patch.pricingMode = input.entryType === 'pago' ? 'paid' : 'free';
     }
     if (input.pricingMode !== undefined) patch.pricingMode = input.pricingMode;
-    if (input.startingPriceMinor !== undefined) patch.startingPriceMinor = input.startingPriceMinor;
+    if (input.cardSummary !== undefined) patch.cardSummary = input.cardSummary;
     if (input.maxTicketsPerUserPerOccurrence !== undefined)
       patch.maxTicketsPerUserPerOccurrence = input.maxTicketsPerUserPerOccurrence;
     if (input.date !== undefined) patch.date = input.date;

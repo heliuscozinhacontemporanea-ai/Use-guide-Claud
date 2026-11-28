@@ -1,3 +1,4 @@
+import type { ListingCardSummary } from '../../../shared/kernel/listingCardSummary';
 import { FieldValue } from 'firebase-admin/firestore';
 import { adminDb } from '../../../infrastructure/firebase/adminClient';
 import { GuideItemContact, GuidePort, GuideVerificationUpdate } from '../ports/guidePort';
@@ -106,6 +107,13 @@ export class FirestoreGuideAdapter implements GuidePort {
       reviewCount,
       updatedAt: FieldValue.serverTimestamp(),
     });
+  }
+
+  async setItemCardSummary(itemId: string, summary: ListingCardSummary | null): Promise<void> {
+    const ref = adminDb.collection('items').doc(itemId);
+    const snapshot = await ref.get();
+    if (!snapshot.exists) return;
+    await ref.update({ cardSummary: summary ? { ...summary } : FieldValue.delete() });
   }
 
   async deleteResourcesByOwner(ownerId: string): Promise<void> {

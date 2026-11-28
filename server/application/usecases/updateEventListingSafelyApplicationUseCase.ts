@@ -3,7 +3,7 @@ import {
   type EventListing,
   type UpdateEventListingInput,
 } from '../../domain/events';
-import type { TicketingActorContext } from '../../domain/ticketing';
+import { refreshEventCardSummaryUseCase, type TicketingActorContext } from '../../domain/ticketing';
 import { hasEventCommercialHistoryApplicationUseCase } from './hasEventCommercialHistoryApplicationUseCase';
 
 export async function updateEventListingSafelyApplicationUseCase(
@@ -16,5 +16,16 @@ export async function updateEventListingSafelyApplicationUseCase(
     actor,
     eventListingId
   ).catch(() => true);
-  return updateEventListingUseCase(actor, eventListingId, input, { hasCommercialHistory });
+  const updated = await updateEventListingUseCase(actor, eventListingId, input, {
+    hasCommercialHistory,
+  });
+  // A taxa de serviço e a política entram no "a partir de" do cartão (D37 item 10). Falhar aqui não
+  // desfaz a edição: o cartão se corrige na próxima mudança de lote.
+  await refreshEventCardSummaryUseCase(eventListingId).catch((error: unknown) =>
+    console.error('[events] resumo do cartão não atualizado', {
+      eventListingId,
+      message: error instanceof Error ? error.message : String(error),
+    })
+  );
+  return updated;
 }

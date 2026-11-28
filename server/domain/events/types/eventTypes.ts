@@ -1,3 +1,4 @@
+import type { ListingCardSummary } from '../../../shared/kernel/listingCardSummary';
 import type { EventCancellationPolicy } from '../../../shared/kernel/cancellationPolicy';
 import type { ServiceFeeMode } from '../../../shared/kernel/platformFees';
 
@@ -71,7 +72,8 @@ export interface EventListing {
   ratingSummary?: EventRatingSummary;
   pricingMode?: 'free' | 'paid';
   entryType?: 'pago' | 'gratuito';
-  startingPriceMinor?: number;
+  /** "A partir de" do cartão de vitrine (D37 item 10), gravado pelo ticketing. */
+  cardSummary?: ListingCardSummary;
   date?: string;
   endDate?: string;
   createdAt: string;
@@ -150,7 +152,6 @@ export interface CreateEventListingInput {
   };
   entryType?: 'pago' | 'gratuito';
   pricingMode?: 'free' | 'paid';
-  startingPriceMinor?: number;
   date?: string;
   endDate?: string;
 }
@@ -187,7 +188,8 @@ export interface UpdateEventListingInput {
   };
   entryType?: 'pago' | 'gratuito';
   pricingMode?: 'free' | 'paid';
-  startingPriceMinor?: number;
+  /** `null` tira o resumo do cartão. */
+  cardSummary?: ListingCardSummary | null;
   date?: string;
   endDate?: string;
 }

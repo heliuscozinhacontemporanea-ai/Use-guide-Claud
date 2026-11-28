@@ -65,6 +65,18 @@ export function isCancellationPolicyAllowed(
   return Object.hasOwn(POLICY_TIERS[family], policy);
 }
 
+/**
+ * Até quantas horas antes do início o cancelamento devolve tudo, pela política (o "cancelamento grátis
+ * até X h antes" do cartão de vitrine, D37). `null` quando a política não devolve tudo em nenhum prazo.
+ */
+export function freeCancellationHoursOf(
+  family: CancellationPolicyFamily,
+  policy: string
+): number | null {
+  const full = POLICY_TIERS[family][policy]?.find((tier) => tier.percent === 100);
+  return full ? full.hoursBefore : null;
+}
+
 /** Depois de publicar, a política só muda para uma igual ou mais flexível (D14). */
 export function canChangeCancellationPolicy(
   family: CancellationPolicyFamily,

@@ -27,6 +27,7 @@ vi.mock('../../events', () => ({
   recordEventAuditLogUseCase: vi.fn().mockResolvedValue(undefined),
   createEventAuditLogUseCase: vi.fn().mockResolvedValue(undefined),
   updateEventListingPricingSummaryUseCase: vi.fn().mockResolvedValue(undefined),
+  listEventOccurrencesUseCase: vi.fn().mockResolvedValue([]),
 }));
 
 vi.mock('../../promotions', () => ({

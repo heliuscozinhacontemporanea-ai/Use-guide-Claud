@@ -1,7 +1,12 @@
 import {
+  PlatformFeeConfigError,
+  resolvePlatformFeeConfig,
+} from '../../../shared/kernel/platformFees';
+import {
   createEventAuditLogUseCase,
   getEventListingByIdUseCase,
   getEventOccurrenceByIdUseCase,
+  listEventOccurrencesUseCase,
   updateEventListingPricingSummaryUseCase,
 } from '../../events';
 import { TicketingDomainError } from '../errors/ticketingDomainError';
@@ -19,30 +24,64 @@ import {
   type TicketingActorContext,
 } from './ticketingAccess';
 import { isUseGuideOwner } from '../../../shared/kernel/useGuideOwner';
+import { eventCardSummary } from '../utils/eventCardSummary';
 
 /** Lotes de ingresso, cupons e o resumo de preço do evento. */
 export class TicketTypeService {
   constructor(private readonly port: TicketingPort) {}
 
-  private async refreshListingPricingSummary(
-    eventListingId: string,
-    occurrenceId: string
-  ): Promise<void> {
+  /**
+   * Grátis ou pago e o "a partir de" do cartão do evento (D37 item 10), por todas as sessões que vêm.
+   * Sem as taxas configuradas, o cartão fica sem preço em vez de mostrar um valor sem a taxa.
+   */
+  async refreshListingPricingSummary(eventListingId: string): Promise<void> {
+    const listing = await getEventListingByIdUseCase(eventListingId);
+    if (!listing) return;
+    const occurrences = await listEventOccurrencesUseCase(eventListingId);
+    const typesByOccurrence = new Map<string, TicketType[]>();
+    for (const occurrence of occurrences) {
+      typesByOccurrence.set(
+        occurrence.id,
+        await this.port.listTicketTypesByOccurrenceId(occurrence.id)
+      );
+    }
+    const activeTypes = [...typesByOccurrence.values()]
+      .flat()
+      .filter((type) => type.status !== 'archived');
+    if (activeTypes.length === 0) return;
+    let ticketServiceFeeMinor: number | null = null;
     try {
-      const types = await this.port.listTicketTypesByOccurrenceId(occurrenceId);
-      const activeTypes = types.filter((t) => t.status !== 'archived');
-      if (activeTypes.length === 0) return;
+      ticketServiceFeeMinor = resolvePlatformFeeConfig().ticketServiceFeeMinor;
+    } catch (error) {
+      if (!(error instanceof PlatformFeeConfigError)) throw error;
+      console.error('[ticketing] taxas da plataforma não configuradas', { message: error.message });
+    }
+    const cardSummary =
+      ticketServiceFeeMinor === null
+        ? null
+        : eventCardSummary({
+            occurrences,
+            typesByOccurrence,
+            serviceFeeMode: listing.salesPolicy.serviceFeeMode,
+            cancellationPolicy: listing.salesPolicy.cancellationPolicy,
+            ticketServiceFeeMinor,
+            nowMs: Date.now(),
+          });
+    await updateEventListingPricingSummaryUseCase(eventListingId, {
+      pricingMode: activeTypes.some((type) => type.priceMinor > 0) ? 'paid' : 'free',
+      cardSummary,
+    });
+  }
 
-      const hasPaid = activeTypes.some((t) => t.priceMinor > 0);
-      const paidPrices = activeTypes.filter((t) => t.priceMinor > 0).map((t) => t.priceMinor);
-      const startingPriceMinor = paidPrices.length > 0 ? Math.min(...paidPrices) : 0;
-
-      await updateEventListingPricingSummaryUseCase(eventListingId, {
-        pricingMode: hasPaid ? 'paid' : 'free',
-        startingPriceMinor,
+  /** A mudança no lote já valeu: falha no resumo do cartão só vai para o log. */
+  private async refreshCardQuietly(eventListingId: string): Promise<void> {
+    try {
+      await this.refreshListingPricingSummary(eventListingId);
+    } catch (error) {
+      console.error('[ticketing] resumo do cartão não atualizado', {
+        eventListingId,
+        message: error instanceof Error ? error.message : String(error),
       });
-    } catch {
-      // Ignora erro não-bloqueante de sumário
     }
   }
 
@@ -102,7 +141,7 @@ export class TicketTypeService {
       sortOrder: input.sortOrder ?? 0,
     });
 
-    await this.refreshListingPricingSummary(listing.id, occurrence.id);
+    await this.refreshCardQuietly(listing.id);
 
     await createEventAuditLogUseCase({
       actorId: actor.uid,
@@ -191,7 +230,7 @@ export class TicketTypeService {
 
     // O `null` vai gravado: a leitura só aceita texto, então a data some do lote.
     const updated = await this.port.updateTicketType(ticketTypeId, patch as Partial<TicketType>);
-    await this.refreshListingPricingSummary(listing.id, occurrence.id);
+    await this.refreshCardQuietly(listing.id);
 
     await createEventAuditLogUseCase({
       actorId: actor.uid,
@@ -223,16 +262,16 @@ export class TicketTypeService {
     if (!existing || isCourtesyTicketTypeId(existing.id)) {
       throw new TicketingDomainError('NOT_FOUND', 'Lote de ingresso não encontrado.');
     }
-    const { occurrence, listing } = await assertCanManageOccurrence(actor, existing.occurrenceId);
+    const { listing } = await assertCanManageOccurrence(actor, existing.occurrenceId);
 
     if (existing.soldCount > 0 || existing.reservedCount > 0) {
       await this.port.updateTicketType(ticketTypeId, { status: 'archived' });
-      await this.refreshListingPricingSummary(listing.id, occurrence.id);
+      await this.refreshCardQuietly(listing.id);
       return { mode: 'archived' };
     }
 
     await this.port.deleteTicketType(ticketTypeId);
-    await this.refreshListingPricingSummary(listing.id, occurrence.id);
+    await this.refreshCardQuietly(listing.id);
     return { mode: 'deleted' };
   }
 

@@ -1,3 +1,4 @@
+import { FieldValue } from 'firebase-admin/firestore';
 import { adminDb } from '../../../infrastructure/firebase/adminClient';
 import type { PlaceTime } from '../../../shared/kernel/timeZones';
 import {
@@ -68,7 +69,9 @@ export class FirestoreEventAdapter implements EventsPort {
     if (!current.exists) {
       throw new EventNotFoundError();
     }
-    const patch = EventListingPersistenceMapper.toPersistenceUpdate(input);
+    const patch: Record<string, unknown> = EventListingPersistenceMapper.toPersistenceUpdate(input);
+    // `null` no resumo do cartão apaga o campo (nada à venda).
+    if (patch.cardSummary === null) patch.cardSummary = FieldValue.delete();
     await docRef.update(patch);
     const updated = await docRef.get();
     return EventListingPersistenceMapper.toDomain(

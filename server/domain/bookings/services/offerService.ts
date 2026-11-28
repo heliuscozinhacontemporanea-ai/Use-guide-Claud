@@ -4,6 +4,7 @@ import { placeTimeOf } from '../../../shared/kernel/timeZones';
 import { BookingDomainError } from '../errors/bookingDomainError';
 import type { BookableItemLookupPort } from '../ports/bookableItemLookupPort';
 import type { BookingsPort } from '../ports/bookingsPort';
+import type { ListingCardSummaryPort } from '../ports/listingCardSummaryPort';
 import {
   type BookableOffer,
   type BookableOfferKind,
@@ -13,6 +14,7 @@ import {
   type PublicBookableOffer,
 } from '../types/bookingTypes';
 import { assertKindFields, normalizeFleet } from '../utils/fleetOfferRules';
+import { itemCardSummary } from '../utils/offerCardSummary';
 import { assertPolicyForKind, assertSellingUnit, assertValidPricing } from '../utils/offerRules';
 import { getOwnedOffer } from '../utils/ownedOffer';
 
@@ -89,6 +91,7 @@ export class OfferService {
   constructor(
     private readonly port: BookingsPort,
     private readonly items: BookableItemLookupPort,
+    private readonly cardSummaries: ListingCardSummaryPort,
     private readonly now: () => Date = () => new Date(),
     private readonly newId: () => string = () => crypto.randomUUID()
   ) {}
@@ -181,6 +184,7 @@ export class OfferService {
     await this.port.saveOffer(updated);
     if (updated.status === 'published') {
       await this.port.upsertPublicOfferProjection(toPublicOffer(updated));
+      await this.refreshItemCardSummary(updated.guideItemId);
     }
     return updated;
   }
@@ -215,7 +219,14 @@ export class OfferService {
     } else {
       await this.port.deletePublicOfferProjection(offerId);
     }
+    await this.refreshItemCardSummary(updated.guideItemId);
     return updated;
+  }
+
+  /** "A partir de", duração e cancelamento do cartão do anúncio, pelas ofertas à venda (D37 item 10). */
+  async refreshItemCardSummary(guideItemId: string): Promise<void> {
+    const offers = await this.port.listPublishedOffersByGuideItem(guideItemId);
+    await this.cardSummaries.setItemCardSummary(guideItemId, itemCardSummary(offers));
   }
 
   async listOwnerOffers(actor: BookingActor): Promise<BookableOffer[]> {
@@ -265,6 +276,9 @@ export class OfferService {
         });
       }
       await this.port.deletePublicOfferProjection(offer.id);
+    }
+    for (const guideItemId of new Set(offers.map((offer) => offer.guideItemId))) {
+      await this.cardSummaries.setItemCardSummary(guideItemId, null);
     }
   }
 
